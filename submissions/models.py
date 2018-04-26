@@ -18,10 +18,9 @@ from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
     SUBMISSION_STATUS, STATUS_UNASSIGNED, REPORT_STATUSES, STATUS_UNVETTED,
-    SUBMISSION_EIC_RECOMMENDATION_REQUIRED, SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT,
+    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING, EIC_REC_STATUSES, VOTING_IN_PREP)
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, PUT_TO_VOTING, EIC_REC_STATUSES, VOTING_IN_PREP)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -75,8 +74,7 @@ class Submission(models.Model):
 
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
-    # visible_pool = models.BooleanField(default=True)
-    # visible_public = models.BooleanField(default=False)
+
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
@@ -196,7 +194,14 @@ class Submission(models.Model):
     @property
     def eic_recommendation_required(self):
         """Return if Submission needs a EICRecommendation to be formulated."""
-        return self.status in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
+        return self.eicrecommendations.active().exists()
+
+    @property
+    def revision_requested(self):
+        """Check if Submission has fixed EICRecommendation asking for revision."""
+        if self.status != STATUS_RESUBMITTED:
+            return False
+        return self.eicrecommendations.fixed().asking_revision().exists()
 
     @property
     def reporting_deadline_has_passed(self):
@@ -280,10 +285,8 @@ class Submission(models.Model):
         )
         event.save()
 
-    """
-    Identify coauthorships from arXiv, using author surname matching.
-    """
     def flag_coauthorships_arxiv(self, fellows):
+        """Identify coauthorships from arXiv, using author surname matching."""
         coauthorships = {}
         if self.metadata and 'entries' in self.metadata:
             author_last_names = []
@@ -755,12 +758,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         """Return the number of votes 'abstained'."""
         return self.voted_abstain.count()
 
+    @property
     def may_be_reformulated(self):
         """Check if this EICRecommdation is allowed to be reformulated in a new version."""
         if not self.active:
             # Already reformulated before; please use the latest version
             return False
-        return self.submission.status in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]
+        return self.status in [VOTING_IN_PREP, PUT_TO_VOTING]
 
 
 class iThenticateReport(TimeStampedModel):

@@ -13,10 +13,10 @@ from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal,\
     random_scipost_report_doi_label
 
-from .constants import STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMISSION_INCOMING,\
-                       STATUS_PUBLISHED, SUBMISSION_TYPE, STATUS_RESUBMITTED, STATUS_VETTED,\
-                       REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC, REPORT_REC,\
-                       REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT
+from .constants import (
+    STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED, SUBMISSION_TYPE,
+    STATUS_RESUBMITTED, STATUS_VETTED, REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC,
+    REPORT_REC, REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT)
 from .models import Submission, Report, RefereeInvitation, EICRecommendation, EditorialAssignment
 
 from faker import Faker
@@ -178,7 +178,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
     This Submission is a newer version of a Submission which is
     already known by the SciPost database.
     """
-    status = STATUS_RESUBMISSION_INCOMING
+    status = STATUS_INCOMING
     open_for_commenting = True
     open_for_reporting = True
     is_resubmission = True

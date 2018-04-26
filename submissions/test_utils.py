@@ -10,21 +10,18 @@ from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 
-from .constants import STATUS_UNASSIGNED, STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC,\
-                       STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC
+from .constants import (
+    STATUS_UNASSIGNED, STATUS_INCOMING, STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC)
 from .exceptions import CycleUpdateDeadlineError
 from .factories import UnassignedSubmissionFactory, ResubmissionFactory
 from .utils import GeneralSubmissionCycle
 
 
 class TestDefaultSubmissionCycle(TestCase):
-    '''
-    This TestCase should act as a master test to check all steps in the
-    submission's cycle: default.
-    '''
+    """Test all steps in the Submission default cycle."""
 
     def setUp(self):
-        """Basics for all tests"""
+        """Set up basics for all tests."""
         self.submission_date = datetime.date.today()
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
@@ -80,7 +77,7 @@ class TestResubmissionSubmissionCycle(TestCase):
     @tag('cycle', 'core')
     def test_init_resubmission_factory_is_valid(self):
         """Ensure valid fields for the factory."""
-        self.assertEqual(self.submission.status, STATUS_RESUBMISSION_INCOMING)
+        self.assertEqual(self.submission.status, STATUS_INCOMING)
         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
         self.assertTrue(self.submission.is_current)
         self.assertTrue(self.submission.is_resubmission)
@@ -120,7 +117,7 @@ class TestResubmissionDirectSubmissionCycle(TestCase):
     @tag('cycle', 'core')
     def test_init_resubmission_factory_is_valid(self):
         """Ensure valid fields for the factory."""
-        self.assertEqual(self.submission.status, STATUS_RESUBMISSION_INCOMING)
+        self.assertEqual(self.submission.status, STATUS_INCOMING)
         self.assertIsInstance(self.submission.editor_in_charge, Contributor)
         self.assertTrue(self.submission.is_current)
         self.assertTrue(self.submission.is_resubmission)
@@ -138,4 +135,4 @@ class TestResubmissionDirectSubmissionCycle(TestCase):
 
         # Update status for default cycle to check new status
         self.submission.cycle.update_status()
-        self.assertEqual(self.submission.status, STATUS_AWAITING_ED_REC)
+        self.assertEqual(self.submission.status, STATUS_EIC_ASSIGNED)

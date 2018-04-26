@@ -85,13 +85,13 @@ class SubmissionQuerySet(models.QuerySet):
         """
         qs = self._pool(user)
         qs = qs.filter(status__in=[
-            constants.STATUS_NEW_INCOMING,
+            constants.STATUS_INCOMING,
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
             constants.STATUS_ACCEPTED,
             constants.STATUS_PUBLISHED,
             #
-            # constants.STATUS_NEW_INCOMING,
+            # constants.STATUS_INCOMING,
             # constants.STATUS_ASSIGNMENT_FAILED,
             # constants.STATUS_REJECTED,
             # constants.STATUS_WITHDRAWN,
@@ -136,18 +136,19 @@ class SubmissionQuerySet(models.QuerySet):
         return self.exclude(status=constants.STATUS_EIC_ASSIGNED)
 
     def public(self):
-        """Return all publically available Submissions."""
-        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
+        """Return all publicly available Submissions."""
+        return self.filter(visible_public=True)
 
-    def public_unlisted(self):
-        """
-        List only all public submissions. Should be used as a default filter!
+    def public_listed(self):
+        """List all public Submissions if not published and submitted.
 
         Implement: Use this filter to also determine, using a optional user argument,
                    if the query should be filtered or not as a logged in EdCol Admin
                    should be able to view *all* submissions.
         """
-        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+        return self.filter(visible_public=True).exclude(status__in=[
+            constants.RESUBMITTED,
+            constants.PUBLISHED])
 
     def public_newest(self):
         """
@@ -157,11 +158,12 @@ class SubmissionQuerySet(models.QuerySet):
         return self._newest_version_only(self.public())
 
     def treated(self):
-        """
-        This query returns all Submissions that are expected to be 'done'.
-        """
-        return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
-                                       STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
+        """This query returns all Submissions that are presumed to be 'done'."""
+        return self.filter(status__in=[
+            constants.STATUS_ACCEPTED,
+            constants.STATUS_REJECTED,
+            constants.STATUS_PUBLISHED,
+            constants.STATUS_RESUBMITTED])
 
     def originally_submitted(self, from_date, until_date):
         """
@@ -175,34 +177,37 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
 
     def accepted(self):
-        return self.filter(status=STATUS_ACCEPTED)
+        """Return accepted Submissions."""
+        return self.filter(status=constants.STATUS_ACCEPTED)
 
     def revision_requested(self):
-        return self.filter(status=STATUS_REVISION_REQUESTED)
+        """Return Submissions with a fixed EICRecommendation: minor or major revision."""
+        return self.filter(
+            eicrecommendations__status=constants.DECISION_FIXED,
+            eicrecommendations__recommendation__in=[-1, -2])
 
     def published(self):
-        return self.filter(status=STATUS_PUBLISHED)
+        """Return published Submissions."""
+        return self.filter(status=constants.STATUS_PUBLISHED)
 
     def assignment_failed(self):
-        return self.filter(status=STATUS_ASSIGNMENT_FAILED)
+        """Return Submissions which have failed assignment."""
+        return self.filter(status=constants.STATUS_ASSIGNMENT_FAILED)
 
     def rejected(self):
-        return self._newest_version_only(self.filter(status__in=[STATUS_REJECTED,
-                                                                 STATUS_REJECTED_VISIBLE]))
+        """Return rejected Submissions."""
+        return self._newest_version_only(self.filter(status=constants.STATUS_REJECTED))
 
     def withdrawn(self):
-        return self._newest_version_only(self.filter(status=STATUS_WITHDRAWN))
+        """Return withdrawn Submissions."""
+        return self._newest_version_only(self.filter(status=constants.STATUS_WITHDRAWN))
 
     def open_for_reporting(self):
-        """
-        Return Submissions that have appriopriate status for reporting.
-        The `open_for_reporting` property is not filtered as some invited visitors
-        still need to have access.
-        """
-        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
+        """Return Submission that allow for reporting."""
+        return self.filter(open_for_reporting=True)
 
     def open_for_commenting(self):
-        """ Return Submission that allow for commenting. """
+        """Return Submission that allow for commenting."""
         return self.filter(open_for_commenting=True)
 
 
@@ -211,13 +216,13 @@ class SubmissionEventQuerySet(models.QuerySet):
         """
         Return all events that are meant to be for the author(s) of a submission.
         """
-        return self.filter(event__in=[EVENT_FOR_AUTHOR, EVENT_GENERAL])
+        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
 
     def for_eic(self):
         """
         Return all events that are meant to be for the Editor-in-charge of a submission.
         """
-        return self.filter(event__in=[EVENT_FOR_EIC, EVENT_GENERAL])
+        return self.filter(event__in=[constants.EVENT_FOR_EIC, constants.EVENT_GENERAL])
 
     def last_hours(self, hours=24):
         """
@@ -260,70 +265,62 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
 
 class EICRecommendationQuerySet(models.QuerySet):
-    def get_for_user_in_pool(self, user):
-        """
-        -- DEPRECATED --
-
-        Return list of EICRecommendation which are filtered as these objects
-        are not related to the Contributor, by checking last_name and author_list of
-        the linked Submission.
-        """
-        try:
-            return self.exclude(submission__authors=user.contributor)\
-                       .exclude(Q(submission__author_list__icontains=user.last_name),
-                                ~Q(submission__authors_false_claims=user.contributor))
-        except AttributeError:
-            return self.none()
-
-    def filter_for_user(self, user, **kwargs):
-        """
-        -- DEPRECATED --
-
-        Return list of EICRecommendation's which are owned/assigned author through the
-        related submission.
-        """
-        try:
-            return self.filter(submission__authors=user.contributor).filter(**kwargs)
-        except AttributeError:
-            return self.none()
+    """QuerySet for the EICRecommendation model."""
 
     def user_may_vote_on(self, user):
+        """Return the subset of EICRecommendation the User is eligable to vote on."""
         if not hasattr(user, 'contributor'):
             return self.none()
 
-        return (self.filter(eligible_to_vote=user.contributor)
-                .exclude(recommendation__in=[-1, -2])
-                .exclude(voted_for=user.contributor)
-                .exclude(voted_against=user.contributor)
-                .exclude(voted_abstain=user.contributor)
-                .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
+        return self.filter(eligible_to_vote=user.contributor).exclude(
+            recommendation__in=[-1, -2],
+            voted_for=user.contributor,
+            voted_against=user.contributor,
+            voted_abstain=user.contributor,
+            submission__status__in=[
+                constants.STATUS_REJECTED,
+                constants.STATUS_PUBLISHED,
+                constants.STATUS_WITHDRAWN,
+            ])
 
     def put_to_voting(self):
-        return self.filter(submission__status=STATUS_PUT_TO_EC_VOTING)
+        """Return the subset of EICRecommendation currently undergoing voting."""
+        return self.filter(status=constants.PUT_TO_VOTING)
 
     def voting_in_preparation(self):
-        return self.filter(submission__status=STATUS_VOTING_IN_PREPARATION)
+        """Return the subset of EICRecommendation currently undergoing preparation for voting."""
+        return self.filter(status=constants.VOTING_IN_PREP)
 
     def active(self):
+        """Return the subset of EICRecommendation most recent, valid versions."""
         return self.filter(active=True)
+
+    def fixed(self):
+        """Return the subset of fixed EICRecommendations."""
+        return self.filter(status=constants.DECISION_FIXED)
+
+    def asking_revision(self):
+        """Return EICRecommendation asking for a minor or major revision."""
+        return self.filter(recommendation__in=[-1, -2])
 
 
 class ReportQuerySet(models.QuerySet):
     def accepted(self):
-        return self.filter(status=STATUS_VETTED)
+        return self.filter(status=constants.STATUS_VETTED)
 
     def awaiting_vetting(self):
-        return self.filter(status=STATUS_UNVETTED)
+        return self.filter(status=constants.STATUS_UNVETTED)
 
     def rejected(self):
-        return self.filter(status__in=[STATUS_UNCLEAR, STATUS_INCORRECT,
-                                       STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC])
+        return self.filter(status__in=[
+            constants.STATUS_UNCLEAR, constants.STATUS_INCORRECT, constants.STATUS_NOT_USEFUL,
+            constants.STATUS_NOT_ACADEMIC])
 
     def in_draft(self):
-        return self.filter(status=STATUS_DRAFT)
+        return self.filter(status=constants.STATUS_DRAFT)
 
     def non_draft(self):
-        return self.exclude(status=STATUS_DRAFT)
+        return self.exclude(status=constants.STATUS_DRAFT)
 
     def contributed(self):
         return self.filter(invited=False)

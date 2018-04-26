@@ -25,9 +25,8 @@ from django.views.generic.list import ListView
 from guardian.shortcuts import assign_perm
 
 from .constants import (
-    STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,
-    STATUS_ASSIGNMENT_FAILED, STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING, STATUS_EIC_ASSIGNED)
+    STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
+    STATUS_DRAFT, CYCLE_DIRECT_REC)
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
@@ -179,45 +178,49 @@ class SubmissionListView(PaginationMixin, ListView):
 
 
 def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
+    """Redirect to the latest Submission's detail page."""
     submission = get_object_or_404(Submission, arxiv_identifier_wo_vn_nr=arxiv_identifier_wo_vn_nr,
                                    is_current=True)
-    return(submission_detail(request, submission.arxiv_identifier_w_vn_nr))
+    return submission_detail(request, submission.arxiv_identifier_w_vn_nr)
 
 
 def submission_detail(request, arxiv_identifier_w_vn_nr):
+    """Public detail page of Submission."""
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     context = {}
-    try:
-        is_author = request.user.contributor in submission.authors.all()
-        is_author_unchecked = (not is_author and
-                               request.user.contributor not in submission.authors_false_claims.all()
-                               and request.user.last_name in submission.author_list)
-        try:
-            unfinished_report_for_user = (submission.reports.in_draft()
-                                          .get(author=request.user.contributor))
-        except Report.DoesNotExist:
-            unfinished_report_for_user = None
+    if hasattr(request.user, 'contributor'):
+        # Check if Contributor is author of the Submission
+        is_author = submission.authors.filter(user=request.user).exists()
+        if is_author:
+            is_author_unchecked = not submission.authors_false_claims.filter(
+                user=request.user).exists() and request.user.last_name in submission.author_list
+        else:
+            is_author_unchecked = False
 
+        unfinished_report_for_user = submission.reports.in_draft().filter(
+            author__user=request.user).first()
         context['proofs_decision_form'] = ProofsDecisionForm()
-    except AttributeError:
+    else:
         is_author = False
         is_author_unchecked = False
         unfinished_report_for_user = None
-    if (submission.status in SUBMISSION_STATUS_PUBLICLY_INVISIBLE
-            and not request.user.groups.filter(name__in=['SciPost Administrators',
-                                                         'Editorial Administrators',
-                                                         'Editorial College']).exists()
-            and not is_author):
-        raise Http404
+
+    if not submission.visible_public and not is_author:
+        if not request.user.is_authenticated:
+            raise Http404
+        elif not request.user.has_perm(
+            'scipost.can_assign_submissions') and not submission.fellows.filter(
+                contributor__user=request.user).exists():
+                    raise Http404
 
     form = CommentForm()
 
     invited_reports = submission.reports.accepted().filter(invited=True)
     contributed_reports = submission.reports.accepted().filter(invited=False)
-    comments = (submission.comments.vetted()
-                .filter(is_author_reply=False).order_by('-date_submitted'))
-    author_replies = (submission.comments.vetted()
-                      .filter(is_author_reply=True).order_by('-date_submitted'))
+    comments = submission.comments.vetted().filter(
+        is_author_reply=False).order_by('-date_submitted')
+    author_replies = submission.comments.vetted().filter(
+        is_author_reply=True).order_by('-date_submitted')
 
     # User is referee for the Submission
     if request.user.is_authenticated:
@@ -275,9 +278,9 @@ def submission_refereeing_package_pdf(request, arxiv_identifier_w_vn_nr):
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
 def reports_accepted_list(request):
-    """
-    This view lists all accepted Reports. This shows if Report needs a PDF update/compile
-    in a convenient way.
+    """List all accepted Reports.
+
+    This gives an overview of Report that need a PDF update/compilation.
     """
     reports = (Report.objects.accepted()
                .order_by('pdf_report', 'submission').prefetch_related('submission'))
@@ -292,6 +295,7 @@ def reports_accepted_list(request):
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
 def report_pdf_compile(request, report_id):
+    """Form view to receive a auto-generated LaTeX code and submit a pdf version of the Report."""
     report = get_object_or_404(Report.objects.accepted(), id=report_id)
     form = ReportPDFForm(request.POST or None, request.FILES or None, instance=report)
     if form.is_valid():
@@ -307,11 +311,12 @@ def report_pdf_compile(request, report_id):
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
 def treated_submissions_list(request):
+    """List all treated Submissions.
+
+    This gives an overview of Submissions that need a PDF update/compilation of their Reports.
     """
-    This view lists all accepted Reports. This shows if Report needs a PDF update/compile
-    in a convenient way.
-    """
-    submissions = Submission.objects.treated().order_by('pdf_refereeing_pack', '-acceptance_date')
+    submissions = Submission.objects.treated().public().order_by(
+        'pdf_refereeing_pack', '-acceptance_date')
     context = {
         'submissions': submissions
     }
@@ -320,6 +325,7 @@ def treated_submissions_list(request):
 
 @permission_required('scipost.can_manage_reports', raise_exception=True)
 def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
+    """Form view to receive a auto-generated LaTeX code and submit a pdf version of the Reports."""
     submission = get_object_or_404(Submission.objects.treated(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     form = SubmissionReportsForm(request.POST or None, request.FILES or None, instance=submission)
@@ -341,7 +347,8 @@ def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 def editorial_workflow(request):
-    """
+    """Information page for Editorial Fellows.
+
     Summary page for Editorial Fellows, containing a digest
     of the actions to take to handle Submissions.
     """
@@ -1058,13 +1065,11 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
-    submission.open_for_reporting = False
-    submission.open_for_commenting = False
-    if submission.status == STATUS_EIC_ASSIGNED:  # only close if currently undergoing refereeing
-        submission.status = 'review_closed'
-    submission.reporting_deadline = timezone.now()
-    submission.latest_activity = timezone.now()
-    submission.save()
+    Submission.objects.filter(id=submission.id).update(
+        open_for_reporting=False,
+        open_for_commenting=False,
+        reporting_deadline=timezone.now(),
+        latest_activity=timezone.now())
     submission.add_general_event('Refereeing round has been closed.')
 
     return redirect(reverse('submissions:editorial_page',
@@ -1073,10 +1078,9 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
 
 @permission_required('scipost.can_oversee_refereeing', raise_exception=True)
 def refereeing_overview(request):
-    submissions_under_refereeing = (Submission.objects
-                                    .pool_editable(request.user)
-                                    .filter(status=STATUS_EIC_ASSIGNED)
-                                    .order_by('submission_date'))
+    """List all Submissions undergoing active Refereeing."""
+    submissions_under_refereeing = Submission.objects.pool_editable(
+        request.user).actively_refereeing().order_by('submission_date')
     context = {'submissions_under_refereeing': submissions_under_refereeing}
     return render(request, 'submissions/admin/refereeing_overview.html', context)
 
@@ -1206,22 +1210,23 @@ def eic_recommendation(request, arxiv_identifier_w_vn_nr):
 @fellowship_or_admin_required()
 @transaction.atomic
 def reformulate_eic_recommendation(request, arxiv_identifier_w_vn_nr):
-    """
-    Reformulate EIC Recommendation.
+    """Reformulate EIC Recommendation form view.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    Accessible for: Editor-in-charge and Editorial Administration.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    recommendation = submission.eicrecommendations.first()
+    if not recommendation:
+        raise Http404('No EICRecommendation formulated yet.')
 
-    if submission.status not in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]:
-        messages.warning(request, ('With the current status of the Submission you are not '
+    if not recommendation.may_be_reformulated:
+        messages.warning(request, ('With the current status of the EICRecommendation you are not '
                                    'allowed to reformulate the Editorial Recommendation'))
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.arxiv_identifier_w_vn_nr]))
 
     form = EICRecommendationForm(request.POST or None, submission=submission, reformulate=True)
-
     if form.is_valid():
         recommendation = form.save()
         if form.revision_requested():

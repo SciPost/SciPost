@@ -6,7 +6,7 @@ from journals.constants import SCIPOST_JOURNAL_PHYSICS
 
 
 # All Submission statuses
-STATUS_NEW_INCOMING = 'unassigned_incoming'
+STATUS_INCOMING = 'incoming'
 STATUS_UNASSIGNED = 'unassigned'
 STATUS_EIC_ASSIGNED = 'assigned'
 STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
@@ -17,21 +17,13 @@ STATUS_WITHDRAWN = 'withdrawn'
 STATUS_PUBLISHED = 'published'
 
 # Deprecated statuses
-STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
-STATUS_REVISION_REQUESTED = 'revision_requested'
-STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
-STATUS_REVIEW_CLOSED = 'review_closed'
-STATUS_REJECTED_VISIBLE = 'rejected_visible'
-STATUS_RESUBMITTED_REJECTED = 'resubmitted_and_rejected'
-STATUS_RESUBMITTED_REJECTED_VISIBLE = 'resubmitted_and_rejected_visible'
-STATUS_VOTING_IN_PREPARATION = 'voting_in_preparation'
-STATUS_PUT_TO_EC_VOTING = 'put_to_EC_voting'
-STATUS_EC_VOTE_COMPLETED = 'EC_vote_completed'
+# TODO: Make sure cycles are chosen for this status:
+# STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
 
 
 # All possible Submission statuses
 SUBMISSION_STATUS = (
-    (STATUS_NEW_INCOMING, 'Submission incoming, undergoing pre-screening'),
+    (STATUS_INCOMING, 'Submission incoming, undergoing pre-screening'),
     (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
@@ -41,53 +33,13 @@ SUBMISSION_STATUS = (
     (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
     (STATUS_PUBLISHED, 'Published'),
 )
-#
-# SUBMISSION_STATUS_OUT_OF_POOL = [
-#     STATUS_ASSIGNMENT_FAILED,
-#     STATUS_PUBLISHED,
-#     STATUS_WITHDRAWN,
-#     STATUS_REJECTED,
-#     STATUS_REJECTED_VISIBLE,
-#     STATUS_RESUBMITTED
-# ]
 
-SUBMISSION_EXCLUDE_FROM_REPORTING = [
-    STATUS_ASSIGNMENT_FAILED,
-    STATUS_PUBLISHED,
-    STATUS_WITHDRAWN,
-    STATUS_REJECTED,
-    STATUS_REJECTED_VISIBLE,
-    STATUS_WITHDRAWN,
-]
-
-# Submissions which are allowed/required to submit a EIC Recommendation
-SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
-    STATUS_EIC_ASSIGNED,
-    STATUS_REVIEW_CLOSED,
-    STATUS_AWAITING_ED_REC
-]
-
-# Submissions which should not be viewable (except by admins, Fellows and authors)
-SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
+# Submissions with these statuses never have required actions.
+NO_REQUIRED_ACTION_STATUSES = [
+    STATUS_INCOMING,
     STATUS_UNASSIGNED,
-    STATUS_RESUBMISSION_INCOMING,
     STATUS_ASSIGNMENT_FAILED,
-    STATUS_RESUBMITTED_REJECTED,
     STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-]
-
-# Submissions which should not appear in search lists
-SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
-    STATUS_RESUBMITTED,
-    STATUS_RESUBMITTED_REJECTED_VISIBLE,
-    STATUS_PUBLISHED
-]
-
-# Submissions for which voting on a related recommendation is deprecated:
-SUBMISSION_STATUS_VOTING_DEPRECATED = [
-    STATUS_REJECTED,
-    STATUS_PUBLISHED,
     STATUS_WITHDRAWN,
 ]
 
@@ -96,14 +48,6 @@ SUBMISSION_TYPE = (
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),
 )
-
-NO_REQUIRED_ACTION_STATUSES = [
-    STATUS_UNASSIGNED,
-    STATUS_ASSIGNMENT_FAILED,
-    STATUS_RESUBMITTED_REJECTED,
-    STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-]
 
 ED_COMM_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
@@ -211,14 +155,6 @@ REPORT_TYPES = (
     (REPORT_NORMAL, 'Normal Report'),
     (REPORT_POST_EDREC, 'Post-Editorial Recommendation Report'),
 )
-
-POST_PUBLICATION_STATUSES = [
-    STATUS_AWAITING_ED_REC,
-    STATUS_REVIEW_CLOSED,
-    STATUS_ACCEPTED,
-    STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING,
-]
 
 CYCLE_DEFAULT = 'default'
 CYCLE_SHORT = 'short'

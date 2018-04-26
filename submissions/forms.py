@@ -12,10 +12,9 @@ from django.utils import timezone
 
 from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
-    REPORT_REFUSAL_CHOICES, STATUS_REVISION_REQUESTED, STATUS_REJECTED, STATUS_REJECTED_VISIBLE,
-    STATUS_RESUBMISSION_INCOMING, STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT,
-    REPORT_ACTION_REFUSE, STATUS_VETTED, EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS,
-    POST_PUBLICATION_STATUSES, REPORT_POST_EDREC, REPORT_NORMAL)
+    REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
+    STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_VETTED,
+    EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -130,7 +129,7 @@ class SubmissionChecks:
                                         params={'published_id': published_id})
 
     def _submission_previous_version_is_valid_for_submission(self, identifier):
-        '''Check if previous submitted versions have the appropriate status.'''
+        """Check if previous submitted versions have the appropriate status."""
         identifiers = self.identifier_into_parts(identifier)
         submission = (Submission.objects
                       .filter(arxiv_identifier_wo_vn_nr=identifiers['arxiv_identifier_wo_vn_nr'])
@@ -139,14 +138,14 @@ class SubmissionChecks:
         # If submissions are found; check their statuses
         if submission:
             self.last_submission = submission
-            if submission.status == STATUS_REVISION_REQUESTED:
+            if submission.revision_requested:
                 self.is_resubmission = True
                 if self.requested_by.contributor not in submission.authors.all():
                     error_message = ('There exists a preprint with this arXiv identifier '
                                      'but an earlier version number. Resubmission is only possible'
                                      ' if you are a registered author of this manuscript.')
                     raise forms.ValidationError(error_message)
-            elif submission.status in [STATUS_REJECTED, STATUS_REJECTED_VISIBLE]:
+            elif submission.status == STATUS_REJECTED:
                 error_message = ('This arXiv preprint has previously undergone refereeing '
                                  'and has been rejected. Resubmission is only possible '
                                  'if the manuscript has been substantially reworked into '
@@ -164,6 +163,7 @@ class SubmissionChecks:
                 raise forms.ValidationError(error_message)
 
     def arxiv_meets_regex(self, identifier, journal_code):
+        """Check if arXiv identifier is valid for the Journal submitting to."""
         if journal_code in EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS.keys():
             regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS[journal_code]
         else:
@@ -178,9 +178,11 @@ class SubmissionChecks:
             raise forms.ValidationError(error_message, code='submitted_to_journal')
 
     def submission_is_resubmission(self):
+        """Check if the Submission is a resubmission."""
         return self.is_resubmission
 
     def identifier_into_parts(self, identifier):
+        """Split the arXiv identifier into parts."""
         data = {
             'arxiv_identifier_w_vn_nr': identifier,
             'arxiv_identifier_wo_vn_nr': identifier.rpartition('v')[0],
@@ -324,7 +326,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     def clean_author_list(self):
         """Check if author list matches the Contributor submitting.
-    
+
         The submitting user must be an author of the submission.
         Also possibly may be extended to check permissions and give ultimate submission
         power to certain user groups.
@@ -363,8 +365,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         Submission.objects.filter(id=submission.id).update(
             open_for_reporting=True,
             open_for_commenting=True,
+            is_resubmission=True,
             editor_in_charge=self.last_submission.editor_in_charge,
-            status=STATUS_RESUBMISSION_INCOMING)
+            status=STATUS_INCOMING)
 
         # Add author(s) (claim) fields
         submission.authors.add(*self.last_submission.authors.all())
@@ -549,12 +552,11 @@ class VotingEligibilityForm(forms.ModelForm):
     def save(self, commit=True):
         recommendation = self.instance
         recommendation.eligible_to_vote = self.cleaned_data['eligible_fellows']
-        submission = self.instance.submission
-        submission.status = 'put_to_EC_voting'
+        recommendation.status = PUT_TO_VOTING
 
         if commit:
             recommendation.save()
-            submission.save()
+            recommendation.submission.touch()
             recommendation.voted_for.add(recommendation.submission.editor_in_charge)
         return recommendation
 
@@ -633,7 +635,7 @@ class ReportForm(forms.ModelForm):
             if self.fields[field].required:
                 self.fields[field].label += ' *'
 
-        if self.submission.status in POST_PUBLICATION_STATUSES:
+        if self.submission.eicrecommendations.active().exists():
             self.report_type = REPORT_POST_EDREC
 
     def save(self):
@@ -760,6 +762,11 @@ class EICRecommendationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """EICRecommendation accepts two additional kwargs.
+
+        -- submission: The Submission to formulate an EICRecommendation for.
+        -- reformulate (bool): Reformulate the currently available EICRecommendations.
+        """
         self.submission = kwargs.pop('submission')
         self.reformulate = kwargs.pop('reformulate', False)
         if self.reformulate:
@@ -788,23 +795,18 @@ class EICRecommendationForm(forms.ModelForm):
         else:
             event_text = 'An Editorial Recommendation has been formulated: {}.'
 
-        if recommendation.recommendation in [1, 2, 3, -3]:
-            # Accept/Reject: Forward to the Editorial College for voting
-            self.submission.status = 'voting_in_preparation'
-
-            if commit:
-                # Add SubmissionEvent for EIC only
-                self.submission.add_event_for_eic(event_text.format(
-                        recommendation.get_recommendation_display()))
+        if recommendation.recommendation in [1, 2, 3, -3] and commit:
+            # Add SubmissionEvent for EIC only
+            self.submission.add_event_for_eic(event_text.format(
+                recommendation.get_recommendation_display()))
         elif recommendation.recommendation in [-1, -2]:
             # Minor/Major revision: return to Author; ask to resubmit
-            self.submission.status = 'revision_requested'
             self.submission.open_for_reporting = False
 
             if commit:
                 # Add SubmissionEvents for both Author and EIC
                 self.submission.add_general_event(event_text.format(
-                        recommendation.get_recommendation_display()))
+                    recommendation.get_recommendation_display()))
 
         if commit:
             if self.earlier_recommendations:
