@@ -9,7 +9,7 @@ STATUS_UNASSIGNED = 'unassigned'
 STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
 STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
 STATUS_REVISION_REQUESTED = 'revision_requested'
-STATUS_EIC_ASSIGNED = 'EICassigned'
+STATUS_EIC_ASSIGNED = 'assigned'
 STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
 STATUS_REVIEW_CLOSED = 'review_closed'
 STATUS_ACCEPTED = 'accepted'
@@ -30,10 +30,10 @@ STATUS_EIC_REC_FORMULATED = 'recommendation_formulated'
 
 # All possible Submission statuses
 SUBMISSION_STATUS = (
-    (STATUS_NEW_INCOMING, 'Unassigned, undergoing pre-screening'),
+    (STATUS_NEW_INCOMING, 'Submission incoming, undergoing pre-screening'),
+    (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
+    (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
-    (STATUS_EIC_REC_FORMULATED, 'Editorial Recommendation formulated'),
-    (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
     (STATUS_RESUBMITTED, 'Has been resubmitted'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
     (STATUS_REJECTED, 'Publication decision taken: reject'),
