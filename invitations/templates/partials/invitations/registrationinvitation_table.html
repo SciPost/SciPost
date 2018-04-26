@@ -53,6 +53,7 @@
                             </li>
                         {% endfor %}
                         <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
+                        <li><a href="{% url 'invitations:merge' invitation.id %}">Merge this Invitation</a></li>
                     </ul>
                 </td>
             {% else %}

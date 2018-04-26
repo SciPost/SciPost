@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from .constants import CONTRIBUTOR_NORMAL, CONTRIBUTOR_NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
+from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
 today = timezone.now().date()
 
@@ -23,7 +23,7 @@ class FellowManager(models.Manager):
 
 class ContributorQuerySet(models.QuerySet):
     def active(self):
-        return self.filter(user__is_active=True, status=CONTRIBUTOR_NORMAL)
+        return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
     def available(self):
         return self.exclude(
@@ -31,10 +31,10 @@ class ContributorQuerySet(models.QuerySet):
             unavailability_periods__end__gte=today)
 
     def awaiting_validation(self):
-        return self.filter(user__is_active=False, status=CONTRIBUTOR_NEWLY_REGISTERED)
+        return self.filter(user__is_active=False, status=NEWLY_REGISTERED)
 
     def awaiting_vetting(self):
-        return self.filter(user__is_active=True, status=CONTRIBUTOR_NEWLY_REGISTERED)
+        return self.filter(user__is_active=True, status=NEWLY_REGISTERED)
 
     def fellows(self):
         return self.filter(user__groups__name='Editorial College')

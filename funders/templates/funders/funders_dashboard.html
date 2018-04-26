@@ -1,6 +1,11 @@
-{% extends 'scipost/base.html' %}
+{% extends 'funders/base.html' %}
 
-{% block pagetitle %}: Funders{% endblock pagetitle %}
+{% block pagetitle %}: Funders dashboard{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Dashboard</span>
+{% endblock %}
 
 {% load bootstrap %}
 

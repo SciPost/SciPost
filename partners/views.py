@@ -47,10 +47,11 @@ def supporting_partners(request):
 @login_required
 @permission_required('scipost.can_read_partner_page', return_403=True)
 def dashboard(request):
-    '''
+    """Administration page for Partners and Prospective Partners.
+
     This page is meant as a personal page for Partners, where they will for example be able
     to read their personal data and agreements.
-    '''
+    """
     context = {}
     try:
         context['personal_agreements'] = (MembershipAgreement.objects.open_to_partner()
@@ -62,8 +63,8 @@ def dashboard(request):
         context['contact_requests_count'] = ContactRequest.objects.awaiting_processing().count()
         context['inactivate_contacts_count'] = Contact.objects.filter(user__is_active=False).count()
         context['partners'] = Partner.objects.all()
-        context['prospective_partners'] = (ProspectivePartner.objects.not_yet_partner()
-                                           .order_by('country', 'institution_name'))
+        context['prospective_partners'] = ProspectivePartner.objects.order_by(
+            'country', 'institution_name')
         context['ppevent_form'] = ProspectivePartnerEventForm()
         context['agreements'] = MembershipAgreement.objects.order_by('date_requested')
     return render(request, 'partners/dashboard.html', context)

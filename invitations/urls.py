@@ -8,7 +8,7 @@ from . import views
 
 urlpatterns = [
     url(r'^$', views.RegistrationInvitationsView.as_view(), name='list'),
-    url(r'^sent$', views.RegistrationInvitationsSentView.as_view(), name='list_sent'),
+    url(r'^sent$', views.RegistrationInvitationsSendView.as_view(), name='list_sent'),
     url(r'^fellows$', views.RegistrationInvitationsFellowView.as_view(), name='list_fellows'),
     url(r'^new$', views.create_registration_invitation_or_citation, name='new'),
     url(r'^(?P<pk>[0-9]+)/$', views.RegistrationInvitationsUpdateView.as_view(), name='update'),
@@ -16,6 +16,8 @@ urlpatterns = [
         name='add_citation'),
     url(r'^(?P<pk>[0-9]+)/delete$', views.RegistrationInvitationsDeleteView.as_view(),
         name='delete'),
+    url(r'^(?P<pk>[0-9]+)/merge$', views.RegistrationInvitationsMergeView.as_view(),
+        name='merge'),
     url(r'^(?P<pk>[0-9]+)/mark/(?P<label>sent)$', views.RegistrationInvitationsMarkView.as_view(),
         name='mark'),
     url(r'^(?P<pk>[0-9]+)/map_to_contributor/(?P<contributor_id>[0-9]+)/$',

@@ -27,8 +27,10 @@ US_NOTICE = 'Warning: This field is out of service and will be removed in the fu
 
 
 class Comment(TimeStampedModel):
-    """ A Comment is an unsollicited note, submitted by a Contributor,
-    on a particular publication or in reply to an earlier Comment. """
+    """ A Comment is an unsollicited note, submitted by a Contributor.
+
+    A Comment is pointed to a particular publication or in reply to an earlier Comment. It
+    may be l"""
 
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
     vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,
@@ -151,16 +153,16 @@ class Comment(TimeStampedModel):
             assign_perm('comments.can_vet_comments', to_object.editor_in_charge.user, self)
 
     def get_author(self):
-        '''Get author, if and only if comment is not anonymous!!!'''
+        """Return Contributor instance of object if not anonymous."""
         if not self.anonymous:
             return self.author
         return None
 
     def get_author_str(self):
-        '''Get author string, if and only if comment is not anonymous!!!'''
+        """Return author string if not anonymous."""
         author = self.get_author()
         if author:
-            return author.user.first_name + ' ' + author.user.last_name
+            return '{} {}'.format(author.get_title_display(), author.user.last_name)
         return 'Anonymous'
 
     def update_opinions(self, contributor_id, opinion):

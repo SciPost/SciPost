@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, logout, update_session_auth_hash
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.core import mail
@@ -29,16 +29,16 @@ from django.views.static import serve
 from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
-from .constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict,\
-                       CONTRIBUTOR_NORMAL
-from .decorators import has_contributor
-from .models import Contributor, UnavailabilityPeriod,\
-                    AuthorshipClaim, EditorialCollege, EditorialCollegeFellowship
-from .forms import AuthenticationForm, UnavailabilityPeriodForm,\
-                   RegistrationForm, AuthorshipClaimForm,\
-                   SearchForm, VetRegistrationForm, reg_ref_dict,\
-                   UpdatePersonalDataForm, UpdateUserDataForm, PasswordChangeForm,\
-                   EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm
+from .constants import (
+    SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
+from .decorators import has_contributor, is_contributor_user
+from .models import (
+    Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege,
+    EditorialCollegeFellowship)
+from .forms import (
+    AuthenticationForm, UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
+    SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
+    PasswordChangeForm, EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
@@ -49,8 +49,7 @@ from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Publication, Journal, PublicationAuthorsTable
 from news.models import NewsItem
-from submissions.models import Submission, RefereeInvitation,\
-                               Report, EICRecommendation
+from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from partners.models import MembershipAgreement
 from theses.models import ThesisLink
 
@@ -60,18 +59,18 @@ from theses.models import ThesisLink
 ##############
 
 def is_registered(user):
-    """
-    This method checks if user is activated assuming an validated user
-    has at least one permission group (`Registered Contributor` or `Partner Accounts`).
-    """
+    """Check if user is a validated user; has at least one permission group."""
     return user.groups.exists()
 
 
 class SearchView(SearchView):
+    """Search CBV inherited from Haystack."""
+
     template_name = 'search/search.html'
     form_class = SearchForm
 
     def get_context_data(self, *args, **kwargs):
+        """Update context with some additional information."""
         ctx = super().get_context_data(*args, **kwargs)
         ctx['search_query'] = self.request.GET.get('q')
         ctx['results_count'] = kwargs['object_list'].count()
@@ -83,7 +82,7 @@ class SearchView(SearchView):
 #############
 
 def index(request):
-    '''Main page.'''
+    """Homepage view of SciPost."""
     context = {
         'latest_newsitem': NewsItem.objects.filter(on_homepage=True).order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
@@ -96,7 +95,8 @@ def index(request):
 
 
 def protected_serve(request, path, show_indexes=False):
-    """
+    """Serve media files from outside the public MEDIA_ROOT folder.
+
     Serve files that are saved outside the default MEDIA_ROOT folder for superusers only!
     This will be usefull eg. in the admin pages.
     """
@@ -112,6 +112,7 @@ def protected_serve(request, path, show_indexes=False):
 ###############
 
 def feeds(request):
+    """Information page for RSS and Atom feeds."""
     context = {'subject_areas_physics': SCIPOST_SUBJECT_AREAS[0][1]}
     return render(request, 'scipost/feeds.html', context)
 
@@ -121,7 +122,8 @@ def feeds(request):
 ################
 
 def register(request):
-    """
+    """Contributor registration form page.
+
     This public registration view shows and processes the form
     that will create new user account requests. After registration
     the Contributor will need to activate its account via the mail
@@ -155,7 +157,8 @@ def register(request):
 
 
 def invitation(request, key):
-    """
+    """Registration Invitation reception page.
+
     If a scientist has recieved an invitation (RegistrationInvitation)
     he/she will finish it's invitation via still view which will prefill
     the default registration form.
@@ -244,9 +247,8 @@ def unsubscribe(request, contributor_id, key):
 
 @permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_requests(request):
-    contributors_to_vet = (Contributor.objects
-                           .awaiting_vetting()
-                           .order_by('key_expires'))
+    """List of new Registration requests to vet."""
+    contributors_to_vet = Contributor.objects.awaiting_vetting().order_by('key_expires')
     form = VetRegistrationForm()
     context = {'contributors_to_vet': contributors_to_vet, 'form': form}
     return render(request, 'scipost/vet_registration_requests.html', context)
@@ -254,12 +256,12 @@ def vet_registration_requests(request):
 
 @permission_required('scipost.can_vet_registration_requests', return_403=True)
 def vet_registration_request_ack(request, contributor_id):
-    # process the form
+    """Form view to vet new Registration requests."""
     form = VetRegistrationForm(request.POST or None)
     contributor = Contributor.objects.get(pk=contributor_id)
     if form.is_valid():
         if form.promote_to_registered_contributor():
-            contributor.status = 1
+            contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
             contributor.save()
             group = Group.objects.get(name='Registered Contributors')
@@ -274,11 +276,10 @@ def vet_registration_request_ack(request, contributor_id):
             except RefereeInvitation.DoesNotExist:
                 pending_ref_inv_exists = False
 
-            email_text = ('Dear ' + contributor.get_title_display() + ' '
-                          + contributor.user.last_name +
-                          ', \n\nYour registration to the SciPost publication portal '
-                          'has been accepted. '
-                          'You can now login at https://scipost.org and contribute. \n\n')
+            email_text = (
+                'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
+                ', \n\nYour registration to the SciPost publication portal has been accepted. '
+                'You can now login at https://scipost.org and contribute. \n\n')
             if pending_ref_inv_exists:
                 email_text += (
                     'Note that you have pending refereeing invitations; please navigate to '
@@ -292,18 +293,16 @@ def vet_registration_request_ack(request, contributor_id):
                                         reply_to=['registration@scipost.org'])
             emailmessage.send(fail_silently=False)
         else:
-            ref_reason = int(form.cleaned_data['refusal_reason'])
-            email_text = ('Dear ' + contributor.get_title_display() + ' '
-                          + contributor.user.last_name +
-                          ', \n\nYour registration to the SciPost publication portal '
-                          'has been turned down, the reason being: '
-                          + reg_ref_dict[ref_reason] + '. You can however still view '
-                          'all SciPost contents, just not submit papers, '
-                          'comments or votes. We nonetheless thank you for your interest.'
-                          '\n\nThe SciPost Team.')
+            ref_reason = form.cleaned_data['refusal_reason']
+            email_text = (
+                'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
+                ', \n\nYour registration to the SciPost publication portal has been turned down,'
+                ' the reason being: ' + reg_ref_dict[ref_reason] + '. You can however still view '
+                'all SciPost contents, just not submit papers, comments or votes. We nonetheless '
+                'thank you for your interest.\n\nThe SciPost Team.')
             if form.cleaned_data['email_response_field']:
-                email_text += ('\n\nFurther explanations: '
-                               + form.cleaned_data['email_response_field'])
+                email_text += (
+                    '\n\nFurther explanations: ' + form.cleaned_data['email_response_field'])
             emailmessage = EmailMessage('SciPost registration: unsuccessful',
                                         email_text,
                                         'SciPost registration <registration@scipost.org>',
@@ -337,9 +336,7 @@ def registration_requests(request):
 @require_POST
 @permission_required('scipost.can_resend_registration_requests', return_403=True)
 def registration_requests_reset(request, contributor_id):
-    '''
-    Reset specific activation_key for Contributor and resend activation mail.
-    '''
+    """Reset specific activation_key for Contributor and resend activation mail."""
     contributor = get_object_or_404(Contributor.objects.awaiting_validation(), id=contributor_id)
     contributor.generate_key()
     contributor.save()
@@ -351,15 +348,7 @@ def registration_requests_reset(request, contributor_id):
 
 
 def login_view(request):
-    """
-    This view shows and processes a user's login session.
-
-    The function based method login() is deprecated from
-    Django 1.11 and replaced by Class Based Views.
-
-    See:
-    https://docs.djangoproject.com/en/1.11/releases/1.11/#django-contrib-auth
-    """
+    """Login form page."""
     form = AuthenticationForm(request.POST or None, initial=request.GET)
     if form.is_valid():
         user = form.authenticate()
@@ -381,13 +370,7 @@ def login_view(request):
 
 
 def logout_view(request):
-    """
-    The function based method logout() is deprecated from
-    Django 1.11 and replaced by Class Based Views.
-
-    See:
-    https://docs.djangoproject.com/en/1.11/releases/1.11/#django-contrib-auth
-    """
+    """Logout form page."""
     logout(request)
     messages.success(request, ('<h3>Keep contributing!</h3>'
                                'You are now logged out of SciPost.'))
@@ -395,11 +378,9 @@ def logout_view(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def mark_unavailable_period(request):
-    '''
-    Mark period unavailable for Contributor using this view.
-    '''
+    """Form view to mark period unavailable for Contributor."""
     unav_form = UnavailabilityPeriodForm(request.POST or None)
     if unav_form.is_valid():
         unav = unav_form.save(commit=False)
@@ -415,11 +396,9 @@ def mark_unavailable_period(request):
 
 @require_POST
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def delete_unavailable_period(request, period_id):
-    '''
-    Delete period unavailable registered.
-    '''
+    """Delete period unavailable registered."""
     unav = get_object_or_404(UnavailabilityPeriod,
                              contributor=request.user.contributor, id=int(period_id))
     unav.delete()
@@ -428,11 +407,9 @@ def delete_unavailable_period(request, period_id):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_editorial_account(request):
-    """
-    The Personal Page tab: Account
-    """
+    """Personal Page tab: Account."""
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -442,11 +419,9 @@ def _personal_page_editorial_account(request):
     return render(request, 'partials/scipost/personal_page/account.html', context)
 
 
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_editorial_actions(request):
-    """
-    The Personal Page tab: Editorial Actions
-    """
+    """Personal Page tab: Editorial Actions."""
     permission = request.user.groups.filter(name__in=[
         'Ambassadors',
         'Advisory Board',
@@ -491,11 +466,9 @@ def _personal_page_editorial_actions(request):
 
 
 @permission_required('scipost.can_referee', return_403=True)
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_refereeing(request):
-    """
-    The Personal Page tab: Refereeing
-    """
+    """Personal Page tab: Refereeing."""
     context = {
         'contributor': request.user.contributor
     }
@@ -503,11 +476,9 @@ def _personal_page_refereeing(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_publications(request):
-    """
-    The Personal Page tab: Publications
-    """
+    """Personal Page tab: Publications."""
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -522,11 +493,9 @@ def _personal_page_publications(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_submissions(request):
-    """
-    The Personal Page tab: Submissions
-    """
+    """Personal Page tab: Submissions."""
     contributor = request.user.contributor
     context = {'contributor': contributor}
 
@@ -541,11 +510,9 @@ def _personal_page_submissions(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_commentaries(request):
-    """
-    The Personal Page tab: Commentaries
-    """
+    """Personal Page tab: Commentaries."""
     contributor = request.user.contributor
     context = {'contributor': contributor}
 
@@ -559,11 +526,9 @@ def _personal_page_commentaries(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_theses(request):
-    """
-    The Personal Page tab: Theses
-    """
+    """Personal Page tab: Theses."""
     contributor = request.user.contributor
     context = {'contributor': contributor}
 
@@ -577,11 +542,9 @@ def _personal_page_theses(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_comments(request):
-    """
-    The Personal Page tab: Comments
-    """
+    """Personal Page tab: Comments."""
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -592,11 +555,9 @@ def _personal_page_comments(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def _personal_page_author_replies(request):
-    """
-    The Personal Page tab: Author Replies
-    """
+    """Personal Page tab: Author Replies."""
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -608,9 +569,7 @@ def _personal_page_author_replies(request):
 
 @login_required
 def personal_page(request, tab='account'):
-    """
-    The Personal Page is the main view for accessing user functions.
-    """
+    """Personal Page is the main view for accessing user functions."""
     if request.is_ajax():
         if tab == 'account':
             return _personal_page_editorial_account(request)
@@ -640,7 +599,7 @@ def personal_page(request, tab='account'):
 
     try:
         contributor = Contributor.objects.select_related('user').get(user=request.user)
-        context['needs_validation'] = contributor.status != CONTRIBUTOR_NORMAL
+        context['needs_validation'] = contributor.status != NORMAL_CONTRIBUTOR
     except Contributor.DoesNotExist:
         contributor = None
 
@@ -659,6 +618,7 @@ def personal_page(request, tab='account'):
 
 @login_required
 def change_password(request):
+    """Change password form view."""
     form = PasswordChangeForm(request.POST or None, current_user=request.user)
     if form.is_valid():
         form.save_new_password()
@@ -729,7 +689,7 @@ def update_personal_data(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def claim_authorships(request):
     """
     The system auto-detects potential authorships (of submissions,
@@ -778,7 +738,7 @@ def claim_authorships(request):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def claim_pub_authorship(request, publication_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -794,7 +754,7 @@ def claim_pub_authorship(request, publication_id, claim):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -810,7 +770,7 @@ def claim_sub_authorship(request, submission_id, claim):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -826,7 +786,7 @@ def claim_com_authorship(request, commentary_id, claim):
 
 
 @login_required
-@user_passes_test(has_contributor)
+@is_contributor_user()
 def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
@@ -908,10 +868,10 @@ def contributor_info(request, contributor_id):
     contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
-    contributor_comments = (Comment.objects.vetted()
+    contributor_comments = (Comment.objects.vetted().publicly_visible()
                             .filter(author=contributor, is_author_reply=False)
                             .order_by('-date_submitted'))
-    contributor_authorreplies = (Comment.objects.vetted()
+    contributor_authorreplies = (Comment.objects.vetted().publicly_visible()
                                  .filter(author=contributor, is_author_reply=True)
                                  .order_by('-date_submitted'))
     context = {'contributor': contributor,

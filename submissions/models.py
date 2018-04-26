@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import feedparser
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.fields import GenericRelation
@@ -74,6 +75,8 @@ class Submission(models.Model):
 
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
+    # visible_pool = models.BooleanField(default=True)
+    # visible_public = models.BooleanField(default=False)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
@@ -276,6 +279,32 @@ class Submission(models.Model):
             text=message,
         )
         event.save()
+
+    """
+    Identify coauthorships from arXiv, using author surname matching.
+    """
+    def flag_coauthorships_arxiv(self, fellows):
+        coauthorships = {}
+        if self.metadata and 'entries' in self.metadata:
+            author_last_names = []
+            for author in self.metadata['entries'][0]['authors']:
+                # Gather author data to do conflict-of-interest queries with
+                author_last_names.append(author['name'].split()[-1])
+            authors_last_names_str = '+OR+'.join(author_last_names)
+
+            for fellow in fellows:
+                # For each fellow found, so a query with the authors to check for conflicts
+                search_query = 'au:({fellow}+AND+({authors}))'.format(
+                    fellow=fellow.contributor.user.last_name,
+                    authors=authors_last_names_str)
+                queryurl = 'https://export.arxiv.org/api/query?search_query={sq}'.format(
+                    sq=search_query)
+                queryurl += '&sortBy=submittedDate&sortOrder=descending&max_results=5'
+                queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
+                queryresults = feedparser.parse(queryurl)
+                if queryresults.entries:
+                    coauthorships[fellow.contributor.user.last_name] = queryresults.entries
+        return coauthorships
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):

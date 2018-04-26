@@ -6,7 +6,13 @@
 
 {% block content %}
 
-    <h1>Complete and send mail</h1>
+    {% if header_template %}
+        {% include header_template with object=object %}
+        <hr class="divider">
+        <h2 class="highlight">Complete and send mail</h2>
+    {% else %}
+        <h1 class="highlight">Complete and send mail</h1>
+    {% endif %}
     <h3 class="mb-4">You may edit the mail before sending it.</h3>
 
     <form enctype="multipart/form-data" method="post">

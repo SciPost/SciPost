@@ -18,7 +18,7 @@ from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS
 class ContributorFactory(factory.django.DjangoModelFactory):
     title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
-    status = 1  # normal user
+    status = 'normal'  # normal user
     vetted_by = factory.Iterator(Contributor.objects.all())
     personalwebpage = factory.Faker('uri')
     expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])

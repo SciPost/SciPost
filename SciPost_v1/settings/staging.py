@@ -26,3 +26,6 @@ LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipoststg/webapps/
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
+# Email
+EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
+EMAIL_BACKEND_ORIGINAL = 'django.core.mail.backends.dummy.EmailBackend'  # Disable real processing

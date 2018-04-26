@@ -570,68 +570,6 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.send(fail_silently=False)
 
     @classmethod
-    def assignment_failed_email_authors(cls):
-        """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' '
-                      + cls.submission.submitted_by.user.last_name
-                      + ', \n\nYour recent Submission to SciPost,\n\n'
-                      + cls.submission.title + ' by ' + cls.submission.author_list
-                      + '\n\nhas unfortunately not passed the pre-screening stage. '
-                      'We therefore regret to inform you that we will not '
-                      'process your paper further towards publication, and that you '
-                      'are now free to send your manuscript to an alternative journal.')
-        if len(cls.personal_message) > 3:
-            email_text += '\n\n' + cls.personal_message
-        email_text += ('\n\nWe nonetheless thank you very much for your contribution.'
-                       '\n\nSincerely,' +
-                       '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>Your recent Submission to SciPost,</p>'
-            '<p>{{ sub_title }}</p>'
-            '\n<p>by {{ author_list }}</p>'
-            '\n<p>has unfortunately not passed the pre-screening stage. '
-            'We therefore regret to inform you that we will not '
-            'process your paper further towards publication, and that you '
-            'are now free to send your manuscript to an alternative journal.</p>')
-        if len(cls.personal_message) > 3:
-            email_text_html += '{{ personal_message|linebreaks }}'
-        email_text_html += (
-            '<p>We nonetheless thank you very much for your contribution.</p>'
-            '<p>Sincerely,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = {
-            'title': cls.submission.submitted_by.get_title_display(),
-            'last_name': cls.submission.submitted_by.user.last_name,
-            'sub_title': cls.submission.title,
-            'author_list': cls.submission.author_list,
-            'personal_message': cls.personal_message,
-        }
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(Context(email_context))
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: pre-screening not passed', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
-
-    @classmethod
-    def send_refereeing_invitation_email(cls):
-        """
-        This method is called by send_refereeing_invitation in submissions/views.
-        It is used when the referee is already a registered contributor.
-        If a referee is not yet registered, the method recruit_referee is used
-        instead, which calls the send_registration_email method in scipost/utils.
-        Requires loading 'invitation' attribute.
-        """
-        raise DeprecationWarning(('Use new mails.views.MailEditingSubView() with code'
-                                  ' `submission_referee_invite` instead'))
-
-    @classmethod
     def send_unreg_ref_reminder_email(cls):
         """
         This method is used to remind a referee who has not yet responded.

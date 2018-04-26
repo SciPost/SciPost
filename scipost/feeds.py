@@ -11,11 +11,13 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 
 from comments.models import Comment
+from commentaries.models import Commentary
 from journals.models import Publication
 from news.models import NewsItem
 from scipost.models import subject_areas_dict
 from submissions.constants import SUBMISSION_STATUS_PUBLICLY_INVISIBLE
 from submissions.models import Submission
+from theses.models import ThesisLink
 
 
 class LatestCommentsFeedRSS(Feed):
@@ -24,7 +26,7 @@ class LatestCommentsFeedRSS(Feed):
     link = "/comments/"
 
     def items(self):
-        return Comment.objects.filter(status__gte=0).order_by('-date_submitted')[:10]
+        return Comment.objects.vetted().order_by('-date_submitted')[:10]
 
     def item_title(self, item):
         return item.comment_text[:50]
@@ -33,14 +35,14 @@ class LatestCommentsFeedRSS(Feed):
         return item.comment_text[:50]
 
     def item_link(self, item):
-        if item.commentary:
+        if isinstance(item.content_object, Commentary):
             return reverse('commentaries:commentary',
-                           kwargs={'arxiv_or_DOI_string': item.commentary.arxiv_or_DOI_string})
-        elif item.submission:
+                           kwargs={'arxiv_or_DOI_string': item.content_object.arxiv_or_DOI_string})
+        elif isinstance(item.content_object, Submission):
             return reverse('submissions:submission',
                            kwargs={'arxiv_identifier_w_vn_nr':
-                                   item.submission.arxiv_identifier_w_vn_nr})
-        elif item.thesislink:
+                                   item.content_object.arxiv_identifier_w_vn_nr})
+        elif isinstance(item.content_object, ThesisLink):
             return reverse('theses:thesis',
                            kwargs={'thesislink_id': item.thesislink.id})
         else:

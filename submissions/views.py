@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+ip__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -25,7 +25,7 @@ from django.views.generic.list import ListView
 from guardian.shortcuts import assign_perm
 
 from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,\
+                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,\
                        STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,\
                        STATUS_PUT_TO_EC_VOTING
 from .models import Submission, EICRecommendation, EditorialAssignment,\
@@ -43,8 +43,6 @@ from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
-from invitations.constants import INVITATION_REFEREEING
-from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
@@ -451,8 +449,13 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
         SubmissionUtils.send_assignment_request_email()
         messages.success(request, 'Your assignment request has been sent successfully.')
         return redirect('submissions:pool')
+
+    fellows_with_expertise = submission.fellows.all()
+    coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
+
     context = {
         'submission_to_assign': submission,
+        'coauthorships': coauthorships,
         'form': form
     }
     return render(request, 'submissions/admin/editorial_assignment_form.html', context)
@@ -571,14 +574,18 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
         deadline += datetime.timedelta(days=28)
 
     # Update Submission data
-    submission.status = STATUS_EIC_ASSIGNED
-    submission.editor_in_charge = contributor
-    submission.open_for_reporting = True
-    submission.reporting_deadline = deadline
-    submission.open_for_commenting = True
-    submission.save()
-    submission.touch()
+    Submission.objects.filter(id=submission.id).update(
+        status=STATUS_EIC_ASSIGNED,
+        editor_in_charge=contributor,
+        open_for_reporting=True,
+        reporting_deadline=deadline,
+        open_for_commenting=True,
+        latest_activity=timezone.now())
 
+    # Deprecate old Editorial Assignments
+    EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+
+    # Send emails to EIC and authors regarding the EIC assignment.
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.deprecate_other_assignments()
     SubmissionUtils.send_EIC_appointment_email()
@@ -596,41 +603,40 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 @transaction.atomic
 def assignment_failed(request, arxiv_identifier_w_vn_nr):
+    """Reject a Submission in pre-screening.
+
+    No Editorial Fellow has accepted or volunteered to become Editor-in-charge., hence the
+    Submission is rejected. An Editorial Administrator can access this view from the Pool.
     """
-    No Editorial Fellow has accepted or volunteered to become Editor-in-charge.
-    The submission is rejected.
-    This method is called from pool.html by an Editorial Administrator.
-    """
-    submission = get_object_or_404(Submission.objects.pool(request.user),
+    submission = get_object_or_404(Submission.objects.pool(request.user).prescreening(),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    if request.method == 'POST':
-        form = ModifyPersonalMessageForm(request.POST)
-        if form.is_valid():
-            submission.status = 'assignment_failed'
-            submission.latest_activity = timezone.now()
-            submission.save()
-            SubmissionUtils.load({'submission': submission,
-                                  'personal_message': form.cleaned_data['personal_message']})
-            SubmissionUtils.deprecate_all_assignments()
-            SubmissionUtils.assignment_failed_email_authors()
-            context = {'ack_header': ('Submission ' + submission.arxiv_identifier_w_vn_nr +
-                                      ' has failed pre-screening and been rejected. '
-                                      'Authors have been informed by email.'),
-                       'followup_message': 'Return to the ',
-                       'followup_link': reverse('submissions:pool'),
-                       'followup_link_label': 'Submissions pool'}
-            return render(request, 'scipost/acknowledgement.html', context)
+
+    mail_request = MailEditingSubView(
+        request, mail_code='submissions_assignment_failed', instance=submission,
+        header_template='partials/submissions/admin/editorial_assignment_failed.html')
+    if mail_request.is_valid():
+        # Deprecate old Editorial Assignments
+        EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+
+        # Update status of Submission
+        submission.touch()
+        Submission.objects.filter(id=submission.id).update(status=STATUS_ASSIGNMENT_FAILED)
+
+        messages.success(
+            request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
+                arxiv=submission.arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Authors have been informed by email.')
+        mail_request.send()
+        return redirect(reverse('submissions:pool'))
     else:
-        form = ModifyPersonalMessageForm()
-    context = {'submission': submission,
-               'form': form}
-    return render(request, 'submissions/admin/editorial_assignment_failed.html', context)
+        return mail_request.return_render()
 
 
 @login_required
 @fellowship_required()
 def assignments(request):
-    """
+    """List editorial tasks for a Fellow.
+
     This page provides a Fellow with an explicit task list
     of editorial actions which should be undertaken.
     """
@@ -651,10 +657,10 @@ def assignments(request):
 @login_required
 @fellowship_or_admin_required()
 def editorial_page(request, arxiv_identifier_w_vn_nr):
-    """
-    The central page for the EIC to manage all its Editorial duties.
+    """Detail page of a Submission its editorial tasks.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    The central page for the Editor-in-charge to manage all its Editorial duties. It's accessible
+    for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
     submission = get_object_or_404(Submission.objects.pool_full(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
@@ -736,7 +742,7 @@ def select_referee(request, arxiv_identifier_w_vn_nr):
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
             search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
-            queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
+            queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
             arxivquery = feedparser.parse(queryurl)
@@ -1389,11 +1395,6 @@ def prepare_for_voting(request, rec_id):
     recommendation = get_object_or_404(
         EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
 
-    fellows_with_expertise = recommendation.submission.fellows.filter(
-        contributor__expertises__contains=[recommendation.submission.subject_area])
-
-    coauthorships = {}
-
     eligibility_form = VotingEligibilityForm(request.POST or None, instance=recommendation)
     if eligibility_form.is_valid():
         eligibility_form.save()
@@ -1406,23 +1407,9 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
-        # Identify possible co-authorships in last 3 years, disqualifying Fellow from voting:
-        if recommendation.submission.metadata is not None:
-            for fellow in fellows_with_expertise:
-                sub_auth_boolean_str = '((' + (recommendation.submission
-                                               .metadata['entries'][0]['authors'][0]['name']
-                                               .split()[-1])
-                for author in recommendation.submission.metadata['entries'][0]['authors'][1:]:
-                    sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
-                    sub_auth_boolean_str += ')+AND+'
-                    search_str = sub_auth_boolean_str + fellow.contributor.user.last_name + ')'
-                    queryurl = ('http://export.arxiv.org/api/query?search_query=au:%s'
-                                % search_str + '&sortBy=submittedDate&sortOrder=descending'
-                                '&max_results=5')
-                    arxivquery = feedparser.parse(queryurl)
-                    queryresults = arxivquery
-                    if queryresults.entries:
-                        coauthorships[fellow.contributor.user.last_name] = queryresults
+        fellows_with_expertise = recommendation.submission.fellows.filter(
+            contributor__expertises__contains=[recommendation.submission.subject_area])
+        coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
         'recommendation': recommendation,

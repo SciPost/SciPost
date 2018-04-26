@@ -13,7 +13,8 @@ from django.views.generic.edit import UpdateView, DeleteView
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
     CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
-    CitationNotificationProcessForm, RegistrationInvitationAddCitationForm
+    CitationNotificationProcessForm, RegistrationInvitationAddCitationForm,\
+    RegistrationInvitationMergeForm
 from .mixins import RequestArgumentMixin, SaveAndSendFormMixin, SendMailFormMixin
 from .models import RegistrationInvitation, CitationNotification
 
@@ -43,8 +44,8 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
         return context
 
 
-class RegistrationInvitationsSentView(RegistrationInvitationsView):
-    permission_required = 'scipost.can_create_registration_invitations'
+class RegistrationInvitationsSendView(RegistrationInvitationsView):
+    permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.sent().not_for_fellows()
     template_name = 'invitations/registrationinvitation_list_sent.html'
 
@@ -160,6 +161,14 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
         if not self.request.user.has_perm('scipost.can_manage_registration_invitations'):
             qs = qs.created_by(self.request.user)
         return qs
+
+
+class RegistrationInvitationsMergeView(RequestArgumentMixin, PermissionsMixin, UpdateView):
+    permission_required = 'scipost.can_manage_registration_invitations'
+    queryset = RegistrationInvitation.objects.no_response()
+    form_class = RegistrationInvitationMergeForm
+    template_name = 'invitations/registrationinvitation_form_merge.html'
+    success_url = reverse_lazy('invitations:list')
 
 
 class RegistrationInvitationsAddCitationView(RequestArgumentMixin, PermissionsMixin, UpdateView):
