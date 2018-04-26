@@ -1,0 +1,326 @@
+{% extends 'scipost/base.html' %}
+
+{% load staticfiles %}
+
+{% block pagetitle %}: refereeing guide{% endblock pagetitle %}
+
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                <span class="breadcrumb-item">Refereeing guide</span>
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+
+<h1 class="highlight-x">Refereeing at SciPost</h1>
+<h2 class="highlight-x">A guide for referees and authors</h2>
+<p>
+  The following is a general guide to refereeing at SciPost.
+  Slightly informal in style, it is meant to introduce you to how our peer review system works.
+  It does not replace
+  our Journals' <a href="{% url 'journals:journals_terms_and_conditions' %}">Terms and Conditions</a>
+  (which extend the general <a href="{% url 'scipost:terms_and_conditions' %}">SciPost Terms and Conditions</a>), which remain in force as official rules.
+</p>
+<p>
+  Referees should in particular be familiar with
+  our <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+  Authors should in particular be familiar with
+  our <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.
+</p>
+
+
+<h2 class="highlight">For referees</h2>
+
+<div class="row">
+  <div class="col-6">
+
+    <h3>Have you been invited to write a Report?</h3>
+    <p>Here are some basic things we trust you will do:</p>
+    <ul>
+      <li>
+	<h4>Please promptly accept or decline the invitation</h4>
+	<p>
+	  To make your life as easy as possible, the email invitation
+	  you will have received contains simple one-click
+	  actions to accept/decline the task. As a basic but effective
+	  mark of respect to our authors, Fellows and editorial team
+	  (and to help us minimize delays in processing submissions),
+	  please respond promptly to any invitation you receive.
+	</p>
+      </li>
+      <li>
+	<h4>Comply with our conflict-of-interest rules</h4>
+	<p>
+	  Conflict of interest is a serious matter, and you should ensure that you do not
+	  transgress our rules. You should not referee if you have:
+	  <ul>
+	    <li>published joint work with one or more of the authors in the last 3 years</li>
+	    <li>an ongoing collaboration with one or more of the authors</li>
+	    <li>a personal relationship with one (or more!) of the authors</li>
+	    <li>a hierarchical connection with one or more of the authors</li>
+	    <li>doubts or feel conflicted due to a close link between the work
+	      refereed and your own work.</li>
+	  </ul>
+	</p>
+	<p>
+	  <strong>Note</strong>: in some fields, it is customary for extremely large numbers of
+	  authors to publish jointly. In such cases, the co-authorship disqualifier can be relaxed,
+	  and conflict of interest be assessed primarily on the basis of active collaboration.
+	</p>
+	<p>
+	  If you feel that a conflict of interest exists, or if you have doubts, you should email our
+	  <a href="mailto:edadmin@scipost.org">editorial administration</a>, explaining the matter.
+	</p>
+      </li>
+      <li>
+	<h4>Please deliver your Report in time</h4>
+	<p>
+	  Following acceptance, you should provide a report within the allocated refereeing
+	  period. It is preferable to deliver a shorter report within the expected time
+	  than no report at all.
+	</p>
+	<p>
+	  You can start writing your Report at any time and,
+	  if other duties suddenly require your attention,
+	  conveniently save it as a draft for later completion.
+	</p>
+	<p>
+	  If you had accepted to send a Report, but subsequently decide not to proceed,
+	  please send a communication to the Submission's Editor-in-charge
+	  (you can do this from your <a href="{% url 'scipost:personal_page' %}">personal page</a>,
+	  under the refereeing tab).
+	</p>
+    </ul>
+
+    <h3>What do we ask you in our Report form?</h3>
+    <p>
+      Our Report form is quite intuitive and straightforward, and can be easily filled
+      if you have already read and thought about the paper.
+    </p>
+    <p>To be clear, when filling in a Report form, you will be asked for:</p>
+    <ul>
+      <li>your assessment of your qualification for refereeing this submission (form: choice field, from expert to ... not qualified!)</li>
+      <li>your evaluation of the strengths of the submission (form: text area)</li>
+      <li>your evaluation of its weaknesses (form: text area)</li>
+      <li>your actual report in textual free-style form (form: text area)</li>
+      <li>the list of changes you request to the authors</li>
+      <li>your assessment of the validity, significance, originality and clarity of the submission (form: choice field, from top to poor)</li>
+      <li>your assessment of the formatting and grammatical level of the submission (form: choice field, from perfect to mediocre)</li>
+      <li>your recommendation, which can be one of:
+	<ul>
+	  <li>Publish (top 10% of papers in this Journal)</li>
+	  <li>Publish (top 50%)</li>
+	  <li>Publish (meets criteria of this Journal)</li>
+	  <li>Ask for minor revision</li>
+	  <li>Ask for major revision</li>
+	  <li>Reject</li>
+	</ul>
+      </li>
+      <p>
+	You can make use of $\LaTeX$ mathematical formulas in the text areas, thanks to MathJax.
+	Note that only basic elements are available
+	(\$...\$ for inline equations, \ [ ... \ ] for on-line equations).
+      </p>
+    </ul>
+
+    <h3>Before you write your Report</h3>
+    <ul>
+      <li>
+	<h4>read the paper!</h4>
+	<p>
+	  This might sound obvious, but don't skim on this.
+	  Take the time, and give the paper a chance. You might actually learn something
+	  new and interesting.
+	</p>
+      </li>
+    </ul>
+
+    <h3>Writing your Report</h3>
+    <ul>
+      <li>
+	<h4>identify the strong points of the paper</h4>
+	<p>
+	  Start with the positive.
+	  What did the authors (try to) do? What did they achieve?
+	  Even if you end up being very critical of the work, your criticisms will
+	  have much more credibility and convincing power if you make it clear that you have
+	  given the authors a chance.
+	</p>
+      </li>
+      <li>
+	<h4>try to be constructive and put your fingers on points that could be improved</h4>
+	<p>
+	  Nothing is perfect, and even for the better aspects of a paper, you might be
+	  able to suggest ways in which things could be improved.
+	  See "things to focus on while writing your report" for some ideas.
+	</p>
+      </li>
+      <li>
+	<h4>if any, note the weaknesses of the paper</h4>
+	<p>
+	  Science thrives on constructive criticism. Your expertise is needed to
+	  ensure that the papers which are published at SciPost achieve the highest-quality
+	  end result achievable. If you have objections to the methods, results or conlusions
+	  in the paper, it is your task as an expert to underline them.
+	</p>
+      </li>
+    </ul>
+
+    <h3>The characteristics of a good Report</h3>
+    <p>There are no fixed rules or expectations, but a good report is typically:</p>
+    <ul>
+      <li>constructive and useful to the authors</li>
+      <li>fair to the authors and respectful of their work</li>
+      <li>clear</li>
+      <li>succinct</li>
+      <li>organized and systematic</li>
+      <li>properly referenced (if further literature is mentioned)</li>
+    </ul>
+
+  </div>
+
+  <div class="col-6">
+
+    <h3>FAQ</h3>
+    <ul>
+      <li>
+	<h4>Can you include me in your list of referees?</h4>
+	<p>
+	  Any qualified academic is welcome to perform refereeing work for us.
+	  There are two ways to become a referee:
+	  <ul>
+	    <li>by being explicitly invited by the Editor-in-charge of a Submission</li>
+	    <li>by writing a Contributed Report</li>
+	  </ul>
+	  <br/>
+	  If you are a known expert in your area, the first will inevitably happen at some point.
+	  If you are a Registered Contributor at SciPost, you can contribute a Report on
+	  any Submission currently undergoing refereeing.
+	</p>
+	<p>
+	  Should you wish to be permanently removed from our list of referees,
+	  please email our <a href="mailto:edadmin@scipost.org">editorial administration</a>.
+	</p>
+      </li>
+      <li>
+	<h4>Why should I do it?</h4>
+	<p>
+	  Simply because it's an essential aspect of your academic job,
+	  and because it's ultimately your duty as a scientist. As an author, you benefit from others'
+	  work as referees; academic collegiality should thus incite you to return the favour.
+	</p>
+	<p>
+	  That said, there is a substantial benefit to perfoming refereeing work at SciPost.
+	  Your Report will be made citable (through giving it a DOI). You can then even
+	  quantify your refereeing activity in your CV if you so wish. View this as a mark
+	  of respect for the valuable work which you will put into it.
+	</p>
+      </li>
+      <li>
+	<h4>Will you protect my anonymity as a referee?</h4>
+	<p>
+	  Yes.
+	  It is very important to avoid a simple confusion here:
+	  you can certainly elect to be (and forever remain) anonymous
+	  when you referee. Our <a href="{% url 'scipost:FAQ' %}#pwr">peer-witnessed refereeing</a>
+	  method only means that we insist on making the Report
+	  <em>contents</em> publicly available, not the name of the person who wrote them.
+	</p>
+	<p>
+	  That said, we give you the possibility (and would like to explicitly encourage you)
+	  to sign your
+	  Reports. It is entirely possible to be very critical of a paper, while revealing your
+	  identity (after all, we academics do this all the time during conferences). You might also find
+	  that your critical comments enjoy an even better reception from the authors if you
+	  do let them know who is making them. If you are unsure, by all means do remain anonymous.
+	  You can always, at any point in the future, change the setting of any given Report
+	  to non-anonymous (from your <a href="{% url 'scipost:personal_page' %}">personal page</a>,
+	  under the refereeing tab).
+	</p>
+      </li>
+      <li>
+	<h4>Will you pay me to write a Report?</h4>
+	<p>
+	  No. SciPost is not a money-making enterprise (neither for us, nor for you).
+	</p>
+      </li>
+      <li>
+	<h4>How long should it take me?</h4>
+	<p>
+	  Say reading the paper takes one unit of time.
+	  To do a proper job, you can then easily spend one more unit thinking about it,
+	  perhaps one or two more trying to rederive some results and consulting further literature,
+	  and then another writing your Report.
+	  So to be proud of your work, 4-5 time units is a good indication
+	  (but don't worry, nobody is clocking you).
+	</p>
+      </li>
+      <li>
+	<h4>What happens if I'm late?</h4>
+	<p>
+	  We will unleash a plague of locusts onto your household.
+	  No seriously: we understand how busy the life of an academic can be, and how
+	  difficult it can be to schedule everything and meet all deadlines.
+	  Simply note that the Editor-in-charge of a Submission can proceed
+	  with formulating a recommendation
+	  once the refereeing deadline has passed. If your invited Report is delivered late, it will
+	  still be accepted and published, but might not weigh in on the publication decision
+	  by the College (depending on the circumstances), and might thus miss its chance of
+	  providing the authors with useful input.
+	</p>
+      </li>
+    </ul>
+  </div>
+
+
+</div>
+
+
+<h2 class="highlight">For authors</h2>
+
+<div class="row">
+  <div class="col-6">
+    <h3>How to react to a Report?</h3>
+    <ul>
+      <li>
+	<h4>Be open to criticism, and read the report carefully</h4>
+	<p>
+	  Remember that referees have a somewhat unrewarding task.
+	  They do this job for your benefit, not their own.
+	  You can rightfully expect them to treat your work with respect.
+	  In return, you should give proper consideration to their comments and criticisms,
+	  and do your best to address any of the points raised.
+	</p>
+      </li>
+      <li>
+	<h4>Submit an Author Reply</h4>
+	<p>
+	  You can submit an Author Reply to a Report pertaining to a Submission for which you
+	  are a recognized author (you can claim any such authorship from your
+	  <a href="{% url 'scipost:personal_page' %}">personal page</a>).
+	  Writing an Author Reply is recommended if there are specific points of a Report which you want to
+	  respond to. You can mention changes you plan to implement in your manuscript which result
+	  from this Report (though your list of changes can also wait for your resubmission letter).
+	</p>
+      </li>
+      <li>
+	<h4>Upon resubmission, link back to the Reports</h4>
+	<p>
+	  Hopefully the Reports will have helped you improve your manuscript.
+	  Before resubmitting, prepare a list of changes (which you can then paste in the appropriate
+	  field of the resubmission form) in order for referees and editors to clearly understand
+	  what has (or hasn't) changed in your paper.
+	</p>
+      </li>
+    </ul>
+
+  </div>
+</div>
+
+{% endblock content %}
