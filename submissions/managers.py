@@ -8,17 +8,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
-                       STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
-                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
-                       SUBMISSION_EXCLUDE_FROM_REPORTING,\
-                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE,\
-                       STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
-                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
-                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN,\
-                       STATUS_PUT_TO_EC_VOTING, STATUS_VOTING_IN_PREPARATION,\
-                       SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_REVISION_REQUESTED
+from . import constants
 
 now = timezone.now()
 
@@ -41,7 +31,8 @@ class SubmissionQuerySet(models.QuerySet):
         return queryset.filter(id__in=ids)
 
     def user_filter(self, user):
-        """
+        """Filter on basic conflict of interests.
+
         Prevent conflict of interest by filtering submissions possibly related to user.
         This filter should be inherited by other filters.
         """
@@ -53,7 +44,8 @@ class SubmissionQuerySet(models.QuerySet):
             return self.none()
 
     def _pool(self, user):
-        """
+        """Return the user-dependent pool of Submissions.
+
         This filter creates 'the complete pool' for a user. This new-style pool does
         explicitly not have the author filter anymore, but registered pools for every Submission.
 
@@ -75,9 +67,13 @@ class SubmissionQuerySet(models.QuerySet):
             return self.filter(fellows__in=qs)
 
     def pool(self, user):
-        """Return the pool for a certain user: filtered to "in active referee phase"."""
+        """Return the user-dependent pool of Submissions in active referee phase."""
         qs = self._pool(user)
-        qs = qs.exclude(is_current=False).exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
+        qs = qs.filter(is_current=True, status__in=[
+            constants.STATUS_UNASSIGNED,
+            constants.STATUS_EIC_ASSIGNED,
+            constants.STATUS_ACCEPTED,
+        ])
         return qs
 
     def pool_editable(self, user):
@@ -88,12 +84,24 @@ class SubmissionQuerySet(models.QuerySet):
         the Editor-in-charge.
         """
         qs = self._pool(user)
-        qs = qs.exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
+        qs = qs.filter(status__in=[
+            constants.STATUS_NEW_INCOMING,
+            constants.STATUS_UNASSIGNED,
+            constants.STATUS_EIC_ASSIGNED,
+            constants.STATUS_ACCEPTED,
+            constants.STATUS_PUBLISHED,
+            #
+            # constants.STATUS_NEW_INCOMING,
+            # constants.STATUS_ASSIGNMENT_FAILED,
+            # constants.STATUS_REJECTED,
+            # constants.STATUS_WITHDRAWN,
+            # constants.STATUS_PUBLISHED,
+        ])
         return qs
 
     def pool_full(self, user):
-        """
-        Return the *FULL* pool for a certain user.
+        """Return the *FULL* user-dependent Submission pool.
+
         This makes sure the user can see all history of Submissions related to its Fellowship(s).
 
         Do not use this filter by default however, as this also contains Submissions
@@ -114,33 +122,21 @@ class SubmissionQuerySet(models.QuerySet):
         return qs
 
     def filter_for_author(self, user):
-        """
-        Return the set of Submissions for which the user is a registered author.
-        """
+        """Return the set of Submissions for which the user is a registered author."""
         if not hasattr(user, 'contributor'):
             return self.none()
         return self.filter(authors=user.contributor)
 
     def prescreening(self):
-        """
-        Return submissions just coming in and going through pre-screening.
-        """
-        return self.filter(status=STATUS_UNASSIGNED)
+        """Return submissions just coming in and going through pre-screening."""
+        return self.filter(status=constants.STATUS_UNASSIGNED)
 
     def actively_refereeing(self):
-        """
-        Return submission currently in some point of the refereeing round.
-        """
-        return (self.exclude(is_current=False)
-                    .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED,
-                                         STATUS_REVISION_REQUESTED]))
+        """Return submission currently in some point of the refereeing round."""
+        return self.exclude(status=constants.STATUS_EIC_ASSIGNED)
 
     def public(self):
-        """
-        This query contains set of public submissions, i.e. also containing
-        submissions with status "published" or "resubmitted".
-        """
+        """Return all publically available Submissions."""
         return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
 
     def public_unlisted(self):

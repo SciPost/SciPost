@@ -1,4 +1,4 @@
-ip__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -24,20 +24,20 @@ from django.views.generic.list import ListView
 
 from guardian.shortcuts import assign_perm
 
-from .constants import STATUS_VETTED, STATUS_EIC_ASSIGNED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,\
-                       STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,\
-                       STATUS_PUT_TO_EC_VOTING
-from .models import Submission, EICRecommendation, EditorialAssignment,\
-                    RefereeInvitation, Report, SubmissionEvent
+from .constants import (
+    STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS_PUBLICLY_INVISIBLE, SUBMISSION_STATUS,
+    STATUS_ASSIGNMENT_FAILED, STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_VOTING_IN_PREPARATION,
+    STATUS_PUT_TO_EC_VOTING, STATUS_EIC_ASSIGNED)
+from .models import (
+    Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
-from .forms import SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm,\
-                   RecommendationVoteForm, ConsiderAssignmentForm, EditorialAssignmentForm,\
-                   SetRefereeingDeadlineForm, RefereeSelectForm, RefereeRecruitmentForm,\
-                   ConsiderRefereeInvitationForm, EditorialCommunicationForm,\
-                   EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,\
-                   SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm,\
-                   iThenticateReportForm, SubmissionPoolFilterForm
+from .forms import (
+    SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    ConsiderAssignmentForm, EditorialAssignmentForm, SetRefereeingDeadlineForm, RefereeSelectForm,
+    RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm,
+    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,
+    SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, iThenticateReportForm,
+    SubmissionPoolFilterForm)
 from .signals import notify_manuscript_accepted
 from .utils import SubmissionUtils
 
@@ -1006,7 +1006,7 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
     submission.reporting_deadline += datetime.timedelta(days=int(days))
     submission.open_for_reporting = True
     submission.open_for_commenting = True
-    submission.status = 'EICassigned'
+    submission.status = STATUS_EIC_ASSIGNED
     submission.latest_activity = timezone.now()
     submission.save()
 
@@ -1032,7 +1032,7 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
         if form.cleaned_data['deadline'] > timezone.now().date():
             submission.open_for_reporting = True
             submission.open_for_commenting = True
-        submission.status = 'EICassigned'
+        submission.status = STATUS_EIC_ASSIGNED
         submission.latest_activity = timezone.now()
         submission.save()
         submission.add_general_event('A new refereeing deadline is set.')
@@ -1060,7 +1060,7 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
 
     submission.open_for_reporting = False
     submission.open_for_commenting = False
-    if submission.status == 'EICassigned':  # only close if currently undergoing refereeing
+    if submission.status == STATUS_EIC_ASSIGNED:  # only close if currently undergoing refereeing
         submission.status = 'review_closed'
     submission.reporting_deadline = timezone.now()
     submission.latest_activity = timezone.now()
