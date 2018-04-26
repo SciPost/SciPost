@@ -20,14 +20,15 @@ from scipost.mixins import PermissionsMixin
 
 
 @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
-def funders(request):
+def funders_dashboard(request):
+    """Administration of Funders and Grants."""
     funders = Funder.objects.all()
     form = FunderRegistrySearchForm()
     grants = Grant.objects.all()
     grant_form = GrantForm(request=request)
     context = {'form': form, 'funders': funders,
                'grants': grants, 'grant_form': grant_form}
-    return render(request, 'funders/funders.html', context)
+    return render(request, 'funders/funders_dashboard.html', context)
 
 
 @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
@@ -59,13 +60,20 @@ def add_funder(request):
                          str(funder))
     elif form.has_changed():
         messages.warning(request, 'The form was invalidly filled.')
-    return redirect(reverse('funders:funders'))
+    return redirect(reverse('funders:funders_dashboard'))
+
+
+def funders(request):
+    """List page of Funders."""
+    funders = Funder.objects.has_publications().distinct()
+    context = {
+        'funders': funders
+    }
+    return render(request, 'funders/funder_list.html', context)
 
 
 def funder_publications(request, funder_id):
-    """
-    See details of specific Funder (publicly accessible).
-    """
+    """Detail page of a specific Funder (publicly accessible)."""
     funder = get_object_or_404(Funder, id=funder_id)
     context = {'funder': funder}
     return render(request, 'funders/funder_details.html', context)
@@ -91,4 +99,4 @@ class CreateGrantView(PermissionsMixin, HttpRefererMixin, CreateView):
     permission_required = 'scipost.can_create_grants'
     model = Grant
     form_class = GrantForm
-    success_url = reverse_lazy('funders:funders')
+    success_url = reverse_lazy('funders:funders_dashboard')

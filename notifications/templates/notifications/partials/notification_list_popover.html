@@ -31,7 +31,7 @@
             {% endif %}
 
             {% if perms.scipost.can_view_all_funding_info %}
-                <a class="item {% active 'funders:funders' %}" href="{% url 'funders:funders' %}">Funders</a>
+                <a class="item {% active 'funders:funders_dashboard' %}" href="{% url 'funders:funders_dashboard' %}">Funders</a>
             {% endif %}
 
             {% if perms.scipost.can_view_production %}

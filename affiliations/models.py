@@ -10,17 +10,18 @@ from django_countries.fields import CountryField
 from scipost.models import Contributor
 
 from .constants import INSTITUTION_TYPES, TYPE_UNIVERSITY
-from .managers import AffiliationQuerySet
+from .managers import AffiliationQuerySet, InstitutionQuerySet
 
 
 class Institution(models.Model):
-    """
-    Any (scientific) Institution in the world should ideally have a SciPost registration.
-    """
+    """Any (scientific) Institution with a SciPost registration."""
+
     name = models.CharField(max_length=255)
     acronym = models.CharField(max_length=16, blank=True)
     country = CountryField()
     type = models.CharField(max_length=16, choices=INSTITUTION_TYPES, default=TYPE_UNIVERSITY)
+
+    objects = InstitutionQuerySet.as_manager()
 
     class Meta:
         default_related_name = 'institutions'
@@ -30,9 +31,11 @@ class Institution(models.Model):
         return '{name} ({country})'.format(name=self.name, country=self.get_country_display())
 
     def get_absolute_url(self):
+        """Return the Institution detail page."""
         return reverse('affiliations:institution_details', args=(self.id,))
 
     def contributors(self):
+        """All Contributor instances related to the Institution."""
         return Contributor.objects.filter(affiliations__institution=self)
 
 
