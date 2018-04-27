@@ -324,7 +324,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     def clean_author_list(self):
         """Check if author list matches the Contributor submitting.
-    
+
         The submitting user must be an author of the submission.
         Also possibly may be extended to check permissions and give ultimate submission
         power to certain user groups.
@@ -576,7 +576,7 @@ class ReportForm(forms.ModelForm):
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
                   'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar',
-                  'recommendation', 'remarks_for_editors', 'anonymous']
+                  'recommendation', 'remarks_for_editors', 'anonymous', 'file_attachment']
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('instance'):

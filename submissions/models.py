@@ -28,6 +28,7 @@ from .managers import (
 from .utils import (
     ShortSubmissionCycle, DirectRecommendationSubmissionCycle, GeneralSubmissionCycle)
 
+from comments.behaviors import validate_file_extension, validate_max_file_size
 from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
@@ -514,6 +515,11 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     doi_label = models.CharField(max_length=200, blank=True)
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
     pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
+
+    # Attachment
+    file_attachment = models.FileField(
+        upload_to='uploads/reports/%Y/%m/%d/', blank=True,
+        validators=[validate_file_extension, validate_max_file_size])
 
     objects = ReportQuerySet.as_manager()
 
