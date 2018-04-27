@@ -636,6 +636,12 @@ class ReportForm(forms.ModelForm):
         if self.submission.status in POST_PUBLICATION_STATUSES:
             self.report_type = REPORT_POST_EDREC
 
+    # def clean_file_attachment(self):
+    #     f = self.cleaned_data['file_attachment']
+    #     r = f.file
+    #     raise
+    #     return f
+
     def save(self):
         """
         Update meta data if ModelForm is submitted (non-draft).

@@ -1298,7 +1298,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         report_in_draft = submission.reports.in_draft().get(author=current_contributor)
     except Report.DoesNotExist:
         report_in_draft = Report(author=current_contributor, submission=submission)
-    form = ReportForm(request.POST or None, instance=report_in_draft, submission=submission)
+    form = ReportForm(request.POST or None, request.FILES or None,
+                      instance=report_in_draft, submission=submission)
 
     # Check if data sent is valid
     if form.is_valid():
