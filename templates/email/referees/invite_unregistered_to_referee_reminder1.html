@@ -1,3 +1,4 @@
+<h3>Re: refereeing invitation. First automatic reminder</h3>
 <p>
   Dear {{ invitation.get_title_display }} {{ invitation.last_name }},
 </p>
@@ -22,6 +23,9 @@
   We would thus hereby like to cordially invite you to become a Contributor on SciPost (this is required in order to deliver reports; our records show that you are not yet registered);
   for your convenience, we have prepared a pre-filled <a href="https://scipost.org/invitation/{{ invitation.invitation_key }}">registration form</a> for you.
   After activation of your registration, you will be allowed to contribute, in particular by providing referee reports.
+</p>
+<p>
+    You might want to make sure you are familiar with our <a href="{% url 'submissions:sub_and_ref_procedure' %}">refereeing procedure</a>, <a href="{% url 'submissions:refereeing_guidelines' %}">refereeing guidelines</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
     We very much hope that we can count on your expertise,

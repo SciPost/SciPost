@@ -17,9 +17,10 @@ class Command(BaseCommand):
         for submission in Submission.objects.open_for_reporting():
             # fewer than 3 referees invited within 48 hours? EIC must take action
             # TODO
-            # 3 days after ref invite sent out, upon no response from referee: first auto reminder
+            # Send reminders to referees who have not responded:
             for invitation in submission.referee_invitations.pending():
-                if workdays_between(invitation.date_invited, timezone.now()) == 1:
+                # 2 days after ref invite sent out: first auto reminder
+                if workdays_between(invitation.date_invited, timezone.now()) == 2:
                     if invitation.referee:
                         mail_sender = DirectMailUtil(
                             mail_code='referees/invite_contributor_to_referee_reminder1',
@@ -30,9 +31,20 @@ class Command(BaseCommand):
                             mail_code='referees/invite_unregistered_to_referee_reminder1',
                             instance=invitation)
                         mail_sender.send()
-            # second and final reminder after 6 days
-            # TODO
-            # after 8 days of no response, EIC is automatically emailed
+                # second (and final) reminder after 4 days
+                if workdays_between(invitation.date_invited, timezone.now()) == 4:
+                    if invitation.referee:
+                        mail_sender = DirectMailUtil(
+                            mail_code='referees/invite_contributor_to_referee_reminder2',
+                            instance=invitation)
+                        mail_sender.send()
+                    else:
+                        mail_sender = DirectMailUtil(
+                            mail_code='referees/invite_unregistered_to_referee_reminder2',
+                            instance=invitation)
+                        mail_sender.send()
+
+            # after 6 days of no response, EIC is automatically emailed
             # with the suggestion of removing and replacing this referee
             # TODO
             # one week before refereeing deadline: auto email reminder to ref
