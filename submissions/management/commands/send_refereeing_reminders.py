@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from common.utils import workdays_between
 from mails.utils import DirectMailUtil
 
 from ...models import Submission
@@ -18,8 +19,7 @@ class Command(BaseCommand):
             # TODO
             # 3 days after ref invite sent out, upon no response from referee: first auto reminder
             for invitation in submission.referee_invitations.pending():
-                if (timezone.now() > invitation.date_invited + timezone.timedelta(days=2)
-                    and timezone.now() < invitation.date_invited + timezone.timedelta(days=3)):
+                if workdays_between(invitation.date_invited, timezone.now()) == 1:
                     if invitation.referee:
                         mail_sender = DirectMailUtil(
                             mail_code='referees/invite_contributor_to_referee_reminder1',
@@ -36,8 +36,7 @@ class Command(BaseCommand):
             # with the suggestion of removing and replacing this referee
             # TODO
             # one week before refereeing deadline: auto email reminder to ref
-            if (submission.reporting_deadline > timezone.now() + timezone.timedelta(days=7)
-                and submission.reporting_deadline < timezone.now() + timezone.timedelta(days=8)):
+            if workdays_between (timezone.now(), submission.reporting_deadline) == 5:
                 for invitation in submission.refereeing_invitations.in_process():
                     mail_sender = DirectMailUtil(mail_code='referees/remind_referee_deadline_1week',
                                                  instance=invitation)

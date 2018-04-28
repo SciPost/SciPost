@@ -2,8 +2,25 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from datetime import datetime, timedelta
 from django.core.mail import EmailMultiAlternatives
 from django.template import loader
+
+
+"""
+Given two datetime parameters, this function returns the
+number of complete workdays (defined as weekdays) separating them.
+"""
+def workdays_between (datetime_from, datetime_until):
+    duration = datetime_until - datetime_from
+    days = int(duration.total_seconds()//86400)
+    weeks = int(days//7)
+    daygenerator = (datetime_until - timedelta(x) for x in range(days - 7*weeks))
+    print ('days = %s, weeks = %s' % (days, weeks))
+    workdays = 5 * weeks + sum(1 for day in daygenerator if day.weekday() < 5)
+    return workdays
+
+
 
 
 class BaseMailUtil(object):
