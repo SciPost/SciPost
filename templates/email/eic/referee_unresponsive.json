@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: unresponsive referee",
+    "to_address": "submission.editor_in_charge.user.email",
+    "bcc_to": "admin@scipost.org",
+    "from_address_name": "SciPost Refereeing",
+    "from_address": "refereeing@scipost.org",
+    "context_object": "invitation"
+}

@@ -15,8 +15,6 @@ class Command(BaseCommand):
     help = 'Sends all email reminders needed for Submissions undergoing refereeing'
     def handle(self, *args, **options):
         for submission in Submission.objects.open_for_reporting():
-            # fewer than 3 referees invited within 48 hours? EIC must take action
-            # TODO
             # Send reminders to referees who have not responded:
             for invitation in submission.referee_invitations.pending():
                 # 2 days after ref invite sent out: first auto reminder
@@ -49,10 +47,13 @@ class Command(BaseCommand):
                     invitation.nr_reminders += 1
                     invitation.date_last_reminded = timezone.now()
                     invitation.save()
-
-            # after 6 days of no response, EIC is automatically emailed
-            # with the suggestion of removing and replacing this referee
-            # TODO
+                # after 6 days of no response, EIC is automatically emailed
+                # with the suggestion of removing and replacing this referee
+                if workdays_between(invitation.date_invited, timezone.now()) == 6:
+                    mail_sender = DirectMailUtil(
+                        mail_code='eic/referee_unresponsive',
+                        instance=invitation)
+                    mail_sender.send()
             # one week before refereeing deadline: auto email reminder to ref
             if workdays_between(timezone.now(), submission.reporting_deadline) == 5:
                 for invitation in submission.refereeing_invitations.in_process():
