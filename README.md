@@ -228,10 +228,10 @@ It may be used in one of two possible ways: with or without editor.
 
 The actual mails only have to be written in the html version
 (the text based alternative is automatically generated before sending).
-Creating a new `mail_code` is easily done by creating new files in the `mails/templates/mail_templates` folder called `<mail_code>.html` and `<mail_code>.json` acting as resp. a content and configuration file.
+Creating a new `mail_code` is easily done by creating new files in the `templates/email/<subfolder>` folder called `<mail_code>.html` and `<mail_code>.json` acting respectively as a content and configuration file. Here, `<subfolder>` is named after the main recipient's class (authors, referees, etc.).
 
 ##### The config file is configured as follows
-`mails/templates/mail_templates/<mail_code>.json`
+`templates/email/<subfolder>/<mail_code>.json`
 
 * `context_object` - (_required_) Instance of the main object. This instance needs to be passed as `instance` or `<context_object>` in the views and as `<context_object>` in the template file (see description below);
 * `subject` - (_string, required_) Default subject value;

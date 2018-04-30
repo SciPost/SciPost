@@ -202,7 +202,7 @@ class SubmissionQuerySet(models.QuerySet):
 
     def open_for_reporting(self):
         """
-        Return Submissions that have appriopriate status for reporting.
+        Return Submissions that have appropriate status for reporting.
         The `open_for_reporting` property is not filtered as some invited visitors
         still need to have access.
         """
@@ -358,11 +358,11 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def in_process(self):
         return self.accepted().filter(fulfilled=False)
 
-    def approaching_deadline(self):
+    def approaching_deadline(self, days=2):
         qs = self.in_process()
-        psuedo_deadline = now + datetime.timedelta(days=2)
+        pseudo_deadline = now + datetime.timedelta(days)
         deadline = datetime.datetime.now()
-        qs = qs.filter(submission__reporting_deadline__lte=psuedo_deadline,
+        qs = qs.filter(submission__reporting_deadline__lte=pseudo_deadline,
                        submission__reporting_deadline__gte=deadline)
         return qs
 
