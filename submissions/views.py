@@ -863,6 +863,7 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
     invitation.nr_reminders += 1
     invitation.date_last_reminded = timezone.now()
     invitation.save()
+    SubmissionUtils.load({'invitation': invitation}, request)
     if invitation.referee is not None:
         SubmissionUtils.send_ref_reminder_email()
     else:
