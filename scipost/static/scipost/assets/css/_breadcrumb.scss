@@ -1,21 +1,26 @@
-.container-outside.breadcrumb-nav {
-    background-color: $gray-200;
-
-    .breadcrumb {
-        background-color: transparent;
-    }
-}
+// .container-outside.breadcrumb-nav {
+//     background-color: $gray-200;
+//
+//     .breadcrumb {
+//         background-color: transparent;
+//     }
+// }
 
 .breadcrumb {
     margin-bottom: 0;
     white-space: nowrap;
     overflow: auto;
-    padding: 0.5rem 1.0rem;
+    padding: 0.5rem;
     display: flex;
     flex-direction: row;
+    background-color: transparent;
 
     .breadcrumb-item {
         margin-bottom: 0;
+    }
+
+    .breadcrumb-item:first-child::before {
+        content: none;
     }
 }
 

@@ -13,9 +13,16 @@ a:hover {
     text-decoration: underline;
 }
 h1, h2, h3, h4, h5, h6 {
-    padding-top: 5px;
-    padding-bottom: 5px;
     text-shadow: none;
+
+    &.title {
+        margin-bottom: 0.25rem;
+    }
+
+    &.sub-title {
+        color: $gray-500;
+        margin-bottom: 1.25rem;
+    }
 }
 
 h1 > a {
@@ -49,22 +56,6 @@ h6
 
 .font-weight-light {
     font-weight: 300;
-}
-
-.container-outside.header {
-    background-color: $gray-200;
-
-    h1,
-    h2 {
-        padding: 15px;
-        background-color: $gray-200;
-        border-radius: $card-border-radius;
-        border: 0;
-        margin-top: 0;
-        margin-bottom: 0;
-        // margin-bottom: 10px;
-        box-shadow: none;
-    }
 }
 
 .highlight {
@@ -131,6 +122,16 @@ hr.hr12 {
         box-shadow: none;
         width: auto;
     }
+}
+
+hr.sm {
+    height: 0;
+    background: none;
+    box-shadow: none;
+    margin: 1rem 0;
+    border-top: 1px solid rgba(0,0,0,.1);
+    box-sizing: content-box;
+    border-radius: 0;
 }
 
 .text-blue {

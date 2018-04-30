@@ -1,41 +1,41 @@
-.card {
-    margin-bottom: 10px;
+// .card {
+//     margin-bottom: 10px;
+//
+//     &.card-gray {
+//         background-color: $card-gray-bg;
+//         border: 0;
+//         border-top: 2px solid $scipost-lightblue;
+//         box-shadow: 0 1px 0 0 $card-shadow-color;
+//
+//         .card-header {
+//             background: transparent;
+//             border-bottom-color: #fff;
+//         }
+//
+//         .card-footer {
+//             background: transparent;
+//         }
+//     }
+//
+//     &.card-publication {
+//         box-shadow: 0 1px 0 0 #ddd;
+//         border: 1px solid #ddd;
+//
+//         .card-header {
+//             background-color: #eee;
+//             border-bottom: 1px solid #ddd;
+//         }
+//
+//         .card-body {
+//             border-top: 1px solid #fff;
+//             background-color: #f8f8f8;
+//         }
+//     }
+// }
 
-    &.card-grey {
-        background-color: $card-grey-bg;
-        border: 0;
-        border-top: 2px solid $scipost-lightblue;
-        box-shadow: 0 1px 0 0 $card-shadow-color;
-
-        .card-header {
-            background: transparent;
-            border-bottom-color: #fff;
-        }
-
-        .card-footer {
-            background: transparent;
-        }
-    }
-
-    &.card-publication {
-        box-shadow: 0 1px 0 0 #ddd;
-        border: 1px solid #ddd;
-
-        .card-header {
-            background-color: #eee;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .card-body {
-            border-top: 1px solid #fff;
-            background-color: #f8f8f8;
-        }
-    }
-}
-
-.card-outline-secondary {
-    border-color: #f1f1f1;
-}
+// .card-outline-secondary {
+//     border-color: #f1f1f1;
+// }
 
 // .card-header {
 //     padding: 0.5rem 0;
@@ -60,38 +60,42 @@
     line-height: 1.5;
 }
 
-.card-news {
-    .news-item .card-title {
-        color: $scipost-darkblue;
-        padding: 0.5rem 0 0.25rem 0;
-        border-bottom: 3px solid $scipost-light;
-        display: inline-block;
-        margin-bottom: 0.5rem;
-    }
-
-    .news-item .date {
-        margin-bottom: 1.5rem;
-    }
+.scipost-bar {
+    border-top: 3px solid $scipost-lightblue !important;
 }
 
-.card-publication {
-    width: 100%;
-
-    &.card-grey {
-        background-color: #f8f8f8;
-    }
-
-    .card-body {
-        padding-top: 0.5rem;
-        padding-bottom: 0.5rem;
-
-        .card-title {
-            background-color: #f4f4f4;
-            margin: -0.5rem -0.75rem 0.5rem -0.75rem;
-            padding: .75rem 0.75rem;
-        }
-    }
-}
+// .card-news {
+//     .news-item .card-title {
+//         color: $scipost-darkblue;
+//         padding: 0.5rem 0 0.25rem 0;
+//         border-bottom: 3px solid $scipost-light;
+//         display: inline-block;
+//         margin-bottom: 0.5rem;
+//     }
+//
+//     .news-item .date {
+//         margin-bottom: 1.5rem;
+//     }
+// }
+//
+// .card-publication {
+//     width: 100%;
+//
+//     &.card-gray {
+//         background-color: #f8f8f8;
+//     }
+//
+//     .card-body {
+//         padding-top: 0.5rem;
+//         padding-bottom: 0.5rem;
+//
+//         .card-title {
+//             background-color: #f4f4f4;
+//             margin: -0.5rem -0.75rem 0.5rem -0.75rem;
+//             padding: .75rem 0.75rem;
+//         }
+//     }
+// }
 
 .card.radio-option {
     label {

@@ -44,7 +44,7 @@ $text-muted: #636c72;
 
 // Body
 //
-$body-bg: $gray-100;
+$body-bg: #f3f3f3;  // $gray-100
 $body-color: $scipost-darkblue;
 
 
@@ -59,9 +59,9 @@ $card-border-color: $gray-200;
 $card-spacer-x: 0.75rem;
 $card-spacer-y: 0.5rem;
 $card-shadow-color: #ccc;
-$card-grey-border-bottom-color: #d0d1d5;
-$card-grey-bg: $gray-100;
-$card-grey-border-color: $scipost-lightblue $gray-100 $gray-100;
+$card-gray-border-bottom-color: #d0d1d5;
+$card-gray-bg: $gray-100;
+$card-gray-border-color: $scipost-lightblue $gray-100 $gray-100;
 
 
 // breadcrumb
@@ -111,7 +111,7 @@ $font-size-lg: 1.0rem;
 
 $h1-font-size: 1.8em;
 $h2-font-size: 1.5em;
-$h3-font-size: 1.3em;
+$h3-font-size: 1.25em;
 $h4-font-size: 1.2em;
 $h5-font-size: 1.0em;
 $h6-font-size: 1.0em;

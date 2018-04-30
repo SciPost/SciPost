@@ -16,7 +16,7 @@ table.submission_header {
         left: 0;
         box-shadow: 0 1px 0 0 $card-shadow-color;
         border: 1px solid;
-        border-color: $card-grey-border-color;
+        border-color: $card-gray-border-color;
         z-index: 1;
         border-radius: $border-radius 0 $border-radius $border-radius;
     }
@@ -29,7 +29,7 @@ table.submission_header {
         padding: 0.5rem calc(1rem - 3px);
         background: #f4f4f4;
         border: 1px solid;
-        border-color: $card-grey-border-color;
+        border-color: $card-gray-border-color;
         border-radius: 0 $border-radius $border-radius 0;
         box-shadow: 0 1px 0 0 $card-shadow-color;
         border-left: 0;

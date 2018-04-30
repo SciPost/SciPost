@@ -2,83 +2,112 @@
 {% load notifications_tags %}
 {% load scipost_extras %}
 
-
-<div class="container-outside main-nav">
+<nav class="navbar navbar-expand-lg main-nav">
+    <!-- <a class="navbar-brand mr-auto mr-lg-0" href="#">Offcanvas navbar</a> -->
     <div class="container">
-        <nav class="navbar main-nav navbar-expand-lg">
-            <ul id="menu-navbar" class="navbar-nav">
-              <li class="nav-item{% if request.path == '/' %} active{% endif %}">
-                <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
-              </li>
+        <button class="navbar-toggler p-0 border-0" type="button" data-toggle="collapse" data-target="#main-navbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-              <li class="nav-item{% if '/journals/' == request.path %} active{% endif %}">
-                <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
-              </li>
-              <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
-                <a href="{% url 'journals:publications' %}" class="nav-link">Publications</a>
-              </li>
-              <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
-                <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
-              </li>
-              <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
-                <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
-              </li>
-              <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
-                <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
-              </li>
-              <li class="nav-item{% if '/about' in request.path %} active{% endif %}">
-                <a class="nav-link" href="{% url 'scipost:about' %}">About SciPost</a>
-              </li>
+        <div class="collapse navbar-collapse" id="main-navbar">
+            <ul class="navbar-nav mr-auto">
 
 
-
-              {% if user.is_authenticated %}
-                {% if request.user|is_in_group:'Testers' %}
-                  <li class="nav-item navbar-counter">
-                    <div class="nav-link notifications_container">
-                        <a href="javascript:;" class="d-inline-block ml-1 badge_link" id="notifications_badge" data-toggle="popover">
-                            <span class="user">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
-                            <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
-                            {% live_notify_badge classes="badge badge-pill badge-primary" %}
-                        </a>
-                        {% live_notify_list %}
-                    </div>
-
+    <!-- <div class="container-outside main-nav"> -->
+        <!-- <div class="container"> -->
+            <!-- <nav class="navbar main-nav navbar-expand-lg"> -->
+                <!-- <ul id="menu-navbar" class="navbar-nav"> -->
+                  <li class="nav-item{% if request.path == '/' %} active{% endif %}">
+                    <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
                   </li>
-              {% else %}
-                  <li class="nav-item highlighted">
-                    <span class="nav-link">Logged in as {{ user.username }}</span>
+
+                  <li class="nav-item{% if '/journals/' == request.path %} active{% endif %}">
+                    <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
                   </li>
-              {% endif %}
-                  <li class="nav-item">
-                      <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
+                  <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
+                    <a href="{% url 'journals:publications' %}" class="nav-link">Publications</a>
                   </li>
-                  {% if perms.scipost.can_view_production %}
-                      <li class="nav-item{% if '/production' in request.path %} active{% endif %}">
-                        <a class="nav-link" href="{% url 'production:production' %}">Production</a>
+                  <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
+                  </li>
+                  <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+                  </li>
+                  <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
+                  </li>
+                  <li class="nav-item{% if '/about' in request.path %} active{% endif %}">
+                    <a class="nav-link" href="{% url 'scipost:about' %}">About SciPost</a>
+                  </li>
+
+
+
+                  {% if user.is_authenticated %}
+                    {% if request.user|is_in_group:'Testers' %}
+                      <li class="nav-item navbar-counter">
+                        <div class="nav-link notifications_container">
+                            <a href="javascript:;" class="d-inline-block ml-1 badge_link" id="notifications_badge" data-toggle="popover">
+                                <span class="user">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
+                                <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
+                                {% live_notify_badge classes="badge badge-pill badge-primary" %}
+                            </a>
+                            {% live_notify_list %}
+                        </div>
+
+                      </li>
+                  {% else %}
+                      <li class="nav-item highlighted">
+                        <span class="nav-link">Logged in as {{ user.username }}</span>
                       </li>
                   {% endif %}
-                  {% if user.contributor %}
-                      <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
-                        <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+                      <li class="nav-item">
+                          <a class="nav-link" href="{% url 'scipost:logout' %}">Logout</a>
+                      </li>
+                      {% if perms.scipost.can_view_production %}
+                          <li class="nav-item{% if '/production' in request.path %} active{% endif %}">
+                            <a class="nav-link" href="{% url 'production:production' %}">Production</a>
+                          </li>
+                      {% endif %}
+                      {% if user.contributor %}
+                          <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
+                            <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+                          </li>
+                      {% endif %}
+                      {% if user.partner_contact %}
+                          <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
+                            <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page</a>
+                          </li>
+                      {% endif %}
+                  {% else %}
+                      <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
+                        <a class="nav-link" href="{% url 'scipost:login' %}">Login</a>
                       </li>
                   {% endif %}
-                  {% if user.partner_contact %}
-                      <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
-                        <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page</a>
-                      </li>
-                  {% endif %}
-              {% else %}
-                  <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
-                    <a class="nav-link" href="{% url 'scipost:login' %}">Login</a>
-                  </li>
-              {% endif %}
+
+                <!-- </ul> -->
+                <!-- <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form"> -->
+                    <!-- <input class="form-control mr-sm-2" id="id_q" maxlength="100" name="q" type="text" aria-label="Search" value="{{ search_query|default:'' }}"> -->
+                    <!-- <button class="btn my-0" type="submit"><i class="fa fa-search"></i> Search</button> -->
+                <!-- </form> -->
+            <!-- </nav> -->
+        <!-- </div> -->
+    <!-- </div> -->
+
+
 
             </ul>
-            <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form">
-                <input class="form-control mr-sm-2" id="id_q" maxlength="100" name="q" type="text" aria-label="Search" value="{{ search_query|default:'' }}">
-                <button class="btn my-0" type="submit"><i class="fa fa-search"></i> Search</button>
-            </form>
-        </nav>
+            <div class="full-height-bar">
+                <div class="container">
+                    <div class="form-wrapper">
+                        <form action="{% url 'scipost:search' %}" method="get" class="form-inline my-2 my-lg-0 search-form">
+                            <input class="form-control" aria-label="Search" id="id_q" name="q" type="text" value="{{ search_query|default:'' }}">
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                                <i class="fa fa-search"></i> Search
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
+</nav>
