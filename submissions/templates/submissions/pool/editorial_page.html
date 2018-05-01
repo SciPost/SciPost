@@ -217,8 +217,8 @@
                                 </p>
                             </li>
                         {% endif %}
-                        {% if submission.eicrecommendations.first %}
-                            {% if submission.eicrecommendations.first.may_be_reformulated %}
+                        {% if submission.eicrecommendations.last %}
+                            {% if submission.eicrecommendations.last.may_be_reformulated %}
                                 <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
                             {% endif %}
                         {% endif %}
