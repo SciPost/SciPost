@@ -754,7 +754,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         """Check if this EICRecommdation is allowed to be reformulated in a new version."""
         if not self.active:
             # Already reformulated before; please use the latest version
-            return False
+            return self.submission.eicrecommendations.last() == self
         return self.submission.status in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]
 
 
