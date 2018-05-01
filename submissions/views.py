@@ -1,4 +1,4 @@
-ip__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -1215,7 +1215,7 @@ def reformulate_eic_recommendation(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
-    if submission.status not in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]:
+    if submission.status not in [STATUS_EIC_ASSIGNED, STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]:
         messages.warning(request, ('With the current status of the Submission you are not '
                                    'allowed to reformulate the Editorial Recommendation'))
         return redirect(reverse('submissions:editorial_page',
