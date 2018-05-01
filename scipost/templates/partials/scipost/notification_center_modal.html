@@ -1,0 +1,69 @@
+{% load request_filters %}
+
+<!-- Modal -->
+<div class="modal notification-center" id="notification_center" tabindex="-1" role="dialog" aria-labelledby="notification_center" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+          {% if request.user.contributor %}
+              <h4 class="modal-title">{{ request.user.contributor.get_title_display }} {{ request.user.first_name }} {{ request.user.last_name }}</h4>
+          {% endif %}
+        <!-- <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5> -->
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body pb-2">
+          <ul class="list-unstyled links mb-0">
+              <li><a class="item {% active 'scipost:personal_page' %}" href="{% url 'scipost:personal_page' %}">Personal Page</a></li>
+              {% if user.partner_contact or perms.scipost.can_read_partner_page %}
+                    <li><a class="item {% active 'partners:dashboard' %}" href="{% url 'partners:dashboard' %}">Partner Page</a></li>
+              {% endif %}
+
+              {% if perms.scipost.can_view_timesheets %}
+                  <li><a class="item {% active 'finances:finance' %}" href="{% url 'finances:finance' %}">Financial Administration</a></li>
+              {% endif %}
+
+              {% if perms.scipost.can_view_all_funding_info %}
+                  <li><a class="item {% active 'funders:funders_dashboard' %}" href="{% url 'funders:funders_dashboard' %}">Funders</a></li>
+              {% endif %}
+
+              {% if perms.scipost.can_view_production %}
+                  <li><a class="item {% active 'production:production' %}" href="{% url 'production:production' %}">Production</a></li>
+              {% endif %}
+
+              {% if perms.scipost.can_view_pool %}
+                  <li><a class="item {% active 'submissions:pool' %}" href="{% url 'submissions:pool' %}">Submissions Pool</a></li>
+              {% endif %}
+
+              <li><a class="item" href="{% url 'scipost:logout' %}">Logout</a></li>
+          </ul>
+      </div>
+      <div class="modal-header">
+          <h4 class="modal-title">Inbox</h4>
+      </div>
+      <div class="modal-body py-2">
+          <ul class="list-unstyled notifications" id="notifications-list">
+              <div style="display: none;" class="template">
+                  <li class="{unread} item" data-refresh=1>
+                      <div>
+                          <strong>{actor}</strong>
+                          <span>{verb}</span>
+                          &middot; <span class="text-muted">{timesince}</span>
+                          <a href="{forward_link}">{target}</a>
+                      </div>
+                      <div class="actions">
+                          <a href="javascript:;" class="mark-toggle show-unread" data-slug="{slug}"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a>
+                          <a href="javascript:;" class="mark-toggle show-read" data-slug="{slug}"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a>
+                          <a href="{forward_link}" data-toggle='tooltip' data-placement="auto" title="Go to item"><i class="fa fa-share" aria-hidden="true"></i></a>
+                      </div>
+                  </li>
+              </div>
+          </ul>
+      </div>
+      <div class="modal-footer py-2">
+        <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

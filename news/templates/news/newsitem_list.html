@@ -5,6 +5,19 @@
 {% load request_filters %}
 {% load staticfiles %}
 
+
+{% block breadcrumb %}
+    <nav class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}" >Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">News</span>
+            </ol>
+        </div>
+    </nav>
+{% endblock %}
+
+
 {% block content %}
 
 <div class="row">
@@ -29,9 +42,7 @@
           {% endif %}
 
         {% for item in object_list %}
-            <div class="card card-gray card-news">
-                {% include 'news/news_card_content.html' with news=item %}
-            </div>
+            {% include 'news/news_card_content.html' with news=item %}
         {% empty %}
             <div>No news found.</div>
         {% endfor %}

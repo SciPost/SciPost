@@ -6,7 +6,11 @@
     <!-- <a class="navbar-brand mr-auto mr-lg-0" href="#">Offcanvas navbar</a> -->
     <div class="container">
         <button class="navbar-toggler p-0 border-0" type="button" data-toggle="collapse" data-target="#main-navbar">
-            <span class="navbar-toggler-icon"></span>
+            <div class="navbar-toggler-icon" onclick="navbarIconToggle(this)">
+                <div class="bar1"></div>
+                <div class="bar2"></div>
+                <div class="bar3"></div>
+            </div>
         </button>
 
         <div class="collapse navbar-collapse" id="main-navbar">
@@ -46,8 +50,8 @@
                     {% if request.user|is_in_group:'Testers' %}
                       <li class="nav-item navbar-counter">
                         <div class="nav-link notifications_container">
-                            <a href="javascript:;" class="d-inline-block ml-1 badge_link" id="notifications_badge" data-toggle="popover">
-                                <span class="user">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
+                            <a href="javascript:;" class="d-inline-block ml-1 badge_link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
+                                <span class="user d-inline d-lg-none d-xl-inline">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
                                 <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
                                 {% live_notify_badge classes="badge badge-pill badge-primary" %}
                             </a>
@@ -111,3 +115,9 @@
         </div>
     </div>
 </nav>
+
+<script>
+    function navbarIconToggle(x) {
+        x.classList.toggle("change");
+    }
+</script>

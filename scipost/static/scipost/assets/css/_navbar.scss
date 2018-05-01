@@ -29,6 +29,11 @@
 //     }
 // }
 
+.navbar {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
 .main-nav {
     background-color: $scipost-lightblue;
 
@@ -51,23 +56,25 @@
         background-color: $scipost-lightblue;
     }
 
-    .full-height-bar {
-        z-index: 1;
-        position: absolute;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        left: 0;
-
-        > .container {
+    @media (min-width: 992px) {
+        .full-height-bar {
+            z-index: 1;
+            position: absolute;
+            top: 0;
             height: 100%;
-        }
+            width: 100%;
+            left: 0;
 
-        .form-wrapper {
-            float: right;
-            height: 100%;
-            padding: $navbar-padding-y 0.5rem;
-            background: #343a40;
+            > .container {
+                height: 100%;
+            }
+
+            .form-wrapper {
+                float: right;
+                height: 100%;
+                padding: $navbar-padding-y 0.5rem;
+                background: #343a40;
+            }
         }
     }
 
@@ -104,6 +111,45 @@
 .sub-nav {
     background-color: $breadcrumb-bg;
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+    border-bottom: 1px solid #ddd;
+}
+
+.navbar-toggler {
+    margin: 4px 0;
+    outline: none !important;
+}
+
+.navbar-toggler-icon {
+    display: inline-block;
+    cursor: pointer;
+    margin: -3px 0 3px 3px;
+
+    .bar1,
+    .bar2,
+    .bar3 {
+        width: 100%;
+        height: 5px;
+        border-radius: 1px;
+        background-color: $scipost-lightestblue;
+        margin: 5px 0;
+        transition: 0.2s;
+    }
+
+    &.change {
+        .bar1 {
+            -webkit-transform: rotate(-45deg) translate(-9px, 6px);
+            transform: rotate(-45deg) translate(-9px, 6px);
+        }
+
+        .bar2 {
+            opacity: 0;
+        }
+
+        .bar3 {
+            -webkit-transform: rotate(45deg) translate(-8px, -8px);
+            transform: rotate(45deg) translate(-8px, -5px);
+        }
+    }
 }
 
 // .container-outside {

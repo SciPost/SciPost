@@ -696,6 +696,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     version = models.SmallIntegerField(default=1)
     active = models.BooleanField(default=True)
+    # status = models.CharField(default='', max_length=180)
 
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,

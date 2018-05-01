@@ -36,7 +36,7 @@ NewsTicker = (function() {
         var self = this
 
         if(typeof(this.cached_items[item.id]) == 'undefined') {
-            $.get(this.options.url + '/' + item.id + '/?format=html')
+            $.get(this.options.url + item.id + '/?format=html')
             .done(function(data) {
                 self.cached_items[item.id] = data
                 self.set_item(item.id)

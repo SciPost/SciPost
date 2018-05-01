@@ -140,30 +140,30 @@
         }
     }
 
-    .actions {
-        // display: none;
-        opacity: 0.0;
-        transition: opacity 0.1s;
-        width: 20px;
-        height: 100%;
-        padding-left: 1rem;
-        padding-right: 0.5rem;
-        padding-bottom: 0.1rem;
-
-        .fa[data-toggle="tooltip"] {
-            font-size: 1em;
-        }
-
-        a:hover {
-            .fa-circle-o:before {
-                content: '\f111';
-            }
-
-            .fa-circle:before {
-                content: '\f10c';
-            }
-        }
-    }
+    // .actions {
+    //     // display: none;
+    //     opacity: 0.0;
+    //     transition: opacity 0.1s;
+    //     width: 20px;
+    //     height: 100%;
+    //     padding-left: 1rem;
+    //     padding-right: 0.5rem;
+    //     padding-bottom: 0.1rem;
+    //
+    //     .fa[data-toggle="tooltip"] {
+    //         font-size: 1em;
+    //     }
+    //
+    //     a:hover {
+    //         .fa-circle-o:before {
+    //             content: '\f111';
+    //         }
+    //
+    //         .fa-circle:before {
+    //             content: '\f10c';
+    //         }
+    //     }
+    // }
 
 
     .links .item {
@@ -190,6 +190,97 @@
         .head {
             color: $orange;
             font-weight: 600;
+        }
+    }
+}
+
+.notification-center {
+    .links li {
+        padding: 0.25rem 0;
+    }
+}
+
+.notifications {
+    .item {
+        padding: 0.4rem 0.25rem 0.4rem 0.75rem;
+        border-radius: 0;
+        border-top: 1px solid $white;
+        border-left: 0;
+        border-right: 0;
+        margin-bottom: 5px;
+        flex-direction: row;
+        justify-content: space-between;
+        display: flex;
+        position: relative;
+
+        &:hover {
+            background-color: #f4f4f4 !important;
+        }
+
+        &[href] {
+            cursor: pointer;
+        }
+
+        &:before {
+            content: '';
+            height: 100%;
+            width: 5px;
+            display: block;
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: $scipost-darkblue;
+        }
+
+        > div {
+            white-space: normal;
+        }
+
+        &:last-child {
+            border-bottom: 0;
+        }
+
+        .show-unread,
+        .show-read {
+            display: none;
+        }
+
+        &.unread {
+            background-color: rgba(114, 141, 199, 0.05);
+
+            .show-unread {
+                display: inherit;
+            }
+        }
+        &.read .show-read {
+            display: inherit;
+        }
+
+        .actions {
+            opacity: 0.0;
+            transition: opacity 0.1s;
+            width: 20px;
+            height: 100%;
+            padding-left: 0.1rem;
+            padding-right: 0.1rem;
+
+            .fa[data-toggle="tooltip"] {
+                font-size: 1em;
+            }
+
+            a:hover {
+                .fa-circle-o:before {
+                    content: '\f111';
+                }
+
+                .fa-circle:before {
+                    content: '\f10c';
+                }
+            }
+        }
+
+        .item:hover .actions {
+            opacity: 1.0;
         }
     }
 }
