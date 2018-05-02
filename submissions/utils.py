@@ -248,18 +248,6 @@ class SubmissionUtils(BaseMailUtil):
     mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
-    def deprecate_other_assignments(cls):
-        """
-        Called when a Fellow has accepted or volunteered to become EIC.
-        """
-        # Import here due to circular import error
-        from .models import EditorialAssignment
-
-        EditorialAssignment.objects.filter(submission=cls.assignment.submission, accepted=None)\
-            .exclude(to=cls.assignment.to)\
-            .update(deprecated=True)
-
-    @classmethod
     def deprecate_all_assignments(cls):
         """
         Called when the pre-screening has failed.

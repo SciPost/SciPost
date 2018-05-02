@@ -14,7 +14,7 @@ from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_VETTED,
-    EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING)
+    EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -33,6 +33,8 @@ import iThenticate
 
 
 class SubmissionSearchForm(forms.Form):
+    """Filter a Submission queryset using basic search fields."""
+
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     abstract = forms.CharField(max_length=1000, required=False)
@@ -40,7 +42,7 @@ class SubmissionSearchForm(forms.Form):
                                    choices=((None, 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]))
 
     def search_results(self):
-        """Return all Submission objects according to search"""
+        """Return all Submission objects according to search."""
         return Submission.objects.public_newest().filter(
             title__icontains=self.cleaned_data.get('title', ''),
             author_list__icontains=self.cleaned_data.get('author', ''),
@@ -81,10 +83,8 @@ class SubmissionPoolFilterForm(forms.Form):
 ###############################
 
 class SubmissionChecks:
-    """
-    Use this class as a blueprint containing checks which should be run
-    in multiple forms.
-    """
+    """Mixin with checks run at least the Submission creation form."""
+
     is_resubmission = False
     last_submission = None
 
@@ -191,6 +191,7 @@ class SubmissionChecks:
         return data
 
     def do_pre_checks(self, identifier):
+        """Group call of different checks."""
         self._submission_already_exists(identifier)
         self._call_arxiv(identifier)
         self._submission_is_already_published(identifier)
@@ -198,6 +199,8 @@ class SubmissionChecks:
 
 
 class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
+    """Prefill SubmissionForm using this form that takes an arXiv ID only."""
+
     IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
@@ -207,12 +210,13 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
                                   widget=forms.TextInput({'placeholder': IDENTIFIER_PLACEHOLDER}))
 
     def clean_identifier(self):
+        """Do basic prechecks based on the arXiv ID only."""
         identifier = self.cleaned_data['identifier']
         self.do_pre_checks(identifier)
         return identifier
 
     def _gather_data_from_last_submission(self):
-        '''Return dictionary with data coming from previous submission version.'''
+        """Return dictionary with data coming from previous submission version."""
         if self.submission_is_resubmission():
             data = {
                 'is_resubmission': True,
@@ -228,7 +232,7 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
         return data or {}
 
     def request_arxiv_preprint_form_prefill_data(self):
-        '''Return dictionary to prefill `RequestSubmissionForm`.'''
+        """Return dictionary to prefill `RequestSubmissionForm`."""
         form_data = self.arxiv_data
         form_data.update(self.identifier_into_parts(self.cleaned_data['identifier']))
         if self.submission_is_resubmission():
@@ -237,6 +241,8 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
 
 
 class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
+    """Form to submit a new Submission."""
+
     class Meta:
         model = Submission
         fields = [
@@ -357,9 +363,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
         # Close last submission
         Submission.objects.filter(id=self.last_submission.id).update(
-            is_current=False,
-            open_for_reporting=False,
-            status=STATUS_RESUBMITTED)
+            is_current=False, open_for_reporting=False, status=STATUS_RESUBMITTED)
 
         # Open for comment and reporting and copy EIC info
         Submission.objects.filter(id=submission.id).update(
@@ -375,13 +379,11 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         submission.authors_false_claims.add(*self.last_submission.authors_false_claims.all())
 
         # Create new EditorialAssigment for the current Editor-in-Charge
-        assignment = EditorialAssignment(
-            submission=submission,
-            to=self.last_submission.editor_in_charge,
-            accepted=True)
-        assignment.save()
+        EditorialAssignment.objects.create(
+            submission=submission, to=self.last_submission.editor_in_charge, accepted=True)
 
     def set_pool(self, submission):
+        """Set the default set of (guest) Fellows for this Submission."""
         qs = Fellowship.objects.active()
         fellows = qs.regular().filter(
             contributor__discipline=submission.discipline).return_active_for_submission(submission)
@@ -395,9 +397,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     @transaction.atomic
     def save(self):
-        """
-        Prefill instance before save.
+        """Fill, create and transfer data to the new Submission.
 
+        Prefill instance before save.
         Because of the ManyToManyField on `authors`, commit=False for this form
         is disabled. Saving the form without the database call may loose `authors`
         data without notice.
@@ -413,10 +415,17 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         submission.arxiv_identifier_wo_vn_nr = identifiers['arxiv_identifier_wo_vn_nr']
         submission.arxiv_vn_nr = identifiers['arxiv_vn_nr']
 
-        # Save
-        submission.save()
         if self.submission_is_resubmission():
+            # Reset Refereeing Cycle. EIC needs to pick a cycle on resubmission.
+            submission.refereeing_cycle = CYCLE_UNDETERMINED
+            submission.save()  # Save before filling from old Submission.
+
             self.copy_and_save_data_from_resubmission(submission)
+        else:
+            # Save!
+            submission.save()
+
+        # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)
         self.set_pool(submission)
 
@@ -425,6 +434,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
 
 class SubmissionReportsForm(forms.ModelForm):
+    """Update refereeing pdf for Submission."""
+
     class Meta:
         model = Submission
         fields = ['pdf_refereeing_pack']
@@ -435,6 +446,8 @@ class SubmissionReportsForm(forms.ModelForm):
 ######################
 
 class EditorialAssignmentForm(forms.ModelForm):
+    """Create new EditorialAssignment for Submission."""
+
     class Meta:
         model = EditorialAssignment
         fields = ('to',)
@@ -443,6 +456,7 @@ class EditorialAssignmentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
         self.submission = kwargs.pop('submission')
         super().__init__(*args, **kwargs)
         self.fields['to'].queryset = Contributor.objects.available().filter(
@@ -572,6 +586,8 @@ class ReportPDFForm(forms.ModelForm):
 
 
 class ReportForm(forms.ModelForm):
+    """Write Report form."""
+
     report_type = REPORT_NORMAL
 
     class Meta:
@@ -636,6 +652,7 @@ class ReportForm(forms.ModelForm):
                 self.fields[field].label += ' *'
 
         if self.submission.eicrecommendations.active().exists():
+            # An active EICRecommendation is already formulated. This Report will be flagged.
             self.report_type = REPORT_POST_EDREC
 
     def save(self):
@@ -688,7 +705,7 @@ class VetReportForm(forms.Form):
         })
 
     def clean_refusal_reason(self):
-        '''Require a refusal reason if report is rejected.'''
+        """Require a refusal reason if report is rejected."""
         reason = self.cleaned_data['refusal_reason']
         if self.cleaned_data['action_option'] == REPORT_ACTION_REFUSE:
             if not reason:
@@ -696,7 +713,7 @@ class VetReportForm(forms.Form):
         return reason
 
     def process_vetting(self, current_contributor):
-        '''Set the right report status and update submission fields if needed.'''
+        """Set the right report status and update submission fields if needed."""
         report = self.cleaned_data['report']
         report.vetted_by = current_contributor
         if self.cleaned_data['action_option'] == REPORT_ACTION_ACCEPT:
@@ -903,7 +920,7 @@ class iThenticateReportForm(forms.ModelForm):
         if not doc_id and not self.fields.get('file'):
             try:
                 cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
-                                        self.submission.arxiv_identifier_w_vn_nr)
+                    self.submission.arxiv_identifier_w_vn_nr)
             except exceptions.ArxivPDFNotFound:
                 self.add_error(None, ('The pdf could not be found at arXiv.'
                                       ' Please upload the pdf manually.'))
@@ -949,8 +966,7 @@ class iThenticateReportForm(forms.ModelForm):
                 pass
         else:
             report.save()
-            self.submission.plagiarism_report = report
-            self.submission.save()
+            Submission.objects.filter(id=self.submission.id).update(plagiarism_report=report)
         return report
 
     def call_ithenticate(self):

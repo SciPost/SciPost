@@ -111,9 +111,9 @@ class SubmissionQuerySet(models.QuerySet):
         return qs
 
     def filter_for_eic(self, user):
-        """
-        Return the set of Submissions the user is Editor-in-charge for or return the pool if
-        User is Editorial Administrator.
+        """Return the set of Submissions the user is Editor-in-charge for.
+
+        If user is an Editorial Administrator: return the full pool.
         """
         qs = self._pool(user)
 
@@ -129,6 +129,10 @@ class SubmissionQuerySet(models.QuerySet):
 
     def prescreening(self):
         """Return submissions just coming in and going through pre-screening."""
+        return self.filter(status=constants.STATUS_INCOMING)
+
+    def unassigned(self):
+        """Return submissions passed pre-screening, but unassigned."""
         return self.filter(status=constants.STATUS_UNASSIGNED)
 
     def actively_refereeing(self):

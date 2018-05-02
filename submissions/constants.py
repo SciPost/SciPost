@@ -156,10 +156,10 @@ REPORT_TYPES = (
     (REPORT_POST_EDREC, 'Post-Editorial Recommendation Report'),
 )
 
-CYCLE_DEFAULT = 'default'
-CYCLE_SHORT = 'short'
-CYCLE_DIRECT_REC = 'direct_rec'
+CYCLE_UNDETERMINED = ''
+CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC = 'default', 'short', 'direct_rec'
 SUBMISSION_CYCLES = (
+    (CYCLE_UNDETERMINED, 'Cycle undetermined'),
     (CYCLE_DEFAULT, 'Default cycle'),
     (CYCLE_SHORT, 'Short cycle'),
     (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),

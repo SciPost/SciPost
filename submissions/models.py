@@ -18,9 +18,9 @@ from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
     SUBMISSION_STATUS, STATUS_UNASSIGNED, REPORT_STATUSES, STATUS_UNVETTED,
-    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED,
+    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, PUT_TO_VOTING, EIC_REC_STATUSES, VOTING_IN_PREP)
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -69,8 +69,8 @@ class Submission(models.Model):
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=True)
     is_resubmission = models.BooleanField(default=False)
-    refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
-                                        default=CYCLE_DEFAULT)
+    refereeing_cycle = models.CharField(
+        max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT)
 
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
@@ -223,16 +223,17 @@ class Submission(models.Model):
     @cached_property
     def other_versions_public(self):
         """Return other (public) Submissions in the database in this ArXiv identifier series."""
-        return Submission.objects.public().filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
-        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
+        return self.get_other_versions().order_by('-arxiv_vn_nr')
 
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this ArXiv identifier series."""
+        return self.get_other_versions().order_by('-arxiv_vn_nr')
+
+    def get_other_versions(self):
+        """Return queryset of other Submissions with this ArXiv identifier series."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
-            pk=self.id).order_by('-arxiv_vn_nr')
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(pk=self.id)
 
     def count_accepted_invitations(self):
         """Count number of accepted RefereeInvitations for this Submission."""
@@ -764,7 +765,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         if not self.active:
             # Already reformulated before; please use the latest version
             return self.submission.eicrecommendations.last() == self
-        return return self.status in [VOTING_IN_PREP, PUT_TO_VOTING]
+        return self.status != DECISION_FIXED
 
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""
