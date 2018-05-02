@@ -194,7 +194,7 @@ def parse_crossref_citable(citable_item):
                 journal = citable_item['container-title'][0]
 
             return CitableWithDOI(doi=doi, references=references, authors=authors, publisher=publisher, title=title, 
-                    publication_date=publication_date, license=license, metadata=citable_item)
+                    publication_date=publication_date, license=license, metadata=citable_item, journal=journal)
 
             # except BaseException as e:
             #     print("Error!")
