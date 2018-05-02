@@ -29,6 +29,9 @@ class MailLog(models.Model):
     from_email = models.CharField(max_length=254, blank=True)
     subject = models.CharField(max_length=254, blank=True)
 
+    created = models.DateTimeField(auto_now_add=True)
+    latest_activity = models.DateTimeField(auto_now=True)
+
     objects = MailLogQuerySet.as_manager()
 
     def __str__(self):
