@@ -1,4 +1,4 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'affiliations/base.html' %}
 
 {% load bootstrap %}
 
@@ -6,7 +6,6 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
-    <a href="{% url 'affiliations:institutions' %}" class="breadcrumb-item">Institutions</a>
     <span class="breadcrumb-item">Institution detail</span>
 {% endblock %}
 

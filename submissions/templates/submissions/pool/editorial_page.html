@@ -209,16 +209,19 @@
                         {% endif %}
                         {% if submission.eic_recommendation_required %}
                             <li>
-                                <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                                {% if submission.eicrecommendations.last %}
+                                    <a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a>
+                                {% else %}
+                                    <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                                {% endif %}
                                 <p>
                                     If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
                                     <br>
                                     If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
                                 </p>
                             </li>
-                        {% endif %}
-                        {% if submission.eicrecommendations.active.first %}
-                            {% if submission.eicrecommendations.active.first.may_be_reformulated %}
+                        {% elif submission.eicrecommendations.last %}
+                            {% if submission.eicrecommendations.last.may_be_reformulated %}
                                 <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
                             {% endif %}
                         {% endif %}

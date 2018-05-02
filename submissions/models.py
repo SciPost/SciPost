@@ -763,8 +763,12 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         """Check if this EICRecommdation is allowed to be reformulated in a new version."""
         if not self.active:
             # Already reformulated before; please use the latest version
-            return False
-        return self.status in [VOTING_IN_PREP, PUT_TO_VOTING]
+            return self.submission.eicrecommendations.last() == self
+        return return self.status in [VOTING_IN_PREP, PUT_TO_VOTING]
+
+    def get_other_versions(self):
+        """Return other versions of EICRecommendations for this Submission."""
+        return self.submission.eicrecommendations.exclude(id=self.id)
 
 
 class iThenticateReport(TimeStampedModel):

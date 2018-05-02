@@ -38,7 +38,7 @@ class MailUtilsMixin:
         self.instance = kwargs.pop('instance', None)
 
         # Gather meta data
-        json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
+        json_location = '%s/templates/email/%s.json' % (settings.BASE_DIR,
                                                                        self.mail_code)
         try:
             self.mail_data = json.loads(open(json_location).read())
@@ -50,7 +50,7 @@ class MailUtilsMixin:
         self.object = self.get_object(**kwargs)
 
         # Digest the templates
-        mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)
+        mail_template = loader.get_template('email/%s.html' % self.mail_code)
         if self.instance and self.mail_data.get('context_object'):
             kwargs[self.mail_data['context_object']] = self.instance
         self.mail_template = mail_template.render(kwargs)
