@@ -151,6 +151,30 @@ def convert_doi_to_lower_case():
         if i % 1000 == 0:
             print(i)
 
+@background()
+def add_journal_to_existing(journal_issn=None):
+    # Take journal from metadata ('container-title') and put it in top-level 'journal' field
+    # for all existing citables
+    i = 0
+    errors = 0
+    if journal_issn:
+        print('Using given journal ISSN ', journal_issn)
+        cits = Citable.objects(metadata__ISSN=journal_issn, journal__exists=False)
+    else:
+        cits = Citable.objects(journal__exists=False)
+
+    for cit in cits.only('metadata', 'journal'):
+        i = i + 1
+        if 'container-title' in cit.metadata:
+            journal = cit.metadata['container-title'][0]
+            cit.modify(journal=journal)
+        else:
+            errors = errors + 1
+
+        if i % 1000 == 0:
+            print(i)
+            print(errors, ' errors')
+            print('-------')
 
 def parse_crossref_citable(citable_item):
     if not citable_item['type'] == 'journal-article':

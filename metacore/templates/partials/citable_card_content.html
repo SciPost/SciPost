@@ -11,10 +11,10 @@
     Cited {{ citable.crossref_ref_count }} times (CrossRef) / {{ citable.times_cited}} times (SciPost Meta) 
         | DOI <a href='https://doi.org/{{ citable.doi }}'> {{ citable.doi }} </a>
       <br>
-      Published {{ citable.publication_date|date:"d-m-Y" }} by {{ citable.publisher }}
+      Published {{ citable.publication_date|date:"d-m-Y" }} by <b>{{ citable.publisher }}</b>
       {% if citable.journal %}
-        <br>
-        in {{ citable.journal }} 
+        <!-- <br> -->
+        in <b>{{ citable.journal }}</b>
       {% endif %}
     </p>
 {% endblock %}
