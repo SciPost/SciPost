@@ -107,11 +107,18 @@
     }
 }
 
+@media (max-width: 992px) {
+    .main-nav .search-form input {
+        padding-top: 0.6rem;
+        padding-bottom: 0.6rem;
+    }
+}
+
 .breadcrumb-nav,
 .sub-nav {
     background-color: $breadcrumb-bg;
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ccc;
 }
 
 .navbar-toggler {
