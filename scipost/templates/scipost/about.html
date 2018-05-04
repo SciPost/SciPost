@@ -126,7 +126,6 @@
 <hr>
 
 {% for discipline,fellowships in disciplines.items %}
-{#{% for college, codes in object_list %}#}
     <h2 class="highlight" id="editorial_college_{{ discipline|lower }}">Editorial College ({{ discipline }})</h2>
 
     <div class="row">
@@ -160,7 +159,7 @@
             <div class="card-columns">
                 {% for fellowship in fellowships.0 %}
                     <div class="card bg-white contributor mb-1">
-                        {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
+                        {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
                     </div>
                 {% endfor %}
             </div>
