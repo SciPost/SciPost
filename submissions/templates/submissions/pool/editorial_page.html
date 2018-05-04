@@ -76,23 +76,54 @@
 </div>
 
 <div class="row"><!-- Status -->
-    <div class="col-md-12">
-        {% include 'partials/submissions/submission_status.html' with submission=submission %}
-        {% if submission.plagiarism_report %}
-            <h4>Plagiarism report status: {% if submission.plagiarism_report.percent_match %}<b>{{submission.plagiarism_report.percent_match}}%</b>{% else %}<em>Scan in progress</em>{% endif %}</h4>
-        {% endif %}
+    <div class="col">
+        <table class="table table-borderless">
+            <tr>
+                <td>Current status:</td>
+                <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
+            </tr>
+            {% if submission.eicrecommendations.active.first %}
+                <tr>
+                    <td>Recommendation status:</td>
+                    <td><span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span></td>
+                </tr>
+            {% endif %}
+            <tr>
+                <td>Cycle:</td>
+                <td>{{ submission.get_refereeing_cycle_display }}</td>
+            </tr>
+            <tr>
+                <td>Plagiarism report:</td>
+                <td>
+                    {% if submission.plagiarism_report %}
+                        {% if submission.plagiarism_report.percent_match %}
+                            <b>{{submission.plagiarism_report.percent_match}}%</b>
+                        {% else %}
+                            <em>Scan in progress</em>
+                            {% if perms.scipost.can_do_plagiarism_checks %}
+                                <br>
+                                <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Update plagiarism score</a>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <em>No plagiarism report found.</em>
+                        {% if perms.scipost.can_do_plagiarism_checks %}
+                            <br>
+                            <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
     </div>
-</div><!-- End status -->
-
-{% if full_access %}
-    <div class="row">
-        <div class="col-md-10 col-lg-8">
+    {% if full_access %}
+        <div class="col-12 col-lg-6">
             {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
         </div>
-    </div>
-{% endif %}
+    {% endif %}
+</div><!-- End status -->
 
-{% if submission.status == 'resubmitted_incoming' %}
+{% if not submission.refereeing_cycle %}
     {% if full_access %}
         <div class="row">
             <div class="col-12">

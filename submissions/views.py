@@ -18,7 +18,7 @@ from django.template import Template, Context
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.base import RedirectView
-from django.views.generic.detail import DetailView, SingleObjectMixin
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -36,7 +36,7 @@ from .forms import (
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm,
     EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, iThenticateReportForm,
-    SubmissionPoolFilterForm)
+    SubmissionPoolFilterForm, FixCollegeDecisionForm)
 from .signals import notify_manuscript_accepted
 from .utils import SubmissionUtils
 
@@ -1539,64 +1539,112 @@ def fix_College_decision(request, rec_id):
 
     Called by an Editorial Administrator.
     """
-    submissions = Submission.objects.pool_full(request.user)
-    recommendation = get_object_or_404(EICRecommendation.objects.filter(
-        submission__in=submissions).put_to_voting(), id=rec_id)
-
-    submission = recommendation.submission
-    if recommendation.recommendation in [1, 2, 3]:
-        # Publish as Tier I, II or III
-        Submission.objects.filter(id=submission.id).update(
-            visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
-            latest_activity=timezone.now())
-
-        # Create a ProductionStream object
-        prodstream = ProductionStream(submission=submission)
-        prodstream.save()
-        ed_admins = Group.objects.get(name='Editorial Administrators')
-        assign_perm('can_perform_supervisory_actions', ed_admins, prodstream)
-        assign_perm('can_work_for_stream', ed_admins, prodstream)
-
-        # Add SubmissionEvent for authors
-        notify_manuscript_accepted(request.user, submission, False)
-        submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
-                                        % recommendation.get_recommendation_display())
-    elif recommendation.recommendation == -3:
-        # Decision: Rejection
-        Submission.objects.filter(id=submission.id).update(
-            visible_public=False, status=STATUS_REJECTED, latest_activity=timezone.now())
-        submission.get_other_versions().update(visible_public=False)
-
-        # Add SubmissionEvent for authors
-        submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
-                                        % recommendation.get_recommendation_display())
-
-    # Add SubmissionEvent for EIC
-    submission.add_event_for_eic('The Editorial College\'s decision has been fixed: %s.'
-                                 % recommendation.get_recommendation_display())
-
-    # Temporary: Update submission instance for utils email func.
-    # Won't be needed in new mail construct.
-    submission = Submission.objects.get(id=submission.id)
-    SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
-    SubmissionUtils.send_author_College_decision_email()
-    messages.success(request, 'The Editorial College\'s decision has been fixed.')
+    #
+    # submissions = Submission.objects.pool_full(request.user)
+    # recommendation = get_object_or_404(EICRecommendation.objects.filter(
+    #     submission__in=submissions).put_to_voting(), id=rec_id)
+    #
+    # form = FixCollegeDecisionForm(request.POST or None, instance=recommendation)
+    # if form.is_valid():
+    #     recommendation = form.save()
+    #     submission = recommendation.submission
+    #
+    #     # Temporary: Update submission instance for utils email func.
+    #     # Won't be needed in new mail construct.
+    #     submission = Submission.objects.get(id=recommendation.submission.id)
+    #     SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
+    #     SubmissionUtils.send_author_College_decision_email()
+    #
+    #     submission.add_event_for_eic(
+    #         'The Editorial College\'s decision has been fixed: {0}.'.format(
+    #             recommendation.get_recommendation_display()))
+    #     messages.success(request, 'The Editorial College\'s decision has been fixed.')
+    #     return redirect(reverse('submissions:pool'))
+    #
+    # submission = recommendation.submission
+    # if recommendation.recommendation in [1, 2, 3]:
+    #     # Publish as Tier I, II or III
+    #     Submission.objects.filter(id=submission.id).update(
+    #         visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
+    #         latest_activity=timezone.now())
+    #
+    #     # Create a ProductionStream object
+    #     prodstream = ProductionStream(submission=submission)
+    #     prodstream.save()
+    #     ed_admins = Group.objects.get(name='Editorial Administrators')
+    #     assign_perm('can_perform_supervisory_actions', ed_admins, prodstream)
+    #     assign_perm('can_work_for_stream', ed_admins, prodstream)
+    #
+    #     # Add SubmissionEvent for authors
+    #     notify_manuscript_accepted(request.user, submission, False)
+    #     submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
+    #                                     % recommendation.get_recommendation_display())
+    # elif recommendation.recommendation == -3:
+    #     # Decision: Rejection
+    #     Submission.objects.filter(id=submission.id).update(
+    #         visible_public=False, status=STATUS_REJECTED, latest_activity=timezone.now())
+    #     submission.get_other_versions().update(visible_public=False)
+    #
+    #     # Add SubmissionEvent for authors
+    #     submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
+    #                                     % recommendation.get_recommendation_display())
+    #
+    # # Add SubmissionEvent for EIC
+    # submission.add_event_for_eic('The Editorial College\'s decision has been fixed: %s.'
+    #                              % recommendation.get_recommendation_display())
+    # #
+    # # # Temporary: Update submission instance for utils email func.
+    # # # Won't be needed in new mail construct.
+    # # submission = Submission.objects.get(id=submission.id)
+    # # SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
+    # # SubmissionUtils.send_author_College_decision_email()
+    # # messages.success(request, 'The Editorial College\'s decision has been fixed.')
     return redirect(reverse('submissions:pool'))
 
 
-class EICRecommendationView(SubmissionAdminViewMixin, DetailView):
+class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):
     """EICRecommendation detail view."""
 
     permission_required = 'scipost.can_fix_College_decision'
     template_name = 'submissions/pool/recommendation.html'
     editorial_page = True
+    form_class = FixCollegeDecisionForm
+    success_url = reverse_lazy('submissions:pool')
+
+    def get_object(self):
+        """Get EICRecommendation."""
+        submission = super().get_object()
+        return get_object_or_404(submission.eicrecommendations.all(), id=self.kwargs['rec_id'])
+
+    def get_form_kwargs(self):
+        """Form accepts request as argument."""
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
     def get_context_data(self, *args, **kwargs):
         """Get the EICRecommendation as a submission-related instance."""
         ctx = super().get_context_data(*args, **kwargs)
-        ctx['recommendation'] = get_object_or_404(
-            ctx['submission'].eicrecommendations.all(), id=self.kwargs['rec_id'])
+        ctx['recommendation'] = ctx['object']
         return ctx
+
+    @transaction.atomic
+    def form_valid(self, form):
+        """Redirect and send out mails if decision is fixed."""
+        recommendation = form.save()
+        if form.is_fixed():
+            submission = recommendation.submission
+
+            # Temporary: Update submission instance for utils email func.
+            # Won't be needed in new mail construct.
+            submission = Submission.objects.get(id=recommendation.submission.id)
+            SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
+            SubmissionUtils.send_author_College_decision_email()
+            messages.success(self.request, 'The Editorial College\'s decision has been fixed.')
+        else:
+            messages.success(
+                self.request, 'The Editorial College\'s decision has been deprecated.')
+        return HttpResponseRedirect(self.success_url)
 
 
 class PlagiarismView(SubmissionAdminViewMixin, UpdateView):

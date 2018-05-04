@@ -70,7 +70,7 @@ class Submission(models.Model):
     visible_pool = models.BooleanField("Is visible in the Pool", default=True)
     is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
-        max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT)
+        max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
 
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')

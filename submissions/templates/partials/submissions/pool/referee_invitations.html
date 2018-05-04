@@ -1,20 +1,28 @@
-<table class="table table-invitations">
+<table class="table bg-light table-hover">
+    <thead>
+        <tr>
+            <th>Referee</th>
+            <th>Invitation date</th>
+            <th>Task status</th>
+            <th colspan="4">Actions</th>
+        </tr>
+    </thead>
     <tbody>
     {% for invitation in invitations %}
         <tr>
-            <td>{{invitation.first_name}} {{invitation.last_name}}</td>
+            <td>{{ invitation.get_title_display }} {{invitation.first_name}} {{invitation.last_name}}</td>
             <td>
-                invited <br/>
+                invited <br>
                 {{invitation.date_invited}}
             </td>
             <td>
                 {% if invitation.fulfilled %}
-                    <strong style="color: green">task fulfilled</strong>
+                    <strong class="text-success">task fulfilled</strong>
                 {% elif invitation.cancelled %}
                     <strong class="text-danger">cancelled</strong>
                 {% elif invitation.accepted is not None %}
                     {% if invitation.accepted %}
-                        <strong style="color: green">task accepted</strong>
+                        <strong class="text-success">task accepted</strong>
                     {% else %}
                         <strong class="text-danger">task declined</strong>
                     {% endif %}
@@ -56,7 +64,7 @@
         </tr>
     {% empty %}
         <tr>
-            <td class="text-center py-3">You have not invited any referees yet.</td>
+            <td class="text-center py-3" colspan="7">You have not invited any referees yet.</td>
         </tr>
     {% endfor %}
     </tbody>

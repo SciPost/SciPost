@@ -36,7 +36,6 @@ SUBMISSION_STATUS = (
 
 # Submissions with these statuses never have required actions.
 NO_REQUIRED_ACTION_STATUSES = [
-    STATUS_INCOMING,
     STATUS_UNASSIGNED,
     STATUS_ASSIGNMENT_FAILED,
     STATUS_REJECTED,
@@ -103,14 +102,17 @@ RANKING_CHOICES = (
     (0, 'poor')
 )
 
+REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3 = 1, 2, 3
+REPORT_MINOR_REV, REPORT_MAJOR_REV = -1, -2
+REPORT_REJECT = -3
 REPORT_REC = (
     (None, '-'),
-    (1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select)'),
-    (2, 'Publish as Tier II (top 50% of papers in this journal)'),
-    (3, 'Publish as Tier III (meets the criteria of this journal)'),
-    (-1, 'Ask for minor revision'),
-    (-2, 'Ask for major revision'),
-    (-3, 'Reject')
+    (REPORT_PUBLISH_1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select)'),
+    (REPORT_PUBLISH_2, 'Publish as Tier II (top 50% of papers in this journal)'),
+    (REPORT_PUBLISH_3, 'Publish as Tier III (meets the criteria of this journal)'),
+    (REPORT_MINOR_REV, 'Ask for minor revision'),
+    (REPORT_MAJOR_REV, 'Ask for major revision'),
+    (REPORT_REJECT, 'Reject')
 )
 
 #
@@ -158,12 +160,12 @@ REPORT_TYPES = (
 
 CYCLE_UNDETERMINED = ''
 CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC = 'default', 'short', 'direct_rec'
-SUBMISSION_CYCLES = (
-    (CYCLE_UNDETERMINED, 'Cycle undetermined'),
+SUBMISSION_CYCLE_CHOICES = (
     (CYCLE_DEFAULT, 'Default cycle'),
     (CYCLE_SHORT, 'Short cycle'),
     (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),
 )
+SUBMISSION_CYCLES = ((CYCLE_UNDETERMINED, 'Cycle undetermined'),) + SUBMISSION_CYCLE_CHOICES
 
 EVENT_GENERAL = 'gen'
 EVENT_FOR_EIC = 'eic'

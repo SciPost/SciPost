@@ -14,16 +14,20 @@ from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_VETTED,
-    EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED)
+    EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
+    SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3,
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     iThenticateReport, EditorialCommunication)
+from .signals import notify_manuscript_accepted
 
 from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
+from production.utils import get_or_create_production_stream
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor
@@ -547,6 +551,8 @@ class SetRefereeingDeadlineForm(forms.Form):
 
 
 class VotingEligibilityForm(forms.ModelForm):
+    """Assign Fellows to vote for EICRecommendation and open its status for voting."""
+
     eligible_fellows = forms.ModelMultipleChoiceField(
         queryset=Contributor.objects.none(),
         widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
@@ -557,22 +563,23 @@ class VotingEligibilityForm(forms.ModelForm):
         fields = ()
 
     def __init__(self, *args, **kwargs):
+        """Get queryset of Contributors eligibile for voting."""
         super().__init__(*args, **kwargs)
         self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
-                fellowships__pool=self.instance.submission,
-                expertises__contains=[self.instance.submission.subject_area]
-                ).order_by('user__last_name')
+            fellowships__pool=self.instance.submission,
+            expertises__contains=[
+                self.instance.submission.subject_area]).order_by('user__last_name')
 
     def save(self, commit=True):
-        recommendation = self.instance
-        recommendation.eligible_to_vote = self.cleaned_data['eligible_fellows']
-        recommendation.status = PUT_TO_VOTING
+        """Update EICRecommendation status and save its voters."""
+        self.instance.eligible_to_vote = self.cleaned_data['eligible_fellows']
+        self.instance.status = PUT_TO_VOTING
 
         if commit:
-            recommendation.save()
-            recommendation.submission.touch()
-            recommendation.voted_for.add(recommendation.submission.editor_in_charge)
-        return recommendation
+            self.instance.save()
+            self.instance.submission.touch()
+            self.instance.voted_for.add(self.instance.submission.editor_in_charge)
+        return self.instance
 
 
 ############
@@ -827,7 +834,7 @@ class EICRecommendationForm(forms.ModelForm):
 
         if commit:
             if self.earlier_recommendations:
-                self.earlier_recommendations.update(active=False)
+                self.earlier_recommendations.update(active=False, status=DEPRECATED)
 
                 # All reports already submitted are now formulated *after* eic rec formulation
                 Report.objects.filter(
@@ -882,10 +889,10 @@ class RecommendationVoteForm(forms.Form):
 
 
 class SubmissionCycleChoiceForm(forms.ModelForm):
-    referees_reinvite = forms.ModelMultipleChoiceField(queryset=RefereeInvitation.objects.none(),
-                                                       widget=forms.CheckboxSelectMultiple({
-                                                            'checked': 'checked'}),
-                                                       required=False, label='Reinvite referees')
+    referees_reinvite = forms.ModelMultipleChoiceField(
+        queryset=RefereeInvitation.objects.none(),
+        widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
+        required=False, label='Reinvite referees')
 
     class Meta:
         model = Submission
@@ -894,7 +901,7 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['refereeing_cycle'].default = None
+        self.fields['refereeing_cycle'].choices = SUBMISSION_CYCLE_CHOICES
         other_submissions = self.instance.other_versions.all()
         if other_submissions:
             self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
@@ -1008,3 +1015,88 @@ class iThenticateReportForm(forms.ModelForm):
                 self.add_error(None, msg)
             return None
         return data
+
+
+class FixCollegeDecisionForm(forms.ModelForm):
+    """Fix EICRecommendation decision."""
+
+    FIX, DEPRECATE = 'fix', 'deprecate'
+    action = forms.ChoiceField(choices=((FIX, FIX), (DEPRECATE, DEPRECATE)))
+
+    class Meta:
+        model = EICRecommendation
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        """Accept request as argument."""
+        self.submission = kwargs.pop('submission', None)
+        self.request = kwargs.pop('request', None)
+        return super().__init__(*args, **kwargs)
+
+    def clean(self):
+        """Check if EICRecommendation has the right decision."""
+        data = super().clean()
+        if self.instance.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]:
+            self.add_error(None, 'This EICRecommendation its decision can not be fixed.')
+        elif self.instance.status == DECISION_FIXED:
+            self.add_error(None, 'This EICRecommendation is already fixed.')
+        elif self.instance.status == DEPRECATED:
+            self.add_error(None, 'This EICRecommendation is deprecated.')
+        return data
+
+    def is_fixed(self):
+        """Check if decision is fixed."""
+        return self.cleaned_data['action'] == self.FIX
+
+    def fix_decision(self, recommendation):
+        """Fix decision of EICRecommendation."""
+        EICRecommendation.objects.filter(id=recommendation.id).update(status=DECISION_FIXED)
+        submission = recommendation.submission
+        if recommendation in [REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]:
+            # Publish as Tier I, II or III
+            Submission.objects.filter(id=submission.id).update(
+                visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
+                latest_activity=timezone.now())
+
+            # Start a new ProductionStream
+            get_or_create_production_stream(submission)
+
+            if self.request:
+                # Add SubmissionEvent for authors
+                notify_manuscript_accepted(self.request.user, submission, False)
+        elif recommendation.recommendation == REPORT_REJECT:
+            # Decision: Rejection. Auto hide from public and Pool.
+            Submission.objects.filter(id=submission.id).update(
+                visible_public=False, visible_pool=False,
+                status=STATUS_REJECTED, latest_activity=timezone.now())
+            submission.get_other_versions().update(visible_public=False)
+
+        # Add SubmissionEvent for authors
+        submission.add_event_for_author(
+            'The Editorial Recommendation has been formulated: {0}.'.format(
+                recommendation.get_recommendation_display()))
+        submission.add_event_for_eic(
+            'The Editorial Recommendation has been fixed: {0}.'.format(
+                recommendation.get_recommendation_display()))
+        return recommendation
+
+    def deprecate_decision(self, recommendation):
+        """Deprecate decision of EICRecommendation."""
+        EICRecommendation.objects.filter(id=recommendation.id).update(
+            status=DEPRECATED, active=False)
+        recommendation.submission.add_event_for_eic(
+            'The Editorial Recommendation (v{version}) has been deprecated: {decision}.'.format(
+                version=recommendation.version,
+                decision=recommendation.get_recommendation_display()))
+
+        return recommendation
+
+    def save(self):
+        """Update EICRecommendation and related Submission."""
+        if self.is_fixed():
+            return self.fix_decision(self.instance)
+        elif self.cleaned_data['action'] == self.DEPRECATE:
+            return self.deprecate_decision(self.instance)
+        else:
+            raise ValueError('The decision given is invalid')
+        return self.instance

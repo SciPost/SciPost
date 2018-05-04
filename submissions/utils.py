@@ -49,15 +49,20 @@ class BaseSubmissionCycle:
             # Editor-in-charge has requested revision.
             return False
 
-        if self.submission.eicrecommendations.exists():
+        if not self.submission.plagiarism_report:
+            # No plagiarism report is known yet.
+            self.required_actions.append((
+                'plagiarism_report',
+                'No plagiarism report found. Please run the plagiarism check.'))
+
+        if self.submission.eicrecommendations.active().exists():
             # A Editorial Recommendation has already been submitted. Cycle done.
             return False
 
-        if self.submission.is_resubmission and self.submission.status == STATUS_INCOMING:
-            # Submission is a resubmission and the EIC still has to determine which
-            # cycle to proceed with.
-            self.required_actions.append(('choose_cycle',
-                                          'Choose the submission cycle to proceed with.',))
+        if not self.submission.refereeing_cycle:
+            # Submission is a resubmission: EIC has to determine which cycle to proceed with.
+            self.required_actions.append(
+                ('choose_cycle', 'Choose the submission cycle to proceed with.'))
             return False
 
         comments_to_vet = self.submission.comments.awaiting_vetting().count()

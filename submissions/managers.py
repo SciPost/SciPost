@@ -137,7 +137,7 @@ class SubmissionQuerySet(models.QuerySet):
 
     def actively_refereeing(self):
         """Return submission currently in some point of the refereeing round."""
-        return self.exclude(status=constants.STATUS_EIC_ASSIGNED)
+        return self.filter(status=constants.STATUS_EIC_ASSIGNED)
 
     def public(self):
         """Return all publicly available Submissions."""
