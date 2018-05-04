@@ -285,7 +285,7 @@ class PrecookedEmail(models.Model):
 ######################
 
 class EditorialCollege(models.Model):
-    '''A SciPost Editorial College for a specific discipline.'''
+    """A SciPost Editorial College for a specific discipline."""
     discipline = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
