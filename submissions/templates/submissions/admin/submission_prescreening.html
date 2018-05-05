@@ -1,0 +1,55 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: pre-screening ({{ submission.arxiv_identifier_w_vn_nr }}){% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Pre-screening {{ submission.arxiv_identifier_w_vn_nr }}</span>
+{% endblock %}
+
+{% block content %}
+    <h1 class="highlight">Pre-screening of Submission</h1>
+    <h3>Submission summary</h3>
+    {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+
+    <h3>Plagiarism report</h3>
+    {% if submission.plagiarism_report %}
+        <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Update plagiarism report</a>
+        <br>
+        <table>
+            <tr>
+                <td style="min-width: 150px;">iThenticate document</td>
+                <td>{{submission.plagiarism_report.doc_id}}</td>
+            </tr>
+            <tr>
+                <td>Percent match</td>
+                <td>{{ submission.plagiarism_report.percent_match|default:'?' }}%</td>
+            </tr>
+            <tr>
+                <td>Processed</td>
+                <td>{{submission.plagiarism_report.processed_time}}</td>
+            </tr>
+            <tr>
+                <td>Uploaded</td>
+                <td>{{submission.plagiarism_report.uploaded_time}}</td>
+            </tr>
+            <tr>
+                <td>Latest update</td>
+                <td>{{submission.plagiarism_report.latest_activity}}</td>
+            </tr>
+        </table>
+        <br>
+    {% else %}
+        <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
+    {% endif %}
+
+    <h3>Take decision of pre-screening</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Submit">
+    </form>
+
+{% endblock content %}

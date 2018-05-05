@@ -13,10 +13,11 @@ from django.utils import timezone
 from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
-    STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_VETTED,
+    STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
-    SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED)
+    SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED,
+    STATUS_EIC_ASSIGNED)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -65,7 +66,7 @@ class SubmissionPoolFilterForm(forms.Form):
     def search(self, queryset, current_user):
         if self.cleaned_data.get('status'):
             # Do extra check on non-required field to never show errors on template
-            queryset = queryset.pool_full(current_user).filter(status=self.cleaned_data['status'])
+            queryset = queryset.pool_editable(current_user).filter(status=self.cleaned_data['status'])
         else:
             # If no specific status if requested, just return the Pool by default
             queryset = queryset.pool(current_user)
@@ -374,8 +375,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             open_for_reporting=True,
             open_for_commenting=True,
             is_resubmission=True,
+            visible_pool=True,
             editor_in_charge=self.last_submission.editor_in_charge,
-            status=STATUS_INCOMING)
+            status=STATUS_EIC_ASSIGNED)
 
         # Add author(s) (claim) fields
         submission.authors.add(*self.last_submission.authors.all())
@@ -443,6 +445,36 @@ class SubmissionReportsForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = ['pdf_refereeing_pack']
+
+
+class SubmissionPrescreeningForm(forms.ModelForm):
+    """Processing decision for pre-screening of Submission."""
+
+    PASS = 'pass'
+    CHOICES = ((PASS, 'Pass pre-screening. Proceed to the Pool.'),)
+    decision = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES, required=False)
+
+    class Meta:
+        model = Submission
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        """Check if Submission has right status."""
+        data = super().clean()
+        if self.instance.status != STATUS_INCOMING:
+            self.add_error(None, 'This Submission is currently not in pre-screening.')
+        return data
+
+    @transaction.atomic
+    def save(self):
+        """Update Submission status."""
+        Submission.objects.filter(id=self.instance.id).update(
+            status=STATUS_UNASSIGNED, visible_pool=True)
 
 
 ######################
@@ -617,7 +649,7 @@ class ReportForm(forms.ModelForm):
 
         self.submission = kwargs.pop('submission')
 
-        super(ReportForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['strengths'].widget.attrs.update({
             'placeholder': ('Give a point-by-point '
                             '(numbered 1-, 2-, ...) list of the paper\'s strengths'),
@@ -758,6 +790,8 @@ class EditorialCommunicationForm(forms.ModelForm):
 ######################
 
 class EICRecommendationForm(forms.ModelForm):
+    """Formulate an EICRecommendation."""
+
     DAYS_TO_VOTE = 7
     assignment = None
     earlier_recommendations = None
@@ -786,7 +820,7 @@ class EICRecommendationForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        """EICRecommendation accepts two additional kwargs.
+        """Accept two additional kwargs.
 
         -- submission: The Submission to formulate an EICRecommendation for.
         -- reformulate (bool): Reformulate the currently available EICRecommendations.
@@ -808,7 +842,7 @@ class EICRecommendationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.load_assignment()
 
-    def save(self, commit=True):
+    def save(self):
         recommendation = super().save(commit=False)
         recommendation.submission = self.submission
         recommendation.voting_deadline += datetime.timedelta(days=self.DAYS_TO_VOTE)  # Test this
@@ -819,39 +853,37 @@ class EICRecommendationForm(forms.ModelForm):
         else:
             event_text = 'An Editorial Recommendation has been formulated: {}.'
 
-        if recommendation.recommendation in [1, 2, 3, -3] and commit:
+        if recommendation.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]:
+            # Minor/Major revision: return to Author; ask to resubmit
+            recommendation.status = DECISION_FIXED
+            Submission.objects.filter(id=self.submission.id).update(open_for_reporting=False)
+
+            # Add SubmissionEvents for both Author and EIC
+            self.submission.add_general_event(event_text.format(
+                recommendation.get_recommendation_display()))
+        else:
             # Add SubmissionEvent for EIC only
             self.submission.add_event_for_eic(event_text.format(
                 recommendation.get_recommendation_display()))
-        elif recommendation.recommendation in [-1, -2]:
-            # Minor/Major revision: return to Author; ask to resubmit
-            self.submission.open_for_reporting = False
 
-            if commit:
-                # Add SubmissionEvents for both Author and EIC
-                self.submission.add_general_event(event_text.format(
-                    recommendation.get_recommendation_display()))
+        if self.earlier_recommendations:
+            self.earlier_recommendations.update(active=False, status=DEPRECATED)
 
-        if commit:
-            if self.earlier_recommendations:
-                self.earlier_recommendations.update(active=False, status=DEPRECATED)
+            # All reports already submitted are now formulated *after* eic rec formulation
+            Report.objects.filter(
+                submission__eicrecommendations__in=self.earlier_recommendations).update(
+                    report_type=REPORT_NORMAL)
 
-                # All reports already submitted are now formulated *after* eic rec formulation
-                Report.objects.filter(
-                    submission__eicrecommendations__in=self.earlier_recommendations).update(
-                        report_type=REPORT_NORMAL)
+        recommendation.save()
 
-            recommendation.save()
-            self.submission.save()
-
-            if self.assignment:
-                # The EIC has fulfilled this editorial assignment.
-                self.assignment.completed = True
-                self.assignment.save()
+        if self.assignment:
+            # The EIC has fulfilled this editorial assignment.
+            self.assignment.completed = True
+            self.assignment.save()
         return recommendation
 
     def revision_requested(self):
-        return self.instance.recommendation in [-1, -2]
+        return self.instance.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]
 
     def has_assignment(self):
         return self.assignment is not None
@@ -866,6 +898,7 @@ class EICRecommendationForm(forms.ModelForm):
             return False
 
     def load_earlier_recommendations(self):
+        """Load and save EICRecommendations related to Submission of the instance."""
         self.earlier_recommendations = self.submission.eicrecommendations.all()
 
 
@@ -874,21 +907,21 @@ class EICRecommendationForm(forms.ModelForm):
 ###############
 
 class RecommendationVoteForm(forms.Form):
-    vote = forms.ChoiceField(widget=forms.RadioSelect,
-                             choices=[('agree', 'Agree'),
-                                      ('disagree', 'Disagree'),
-                                      ('abstain', 'Abstain')],
-                             label='',
-                             )
-    remark = forms.CharField(widget=forms.Textarea(), label='', required=False)
+    """Cast vote on EICRecommendation form."""
 
-    def __init__(self, *args, **kwargs):
-        super(RecommendationVoteForm, self).__init__(*args, **kwargs)
-        self.fields['remark'].widget.attrs.update(
-            {'rows': 3, 'cols': 30, 'placeholder': 'Your remarks (optional)'})
+    vote = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=[
+            ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')], label='')
+    remark = forms.CharField(widget=forms.Textarea(attrs={
+        'rows': 3,
+        'cols': 30,
+        'placeholder': 'Your remarks (optional)'
+    }), label='', required=False)
 
 
 class SubmissionCycleChoiceForm(forms.ModelForm):
+    """Make a decision on the Submission's cycle and make publicly available."""
+
     referees_reinvite = forms.ModelMultipleChoiceField(
         queryset=RefereeInvitation.objects.none(),
         widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
@@ -900,12 +933,18 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         widgets = {'refereeing_cycle': forms.RadioSelect}
 
     def __init__(self, *args, **kwargs):
+        """Update choices and queryset."""
         super().__init__(*args, **kwargs)
         self.fields['refereeing_cycle'].choices = SUBMISSION_CYCLE_CHOICES
         other_submissions = self.instance.other_versions.all()
         if other_submissions:
             self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
                 submission__in=other_submissions).distinct()
+
+    def save(self):
+        """Make Submission publicly available after decision."""
+        self.instance.visible_public = True
+        return super().save()
 
 
 class iThenticateReportForm(forms.ModelForm):

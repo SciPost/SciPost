@@ -17,7 +17,7 @@ from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
-    SUBMISSION_STATUS, STATUS_UNASSIGNED, REPORT_STATUSES, STATUS_UNVETTED,
+    SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP)
@@ -64,10 +64,10 @@ class Submission(models.Model):
         blank=True, null=True)
 
     # Submission status fields
-    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
+    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING)
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
-    visible_pool = models.BooleanField("Is visible in the Pool", default=True)
+    visible_pool = models.BooleanField("Is visible in the Pool", default=False)
     is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
@@ -207,6 +207,11 @@ class Submission(models.Model):
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed it's reporting deadline."""
         return timezone.now() > self.reporting_deadline
+
+    @property
+    def is_open_for_reporting(self):
+        """Check if Submission is open for reporting and within deadlines."""
+        return self.open_for_reporting and not self.reporting_deadline_has_passed
 
     @property
     def original_submission_date(self):

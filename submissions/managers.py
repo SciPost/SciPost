@@ -68,13 +68,10 @@ class SubmissionQuerySet(models.QuerySet):
 
     def pool(self, user):
         """Return the user-dependent pool of Submissions in active referee phase."""
-        qs = self._pool(user)
-        qs = qs.filter(is_current=True, status__in=[
+        return self.pool_editable(user).filter(is_current=True, status__in=[
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
-            constants.STATUS_ACCEPTED,
-        ])
-        return qs
+            constants.STATUS_ACCEPTED])
 
     def pool_editable(self, user):
         """Return the editable pool for a certain user.
@@ -84,31 +81,7 @@ class SubmissionQuerySet(models.QuerySet):
         the Editor-in-charge.
         """
         qs = self._pool(user)
-        qs = qs.filter(status__in=[
-            constants.STATUS_INCOMING,
-            constants.STATUS_UNASSIGNED,
-            constants.STATUS_EIC_ASSIGNED,
-            constants.STATUS_ACCEPTED,
-            constants.STATUS_PUBLISHED,
-            #
-            # constants.STATUS_INCOMING,
-            # constants.STATUS_ASSIGNMENT_FAILED,
-            # constants.STATUS_REJECTED,
-            # constants.STATUS_WITHDRAWN,
-            # constants.STATUS_PUBLISHED,
-        ])
-        return qs
-
-    def pool_full(self, user):
-        """Return the *FULL* user-dependent Submission pool.
-
-        This makes sure the user can see all history of Submissions related to its Fellowship(s).
-
-        Do not use this filter by default however, as this also contains Submissions
-        that are for example either rejected or accepted already and thus "inactive."
-        """
-        qs = self._pool(user)
-        return qs
+        return qs.filter(visible_pool=True)
 
     def filter_for_eic(self, user):
         """Return the set of Submissions the user is Editor-in-charge for.
@@ -117,8 +90,8 @@ class SubmissionQuerySet(models.QuerySet):
         """
         qs = self._pool(user)
 
-        if not user.has_perm('scipost.can_oversee_refereeing') and hasattr(user, 'contributor'):
-            qs = qs.filter(editor_in_charge=user.contributor)
+        if not user.has_perm('scipost.can_oversee_refereeing'):
+            qs = qs.filter(editor_in_charge__user=user)
         return qs
 
     def filter_for_author(self, user):
@@ -188,7 +161,8 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submissions with a fixed EICRecommendation: minor or major revision."""
         return self.filter(
             eicrecommendations__status=constants.DECISION_FIXED,
-            eicrecommendations__recommendation__in=[-1, -2])
+            eicrecommendations__recommendation__in=[
+                constants.REPORT_MINOR_REV, constants.REPORT_MAJOR_REV])
 
     def published(self):
         """Return published Submissions."""
@@ -361,10 +335,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return qs
 
     def overdue(self):
-        qs = self.in_process()
-        deadline = now
-        qs = qs.filter(submission__reporting_deadline__lte=deadline)
-        return qs
+        return self.in_process().filter(submission__reporting_deadline__lte=now)
 
 
 class EditorialCommunicationQueryset(models.QuerySet):

@@ -33,6 +33,8 @@ urlpatterns = [
 
     # Editorial Administration
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
+    url(r'^admin/{regex}/prescreening$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.PreScreeningView.as_view(), name='do_prescreening'),
     url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
     url(r'^admin/{regex}/plagiarism$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
@@ -122,7 +124,4 @@ urlpatterns = [
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
     url(r'^remind_Fellows_to_vote$', views.remind_Fellows_to_vote,
         name='remind_Fellows_to_vote'),
-    # Editorial Administration
-    url(r'fix_College_decision/(?P<rec_id>[0-9]+)$', views.fix_College_decision,
-        name='fix_College_decision'),
 ]

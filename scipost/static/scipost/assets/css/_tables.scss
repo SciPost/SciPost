@@ -1,7 +1,9 @@
 .table {
-    th,
-    td {
-        vertical-align: middle;
+    &.v-center {
+        th,
+        td {
+            vertical-align: middle;
+        }
     }
 
     td {

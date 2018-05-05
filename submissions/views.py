@@ -8,7 +8,6 @@ import strings
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
@@ -22,11 +21,9 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from guardian.shortcuts import assign_perm
-
 from .constants import (
     STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
-    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_REJECTED, STATUS_ACCEPTED)
+    STATUS_DRAFT, CYCLE_DIRECT_REC)
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
@@ -36,8 +33,7 @@ from .forms import (
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm,
     EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, iThenticateReportForm,
-    SubmissionPoolFilterForm, FixCollegeDecisionForm)
-from .signals import notify_manuscript_accepted
+    SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm)
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
@@ -45,7 +41,6 @@ from comments.forms import CommentForm
 from journals.models import Journal
 from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
-from production.models import ProductionStream
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
@@ -406,7 +401,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     context['submission'] = None
     if arxiv_identifier_w_vn_nr:
         try:
-            context['submission'] = Submission.objects.pool_full(request.user).get(
+            context['submission'] = Submission.objects.pool_editable(request.user).get(
                 arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
         except Submission.DoesNotExist:
             pass
@@ -415,6 +410,9 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
     if request.user.has_perm('scipost.can_oversee_refereeing'):
         context['latest_submission_events'] = SubmissionEvent.objects.for_eic().last_hours()\
             .filter(submission__in=context['submissions'])
+
+    if request.user.has_perm('scipost.can_run_pre_screening'):
+        context['pre_screening_subs'] = Submission.objects.prescreening()
 
     # Pool gets Submission details via ajax request
     if context['submission'] and request.is_ajax():
@@ -644,7 +642,8 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
 
         # Update status of Submission
         submission.touch()
-        Submission.objects.filter(id=submission.id).update(status=STATUS_ASSIGNMENT_FAILED)
+        Submission.objects.filter(id=submission.id).update(
+            status=STATUS_ASSIGNMENT_FAILED, visible_pool=False, visible_public=False)
 
         messages.success(
             request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
@@ -684,7 +683,7 @@ def editorial_page(request, arxiv_identifier_w_vn_nr):
     The central page for the Editor-in-charge to manage all its Editorial duties. It's accessible
     for both the Editor-in-charge of the Submission and the Editorial Administration.
     """
-    submission = get_object_or_404(Submission.objects.pool_full(request.user),
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
     full_access = True
@@ -1043,9 +1042,7 @@ def extend_refereeing_deadline(request, arxiv_identifier_w_vn_nr, days):
 
 @login_required
 def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
-    """
-    Set Refereeing deadline for Submission and open reporting and commenting if
-    the new date is in the future.
+    """Set Refereeing deadline for Submission and open reporting and commenting.
 
     Accessible for: Editor-in-charge and Editorial Administration
     """
@@ -1058,8 +1055,8 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
         if form.cleaned_data['deadline'] > timezone.now().date():
             submission.open_for_reporting = True
             submission.open_for_commenting = True
-        submission.status = STATUS_EIC_ASSIGNED
-        submission.latest_activity = timezone.now()
+            submission.latest_activity = timezone.now()
+        # submission.status = STATUS_EIC_ASSIGNED  # This is dangerous as shit.
         submission.save()
         submission.add_general_event('A new refereeing deadline is set.')
         messages.success(request, 'New reporting deadline set.')
@@ -1090,6 +1087,7 @@ def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
         reporting_deadline=timezone.now(),
         latest_activity=timezone.now())
     submission.add_general_event('Refereeing round has been closed.')
+    messages.success(request, 'Refereeing round closed.')
 
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
@@ -1274,22 +1272,21 @@ def reformulate_eic_recommendation(request, arxiv_identifier_w_vn_nr):
 @permission_required('scipost.can_referee', raise_exception=True)
 @transaction.atomic
 def submit_report(request, arxiv_identifier_w_vn_nr):
-    """
-    A form to submit a report on a submission will be shown and processed here.
+    """Submit Report on a Submission.
 
     Important checks to be aware of include an author check for the submission,
     has the reporting deadline not been reached yet and does there exist any invitation
     for the current user on this submission.
     """
-    submission = get_object_or_404(Submission.objects.open_for_reporting(),
-                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
     # Check whether the user can submit a report:
     current_contributor = request.user.contributor
     is_author = current_contributor in submission.authors.all()
     is_author_unchecked = (not is_author and not
                            (current_contributor in submission.authors_false_claims.all()) and
                            (request.user.last_name in submission.author_list))
-    invitation = submission.referee_invitations.filter(referee=current_contributor).first()
+    invitation = submission.referee_invitations.filter(
+        fulfilled=False, cancelled=False, referee=current_contributor).first()
 
     errormessage = None
     if not invitation:
@@ -1532,74 +1529,14 @@ def remind_Fellows_to_vote(request):
     return render(request, 'scipost/acknowledgement.html', context)
 
 
-@permission_required('scipost.can_fix_College_decision', raise_exception=True)
-@transaction.atomic
-def fix_College_decision(request, rec_id):
-    """Terminate the voting on a Recommendation.
+class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
+    """Do pre-screening of new incoming Submissions."""
 
-    Called by an Editorial Administrator.
-    """
-    #
-    # submissions = Submission.objects.pool_full(request.user)
-    # recommendation = get_object_or_404(EICRecommendation.objects.filter(
-    #     submission__in=submissions).put_to_voting(), id=rec_id)
-    #
-    # form = FixCollegeDecisionForm(request.POST or None, instance=recommendation)
-    # if form.is_valid():
-    #     recommendation = form.save()
-    #     submission = recommendation.submission
-    #
-    #     # Temporary: Update submission instance for utils email func.
-    #     # Won't be needed in new mail construct.
-    #     submission = Submission.objects.get(id=recommendation.submission.id)
-    #     SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
-    #     SubmissionUtils.send_author_College_decision_email()
-    #
-    #     submission.add_event_for_eic(
-    #         'The Editorial College\'s decision has been fixed: {0}.'.format(
-    #             recommendation.get_recommendation_display()))
-    #     messages.success(request, 'The Editorial College\'s decision has been fixed.')
-    #     return redirect(reverse('submissions:pool'))
-    #
-    # submission = recommendation.submission
-    # if recommendation.recommendation in [1, 2, 3]:
-    #     # Publish as Tier I, II or III
-    #     Submission.objects.filter(id=submission.id).update(
-    #         visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
-    #         latest_activity=timezone.now())
-    #
-    #     # Create a ProductionStream object
-    #     prodstream = ProductionStream(submission=submission)
-    #     prodstream.save()
-    #     ed_admins = Group.objects.get(name='Editorial Administrators')
-    #     assign_perm('can_perform_supervisory_actions', ed_admins, prodstream)
-    #     assign_perm('can_work_for_stream', ed_admins, prodstream)
-    #
-    #     # Add SubmissionEvent for authors
-    #     notify_manuscript_accepted(request.user, submission, False)
-    #     submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
-    #                                     % recommendation.get_recommendation_display())
-    # elif recommendation.recommendation == -3:
-    #     # Decision: Rejection
-    #     Submission.objects.filter(id=submission.id).update(
-    #         visible_public=False, status=STATUS_REJECTED, latest_activity=timezone.now())
-    #     submission.get_other_versions().update(visible_public=False)
-    #
-    #     # Add SubmissionEvent for authors
-    #     submission.add_event_for_author('An Editorial Recommendation has been formulated: %s.'
-    #                                     % recommendation.get_recommendation_display())
-    #
-    # # Add SubmissionEvent for EIC
-    # submission.add_event_for_eic('The Editorial College\'s decision has been fixed: %s.'
-    #                              % recommendation.get_recommendation_display())
-    # #
-    # # # Temporary: Update submission instance for utils email func.
-    # # # Won't be needed in new mail construct.
-    # # submission = Submission.objects.get(id=submission.id)
-    # # SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
-    # # SubmissionUtils.send_author_College_decision_email()
-    # # messages.success(request, 'The Editorial College\'s decision has been fixed.')
-    return redirect(reverse('submissions:pool'))
+    queryset = Submission.objects.prescreening()
+    template_name = 'submissions/admin/submission_prescreening.html'
+    form_class = SubmissionPrescreeningForm
+    editorial_page = True
+    success_url = reverse_lazy('submissions:pool')
 
 
 class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):

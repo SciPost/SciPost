@@ -77,9 +77,10 @@
 
 <div class="row"><!-- Status -->
     <div class="col">
+        <h3>Editorial status:</h3>
         <table class="table table-borderless">
             <tr>
-                <td>Current status:</td>
+                <td>Submission status:</td>
                 <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
             </tr>
             {% if submission.eicrecommendations.active.first %}
@@ -89,15 +90,27 @@
                 </tr>
             {% endif %}
             <tr>
-                <td>Cycle:</td>
+                <td>Refereeing cycle:</td>
                 <td>{{ submission.get_refereeing_cycle_display }}</td>
+            </tr>
+            <tr>
+                <td>Publicly available:</td>
+                <td>
+                    {% if submission.visible_public %}
+                        <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                        <span class="text-muted">Available in public pages and search results.</span>
+                    {% else %}
+                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                        <span class="text-muted">Only available for editors and authors.</span>
+                    {% endif %}
+                </td>
             </tr>
             <tr>
                 <td>Plagiarism report:</td>
                 <td>
                     {% if submission.plagiarism_report %}
                         {% if submission.plagiarism_report.percent_match %}
-                            <b>{{submission.plagiarism_report.percent_match}}%</b>
+                            <b>{{ submission.plagiarism_report.percent_match }}%</b>
                         {% else %}
                             <em>Scan in progress</em>
                             {% if perms.scipost.can_do_plagiarism_checks %}
@@ -114,10 +127,38 @@
                     {% endif %}
                 </td>
             </tr>
+            <tr>
+                <td>Open for commenting:</td>
+                <td>
+                    {% if submission.open_for_commenting %}
+                        <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                        <span class="text-muted">Open for commenting.</span>
+                    {% else %}
+                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                        <span class="text-muted">Commenting closed.</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>Open for refereeing:</td>
+                <td>
+                    {% if submission.is_open_for_reporting %}
+                        <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                        <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}</span>
+                    {% else %}
+                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                        <span class="text-muted">
+                            Refereeing closed.
+                            <br>
+                            <em>Invitated referees may still submit a Report, as long as their invitation is not finished nor cancelled.</em>
+                        </span>
+                    {% endif %}
+                </td>
+            </tr>
         </table>
     </div>
     {% if full_access %}
-        <div class="col-12 col-lg-6">
+        <div class="col-12">
             {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
         </div>
     {% endif %}
@@ -234,7 +275,7 @@
                                 {% endif %}
                             {% endwith %}
 
-                            {% if not submission.reporting_deadline_has_passed %}
+                            {% if submission.is_open_for_reporting %}
                                 <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                             {% endif %}
                         {% endif %}
