@@ -285,7 +285,10 @@ class PrecookedEmail(models.Model):
 ######################
 
 class EditorialCollege(models.Model):
-    '''A SciPost Editorial College for a specific discipline.'''
+    """A SciPost Editorial College for a specific discipline.
+
+    DEPRECATED. To be removed.
+    """
     discipline = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -296,6 +299,8 @@ class EditorialCollegeFellowship(TimeStampedModel):
     """
     Editorial College Fellowship connecting Editorial College and Contributors,
     maybe with a limiting start/until date.
+
+    DEPRECATED. To be removed.
     """
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                     related_name='+')

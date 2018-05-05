@@ -125,22 +125,21 @@
 
 <hr>
 
-{% for college, codes in object_list %}
-    <h2 class="highlight" id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
+{% for discipline,fellowships in disciplines.items %}
+    <h2 class="highlight" id="editorial_college_{{ discipline|lower }}">Editorial College ({{ discipline }})</h2>
 
-    {% if codes %}
     <div class="row">
         <div class="col-12">
-            <a href="#editorial_college_{{ college|lower }}" class="mx-2" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
-            <a href="#editorial_college_{{ college|lower }}" class="mx-2" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show full list of Fellows</a>
-            <div id="specializations-{{college|lower}}" class="card bg-white border-default all-specializations mt-2" style="display: none">
+            <a href="#editorial_college_{{ discipline|lower }}" class="mx-2" data-toggle="toggle-show" data-target="#specializations-{{discipline|lower}}">Show Fellows by specialization</a>
+            <a href="#editorial_college_{{ discipline|lower }}" class="mx-2" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{discipline|lower}}">Show full list of Fellows</a>
+            <div id="specializations-{{ discipline|lower }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
                 <div class="card-body">
                     <p class="text-muted mt-2">Hover to highlight or click to select</p>
 
                     <div class="row">
                         <div class="col-md-6">
-                            {% with total_count=codes|length %}
-                                {% for code in codes %}
+                            {% with total_count=fellowships.1|length %}
+                                {% for code in fellowships.1 %}
                                     <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
                                     {% if forloop.counter|is_modulo_one_half:total_count %}
                                         </div>
@@ -154,14 +153,13 @@
             </div>
         </div>
     </div>
-    {% endif %}
 
-    <div class="row search-contributors" data-contributors="{{ college|lower }}">
+    <div class="row search-contributors" data-contributors="{{ discipline|lower }}">
         <div class="col-12">
             <div class="card-columns">
-                {% for fellowship in college.current_fellows %}
+                {% for fellowship in fellowships.0 %}
                     <div class="card bg-white contributor mb-1">
-                        {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
+                        {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
                     </div>
                 {% endfor %}
             </div>

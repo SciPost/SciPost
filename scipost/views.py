@@ -30,7 +30,8 @@ from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
 from .constants import (
-    SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
+    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict,
+    SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
 from .decorators import has_contributor, is_contributor_user
 from .models import (
     Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege,
@@ -43,6 +44,7 @@ from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_
 
 from affiliations.forms import AffiliationsFormset
 from colleges.permissions import fellowship_or_admin_required
+from colleges.models import Fellowship
 from commentaries.models import Commentary
 from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
@@ -1060,34 +1062,26 @@ def Fellow_activity_overview(request):
 
 
 class AboutView(ListView):
+    """Basic information page with stream of current regular Fellows."""
+
     model = EditorialCollege
     template_name = 'scipost/about.html'
-    queryset = EditorialCollege.objects.prefetch_related(
-                Prefetch('fellowships',
-                         queryset=EditorialCollegeFellowship.objects.active().select_related(
-                            'contributor__user').order_by('contributor__user__last_name'),
-                         to_attr='current_fellows'))
+    queryset = Fellowship.objects.none()
 
     def get_context_data(self, *args, **kwargs):
+        """Save Fellowships per discipline to the context."""
         context = super().get_context_data(*args, **kwargs)
-        object_list = []
-        for college in context['object_list']:
-            try:
-                spec_list = subject_areas_raw_dict[str(college)]
-            except KeyError:
-                spec_list = None
-            object_list.append((
-                college,
-                spec_list,
-            ))
-        context['object_list'] = object_list
+        context['disciplines'] = {}
+        for discipline in SCIPOST_DISCIPLINES:
+            qs = Fellowship.objects.active().regular().filter(
+                contributor__discipline=discipline[0])
+            if qs:
+                context['disciplines'][discipline[1]] = (qs, subject_areas_raw_dict[discipline[1]])
         return context
 
 
-def csrf_failure(request, reason=""):
-    """
-    Custom CSRF Failure. Informing admins via email as well.
-    """
+def csrf_failure(request, reason=''):
+    """CSRF Failure page with an admin mailing action."""
     # Filter out privacy data
     post_data = {}
     for key in request.POST.keys():
