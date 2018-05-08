@@ -6,8 +6,8 @@ from .services import get_crossref_test, import_journal_full, get_crossref_work_
 # Register your models here.
 class JournalAdmin(admin.ModelAdmin):
     fields = ('name', 'ISSN_digital', 'last_full_sync')
-    list_display = ('name', 'ISSN_digital', 'last_full_sync', 'count_metacore', 'count_crossref')
-    actions = ['import_full', 'update_counts', 'add_journal_to_items']
+    list_display = ('name', 'ISSN_digital', 'last_full_sync', 'count_metacore', 'count_crossref', 'last_update')
+    actions = ['import_full', 'update_counts', 'add_journal_to_items', 'delete_all_citables']
 
     def import_full(self, request, queryset):
         """ Starts background task to import all works by this journal """
@@ -31,6 +31,11 @@ class JournalAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.INFO, '"Add journal" task for journal {} added. Go to Background Tasks -> Tasks in admin to view'.format(journal.name))
 
         messages.add_message(request, messages.WARNING, 'Make sure that "./manage.py process_tasks" is running (otherwise start it).')
+
+    def delete_all_citables(self, request, queryset):
+        for journal in queryset:
+            journal.purge_citables()
+            messages.add_message(request, messages.INFO, 'All citables from journal "{}" deleted.'.format(journal.name))
 
     def get_actions(self, request):
         actions = super().get_actions(request)

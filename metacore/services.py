@@ -1,6 +1,7 @@
 import requests
-from .models import Citable, CitableWithDOI
+from .models import Citable, CitableWithDOI, Journal
 from background_task import background
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
@@ -12,6 +13,8 @@ def import_journal_full(issn, cursor='*'):
     and store them in the Metacore mongo database
     """
 
+    # Get journal to track progress
+
     # Formulate the CR query
     url = 'https://api.crossref.org/journals/{}/works'.format(issn)
 
@@ -19,6 +22,7 @@ def import_journal_full(issn, cursor='*'):
     rows = 500
     batches = 2000
     last_cursor = cursor
+    total_processed = 0
 
     for i in range(0,batches):
         # print("-------------------------------")
@@ -52,12 +56,32 @@ def import_journal_full(issn, cursor='*'):
 
         citable = []
 
+        # Save current count so progress can be tracked in the admin page
+        # TODO: make this work (currently only executed after whole import
+        # task is completed!
+        # total_processed += number_of_results
+        # Journal.objects.filter(ISSN_digital=issn).update(count_running = total_processed)
+        # logger.info('Journal count updated')
+        # print('Journal count updated to {}.'.format(Journal.objects.get(ISSN_digital=issn).count_running))
+
         if number_of_results < rows:
             # print(number_of_results)
             # print('End reached.')
             logger.info(number_of_results)
             logger.info('End reached.')
             break
+
+    # Get a full count when done
+    current_count = get_crossref_work_count(issn)
+
+    journal = Journal.objects.get(ISSN_digital=issn)
+    journal.count_metacore = Citable.objects(metadata__ISSN=issn).count()
+    journal.count_crossref = get_crossref_work_count(issn)
+
+    if journal.count_metacore == journal.count_crossref:
+        journal.last_full_sync = timezone.now()
+
+    journal.save()
 
 def get_crossref_work_count(issn):
     """

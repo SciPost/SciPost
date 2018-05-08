@@ -80,11 +80,12 @@ class Journal(models.Model):
     ISSN_digital = models.CharField(
         max_length=9, 
         validators=[RegexValidator(r'^[0-9]{4}-[0-9]{3}[0-9X]$')],
-        blank=False)
+        blank=False, unique=True)
+    # Print ISSN not used right now, but there for future use
     ISSN_print = models.CharField(
         max_length=9, 
         validators=[RegexValidator(r'^[0-9]{4}-[0-9]{3}[0-9X]$')],
-        blank=True, null=True)
+        blank=True, null=True, unique=True)
     last_full_sync = models.DateTimeField(blank=True, null=True)
     last_cursor = models.CharField(
         max_length=250, 
@@ -93,6 +94,9 @@ class Journal(models.Model):
         blank=True, null=True)
     count_metacore = models.IntegerField(blank=True, null=True)
     count_crossref = models.IntegerField(blank=True, null=True)
+    count_running = models.IntegerField(blank=True, null=True) # Tracks progress during import tasks
+    last_update = models.DateTimeField(blank=True, null=True, auto_now=True) # Set during import tasks
+    
 
 
     def update_count_metacore(self):
@@ -120,4 +124,12 @@ class Journal(models.Model):
 
         if 'total-results' in result:
             self.count_metacore = result['total-results']
+
+
+    def purge_citables(self):
+        """
+        This will delete all citables with their issn set to this journal's issn!
+        """
+
+        Citable.objects(metadata__ISSN=self.ISSN_digital).delete()
 
