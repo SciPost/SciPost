@@ -18,10 +18,14 @@ class CitableListView(ListView):
 
         if self.form.is_valid() and self.form.has_changed():
             queryset = self.form.search_results()
-        else:
-            # queryset = Citable.objects.simple().limit(100)
-            queryset = Citable.objects.simple().order_by('-metadata.is-referenced-by-count').limit(10)
 
+            # search_results() returns None when all form fields are empty
+            if queryset is not None:
+                return queryset
+
+        # If there's no search or the search form is empty:
+        # queryset = Citable.objects.simple().limit(100)
+        queryset = Citable.objects.simple().order_by('-metadata.is-referenced-by-count').limit(10)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -31,12 +35,22 @@ class CitableListView(ListView):
         # Form into the context!
         context['form'] = self.form
 
-        if self.form.is_valid() and self.form.has_changed():
+        if self.search_active():
             context['search'] = True
         else:
             context['browse'] = True
 
         return context
+
+    def search_active(self):
+        """ 
+        Helper method to figure out whether there is a search going on,
+        meaning that the form is not empty, or not.
+        """
+        if self.form.is_valid() and self.form.has_changed() and not self.form.is_empty():
+            return True
+        else:
+            return False
 
     def get_paginate_by(self, queryset):
         """
@@ -48,7 +62,7 @@ class CitableListView(ListView):
         Also you can add an extra parameter to specify pagination size, like so:
             return self.request.GET.get('paginate_by', self.paginate_by)
         """
-        if self.request.GET:
+        if self.search_active():
             return self.paginate_by
         else:
             return None
