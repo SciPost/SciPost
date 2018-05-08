@@ -181,7 +181,7 @@ DECISION_FIXED, DEPRECATED = 'decision_fixed', 'deprecated'
 EIC_REC_STATUSES = (
     (VOTING_IN_PREP, 'Voting in preparation'),
     (PUT_TO_VOTING, 'Undergoing voting at the Editorial College'),
-    (VOTE_COMPLETED, 'Editorial College voting rounded up'),
+    (VOTE_COMPLETED, 'Editorial College voting rounded up'),  # Seemlingly dead?
     (DECISION_FIXED, 'Editorial Recommendation fixed'),
     (DEPRECATED, 'Editorial Recommendation deprecated'),
 )

@@ -192,7 +192,10 @@ def submission_detail_wo_vn_nr(request, arxiv_identifier_wo_vn_nr):
 def submission_detail(request, arxiv_identifier_w_vn_nr):
     """Public detail page of Submission."""
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    context = {}
+    context = {
+        'can_read_editorial_information': False
+    }
+
     if hasattr(request.user, 'contributor'):
         # Check if Contributor is author of the Submission
         is_author = submission.authors.filter(user=request.user).exists()
@@ -218,7 +221,8 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                 contributor__user=request.user).exists():
                     raise Http404
 
-    form = CommentForm()
+    if submission.open_for_commenting and request.user.perms.has_perms('scipost.can_submit_comments'):
+        context['comment_form'] = CommentForm()
 
     invited_reports = submission.reports.accepted().invited()
     contributed_reports = submission.reports.accepted().contributed()
@@ -228,6 +232,16 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     # User is referee for the Submission
     if request.user.is_authenticated:
         invitations = submission.referee_invitations.filter(referee__user=request.user)
+
+        # User may read eg. Editorial Recommendations if he/she is in the Pool.
+        context['can_read_editorial_information'] = submission.fellows.filter(
+            contributor__user=request.user).exists()
+
+        # User may also read eg. Editorial Recommendations if he/she is editorial administrator.
+        if not context['can_read_editorial_information']:
+            context['can_read_editorial_information'] = request.user.has_perm(
+                'can_oversee_refereeing')
+
     else:
         invitations = None
     if invitations:
@@ -244,7 +258,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         'contributed_reports': contributed_reports,
         'unfinished_report_for_user': unfinished_report_for_user,
         'author_replies': author_replies,
-        'form': form,
         'is_author': is_author,
         'is_author_unchecked': is_author_unchecked,
         'invitations': invitations,
@@ -284,8 +297,8 @@ def reports_accepted_list(request):
 
     This gives an overview of Report that need a PDF update/compilation.
     """
-    reports = (Report.objects.accepted()
-               .order_by('pdf_report', 'submission').prefetch_related('submission'))
+    reports = Report.objects.accepted().order_by(
+        'pdf_report', 'submission').prefetch_related('submission')
 
     if request.GET.get('submission'):
         reports = reports.filter(submission__arxiv_identifier_w_vn_nr=request.GET.get('submission'))
@@ -828,7 +841,8 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
 @fellowship_or_admin_required()
 @transaction.atomic
 def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id):
-    """
+    """Send RefereeInvitation to a registered Contributor.
+
     This method is called by the EIC from the submission's editorial_page,
     in the case where the referee is an identified Contributor.
     For a referee who isn't a Contributor yet, the method recruit_referee above
@@ -874,7 +888,8 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
 @login_required
 @fellowship_or_admin_required()
 def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
-    """
+    """Send reminder email to pending RefereeInvitations.
+
     This method is used by the Editor-in-charge from the editorial_page
     when a referee has been invited but hasn't answered yet.
     It can be used for registered as well as unregistered referees.
@@ -900,7 +915,8 @@ def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
 @login_required
 @permission_required('scipost.can_referee', raise_exception=True)
 def accept_or_decline_ref_invitations(request, invitation_id=None):
-    """
+    """Decide on RefereeInvitation.
+
     RefereeInvitations need to be either accepted or declined by the invited user
     using this view. The decision will be taken one invitation at a time.
     """
@@ -959,6 +975,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
 
 
 def decline_ref_invitation(request, invitation_key):
+    """Decline a RefereeInvitation."""
     invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key,
                                    accepted__isnull=True)
 
@@ -991,12 +1008,12 @@ def decline_ref_invitation(request, invitation_key):
 
 @login_required
 def cancel_ref_invitation(request, arxiv_identifier_w_vn_nr, invitation_id):
-    """
-    This method is used by the Editor-in-charge from the editorial_page
-    to remove a referee for the list of invited ones.
-    It can be used for registered as well as unregistered referees.
+    """Cancel a RefereeInvitation.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    This method is used by the Editor-in-charge from the editorial_page to remove a referee
+    from the list of invited ones. It can be used for registered as well as unregistered referees.
+
+    Accessible for: Editor-in-charge and Editorial Administration.
     """
     try:
         submissions = Submission.objects.filter_for_eic(request.user)
@@ -1069,14 +1086,13 @@ def set_refereeing_deadline(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 def close_refereeing_round(request, arxiv_identifier_w_vn_nr):
-    """
-    Called by the Editor-in-charge when a satisfactory number of
-    reports have been gathered.
-    Automatically emails the authors to ask them if they want to
-    round off any replies to reports or comments before the
-    editorial recommendation is formulated.
+    """Close Submission for refereeing.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    Called by the Editor-in-charge when a satisfactory number of reports have been gathered.
+    Automatically emails the authors to ask them if they want to round off any replies to
+    reports or comments before the editorial recommendation is formulated.
+
+    Accessible for: Editor-in-charge and Editorial Administration.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
@@ -1104,9 +1120,9 @@ def refereeing_overview(request):
 
 @login_required
 def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
-    """
-    Communication between editor-in-charge, author or referee
-    occurring during the submission refereeing.
+    """Send refereeing related communication.
+
+    Communication may be between two of: editor-in-charge, author and referee.
     """
     referee = None
     if comtype in ['EtoA', 'EtoR', 'EtoS']:
@@ -1177,8 +1193,7 @@ def communication(request, arxiv_identifier_w_vn_nr, comtype, referee_id=None):
 @fellowship_or_admin_required()
 @transaction.atomic
 def eic_recommendation(request, arxiv_identifier_w_vn_nr):
-    """
-    Write EIC Recommendation.
+    """Write EIC Recommendation.
 
     Accessible for: Editor-in-charge and Editorial Administration
     """
@@ -1350,9 +1365,7 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 def vet_submitted_reports_list(request):
-    """
-    Reports with status `unvetted` will be shown (oldest first).
-    """
+    """List Reports with status `unvetted`."""
     submissions = get_list_or_404(Submission.objects.filter_for_eic(request.user))
     reports_to_vet = Report.objects.filter(
         submission__in=submissions).awaiting_vetting().order_by('date_submitted')
@@ -1364,16 +1377,21 @@ def vet_submitted_reports_list(request):
 @fellowship_or_admin_required()
 @transaction.atomic
 def vet_submitted_report(request, report_id):
-    """
-    Report with status `unvetted` will be shown. A user may only vet reports of submissions
-    he/she is EIC of or if he/she is SciPost Admin or Vetting Editor.
+    """List Reports with status `unvetted` for vetting purposes.
+
+    A user may only vet reports of submissions he/she is EIC of or if he/she is
+    SciPost Administratoror Vetting Editor.
 
     After vetting an email is sent to the report author, bcc EIC. If report
     has not been refused, the submission author is also mailed.
     """
-    submissions = Submission.objects.filter_for_eic(request.user)
-    report = get_object_or_404(Report.objects.filter(
-        submission__in=submissions).awaiting_vetting(), id=report_id)
+    if request.user.has_perms('scipost.can_vet_submitted_reports'):
+        # Vetting Editors may vote on everything.
+        report = get_object_or_404(Report.objects.awaiting_vetting(), id=report_id)
+    else:
+        submissions = Submission.objects.filter_for_eic(request.user)
+        report = get_object_or_404(Report.objects.filter(
+            submission__in=submissions).awaiting_vetting(), id=report_id)
 
     form = VetReportForm(request.POST or None, initial={'report': report})
     if form.is_valid():
@@ -1394,9 +1412,9 @@ def vet_submitted_report(request, report_id):
             # Add SubmissionEvent to tell the author about the new report
             report.submission.add_event_for_author('A new Report has been submitted.')
 
-        message = 'Submitted Report vetted for <a href="%s">%s</a>.' % (
-                    report.submission.get_absolute_url(),
-                    report.submission.arxiv_identifier_w_vn_nr)
+        message = 'Submitted Report vetted for <a href="{url}">{arxiv}</a>.'.format(
+            url=report.submission.get_absolute_url(),
+            arxiv=report.submission.arxiv_identifier_w_vn_nr)
         messages.success(request, message)
 
         if report.submission.editor_in_charge == request.user.contributor:
@@ -1496,11 +1514,11 @@ def vote_on_rec(request, rec_id):
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
 def remind_Fellows_to_vote(request):
-    """
-    This method sends an email to all Fellow with pending voting duties.
+    """Send an email to all Fellow with pending voting duties.
+
     It must be called by and Editorial Administrator.
 
-    TODO: This reminder function doesn't filter per submission?!
+    Possible TODO: This reminder function doesn't filter per submission?!
     """
     submissions = Submission.objects.pool_editable(request.user)
     recommendations = EICRecommendation.objects.active().filter(
@@ -1532,6 +1550,7 @@ def remind_Fellows_to_vote(request):
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
     """Do pre-screening of new incoming Submissions."""
 
+    permission_required = 'scipost.can_run_pre_screening'
     queryset = Submission.objects.prescreening()
     template_name = 'submissions/admin/submission_prescreening.html'
     form_class = SubmissionPrescreeningForm

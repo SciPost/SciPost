@@ -510,12 +510,10 @@ class ConsiderAssignmentForm(forms.Form):
 
 
 class RefereeSelectForm(forms.Form):
-    last_name = forms.CharField()
+    """Pre-fill form to get the last name of the requested referee."""
 
-    def __init__(self, *args, **kwargs):
-        super(RefereeSelectForm, self).__init__(*args, **kwargs)
-        self.fields['last_name'].widget.attrs.update(
-            {'size': 20, 'placeholder': 'Search in contributors database'})
+    last_name = forms.CharField(widget=forms.TextInput({
+        'placeholder': 'Search in contributors database'}))
 
 
 class RefereeRecruitmentForm(forms.ModelForm):
@@ -1091,7 +1089,7 @@ class FixCollegeDecisionForm(forms.ModelForm):
         """Fix decision of EICRecommendation."""
         EICRecommendation.objects.filter(id=recommendation.id).update(status=DECISION_FIXED)
         submission = recommendation.submission
-        if recommendation in [REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]:
+        if recommendation.recommendation in [REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]:
             # Publish as Tier I, II or III
             Submission.objects.filter(id=submission.id).update(
                 visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
@@ -1124,7 +1122,7 @@ class FixCollegeDecisionForm(forms.ModelForm):
         EICRecommendation.objects.filter(id=recommendation.id).update(
             status=DEPRECATED, active=False)
         recommendation.submission.add_event_for_eic(
-            'The Editorial Recommendation (v{version}) has been deprecated: {decision}.'.format(
+            'The Editorial Recommendation (version {version}) has been deprecated: {decision}.'.format(
                 version=recommendation.version,
                 decision=recommendation.get_recommendation_display()))
 

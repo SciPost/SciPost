@@ -74,11 +74,13 @@
 
 </div>
 
-{% if is_author or user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' %}
+{% if can_read_editorial_information or is_author %}
     {% for recommendation in recommendations %}
-        {% if user|is_in_group:'Editorial College' or user|is_in_group:'Editorial Administrators' or recommendation|is_viewable_by_authors %}
-            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-        {% endif %}
+        {% with is_author and recommendation|is_viewable_by_authors as author_viewable %}
+            {% if author_viewable or can_read_editorial_information %}
+                {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+            {% endif %}
+        {% endwith %}
     {% endfor %}
 
     <div class="mb-4">
@@ -89,8 +91,8 @@
     </div>
 {% endif %}
 
-{% if is_author or user|is_in_group:'Editorial Administrators' %}
-    {% if submission.production_stream.proofs.for_authors.exists %}
+{% if is_author or perms.scipost.can_oversee_refereeing %}
+
         <div class="mb-4" id="proofsslist">
             <h3>Proofs</h3>
             <ul>
@@ -115,7 +117,7 @@
     {% endif %}
 {% endif %}
 
-{% if user.is_authenticated and user|is_in_group:'Registered Contributors' %}
+{% if perms.scipost.can_submit_comments %}
 <div class="row">
     <div class="col-12">
         <h2 class="highlight">Actions</h2>
@@ -218,10 +220,12 @@
 
 
 {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}
-{% if not user.is_authenticated and submission.comments.vetted.exists %}
-    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
-{% elif user.is_authenticated %}
-    {% include 'comments/new_comment.html' with object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
+{% if form=comment_form %}
+    {% if not user.is_authenticated and submission.comments.vetted.exists %}
+        {% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
+    {% elif user.is_authenticated %}
+        {% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
+    {% endif %}
 {% endif %}
 
 {% endblock content %}
