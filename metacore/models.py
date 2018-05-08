@@ -54,8 +54,11 @@ class Citable(DynamicDocument):
     def times_cited(self):
         return []
 
-    def author_list(self):
-        return '; '.join(self.authors)
+    def author_list(self, max_n=None):
+        if max_n and max_n < len(self.authors):
+            return '; '.join(self.authors[:max_n]) + ' et al.'
+        else:
+            return '; '.join(self.authors)
 
     def crossref_ref_count(self):
         return self.metadata['is-referenced-by-count']
