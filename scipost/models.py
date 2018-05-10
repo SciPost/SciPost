@@ -108,7 +108,7 @@ class Contributor(models.Model):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self.activation_key = hashlib.sha1(salt + salt).hexdigest()
+        self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
     def expertises_as_string(self):
