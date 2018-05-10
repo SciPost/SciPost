@@ -98,7 +98,7 @@ class DOICaller:
 
 
 class ArxivCaller:
-    query_base_url = 'http://export.arxiv.org/api/query?id_list=%s'
+    query_base_url = 'https://export.arxiv.org/api/query?id_list=%s'
 
     def __init__(self, identifier):
         self.identifier = identifier
@@ -136,7 +136,7 @@ class ArxivCaller:
         author_list = [author['name'] for author in data.get('authors', [])]
         # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
         author_list = ", ".join(author_list)
-        arxiv_link = data['id']
+        arxiv_link = data['id'].replace('http:', 'https:')
         abstract = data['summary']
         pub_date = dateutil.parser.parse(data['published']).date()
 
