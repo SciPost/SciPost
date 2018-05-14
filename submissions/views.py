@@ -29,10 +29,10 @@ from .models import (
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
     SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
-    ConsiderAssignmentForm, EditorialAssignmentForm, SetRefereeingDeadlineForm, RefereeSelectForm,
-    RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm,
-    EICRecommendationForm, ReportForm, VetReportForm, VotingEligibilityForm,
-    SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, iThenticateReportForm,
+    ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
+    SetRefereeingDeadlineForm, RefereeSelectForm, iThenticateReportForm, VotingEligibilityForm,
+    RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
+    SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm)
 from .utils import SubmissionUtils
 
@@ -468,7 +468,7 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.pool_editable(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    form = EditorialAssignmentForm(request.POST or None, submission=submission)
+    form = InviteEditorialAssignmentForm(request.POST or None, submission=submission)
 
     if form.is_valid():
         ed_assignment = form.save()
@@ -490,81 +490,124 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @fellowship_required()
-@transaction.atomic
-def assignment_request(request, assignment_id):
-    """Process EditorialAssignment acceptance/rejection form or show if not submitted."""
-    assignment = get_object_or_404(EditorialAssignment.objects.open(),
-                                   to=request.user.contributor, pk=assignment_id)
+def editorial_assignment(request, arxiv_identifier_w_vn_nr, assignment_id=None):
+    """Editorial Assignment form view."""
+    submission = get_object_or_404(
+        Submission.objects.without_eic(), arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
-    errormessage = None
-    if assignment.submission.status == STATUS_ASSIGNMENT_FAILED:
-        # This status can be reached without assigned editor.
-        errormessage = 'This Submission has failed pre-screening and has been rejected.'
-    elif assignment.submission.editor_in_charge:
-        errormessage = (assignment.submission.editor_in_charge.get_title_display() + ' ' +
-                        assignment.submission.editor_in_charge.user.last_name +
-                        ' has already agreed to be Editor-in-charge of this Submission.')
+    if assignment_id:
+        # Process existing EditorialAssignment.
+        assignment = get_object_or_404(
+            EditorialAssignment.objects.open(), to=request.user.contributor, pk=assignment_id)
+    else:
+        # Create new EditorialAssignment.
+        assignment = EditorialAssignment()
 
-    if errormessage:
-        # Don't open the assignment.
-        messages.warning(request, errormessage)
-        return redirect(reverse('submissions:pool'))
-
-    form = ConsiderAssignmentForm(request.POST or None)
+    form = EditorialAssignmentForm(request.POST or None, submission=submission, instance=assignment)
     if form.is_valid():
-        assignment.date_answered = timezone.now()
-        if form.cleaned_data['accept'] == 'True':
-            submission = assignment.submission
-
-            # Sign Editorial Assigment
-            EditorialAssignment.objects.filter(id=assignment.id).update(
-                accepted=True, to=request.user.contributor)
-            EditorialAssignment.objects.filter(submission=submission, accepted=None).exclude(
-                id=assignment.id).update(deprecated=True)
-
-            # Update related Submission
-            submission = assignment.submission
-            submission.status = STATUS_EIC_ASSIGNED
-            submission.editor_in_charge = request.user.contributor
-            submission.open_for_reporting = True
-            deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-            if submission.submitted_to_journal == 'SciPostPhysLectNotes':
-                deadline += datetime.timedelta(days=28)
-            submission.reporting_deadline = deadline
-            submission.open_for_commenting = True
-            submission.latest_activity = timezone.now()
-            submission.save()
-
-            # Send out mails
-            SubmissionUtils.load({'assignment': assignment})
-            SubmissionUtils.send_EIC_appointment_email()
-            SubmissionUtils.send_author_prescreening_passed_email()
-
-            # Add SubmissionEvents
-            submission.add_general_event('The Editor-in-charge has been assigned.')
-            msg = 'Thank you for becoming Editor-in-charge of this submission.'
-            url = reverse('submissions:editorial_page',
-                          args=(submission.arxiv_identifier_w_vn_nr,))
-        else:
-            assignment.accepted = False
-            assignment.refusal_reason = form.cleaned_data['refusal_reason']
-            assignment.submission.status = 'unassigned'
-
-            # Save assignment and submission
-            assignment.save()
-            assignment.submission.save()
-            msg = 'Thank you for considering'
-            url = reverse('submissions:pool')
-
-        # Form submitted, redirect user
-        messages.success(request, msg)
-        return redirect(url)
+        form.save()
+        return redirect('submissions:pool')
 
     context = {
+        'form': form,
+        'submission': submission,
         'assignment': assignment,
-        'form': form
     }
-    return render(request, 'submissions/pool/assignment_request.html', context)
+    return render(request, 'submissions/pool/editorial_assignment.html', context)
+
+
+@login_required
+@fellowship_required()
+def assignment_request(request, assignment_id):
+    """Redirect to Editorial Assignment form view.
+
+    Exists for historical reasons; email are send with this url construction.
+    """
+    assignment = get_object_or_404(EditorialAssignment.objects.open(),
+                                   to=request.user.contributor, pk=assignment_id)
+    return redirect(reverse('submissions:editorial_assignment', kwargs={
+        'arxiv_identifier_w_vn_nr': assignment.submission.arxiv_identifier_w_vn_nr,
+        'assignment_id': assignment.id
+    }))
+
+
+# @login_required
+# @fellowship_required()
+# @transaction.atomic
+# def assignment_request(request, assignment_id):
+#     """Process EditorialAssignment acceptance/rejection form or show if not submitted."""
+#     assignment = get_object_or_404(EditorialAssignment.objects.open(),
+#                                    to=request.user.contributor, pk=assignment_id)
+#
+#     errormessage = None
+#     if assignment.submission.status == STATUS_ASSIGNMENT_FAILED:
+#         # This status can be reached without assigned editor.
+#         errormessage = 'This Submission has failed pre-screening and has been rejected.'
+#     elif assignment.submission.editor_in_charge:
+#         errormessage = (assignment.submission.editor_in_charge.get_title_display() + ' ' +
+#                         assignment.submission.editor_in_charge.user.last_name +
+#                         ' has already agreed to be Editor-in-charge of this Submission.')
+#
+#     if errormessage:
+#         # Don't open the assignment.
+#         messages.warning(request, errormessage)
+#         return redirect(reverse('submissions:pool'))
+#
+#     form = ConsiderAssignmentForm(request.POST or None)
+#     if form.is_valid():
+#         assignment.date_answered = timezone.now()
+#         if form.cleaned_data['accept'] == 'True':
+            # submission = assignment.submission
+
+            # # Sign Editorial Assigment
+            # EditorialAssignment.objects.filter(id=assignment.id).update(
+            #     accepted=True, to=request.user.contributor)
+            # EditorialAssignment.objects.filter(submission=submission, accepted=None).exclude(
+            #     id=assignment.id).update(deprecated=True)
+#
+            # # Update related Submission
+            # submission = assignment.submission
+            # submission.status = STATUS_EIC_ASSIGNED
+            # submission.editor_in_charge = request.user.contributor
+            # submission.open_for_reporting = True
+            # deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
+            # if submission.submitted_to_journal == 'SciPostPhysLectNotes':
+            #     deadline += datetime.timedelta(days=28)
+            # submission.reporting_deadline = deadline
+            # submission.open_for_commenting = True
+            # submission.latest_activity = timezone.now()
+            # submission.save()
+#
+#             # Send out mails
+#             SubmissionUtils.load({'assignment': assignment})
+#             SubmissionUtils.send_EIC_appointment_email()
+#             SubmissionUtils.send_author_prescreening_passed_email()
+#
+#             # Add SubmissionEvents
+#             submission.add_general_event('The Editor-in-charge has been assigned.')
+#             msg = 'Thank you for becoming Editor-in-charge of this submission.'
+#             url = reverse('submissions:editorial_page',
+#                           args=(submission.arxiv_identifier_w_vn_nr,))
+#         else:
+            # assignment.accepted = False
+            # assignment.refusal_reason = form.cleaned_data['refusal_reason']
+            # assignment.submission.status = 'unassigned'
+#
+#             # Save assignment and submission
+#             assignment.save()
+#             assignment.submission.save()
+#             msg = 'Thank you for considering'
+#             url = reverse('submissions:pool')
+#
+#         # Form submitted, redirect user
+#         messages.success(request, msg)
+#         return redirect(url)
+#
+#     context = {
+#         'assignment': assignment,
+#         'form': form
+#     }
+#     return render(request, 'submissions/pool/assignment_request.html', context)
 
 
 @login_required

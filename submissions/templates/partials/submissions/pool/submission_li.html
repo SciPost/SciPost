@@ -25,7 +25,7 @@
             <small class="text-muted">Editor-in-charge</small>
             <br>
             {% if submission.status == 'unassigned' %}
-                <span class="card-text text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.arxiv_identifier_w_vn_nr %}">clicking here</a>.</span>
+                <span class="card-text text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.arxiv_identifier_w_vn_nr %}">clicking here</a>.</span>
             {% elif submission.editor_in_charge == request.user.contributor %}
                 <strong>You are Editor-in-charge</strong>
             {% else %}

@@ -108,6 +108,10 @@ class SubmissionQuerySet(models.QuerySet):
         """Return submissions passed pre-screening, but unassigned."""
         return self.filter(status=constants.STATUS_UNASSIGNED)
 
+    def without_eic(self):
+        """Return Submissions that still need Editorial Assignment."""
+        return self.filter(status__in=[constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED])
+
     def actively_refereeing(self):
         """Return submission currently in some point of the refereeing round."""
         return self.filter(status=constants.STATUS_EIC_ASSIGNED)

@@ -1,0 +1,61 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% load bootstrap %}
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Editorial Assignment</span>
+{% endblock %}
+
+{% block pagetitle %}: Editorial Assignment{% endblock pagetitle %}
+
+{% block content %}
+
+<h1 class="highlight">Editorial Assignment</h1>
+<h3 class="pt-0">Can you act as Editor-in-charge?{% if form.instance.id %} (see below to accept/decline){% endif %}</h3>
+<br>
+
+<h3>Submission details</h3>
+{% include 'partials/submissions/submission_summary.html' with submission=submission %}
+
+<br>
+{% if form.instance.id %}
+    <h2 class="highlight">Accept or Decline this Assignment</h2>
+{% else %}
+    <h2 class="highlight">Volunteer to become Editor-in-charge</h2>
+{% endif %}
+<h4 class="mb-2">By accepting, you will be required to start a refereeing round on the next screen.</h4>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <p>
+        <strong>Clarification</strong>
+        <br>
+        If you choose the Normal refereeing cycle, you will be redirected to the Editorial Page to proceed further. The Submission will be publicly available and the authors will be informed that the refereeing process has started.
+        <br>
+        If you choose to directly formulate a Editorial Recommendation for rejection, the Submission will not become publicly available. After formulation of the Editorial Recommendation, it will put forward for voting as normal.
+    </p>
+    <input class="btn btn-primary" type="submit" value="Submit" />
+</form>
+
+
+<script>
+    $(function() {
+        $('[name="decision"]').on('change', function() {
+            var val = $('[name="decision"]:checked').val();
+            if(val == 'decline') {
+                $('[name="refusal_reason"]').closest('.form-group').show();
+                $('[name="refereeing_cycle"]').closest('.form-group').hide();
+            } else {
+                $('[name="refusal_reason"]').closest('.form-group').hide();
+                $('[name="refereeing_cycle"]').closest('.form-group').show();
+            }
+        }).trigger('change');
+    });
+</script>
+
+{% endblock %}

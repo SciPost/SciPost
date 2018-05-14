@@ -17,7 +17,7 @@ from .constants import (
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
     REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED,
-    STATUS_EIC_ASSIGNED)
+    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -481,8 +481,8 @@ class SubmissionPrescreeningForm(forms.ModelForm):
 # Editorial workflow #
 ######################
 
-class EditorialAssignmentForm(forms.ModelForm):
-    """Create new EditorialAssignment for Submission."""
+class InviteEditorialAssignmentForm(forms.ModelForm):
+    """Invite new Fellow; create EditorialAssignment for Submission."""
 
     class Meta:
         model = EditorialAssignment
@@ -503,7 +503,80 @@ class EditorialAssignmentForm(forms.ModelForm):
         return super().save(commit)
 
 
+class EditorialAssignmentForm(forms.ModelForm):
+    """Create and/or process new EditorialAssignment for Submission."""
+
+    DECISION_CHOICES = (
+        ('accept', 'Accept'),
+        ('decline', 'Decline'))
+    CYCLE_CHOICES = (
+        (CYCLE_DEFAULT, 'Normal refereeing cycle'),
+        (CYCLE_DIRECT_REC, 'Directly formulate Editorial Recommendation for rejection'))
+
+    decision = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=DECISION_CHOICES,
+        label="Are you willing to take charge of this Submission?")
+    refereeing_cycle = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=CYCLE_CHOICES, initial=CYCLE_DEFAULT)
+
+    class Meta:
+        model = EditorialAssignment
+        fields = ('refusal_reason',)
+
+    def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
+        self.submission = kwargs.pop('submission')
+        self.request = kwargs.pop('request', None)
+        super().__init__(*args, **kwargs)
+        if not self.instance.id:
+            del self.fields['decision']
+            del self.fields['refusal_reason']
+
+    def save(self, commit=True):
+        """Save Submission to EditorialAssignment."""
+        self.instance.submission = self.submission
+        self.instance.date_answered = timezone.now()
+        self.instance.to = self.request.user.contributor
+
+        if self.cleaned_data['refereeing_cycle'] == CYCLE_DEFAULT:
+            deadline = timezone.now() + datetime.timedelta(days=28)
+            if self.instance.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+                deadline += datetime.timedelta(days=28)
+
+            # Update related Submission.
+            Submission.objects.filter(id=self.submission.id).update(
+                refereeing_cycle=CYCLE_DEFAULT,
+                status=STATUS_EIC_ASSIGNED,
+                editor_in_charge=self.request.user.contributor,
+                reporting_deadline=deadline,
+                open_for_reporting=True,
+                visible_public=True,
+                latest_activity=timezone.now())
+        elif self.cleaned_data['refereeing_cycle'] == CYCLE_DIRECT_REC:
+            # Update related Submission.
+            Submission.objects.filter(id=self.submission.id).update(
+                refereeing_cycle=CYCLE_DIRECT_REC,
+                status=STATUS_EIC_ASSIGNED,
+                editor_in_charge=self.request.user.contributor,
+                reporting_deadline=timezone.now(),
+                open_for_reporting=False,
+                visible_public=False,
+                latest_activity=timezone.now())
+
+        if 'decision' not in self.cleaned_data or self.cleaned_data['decision'] == 'accept':
+            self.instance.accepted = True
+            # Deprecate old EditorialAssignments if Fellow accepts.
+            EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
+                id=self.instance.id).update(deprecated=True)
+        else:
+            self.instance.accepted = False
+            self.instance.refusal_reason = self.cleaned_data['refusal_reason']
+        return super().save(commit)
+
+
 class ConsiderAssignmentForm(forms.Form):
+    """Process open EditorialAssignment."""
+
     accept = forms.ChoiceField(widget=forms.RadioSelect, choices=ASSIGNMENT_BOOL,
                                label="Are you willing to take charge of this Submission?")
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
