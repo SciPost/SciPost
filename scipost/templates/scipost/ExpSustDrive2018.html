@@ -1,0 +1,70 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Expansion and Sustainability Drive 2018{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col">
+      <h1 class="highlight">SciPost Expansion and Sustainability Drive 2018</h1>
+    </div>
+</div>
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+      <p>
+	Since our original <a href="{% url 'scipost:call' %}" target="_blank">call for openness</a> in scientific publishing, things have been developing extremely well with SciPost. One quick glance at our <a href="{% url 'journals:publications' %}" target="_blank">publishing activities</a> is hopefully enough to convince you that we are well on our way to implementing a more healthy infrastructure for scientific publishing.
+      </p>
+      <p>
+	Separately, big players are taking concrete steps towards Open Access (including the European Commission with its recent <a href="https://ted.europa.eu/udl?uri=TED:NOTICE:141558-2018:TEXT:EN:HTML&tabId=1" target="_blank">Call for Tenders</a>, though you should read recent blog posts <a href="https://jscaux.org/blog/post/2018/04/02/ectender/" target="_blank">here</a> and <a href="https://jscaux.org/blog/post/2018/04/27/ECTenderInterview/" target="_blank">here</a> for how this relates to SciPost).
+      </p>
+      <p>
+	The time is now ripe for us to be bold, and take the next steps in our implementation plans. Read on to see how you can significantly help us out.
+      </p>
+      <h3 class="highlight">Going for Genuine Open Access</h3>
+      <p>
+	At SciPost, our ambitions for Open Access publishing are uncompromised, as can be seen from our <a href="{% url 'scipost:about' %}#guiding_principles" target="_blank">guiding principles</a> or our short <a href="https://youtu.be/Pgvd7EvehCI" target="_blank">intro video</a>. In particular, we implement the <a href="https://jscaux.org/blog/post/2018/05/05/genuine-open-access/" target="_blank">Genuine Open Access</a> principles (which include an explicit non profit requirement), are resolutely quality-oriented and international in outlook.
+      </p>
+      <h4>The two pillars of our expansion and sustainability drive</h4>
+      <p>
+	Our immediate expansion plan is very simply summarized in the following two pillars:
+      </p>
+      <ul>
+	<li>Expansion of our <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a>,</li>
+	<li>Expansion of our <a href="{% url 'partners:partners' %}" target="_blank">Supporting Partners</a> Board.</li>
+      </ul>
+      <p>
+	The first aims to ensure we can process the increasing editorial workflow. The second aims to ensure that we can continue running the infrastructure supporting all those operations.
+      </p>
+      <h3 class="highlight">How you can help</h3>
+      <p>
+	Are you sympathetic towards what we are aiming to achieve? You can help us accelerate our growth with two easy steps:
+      </p>
+      <ul>
+	  <li><i>Is your field not represented in our current <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a>?</i><br/>We are looking for world-class researchers to become Fellows. Send us your nominations at <a href="mailto:admin@scipost.org">admin@scipost.org</a>.<br/>We also welcome nominations in fields beyond Physics.</li>
+	  <li><i>Is your institution not listed on our <a href="{% url 'partners:partners' %}" target="_blank">Partners page</a>?</i><br/>Encourage them (through a librarian, Open Access officer, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}" target="_blank">signing our petition</a>, and by personally emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>. You can also point them to our <a href="https://youtu.be/Pgvd7EvehCI" target="_blank">intro video</a>.
+	  </li>
+	</ul>
+      </p>
+      <p>
+	Many thanks in advance for your help.
+      </p>
+      <p>
+	On behalf of the SciPost foundation,
+      </p>
+      <p>
+	Prof. dr Jean-Sébastien Caux
+      </p>
+      <p><em>Published 15 May 2018</em></p>
+
+    </div>
+
+    </div>
+
+  </div>
+
+    </div>
+</div>
+
+{% endblock %}
