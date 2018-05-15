@@ -24,12 +24,38 @@
 </div>
 
 <div class="row">
+  <div class="col-lg-6">
+
+<h4>On this page:</h4>
+<ul>
+  <li><a href="#manuprep">Manuscript preparation</a></li>
+  <li><a href="#manusub">Manuscript submission</a></li>
+  <li><a href="#refphase">The refereeing phase</a></li>
+  <li><a href="#resub">Resubmission</a></li>
+  <li><a href="#postacceptance">Post-acceptance</a></li>
+  <li><a href="#FAQ">Frequently asked questions</a></li>
+</ul>
+
+  </div>
+  <div class="col-lg-6">
+    <p>
+      The following is a general guide to authoring at SciPost.
+      It does not replace
+      our Journals' <a href="{% url 'journals:journals_terms_and_conditions' %}">Terms and Conditions</a>
+      (which extend the general <a href="{% url 'scipost:terms_and_conditions' %}">SciPost Terms and Conditions</a>), and <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a> which remain in force as official rules.
+    </p>
+    <p>
+      Before submitting to SciPost, you should familiarize yourself with the
+      <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+    </p>
+  </div>
+</div>
+
+<div class="row">
   <div class="col-12">
-  <p>Before submitting to SciPost, you should familiarize yourself with the
-    <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
 
   <hr>
-  <h2>Manuscript preparation</h2>
+  <h2 class="highlight" id="manuprep">Manuscript preparation</h2>
 
   <p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
     as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
@@ -97,7 +123,7 @@
 
 
   <hr>
-  <h2>Manuscript submission</h2>
+  <h2 class="highlight" id="manusub">Manuscript submission</h2>
   <p>Submitting your manuscript to SciPost is extremely easy. You should:</p>
   <ul>
     <li>Make your preprint publicly available on <a href="http://arxiv.org">arXiv.org</a> (please include a statement as `Submission to SciPost' in the Comments)</li>
@@ -112,7 +138,99 @@
     make every reasonable effort to implement such requests, except in cases where this is interpreted as
     interfering with a rigorous assessment of the work.</p>
 
+
+  <hr>
+  <h2 class="highlight" id="refphase">The refereeing phase</h2>
+  <p>
+    First, you should make sure you are familiar with our open peer-witnessed <a href="{% url 'submissions:sub_and_ref_procedure' %}">refereeing procedure</a>.
+  </p>
+  <p>
+    Second, it is also wise to understand what we ask and expect from our referees, which is best summarized in our <a href="{% url 'submissions:referee_guidelines' %}" target="_blank">referee guidelines</a>, which also includes some information about how, as an author, you should react to submitted Reports.
+  </p>
+
+
+  <hr>
+  <h2 class="highlight" id="resub">Resubmission</h2>
+  <p>
+    To resubmit your manuscript, simply upload your new version to the arXiv. When this has appeared, you can then re-fill our <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form. Our system will automatically recognize your new version as a resubmission of your earlier manuscript.
+  </p>
+
+  <hr>
+  <h2 class="highlight" id="postacceptance">Post-acceptance</h2>
+  <p>
+    Upon acceptance of your manuscript, you will receive an email informing you of this fact, and your submission will be directly sent to our production team who will produce the first version of the proofs. Once you will have accepted these proofs (possibly after a number of iterations), we will publish your paper online with its own DOI, and will deposit its metadata to the relevant registration agencies.
+  </p>
+
+  <hr>
+  <h2 class="highlight" id="FAQ">Frequently asked questions</h2>
+
+  <div class="row">
+    <div class="col-6">
+      <ul>
+	<li>
+	  <h4>I need to get in touch with the Editor-in-charge. How do I do that?</h4>
+	  <p>
+	    From your <a href="{% url 'scipost:personal_page' %}">personal page</a>, under the Submissions tab, you will find a <i>Write to the Editor-in-charge</i> link allowing you to do this.
+	  </p>
+	</li>
+	<li>
+	  <h4>My submission has been sitting in pre-screening for longer than 5 days. What is happening?</h4>
+	  <p>
+	    We strive to keep the pre-screening process to under 5 days. SciPost is still growing; since the number of Fellows we have (and their availability) in each specialty varies, it can be that pre-screening lasts a bit longer. Our Editorial Administration does its best to minimize delays, and will get in touch with you if these become too big. If you are concerned, <a href="mailto:edadmin@scipost.org">email us</a>.
+	  </p>
+	</li>
+	<li>
+	  <h4>Can I invite people to referee my paper?</h4>
+	  <p>
+	    Yes, you can do that, in multiple ways. First of all, upon submission, you can provide a list of suggested referees. Second, remember that our peer-witnessed refereeing procedure, besides using invited Reports, also accepts contributed ones (namely: Reports coming from registered Contributors, but who were not specifically invited by the Editor-in-charge). You can thus self-invite potential referees to deliver a Report on your paper. Note however that our strict <a href="{% url 'submissions:refereeing_guidelines' %}#refereeCOIrules">referee conflict-of-interest rules</a> have to be obeyed.
+	  </p>
+	</li>
+	<li>
+	  <h4>The refereeing on my paper is taking longer than expected. What can I do to help?</h4>
+	  <p>
+	    Our team is doing its best to make sure Reports are delivered on time, by sending regular reminders to referees. It can however remain a challenge to ensure timely responses, and it can happen that the process takes longer than planned. You can at any time get in touch with the Editor-in-charge (see above) to enquire about the status or suggest new referees.
+	  </p>
+	</li>
+	<li>
+	  <h4>A Report has come in. Do I <i>have</i> to answer it?</h4>
+	  <p>
+	    No. You should only feel that you <i>have</i> to provide an Author Reply to a given Report if the latter contains questions which you can directly answer, or statements which you would specifically like to respond to.
+	  </p>
+	</li>
+      </ul>
     </div>
+
+    <div class="col-6">
+      <ul>
+	<li>
+	  <h4>I have prepared a new version. Where should I put my list of changes?</h4>
+	  <p>
+	    When filling the resubmission form, you will be able to provide the list of changes which you have implemented in your manuscript. This is the most appropriate place for such a list.
+	  </p>
+	  <p>
+	    That said, you might also find it useful to provide a list of changes directly as an Author Reply to the Report which has asked for or suggested these changes. As an author, you can decide what best suits your needs, and what the community can best benefit from.
+	  </p>
+	</li>
+	<li>
+	  <h4>Do I need to re-upload to the arXiv for each resubmission?</h4>
+	  <p>
+	    Yes. We require your manuscript to be accessible to and seen by all interested parties worldwide, and the arXiv is the best channel for ensuring this.
+	  </p>
+	  <p>
+	    The only case in which you don't need to re-upload to the arXiv is when your manuscript has been accepted, and the (hopefully very minor) last modifications can be implemented by our production team during the proofs stage.
+	  </p>
+	</li>
+	<li>
+	  <h4>How long does the Editorial College taken to do its voting?</h4>
+	  <p>
+	    In simple cases, it is usually possible to gather the relevant votes within one week. If a discussion ensues within the College, the voting period can sometimes take longer. If you are concerned with the status of your submission, you can <a href="mailto:edadmin@scipost.org">email us</a>.
+	  </p>
+	</li>
+      </ul>
+    </div>
+  </div>
+
+  </div>
 </div>
 
 
