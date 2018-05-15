@@ -751,29 +751,28 @@ def harvest_citedby_links(request, doi_label):
         # The only required field in Crossref: doi.
         citation['doi'] = link_el.find(prefix + 'doi').text
 
-        el = link_el.find(prefix + 'article_title')
-        if el is not None:
-            citation['article_title'] = el.text
+        if link_el.find(prefix + 'article_title') is not None:
+            citation['article_title'] = link_el.find(prefix + 'article_title').text
 
-        if link_el.find(prefix + 'journal_abbreviation'):
+        if link_el.find(prefix + 'journal_abbreviation') is not None:
             citation['journal_abbreviation'] = link_el.find(prefix + 'journal_abbreviation').text
 
-        if link_el.find(prefix + 'volume'):
+        if link_el.find(prefix + 'volume') is not None:
             citation['volume'] = link_el.find(prefix + 'volume').text
 
-        if link_el.find(prefix + 'first_page'):
+        if link_el.find(prefix + 'first_page') is not None:
             citation['first_page'] = link_el.find(prefix + 'first_page').text
 
-        if link_el.find(prefix + 'item_number'):
+        if link_el.find(prefix + 'item_number') is not None:
             citation['item_number'] = link_el.find(prefix + 'item_number').text
 
-        if link_el.find(prefix + 'year'):
+        if link_el.find(prefix + 'year') is not None:
             citation['year'] = link_el.find(prefix + 'year').text
 
-        if link_el.find(prefix + 'issn'):
+        if link_el.find(prefix + 'issn') is not None:
             citation['issn'] = link_el.find(prefix + 'issn').text
 
-        if link_el.find(prefix + 'isbn'):
+        if link_el.find(prefix + 'isbn') is not None:
             citation['isbn'] = link_el.find(prefix + 'isbn').text
 
         multiauthors = False
