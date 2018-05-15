@@ -6,15 +6,16 @@
 
 {% block content %}
 
+
 <div class="row">
     <div class="col">
       <h1 class="highlight">SciPost Expansion and Sustainability Drive 2018</h1>
     </div>
 </div>
 <div class="row justify-content-center">
-  <div class="col-lg-10">
+  <div class="col-md-7 col-lg-5">
     <p>
-      Since our original <a href="{% url 'scipost:call' %}" target="_blank">call for openness</a> in scientific publishing, things have been developing extremely well with SciPost. One quick glance at our <a href="{% url 'journals:publications' %}" target="_blank">publishing activities</a> (our list of publications now numbers more than 100, including some very highly-cited ones) is hopefully enough to convince you that we are well on our way to implementing a more healthy infrastructure for scientific publishing.
+      Since our original <a href="{% url 'scipost:call' %}" target="_blank">call for openness</a> in scientific publishing, things have been developing extremely well with SciPost. One quick glance at our <a href="{% url 'journals:publications' %}" target="_blank">publishing activities</a> (our list of publications now numbers more than 100, including some very highly-cited ones) is hopefully enough to convince you that we are well on our way to implementing a healthier infrastructure for scientific publishing.
     </p>
     <p>
       Separately, in a sure sign that <i>The Times They Are A Changin'</i>, big players are moving towards implementing Open Access very similarly to our vision (including the European Commission with its recent <a href="https://ted.europa.eu/udl?uri=TED:NOTICE:141558-2018:TEXT:EN:HTML&tabId=1" target="_blank">Call for Tenders</a>, though you should read recent blog posts <a href="https://jscaux.org/blog/post/2018/04/02/ectender/" target="_blank">here</a> and <a href="https://jscaux.org/blog/post/2018/04/27/ECTenderInterview/" target="_blank">here</a> for how this relates to SciPost).
@@ -22,6 +23,16 @@
     <p>
       The time is now ripe for us to be bold, and take the next steps in our implementation plans. Read on to see how you can significantly help us out.
     </p>
+  </div>
+  <div class="col-md-7 col-lg-5">
+    <div class="embed-responsive embed-responsive-16by9">
+      <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Pgvd7EvehCI?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    </div>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-10">
     <h3 class="highlight">Going for Genuine Open Access</h3>
     <p>
       At SciPost, our ambitions for Open Access publishing are uncompromised, as can be seen from our <a href="{% url 'scipost:about' %}#guiding_principles" target="_blank">guiding principles</a> or our short <a href="https://youtu.be/Pgvd7EvehCI" target="_blank">intro video</a>. In particular, we implement the <a href="https://jscaux.org/blog/post/2018/05/05/genuine-open-access/" target="_blank">Genuine Open Access</a> principles (which include an explicit non profit requirement), are resolutely quality-oriented and international in outlook.
@@ -44,13 +55,13 @@
     <ul>
       <li><i>Is your field insufficiently represented in our current <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a>?</i><br/>We are looking for world-class researchers to become Fellows. Send us your nominations at <a href="mailto:admin@scipost.org">admin@scipost.org</a>.<br/>We also welcome nominations in fields beyond Physics.</li>
       <br/>
-      <li><i>Is your institution not listed on our <a href="{% url 'partners:partners' %}" target="_blank">Partners page</a>?</i><br/>Encourage them (through a librarian, Open Access officer, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}" target="_blank">signing our petition</a>, and by personally emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.</li>
+      <li><i>Is your institution not listed on our <a href="{% url 'partners:partners' %}" target="_blank">Partners page</a>?</i><br/>Encourage them (through a librarian, Open Access officer, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}" target="_blank">signing our petition</a>, and by personally emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>. Experience shows that such personal testimonies and statements of support from active scientists constitute the most persuasive means to convince institutions to support us.</li>
       <br/>
-      <li><i>Are your surroundings not yet sufficiently aware of SciPost?</i><br/>You can point them to our <a href="https://youtu.be/Pgvd7EvehCI" target="_blank">intro video</a> and mention this drive on social media using the <a href="https://twitter.com/hashtag/SwitchToSciPost">#SwitchToSciPost</a> hashtag.
+      <li><i>Are people in your surroundings and social network not yet sufficiently aware of SciPost?</i><br/>You can point them to our <a href="https://youtu.be/Pgvd7EvehCI" target="_blank">intro video</a> and mention this drive on social media using the <a href="https://twitter.com/hashtag/SciPost">#SciPost</a> hashtag.
       </li>
     </ul>
     <p>
-      We will keep you continuously updated on the results from this Expansion and Sustainability Drive 2018 on our website, and via our <a href="{% url 'news:news' %}">News page</a>.
+      We will keep you continuously updated on the results from this Expansion and Sustainability Drive 2018 on our website, on Twitter at <a href="https://twitter.com/scipost_dot_org">@scipost_dot_org</a> and with the <a href="https://twitter.com/hashtag/SciPost">#SciPost</a> hashtag, and via our <a href="{% url 'news:news' %}">News page</a>.
     </p>
     <p>
       Many thanks in advance for your help.
@@ -65,14 +76,6 @@
 
   </div>
 
-</div>
-
-<div class="row justify-content-center">
-    <div class="col-md-7 col-lg-5">
-        <div class="embed-responsive embed-responsive-16by9">
-            <iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/Pgvd7EvehCI?rel=0&amp;controls=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        </div>
-    </div>
 </div>
 
 {% endblock %}
