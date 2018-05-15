@@ -742,7 +742,11 @@ def harvest_citedby_links(request, doi_label):
     for link in response_deserialized.iter(prefix + 'forward_link'):
         citation = {}
         # Cited in Journal, Book, or whatever you want to be cited in.
-        link_el = link[0]
+        if link.find(prefix + 'journal_cite'):
+            link_el = link.find(prefix + 'journal_cite')
+        else:
+            # Not a peer-reviewed citation.
+            continue
 
         # The only required field in Crossref: doi.
         citation['doi'] = link_el.find(prefix + 'doi').text
