@@ -740,44 +740,48 @@ def harvest_citedby_links(request, doi_label):
     prefix = '{http://www.crossref.org/qrschema/2.0}'
     citations = []
     for link in response_deserialized.iter(prefix + 'forward_link'):
-        doi = link.find(prefix + 'journal_cite').find(prefix + 'doi').text
-        article_title = link.find(prefix + 'journal_cite').find(prefix + 'article_title').text
-        try:
-            journal_abbreviation = link.find(prefix + 'journal_cite').find(
-                prefix + 'journal_abbreviation').text
-        except:
-            journal_abbreviation = None
-        try:
-            volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
-        except AttributeError:
-            volume = None
-        try:
-            first_page = link.find(prefix + 'journal_cite').find(prefix + 'first_page').text
-        except:
-            first_page = None
-        try:
-            item_number = link.find(prefix + 'journal_cite').find(prefix + 'item_number').text
-        except:
-            item_number = None
+        citation = {}
+        # Cited in Journal, Book, or whatever you want to be cited in.
+        link_el = link[0]
+
+        # The only required field in Crossref: doi.
+        citation['doi'] = link_el.find(prefix + 'doi').text
+
+        if link_el.find(prefix + 'article_title'):
+            citation['article_title'] = link_el.find(prefix + 'article_title').text
+
+        if link_el.find(prefix + 'journal_abbreviation'):
+            citation['journal_abbreviation'] = link_el.find(prefix + 'journal_abbreviation').text
+
+        if link_el.find(prefix + 'volume'):
+            citation['volume'] = link_el.find(prefix + 'volume').text
+
+        if link_el.find(prefix + 'first_page'):
+            citation['first_page'] = link_el.find(prefix + 'first_page').text
+
+        if link_el.find(prefix + 'item_number'):
+            citation['item_number'] = link_el.find(prefix + 'item_number').text
+
+        if link_el.find(prefix + 'year'):
+            citation['year'] = link_el.find(prefix + 'year').text
+
+        if link_el.find(prefix + 'issn'):
+            citation['issn'] = link_el.find(prefix + 'issn').text
+
+        if link_el.find(prefix + 'isbn'):
+            citation['isbn'] = link_el.find(prefix + 'isbn').text
+
         multiauthors = False
-        for author in link.find(prefix + 'journal_cite').find(
-                prefix + 'contributors').iter(prefix + 'contributor'):
+        for author in link_el.find(prefix + 'contributors').iter(prefix + 'contributor'):
             if author.get('sequence') == 'first':
-                first_author_given_name = author.find(prefix + 'given_name').text
-                first_author_surname = author.find(prefix + 'surname').text
+                citation['first_author_given_name'] = author.find(prefix + 'given_name').text
+                citation['first_author_surname'] = author.find(prefix + 'surname').text
             else:
                 multiauthors = True
-        year = link.find(prefix + 'journal_cite').find(prefix + 'year').text
-        citations.append({'doi': doi,
-                          'article_title': article_title,
-                          'journal_abbreviation': journal_abbreviation,
-                          'first_author_given_name': first_author_given_name,
-                          'first_author_surname': first_author_surname,
-                          'multiauthors': multiauthors,
-                          'volume': volume,
-                          'first_page': first_page,
-                          'item_number': item_number,
-                          'year': year, })
+        citation['multiauthors'] = multiauthors
+        citations.append(citation)
+
+    # Update Publication object
     publication.citedby = citations
     publication.latest_citedby_update = timezone.now()
     publication.save()
