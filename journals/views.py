@@ -751,8 +751,9 @@ def harvest_citedby_links(request, doi_label):
         # The only required field in Crossref: doi.
         citation['doi'] = link_el.find(prefix + 'doi').text
 
-        if link_el.find(prefix + 'article_title'):
-            citation['article_title'] = link_el.find(prefix + 'article_title').text
+        el = link_el.find(prefix + 'article_title')
+        if el:
+            citation['article_title'] = el.text
 
         if link_el.find(prefix + 'journal_abbreviation'):
             citation['journal_abbreviation'] = link_el.find(prefix + 'journal_abbreviation').text
