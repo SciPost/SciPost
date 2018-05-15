@@ -167,7 +167,11 @@ def info_for_authors(request, doi_label):
 
 def about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {'journal': journal}
+    context = {
+        'journal': journal,
+        'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
+        'latest_publications': Publication.objects.for_journal(journal.name)[:5]
+    }
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
@@ -783,6 +787,7 @@ def harvest_citedby_links(request, doi_label):
 
     # Update Publication object
     publication.citedby = citations
+    publication.number_of_citations = len(citations)
     publication.latest_citedby_update = timezone.now()
     publication.save()
     context = {

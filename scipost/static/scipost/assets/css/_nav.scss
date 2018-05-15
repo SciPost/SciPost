@@ -76,3 +76,12 @@ nav.main-nav {
     text-align: center;
     padding: 3rem;
 }
+
+
+.nav-tabs .nav-link {
+    border-radius: 0;
+
+    &.active {
+        border-top: 3px solid $scipost-darkblue;
+    }
+}
