@@ -752,7 +752,7 @@ def harvest_citedby_links(request, doi_label):
         citation['doi'] = link_el.find(prefix + 'doi').text
 
         el = link_el.find(prefix + 'article_title')
-        if el:
+        if el is not None:
             citation['article_title'] = el.text
 
         if link_el.find(prefix + 'journal_abbreviation'):
