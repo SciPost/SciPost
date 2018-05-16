@@ -20,7 +20,7 @@
             <p class="abstract mb-0 mt-2 py-2" style="display:none;">{{ publication.abstract }}</p>
         </div>
         <div class="col-md-auto">
-            {% if include_citation_rate %}
+            {% if include_citation_rate and publication.number_of_citations > 0 %}
                 <h3><span class="badge badge-primary">Cited {{ publication.number_of_citations }} times</span></h3>
             {% endif %}
         </div>
