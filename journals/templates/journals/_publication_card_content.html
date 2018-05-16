@@ -3,7 +3,7 @@
 </div>
 <div class="card-body publication-{{publication.id}}">
     <div class="row justify-content-between mb-0">
-        <div class="col">
+        <div class="col-md-auto">
             <p class="card-text mb-2">{{ publication.author_list }}</p>
             <p class="card-text text-muted">
                 {{ publication.citation }} &middot;
@@ -19,7 +19,7 @@
             </p>
             <p class="abstract mb-0 mt-2 py-2" style="display:none;">{{ publication.abstract }}</p>
         </div>
-        <div class="col">
+        <div class="col-md-auto">
             {% if include_citation_rate %}
                 <h3><span class="badge badge-primary">Cited {{ publication.number_of_citations }} times</span></h3>
             {% endif %}

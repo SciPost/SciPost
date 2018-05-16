@@ -134,30 +134,10 @@ class IssuesView(DetailView):
     template_name = 'journals/journal_issues.html'
 
 
-class RecentView(DetailView):
-    """
-    List all recent Publications for a specific Journal.
-    """
-    queryset = Journal.objects.active()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_recent.html'
-
-
-class AcceptedView(DetailView):
-    """
-    List all Submissions for a specific Journal which have been accepted but are not
-    yet published.
-    """
-    queryset = Journal.objects.active()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_accepted.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['accepted_submissions'] = Submission.objects.accepted().filter(
-            submitted_to_journal=context['journal'].name).order_by('-latest_activity')
-        return context
-
+def redirect_to_about(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
+    return redirect(
+        reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
 
 def info_for_authors(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
@@ -170,7 +150,9 @@ def about(request, doi_label):
     context = {
         'journal': journal,
         'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
-        'latest_publications': Publication.objects.for_journal(journal.name)[:5]
+        'latest_publications': Publication.objects.for_journal(journal.name)[:5],
+        'accepted_submissions': Submission.objects.accepted().filter(
+            submitted_to_journal=journal.name).order_by('-latest_activity'),
     }
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
