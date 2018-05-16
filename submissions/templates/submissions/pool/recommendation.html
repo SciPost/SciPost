@@ -11,7 +11,7 @@
 {% block pagetitle %}: Editorial Recommendation{% endblock pagetitle %}
 
 {% block content %}
-    <h1>Editorial Recommendation to vote on</h1>
+    <h1 class="highlight">Editorial Recommendation to vote on</h1>
 
 
     {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
@@ -21,6 +21,16 @@
     {% include 'partials/submissions/pool/submission_info_table.html' with submission=recommendation.submission %}
     <br>
 
+    {% if recommendation.get_other_versions %}
+        <h3>Other versions of Editorial Recommendations for this Submission</h3>
+        {% for old_rec in recommendation.get_other_versions %}
+            {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=old_rec %}
+        {% endfor %}
+        <br>
+        <br>
+    {% endif %}
+
+    <h2 class="highlight">Editorial Recommendation to vote on</h2>
     {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
 
     <div class="card">

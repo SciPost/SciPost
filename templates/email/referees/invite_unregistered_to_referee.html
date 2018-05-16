@@ -1,5 +1,6 @@
+<p>
 Dear {{ invitation.get_title_display }} {{ invitation.last_name }},
-<br><br>
+</p>
 <p>
     On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to referee a Submission to {{ invitation.submission.get_submitted_to_journal_display }}, namely<br><br>
     {{ invitation.submission.title }}<br>
@@ -22,7 +23,7 @@ Dear {{ invitation.get_title_display }} {{ invitation.last_name }},
   After activation of your registration, you will be allowed to contribute, in particular by providing referee reports.
 </p>
 <p>
-    You might want to make sure you are familiar with our <a href="{% url 'submissions:sub_and_ref_procedure' %}">refereeing procedure</a>, <a href="{% url 'submissions:refereeing_guidelines' %}">refereeing guidelines</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+    You might want to make sure you are familiar with our <a href="{% url 'submissions:sub_and_ref_procedure' %}">refereeing procedure</a>, <a href="{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
     We very much hope that we can count on your expertise,

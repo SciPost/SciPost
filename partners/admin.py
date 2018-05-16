@@ -40,7 +40,7 @@ class ProspectivePartnerEventInline(admin.TabularInline):
 
 class ProspectivePartnerAdmin(admin.ModelAdmin):
     inlines = (ProspectiveContactInline, ProspectivePartnerEventInline,)
-    list_display = ('institution_name', 'date_received', 'status')
+    list_display = ('institution_name', 'date_received', 'date_processed', 'status')
     list_filter = ('kind', 'status')
 
 

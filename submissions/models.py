@@ -751,11 +751,15 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         """Return the number of votes 'abstained'."""
         return self.voted_abstain.count()
 
+    def get_other_versions(self):
+        """Return other versions of EICRecommendations for this Submission."""
+        return self.submission.eicrecommendations.exclude(id=self.id)
+
     def may_be_reformulated(self):
         """Check if this EICRecommdation is allowed to be reformulated in a new version."""
         if not self.active:
             # Already reformulated before; please use the latest version
-            return False
+            return self.submission.eicrecommendations.last() == self
         return self.submission.status in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]
 
 

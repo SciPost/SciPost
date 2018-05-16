@@ -56,7 +56,10 @@ class MailUtilsMixin:
         self.mail_template = mail_template.render(kwargs)
 
         # Gather Recipients data
-        self.original_recipient = self._validate_single_entry(self.mail_data.get('to_address'))[0]
+        try:
+            self.original_recipient = self._validate_single_entry(self.mail_data.get('to_address'))[0]
+        except IndexError:
+            self.original_recipient = ''
 
         self.subject = self.mail_data['subject']
 
@@ -87,6 +90,8 @@ class MailUtilsMixin:
                     return mail_to
         elif re.match("[^@]+@[^@]+\.[^@]+", entry):
             return [entry]
+        else:
+            return []
 
     def validate_bcc_list(self):
         """

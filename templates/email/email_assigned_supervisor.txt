@@ -1,4 +1,4 @@
-Dear {{ stream.invitations_officer.user.last_name }},
+Dear {{ stream.supervisor.user.last_name }},
 \n
 \n
 You are now assigned as Production Supervisor to the stream

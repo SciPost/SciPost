@@ -173,52 +173,55 @@
                                     </div>
                                 </form>
                             </li>
-                            {% with submission.reports.awaiting_vetting as reports %}
-                                {% if reports %}
-                                    <li>
-                                        Vet submitted Report{{reports|pluralize}}:
-                                        <ul class="mb-1">
-                                            {% for report in reports %}
-                                                <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">{{report}}</a></li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                {% else %}
-                                    <li>All Reports have been vetted.</li>
-                                {% endif %}
-                            {% endwith %}
-
-                            {% with submission.comments_set_complete.awaiting_vetting as comments %}
-                                {% if comments %}
-                                    <li>
-                                        Vet submitted Comment{{comments|pluralize}}:
-                                        <ul class="mb-1">
-                                            {% for comment in comments %}
-                                                <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
-                                            {% endfor %}
-                                        </ul>
-                                    </li>
-                                {% else %}
-                                    <li>All Comments have been vetted.</li>
-                                {% endif %}
-                            {% endwith %}
 
                             {% if not submission.reporting_deadline_has_passed %}
                                 <li><a href="{% url 'submissions:close_refereeing_round' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                             {% endif %}
                         {% endif %}
+                        {% with submission.reports.awaiting_vetting as reports %}
+                            {% if reports %}
+                                <li>
+                                    Vet submitted Report{{reports|pluralize}}:
+                                    <ul class="mb-1">
+                                        {% for report in reports %}
+                                            <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">{{report}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li>All Reports have been vetted.</li>
+                            {% endif %}
+                        {% endwith %}
+
+                        {% with submission.comments_set_complete.awaiting_vetting as comments %}
+                            {% if comments %}
+                                <li>
+                                    Vet submitted Comment{{comments|pluralize}}:
+                                    <ul class="mb-1">
+                                        {% for comment in comments %}
+                                            <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
+                                        {% endfor %}
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li>All Comments have been vetted.</li>
+                            {% endif %}
+                        {% endwith %}
                         {% if submission.eic_recommendation_required %}
                             <li>
-                                <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                                {% if submission.eicrecommendations.last %}
+                                    <a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a>
+                                {% else %}
+                                    <a href="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>
+                                {% endif %}
                                 <p>
                                     If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
                                     <br>
                                     If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
                                 </p>
                             </li>
-                        {% endif %}
-                        {% if submission.eicrecommendations.active.first %}
-                            {% if submission.eicrecommendations.active.first.may_be_reformulated %}
+                        {% elif submission.eicrecommendations.last %}
+                            {% if submission.eicrecommendations.last.may_be_reformulated %}
                                 <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.arxiv_identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
                             {% endif %}
                         {% endif %}
