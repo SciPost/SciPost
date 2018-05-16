@@ -79,7 +79,12 @@ class PublicationListView(PaginationMixin, ListView):
                 qs = qs.filter(in_issue__id=issue)
         if self.request.GET.get('subject'):
             qs = qs.for_subject(self.request.GET['subject'])
-        return qs.order_by('-publication_date')
+
+        if self.request.GET.get('orderby') == 'citations':
+            qs = qs.order_by('-number_of_citations')
+        else:
+            qs = qs.order_by('-publication_date')
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -134,30 +139,10 @@ class IssuesView(DetailView):
     template_name = 'journals/journal_issues.html'
 
 
-class RecentView(DetailView):
-    """
-    List all recent Publications for a specific Journal.
-    """
-    queryset = Journal.objects.active()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_recent.html'
-
-
-class AcceptedView(DetailView):
-    """
-    List all Submissions for a specific Journal which have been accepted but are not
-    yet published.
-    """
-    queryset = Journal.objects.active()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_accepted.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['accepted_submissions'] = Submission.objects.accepted().filter(
-            submitted_to_journal=context['journal'].name).order_by('-latest_activity')
-        return context
-
+def redirect_to_about(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
+    return redirect(
+        reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
 
 def info_for_authors(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
@@ -167,7 +152,13 @@ def info_for_authors(request, doi_label):
 
 def about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {'journal': journal}
+    context = {
+        'journal': journal,
+        'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
+        'latest_publications': Publication.objects.for_journal(journal.name)[:5],
+        'accepted_submissions': Submission.objects.accepted().filter(
+            submitted_to_journal=journal.name).order_by('-latest_activity'),
+    }
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
@@ -740,45 +731,50 @@ def harvest_citedby_links(request, doi_label):
     prefix = '{http://www.crossref.org/qrschema/2.0}'
     citations = []
     for link in response_deserialized.iter(prefix + 'forward_link'):
-        doi = link.find(prefix + 'journal_cite').find(prefix + 'doi').text
-        article_title = link.find(prefix + 'journal_cite').find(prefix + 'article_title').text
-        try:
-            journal_abbreviation = link.find(prefix + 'journal_cite').find(
-                prefix + 'journal_abbreviation').text
-        except:
-            journal_abbreviation = None
-        try:
-            volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
-        except AttributeError:
-            volume = None
-        try:
-            first_page = link.find(prefix + 'journal_cite').find(prefix + 'first_page').text
-        except:
-            first_page = None
-        try:
-            item_number = link.find(prefix + 'journal_cite').find(prefix + 'item_number').text
-        except:
-            item_number = None
+        citation = {}
+        # Cited in Journal, Book, or whatever you want to be cited in.
+        link_el = link[0]
+
+        # The only required field in Crossref: doi.
+        citation['doi'] = link_el.find(prefix + 'doi').text
+
+        if link_el.find(prefix + 'article_title') is not None:
+            citation['article_title'] = link_el.find(prefix + 'article_title').text
+
+        if link_el.find(prefix + 'journal_abbreviation') is not None:
+            citation['journal_abbreviation'] = link_el.find(prefix + 'journal_abbreviation').text
+
+        if link_el.find(prefix + 'volume') is not None:
+            citation['volume'] = link_el.find(prefix + 'volume').text
+
+        if link_el.find(prefix + 'first_page') is not None:
+            citation['first_page'] = link_el.find(prefix + 'first_page').text
+
+        if link_el.find(prefix + 'item_number') is not None:
+            citation['item_number'] = link_el.find(prefix + 'item_number').text
+
+        if link_el.find(prefix + 'year') is not None:
+            citation['year'] = link_el.find(prefix + 'year').text
+
+        if link_el.find(prefix + 'issn') is not None:
+            citation['issn'] = link_el.find(prefix + 'issn').text
+
+        if link_el.find(prefix + 'isbn') is not None:
+            citation['isbn'] = link_el.find(prefix + 'isbn').text
+
         multiauthors = False
-        for author in link.find(prefix + 'journal_cite').find(
-                prefix + 'contributors').iter(prefix + 'contributor'):
+        for author in link_el.find(prefix + 'contributors').iter(prefix + 'contributor'):
             if author.get('sequence') == 'first':
-                first_author_given_name = author.find(prefix + 'given_name').text
-                first_author_surname = author.find(prefix + 'surname').text
+                citation['first_author_given_name'] = author.find(prefix + 'given_name').text
+                citation['first_author_surname'] = author.find(prefix + 'surname').text
             else:
                 multiauthors = True
-        year = link.find(prefix + 'journal_cite').find(prefix + 'year').text
-        citations.append({'doi': doi,
-                          'article_title': article_title,
-                          'journal_abbreviation': journal_abbreviation,
-                          'first_author_given_name': first_author_given_name,
-                          'first_author_surname': first_author_surname,
-                          'multiauthors': multiauthors,
-                          'volume': volume,
-                          'first_page': first_page,
-                          'item_number': item_number,
-                          'year': year, })
+        citation['multiauthors'] = multiauthors
+        citations.append(citation)
+
+    # Update Publication object
     publication.citedby = citations
+    publication.number_of_citations = len(citations)
     publication.latest_citedby_update = timezone.now()
     publication.save()
     context = {

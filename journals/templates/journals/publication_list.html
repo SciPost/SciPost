@@ -19,12 +19,21 @@
 {% block content %}
 
 <div class="row">
-    <div class="col-12">
+    <div class="col-12 ordering">
+        <p>
+            Found {{ page_obj.paginator.count }} Publications
+            <br>
+            Order by:
+
+            <a href="?{% url_replace orderby='date' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'date' %}">publication date</a>
+            <a href="?{% url_replace orderby='citations' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'citations' %}">number of citations</a>
+        </p>
+        <hr class="divider">
         <ul class="list-unstyled">
             {% for publication in object_list %}
                 <li>
                     <div class="card card-grey card-publication">
-                        {% include 'journals/_publication_card_content.html' with publication=publication %}
+                        {% include 'journals/_publication_card_content.html' with publication=publication include_citation_rate=1 %}
                     </div>
                 </li>
             {% empty %}

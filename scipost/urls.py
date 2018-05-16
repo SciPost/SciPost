@@ -28,6 +28,9 @@ urlpatterns = [
     # Info
     url(r'^about$', views.AboutView.as_view(), name='about'),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
+    url(r'^ExpSustDrive2018$',
+        TemplateView.as_view(template_name='scipost/ExpSustDrive2018.html'),
+        name='ExpSustDrive2018'),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
         name='foundation'),
     url(r'^tour$', TemplateView.as_view(template_name='scipost/quick_tour.html'),
