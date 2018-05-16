@@ -79,7 +79,12 @@ class PublicationListView(PaginationMixin, ListView):
                 qs = qs.filter(in_issue__id=issue)
         if self.request.GET.get('subject'):
             qs = qs.for_subject(self.request.GET['subject'])
-        return qs.order_by('-publication_date')
+
+        if self.request.GET.get('orderby') == 'citations':
+            qs = qs.order_by('-number_of_citations')
+        else:
+            qs = qs.order_by('-publication_date')
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
