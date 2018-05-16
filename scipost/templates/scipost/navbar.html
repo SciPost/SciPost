@@ -16,11 +16,6 @@
         <div class="collapse navbar-collapse" id="main-navbar">
             <ul class="navbar-nav mr-auto">
 
-
-    <!-- <div class="container-outside main-nav"> -->
-        <!-- <div class="container"> -->
-            <!-- <nav class="navbar main-nav navbar-expand-lg"> -->
-                <!-- <ul id="menu-navbar" class="navbar-nav"> -->
                   <li class="nav-item{% if request.path == '/' %} active{% endif %}">
                     <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
                   </li>
@@ -53,7 +48,7 @@
                             <a href="javascript:;" class="d-inline-block ml-lg-1 badge_link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
                                 <span class="user d-inline d-lg-none d-xl-inline">{% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</span>
                                 <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
-                                {% live_notify_badge classes="badge badge-pill badge-primary" %}
+                                {% live_notify_badge classes="badge badge-pill" %}
                             </a>
                             {% live_notify_list %}
                         </div>
@@ -88,14 +83,6 @@
                       </li>
                   {% endif %}
 
-                <!-- </ul> -->
-                <!-- <form action="{% url 'scipost:search' %}" method="get" class="form-inline search-nav-form"> -->
-                    <!-- <input class="form-control mr-sm-2" id="id_q" maxlength="100" name="q" type="text" aria-label="Search" value="{{ search_query|default:'' }}"> -->
-                    <!-- <button class="btn my-0" type="submit"><i class="fa fa-search"></i> Search</button> -->
-                <!-- </form> -->
-            <!-- </nav> -->
-        <!-- </div> -->
-    <!-- </div> -->
 
 
 

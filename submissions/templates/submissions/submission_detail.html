@@ -30,21 +30,22 @@
                 <h3>- Published as <a href="{{submission.publication.get_absolute_url}}">{{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}} ({{submission.publication.publication_date|date:'Y'}})</a></h3>
             {% endif %}
 
+            <p>
+                {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
+                    - You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions<br>
+                {% endif %}
 
-            {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
-                <h3>- You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions</h3>
-            {% endif %}
+                {% if unfinished_report_for_user %}
+                    - <span class="circle text-danger border-danger">!</span> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a><br>
+                {% endif %}
 
-            {% if unfinished_report_for_user %}
-                <h3>- <span class="circle text-danger border-danger">!</span> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h3>
-            {% endif %}
-
-            {% if not submission.is_current %}
-                <h3><span class="text-danger">- This is not the current version.</span></h3>
-            {% endif %}
+                {% if not submission.is_current %}
+                    <span class="text-danger">- This is not the current version.</span><br>
+                {% endif %}
+            </p>
         </div>
 
-        <h3 class="mt-2">Submission summary</h3>
+        <h3 class="mt-4">Submission summary</h3>
         {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
         {% include 'partials/submissions/submission_status.html' with submission=submission %}

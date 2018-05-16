@@ -1,6 +1,10 @@
 
 
 .notifications_container {
+    > a {
+        position: relative;
+    }
+
     .fa-inbox {
         vertical-align: bottom;
         margin: 0 0.25rem;
@@ -22,6 +26,20 @@
 
         .live_notify_badge {
             display: inline-block;
+        }
+    }
+
+    .badge {
+        position: absolute;
+        right: -5px;
+        top: -6px;
+        display: none;
+
+        &.positive_count {
+            display: inline-block;
+            background-color: $scipost-orange;
+            border: 2px solid $scipost-lightblue;
+            color: $white;
         }
     }
 }
@@ -136,31 +154,6 @@
         }
     }
 
-    // .actions {
-    //     // display: none;
-    //     opacity: 0.0;
-    //     transition: opacity 0.1s;
-    //     width: 20px;
-    //     height: 100%;
-    //     padding-left: 1rem;
-    //     padding-right: 0.5rem;
-    //     padding-bottom: 0.1rem;
-    //
-    //     .fa[data-toggle="tooltip"] {
-    //         font-size: 1em;
-    //     }
-    //
-    //     a:hover {
-    //         .fa-circle-o:before {
-    //             content: '\f111';
-    //         }
-    //
-    //         .fa-circle:before {
-    //             content: '\f10c';
-    //         }
-    //     }
-    // }
-
 
     .links .item {
         &.active,
@@ -242,7 +235,7 @@
         }
 
         &.unread {
-            background-color: rgba(114, 141, 199, 0.05);
+            background-color: rgba(114, 141, 199, 0.2);
 
             .show-unread {
                 display: inherit;
@@ -277,6 +270,21 @@
 
         .item:hover .actions {
             opacity: 1.0;
+        }
+    }
+}
+
+.loading-link {
+    .fa {
+        display: none;
+    }
+
+    &.loading {
+        .fa {
+            display: inline-block;
+        }
+        a {
+            display: none;
         }
     }
 }

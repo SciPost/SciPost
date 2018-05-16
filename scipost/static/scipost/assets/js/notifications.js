@@ -13,14 +13,32 @@ function fetch_api_data(url, callback, args) {
                 }
             }
         })
-        r.open("GET", url + '?max=5', true);
+        r.open("GET", url, true);
         r.send();
     }
 }
 
 
+function update_count(el) {
+    fetch_api_data("/notifications/api/unread_count/", update_count_callback, {'element': el});
+}
+
+function update_count_callback(data, args) {
+    var el = $(args['element']);
+    var count = data['unread_count'];
+    if( count > 0 ) {
+        el.html(count).addClass('positive_count');
+    } else {
+        el.html(count).removeClass('positive_count');
+    }
+}
+
+
 function update_list(el) {
-    fetch_api_data("/notifications/api/list/?mark_as_read=1", update_list_callback, {'element': el});
+    var el = $(el);
+    var offset = typeof el.data('count') == 'undefined' ? 0 : el.data('count');
+    $('#load-notifications').addClass('loading');
+    fetch_api_data("/notifications/api/list/?mark_as_read=1&offset=" + offset, update_list_callback, {'element': el});
 }
 
 function update_list_callback(data, args) {
@@ -58,14 +76,27 @@ function update_list_callback(data, args) {
     }
 
     // Fill DOM
-    el.append(messages).trigger('refresh-notifications');
+    var count = typeof el.data('count') == 'undefined' ? 0 : el.data('count');
+    el.append(messages).data('count', count + items.length).trigger('refresh-notifications');
+    $('#load-notifications').removeClass('loading');
 }
 
 $(function(){
+    update_count('#live_notify_badge');
+
     $('#notification_center').on('show.bs.modal', function(e) {
-        update_list('#notifications-list');
+        if( typeof $('#notification_center').data('reload') == 'undefined' ) {
+            update_list('#notifications-list');
+            update_count('#live_notify_badge');
+            $('#notification_center').data('reload', 1);
+        }
     }).on('hide.bs.modal', function() {
         $('body > .tooltip').remove();
+    });
+
+    $('#load-notifications a').on('click', function(e) {
+        e.preventDefault();
+        update_list('#notifications-list');
     });
 
     $('body').on('refresh-notifications', function(e) {
