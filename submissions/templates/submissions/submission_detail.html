@@ -76,11 +76,12 @@
 
 {% if can_read_editorial_information or is_author %}
     {% for recommendation in recommendations %}
-        {% with is_author and recommendation|is_viewable_by_authors as author_viewable %}
-            {% if author_viewable or can_read_editorial_information %}
-                {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-            {% endif %}
-        {% endwith %}
+        {# Use this crazy logic block because of the totally unclear template logic if one tries to merge this #}
+        {% if is_author and recommendation|is_viewable_by_authors %}
+            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+        {% elif can_read_editorial_information %}
+            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+        {% endif %}
     {% endfor %}
 
     <div class="mb-4">
@@ -92,29 +93,27 @@
 {% endif %}
 
 {% if is_author or perms.scipost.can_oversee_refereeing %}
-
-        <div class="mb-4" id="proofsslist">
-            <h3>Proofs</h3>
-            <ul>
-                {% for proofs in submission.production_stream.proofs.for_authors %}
-                    <li>
-                        <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
-                        status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
-                        {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
-                            {% if proofs_decision_form and is_author %}
-                                <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
-                                <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
-                                    {% csrf_token %}
-                                    {{ proofs_decision_form|bootstrap }}
-                                    <input class="btn btn-primary btn-sm" type="submit" value="Submit">
-                                </form>
-                            {% endif %}
+    <div class="mb-4" id="proofsslist">
+        <h3>Proofs</h3>
+        <ul>
+            {% for proofs in submission.production_stream.proofs.for_authors %}
+                <li>
+                    <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
+                    status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
+                    {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
+                        {% if proofs_decision_form and is_author %}
+                            <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
+                            <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
+                                {% csrf_token %}
+                                {{ proofs_decision_form|bootstrap }}
+                                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
+                            </form>
                         {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    {% endif %}
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endif %}
 
 {% if perms.scipost.can_submit_comments %}
@@ -220,7 +219,7 @@
 
 
 {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}
-{% if form=comment_form %}
+{% if comment_form %}
     {% if not user.is_authenticated and submission.comments.vetted.exists %}
         {% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
     {% elif user.is_authenticated %}
