@@ -518,29 +518,42 @@ class EditorialAssignmentForm(forms.ModelForm):
         label="Are you willing to take charge of this Submission?")
     refereeing_cycle = forms.ChoiceField(
         widget=forms.RadioSelect, choices=CYCLE_CHOICES, initial=CYCLE_DEFAULT)
+    refusal_reason = forms.ChoiceField(
+        choices=ASSIGNMENT_REFUSAL_REASONS)
 
     class Meta:
         model = EditorialAssignment
-        fields = ('refusal_reason',)
+        fields = ()  # Don't use the default fields options because of the ordering of fields.
 
     def __init__(self, *args, **kwargs):
         """Add related submission as argument."""
         self.submission = kwargs.pop('submission')
-        self.request = kwargs.pop('request', None)
+        self.request = kwargs.pop('request')
         super().__init__(*args, **kwargs)
         if not self.instance.id:
             del self.fields['decision']
             del self.fields['refusal_reason']
+
+    def has_accepted_invite(self):
+        """Check if invite is accepted or if voluntered to become EIC."""
+        return 'decision' not in self.cleaned_data or self.cleaned_data['decision'] == 'accept'
+
+    def is_normal_cycle(self):
+        """Check if normal refereeing cycle is chosen."""
+        return self.cleaned_data['refereeing_cycle'] == CYCLE_DEFAULT
 
     def save(self, commit=True):
         """Save Submission to EditorialAssignment."""
         self.instance.submission = self.submission
         self.instance.date_answered = timezone.now()
         self.instance.to = self.request.user.contributor
+        recommendation = super().save()  # Save already, in case it's a new recommendation.
 
-        if self.cleaned_data['refereeing_cycle'] == CYCLE_DEFAULT:
+        if self.is_normal_cycle():
+            # Default Refereeing process!
+
             deadline = timezone.now() + datetime.timedelta(days=28)
-            if self.instance.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+            if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
                 deadline += datetime.timedelta(days=28)
 
             # Update related Submission.
@@ -552,7 +565,9 @@ class EditorialAssignmentForm(forms.ModelForm):
                 open_for_reporting=True,
                 visible_public=True,
                 latest_activity=timezone.now())
-        elif self.cleaned_data['refereeing_cycle'] == CYCLE_DIRECT_REC:
+        else:
+            # Formulate rejection recommendation instead
+
             # Update related Submission.
             Submission.objects.filter(id=self.submission.id).update(
                 refereeing_cycle=CYCLE_DIRECT_REC,
@@ -563,15 +578,16 @@ class EditorialAssignmentForm(forms.ModelForm):
                 visible_public=False,
                 latest_activity=timezone.now())
 
-        if 'decision' not in self.cleaned_data or self.cleaned_data['decision'] == 'accept':
-            self.instance.accepted = True
-            # Deprecate old EditorialAssignments if Fellow accepts.
+        if self.has_accepted_invite():
+            # Implicitly or explicity accept the assignment and deprecate others.
+            recommendation.accepted = True
             EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
-                id=self.instance.id).update(deprecated=True)
+                id=recommendation.id).update(deprecated=True)
         else:
-            self.instance.accepted = False
-            self.instance.refusal_reason = self.cleaned_data['refusal_reason']
-        return super().save(commit)
+            recommendation.accepted = False
+            recommendation.refusal_reason = self.cleaned_data['refusal_reason']
+        recommendation.save()  # Save again to register acceptance
+        return recommendation
 
 
 class ConsiderAssignmentForm(forms.Form):

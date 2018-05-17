@@ -194,7 +194,7 @@ class Submission(models.Model):
     @property
     def eic_recommendation_required(self):
         """Return if Submission needs a EICRecommendation to be formulated."""
-        return self.eicrecommendations.active().exists()
+        return not self.eicrecommendations.active().exists()
 
     @property
     def revision_requested(self):

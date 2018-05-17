@@ -415,6 +415,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
+        r = cls.assignment
         email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' '
                       + cls.assignment.to.user.last_name
                       + ', \n\nThank you for accepting to become Editor-in-charge '

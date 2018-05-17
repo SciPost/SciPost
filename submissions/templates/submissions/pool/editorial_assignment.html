@@ -15,7 +15,11 @@
 {% block content %}
 
 <h1 class="highlight">Editorial Assignment</h1>
-<h3 class="pt-0">Can you act as Editor-in-charge?{% if form.instance.id %} (see below to accept/decline){% endif %}</h3>
+
+{% if form.instance.id %}
+    <h4 class="pt-0">We have received a Submission to SciPost for which we would like you to consider becoming Editor-in-charge.</h4>
+{% endif %}
+    <h4 class="pt-0">Can you act as Editor-in-charge?{% if form.instance.id %} (see below to accept/decline){% endif %}</h4>
 <br>
 
 <h3>Submission details</h3>
@@ -23,7 +27,7 @@
 
 <br>
 {% if form.instance.id %}
-    <h2 class="highlight">Accept or Decline this Assignment</h2>
+    <h2 class="highlight">Accept or decline this Editorial Assignment</h2>
 {% else %}
     <h2 class="highlight">Volunteer to become Editor-in-charge</h2>
 {% endif %}
@@ -32,14 +36,14 @@
 <form method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
-    <p>
+    <input class="btn btn-primary" type="submit" value="Submit" />
+    <p class="border p-2 mt-3">
         <strong>Clarification</strong>
         <br>
-        If you choose the Normal refereeing cycle, you will be redirected to the Editorial Page to proceed further. The Submission will be publicly available and the authors will be informed that the refereeing process has started.
+        If you choose the <em>Normal refereeing cycle</em>, you will be redirected to the Editorial Page to proceed further. The Submission will be publicly available and the authors will be informed that the refereeing process has started.
         <br>
-        If you choose to directly formulate a Editorial Recommendation for rejection, the Submission will not become publicly available. After formulation of the Editorial Recommendation, it will put forward for voting as normal.
+        If you choose to <em>directly formulate a Editorial Recommendation for rejection</em>, the Submission will not become publicly available. After formulation of the Editorial Recommendation, it will be put forward for voting as normal.
     </p>
-    <input class="btn btn-primary" type="submit" value="Submit" />
 </form>
 
 

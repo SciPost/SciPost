@@ -1,3 +1,5 @@
+{% load submissions_pool %}
+
 <div class="icons">
     {% include 'partials/submissions/pool/submission_tooltip.html' with submission=submission %}
 
@@ -8,7 +10,7 @@
 <div class="pool-item">
     <div class="row mb-1">
         <div class="col-md-7">
-            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}">{{ submission.title }}</a><br>
+            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#container_{{ submission.id }}">{{ submission.title }}</a><br>
             <em>by {{ submission.author_list }}</em>
         </div>
         <div class="col-md-5">
@@ -56,6 +58,16 @@
         <div class="card-text bg-danger text-white mt-1 py-1 px-2">
             This Submission contains required actions, <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#container_{{ submission.id }}">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}
         </div>
+    {% endif %}
+
+    {% if submission.status == 'unassigned' %}
+        {% get_editor_invitations submission request.user as invitations %}
+        {% if invitations %}
+            <div class="border border-warning mt-1 py-1 px-2">
+                <i class="fa fa-exclamation mt-1 px-1 text-danger"></i>
+                You are asked to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.arxiv_identifier_w_vn_nr %}">You can reply to this invitation here</a>.
+            </div>
+        {% endif %}
     {% endif %}
 
 </div>
