@@ -27,7 +27,13 @@
 
         <div class="pl-2">
             {% if submission.publication and submission.publication.is_published %}
-                <h3>- Published as <a href="{{submission.publication.get_absolute_url}}">{{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}} ({{submission.publication.publication_date|date:'Y'}})</a></h3>
+                <h3>- Published as <a href="{{submission.publication.get_absolute_url}}">
+                    {% if submission.publication.in_issue %}
+                        {{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}}
+                    {% else %}
+                        {{submission.publication.in_journal.abbreviation_citation}}, {{submission.publication.paper_nr}}
+                    {% endif %}
+                    ({{submission.publication.publication_date|date:'Y'}})</a></h3>
             {% endif %}
 
 
@@ -74,46 +80,20 @@
 
 </div>
 
-{% if can_read_editorial_information or is_author %}
-    {% for recommendation in recommendations %}
-        {# Use this crazy logic block because of the totally unclear template logic if one tries to merge this #}
-        {% if is_author and recommendation|is_viewable_by_authors %}
-            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-        {% elif can_read_editorial_information %}
-            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-        {% endif %}
-    {% endfor %}
+{% if is_author %}
+    {% include 'partials/submissions/submission_author_information.html' with submission=submission %}
+{% elif is_author_unchecked %}
 
-    <div class="mb-4">
-        <h3>Events</h3>
-        <div id="eventslist">
-            {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
-        </div>
+    <div class="border border-warning py-2 px-3 mb-4">
+        <h3>Advise</h3>
+        The system flagged you as a potential author of this Submission.
+        Please go to your <a href="{% url 'scipost:personal_page' %}">personal page</a>
+        under the Submissions tab to clarify this.
     </div>
 {% endif %}
 
-{% if is_author or perms.scipost.can_oversee_refereeing %}
-    <div class="mb-4" id="proofsslist">
-        <h3>Proofs</h3>
-        <ul>
-            {% for proofs in submission.production_stream.proofs.for_authors %}
-                <li>
-                    <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
-                    status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
-                    {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
-                        {% if proofs_decision_form and is_author %}
-                            <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
-                            <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
-                                {% csrf_token %}
-                                {{ proofs_decision_form|bootstrap }}
-                                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
-                            </form>
-                        {% endif %}
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
+{% if can_read_editorial_information %}
+    {% include 'partials/submissions/submission_editorial_information.html' with submission=submission %}
 {% endif %}
 
 {% if perms.scipost.can_submit_comments %}

@@ -221,7 +221,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
                 contributor__user=request.user).exists():
                     raise Http404
 
-    if submission.open_for_commenting and request.user.perms.has_perms('scipost.can_submit_comments'):
+    if submission.open_for_commenting and request.user.has_perms('scipost.can_submit_comments'):
         context['comment_form'] = CommentForm()
 
     invited_reports = submission.reports.accepted().invited()
@@ -231,7 +231,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     # User is referee for the Submission
     if request.user.is_authenticated:
-        invitations = submission.referee_invitations.filter(referee__user=request.user)
+        context['invitations'] = submission.referee_invitations.filter(referee__user=request.user)
 
         # User may read eg. Editorial Recommendations if he/she is in the Pool.
         context['can_read_editorial_information'] = submission.fellows.filter(
@@ -242,9 +242,7 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
             context['can_read_editorial_information'] = request.user.has_perm(
                 'can_oversee_refereeing')
 
-    else:
-        invitations = None
-    if invitations:
+    if 'invitations' in context and context['invitations']:
         context['communication'] = submission.editorial_communications.for_referees().filter(
             referee__user=request.user)
 
@@ -260,7 +258,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         'author_replies': author_replies,
         'is_author': is_author,
         'is_author_unchecked': is_author_unchecked,
-        'invitations': invitations,
     })
     return render(request, 'submissions/submission_detail.html', context)
 
