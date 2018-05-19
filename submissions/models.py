@@ -518,7 +518,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     # Attachment
     file_attachment = models.FileField(
-        upload_to='uploads/reports/%Y/%m/%d/', blank=True,
+        upload_to='uploads/reports/%Y/%m/%d/', blank=True, null=True,
         validators=[validate_file_extension, validate_max_file_size])
 
     objects = ReportQuerySet.as_manager()
