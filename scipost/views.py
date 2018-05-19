@@ -443,8 +443,8 @@ def _personal_page_editorial_actions(request):
         context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
         context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
         context['nr_submissions_to_assign'] = Submission.objects.prescreening().count()
-        context['nr_recommendations_to_prepare_for_voting'] = EICRecommendation.objects.filter(
-            submission__status='voting_in_preparation').count()
+        context['nr_recommendations_to_prepare_for_voting'] = \
+            EICRecommendation.objects.voting_in_preparation().count()
 
     if contributor.is_VE():
         context['nr_commentary_page_requests_to_vet'] = (Commentary.objects.awaiting_vetting()
@@ -461,7 +461,7 @@ def _personal_page_editorial_actions(request):
 
     if contributor.is_EdCol_Admin():
         context['nr_reports_without_pdf'] = Report.objects.accepted().filter(pdf_report='').count()
-        context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().filter(
+        context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().public().filter(
             pdf_refereeing_pack='').count()
 
     return render(request, 'partials/scipost/personal_page/editorial_actions.html', context)
@@ -867,7 +867,7 @@ def contributor_info(request, contributor_id):
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
     contributor_publications = Publication.objects.published().filter(authors_registered=contributor)
-    contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
+    contributor_submissions = Submission.objects.public_listed().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
     contributor_comments = (Comment.objects.vetted().publicly_visible()

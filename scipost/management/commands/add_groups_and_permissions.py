@@ -17,7 +17,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, verbose=True, **options):
         """Append all user Groups and setup a Contributor roles to user."""
-
         # Create Groups
         SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
         FinancialAdmin, created = Group.objects.get_or_create(name='Financial Administrators')
@@ -40,8 +39,6 @@ class Command(BaseCommand):
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
-        content_type_contact = ContentType.objects.get_for_model(Contact)
-        content_type_draft_invitation = ContentType.objects.get_for_model(DraftInvitation)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
@@ -188,6 +185,10 @@ class Command(BaseCommand):
             codename='can_oversee_refereeing',
             name='Can oversee refereeing',
             content_type=content_type)
+        can_run_pre_screening, created = Permission.objects.get_or_create(
+            codename='can_run_pre_screening',
+            name='Can run pre-screening on Submissions',
+            content_type=content_type)
 
         # Reports
         can_manage_reports, created = Permission.objects.get_or_create(
@@ -331,6 +332,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,
+            can_run_pre_screening,
             can_prepare_recommendations_for_voting,
             can_manage_college_composition,
             can_fix_College_decision,

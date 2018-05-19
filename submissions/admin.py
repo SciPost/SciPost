@@ -107,6 +107,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             'fields': (
                 'editor_in_charge',
                 'status',
+                ('visible_public', 'visible_pool'),
                 'refereeing_cycle',
                 ('open_for_commenting', 'open_for_reporting'),
                 'reporting_deadline',
@@ -237,7 +238,7 @@ class EICRecommendationAdminForm(forms.ModelForm):
 
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
-    list_display = (submission_short_title, 'recommendation', 'active', 'version')
+    list_display = (submission_short_title, 'recommendation', 'status', 'active', 'version')
     form = EICRecommendationAdminForm
 
 

@@ -9,9 +9,8 @@ from django.template import Context, Template
 from django.utils import timezone
 
 from .constants import (
-    NO_REQUIRED_ACTION_STATUSES, STATUS_VETTED, STATUS_UNCLEAR, STATUS_INCORRECT,
-    STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, STATUS_REVISION_REQUESTED, STATUS_EIC_ASSIGNED,
-    STATUS_RESUBMISSION_INCOMING, STATUS_AWAITING_ED_REC)
+    NO_REQUIRED_ACTION_STATUSES, STATUS_VETTED, STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_INCOMING,
+    STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, STATUS_EIC_ASSIGNED)
 
 from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
@@ -40,37 +39,37 @@ class BaseSubmissionCycle:
         return self.submission.get_refereeing_cycle_display()
 
     def _update_actions(self):
-        """
-        Create the list of required_actions for the current submission to be used on the
-        editorial page.
-        """
+        """Create the list of actions for the current submission."""
         self.required_actions = []
         if self.submission.status in NO_REQUIRED_ACTION_STATUSES:
-            '''Submission does not appear in the pool, no action required.'''
+            # Submission does not appear in the pool, no action required.
             return False
 
-        if self.submission.status == STATUS_REVISION_REQUESTED:
-            ''''Editor-in-charge has requested revision'''
+        if self.submission.revision_requested:
+            # Editor-in-charge has requested revision.
             return False
 
-        if self.submission.eicrecommendations.exists():
-            '''A Editorial Recommendation has already been submitted. Cycle done.'''
+        if not self.submission.plagiarism_report:
+            # No plagiarism report is known yet.
+            self.required_actions.append((
+                'plagiarism_report',
+                'No plagiarism report found. Please run the plagiarism check.'))
+
+        if self.submission.eicrecommendations.active().exists():
+            # An Editorial Recommendation has already been submitted. Cycle done.
             return False
 
-        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
-            """
-            Submission is a resubmission and the EIC still has to determine which
-            cycle to proceed with.
-            """
-            self.required_actions.append(('choose_cycle',
-                                          'Choose the submission cycle to proceed with.',))
+        if not self.submission.refereeing_cycle:
+            # Submission is a resubmission: EIC has to determine which cycle to proceed with.
+            self.required_actions.append(
+                ('choose_cycle', 'Choose the submission cycle to proceed with.'))
             return False
 
         comments_to_vet = self.submission.comments.awaiting_vetting().count()
         if comments_to_vet > 0:
-            '''There are comments on the submission awaiting vetting.'''
+            # There are comments on the submission awaiting vetting.
             if comments_to_vet > 1:
-                text = '%i Comment\'s have' % comments_to_vet
+                text = '%i Comments have' % comments_to_vet
             else:
                 text = 'One Comment has'
             text += ' been delivered but is not yet vetted. Please vet it.'
@@ -78,10 +77,8 @@ class BaseSubmissionCycle:
 
         nr_ref_inv = self.submission.referee_invitations.count()
         if nr_ref_inv < self.minimum_referees:
-            """
-            The submission cycle does not meet the criteria of a minimum of
-            `self.minimum_referees` referees yet.
-            """
+            # The submission cycle does not meet the criteria of a minimum of
+            # `self.minimum_referees` referees yet.
             text = 'No' if nr_ref_inv == 0 else 'Only %i' % nr_ref_inv
             text += ' Referees have yet been invited.'
             text += ' At least %i should be.' % self.minimum_referees
@@ -89,14 +86,13 @@ class BaseSubmissionCycle:
 
         reports_awaiting_vetting = self.submission.reports.awaiting_vetting().count()
         if reports_awaiting_vetting > 0:
-            '''There are reports on the submission awaiting vetting.'''
+            # There are reports on the submission awaiting vetting.
             if reports_awaiting_vetting > 1:
                 text = '%i Reports have' % reports_awaiting_vetting
             else:
                 text = 'One Report has'
             text += ' been delivered but is not yet vetted. Please vet it.'
             self.required_actions.append(('vet_reports', text,))
-
         return True
 
     def reinvite_referees(self, referees, request=None):
@@ -158,7 +154,7 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     that require referees to be invited.
     """
     def update_status(self):
-        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
+        if self.submission.status == STATUS_INCOMING and self.submission.is_resubmission:
             from .models import Submission
             Submission.objects.filter(id=self.submission.id).update(status=STATUS_EIC_ASSIGNED)
 
@@ -235,9 +231,10 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
     minimum_referees = 0
 
     def update_status(self):
-        if self.submission.status == STATUS_RESUBMISSION_INCOMING:
+        if self.submission.status == STATUS_INCOMING and self.submission.is_resubmission:
             from .models import Submission
-            Submission.objects.filter(id=self.submission.id).update(status=STATUS_AWAITING_ED_REC)
+            Submission.objects.filter(id=self.submission.id).update(status=STATUS_EIC_ASSIGNED)
+            # TODO: Generate draft-EICRecommendation.
 
     def _update_actions(self):
         continue_update = super()._update_actions()
@@ -254,18 +251,6 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
 class SubmissionUtils(BaseMailUtil):
     mail_sender = 'submissions@scipost.org'
     mail_sender_title = 'SciPost Editorial Admin'
-
-    @classmethod
-    def deprecate_other_assignments(cls):
-        """
-        Called when a Fellow has accepted or volunteered to become EIC.
-        """
-        # Import here due to circular import error
-        from .models import EditorialAssignment
-
-        EditorialAssignment.objects.filter(submission=cls.assignment.submission, accepted=None)\
-            .exclude(to=cls.assignment.to)\
-            .update(deprecated=True)
 
     @classmethod
     def deprecate_all_assignments(cls):
@@ -430,6 +415,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
+        r = cls.assignment
         email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' '
                       + cls.assignment.to.user.last_name
                       + ', \n\nThank you for accepting to become Editor-in-charge '

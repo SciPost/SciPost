@@ -5,99 +5,40 @@ __license__ = "AGPL v3"
 from journals.constants import SCIPOST_JOURNAL_PHYSICS
 
 
+# All Submission statuses
+STATUS_INCOMING = 'incoming'
 STATUS_UNASSIGNED = 'unassigned'
+STATUS_EIC_ASSIGNED = 'assigned'
 STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
-STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
-STATUS_REVISION_REQUESTED = 'revision_requested'
-STATUS_EIC_ASSIGNED = 'EICassigned'
-STATUS_AWAITING_ED_REC = 'awaiting_ed_rec'
-STATUS_REVIEW_CLOSED = 'review_closed'
-STATUS_ACCEPTED = 'accepted'
-STATUS_PUBLISHED = 'published'
-STATUS_REJECTED = 'rejected'
-STATUS_REJECTED_VISIBLE = 'rejected_visible'
 STATUS_RESUBMITTED = 'resubmitted'
-STATUS_RESUBMITTED_REJECTED = 'resubmitted_and_rejected'
-STATUS_RESUBMITTED_REJECTED_VISIBLE = 'resubmitted_and_rejected_visible'
-STATUS_VOTING_IN_PREPARATION = 'voting_in_preparation'
-STATUS_PUT_TO_EC_VOTING = 'put_to_EC_voting'
-STATUS_EC_VOTE_COMPLETED = 'EC_vote_completed'
+STATUS_ACCEPTED = 'accepted'
+STATUS_REJECTED = 'rejected'
 STATUS_WITHDRAWN = 'withdrawn'
+STATUS_PUBLISHED = 'published'
 
+# Deprecated statuses
+# TODO: Make sure cycles are chosen for this status:
+# STATUS_RESUBMISSION_INCOMING = 'resubmitted_incoming'
+
+
+# All possible Submission statuses
 SUBMISSION_STATUS = (
-    (STATUS_UNASSIGNED, 'Unassigned, undergoing pre-screening'),
-    (STATUS_RESUBMISSION_INCOMING, 'Resubmission incoming'),
-    (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
+    (STATUS_INCOMING, 'Submission incoming, undergoing pre-screening'),
+    (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
-    (STATUS_REVIEW_CLOSED, 'Review period closed, editorial recommendation pending'),
-    # If revisions required: resubmission creates a new Submission object
-    (STATUS_REVISION_REQUESTED, 'Editor-in-charge has requested revision'),
+    (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_RESUBMITTED, 'Has been resubmitted'),
-    (STATUS_RESUBMITTED_REJECTED, 'Has been resubmitted and subsequently rejected'),
-    (STATUS_RESUBMITTED_REJECTED_VISIBLE,
-     'Has been resubmitted and subsequently rejected (still publicly visible)'),
-    # If acceptance/rejection:
-    (STATUS_VOTING_IN_PREPARATION, 'Voting in preparation (eligible Fellows being selected)'),
-    (STATUS_PUT_TO_EC_VOTING, 'Undergoing voting at the Editorial College'),
-    (STATUS_AWAITING_ED_REC, 'Awaiting Editorial Recommendation'),
-    (STATUS_EC_VOTE_COMPLETED, 'Editorial College voting rounded up'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
     (STATUS_REJECTED, 'Publication decision taken: reject'),
-    (STATUS_REJECTED_VISIBLE, 'Publication decision taken: reject (still publicly visible)'),
-    (STATUS_PUBLISHED, 'Published'),
-    # If withdrawn:
     (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
+    (STATUS_PUBLISHED, 'Published'),
 )
 
-SUBMISSION_HTTP404_ON_EDITORIAL_PAGE = [
-    STATUS_ASSIGNMENT_FAILED,
-    STATUS_PUBLISHED,
-    STATUS_WITHDRAWN,
-    STATUS_REJECTED,
-    STATUS_REJECTED_VISIBLE,
-]
-
-SUBMISSION_STATUS_OUT_OF_POOL = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
-    STATUS_RESUBMITTED
-]
-
-SUBMISSION_EXCLUDE_FROM_REPORTING = SUBMISSION_HTTP404_ON_EDITORIAL_PAGE + [
-    # STATUS_AWAITING_ED_REC,
-    # STATUS_REVIEW_CLOSED,
-    # STATUS_ACCEPTED,
-    # STATUS_VOTING_IN_PREPARATION,
-    # STATUS_PUT_TO_EC_VOTING,
-    STATUS_WITHDRAWN,
-]
-
-# Submissions which are allowed/required to submit a EIC Recommendation
-SUBMISSION_EIC_RECOMMENDATION_REQUIRED = [
-    STATUS_EIC_ASSIGNED,
-    STATUS_REVIEW_CLOSED,
-    STATUS_AWAITING_ED_REC
-]
-
-# Submissions which should not be viewable (except by admins, Fellows and authors)
-SUBMISSION_STATUS_PUBLICLY_INVISIBLE = [
+# Submissions with these statuses never have required actions.
+NO_REQUIRED_ACTION_STATUSES = [
     STATUS_UNASSIGNED,
-    STATUS_RESUBMISSION_INCOMING,
     STATUS_ASSIGNMENT_FAILED,
-    STATUS_RESUBMITTED_REJECTED,
     STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-]
-
-# Submissions which should not appear in search lists
-SUBMISSION_STATUS_PUBLICLY_UNLISTED = SUBMISSION_STATUS_PUBLICLY_INVISIBLE + [
-    STATUS_RESUBMITTED,
-    STATUS_RESUBMITTED_REJECTED_VISIBLE,
-    STATUS_PUBLISHED
-]
-
-# Submissions for which voting on a related recommendation is deprecated:
-SUBMISSION_STATUS_VOTING_DEPRECATED = [
-    STATUS_REJECTED,
-    STATUS_PUBLISHED,
     STATUS_WITHDRAWN,
 ]
 
@@ -106,14 +47,6 @@ SUBMISSION_TYPE = (
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),
 )
-
-NO_REQUIRED_ACTION_STATUSES = [
-    STATUS_UNASSIGNED,
-    STATUS_ASSIGNMENT_FAILED,
-    STATUS_RESUBMITTED_REJECTED,
-    STATUS_REJECTED,
-    STATUS_WITHDRAWN,
-]
 
 ED_COMM_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
@@ -169,14 +102,17 @@ RANKING_CHOICES = (
     (0, 'poor')
 )
 
+REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3 = 1, 2, 3
+REPORT_MINOR_REV, REPORT_MAJOR_REV = -1, -2
+REPORT_REJECT = -3
 REPORT_REC = (
     (None, '-'),
-    (1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select)'),
-    (2, 'Publish as Tier II (top 50% of papers in this journal)'),
-    (3, 'Publish as Tier III (meets the criteria of this journal)'),
-    (-1, 'Ask for minor revision'),
-    (-2, 'Ask for major revision'),
-    (-3, 'Reject')
+    (REPORT_PUBLISH_1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select)'),
+    (REPORT_PUBLISH_2, 'Publish as Tier II (top 50% of papers in this journal)'),
+    (REPORT_PUBLISH_3, 'Publish as Tier III (meets the criteria of this journal)'),
+    (REPORT_MINOR_REV, 'Ask for minor revision'),
+    (REPORT_MAJOR_REV, 'Ask for major revision'),
+    (REPORT_REJECT, 'Reject')
 )
 
 #
@@ -222,22 +158,14 @@ REPORT_TYPES = (
     (REPORT_POST_EDREC, 'Post-Editorial Recommendation Report'),
 )
 
-POST_PUBLICATION_STATUSES = [
-    STATUS_AWAITING_ED_REC,
-    STATUS_REVIEW_CLOSED,
-    STATUS_ACCEPTED,
-    STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING,
-]
-
-CYCLE_DEFAULT = 'default'
-CYCLE_SHORT = 'short'
-CYCLE_DIRECT_REC = 'direct_rec'
-SUBMISSION_CYCLES = (
+CYCLE_UNDETERMINED = ''
+CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC = 'default', 'short', 'direct_rec'
+SUBMISSION_CYCLE_CHOICES = (
     (CYCLE_DEFAULT, 'Default cycle'),
     (CYCLE_SHORT, 'Short cycle'),
     (CYCLE_DIRECT_REC, 'Direct editorial recommendation'),
 )
+SUBMISSION_CYCLES = ((CYCLE_UNDETERMINED, 'Cycle undetermined'),) + SUBMISSION_CYCLE_CHOICES
 
 EVENT_GENERAL = 'gen'
 EVENT_FOR_EIC = 'eic'
@@ -246,6 +174,16 @@ EVENT_TYPES = (
     (EVENT_GENERAL, 'General comment'),
     (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
     (EVENT_FOR_AUTHOR, 'Comment for author'),
+)
+
+VOTING_IN_PREP, PUT_TO_VOTING, VOTE_COMPLETED = 'voting_in_prep', 'put_to_voting', 'vote_completed'
+DECISION_FIXED, DEPRECATED = 'decision_fixed', 'deprecated'
+EIC_REC_STATUSES = (
+    (VOTING_IN_PREP, 'Voting in preparation'),
+    (PUT_TO_VOTING, 'Undergoing voting at the Editorial College'),
+    (VOTE_COMPLETED, 'Editorial College voting rounded up'),  # Seemlingly dead?
+    (DECISION_FIXED, 'Editorial Recommendation fixed'),
+    (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
 # Use `.format()` https://docs.python.org/3.5/library/string.html#format-string-syntax

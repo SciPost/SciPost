@@ -19,7 +19,7 @@
   "homepage": "https://www.scipost.org",
   "devDependencies": {
     "ajv": "^5.2.2",
-    "bootstrap": "^4.0.0",
+    "bootstrap": "^4.1.0",
     "bootstrap-loader": "^2.1.0",
     "clean-webpack-plugin": "^0.1.15",
     "css-loader": "^0.28.4",
@@ -32,7 +32,7 @@
     "jquery-ui": "^1.12.1",
     "node-loader": "^0.6.0",
     "node-sass": "^4.4.0",
-    "popper.js": "^1.14.1",
+    "popper.js": "^1.14.3",
     "postcss-load-config": "^1.2.0",
     "postcss-loader": "^2.0.6",
     "resolve-url-loader": "^1.6.1",
