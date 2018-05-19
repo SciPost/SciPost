@@ -15,6 +15,7 @@ def update_submission_statuses(apps, schema_editor):
     Submission.objects.filter(status='EICassigned').update(status='assigned')  # Renaming of key
     Submission.objects.filter(status='awaiting_ed_rec').update(status='assigned')
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

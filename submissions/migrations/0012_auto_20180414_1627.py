@@ -13,8 +13,8 @@ def update_visibility_booleans(apps, schema_editor):
         'unassigned',
         'assignment_failed',
         'resubmitted_incoming',
-        'rejected',
-        'resubmitted_and_rejected',
+        'rejected_visible',
+        'resubmitted_and_rejected_visible',
         'withdrawn']).update(visible_public=True)
 
     # Hide from pool if decision is taken.
