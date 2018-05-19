@@ -104,7 +104,7 @@
     <div class="col-12">
         <h3 class="highlight">Actions</h3>
         <ul>
-            {% if submission.is_open_for_reporting and perms.scipost.can_referee %}
+            {% if submission.is_open_for_reporting or 1 and perms.scipost.can_referee %}
                 {% if not is_author and not is_author_unchecked %}
                     <li>
                         <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
@@ -116,6 +116,10 @@
                         <div class="border border-warning py-2 px-3 mb-2">
                             The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. You are not allowed to contributor a Report until your authorship has been verified.
                         </div>
+                    </li>
+                {% elif is_author %}
+                    <li>
+                        <a href="javascript:;" disabled>Contribute a Report</a> <br><span class="text-danger">You are a verified author. Therefore, you can not submit a Report.</span>.
                     </li>
                 {% endif %}
             {% elif unfinished_report_for_user %}
@@ -130,7 +134,9 @@
             {% else %}
                 <li>Commenting on this Submission is closed.</li>
             {% endif %}
-
+            {% if submission.editor_in_charge == request.user.contributor %}
+                <li><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Go to the Editorial Page</a></li>
+            {% endif %}
             {% if perms.scipost.can_manage_reports %}
                 <li>
                     <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>

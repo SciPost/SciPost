@@ -3,13 +3,15 @@
 <h3 class="highlight">Editorial information</h3>
 <a href="javascript:;" class="btn btn-default mb-2" data-toggle="toggle" data-target="#editorialinformation">Show/hide editorial information</a>
 
-<div id="editorialinformation" class="mt-2">
+<div id="editorialinformation" class="mt-2" style="display:none;">
     <div class="mb-4">
-        <h3>Status summary:</h3>
-
-        {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
+        {% if submission.editor_in_charge == request.user.contributor %}
             <p><strong>You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions.</strong></p>
+        {% elif perms.scipost.can_oversee_refereeing and not is_author and not is_author_unchecked %}
+            <p><strong>You are Editorial Administrator. See <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> for detailed information.</strong></p>
         {% endif %}
+
+        <h3>Status summary:</h3>
         <table class="table table-borderless">
             <tr>
                 <td>Submission status:</td>

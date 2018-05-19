@@ -1,0 +1,46 @@
+<table class="table bg-light table-hover v-center">
+    <thead>
+        <tr>
+            <th>Referee</th>
+            <th>Status</th>
+            <th>Recommendation</th>
+            <th>Type</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in submission.reports.all %}
+            <tr>
+                <td>
+                    {{ report.author }}
+                    {% if report.anonymous %}
+                        <br>
+                        <b><span class="text-danger">Author chose public anonymity</span></b>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if report.is_vetted %}
+                        <i class="fa fa-check-circle text-success"></i>
+                    {% elif report.is_rejected %}
+                        <i class="fa fa-times-circle text-danger"></i>
+                    {% endif %}
+                    {{ report.get_status_display }}
+                    {% if report.is_unvetted %}
+                        <br>
+                        <a href="{% url 'submissions:vet_submitted_report' report.id %}">Vet this Report here</a>
+                    {% elif report.is_vetted %}
+                        <br>
+                        <a href="{{ report.get_absolute_url }}">View full Report here</a>
+                    {% endif %}
+                </td>
+                <td>{{ report.get_recommendation_display }}</td>
+                <td>{% if report.invited %}Invited Report{% else %}Contributed Report{% endif %}</td>
+                <td>{{ report.date_submitted }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td class="text-center py-3" colspan="5">There are no Reports yet.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

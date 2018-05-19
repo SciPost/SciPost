@@ -20,7 +20,8 @@ from .constants import (
     SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP)
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
+    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -565,6 +566,17 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def is_vetted(self):
         """Return if Report is publicly available."""
         return self.status == STATUS_VETTED
+
+    @property
+    def is_unvetted(self):
+        """Return if Report is awaiting vetting."""
+        return self.status == STATUS_UNVETTED
+
+    @property
+    def is_rejected(self):
+        """Return if Report is rejected."""
+        return self.status in [
+            STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC]
 
     @property
     def notification_name(self):
