@@ -12,7 +12,7 @@ def fellowhip_is_active(fellowship):
 
 
 class FellowshipAdmin(admin.ModelAdmin):
-    search_fields = ['contributor__last_name', 'contributor__first_name']
+    search_fields = ['contributor__user__last_name', 'contributor__user__first_name']
     list_display = ('__str__', 'guest', fellowhip_is_active, )
     list_filter = ('guest',)
     fellowhip_is_active.boolean = True

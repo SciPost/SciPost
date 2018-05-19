@@ -136,7 +136,7 @@
                     Institutions: consider joining our <a href="{% url 'partners:partners' %}">Supporting Partners Board</a>. SciPost cannot exist without your support. Look at our <a href="{% static 'scipost/SPB/SciPost_Supporting_Partners_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'scipost/SPB/SciPost_Supporting_Partner_Agreement.pdf' %}">Partner Agreement</a>.
                 </p>
 		<p>
-		  <span style="color: red;">Scientists, please help us out:</span> if it is not listed on our <a href="{% url 'partners:partners' %}">Partners page</a>, please encourage your institution (through a librarian, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>, and by personally emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.
+		  <span style="color: red;">Scientists, please help us out:</span> if it is not listed on our <a href="{% url 'partners:partners' %}">Partners page</a>, please encourage your institution (through a librarian, Open Access officer, director, ...) to join by <a href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>, and by personally emailing them directly using this <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'petitions/petition_email.html' %}{% endautoescape %}&cc=partners@scipost.org">email template</a>.
 		</p>
             </div>
         </div>
@@ -159,6 +159,10 @@
                 <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>
                 <br>
                 <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
+		<br>
+		<a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>
+		<br>
+		<a href="{% url 'submissions:referee_guidelines' %}">Referee guidelines</a>
             </p>
             <h2 class="card-title">
                 <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>

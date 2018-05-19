@@ -9,6 +9,7 @@ from .models import MailLog
 
 class MailLogAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'processed']
+    readonly_fields = ('created', 'latest_activity')
 
 
 admin.site.register(MailLog, MailLogAdmin)

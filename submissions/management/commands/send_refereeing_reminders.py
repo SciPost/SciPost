@@ -56,7 +56,7 @@ class Command(BaseCommand):
                     mail_sender.send()
             # one week before refereeing deadline: auto email reminder to ref
             if workdays_between(timezone.now(), submission.reporting_deadline) == 5:
-                for invitation in submission.refereeing_invitations.in_process():
+                for invitation in submission.referee_invitations.in_process():
                     mail_sender = DirectMailUtil(
                         mail_code='referees/remind_referee_deadline_1week', instance=invitation)
                     mail_sender.send()

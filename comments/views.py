@@ -18,10 +18,11 @@ from .models import Comment
 from .forms import CommentForm, VetCommentForm
 from .utils import CommentUtils, validate_file_extention
 
-from theses.models import ThesisLink
+from commentaries.models import Commentary
+from mails.utils import DirectMailUtil
 from submissions.utils import SubmissionUtils
 from submissions.models import Submission, Report
-from commentaries.models import Commentary
+from theses.models import ThesisLink
 
 
 @login_required
@@ -92,7 +93,13 @@ def vet_submitted_comment(request, comment_id):
                 # Add events to related Submission and send mail to author of the Submission
                 content_object.submission.add_event_for_eic('A Comment has been accepted.')
                 content_object.submission.add_event_for_author('A new Comment has been added.')
-                if not comment.is_author_reply:
+                if comment.is_author_reply:
+                    # Email Report author: Submission authors have replied
+                    mail_sender = DirectMailUtil(
+                        mail_code='referees/inform_referee_authors_replied_to_report',
+                        instance=content_object)
+                    mail_sender.send()
+                else:
                     SubmissionUtils.load({'submission': content_object.submission})
                     SubmissionUtils.send_author_comment_received_email()
 
