@@ -129,7 +129,7 @@ class SubmissionQuerySet(models.QuerySet):
                    should be able to view *all* submissions.
         """
         return self.filter(visible_public=True).exclude(status__in=[
-            constants.RESUBMITTED,
+            constants.STATUS_RESUBMITTED,
             constants.PUBLISHED])
 
     def public_newest(self):
