@@ -259,6 +259,19 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
     return render(request, 'submissions/submission_detail.html', context)
 
 
+def report_attachment(request, arxiv_identifier_w_vn_nr, report_nr):
+    """Download the attachment of a Report if available."""
+    report = get_object_or_404(Report.objects.accepted(),
+                               submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
+                               file_attachment__isnull=False, report_nr=report_nr)
+    response = HttpResponse(report.file_attachment.read(), content_type='application/pdf')
+    filename = '{}_report_attachment-{}.pdf'.format(
+        report.submission.arxiv_identifier_w_vn_nr,
+        report.report_nr)
+    response['Content-Disposition'] = ('filename=' + filename)
+    return response
+
+
 def report_detail_pdf(request, arxiv_identifier_w_vn_nr, report_nr):
     """Download the PDF of a Report if available."""
     report = get_object_or_404(Report.objects.accepted(),
@@ -1328,7 +1341,9 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
         report_in_draft = submission.reports.in_draft().get(author__user=request.user)
     except Report.DoesNotExist:
         report_in_draft = Report(author=request.user.contributor, submission=submission)
-    form = ReportForm(request.POST or None, instance=report_in_draft, submission=submission)
+    form = ReportForm(
+        request.POST or None, request.FILES or None, instance=report_in_draft,
+        submission=submission)
 
     # Check if data sent is valid
     if form.is_valid():
@@ -1338,7 +1353,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
                                        'You may carry on working on it,'
                                        ' or leave the page and finish it later.'))
             context = {'submission': submission, 'form': form}
-            return render(request, 'submissions/report_form.html', context)
+            return redirect(reverse('submissions:submit_report', kwargs={
+                'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
 
         # Send mails if report is submitted
         SubmissionUtils.load({'report': newreport}, request)

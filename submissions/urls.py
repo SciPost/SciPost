@@ -28,6 +28,8 @@ urlpatterns = [
         views.submission_detail, name='submission'),
     url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.report_detail_pdf, name='report_detail_pdf'),
+    url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/attachment$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.report_attachment, name='report_attachment'),
     url(r'^{regex}/reports/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
 

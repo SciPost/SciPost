@@ -34,6 +34,7 @@ from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
+from scipost.storage import SecureFileStorage
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 
@@ -532,8 +533,9 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     # Attachment
     file_attachment = models.FileField(
-        upload_to='uploads/reports/%Y/%m/%d/', blank=True, null=True,
-        validators=[validate_file_extension, validate_max_file_size])
+        upload_to='uploads/reports/%Y/%m/%d/', blank=True,
+        validators=[validate_file_extension, validate_max_file_size],
+        storage=SecureFileStorage())
 
     objects = ReportQuerySet.as_manager()
 
@@ -562,6 +564,12 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         """Return url of the Report on the Submission detail page."""
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
+    def get_attachment_url(self):
+        """Return url of the Report its attachment if exists."""
+        return reverse('submissions:report_attachment', kwargs={
+            'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
+            'report_nr': self.report_nr})
 
     @property
     def is_in_draft(self):
