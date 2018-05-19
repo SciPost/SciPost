@@ -25,7 +25,7 @@ STATUS_PUBLISHED = 'published'
 SUBMISSION_STATUS = (
     (STATUS_INCOMING, 'Submission incoming, undergoing pre-screening'),
     (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
-    (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned, manuscript under review'),
+    (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_RESUBMITTED, 'Has been resubmitted'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
