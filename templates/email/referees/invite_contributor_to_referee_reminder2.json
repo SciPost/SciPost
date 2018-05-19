@@ -1,9 +1,7 @@
 {
     "subject": "SciPost: refereeing request reminder",
-    "to_address_bup": "referee.user.email",
-    "bcc_to_bup": "submission.editor_in_charge.user.email,edadmin@scipost.org",
-    "to_address": "J.S.Caux@uva.nl",
-    "bcc_to": "J.S.Caux@uva.nl",
+    "to_address": "referee.user.email",
+    "bcc_to": "submission.editor_in_charge.user.email,edadmin@scipost.org",
     "from_address_name": "SciPost Refereeing",
     "from_address": "refereeing@scipost.org",
     "context_object": "invitation"
