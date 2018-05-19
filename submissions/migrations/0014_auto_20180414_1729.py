@@ -29,6 +29,7 @@ def update_eic_rec_statuses(apps, schema_editor):
         'resubmitted_and_rejected_visible',
         'revision_requested']):
         EICRecommendation.objects.filter(submission__id=sub.id).update(status='decision_fixed')
+    EICRecommendation.objects.filter(active=False).update(status='deprecated')
 
 
 class Migration(migrations.Migration):
