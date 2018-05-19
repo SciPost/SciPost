@@ -96,7 +96,7 @@ def vet_submitted_comment(request, comment_id):
                 if comment.is_author_reply:
                     # Email Report author: Submission authors have replied
                     mail_sender = DirectMailUtil(
-                        mail_code='referees/authors_replied_to_report',
+                        mail_code='referees/inform_referee_authors_replied_to_report',
                         instance=content_object)
                     mail_sender.send()
                 else:
