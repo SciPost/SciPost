@@ -24,6 +24,7 @@ from django.views.generic.list import ListView
 from .constants import (
     STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC)
+from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
@@ -196,22 +197,9 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         'can_read_editorial_information': False
     }
 
-    if hasattr(request.user, 'contributor'):
-        # Check if Contributor is author of the Submission
-        is_author = submission.authors.filter(user=request.user).exists()
-        if is_author:
-            is_author_unchecked = not submission.authors_false_claims.filter(
-                user=request.user).exists() and request.user.last_name in submission.author_list
-        else:
-            is_author_unchecked = False
-
-        unfinished_report_for_user = submission.reports.in_draft().filter(
-            author__user=request.user).first()
-        context['proofs_decision_form'] = ProofsDecisionForm()
-    else:
-        is_author = False
-        is_author_unchecked = False
-        unfinished_report_for_user = None
+    # Check if Contributor is author of the Submission
+    is_author = check_verified_author(submission, request.user)
+    is_author_unchecked = check_unverified_author(submission, request.user)
 
     if not submission.visible_public and not is_author:
         if not request.user.is_authenticated:
@@ -220,6 +208,9 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
             'scipost.can_assign_submissions') and not submission.fellows.filter(
                 contributor__user=request.user).exists():
                     raise Http404
+
+    if is_author:
+        context['proofs_decision_form'] = ProofsDecisionForm()
 
     if submission.open_for_commenting and request.user.has_perms('scipost.can_submit_comments'):
         context['comment_form'] = CommentForm()
@@ -231,16 +222,23 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
     # User is referee for the Submission
     if request.user.is_authenticated:
+        context['unfinished_report_for_user'] = submission.reports.in_draft().filter(
+            author__user=request.user).first()
         context['invitations'] = submission.referee_invitations.filter(referee__user=request.user)
 
-        # User may read eg. Editorial Recommendations if he/she is in the Pool.
-        context['can_read_editorial_information'] = submission.fellows.filter(
-            contributor__user=request.user).exists()
+        if is_author or is_author_unchecked:
+            # Authors are not allowed to read all editorial info! Whatever
+            # their permission level is.
+            context['can_read_editorial_information'] = False
+        else:
+            # User may read eg. Editorial Recommendations if he/she is in the Pool.
+            context['can_read_editorial_information'] = submission.fellows.filter(
+                contributor__user=request.user).exists()
 
-        # User may also read eg. Editorial Recommendations if he/she is editorial administrator.
-        if not context['can_read_editorial_information']:
-            context['can_read_editorial_information'] = request.user.has_perm(
-                'can_oversee_refereeing')
+            # User may also read eg. Editorial Recommendations if he/she is editorial administrator.
+            if not context['can_read_editorial_information']:
+                context['can_read_editorial_information'] = request.user.has_perm(
+                    'can_oversee_refereeing')
 
     if 'invitations' in context and context['invitations']:
         context['communication'] = submission.editorial_communications.for_referees().filter(
@@ -254,7 +252,6 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
         'comments': comments,
         'invited_reports': invited_reports,
         'contributed_reports': contributed_reports,
-        'unfinished_report_for_user': unfinished_report_for_user,
         'author_replies': author_replies,
         'is_author': is_author,
         'is_author_unchecked': is_author_unchecked,
@@ -1295,17 +1292,22 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
     for the current user on this submission.
     """
     submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+
     # Check whether the user can submit a report:
-    current_contributor = request.user.contributor
-    is_author = current_contributor in submission.authors.all()
-    is_author_unchecked = (not is_author and not
-                           (current_contributor in submission.authors_false_claims.all()) and
-                           (request.user.last_name in submission.author_list))
+    is_author = check_verified_author(submission, request.user)
+    is_author_unchecked = check_unverified_author(submission, request.user)
     invitation = submission.referee_invitations.filter(
-        fulfilled=False, cancelled=False, referee=current_contributor).first()
+        fulfilled=False, cancelled=False, referee__user=request.user).first()
 
     errormessage = None
-    if not invitation:
+    if is_author:
+        errormessage = 'You are an author of this Submission and cannot submit a Report.'
+    elif is_author_unchecked:
+        errormessage = ('The system flagged you as a potential author of this Submission. '
+                        'Please go to your personal page under the Submissions tab'
+                        ' to clarify this.')
+    elif not invitation:
+        # User is going to contribute a Report. Check deadlines for doing so.
         if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
             errormessage = ('The reporting deadline has passed. You cannot submit'
                             ' a Report anymore.')
@@ -1315,26 +1317,17 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
         if errormessage:
             # Remove old drafts from the database
-            reports_in_draft_to_remove = (submission.reports.in_draft()
-                                          .filter(author=current_contributor))
-            if reports_in_draft_to_remove:
-                reports_in_draft_to_remove.delete()
-    if is_author:
-        errormessage = 'You are an author of this Submission and cannot submit a Report.'
-    if is_author_unchecked:
-        errormessage = ('The system flagged you as a potential author of this Submission. '
-                        'Please go to your personal page under the Submissions tab'
-                        ' to clarify this.')
+            submission.reports.in_draft().filter(author__user=request.user).delete()
 
     if errormessage:
         messages.warning(request, errormessage)
-        return redirect(reverse('scipost:personal_page'))
+        return redirect(submission.get_absolute_url())
 
     # Find and fill earlier version of report
     try:
-        report_in_draft = submission.reports.in_draft().get(author=current_contributor)
+        report_in_draft = submission.reports.in_draft().get(author__user=request.user)
     except Report.DoesNotExist:
-        report_in_draft = Report(author=current_contributor, submission=submission)
+        report_in_draft = Report(author=request.user.contributor, submission=submission)
     form = ReportForm(request.POST or None, instance=report_in_draft, submission=submission)
 
     # Check if data sent is valid
