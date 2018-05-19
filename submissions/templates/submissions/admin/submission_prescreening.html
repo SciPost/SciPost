@@ -69,7 +69,7 @@
         <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
     {% endif %}
 
-    <h3>Take decision of pre-screening</h3>
+    <h3>Take decision on pre-screening</h3>
     <form method="post">
         {% csrf_token %}
         {{ form|bootstrap }}
