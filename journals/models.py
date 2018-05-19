@@ -397,7 +397,7 @@ class Publication(models.Model):
     BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = JSONField(default={}, blank=True, null=True)
-    number_of_citations = models.PositiveIntegerField()
+    number_of_citations = models.PositiveIntegerField(default=0)
 
     # Date fields
     submission_date = models.DateField(verbose_name='submission date')
