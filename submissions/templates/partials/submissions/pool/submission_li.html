@@ -65,7 +65,7 @@
         {% if invitations %}
             <div class="border border-warning mt-1 py-1 px-2">
                 <i class="fa fa-exclamation mt-1 px-1 text-danger"></i>
-                You are asked to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.arxiv_identifier_w_vn_nr %}">You can reply to this invitation here</a>.
+                You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.arxiv_identifier_w_vn_nr %}">You can reply to this invitation here</a>.
             </div>
         {% endif %}
     {% endif %}
