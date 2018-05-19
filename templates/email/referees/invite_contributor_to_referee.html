@@ -4,7 +4,7 @@
 <p>
     We have received a Submission to SciPost which, in view of your expertise and on behalf of the Editor-in-charge {{invitation.submission.editor_in_charge.get_title_display}} {{invitation.submission.editor_in_charge.user.last_name}}, we would like to invite you to referee:
     <br><br>
-    <a href="https://scipost.org{{invitation.submission.get_absolute_url}}">{{invitation.submission.title}}</a>
+    {{invitation.submission.title}}
     <br>by {{invitation.submission.author_list}}<br>
     (see https://scipost.org{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>

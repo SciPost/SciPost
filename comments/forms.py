@@ -23,6 +23,7 @@ class CommentForm(forms.ModelForm):
             {'placeholder': 'NOTE: only serious and meaningful Comments will be accepted.'})
         self.fields['remarks_for_editors'].widget.attrs.update(
             {'rows': 3, 'placeholder': '(these remarks will not be publicly visible)'})
+        self.fields['anonymous'].initial = True
 
         if not self.is_report_comment:
             del self.fields['anonymous']
