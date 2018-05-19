@@ -130,7 +130,7 @@ class SubmissionQuerySet(models.QuerySet):
         """
         return self.filter(visible_public=True).exclude(status__in=[
             constants.STATUS_RESUBMITTED,
-            constants.PUBLISHED])
+            constants.STATUS_PUBLISHED])
 
     def public_newest(self):
         """
