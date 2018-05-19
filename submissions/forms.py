@@ -1168,9 +1168,7 @@ class FixCollegeDecisionForm(forms.ModelForm):
     def clean(self):
         """Check if EICRecommendation has the right decision."""
         data = super().clean()
-        if self.instance.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]:
-            self.add_error(None, 'This EICRecommendation its decision can not be fixed.')
-        elif self.instance.status == DECISION_FIXED:
+        if self.instance.status == DECISION_FIXED:
             self.add_error(None, 'This EICRecommendation is already fixed.')
         elif self.instance.status == DEPRECATED:
             self.add_error(None, 'This EICRecommendation is deprecated.')

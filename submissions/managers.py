@@ -254,16 +254,13 @@ class EICRecommendationQuerySet(models.QuerySet):
         if not hasattr(user, 'contributor'):
             return self.none()
 
-        return self.filter(eligible_to_vote=user.contributor).exclude(
-            recommendation__in=[-1, -2],
-            voted_for=user.contributor,
-            voted_against=user.contributor,
-            voted_abstain=user.contributor,
-            submission__status__in=[
-                constants.STATUS_REJECTED,
-                constants.STATUS_PUBLISHED,
-                constants.STATUS_WITHDRAWN,
-            ])
+        return self.put_to_voting().filter(eligible_to_vote=user.contributor).exclude(
+            recommendation__in=[-1, -2]).exclude(
+                models.Q(voted_for=user.contributor) | models.Q(voted_against=user.contributor) |
+                models.Q(voted_abstain=user.contributor)).exclude(submission__status__in=[
+                    constants.STATUS_REJECTED,
+                    constants.STATUS_PUBLISHED,
+                    constants.STATUS_WITHDRAWN])
 
     def put_to_voting(self):
         """Return the subset of EICRecommendation currently undergoing voting."""
@@ -275,7 +272,7 @@ class EICRecommendationQuerySet(models.QuerySet):
 
     def active(self):
         """Return the subset of EICRecommendation most recent, valid versions."""
-        return self.filter(active=True)
+        return self.exclude(status=constants.DEPRECATED)
 
     def fixed(self):
         """Return the subset of fixed EICRecommendations."""

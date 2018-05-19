@@ -21,7 +21,7 @@ from .constants import (
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
-    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC)
+    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -791,9 +791,14 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         return self.voted_abstain.count()
 
     @property
+    def is_deprecated(self):
+        """Check if Recommendation is deprecated."""
+        return self.status == DEPRECATED
+
+    @property
     def may_be_reformulated(self):
         """Check if this EICRecommdation is allowed to be reformulated in a new version."""
-        if not self.active:
+        if not self.status == DEPRECATED:
             # Already reformulated before; please use the latest version
             return self.submission.eicrecommendations.last() == self
         return self.status != DECISION_FIXED

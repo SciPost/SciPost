@@ -95,11 +95,11 @@
         {% endif %}
     </div>
 
-    {% if form %}
+    {% if voting_form %}
         <h3 class="mt-4">Your position on this recommendation</h3>
         <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
             {% csrf_token %}
-            {{ form|bootstrap:'0,12' }}
+            {{ voting_form|bootstrap:'0,12' }}
             <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary" id="submit-id-submit">
         </form>
     {% endif %}

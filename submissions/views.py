@@ -395,8 +395,8 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
 
-    recommendations = EICRecommendation.objects.active().filter(submission__in=submissions)
-    recs_to_vote_on = recommendations.user_may_vote_on(request.user)
+    recs_to_vote_on = EICRecommendation.objects.user_may_vote_on(request.user).filter(
+        submission__in=submissions)
     assignments_to_consider = EditorialAssignment.objects.open().filter(
         to=request.user.contributor)
 
@@ -409,7 +409,6 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         'submissions': submissions.order_by('status', '-submission_date'),
         'search_form': search_form,
         'submission_status': SUBMISSION_STATUS,
-        'recommendations': recommendations,
         'assignments_to_consider': assignments_to_consider,
         'consider_assignment_form': consider_assignment_form,
         'recs_to_vote_on': recs_to_vote_on,
@@ -428,6 +427,8 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     # EdColAdmin related variables
     if request.user.has_perm('scipost.can_oversee_refereeing'):
+        context['recommendations'] = EICRecommendation.objects.active().filter(
+            submission__in=submissions)
         context['latest_submission_events'] = SubmissionEvent.objects.for_eic().last_hours()\
             .filter(submission__in=context['submissions'])
 
@@ -1443,7 +1444,8 @@ def prepare_for_voting(request, rec_id):
     """Form view to prepare a EICRecommendation for voting."""
     submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(
-        EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
+        EICRecommendation.objects.voting_in_preparation().filter(submission__in=submissions),
+        id=rec_id)
 
     eligibility_form = VotingEligibilityForm(request.POST or None, instance=recommendation)
     if eligibility_form.is_valid():
@@ -1477,7 +1479,8 @@ def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
     submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(
-        EICRecommendation.objects.active().filter(submission__in=submissions), id=rec_id)
+        EICRecommendation.objects.user_may_vote_on(
+            request.user).filter(submission__in=submissions), id=rec_id)
 
     form = RecommendationVoteForm(request.POST or None)
     if form.is_valid():
@@ -1517,7 +1520,7 @@ def vote_on_rec(request, rec_id):
 
     context = {
         'recommendation': recommendation,
-        'form': form
+        'voting_form': form
     }
     return render(request, 'submissions/pool/recommendation.html', context)
 
@@ -1580,7 +1583,8 @@ class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):
     def get_object(self):
         """Get EICRecommendation."""
         submission = super().get_object()
-        return get_object_or_404(submission.eicrecommendations.all(), id=self.kwargs['rec_id'])
+        return get_object_or_404(
+            submission.eicrecommendations.put_to_voting(), id=self.kwargs['rec_id'])
 
     def get_form_kwargs(self):
         """Form accepts request as argument."""
