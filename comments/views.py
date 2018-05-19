@@ -99,7 +99,7 @@ def vet_submitted_comment(request, comment_id):
                         mail_code='referees/authors_replied_to_report',
                         instance=content_object)
                     mail_sender.send()
-                if not comment.is_author_reply:
+                else:
                     SubmissionUtils.load({'submission': content_object.submission})
                     SubmissionUtils.send_author_comment_received_email()
 
