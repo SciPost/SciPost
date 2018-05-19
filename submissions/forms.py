@@ -720,7 +720,7 @@ class ReportForm(forms.ModelForm):
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
                   'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar',
-                  'recommendation', 'remarks_for_editors', 'anonymous']
+                  'recommendation', 'remarks_for_editors', 'anonymous', 'file_attachment']
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('instance'):
@@ -780,6 +780,12 @@ class ReportForm(forms.ModelForm):
         if self.submission.eicrecommendations.active().exists():
             # An active EICRecommendation is already formulated. This Report will be flagged.
             self.report_type = REPORT_POST_EDREC
+
+    # def clean_file_attachment(self):
+    #     f = self.cleaned_data['file_attachment']
+    #     r = f.file
+    #     raise
+    #     return f
 
     def save(self):
         """
