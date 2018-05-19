@@ -4,30 +4,44 @@ __license__ = "AGPL v3"
 
 from django import template
 
-from submissions.models import Submission
+from ..constants import DECISION_FIXED
+from ..models import Submission, EICRecommendation
 
 register = template.Library()
 
 
-@register.filter(name='is_not_author_of_submission')
-def is_not_author_of_submission(user, arxiv_identifier_w_vn_nr):
-    submission = Submission.objects.get(arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
-    return (user.contributor not in submission.authors.all()
-            and
-            (user.last_name not in submission.author_list
-             or
-             user.contributor in submission.authors_false_claims.all()))
+@register.filter
+def is_possible_author_of_submission(user, submission):
+    """Check if User may be related to the Submission as author."""
+    if not isinstance(submission, Submission):
+        return False
+
+    if not user.is_authenticated:
+        return False
+
+    if submission.authors.filter(user=user).exists():
+        # User explicitly assigned author.
+        return True
+
+    if submission.authors_false_claims.filter(user=user).exists():
+        # User explicitly dissociated from the Submission.
+        return False
+
+    # Last resort: last name check
+    return user.last_name in submission.author_list
 
 
-@register.filter(name='is_viewable_by_authors')
+@register.filter
 def is_viewable_by_authors(recommendation):
-    return recommendation.submission.status in ['revision_requested', 'resubmitted',
-                                                'accepted', 'rejected',
-                                                'published', 'withdrawn']
+    """Check if the EICRecommendation is viewable by the authors of the Submission."""
+    if not isinstance(recommendation, EICRecommendation):
+        return False
+    return recommendation.status == DECISION_FIXED
 
 
 @register.filter
 def user_is_referee(submission, user):
+    """Check if the User is invited to be Referee of the Submission."""
     if not user.is_authenticated:
         return False
     return submission.referee_invitations.filter(referee__user=user).exists()
@@ -35,6 +49,7 @@ def user_is_referee(submission, user):
 
 @register.filter
 def is_voting_fellow(submission, user):
+    """Check if the User is a voting-Fellow of the Submission."""
     if not user.is_authenticated:
         return False
     return submission.voting_fellows.filter(contributor__user=user).exists()

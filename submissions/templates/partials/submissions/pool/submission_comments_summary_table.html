@@ -1,0 +1,46 @@
+<table class="table bg-light table-hover v-center">
+    <thead>
+        <tr>
+            <th>Referee</th>
+            <th>Status</th>
+            <th>Recommendation</th>
+            <th>Type</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for comment in submission.comments.all %}
+            <tr>
+                <td>
+                    {{ comment.author }}
+                    {% if comment.anonymous %}
+                        <br>
+                        <b><span class="text-danger">Chose public anonymity</span></b>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if comment.is_vetted %}
+                        <i class="fa fa-check-circle text-success"></i>
+                    {% elif comment.is_rejected %}
+                        <i class="fa fa-times-circle text-danger"></i>
+                    {% endif %}
+                    {{ comment.get_status_display }}
+                    {% if comment.is_unvetted %}
+                        <br>
+                        <a href="{% url 'comments:vet_submitted_comment' comment.id %}">Vet this Comment here</a>
+                    {% elif comment.is_vetted %}
+                        <br>
+                        <a href="{{ comment.get_absolute_url }}">View full Comment here</a>
+                    {% endif %}
+                </td>
+                <td><em>{{ comment.comment_text|truncatewords:6 }}</em></td>
+                <td>{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %}</td>
+                <td>{{ comment.date_submitted }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td class="text-center py-3" colspan="5">There are no Comments yet.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
