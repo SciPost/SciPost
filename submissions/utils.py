@@ -56,7 +56,7 @@ class BaseSubmissionCycle:
                 'No plagiarism report found. Please run the plagiarism check.'))
 
         if self.submission.eicrecommendations.active().exists():
-            # A Editorial Recommendation has already been submitted. Cycle done.
+            # An Editorial Recommendation has already been submitted. Cycle done.
             return False
 
         if not self.submission.refereeing_cycle:

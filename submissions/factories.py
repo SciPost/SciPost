@@ -361,7 +361,7 @@ class EICRecommendationFactory(factory.django.DjangoModelFactory):
 
 class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
     """
-    A EditorialAssignmentFactory should always have a `submission` explicitly assigned. This will
+    An EditorialAssignmentFactory should always have a `submission` explicitly assigned. This will
     mostly be done using the post_generation hook in any SubmissionFactory.
     """
     submission = None
