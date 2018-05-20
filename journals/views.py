@@ -70,6 +70,9 @@ class PublicationListView(PaginationMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if self.request.GET.get('journal'):
+            qs = qs.for_journal(self.request.GET['journal'])
+
         if self.request.GET.get('issue'):
             try:
                 issue = int(self.request.GET['issue'])

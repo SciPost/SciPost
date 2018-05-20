@@ -36,6 +36,7 @@
                         {% empty %}
                             <li><em>No match found for your search query.</em></li>
                         {% endfor %}
+                        <a href="{% url 'journals:publications' %}?journal={{ journal.name }}" class="btn btn-link">See all Publications in {{ journal }}</a>
                     </ul>
                 </div>
                 <div class="tab-pane pt-4" id="accepted" role="tabpanel" aria-labelledby="accepted-tab">
