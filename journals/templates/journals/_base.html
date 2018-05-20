@@ -20,20 +20,15 @@
 {% block secondary_navbar %}
 <div class="container mt-3">
     <div class="row">
-        <div class="col journal">
-            <h2 class="banner d-inline-block mr-2 mb-0"><a href="{{ journal.get_absolute_url }}">{{journal}}</a></h2>
+        <div class="col-12 journal-head">
+            <h1 class="banner"><a href="{{ journal.get_absolute_url }}">{{journal}}</a></h1>
+        </div>
+        <div class="col-12 journal-sub-head">
             <ul class="links">
-                {% if journal.active or request.user.is_staff %}
-                    {% if journal.has_issues %}
-                        <li><a class="{% block link_class_physics_issues %}{% endblock %}" href="{% url 'journal:issues' journal.doi_label %}">Issues</a></li>
-                        <li><a class="recent {% block link_class_physics_recent %}{% endblock %}" href="{% url 'journal:recent' journal.doi_label %}">Recent</a></li>
-                    {% else %}
-                        <li><a class="recent" href="{{ journal.get_absolute_url }}">Recent</a></li>
-                    {% endif %}
-                    <li><a class="{% block link_class_physics_accepted %}{% endblock %}" href="{% url 'journal:accepted' journal.doi_label %}">Accepted</a></li>
-                    <li><a href="{% url 'submissions:submissions' %}?to_journal={{ journal.name }}">Submissions</a></li>
-                    <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journal:info_for_authors' journal.doi_label %}">Info for authors</a></li>
-                {% endif %}
+                <li><a href="{{ journal.get_absolute_url }}">{{ journal }}</a></li>
+                <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journal:info_for_authors' journal.doi_label %}">Info for authors</a></li>
+                <li><a href="{% url 'submissions:submit_manuscript' %}">Submit a manuscript</a></li>
+                <li><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a></li>
                 <li><a class="{% block link_class_physics_about %}{% endblock %}" href="{% url 'journal:about' journal.doi_label %}">About</a></li>
             </ul>
         </div>
