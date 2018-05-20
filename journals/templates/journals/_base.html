@@ -25,7 +25,7 @@
         </div>
         <div class="col-12 journal-sub-head">
             <ul class="links">
-                <li><a href="{{ journal.get_absolute_url }}">{{ journal }}</a></li>
+                <li><a href="{{ journal.get_absolute_url }}">Home</a></li>
                 <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journal:info_for_authors' journal.doi_label %}">Info for authors</a></li>
                 <li><a href="{% url 'submissions:submit_manuscript' %}">Submit a manuscript</a></li>
                 <li><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a></li>
