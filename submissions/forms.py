@@ -66,7 +66,8 @@ class SubmissionPoolFilterForm(forms.Form):
     def search(self, queryset, current_user):
         if self.cleaned_data.get('status'):
             # Do extra check on non-required field to never show errors on template
-            queryset = queryset.pool_editable(current_user).filter(status=self.cleaned_data['status'])
+            queryset = queryset.pool_editable(current_user).filter(
+                status=self.cleaned_data['status'])
         else:
             # If no specific status if requested, just return the Pool by default
             queryset = queryset.pool(current_user)
