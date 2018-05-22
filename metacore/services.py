@@ -1,6 +1,8 @@
 import requests
 from .models import Citable, CitableWithDOI, Journal
 from background_task import background
+from rest_framework import serializers
+from rest_framework_mongoengine.serializers import DocumentSerializer
 from django.utils import timezone
 import logging
 
@@ -256,4 +258,12 @@ def parse_crossref_citable(citable_item):
             logger.error(citable_item['DOI'])
             logger.error(citable_item.keys())
             return False
+
+class CitableCrossrefSerializer(DocumentSerializer):
+    # metadata = serializers.JSONField(source='te')
+    test = serializers.CharField(source='te')
+
+    class Meta:
+        model = CitableWithDOI
+        fields = '__all__'
 

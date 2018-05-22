@@ -83,6 +83,7 @@ INSTALLED_APPS = (
     'guardian',
     'haystack',
     'rest_framework',
+    'rest_framework_mongoengine',
     'sphinxdoc',
     'affiliations',
     'colleges',
