@@ -52,7 +52,6 @@ html2text
 # Mongo (Metacore)
 mongoengine==0.15.0
 django-background-tasks==1.1.13
-django-rest-framework-mongoengine==3.3.0
 
 # Possibly dead (most probably not used anymore and possibly not up-to-date packages)  -- JdW (August 15th, 2017)
 imagesize==0.7.1
