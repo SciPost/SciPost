@@ -879,7 +879,6 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
         last_name=contributor.user.last_name,
         email_address=contributor.user.email,
         # the key is only used for inviting unregistered users
-        invitation_key='notused',
         date_invited=timezone.now(),
         invited_by=request.user.contributor)
 

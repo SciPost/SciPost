@@ -80,8 +80,7 @@ class SubmissionQuerySet(models.QuerySet):
         hidden in the regular pool, but should still be able to be opened by for example
         the Editor-in-charge.
         """
-        qs = self._pool(user)
-        return qs.filter(visible_pool=True)
+        return self._pool(user)
 
     def filter_for_eic(self, user):
         """Return the set of Submissions the user is Editor-in-charge for.
@@ -129,8 +128,8 @@ class SubmissionQuerySet(models.QuerySet):
                    should be able to view *all* submissions.
         """
         return self.filter(visible_public=True).exclude(status__in=[
-            constants.RESUBMITTED,
-            constants.PUBLISHED])
+            constants.STATUS_RESUBMITTED,
+            constants.STATUS_PUBLISHED])
 
     def public_newest(self):
         """

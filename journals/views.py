@@ -70,6 +70,9 @@ class PublicationListView(PaginationMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if self.request.GET.get('journal'):
+            qs = qs.for_journal(self.request.GET['journal'])
+
         if self.request.GET.get('issue'):
             try:
                 issue = int(self.request.GET['issue'])
@@ -94,39 +97,19 @@ class PublicationListView(PaginationMixin, ListView):
 
 
 def landing_page(request, doi_label):
-    """
+    """Journal details page.
+
     The landing page of a Journal lists either the latest and the current issue of a Journal
     of paginates the individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
-        'journal': journal
+        'journal': journal,
+        'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
+        'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
+        'accepted_submissions': Submission.objects.accepted().filter(
+            submitted_to_journal=journal.name).order_by('-latest_activity'),
     }
-
-    if journal.has_issues:
-        current_issue = Issue.objects.published().filter(
-            in_volume__in_journal=journal,
-            start_date__lte=timezone.now(),
-            until_date__gte=timezone.now()).first()
-        latest_issue = Issue.objects.published().filter(
-            in_volume__in_journal=journal,
-            until_date__lte=timezone.now()).first()
-        prev_issue = None
-        if current_issue:
-            prev_issue = Issue.objects.published().filter(
-                in_volume__in_journal=journal, start_date__lt=current_issue.start_date
-                ).order_by('start_date').last()
-
-        context.update({
-            'current_issue': current_issue,
-            'latest_issue': latest_issue,
-            'prev_issue': prev_issue,
-        })
-    else:
-        paginator = Paginator(journal.publications.published(), 10)
-        context.update({
-            'page_object': paginator.page(request.GET.get('page', 1)),
-        })
     return render(request, 'journals/journal_landing_page.html', context)
 
 
@@ -154,10 +137,6 @@ def about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
         'journal': journal,
-        'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
-        'latest_publications': Publication.objects.for_journal(journal.name)[:5],
-        'accepted_submissions': Submission.objects.accepted().filter(
-            submitted_to_journal=journal.name).order_by('-latest_activity'),
     }
     return render(request, 'journals/%s_about.html' % doi_label, context)
 

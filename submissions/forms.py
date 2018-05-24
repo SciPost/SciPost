@@ -66,7 +66,8 @@ class SubmissionPoolFilterForm(forms.Form):
     def search(self, queryset, current_user):
         if self.cleaned_data.get('status'):
             # Do extra check on non-required field to never show errors on template
-            queryset = queryset.pool_editable(current_user).filter(status=self.cleaned_data['status'])
+            queryset = queryset.pool_editable(current_user).filter(
+                status=self.cleaned_data['status'])
         else:
             # If no specific status if requested, just return the Pool by default
             queryset = queryset.pool(current_user)
@@ -143,7 +144,7 @@ class SubmissionChecks:
         # If submissions are found; check their statuses
         if submission:
             self.last_submission = submission
-            if submission.revision_requested:
+            if submission.open_for_resubmission:
                 self.is_resubmission = True
                 if self.requested_by.contributor not in submission.authors.all():
                     error_message = ('There exists a preprint with this arXiv identifier '
@@ -780,12 +781,6 @@ class ReportForm(forms.ModelForm):
         if self.submission.eicrecommendations.active().exists():
             # An active EICRecommendation is already formulated. This Report will be flagged.
             self.report_type = REPORT_POST_EDREC
-
-    # def clean_file_attachment(self):
-    #     f = self.cleaned_data['file_attachment']
-    #     r = f.file
-    #     raise
-    #     return f
 
     def save(self):
         """

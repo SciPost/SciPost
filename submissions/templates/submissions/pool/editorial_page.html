@@ -108,28 +108,28 @@
                     {% endif %}
                 </td>
             </tr>
-            <tr>
-                <td>Plagiarism report:</td>
-                <td>
-                    {% if submission.plagiarism_report %}
-                        {% if submission.plagiarism_report.percent_match %}
-                            <b>{{ submission.plagiarism_report.percent_match }}%</b>
-                        {% else %}
-                            <em>Scan in progress</em>
-                            {% if perms.scipost.can_do_plagiarism_checks %}
-                                <br>
-                                <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Update plagiarism score</a>
+            {% if submission.plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
+                <tr>
+                    <td>Plagiarism report:</td>
+                    <td>
+                        {% if submission.plagiarism_report %}
+                            {% if submission.plagiarism_report.percent_match %}
+                                <b>{{ submission.plagiarism_report.percent_match }}%</b>
+                            {% else %}
+                                <em>Scan in progress</em>
+                                {% if perms.scipost.can_do_plagiarism_checks %}
+                                    <br>
+                                    <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Update plagiarism score</a>
+                                {% endif %}
                             {% endif %}
-                        {% endif %}
-                    {% else %}
-                        <em>No plagiarism report found.</em>
-                        {% if perms.scipost.can_do_plagiarism_checks %}
+                        {% elif perms.scipost.can_do_plagiarism_checks %}
+                            <em>No plagiarism report found.</em>
                             <br>
                             <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>
                         {% endif %}
-                    {% endif %}
-                </td>
-            </tr>
+                    </td>
+                </tr>
+            {% endif %}
             <tr>
                 <td>Open for commenting:</td>
                 <td>

@@ -32,7 +32,7 @@
                                 {% if sub.editor_in_charge %}
                                     <a href="{% url 'submissions:communication' sub.arxiv_identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
                                 {% endif %}
-                                {% if sub.revision_requested %}
+                                {% if sub.open_for_resubmission %}
                                     &middot; <a href="{% url 'submissions:prefill_using_identifier' %}?identifier={{ sub.arxiv_identifier_wo_vn_nr }}">Resubmit this manuscript</a>
                                 {% endif %}
                             </p>

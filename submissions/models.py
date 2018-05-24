@@ -17,7 +17,7 @@ from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
-    SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING,
+    SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
@@ -202,7 +202,12 @@ class Submission(models.Model):
     @property
     def revision_requested(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
-        if self.status != STATUS_RESUBMITTED:
+        return self.eicrecommendations.fixed().asking_revision().exists()
+
+    @property
+    def open_for_resubmission(self):
+        """Check if Submission has fixed EICRecommendation asking for revision."""
+        if self.status != STATUS_EIC_ASSIGNED:
             return False
         return self.eicrecommendations.fixed().asking_revision().exists()
 
@@ -409,7 +414,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     email_address = models.EmailField()
 
     # if Contributor not found, person is invited to register
-    invitation_key = models.CharField(max_length=40)
+    invitation_key = models.CharField(max_length=40, blank=True)
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)

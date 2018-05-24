@@ -166,7 +166,7 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
         for ref_inv in self.submission.referee_invitations.all():
             if not ref_inv.cancelled:
                 if ref_inv.accepted is None:
-                    '''An invited referee may have not responded yet.'''
+                    # An invited referee may have not responded yet.
                     timelapse = timezone.now() - ref_inv.date_invited
                     if timelapse > datetime.timedelta(days=3):
                         text = ('Referee %s has not responded for %i days. '
@@ -174,7 +174,7 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
                                 % (ref_inv.referee_str, timelapse.days))
                         self.required_actions.append(('referee_no_response', text,))
                 elif ref_inv.accepted and not ref_inv.fulfilled:
-                    '''A referee has not fulfilled its duty and the deadline is closing in.'''
+                    # A referee has not fulfilled its duty and the deadline is closing in.
                     timeleft = self.submission.reporting_deadline - timezone.now()
                     if timeleft < datetime.timedelta(days=7):
                         text = ('Referee %s has accepted to send a Report, '
