@@ -104,7 +104,8 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation('comments.Comment', related_query_name='submissions')
 
-    # iThenticate Reports
+    # iThenticate and conflicts
+    needs_conflicts_update = models.BooleanField(default=True)
     plagiarism_report = models.OneToOneField('submissions.iThenticateReport',
                                              on_delete=models.SET_NULL,
                                              null=True, blank=True,

@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load scipost_extras %}
+{% load conflict_tags %}
 
 {% block pagetitle %}: pre-screening ({{ submission.arxiv_identifier_w_vn_nr }}){% endblock pagetitle %}
 
@@ -68,6 +69,67 @@
     {% else %}
         <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
     {% endif %}
+
+    <h3>Editorial Pre-assignments</h3>
+    <div>
+
+        {% if submission.needs_conflicts_update %}
+            <p>
+                <i class="fa fa-clock-o text-danger" aria-hidden="true"></i>
+                <span class="text-muted">Conflict of interest awaiting update. <a href="mailto:techsupport@scipost.org">Contact techsupport</a> if this is not automatically resolved soon.</span>
+            </p>
+        {% else %}
+            <p>
+                <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                <span class="text-muted">Conflict of interest updated.</span>
+                <br><br>
+
+                Select Fellows that are eligable to become editor-in-charge and sort them in prefered order of invitation. Every [time], the next selected Fellow in line will be invited until an editor is assigned.
+            </p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Fellow</th>
+                        <th>Possible conflicts</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fellow in submission.fellows.all %}
+                        <tr>
+                            <td>
+                                <a href="javascript:;"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                                <input type="checkbox" class="ml-2">
+                            </td>
+                            <td>{{ fellow.contributor }}</td>
+                            <td>
+                                {% for conflict in submission.conflicts.all|filter_for_contributor:fellow.contributor %}
+                                    <div class="my-1">
+                                        <a href="{{ conflict.conflict_url }}" target="_blank">{{ conflict.conflict_title }}</a>
+                                        <br>
+                                        In conflict with: {{ conflict.to_name }}
+                                        <br>
+                                        {% if conflict.status == 'unverified' %}
+                                            <i class="fa fa-question-circle text-warning" aria-hidden="true"></i>
+                                        {% elif conflict.status == 'verified' %}
+                                            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                                        {% endif %}
+                                        {{ conflict.get_status_display }}: {{ conflict.get_type_display }}.
+
+
+                                        <br>
+                                    </div>
+                                {% empty %}
+                                    <em><i class="fa fa-check text-success" aria-hidden="true"></i> No conflicts found</em>
+                                {% endfor %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
 
     <h3>Take decision on pre-screening</h3>
     <form method="post">

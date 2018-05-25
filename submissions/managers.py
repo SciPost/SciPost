@@ -192,6 +192,10 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submission that allow for commenting."""
         return self.filter(open_for_commenting=True)
 
+    def needs_conflicts_update(self):
+        """Return set of Submissions that need an ConflictOfInterest update."""
+        return self.filter(needs_conflicts_update=True)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):
