@@ -261,9 +261,14 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
 def report_attachment(request, arxiv_identifier_w_vn_nr, report_nr):
     """Download the attachment of a Report if available."""
-    report = get_object_or_404(Report.objects.accepted(),
-                               submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
-                               file_attachment__isnull=False, report_nr=report_nr)
+    report = get_object_or_404(
+        Report, submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
+        file_attachment__isnull=False, report_nr=report_nr)
+    if not report.is_vetted:
+        # Only Admins and EICs are allowed to see non-vetted Report attachments.
+        if not Submission.objects.filter_for_eic(
+            request.user).filter(arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr).exists():
+            raise Http404
     response = HttpResponse(report.file_attachment.read(), content_type='application/pdf')
     filename = '{}_report_attachment-{}.pdf'.format(
         report.submission.arxiv_identifier_w_vn_nr,

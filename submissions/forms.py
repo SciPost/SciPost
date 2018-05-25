@@ -1056,8 +1056,8 @@ class iThenticateReportForm(forms.ModelForm):
                 cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
                     self.submission.arxiv_identifier_w_vn_nr)
             except exceptions.ArxivPDFNotFound:
-                self.add_error(None, ('The pdf could not be found at arXiv.'
-                                      ' Please upload the pdf manually.'))
+                self.add_error(
+                    None, 'The pdf could not be found at arXiv. Please upload the pdf manually.')
                 self.fields['file'] = forms.FileField()
         elif not doc_id and cleaned_data.get('file'):
             cleaned_data['document'] = cleaned_data['file'].read()
@@ -1073,7 +1073,17 @@ class iThenticateReportForm(forms.ModelForm):
         # Document (id) is found
         if cleaned_data.get('document'):
             self.document = cleaned_data['document']
-            self.response = self.call_ithenticate()
+            try:
+                self.response = self.call_ithenticate()
+            except AttributeError:
+                if not self.fields.get('file'):
+                    # The document is invalid.
+                    self.add_error(None, ('A valid pdf could not be found at arXiv.'
+                                          ' Please upload the pdf manually.'))
+                else:
+                    self.add_error(None, ('The uploaded file is not valid.'
+                                          ' Please upload a valid pdf.'))
+                self.fields['file'] = forms.FileField()
         elif hasattr(self, 'document_id'):
             self.response = self.call_ithenticate()
 
