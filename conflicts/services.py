@@ -9,7 +9,7 @@ import logging
 from scipost.models import Contributor
 
 from .constants import TYPE_COAUTHOR
-from .models import ConflictOfInterest
+from .models import ConflictOfInterest, ConflictGroup
 
 logger = logging.getLogger('scipost.conflicts.arxiv')
 
@@ -71,6 +71,11 @@ class ArxivCaller:
         for conflict in self.conflicts:
             # Loop all separate queries
             for result in conflict['results']['entries']:
+                coi_group, __ = ConflictGroup.objects.get_or_create(
+                    url=result['link'].replace('http:', 'https:'), title=result['title'])
+                if submission:
+                    coi_group.related_submissions.add(submission)
+
                 # Read all results in one query
                 for author in result['authors']:
                     # Try to find an registered Contributor first.
@@ -79,15 +84,8 @@ class ArxivCaller:
                         user__last_name__iendswith=author['name'].split(' ')[-1]).first()
 
                     coi, new = ConflictOfInterest.objects.get_or_create(
-                        origin=conflict['from'],
-                        to_contributor=contributor,
-                        to_name=author['name'],
-                        conflict_url=result['link'].replace('http:', 'https:'),
-                        defaults={
-                            'conflict_title': result['title'],
-                            'type': TYPE_COAUTHOR})
-                    if submission:
-                        coi.related_submissions.add(submission)
+                        conflict_group=coi_group, origin=conflict['from'],
+                        to_contributor=contributor, to_name=author['name'], type=TYPE_COAUTHOR)
                     if new:
                         count += 1
         logger.info('{} new conflicts added.'.format(count))

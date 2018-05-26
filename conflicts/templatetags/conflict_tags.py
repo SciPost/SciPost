@@ -9,5 +9,5 @@ register = template.Library()
 
 @register.filter
 def filter_for_contributor(qs, contributor):
-    """Filter ConflictOfInterest query for specific Contributor."""
-    return qs.filter(origin=contributor)
+    """Filter ConflictGroup query for specific Contributor."""
+    return qs.filter(conflicts__origin=contributor).distinct()

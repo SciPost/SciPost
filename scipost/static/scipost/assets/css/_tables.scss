@@ -35,3 +35,10 @@ table.contributor-info {
         vertical-align: top;
     }
 }
+
+tr.ui-sortable-helper {
+    background-color: $white;
+    max-height: 30px;
+    overflow: hidden;
+    border: 2px solid $scipost-darkblue;
+}
