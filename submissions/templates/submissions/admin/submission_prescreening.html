@@ -120,7 +120,9 @@
                                 <td>
                                     {% with submission.conflict_groups.all|filter_for_contributor:fellow.contributor as conflict_groups %}
                                         {% if conflict_groups %}
-                                            <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ fellow.id }}">Show/hide {{ conflict_groups|length }} conflicts</a>
+                                            {{ conflict_groups|length }} conflict{{ conflict_groups|length|pluralize }} found
+                                            <br>
+                                            <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ fellow.id }}">Show/hide conflicts</a>
                                             <div id="fellow-conflicts-{{ fellow.id }}">
                                                 {% for conflict_group in conflict_groups %}
                                                     <div class="my-1">
