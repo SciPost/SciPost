@@ -15,10 +15,10 @@ from django.utils.functional import cached_property
 
 from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
-    ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
+    ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE, STATUS_PREASSIGNED,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
     SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
-    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
+    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
     STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED)
@@ -370,9 +370,14 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
     deprecated = models.BooleanField(default=False)
     completed = models.BooleanField(default=False)
-    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS,
-                                      blank=True, null=True)
+    status = models.CharField(
+        max_length=16, choices=ASSIGNMENT_STATUSES, default=STATUS_PREASSIGNED)
+    refusal_reason = models.CharField(
+        max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True)
+    invitation_order = models.PositiveSmallIntegerField(default=0)
+
     date_created = models.DateTimeField(default=timezone.now)
+    date_invited = models.DateTimeField(blank=True, null=True)
     date_answered = models.DateTimeField(blank=True, null=True)
 
     objects = EditorialAssignmentQuerySet.as_manager()
