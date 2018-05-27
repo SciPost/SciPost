@@ -988,48 +988,6 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
-    @classmethod
-    def send_author_comment_received_email(cls):
-        """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
-                      cls.submission.submitted_by.user.last_name +
-                      ', \n\nA Comment has been posted on your recent Submission to SciPost,\n\n' +
-                      cls.submission.title + ' by ' + cls.submission.author_list + '.'
-                      '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/'
-                      + cls.submission.arxiv_identifier_w_vn_nr + '.'
-                      '\n\nWe thank you very much for your contribution.'
-                      '\n\nSincerely,' +
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ auth_title }} {{ auth_last_name }},</p>'
-            '<p>A Comment has been posted on your recent Submission to SciPost,</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
-            '\n<p>You can view it at the '
-            '<a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
-            'Submission\'s Page</a>.</p>'
-            '\n<p>We thank you very much for your contribution.</p>'
-            '<p>Sincerely,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = {
-            'auth_title': cls.submission.submitted_by.get_title_display(),
-            'auth_last_name': cls.submission.submitted_by.user.last_name,
-            'sub_title': cls.submission.title,
-            'author_list': cls.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
-        }
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(Context(email_context))
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: Comment received on your Submission', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email],
-            bcc=[cls.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
 
     @classmethod
     def send_communication_email(cls):

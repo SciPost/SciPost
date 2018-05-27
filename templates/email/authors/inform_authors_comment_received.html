@@ -1,0 +1,16 @@
+<p>
+  Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},
+</p>
+<p>
+  We would like to inform you that a Comment has been posted on your recent Submission
+  <br><br>
+  {{ submission.title }}
+  <br>by {{ submission.author_list }}<br>
+  (see https://scipost.org{{ submission.get_absolute_url }} - first submitted {{ submission.original_submission_date|date:"d M Y" }}).
+</p>
+<p>
+  You can view it at the <a href="https://scipost.org/submission/{{ submission.arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>.
+</p>
+<p>Sincerely,</p>
+<p>The SciPost Team</p>
+{% include 'email/_footer.html' %}
