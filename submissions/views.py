@@ -402,7 +402,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     recs_to_vote_on = EICRecommendation.objects.user_may_vote_on(request.user).filter(
         submission__in=submissions)
-    assignments_to_consider = EditorialAssignment.objects.open().filter(
+    assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor)
 
     # Forms
@@ -525,11 +525,11 @@ def editorial_assignment(request, arxiv_identifier_w_vn_nr, assignment_id=None):
     if assignment_id:
         # Process existing EditorialAssignment.
         assignment = get_object_or_404(
-            submission.editorial_assignments.open(), to=request.user.contributor, pk=assignment_id)
+            submission.editorial_assignments.invited(), to=request.user.contributor, pk=assignment_id)
     else:
         # Get or create EditorialAssignment for user.
         try:
-            assignment = submission.editorial_assignments.open().filter(
+            assignment = submission.editorial_assignments.invited().filter(
                 to__user=request.user).first()
         except EditorialAssignment.DoesNotExist:
             assignment = EditorialAssignment()
@@ -576,7 +576,7 @@ def assignment_request(request, assignment_id):
 
     Exists for historical reasons; email are send with this url construction.
     """
-    assignment = get_object_or_404(EditorialAssignment.objects.open(),
+    assignment = get_object_or_404(EditorialAssignment.objects.invited(),
                                    to=request.user.contributor, pk=assignment_id)
     return redirect(reverse('submissions:editorial_assignment', kwargs={
         'arxiv_identifier_w_vn_nr': assignment.submission.arxiv_identifier_w_vn_nr,
@@ -636,7 +636,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
         latest_activity=timezone.now())
 
     # Deprecate old Editorial Assignments
-    EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+    EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
 
     # Send emails to EIC and authors regarding the EIC assignment.
     SubmissionUtils.load({'assignment': assignment})
@@ -668,7 +668,7 @@ def assignment_failed(request, arxiv_identifier_w_vn_nr):
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
     if mail_request.is_valid():
         # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+        EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
 
         # Update status of Submission
         submission.touch()
@@ -695,7 +695,7 @@ def assignments(request):
     """
     assignments = EditorialAssignment.objects.filter(
         to=request.user.contributor).order_by('-date_created')
-    assignments_to_consider = assignments.open()
+    assignments_to_consider = assignments.invited()
     current_assignments = assignments.ongoing()
 
     context = {

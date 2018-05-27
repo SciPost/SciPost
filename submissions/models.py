@@ -365,11 +365,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
-    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
 
-    # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
-    deprecated = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
     status = models.CharField(
         max_length=16, choices=ASSIGNMENT_STATUSES, default=STATUS_PREASSIGNED)
     refusal_reason = models.CharField(
@@ -381,6 +377,11 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     date_answered = models.DateTimeField(blank=True, null=True)
 
     objects = EditorialAssignmentQuerySet.as_manager()
+
+    # Deprecated fields
+    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+    deprecated = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
 
     class Meta:
         default_related_name = 'editorial_assignments'

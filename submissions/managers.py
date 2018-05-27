@@ -226,28 +226,31 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def last_year(self):
         return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
 
-    def accepted(self):
-        return self.filter(accepted=True)
-
-    def refused(self):
-        return self.filter(accepted=False)
-
-    def ignored(self):
-        return self.filter(accepted=None)
-
-    def completed(self):
-        return self.filter(completed=True)
-
-    def ongoing(self):
-        return self.filter(completed=False, deprecated=False).accepted()
-
-    def open(self):
-        return self.filter(accepted=None, deprecated=False)
-
     def refereeing_deadline_within(self, days=7):
         return self.exclude(
             submission__reporting_deadline__gt=timezone.now() + timezone.timedelta(days=days)
             ).exclude(submission__reporting_deadline__lt=timezone.now())
+
+    def preassigned(self):
+        return self.filter(status=constants.STATUS_PREASSIGNED)
+
+    def open(self):
+        return self.filter(status=constants.STATUS_INVITED)
+
+    def ongoing(self):
+        return self.filter(status=constants.STATUS_ACCEPTED)
+
+    def accepted(self):
+        return self.filter(status__in=[constants.STATUS_ACCEPTED, constants.STATUS_COMPLETED])
+
+    def declined(self):
+        return self.filter(status=constants.STATUS_DECLINED)
+
+    def deprecated(self):
+        return self.filter(status=constants.STATUS_DECLINED)
+
+    def completed(self):
+        return self.filter(status=constants.STATUS_COMPLETED)
 
 
 class EICRecommendationQuerySet(models.QuerySet):

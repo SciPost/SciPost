@@ -19,7 +19,7 @@ class Command(BaseCommand):
 
         for fellow in fellows:
             assignments_ongoing = fellow.editorial_assignments.ongoing()
-            assignments_to_consider = fellow.editorial_assignments.open()
+            assignments_to_consider = fellow.editorial_assignments.invited()
             assignments_upcoming_deadline = assignments_ongoing.refereeing_deadline_within(days=7)
             if assignments_ongoing or assignments_to_consider or assignments_upcoming_deadline:
                 SubmissionUtils.load(
