@@ -269,17 +269,12 @@ def vet_registration_request_ack(request, contributor_id):
             group = Group.objects.get(name='Registered Contributors')
             contributor.user.groups.add(group)
 
-            # Verify if there is a pending refereeing invitation
-            pending_ref_inv_exists = False
-            if contributor.invitation_key:
-                try:
-                    pending_ref_inv = RefereeInvitation.objects.get(
-                        invitation_key=contributor.invitation_key, cancelled=False)
-                    pending_ref_inv.referee = contributor
-                    pending_ref_inv.save()
-                    pending_ref_inv_exists = True
-                except RefereeInvitation.DoesNotExist:
-                    pending_ref_inv_exists = False
+            # Verify if there is a pending refereeing invitation using email and invitation key.
+            updated_rows = RefereeInvitation.objects.open().filter(
+                email_address=contributor.user.email).update(referee=contributor)
+            updated_rows += RefereeInvitation.objects.open().filter(
+                invitation_key=contributor.invitation_key).update(referee=contributor)
+            pending_ref_inv_exists = updated_rows > 0
 
             email_text = (
                 'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
