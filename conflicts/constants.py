@@ -6,7 +6,7 @@ STATUS_UNVERIFIED, STATUS_VERIFIED = 'unverified', 'verified'
 STATUS_DEPRECATED = 'deprecated'
 CONFLICT_OF_INTEREST_STATUSES = (
     (STATUS_UNVERIFIED, 'Unverified'),
-    (STATUS_VERIFIED, 'Verified by Admin'),
+    (STATUS_VERIFIED, 'Verified by Admin'),   # Confirmed // rejected
     (STATUS_DEPRECATED, 'Deprecated'),
 )
 
