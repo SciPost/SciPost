@@ -495,7 +495,7 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
         'form': form
     }
 
-    if request.GET('flag'):
+    if request.GET.get('flag'):
         fellows_with_expertise = submission.fellows.all()
         context['coauthorships'] = submission.flag_coauthorships_arxiv(fellows_with_expertise)
     return render(request, 'submissions/admin/editorial_assignment_form.html', context)
