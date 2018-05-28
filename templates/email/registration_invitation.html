@@ -160,7 +160,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         Besides looking around the site, you can also personally register
         (to become a Contributor, without necessarily committing to membership
         of the Editorial College, this to be discussed separately) by visiting
-        the following <a href="https://scipost.org/invitation/{{ invitation.cited_in_publication.citation }}">
+        the following <a href="https://scipost.org/invitation/{{ invitation.invitation_key }}">
         single-use link</a>, containing a partly pre-filled form for your convenience.
     </p>
     <p>
@@ -198,7 +198,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         <br>1098 XH Amsterdam
         <br>The Netherlands
         <br>---------------------------------------------
-        <br>tel.: +31 (0)20 5255775\nfax: +31 (0)20 5255778
+        <br>tel.: +31 (0)20 5255775
         <br>---------------------------------------------
     </p>
 {% endif %}
