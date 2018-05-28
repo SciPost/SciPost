@@ -271,9 +271,11 @@ def vet_registration_request_ack(request, contributor_id):
 
             # Verify if there is a pending refereeing invitation using email and invitation key.
             updated_rows = RefereeInvitation.objects.open().filter(
+                referee__isnull=True,
                 email_address=contributor.user.email).update(referee=contributor)
             if contributor.invitation_key:
                 updated_rows += RefereeInvitation.objects.open().filter(
+                    referee__isnull=True,
                     invitation_key=contributor.invitation_key).update(referee=contributor)
             pending_ref_inv_exists = updated_rows > 0
 
