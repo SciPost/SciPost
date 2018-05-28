@@ -234,7 +234,7 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def preassigned(self):
         return self.filter(status=constants.STATUS_PREASSIGNED)
 
-    def open(self):
+    def invited(self):
         return self.filter(status=constants.STATUS_INVITED)
 
     def ongoing(self):

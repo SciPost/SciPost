@@ -448,6 +448,22 @@ class SubmissionReportsForm(forms.ModelForm):
         fields = ['pdf_refereeing_pack']
 
 
+class BasePreassignEditorsFormSet(forms.BaseModelFormSet):
+    """Preassign editors for incoming Submission."""
+
+    def save(self, *args, **kwargs):
+        objects = super().save(*args, **kwargs)
+        for form in self.ordered_forms:
+            form.instance.invitation_order = form.cleaned_data['ORDER']
+            form.instance.save()
+        return objects
+
+
+PreassignEditorsFormSet = forms.modelformset_factory(
+    EditorialAssignment, fields=(), can_order=True, extra=0,
+    formset=BasePreassignEditorsFormSet)
+
+
 class SubmissionPrescreeningForm(forms.ModelForm):
     """Processing decision for pre-screening of Submission."""
 

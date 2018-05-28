@@ -34,7 +34,8 @@ from .forms import (
     SetRefereeingDeadlineForm, RefereeSelectForm, iThenticateReportForm, VotingEligibilityForm,
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
-    SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm)
+    SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
+    PreassignEditorsFormSet)
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
@@ -1562,6 +1563,26 @@ def remind_Fellows_to_vote(request):
                'followup_link': reverse('submissions:pool'),
                'followup_link_label': 'Submissions pool'}
     return render(request, 'scipost/acknowledgement.html', context)
+
+
+@permission_required('scipost.can_run_pre_screening', raise_exception=True)
+def preassign_editors(request, arxiv_identifier_w_vn_nr):
+    """Preassign editors for incoming Submission."""
+    submission = get_object_or_404(
+        Submission.objects.prescreening(), arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    formset = PreassignEditorsFormSet(
+        request.POST or None,
+        queryset=submission.editorial_assignments.order_by('-invitation_order'))
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, 'Editors assigned for invitation.')
+        return redirect('submissoins:do_prescreening')
+    context = {
+        'formset': formset,
+        'submission': submission,
+    }
+    return render(request, 'submissions/admin/submission_presassign_editors.html', context)
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
