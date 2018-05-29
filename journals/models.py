@@ -463,6 +463,11 @@ class Publication(models.Model):
                 return val
         raise KeyError
 
+    def get_all_funders(self):
+        from funders.models import Funder
+        return Funder.objects.filter(
+            models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
+
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
