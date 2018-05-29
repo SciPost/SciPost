@@ -49,11 +49,11 @@ class BaseSubmissionCycle:
             # Editor-in-charge has requested revision.
             return False
 
-        if not self.submission.plagiarism_report:
-            # No plagiarism report is known yet.
-            self.required_actions.append((
-                'plagiarism_report',
-                'No plagiarism report found. Please run the plagiarism check.'))
+        # if not self.submission.plagiarism_report:
+        #     # No plagiarism report is known yet.
+        #     self.required_actions.append((
+        #         'plagiarism_report',
+        #         'No plagiarism report found. Please run the plagiarism check.'))
 
         if self.submission.eicrecommendations.active().exists():
             # An Editorial Recommendation has already been submitted. Cycle done.
