@@ -107,8 +107,11 @@
             {% if submission.is_open_for_reporting or 1 and perms.scipost.can_referee %}
                 {% if not is_author and not is_author_unchecked %}
                     <li>
-                        <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
-                        <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
+                      <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
+                      <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
+		    </li>
+		    <li>
+		      <h4><a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a></h4>
                     </li>
                 {% elif is_author_unchecked %}
                     <li>
