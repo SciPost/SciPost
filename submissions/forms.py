@@ -564,6 +564,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                 editor_in_charge=self.request.user.contributor,
                 reporting_deadline=deadline,
                 open_for_reporting=True,
+                open_for_commenting=True,
                 visible_public=True,
                 latest_activity=timezone.now())
         else:
@@ -576,6 +577,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                 editor_in_charge=self.request.user.contributor,
                 reporting_deadline=timezone.now(),
                 open_for_reporting=False,
+                open_for_commenting=True,
                 visible_public=False,
                 latest_activity=timezone.now())
 
