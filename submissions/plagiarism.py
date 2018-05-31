@@ -14,14 +14,18 @@ class iThenticate:
         self.client = self.get_client()
 
     def get_client(self):
-        client = iThenticateAPI.API.Client(settings.ITHENTICATE_USERNAME,
-                                           settings.ITHENTICATE_PASSWORD)
+        client = iThenticateAPI.API.Client(
+            settings.ITHENTICATE_USERNAME, settings.ITHENTICATE_PASSWORD)
         if client.login():
             return client
         self.add_error(None, "Failed to login to iThenticate.")
         return None
 
     def determine_folder_group(self, group_re):
+        """Return the folder group id to which the system should upload a new document to.
+
+        Generates a new folder group if needed.
+        """
         groups = self.client.groups.all()
         if groups['status'] != 200:
             raise InvalidDocumentError("Uploading failed. iThenticate didn't return"
@@ -41,8 +45,7 @@ class iThenticate:
         return response['data'][0]['id']
 
     def determine_folder_id(self, submission):
-        """
-        Return the folder id to which the system should upload a new document to.
+        """Return the folder id to which the system should upload a new document to.
 
         Generates a new folder and id if needed.
         """
@@ -72,8 +75,7 @@ class iThenticate:
         return data['data'][0]['id']
 
     def upload_submission(self, document, submission):
-        """
-        Upload a document related to a submission
+        """Upload a document related to a submission.
 
         :document: The document to upload
         :submission: submission which should be uploaded
@@ -96,9 +98,7 @@ class iThenticate:
         return None
 
     def get_url(self, document_id):
-        """
-        Return report url for given document
-        """
+        """Return report url for given document."""
         response = self.client.reports.get(document_id)
 
         if response['status'] == 200:

@@ -21,7 +21,11 @@ class FellowQuerySet(models.QuerySet):
             Q(start_date__isnull=True, until_date__gte=today) |
             Q(start_date__lte=today, until_date__gte=today) |
             Q(start_date__isnull=True, until_date__isnull=True)
-            ).order_by('contributor__user__last_name')
+            ).ordered()
+
+    def ordered(self):
+        """Return ordered queryset explicitly, since this may have big affect on performance."""
+        return self.order_by('contributor__user__last_name')
 
     def return_active_for_submission(self, submission):
         """

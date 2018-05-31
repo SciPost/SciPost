@@ -8,17 +8,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from .constants import SUBMISSION_STATUS_OUT_OF_POOL, SUBMISSION_STATUS_PUBLICLY_UNLISTED,\
-                       SUBMISSION_STATUS_PUBLICLY_INVISIBLE, STATUS_UNVETTED, STATUS_VETTED,\
-                       STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,\
-                       SUBMISSION_HTTP404_ON_EDITORIAL_PAGE, STATUS_DRAFT, STATUS_PUBLISHED,\
-                       SUBMISSION_EXCLUDE_FROM_REPORTING,\
-                       STATUS_REJECTED, STATUS_REJECTED_VISIBLE,\
-                       STATUS_ACCEPTED, STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE,\
-                       EVENT_FOR_EIC, EVENT_GENERAL, EVENT_FOR_AUTHOR,\
-                       STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN,\
-                       STATUS_PUT_TO_EC_VOTING, STATUS_VOTING_IN_PREPARATION,\
-                       SUBMISSION_STATUS_VOTING_DEPRECATED, STATUS_REVISION_REQUESTED
+from . import constants
 
 now = timezone.now()
 
@@ -41,7 +31,8 @@ class SubmissionQuerySet(models.QuerySet):
         return queryset.filter(id__in=ids)
 
     def user_filter(self, user):
-        """
+        """Filter on basic conflict of interests.
+
         Prevent conflict of interest by filtering submissions possibly related to user.
         This filter should be inherited by other filters.
         """
@@ -53,7 +44,8 @@ class SubmissionQuerySet(models.QuerySet):
             return self.none()
 
     def _pool(self, user):
-        """
+        """Return the user-dependent pool of Submissions.
+
         This filter creates 'the complete pool' for a user. This new-style pool does
         explicitly not have the author filter anymore, but registered pools for every Submission.
 
@@ -75,86 +67,69 @@ class SubmissionQuerySet(models.QuerySet):
             return self.filter(fellows__in=qs)
 
     def pool(self, user):
-        """
-        Return the pool for a certain user: filtered to "in active referee phase".
-        """
-        qs = self._pool(user)
-        qs = qs.exclude(is_current=False).exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-        return qs
+        """Return the user-dependent pool of Submissions in active referee phase."""
+        return self.pool_editable(user).filter(is_current=True, status__in=[
+            constants.STATUS_UNASSIGNED,
+            constants.STATUS_EIC_ASSIGNED,
+            constants.STATUS_ACCEPTED])
 
     def pool_editable(self, user):
-        """
-        Return the editable pool for a certain user.
+        """Return the editable pool for a certain user.
 
         This is similar to the regular pool, however it also contains submissions that are
         hidden in the regular pool, but should still be able to be opened by for example
         the Editor-in-charge.
         """
-        qs = self._pool(user)
-        qs = qs.exclude(status__in=SUBMISSION_HTTP404_ON_EDITORIAL_PAGE)
-        return qs
-
-    def pool_full(self, user):
-        """
-        Return the *FULL* pool for a certain user.
-        This makes sure the user can see all history of Submissions related to its Fellowship(s).
-
-        Do not use this filter by default however, as this also contains Submissions
-        that are for example either rejected or accepted already and thus "inactive."
-        """
-        qs = self._pool(user)
-        return qs
+        return self._pool(user)
 
     def filter_for_eic(self, user):
-        """
-        Return the set of Submissions the user is Editor-in-charge for or return the pool if
-        User is Editorial Administrator.
+        """Return the set of Submissions the user is Editor-in-charge for.
+
+        If user is an Editorial Administrator: return the full pool.
         """
         qs = self._pool(user)
 
-        if not user.has_perm('scipost.can_oversee_refereeing') and hasattr(user, 'contributor'):
-            qs = qs.filter(editor_in_charge=user.contributor)
+        if not user.has_perm('scipost.can_oversee_refereeing'):
+            qs = qs.filter(editor_in_charge__user=user)
         return qs
 
     def filter_for_author(self, user):
-        """
-        Return the set of Submissions for which the user is a registered author.
-        """
+        """Return the set of Submissions for which the user is a registered author."""
         if not hasattr(user, 'contributor'):
             return self.none()
         return self.filter(authors=user.contributor)
 
     def prescreening(self):
-        """
-        Return submissions just coming in and going through pre-screening.
-        """
-        return self.filter(status=STATUS_UNASSIGNED)
+        """Return submissions just coming in and going through pre-screening."""
+        return self.filter(status=constants.STATUS_INCOMING)
+
+    def unassigned(self):
+        """Return submissions passed pre-screening, but unassigned."""
+        return self.filter(status=constants.STATUS_UNASSIGNED)
+
+    def without_eic(self):
+        """Return Submissions that still need Editorial Assignment."""
+        return self.filter(status__in=[constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED])
 
     def actively_refereeing(self):
-        """
-        Return submission currently in some point of the refereeing round.
-        """
-        return (self.exclude(is_current=False)
-                    .exclude(status__in=SUBMISSION_STATUS_OUT_OF_POOL)
-                    .exclude(status__in=[STATUS_UNASSIGNED, STATUS_ACCEPTED,
-                                         STATUS_REVISION_REQUESTED]))
+        """Return submission currently in some point of the refereeing round."""
+        return self.filter(status=constants.STATUS_EIC_ASSIGNED).exclude(
+            eicrecommendations__status=constants.DECISION_FIXED)
 
     def public(self):
-        """
-        This query contains set of public submissions, i.e. also containing
-        submissions with status "published" or "resubmitted".
-        """
-        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE)
+        """Return all publicly available Submissions."""
+        return self.filter(visible_public=True)
 
-    def public_unlisted(self):
-        """
-        List only all public submissions. Should be used as a default filter!
+    def public_listed(self):
+        """List all public Submissions if not published and submitted.
 
         Implement: Use this filter to also determine, using a optional user argument,
                    if the query should be filtered or not as a logged in EdCol Admin
                    should be able to view *all* submissions.
         """
-        return self.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_UNLISTED)
+        return self.filter(visible_public=True).exclude(status__in=[
+            constants.STATUS_RESUBMITTED,
+            constants.STATUS_PUBLISHED])
 
     def public_newest(self):
         """
@@ -164,11 +139,12 @@ class SubmissionQuerySet(models.QuerySet):
         return self._newest_version_only(self.public())
 
     def treated(self):
-        """
-        This query returns all Submissions that are expected to be 'done'.
-        """
-        return self.filter(status__in=[STATUS_ACCEPTED, STATUS_REJECTED_VISIBLE, STATUS_PUBLISHED,
-                                       STATUS_RESUBMITTED, STATUS_RESUBMITTED_REJECTED_VISIBLE])
+        """This query returns all Submissions that are presumed to be 'done'."""
+        return self.filter(status__in=[
+            constants.STATUS_ACCEPTED,
+            constants.STATUS_REJECTED,
+            constants.STATUS_PUBLISHED,
+            constants.STATUS_RESUBMITTED])
 
     def originally_submitted(self, from_date, until_date):
         """
@@ -182,34 +158,38 @@ class SubmissionQuerySet(models.QuerySet):
         return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
 
     def accepted(self):
-        return self.filter(status=STATUS_ACCEPTED)
+        """Return accepted Submissions."""
+        return self.filter(status=constants.STATUS_ACCEPTED)
 
     def revision_requested(self):
-        return self.filter(status=STATUS_REVISION_REQUESTED)
+        """Return Submissions with a fixed EICRecommendation: minor or major revision."""
+        return self.filter(
+            eicrecommendations__status=constants.DECISION_FIXED,
+            eicrecommendations__recommendation__in=[
+                constants.REPORT_MINOR_REV, constants.REPORT_MAJOR_REV])
 
     def published(self):
-        return self.filter(status=STATUS_PUBLISHED)
+        """Return published Submissions."""
+        return self.filter(status=constants.STATUS_PUBLISHED)
 
     def assignment_failed(self):
-        return self.filter(status=STATUS_ASSIGNMENT_FAILED)
+        """Return Submissions which have failed assignment."""
+        return self.filter(status=constants.STATUS_ASSIGNMENT_FAILED)
 
     def rejected(self):
-        return self._newest_version_only(self.filter(status__in=[STATUS_REJECTED,
-                                                                 STATUS_REJECTED_VISIBLE]))
+        """Return rejected Submissions."""
+        return self._newest_version_only(self.filter(status=constants.STATUS_REJECTED))
 
     def withdrawn(self):
-        return self._newest_version_only(self.filter(status=STATUS_WITHDRAWN))
+        """Return withdrawn Submissions."""
+        return self._newest_version_only(self.filter(status=constants.STATUS_WITHDRAWN))
 
     def open_for_reporting(self):
-        """
-        Return Submissions that have appropriate status for reporting.
-        The `open_for_reporting` property is not filtered as some invited visitors
-        still need to have access.
-        """
-        return self.exclude(status__in=SUBMISSION_EXCLUDE_FROM_REPORTING)
+        """Return Submission that allow for reporting."""
+        return self.filter(open_for_reporting=True)
 
     def open_for_commenting(self):
-        """ Return Submission that allow for commenting. """
+        """Return Submission that allow for commenting."""
         return self.filter(open_for_commenting=True)
 
 
@@ -218,13 +198,13 @@ class SubmissionEventQuerySet(models.QuerySet):
         """
         Return all events that are meant to be for the author(s) of a submission.
         """
-        return self.filter(event__in=[EVENT_FOR_AUTHOR, EVENT_GENERAL])
+        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
 
     def for_eic(self):
         """
         Return all events that are meant to be for the Editor-in-charge of a submission.
         """
-        return self.filter(event__in=[EVENT_FOR_EIC, EVENT_GENERAL])
+        return self.filter(event__in=[constants.EVENT_FOR_EIC, constants.EVENT_GENERAL])
 
     def last_hours(self, hours=24):
         """
@@ -267,70 +247,59 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 
 
 class EICRecommendationQuerySet(models.QuerySet):
-    def get_for_user_in_pool(self, user):
-        """
-        -- DEPRECATED --
-
-        Return list of EICRecommendation which are filtered as these objects
-        are not related to the Contributor, by checking last_name and author_list of
-        the linked Submission.
-        """
-        try:
-            return self.exclude(submission__authors=user.contributor)\
-                       .exclude(Q(submission__author_list__icontains=user.last_name),
-                                ~Q(submission__authors_false_claims=user.contributor))
-        except AttributeError:
-            return self.none()
-
-    def filter_for_user(self, user, **kwargs):
-        """
-        -- DEPRECATED --
-
-        Return list of EICRecommendation's which are owned/assigned author through the
-        related submission.
-        """
-        try:
-            return self.filter(submission__authors=user.contributor).filter(**kwargs)
-        except AttributeError:
-            return self.none()
+    """QuerySet for the EICRecommendation model."""
 
     def user_may_vote_on(self, user):
+        """Return the subset of EICRecommendation the User is eligable to vote on."""
         if not hasattr(user, 'contributor'):
             return self.none()
 
-        return (self.filter(eligible_to_vote=user.contributor)
-                .exclude(recommendation__in=[-1, -2])
-                .exclude(voted_for=user.contributor)
-                .exclude(voted_against=user.contributor)
-                .exclude(voted_abstain=user.contributor)
-                .exclude(submission__status__in=SUBMISSION_STATUS_VOTING_DEPRECATED))
+        return self.put_to_voting().filter(eligible_to_vote=user.contributor).exclude(
+            recommendation__in=[-1, -2]).exclude(
+                models.Q(voted_for=user.contributor) | models.Q(voted_against=user.contributor) |
+                models.Q(voted_abstain=user.contributor)).exclude(submission__status__in=[
+                    constants.STATUS_REJECTED,
+                    constants.STATUS_PUBLISHED,
+                    constants.STATUS_WITHDRAWN])
 
     def put_to_voting(self):
-        return self.filter(submission__status=STATUS_PUT_TO_EC_VOTING)
+        """Return the subset of EICRecommendation currently undergoing voting."""
+        return self.filter(status=constants.PUT_TO_VOTING)
 
     def voting_in_preparation(self):
-        return self.filter(submission__status=STATUS_VOTING_IN_PREPARATION)
+        """Return the subset of EICRecommendation currently undergoing preparation for voting."""
+        return self.filter(status=constants.VOTING_IN_PREP)
 
     def active(self):
-        return self.filter(active=True)
+        """Return the subset of EICRecommendation most recent, valid versions."""
+        return self.exclude(status=constants.DEPRECATED)
+
+    def fixed(self):
+        """Return the subset of fixed EICRecommendations."""
+        return self.filter(status=constants.DECISION_FIXED)
+
+    def asking_revision(self):
+        """Return EICRecommendation asking for a minor or major revision."""
+        return self.filter(recommendation__in=[-1, -2])
 
 
 class ReportQuerySet(models.QuerySet):
     def accepted(self):
-        return self.filter(status=STATUS_VETTED)
+        return self.filter(status=constants.STATUS_VETTED)
 
     def awaiting_vetting(self):
-        return self.filter(status=STATUS_UNVETTED)
+        return self.filter(status=constants.STATUS_UNVETTED)
 
     def rejected(self):
-        return self.filter(status__in=[STATUS_UNCLEAR, STATUS_INCORRECT,
-                                       STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC])
+        return self.filter(status__in=[
+            constants.STATUS_UNCLEAR, constants.STATUS_INCORRECT, constants.STATUS_NOT_USEFUL,
+            constants.STATUS_NOT_ACADEMIC])
 
     def in_draft(self):
-        return self.filter(status=STATUS_DRAFT)
+        return self.filter(status=constants.STATUS_DRAFT)
 
     def non_draft(self):
-        return self.exclude(status=STATUS_DRAFT)
+        return self.exclude(status=constants.STATUS_DRAFT)
 
     def contributed(self):
         return self.filter(invited=False)
@@ -367,10 +336,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return qs
 
     def overdue(self):
-        qs = self.in_process()
-        deadline = now
-        qs = qs.filter(submission__reporting_deadline__lte=deadline)
-        return qs
+        return self.in_process().filter(submission__reporting_deadline__lte=now)
 
 
 class EditorialCommunicationQueryset(models.QuerySet):

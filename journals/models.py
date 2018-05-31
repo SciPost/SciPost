@@ -397,7 +397,7 @@ class Publication(models.Model):
     BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = JSONField(default={}, blank=True, null=True)
-    number_of_citations = models.PositiveIntegerField()
+    number_of_citations = models.PositiveIntegerField(default=0)
 
     # Date fields
     submission_date = models.DateField(verbose_name='submission date')
@@ -462,6 +462,11 @@ class Publication(models.Model):
             if key == self.cc_license:
                 return val
         raise KeyError
+
+    def get_all_funders(self):
+        from funders.models import Funder
+        return Funder.objects.filter(
+            models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
 
     @property
     def doi_string(self):

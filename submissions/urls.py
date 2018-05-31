@@ -28,11 +28,15 @@ urlpatterns = [
         views.submission_detail, name='submission'),
     url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.report_detail_pdf, name='report_detail_pdf'),
+    url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/attachment$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.report_attachment, name='report_attachment'),
     url(r'^{regex}/reports/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
 
     # Editorial Administration
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
+    url(r'^admin/{regex}/prescreening$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.PreScreeningView.as_view(), name='do_prescreening'),
     url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
     url(r'^admin/{regex}/plagiarism$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
@@ -60,6 +64,12 @@ urlpatterns = [
         views.assign_submission, name='assign_submission'),
     url(r'^pool/assignment_request/(?P<assignment_id>[0-9]+)$',
         views.assignment_request, name='assignment_request'),
+    url(r'^pool/{regex}/editorial_assignment/$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
+        name='editorial_assignment'),
+    url(r'^pool/{regex}/editorial_assignment/(?P<assignment_id>[0-9]+)/$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
+        name='editorial_assignment'),
     url(r'^volunteer_as_EIC/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.volunteer_as_EIC, name='volunteer_as_EIC'),
     url(r'^assignment_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
@@ -122,7 +132,4 @@ urlpatterns = [
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
     url(r'^remind_Fellows_to_vote$', views.remind_Fellows_to_vote,
         name='remind_Fellows_to_vote'),
-    # Editorial Administration
-    url(r'fix_College_decision/(?P<rec_id>[0-9]+)$', views.fix_College_decision,
-        name='fix_College_decision'),
 ]

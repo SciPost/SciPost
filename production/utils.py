@@ -1,6 +1,8 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from django.contrib.auth.models import Group
+from guardian.shortcuts import assign_perm
 
 from common.utils import BaseMailUtil
 
@@ -11,6 +13,18 @@ def proofs_id_to_slug(id):
 
 def proofs_slug_to_id(slug):
     return int(slug) - 8932
+
+
+def get_or_create_production_stream(submission):
+    """Get or create a ProductionStream for the given Submission."""
+    from .models import ProductionStream
+
+    prodstream, created = ProductionStream.objects.get_or_create(submission=submission)
+    if created:
+        ed_admins = Group.objects.get(name='Editorial Administrators')
+        assign_perm('can_perform_supervisory_actions', ed_admins, prodstream)
+        assign_perm('can_work_for_stream', ed_admins, prodstream)
+    return prodstream
 
 
 class ProductionUtils(BaseMailUtil):

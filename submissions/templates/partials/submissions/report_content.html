@@ -34,4 +34,14 @@
     </div>
 {% endif %}
 
+{% if report.file_attachment %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="highlight tight">Attachment</h3>
+            <div class="pl-md-4"><i class="fa fa-download"></i> <a href="{{ report.get_attachment_url }}">Download attachment</a></div>
+            <br>
+        </div>
+    </div>
+{% endif %}
+
 {% include 'partials/submissions/report_ratings.html' with report=report %}

@@ -17,22 +17,24 @@ from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
-    SUBMISSION_STATUS, STATUS_UNASSIGNED, REPORT_STATUSES, STATUS_UNVETTED,
-    SUBMISSION_EIC_RECOMMENDATION_REQUIRED, SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT,
+    SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
+    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, STATUS_VOTING_IN_PREPARATION,
-    STATUS_PUT_TO_EC_VOTING)
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
+    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
 from .utils import (
     ShortSubmissionCycle, DirectRecommendationSubmissionCycle, GeneralSubmissionCycle)
 
+from comments.behaviors import validate_file_extension, validate_max_file_size
 from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
+from scipost.storage import SecureFileStorage
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 
@@ -52,8 +54,7 @@ class Submission(models.Model):
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
                                          null=True, on_delete=models.CASCADE)
-    is_current = models.BooleanField(default=True)
-    is_resubmission = models.BooleanField(default=False)
+
     list_of_changes = models.TextField(blank=True)
     open_for_commenting = models.BooleanField(default=False)
     open_for_reporting = models.BooleanField(default=False)
@@ -65,14 +66,18 @@ class Submission(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
         blank=True, null=True)
 
-    # Refereeing fields
-    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_UNASSIGNED)
-    refereeing_cycle = models.CharField(max_length=30, choices=SUBMISSION_CYCLES,
-                                        default=CYCLE_DEFAULT)
+    # Submission status fields
+    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING)
+    is_current = models.BooleanField(default=True)
+    visible_public = models.BooleanField("Is publicly visible", default=False)
+    visible_pool = models.BooleanField("Is visible in the Pool", default=False)
+    is_resubmission = models.BooleanField(default=False)
+    refereeing_cycle = models.CharField(
+        max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
+
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
-    # visible_pool = models.BooleanField(default=True)
-    # visible_public = models.BooleanField(default=False)
+
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
@@ -192,12 +197,29 @@ class Submission(models.Model):
     @property
     def eic_recommendation_required(self):
         """Return if Submission needs a EICRecommendation to be formulated."""
-        return self.status in SUBMISSION_EIC_RECOMMENDATION_REQUIRED
+        return not self.eicrecommendations.active().exists()
+
+    @property
+    def revision_requested(self):
+        """Check if Submission has fixed EICRecommendation asking for revision."""
+        return self.eicrecommendations.fixed().asking_revision().exists()
+
+    @property
+    def open_for_resubmission(self):
+        """Check if Submission has fixed EICRecommendation asking for revision."""
+        if self.status != STATUS_EIC_ASSIGNED:
+            return False
+        return self.eicrecommendations.fixed().asking_revision().exists()
 
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed it's reporting deadline."""
         return timezone.now() > self.reporting_deadline
+
+    @property
+    def is_open_for_reporting(self):
+        """Check if Submission is open for reporting and within deadlines."""
+        return self.open_for_reporting and not self.reporting_deadline_has_passed
 
     @property
     def original_submission_date(self):
@@ -214,16 +236,17 @@ class Submission(models.Model):
     @cached_property
     def other_versions_public(self):
         """Return other (public) Submissions in the database in this ArXiv identifier series."""
-        return Submission.objects.public().filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr
-        ).exclude(pk=self.id).order_by('-arxiv_vn_nr')
+        return self.get_other_versions().order_by('-arxiv_vn_nr')
 
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this ArXiv identifier series."""
+        return self.get_other_versions().order_by('-arxiv_vn_nr')
+
+    def get_other_versions(self):
+        """Return queryset of other Submissions with this ArXiv identifier series."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
-            pk=self.id).order_by('-arxiv_vn_nr')
+            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(pk=self.id)
 
     def count_accepted_invitations(self):
         """Count number of accepted RefereeInvitations for this Submission."""
@@ -276,10 +299,8 @@ class Submission(models.Model):
         )
         event.save()
 
-    """
-    Identify coauthorships from arXiv, using author surname matching.
-    """
     def flag_coauthorships_arxiv(self, fellows):
+        """Identify coauthorships from arXiv, using author surname matching."""
         coauthorships = {}
         if self.metadata and 'entries' in self.metadata:
             author_last_names = []
@@ -393,7 +414,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     email_address = models.EmailField()
 
     # if Contributor not found, person is invited to register
-    invitation_key = models.CharField(max_length=40)
+    invitation_key = models.CharField(max_length=40, blank=True)
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)
@@ -515,6 +536,12 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
     pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
 
+    # Attachment
+    file_attachment = models.FileField(
+        upload_to='uploads/reports/%Y/%m/%d/', blank=True,
+        validators=[validate_file_extension, validate_max_file_size],
+        storage=SecureFileStorage())
+
     objects = ReportQuerySet.as_manager()
 
     class Meta:
@@ -543,6 +570,12 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """Return url of the Report on the Submission detail page."""
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
 
+    def get_attachment_url(self):
+        """Return url of the Report its attachment if exists."""
+        return reverse('submissions:report_attachment', kwargs={
+            'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
+            'report_nr': self.report_nr})
+
     @property
     def is_in_draft(self):
         """Return if Report is in draft."""
@@ -552,6 +585,17 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def is_vetted(self):
         """Return if Report is publicly available."""
         return self.status == STATUS_VETTED
+
+    @property
+    def is_unvetted(self):
+        """Return if Report is awaiting vetting."""
+        return self.status == STATUS_UNVETTED
+
+    @property
+    def is_rejected(self):
+        """Return if Report is rejected."""
+        return self.status in [
+            STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC]
 
     @property
     def notification_name(self):
@@ -694,6 +738,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
                                                      verbose_name='optional remarks for the'
                                                                   ' Editorial College')
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    status = models.CharField(max_length=32, choices=EIC_REC_STATUSES, default=VOTING_IN_PREP)
     version = models.SmallIntegerField(default=1)
     active = models.BooleanField(default=True)
     # status = models.CharField(default='', max_length=180)
@@ -751,16 +796,22 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         """Return the number of votes 'abstained'."""
         return self.voted_abstain.count()
 
+    @property
+    def is_deprecated(self):
+        """Check if Recommendation is deprecated."""
+        return self.status == DEPRECATED
+
+    @property
+    def may_be_reformulated(self):
+        """Check if this EICRecommdation is allowed to be reformulated in a new version."""
+        if not self.status == DEPRECATED:
+            # Already reformulated before; please use the latest version
+            return self.submission.eicrecommendations.last() == self
+        return self.status != DECISION_FIXED
+
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""
         return self.submission.eicrecommendations.exclude(id=self.id)
-
-    def may_be_reformulated(self):
-        """Check if this EICRecommdation is allowed to be reformulated in a new version."""
-        if not self.active:
-            # Already reformulated before; please use the latest version
-            return self.submission.eicrecommendations.last() == self
-        return self.submission.status in [STATUS_VOTING_IN_PREPARATION, STATUS_PUT_TO_EC_VOTING]
 
 
 class iThenticateReport(TimeStampedModel):

@@ -1,8 +1,13 @@
 .table {
-    th,
+    &.v-center {
+        th,
+        td {
+            vertical-align: middle;
+        }
+    }
+
     td {
-    padding: $table-cell-padding;
-        vertical-align: middle;
+        padding: $table-body-cell-padding;
     }
 }
 
