@@ -72,11 +72,9 @@
 {% endblock %}
 
 {% block sidebar %}
-    <div class="card card-grey">
-      <div class="card-body">
-	<h2 class="card-title mb-0"><a href="{% url 'scipost:ExpSustDrive2018' %}">Expansion and Sustainability Drive 2018</a></h2>
-	<p class="m-0">It is time for us to be bold and unleash the next steps in our implementation plans. Read more <a href="{% url 'scipost:ExpSustDrive2018' %}">here</a> on how you can concretely help. Follow developments at <a href="https://twitter.com/hashtag/SciPostDrive2018">#SciPostDrive2018</a>.</p>
-      </div>
+    <div class="p-3 my-3 bg-light scipost-bar border" id="register">
+    	<h2><a href="{% url 'scipost:ExpSustDrive2018' %}">Expansion and Sustainability Drive 2018</a></h2>
+    	<p class="m-0">It is time for us to be bold and unleash the next steps in our implementation plans. Read more <a href="{% url 'scipost:ExpSustDrive2018' %}">here</a> on how you can concretely help. Follow developments at <a href="https://twitter.com/hashtag/SciPostDrive2018">#SciPostDrive2018</a>.</p>
     </div>
 
     {% if not user.is_authenticated %}
@@ -132,8 +130,6 @@
 <img alt="" border="0" src="https://www.paypalobjects.com/nl_NL/i/scr/pixel.gif" width="1" height="1">
 </form>
 		</p>
-            </div>
-        </div>
 
     </div><!-- End Partners -->
 
