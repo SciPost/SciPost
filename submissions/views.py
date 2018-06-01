@@ -639,7 +639,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
 
     # Send emails to EIC and authors regarding the EIC assignment.
-    assignment = EditorialAssignment.objects.get(id=assignment)  # Update before use in mail
+    assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
