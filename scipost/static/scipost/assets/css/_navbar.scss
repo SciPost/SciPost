@@ -44,6 +44,7 @@
             }
 
             .form-wrapper {
+                margin-right: - $grid-gutter-width;
                 float: right;
                 height: 100%;
                 padding: $navbar-padding-y 0.5rem;
@@ -66,7 +67,7 @@
         .btn {
             border: 0;
             outline: none;
-            color: $scipost-lightblue;
+            color: $scipost-darkblue;
             position: absolute;
             right: 0;
             background: transparent;
@@ -75,7 +76,11 @@
             padding: 4px 10px;
 
             &:hover {
-                color: $scipost-darkblue;
+                color: $scipost-lightblue;
+
+                span {
+                    text-decoration: underline;
+                }
             }
         }
     }

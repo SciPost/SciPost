@@ -6,9 +6,14 @@
 main {
     margin-top: 0;
     margin-bottom: 5rem;
-    padding-top: 0.5rem;
+    padding-top: 0.05rem;
     background-color: $white;
     box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, .05);
+
+    &.container {
+        padding-top: $grid-gutter-width;
+        padding-bottom: $grid-gutter-width;
+    }
 }
 
 .row {
@@ -47,21 +52,18 @@ footer.secondary {
 }
 
 
-.container-inner {
-    padding: ($grid-gutter-width / 2);
-    background-color: $white;
-}
+// .container-inner {
+//     padding: ($grid-gutter-width / 2);
+//     background-color: $white;
+// }
 
 .container {
-    max-width: 1475px;
+    max-width: 1500px;
 }
 
 @media screen and (min-width: 768px) {
-    .container-inner {
-        padding: $grid-gutter-width;
-    }
     .container {
-        padding-left: 30px;
-        padding-right: 30px;
+        padding-left: $grid-gutter-width;
+        padding-right: $grid-gutter-width;
     }
 }
