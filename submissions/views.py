@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
+from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
@@ -1465,7 +1466,8 @@ def prepare_for_voting(request, rec_id):
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         fellows_with_expertise = recommendation.submission.fellows.filter(
-            contributor__expertises__contains=[recommendation.submission.subject_area]).order_by(
+            Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
+            Q(contributor__expertises__contains=recommendation.submission.secondary_areas)).order_by(
                 'contributor__user__last_name')
         coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
