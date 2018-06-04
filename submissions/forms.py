@@ -690,7 +690,7 @@ class VotingEligibilityForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
             fellowships__pool=self.instance.submission).filter(
-                Q(EIC=self.instance.submission.editor_in_charge) |
+                Q(EIC=self.instance.submission) |
                 Q(expertises__contains=[self.instance.submission.subject_area]) |
                 Q(expertises__contains=self.instance.submission.secondary_areas)).order_by(
                     'user__last_name')
