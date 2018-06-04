@@ -693,7 +693,7 @@ class VotingEligibilityForm(forms.ModelForm):
                 Q(EIC=self.instance.submission) |
                 Q(expertises__contains=[self.instance.submission.subject_area]) |
                 Q(expertises__contains=self.instance.submission.secondary_areas)).order_by(
-                    'user__last_name')
+                    'user__last_name').distinct()
 
     def save(self, commit=True):
         """Update EICRecommendation status and save its voters."""
