@@ -1465,7 +1465,8 @@ def prepare_for_voting(request, rec_id):
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         fellows_with_expertise = recommendation.submission.fellows.filter(
-            contributor__expertises__contains=[recommendation.submission.subject_area])
+            contributor__expertises__contains=[recommendation.submission.subject_area]).order_by(
+                'contributor__user__last_name')
         coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
