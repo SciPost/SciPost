@@ -8,6 +8,7 @@ import re
 from django import forms
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Q
 from django.utils import timezone
 
 from .constants import (
@@ -688,9 +689,11 @@ class VotingEligibilityForm(forms.ModelForm):
         """Get queryset of Contributors eligibile for voting."""
         super().__init__(*args, **kwargs)
         self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
-            fellowships__pool=self.instance.submission,
-            expertises__contains=[
-                self.instance.submission.subject_area]).order_by('user__last_name')
+            fellowships__pool=self.instance.submission).filter(
+                Q(EIC=self.instance.submission.editor_in_charge) |
+                Q(expertises__contains=[self.instance.submission.subject_area]) |
+                Q(expertises__contains=self.instance.submission.secondary_areas)).order_by(
+                    'user__last_name')
 
     def save(self, commit=True):
         """Update EICRecommendation status and save its voters."""
