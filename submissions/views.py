@@ -994,8 +994,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
 
 def decline_ref_invitation(request, invitation_key):
     """Decline a RefereeInvitation."""
-    invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key,
-                                   accepted__isnull=True)
+    invitation = get_object_or_404(RefereeInvitation.objects.open(), invitation_key=invitation_key)
 
     form = ConsiderRefereeInvitationForm(request.POST or None, initial={'accept': False})
     context = {'invitation': invitation, 'form': form}
