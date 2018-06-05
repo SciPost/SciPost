@@ -325,7 +325,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return self.pending().filter(cancelled=False)
 
     def in_process(self):
-        return self.accepted().filter(fulfilled=False)
+        return self.accepted().filter(fulfilled=False, cancelled=False)
 
     def approaching_deadline(self, days=2):
         qs = self.in_process()
