@@ -313,10 +313,10 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return self.pending().open()
 
     def pending(self):
-        return self.filter(accepted=None)
+        return self.filter(accepted=None, cancelled=False)
 
     def accepted(self):
-        return self.filter(accepted=True)
+        return self.filter(accepted=True, cancelled=False)
 
     def declined(self):
         return self.filter(accepted=False)
