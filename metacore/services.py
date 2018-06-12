@@ -6,7 +6,7 @@ from rest_framework import serializers
 from mongoengine.python_support import pymongo
 from django.utils import timezone
 import logging
-from celery import shared_task
+from celery import shared_task, current_task
 
 logger = logging.getLogger(__name__)
 
@@ -95,10 +95,20 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # Save current count so progress can be tracked in the admin page
         # TODO: make this work (currently only executed after whole import
         # task is completed!
-        # total_processed += number_of_results
+        total_processed += number_of_results
         # Journal.objects.filter(ISSN_digital=issn).update(count_running = total_processed)
         # logger.info('Journal count updated')
         # print('Journal count updated to {}.'.format(Journal.objects.get(ISSN_digital=issn).count_running))
+
+        # if not self.request.called_directly:
+        #     self.update_state(state='PROGRESS',
+        #         meta={'current': total_processed})
+        current_task.update_state(state='PROGRESS',
+            meta={'current': total_processed})
+        # with current_task.app.events.default_dispatcher() as dispatcher:
+        #     dispatcher.send('task-custom_state', field1='value1', field2='value2')
+        current_task.send_event('task-started', current=total_processed);
+        logger.info(current_task)
 
         if number_of_results < rows:
             # print(number_of_results)

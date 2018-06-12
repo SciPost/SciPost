@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'django_celery_results',
+    'django_celery_beat',
     'finances',
     'funders',
     'guardian',

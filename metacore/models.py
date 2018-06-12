@@ -99,6 +99,7 @@ class Journal(models.Model):
     count_crossref = models.IntegerField(blank=True, null=True)
     count_running = models.IntegerField(blank=True, null=True) # Tracks progress during import tasks
     last_update = models.DateTimeField(blank=True, null=True, auto_now=True) # Set during import tasks
+    last_task_id = models.CharField(max_length=250, blank=True, null=True) # Set after task related to journal is started
     
 
 
