@@ -13,7 +13,9 @@ class JournalAdmin(admin.ModelAdmin):
         """ Starts background task to import all works by this journal """
 
         for journal in queryset:
-            t = import_journal_full(journal.ISSN_digital)
+            # Celery Async version
+            t = import_journal_full.delay(journal.ISSN_digital)
+
             messages.add_message(request, messages.INFO, 'Import task for journal {} added. Go to Background Tasks -> Tasks in admin to view'.format(journal.name))
 
         messages.add_message(request, messages.WARNING, 'Make sure that "./manage.py process_tasks" is running (otherwise start it).')

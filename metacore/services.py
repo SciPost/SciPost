@@ -1,3 +1,4 @@
+from __future__ import absolute_import, unicode_literals
 import requests
 from .models import Citable, CitableWithDOI, Journal
 from background_task import background
@@ -5,10 +6,12 @@ from rest_framework import serializers
 from mongoengine.python_support import pymongo
 from django.utils import timezone
 import logging
+from celery import shared_task
 
 logger = logging.getLogger(__name__)
 
-@background()
+# @background()
+@shared_task
 def import_journal_full(issn, cursor='*'):
     """
     Task to query CrossRef for all works of a journal with given ISSN
@@ -16,7 +19,8 @@ def import_journal_full(issn, cursor='*'):
     """
     import_journal(issn=issn, cursor=cursor, from_index_date=None)
 
-@background()
+# @background()
+@shared_task
 def import_journal_incremental(issn, from_index_date, cursor='*'):
     """
     Task to query CrossRef for all works of a journal with given ISSN
