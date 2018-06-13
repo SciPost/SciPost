@@ -27,12 +27,12 @@
         {% for report in reports %}
             <tr{% if not report.pdf_report %} class="table-danger"{% endif %}>
                 <td>{{report.report_nr}}</td>
-                <td><a href="{{report.get_absolute_url}}">{{report.submission.arxiv_identifier_w_vn_nr}}</a></td>
+                <td><a href="{{report.get_absolute_url}}">{{report.submission.preprint.identifier_w_vn_nr}}</a></td>
                 <td>{% if report.anonymous %}<em>Anonymous</em>{% else %}{{report.author}}{% endif %}</td>
                 <td>
                     {{report.pdf_report|yesno:"Yes,No"}}
                     {% if report.pdf_report %}
-                        &middot; <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank">Download</a>
+                        &middot; <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank">Download</a>
                     {% endif %}
                 </td>
                 <td>

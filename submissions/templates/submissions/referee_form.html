@@ -7,7 +7,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Select Referee</span>
 {% endblock %}
 
@@ -18,8 +18,8 @@
         <div class="card card-grey">
             <div class="card-body">
                 <h1 class="card-text">Referee Selection Page for Submission</h1>
-                <p class="card-text">(go to the <a href="{% url 'submissions:submission' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
-                <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
+                <p class="card-text">(go to the <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+                <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
             </div>
         </div>
     </div>
@@ -41,7 +41,7 @@
     <div class="col-12">
         <h2 class="highlight" id="form">Select an additional Referee</h2>
 
-        <form action="{% url 'submissions:select_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}#form" method="post">
+        <form action="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}#form" method="post">
             {% csrf_token %}
             {{ ref_search_form|bootstrap }}
             <input class="btn btn-primary" type="submit" value="Find referee">
@@ -79,7 +79,7 @@
                     {% for contributor in contributors_found %}
                         <tr>
                             <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
-                            <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td>
+                            <td><a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td>
                         </tr>
                     {% endfor %}
                 </table>
@@ -93,7 +93,7 @@
     <div class="row">
         <div class="col-12">
             <h3 class="mb-2">If the referee you were looking for was not found by using the method above, you can send a registration and refereeing invitation by filling this form:</h3>
-            <form action="{% url 'submissions:recruit_referee' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+            <form action="{% url 'submissions:recruit_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
                 {{ ref_recruit_form|bootstrap }}
                 <input type="submit" name="submit" value="Send invitation" class="btn btn-primary">

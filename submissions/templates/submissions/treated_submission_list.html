@@ -33,18 +33,18 @@
             <tbody>
                 {% for submission in submissions %}
                     <tr{% if not submission.pdf_refereeing_pack %} class="table-danger"{% endif %}>
-                        <td><a href="{{submission.get_absolute_url}}">{{submission.arxiv_identifier_w_vn_nr}}</a></td>
+                        <td><a href="{{submission.get_absolute_url}}">{{submission.preprint.identifier_w_vn_nr}}</a></td>
                         <td>{{submission.get_status_display}}</td>
                         <td>{{submission.acceptance_date|default_if_none:'Date unknown'}}</td>
                         <td>{{submission.reports.accepted.count}}</td>
                         <td>
                             {{submission.pdf_refereeing_pack|yesno:"Yes,No"}}
                             {% if submission.pdf_refereeing_pack %}
-                                &middot; <a href="{% url 'submissions:refereeing_package_pdf' submission.arxiv_identifier_w_vn_nr %}" target="_blank">Download</a>
+                                &middot; <a href="{% url 'submissions:refereeing_package_pdf' submission.preprint.identifier_w_vn_nr %}" target="_blank">Download</a>
                             {% endif %}
                         </td>
                         <td>
-                            <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Compile/upload Refereeing Package</a>
+                            <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Compile/upload Refereeing Package</a>
                         </td>
                     </tr>
                 {% endfor %}

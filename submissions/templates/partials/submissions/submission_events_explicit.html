@@ -7,7 +7,7 @@
                             <div class="time text-muted pr-2">{{event.created}}</div>
                             <div class="content">
                                 <strong>{{event.text}}</strong><br>
-                                Submission: <a href="{{event.submission.get_absolute_url}}">{{event.submission.title}} ({{event.submission.arxiv_identifier_w_vn_nr}})</a><br>
+                                Submission: <a href="{{event.submission.get_absolute_url}}">{{event.submission.title}} ({{ event.submission.preprint.identifier_w_vn_nr }})</a><br>
                             </div>
                         </div>
                     </li>

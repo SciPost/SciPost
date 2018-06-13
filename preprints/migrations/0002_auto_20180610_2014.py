@@ -6,6 +6,12 @@ from datetime import datetime
 from django.db import migrations
 
 
+def remove_all_preprints(apps, schema_editor):
+    Preprint = apps.get_model('preprints', 'Preprint')
+    Preprint.objects.all().delete()
+    return
+
+
 def create_preprint_instances(apps, schema_editor):
     """Add a Preprint instance for each existing Submission."""
     Preprint = apps.get_model('preprints', 'Preprint')
@@ -16,12 +22,13 @@ def create_preprint_instances(apps, schema_editor):
             year=submission.submission_date.year,
             month=submission.submission_date.month,
             day=submission.submission_date.day)
-        Preprint.objects.create(
+        Preprint.objects.get_or_create(
             submission=submission,
             identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr,
+            identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr,
             vn_nr=submission.arxiv_vn_nr,
             url=submission.arxiv_link,
-            modifier=submission.latest_activity,
+            modified=submission.latest_activity,
             created=dt)
 
 
@@ -32,5 +39,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(create_preprint_instances),
+        migrations.RunPython(create_preprint_instances, remove_all_preprints),
     ]

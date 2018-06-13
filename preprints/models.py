@@ -14,16 +14,21 @@ class Preprint(models.Model):
     should be filled. Else, these fields should be left blank.
     """
 
-    submission = models.OneToOneField('submissions.Submission')
+    submission = models.OneToOneField('submissions.Submission', related_name='preprint')
 
     # (ArXiv) identifiers with/without version number
-    # identifier_w_vn_nr = models.CharField(max_length=25, blank=True)
-    scipost_preprint_identifier = models.PositiveIntegerField(null=True, blank=True)
-    identifier_wo_vn_nr = models.CharField(max_length=25, blank=True)
-    vn_nr = models.PositiveSmallIntegerField(default=1)
+    identifier_w_vn_nr = models.CharField(max_length=25)
+    identifier_wo_vn_nr = models.CharField(max_length=25)
+    vn_nr = models.PositiveSmallIntegerField(verbose_name='Version number', default=1)
     url = models.URLField()
 
-    _file = models.FileField(upload_to='UPLOADS/PREPRINTS/%Y/%m/', max_length=200, blank=True)
+    # SciPost-preprints only
+    scipost_preprint_identifier = models.PositiveIntegerField(
+        verbose_name='SciPost preprint ID',
+        null=True, blank=True, help_text='Unique identifier for SciPost standalone preprints')
+    _file = models.FileField(
+        verbose_name='Preprint file', help_text='Preprint file for SciPost standalone preprints',
+        upload_to='UPLOADS/PREPRINTS/%Y/%m/', max_length=200, blank=True)
 
     # Dates
     modified = models.DateTimeField(auto_now=True)
@@ -38,7 +43,3 @@ class Preprint(models.Model):
         if self._file:
             return reverse('preprints:pdf', self.identifier_w_vn_nr)
         raise Http404
-
-    @property
-    def identifier_w_vn_nr(self):
-        return '{}v{}'.format(self.identifier_wo_vn_nr, self.vn_nr)

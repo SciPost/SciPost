@@ -25,8 +25,8 @@ class SubmissionQuerySet(models.QuerySet):
         # filter combined with the PostGresQL engine. Without the double query, ordering
         # on a specific field after filtering seems impossible.
         ids = (queryset
-               .order_by('arxiv_identifier_wo_vn_nr', '-arxiv_vn_nr')
-               .distinct('arxiv_identifier_wo_vn_nr')
+               .order_by('preprint__identifier_wo_vn_nr', '-preprint__vn_nr')
+               .distinct('preprint__identifier_wo_vn_nr')
                .values_list('id', flat=True))
         return queryset.filter(id__in=ids)
 
@@ -154,8 +154,8 @@ class SubmissionQuerySet(models.QuerySet):
         identifiers = []
         for sub in self.filter(is_resubmission=False,
                                submission_date__range=(from_date, until_date)):
-            identifiers.append(sub.arxiv_identifier_wo_vn_nr)
-        return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
+            identifiers.append(sub.preprint.identifier_wo_vn_nr)
+        return self.filter(preprint__identifier_wo_vn_nr__in=identifiers)
 
     def accepted(self):
         """Return accepted Submissions."""

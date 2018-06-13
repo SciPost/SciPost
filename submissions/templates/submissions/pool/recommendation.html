@@ -83,7 +83,7 @@
                     <li>
                         The current Editorial Recommendation: {{ recommendation.get_recommendation_display }}.
                         <br>
-                        <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.arxiv_identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
+                        <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
                             {% csrf_token %}
                             <button type="submit" name="action" value="fix" class="btn btn-primary btn-sm mr-2">Fix College decision</button>
                             <button type="submit" name="action" value="deprecate" class="btn btn-danger btn-sm text-white">Deprecate College decision</button>

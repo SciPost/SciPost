@@ -7,7 +7,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Reformulate Editorial Recommendation</span>
 {% endblock %}
 

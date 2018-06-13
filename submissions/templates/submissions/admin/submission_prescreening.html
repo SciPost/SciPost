@@ -3,11 +3,11 @@
 {% load bootstrap %}
 {% load scipost_extras %}
 
-{% block pagetitle %}: pre-screening ({{ submission.arxiv_identifier_w_vn_nr }}){% endblock pagetitle %}
+{% block pagetitle %}: pre-screening ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <span class="breadcrumb-item">Pre-screening {{ submission.arxiv_identifier_w_vn_nr }}</span>
+    <span class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
 {% block content %}
@@ -16,7 +16,7 @@
     {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
     <h3>Fellows ({{ submission.fellows.ordered|length }})</h3>
-    <a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">Manage Pool composition</a><br>
+    <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition</a><br>
     <a href="javascript:;" data-toggle="toggle" data-target="#fellows">Show/hide all Fellows</a>
     <table style="display: none;" class="table table-hover my-2" id="fellows">
         <thead>
@@ -40,7 +40,7 @@
 
     <h3 class="mt-2">Plagiarism report</h3>
     {% if submission.plagiarism_report %}
-        <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Update plagiarism report</a>
+        <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism report</a>
         <br>
         <table>
             <tr>
@@ -66,7 +66,7 @@
         </table>
         <br>
     {% else %}
-        <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
+        <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
     {% endif %}
 
     <h3>Take decision on pre-screening</h3>

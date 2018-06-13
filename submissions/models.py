@@ -144,14 +144,14 @@ class Submission(models.Model):
 
     def __str__(self):
         """Summerize the Submission in a string."""
-        header = '{arxiv_id}, {title} by {authors}'.format(
-            arxiv_id=self.arxiv_identifier_w_vn_nr,
+        header = '{identifier}, {title} by {authors}'.format(
+            identifier=self.preprint.identifier_w_vn_nr,
             title=self.title[:30],
             authors=self.author_list[:30])
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
+            header += ' (deprecated version ' + str(self.preprint.vn_nr) + ')'
         if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
@@ -187,12 +187,12 @@ class Submission(models.Model):
 
     def get_absolute_url(self):
         """Return url of the Submission detail page."""
-        return reverse('submissions:submission', args=(self.arxiv_identifier_w_vn_nr,))
+        return reverse('submissions:submission', args=(self.preprint.identifier_w_vn_nr,))
 
     @property
     def notification_name(self):
         """Return string representation of this Submission as shown in Notifications."""
-        return self.arxiv_identifier_w_vn_nr
+        return self.preprint.identifier_w_vn_nr
 
     @property
     def eic_recommendation_required(self):
@@ -225,28 +225,29 @@ class Submission(models.Model):
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).first().submission_date
 
     @cached_property
     def thread(self):
         """Return all (public) Submissions in the database in this ArXiv identifier series."""
         return Submission.objects.public().filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).order_by('-arxiv_vn_nr')
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).order_by(
+                '-preprint__vn_nr')
 
     @cached_property
     def other_versions_public(self):
         """Return other (public) Submissions in the database in this ArXiv identifier series."""
-        return self.get_other_versions().order_by('-arxiv_vn_nr')
+        return self.get_other_versions().order_by('-preprint__vn_nr')
 
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this ArXiv identifier series."""
-        return self.get_other_versions().order_by('-arxiv_vn_nr')
+        return self.get_other_versions().order_by('-preprint__vn_nr')
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this ArXiv identifier series."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(pk=self.id)
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(pk=self.id)
 
     def count_accepted_invitations(self):
         """Count number of accepted RefereeInvitations for this Submission."""
@@ -393,7 +394,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this EditorialAssigment as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
@@ -449,7 +450,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this RefereeInvitation as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def related_report(self):
@@ -573,7 +574,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def get_attachment_url(self):
         """Return url of the Report its attachment if exists."""
         return reverse('submissions:report_attachment', kwargs={
-            'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr,
             'report_nr': self.report_nr})
 
     @property
@@ -600,7 +601,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this Report as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def doi_string(self):
@@ -626,8 +627,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         field if this information will become necessary in more general information representation.
         """
         return (self.author.reports.accepted().filter(
-            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
-            submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
+            submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr,
+            submission__preprint__vn_nr__lt=self.submission.arxiv_vn_nr).exists())
 
     @property
     def associated_published_doi(self):
@@ -638,7 +639,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                accepted_submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr)
         except Publication.DoesNotExist:
             return None
         return publication.doi_string
@@ -652,7 +653,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                accepted_submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr)
         except Publication.DoesNotExist:
             return None
 
@@ -660,7 +661,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             'isReviewOfDOI': publication.doi_string,
             'stage': 'pre-publication',
             'type': 'referee-report',
-            'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
+            'title': 'Report on ' + self.submission.preprint.identifier_w_vn_nr,
             'contributor_role': 'reviewer',
         }
         return relation
@@ -674,7 +675,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
                 citation += 'Anonymous, '
             else:
                 citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
-            citation += 'Report on arXiv:%s, ' % self.submission.arxiv_identifier_w_vn_nr
+            citation += 'Report on arXiv:%s, ' % self.submission.preprint.identifier_w_vn_nr
             citation += 'delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
             citation += 'doi: %s' % self.doi_string
         return citation
@@ -686,8 +687,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def latest_report_from_thread(self):
         """Get latest Report of this Report's author for the Submission thread."""
         return self.author.reports.accepted().filter(
-            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr
-        ).order_by('submission__arxiv_identifier_wo_vn_nr').last()
+            submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr
+        ).order_by('submission__preprint__identifier_wo_vn_nr').last()
 
 
 ##########################
@@ -778,7 +779,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this EICRecommendation as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def nr_for(self):
@@ -835,7 +836,7 @@ class iThenticateReport(TimeStampedModel):
         _str = 'Report {doc_id}'.format(doc_id=self.doc_id)
         if hasattr(self, 'to_submission'):
             _str += ' on Submission {arxiv}'.format(
-                arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
+                arxiv=self.to_submission.preprint.identifier_w_vn_nr)
         return _str
 
     def save(self, *args, **kwargs):
@@ -850,7 +851,7 @@ class iThenticateReport(TimeStampedModel):
         if hasattr(self, 'to_submission'):
             return reverse(
                 'submissions:plagiarism',
-                kwargs={'arxiv_identifier_w_vn_nr': self.to_submission.arxiv_identifier_w_vn_nr})
+                kwargs={'identifier_w_vn_nr': self.to_submission.preprint.identifier_w_vn_nr})
         return ''
 
     def get_report_url(self):

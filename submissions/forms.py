@@ -109,7 +109,7 @@ class SubmissionChecks:
                 self.is_resubmission = kwargs['data']['is_resubmission'] in ('True', True)
 
     def _submission_already_exists(self, identifier):
-        if Submission.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists():
+        if Submission.objects.filter(preprint__identifier_w_vn_nr=identifier).exists():
             error_message = 'This preprint version has already been submitted to SciPost.'
             raise forms.ValidationError(error_message, code='duplicate')
 
@@ -139,8 +139,8 @@ class SubmissionChecks:
         """Check if previous submitted versions have the appropriate status."""
         identifiers = self.identifier_into_parts(identifier)
         submission = (Submission.objects
-                      .filter(arxiv_identifier_wo_vn_nr=identifiers['arxiv_identifier_wo_vn_nr'])
-                      .order_by('arxiv_vn_nr').last())
+                      .filter(preprint__identifier_wo_vn_nr=identifiers['arxiv_identifier_wo_vn_nr'])
+                      .order_by('preprint__vn_nr').last())
 
         # If submissions are found; check their statuses
         if submission:
@@ -1059,7 +1059,7 @@ class iThenticateReportForm(forms.ModelForm):
         if not doc_id and not self.fields.get('file'):
             try:
                 cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
-                    self.submission.arxiv_identifier_w_vn_nr)
+                    self.submission.preprint.identifier_w_vn_nr)
             except exceptions.ArxivPDFNotFound:
                 self.add_error(
                     None, 'The pdf could not be found at arXiv. Please upload the pdf manually.')
