@@ -51,7 +51,6 @@ html2text
 
 # Mongo (Metacore)
 mongoengine==0.15.0
-django-background-tasks==1.1.13
 celery==4.1.1
 django-celery-results==1.0.1
 django-celery-beat==1.1.1

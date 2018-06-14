@@ -80,7 +80,6 @@ INSTALLED_APPS = (
     'django_mathjax',
     'affiliations',
     'ajax_select',
-    'background_task',
     'captcha',
     'colleges',
     'commentaries',

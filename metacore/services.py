@@ -1,7 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 import requests
 from .models import Citable, CitableWithDOI, Journal
-from background_task import background
 from rest_framework import serializers
 from mongoengine.python_support import pymongo
 from django.utils import timezone
@@ -10,7 +9,6 @@ from celery import shared_task, current_task
 
 logger = logging.getLogger(__name__)
 
-# @background()
 @shared_task
 def import_journal_full(issn, cursor='*'):
     """
@@ -19,7 +17,6 @@ def import_journal_full(issn, cursor='*'):
     """
     import_journal(issn=issn, cursor=cursor, from_index_date=None)
 
-# @background()
 @shared_task
 def import_journal_incremental(issn, from_index_date, cursor='*'):
     """
@@ -162,7 +159,6 @@ def convert_doi_to_lower_case():
         if i % 1000 == 0:
             print(i)
 
-@background()
 def add_journal_to_existing(journal_issn=None):
     # Take journal from metadata ('container-title') and put it in top-level 'journal' field
     # for all existing citables
