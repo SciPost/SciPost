@@ -515,7 +515,7 @@ class Publication(models.Model):
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
-            return '{journal}, {paper_nr} ({year})'.format(
+            return '{journal} {paper_nr} ({year})'.format(
                 journal=self.in_journal.abbreviation_citation,
                 paper_nr=self.paper_nr,
                 year=self.publication_date.strftime('%Y'))
