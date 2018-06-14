@@ -1,13 +1,9 @@
 Dear {{ stream.supervisor.user.last_name }},
-\n
-\n
+
 You are now assigned as Production Supervisor to the stream
-\n
-\n
+
 {{ stream }}
-\n
-\n
+
 The stream will now be open for you on the Production page (https://scipost.org/{% url 'production:production' %}).
 
-\n\n
 This mail is automatically generated and therefore not signed.
