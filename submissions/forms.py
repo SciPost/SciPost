@@ -37,6 +37,8 @@ import strings
 
 import iThenticate
 
+IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
+
 
 class SubmissionSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
@@ -207,8 +209,6 @@ class SubmissionChecks:
 
 class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
     """Prefill SubmissionForm using this form that takes an arXiv ID only."""
-
-    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
     identifier = forms.RegexField(regex=IDENTIFIER_PATTERN_NEW, strip=True,
@@ -250,6 +250,10 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
 class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     """Form to submit a new Submission."""
 
+    arxiv_identifier_w_vn_nr = forms.HiddenInput()
+    arxiv_link = forms.URLField(
+        widget=forms.TextInput(attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}))
+
     class Meta:
         model = Submission
         fields = [
@@ -264,8 +268,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'title',
             'author_list',
             'abstract',
-            'arxiv_identifier_w_vn_nr',
-            'arxiv_link',
+            # 'arxiv_identifier_w_vn_nr',
+            # 'arxiv_link',
             'author_comments',
             'list_of_changes',
             'remarks_for_editors',
@@ -274,8 +278,13 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         ]
         widgets = {
             'is_resubmission': forms.HiddenInput(),
-            'arxiv_identifier_w_vn_nr': forms.HiddenInput(),
-            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
+            'remarks_for_editors': forms.TextInput(
+                attrs={'placeholder': 'Any private remarks (for the editors only)'}),
+            'referees_suggested': forms.TextInput(
+                attrs={'placeholder': 'Optional: names of suggested referees', 'rows': 3}),
+            'referees_flagged': forms.TextInput(
+                attrs={'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)', 'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -291,7 +300,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             self.fields['list_of_changes'].widget.attrs.update({
                 'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
 
-        # Proceedings submission
+        # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()
         self.fields['proceedings'].queryset = qs
         self.fields['proceedings'].empty_label = None
@@ -304,25 +313,11 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
                 filter_proceedings, self.fields['submitted_to_journal'].choices)
             del self.fields['proceedings']
 
-        # Update placeholder for the other fields
+        # Submission type is optional
         self.fields['submission_type'].required = False
-        self.fields['arxiv_link'].widget.attrs.update({
-            'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
-        self.fields['abstract'].widget.attrs.update({'cols': 100})
-        self.fields['remarks_for_editors'].widget.attrs.update({
-            'placeholder': 'Any private remarks (for the editors only)', })
-        self.fields['referees_suggested'].widget.attrs.update({
-            'placeholder': 'Optional: names of suggested referees',
-            'rows': 3})
-        self.fields['referees_flagged'].widget.attrs.update({
-            'placeholder': ('Optional: names of referees whose reports should'
-                            ' be treated with caution (+ short reason)'),
-            'rows': 3})
 
     def clean(self, *args, **kwargs):
-        """
-        Do all prechecks which are also done in the prefiller.
-        """
+        """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
         self.do_pre_checks(cleaned_data['arxiv_identifier_w_vn_nr'])
         self.arxiv_meets_regex(cleaned_data['arxiv_identifier_w_vn_nr'],

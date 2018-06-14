@@ -14,25 +14,27 @@
     </div>
 {% endblock %}
 
+{% block footer_script %}
+    <script>
+        $(document).ready(function(){
+          $('select#id_submitted_to_journal').on('change', function (){
+              var selection = $(this).val();
+              $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
+
+              switch(selection){
+                case "SciPostPhys":
+                  $("#id_submission_type").parents('.form-group').show()
+                  break;
+                case "SciPostPhysProc":
+                  $("#id_proceedings").parents('.form-group').show()
+                  break;
+              }
+          }).trigger('change');
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
-
-<script>
-    $(document).ready(function(){
-      $('select#id_submitted_to_journal').on('change', function (){
-          var selection = $(this).val();
-          $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
-
-          switch(selection){
-            case "SciPostPhys":
-              $("#id_submission_type").parents('.form-group').show()
-              break;
-            case "SciPostPhysProc":
-              $("#id_proceedings").parents('.form-group').show()
-              break;
-          }
-      }).trigger('change');
-    });
-</script>
 
 <div class="row">
 
