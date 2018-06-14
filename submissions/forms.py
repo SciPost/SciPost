@@ -551,39 +551,40 @@ class EditorialAssignmentForm(forms.ModelForm):
         self.instance.to = self.request.user.contributor
         recommendation = super().save()  # Save already, in case it's a new recommendation.
 
-        if self.is_normal_cycle():
-            # Default Refereeing process!
+        if self.has_accepted_invite():
+            if self.is_normal_cycle():
+                # Default Refereeing process!
 
-            deadline = timezone.now() + datetime.timedelta(days=28)
-            if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
-                deadline += datetime.timedelta(days=28)
+                deadline = timezone.now() + datetime.timedelta(days=28)
+                if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+                    deadline += datetime.timedelta(days=28)
 
-            # Update related Submission.
-            Submission.objects.filter(id=self.submission.id).update(
-                refereeing_cycle=CYCLE_DEFAULT,
-                status=STATUS_EIC_ASSIGNED,
-                reporting_deadline=deadline,
-                open_for_reporting=True,
-                open_for_commenting=True,
-                visible_public=True,
-                latest_activity=timezone.now())
-        else:
-            # Formulate rejection recommendation instead
+                # Update related Submission.
+                Submission.objects.filter(id=self.submission.id).update(
+                    refereeing_cycle=CYCLE_DEFAULT,
+                    status=STATUS_EIC_ASSIGNED,
+                    editor_in_charge=self.request.user.contributor,
+                    reporting_deadline=deadline,
+                    open_for_reporting=True,
+                    open_for_commenting=True,
+                    visible_public=True,
+                    latest_activity=timezone.now())
+            else:
+                # Formulate rejection recommendation instead
 
-            # Update related Submission.
-            Submission.objects.filter(id=self.submission.id).update(
-                refereeing_cycle=CYCLE_DIRECT_REC,
-                status=STATUS_EIC_ASSIGNED,
-                reporting_deadline=timezone.now(),
-                open_for_reporting=False,
-                open_for_commenting=True,
-                visible_public=False,
-                latest_activity=timezone.now())
+                # Update related Submission.
+                Submission.objects.filter(id=self.submission.id).update(
+                    refereeing_cycle=CYCLE_DIRECT_REC,
+                    status=STATUS_EIC_ASSIGNED,
+                    editor_in_charge=self.request.user.contributor,
+                    reporting_deadline=timezone.now(),
+                    open_for_reporting=False,
+                    open_for_commenting=True,
+                    visible_public=False,
+                    latest_activity=timezone.now())
 
         if self.has_accepted_invite():
             # Implicitly or explicity accept the assignment and deprecate others.
-            Submission.objects.filter(id=self.submission.id).update(
-                editor_in_charge=self.request.user.contributor,)
             recommendation.accepted = True
             EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
                 id=recommendation.id).update(deprecated=True)
