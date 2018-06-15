@@ -188,7 +188,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
             }
         }
         if publication.in_issue:
-            md['journal'] = {
+            md['bibjson']['journal'] = {
                 'publisher': 'SciPost',
                 'volume': str(publication.in_issue.in_volume.number),
                 'number': str(publication.in_issue.number),
@@ -210,7 +210,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                 'title': publication.in_issue.in_volume.in_journal.get_name_display(),
             }
         else:
-            md['journal'] = {
+            md['bibjson']['journal'] = {
                 'publisher': 'SciPost',
                 'start_page': publication.get_paper_nr(),
                 'identifier': [{
