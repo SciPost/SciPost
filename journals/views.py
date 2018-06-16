@@ -870,7 +870,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
 
     relation_to_published = _object.relation_to_published
 
-    if _object.doi_label == '':
+    if not _object.doi_label:
         _object.create_doi_label()
 
     # create a doi_batch_id
