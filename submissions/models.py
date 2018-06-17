@@ -681,7 +681,9 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     def create_doi_label(self):
         """Create a doi in the default format."""
-        Report.objects.filter(id=self.id).update(doi_label='SciPost.Report.{}'.format(self.id))
+        #Report.objects.filter(id=self.id).update(doi_label='SciPost.Report.{}'.format(self.id))
+        self.doi_label = 'SciPost.Report.' + str(self.id)
+        self.save()
 
     def latest_report_from_thread(self):
         """Get latest Report of this Report's author for the Submission thread."""
