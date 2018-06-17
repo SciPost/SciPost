@@ -872,6 +872,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
 
     if not _object.doi_label:
         _object.create_doi_label()
+        _object.refresh_from_db()
 
     # create a doi_batch_id
     salt = ""
