@@ -59,7 +59,6 @@
                         <li class="pb-2">
                             <div><strong>{{ stream.submission.title }}</strong></div>
                             <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
-                            <div>Opened {{ stream.opened }}</div>
                         </li>
                     {% endfor %}
                 </ul>
@@ -67,7 +66,7 @@
             {% endif %}
             <ul class="list-unstyled" data-target="active-list">
                 {% for stream in streams %}
-                    <li class="p-2">
+                    <li class="px-2 py-1">
                         <div class="d-flex justify-content-start">
                             <div class="icons pr-2">
                                 <i class="fa fa-users" data-toggle="tooltip" data-html="true" title="" data-original-title="
@@ -84,11 +83,14 @@
                                     <a href="{% url 'production:stream' stream.id %}" data-toggle="dynamic" data-target="#details">{{ stream.submission.title }}</a><br>
                                     <em>by {{ stream.submission.author_list }}</em>
                                 </p>
-                                <p class="card-text mb-2">
-                                    <a href="{% url 'production:stream' stream.id %}" data-toggle="dynamic" data-target="#details">See stream details</a>
-                                </p>
+                                <div class="py-1">
+                                    <p class="mb-1">Submission accepted <strong>{{ stream.opened|timesince }} ago</strong></p>
+                                    <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
+                                    <br>
+                                    <a href="{% url 'production:stream' stream.id %}" data-toggle="dynamic" data-target="#details" class="btn btn-default px-0">See stream details</a>
+                                </div>
 
-                                <p class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</p>
+
                             </div>
                         </div>
                     </li>
