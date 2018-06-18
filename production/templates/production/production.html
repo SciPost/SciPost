@@ -23,6 +23,11 @@
     <div class="tab-nav-container">
       <div class="tab-nav-inner">
 	<ul class="nav btn-group personal-page-nav" role="tablist">
+        {% if perms.scipost.can_view_all_production_streams %}
+            <li class="nav-item btn btn-outline-secondary">
+              <a href="#summary" class="nav-link" data-toggle="tab">Summary</a>
+            </li>
+        {% endif %}
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#streams" class="nav-link active" data-toggle="tab">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</a>
 	  </li>
@@ -40,8 +45,68 @@
   </div>
 </div>
 
-
 <div class="tab-content">
+    {% if perms.scipost.can_view_all_production_streams %}
+            <div class="tab-pane" id="summary" role="tabpanel">
+                <div class="row">
+                  <div class="col-12">
+                	<h2 class="highlight">Streams summary</h2>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Submission</th>
+                                <th>Status</th>
+                                <th class="py-1">
+                                    Latest activity
+                                    <br>
+                                    Submission accepted
+                                </th>
+                                <th>Has supervisor</th>
+                                <th>Has officer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for stream in streams %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ stream.get_absolute_url }}">{{ stream.submission.title }}</a>
+                                        <br>
+                                        by {{ stream.submission.author_list }}
+                                    </td>
+                                    <td>
+                                        <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
+                                    </td>
+                                    <td>
+                                        {{ stream.latest_activity|timesince }} ago
+                                        <br>
+                                        <span class="text-muted">{{ stream.opened|timesince }} ago</span>
+                                    </td>
+                                    <td>
+                                        {% if stream.supervisor %}
+                                            <i class="fa fa-check text-success"></i>
+                                            {{ stream.supervisor }}
+                                        {% else %}
+                                            <i class="fa fa-times text-danger"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if stream.officer %}
+                                            <i class="fa fa-check text-success"></i>
+                                            {{ stream.officer }}
+                                        {% else %}
+                                            <i class="fa fa-times text-danger"></i>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+
   <div class="tab-pane active" id="streams" role="tabpanel">
     <div class="row">
       <div class="col-12">
@@ -52,18 +117,6 @@
 
     <div class="row">
         <div class="col-6">
-            {% if perms.scipost.can_assign_production_officer %}
-                <h3>Stream statuses</h3>
-                <ul>
-                    {% for stream in streams %}
-                        <li class="pb-2">
-                            <div><strong>{{ stream.submission.title }}</strong></div>
-                            <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
-                        </li>
-                    {% endfor %}
-                </ul>
-                <hr>
-            {% endif %}
             <ul class="list-unstyled" data-target="active-list">
                 {% for stream in streams %}
                     <li class="px-2 py-1">
