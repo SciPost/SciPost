@@ -815,7 +815,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def get_full_status_display(self):
         """Return `status` field display plus possible `recommendation` display."""
         _str = self.get_status_display()
-        if self.recommendation == DECISION_FIXED and self.submission.status == STATUS_EIC_ASSIGNED:
+        if self.status == DECISION_FIXED and self.submission.status == STATUS_EIC_ASSIGNED:
             return '{} ({})'.format(_str, self.get_recommendation_display())
         return _str
 
