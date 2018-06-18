@@ -169,7 +169,6 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                 'abstract': publication.abstract,
                 'year': publication.publication_date.strftime('%Y'),
                 'month': publication.publication_date.strftime('%m'),
-                'start_page': publication.get_paper_nr(),
                 'identifier': [
                     {
                         'type': 'eissn',
@@ -189,10 +188,11 @@ class CreateMetadataDOAJForm(forms.ModelForm):
             }
         }
         if publication.in_issue:
-            md['journal'] = {
+            md['bibjson']['journal'] = {
                 'publisher': 'SciPost',
                 'volume': str(publication.in_issue.in_volume.number),
                 'number': str(publication.in_issue.number),
+                'start_page': publication.get_paper_nr(),
                 'identifier': [{
                     'type': 'eissn',
                     'id': issn
@@ -210,8 +210,9 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                 'title': publication.in_issue.in_volume.in_journal.get_name_display(),
             }
         else:
-            md['journal'] = {
+            md['bibjson']['journal'] = {
                 'publisher': 'SciPost',
+                'start_page': publication.get_paper_nr(),
                 'identifier': [{
                     'type': 'eissn',
                     'id': issn

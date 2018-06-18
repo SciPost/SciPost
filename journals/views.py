@@ -587,9 +587,10 @@ def metadata_DOAJ_deposit(request, doi_label):
         return redirect(reverse('journals:manage_metadata',
                                 kwargs={'doi_label': doi_label}))
 
-    timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
+    #timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
 
-    # Find DOAJ xml files
+    # Find DOAJ json files
     path = ''
     if publication.in_issue:
         path += '{issue_path}/{paper_nr}/{doi_label}_DOAJ'.format(
@@ -871,6 +872,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
 
     if not _object.doi_label:
         _object.create_doi_label()
+        _object.refresh_from_db()
 
     # create a doi_batch_id
     salt = ""
