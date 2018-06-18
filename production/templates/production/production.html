@@ -25,11 +25,11 @@
 	<ul class="nav btn-group personal-page-nav" role="tablist">
         {% if perms.scipost.can_view_all_production_streams %}
             <li class="nav-item btn btn-outline-secondary">
-              <a href="#summary" class="nav-link" data-toggle="tab">Summary</a>
+              <a href="#summary" class="nav-link active" data-toggle="tab">Summary</a>
             </li>
         {% endif %}
 	  <li class="nav-item btn btn-outline-secondary">
-	    <a href="#streams" class="nav-link active" data-toggle="tab">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</a>
+	    <a href="#streams" class="nav-link{% if not perms.scipost.can_view_all_production_streams %} active{% endif %}" data-toggle="tab">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</a>
 	  </li>
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#mytimesheet" class="nav-link" data-toggle="tab">My Timesheet</a>
@@ -47,14 +47,14 @@
 
 <div class="tab-content">
     {% if perms.scipost.can_view_all_production_streams %}
-            <div class="tab-pane" id="summary" role="tabpanel">
+            <div class="tab-pane active" id="summary" role="tabpanel">
                 <div class="row">
                   <div class="col-12">
                 	<h2 class="highlight">Streams summary</h2>
-                    <table class="table">
+                    <table class="table table-fixed">
                         <thead>
                             <tr>
-                                <th>Submission</th>
+                                <th style="width: 30%;">Submission</th>
                                 <th>Status</th>
                                 <th class="py-1">
                                     Latest activity
@@ -107,7 +107,7 @@
     {% endif %}
 
 
-  <div class="tab-pane active" id="streams" role="tabpanel">
+  <div class="tab-pane{% if not perms.scipost.can_view_all_production_streams %} active{% endif %}" id="streams" role="tabpanel">
     <div class="row">
       <div class="col-12">
     	<h2 class="highlight">{{ perms.scipost.can_assign_production_officer|yesno:"Streams,My Streams" }}</h2>
