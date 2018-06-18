@@ -52,17 +52,19 @@
 
     <div class="row">
         <div class="col-6">
-            <h3>Stream statuses</h3>
-            <ul>
-                {% for stream in streams %}
-                    <li class="pb-2">
-                        <div><strong>{{ stream.submission.title }}</strong></div>
-                        <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
-                        <div>Opened {{ stream.opened }}</div>
-                    </li>
-                {% endfor %}
-            </ul>
-            <hr>
+            {% if perms.scipost.can_assign_production_officer %}
+                <h3>Stream statuses</h3>
+                <ul>
+                    {% for stream in streams %}
+                        <li class="pb-2">
+                            <div><strong>{{ stream.submission.title }}</strong></div>
+                            <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
+                            <div>Opened {{ stream.opened }}</div>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <hr>
+            {% endif %}
             <ul class="list-unstyled" data-target="active-list">
                 {% for stream in streams %}
                     <li class="p-2">
