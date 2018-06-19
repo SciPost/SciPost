@@ -131,6 +131,7 @@ class Submission(models.Model):
 
     # Temporary
     needs_conflicts_update = models.BooleanField(default=False)
+    invitation_order = models.IntegerField(default=0)
 
     class Meta:
         app_label = 'submissions'

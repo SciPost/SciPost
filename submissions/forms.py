@@ -341,8 +341,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
         if 'identifier_w_vn_nr' not in cleaned_data:
-            self.scipost_identifier = generate_new_scipost_identifier()
-            cleaned_data['identifier_w_vn_nr'] = format_scipost_identifier(self.scipost_identifier)
+            identifier_str, self.scipost_identifier = generate_new_scipost_identifier()
+            cleaned_data['identifier_w_vn_nr'] = format_scipost_identifier(identifier_str)
 
         self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
         self.identifier_meets_regex(
@@ -446,7 +446,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             _file=self.cleaned_data.get('preprint_file', None), )
 
         # Save metadata directly from ArXiv call without possible user interception
-        submission.metadata = self.metadata
+        submission.metadata = self.metadata if hasattr(self, 'metadata') else {}
         submission.preprint = preprint
 
         if self.submission_is_resubmission():

@@ -36,8 +36,9 @@ class Preprint(models.Model):
         return 'Preprint {}'.format(self.identifier_w_vn_nr)
 
     def get_absolute_url(self):
+        """Return either saved url or url to open the pdf."""
         if self.url:
             return self.url
         if self._file:
-            return reverse('preprints:pdf', self.identifier_w_vn_nr)
+            return reverse('preprints:pdf', args=(self.identifier_w_vn_nr,))
         raise Http404

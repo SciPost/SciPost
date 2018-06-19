@@ -186,11 +186,14 @@ EIC_REC_STATUSES = (
     (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
-# Use `.format()` https://docs.python.org/3.5/library/string.html#format-string-syntax
-# In your regex multiple brackets may occur;
-# Please make sure to double them in that case as per instructions in the reference!
-SUBMISSIONS_NO_VN_REGEX = '(?P<identifier_wo_vn_nr>[0-9]{4,}.[0-9]{4,})'
-SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})'
+# Define regexes
+arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
+arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
+scipost_regex_wo_vn = 'scipost_[0-9]{4,}.[0-9]{4,}'
+scipost_regex_w_vn = 'scipost_[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
+SUBMISSIONS_NO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s))' % (arxiv_regex_wo_vn, scipost_regex_wo_vn)
+SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (arxiv_regex_w_vn, scipost_regex_w_vn)
+SCIPOST_PREPRINT_W_VN_REGEX = '(?P<identifier_w_vn_nr>%s)' % scipost_regex_w_vn
 
 
 # `EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS` tracks the regex rules for the manuscripts
@@ -198,6 +201,6 @@ SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1
 #
 # CAUTION: *triple* check whether the `default` regex also meets any other explicit journal regex!
 EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS = {
-    SCIPOST_JOURNAL_PHYSICS: '(?P<identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})',
+    # SCIPOST_JOURNAL_PHYSICS: '(?P<identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})',
     'default': SUBMISSIONS_COMPLETE_REGEX
 }

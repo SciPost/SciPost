@@ -3,12 +3,21 @@
         <td style="min-width: 40%;">Version</td>
         <td>{{submission.arxiv_vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.arxiv_vn_nr}}{% endif %})</td>
     </tr>
-    <tr>
-        <td>Arxiv Link:</td>
-        <td>
-            <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
-        </td>
-    </tr>
+    {% if submission.preprint.url %}
+        <tr>
+            <td>Arxiv Link:</td>
+            <td>
+                <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
+            </td>
+        </tr>
+        {% elif submission.preprint.get_absolute_url %}
+            <tr>
+                <td>Preprint link:</td>
+                <td>
+                    <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
+                </td>
+            </tr>
+        {% endif %}
     <tr>
         <td>Submitted</td>
         <td>{{submission.submission_date}} to {{submission.get_submitted_to_journal_display}}</td>

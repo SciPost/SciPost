@@ -19,13 +19,21 @@
             {% endfor %}
         </td>
     </tr>
-
-    <tr>
-        <td>Arxiv Link:</td>
-        <td>
-            <a href="{{submission.preprint.url}}" target="_blank">{{submission.preprint.url}}</a>
-        </td>
-    </tr>
+    {% if submission.preprint.url %}
+        <tr>
+            <td>Arxiv Link:</td>
+            <td>
+                <a href="{{submission.preprint.url}}" target="_blank">{{submission.preprint.url}}</a>
+            </td>
+        </tr>
+    {% elif submission.preprint.get_absolute_url %}
+        <tr>
+            <td>Preprint link:</td>
+            <td>
+                <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
+            </td>
+        </tr>
+    {% endif %}
     {% if submission.acceptance_date %}
         <tr>
             <td>Date accepted:</td>

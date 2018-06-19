@@ -20,7 +20,7 @@ def generate_new_scipost_identifier():
         existing_identifier = str(existing_identifier + 1)
     return '{year}{month}_{identifier}'.format(
         year=now.year, month=str(now.month).rjust(2, '0'),
-        identifier=existing_identifier.rjust(5, '0'))
+        identifier=existing_identifier.rjust(5, '0')), int(existing_identifier)
 
 
 def format_scipost_identifier(identifier, version=1):
