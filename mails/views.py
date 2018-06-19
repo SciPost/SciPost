@@ -20,7 +20,7 @@ class MailEditingSubView(object):
 
     @property
     def recipients_string(self):
-        return ', '.join(getattr(self.mail_form, 'mail_fields', {}).get('recipients', ['']))
+        return ', '.join(getattr(self.mail_form, 'mail_data', {}).get('recipients', ['']))
 
     def add_form(self, form):
         self.context['transfer_data_form'] = HiddenDataForm(form)
@@ -79,11 +79,10 @@ class MailEditorMixin:
         if not self.has_permission_to_send_mail:
             # Don't use the mail form; don't send out the mail.
             return super().post(request, *args, **kwargs)
-        self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
             self.mail_form = EmailTemplateForm(request.POST or None, mail_code=self.mail_code,
-                                               instance=self.object)
+                                               instance=self.instance)
             if self.mail_form.is_valid():
                 return self.form_valid(form)
 
