@@ -2,6 +2,15 @@
 {% load submissions_extras %}
 <p>Dear {{ fellow.get_title_display }} {{ fellow.user.last_name }},</p>
 <p>Please find below a summary of your current assignments, with (if applicable) pending and upcoming required actions. Many thanks in advance for your timely intervention on any point in need of attention. Your good work as an Editorial Fellow is greatly appreciated!</p>
+{% if recs_to_vote_on %}
+<br/>
+<h3>Recommendations for you to vote on</h3>
+<p>Please go to the <a href="https://scipost.org{% url 'submissions:pool' %}">pool</a> to cast your vote on:</p>
+<ul>
+  {% for rec in recs_to_vote_on %}
+  <li>{{ rec.submission.title }}</li>
+</ul>
+{% endif %}
 {% if assignments_to_consider %}
 <br/>
 <h3>Assignments for you to consider:</h3>

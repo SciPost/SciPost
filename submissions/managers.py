@@ -249,8 +249,8 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 class EICRecommendationQuerySet(models.QuerySet):
     """QuerySet for the EICRecommendation model."""
 
-    def user_may_vote_on(self, user):
-        """Return the subset of EICRecommendation the User is eligable to vote on."""
+    def user_must_vote_on(self, user):
+        """Return the subset of EICRecommendation the User is requested to vote on."""
         if not hasattr(user, 'contributor'):
             return self.none()
 

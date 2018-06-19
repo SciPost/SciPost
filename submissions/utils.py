@@ -1245,15 +1245,3 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['admin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
-    @classmethod
-    def email_Fellow_tasklist(cls):
-        """
-        Email list of current and upcoming tasks to an individual Fellow.
-
-        Requires context to contain:
-        - `fellow`
-        """
-        cls._send_mail(cls, 'email_fellow_tasklist',
-                       [cls._context['fellow'].user.email],
-                       'current assignments, pending tasks')
