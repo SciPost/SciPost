@@ -132,6 +132,25 @@ def prefill_using_arxiv_identifier(request):
     return render(request, 'submissions/submission_prefill_form.html', context)
 
 
+@login_required
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
+def submit_manuscript_without_arxiv(request):
+    """Form view to submit manuscript without the use of ArXiv."""
+    form = RequestSubmissionForm(requested_by=request.user, use_arxiv_preprint=False)
+    if form.is_valid():
+        submission = form.save()
+
+        context = {
+            'form': form,
+        }
+        return render(request, 'submissions/submission_form.html', context)
+
+    context = {
+        'form': form,
+    }
+    return render(request, 'submissions/submission_form.html', context)
+
+
 class SubmissionListView(PaginationMixin, ListView):
     """List all publicly available Submissions."""
 

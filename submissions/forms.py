@@ -29,6 +29,7 @@ from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
+from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
@@ -95,6 +96,8 @@ class SubmissionPoolFilterForm(forms.Form):
 class SubmissionChecks:
     """Mixin with checks run at least the Submission creation form."""
 
+    use_arxiv_preprint = True
+    arxiv_data = {}
     is_resubmission = False
     last_submission = None
 
@@ -172,7 +175,7 @@ class SubmissionChecks:
                                  'before proceeding with a resubmission.')
                 raise forms.ValidationError(error_message)
 
-    def arxiv_meets_regex(self, identifier, journal_code):
+    def identifier_meets_regex(self, identifier, journal_code):
         """Check if arXiv identifier is valid for the Journal submitting to."""
         if journal_code in EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS.keys():
             regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS[journal_code]
@@ -203,7 +206,8 @@ class SubmissionChecks:
     def do_pre_checks(self, identifier):
         """Group call of different checks."""
         self._submission_already_exists(identifier)
-        self._call_arxiv(identifier)
+        if self.use_arxiv_preprint:
+            self._call_arxiv(identifier)
         self._submission_is_already_published(identifier)
         self._submission_previous_version_is_valid_for_submission(identifier)
 
@@ -252,6 +256,8 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
 class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     """Form to submit a new Submission."""
 
+    scipost_identifier = None
+
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     arxiv_link = forms.URLField(
         widget=forms.TextInput(attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}))
@@ -292,6 +298,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.use_arxiv_preprint = kwargs.pop('use_arxiv_preprint', True)
+        if kwargs.get('files', {}).get('preprint_file'):
+            self.use_arxiv_preprint = False
 
         super().__init__(*args, **kwargs)
 
@@ -311,6 +319,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             del self.fields['preprint_file']
         else:
             del self.fields['arxiv_link']
+            del self.fields['identifier_w_vn_nr']
 
         # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()
@@ -331,8 +340,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     def clean(self, *args, **kwargs):
         """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
+        if 'identifier_w_vn_nr' not in cleaned_data:
+            self.scipost_identifier = generate_new_scipost_identifier()
+            cleaned_data['identifier_w_vn_nr'] = format_scipost_identifier(self.scipost_identifier)
+
         self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
-        self.arxiv_meets_regex(
+        self.identifier_meets_regex(
             cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to_journal'])
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
@@ -428,7 +441,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             identifier_w_vn_nr=identifiers['identifier_w_vn_nr'],
             identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'],
             vn_nr=identifiers['vn_nr'],
-            url=self.cleaned_data['arxiv_link'])
+            url=self.cleaned_data.get('arxiv_link', ''),
+            scipost_preprint_identifier=self.scipost_identifier,
+            _file=self.cleaned_data.get('preprint_file', None), )
 
         # Save metadata directly from ArXiv call without possible user interception
         submission.metadata = self.metadata

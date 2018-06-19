@@ -23,6 +23,6 @@ def generate_new_scipost_identifier():
         identifier=existing_identifier.rjust(5, '0'))
 
 
-def format_scipost_identifier(self, identifier, version=1):
+def format_scipost_identifier(identifier, version=1):
     return 'scipost_{identifier}v{version}'.format(
         identifier=identifier, version=version)

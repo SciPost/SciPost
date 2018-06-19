@@ -52,8 +52,10 @@ urlpatterns = [
         views.report_pdf_compile, name='report_pdf_compile'),
 
     url(r'^submit_manuscript$', views.RequestSubmission.as_view(), name='submit_manuscript'),
-    url(r'^submit_manuscript/prefill$', views.prefill_using_arxiv_identifier,
-        name='prefill_using_identifier'),
+    url(r'^submit_manuscript/scipost$',
+        views.submit_manuscript_without_arxiv, name='submit_manuscript_scipost_preprint'),
+    url(r'^submit_manuscript/prefill$',
+        views.prefill_using_arxiv_identifier, name='prefill_using_identifier'),
     url(r'^pool/$', views.pool, name='pool'),
     url(r'^pool/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX), views.pool, name='pool'),
     url(r'^add_remark/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
