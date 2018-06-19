@@ -22,11 +22,6 @@ def submission_short_title(obj):
 admin.site.register(iThenticateReport)
 
 
-class PreprintInline(admin.TabularInline):
-    model = Preprint
-    extra = 0
-
-
 class SubmissionAdminForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
         required=False,
@@ -46,7 +41,6 @@ class SubmissionAdminForm(forms.ModelForm):
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
-    inlines = [PreprintInline]
     list_display = ('title', 'author_list', 'status', 'submission_date', 'publication')
     list_filter = ('status', 'discipline', 'submission_type', 'submitted_to_journal')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
@@ -63,6 +57,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'preprint',
                 'publication',
                 'title',
                 'abstract',

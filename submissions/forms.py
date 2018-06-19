@@ -29,6 +29,7 @@ from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
+from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
@@ -118,8 +119,8 @@ class SubmissionChecks:
     def _call_arxiv(self, identifier):
         caller = ArxivCaller(identifier)
         if caller.is_valid:
-            self.arxiv_data = ArxivCaller(identifier).data
-            self.metadata = ArxivCaller(identifier).metadata
+            self.arxiv_data = caller.data
+            self.metadata = caller.metadata
         else:
             error_message = 'A preprint associated to this identifier does not exist.'
             raise forms.ValidationError(error_message)
@@ -141,7 +142,7 @@ class SubmissionChecks:
         """Check if previous submitted versions have the appropriate status."""
         identifiers = self.identifier_into_parts(identifier)
         submission = (Submission.objects
-                      .filter(preprint__identifier_wo_vn_nr=identifiers['arxiv_identifier_wo_vn_nr'])
+                      .filter(preprint__identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'])
                       .order_by('preprint__vn_nr').last())
 
         # If submissions are found; check their statuses
@@ -193,9 +194,9 @@ class SubmissionChecks:
     def identifier_into_parts(self, identifier):
         """Split the arXiv identifier into parts."""
         data = {
-            'arxiv_identifier_w_vn_nr': identifier,
-            'arxiv_identifier_wo_vn_nr': identifier.rpartition('v')[0],
-            'arxiv_vn_nr': int(identifier.rpartition('v')[2])
+            'identifier_w_vn_nr': identifier,
+            'identifier_wo_vn_nr': identifier.rpartition('v')[0],
+            'vn_nr': int(identifier.rpartition('v')[2])
         }
         return data
 
@@ -211,14 +212,14 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
     """Prefill SubmissionForm using this form that takes an arXiv ID only."""
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
-    identifier = forms.RegexField(regex=IDENTIFIER_PATTERN_NEW, strip=True,
-                                  #   help_text=strings.arxiv_query_help_text,
-                                  error_messages={'invalid': strings.arxiv_query_invalid},
-                                  widget=forms.TextInput({'placeholder': IDENTIFIER_PLACEHOLDER}))
+    identifier_w_vn_nr = forms.RegexField(
+        regex=IDENTIFIER_PATTERN_NEW, strip=True,
+        error_messages={'invalid': strings.arxiv_query_invalid},
+        widget=forms.TextInput({'placeholder': IDENTIFIER_PLACEHOLDER}))
 
-    def clean_identifier(self):
+    def clean_identifier_w_vn_nr(self):
         """Do basic prechecks based on the arXiv ID only."""
-        identifier = self.cleaned_data['identifier']
+        identifier = self.cleaned_data['identifier_w_vn_nr']
         self.do_pre_checks(identifier)
         return identifier
 
@@ -241,7 +242,8 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
     def request_arxiv_preprint_form_prefill_data(self):
         """Return dictionary to prefill `RequestSubmissionForm`."""
         form_data = self.arxiv_data
-        form_data.update(self.identifier_into_parts(self.cleaned_data['identifier']))
+        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
+        # form_data.update(self.identifier_into_parts(self.cleaned_data['identifier']))
         if self.submission_is_resubmission():
             form_data.update(self._gather_data_from_last_submission())
         return form_data
@@ -250,9 +252,10 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
 class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     """Form to submit a new Submission."""
 
-    arxiv_identifier_w_vn_nr = forms.HiddenInput()
+    identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     arxiv_link = forms.URLField(
         widget=forms.TextInput(attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}))
+    preprint_file = forms.FileField()
 
     class Meta:
         model = Submission
@@ -280,7 +283,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'is_resubmission': forms.HiddenInput(),
             'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
             'remarks_for_editors': forms.TextInput(
-                attrs={'placeholder': 'Any private remarks (for the editors only)'}),
+                attrs={'placeholder': 'Any private remarks (for the editors only)', 'rows': 3}),
             'referees_suggested': forms.TextInput(
                 attrs={'placeholder': 'Optional: names of suggested referees', 'rows': 3}),
             'referees_flagged': forms.TextInput(
@@ -288,8 +291,11 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.use_arxiv_preprint = kwargs.pop('use_arxiv_preprint', True)
+
         super().__init__(*args, **kwargs)
 
+        # Alter resubmission-dependent fields
         if not self.submission_is_resubmission():
             # These fields are only available for resubmissions
             del self.fields['author_comments']
@@ -299,6 +305,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
                 'placeholder': 'Your resubmission letter (will be viewable online)', })
             self.fields['list_of_changes'].widget.attrs.update({
                 'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
+
+        # ArXiv or SciPost preprint fields
+        if self.use_arxiv_preprint:
+            del self.fields['preprint_file']
+        else:
+            del self.fields['arxiv_link']
 
         # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()
@@ -319,9 +331,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     def clean(self, *args, **kwargs):
         """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
-        self.do_pre_checks(cleaned_data['arxiv_identifier_w_vn_nr'])
-        self.arxiv_meets_regex(cleaned_data['arxiv_identifier_w_vn_nr'],
-                               cleaned_data['submitted_to_journal'])
+        self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
+        self.arxiv_meets_regex(
+            cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to_journal'])
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
             try:
@@ -413,11 +425,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         # Save metadata directly from ArXiv call without possible user interception
         submission.metadata = self.metadata
 
-        # Update identifiers
-        identifiers = self.identifier_into_parts(submission.arxiv_identifier_w_vn_nr)
-        submission.arxiv_identifier_wo_vn_nr = identifiers['arxiv_identifier_wo_vn_nr']
-        submission.arxiv_vn_nr = identifiers['arxiv_vn_nr']
-
         if self.submission_is_resubmission():
             # Reset Refereeing Cycle. EIC needs to pick a cycle on resubmission.
             submission.refereeing_cycle = CYCLE_UNDETERMINED
@@ -427,6 +434,15 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         else:
             # Save!
             submission.save()
+
+        # Save identifiers
+        identifiers = self.identifier_into_parts(self.cleaned_data['identifier_w_vn_nr'])
+        Preprint.objects.get_or_create(
+            submission=submission,
+            identifier_w_vn_nr=identifiers['identifier_w_vn_nr'],
+            identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'],
+            vn_nr=identifiers['vn_nr'],
+            url=self.cleaned_data['arxiv_link'])
 
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)

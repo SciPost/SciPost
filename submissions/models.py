@@ -48,6 +48,8 @@ class Submission(models.Model):
     will directly be related to the latest Submission in the thread.
     """
 
+    preprint = models.OneToOneField('preprints.Preprint', related_name='submission')
+
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
@@ -127,15 +129,18 @@ class Submission(models.Model):
 
     objects = SubmissionQuerySet.as_manager()
 
+    # Temporary
+    needs_conflicts_update = models.BooleanField(default=False)
+
     class Meta:
         app_label = 'submissions'
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
-        arxiv_w_vn = '{arxiv}v{version}'.format(
-            arxiv=self.arxiv_identifier_wo_vn_nr,
-            version=self.arxiv_vn_nr)
-        self.arxiv_identifier_w_vn_nr = arxiv_w_vn
+        # arxiv_w_vn = '{arxiv}v{version}'.format(
+        #     arxiv=self.arxiv_identifier_wo_vn_nr,
+        #     version=self.arxiv_vn_nr)
+        # self.arxiv_identifier_w_vn_nr = arxiv_w_vn
 
         obj = super().save(*args, **kwargs)
         if hasattr(self, 'cycle'):
@@ -227,7 +232,7 @@ class Submission(models.Model):
         return Submission.objects.filter(
             preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).first().submission_date
 
-    @cached_property
+    @property
     def thread(self):
         """Return all (public) Submissions in the database in this ArXiv identifier series."""
         return Submission.objects.public().filter(

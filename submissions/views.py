@@ -109,7 +109,8 @@ def prefill_using_arxiv_identifier(request):
                                           requested_by=request.user)
     if query_form.is_valid():
         prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
-        form = RequestSubmissionForm(initial=prefill_data, requested_by=request.user)
+        form = RequestSubmissionForm(
+            initial=prefill_data, requested_by=request.user, use_arxiv_preprint=True)
 
         # Submit message to user
         if query_form.submission_is_resubmission():

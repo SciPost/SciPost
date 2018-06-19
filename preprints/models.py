@@ -14,8 +14,6 @@ class Preprint(models.Model):
     should be filled. Else, these fields should be left blank.
     """
 
-    submission = models.OneToOneField('submissions.Submission', related_name='preprint')
-
     # (ArXiv) identifiers with/without version number
     identifier_w_vn_nr = models.CharField(max_length=25)
     identifier_wo_vn_nr = models.CharField(max_length=25)
