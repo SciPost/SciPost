@@ -43,6 +43,8 @@
                       <li>{{action.1}}</li>
                   {% endfor %}
                 </ul>
+            {% empty %}
+                <li>No action required. Great job!</li>
             {% endif %}
           </li>
       {% endfor %}

@@ -44,7 +44,7 @@ class ContributorQuerySet(models.QuerySet):
 
     def fellows(self):
         """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
-        return self.filter(user__groups__name='Editorial College')
+        return self.filter(fellowships__isnull=False).distinct()
 
 
 class UnavailabilityPeriodManager(models.Manager):
