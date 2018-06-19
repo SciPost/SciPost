@@ -422,8 +422,17 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         submission = super().save(commit=False)
         submission.submitted_by = self.requested_by.contributor
 
+        # Save identifiers
+        identifiers = self.identifier_into_parts(self.cleaned_data['identifier_w_vn_nr'])
+        preprint, __ = Preprint.objects.get_or_create(
+            identifier_w_vn_nr=identifiers['identifier_w_vn_nr'],
+            identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'],
+            vn_nr=identifiers['vn_nr'],
+            url=self.cleaned_data['arxiv_link'])
+
         # Save metadata directly from ArXiv call without possible user interception
         submission.metadata = self.metadata
+        submission.preprint = preprint
 
         if self.submission_is_resubmission():
             # Reset Refereeing Cycle. EIC needs to pick a cycle on resubmission.
@@ -434,15 +443,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         else:
             # Save!
             submission.save()
-
-        # Save identifiers
-        identifiers = self.identifier_into_parts(self.cleaned_data['identifier_w_vn_nr'])
-        Preprint.objects.get_or_create(
-            submission=submission,
-            identifier_w_vn_nr=identifiers['identifier_w_vn_nr'],
-            identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'],
-            vn_nr=identifiers['vn_nr'],
-            url=self.cleaned_data['arxiv_link'])
 
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)

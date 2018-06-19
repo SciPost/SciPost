@@ -15,7 +15,7 @@ class Preprint(models.Model):
     """
 
     # (ArXiv) identifiers with/without version number
-    identifier_w_vn_nr = models.CharField(max_length=25)
+    identifier_w_vn_nr = models.CharField(max_length=25, unique=True, db_index=True)
     identifier_wo_vn_nr = models.CharField(max_length=25)
     vn_nr = models.PositiveSmallIntegerField(verbose_name='Version number', default=1)
     url = models.URLField()
