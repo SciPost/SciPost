@@ -219,6 +219,9 @@ class EditorialAssignmentQuerySet(models.QuerySet):
                 .exclude(Q(submission__author_list__icontains=user.last_name),
                          ~Q(submission__authors_false_claims=user.contributor))
 
+    def auto_reminders_allowed(self):
+        return self.filter(auto_reminders_allowed=True)
+
     def last_year(self):
         return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
 
