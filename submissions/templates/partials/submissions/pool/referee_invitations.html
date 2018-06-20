@@ -53,16 +53,16 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if invitation.nr_reminders > 0 %}
+                        nr reminders sent: {{ invitation.nr_reminders }}
+                        <div class="text-muted">last on {{ invitation.date_last_reminded }}</div>
+                    {% endif %}
+                </td>
+                <td>
                     {% if invitation.referee %}
                         <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
                     {% else %}
                         (not yet registered)
-                    {% endif %}
-                </td>
-                <td>
-                    {% if invitation.nr_reminders > 0 %}
-                        nr reminders sent: {{ invitation.nr_reminders }}
-                        <div class="text-muted">last on {{ invitation.date_last_reminded }}</div>
                     {% endif %}
                 </td>
                 <td>
