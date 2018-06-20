@@ -368,6 +368,7 @@ def add_supervisor(request, stream_id):
         # TODO: Implement proper email
         ProductionUtils.load({'stream': stream})
         ProductionUtils.email_assigned_supervisor()
+        return redirect(stream.get_absolute_url())
     else:
         for key, error in form.errors.items():
             messages.warning(request, error[0])
