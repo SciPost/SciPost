@@ -401,7 +401,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
 
-    recs_to_vote_on = EICRecommendation.objects.user_may_vote_on(request.user).filter(
+    recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
     assignments_to_consider = EditorialAssignment.objects.open().filter(
         to=request.user.contributor)
@@ -1487,7 +1487,7 @@ def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
     submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(
-        EICRecommendation.objects.user_may_vote_on(
+        EICRecommendation.objects.user_must_vote_on(
             request.user).filter(submission__in=submissions), id=rec_id)
 
     form = RecommendationVoteForm(request.POST or None)
