@@ -859,7 +859,8 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id):
+def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id,
+                               auto_reminders_allowed):
     """Send RefereeInvitation to a registered Contributor.
 
     This method is called by the EIC from the submission's editorial_page,
@@ -885,6 +886,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
         first_name=contributor.user.first_name,
         last_name=contributor.user.last_name,
         email_address=contributor.user.email,
+        auto_reminders_allowed=auto_reminders_allowed,
         # the key is only used for inviting unregistered users
         date_invited=timezone.now(),
         invited_by=request.user.contributor)
@@ -901,6 +903,27 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                 kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
     else:
         return mail_request.return_render()
+
+
+@login_required
+@fellowship_or_admin_required()
+def set_refinv_auto_reminder(request, invitation_id, auto_reminders):
+    """
+    Set the value of the Boolean for automatic refereeing reminders.
+    """
+    invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
+    if auto_reminders == '0':
+        invitation.auto_reminders_allowed = False
+        messages.success(request, 'Auto reminders succesfully turned off.')
+    elif auto_reminders == '1':
+        invitation.auto_reminders_allowed = True
+        messages.success(request, 'Auto reminders succesfully turned on.')
+    else:
+        messages.warning(request, 'Option not recognized.')
+    invitation.save()
+    return redirect(reverse('submissions:editorial_page',
+                            kwargs={'arxiv_identifier_w_vn_nr':
+                                    invitation.submission.arxiv_identifier_w_vn_nr}))
 
 
 @login_required
