@@ -620,6 +620,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
             'first_name',
             'last_name',
             'email_address',
+            'auto_reminders_allowed',
             'invitation_key']
         widgets = {
             'invitation_key': forms.HiddenInput()
