@@ -353,7 +353,7 @@ def update_references(request, doi_label):
     Update the References for a certain Publication.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+    if not publication.is_draft and not request.user.has_perm('scipost.can_publish_accepted_submission'):
         raise Http404('You do not have permission to edit this non-draft Publication')
 
     references = publication.references.all()
@@ -447,9 +447,9 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+    if not publication.is_draft and not request.user.has_perm('scipost.can_publish_accepted_submission'):
         raise Http404('You do not have permission to access this non-draft Publication')
-    if not request.user.has_perm('can_publish_accepted_submission') and option != 'test':
+    if not request.user.has_perm('scipost.can_publish_accepted_submission') and option != 'test':
         raise PermissionDenied('You do not have permission to do real Crossref deposits')
 
     if publication.metadata_xml is None:
