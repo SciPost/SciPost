@@ -46,7 +46,6 @@
                 <titles>
                     <title>{{ publication.title }}</title>
                 </titles>
-
                 <contributors>
                     {% for author_object in publication.authors.all %}
                         {% if author_object.order == 1 %}
@@ -62,7 +61,6 @@
                         </person_name>
                     {% endfor %}
                 </contributors>
-
                 <publication_date media_type='online'>
                     <month>{{ publication.publication_date|date:'m' }}</month>
                     <day>{{ publication.publication_date|date:'d' }}</day>
@@ -84,24 +82,20 @@
                                     {% if funders|length > 1 %}
                                         <fr:assertion name='fundgroup'>
                                     {% endif %}
-
                                     <fr:assertion name='funder_name'>{{ funder.name }}
                                         <fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion>
                                     </fr:assertion>
-
                                     {% for grant in publication.grants.all %}
                                         {% if grant.funder == funder %}
                                             <fr:assertion name='award_number'>{{ grant.number }}</fr:assertion>
                                         {% endif %}
                                     {% endfor %}
-
                                     {% if funders|length > 1 %}
                                         </fr:assertion>
                                     {% endif %}
                                 {% endfor %}
                             </fr:program>
                         {% endif %}
-
                         <ai:program name="AccessIndicators">
                             <ai:license_ref>{{ publication.get_cc_license_URI }}</ai:license_ref>
                         </ai:program>
