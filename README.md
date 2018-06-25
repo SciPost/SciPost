@@ -297,3 +297,35 @@ SHELL_PLUS_POST_IMPORTS = (
     ('comments.factories', ('CommentFactory')),
 )
 ```
+
+## Metacore (still in development)
+The Metacore app for citables, sourced - for now only - from Crossref, is available at /metacore.
+In order to get it running on the server (right now implemented on staging), the following things need to be running:
+
+First of all the Mongo daemon:
+```bash
+/home/scipoststg/webapps/mongo/mongodb-linux-x86_64-amazon-3.6.3/bin/mongod --auth --dbpath /home/scipoststg/webapps/mongo/data --port 21145 --logpath /home/scipoststg/webapps/scipost/logs/mongod.log --fork
+```
+
+The tasks that involve large requests from CR are supposed to run in the background. For this to work, Celery is required. The following commands assume that you are in the `scipost_v1` main folder, inside the right virtual environment.
+
+Celery depends on a broker, for which we use RabbitMQ. Start it with
+```bash
+nohup rabbitmq-server > ../logs/rabbitmq.log 2>&1 &
+```
+
+Then the Celery worker itself:
+```bash
+nohup celery -A SciPost_v1 worker --loglevel=info -E > ../logs/celery_worker.log 2>&1 &
+```
+
+And finally `beat`, which enables setting up periodic tasks:
+```bash
+nohup celery -A SciPost_v1 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler > ../logs/celery_beat.log 2>&1 &
+```
+
+Note: on the staging server, these commands are contained in two shell scripts in the `scipoststg` home folder. Just run
+```bash
+./start_mongod.sh
+./start_celery.sh
+```

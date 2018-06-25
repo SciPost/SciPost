@@ -82,12 +82,9 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # Mass insert in database (will fail on encountering existing documents
         # with same DOI
         if citables:
-            if from_index_date:
-                operations = [obj.to_UpdateOne() for obj in serialized_objects]
-                col = Citable._get_collection()
-                col.bulk_write(operations, ordered=False)
-            else:
-                Citable.objects.insert(citables, {'ordered': False})
+            operations = [obj.to_UpdateOne() for obj in serialized_objects]
+            col = Citable._get_collection()
+            col.bulk_write(operations, ordered=False)
 
         # Save current count so progress can be tracked in the admin page
         # TODO: make this work (currently only executed after whole import
