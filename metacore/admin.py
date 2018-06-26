@@ -39,6 +39,7 @@ class JournalAdmin(admin.ModelAdmin):
 
     def scheduled_import_incremental(self, request, queryset):
         """ Starts background task to import all works by this journal and repeats every day """
+        # TODO: make sure the from_date gets updated!
 
         schedule, created = IntervalSchedule.objects.get_or_create(every=1, period=IntervalSchedule.DAYS)
 

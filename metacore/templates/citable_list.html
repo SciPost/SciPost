@@ -44,28 +44,28 @@
 
                 <div class="fieldWrapper">
                   {{ form.omni.errors }}
-                  <label for="{{ form.subject.id_for_label }}">Author, title (matches full words)</label>
+                  <label for="{{ form.subject.id_for_label }}">Author, title, journal - matches only full words</label>
                   {{ form.omni }}
                 </div>
                 <br/>
                 <input class="btn btn-sm btn-secondary" type="submit" value="Search"/>
                 <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a>
-                <!-- <hr/> -->
-                <!-- <h3>Advanced search</h3> -->
+                <hr/>
+                <h3>Advanced search</h3>
 
-                <!-- {% for field in form %} -->
-                <!--     <div class="fieldWrapper"> -->
-                <!--         {% if field.id_for_label != 'id_omni' %} -->
-                <!--           {{ field.errors }} -->
-                <!--           {{ field.label_tag }} {{ field }} -->
-                <!--           {% if field.help_text %} -->
-                <!--           <p class="help">{{ field.help_text|safe }}</p> -->
-                <!--           {% endif %} -->
-                <!--         {% endif %} -->
-                <!--     </div> -->
-                <!-- {% endfor %} -->
-                <!-- <input class="btn btn-sm btn-secondary" type="submit" value="Search"/> -->
-                <!-- <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a> -->
+                {% for field in form %}
+                    <div class="fieldWrapper">
+                        {% if field.id_for_label != 'id_omni' %}
+                          {{ field.errors }}
+                          {{ field.label_tag }} {{ field }}
+                          {% if field.help_text %}
+                          <p class="help">{{ field.help_text|safe }}</p>
+                          {% endif %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                <input class="btn btn-sm btn-secondary" type="submit" value="Search"/>
+                <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a>
 
               </form>
             </div>
