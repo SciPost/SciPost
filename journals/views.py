@@ -445,6 +445,10 @@ class CreateMetadataXMLView(PublicationMixin,
     form_class = CreateMetadataXMLForm
     template_name = 'journals/create_metadata_xml.html'
 
+    def get_success_url(self):
+        return reverse_lazy('journals:create_citation_list_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
+
 
 @permission_required('scipost.can_draft_publication', return_403=True)
 @transaction.atomic
