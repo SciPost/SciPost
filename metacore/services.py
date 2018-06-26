@@ -88,11 +88,11 @@ def import_journal(issn, cursor='*', from_index_date=None):
             bulk_res = col.bulk_write(operations, ordered=False)
 
             current_task.update_state(state='PROGRESS',
-                meta={'current': total_processed, 'errors': len(error_count), 'last_upserted': bulk_res.upserted_count,
+                meta={'current': total_processed, 'errors': error_count, 'last_upserted': bulk_res.upserted_count,
                       'last_matched_count': bulk_res.matched_count})
         else:
             current_task.update_state(state='PROGRESS',
-                meta={'current': total_processed, 'errors': len(error_count)})
+                meta={'current': total_processed, 'errors': error_count})
 
         # Save current count so progress can be tracked in the admin page
         # TODO: make this work (currently only executed after whole import
