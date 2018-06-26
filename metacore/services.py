@@ -84,7 +84,13 @@ def import_journal(issn, cursor='*', from_index_date=None):
         if citables:
             operations = [obj.to_UpdateOne() for obj in serialized_objects]
             col = Citable._get_collection()
-            col.bulk_write(operations, ordered=False)
+            bulk_res = col.bulk_write(operations, ordered=False)
+            current_task.update_state(state='PROGRESS',
+                meta={'current': total_processed, 'errors': len(errors), 'last_upserted': bulk_res.upserted_count,
+                      'last_matched_count': bulk_res.matched_count})
+        else
+            current_task.update_state(state='PROGRESS',
+                meta={'current': total_processed, 'errors': len(errors)})
 
         # Save current count so progress can be tracked in the admin page
         # TODO: make this work (currently only executed after whole import
@@ -94,13 +100,6 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # logger.info('Journal count updated')
         # print('Journal count updated to {}.'.format(Journal.objects.get(ISSN_digital=issn).count_running))
 
-        # if not self.request.called_directly:
-        #     self.update_state(state='PROGRESS',
-        #         meta={'current': total_processed})
-        current_task.update_state(state='PROGRESS',
-            meta={'current': total_processed})
-        # with current_task.app.events.default_dispatcher() as dispatcher:
-        #     dispatcher.send('task-custom_state', field1='value1', field2='value2')
         current_task.send_event('task-started', current=total_processed);
         logger.info(current_task)
 
