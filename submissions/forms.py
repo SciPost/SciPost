@@ -6,6 +6,7 @@ import datetime
 import re
 
 from django import forms
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
@@ -634,6 +635,17 @@ class RefereeRecruitmentForm(forms.ModelForm):
         initial['invitation_key'] = get_new_secrets_key()
         kwargs['initial'] = initial
         super().__init__(*args, **kwargs)
+
+    def clean_email_address(self):
+        email = self.cleaned_data['email_address']
+        if Contributor.objects.filter(user__email=email).exists():
+            contr = Contributor.objects.get(user__email=email)
+            msg = (
+                'This email address is already registered. '
+                'Invite {title} {last_name} using the link above.')
+            self.add_error('email_address', msg.format(
+                title=contr.get_title_display(), last_name=contr.user.last_name))
+        return email
 
     def save(self, commit=True):
         if not self.request or not self.submission:

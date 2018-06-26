@@ -37,11 +37,11 @@
 	    <td>
 	      <div>
 		{% if invitation.auto_reminders_allowed %}
-		<div><span class="label-outline-success">On</span></div>
-		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
+    		<div><span class="label-outline-success">On</span></div>
+    		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
 		{% else %}
-		<div><span class="label-outline-danger">Off</span></div>
-		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
+    		<div><span class="label-outline-danger">Off</span></div>
+    		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
 		{% endif %}
 	      </div>
 	    </td>

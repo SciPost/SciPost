@@ -852,8 +852,18 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
         else:
             return mail_request.return_render()
-    return redirect(reverse('submissions:editorial_page',
-                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
+    ref_search_form = RefereeSelectForm(request.POST or None)
+    contributors_found = Contributor.objects.filter(
+        user__email=ref_recruit_form.cleaned_data['email_address'])
+    context = {
+        'ref_recruit_form': ref_recruit_form,
+        'ref_search_form': ref_search_form,
+        'submission': submission,
+        'queryresults': [],
+        'contributors_found': contributors_found,
+    }
+    return render(request, 'submissions/referee_form.html', context)
 
 
 @login_required
