@@ -394,6 +394,10 @@ class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin
     form_class = FundingInfoForm
     template_name = 'journals/create_funding_info_metadata.html'
 
+    def get_success_url(self):
+        return reverse_lazy('journals:create_citation_list_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
+
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 @transaction.atomic
