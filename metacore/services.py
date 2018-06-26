@@ -88,7 +88,7 @@ def import_journal(issn, cursor='*', from_index_date=None):
             current_task.update_state(state='PROGRESS',
                 meta={'current': total_processed, 'errors': len(errors), 'last_upserted': bulk_res.upserted_count,
                       'last_matched_count': bulk_res.matched_count})
-        else
+        else:
             current_task.update_state(state='PROGRESS',
                 meta={'current': total_processed, 'errors': len(errors)})
 
