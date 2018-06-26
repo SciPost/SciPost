@@ -82,7 +82,7 @@ class MailEditorMixin:
         form = self.get_form()
         if form.is_valid():
             self.mail_form = EmailTemplateForm(request.POST or None, mail_code=self.mail_code,
-                                               instance=self.instance)
+                                               instance=self.object)
             if self.mail_form.is_valid():
                 return self.form_valid(form)
 
