@@ -395,7 +395,7 @@ class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin
     template_name = 'journals/create_funding_info_metadata.html'
 
     def get_success_url(self):
-        return reverse_lazy('journals:create_citation_list_metadata',
+        return reverse_lazy('journals:manage_metadata',
                             kwargs={'doi_label': self.object.doi_label})
 
 
@@ -446,7 +446,7 @@ class CreateMetadataXMLView(PublicationMixin,
     template_name = 'journals/create_metadata_xml.html'
 
     def get_success_url(self):
-        return reverse_lazy('journals:create_citation_list_metadata',
+        return reverse_lazy('journals:manage_metadata',
                             kwargs={'doi_label': self.object.doi_label})
 
 
