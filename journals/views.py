@@ -16,7 +16,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
@@ -382,6 +382,10 @@ class CitationUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMi
     form_class = CitationListBibitemsForm
     template_name = 'journals/create_citation_list_metadata.html'
 
+    def get_success_url(self):
+        return reverse_lazy('journals:create_citation_list_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
+
 
 class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
     """
@@ -640,7 +644,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     deposit.metadata_DOAJ_file = path
     deposit.save()
 
-    messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
+    messages.success(request, '<h3>%s</h3>Successful deposit of metadata DOAJ.'
                               % publication.doi_label)
     return redirect(reverse('journals:manage_metadata',
                             kwargs={'doi_label': publication.doi_label}))
