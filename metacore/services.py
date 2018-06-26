@@ -75,7 +75,8 @@ def import_journal(issn, cursor='*', from_index_date=None):
                 validation_errors.append(serialized_object.errors)
 
         # Parser returns False if there's an error
-        errors = any([not i for i in citables if i == False])
+        errors = [not i for i in citables if i == False]
+        error_count = len(errors)
         orig_citables = citables
         citables = [citable for citable in citables if citable]
 
@@ -85,12 +86,13 @@ def import_journal(issn, cursor='*', from_index_date=None):
             operations = [obj.to_UpdateOne() for obj in serialized_objects]
             col = Citable._get_collection()
             bulk_res = col.bulk_write(operations, ordered=False)
+
             current_task.update_state(state='PROGRESS',
-                meta={'current': total_processed, 'errors': len(errors), 'last_upserted': bulk_res.upserted_count,
+                meta={'current': total_processed, 'errors': len(error_count), 'last_upserted': bulk_res.upserted_count,
                       'last_matched_count': bulk_res.matched_count})
         else:
             current_task.update_state(state='PROGRESS',
-                meta={'current': total_processed, 'errors': len(errors)})
+                meta={'current': total_processed, 'errors': len(error_count)})
 
         # Save current count so progress can be tracked in the admin page
         # TODO: make this work (currently only executed after whole import
