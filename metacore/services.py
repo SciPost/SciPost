@@ -15,7 +15,7 @@ def import_journal_full(issn, cursor='*'):
     Task to query CrossRef for all works of a journal with given ISSN
     and store them in the Metacore mongo database
     """
-    import_journal(issn=issn, cursor=cursor, from_index_date=None)
+    return import_journal(issn=issn, cursor=cursor, from_index_date=None)
 
 @shared_task
 def import_journal_incremental(issn, from_index_date, cursor='*'):
@@ -36,6 +36,11 @@ def import_journal(issn, cursor='*', from_index_date=None):
     batches = 2000
     last_cursor = cursor
     total_processed = 0
+    error_count = 0
+    total_upserted = 0
+    total_modified = 0
+    
+    validation_errors = []
 
     for i in range(0,batches):
         # print("-------------------------------")
@@ -44,8 +49,8 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # print("Current cursor: ", cursor)
         logger.info("-------------------------------")
         logger.info("Batch %s" % (i, ))
-        logger.info("Last cursor: ", last_cursor)
-        logger.info("Current cursor: ", cursor)
+        logger.info("Last cursor: {}".format(last_cursor))
+        logger.info("Current cursor: {}".format(cursor))
 
         if from_index_date:
             params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl', 'filter': 'from-index-date:{}'.format(from_index_date)}
@@ -63,7 +68,6 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # citables = [parse_crossref_citable(it) for it in citables_json]
         citables = []
         serialized_objects = []
-        validation_errors = []
         for cit in citables_json:
             serialized_object = CitableCrossrefSerializer(data=cit)
             if serialized_object.is_valid():
@@ -72,11 +76,12 @@ def import_journal(issn, cursor='*', from_index_date=None):
             else:
                 # TODO: insert the actual validation errors instead
                 citables.append(False)
+                logger.info("Error at {}".format(cit))
                 validation_errors.append(serialized_object.errors)
 
         # Parser returns False if there's an error
         errors = [not i for i in citables if i == False]
-        error_count = len(errors)
+        error_count = error_count + len(errors)
         orig_citables = citables
         citables = [citable for citable in citables if citable]
 
@@ -89,7 +94,10 @@ def import_journal(issn, cursor='*', from_index_date=None):
 
             current_task.update_state(state='PROGRESS',
                 meta={'current': total_processed, 'errors': error_count, 'last_upserted': bulk_res.upserted_count,
-                      'last_matched_count': bulk_res.matched_count})
+                      'last_matched_count': bulk_res.matched_count, 'last_inserted': bulk_res.inserted_count})
+
+            total_upserted += bulk_res.upserted_count
+            total_modified += bulk_res.modified_count
         else:
             current_task.update_state(state='PROGRESS',
                 meta={'current': total_processed, 'errors': error_count})
@@ -103,7 +111,16 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # print('Journal count updated to {}.'.format(Journal.objects.get(ISSN_digital=issn).count_running))
 
         current_task.send_event('task-started', current=total_processed);
+
+        # For debugging purposes
         logger.info(current_task)
+        if citables:
+            logger.info("Upserted: {}".format(bulk_res.upserted_count))
+            logger.info("Modified: {}".format(bulk_res.modified_count))
+
+        logger.info("Errors: {}".format(error_count))
+        logger.info(validation_errors)
+
 
         if number_of_results < rows:
             # print(number_of_results)
@@ -123,6 +140,10 @@ def import_journal(issn, cursor='*', from_index_date=None):
         journal.last_full_sync = timezone.now()
 
     journal.save()
+
+    # Pack stuff for result
+    results = {'total processed': total_processed, 'total inserted': total_upserted, 'total modified': total_modified, 'validation errors': len(validation_errors)}
+    return results
 
 def get_crossref_work_count(issn):
     """
@@ -297,6 +318,7 @@ class CitableCrossrefSerializer(serializers.BaseSerializer):
             references = []
 
         return {
+            '_cls': CitableWithDOI._class_name,
             'authors': authors,
             'doi': doi.lower(),
             'references': references,
@@ -313,4 +335,3 @@ class CitableCrossrefSerializer(serializers.BaseSerializer):
         mods = {'$set': self.validated_data}
 
         return pymongo.UpdateOne(filters, mods, upsert=True)
-

@@ -18,6 +18,7 @@ class JournalAdmin(admin.ModelAdmin):
         for journal in queryset:
             # Celery Async version
             t = import_journal_full.delay(journal.ISSN_digital)
+            # t = import_journal_full(journal.ISSN_digital)
             journal.last_task_id = t.id
             journal.save()
 
