@@ -43,7 +43,7 @@
 {% if journal %}
     <h2>Results:</h2>
     {% if year %}
-    <h3>Impact factor (Cited-by) for {{ year }}: {{ citedby_impact_factor }}</h3>
+    <h3>Impact factor (Cited-by) for {{ year }}: {{ citedby_impact_factor|floatformat:2 }}</h3>
       {% endif %}
     <table class="table">
       <tr>
