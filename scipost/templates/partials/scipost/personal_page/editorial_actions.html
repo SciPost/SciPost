@@ -107,7 +107,7 @@
         {% endif %}
     </div>
 
-    {% if perms.scipost.can_oversee_refereeing or perms.scipost.can_take_charge_of_submissions %}
+    {% if perms.scipost.can_oversee_refereeing or request.user.contributor.is_MEC %}
         <div class="col-md-4">
             <h3>Info</h3>
             <ul>
@@ -122,7 +122,7 @@
                 {% if perms.scipost.can_assign_submissions %}
                     <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
                 {% endif %}
-                {% if perms.scipost.can_take_charge_of_submissions %}
+                {% if request.user.contributor.is_MEC %}
                     <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
                 {% endif %}
             </ul>
