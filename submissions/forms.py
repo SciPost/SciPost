@@ -781,9 +781,20 @@ class ReportForm(forms.ModelForm):
             required_fields = ['report', 'recommendation', 'qualification']
         else:
             required_fields = []
+        required_fields_label = ['report', 'recommendation', 'qualification']
 
         # If the Report is not a followup: Explicitly assign more fields as being required!
         if not self.instance.is_followup_report:
+            required_fields_label += [
+                'strengths',
+                'weaknesses',
+                'requested_changes',
+                'validity',
+                'significance',
+                'originality',
+                'clarity',
+                'formatting',
+                'grammar']
             required_fields += [
                 'strengths',
                 'weaknesses',
@@ -793,15 +804,14 @@ class ReportForm(forms.ModelForm):
                 'originality',
                 'clarity',
                 'formatting',
-                'grammar'
-            ]
+                'grammar']
+
         for field in required_fields:
             self.fields[field].required = True
 
         # Let user know the field is required!
-        for field in self.fields:
-            if self.fields[field].required or field in ['report', 'recommendation', 'qualification']:
-                self.fields[field].label += ' *'
+        for field in required_fields_label:
+            self.fields[field].label += ' *'
 
         if self.submission.eicrecommendations.active().exists():
             # An active EICRecommendation is already formulated. This Report will be flagged.
