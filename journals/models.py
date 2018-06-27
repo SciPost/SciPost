@@ -158,6 +158,23 @@ class Journal(models.Model):
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
         return (ncites * 365.25/deltat)
 
+    def citedby_impact_factor(self, year):
+        """
+        Computes the impact factor for a given year YYYY, from Crossref cited-by data.
+        This is defined as the total number of citations in year YYYY
+        for all papers published in years YYYY-1 and YYYY-2, divided
+        by the number of papers published in year YYYY.
+        """
+        publications = self.get_publications().filter(
+            models.Q(publication_date__year=year-1) | models.Q(publication_date__year=year-2))
+        nrpub = publications.count()
+        if nrpub == 0:
+            return 0
+        ncites = 0
+        for pub in publications:
+            if pub.citedby and pub.latest_citedby_update:
+                ncites += len(pub.citedby)
+        return ncites/nrpub
 
 class Volume(models.Model):
     """
