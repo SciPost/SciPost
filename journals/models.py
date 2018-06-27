@@ -166,14 +166,17 @@ class Journal(models.Model):
         by the number of papers published in year YYYY.
         """
         publications = self.get_publications().filter(
-            models.Q(publication_date__year=int(year)-1) | models.Q(publication_date__year=int(year)-2))
+            models.Q(publication_date__year=int(year)-1) |
+            models.Q(publication_date__year=int(year)-2))
         nrpub = publications.count()
         if nrpub == 0:
             return 0
         ncites = 0
         for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
-                ncites += len(pub.citedby)
+                for citation in pub.citedby:
+                    if citation['year'] == year:
+                        ncites += 1
         return ncites/nrpub
 
 class Volume(models.Model):
