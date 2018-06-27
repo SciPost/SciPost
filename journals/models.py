@@ -166,7 +166,7 @@ class Journal(models.Model):
         by the number of papers published in year YYYY.
         """
         publications = self.get_publications().filter(
-            models.Q(publication_date__year=year-1) | models.Q(publication_date__year=year-2))
+            models.Q(publication_date__year=int(year)-1) | models.Q(publication_date__year=int(year)-2))
         nrpub = publications.count()
         if nrpub == 0:
             return 0
