@@ -5,15 +5,19 @@ __license__ = "AGPL v3"
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
-    FellowVotingRemoveSubmissionForm
-from .models import Fellowship
+    FellowVotingRemoveSubmissionForm,\
+    ProspectiveFellowCreateForm
+from .models import Fellowship, ProspectiveFellow
 
 
 @login_required
@@ -292,3 +296,63 @@ def fellowship_add_proceedings(request, id):
         'form': form,
     }
     return render(request, 'colleges/fellowship_proceedings_add.html', context)
+
+
+
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
+                  name='dispatch')
+class ProspectiveFellowCreateView(CreateView):
+    """
+    Formview to create a new Prospective Fellow.
+    """
+    form_class = ProspectiveFellowCreateForm
+    template_name = 'colleges/prospectivefellow_form.html'
+    success_url = reverse_lazy('colleges:prospective_Fellows')
+
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
+                  name='dispatch')
+class ProspectiveFellowUpdateView(UpdateView):
+    """
+    Formview to update a Prospective Fellow.
+    """
+    model = ProspectiveFellow
+    form_class = ProspectiveFellowCreateForm
+    template_name = 'colleges/prospectivefellow_form.html'
+    success_url = reverse_lazy('colleges:prospective_Fellows')
+
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
+                  name='dispatch')
+class ProspectiveFellowDeleteView(DeleteView):
+    """
+    Delete a Prospective Fellow.
+    """
+    model = ProspectiveFellow
+    success_url = reverse_lazy('colleges:prospective_Fellows')
+
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
+                  name='dispatch')
+class ProspectiveFellowListView(ListView):
+    """
+    List the ProspectiveFellow object instances.
+    """
+    model = ProspectiveFellow
+    paginate_by = 50
+
+    def get_queryset(self):
+        """
+        Return a queryset of ProspectiveFellows using optional GET data.
+        """
+        queryset = ProspectiveFellow.objects.all()
+        if 'discipline' in self.request.GET:
+            queryset = queryset.filter(discipline=self.request.GET['discipline'])
+            if 'expertise' in self.request.GET:
+                queryset = queryset.filter(expertises__in=self.request.GET['expertise'])
+        return queryset

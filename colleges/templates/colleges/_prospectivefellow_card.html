@@ -1,0 +1,27 @@
+{% load bootstrap %}
+
+<div class="card-body">
+  <div class="row">
+    <div class="col-6">
+      <a href="{% url 'colleges:prospective_Fellow_update' pk=prosfel.id %}">Update</a>
+    </div>
+    <div class="col-6">
+      <a href="{% url 'colleges:prospective_Fellow_delete' pk=prosfel.id %}">Delete</a>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 ml-auto">
+      <h3>Events</h3>
+      <ul>
+	{% for event in prosfel.prospectivefellowevent_set.all %}
+	{% include 'colleges/_prospectivefellow_event_li.html' with event=event %}
+	{% empty %}
+	<li>No events found.</li>
+	{% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-5">
+      <h3>Add an event for this Prospective Fellow</h3>
+    </div>
+</div>

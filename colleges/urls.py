@@ -42,4 +42,14 @@ urlpatterns = [
         views.fellowship_add_proceedings, name='fellowship_add_proceedings'),
     url(r'^fellowships/(?P<id>[0-9]+)/proceedings/(?P<proceedings_id>[0-9]+)/remove$',
         views.fellowship_remove_proceedings, name='fellowship_remove_proceedings'),
+
+    # Prospective Fellows
+    url(r'^prospectivefellows/$',
+        views.ProspectiveFellowListView.as_view(), name='prospective_Fellows'),
+    url(r'^prospectivefellows/add/$',
+        views.ProspectiveFellowCreateView.as_view(), name='prospective_Fellow_create'),
+    url(r'^prospectivefellows/(?P<pk>[0-9]+)/update/$',
+        views.ProspectiveFellowUpdateView.as_view(), name='prospective_Fellow_update'),
+    url(r'^prospectivefellows/(?P<pk>[0-9]+)/delete/$',
+        views.ProspectiveFellowDeleteView.as_view(), name='prospective_Fellow_delete'),
 ]

@@ -1,0 +1,49 @@
+{% extends 'scipost/base.html' %}
+
+{% load scipost_extras %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Prospective Fellows{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <a href="{% url 'colleges:prospective_Fellow_create' %}">Add a Prospective Fellow</a>
+    <br/><br/>
+    <table class="table table-hover mb-5">
+      <thead class="thead-default">
+	<tr>
+	  <th>Name</th>
+	  <th>Discipline</th>
+	  <th>Expertises</th>
+	  <th>Status</th>
+	</tr>
+      </thead>
+      <tbody id="accordion" role="tablist" aria-multiselectable="true">
+	{% for prosfel in object_list %}
+	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ prosfel.id }}" aria-expanded="true" aria-controls="collapse{{ prosfel.id }}" style="cursor: pointer;">
+	  <td>{{ prosfel.last_name }}, {{ prosfel.get_title_display }} {{ prosfel.first_name }}</td>
+	  <td>{{ prosfel.get_discipline_display }}</td>
+	  <td>
+	    {% for expertise in prosfel.expertises %}
+            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	    {% endfor %}
+	  </td>
+	  <td>{{ prosfel.get_status_display }}</td>
+	</tr>
+	<tr id="collapse{{ prosfel.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ prosfel.id }}" style="background-color: #fff;">
+	  <td colspan="4">
+	    {% include 'colleges/_prospectivefellow_card.html' with prosfel=prosfel %}
+	  </td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <td colspan="4">No Prospective Fellows found</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock content %}
