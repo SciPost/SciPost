@@ -776,9 +776,15 @@ class ReportForm(forms.ModelForm):
             'cols': 100
         })
 
+        # Required fields on submission; optional on save as draft
+        if 'save_submit' in self.data:
+            required_fields = ['report', 'recommendation', 'qualification']
+        else:
+            required_fields = []
+
         # If the Report is not a followup: Explicitly assign more fields as being required!
         if not self.instance.is_followup_report:
-            required_fields = [
+            required_fields += [
                 'strengths',
                 'weaknesses',
                 'requested_changes',
@@ -789,12 +795,12 @@ class ReportForm(forms.ModelForm):
                 'formatting',
                 'grammar'
             ]
-            for field in required_fields:
-                self.fields[field].required = True
+        for field in required_fields:
+            self.fields[field].required = True
 
         # Let user know the field is required!
         for field in self.fields:
-            if self.fields[field].required:
+            if self.fields[field].required or field in ['report', 'recommendation', 'qualification']:
                 self.fields[field].label += ' *'
 
         if self.submission.eicrecommendations.active().exists():
@@ -828,6 +834,8 @@ class ReportForm(forms.ModelForm):
             if self.submission.referees_flagged:
                 if report.author.user.last_name in self.submission.referees_flagged:
                     report.flagged = True
+        # r = report.recommendation
+        # t = report.qualification
         report.save()
         return report
 

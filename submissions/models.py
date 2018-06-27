@@ -500,13 +500,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                related_name='reports')
     qualification = models.PositiveSmallIntegerField(
-        choices=REFEREE_QUALIFICATION,
+        null=True, blank=True, choices=REFEREE_QUALIFICATION,
         verbose_name="Qualification to referee this: I am")
 
     # Text-based reporting
     strengths = models.TextField(blank=True)
     weaknesses = models.TextField(blank=True)
-    report = models.TextField()
+    report = models.TextField(blank=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
     # Comments can be added to a Submission
@@ -526,7 +526,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                        verbose_name="Quality of English grammar")
 
-    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    recommendation = models.SmallIntegerField(null=True, blank=True, choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     needs_doi = models.NullBooleanField(default=None)

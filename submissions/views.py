@@ -1406,6 +1406,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
         messages.success(request, 'Thank you for your Report')
         return redirect(submission.get_absolute_url())
+    elif request.POST:
+        messages.error(request, 'Report not submitted, please read the errors below.')
 
     context = {'submission': submission, 'form': form}
     return render(request, 'submissions/report_form.html', context)
