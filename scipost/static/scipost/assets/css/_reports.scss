@@ -75,4 +75,8 @@
         padding: 0.5rem 0.75rem;
         white-space: pre-wrap;
     }
+
+    p {
+        word-break: break-all;
+    }
 }
