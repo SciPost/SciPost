@@ -227,7 +227,7 @@ class ProspectiveFellowCreateForm(forms.ModelForm):
                   'discipline', 'expertises', 'webpage', 'status', 'contributor']
 
 
-class ProspectiveFellowEventForm(forms.ModelForm):
+class ProspectiveFellowEventCreateForm(forms.ModelForm):
 
     class Meta:
         model = ProspectiveFellowEvent
