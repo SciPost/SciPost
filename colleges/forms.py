@@ -10,7 +10,7 @@ from proceedings.models import Proceedings
 from submissions.models import Submission
 from scipost.models import Contributor
 
-from .models import Fellowship, ProspectiveFellow
+from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
 
 
 class AddFellowshipForm(forms.ModelForm):
@@ -225,3 +225,10 @@ class ProspectiveFellowCreateForm(forms.ModelForm):
         model = ProspectiveFellow
         fields = ['title', 'first_name', 'last_name', 'email',
                   'discipline', 'expertises', 'webpage', 'status', 'contributor']
+
+
+class ProspectiveFellowEventForm(forms.ModelForm):
+
+    class Meta:
+        model = ProspectiveFellowEvent
+        fields = ['event', 'comments']

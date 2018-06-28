@@ -34,7 +34,7 @@
 	</tr>
 	<tr id="collapse{{ prosfel.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ prosfel.id }}" style="background-color: #fff;">
 	  <td colspan="4">
-	    {% include 'colleges/_prospectivefellow_card.html' with prosfel=prosfel %}
+	    {% include 'colleges/_prospectivefellow_card.html' with prosfel=prosfel pfevent_form=pfevent_form %}
 	  </td>
 	</tr>
 	{% empty %}

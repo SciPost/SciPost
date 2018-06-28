@@ -16,8 +16,10 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
-    ProspectiveFellowCreateForm
+    ProspectiveFellowCreateForm, ProspectiveFellowEventForm
 from .models import Fellowship, ProspectiveFellow
+
+from scipost.mixins import PermissionsMixin
 
 
 @login_required
@@ -299,50 +301,41 @@ def fellowship_add_proceedings(request, id):
 
 
 
-
-@method_decorator(login_required, name='dispatch')
-@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
-                  name='dispatch')
-class ProspectiveFellowCreateView(CreateView):
+class ProspectiveFellowCreateView(PermissionsMixin, CreateView):
     """
     Formview to create a new Prospective Fellow.
     """
+    permission_required = 'scipost.can_manage_college_composition'
     form_class = ProspectiveFellowCreateForm
     template_name = 'colleges/prospectivefellow_form.html'
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
-                  name='dispatch')
-class ProspectiveFellowUpdateView(UpdateView):
+class ProspectiveFellowUpdateView(PermissionsMixin, UpdateView):
     """
     Formview to update a Prospective Fellow.
     """
+    permission_required = 'scipost.can_manage_college_composition'
     model = ProspectiveFellow
     form_class = ProspectiveFellowCreateForm
     template_name = 'colleges/prospectivefellow_form.html'
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
-                  name='dispatch')
-class ProspectiveFellowDeleteView(DeleteView):
+class ProspectiveFellowDeleteView(PermissionsMixin, DeleteView):
     """
     Delete a Prospective Fellow.
     """
+    permission_required = 'scipost.can_manage_college_composition'
     model = ProspectiveFellow
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
 
-@method_decorator(login_required, name='dispatch')
-@method_decorator(permission_required('scipost.can_manage_college_composition', raise_exception=True),
-                  name='dispatch')
-class ProspectiveFellowListView(ListView):
+class ProspectiveFellowListView(PermissionsMixin, ListView):
     """
     List the ProspectiveFellow object instances.
     """
+    permission_required = 'scipost.can_manage_college_composition'
     model = ProspectiveFellow
     paginate_by = 50
 
@@ -354,5 +347,22 @@ class ProspectiveFellowListView(ListView):
         if 'discipline' in self.request.GET:
             queryset = queryset.filter(discipline=self.request.GET['discipline'])
             if 'expertise' in self.request.GET:
-                queryset = queryset.filter(expertises__in=self.request.GET['expertise'])
+                queryset = queryset.filter(expertises__contains=self.request.GET['expertise'])
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pfevent_form'] = ProspectiveFellowEventForm()
+        return context
+
+
+class ProspectiveFellowEventCreateView(PermissionsMixin, CreateView):
+    """
+    Add an event for a Prospective Fellow.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    form_class = ProspectiveFellowEventForm
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Event added successfully')
+        return super().form_valid(form)
