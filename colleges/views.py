@@ -16,7 +16,7 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
-    ProspectiveFellowCreateForm, ProspectiveFellowEventForm
+    ProspectiveFellowCreateForm, ProspectiveFellowEventCreateForm
 from .models import Fellowship, ProspectiveFellow
 
 from scipost.mixins import PermissionsMixin
@@ -361,7 +361,7 @@ class ProspectiveFellowEventCreateView(PermissionsMixin, CreateView):
     Add an event for a Prospective Fellow.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    form_class = ProspectiveFellowEventForm
+    form_class = ProspectiveFellowEventCreateForm
 
     def form_valid(self, form):
         messages.success(self.request, 'Event added successfully')
