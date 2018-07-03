@@ -13,12 +13,13 @@ from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
+from .constants import PROSPECTIVE_FELLOW_EVENT_EMAILED
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
     ProspectiveFellowForm, ProspectiveFellowEventForm
-from .models import Fellowship, ProspectiveFellow
+from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
@@ -370,6 +371,19 @@ class ProspectiveFellowInitialEmailView(PermissionsMixin, MailView):
     queryset = ProspectiveFellow.objects.all()
     mail_code = 'prospectivefellows/invite_prospective_fellow_initial'
     success_url = reverse_lazy('colleges:prospective_Fellows')
+
+    def form_valid(self, form):
+        """
+        Create an event associated to this outgoing email.
+        """
+        event = ProspectiveFellowEvent(
+            prosfellow=self.object,
+            event=PROSPECTIVE_FELLOW_EVENT_EMAILED,
+            comments='Emailed initial template',
+            noted_on=timezone.now(),
+            noted_by=self.request.user.contributor)
+        event.save()
+        return super().form_valid(form)
 
 
 class ProspectiveFellowEventCreateView(PermissionsMixin, CreateView):
