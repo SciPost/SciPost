@@ -69,4 +69,9 @@ urlpatterns = [
         views.ProspectiveFellowEventCreateView.as_view(),
         name='prospective_Fellow_event_create'
     ),
+    url(
+        r'^prospectivefellows/(?P<pk>[0-9]+)/email/$',
+        views.ProspectiveFellowInitialEmailView.as_view(),
+        name='prospective_Fellow_email_initial'
+    ),
 ]

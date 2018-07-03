@@ -23,6 +23,9 @@ from .models import Fellowship, ProspectiveFellow
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
 
+from mails.forms import EmailTemplateForm
+from mails.views import MailView
+
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
@@ -357,6 +360,16 @@ class ProspectiveFellowListView(PermissionsMixin, ListView):
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         context['pfevent_form'] = ProspectiveFellowEventForm()
         return context
+
+
+class ProspectiveFellowInitialEmailView(PermissionsMixin, MailView):
+    """
+    Send a templated email to a Prospective Fellow.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    queryset = ProspectiveFellow.objects.all()
+    mail_code = 'prospectivefellows/invite_prospective_fellow_initial'
+    success_url = reverse_lazy('colleges:prospective_Fellows')
 
 
 class ProspectiveFellowEventCreateView(PermissionsMixin, CreateView):
