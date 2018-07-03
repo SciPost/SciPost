@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.shortcuts import render
+from django.views.generic.edit import UpdateView
 
 from .forms import EmailTemplateForm, HiddenDataForm
 
@@ -112,4 +113,19 @@ class MailEditorMixin:
             # self.mail_form is None
             raise AttributeError('Did you check the order in which MailEditorMixin is used?')
         messages.success(self.request, 'Mail sent')
+        return response
+
+
+class MailView(UpdateView):
+    template_name = 'mails/mail_form.html'
+    form_class = EmailTemplateForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['mail_code'] = self.mail_code
+        return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.send()
         return response

@@ -1,0 +1,16 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Prospective Fellows{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <form action="{% url 'colleges:prospective_Fellow_create' %}" method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" value="Submit" class="btn btn-primary">
+  </div>
+</div>
+{% endblock content %}

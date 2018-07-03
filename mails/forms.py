@@ -18,7 +18,8 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
         self.pre_validation(*args, **kwargs)
 
         # This form shouldn't be is_bound==True is there is any non-relavant POST data given.
-        data = args[0] or {}
+        data = args[0] if args else {}
+        data = kwargs['data'] if 'data' in kwargs else data
         if '%s-subject' % self.prefix in data.keys():
             data = {
                 '%s-subject' % self.prefix: data.get('%s-subject' % self.prefix),
@@ -29,7 +30,7 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
             data = None
         super().__init__(data or None)
 
-        if not self.original_recipient:
+        if self.original_recipient == '':
             self.fields['extra_recipient'].label = "Send this email to"
             self.fields['extra_recipient'].required = True
 
@@ -49,7 +50,7 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
             self.bcc_list.append(self.cleaned_data.get('extra_recipient'))
         elif self.cleaned_data.get('extra_recipient') and not self.original_recipient:
             self.original_recipient = [self.cleaned_data.get('extra_recipient')]
-        elif not self.original_recipient:
+        elif self.original_recipient == '':
             self.add_error('extra_recipient', 'Please fill the bcc field to send the mail.')
 
         self.validate_recipients()
@@ -59,6 +60,10 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
         data = super().clean()
         self.save_data()
         return data
+
+    def save(self):
+        self.send()
+        return self.instance
 
 
 class HiddenDataForm(forms.Form):
