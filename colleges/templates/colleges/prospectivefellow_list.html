@@ -9,6 +9,25 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
+    <p>
+      <a href="{% url 'colleges:prospective_Fellows' %}">View all</a> or view by discipline/subject area:
+      {% for discipline in subject_areas %}
+      <a class="btn btn-primary" data-toggle="collapse" href="#collapse{{ discipline.0|cut:" " }}" role="button" aria-expanded="false" aria-controls="collapse{{ discipline.0|cut:" " }}">{{ discipline.0 }}</a>
+      {% endfor %}
+    </p>
+    {% for discipline in subject_areas %}
+    <div class="collapse" id="collapse{{ discipline.0|cut:" " }}">
+      <p>
+	{% for area in discipline.1 %}
+	<a href="{% url 'colleges:prospective_Fellows' %}?discipline={{ discipline.0|cut:" " }}&expertise={{ area.0 }}" method="get">{{ area.0 }}</a>
+	{% endfor %}
+      </p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
     <a href="{% url 'colleges:prospective_Fellow_create' %}">Add a Prospective Fellow</a>
     <br/><br/>
     <table class="table table-hover mb-5">
@@ -22,7 +41,7 @@
       </thead>
       <tbody id="accordion" role="tablist" aria-multiselectable="true">
 	{% for prosfel in object_list %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ prosfel.id }}" aria-expanded="true" aria-controls="collapse{{ prosfel.id }}" style="cursor: pointer;">
+	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ prosfel.id }}" aria-expanded="false" aria-controls="collapse{{ prosfel.id }}" style="cursor: pointer;">
 	  <td>{{ prosfel.last_name }}, {{ prosfel.get_title_display }} {{ prosfel.first_name }}</td>
 	  <td>{{ prosfel.get_discipline_display }}</td>
 	  <td>

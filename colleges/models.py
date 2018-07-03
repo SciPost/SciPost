@@ -6,6 +6,7 @@ import datetime
 
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from .constants import PROSPECTIVE_FELLOW_STATUSES, PROSPECTIVE_FELLOW_IDENTIFIED,\
     PROSPECTIVE_FELLOW_EVENTS
@@ -99,7 +100,7 @@ class ProspectiveFellowEvent(models.Model):
     prosfellow = models.ForeignKey('colleges.ProspectiveFellow', on_delete=models.CASCADE)
     event = models.CharField(max_length=32, choices=PROSPECTIVE_FELLOW_EVENTS)
     comments = models.TextField(blank=True)
-    noted_on = models.DateTimeField(auto_now_add=True)
+    noted_on = models.DateTimeField(default=timezone.now)
     noted_by = models.ForeignKey('scipost.Contributor',
                                  on_delete=models.SET(get_sentinel_user),
                                  blank=True, null=True)

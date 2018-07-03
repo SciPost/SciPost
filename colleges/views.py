@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -16,9 +17,10 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
-    ProspectiveFellowCreateForm, ProspectiveFellowEventCreateForm
+    ProspectiveFellowForm, ProspectiveFellowEventForm
 from .models import Fellowship, ProspectiveFellow
 
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
 
 
@@ -306,7 +308,7 @@ class ProspectiveFellowCreateView(PermissionsMixin, CreateView):
     Formview to create a new Prospective Fellow.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    form_class = ProspectiveFellowCreateForm
+    form_class = ProspectiveFellowForm
     template_name = 'colleges/prospectivefellow_form.html'
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
@@ -317,7 +319,7 @@ class ProspectiveFellowUpdateView(PermissionsMixin, UpdateView):
     """
     permission_required = 'scipost.can_manage_college_composition'
     model = ProspectiveFellow
-    form_class = ProspectiveFellowCreateForm
+    form_class = ProspectiveFellowForm
     template_name = 'colleges/prospectivefellow_form.html'
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
@@ -345,13 +347,14 @@ class ProspectiveFellowListView(PermissionsMixin, ListView):
         """
         queryset = ProspectiveFellow.objects.all()
         if 'discipline' in self.request.GET:
-            queryset = queryset.filter(discipline=self.request.GET['discipline'])
+            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
             if 'expertise' in self.request.GET:
-                queryset = queryset.filter(expertises__contains=self.request.GET['expertise'])
+                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         context['pfevent_form'] = ProspectiveFellowEventForm()
         return context
 
@@ -361,8 +364,12 @@ class ProspectiveFellowEventCreateView(PermissionsMixin, CreateView):
     Add an event for a Prospective Fellow.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    form_class = ProspectiveFellowEventCreateForm
+    form_class = ProspectiveFellowEventForm
+    success_url = reverse_lazy('colleges:prospective_Fellows')
 
     def form_valid(self, form):
+        form.instance.prosfellow = get_object_or_404(ProspectiveFellow, id=self.kwargs['pk'])
+        form.instance.noted_on = timezone.now()
+        form.instance.noted_by = self.request.user.contributor
         messages.success(self.request, 'Event added successfully')
         return super().form_valid(form)

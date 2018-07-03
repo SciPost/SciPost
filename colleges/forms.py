@@ -219,7 +219,7 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
         return fellowship
 
 
-class ProspectiveFellowCreateForm(forms.ModelForm):
+class ProspectiveFellowForm(forms.ModelForm):
 
     class Meta:
         model = ProspectiveFellow
@@ -227,7 +227,7 @@ class ProspectiveFellowCreateForm(forms.ModelForm):
                   'discipline', 'expertises', 'webpage', 'status', 'contributor']
 
 
-class ProspectiveFellowEventCreateForm(forms.ModelForm):
+class ProspectiveFellowEventForm(forms.ModelForm):
 
     class Meta:
         model = ProspectiveFellowEvent

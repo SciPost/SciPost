@@ -3,10 +3,25 @@
 <div class="card-body">
   <div class="row">
     <div class="col-6">
-      <a href="{% url 'colleges:prospective_Fellow_update' pk=prosfel.id %}">Update</a>
+      <p>
+	{{ prosfel.last_name }}, {{ prosfel.get_title_display }} {{ prosfel.first_name }}
+	<br/>
+	{{ prosfel.email }}
+	<br/>
+	{% if prosfel.webpage %}<a href="{{ prosfel.webpage }}">webpage</a>
+	{% else %}No personal webpage given
+	{% endif %}
+	<br/>
+	{% if prosfel.contributor %}Associated to Contributor <a href="{{ prosfel.contributor.get_absolute_url }}">{{ prosfel.contributor }}</a></li>
+	{% else %}No associated Contributor
+	{% endif %}
+      </p>
     </div>
     <div class="col-6">
-      <a href="{% url 'colleges:prospective_Fellow_delete' pk=prosfel.id %}">Delete</a>
+      <ul>
+	<li><a href="{% url 'colleges:prospective_Fellow_update' pk=prosfel.id %}">Update</a> the data</li>
+	<li><a href="{% url 'colleges:prospective_Fellow_delete' pk=prosfel.id %}">Delete</a> this Prosepective Fellow</li>
+      </ul>
     </div>
   </div>
 

@@ -1,0 +1,8 @@
+{
+    "subject": "Invitation to become a Fellow at SciPost",
+    "to_address": "prosfel.user.email",
+    "bcc_to": "admin@scipost.org",
+    "from_address_name": "SciPost Admin",
+    "from_address": "admin@scipost.org",
+    "context_object": "prosfel"
+}
