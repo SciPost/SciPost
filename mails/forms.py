@@ -62,7 +62,6 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
         return data
 
     def save(self):
-        self.send()
         return self.instance
 
 
