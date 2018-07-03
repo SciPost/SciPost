@@ -60,6 +60,11 @@ urlpatterns = [
         name='prospective_Fellow_update'
     ),
     url(
+        r'^prospectivefellows/(?P<pk>[0-9]+)/update_status/$',
+        views.ProspectiveFellowUpdateStatusView.as_view(),
+        name='prospective_Fellow_update_status'
+    ),
+    url(
         r'^prospectivefellows/(?P<pk>[0-9]+)/delete/$',
         views.ProspectiveFellowDeleteView.as_view(),
         name='prospective_Fellow_delete'

@@ -13,12 +13,15 @@ from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
-from .constants import PROSPECTIVE_FELLOW_EVENT_EMAILED
+from .constants import PROSPECTIVE_FELLOW_INVITED,\
+    prospective_Fellow_statuses_dict,\
+    PROSPECTIVE_FELLOW_EVENT_EMAILED, PROSPECTIVE_FELLOW_EVENT_STATUSUPDATED,\
+    PROSPECTIVE_FELLOW_EVENT_COMMENT
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
-    ProspectiveFellowForm, ProspectiveFellowEventForm
+    ProspectiveFellowForm, ProspectiveFellowStatusForm, ProspectiveFellowEventForm
 from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -328,6 +331,27 @@ class ProspectiveFellowUpdateView(PermissionsMixin, UpdateView):
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
 
+class ProspectiveFellowUpdateStatusView(PermissionsMixin, UpdateView):
+    """
+    Formview to update the status of a Prospective Fellow.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = ProspectiveFellow
+    fields = ['status']
+    success_url = reverse_lazy('colleges:prospective_Fellows')
+
+    def form_valid(self, form):
+        event = ProspectiveFellowEvent(
+            prosfellow=self.object,
+            event=PROSPECTIVE_FELLOW_EVENT_STATUSUPDATED,
+            comments=('Status updated to %s'
+                      % prospective_Fellow_statuses_dict[form.cleaned_data['status']]),
+            noted_on=timezone.now(),
+            noted_by=self.request.user.contributor)
+        event.save()
+        return super().form_valid(form)
+
+
 class ProspectiveFellowDeleteView(PermissionsMixin, DeleteView):
     """
     Delete a Prospective Fellow.
@@ -359,6 +383,7 @@ class ProspectiveFellowListView(PermissionsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        context['pfstatus_form'] = ProspectiveFellowStatusForm()
         context['pfevent_form'] = ProspectiveFellowEventForm()
         return context
 
@@ -383,6 +408,8 @@ class ProspectiveFellowInitialEmailView(PermissionsMixin, MailView):
             noted_on=timezone.now(),
             noted_by=self.request.user.contributor)
         event.save()
+        self.object.status=PROSPECTIVE_FELLOW_INVITED
+        self.object.save()
         return super().form_valid(form)
 
 

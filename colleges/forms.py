@@ -227,6 +227,13 @@ class ProspectiveFellowForm(forms.ModelForm):
                   'discipline', 'expertises', 'webpage', 'status', 'contributor']
 
 
+class ProspectiveFellowStatusForm(forms.ModelForm):
+
+    class Meta:
+        model = ProspectiveFellow
+        fields = ['status']
+
+
 class ProspectiveFellowEventForm(forms.ModelForm):
 
     class Meta:

@@ -38,6 +38,13 @@
       </ul>
     </div>
     <div class="col-md-5">
+      <h3>Update the status of this Prospective Fellow</h3>
+      <form class="d-block mt-2 mb-3" action="{% url 'colleges:prospective_Fellow_update_status' pk=prosfel.id %}" method="post">
+	{% csrf_token %}
+	{{ pfstatus_form|bootstrap }}
+	<input type="submit" name="submit" value="Update status" class="btn btn-outline-secondary">
+      </form>
+      <hr/>
       <h3>Add an event for this Prospective Fellow</h3>
       <form class="d-block mt-2 mb-3" action="{% url 'colleges:prospective_Fellow_event_create' pk=prosfel.id %}" method="post">
         {% csrf_token %}
