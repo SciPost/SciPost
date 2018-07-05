@@ -379,6 +379,8 @@ class Publication(models.Model):
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     abstract = models.TextField()
+    abstract_jats = models.TextField(blank=True, default='',
+                                     help_text='JATS version of abstract for Crossref deposit')
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
