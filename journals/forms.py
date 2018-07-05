@@ -82,7 +82,7 @@ class AbstractJATSForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['abstract_jats'].initial = self.instance.get('abstract_jats')
+        self.fields['abstract_jats'].initial = self.instance.abstract_jats
 
     def save(self, *args, **kwargs):
         self.instance.abstract_jats = self.cleaned_data['abstract_jats']
