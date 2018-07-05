@@ -372,8 +372,6 @@ def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
 # Editorial workflow #
 ######################
 
-@login_required
-@fellowship_or_admin_required()
 def editorial_workflow(request):
     """Information page for Editorial Fellows.
 
