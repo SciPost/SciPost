@@ -31,7 +31,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
-from .forms import FundingInfoForm,\
+from .forms import AbstractJATSForm, FundingInfoForm,\
                    UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
@@ -384,6 +384,19 @@ class CitationUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMi
 
     def get_success_url(self):
         return reverse_lazy('journals:create_citation_list_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
+
+
+class AbstractJATSUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
+    """
+    Add or update the JATS version of the abstract.
+    This should be produced separately using pandoc.
+    """
+    form_class = AbstractJATSForm
+    template_name = 'journals/create_abstract_jats.html'
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
                             kwargs={'doi_label': self.object.doi_label})
 
 

@@ -72,6 +72,10 @@ urlpatterns = [
             regex=PUBLICATION_DOI_REGEX),
         journals_views.CitationUpdateView.as_view(),
         name='create_citation_list_metadata'),
+    url(r'^admin/(?P<doi_label>{regex})/abstract_jats$'.format(
+            regex=PUBLICATION_DOI_REGEX),
+        journals_views.AbstractJATSUpdateView.as_view(),
+        name='abstract_jats'),
     url(r'^admin/(?P<doi_label>{regex})/update_references$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.update_references, name='update_references'),
     url(r'^admin/(?P<doi_label>{regex})/funders/create_metadata$'.format(

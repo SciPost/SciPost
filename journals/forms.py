@@ -72,6 +72,23 @@ class CitationListBibitemsForm(forms.ModelForm):
         return super().save(*args, **kwargs)
 
 
+class AbstractJATSForm(forms.ModelForm):
+    abstract_jats = forms.CharField(widget=forms.Textarea({
+        'placeholder': 'Paste the JATS abstract here (use pandoc to generate; see docs)'}))
+
+    class Meta:
+        model = Publication
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['abstract_jats'].initial = self.instance.get('abstract_jats')
+
+    def save(self, *args, **kwargs):
+        self.instance.abstract_jats = self.cleaned_data['abstract_jats']
+        return super().save(*args, **kwargs)
+
+
 class FundingInfoForm(forms.ModelForm):
     funding_statement = forms.CharField(widget=forms.Textarea({
         'placeholder': 'Paste the funding info statement here'}))
