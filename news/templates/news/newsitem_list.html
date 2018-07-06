@@ -9,7 +9,10 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">SciPost News</h1>
+      <h1 class="highlight">SciPost News</h1>
+      {% if perms.scipost.can_manage_news %}
+      Go to the <a href="{% url 'news:manage' %}">News management page</a>
+      {% endif %}
     </div>
 </div>
 
@@ -29,9 +32,19 @@
           {% endif %}
 
         {% for item in object_list %}
-            <div class="card card-grey card-news">
+	      {% if item.image %}
+	      <div class="row">
+		<div class="col-3">
+		  <img class="d-flex mr-3 {{ item.image.css_class }}" src="{{ item.image.url }}" alt="image"/>
+		</div>
+		<div class="col-9">
+		{% endif %}
+		<div class="card card-grey card-news">
                 {% include 'news/news_card_content.html' with news=item %}
-            </div>
+		</div>
+		{% if item.image %}
+		</div>
+		{% endif %}
         {% empty %}
             <div>No news found.</div>
         {% endfor %}

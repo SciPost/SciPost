@@ -28,6 +28,7 @@ class Command(BaseCommand):
                                                             name='Registered Contributors')
         Developers, created = Group.objects.get_or_create(name='Developers')
         Testers, created = Group.objects.get_or_create(name='Testers')
+        NewsAdmin, created = Group.objects.get_or_create(name='News Administrators')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
         ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
@@ -278,6 +279,12 @@ class Command(BaseCommand):
         can_manage_affiliations, created = Permission.objects.get_or_create(
             codename='can_manage_affiliations',
             name='Can manage affiliations',
+            content_type=content_type)
+
+        # News administration
+        can_manage_news, created = Permission.objects.get_or_create(
+            codename='can_manage_news',
+            name='Can manage News',
             content_type=content_type)
 
         # Mailchimp

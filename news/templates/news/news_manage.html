@@ -1,0 +1,49 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: News Management{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1>NewsLetters</h1>
+    <a href="{% url 'news:newsletter_create' %}">Add a NewsLetter</a>
+    <br/>
+    <ul>
+      {% for nl in newsletters %}
+      <li>
+	<div><a href="{{ nl.get_absolute_url }}">{{ nl }}</a>&nbsp;<strong>Actions:</strong>&nbsp;<a href="{% url 'news:newsletter_update' pk=nl.id %}">Update</a>&nbsp;<a href="{% url 'news:newsletter_delete' pk=nl.id %}">Delete</a>
+	  <h3>Add a News Item to this Newsletter:</h3>
+	    <form class="d-block mt-2 mb-3" action="{% url 'news:add_newsitem_to_newsletter' nlpk=nl.id %}" method="post">
+	      {% csrf_token %}
+	      {{ add_ni_to_nl_form|bootstrap }}
+	      <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
+	    </form>
+	</div>
+	<ul>
+	  {% for nt in nl.newsletternewsitemstable_set.all %}
+	  <li>{{ nt.newsitem }}</li>
+	  {% empty %}
+	  <li>No associated NewsItems found</li>
+	  {% endfor %}
+	</ul>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h1>NewsItems</h1>
+    <a href="{% url 'news:newsitem_create' %}">Add a NewsItem</a>
+    <br/>
+    <ul>
+      {% for ni in newsitems %}
+      <li>{{ ni }} <a href="{% url 'news:newsitem_update' pk=ni.id %}">Update</a>&nbsp;<a href="{% url 'news:newsitem_delete' pk=ni.id %}">Delete</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock content %}

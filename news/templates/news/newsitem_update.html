@@ -1,0 +1,36 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: NewsItems{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<a href="{% url 'news:news' %}" class="breadcrumb-item">News</a>
+<a href="{% url 'news:manage' %}" class="breadcrumb-item">Manage</a>
+<span class="breadcrumb-item">Update NewsItem</span>
+{% endblock breadcrumb_items %}
+
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h1>News Item to update:</h1>
+    <div class="card card-grey card-news">
+      {% include 'news/news_card_content.html' with news=object %}
+    </div>
+  </div>
+
+  <hr/>
+
+<div class="row">
+  <div class="col-12">
+    <h1>Edit it here:</h1>
+    <form action="{% url 'news:newsitem_update' pk=object.id %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" value="Submit" class="btn btn-primary">
+  </div>
+</div>
+{% endblock content %}

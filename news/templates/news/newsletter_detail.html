@@ -1,0 +1,15 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: NewsLetter{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    {% include 'news/_newsletter_contents.html' with nl=nl %}
+  </div>
+</div>
+
+{% endblock content %}
