@@ -27,3 +27,14 @@ def authors_in_right_order(publication):
         if author.last_name not in list_of_authors[author.order - 1]:
             return False
     return True
+
+
+@register.filter
+def author_affiliations_complete(publication):
+    """
+    Checks if each author (registered or unregistered) has an
+    associated AuthorAffiliation instance.
+    """
+    if not has_all_author_relations(publication):
+        return False
+    return len(publication.author_list.split(',')) == publication.authoraffiliations_set.all().count()

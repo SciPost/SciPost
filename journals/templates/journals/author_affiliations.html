@@ -1,0 +1,55 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Author Affiliations{% endblock pagetitle %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
+                <span class="breadcrumb-item active">Author Affiliations</span>
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Author affiliations for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+    <br>
+
+    <h3>Current Author Affiliations:</h3>
+    <ul>
+      {% for authaff in publication.authoraffiliation.all %}
+      <li>{{ authaff }}</li>
+      {% empty %}
+      <li>No Author Affiliation defined yet</li>
+      {% endfor %}
+    </ul>
+    <h3>Registered authors:</h3>
+    <ul>
+      {% for auth in publication.authors_registered.all %}
+      <li>{{ auth }}</li>
+      {% empty %}
+      <li>No registered author found</li>
+      {% endfor %}
+    </ul>
+    <h3>Unregistered authors:</h3>
+    <ul>
+      {% for auth in publication.authors_unregistered.all %}
+      <li>{{ auth }}</li>
+      {% empty %}
+      <li>No unregistered author found</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
+{% endblock %}

@@ -68,6 +68,14 @@ urlpatterns = [
     url(r'^admin/manage_metadata/$',
         journals_views.manage_metadata,
         name='manage_metadata'),
+    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/$'.format(
+        regex=PUBLICATION_DOI_REGEX),
+        journals_views.AuthorAffiliationView.as_view(),
+        name='author_affiliations'),
+    # url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/add/$'.format(
+    #     regex=PUBLICATION_DOI_REGEX),
+    #     journals_views.AuthorAffiliationUpdateView.as_view(),
+    #     name='author_affiliation_update'),
     url(r'^admin/(?P<doi_label>{regex})/citation_list_metadata$'.format(
             regex=PUBLICATION_DOI_REGEX),
         journals_views.CitationUpdateView.as_view(),

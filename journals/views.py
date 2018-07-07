@@ -23,6 +23,7 @@ from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
@@ -345,6 +346,23 @@ def add_author(request, doi_label, contributor_id=None, unregistered_author_id=N
         'form': form,
     }
     return render(request, 'journals/add_author.html', context)
+
+
+class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
+    """
+    Handle the author affiliations for a Publication.
+    """
+    permission_required = 'scipost.can_draft_publication'
+    template_name = 'journals/author_affiliations.html'
+
+    # def get_context_data(self, **kwargs):
+    #     context = super().get_context_data(**kwargs)
+    #     context['publication'] =
+    #     return context
+
+    def get_success_url(self):
+        return reverse_lazy('journals:create_citation_list_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
