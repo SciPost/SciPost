@@ -2,10 +2,10 @@
   {% if news.image %}
   <div class="row">
 
-    <div class="col-3">
+    <div class="col-2">
       <img class="d-flex mr-3 {{ news.image.css_class }}" src="{{ news.image.url }}" alt="image"/>
     </div>
-    <div class="col-9">
+    <div class="col-10">
       {% endif %}
       <div>
 	<h2 class="card-title">{{news.headline}}</h2>

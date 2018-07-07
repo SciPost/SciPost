@@ -8,6 +8,9 @@
 
 <div class="row">
   <div class="col-12">
+    {% if perms.scipost.can_manage_news %}
+    <p>Go to the <a href="{% url 'news:manage' %}">News management page</a></p>
+    {% endif %}
     {% include 'news/_newsletter_contents.html' with nl=nl %}
   </div>
 </div>

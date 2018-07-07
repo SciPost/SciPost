@@ -29,3 +29,17 @@ class NewsLetterNewsItemsTableForm(forms.ModelForm):
     class Meta:
         model = NewsLetterNewsItemsTable
         fields = ['newsitem']
+
+
+class NewsLetterNewsItemsTableFormSet(forms.BaseModelFormSet):
+    def save(self, *args, **kwargs):
+        objects = super().save(*args, **kwargs)
+        for form in self.ordered_forms:
+            form.instance.order = form.cleaned_data['ORDER']
+            form.instance.save()
+        return objects
+
+
+NewsLetterNewsItemsOrderingFormSet = forms.modelformset_factory(
+    NewsLetterNewsItemsTable, fields=(), can_order=True, extra=0,
+    formset=NewsLetterNewsItemsTableFormSet)
