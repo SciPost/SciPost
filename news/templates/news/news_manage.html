@@ -20,17 +20,19 @@
     <br/><br/>
     {% for nl in newsletters %}
     <div class="card">
-      <div class="card-header">
-	<a href="{{ nl.get_absolute_url }}">{{ nl }}</a>
+      <div class="card-header" data-toggle="collapse" href="#collapse{{ nl.id }}" aria-expanded="false" aria-controls="collapse{{ nl.id }}">
+	{{ nl }}
 	(status: {% if nl.published %}published{% else %}unpublished{% endif %})
       </div>
-      <div class="card-body">
+      <div class="card-body collapse" id="collapse{{ nl.id }}">
 	<div class="row">
 	  <div class="col-6">
+	    <a href="{{ nl.get_absolute_url }}" target="_blank">View this Newsletter in a separate window</a>
+	    <br/><br/>
 	    <h3>NewsItems included in this Newsletter:</h3>
 	    <ul>
 	      {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
-	      <li>{{ nt.newsitem }}</li>
+	      <li>{{ nt.newsitem }}{% if not nt.newsitem.published %}&nbsp;<span class="text-danger">WARNING: unpublished</span>{% endif %}</li>
 	      {% empty %}
 	      <li>No associated NewsItems found</li>
 	      {% endfor %}
@@ -65,9 +67,18 @@
     <a href="{% url 'news:newsitem_create' %}">Add a NewsItem</a>
     <br/><br/>
     <table class="table">
+      <thead>
+	<th>Item</th>
+	<th>Published?</th>
+	<th>On homepage?</th>
+	<th>Actions</th>
+	<th></th>
+      </thead>
       {% for ni in newsitems %}
       <tr>
 	<td>{{ ni }}</td>
+	<td>{{ ni.published }}</td>
+	<td>{{ ni.on_homepage }}</td>
 	<td><a href="{% url 'news:newsitem_update' pk=ni.id %}">Update</a></td>
 	<td><a href="{% url 'news:newsitem_delete' pk=ni.id %}">Delete</a></td>
       </tr>
