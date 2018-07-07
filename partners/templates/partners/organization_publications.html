@@ -1,0 +1,21 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Organization: publications{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1>Publications related to {{ org }}</h1>
+    <ul>
+      {% for pub in object_list %}
+      <li>
+	{{ pub }}
+      </li>
+      {% empty %}
+      <li>No publications found</li>
+      {% endfor %}
+  </div>
+</div>
+{% endblock content %}

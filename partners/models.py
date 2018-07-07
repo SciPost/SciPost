@@ -8,11 +8,14 @@ import random
 import string
 
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.utils import timezone
 from django.urls import reverse
 
 from django_countries.fields import CountryField
+
+from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
 
 from .constants import (
     PARTNER_KINDS, PARTNER_STATUS, CONSORTIUM_STATUS, MEMBERSHIP_DURATION, PARTNER_EVENTS,
@@ -35,6 +38,52 @@ from scipost.models import get_sentinel_user, Contributor
 from scipost.storage import SecureFileStorage
 
 now = timezone.now()
+
+
+#################
+# Organizations #
+#################
+
+class Organization(models.Model):
+    """
+    An Organization instance is any type of administrative unit which SciPost
+    can interact with. Example types include universities, funding agencies,
+    research institutes etc.
+
+    All instances can only be created by SciPost administration-level personnel,
+    and can thus be considered as verified.
+
+    These objects are meant to be internally linked to all other types of
+    (possibly user-defined) objects used throughout the site (such as Institutions,
+    Partners, Affiliations, Funders etc). This enables relating all of SciPost's
+    services to the organizations which are impacted by its activities.
+
+    The data here is also meant to be cross-linked to external databases,
+    for example the Global Research Identifier Database (GRID), Crossref,
+    ORCID etc.
+    """
+    orgtype = models.CharField(max_length=32, choices=ORGANIZATION_TYPES)
+    status = models.CharField(max_length=32, choices=ORGANIZATION_STATUSES,
+                              default=ORGSTATUS_ACTIVE)
+    name = models.CharField(max_length=256,
+                            help_text="Western version of name")
+    name_original = models.CharField(max_length=256, blank=True,
+                                     help_text="Name (in original language)")
+    acronym = models.CharField(max_length=64, blank=True,
+                               help_text='Acronym or short name')
+    country = CountryField()
+    address = models.TextField(blank=True)
+    logo = models.ImageField(upload_to='organizations/logos/', blank=True)
+    css_class = models.CharField(max_length=256, blank=True,
+                                 verbose_name="Additional logo CSS class")
+    grid_json = JSONField(default={}, blank=True, null=True) # JSON data from GRID
+    crossref_json = JSONField(default={}, blank=True, null=True) # JSON data from Crossref
+    superseded_by = models.ForeignKey('self', blank=True, null=True,
+                                      on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return self.name
+
 
 
 ########################

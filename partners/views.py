@@ -6,11 +6,15 @@ import mimetypes
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
+from django.views.generic.base import TemplateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
@@ -20,16 +24,78 @@ from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
     PROSPECTIVE_PARTNER_FOLLOWED_UP
-from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
-                    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
-                    PartnersAttachment
+from .models import Organization,\
+    Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
+    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
+    PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
-                   PromoteToPartnerForm,\
-                   ProspectivePartnerEventForm, MembershipQueryForm,\
-                   PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
-                   NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
-                   MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
-                   ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
+    PromoteToPartnerForm,\
+    ProspectivePartnerEventForm, MembershipQueryForm,\
+    PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
+    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
+    MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
+    ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
+
+from journals.models import Publication
+
+from scipost.mixins import PermissionsMixin
+
+
+class OrganizationManageView(PermissionsMixin, TemplateView):
+    """
+    Management page for Organizations.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    template_name = 'partners/organizations_manage.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['organizations'] = Organization.objects.all()
+        return context
+
+
+class OrganizationCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Organization
+    template_name = 'partners/organization_create.html'
+    success_url = reverse_lazy('partners:organization_list')
+
+
+class OrganizationUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update an Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Organization
+    fields = '__all__'
+    template_name = 'partners/organization_update.html'
+    success_url = reverse_lazy('partners:organization_list')
+
+
+class OrganizationDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete an Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Organization
+    success_url = reverse_lazy('partners:organization_list')
+
+
+class OrganizationListView(ListView):
+    model = Organization
+
+
+class OrganizationPublicationListView(ListView):
+    model = Publication
+    template_name = 'partners/organization_publications.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['org'] = get_object_or_404(Organization, pk=self.kwargs['pk'])
+        return context
 
 
 def supporting_partners(request):

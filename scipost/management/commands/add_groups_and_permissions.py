@@ -42,6 +42,10 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(Contributor)
 
         # Supporting Partners
+        can_manage_organizations, created = Permission.objects.get_or_create(
+            codename='can_manage_organizations',
+            name='Can manage Organizations',
+            content_type=content_type)
         can_manage_SPB, created = Permission.objects.get_or_create(
             codename='can_manage_SPB',
             name='Can manage Supporting Partners Board',
@@ -415,6 +419,7 @@ class Command(BaseCommand):
         ])
 
         PartnersAdmin.permissions.set([
+            can_manage_organizations,
             can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,

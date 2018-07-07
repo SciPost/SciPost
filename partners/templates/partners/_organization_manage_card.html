@@ -1,0 +1,11 @@
+{% load bootstrap %}
+
+<div class="card-body">
+  {% if perms.scipost.can_manage_organizations %}
+  <h3>Actions:</h3>
+  <ul>
+    <li><a href="{% url 'partners:organization_update' pk=org.id %}">Update</a></li>
+    <li><a href="{% url 'partners:organization_delete' pk=org.id %}">Delete</a></li>
+  </ul>
+  {% endif %}
+</div>

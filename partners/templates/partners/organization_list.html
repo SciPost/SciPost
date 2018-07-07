@@ -1,0 +1,31 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Organizations{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Organizations</h1>
+      {% if perms.scipost.can_manage_organizations %}
+      <p>Go to the <a href="{% url 'partners:organizations_manage' %}">Organizations management page</a></p>
+      {% endif %}
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <table>
+      {% for item in object_list %}
+      <tr>
+	<td>{{ item }}</td>
+      </tr>
+      {% empty %}
+      <tr><td>No organization found</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock content %}
