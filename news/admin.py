@@ -20,7 +20,7 @@ admin.site.register(NewsLetter, NewsLetterAdmin)
 
 class NewsItemAdmin(admin.ModelAdmin):
     search_fields = ['blurb', 'followup_link_text']
-    list_display = ['__str__', 'on_homepage']
+    list_display = ['__str__', 'published', 'on_homepage']
 
 
 admin.site.register(NewsItem, NewsItemAdmin)
