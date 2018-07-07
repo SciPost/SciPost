@@ -173,3 +173,7 @@ class NewsLetterNewsItemsTableCreateView(PermissionsMixin, CreateView):
 class NewsListView(ListView):
     model = NewsItem
     paginate_by = 10
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.filter(published=True)

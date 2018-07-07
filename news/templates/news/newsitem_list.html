@@ -32,7 +32,9 @@
       {% endif %}
 
       {% for item in object_list %}
-      {% include 'news/news_card_content.html' with news=item %}
+      <div class="card card-grey card-news">
+	{% include 'news/news_card_content.html' with news=item %}
+      </div>
       {% empty %}
       <div>No news found.</div>
       {% endfor %}
