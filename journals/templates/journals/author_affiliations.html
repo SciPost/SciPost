@@ -33,7 +33,7 @@
 	    <h3>{{ auth }}</h3>
 	    <ul>
 	      {% for aff in auth.affiliations.all %}
-	      <li>{{ aff }}</li>
+	      <li>{{ aff }} <a href="{% url 'journals:author_affiliation_remove' doi_label=publication.doi_label pk=auth.pk organization_id=aff.id %}">remove</a></li>
 	      {% empty %}
 	      <li>No affiliation found</li>
 	      {% endfor %}
@@ -61,5 +61,9 @@
   </div>
 </div>
 
-
 {% endblock %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ add_affiliation_form.media }}
+{% endblock footer_script %}

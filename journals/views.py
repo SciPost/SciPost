@@ -44,6 +44,7 @@ from .utils import JournalUtils
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
+from partners.models import Organization
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
@@ -390,6 +391,20 @@ def add_affiliation(request, doi_label, pk):
         table = get_object_or_404(PublicationAuthorsTable, pk=pk)
         table.affiliations.add(form.cleaned_data['organization'])
         table.save()
+    return redirect(reverse('journals:author_affiliations',
+                            kwargs={'doi_label': doi_label}))
+
+
+@permission_required('scipost.can_draft_publication', return_403=True)
+@transaction.atomic
+def remove_affiliation(request, doi_label, pk, organization_id):
+    """
+    Remove an affiliation in a PublicationAuthorsTable.
+    """
+    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
+    org = get_object_or_404(Organization, pk=organization_id)
+    table.affiliations.remove(org)
+    table.save()
     return redirect(reverse('journals:author_affiliations',
                             kwargs={'doi_label': doi_label}))
 

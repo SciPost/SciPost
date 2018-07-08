@@ -83,6 +83,9 @@ class Organization(models.Model):
     superseded_by = models.ForeignKey('self', blank=True, null=True,
                                       on_delete=models.SET_NULL)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

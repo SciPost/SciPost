@@ -77,6 +77,11 @@ urlpatterns = [
         #journals_views.AddAffiliationView.as_view(),
         journals_views.add_affiliation,
         name='author_affiliation_update'),
+    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/(?P<pk>[0-9]+)/remove/(?P<organization_id>[0-9]+)/$'.format(
+        regex=PUBLICATION_DOI_REGEX),
+        #journals_views.AddAffiliationView.as_view(),
+        journals_views.remove_affiliation,
+        name='author_affiliation_remove'),
     url(r'^admin/(?P<doi_label>{regex})/citation_list_metadata$'.format(
             regex=PUBLICATION_DOI_REGEX),
         journals_views.CitationUpdateView.as_view(),
