@@ -29,7 +29,7 @@
       {% for auth in publication.authors.all %}
       <li>
 	<div class="row">
-	  <div class="col-6">
+	  <div class="col-5">
 	    <h3>{{ auth }}</h3>
 	    <ul>
 	      {% for aff in auth.affiliations.all %}
@@ -39,14 +39,18 @@
 	      {% endfor %}
 	    </ul>
 	  </div>
-	  <div class="col-6">
-	    <h4>Add an affiliation:</h4>
+	  <div class="col-5">
+	    <h4>Add an affiliation (at moment of publication) to this Author:</h4>
 	    <form action="{% url 'journals:author_affiliation_update' doi_label=publication.doi_label pk=auth.pk %}" method="post">
 	      {% csrf_token %}
 	      {{ add_affiliation_form|bootstrap }}
 	      <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
 	    </form>
 	  </div>
+	  <div class="col-2">
+	    <p>Can't find it in the selector? <a href="{% url 'partners:organization_create' %}" target=_"blank">Add a new organization to our database</a></p>
+	  </div>
+
 	</div>
       </li>
       {% empty %}

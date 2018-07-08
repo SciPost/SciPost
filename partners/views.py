@@ -48,6 +48,7 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
     """
     permission_required = 'scipost.can_manage_organizations'
     model = Organization
+    fields = '__all__'
     template_name = 'partners/organization_create.html'
     success_url = reverse_lazy('partners:organization_list')
 

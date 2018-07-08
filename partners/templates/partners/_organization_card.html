@@ -45,22 +45,28 @@
 
 	<div class="tab-pane pt-4" id="authors" role="tabpanel" aria-labelledby="authors-tab">
 	  <h3>Associated Authors:</h3>
-	  <h4>Registered Contributors:</h4>
-	  <ul>
-	    {% for author in org.get_contributor_authors %}
-	    <li><a href="{{ author.get_absolute_url }}">{{ author }}</a></li>
-	    {% empty %}
-	    <li>No Contributors found</li>
-	    {% endfor %}
-	  </ul>
-	  <h4>Unregistered:</h4>
-	  <ul>
-	    {% for author in org.get_unregistered_authors %}
-	    <li>{{ author }}</li>
-	    {% empty %}
-	    <li>No unregistered author found</li>
-	    {% endfor %}
-	  </ul>
+	  <div class="row">
+	    <div class="col-6">
+	      <h4>Registered Contributors:</h4>
+	      <ul>
+		{% for author in org.get_contributor_authors %}
+		<li><a href="{{ author.get_absolute_url }}">{{ author }}</a></li>
+		{% empty %}
+		<li>No Contributors found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	    <div class="col-6">
+	      <h4>Unregistered:</h4>
+	      <ul>
+		{% for author in org.get_unregistered_authors %}
+		<li>{{ author }}</li>
+		{% empty %}
+		<li>No unregistered author found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </div>
 	</div>
 
 	<div class="tab-pane pt-4" id="partnership" role="tabpanel" aria-labelledby="partnership-tab">

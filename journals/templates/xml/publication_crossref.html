@@ -56,7 +56,7 @@
                         <given_name>{{ author_object.first_name }}</given_name>
                         <surname>{{ author_object.last_name }}</surname>
 			{% if author_object.affiliations %}
-			{% for aff in author_object.affiliations %}
+			{% for aff in author_object.affiliations.all %}
 			<affiliation>{{ aff.name }}</affiliation>
 			{% endfor %}
 			{% endif %}
