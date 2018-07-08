@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 from ajax_select import register, LookupChannel
 from ..models import Publication
 
+from partners.models import Organization
+
 
 @register('publication_lookup')
 class PublicationLookup(LookupChannel):
@@ -33,3 +35,28 @@ class PublicationLookup(LookupChannel):
         future for other purposes as well.
         """
         return request.user.has_perm('can_create_registration_invitations')
+
+
+@register('organization_lookup')
+class OrganizationLookup(LookupChannel):
+    model = Organization
+
+    def get_query(self, q, request):
+        return (self.model.objects.order_by('name')
+                .filter(name__icontains=q)[:10])
+
+    def format_item_display(self, item):
+        '''(HTML) format item for displaying item in the selected deck area.'''
+        return u"<span class='auto_lookup_display'>%s</span>" % item
+
+    def format_match(self, item):
+        '''(HTML) Format item for displaying in the dropdown.'''
+        return u"<span class='text-muted'>%s</span>" % item
+
+    def check_auth(self, request):
+        """
+        Check if current user has required permissions.
+        Right now only used for draft registration invitations. May be extended in the
+        future for other purposes as well.
+        """
+        return request.user.has_perm('can_draft_publication')

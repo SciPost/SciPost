@@ -55,6 +55,11 @@
                         {% endif %}
                         <given_name>{{ author_object.first_name }}</given_name>
                         <surname>{{ author_object.last_name }}</surname>
+			{% if author_object.affiliations %}
+			{% for aff in author_object.affiliations %}
+			<affiliation>{{ aff.name }}</affiliation>
+			{% endfor %}
+			{% endif %}
                         {% if author_object.contributor and author_object.contributor.orcid_id %}
                             <ORCID>https://orcid.org/{{ author_object.contributor.orcid_id }}</ORCID>
                         {% endif %}

@@ -2,6 +2,8 @@
 
 {% block pagetitle %}: Author Affiliations{% endblock pagetitle %}
 
+{% load bootstrap %}
+
 {% block breadcrumb %}
     <div class="container-outside header">
         <div class="container">
@@ -15,8 +17,6 @@
     </div>
 {% endblock %}
 
-{% load bootstrap %}
-
 {% block content %}
 
 <div class="row">
@@ -26,28 +26,34 @@
 
     <h3>Current Author Affiliations:</h3>
     <ul>
-      {% for authaff in publication.authoraffiliation.all %}
-      <li>{{ authaff }}</li>
+      {% for auth in publication.authors.all %}
+      <li>
+	<div class="row">
+	  <div class="col-6">
+	    <h3>{{ auth }}</h3>
+	    <ul>
+	      {% for aff in auth.affiliations.all %}
+	      <li>{{ aff }}</li>
+	      {% empty %}
+	      <li>No affiliation found</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	  <div class="col-6">
+	    <h4>Add an affiliation:</h4>
+	    <form action="{% url 'journals:author_affiliation_update' doi_label=publication.doi_label pk=auth.pk %}" method="post">
+	      {% csrf_token %}
+	      {{ add_affiliation_form|bootstrap }}
+	      <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
+	    </form>
+	  </div>
+	</div>
+      </li>
       {% empty %}
-      <li>No Author Affiliation defined yet</li>
+      <li>No author relation found!</li>
       {% endfor %}
     </ul>
-    <h3>Registered authors:</h3>
-    <ul>
-      {% for auth in publication.authors_registered.all %}
-      <li>{{ auth }}</li>
-      {% empty %}
-      <li>No registered author found</li>
-      {% endfor %}
-    </ul>
-    <h3>Unregistered authors:</h3>
-    <ul>
-      {% for auth in publication.authors_unregistered.all %}
-      <li>{{ auth }}</li>
-      {% empty %}
-      <li>No unregistered author found</li>
-      {% endfor %}
-    </ul>
+
   </div>
 </div>
 

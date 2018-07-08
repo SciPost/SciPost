@@ -33,7 +33,8 @@ from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
 from .forms import AbstractJATSForm, FundingInfoForm,\
-                   UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
+                   UnregisteredAuthorForm, AuthorsTableOrganizationSelectForm,\
+                   CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
                    PublicationAuthorOrderingFormSet
@@ -355,14 +356,42 @@ class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
     permission_required = 'scipost.can_draft_publication'
     template_name = 'journals/author_affiliations.html'
 
-    # def get_context_data(self, **kwargs):
-    #     context = super().get_context_data(**kwargs)
-    #     context['publication'] =
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_affiliation_form'] = AuthorsTableOrganizationSelectForm()
+        return context
 
-    def get_success_url(self):
-        return reverse_lazy('journals:create_citation_list_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+# NOT WORKING, using the FBV below instead
+# class AddAffiliationView(PermissionsMixin, UpdateView):
+#     """
+#     Add an affiliation to a PublicationAuthorsTable instance.
+#     """
+#     permission_required = 'scipost.can_draft_publication'
+#     model = PublicationAuthorsTable
+#     form_class = AuthorsTableOrganizationSelectForm
+#     template_name = 'journals/author_affiliations.html'
+
+#     def form_valid(self, form):
+#         self.object.affiliations.add(form.cleaned_data['organization'])
+#         return super().form_valid(form)
+
+#     def get_success_url(self):
+#         return reverse_lazy('journals:author_affiliations',
+#                             kwargs={'doi_label': self.kwargs['.doi_label']})
+
+@permission_required('scipost.can_draft_publication', return_403=True)
+@transaction.atomic
+def add_affiliation(request, doi_label, pk):
+    """
+    Adds an affiliation to a PublicationAuthorsTable.
+    """
+    form = AuthorsTableOrganizationSelectForm(request.POST or None)
+    if form.is_valid():
+        table = get_object_or_404(PublicationAuthorsTable, pk=pk)
+        table.affiliations.add(form.cleaned_data['organization'])
+        table.save()
+    return redirect(reverse('journals:author_affiliations',
+                            kwargs={'doi_label': doi_label}))
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
@@ -469,7 +498,8 @@ class CreateMetadataXMLView(PublicationMixin,
                             ProdSupervisorPublicationPermissionMixin,
                             UpdateView):
     """
-    To be called by an EdAdmin (or Production Supervisor) after the citation_list, funding_info
+    To be called by an EdAdmin (or Production Supervisor) after the authors,
+    author ordering, affiliations, citation_list, funding_info
     entries have been filled. Populates the metadata_xml field of a Publication instance.
     The contents can then be sent to Crossref for registration.
     """

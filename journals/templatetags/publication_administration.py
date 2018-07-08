@@ -37,4 +37,7 @@ def author_affiliations_complete(publication):
     """
     if not has_all_author_relations(publication):
         return False
-    return len(publication.author_list.split(',')) == publication.authoraffiliations_set.all().count()
+    for author in publication.authors.all():
+        if not author.affiliation.exists():
+            return False
+    return True

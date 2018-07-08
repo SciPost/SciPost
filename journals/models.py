@@ -41,6 +41,7 @@ class PublicationAuthorsTable(models.Model):
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
+    affiliations = models.ManyToManyField('partners.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:

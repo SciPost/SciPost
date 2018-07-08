@@ -16,6 +16,8 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
 from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
@@ -26,6 +28,7 @@ from .signals import notify_manuscript_published
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
+from partners.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
@@ -118,6 +121,15 @@ class BasePublicationAuthorsTableFormSet(BaseModelFormSet):
 PublicationAuthorOrderingFormSet = modelformset_factory(
     PublicationAuthorsTable, fields=(), can_order=True, extra=0,
     formset=BasePublicationAuthorsTableFormSet)
+
+
+class AuthorsTableOrganizationSelectForm(forms.ModelForm):
+    #organization = AutoCompleteSelectField('organization_lookup')
+    organization = forms.ModelChoiceField(queryset=Organization.objects.all())
+
+    class Meta:
+        model = PublicationAuthorsTable
+        fields = []
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
