@@ -587,27 +587,6 @@ class Reference(models.Model):
         return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
 
 
-class AuthorAffiliation(models.Model):
-    """
-    An AuthorAffiliation is a declared affiliation of an author of a given
-    SciPost publication, to an Organization instance, at a given time (the
-    moment of publication). This link is set by EdAdmin, in preparation for
-    publication. This information is then used in metadata deposits.
-    """
-    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=64)
-    last_name = models.CharField(max_length=64)
-    contributor = models.ForeignKey('scipost.Contributor', blank=True, null=True,
-                                    on_delete=models.SET_NULL)
-    unregistered_author = models.ForeignKey('journals.UnregisteredAuthor',
-                                            blank=True, null=True, on_delete=models.SET_NULL)
-    organization = models.ForeignKey('partners.Organization', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return '%s, %s: %s [for %s]' % (self.last_name, self.first_name,
-                                        self.organization, self.publication.doi_label)
-
-
 class Deposit(models.Model):
     """
     Each time a Crossref deposit is made for a Publication,
