@@ -38,6 +38,6 @@ def author_affiliations_complete(publication):
     if not has_all_author_relations(publication):
         return False
     for author in publication.authors.all():
-        if not author.affiliation.exists():
+        if not author.affiliations.exists():
             return False
     return True
