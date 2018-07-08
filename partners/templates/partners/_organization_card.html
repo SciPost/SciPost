@@ -1,5 +1,83 @@
 {% load bootstrap %}
 
 <div class="card-body">
-  <a href="{% url 'partners:organization_publications' pk=org.id %}">See associated publications</a>
+
+  <div class="row">
+    <div class="col-12">
+      <ul class="nav nav-tabs" id="organization-tab" role="tablist">
+	<li class="nav-item">
+	  <a class="nav-link" id="details-tab" data-toggle="tab" href="#details" role="tab" aria-controls="details" aria-selected="true">Details</a>
+	</li>
+	<li class="nav-item">
+	  <a class="nav-link active" id="publications-tab" data-toggle="tab" href="#publications" role="tab" aria-controls="publications" aria-selected="true">Associated Publications</a>
+	</li>
+	<li class="nav-item">
+	  <a class="nav-link" id="authors-tab" data-toggle="tab" href="#authors" role="tab" aria-controls="authors" aria-selected="true">Associated Authors</a>
+	</li>
+	<li class="nav-item">
+	  <a class="nav-link" id="partnership-tab" data-toggle="tab" href="#partnership" role="tab" aria-controls="partnership" aria-selected="true">Partnership history</a>
+	</li>
+	{% if perms.scipost.can_manage_organizations %}
+	<li class="nav-item">
+	  <a class="nav-link" id="manage-tab" data-toggle="tab" href="#manage" role="tab" aria-controls="manage" aria-selected="true">Manage</a>
+	</li>
+	{% endif %}
+      </ul>
+
+      <div class="tab-content" id="organization-tab">
+	<div class="tab-pane pt-4" id="details" role="tabpanel" aria-labelledby="details-tab">
+	  <h3>Details:</h3>
+	  {% include 'partners/_organization_details_contents.html' with org=org %}
+	</div>
+
+	<div class="tab-pane show active pt-4" id="publications" role="tabpanel" aria-labelledby="publications-tab">
+	  <h3>Publications associated to this Organization:</h3>
+	  <ul>
+	    {% for publication in org.get_publications %}
+	    <li>
+              <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
+              <br>by {{ publication.author_list }},
+              <br>{{ publication.citation }}
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</div>
+
+	<div class="tab-pane pt-4" id="authors" role="tabpanel" aria-labelledby="authors-tab">
+	  <h3>Associated Authors:</h3>
+	  <h4>Registered Contributors:</h4>
+	  <ul>
+	    {% for author in org.get_contributor_authors %}
+	    <li><a href="{{ author.get_absolute_url }}">{{ author }}</a></li>
+	    {% empty %}
+	    <li>No Contributors found</li>
+	    {% endfor %}
+	  </ul>
+	  <h4>Unregistered:</h4>
+	  <ul>
+	    {% for author in org.get_unregistered_authors %}
+	    <li>{{ author }}</li>
+	    {% empty %}
+	    <li>No unregistered author found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+
+	<div class="tab-pane pt-4" id="partnership" role="tabpanel" aria-labelledby="partnership-tab">
+	  <h3>Partnership history:</h3>
+	</div>
+
+	<div class="tab-pane pt-4" id="manage" role="tabpanel" aria-labelledby="manage-tab">
+	  {% if perms.scipost.can_manage_organizations %}
+	  <h3>Manage this organization:</h3>
+	  <ul>
+	    <li><a href="{% url 'partners:organization_update' pk=org.id %}">Update</a></li>
+	    <li><a href="{% url 'partners:organization_delete' pk=org.id %}">Delete</a></li>
+	  </ul>
+	  <hr/>
+	  {% endif %}
+	</div>
+      </div>
+    </div>
+  </div>
 </div>

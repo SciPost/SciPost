@@ -12,7 +12,7 @@ from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
-from django.views.generic.base import TemplateView
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
@@ -40,18 +40,6 @@ from journals.models import Publication
 
 from scipost.mixins import PermissionsMixin
 
-
-class OrganizationManageView(PermissionsMixin, TemplateView):
-    """
-    Management page for Organizations.
-    """
-    permission_required = 'scipost.can_manage_organizations'
-    template_name = 'partners/organizations_manage.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['organizations'] = Organization.objects.all()
-        return context
 
 
 class OrganizationCreateView(PermissionsMixin, CreateView):
@@ -88,14 +76,8 @@ class OrganizationListView(ListView):
     model = Organization
 
 
-class OrganizationPublicationListView(ListView):
-    model = Publication
-    template_name = 'partners/organization_publications.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['org'] = get_object_or_404(Organization, pk=self.kwargs['pk'])
-        return context
+class OrganizationDetailView(DetailView):
+    model = Organization
 
 
 def supporting_partners(request):

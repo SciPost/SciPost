@@ -32,6 +32,8 @@ from .managers import (
     MembershipAgreementManager, ProspectivePartnerManager, PartnerManager, ContactRequestManager,
     PartnersAttachmentManager)
 
+from journals.models import Publication, PublicationAuthorsTable
+
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import get_sentinel_user, Contributor
@@ -84,6 +86,19 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    def get_absolute_url(self):
+        return reverse('partners:organization_details', args=(self.id,))
+
+    def get_publications(self):
+        return Publication.objects.filter(authors__affiliations__in=[self]).distinct()
+
+    def get_contributor_authors(self):
+        # pubauthtable = PublicationAuthorsTable.objects.filter(affiliations__in=[self])
+        # return Contributor.objects.filter(
+        return self.publicationauthorstable_set.select_related('contributor')
+
+    def get_unregistered_authors(self):
+        return self.publicationauthorstable_set.select_related('unregistered_author')
 
 
 ########################

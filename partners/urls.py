@@ -16,9 +16,6 @@ urlpatterns = [
     url(r'^organizations/$',
         views.OrganizationListView.as_view(),
         name='organization_list'),
-    url(r'^organizations/manage/$',
-        views.OrganizationManageView.as_view(),
-        name='organizations_manage'),
     url(r'^organizations/add/$',
         views.OrganizationCreateView.as_view(),
         name='organization_create'),
@@ -28,9 +25,9 @@ urlpatterns = [
     url(r'^organizations/(?P<pk>[0-9]+)/delete/$',
         views.OrganizationDeleteView.as_view(),
         name='organization_delete'),
-    url(r'^organizations/(?P<pk>[0-9]+)/publications/$',
-        views.OrganizationPublicationListView.as_view(),
-        name='organization_publications'),
+    url(r'^organizations/(?P<pk>[0-9]+)/$',
+        views.OrganizationDetailView.as_view(),
+        name='organization_details'),
 
     # Prospects
     url(r'^prospects/add$', views.add_prospective_partner,
