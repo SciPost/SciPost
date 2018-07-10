@@ -210,7 +210,7 @@ def partner_edit(request, partner_id):
         form.save()
         contact_formset.save()
         messages.success(request, 'Partner saved')
-        return redirect(reverse('partners:partner_edit', args=(partner.id,)))
+        return redirect(reverse('partners:partner_view', args=(partner.id,)))
     context = {
         'form': form,
         'contact_formset': contact_formset
