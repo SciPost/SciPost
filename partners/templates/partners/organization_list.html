@@ -8,6 +8,9 @@
 <div class="row">
     <div class="col-12">
       <h1 class="highlight">Organizations</h1>
+      {% if perms.scipost.can_manage_organizations %}
+      <a href="{% url 'partners:organization_create' %}">Create a new Organization instance</a>
+      {% endif %}
     </div>
 </div>
 
