@@ -27,7 +27,7 @@
 	{% for org in object_list %}
 	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ org.id }}" aria-expanded="true" aria-controls="collapse{{ org.id }}" style="cursor: pointer;">
 	  <td>{{ org.get_country_display }}</td>
-	  <td>{{ org.acrynym }}</td>
+	  <td>{{ org.acronym }}</td>
 	  <td>{{ org.name }}</td>
 	  <td>{{ org.get_orgtype_display }}</td>
 	</tr>
