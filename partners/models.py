@@ -98,10 +98,12 @@ class Organization(models.Model):
     def get_contributor_authors(self):
         # pubauthtable = PublicationAuthorsTable.objects.filter(affiliations__in=[self])
         # return Contributor.objects.filter(
-        return self.publicationauthorstable_set.select_related('contributor')
+        return self.publicationauthorstable_set.select_related(
+            'contributor').order_by('contributor__user__last_name')
 
     def get_unregistered_authors(self):
-        return self.publicationauthorstable_set.select_related('unregistered_author')
+        return self.publicationauthorstable_set.select_related(
+            'unregistered_author').order_by('unregistered_author__last_name')
 
 
 ########################
