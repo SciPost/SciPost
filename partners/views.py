@@ -34,7 +34,8 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
     NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
     MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
-    ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
+    ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm,\
+    PartnerSpecifyOrganizationForm
 
 from journals.models import Publication
 

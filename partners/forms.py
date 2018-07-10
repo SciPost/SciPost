@@ -14,6 +14,8 @@ from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
                        PARTNER_STATUS_UPDATE, REQUEST_PROCESSED, REQUEST_DECLINED, CONTACT_GENERAL
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
@@ -149,6 +151,7 @@ class PartnerForm(forms.ModelForm):
         model = Partner
         fields = (
             'institution',
+            'organization',
             'status',
             'main_contact'
         )
