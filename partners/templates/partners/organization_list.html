@@ -18,6 +18,7 @@
       <thead class="thead-default">
 	<tr>
 	  <th>Country</th>
+	  <th>Acronym</th>
 	  <th>Name</th>
 	  <th>Type</th>
 	</tr>
@@ -26,16 +27,17 @@
 	{% for org in object_list %}
 	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ org.id }}" aria-expanded="true" aria-controls="collapse{{ org.id }}" style="cursor: pointer;">
 	  <td>{{ org.get_country_display }}</td>
+	  <td>{{ org.acrynym }}</td>
 	  <td>{{ org.name }}</td>
 	  <td>{{ org.get_orgtype_display }}</td>
 	</tr>
 	<tr id="collapse{{ org.id }}" class="collapse" role="tabpanel" aria-labbeledby="heading{{ org.id }}" style="background-color: #fff;">
-	  <td colspan="3">
+	  <td colspan="4">
 	    {% include 'partners/_organization_card.html' with org=org %}
 	  </td>
 	</tr>
 	{% empty %}
-	<tr><td colspan="3">No organizations found</td></tr>
+	<tr><td colspan="4">No organizations found</td></tr>
 	{% endfor %}
       </tbody>
     </table>
