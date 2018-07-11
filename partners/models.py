@@ -105,6 +105,15 @@ class Organization(models.Model):
         return self.publicationauthorstable_set.select_related(
             'unregistered_author').order_by('unregistered_author__last_name')
 
+    @property
+    def has_current_agreement(self):
+        """
+        Check if this organization has a current Partnership agreement.
+        """
+        if not self.partner:
+            return False
+        return self.partner.agreements.now_active().exists()
+
 
 ########################
 # Prospective Partners #
@@ -293,8 +302,8 @@ class Partner(models.Model):
     """
     institution = models.ForeignKey('partners.Institution', on_delete=models.CASCADE,
                                     blank=True, null=True)
-    organization = models.ForeignKey('partners.Organization', on_delete=models.CASCADE,
-                                     blank=True, null=True)
+    organization = models.OneToOneField('partners.Organization', on_delete=models.CASCADE,
+                                        blank=True, null=True)
     status = models.CharField(max_length=16, choices=PARTNER_STATUS, default=PARTNER_INITIATED)
     main_contact = models.ForeignKey('partners.Contact', on_delete=models.SET_NULL,
                                      blank=True, null=True, related_name='partner_main_contact')
@@ -308,6 +317,9 @@ class Partner(models.Model):
 
     def get_absolute_url(self):
         return reverse('partners:partner_view', args=(self.id,))
+
+    def get_latest_active_agreement(self):
+        return self.agreements.now_active().order_by('start_date').first()
 
     @property
     def has_all_contacts(self):

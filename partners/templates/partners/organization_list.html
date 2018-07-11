@@ -3,6 +3,7 @@
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
+{% load partners_extras %}
 
 {% block content %}
 <div class="row">
@@ -24,6 +25,7 @@
 	  <th>Acronym</th>
 	  <th>Name</th>
 	  <th>Type</th>
+	  <th>Partner?</th>
 	</tr>
       </thead>
       <tbody id="accordion" role="tablist" aria-multiselectable="true">
@@ -33,9 +35,17 @@
 	  <td>{{ org.acronym }}</td>
 	  <td>{{ org.name }}</td>
 	  <td>{{ org.get_orgtype_display }}</td>
+	  {% if org.has_current_agreement %}
+	  <td style="background-color: #32cd32;">Yes</td>
+	  {% elif org.partner.agreements %}
+	  <td style="background-color: #ff8c00;">Was</td>
+	  {% else %}
+	  <td style="background-color: #ee0000;">Not yet</td>
+	  {% endif %}
+	  <td></td>
 	</tr>
 	<tr id="collapse{{ org.id }}" class="collapse" role="tabpanel" aria-labbeledby="heading{{ org.id }}" style="background-color: #fff;">
-	  <td colspan="4">
+	  <td colspan="5">
 	    {% include 'partners/_organization_card.html' with org=org %}
 	  </td>
 	</tr>

@@ -5,9 +5,11 @@
   <div class="row">
     <div class="col-12">
       <ul class="nav nav-tabs" id="organization-{{ org.id }}-tab" role="tablist">
+	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
+	{% endif %}
 	<li class="nav-item">
 	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Associated Publications</a>
 	</li>
@@ -25,10 +27,13 @@
       </ul>
 
       <div class="tab-content" id="organization-{{ org.id }}-tab">
+
+	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
 	  <h3>Details:</h3>
 	  {% include 'partners/_organization_details_contents.html' with org=org %}
 	</div>
+	{% endif %}
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization:</h3>
@@ -71,12 +76,12 @@
 
 	<div class="tab-pane pt-4" id="partnership-{{ org.id }}" role="tabpanel" aria-labelledby="partnership-{{ org.id }}-tab">
 	  <h3>Partnership history:</h3>
-	  {% if org.partner.agreements %}
-	  {% if org.partner.agreements.now_active %}
+	  {% with agreement=org.partner.get_latest_active_agreement %}
+	  {% if agreement %}
 	  <p>This organization is currently a SciPost Supporting Partner.</p>
-	  {% else %}
-	  <p>This organization is currently <span class="text-danger">not</span> a SciPost Supporting Partner.</p>
 	  {% endif %}
+	  {% endwith %}
+	  {% if org.partner.agreements %}
 	  <table class="table">
 	    <thead>
 	      <th>Status</th>
@@ -85,7 +90,7 @@
 	      <th>Contribution/year</th>
 	    </thead>
 	    <tbody>
-	      {% for agreement in org.partner.agreements %}
+	      {% for agreement in org.partner.agreements.all %}
 	      <tr>
 		<td>{{ agreement.get_status_display }}</td>
 		<td>{{ agreement.get_duration_display }}</td>
@@ -96,7 +101,7 @@
 	    </tbody>
 	  </table>
 	  {% else %}
-	  <p>This organization has not yet become a SciPost Supporting Partner.</p>
+	  <p>This organization has <span class="text-danger">not yet</span> been as a SciPost Supporting Partner.</p>
 	  {% endif %}
 	</div>
 
