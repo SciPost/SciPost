@@ -84,7 +84,7 @@ class Organization(models.Model):
                                       on_delete=models.SET_NULL)
 
     class Meta:
-        ordering = ['name']
+        ordering = ['country', 'name']
 
     def __str__(self):
         return self.name
