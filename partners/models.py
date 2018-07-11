@@ -95,6 +95,9 @@ class Organization(models.Model):
     def get_publications(self):
         return Publication.objects.filter(authors__affiliations__in=[self]).distinct()
 
+    def count_publications(self):
+        return self.get_publications().count()
+
     def get_contributor_authors(self):
         # pubauthtable = PublicationAuthorsTable.objects.filter(affiliations__in=[self])
         # return Contributor.objects.filter(
