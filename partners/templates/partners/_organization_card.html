@@ -95,9 +95,11 @@
 		<td>{{ agreement.get_status_display }}</td>
 		<td>{{ agreement.get_duration_display }}</td>
 		<td>{{ agreement.start_date }}</td>
-		<td>{{ agreement.offered_yearly_contribution }}&euro;</td>
+		<td>&euro; {{ agreement.offered_yearly_contribution }}</td>
 	      </tr>
 	      {% endfor %}
+	      <tr style="border-top: 2px solid black">
+		<td colspan="2"></td><td>Total contribution obtained:</td><td>&euro; {{ org.get_total_contribution_obtained }}</td></tr>
 	    </tbody>
 	  </table>
 	  {% else %}

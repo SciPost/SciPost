@@ -117,6 +117,18 @@ class Organization(models.Model):
             return False
         return self.partner.agreements.now_active().exists()
 
+    def get_total_contribution_obtained(self, n_years_past=None):
+        """
+        Computes the contribution obtained from this organization,
+        summed over all time.
+        """
+        contrib = 0
+        now = timezone.now().date()
+        for agreement in self.partner.agreements.all():
+            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days/365)
+        return contrib
+
+
 
 ########################
 # Prospective Partners #
