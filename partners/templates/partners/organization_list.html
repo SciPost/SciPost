@@ -39,11 +39,11 @@
 	  <td>{{ org.get_orgtype_display }}</td>
 	  <td>{{ org.count_publications }}</td>
 	  {% if org.has_current_agreement %}
-	  <td style="background-color: #32cd32;">Yes</td>
+	  <td class="bg-success">Yes</td>
 	  {% elif org.partner.agreements %}
-	  <td style="background-color: #ff8c00;">Due for renewal</td>
+	  <td class="bg-warning">Due for renewal</td>
 	  {% else %}
-	  <td style="background-color: #ddcccc;">Not yet</td>
+	  <td class="bg-danger">Not yet</td>
 	  {% endif %}
 	  <td></td>
 	</tr>
