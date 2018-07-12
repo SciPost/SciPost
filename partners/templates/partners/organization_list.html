@@ -23,8 +23,7 @@
       <thead class="thead-default">
 	<tr>
 	  <th>Country</th>
-	  <th>Acronym</th>
-	  <th>Name</th>
+	  <th>Name&nbsp;&nbsp;<small>[acronym]</small></th>
 	  <th>NAP <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab"></i></th>
 	  <th>Partner?</th>
 	</tr>
@@ -33,8 +32,7 @@
 	{% for org in object_list %}
 	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ org.id }}" aria-expanded="true" aria-controls="collapse{{ org.id }}" style="cursor: pointer;">
 	  <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
-	  <td>{{ org.acronym }}</td>
-	  <td>{{ org.name }}</td>
+	  <td>{{ org.name }}&nbsp;&nbsp;<small>[{{ org.acronym }}]</small></td>
 	  <td>{{ org.count_publications }}</td>
 	  {% if org.has_current_agreement %}
 	  <td class="bg-success">Yes</td>
@@ -46,7 +44,7 @@
 	  <td></td>
 	</tr>
 	<tr id="collapse{{ org.id }}" class="collapse" role="tabpanel" aria-labbeledby="heading{{ org.id }}" style="background-color: #fff;">
-	  <td colspan="5">
+	  <td colspan="4">
 	    {% include 'partners/_organization_card.html' with org=org %}
 	  </td>
 	</tr>
