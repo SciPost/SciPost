@@ -95,7 +95,8 @@ class Organization(models.Model):
     def get_publications(self):
         return Publication.objects.filter(
             models.Q(authors__affiliations__in=[self]) |
-            models.Q(grants__funder__organization=self)).distinct()
+            models.Q(grants__funder__organization=self) |
+            models.Q(funders_generic__organization=self)).distinct()
 
     def count_publications(self):
         return self.get_publications().count()
