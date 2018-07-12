@@ -12,14 +12,19 @@ from .managers import FunderQuerySet
 
 
 class Funder(models.Model):
-    """Funder is a Fundref regsitry.
+    """
+    A Funder instance is an organization present in the Fundref registry.
 
-    Funding info metadata is linked to funders from Crossref's
+    Funding info metadata, which is deposited with our normal metadata deposits
+    to Crossref (via Grants or generic Funders), is linked back to funders
+    through Crossref's Crossmark service.
     """
 
     name = models.CharField(max_length=256)
     acronym = models.CharField(max_length=32, blank=True)
     identifier = models.CharField(max_length=200, unique=True)
+    organization = models.OneToOneField('partners.Organization', on_delete=models.CASCADE,
+                                        blank=True, null=True)
 
     objects = FunderQuerySet.as_manager()
 

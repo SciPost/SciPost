@@ -4,13 +4,18 @@
 
 {% load staticfiles %}
 {% load partners_extras %}
+{% load funders_extras %}
 
 {% block content %}
 <div class="row">
     <div class="col-12">
       <h1 class="highlight">Organizations</h1>
       {% if perms.scipost.can_manage_organizations %}
-      <a href="{% url 'partners:organization_create' %}">Create a new Organization instance</a>
+      <h3>Management actions:</h3>
+      <ul>
+	<li><a href="{% url 'partners:organization_create' %}">Create a new Organization instance</a></li>
+	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> (nr with no linked organization (to handle): {% count_funders_wo_organization %})</li>
+      </ul>
       {% endif %}
     </div>
 </div>
