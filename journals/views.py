@@ -395,13 +395,8 @@ def add_affiliation(request, doi_label, pk):
         return redirect(reverse('journals:author_affiliations',
                                 kwargs={'doi_label': doi_label}))
     context = {'table': table, 'add_affiliation_form': form}
-    # if table.contributor:
-    #     context['auth'] = table.contributor
-    # elif table.unregistered_author:
-    #     context['auth'] = unregistered_author
-    # else:
-    #     raise
     return render(request, 'journals/author_affiliation_add.html', context)
+
 
 @permission_required('scipost.can_draft_publication', return_403=True)
 @transaction.atomic

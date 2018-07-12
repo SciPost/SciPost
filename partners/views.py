@@ -37,6 +37,8 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
 
 
+from funders.models import Funder
+
 from journals.models import Publication
 
 from scipost.mixins import PermissionsMixin
@@ -76,6 +78,12 @@ class OrganizationDeleteView(PermissionsMixin, DeleteView):
 
 class OrganizationListView(ListView):
     model = Organization
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.request.user.has_perm('scipost.can_manage_organizations'):
+            context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
+        return context
 
 
 class OrganizationDetailView(DetailView):

@@ -64,7 +64,8 @@
 	      <th>Name</th>
 	      <th>Acronym</th>
 	      <th>Identifier</th>
-          <th></th>
+	      <th>Organization</th>
+              <th>Actions</th>
 	    </tr>
 	  </thead>
 	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
@@ -73,7 +74,12 @@
 	      <td>{{ funder.name }}</td>
 	      <td>{{ funder.acronym }}</td>
 	      <td>{{ funder.identifier }}</td>
-          <td><a href="{% url 'funders:funder_publications' funder.id %}">See all Publications for Funder</a></td>
+	      <td>{{ funder.organization }}</td>
+              <td>
+		<ul>
+		  <li><a href="{% url 'funders:link_to_organization' pk=funder.id %}">{% if not funder.organization %}Link to an{% else %}Edit the{% endif %} Organization</a></li>
+		  <li><a href="{% url 'funders:funder_publications' funder.id %}">See all Publications for Funder</a></li>
+	      </td>
 	    </tr>
             {% empty %}
             <tr>

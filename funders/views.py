@@ -10,11 +10,11 @@ from django.contrib.auth.decorators import permission_required
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.utils.decorators import method_decorator
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
 
 from .models import Funder, Grant
-from .forms import FunderRegistrySearchForm, FunderForm, GrantForm
+from .forms import FunderRegistrySearchForm, FunderForm, FunderOrganizationSelectForm, GrantForm
 
 from scipost.mixins import PermissionsMixin
 
@@ -88,6 +88,21 @@ class HttpRefererMixin:
     def form_valid(self, form):
         if form.cleaned_data.get('http_referer'):
             self.success_url = form.cleaned_data['http_referer']
+        return super().form_valid(form)
+
+
+class LinkFunderToOrganizationView(PermissionsMixin, UpdateView):
+    """
+    For an existing Funder instance, specify the link to an Organization.
+    """
+    permission_required = 'scipost.can_create_grants'
+    model = Funder
+    form_class = FunderOrganizationSelectForm
+    template_name = 'funders/funder_link_organization.html'
+    success_url = reverse_lazy('funders:funders_dashboard')
+
+    def form_valid(self, form):
+        form.instance.organization = form.cleaned_data['organization']
         return super().form_valid(form)
 
 

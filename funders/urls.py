@@ -14,4 +14,7 @@ urlpatterns = [
     url(r'^add$', views.add_funder, name='add_funder'),
     url(r'^(?P<funder_id>[0-9]+)/$', views.funder_publications, name='funder_publications'),
     url(r'^grants/add$', views.CreateGrantView.as_view(), name='add_grant'),
+    url(r'^(?P<pk>[0-9]+)/link_to_organization/$',
+        views.LinkFunderToOrganizationView.as_view(),
+        name='link_to_organization'),
 ]

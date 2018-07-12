@@ -4,7 +4,6 @@
 
 {% load staticfiles %}
 {% load partners_extras %}
-{% load funders_extras %}
 
 {% block content %}
 <div class="row">
@@ -14,7 +13,7 @@
       <h3>Management actions:</h3>
       <ul>
 	<li><a href="{% url 'partners:organization_create' %}">Create a new Organization instance</a></li>
-	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> (nr with no linked organization (to handle): {% count_funders_wo_organization %})</li>
+	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
       </ul>
       {% endif %}
     </div>
