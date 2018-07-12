@@ -93,7 +93,9 @@ class Organization(models.Model):
         return reverse('partners:organization_details', args=(self.id,))
 
     def get_publications(self):
-        return Publication.objects.filter(authors__affiliations__in=[self]).distinct()
+        return Publication.objects.filter(
+            models.Q(authors__affiliations__in=[self]) |
+            models.Q(grants__funder__organization=self)).distinct()
 
     def count_publications(self):
         return self.get_publications().count()
