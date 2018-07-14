@@ -88,8 +88,8 @@ class OrganizationListView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        order_by = self.request.GET.get('order_by', 'name')
-        ordering = self.request.GET.get('ordering', 'asc')
+        order_by = self.request.GET.get('order_by')
+        ordering = self.request.GET.get('ordering')
         if order_by == 'country':
             qs = qs.order_by('country')
         elif order_by == 'name':
