@@ -16,6 +16,11 @@ ORGTYPE_PROFESSIONAL_SOCIETY = 'ProfessionalSociety'
 ORGTYPE_INTERNATIONAL_CONSORTIUM = 'InternationalConsortium'
 ORGTYPE_NATIONAL_CONSORTIUM = 'NationalConsortium'
 ORGTYPE_FOUNDATION = 'Foundation'
+ORGTYPE_GOVERNMENT_INTERNATIONAL = 'GovernmentInternational'
+ORGTYPE_GOVERNMENT_NATIONAL = 'GovernmentNational'
+ORGTYPE_GOVERNMENT_PROVINCIAL = 'GovernmentProvincial'
+ORGTYPE_GOVERNMENT_REGIONAL = 'GovernmentRegional'
+ORGTYPE_GOVERNMENT_MUNICIPAL = 'GovernmentMunicipal'
 ORGTYPE_GOVERNMENTAL_MINISTRY = 'GovernmentalMinistry'
 ORGTYPE_GOVERNMENTAL_OFFICE = 'GovernmentalOffice'
 ORGTYPE_BUSINESS_CORPORATION = 'BusinessCorporation'
@@ -35,6 +40,11 @@ ORGANIZATION_TYPES = (
     (ORGTYPE_INTERNATIONAL_CONSORTIUM, 'International Consortium'),
     (ORGTYPE_NATIONAL_CONSORTIUM, 'National Consortium'),
     (ORGTYPE_FOUNDATION, 'Foundation'),
+    (ORGTYPE_GOVERNMENT_INTERNATIONAL, 'Government (international)'),
+    (ORGTYPE_GOVERNMENT_NATIONAL, 'Government (national)'),
+    (ORGTYPE_GOVERNMENT_PROVINCIAL, 'Government (provincial)'),
+    (ORGTYPE_GOVERNMENT_REGIONAL, 'Government (regional)'),
+    (ORGTYPE_GOVERNMENT_MUNICIPAL, 'Government (municipal)'),
     (ORGTYPE_GOVERNMENTAL_MINISTRY, 'Governmental Ministry'),
     (ORGTYPE_GOVERNMENTAL_OFFICE, 'Governmental Office'),
     (ORGTYPE_BUSINESS_CORPORATION, 'Business Corporation'),
