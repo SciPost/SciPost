@@ -95,7 +95,7 @@ class OrganizationListView(ListView):
         elif order_by == 'name':
             qs = qs.order_by('name')
         elif order_by == 'nap':
-            qs = qs.order_by('nr_associated_publications')
+            qs = qs.order_by('cf_nr_associated_publications')
         if ordering == 'desc':
             qs = qs.reverse()
         return qs

@@ -87,7 +87,7 @@ class Organization(models.Model):
     # affiliation, grant or f
     cf_nr_associated_publications = models.PositiveIntegerField(
         blank=True, null=True,
-        help_text='nr_associated_publications is a calculated field')
+        help_text='NB: nr_associated_publications is a calculated field. Do not modify.')
 
     class Meta:
         ordering = ['country', 'name']
@@ -106,6 +106,13 @@ class Organization(models.Model):
 
     def count_publications(self):
         return self.get_publications().count()
+
+    def update_cf_nr_associated_publications(self):
+        """
+        Update the calculated field Organization:cf_nr_associated_publications.
+        """
+        self.cf_nr_associated_publications = self.count_publications()
+        self.save()
 
     def get_contributor_authors(self):
         # pubauthtable = PublicationAuthorsTable.objects.filter(affiliations__in=[self])
