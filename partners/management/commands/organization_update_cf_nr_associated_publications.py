@@ -8,7 +8,8 @@ from partners.models import Organization
 
 
 class Command(BaseCommand):
-    help = ' for model Organization, this updates the calculated field cf_nr_associated_publications'
+    help = ('For all Organization model instances, '
+            'this updates the calculated field cf_nr_associated_publications')
 
     def handle(self, *args, **kwargs):
         for org in Organization.objects.all():

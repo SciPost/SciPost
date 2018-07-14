@@ -115,8 +115,6 @@ class Organization(models.Model):
         self.save()
 
     def get_contributor_authors(self):
-        # pubauthtable = PublicationAuthorsTable.objects.filter(affiliations__in=[self])
-        # return Contributor.objects.filter(
         return self.publicationauthorstable_set.select_related(
             'contributor').order_by('contributor__user__last_name')
 
