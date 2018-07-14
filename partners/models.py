@@ -95,6 +95,21 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def full_name(self):
+        full_name_str = ""
+        if self.name_original:
+            full_name_str += "%s / " % self.name_original
+        full_name_str += "%s" % self
+        return full_name_str
+
+    @property
+    def full_name_with_acronym(self):
+        full_name_str = ""
+        if self.acronym:
+            full_name_str += "[%s] " % self.acronym
+        return full_name_str + self.full_name
+
     def get_absolute_url(self):
         return reverse('partners:organization_details', args=(self.id,))
 
