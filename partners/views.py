@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
+from django.db.models import F
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
@@ -84,6 +85,20 @@ class OrganizationListView(ListView):
         if self.request.user.has_perm('scipost.can_manage_organizations'):
             context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
         return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        order_by = self.request.GET.get('order_by', 'name')
+        ordering = self.request.GET.get('ordering', 'asc')
+        if order_by == 'country':
+            qs = qs.order_by('country')
+        elif order_by == 'name':
+            qs = qs.order_by('name')
+        elif order_by == 'nap':
+            qs = qs.order_by('nr_associated_publications')
+        if ordering == 'desc':
+            qs = qs.reverse()
+        return qs
 
 
 class OrganizationDetailView(DetailView):
