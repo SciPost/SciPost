@@ -53,6 +53,9 @@
 	      </p>
 	    </small>
 	    {% endif %}
+	    {% if org.superseded_by %}
+	    <small class="text-muted"><p>Superseded by {{ org.superseded_by }}</p></small>
+	    {% endif %}
 	  </td>
 	  <td>{{ org.cf_nr_associated_publications }}</td>
 	  {% if org.has_current_agreement %}
