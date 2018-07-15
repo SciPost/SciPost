@@ -17,6 +17,9 @@
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
+	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">Funder instances</a>
+	</li>
+	<li class="nav-item">
 	  <a class="nav-link" id="partnership-{{ org.id }}-tab" data-toggle="tab" href="#partnership-{{ org.id }}" role="tab" aria-controls="partnership-{{ org.id }}" aria-selected="true">Partnership history</a>
 	</li>
 	{% if perms.scipost.can_manage_organizations %}
@@ -72,6 +75,17 @@
 	      </ul>
 	    </div>
 	  </div>
+	</div>
+
+	<div class="tab-pane pt-4" id="funders-{{ org.id }}" role="tabpanel" aria-labelledby="funders-{{ org.id }}-tab">
+	  <h3>Funder instances (from FundRef) associated to this Organization:</h3>
+	  <ul>
+	    {% for funder in org.funders.all %}
+	    <li>{{ funder }}</li>
+	    {% empty %}
+	    <li>No FundRef instance found</li>
+	    {% endfor %}
+	  </ul>
 	</div>
 
 	<div class="tab-pane pt-4" id="partnership-{{ org.id }}" role="tabpanel" aria-labelledby="partnership-{{ org.id }}-tab">
