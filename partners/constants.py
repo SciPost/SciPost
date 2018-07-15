@@ -7,6 +7,7 @@ import datetime
 ORGTYPE_RESEARCH_INSTITUTE = 'ResearchRnstitute'
 ORGTYPE_INTERNATIONAL_FUNDING_AGENCY = 'InternationalFundingAgency'
 ORGTYPE_NATIONAL_FUNDING_AGENCY = 'NationalFundingAgency'
+ORGTYPE_FUNDING_AGENCY_INITIATIVE = 'FundingAgencyInitiative'
 ORGTYPE_NATIONAL_LABORATORY = 'NationalLaboratory'
 ORGTYPE_NATIONAL_LIBRARY = 'NationalLibrary'
 ORGTYPE_NATIONAL_ACADEMY = 'NationalAcademy'
@@ -30,7 +31,8 @@ ORGTYPE_PRIVATE_BENEFACTOR = 'PrivateBenefactor'
 ORGANIZATION_TYPES = (
     (ORGTYPE_RESEARCH_INSTITUTE, 'Research Institute'),
     (ORGTYPE_INTERNATIONAL_FUNDING_AGENCY, 'International Funding Agency'),
-    (ORGTYPE_NATIONAL_FUNDING_AGENCY, 'Funding Agency'),
+    (ORGTYPE_NATIONAL_FUNDING_AGENCY, 'National Funding Agency'),
+    (ORGTYPE_FUNDING_AGENCY_INITIATIVE, 'Funding Agency Initiative'),
     (ORGTYPE_NATIONAL_LABORATORY, 'National Laboratory'),
     (ORGTYPE_NATIONAL_LIBRARY, 'National Library'),
     (ORGTYPE_NATIONAL_ACADEMY, 'National Academy'),
