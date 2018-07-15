@@ -80,8 +80,10 @@ class Organization(models.Model):
                                  verbose_name="Additional logo CSS class")
     grid_json = JSONField(default={}, blank=True, null=True) # JSON data from GRID
     crossref_json = JSONField(default={}, blank=True, null=True) # JSON data from Crossref
-    superseded_by = models.ForeignKey('self', blank=True, null=True,
-                                      on_delete=models.SET_NULL)
+    parent = models.ForeignKey('self', blank=True, null=True,
+                               on_delete=models.SET_NULL, related_name='children')
+    superseded_by = models.OneToOneField('self', blank=True, null=True,
+                                         on_delete=models.SET_NULL)
     # Calculated fields (to save CPU; field name always starts with cf_)
     # Number of associated publications; needs to be updated when any related
     # affiliation, grant or f
