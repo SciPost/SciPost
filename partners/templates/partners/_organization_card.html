@@ -80,7 +80,7 @@
 	<div class="tab-pane pt-4" id="funders-{{ org.id }}" role="tabpanel" aria-labelledby="funders-{{ org.id }}-tab">
 	  <h3>Funder instances (from FundRef) associated to this Organization:</h3>
 	  <ul>
-	    {% for funder in org.funders.all %}
+	    {% for funder in org.funder_set.all %}
 	    <li>{{ funder }}</li>
 	    {% empty %}
 	    <li>No FundRef instance found</li>
