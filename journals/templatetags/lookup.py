@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 
 from ajax_select import register, LookupChannel
@@ -37,7 +38,8 @@ class PublicationLookup(LookupChannel):
         Right now only used for draft registration invitations. May be extended in the
         future for other purposes as well.
         """
-        return request.user.has_perm('can_create_registration_invitations')
+        if not request.user.has_perm('can_create_registration_invitations')
+            raise PermissionDenied
 
 
 @register('organization_lookup')
@@ -60,4 +62,5 @@ class OrganizationLookup(LookupChannel):
 
     def check_auth(self, request):
         """Check if has organization administrative permissions."""
-        return request.user.has_perm('scipost.can_manage_organizations')
+        if not request.user.has_perm('scipost.can_manage_organizations'):
+            raise PermissionDenied
