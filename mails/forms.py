@@ -18,7 +18,9 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
         self.pre_validation(*args, **kwargs)
 
         # This form shouldn't be is_bound==True is there is any non-relavant POST data given.
-        data = args[0] or {}
+        data = args[0] if args else {}
+        if not data:
+            data = {}
         if '%s-subject' % self.prefix in data.keys():
             data = {
                 '%s-subject' % self.prefix: data.get('%s-subject' % self.prefix),

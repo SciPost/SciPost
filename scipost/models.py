@@ -108,7 +108,7 @@ class Contributor(models.Model):
             feed += random.choice(string.ascii_letters)
         feed = feed.encode('utf8')
         salt = self.user.username.encode('utf8')
-        self.activation_key = hashlib.sha1(salt + salt).hexdigest()
+        self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = datetime.datetime.now() + datetime.timedelta(days=2)
 
     def expertises_as_string(self):
@@ -285,7 +285,10 @@ class PrecookedEmail(models.Model):
 ######################
 
 class EditorialCollege(models.Model):
-    '''A SciPost Editorial College for a specific discipline.'''
+    """A SciPost Editorial College for a specific discipline.
+
+    DEPRECATED. To be removed.
+    """
     discipline = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
@@ -296,6 +299,8 @@ class EditorialCollegeFellowship(TimeStampedModel):
     """
     Editorial College Fellowship connecting Editorial College and Contributors,
     maybe with a limiting start/until date.
+
+    DEPRECATED. To be removed.
     """
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                     related_name='+')

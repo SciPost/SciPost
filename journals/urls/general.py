@@ -68,10 +68,28 @@ urlpatterns = [
     url(r'^admin/manage_metadata/$',
         journals_views.manage_metadata,
         name='manage_metadata'),
+    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/$'.format(
+        regex=PUBLICATION_DOI_REGEX),
+        journals_views.AuthorAffiliationView.as_view(),
+        name='author_affiliations'),
+    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/(?P<pk>[0-9]+)/add/$'.format(
+        regex=PUBLICATION_DOI_REGEX),
+        #journals_views.AddAffiliationView.as_view(),
+        journals_views.add_affiliation,
+        name='author_affiliation_update'),
+    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/(?P<pk>[0-9]+)/remove/(?P<organization_id>[0-9]+)/$'.format(
+        regex=PUBLICATION_DOI_REGEX),
+        #journals_views.AddAffiliationView.as_view(),
+        journals_views.remove_affiliation,
+        name='author_affiliation_remove'),
     url(r'^admin/(?P<doi_label>{regex})/citation_list_metadata$'.format(
             regex=PUBLICATION_DOI_REGEX),
         journals_views.CitationUpdateView.as_view(),
         name='create_citation_list_metadata'),
+    url(r'^admin/(?P<doi_label>{regex})/abstract_jats$'.format(
+            regex=PUBLICATION_DOI_REGEX),
+        journals_views.AbstractJATSUpdateView.as_view(),
+        name='abstract_jats'),
     url(r'^admin/(?P<doi_label>{regex})/update_references$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.update_references, name='update_references'),
     url(r'^admin/(?P<doi_label>{regex})/funders/create_metadata$'.format(

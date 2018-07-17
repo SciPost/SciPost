@@ -30,7 +30,7 @@ SCIPOST_JOURNALS
 UPLOADS
 
 /docs/_build
-/docs/*/_build/*
+/docs/**/_build
 /docs/local_files/
 /local_files/
 /static/

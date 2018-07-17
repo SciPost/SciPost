@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.shortcuts import render
+from django.views.generic.edit import UpdateView
 
 from .forms import EmailTemplateForm, HiddenDataForm
 
@@ -15,11 +16,12 @@ class MailEditingSubView(object):
         self.request = request
         self.context = kwargs.get('context', {})
         self.template_name = kwargs.get('template', 'mails/mail_form.html')
+        self.header_template = kwargs.get('header_template', '')
         self.mail_form = EmailTemplateForm(request.POST or None, mail_code=mail_code, **kwargs)
 
     @property
     def recipients_string(self):
-        return ', '.join(getattr(self.mail_form, 'mail_fields', {}).get('recipients', ['']))
+        return ', '.join(getattr(self.mail_form, 'mail_data', {}).get('recipients', ['']))
 
     def add_form(self, form):
         self.context['transfer_data_form'] = HiddenDataForm(form)
@@ -38,6 +40,11 @@ class MailEditingSubView(object):
 
     def return_render(self):
         self.context['form'] = self.mail_form
+        self.context['header_template'] = self.header_template
+        if hasattr(self.mail_form, 'instance') and self.mail_form.instance:
+            self.context['object'] = self.mail_form.instance
+        else:
+            self.context['object'] = None
         return render(self.request, self.template_name, self.context)
 
 
@@ -73,7 +80,6 @@ class MailEditorMixin:
         if not self.has_permission_to_send_mail:
             # Don't use the mail form; don't send out the mail.
             return super().post(request, *args, **kwargs)
-        self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
             self.mail_form = EmailTemplateForm(request.POST or None, mail_code=self.mail_code,
@@ -107,4 +113,19 @@ class MailEditorMixin:
             # self.mail_form is None
             raise AttributeError('Did you check the order in which MailEditorMixin is used?')
         messages.success(self.request, 'Mail sent')
+        return response
+
+
+class MailView(UpdateView):
+    template_name = 'mails/mail_form.html'
+    form_class = EmailTemplateForm
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['mail_code'] = self.mail_code
+        return kwargs
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        form.send()
         return response

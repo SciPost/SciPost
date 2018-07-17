@@ -6,6 +6,8 @@ from django import forms
 
 from .models import Funder, Grant
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from scipost.forms import HttpRefererFormMixin
 from scipost.models import Contributor
 
@@ -22,6 +24,14 @@ class FunderForm(forms.ModelForm):
 
 class FunderSelectForm(forms.Form):
     funder = forms.ModelChoiceField(queryset=Funder.objects.all())
+
+
+class FunderOrganizationSelectForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+
+    class Meta:
+        model = Funder
+        fields = []
 
 
 class GrantForm(HttpRefererFormMixin, forms.ModelForm):

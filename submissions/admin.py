@@ -23,15 +23,7 @@ def submission_short_title(obj):
     return obj.submission.title[:30]
 
 
-class iThenticateReportAdmin(admin.ModelAdmin):
-    readonly_fields = ['doc_id']
-
-    def has_add_permission(self, request):
-        """ Don't add manually. This will gives conflict with the iThenticate db. """
-        return False
-
-
-admin.site.register(iThenticateReport, iThenticateReportAdmin)
+admin.site.register(iThenticateReport)
 
 
 class SubmissionAdminForm(forms.ModelForm):
@@ -53,8 +45,8 @@ class SubmissionAdminForm(forms.ModelForm):
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
-    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication',)
-    list_filter = ('status', 'discipline', 'submission_type',)
+    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication')
+    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to_journal')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
     readonly_fields = ('arxiv_identifier_w_vn_nr', 'publication')
@@ -107,6 +99,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             'fields': (
                 'editor_in_charge',
                 'status',
+                ('visible_public', 'visible_pool'),
                 'refereeing_cycle',
                 ('open_for_commenting', 'open_for_reporting'),
                 'reporting_deadline',
@@ -237,7 +230,8 @@ class EICRecommendationAdminForm(forms.ModelForm):
 
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
-    list_display = (submission_short_title, 'recommendation', 'active', 'version')
+    list_filter = ('status',)
+    list_display = (submission_short_title, 'recommendation', 'status', 'active', 'version')
     form = EICRecommendationAdminForm
 
 

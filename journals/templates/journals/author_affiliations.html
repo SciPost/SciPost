@@ -1,0 +1,60 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Author Affiliations{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
+                <span class="breadcrumb-item active">Author Affiliations</span>
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Author affiliations for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+    <br>
+
+    <h3>Current Author Affiliations:</h3>
+    <ul>
+      {% for auth in publication.authors.all %}
+      <li>
+	<div class="row">
+	  <div class="col-6">
+	    <h3>{{ auth }}</h3>
+	    <ul>
+	      {% for aff in auth.affiliations.all %}
+	      <li>{{ aff }} <a href="{% url 'journals:author_affiliation_remove' doi_label=publication.doi_label pk=auth.pk organization_id=aff.id %}">remove</a></li>
+	      {% empty %}
+	      <li>No affiliation found</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	  <div class="col-6">
+	    <a href="{% url 'journals:author_affiliation_update' doi_label=publication.doi_label pk=auth.pk %}">Add an affiliation</a> (at moment of publication) to this Author
+	  </div>
+	</div>
+      </li>
+      {% empty %}
+      <li>No author relation found!</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ add_affiliation_form.media }}
+{% endblock footer_script %}

@@ -70,10 +70,12 @@
         <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
       </form>
 
-      <h3>Partner status</h3>
-      <ul>
-          <li><a href="{% url 'partners:promote_prospartner' pp.id %}">Upgrade prospect to partner</a></li>
-      </ul>
+      {% if not pp.is_promoted_to_partner %}
+          <h3>Partner status</h3>
+          <ul>
+              <li><a href="{% url 'partners:promote_prospartner' pp.id %}">Upgrade prospect to partner</a></li>
+          </ul>
+      {% endif %}
     </div>
   </div>
 </div>

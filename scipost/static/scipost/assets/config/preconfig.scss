@@ -14,6 +14,11 @@ $border-radius-lg: 2px;
 $alert-padding-y: 0;
 $alert-padding-x: 0.75rem;
 
+// Badges
+
+$badge-padding-y: 0.4em;
+$badge-border-radius: $border-radius;
+
 // Grid
 //
 $grid-gutter-width: 20px;
@@ -55,7 +60,6 @@ $alert-border-radius: $base-border-radius;
 // Cards
 //
 $card-border-radius: $base-border-radius;
-$card-border-color: $gray-200;
 $card-spacer-x: 0.75rem;
 $card-spacer-y: 0.5rem;
 $card-shadow-color: #ccc;
@@ -120,7 +124,7 @@ $close-font-weight: 100;
 
 // Tables
 //
-$table-cell-padding: 0.25rem 0.5rem;
+$table-body-cell-padding: 0.25rem 0.5rem;
 
 
 // Tooltip
@@ -133,6 +137,8 @@ $navbar-light-color: $scipost-darkblue;
 $navbar-light-hover-color: $scipost-darkblue;
 $navbar-padding-x: 0.3rem;
 $navbar-padding-y: 0.35rem;
+$nav-tabs-border-color: $scipost-darkblue;
+$nav-tabs-link-active-border-color: $scipost-darkblue $scipost-darkblue $nav-tabs-link-active-bg;
 
 $input-border-radius: 0;
 $btn-border-radius: $base-border-radius;

@@ -82,6 +82,12 @@ class ProductionStream(models.Model):
     def notification_name(self):
         return self.submission.arxiv_identifier_w_vn_nr
 
+    @property
+    def latest_activity(self):
+        if self.events.last():
+            return self.events.last().noted_on
+        return self.closed or self.opened
+
 
 class ProductionEvent(models.Model):
     stream = models.ForeignKey(ProductionStream, on_delete=models.CASCADE, related_name='events')

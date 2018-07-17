@@ -39,6 +39,8 @@ class PetitionSignatory(models.Model):
     email = models.EmailField()
     country_of_employment = CountryField()
     affiliation = models.CharField(max_length=300, verbose_name='affiliation')
+    organization = models.ForeignKey('partners.Organization', blank=True, null=True,
+                                     on_delete=models.SET_NULL)
     signed_on = models.DateTimeField(auto_now_add=True)
     verification_key = models.CharField(max_length=40, blank=True)
     verified = models.BooleanField(default=False)

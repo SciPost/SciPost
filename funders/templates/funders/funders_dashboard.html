@@ -1,0 +1,148 @@
+{% extends 'funders/base.html' %}
+
+{% block pagetitle %}: Funders dashboard{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Dashboard</span>
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+        <h1 class="highlight">Funders (and associated grants)</h1>
+  </div>
+</div>
+
+
+<div class="row">
+    <div class="col-12">
+        <div class="tab-nav-container">
+            <div class="tab-nav-inner">
+                <!-- Nav tabs -->
+                <ul class="nav btn-group personal-page-nav" role="tablist">
+                  <li class="nav-item btn btn-outline-secondary">
+                    <a href="#funders" class="nav-link active" data-toggle="tab">Funders</a>
+                  </li>
+                  <li class="nav-item btn btn-outline-secondary">
+                    <a href="#grants" class="nav-link" data-toggle="tab">Grants</a>
+                  </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="tab-content">
+
+  <!-- Tab: Funders -->
+  <div class="tab-pane active" id="funders" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="highlight">Funders</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+	<h2>Find a new funder in the Fundref registry</h2>
+        <form action="{% url 'funders:query_crossref_for_funder' %}" method="post">
+          {% csrf_token %}
+          {{form|bootstrap}}
+          <input class="btn btn-outline-secondary" type="submit" value="Search">
+        </form>
+	<br/>
+	<h2>Funders in the SciPost database</h2>
+	<table class="table table-hover mb-5">
+	  <thead class="thead-default">
+	    <tr>
+	      <th>Name</th>
+	      <th>Acronym</th>
+	      <th>Identifier</th>
+	      <th>Organization</th>
+              <th>Actions</th>
+	    </tr>
+	  </thead>
+	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+	    {% for funder in funders %}
+	    <tr>
+	      <td>{{ funder.name }}</td>
+	      <td>{{ funder.acronym }}</td>
+	      <td>{{ funder.identifier }}</td>
+	      <td>{{ funder.organization }}</td>
+              <td>
+		<ul>
+		  <li><a href="{% url 'funders:link_to_organization' pk=funder.id %}">{% if not funder.organization %}Link to an{% else %}Edit the{% endif %} Organization</a></li>
+		  <li><a href="{% url 'funders:funder_publications' funder.id %}">See all Publications for Funder</a></li>
+	      </td>
+	    </tr>
+            {% empty %}
+            <tr>
+              <td colspan="4">No funders found</td>
+            </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Tab: Grants -->
+  <div class="tab-pane" id="grants" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+        <h2 class="highlight">Grants</h2>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+	<h2>Add a grant</h2>
+        <form action="{% url 'funders:add_grant' %}" method="post">
+          {% csrf_token %}
+          {{grant_form|bootstrap}}
+          <input class="btn btn-outline-secondary" type="submit" value="Add">
+        </form>
+	<br/>
+	<h2>Grants in the SciPost database</h2>
+	<table class="table table-hover mb-5">
+	  <thead class="thead-default">
+	    <tr>
+	      <th>Funder Name</th>
+	      <th>Recipient</th>
+	      <th>Number</th>
+	    </tr>
+	  </thead>
+	  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+	    {% for grant in grants %}
+	    <tr>
+	      <td>{{ grant.funder.name }}</td>
+	      {% if grant.recipient %}
+	      <td>{{ grant.recipient }}</td>
+	      {% elif grant.recipient_name %}
+	      <td>{{ grant.recipient_name }}</td>
+	      {% else %}
+	      <td></td>
+	      {% endif %}
+	      <td>{{ grant.number }}</td>
+	    </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3">No grants found</td>
+            </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock content %}

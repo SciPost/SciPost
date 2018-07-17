@@ -85,8 +85,7 @@ CC_LICENSES = (
 CC_LICENSES_URI = (
     (CCBY4, 'https://creativecommons.org/licenses/by/4.0'),
     (CCBYSA4, 'https://creativecommons.org/licenses/by-sa/4.0'),
-    (CCBYNC4, 'https://creativecommons.org/licenses/by-nc/4.0'),
-    )
+    (CCBYNC4, 'https://creativecommons.org/licenses/by-nc/4.0'))
 
 
 ISSUES_AND_VOLUMES = 'IV'

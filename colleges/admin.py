@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Fellowship
+from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
 
 
 def fellowhip_is_active(fellowship):
@@ -12,7 +12,7 @@ def fellowhip_is_active(fellowship):
 
 
 class FellowshipAdmin(admin.ModelAdmin):
-    search_fields = ['contributor__last_name', 'contributor__first_name']
+    search_fields = ['contributor__user__last_name', 'contributor__user__first_name']
     list_display = ('__str__', 'guest', fellowhip_is_active, )
     list_filter = ('guest',)
     fellowhip_is_active.boolean = True
@@ -20,3 +20,13 @@ class FellowshipAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Fellowship, FellowshipAdmin)
+
+
+class ProspectiveFellowEventInline(admin.TabularInline):
+    model = ProspectiveFellowEvent
+
+class ProspectiveFellowAdmin(admin.ModelAdmin):
+    inlines = (ProspectiveFellowEventInline,)
+    search_fields = ['last_name', 'email']
+
+admin.site.register(ProspectiveFellow, ProspectiveFellowAdmin)

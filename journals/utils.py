@@ -36,10 +36,10 @@ class JournalUtils(BaseMailUtil):
                       '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
             'SciPost: paper published', email_text,
-            'SciPost Editorial Admin <admin@scipost.org>',
+            'SciPost Editorial Admin <edadmin@scipost.org>',
             [cls.publication.accepted_submission.submitted_by.user.email,
-             'admin@scipost.org'],
-            reply_to=['admin@scipost.org'])
+             'edadmin@scipost.org'],
+            reply_to=['edadmin@scipost.org'])
         emailmessage.send(fail_silently=False)
 
     @classmethod

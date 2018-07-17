@@ -17,7 +17,9 @@ from scipost.models import Contributor
 from commentaries.constants import COMMENTARY_PUBLISHED
 
 from .behaviors import validate_file_extension, validate_max_file_size
-from .constants import COMMENT_STATUS, STATUS_PENDING
+from .constants import (
+    COMMENT_STATUS, STATUS_PENDING, STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL,
+    STATUS_VETTED)
 from .managers import CommentQuerySet
 
 
@@ -125,6 +127,21 @@ class Comment(TimeStampedModel):
                 to_object = to_object.content_object
             else:
                 raise Exception
+
+    @property
+    def is_vetted(self):
+        """Check if Comment is vetted."""
+        return self.status == STATUS_VETTED
+
+    @property
+    def is_unvetted(self):
+        """Check if Comment is awaiting vetting."""
+        return self.status == STATUS_PENDING
+
+    @property
+    def is_rejected(self):
+        """Check if Comment is rejected."""
+        return self.status in [STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL]
 
     def create_doi_label(self):
         self.doi_label = 'SciPost.Comment.' + str(self.id)

@@ -30,6 +30,7 @@ EMAIL_BACKEND_ORIGINAL = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = get_secret("EMAIL_HOST")
 EMAIL_HOST_USER = get_secret("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = get_secret("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = 587
 
 DEFAULT_FROM_EMAIL = 'admin@scipost.org'
 SERVER_EMAIL = get_secret("SERVER_EMAIL")

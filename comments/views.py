@@ -16,12 +16,13 @@ import strings
 from .constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
 from .models import Comment
 from .forms import CommentForm, VetCommentForm
-from .utils import CommentUtils, validate_file_extention
+from .utils import validate_file_extention
 
-from theses.models import ThesisLink
+from commentaries.models import Commentary
+from mails.utils import DirectMailUtil
 from submissions.utils import SubmissionUtils
 from submissions.models import Submission, Report
-from commentaries.models import Commentary
+from theses.models import ThesisLink
 
 
 @login_required
@@ -86,19 +87,37 @@ def vet_submitted_comment(request, comment_id):
                 content_object.add_event_for_eic('A Comment has been accepted.')
                 content_object.add_event_for_author('A new Comment has been added.')
                 if not comment.is_author_reply:
-                    SubmissionUtils.load({'submission': content_object})
-                    SubmissionUtils.send_author_comment_received_email()
+                    mail_sender = DirectMailUtil(
+                        mail_code='authors/inform_authors_comment_received',
+                        instance=content_object)
+                    mail_sender.send()
             elif isinstance(content_object, Report):
                 # Add events to related Submission and send mail to author of the Submission
                 content_object.submission.add_event_for_eic('A Comment has been accepted.')
                 content_object.submission.add_event_for_author('A new Comment has been added.')
-                if not comment.is_author_reply:
-                    SubmissionUtils.load({'submission': content_object.submission})
-                    SubmissionUtils.send_author_comment_received_email()
+                if comment.is_author_reply:
+                    # Email Report author: Submission authors have replied
+                    mail_sender = DirectMailUtil(
+                        mail_code='referees/inform_referee_authors_replied_to_report',
+                        instance=content_object)
+                    mail_sender.send()
+                else: # this is a Comment on the Report from another Contributor
+                    # Email Report author: Contributor has commented the Report
+                    mail_sender = DirectMailUtil(
+                        mail_code='referees/inform_referee_contributor_commented_report',
+                        instance=content_object)
+                    mail_sender.send()
+                    # Email submission authors: Contributor has commented the Report
+                    mail_sender = DirectMailUtil(
+                        mail_code='authors/inform_authors_contributor_commented_report',
+                        instance=content_object)
+                    mail_sender.send()
 
-            # Send emails
-            CommentUtils.load({'comment': comment})
-            CommentUtils.email_comment_vet_accepted_to_author()
+            # In all cases, email the comment author
+            mail_sender = DirectMailUtil(
+                mail_code='commenters/inform_commenter_comment_vetted',
+                instance=comment)
+            mail_sender.send()
 
         elif form.cleaned_data['action_option'] == '2':
             # The comment request is simply rejected
@@ -108,9 +127,12 @@ def vet_submitted_comment(request, comment_id):
             comment.save()
 
             # Send emails
-            CommentUtils.load({'comment': comment})
-            CommentUtils.email_comment_vet_rejected_to_author(
-                email_response=form.cleaned_data['email_response_field'])
+            mail_sender = DirectMailUtil(
+                mail_code='commenters/inform_commenter_comment_rejected',
+                instance=comment,
+                email_response=form.cleaned_data['email_response_field']) # TODO: needs kwargs to mail template
+            mail_sender.send()
+
 
             if isinstance(comment.content_object, Submission):
                 # Add event if commented to Submission

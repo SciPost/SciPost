@@ -3,9 +3,9 @@
 // --------------------------------------------------
 // For each of Bootstrap's buttons, define text, background and border color.
 
-$label-padding-x:                  5px !default;
-$label-padding-y:                  3px !default;
-$label-line-height:                inherit;
+$label-padding-x:                  0.6rem !default;
+$label-padding-y:                  0.25rem !default;
+$label-line-height:                1.2;
 $label-font-weight:                $font-weight-normal !default;
 $label-box-shadow:                 none;
 $label-font-size:                  inherit;
@@ -38,10 +38,10 @@ $label-danger-color:               $white;
 $label-danger-bg:                  $red !default;
 $label-danger-border:              $red !default;
 
-$label-padding-x-sm:               .5rem;
-$label-padding-y-sm:               .1rem;
+$label-padding-x-sm:               0.25rem;
+$label-padding-y-sm:               0.15rem;
 
-$label-padding-x-lg:               1rem !default;
+$label-padding-x-lg:               0.75rem !default;
 $label-padding-y-lg:               0.5rem !default;
 
 $label-label-spacing-y:            .5rem !default;
@@ -55,9 +55,9 @@ $label-border-radius-sm:           4px;
 $label-transition:                 all .2s ease-in-out !default;
 
 .label {
-    display: inline;
+    display: inline-block;
     font-weight: $label-font-weight;
-    line-height: $label-line-height;
+    line-height: $label-line-height !important;
     text-align: center;
     white-space: nowrap;
     vertical-align: middle;

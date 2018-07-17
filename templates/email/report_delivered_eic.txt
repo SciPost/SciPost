@@ -1,13 +1,12 @@
-Dear {{ report.submission.editor_in_charge.get_title_display }} {{ report.submission.editor_in_charge.user.last_name }},\n\n
+Dear {{ report.submission.editor_in_charge.get_title_display }} {{ report.submission.editor_in_charge.user.last_name }},
 
-Referee {{ report.author.get_title_display }} {{ report.author.user.last_name }} has delivered a Report for Submission\n\n
-{{ report.submission.title }}\n
+Referee {{ report.author.get_title_display }} {{ report.author.user.last_name }} has delivered a Report for Submission
+
+{{ report.submission.title }}
 by {{ report.submission.author_list }}.
-\n\n
 
 Please vet this Report via your personal page at
-https://scipost.org{% url 'scipost:personal_page' %}, under the Editorial Actions tab.\n
-\n\n
+https://scipost.org{% url 'scipost:personal_page' %}, under the Editorial Actions tab.
 
-Many thanks in advance for your collaboration,\n
+Many thanks in advance for your collaboration,
 The SciPost Team.

@@ -52,16 +52,16 @@
 {% if queryresults.entries %}
 <div class="row">
     <div class="col-12">
-        <div class="card card-outline-danger">
+        <div class="card border-danger">
             <div class="card-body">
                 <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
                 <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
             </div>
             <div class="card-body">
-                <ul class="list-group list-group-flush">
+                <ul class="list-group list-group-flush px-0">
                     {% for entry in queryresults.entries %}
                         <li class="list-group-item">
-                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry %}
+                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=0 %}
                         </li>
                     {% endfor %}
                 </ul>
@@ -79,7 +79,10 @@
                     {% for contributor in contributors_found %}
                         <tr>
                             <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
-                            <td><a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id %}">Send refereeing invitation</a></td>
+                            <td>
+                                <a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=1 %}">Send refereeing invitation with</a> or <a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=0 %}">without</a> auto reminders
+                                {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>

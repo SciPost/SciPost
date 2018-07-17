@@ -16,13 +16,14 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
@@ -31,8 +32,9 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable
-from .forms import FundingInfoForm,\
-                   UnregisteredAuthorForm, CreateMetadataXMLForm, CitationListBibitemsForm,\
+from .forms import AbstractJATSForm, FundingInfoForm,\
+                   UnregisteredAuthorForm, AuthorsTableOrganizationSelectForm,\
+                   CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
                    PublicationAuthorOrderingFormSet
@@ -42,6 +44,7 @@ from .utils import JournalUtils
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
+from partners.models import Organization
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
@@ -70,6 +73,9 @@ class PublicationListView(PaginationMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if self.request.GET.get('journal'):
+            qs = qs.for_journal(self.request.GET['journal'])
+
         if self.request.GET.get('issue'):
             try:
                 issue = int(self.request.GET['issue'])
@@ -79,7 +85,12 @@ class PublicationListView(PaginationMixin, ListView):
                 qs = qs.filter(in_issue__id=issue)
         if self.request.GET.get('subject'):
             qs = qs.for_subject(self.request.GET['subject'])
-        return qs.order_by('-publication_date')
+
+        if self.request.GET.get('orderby') == 'citations':
+            qs = qs.order_by('-number_of_citations')
+        else:
+            qs = qs.order_by('-publication_date', '-paper_nr')
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -89,39 +100,19 @@ class PublicationListView(PaginationMixin, ListView):
 
 
 def landing_page(request, doi_label):
-    """
+    """Journal details page.
+
     The landing page of a Journal lists either the latest and the current issue of a Journal
     of paginates the individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
-        'journal': journal
+        'journal': journal,
+        'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
+        'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
+        'accepted_submissions': Submission.objects.accepted().filter(
+            submitted_to_journal=journal.name).order_by('-latest_activity'),
     }
-
-    if journal.has_issues:
-        current_issue = Issue.objects.published().filter(
-            in_volume__in_journal=journal,
-            start_date__lte=timezone.now(),
-            until_date__gte=timezone.now()).first()
-        latest_issue = Issue.objects.published().filter(
-            in_volume__in_journal=journal,
-            until_date__lte=timezone.now()).first()
-        prev_issue = None
-        if current_issue:
-            prev_issue = Issue.objects.published().filter(
-                in_volume__in_journal=journal, start_date__lt=current_issue.start_date
-                ).order_by('start_date').last()
-
-        context.update({
-            'current_issue': current_issue,
-            'latest_issue': latest_issue,
-            'prev_issue': prev_issue,
-        })
-    else:
-        paginator = Paginator(journal.publications.published(), 10)
-        context.update({
-            'page_object': paginator.page(request.GET.get('page', 1)),
-        })
     return render(request, 'journals/journal_landing_page.html', context)
 
 
@@ -134,30 +125,10 @@ class IssuesView(DetailView):
     template_name = 'journals/journal_issues.html'
 
 
-class RecentView(DetailView):
-    """
-    List all recent Publications for a specific Journal.
-    """
-    queryset = Journal.objects.active()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_recent.html'
-
-
-class AcceptedView(DetailView):
-    """
-    List all Submissions for a specific Journal which have been accepted but are not
-    yet published.
-    """
-    queryset = Journal.objects.active()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_accepted.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['accepted_submissions'] = Submission.objects.accepted().filter(
-            submitted_to_journal=context['journal'].name).order_by('-latest_activity')
-        return context
-
+def redirect_to_about(request, doi_label):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
+    return redirect(
+        reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
 
 def info_for_authors(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
@@ -167,7 +138,9 @@ def info_for_authors(request, doi_label):
 
 def about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {'journal': journal}
+    context = {
+        'journal': journal,
+    }
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
@@ -377,13 +350,75 @@ def add_author(request, doi_label, contributor_id=None, unregistered_author_id=N
     return render(request, 'journals/add_author.html', context)
 
 
+class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
+    """
+    Handle the author affiliations for a Publication.
+    """
+    permission_required = 'scipost.can_draft_publication'
+    template_name = 'journals/author_affiliations.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['add_affiliation_form'] = AuthorsTableOrganizationSelectForm()
+        return context
+
+# NOT WORKING, using the FBV below instead
+# class AddAffiliationView(PermissionsMixin, UpdateView):
+#     """
+#     Add an affiliation to a PublicationAuthorsTable instance.
+#     """
+#     permission_required = 'scipost.can_draft_publication'
+#     model = PublicationAuthorsTable
+#     form_class = AuthorsTableOrganizationSelectForm
+#     template_name = 'journals/author_affiliations.html'
+
+#     def form_valid(self, form):
+#         self.object.affiliations.add(form.cleaned_data['organization'])
+#         return super().form_valid(form)
+
+#     def get_success_url(self):
+#         return reverse_lazy('journals:author_affiliations',
+#                             kwargs={'doi_label': self.kwargs['.doi_label']})
+
+
+@permission_required('scipost.can_draft_publication', return_403=True)
+@transaction.atomic
+def add_affiliation(request, doi_label, pk):
+    """
+    Adds an affiliation to a PublicationAuthorsTable.
+    """
+    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
+    form = AuthorsTableOrganizationSelectForm(request.POST or None)
+    if form.is_valid():
+        table.affiliations.add(form.cleaned_data['organization'])
+        table.save()
+        return redirect(reverse('journals:author_affiliations',
+                                kwargs={'doi_label': doi_label}))
+    context = {'table': table, 'add_affiliation_form': form}
+    return render(request, 'journals/author_affiliation_add.html', context)
+
+
+@permission_required('scipost.can_draft_publication', return_403=True)
+@transaction.atomic
+def remove_affiliation(request, doi_label, pk, organization_id):
+    """
+    Remove an affiliation in a PublicationAuthorsTable.
+    """
+    table = get_object_or_404(PublicationAuthorsTable, pk=pk)
+    org = get_object_or_404(Organization, pk=organization_id)
+    table.affiliations.remove(org)
+    table.save()
+    return redirect(reverse('journals:author_affiliations',
+                            kwargs={'doi_label': doi_label}))
+
+
 @permission_required('scipost.can_draft_publication', return_403=True)
 def update_references(request, doi_label):
     """
     Update the References for a certain Publication.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+    if not publication.is_draft and not request.user.has_perm('scipost.can_publish_accepted_submission'):
         raise Http404('You do not have permission to edit this non-draft Publication')
 
     references = publication.references.all()
@@ -412,6 +447,23 @@ class CitationUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMi
     form_class = CitationListBibitemsForm
     template_name = 'journals/create_citation_list_metadata.html'
 
+    def get_success_url(self):
+        return reverse_lazy('journals:create_citation_list_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
+
+
+class AbstractJATSUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
+    """
+    Add or update the JATS version of the abstract.
+    This should be produced separately using pandoc.
+    """
+    form_class = AbstractJATSForm
+    template_name = 'journals/create_abstract_jats.html'
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
+
 
 class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
     """
@@ -419,6 +471,10 @@ class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin
     """
     form_class = FundingInfoForm
     template_name = 'journals/create_funding_info_metadata.html'
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -460,12 +516,17 @@ class CreateMetadataXMLView(PublicationMixin,
                             ProdSupervisorPublicationPermissionMixin,
                             UpdateView):
     """
-    To be called by an EdAdmin (or Production Supervisor) after the citation_list, funding_info
+    To be called by an EdAdmin (or Production Supervisor) after the authors,
+    author ordering, affiliations, citation_list, funding_info
     entries have been filled. Populates the metadata_xml field of a Publication instance.
     The contents can then be sent to Crossref for registration.
     """
     form_class = CreateMetadataXMLForm
     template_name = 'journals/create_metadata_xml.html'
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
@@ -477,9 +538,9 @@ def metadata_xml_deposit(request, doi_label, option='test'):
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
+    if not publication.is_draft and not request.user.has_perm('scipost.can_publish_accepted_submission'):
         raise Http404('You do not have permission to access this non-draft Publication')
-    if not request.user.has_perm('can_publish_accepted_submission') and option != 'test':
+    if not request.user.has_perm('scipost.can_publish_accepted_submission') and option != 'test':
         raise PermissionDenied('You do not have permission to do real Crossref deposits')
 
     if publication.metadata_xml is None:
@@ -617,9 +678,10 @@ def metadata_DOAJ_deposit(request, doi_label):
         return redirect(reverse('journals:manage_metadata',
                                 kwargs={'doi_label': doi_label}))
 
-    timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
+    #timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
 
-    # Find DOAJ xml files
+    # Find DOAJ json files
     path = ''
     if publication.in_issue:
         path += '{issue_path}/{paper_nr}/{doi_label}_DOAJ'.format(
@@ -669,7 +731,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     deposit.metadata_DOAJ_file = path
     deposit.save()
 
-    messages.success(request, '<h3>%s</h3>Successfull deposit of metadata DOAJ.'
+    messages.success(request, '<h3>%s</h3>Successful deposit of metadata DOAJ.'
                               % publication.doi_label)
     return redirect(reverse('journals:manage_metadata',
                             kwargs={'doi_label': publication.doi_label}))
@@ -740,45 +802,50 @@ def harvest_citedby_links(request, doi_label):
     prefix = '{http://www.crossref.org/qrschema/2.0}'
     citations = []
     for link in response_deserialized.iter(prefix + 'forward_link'):
-        doi = link.find(prefix + 'journal_cite').find(prefix + 'doi').text
-        article_title = link.find(prefix + 'journal_cite').find(prefix + 'article_title').text
-        try:
-            journal_abbreviation = link.find(prefix + 'journal_cite').find(
-                prefix + 'journal_abbreviation').text
-        except:
-            journal_abbreviation = None
-        try:
-            volume = link.find(prefix + 'journal_cite').find(prefix + 'volume').text
-        except AttributeError:
-            volume = None
-        try:
-            first_page = link.find(prefix + 'journal_cite').find(prefix + 'first_page').text
-        except:
-            first_page = None
-        try:
-            item_number = link.find(prefix + 'journal_cite').find(prefix + 'item_number').text
-        except:
-            item_number = None
+        citation = {}
+        # Cited in Journal, Book, or whatever you want to be cited in.
+        link_el = link[0]
+
+        # The only required field in Crossref: doi.
+        citation['doi'] = link_el.find(prefix + 'doi').text
+
+        if link_el.find(prefix + 'article_title') is not None:
+            citation['article_title'] = link_el.find(prefix + 'article_title').text
+
+        if link_el.find(prefix + 'journal_abbreviation') is not None:
+            citation['journal_abbreviation'] = link_el.find(prefix + 'journal_abbreviation').text
+
+        if link_el.find(prefix + 'volume') is not None:
+            citation['volume'] = link_el.find(prefix + 'volume').text
+
+        if link_el.find(prefix + 'first_page') is not None:
+            citation['first_page'] = link_el.find(prefix + 'first_page').text
+
+        if link_el.find(prefix + 'item_number') is not None:
+            citation['item_number'] = link_el.find(prefix + 'item_number').text
+
+        if link_el.find(prefix + 'year') is not None:
+            citation['year'] = link_el.find(prefix + 'year').text
+
+        if link_el.find(prefix + 'issn') is not None:
+            citation['issn'] = link_el.find(prefix + 'issn').text
+
+        if link_el.find(prefix + 'isbn') is not None:
+            citation['isbn'] = link_el.find(prefix + 'isbn').text
+
         multiauthors = False
-        for author in link.find(prefix + 'journal_cite').find(
-                prefix + 'contributors').iter(prefix + 'contributor'):
+        for author in link_el.find(prefix + 'contributors').iter(prefix + 'contributor'):
             if author.get('sequence') == 'first':
-                first_author_given_name = author.find(prefix + 'given_name').text
-                first_author_surname = author.find(prefix + 'surname').text
+                citation['first_author_given_name'] = author.find(prefix + 'given_name').text
+                citation['first_author_surname'] = author.find(prefix + 'surname').text
             else:
                 multiauthors = True
-        year = link.find(prefix + 'journal_cite').find(prefix + 'year').text
-        citations.append({'doi': doi,
-                          'article_title': article_title,
-                          'journal_abbreviation': journal_abbreviation,
-                          'first_author_given_name': first_author_given_name,
-                          'first_author_surname': first_author_surname,
-                          'multiauthors': multiauthors,
-                          'volume': volume,
-                          'first_page': first_page,
-                          'item_number': item_number,
-                          'year': year, })
+        citation['multiauthors'] = multiauthors
+        citations.append(citation)
+
+    # Update Publication object
     publication.citedby = citations
+    publication.number_of_citations = len(citations)
     publication.latest_citedby_update = timezone.now()
     publication.save()
     context = {
@@ -896,6 +963,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
 
     if not _object.doi_label:
         _object.create_doi_label()
+        _object.refresh_from_db()
 
     # create a doi_batch_id
     salt = ""
