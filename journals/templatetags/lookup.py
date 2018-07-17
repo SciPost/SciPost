@@ -100,6 +100,8 @@ class GrantLookup(LookupChannel):
         return (self.model.objects.filter(
             Q(funder__name__icontains=q) | Q(funder__acronym__icontains=q) |
             Q(number__icontains=q) | Q(recipient_name__icontains=q) |
+            Q(recipient__user__last_name__icontains=q) |
+            Q(recipient__user__first_name__icontains=q) |
             Q(further_details__icontains=q)).order_by('funder__name', 'number')[:10])
 
     def format_item_display(self, item):
