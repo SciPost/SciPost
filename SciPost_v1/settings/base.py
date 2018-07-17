@@ -102,6 +102,7 @@ INSTALLED_APPS = (
     'proceedings',
     'production',
     'partners',
+    'preprints',
     'funders',
     'stats',
     'petitions',

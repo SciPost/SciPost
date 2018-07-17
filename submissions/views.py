@@ -935,9 +935,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
 @login_required
 @fellowship_or_admin_required()
 def set_refinv_auto_reminder(request, invitation_id, auto_reminders):
-    """
-    Set the value of the Boolean for automatic refereeing reminders.
-    """
+    """Set the value of the Boolean for automatic refereeing reminders."""
     invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
     if auto_reminders == '0':
         invitation.auto_reminders_allowed = False
