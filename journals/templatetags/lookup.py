@@ -57,3 +57,8 @@ class OrganizationLookup(LookupChannel):
     def format_match(self, item):
         '''(HTML) Format item for displaying in the dropdown.'''
         return item.full_name_with_acronym
+
+
+    def check_auth(self, request):
+        """Check if has organization administrative permissions."""
+        return request.user.has_perm('can_manage_organizations')
