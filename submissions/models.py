@@ -138,10 +138,6 @@ class Submission(models.Model):
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
-        # arxiv_w_vn = '{arxiv}v{version}'.format(
-        #     arxiv=self.arxiv_identifier_wo_vn_nr,
-        #     version=self.arxiv_vn_nr)
-        # self.arxiv_identifier_w_vn_nr = arxiv_w_vn
 
         obj = super().save(*args, **kwargs)
         if hasattr(self, 'cycle'):
