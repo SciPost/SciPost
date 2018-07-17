@@ -71,11 +71,11 @@
             {% for submission in proceedings.submissions.all %}
                 <tr>
                     <td>
-                        <a href="{{ submission.get_absolute_url }}">{{ submission.arxiv_identifier_w_vn_nr }}, {{ submission.title|truncatechars:50 }}</a>
+                        <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}, {{ submission.title|truncatechars:50 }}</a>
                     </td>
                     <td>{{ submission.author_list }}</td>
                     <td>{{ submission.get_status_display }}</td>
-                    <td><a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a></td>
+                    <td><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Editorial Page</a></td>
                 </tr>
             {% endfor %}
         </tbody>

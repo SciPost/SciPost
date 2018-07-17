@@ -80,7 +80,7 @@
                         <tr>
                             <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
                             <td>
-                                <a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=1 %}">Send refereeing invitation with</a> or <a href="{% url 'submissions:send_refereeing_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=0 %}">without</a> auto reminders
+                                <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=1 %}">Send refereeing invitation with</a> or <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=0 %}">without</a> auto reminders
                                 {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}
                             </td>
                         </tr>

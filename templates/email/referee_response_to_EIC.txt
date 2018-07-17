@@ -6,7 +6,7 @@ Referee {% if invitation.referee %}{{ invitation.referee.get_title_display }} {{
 by {{ invitation.submission.author_list }}
 
 {% if not invitation.accepted %}
-Please invite another referee from the Submission\'s editorial page at https://scipost.org{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}.
+Please invite another referee from the Submission\'s editorial page at https://scipost.org{% url 'submissions:editorial_page' invitation.submission.preprint.identifier_w_vn_nr %}.
 {% endif %}
 
 Many thanks for your collaboration,

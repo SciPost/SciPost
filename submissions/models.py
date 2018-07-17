@@ -637,7 +637,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         return (self.author.reports.accepted().filter(
             submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr,
-            submission__preprint__vn_nr__lt=self.submission.arxiv_vn_nr).exists())
+            submission__preprint__vn_nr__lt=self.submission.preprint.vn_nr).exists())
 
     @property
     def associated_published_doi(self):

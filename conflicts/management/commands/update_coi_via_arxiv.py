@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options['arxiv']:
-            submissions = Submission.objects.filter(arxiv_identifier_w_vn_nr=options['arxiv'])
+            submissions = Submission.objects.filter(preprint__identifier_w_vn_nr=options['arxiv'])
         else:
             submissions = Submission.objects.needs_conflicts_update()
 

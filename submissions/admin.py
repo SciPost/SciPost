@@ -61,10 +61,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'publication',
                 'title',
                 'abstract',
-                'submission_type',
-                # ('arxiv_identifier_wo_vn_nr', 'arxiv_vn_nr', 'arxiv_identifier_w_vn_nr'),
-                # 'arxiv_link'
-                ),
+                'submission_type'),
         }),
         ('Versioning', {
             'fields': (

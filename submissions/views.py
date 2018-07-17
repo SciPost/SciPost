@@ -886,7 +886,7 @@ def recruit_referee(request, identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id,
+def send_refereeing_invitation(request, identifier_w_vn_nr, contributor_id,
                                auto_reminders_allowed):
     """Send RefereeInvitation to a registered Contributor.
 
@@ -947,13 +947,13 @@ def set_refinv_auto_reminder(request, invitation_id, auto_reminders):
         messages.warning(request, 'Option not recognized.')
     invitation.save()
     return redirect(reverse('submissions:editorial_page',
-                            kwargs={'arxiv_identifier_w_vn_nr':
-                                    invitation.submission.arxiv_identifier_w_vn_nr}))
+                            kwargs={'identifier_w_vn_nr':
+                                    invitation.submission.preprint.identifier_w_vn_nr}))
 
 
 @login_required
 @fellowship_or_admin_required()
-def ref_invitation_reminder(request, arxiv_identifier_w_vn_nr, invitation_id):
+def ref_invitation_reminder(request, identifier_w_vn_nr, invitation_id):
     """Send reminder email to pending RefereeInvitations.
 
     This method is used by the Editor-in-charge from the editorial_page
@@ -1119,7 +1119,7 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
 
     submission.add_general_event('A new refereeing deadline is set.')
     return redirect(reverse('submissions:editorial_page',
-                            kwargs={'arxiv_identifier_w_vn_nr': identifier_w_vn_nr}))
+                            kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
 
 
 @login_required
@@ -1617,10 +1617,10 @@ def remind_Fellows_to_vote(request):
 
 
 @permission_required('scipost.can_run_pre_screening', raise_exception=True)
-def preassign_editors(request, arxiv_identifier_w_vn_nr):
+def preassign_editors(request, identifier_w_vn_nr):
     """Preassign editors for incoming Submission."""
     submission = get_object_or_404(
-        Submission.objects.prescreening(), arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+        Submission.objects.prescreening(), preprints__identifier_w_vn_nr=identifier_w_vn_nr)
     formset = PreassignEditorsFormSet(
         request.POST or None,
         queryset=submission.editorial_assignments.order_by('-invitation_order'))

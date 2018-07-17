@@ -115,8 +115,9 @@ class FellowVotingRemoveSubmissionForm(forms.ModelForm):
 
 
 class FellowshipAddSubmissionForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(queryset=None, to_field_name='arxiv_identifier_w_vn_nr',
-                                        empty_label="Please choose the Submission to add to the pool")
+    submission = forms.ModelChoiceField(
+        queryset=None, to_field_name='preprint__identifier_w_vn_nr',
+        empty_label="Please choose the Submission to add to the pool")
 
     class Meta:
         model = Fellowship
