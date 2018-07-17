@@ -176,7 +176,7 @@ class SubmissionChecks:
                                  'before proceeding with a resubmission.')
                 raise forms.ValidationError(error_message)
 
-    def identifier_meets_regex(self, identifier, journal_code):
+    def identifier_matches_regex(self, identifier, journal_code):
         """Check if arXiv identifier is valid for the Journal submitting to."""
         if journal_code in EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS.keys():
             regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS[journal_code]
@@ -195,13 +195,8 @@ class SubmissionChecks:
         """Check if the Submission is a resubmission."""
         return self.is_resubmission
 
-    def submission_using_arxiv(self):
-        """Check if Submission data comes from arXiv server."""
-        if self.use_arxiv_preprint:
-            return True
-
     def identifier_into_parts(self, identifier):
-        """Split the arXiv identifier into parts."""
+        """Split the preprint identifier into parts."""
         data = {
             'identifier_w_vn_nr': identifier,
             'identifier_wo_vn_nr': identifier.rpartition('v')[0],
@@ -220,6 +215,7 @@ class SubmissionChecks:
 
 class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
     """Prefill SubmissionForm using this form that takes an arXiv ID only."""
+
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
     identifier_w_vn_nr = forms.RegexField(
@@ -301,8 +297,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.use_arxiv_preprint = kwargs.pop('use_arxiv_preprint', True)
-        if kwargs.get('files', {}).get('preprint_file'):
-            self.use_arxiv_preprint = False
 
         super().__init__(*args, **kwargs)
 
@@ -344,11 +338,12 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
         if 'identifier_w_vn_nr' not in cleaned_data:
+            # New series of SciPost preprints
             identifier_str, self.scipost_identifier = generate_new_scipost_identifier()
             cleaned_data['identifier_w_vn_nr'] = format_scipost_identifier(identifier_str)
 
         self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
-        self.identifier_meets_regex(
+        self.identifier_matches_regex(
             cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to_journal'])
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
@@ -368,6 +363,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         power to certain user groups.
         """
         author_list = self.cleaned_data['author_list']
+        if not self.use_arxiv_preprint:
+            # Using SciPost preprints, there is nothing to check with.
+            return author_list
+
         if not self.requested_by.last_name.lower() in author_list.lower():
             error_message = ('Your name does not match that of any of the authors. '
                              'You are not authorized to submit this preprint.')

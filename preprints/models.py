@@ -18,7 +18,7 @@ class Preprint(models.Model):
     identifier_w_vn_nr = models.CharField(max_length=25, unique=True, db_index=True)
     identifier_wo_vn_nr = models.CharField(max_length=25)
     vn_nr = models.PositiveSmallIntegerField(verbose_name='Version number', default=1)
-    url = models.URLField()
+    url = models.URLField(blank=True)
 
     # SciPost-preprints only
     scipost_preprint_identifier = models.PositiveIntegerField(
