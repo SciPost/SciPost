@@ -106,10 +106,9 @@ class Submission(models.Model):
 
     # iThenticate and conflicts
     needs_conflicts_update = models.BooleanField(default=True)
-    plagiarism_report = models.OneToOneField('submissions.iThenticateReport',
-                                             on_delete=models.SET_NULL,
-                                             null=True, blank=True,
-                                             related_name='to_submission')
+    plagiarism_report = models.OneToOneField(
+        'submissions.iThenticateReport', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='to_submission')
 
     # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
