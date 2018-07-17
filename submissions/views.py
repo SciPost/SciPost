@@ -101,6 +101,54 @@ class RequestSubmission(CreateView):
             messages.warning(self.request, *error_messages)
         return super().form_invalid(form)
 
+@method_decorator(login_required, name='dispatch')
+@method_decorator(permission_required('scipost.can_submit_manuscript', raise_exception=True),
+                  name='dispatch')
+class RequestSubmissionUsingSciPostPreprintServer(CreateView):
+    """Formview to submit a new manuscript (Submission)."""
+
+    success_url = reverse_lazy('scipost:personal_page')
+    form_class = RequestSubmissionForm
+    template_name = 'submissions/submission_form.html'
+
+    def get(self, request):
+        """Redirect to the arXiv prefill form if arXiv ID is not known."""
+        return redirect('submissions:prefill_using_identifier')
+
+    def get_form_kwargs(self):
+        """Form requires extra kwargs."""
+        kwargs = super().get_form_kwargs()
+        kwargs['requested_by'] = self.request.user
+        return kwargs
+
+    @transaction.atomic
+    def form_valid(self, form):
+        """Redirect and send out mails if all data is valid."""
+        submission = form.save()
+        submission.add_general_event('The manuscript has been submitted to %s.'
+                                     % submission.get_submitted_to_journal_display())
+
+        text = ('<h3>Thank you for your Submission to SciPost</h3>'
+                'Your Submission will soon be handled by an Editor.')
+        messages.success(self.request, text)
+
+        if form.submission_is_resubmission():
+            # Send emails
+            SubmissionUtils.load({'submission': submission}, self.request)
+            SubmissionUtils.send_authors_resubmission_ack_email()
+            SubmissionUtils.send_EIC_reappointment_email()
+        else:
+            # Send emails
+            SubmissionUtils.load({'submission': submission})
+            SubmissionUtils.send_authors_submission_ack_email()
+        return HttpResponseRedirect(self.success_url)
+
+    def form_invalid(self, form):
+        """Add warnings as messages to make those more explicit."""
+        for error_messages in form.errors.values():
+            messages.warning(self.request, *error_messages)
+        return super().form_invalid(form)
+
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
@@ -144,7 +192,7 @@ def submit_manuscript_without_arxiv(request):
         context = {
             'form': form,
         }
-        return render(request, 'submissions/submission_form.html', context)
+        return redirect('scipost:personal_page')
 
     context = {
         'form': form,

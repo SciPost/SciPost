@@ -195,6 +195,11 @@ class SubmissionChecks:
         """Check if the Submission is a resubmission."""
         return self.is_resubmission
 
+    def submission_using_arxiv(self):
+        """Check if Submission data comes from arXiv server."""
+        if self.use_arxiv_preprint:
+            return True
+
     def identifier_into_parts(self, identifier):
         """Split the arXiv identifier into parts."""
         data = {
@@ -248,7 +253,6 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
         """Return dictionary to prefill `RequestSubmissionForm`."""
         form_data = self.arxiv_data
         form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
-        # form_data.update(self.identifier_into_parts(self.cleaned_data['identifier']))
         if self.submission_is_resubmission():
             form_data.update(self._gather_data_from_last_submission())
         return form_data
@@ -278,8 +282,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'title',
             'author_list',
             'abstract',
-            # 'arxiv_identifier_w_vn_nr',
-            # 'arxiv_link',
             'author_comments',
             'list_of_changes',
             'remarks_for_editors',

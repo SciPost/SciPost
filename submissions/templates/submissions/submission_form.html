@@ -56,7 +56,7 @@
         {% if perms.scipost.can_submit_manuscript %}
 
             {% if form %}
-                <form id="full_submission_form" action="{% url 'submissions:submit_manuscript' %}" method="post" enctype="multipart/form-data">
+                <form id="full_submission_form" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form|bootstrap }}
                     <p>
