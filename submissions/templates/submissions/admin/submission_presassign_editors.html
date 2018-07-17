@@ -1,0 +1,36 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Submission Editors{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:do_prescreening' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Pre-screening {{ submission.arxiv_identifier_w_vn_nr }}</a>
+    <span class="breadcrumb-item">Pre-assign editors</span>
+{% endblock %}
+
+{% block content %}
+
+
+<h1 class="highlight">Submission Editor pre-assignment</h1>
+
+<h3 class="highlight">Ordering</h3>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    <ul class="fa-ul sortable-list d-inline-block">
+        {% for form in formset %}
+            <li>
+                <i class="fa fa-sort"></i>
+                {{ form.instance.first_name }} {{ form.instance.last_name }}
+                <div class="d-none">{{ form }}</div>
+            </li>
+        {% endfor %}
+    </ul>
+    <br>
+    <input type="submit" class="btn btn-primary" value="Save ordering">
+</form>
+
+{% endblock %}

@@ -88,6 +88,7 @@ INSTALLED_APPS = (
     'colleges',
     'commentaries',
     'comments',
+    'conflicts',
     'finances',
     'invitations',
     'journals',

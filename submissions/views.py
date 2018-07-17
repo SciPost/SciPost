@@ -35,7 +35,8 @@ from .forms import (
     SetRefereeingDeadlineForm, RefereeSelectForm, iThenticateReportForm, VotingEligibilityForm,
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
-    SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm)
+    SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
+    PreassignEditorsFormSet)
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
@@ -419,7 +420,7 @@ def pool(request, identifier_w_vn_nr=None):
 
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
-    assignments_to_consider = EditorialAssignment.objects.open().filter(
+    assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor)
 
     # Forms
@@ -542,11 +543,11 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     if assignment_id:
         # Process existing EditorialAssignment.
         assignment = get_object_or_404(
-            submission.editorial_assignments.open(), to=request.user.contributor, pk=assignment_id)
+            submission.editorial_assignments.invited(), to=request.user.contributor, pk=assignment_id)
     else:
         # Get or create EditorialAssignment for user.
         try:
-            assignment = submission.editorial_assignments.open().filter(
+            assignment = submission.editorial_assignments.invited().filter(
                 to__user=request.user).first()
         except EditorialAssignment.DoesNotExist:
             assignment = EditorialAssignment()
@@ -594,7 +595,7 @@ def assignment_request(request, assignment_id):
 
     Exists for historical reasons; email are send with this url construction.
     """
-    assignment = get_object_or_404(EditorialAssignment.objects.open(),
+    assignment = get_object_or_404(EditorialAssignment.objects.invited(),
                                    to=request.user.contributor, pk=assignment_id)
     return redirect(reverse('submissions:editorial_assignment', kwargs={
         'preprint__identifier_w_vn_nr': assignment.submission.preprint.identifier_w_vn_nr,
@@ -654,7 +655,7 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
         latest_activity=timezone.now())
 
     # Deprecate old Editorial Assignments
-    EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+    EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
 
     # Send emails to EIC and authors regarding the EIC assignment.
     assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
@@ -687,7 +688,7 @@ def assignment_failed(request, identifier_w_vn_nr):
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
     if mail_request.is_valid():
         # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
+        EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
 
         # Update status of Submission
         submission.touch()
@@ -714,7 +715,7 @@ def assignments(request):
     """
     assignments = EditorialAssignment.objects.filter(
         to=request.user.contributor).order_by('-date_created')
-    assignments_to_consider = assignments.open()
+    assignments_to_consider = assignments.invited()
     current_assignments = assignments.ongoing()
 
     context = {
@@ -1614,6 +1615,26 @@ def remind_Fellows_to_vote(request):
                'followup_link': reverse('submissions:pool'),
                'followup_link_label': 'Submissions pool'}
     return render(request, 'scipost/acknowledgement.html', context)
+
+
+@permission_required('scipost.can_run_pre_screening', raise_exception=True)
+def preassign_editors(request, arxiv_identifier_w_vn_nr):
+    """Preassign editors for incoming Submission."""
+    submission = get_object_or_404(
+        Submission.objects.prescreening(), arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    formset = PreassignEditorsFormSet(
+        request.POST or None,
+        queryset=submission.editorial_assignments.order_by('-invitation_order'))
+
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, 'Editors assigned for invitation.')
+        return redirect('submissoins:do_prescreening')
+    context = {
+        'formset': formset,
+        'submission': submission,
+    }
+    return render(request, 'submissions/admin/submission_presassign_editors.html', context)
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):

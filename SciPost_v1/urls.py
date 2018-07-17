@@ -6,6 +6,7 @@ from django.contrib import admin
 from ajax_select import urls as ajax_select_urls
 from rest_framework import routers
 
+from conflicts.viewsets import ConflictOfInterestViewSet
 from news.viewsets import NewsItemViewSet
 from journals.constants import REGEX_CHOICES
 
@@ -16,7 +17,7 @@ JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 # API Routing
 router = routers.SimpleRouter()
 router.register(r'news', NewsItemViewSet)
-urlpatterns = router.urls
+router.register(r'conflicts', ConflictOfInterestViewSet)
 
 
 # Base URLs

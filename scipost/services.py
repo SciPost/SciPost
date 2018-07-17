@@ -98,6 +98,8 @@ class DOICaller:
 
 
 class ArxivCaller:
+    """ArXiv Caller will help retrieve Submission data from arXiv API."""
+
     query_base_url = 'https://export.arxiv.org/api/query?id_list=%s'
 
     def __init__(self, identifier):
