@@ -219,6 +219,9 @@ class EditorialAssignmentQuerySet(models.QuerySet):
                 .exclude(Q(submission__author_list__icontains=user.last_name),
                          ~Q(submission__authors_false_claims=user.contributor))
 
+    def auto_reminders_allowed(self):
+        return self.filter(auto_reminders_allowed=True)
+
     def last_year(self):
         return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
 
@@ -249,8 +252,8 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 class EICRecommendationQuerySet(models.QuerySet):
     """QuerySet for the EICRecommendation model."""
 
-    def user_may_vote_on(self, user):
-        """Return the subset of EICRecommendation the User is eligable to vote on."""
+    def user_must_vote_on(self, user):
+        """Return the subset of EICRecommendation the User is requested to vote on."""
         if not hasattr(user, 'contributor'):
             return self.none()
 

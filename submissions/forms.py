@@ -6,6 +6,7 @@ import datetime
 import re
 
 from django import forms
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
@@ -577,36 +578,37 @@ class EditorialAssignmentForm(forms.ModelForm):
         self.instance.to = self.request.user.contributor
         recommendation = super().save()  # Save already, in case it's a new recommendation.
 
-        if self.is_normal_cycle():
-            # Default Refereeing process!
+        if self.has_accepted_invite():
+            if self.is_normal_cycle():
+                # Default Refereeing process!
 
-            deadline = timezone.now() + datetime.timedelta(days=28)
-            if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
-                deadline += datetime.timedelta(days=28)
+                deadline = timezone.now() + datetime.timedelta(days=28)
+                if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+                    deadline += datetime.timedelta(days=28)
 
-            # Update related Submission.
-            Submission.objects.filter(id=self.submission.id).update(
-                refereeing_cycle=CYCLE_DEFAULT,
-                status=STATUS_EIC_ASSIGNED,
-                editor_in_charge=self.request.user.contributor,
-                reporting_deadline=deadline,
-                open_for_reporting=True,
-                open_for_commenting=True,
-                visible_public=True,
-                latest_activity=timezone.now())
-        else:
-            # Formulate rejection recommendation instead
+                # Update related Submission.
+                Submission.objects.filter(id=self.submission.id).update(
+                    refereeing_cycle=CYCLE_DEFAULT,
+                    status=STATUS_EIC_ASSIGNED,
+                    editor_in_charge=self.request.user.contributor,
+                    reporting_deadline=deadline,
+                    open_for_reporting=True,
+                    open_for_commenting=True,
+                    visible_public=True,
+                    latest_activity=timezone.now())
+            else:
+                # Formulate rejection recommendation instead
 
-            # Update related Submission.
-            Submission.objects.filter(id=self.submission.id).update(
-                refereeing_cycle=CYCLE_DIRECT_REC,
-                status=STATUS_EIC_ASSIGNED,
-                editor_in_charge=self.request.user.contributor,
-                reporting_deadline=timezone.now(),
-                open_for_reporting=False,
-                open_for_commenting=True,
-                visible_public=False,
-                latest_activity=timezone.now())
+                # Update related Submission.
+                Submission.objects.filter(id=self.submission.id).update(
+                    refereeing_cycle=CYCLE_DIRECT_REC,
+                    status=STATUS_EIC_ASSIGNED,
+                    editor_in_charge=self.request.user.contributor,
+                    reporting_deadline=timezone.now(),
+                    open_for_reporting=False,
+                    open_for_commenting=True,
+                    visible_public=False,
+                    latest_activity=timezone.now())
 
         if self.has_accepted_invite():
             # Implicitly or explicity accept the assignment and deprecate others.
@@ -645,6 +647,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
             'first_name',
             'last_name',
             'email_address',
+            'auto_reminders_allowed',
             'invitation_key']
         widgets = {
             'invitation_key': forms.HiddenInput()
@@ -658,6 +661,17 @@ class RefereeRecruitmentForm(forms.ModelForm):
         initial['invitation_key'] = get_new_secrets_key()
         kwargs['initial'] = initial
         super().__init__(*args, **kwargs)
+
+    def clean_email_address(self):
+        email = self.cleaned_data['email_address']
+        if Contributor.objects.filter(user__email=email).exists():
+            contr = Contributor.objects.get(user__email=email)
+            msg = (
+                'This email address is already registered. '
+                'Invite {title} {last_name} using the link above.')
+            self.add_error('email_address', msg.format(
+                title=contr.get_title_display(), last_name=contr.user.last_name))
+        return email
 
     def save(self, commit=True):
         if not self.request or not self.submission:
@@ -788,9 +802,16 @@ class ReportForm(forms.ModelForm):
             'cols': 100
         })
 
+        # Required fields on submission; optional on save as draft
+        if 'save_submit' in self.data:
+            required_fields = ['report', 'recommendation', 'qualification']
+        else:
+            required_fields = []
+        required_fields_label = ['report', 'recommendation', 'qualification']
+
         # If the Report is not a followup: Explicitly assign more fields as being required!
         if not self.instance.is_followup_report:
-            required_fields = [
+            required_fields_label += [
                 'strengths',
                 'weaknesses',
                 'requested_changes',
@@ -799,15 +820,24 @@ class ReportForm(forms.ModelForm):
                 'originality',
                 'clarity',
                 'formatting',
-                'grammar'
-            ]
-            for field in required_fields:
-                self.fields[field].required = True
+                'grammar']
+            required_fields += [
+                'strengths',
+                'weaknesses',
+                'requested_changes',
+                'validity',
+                'significance',
+                'originality',
+                'clarity',
+                'formatting',
+                'grammar']
+
+        for field in required_fields:
+            self.fields[field].required = True
 
         # Let user know the field is required!
-        for field in self.fields:
-            if self.fields[field].required:
-                self.fields[field].label += ' *'
+        for field in required_fields_label:
+            self.fields[field].label += ' *'
 
         if self.submission.eicrecommendations.active().exists():
             # An active EICRecommendation is already formulated. This Report will be flagged.
@@ -840,6 +870,8 @@ class ReportForm(forms.ModelForm):
             if self.submission.referees_flagged:
                 if report.author.user.last_name in self.submission.referees_flagged:
                     report.flagged = True
+        # r = report.recommendation
+        # t = report.qualification
         report.save()
         return report
 

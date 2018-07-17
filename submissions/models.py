@@ -425,6 +425,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)
+    auto_reminders_allowed = models.BooleanField(default=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -506,13 +507,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                related_name='reports')
     qualification = models.PositiveSmallIntegerField(
-        choices=REFEREE_QUALIFICATION,
+        null=True, blank=True, choices=REFEREE_QUALIFICATION,
         verbose_name="Qualification to referee this: I am")
 
     # Text-based reporting
     strengths = models.TextField(blank=True)
     weaknesses = models.TextField(blank=True)
-    report = models.TextField()
+    report = models.TextField(blank=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
     # Comments can be added to a Submission
@@ -532,7 +533,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                        verbose_name="Quality of English grammar")
 
-    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    recommendation = models.SmallIntegerField(null=True, blank=True, choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     needs_doi = models.NullBooleanField(default=None)
@@ -818,6 +819,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""
         return self.submission.eicrecommendations.exclude(id=self.id)
+
+    def get_full_status_display(self):
+        """Return `status` field display plus possible `recommendation` display."""
+        _str = self.get_status_display()
+        if self.status == DECISION_FIXED and self.submission.status == STATUS_EIC_ASSIGNED:
+            return '{} ({})'.format(_str, self.get_recommendation_display())
+        return _str
 
 
 class iThenticateReport(TimeStampedModel):

@@ -86,7 +86,7 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
-        'latest_newsitem': NewsItem.objects.filter(on_homepage=True).order_by('-date').first(),
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',

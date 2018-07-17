@@ -1,11 +1,22 @@
 <div class="card-body news-item" id="news_{{news.id}}">
-    <h2 class="card-title">{{news.headline}}</h2>
-    <div>
-        <div class="text-muted date">{{news.date|date:'j F Y'}}</div>
-        <div class="pb-3">{{news.blurb|safe}}</div>
+  {% if news.image %}
+  <div class="row">
 
-        {% if news.followup_link %}
-            <a href="{{news.followup_link}}">{{news.followup_link_text}}</a>
-        {% endif %}
+    <div class="col-2">
+      <img class="d-flex mr-3 {{ news.image.css_class }}" src="{{ news.image.url }}" alt="image"/>
     </div>
+    <div class="col-10">
+      {% endif %}
+      <div>
+	<h2 class="card-title">{{news.headline}}</h2>
+	<div class="text-muted date">{{news.date|date:'j F Y'}}</div>
+	<div class="pb-3">{{news.blurb|safe}}</div>
+	{% if news.followup_link %}
+	<a href="{{news.followup_link}}">{{news.followup_link_text}}</a>
+	{% endif %}
+      </div>
+      {% if news.image %}
+    </div>
+  </div>
+  {% endif %}
 </div>

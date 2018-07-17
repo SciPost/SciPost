@@ -149,6 +149,7 @@ class PartnerForm(forms.ModelForm):
         model = Partner
         fields = (
             'institution',
+            'organization',
             'status',
             'main_contact'
         )

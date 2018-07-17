@@ -22,22 +22,29 @@ class FellowManager(models.Manager):
 
 
 class ContributorQuerySet(models.QuerySet):
+    """Custom defined filters for the Contributor model."""
+
     def active(self):
+        """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
     def available(self):
+        """Filter out the Contributors that have active unavailability periods."""
         return self.exclude(
             unavailability_periods__start__lte=today,
             unavailability_periods__end__gte=today)
 
     def awaiting_validation(self):
+        """Filter Contributors that have not been validated by the user."""
         return self.filter(user__is_active=False, status=NEWLY_REGISTERED)
 
     def awaiting_vetting(self):
+        """Filter Contributors that have not been vetted through."""
         return self.filter(user__is_active=True, status=NEWLY_REGISTERED)
 
     def fellows(self):
-        return self.filter(user__groups__name='Editorial College')
+        """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
+        return self.filter(fellowships__isnull=False).distinct()
 
 
 class UnavailabilityPeriodManager(models.Manager):

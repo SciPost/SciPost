@@ -85,9 +85,12 @@ urlpatterns = [
         views.select_referee, name='select_referee'),
     url(r'^recruit_referee/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.recruit_referee, name='recruit_referee'),
-    url(r'^send_refereeing_invitation/{regex}/(?P<contributor_id>[0-9]+)$'.format(
+    url(r'^send_refereeing_invitation/{regex}/(?P<contributor_id>[0-9]+)'
+        '/(?P<auto_reminders_allowed>[0-1])$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX),
         views.send_refereeing_invitation, name='send_refereeing_invitation'),
+    url(r'^set_refinv_auto_reminder/(?P<invitation_id>[0-9]+)/(?P<auto_reminders>[0-1])$',
+        views.set_refinv_auto_reminder, name='set_refinv_auto_reminder'),
     url(r'^accept_or_decline_ref_invitations/$',
         views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
     url(r'^accept_or_decline_ref_invitations/(?P<invitation_id>[0-9]+)$',

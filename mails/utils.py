@@ -11,8 +11,8 @@ class DirectMailUtil(MailUtilsMixin):
     the mails out, without intercepting and showing the mail editor to the user.
     """
 
-    def __init__(self, mail_code, instance, *args, **kwargs):
+    def __init__(self, mail_code, *args, **kwargs):
         kwargs['mail_code'] = mail_code
-        kwargs['instance'] = instance
+        kwargs['instance'] = kwargs.pop('instance', None)
         super().__init__(*args, **kwargs)
         self.validate()
