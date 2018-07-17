@@ -51,11 +51,11 @@ class OrganizationLookup(LookupChannel):
                         Q(name_original__icontains=q))[:10])
 
     def format_item_display(self, item):
-        '''(HTML) format item for displaying item in the selected deck area.'''
+        """(HTML) format item for displaying item in the selected deck area."""
         return u"<span class='auto_lookup_display'>%s</span>" % item.full_name_with_acronym
 
     def format_match(self, item):
-        '''(HTML) Format item for displaying in the dropdown.'''
+        """(HTML) Format item for displaying in the dropdown."""
         return item.full_name_with_acronym
 
     def check_auth(self, request):
