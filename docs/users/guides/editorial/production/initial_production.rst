@@ -291,6 +291,11 @@ Step-by-step procedure
    correct** ``.bib`` **file**.
 
 
+Gotchas
+~~~~~~~
+
+   * Authors have included the ``\usepackage{lmodern}`` in their LaTeX packages,
+     overriding the normal fonts we use. **Check whether the right font is being used!**
 
 
 Simple issues
