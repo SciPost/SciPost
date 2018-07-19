@@ -39,7 +39,7 @@ class PublicationLookup(LookupChannel):
         Right now only used for draft registration invitations. May be extended in the
         future for other purposes as well.
         """
-        if not request.user.has_perm('can_create_registration_invitations'):
+        if not request.user.has_perm('scipost.can_create_registration_invitations'):
             raise PermissionDenied
 
 
