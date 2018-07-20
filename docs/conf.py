@@ -285,7 +285,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   (master_doc, 'SciPost developers', 'SciPost Developers Documentation',
-   author, 'SciPost', 'One line description of project.',
+   author, 'SciPost', 'SciPost publishing systems codebase.',
    'Miscellaneous'),
 ]
 
