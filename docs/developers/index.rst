@@ -1,5 +1,5 @@
-Welcome to SciPost's codebase documentation
-===========================================
+Welcome to SciPost's developers documentation
+=============================================
 
 Contents:
 
