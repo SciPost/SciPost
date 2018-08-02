@@ -6,10 +6,10 @@ import datetime
 import re
 
 from django import forms
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
+from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
 from .constants import (
@@ -19,7 +19,8 @@ from .constants import (
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
     REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED,
-    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC)
+    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED,
+    STATUS_FAILED_PRESCREENING)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -35,7 +36,7 @@ from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
-from scipost.models import Contributor
+from scipost.models import Contributor, Remark
 import strings
 
 import iThenticate
@@ -477,28 +478,110 @@ class SubmissionReportsForm(forms.ModelForm):
         fields = ['pdf_refereeing_pack']
 
 
+class PreassignEditorsForm(forms.ModelForm):
+    """Preassign editors for incoming Submission."""
+
+    assign = forms.BooleanField(required=False)
+    to = forms.ModelChoiceField(
+        queryset=Contributor.objects.none(), required=True, widget=forms.HiddenInput())
+
+    class Meta:
+        model = EditorialAssignment
+        fields = ('to',)
+
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.fields['to'].queryset = Contributor.objects.filter(
+            fellowships__in=self.submission.fellows.all())
+        self.fields['assign'].initial = self.instance.id is not None
+
+    def save(self, commit=True):
+        """Create/get unordered EditorialAssignments or delete existing if needed."""
+        if self.cleaned_data['assign']:
+            # Create/save
+            self.instance, __ = EditorialAssignment.objects.get_or_create(
+                submission=self.submission, to=self.cleaned_data['to'])
+        elif self.instance.id is not None:
+            # Delete if exists
+            if self.instance.status == STATUS_PREASSIGNED:
+                self.instance.delete()
+        return self.instance
+
+    def get_fellow(self):
+        """Get fellow either via initial data or instance."""
+        if self.instance.id is not None:
+            return self.instance.to
+        return self.initial.get('to', None)
+
+
 class BasePreassignEditorsFormSet(forms.BaseModelFormSet):
     """Preassign editors for incoming Submission."""
 
-    def save(self, *args, **kwargs):
-        objects = super().save(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.queryset = self.submission.editorial_assignments.order_by('invitation_order')
+
+        # Prefill form fields and create unassigned rows for unassigned fellows.
+        assigned_fellows = self.submission.fellows.filter(
+            contributor__editorial_assignments__in=self.queryset)
+        unassigned_fellows = self.submission.fellows.exclude(
+            contributor__editorial_assignments__in=self.queryset)
+
+        possible_assignments = [{ORDERING_FIELD_NAME: -1} for fellow in assigned_fellows]
+        for fellow in unassigned_fellows:
+            possible_assignments.append({
+                'submission': self.submission, 'to': fellow.contributor, ORDERING_FIELD_NAME: -1})
+        self.initial = possible_assignments
+        self.extra += len(unassigned_fellows)
+
+    def add_fields(self, form, index):
+        """Force hidden input for ORDER field."""
+        super().add_fields(form, index)
+        if ORDERING_FIELD_NAME in form.fields:
+            form.fields[ORDERING_FIELD_NAME].widget = forms.HiddenInput()
+
+    def get_form_kwargs(self, index):
+        """Add submission to form arguments."""
+        kwargs = super().get_form_kwargs(index)
+        kwargs['submission'] = self.submission
+        return kwargs
+
+    def save(self, commit=True):
+        """Save each form and order EditorialAssignments."""
+        objects = super().save(commit=False)
+        objects = []
+
+        count = 0
         for form in self.ordered_forms:
-            form.instance.invitation_order = form.cleaned_data['ORDER']
-            form.instance.save()
+            ed_assignment = form.save()
+            if ed_assignment.id is None:
+                continue
+            count += 1
+            EditorialAssignment.objects.filter(id=ed_assignment.id).update(invitation_order=count)
+            objects.append(ed_assignment)
         return objects
 
 
 PreassignEditorsFormSet = forms.modelformset_factory(
-    EditorialAssignment, fields=(), can_order=True, extra=0,
-    formset=BasePreassignEditorsFormSet)
+    EditorialAssignment, can_order=True, extra=0,
+    formset=BasePreassignEditorsFormSet, form=PreassignEditorsForm)
 
 
 class SubmissionPrescreeningForm(forms.ModelForm):
     """Processing decision for pre-screening of Submission."""
 
-    PASS = 'pass'
-    CHOICES = ((PASS, 'Pass pre-screening. Proceed to the Pool.'),)
+    PASS, FAIL = 'pass', 'fail'
+    CHOICES = (
+        (PASS, 'Pass pre-screening. Proceed to the Pool.'),
+        (FAIL, 'Fail pre-screening.'))
     decision = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES, required=False)
+
+    message_for_authors = forms.CharField(required=False, widget=forms.Textarea({
+        'placeholder': 'Message for authors'}))
+    remark_for_pool = forms.CharField(required=False, widget=forms.Textarea({
+        'placeholder': 'Remark for the pool'}))
 
     class Meta:
         model = Submission
@@ -507,6 +590,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Add related submission as argument."""
         self.submission = kwargs.pop('submission')
+        self.current_user = kwargs.pop('current_user')
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -514,13 +598,33 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         data = super().clean()
         if self.instance.status != STATUS_INCOMING:
             self.add_error(None, 'This Submission is currently not in pre-screening.')
+        if not self.instance.fellows.exists():
+            self.add_error(None, 'Please add at least one fellow to the pool first.')
+        if not self.instance.editorial_assignments.exists():
+            self.add_error(None, 'Please complete the pre-assignments form first.')
         return data
 
     @transaction.atomic
     def save(self):
         """Update Submission status."""
-        Submission.objects.filter(id=self.instance.id).update(
-            status=STATUS_UNASSIGNED, visible_pool=True)
+        if self.cleaned_data['decision'] == self.PASS:
+            Submission.objects.filter(id=self.instance.id).update(
+                status=STATUS_UNASSIGNED, visible_pool=True, visible_public=False)
+            self.instance.add_general_event('Submission passed pre-screening.')
+        elif self.cleaned_data['decision'] == self.FAIL:
+            Submission.objects.filter(id=self.instance.id).update(
+                status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
+            self.instance.add_general_event('Submission failed pre-screening.')
+
+        if self.cleaned_data['remark_for_pool']:
+            Remark.objects.create(
+                submission=self.instance,
+                contributor=self.current_user.contributor,
+                remark=self.cleaned_data['remark_for_pool'])
+        if self.cleaned_data['message_for_authors']:
+            pass
+
+        # TODO: Send mail now.
 
 
 ######################

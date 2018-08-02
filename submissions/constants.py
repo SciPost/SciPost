@@ -8,6 +8,7 @@ from journals.constants import SCIPOST_JOURNAL_PHYSICS
 # All Submission statuses
 STATUS_INCOMING = 'incoming'
 STATUS_UNASSIGNED = 'unassigned'
+STATUS_FAILED_PRESCREENING = 'failed_pre'
 STATUS_EIC_ASSIGNED = 'assigned'
 STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
 STATUS_RESUBMITTED = 'resubmitted'
@@ -25,6 +26,7 @@ STATUS_PUBLISHED = 'published'
 SUBMISSION_STATUS = (
     (STATUS_INCOMING, 'Submission incoming, undergoing pre-screening'),
     (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
+    (STATUS_FAILED_PRESCREENING, 'Failed pre-screening'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_RESUBMITTED, 'Has been resubmitted'),
@@ -37,6 +39,7 @@ SUBMISSION_STATUS = (
 # Submissions with these statuses never have required actions.
 NO_REQUIRED_ACTION_STATUSES = [
     STATUS_UNASSIGNED,
+    STATUS_FAILED_PRESCREENING,
     STATUS_ASSIGNMENT_FAILED,
     STATUS_REJECTED,
     STATUS_WITHDRAWN,

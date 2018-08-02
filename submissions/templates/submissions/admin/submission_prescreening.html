@@ -1,6 +1,7 @@
 {% extends 'submissions/admin/base.html' %}
 
 {% load bootstrap %}
+{% load submissions_admin %}
 {% load scipost_extras %}
 {% load conflict_tags %}
 
@@ -20,164 +21,61 @@
     <h3>Submission summary</h3>
     {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
-    <h3>Fellows ({{ submission.fellows.ordered|length }})</h3>
-    <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition</a><br>
-    <a href="javascript:;" data-toggle="toggle" data-target="#fellows">Show/hide all Fellows</a>
-    <table style="display: none;" class="table table-hover my-2" id="fellows">
-        <thead>
-            <tr>
-                <th>Fellow name</th>
-                <th>Expertises</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fellow in submission.fellows.ordered %}
-                <tr>
-                    <td>{{ fellow }}</td>
-                    <td>
-                        {% for expertise in fellow.contributor.expertises %}
-                            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
-                        {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <h3 class="mt-2">Plagiarism report</h3>
-    {% if submission.plagiarism_report %}
-        <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism report</a>
-        <br>
-        <table>
-            <tr>
-                <td style="min-width: 150px;">iThenticate document</td>
-                <td>{{submission.plagiarism_report.doc_id}}</td>
-            </tr>
-            <tr>
-                <td>Percent match</td>
-                <td>{{ submission.plagiarism_report.percent_match|default:'?' }}%</td>
-            </tr>
-            <tr>
-                <td>Processed</td>
-                <td>{{submission.plagiarism_report.processed_time}}</td>
-            </tr>
-            <tr>
-                <td>Uploaded</td>
-                <td>{{submission.plagiarism_report.uploaded_time}}</td>
-            </tr>
-            <tr>
-                <td>Latest update</td>
-                <td>{{submission.plagiarism_report.latest_activity}}</td>
-            </tr>
-        </table>
-        <br>
-    {% else %}
-        <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
-    {% endif %}
-
-    <h3>Editorial Pre-assignments</h3>
-    <div>
-
-        {% if submission.needs_conflicts_update %}
-            <p>
-                <i class="fa fa-clock-o text-danger" aria-hidden="true"></i>
-                <span class="text-muted">Conflict of interest awaiting update. <a href="mailto:techsupport@scipost.org">Contact techsupport</a> if this is not automatically resolved soon.</span>
-            </p>
-        {% else %}
-            <p>
-                <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                <span class="text-muted">Conflict of interest updated.</span>
-                <br><br>
-
-                Select Fellows that are eligable to become editor-in-charge and sort them in prefered order of invitation. Every [time], the next selected Fellow in line will be invited until an editor is assigned.
-            </p>
-
-            <form method="post" action="[url]">
-                {% csrf_token %}
-                <table class="table sortable-rows table-selectable table-hover" id="preassignments">
-                    <thead>
-                        <tr>
-                            <th style="width: 60px;"></th>
-                            <th style="width: 20%;">
-                                Fellow
-                            </th>
-                            <th>Possible conflicts</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for fellow in submission.fellows.all %}
-                            <tr>
-                                <td class="actions">
-                                    <a href="javascript:;" class="handle"><i class="fa fa-bars" aria-hidden="true"></i></a>
-                                    <input type="checkbox" class="ml-2">
-                                </td>
-                                <td>
-                                    <strong>{{ fellow.contributor }}</strong>
-                                    <br>
-                                    {% for expertise in fellow.contributor.expertises %}
-                                        <div class="single d-inline specialization" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
-                                    {% endfor %}
-                                </td>
-                                <td>
-                                    {% with submission.conflict_groups.all|filter_for_contributor:fellow.contributor as conflict_groups %}
-                                        {% if conflict_groups %}
-                                            {{ conflict_groups|length }} conflict{{ conflict_groups|length|pluralize }} found
-                                            <br>
-                                            <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ fellow.id }}">Show/hide conflicts</a>
-                                            <div id="fellow-conflicts-{{ fellow.id }}">
-                                                {% for conflict_group in conflict_groups %}
-                                                    <div class="my-1">
-                                                        <h4><a href="{{ conflict_group.url }}" target="_blank">{{ conflict_group.title }}</a></h4>
-                                                        <p>Conflict details:</p>
-                                                        <table class="table table-sm border">
-                                                            <tr>
-                                                                <th>Person</th>
-                                                                <th>Status</th>
-                                                                <th>Conflict type</th>
-                                                            </tr>
-                                                            {% for conflict in conflict_group.conflicts.non_deprecated %}
-                                                                <tr id="conflict-{{ conflict.id }}">
-                                                                    <td>{{ conflict.to_name }}</td>
-                                                                    <td class="status">
-                                                                        {% if conflict.status == 'unverified' %}
-                                                                            <i class="fa fa-question-circle text-warning" aria-hidden="true"></i>
-                                                                        {% elif conflict.status == 'verified' %}
-                                                                            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                                                                        {% endif %}
-
-                                                                        {{ conflict.get_status_display }}
-
-                                                                        {% if conflict.status == 'unverified' %}
-                                                                            <div class="d-inline-block ml-3 actions">
-                                                                                <a href="javascript:;" onclick="update_conflict({{ conflict.id }}, 'verified')">Verify</a>
-                                                                                &middot;
-                                                                                <a href="javascript:;" class="text-danger" onclick="update_conflict({{ conflict.id }}, 'delete')">Delete</a>
-                                                                            </div>
-                                                                        {% endif %}
-                                                                    </td>
-                                                                    <td>{{ conflict.get_type_display }}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                        </table>
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-                                        {% else %}
-                                            <em><i class="fa fa-check text-success" aria-hidden="true"></i> No conflicts found</em>
-                                        {% endif %}
-                                    {% endwith %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
+    <h3>Pre-screening steps</h3>
+    <ul class="fa-ul">
+        <li>
+            <i class="fa-li fa fa-check-square text-success"></i>
+            <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition ({{ submission.fellows.count }} fellows)</a><br>
+        </li>
+        <li>
+            {% if submission.plagiarism_report %}
+                <i class="fa-li fa fa-check-square text-success"></i>
+                <a class="d-inline-block" href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism report</a>
+                <table>
+                    <tr>
+                        <td style="min-width: 150px;">iThenticate document</td>
+                        <td>{{submission.plagiarism_report.doc_id}}</td>
+                    </tr>
+                    <tr>
+                        <td>Percent match</td>
+                        <td>{{ submission.plagiarism_report.percent_match|default:'?' }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Processed</td>
+                        <td>{{submission.plagiarism_report.processed_time}}</td>
+                    </tr>
+                    <tr>
+                        <td>Uploaded</td>
+                        <td>{{submission.plagiarism_report.uploaded_time}}</td>
+                    </tr>
+                    <tr>
+                        <td>Latest update</td>
+                        <td>{{submission.plagiarism_report.latest_activity}}</td>
+                    </tr>
                 </table>
-                <button class="btn btn-primary btn-sm" type="submit">Save pre-assignments</button>
-            </form>
-            <br>
-        {% endif %}
-    </div>
+            {% else %}
+                <i class="fa-li fa fa-square"></i>
+                <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
+            {% endif %}
+        </li>
+        <li>
+            {% if submission|has_editor %}
+                <i class="fa-li fa fa-check-square text-success"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See assigned editor-in-charge</a>
+            {% elif submission|has_preassignments %}
+                <i class="fa-li fa fa-check-square text-success"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See selected pre-assignments ({{ submission.editorial_assignments.all|length }} assignments)</a>
+            {% else %}
+                <i class="fa-li fa fa-square"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Select pre-assignments</a>
+            {% endif %}
+        </li>
+    </ul>
+
+    <br>
 
     <div class="p-3 border">
-        <h3>Take decision on pre-screening</h3>
+        <h2>Take decision on pre-screening</h2>
+        <p>If the decision is to pass pre-screening, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">the pre-assignments system</a> will start inviting editors one-by-one.</p>
+        <br>
         <form method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
@@ -187,53 +85,4 @@
 
 
 
-<script>
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-    function getCookie(name) {
-        var cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            var cookies = document.cookie.split(';');
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-    var csrftoken = getCookie('csrftoken');
-
-    function update_conflict(conflict_id, status) {
-        $.ajax({
-            "method": "POST",
-            "url": "{% url 'api:conflictofinterest-verify_conflict' 0 %}".replace("0", conflict_id),
-            "data": {
-                'status': status,
-                'csrftoken': getCookie('csrftoken'),
-            },
-            "beforeSend": function(xhr, settings) {
-                if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
-                }
-            },
-        }).done(function( data ) {
-            if ( data['status'] == 'verified' ) {
-                $("#conflict-" + data['id'] + " .status").html('<i class="fa fa-check-circle text-success" aria-hidden="true"></i> Verified by Admin');
-            } else if ( data['status'] == 'deprecated' ) {
-                $("#conflict-" + data['id'] ).fadeTo("fast", 0.3).find('.status').html('<em>deleted</em>');
-            }
-        });
-    }
-
-
-    // $(function () {
-    //     $('#preassignments tbody').sortable();
-    // });
-</script>
 {% endblock content %}

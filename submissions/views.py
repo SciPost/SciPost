@@ -1617,22 +1617,32 @@ def remind_Fellows_to_vote(request):
 
 
 @permission_required('scipost.can_run_pre_screening', raise_exception=True)
-def preassign_editors(request, identifier_w_vn_nr):
-    """Preassign editors for incoming Submission."""
+def editor_invitations(request, identifier_w_vn_nr):
+    """Update/show invitations of editors for incoming Submission."""
     submission = get_object_or_404(
-        Submission.objects.prescreening(), preprints__identifier_w_vn_nr=identifier_w_vn_nr)
-    formset = PreassignEditorsFormSet(
-        request.POST or None,
-        queryset=submission.editorial_assignments.order_by('-invitation_order'))
+        Submission.objects.without_eic(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    if formset.is_valid():
-        formset.save()
-        messages.success(request, 'Editors assigned for invitation.')
-        return redirect('submissoins:do_prescreening')
+    assignments = submission.editorial_assignments.order_by('invitation_order')
     context = {
-        'formset': formset,
         'submission': submission,
+        'assignments': assignments,
     }
+
+    if submission.editor_in_charge:
+        # Show current assignment if editor is assigned.
+        context['active_assignment'] = assignments.filter(to=submission.editor_in_charge)
+    else:
+        # Show formset if editor is not yet assigned.
+        formset = PreassignEditorsFormSet(request.POST or None, submission=submission)
+
+        if formset.is_valid():
+            formset.save()
+            messages.success(request, 'Editor pre-assignments saved.')
+            return redirect(
+                reverse('submissions:editor_invitations', args=(submission.preprint.identifier_w_vn_nr,)))
+        elif request.method == 'POST':
+            messages.warning(request, 'Invalid form. Please try again.')
+        context['formset'] = formset
     return render(request, 'submissions/admin/submission_presassign_editors.html', context)
 
 
@@ -1645,6 +1655,11 @@ class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
     form_class = SubmissionPrescreeningForm
     editorial_page = True
     success_url = reverse_lazy('submissions:pool')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['current_user'] = self.request.user
+        return kwargs
 
 
 class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):

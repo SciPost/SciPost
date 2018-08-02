@@ -23,19 +23,16 @@ var select_form_table = function(table_el) {
         } else {
             $(this).parents('tr').removeClass('table-info')
         }
-    });
+    }).trigger('change');
 };
 
-
 var sort_form_list = function(list_el) {
-    $(list_el).sortable({
-        handle: ".handle, li",
-        update: function(event, ui) {
-            $.each($(list_el + ' > *'), function(index, el) {
-                $(el).find('input[name$=ORDER]').val(index + 1);
-            });
-        }
-    });
+    $(list_el).sortable({handle: ".handle, li"})
+    .on('sortupdate', function() {
+        $.each($(list_el + ' > *'), function(index, el) {
+            $(el).find('input[name$=ORDER]').val(index);
+        });
+    }).trigger('sortupdate');
 };
 
 

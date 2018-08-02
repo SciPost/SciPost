@@ -130,7 +130,7 @@ class EditorialAssignmentAdminForm(forms.ModelForm):
 
 class EditorialAssignmentAdmin(admin.ModelAdmin):
     search_fields = ['submission__title', 'submission__author_list', 'to__user__last_name']
-    list_display = ('to', submission_short_title, 'accepted', 'completed', 'date_created',)
+    list_display = ('to', submission_short_title, 'accepted', 'completed', 'date_created', 'invitation_order')
     date_hierarchy = 'date_created'
     list_filter = ('accepted', 'deprecated', 'completed', )
     form = EditorialAssignmentAdminForm
