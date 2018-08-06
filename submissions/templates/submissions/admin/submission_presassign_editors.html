@@ -29,10 +29,12 @@
 
 <br>
 
+<li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
 {% if submission.status == 'incoming' %}
     <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
+{% else %}
+    <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
 {% endif %}
-    <li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
 
 <br><br>
 
