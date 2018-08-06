@@ -89,6 +89,8 @@ INSTALLED_APPS = (
     'commentaries',
     'comments',
     'conflicts',
+    'django_celery_results',
+    'django_celery_beat',
     'finances',
     'invitations',
     'journals',
@@ -360,3 +362,7 @@ LOGGING = {
         },
     },
 }
+
+# Celery scheduled tasks
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'amqp://localhost'
