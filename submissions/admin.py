@@ -23,15 +23,7 @@ def submission_short_title(obj):
     return obj.submission.title[:30]
 
 
-class iThenticateReportAdmin(admin.ModelAdmin):
-    readonly_fields = ['doc_id']
-
-    def has_add_permission(self, request):
-        """ Don't add manually. This will gives conflict with the iThenticate db. """
-        return False
-
-
-admin.site.register(iThenticateReport, iThenticateReportAdmin)
+admin.site.register(iThenticateReport)
 
 
 class SubmissionAdminForm(forms.ModelForm):
@@ -238,6 +230,7 @@ class EICRecommendationAdminForm(forms.ModelForm):
 
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
+    list_filter = ('status',)
     list_display = (submission_short_title, 'recommendation', 'status', 'active', 'version')
     form = EICRecommendationAdminForm
 

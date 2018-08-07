@@ -61,6 +61,8 @@
                                 </div>
                              </label>
                          </li>
+                    {% empty %}
+                        <li class="list-group-item py-1"><em>No former referees found</em></li>
                     {% endfor %}
                 </ul>
             </div>
@@ -72,7 +74,7 @@
 </form>
 
 <script>
-    $(function(){
+    jQuery(function(){
         $('[name="{{form.refereeing_cycle.name}}"]').on('click change', function(){
             var element = $('[name="{{form.refereeing_cycle.name}}"]:checked');
             var reinvite = element.parents('.radio').attr('data-reinvite') == 1;

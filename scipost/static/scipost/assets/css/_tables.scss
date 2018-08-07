@@ -35,3 +35,15 @@ table.contributor-info {
         vertical-align: top;
     }
 }
+
+.table-fixed {
+    table-layout: fixed;
+    white-space: nowrap;
+    width: 100%;
+
+    td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}

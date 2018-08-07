@@ -219,6 +219,9 @@ class EditorialAssignmentQuerySet(models.QuerySet):
                 .exclude(Q(submission__author_list__icontains=user.last_name),
                          ~Q(submission__authors_false_claims=user.contributor))
 
+    def auto_reminders_allowed(self):
+        return self.filter(auto_reminders_allowed=True)
+
     def last_year(self):
         return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
 
@@ -249,8 +252,8 @@ class EditorialAssignmentQuerySet(models.QuerySet):
 class EICRecommendationQuerySet(models.QuerySet):
     """QuerySet for the EICRecommendation model."""
 
-    def user_may_vote_on(self, user):
-        """Return the subset of EICRecommendation the User is eligable to vote on."""
+    def user_must_vote_on(self, user):
+        """Return the subset of EICRecommendation the User is requested to vote on."""
         if not hasattr(user, 'contributor'):
             return self.none()
 
@@ -313,10 +316,10 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return self.pending().open()
 
     def pending(self):
-        return self.filter(accepted=None)
+        return self.filter(accepted=None, cancelled=False)
 
     def accepted(self):
-        return self.filter(accepted=True)
+        return self.filter(accepted=True, cancelled=False)
 
     def declined(self):
         return self.filter(accepted=False)
@@ -325,7 +328,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return self.pending().filter(cancelled=False)
 
     def in_process(self):
-        return self.accepted().filter(fulfilled=False)
+        return self.accepted().filter(fulfilled=False, cancelled=False)
 
     def approaching_deadline(self, days=2):
         qs = self.in_process()

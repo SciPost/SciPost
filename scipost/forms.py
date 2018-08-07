@@ -103,6 +103,8 @@ class RegistrationForm(forms.Form):
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
                                      help_text='Your password must contain at least 8 characters')
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
+    subscribe = forms.BooleanField(
+        required=False, initial=False, label='Stay informed, subscribe to the SciPost newsletter.')
 
     def clean_password(self):
         password = self.cleaned_data.get('password', '')
@@ -153,6 +155,7 @@ class RegistrationForm(forms.Form):
             'orcid_id': self.cleaned_data['orcid_id'],
             'address': self.cleaned_data['address'],
             'personalwebpage': self.cleaned_data['personalwebpage'],
+            'accepts_SciPost_emails': self.cleaned_data['subscribe'],
         })
         affiliation, __ = Affiliation.objects.get_or_create(
             contributor=contributor,
@@ -173,10 +176,10 @@ class DraftInvitationForm(forms.ModelForm):
                   'cited_in_submission', 'cited_in_publication']
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
         This form has a required keyword argument `current_user` which is used for validation of
         the form fields.
-        '''
+        """
         self.current_user = kwargs.pop('current_user')
         super().__init__(*args, **kwargs)
 

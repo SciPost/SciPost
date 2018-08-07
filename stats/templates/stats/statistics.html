@@ -1,6 +1,6 @@
 {% extends 'submissions/pool/base.html' %}
 
-{% block pagetitle %}: statistics for submisisons{% endblock pagetitle %}
+{% block pagetitle %}: statistics for submissions{% endblock pagetitle %}
 
 {% load scipost_extras %}
 {% load stats_extras %}
@@ -42,6 +42,9 @@
 
 {% if journal %}
     <h2>Results:</h2>
+    {% if year %}
+    <h3>Impact factor (Cited-by) for {{ year }}: {{ citedby_impact_factor|floatformat:2 }} {% now "Y" as currentyear %}{% ifequal year currentyear %}<span style="color: red;">WARNING: not complete (year is current one)</span>{% endifequal %}</h3>
+      {% endif %}
     <table class="table">
       <tr>
         <th>DOI label</th>

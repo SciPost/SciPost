@@ -1,0 +1,16 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: NewsItems{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <form action="{% url 'news:newsitem_create' %}" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" value="Submit" class="btn btn-primary">
+  </div>
+</div>
+{% endblock content %}

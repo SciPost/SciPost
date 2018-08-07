@@ -1,30 +1,32 @@
-<div class="card bg-white">
-    <div class="card-body">
-        <h2 class="card-title mb-0">Editorial Recommendation</h2>
-        {% block recommendation_header %}
-            <h3 class="card-title text-muted">Date {{recommendation.date_submitted}}</h3>
-        {% endblock %}
+<div class="border p-3 my-3">
+    <h2 class="mb-0">Editorial Recommendation</h2>
+    {% block recommendation_header %}
+        <h4 class="text-muted mb-2">Date {{recommendation.date_submitted}}</h4>
+    {% endblock %}
 
-        <table class="mb-2">
-            <tr>
-                <td class="pr-2">Version:</td>
-                <td>{{ recommendation.version }}</td>
-            </tr>
-            <tr>
-                <td class="pr-2">Status:</td>
-                <td><span class="label label-secondary">{{ recommendation.get_status_display }}</span></td>
-            </tr>
-        </table>
+    <table class="mb-3">
+        <tr>
+            <td class="pr-2">Version:</td>
+            <td>{{ recommendation.version }}</td>
+        </tr>
+        <tr>
+            <td class="pr-2">Recommendation:</td>
+            <td>{{ recommendation.get_recommendation_display }}</td>
+        </tr>
+        <tr>
+            <td class="pr-2">Status:</td>
+            <td><span class="label label-secondary">{{ recommendation.get_status_display }}</span></td>
+        </tr>
+    </table>
 
-        <h3 class="pb-0">Remarks for authors</h3>
-        <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
+    <h3 class="pb-0">Remarks for authors</h3>
+    <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
 
-        <h3 class="pb-0">Requested changes</h3>
-        <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
+    <h3 class="pb-0">Requested changes</h3>
+    <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
 
-        {% block recommendation_before_recommendation %}{% endblock %}
+    {% block recommendation_before_recommendation %}{% endblock %}
 
-        <h3 class="pb-0">Recommendation</h3>
-        <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
-    </div>
+    <h3 class="pb-0">Recommendation</h3>
+    <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
 </div>

@@ -69,7 +69,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
         mail_params = {
             'vocative_title': thesislink.requested_by.get_title_display(),
             'thesislink': thesislink,
-            'full_url': 'https//www.scipost.org{url}'.format(url=thesislink.get_absolute_url())
+            'full_url': 'https://scipost.org{url}'.format(url=thesislink.get_absolute_url())
         }
         action = int(self.cleaned_data['action_option'])
 

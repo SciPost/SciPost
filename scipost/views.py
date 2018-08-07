@@ -86,7 +86,7 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
-        'latest_newsitem': NewsItem.objects.filter(on_homepage=True).order_by('-date').first(),
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
@@ -269,17 +269,15 @@ def vet_registration_request_ack(request, contributor_id):
             group = Group.objects.get(name='Registered Contributors')
             contributor.user.groups.add(group)
 
-            # Verify if there is a pending refereeing invitation
-            pending_ref_inv_exists = False
+            # Verify if there is a pending refereeing invitation using email and invitation key.
+            updated_rows = RefereeInvitation.objects.open().filter(
+                referee__isnull=True,
+                email_address=contributor.user.email).update(referee=contributor)
             if contributor.invitation_key:
-                try:
-                    pending_ref_inv = RefereeInvitation.objects.get(
-                        invitation_key=contributor.invitation_key, cancelled=False)
-                    pending_ref_inv.referee = contributor
-                    pending_ref_inv.save()
-                    pending_ref_inv_exists = True
-                except RefereeInvitation.DoesNotExist:
-                    pending_ref_inv_exists = False
+                updated_rows += RefereeInvitation.objects.open().filter(
+                    referee__isnull=True,
+                    invitation_key=contributor.invitation_key).update(referee=contributor)
+            pending_ref_inv_exists = updated_rows > 0
 
             email_text = (
                 'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +

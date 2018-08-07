@@ -1,0 +1,58 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Add Author Affiliation{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+                <a href="{% url 'journals:manage_metadata' doi_label=table.publication.doi_label %}" class="breadcrumb-item">{{ table.publication.doi_label }}</a>
+		<a href="{% url 'journals:author_affiliations' doi_label=table.publication.doi_label %}" class="breadcrumb-item">Author Affiliations</a>
+                <span class="breadcrumb-item active">Add</span>
+            </nav>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Author affiliations for author {{ table }} of publication <a href="{% url 'scipost:publication_detail' doi_label=table.publication.doi_label %}">{{ table.publication.doi_label }}</a></h1>
+    <br>
+
+    <div class="row">
+      <div class="col-4">
+	<ul>
+	  {% for aff in table.affiliations.all %}
+	  <li>{{ aff }}</li>
+	  {% empty %}
+	  <li>No affiliation found</li>
+	  {% endfor %}
+	</ul>
+      </div>
+      <div class="col-6">
+	<h4>Add an affiliation (at moment of publication) to this Author:</h4>
+	<form action="{% url 'journals:author_affiliation_update' doi_label=table.publication.doi_label pk=table.pk %}" method="post">
+	  {% csrf_token %}
+	  {{ add_affiliation_form|bootstrap }}
+	  <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
+	</form>
+      </div>
+      <div class="col-2">
+	<p>Can't find it in the selector? <a href="{% url 'partners:organization_create' %}" target="_blank">Add a new organization to our database</a> (opens in new window)</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ add_affiliation_form.media }}
+{% endblock footer_script %}

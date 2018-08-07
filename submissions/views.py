@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
+from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
@@ -261,9 +262,14 @@ def submission_detail(request, arxiv_identifier_w_vn_nr):
 
 def report_attachment(request, arxiv_identifier_w_vn_nr, report_nr):
     """Download the attachment of a Report if available."""
-    report = get_object_or_404(Report.objects.accepted(),
-                               submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
-                               file_attachment__isnull=False, report_nr=report_nr)
+    report = get_object_or_404(
+        Report, submission__arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr,
+        file_attachment__isnull=False, report_nr=report_nr)
+    if not report.is_vetted:
+        # Only Admins and EICs are allowed to see non-vetted Report attachments.
+        if not Submission.objects.filter_for_eic(
+            request.user).filter(arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr).exists():
+            raise Http404
     response = HttpResponse(report.file_attachment.read(), content_type='application/pdf')
     filename = '{}_report_attachment-{}.pdf'.format(
         report.submission.arxiv_identifier_w_vn_nr,
@@ -366,8 +372,6 @@ def treated_submission_pdf_compile(request, arxiv_identifier_w_vn_nr):
 # Editorial workflow #
 ######################
 
-@login_required
-@fellowship_or_admin_required()
 def editorial_workflow(request):
     """Information page for Editorial Fellows.
 
@@ -395,7 +399,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
 
-    recs_to_vote_on = EICRecommendation.objects.user_may_vote_on(request.user).filter(
+    recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
     assignments_to_consider = EditorialAssignment.objects.open().filter(
         to=request.user.contributor)
@@ -485,14 +489,14 @@ def assign_submission(request, arxiv_identifier_w_vn_nr):
         messages.success(request, 'Your assignment request has been sent successfully.')
         return redirect('submissions:pool')
 
-    fellows_with_expertise = submission.fellows.all()
-    coauthorships = submission.flag_coauthorships_arxiv(fellows_with_expertise)
-
     context = {
         'submission_to_assign': submission,
-        'coauthorships': coauthorships,
         'form': form
     }
+
+    if request.GET.get('flag'):
+        fellows_with_expertise = submission.fellows.all()
+        context['coauthorships'] = submission.flag_coauthorships_arxiv(fellows_with_expertise)
     return render(request, 'submissions/admin/editorial_assignment_form.html', context)
 
 
@@ -634,6 +638,7 @@ def volunteer_as_EIC(request, arxiv_identifier_w_vn_nr):
     EditorialAssignment.objects.filter(submission=submission).open().update(deprecated=True)
 
     # Send emails to EIC and authors regarding the EIC assignment.
+    assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
     SubmissionUtils.load({'assignment': assignment})
     SubmissionUtils.send_EIC_appointment_email()
     SubmissionUtils.send_author_prescreening_passed_email()
@@ -845,14 +850,25 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
                                     kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
         else:
             return mail_request.return_render()
-    return redirect(reverse('submissions:editorial_page',
-                            kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
+
+    ref_search_form = RefereeSelectForm(request.POST or None)
+    contributors_found = Contributor.objects.filter(
+        user__email=ref_recruit_form.cleaned_data['email_address'])
+    context = {
+        'ref_recruit_form': ref_recruit_form,
+        'ref_search_form': ref_search_form,
+        'submission': submission,
+        'queryresults': [],
+        'contributors_found': contributors_found,
+    }
+    return render(request, 'submissions/referee_form.html', context)
 
 
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id):
+def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id,
+                               auto_reminders_allowed):
     """Send RefereeInvitation to a registered Contributor.
 
     This method is called by the EIC from the submission's editorial_page,
@@ -878,6 +894,7 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
         first_name=contributor.user.first_name,
         last_name=contributor.user.last_name,
         email_address=contributor.user.email,
+        auto_reminders_allowed=auto_reminders_allowed,
         # the key is only used for inviting unregistered users
         date_invited=timezone.now(),
         invited_by=request.user.contributor)
@@ -894,6 +911,27 @@ def send_refereeing_invitation(request, arxiv_identifier_w_vn_nr, contributor_id
                                 kwargs={'arxiv_identifier_w_vn_nr': arxiv_identifier_w_vn_nr}))
     else:
         return mail_request.return_render()
+
+
+@login_required
+@fellowship_or_admin_required()
+def set_refinv_auto_reminder(request, invitation_id, auto_reminders):
+    """
+    Set the value of the Boolean for automatic refereeing reminders.
+    """
+    invitation = get_object_or_404(RefereeInvitation, pk=invitation_id)
+    if auto_reminders == '0':
+        invitation.auto_reminders_allowed = False
+        messages.success(request, 'Auto reminders succesfully turned off.')
+    elif auto_reminders == '1':
+        invitation.auto_reminders_allowed = True
+        messages.success(request, 'Auto reminders succesfully turned on.')
+    else:
+        messages.warning(request, 'Option not recognized.')
+    invitation.save()
+    return redirect(reverse('submissions:editorial_page',
+                            kwargs={'arxiv_identifier_w_vn_nr':
+                                    invitation.submission.arxiv_identifier_w_vn_nr}))
 
 
 @login_required
@@ -987,8 +1025,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
 
 def decline_ref_invitation(request, invitation_key):
     """Decline a RefereeInvitation."""
-    invitation = get_object_or_404(RefereeInvitation, invitation_key=invitation_key,
-                                   accepted__isnull=True)
+    invitation = get_object_or_404(RefereeInvitation.objects.open(), invitation_key=invitation_key)
 
     form = ConsiderRefereeInvitationForm(request.POST or None, initial={'accept': False})
     context = {'invitation': invitation, 'form': form}
@@ -1367,6 +1404,8 @@ def submit_report(request, arxiv_identifier_w_vn_nr):
 
         messages.success(request, 'Thank you for your Report')
         return redirect(submission.get_absolute_url())
+    elif request.POST:
+        messages.error(request, 'Report not submitted, please read the errors below.')
 
     context = {'submission': submission, 'form': form}
     return render(request, 'submissions/report_form.html', context)
@@ -1459,7 +1498,10 @@ def prepare_for_voting(request, rec_id):
                                 args=[recommendation.submission.arxiv_identifier_w_vn_nr]))
     else:
         fellows_with_expertise = recommendation.submission.fellows.filter(
-            contributor__expertises__contains=[recommendation.submission.subject_area])
+            Q(contributor=recommendation.submission.editor_in_charge) |
+            Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
+            Q(contributor__expertises__contains=recommendation.submission.secondary_areas)).order_by(
+                'contributor__user__last_name')
         coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 
     context = {
@@ -1478,7 +1520,7 @@ def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
     submissions = Submission.objects.pool_editable(request.user)
     recommendation = get_object_or_404(
-        EICRecommendation.objects.user_may_vote_on(
+        EICRecommendation.objects.user_must_vote_on(
             request.user).filter(submission__in=submissions), id=rec_id)
 
     form = RecommendationVoteForm(request.POST or None)
