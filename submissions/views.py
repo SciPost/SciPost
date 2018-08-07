@@ -65,6 +65,8 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
+        if hasattr(self, 'initial_data'):
+            kwargs['initial'] = self.initial_data
         return kwargs
 
     @transaction.atomic
@@ -101,7 +103,13 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
 
     def get(self, request):
         """Redirect to the arXiv prefill form if arXiv ID is not known."""
-        return redirect('submissions:prefill_using_identifier')
+        form = SubmissionIdentifierForm(request.GET or None, requested_by=self.request.user)
+        if form.is_valid():
+            # Gather data from ArXiv API if prefill form is valid
+            self.initial_data = form.request_arxiv_preprint_form_prefill_data()
+            return super().get(request)
+        else:
+            return redirect('submissions:prefill_using_identifier')
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
@@ -143,7 +151,11 @@ def prefill_using_arxiv_identifier(request):
         context = {
             'form': form,
         }
-        return render(request, 'submissions/submission_form.html', context)
+        response = redirect('submissions:submit_manuscript_arxiv')
+        response['location'] += '?identifier_w_vn_nr={}'.format(
+            query_form.cleaned_data['identifier_w_vn_nr'])
+        # return render(request, 'submissions/submission_form.html', context)
+        return reponse
 
     context = {
         'form': query_form,
