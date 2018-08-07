@@ -32,12 +32,12 @@
     <ul>
       {% for assignment in assignments_ongoing %}
           <li>
-            <h3><a href="https://scipost.org{% url 'submissions:submission' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
+            <h3><a href="https://scipost.org{% url 'submissions:submission' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>
             {% if assignment.submission.cycle.has_required_actions %}
-                <h3>Required actions (go to the <a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial page</a> to carry them out):</h3>
+                <h3>Required actions (go to the <a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a> to carry them out):</h3>
                 <ul>
                   {% for action in assignment.submission.cycle.get_required_actions %}
                       <li>{{action.1}}</li>
@@ -57,12 +57,12 @@
     <ul>
       {% for assignment in assignments_upcoming_deadline %}
           <li>
-            <h3><a href="https://scipost.org{% url 'submissions:pool' assignment.submission.arxiv_identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
+            <h3><a href="https://scipost.org{% url 'submissions:pool' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>
             <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
-            <p><em>You can manage this Submission from its </em><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial page</a>.</p>
+            <p><em>You can manage this Submission from its </em><a href="https://scipost.org{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.</p>
           </li>
       {% endfor %}
     </ul>

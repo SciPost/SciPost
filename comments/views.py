@@ -146,13 +146,13 @@ def vet_submitted_comment(request, comment_id):
             if submission.editor_in_charge == request.user.contributor:
                 # Redirect a EIC back to the Editorial Page!
                 return redirect(reverse('submissions:editorial_page',
-                                        args=(submission.arxiv_identifier_w_vn_nr,)))
+                                        args=(submission.preprint.identifier_w_vn_nr,)))
         elif isinstance(comment.content_object, Report):
             submission = comment.content_object.submission
             if submission.editor_in_charge == request.user.contributor:
                 # Redirect a EIC back to the Editorial Page!
                 return redirect(reverse('submissions:editorial_page',
-                                        args=(submission.arxiv_identifier_w_vn_nr,)))
+                                        args=(submission.preprint.identifier_w_vn_nr,)))
         elif request.user.has_perm('scipost.can_vet_comments'):
             # Redirect vetters back to check for other unvetted comments!
             return redirect(reverse('comments:vet_submitted_comments_list'))

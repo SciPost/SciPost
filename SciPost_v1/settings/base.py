@@ -15,6 +15,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import json
 
+from datetime import timedelta
+
 from django.utils.translation import ugettext_lazy as _
 
 from django.core.exceptions import ImproperlyConfigured
@@ -88,6 +90,9 @@ INSTALLED_APPS = (
     'colleges',
     'commentaries',
     'comments',
+    'conflicts',
+    'django_celery_results',
+    'django_celery_beat',
     'finances',
     'invitations',
     'journals',
@@ -102,6 +107,7 @@ INSTALLED_APPS = (
     'proceedings',
     'production',
     'partners',
+    'preprints',
     'funders',
     'stats',
     'petitions',
@@ -358,3 +364,12 @@ LOGGING = {
         },
     },
 }
+
+# Celery scheduled tasks
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_IMPORTS = ('submissions.tasks', )
+
+
+# Automation.
+ED_ASSIGMENT_DT_DELTA = timedelta(hours=12)

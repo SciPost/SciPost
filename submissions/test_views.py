@@ -28,10 +28,10 @@ TEST_SUBMISSION = {
     'title': ('General solution of 2D and 3D superconducting quasiclassical'
               ' systems:\n  coalescing vortices and nanodisk geometries'),
     'author_list': 'Morten Amundsen, Jacob Linder',
-    'arxiv_identifier_w_vn_nr': '1512.00030v1',
-    'arxiv_identifier_wo_vn_nr': '1512.00030',
-    'arxiv_vn_nr': 1,
-    'arxiv_link': 'http://arxiv.org/abs/1512.00030v1',
+    'identifier_w_vn_nr': '1512.00030v1',
+    'identifier_wo_vn_nr': '1512.00030',
+    'vn_nr': 1,
+    'link': 'http://arxiv.org/abs/1512.00030v1',
     'abstract': ('In quasiclassical Keldysh theory, the Green function matrix $\\check{g}$'
                  ' is\nused to compute a variety of physical quantities in mesoscopic syst'
                  'ems.\nHowever, solving the set of non-linear differential equations that'
@@ -79,7 +79,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
         response = client.get(self.url)
         self.assertEqual(response.status_code, 403)
         response = client.post(self.url,
-                               {'identifier': TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
+                               {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 403)
 
         # Registered Contributor should get 200
@@ -92,7 +92,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
         '''Test view with a valid post request.'''
         response = self.client.post(self.url,
                                     {'identifier':
-                                        TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
+                                        TEST_SUBMISSION['identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 200)
         self.assertIsInstance(response.context['form'], RequestSubmissionForm)
 
@@ -102,14 +102,14 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
         self.assertEqual(TEST_SUBMISSION['title'], response.context['form'].initial['title'])
         self.assertEqual(TEST_SUBMISSION['author_list'],
                          response.context['form'].initial['author_list'])
-        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_w_vn_nr'],
-                         response.context['form'].initial['arxiv_identifier_w_vn_nr'])
-        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_wo_vn_nr'],
-                         response.context['form'].initial['arxiv_identifier_wo_vn_nr'])
-        self.assertEqual(TEST_SUBMISSION['arxiv_vn_nr'],
-                         response.context['form'].initial['arxiv_vn_nr'])
-        self.assertEqual(TEST_SUBMISSION['arxiv_link'],
-                         response.context['form'].initial['arxiv_link'])
+        self.assertEqual(TEST_SUBMISSION['identifier_w_vn_nr'],
+                         response.context['form'].initial['identifier_w_vn_nr'])
+        self.assertEqual(TEST_SUBMISSION['identifier_wo_vn_nr'],
+                         response.context['form'].initial['identifier_wo_vn_nr'])
+        self.assertEqual(TEST_SUBMISSION['vn_nr'],
+                         response.context['form'].initial['vn_nr'])
+        self.assertEqual(TEST_SUBMISSION['url'],
+                         response.context['form'].initial['link'])
         self.assertEqual(TEST_SUBMISSION['abstract'],
                          response.context['form'].initial['abstract'])
 
@@ -125,13 +125,13 @@ class SubmitManuscriptTest(BaseContributorTestCase):
 
         # Unauthorized request shouldn't be possible
         response = client.post(reverse('submissions:prefill_using_identifier'),
-                               {'identifier': TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
+                               {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
         self.assertEquals(response.status_code, 403)
 
         # Registered Contributor should get 200; assuming prefiller is working properly
         self.assertTrue(client.login(username="Test", password="testpw"))
         response = client.post(reverse('submissions:prefill_using_identifier'),
-                               {'identifier': TEST_SUBMISSION['arxiv_identifier_w_vn_nr']})
+                               {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
         self.assertEqual(response.status_code, 200)
 
         # Fill form parameters
@@ -154,12 +154,12 @@ class SubmitManuscriptTest(BaseContributorTestCase):
         self.assertEqual(TEST_SUBMISSION['is_resubmission'], submission.is_resubmission)
         self.assertEqual(TEST_SUBMISSION['title'], submission.title)
         self.assertEqual(TEST_SUBMISSION['author_list'], submission.author_list)
-        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_w_vn_nr'],
-                         submission.arxiv_identifier_w_vn_nr)
-        self.assertEqual(TEST_SUBMISSION['arxiv_identifier_wo_vn_nr'],
-                         submission.arxiv_identifier_wo_vn_nr)
-        self.assertEqual(TEST_SUBMISSION['arxiv_vn_nr'], submission.arxiv_vn_nr)
-        self.assertEqual(TEST_SUBMISSION['arxiv_link'], submission.arxiv_link)
+        self.assertEqual(TEST_SUBMISSION['identifier_w_vn_nr'],
+                         submission.preprint.identifier_w_vn_nr)
+        self.assertEqual(TEST_SUBMISSION['identifier_wo_vn_nr'],
+                         submission.preprint.identifier_wo_vn_nr)
+        self.assertEqual(TEST_SUBMISSION['vn_nr'], submission.preprint.vn_nr)
+        self.assertEqual(TEST_SUBMISSION['url'], submission.preprint.url)
         self.assertEqual(TEST_SUBMISSION['abstract'], submission.abstract)
 
     def test_non_author_tries_submission(self):
@@ -197,7 +197,7 @@ class SubmitManuscriptTest(BaseContributorTestCase):
         last_submission = Submission.objects.last()
         if last_submission:
             self.assertNotEqual(last_submission.title, 'The Quench Action')
-            self.assertNotEqual(last_submission.arxiv_identifier_w_vn_nr, '1603.04689v1')
+            self.assertNotEqual(last_submission.preprint.identifier_w_vn_nr, '1603.04689v1')
 
 
 class SubmissionDetailTest(BaseContributorTestCase):
@@ -207,7 +207,7 @@ class SubmissionDetailTest(BaseContributorTestCase):
         self.submission = EICassignedSubmissionFactory()
         self.target = reverse(
             'submissions:submission',
-            kwargs={'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr}
+            kwargs={'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr}
         )
 
     def test_status_code_200(self):
@@ -220,24 +220,23 @@ class SubmissionListTest(BaseContributorTestCase):
         # Create invisible Submissions.
         arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
         UnassignedSubmissionFactory.create()
-        ResubmissionFactory.create(arxiv_identifier_wo_vn_nr=arxiv_id_resubmission)
+        ResubmissionFactory.create(preprint__identifier_wo_vn_nr=arxiv_id_resubmission)
 
         # Create visible submissions
         visible_submission_ids = []
-        visible_submission_ids.append(ResubmittedSubmissionFactory
-                                      .create(arxiv_identifier_wo_vn_nr=arxiv_id_resubmission).id)
+        visible_submission_ids.append(
+            ResubmittedSubmissionFactory.create(preprint__identifier_wo_vn_nr=arxiv_id_resubmission).id)
         visible_submission_ids.append(EICassignedSubmissionFactory.create().id)
         visible_submission_ids.append(PublishedSubmissionFactory.create().id)
 
         # Extra submission with multiple versions where the newest is publicly visible
         # again. Earlier versions should therefore be invisible!
         arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
-        ResubmittedSubmissionFactory.create(arxiv_identifier_wo_vn_nr=arxiv_id_resubmission)
+        ResubmittedSubmissionFactory.create(preprint__identifier_wo_vn_nr=arxiv_id_resubmission)
         visible_submission_ids.append(
             EICassignedSubmissionFactory.create(
-                arxiv_identifier_wo_vn_nr=arxiv_id_resubmission,
-                fill_arxiv_fields__arxiv_vn_nr=2
-            ).id
+                preprint__identifier_wo_vn_nr=arxiv_id_resubmission,
+                fill_arxiv_fields__preprint__vn_nr=2).id
         )
 
         # Check with hardcoded URL as this url shouldn't change!
@@ -280,7 +279,7 @@ class SubmitReportTest(BaseContributorTestCase):
         self.submission.authors.remove(self.current_contrib)
         self.submission.authors_false_claims.add(self.current_contrib)
         self.target = reverse('submissions:submit_report',
-                              args=(self.submission.arxiv_identifier_w_vn_nr,))
+                              args=(self.submission.preprint.identifier_w_vn_nr,))
         self.assertTrue(self.client.login(username="Test", password="testpw"))
 
     @tag('reports')
@@ -291,7 +290,7 @@ class SubmitReportTest(BaseContributorTestCase):
         submission.authors.remove(self.current_contrib)
         submission.authors_false_claims.add(self.current_contrib)
 
-        target = reverse('submissions:submit_report', args=(submission.arxiv_identifier_w_vn_nr,))
+        target = reverse('submissions:submit_report', args=(submission.preprint.identifier_w_vn_nr,))
         client = Client()
 
         # Login and call view
@@ -385,7 +384,8 @@ class SubmitReportTest(BaseContributorTestCase):
         submission.authors.remove(self.current_contrib)
         submission.authors_false_claims.add(self.current_contrib)
 
-        target = reverse('submissions:submit_report', args=(submission.arxiv_identifier_w_vn_nr,))
+        target = reverse(
+            'submissions:submit_report', args=(submission.preprint.identifier_w_vn_nr,))
         client = Client()
 
         # Login and call view

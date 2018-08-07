@@ -114,11 +114,11 @@ def fellowship_terminate(request, id):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_pool(request, arxiv_identifier_w_vn_nr):
+def submission_pool(request, identifier_w_vn_nr):
     """
     List all Fellowships related to Submission.
     """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     context = {
         'submission': submission
@@ -128,11 +128,11 @@ def submission_pool(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_voting_fellows(request, arxiv_identifier_w_vn_nr):
+def submission_voting_fellows(request, identifier_w_vn_nr):
     """
     List all Fellowships selected for voting on the EIC related to Submission.
     """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     context = {
         'submission': submission
@@ -142,11 +142,9 @@ def submission_voting_fellows(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
-    """
-    Add Fellowship to the Fellows voting on the EICRecommendation of a Submission.
-    """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+def submission_add_fellowship_voting(request, identifier_w_vn_nr):
+    """Add Fellowship to the Fellows voting on the EICRecommendation of a Submission."""
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = SubmissionAddVotingFellowForm(request.POST or None, instance=submission)
 
     if form.is_valid():
@@ -155,7 +153,7 @@ def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
             fellowship=form.cleaned_data['fellowship'].contributor,
             id=form.cleaned_data['fellowship'].id))
         return redirect(reverse('colleges:submission_voting_fellows',
-                                args=(submission.arxiv_identifier_w_vn_nr,)))
+                                args=(submission.preprint.identifier_w_vn_nr,)))
 
     context = {
         'submission': submission,
@@ -166,22 +164,20 @@ def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_remove_submission_voting(request, id, arxiv_identifier_w_vn_nr):
-    """
-    Remove Fellow from the EICRecommendation voting group for the Submission.
-    """
+def fellowship_remove_submission_voting(request, id, identifier_w_vn_nr):
+    """Remove Fellow from the EICRecommendation voting group for the Submission."""
     fellowship = get_object_or_404(Fellowship, id=id)
-    submission = get_object_or_404(fellowship.voting_pool.all(),
-                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(
+        fellowship.voting_pool.all(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = FellowVotingRemoveSubmissionForm(request.POST or None,
                                             submission=submission, instance=fellowship)
 
     if form.is_valid() and request.POST:
         form.save()
-        messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
-            sub=arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Submission {submission_id} removed from Fellowship.'.format(
+            submission_id=identifier_w_vn_nr))
         return redirect(reverse('colleges:submission_voting_fellows',
-                                args=(submission.arxiv_identifier_w_vn_nr,)))
+                                args=(submission.preprint.identifier_w_vn_nr,)))
 
     context = {
         'fellowship': fellowship,
@@ -193,11 +189,9 @@ def fellowship_remove_submission_voting(request, id, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
-    """
-    Add Fellowship to the pool of a Submission.
-    """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+def submission_add_fellowship(request, identifier_w_vn_nr):
+    """Add Fellowship to the pool of a Submission."""
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = SubmissionAddFellowshipForm(request.POST or None, instance=submission)
 
     if form.is_valid():
@@ -206,7 +200,7 @@ def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
             fellowship=form.cleaned_data['fellowship'].contributor,
             id=form.cleaned_data['fellowship'].id))
         return redirect(reverse('colleges:submission',
-                                args=(submission.arxiv_identifier_w_vn_nr,)))
+                                args=(submission.preprint.identifier_w_vn_nr,)))
 
     context = {
         'submission': submission,
@@ -217,20 +211,18 @@ def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_remove_submission(request, id, arxiv_identifier_w_vn_nr):
-    """
-    Remove Submission from the pool of a Fellowship.
-    """
+def fellowship_remove_submission(request, id, identifier_w_vn_nr):
+    """Remove Submission from the pool of a Fellowship."""
     fellowship = get_object_or_404(Fellowship, id=id)
-    submission = get_object_or_404(fellowship.pool.all(),
-                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(
+        fellowship.pool.all(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = FellowshipRemoveSubmissionForm(request.POST or None,
                                           submission=submission, instance=fellowship)
 
     if form.is_valid() and request.POST:
         form.save()
-        messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
-            sub=arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Submission {submission_id} removed from Fellowship.'.format(
+            submission_id=identifier_w_vn_nr))
         return redirect(fellowship.get_absolute_url())
 
     context = {
@@ -244,16 +236,14 @@ def fellowship_remove_submission(request, id, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def fellowship_add_submission(request, id):
-    """
-    Add Submission to the pool of a Fellowship.
-    """
+    """Add Submission to the pool of a Fellowship."""
     fellowship = get_object_or_404(Fellowship, id=id)
     form = FellowshipAddSubmissionForm(request.POST or None, instance=fellowship)
 
     if form.is_valid():
         form.save()
-        messages.success(request, 'Submission {submission} added to Fellowship.'.format(
-            submission=form.cleaned_data['submission'].arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Submission {submission_id} added to Fellowship.'.format(
+            submission_id=form.cleaned_data['submission'].preprint.identifier_w_vn_nr))
         return redirect(fellowship.get_absolute_url())
 
     context = {

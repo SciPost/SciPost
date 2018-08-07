@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
@@ -25,8 +26,8 @@ class SubmissionQuerySet(models.QuerySet):
         # filter combined with the PostGresQL engine. Without the double query, ordering
         # on a specific field after filtering seems impossible.
         ids = (queryset
-               .order_by('arxiv_identifier_wo_vn_nr', '-arxiv_vn_nr')
-               .distinct('arxiv_identifier_wo_vn_nr')
+               .order_by('preprint__identifier_wo_vn_nr', '-preprint__vn_nr')
+               .distinct('preprint__identifier_wo_vn_nr')
                .values_list('id', flat=True))
         return queryset.filter(id__in=ids)
 
@@ -154,8 +155,8 @@ class SubmissionQuerySet(models.QuerySet):
         identifiers = []
         for sub in self.filter(is_resubmission=False,
                                submission_date__range=(from_date, until_date)):
-            identifiers.append(sub.arxiv_identifier_wo_vn_nr)
-        return self.filter(arxiv_identifier_wo_vn_nr__in=identifiers)
+            identifiers.append(sub.preprint.identifier_wo_vn_nr)
+        return self.filter(preprint__identifier_wo_vn_nr__in=identifiers)
 
     def accepted(self):
         """Return accepted Submissions."""
@@ -192,32 +193,34 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submission that allow for commenting."""
         return self.filter(open_for_commenting=True)
 
+    def needs_conflicts_update(self):
+        """Return set of Submissions that need an ConflictOfInterest update."""
+        return self.filter(needs_conflicts_update=True)
+
+    def has_editor_invitations_to_be_sent(self):
+        """Return Submissions that have EditorialAssignments that still need to be sent."""
+        return self.filter(editorial_assignments__status=constants.STATUS_PREASSIGNED)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):
-        """
-        Return all events that are meant to be for the author(s) of a submission.
-        """
+        """Return all events that are meant to be for the author(s) of a submission."""
         return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
 
     def for_eic(self):
-        """
-        Return all events that are meant to be for the Editor-in-charge of a submission.
-        """
+        """Return all events that are meant to be for the Editor-in-charge of a submission."""
         return self.filter(event__in=[constants.EVENT_FOR_EIC, constants.EVENT_GENERAL])
 
     def last_hours(self, hours=24):
-        """
-        Return all events of the last `hours` hours.
-        """
+        """Return all events of the last `hours` hours."""
         return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
 
 
 class EditorialAssignmentQuerySet(models.QuerySet):
     def get_for_user_in_pool(self, user):
-        return self.exclude(submission__authors=user.contributor)\
-                .exclude(Q(submission__author_list__icontains=user.last_name),
-                         ~Q(submission__authors_false_claims=user.contributor))
+        return self.exclude(submission__authors=user.contributor).exclude(
+            Q(submission__author_list__icontains=user.last_name),
+            ~Q(submission__authors_false_claims=user.contributor))
 
     def auto_reminders_allowed(self):
         return self.filter(auto_reminders_allowed=True)
@@ -225,28 +228,59 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def last_year(self):
         return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
 
-    def accepted(self):
-        return self.filter(accepted=True)
-
-    def refused(self):
-        return self.filter(accepted=False)
-
-    def ignored(self):
-        return self.filter(accepted=None)
-
-    def completed(self):
-        return self.filter(completed=True)
-
-    def ongoing(self):
-        return self.filter(completed=False, deprecated=False).accepted()
-
-    def open(self):
-        return self.filter(accepted=None, deprecated=False)
-
     def refereeing_deadline_within(self, days=7):
         return self.exclude(
             submission__reporting_deadline__gt=timezone.now() + timezone.timedelta(days=days)
             ).exclude(submission__reporting_deadline__lt=timezone.now())
+
+    def next_invitation_to_be_sent(self, submission_id):
+        """Return EditorialAssignment that needs to be sent next."""
+        try:
+            latest_date_invited = self.invited().filter(
+                submission__id=submission_id,
+                date_invited__isnull=False).latest('date_invited').date_invited
+            if latest_date_invited:
+                return_next = latest_date_invited < timezone.now() - settings.ED_ASSIGMENT_DT_DELTA
+            else:
+                return_next = True
+        except self.model.DoesNotExist:
+            return_next = True
+
+        if not return_next:
+            return None
+
+        return self.filter(
+            submission__id=submission_id,
+            status=constants.STATUS_PREASSIGNED).order_by('invitation_order').first()
+
+    def preassigned(self):
+        return self.filter(status=constants.STATUS_PREASSIGNED)
+
+    def invited(self):
+        return self.filter(status=constants.STATUS_INVITED)
+
+    def need_response(self):
+        """Return EdAssignments that are non-deprecated or without response."""
+        return self.filter(status__in=[constants.STATUS_PREASSIGNED, constants.STATUS_INVITED])
+
+    def ongoing(self):
+        return self.filter(status=constants.STATUS_ACCEPTED)
+
+    def accepted(self):
+        return self.filter(status__in=[constants.STATUS_ACCEPTED, constants.STATUS_COMPLETED])
+
+    def declined(self):
+        return self.filter(status=constants.STATUS_DECLINED)
+
+    def declined_red(self):
+        """Return EditorialAssignments declined with a 'red-label reason'."""
+        return self.declined().filter(refusal_reason__in=['NIE', 'DNP'])
+
+    def deprecated(self):
+        return self.filter(status=constants.STATUS_DECLINED)
+
+    def completed(self):
+        return self.filter(status=constants.STATUS_COMPLETED)
 
 
 class EICRecommendationQuerySet(models.QuerySet):

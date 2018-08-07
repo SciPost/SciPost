@@ -7,7 +7,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Formulate Editorial Recommendation</span>
 {% endblock %}
 
@@ -52,7 +52,7 @@
 
 <div class="row">
     <div class="col-12">
-        <form action="{% url 'submissions:eic_recommendation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}" method="post">
+        <form action="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
             <input class="btn btn-primary" type="submit" value="Submit Recommendation"/>

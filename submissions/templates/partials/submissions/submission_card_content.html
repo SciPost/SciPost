@@ -2,7 +2,7 @@
 
 {% block card_footer %}
     <p class="meta">
-        Version {{ submission.arxiv_vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.arxiv_vn_nr }}{% endif %})
+        Version {{ submission.preprint.vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.preprint.vn_nr }}{% endif %})
         <br>
         {% if submission.publication and submission.publication.is_published %}
             Published as <a href="{{ submission.publication.get_absolute_url }}">{{ submission.publication.in_issue.in_volume.in_journal.abbreviation_citation }} <strong>{{ submission.publication.in_issue.in_volume.number }}</strong>, {{ submission.publication.get_paper_nr }} ({{ submission.publication.publication_date|date:'Y' }})</a>

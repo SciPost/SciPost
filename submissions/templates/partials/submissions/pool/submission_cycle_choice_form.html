@@ -1,5 +1,5 @@
 {% load bootstrap %}
-<form method="post" action="{% url 'submissions:cycle_confirmation' submission.arxiv_identifier_w_vn_nr %}">
+<form method="post" action="{% url 'submissions:cycle_confirmation' submission.preprint.identifier_w_vn_nr %}">
     {% csrf_token %}
     <div class="row">
         <div class="col-12">

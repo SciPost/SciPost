@@ -4,17 +4,13 @@
 
 {% block pagetitle %}: submit manuscript{% endblock pagetitle %}
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <h1>Submit a manuscript to SciPost</h1>
-        </div>
-    </div>
-{% endblock %}
-
 {% block content %}
 
 <div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Submit a manuscript to SciPost</h1>
+    </div>
+
     <div class="col-12">
         <p class="mb-1">
             Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
@@ -43,6 +39,9 @@
                   {% csrf_token %}
                   {{ form|bootstrap }}
                   <input type="submit" class="btn btn-outline-secondary" value="Query arXiv"/>
+                  <br>
+                  <br>
+                  <a href="{% url 'submissions:submit_manuscript_scipost' %}">Submit manuscript without arXiv instead</a>
                 </form>
             </div>
         </div>

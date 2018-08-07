@@ -376,15 +376,15 @@ class DraftPublicationForm(forms.ModelForm):
             'acceptance_date',
             'publication_date']
 
-    def __init__(self, data=None, arxiv_identifier_w_vn_nr=None, issue_id=None, *args, **kwargs):
+    def __init__(self, data=None, identifier_w_vn_nr=None, issue_id=None, *args, **kwargs):
         # Use separate instance to be able to prefill the form without any existing Publication
         self.submission = None
         self.issue = None
         self.to_journal = None
-        if arxiv_identifier_w_vn_nr:
+        if identifier_w_vn_nr:
             try:
                 self.submission = Submission.objects.accepted().get(
-                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
             except Submission.DoesNotExist:
                 self.submission = None
 

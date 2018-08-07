@@ -26,8 +26,8 @@ def citation_rate(obj, *args, **kwargs):
 def submissions_count_distinct(submissions):
     identifiers_wo_vn_nr = []
     for submission in submissions:
-        if submission.arxiv_identifier_wo_vn_nr not in identifiers_wo_vn_nr:
-            identifiers_wo_vn_nr.append(submission.arxiv_identifier_wo_vn_nr)
+        if submission.preprint.identifier_wo_vn_nr not in identifiers_wo_vn_nr:
+            identifiers_wo_vn_nr.append(submission.preprint.identifier_wo_vn_nr)
     return len(identifiers_wo_vn_nr)
 
 

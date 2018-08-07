@@ -455,7 +455,7 @@ def _personal_page_editorial_actions(request):
         context['nr_authorship_claims_to_vet'] = AuthorshipClaim.objects.awaiting_vetting().count()
 
     if contributor.is_MEC():
-        context['nr_assignments_to_consider'] = contributor.editorial_assignments.open().count()
+        context['nr_assignments_to_consider'] = contributor.editorial_assignments.invited().count()
         context['active_assignments'] = contributor.editorial_assignments.ongoing()
         context['nr_reports_to_vet'] = Report.objects.awaiting_vetting().filter(
             submission__editor_in_charge=contributor).count()
