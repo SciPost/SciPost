@@ -17,9 +17,4 @@ class Migration(migrations.Migration):
             name='invitation_order',
             field=models.IntegerField(default=0),
         ),
-        migrations.AddField(
-            model_name='submission',
-            name='needs_conflicts_update',
-            field=models.BooleanField(default=False),
-        ),
     ]
