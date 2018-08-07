@@ -3,12 +3,12 @@
 from .base import *
 
 # THE MAIN THING HERE
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ['128.199.54.82']
 
 # Static and media
-STATIC_ROOT = '/home/scipost_static/'
-MEDIA_ROOT = '/home/scipost_media/'
+STATIC_ROOT = '/home/scipost_static/static/'
+MEDIA_ROOT = '/home/scipost_media/static/'
 
 # Webpack
 WEBPACK_LOADER['DEFAULT']['CACHE'] = True
@@ -23,8 +23,8 @@ LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/logs/arxi
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/logs/doi.log'
 
 # Cookies
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
 
 # Email
 EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
