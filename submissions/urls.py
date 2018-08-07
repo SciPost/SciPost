@@ -28,8 +28,8 @@ urlpatterns = [
         views.submission_detail, name='submission'),
     url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.report_detail_pdf, name='report_detail_pdf'),
-    url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/attachment$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.report_attachment, name='report_attachment'),
+    url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/attachment$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.report_attachment, name='report_attachment'),
     url(r'^{regex}/reports/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
 
@@ -39,14 +39,18 @@ urlpatterns = [
         views.PreScreeningView.as_view(), name='do_prescreening'),
     url(r'^admin/{regex}/editor_invitations$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.editor_invitations, name='editor_invitations'),
+    url(r'^admin/{regex}/editor_invitations/(?P<assignment_id>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.send_editorial_assignment_invitation,
+        name='send_editorial_assignment_invitation'),
     url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
     url(r'^admin/{regex}/plagiarism$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.PlagiarismView.as_view(), name='plagiarism'),
     url(r'^admin/{regex}/plagiarism/report$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.PlagiarismReportPDFView.as_view(), name='plagiarism_report'),
-    url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.EICRecommendationView.as_view(), name='eic_recommendation_detail'),
+    url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationView.as_view(),
+        name='eic_recommendation_detail'),
     url(r'^admin/reports$', views.reports_accepted_list, name='reports_accepted_list'),
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),

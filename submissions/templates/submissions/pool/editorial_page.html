@@ -252,7 +252,7 @@
                             </li>
 
                             {% if submission.is_open_for_reporting %}
-                                <li><a href="{% url 'submissions:close_refereeing_round' dentifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
+                                <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
                             {% endif %}
                         {% endif %}
                         {% with submission.reports.awaiting_vetting as reports %}

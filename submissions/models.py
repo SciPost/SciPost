@@ -20,8 +20,9 @@ from .constants import (
     SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
-    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED)
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
+    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
+    STATUS_INVITED)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -37,6 +38,7 @@ from scipost.fields import ChoiceArrayField
 from scipost.storage import SecureFileStorage
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
+from mails.utils import DirectMailUtil
 
 
 class Submission(models.Model):
@@ -326,6 +328,14 @@ class Submission(models.Model):
                     coauthorships[fellow.contributor.user.last_name] = queryresults.entries
         return coauthorships
 
+    def is_sending_editorial_invitations(self):
+        """Return whether editorial assignments are being send out."""
+        if self.status != STATUS_UNASSIGNED:
+            # Only if status is unassigned.
+            return False
+
+        return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()
+
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
     """Private message directly related to a Submission.
@@ -403,6 +413,20 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     def notification_name(self):
         """Return string representation of this EditorialAssigment as shown in Notifications."""
         return self.submission.preprint.identifier_w_vn_nr
+
+    def send_invitation(self):
+        """Send invitation and update status."""
+        if self.status != STATUS_PREASSIGNED:
+            # Only send if status is appropriate to prevent double sending
+            return False
+
+        EditorialAssignment.objects.filter(
+            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
+
+        # Send mail
+        mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
+        mail_sender.send()
+        return True
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):

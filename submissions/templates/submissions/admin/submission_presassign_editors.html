@@ -65,7 +65,28 @@
                 <td>Submission status:</td>
                 <td>{{ submission.get_status_display }}</td>
             </tr>
+            <tr>
+                <td>Number of <u data-toggle="tooltip" data-title="Red-label declines are declines with reason: 'Not interested enough' or 'SciPost should not even consider this paper'.">red-label declines</u>:</td>
+                <td>
+                    {% if submission.editorial_assignments.declined_red.count >= 3 %}
+                        <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{ submission.editorial_assignments.declined_red.count }}</span>
+                        &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a>
+                    {% else %}
+                        {{ submission.editorial_assignments.declined_red.count }}
+                    {% endif %}
+                </td>
+            </tr>
         {% endif %}
+        <tr>
+            <td>Sending invitations in progress:</td>
+            <td>
+                {% if submission.is_sending_editorial_invitations %}
+                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+                {% else %}
+                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+                {% endif %}
+            </td>
+        </tr>
     </tbody>
 </table>
 
@@ -91,12 +112,24 @@
                         <div class="single d-inline specialization" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
                     {% endfor %}
                 </td>
-                <td>{{ assignment.get_status_display }}</td>
+                <td>
+                    {{ assignment.get_status_display }}
+                    {% if assignment.refusal_reason %}
+                         | <span class="text-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">Reason: {{ assignment.get_refusal_reason_display }}</span>
+                    {% endif %}
+
+                    <br>
+
+                </td>
                 <td>
                     {{ assignment.date_invited|default:'<i>Not invited (yet)</i>' }}
                     {% if assignment.status == 'preassigned' %}
                         <br>
-                        <a href="#">Send invitation now</a>
+                        <a href="{% url 'submissions:send_editorial_assignment_invitation' submission.preprint.identifier_w_vn_nr assignment.id %}">Send invitation now</a>
+                    {% endif %}
+                    {% if assignment.date_answered %}
+                        <br>
+                        <span class="text-muted">Answered {{ assignment.date_answered }}</span>
                     {% endif %}
                 </td>
             </tr>
@@ -148,16 +181,16 @@
                         <td>
                             {% with submission.conflict_groups.all|filter_for_contributor:form.get_fellow as conflict_groups %}
                                 {% if conflict_groups %}
-                                    {{ conflict_groups|length }} conflict{{ conflict_groups|length|pluralize }} found
+                                    {{ conflict_groups|length }} potential conflict{{ conflict_groups|length|pluralize }} found
                                     <br>
-                                    <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ form.id }}">Show/hide conflicts</a>
-                                    <div id="fellow-conflicts-{{ form.id }}">
+                                    <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ form.instance.id }}">Show/hide conflicts</a>
+                                    <div id="fellow-conflicts-{{ form.instance.id }}">
                                         {% for conflict_group in conflict_groups %}
                                             <div class="my-1">
-                                                <h4><a href="{{ conflict_group.url }}" target="_blank">{{ conflict_group.title }}</a></h4>
-                                                <p>Conflict details:</p>
+                                                <h4 class="mb-1"><a href="{{ conflict_group.url }}" target="_blank">{{ conflict_group.title }}</a></h4>
+                                                <!-- <p>Conflict details:</p> -->
                                                 <table class="table table-sm border">
-                                                    <tr>f
+                                                    <tr>
                                                         <th>Person</th>
                                                         <th>Status</th>
                                                         <th>Conflict type</th>
@@ -199,6 +232,7 @@
             </tbody>
         </table>
         <button class="btn btn-primary" type="submit">Save pre-assignments</button>
+        <a class="btn btn-default" href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition</a>
     </form>
 {% endif %}
 
@@ -249,9 +283,5 @@
             });
         }
 
-
-        // $(function () {
-        //     $('#preassignments tbody').sortable();
-        // });
     </script>
 {% endblock %}

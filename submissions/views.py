@@ -542,7 +542,8 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     if assignment_id:
         # Process existing EditorialAssignment.
         assignment = get_object_or_404(
-            submission.editorial_assignments.invited(), to=request.user.contributor, pk=assignment_id)
+            submission.editorial_assignments.invited(),
+            to=request.user.contributor, pk=assignment_id)
     else:
         # Get or create EditorialAssignment for user.
         try:
@@ -577,8 +578,6 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
         messages.success(request, msg)
         return redirect(url)
 
-        return redirect('submissions:pool')
-
     context = {
         'form': form,
         'submission': submission,
@@ -597,7 +596,7 @@ def assignment_request(request, assignment_id):
     assignment = get_object_or_404(EditorialAssignment.objects.invited(),
                                    to=request.user.contributor, pk=assignment_id)
     return redirect(reverse('submissions:editorial_assignment', kwargs={
-        'preprint__identifier_w_vn_nr': assignment.submission.preprint.identifier_w_vn_nr,
+        'identifier_w_vn_nr': assignment.submission.preprint.identifier_w_vn_nr,
         'assignment_id': assignment.id
     }))
 
@@ -1644,6 +1643,20 @@ def editor_invitations(request, identifier_w_vn_nr):
             messages.warning(request, 'Invalid form. Please try again.')
         context['formset'] = formset
     return render(request, 'submissions/admin/submission_presassign_editors.html', context)
+
+
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
+def send_editorial_assignment_invitation(request, identifier_w_vn_nr, assignment_id):
+    """Force-send invitation for EditorialAssignment."""
+    assignment = get_object_or_404(EditorialAssignment.objects.preassigned(), id=assignment_id)
+    is_sent = assignment.send_invitation()
+    if is_sent:
+        messages.success(request, 'Invitation sent.')
+    else:
+        messages.warning(request, 'Invitation not sent.')
+    return redirect(reverse(
+        'submissions:editor_invitations',
+        args=(assignment.submission.preprint.identifier_w_vn_nr,)))
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):

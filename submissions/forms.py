@@ -18,9 +18,9 @@ from .constants import (
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED,
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED,
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED,
-    STATUS_FAILED_PRESCREENING)
+    STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -697,14 +697,14 @@ class EditorialAssignmentForm(forms.ModelForm):
         self.instance.submission = self.submission
         self.instance.date_answered = timezone.now()
         self.instance.to = self.request.user.contributor
-        recommendation = super().save()  # Save already, in case it's a new recommendation.
+        assignment = super().save()  # Save already, in case it's a new recommendation.
 
         if self.has_accepted_invite():
+            # Update related Submission.
             if self.is_normal_cycle():
-                # Default Refereeing process!
-
+                # Default Refereeing process
                 deadline = timezone.now() + datetime.timedelta(days=28)
-                if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+                if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
                     deadline += datetime.timedelta(days=28)
 
                 # Update related Submission.
@@ -718,9 +718,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     visible_public=True,
                     latest_activity=timezone.now())
             else:
-                # Formulate rejection recommendation instead
-
-                # Update related Submission.
+                # Short Refereeing process
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DIRECT_REC,
                     status=STATUS_EIC_ASSIGNED,
@@ -731,16 +729,23 @@ class EditorialAssignmentForm(forms.ModelForm):
                     visible_public=False,
                     latest_activity=timezone.now())
 
-        if self.has_accepted_invite():
             # Implicitly or explicity accept the assignment and deprecate others.
-            recommendation.accepted = True
+            assignment.accepted = True  # Deprecated field
+            assignment.status = STATUS_ACCEPTED
+
+            # Update all other 'open' invitations
+            EditorialAssignment.objects.filter(submission=self.submission).need_response().exclude(
+                id=assignment.id).update(status=STATUS_DEPRECATED)
+
+            # Deprecated update
             EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
-                id=recommendation.id).update(deprecated=True)
+                id=assignment.id).update(deprecated=True)
         else:
-            recommendation.accepted = False
-            recommendation.refusal_reason = self.cleaned_data['refusal_reason']
-        recommendation.save()  # Save again to register acceptance
-        return recommendation
+            assignment.accepted = False  # Deprecated field
+            assignment.status = STATUS_DECLINED
+            assignment.refusal_reason = self.cleaned_data['refusal_reason']
+        assignment.save()  # Save again to register acceptance
+        return assignment
 
 
 class ConsiderAssignmentForm(forms.Form):
