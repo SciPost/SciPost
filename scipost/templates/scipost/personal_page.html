@@ -5,15 +5,11 @@
 
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <h1>Welcome to your SciPost Personal Page{% if appellation %}, {{ appellation }}{% endif %}</h1>
-        </div>
-    </div>
-{% endblock %}
+{% block body_class %}{{ block.super }} personal-page{% endblock %}
 
 {% block content %}
+
+    <h1 class="highlight">Welcome to your SciPost Personal Page{% if appellation %}, {{ appellation }}{% endif %}</h1>
 
     {% if needs_validation %}
 

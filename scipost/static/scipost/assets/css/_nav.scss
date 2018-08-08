@@ -88,3 +88,40 @@
         border-top: 3px solid $scipost-darkblue;
     }
 }
+
+.tab-nav-container {
+    display: block;
+    text-align: center;
+    border-bottom: 3px solid $scipost-darkblue;
+
+    .tab-nav-inner {
+        display: inline-block;
+
+        .nav li {
+            border: 0;
+            background-color: initial;
+
+            &:hover,
+            &:active {
+                background-color: initial;
+            }
+
+            a:hover,
+            a.active {
+                color: $scipost-darkblue;
+                text-decoration: underline;
+
+                &:before {
+                    border-bottom: 11px solid $scipost-darkblue;
+                    border-left: 11px solid transparent;
+                    border-right: 11px solid transparent;
+                    content: "";
+                    display: inline-block;
+                    position: absolute;
+                    right: 40%;
+                    bottom: 0;
+                }
+            }
+        }
+    }
+}
