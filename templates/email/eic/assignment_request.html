@@ -1,0 +1,23 @@
+<p>
+    Dear {{ assignment.to.get_title_display }} {{ assignment.to.user.last_name }},
+</p>
+<p>
+    We have received a Submission to SciPost for which we would like you to consider becoming Editor-in-charge:
+</p>
+<p>
+    {{ assignment.submission.title }}<br>
+    by {{ assignment.submission.author_list }}
+</p>
+
+<p>
+    Please visit the <a href="https://scipost.org/submissions/pool">Submissions Pool</a> in order to accept or decline (it is important for you to inform us even if you decline, since this affects the result of the pre-screening process).
+</p>
+<p>
+    Note that this assignment request is automatically deprecated if another Fellow takes charge of this Submission or if pre-screening fails in the meantime.
+</p>
+<p>
+    Many thanks in advance for your collaboration,<br>
+    The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}

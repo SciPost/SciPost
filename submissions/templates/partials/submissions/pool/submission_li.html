@@ -10,14 +10,14 @@
 <div class="pool-item">
     <div class="row mb-1">
         <div class="col-md-7">
-            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#container_{{ submission.id }}">{{ submission.title }}</a><br>
+            <a href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#container_{{ submission.id }}">{{ submission.title }}</a><br>
             <em>by {{ submission.author_list }}</em>
         </div>
         <div class="col-md-5">
             {% if submission.eicrecommendations.active.first %}
                 <small class="text-muted">EIC Recommendation Status</small>
                 <br>
-                <span class="label label-sm label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
+                <span class="label label-sm label-secondary">{{ submission.eicrecommendations.active.first.get_full_status_display }}</span>
             {% endif %}
         </div>
     </div>
@@ -27,7 +27,7 @@
             <small class="text-muted">Editor-in-charge</small>
             <br>
             {% if submission.status == 'unassigned' %}
-                <span class="card-text text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.arxiv_identifier_w_vn_nr %}">clicking here</a>.</span>
+                <span class="card-text text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</span>
             {% elif submission.editor_in_charge == request.user.contributor %}
                 <strong>You are Editor-in-charge</strong>
             {% else %}
@@ -37,9 +37,9 @@
         <div class="col-md-2">
             <small class="text-muted">Actions</small>
             <br>
-            <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#container_{{ submission.id }}">See details</a>
+            <a href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" data-toggle="dynamic" data-target="#container_{{ submission.id }}">See details</a>
             {% if submission.editor_in_charge == request.user.contributor %}
-                &middot; <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Editorial page</a>
+                &middot; <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Editorial page</a>
             {% endif %}
         </div>
         <div class="col-md-2">
@@ -56,7 +56,7 @@
 
     {% if submission.cycle.has_required_actions and submission.cycle.get_required_actions %}
         <div class="card-text bg-danger text-white mt-1 py-1 px-2">
-            This Submission contains required actions, <a href="{% url 'submissions:pool' submission.arxiv_identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#container_{{ submission.id }}">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}
+            This Submission contains required actions, <a href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#container_{{ submission.id }}">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}
         </div>
     {% endif %}
 
@@ -65,7 +65,7 @@
         {% if invitations %}
             <div class="border border-warning mt-1 py-1 px-2">
                 <i class="fa fa-exclamation mt-1 px-1 text-danger"></i>
-                You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.arxiv_identifier_w_vn_nr %}">You can reply to this invitation here</a>.
+                You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
             </div>
         {% endif %}
     {% endif %}

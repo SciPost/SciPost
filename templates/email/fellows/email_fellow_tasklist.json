@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: current assignments, pending tasks",
+    "to_address": "fellow.user.email",
+    "bcc_to": "edadmin@scipost.org",
+    "from_address_name": "SciPost EdAdmin",
+    "from_address": "edadmin@scipost.org",
+    "context_object": "fellow"
+}

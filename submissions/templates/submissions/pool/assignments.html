@@ -31,7 +31,7 @@
 
     {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
     <h4 class="d-block mt-2">
-        <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=assignment.submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+        <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=assignment.submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
     </h4>
 {% empty %}
     <p class="py-2">You currently have no assignments to take care of.</p>

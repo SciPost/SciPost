@@ -25,7 +25,7 @@ class CommentForm(forms.ModelForm):
             {'rows': 3, 'placeholder': '(these remarks will not be publicly visible)'})
         self.fields['anonymous'].initial = True
 
-        if not self.is_report_comment:
+        if self.is_report_comment:
             del self.fields['anonymous']
 
 

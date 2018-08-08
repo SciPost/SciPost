@@ -28,6 +28,7 @@ class Command(BaseCommand):
                                                             name='Registered Contributors')
         Developers, created = Group.objects.get_or_create(name='Developers')
         Testers, created = Group.objects.get_or_create(name='Testers')
+        NewsAdmin, created = Group.objects.get_or_create(name='News Administrators')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
         ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
@@ -41,6 +42,10 @@ class Command(BaseCommand):
         content_type = ContentType.objects.get_for_model(Contributor)
 
         # Supporting Partners
+        can_manage_organizations, created = Permission.objects.get_or_create(
+            codename='can_manage_organizations',
+            name='Can manage Organizations',
+            content_type=content_type)
         can_manage_SPB, created = Permission.objects.get_or_create(
             codename='can_manage_SPB',
             name='Can manage Supporting Partners Board',
@@ -280,6 +285,12 @@ class Command(BaseCommand):
             name='Can manage affiliations',
             content_type=content_type)
 
+        # News administration
+        can_manage_news, created = Permission.objects.get_or_create(
+            codename='can_manage_news',
+            name='Can manage News',
+            content_type=content_type)
+
         # Mailchimp
         can_manage_mailchimp, created = Permission.objects.get_or_create(
             codename='can_manage_mailchimp',
@@ -408,6 +419,7 @@ class Command(BaseCommand):
         ])
 
         PartnersAdmin.permissions.set([
+            can_manage_organizations,
             can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,

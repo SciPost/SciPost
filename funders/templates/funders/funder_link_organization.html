@@ -1,0 +1,44 @@
+{% extends 'funders/base.html' %}
+
+{% block pagetitle %}: link Funder to Organization{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">{{ funder.name }}</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>Funder: link to Organization</h1>
+<div class="row">
+  <div class="col-4">
+    <table class="table">
+      <tbody>
+	<tr><td>Name:</td><td>{{ funder.name }}</td></tr>
+	<tr><td>Acronym:</td><td>{{ funder.acronym }}</td></tr>
+	<tr><td>Identifier:</td><td>{{ funder.identifier }}</td></tr>
+	<tr><td>Organization:</td><td>{{ funder.organization }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-6">
+    <h3>Link to:</h3>
+    <form action="{% url 'funders:link_to_organization' pk=funder.pk %}" method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" value="Link" class="btn btn-primary">
+    </form>
+  </div>
+  <div class="col-2">
+    <p>Can't find it in the selector? <a href="{% url 'partners:organization_create' %}" target="_blank">Add a new organization to our database</a> (opens in new window)</p>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block footer_script %}
+{{ block.super }}
+{{ form.media }}
+{% endblock footer_script %}

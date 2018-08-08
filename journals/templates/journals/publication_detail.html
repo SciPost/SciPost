@@ -117,7 +117,7 @@
             {% endif %}
 
             {% if publication.institutions.all %}
-                <h3>Affiliation{{ publication.institutions.count|pluralize }} related to this Publication</h3>
+                <h3>Institution{{ publication.institutions.all|pluralize }} related to this Publication</h3>
                 <ul>
                     {% for institution in publication.institutions.all %}
                         <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>

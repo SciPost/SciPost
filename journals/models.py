@@ -41,6 +41,7 @@ class PublicationAuthorsTable(models.Model):
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
+    affiliations = models.ManyToManyField('partners.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -158,6 +159,26 @@ class Journal(models.Model):
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
         return (ncites * 365.25/deltat)
 
+    def citedby_impact_factor(self, year):
+        """
+        Computes the impact factor for a given year YYYY, from Crossref cited-by data.
+        This is defined as the total number of citations in year YYYY
+        for all papers published in years YYYY-1 and YYYY-2, divided
+        by the number of papers published in year YYYY.
+        """
+        publications = self.get_publications().filter(
+            models.Q(publication_date__year=int(year)-1) |
+            models.Q(publication_date__year=int(year)-2))
+        nrpub = publications.count()
+        if nrpub == 0:
+            return 0
+        ncites = 0
+        for pub in publications:
+            if pub.citedby and pub.latest_citedby_update:
+                for citation in pub.citedby:
+                    if citation['year'] == year:
+                        ncites += 1
+        return ncites/nrpub
 
 class Volume(models.Model):
     """
@@ -359,6 +380,8 @@ class Publication(models.Model):
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
     abstract = models.TextField()
+    abstract_jats = models.TextField(blank=True, default='',
+                                     help_text='JATS version of abstract for Crossref deposit')
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
@@ -515,7 +538,7 @@ class Publication(models.Model):
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
-            return '{journal}, {paper_nr} ({year})'.format(
+            return '{journal} {paper_nr} ({year})'.format(
                 journal=self.in_journal.abbreviation_citation,
                 paper_nr=self.paper_nr,
                 year=self.publication_date.strftime('%Y'))

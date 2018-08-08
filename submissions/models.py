@@ -15,13 +15,14 @@ from django.utils.functional import cached_property
 
 from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
-    ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE,
+    ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE, STATUS_PREASSIGNED,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
     SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
-    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, STATUS_RESUBMITTED, DECISION_FIXED,
+    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP,
-    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED)
+    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
+    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
+    STATUS_INVITED)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -37,6 +38,7 @@ from scipost.fields import ChoiceArrayField
 from scipost.storage import SecureFileStorage
 from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
+from mails.utils import DirectMailUtil
 
 
 class Submission(models.Model):
@@ -47,6 +49,8 @@ class Submission(models.Model):
     college decisions, etc. etc. After an 'acceptance editorial recommendation', the Publication
     will directly be related to the latest Submission in the thread.
     """
+
+    preprint = models.OneToOneField('preprints.Preprint', related_name='submission')
 
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=1000, verbose_name="author list")
@@ -104,11 +108,11 @@ class Submission(models.Model):
     # Comments can be added to a Submission
     comments = GenericRelation('comments.Comment', related_query_name='submissions')
 
-    # iThenticate Reports
-    plagiarism_report = models.OneToOneField('submissions.iThenticateReport',
-                                             on_delete=models.SET_NULL,
-                                             null=True, blank=True,
-                                             related_name='to_submission')
+    # iThenticate and conflicts
+    needs_conflicts_update = models.BooleanField(default=True)
+    plagiarism_report = models.OneToOneField(
+        'submissions.iThenticateReport', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='to_submission')
 
     # Arxiv identifiers with/without version number
     arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
@@ -127,15 +131,15 @@ class Submission(models.Model):
 
     objects = SubmissionQuerySet.as_manager()
 
+    # Temporary
+    needs_conflicts_update = models.BooleanField(default=False)
+    invitation_order = models.IntegerField(default=0)
+
     class Meta:
         app_label = 'submissions'
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
-        arxiv_w_vn = '{arxiv}v{version}'.format(
-            arxiv=self.arxiv_identifier_wo_vn_nr,
-            version=self.arxiv_vn_nr)
-        self.arxiv_identifier_w_vn_nr = arxiv_w_vn
 
         obj = super().save(*args, **kwargs)
         if hasattr(self, 'cycle'):
@@ -144,14 +148,14 @@ class Submission(models.Model):
 
     def __str__(self):
         """Summerize the Submission in a string."""
-        header = '{arxiv_id}, {title} by {authors}'.format(
-            arxiv_id=self.arxiv_identifier_w_vn_nr,
+        header = '{identifier}, {title} by {authors}'.format(
+            identifier=self.preprint.identifier_w_vn_nr,
             title=self.title[:30],
             authors=self.author_list[:30])
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version ' + str(self.arxiv_vn_nr) + ')'
+            header += ' (deprecated version ' + str(self.preprint.vn_nr) + ')'
         if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
@@ -187,12 +191,12 @@ class Submission(models.Model):
 
     def get_absolute_url(self):
         """Return url of the Submission detail page."""
-        return reverse('submissions:submission', args=(self.arxiv_identifier_w_vn_nr,))
+        return reverse('submissions:submission', args=(self.preprint.identifier_w_vn_nr,))
 
     @property
     def notification_name(self):
         """Return string representation of this Submission as shown in Notifications."""
-        return self.arxiv_identifier_w_vn_nr
+        return self.preprint.identifier_w_vn_nr
 
     @property
     def eic_recommendation_required(self):
@@ -225,28 +229,29 @@ class Submission(models.Model):
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).first().submission_date
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).first().submission_date
 
-    @cached_property
+    @property
     def thread(self):
         """Return all (public) Submissions in the database in this ArXiv identifier series."""
         return Submission.objects.public().filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).order_by('-arxiv_vn_nr')
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).order_by(
+                '-preprint__vn_nr')
 
     @cached_property
     def other_versions_public(self):
         """Return other (public) Submissions in the database in this ArXiv identifier series."""
-        return self.get_other_versions().order_by('-arxiv_vn_nr')
+        return self.get_other_versions().order_by('-preprint__vn_nr')
 
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this ArXiv identifier series."""
-        return self.get_other_versions().order_by('-arxiv_vn_nr')
+        return self.get_other_versions().order_by('-preprint__vn_nr')
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this ArXiv identifier series."""
         return Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(pk=self.id)
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(pk=self.id)
 
     def count_accepted_invitations(self):
         """Count number of accepted RefereeInvitations for this Submission."""
@@ -323,6 +328,14 @@ class Submission(models.Model):
                     coauthorships[fellow.contributor.user.last_name] = queryresults.entries
         return coauthorships
 
+    def is_sending_editorial_invitations(self):
+        """Return whether editorial assignments are being send out."""
+        if self.status != STATUS_UNASSIGNED:
+            # Only if status is unassigned.
+            return False
+
+        return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()
+
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
     """Private message directly related to a Submission.
@@ -364,17 +377,23 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
     to = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
-    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
 
-    # attribute `deprecated' becomes True if another Fellow becomes Editor-in-charge
-    deprecated = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
-    refusal_reason = models.CharField(max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS,
-                                      blank=True, null=True)
+    status = models.CharField(
+        max_length=16, choices=ASSIGNMENT_STATUSES, default=STATUS_PREASSIGNED)
+    refusal_reason = models.CharField(
+        max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True)
+    invitation_order = models.PositiveSmallIntegerField(default=0)
+
     date_created = models.DateTimeField(default=timezone.now)
+    date_invited = models.DateTimeField(blank=True, null=True)
     date_answered = models.DateTimeField(blank=True, null=True)
 
     objects = EditorialAssignmentQuerySet.as_manager()
+
+    # Deprecated fields
+    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+    deprecated = models.BooleanField(default=False)
+    completed = models.BooleanField(default=False)
 
     class Meta:
         default_related_name = 'editorial_assignments'
@@ -393,7 +412,21 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this EditorialAssigment as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
+
+    def send_invitation(self):
+        """Send invitation and update status."""
+        if self.status != STATUS_PREASSIGNED:
+            # Only send if status is appropriate to prevent double sending
+            return False
+
+        EditorialAssignment.objects.filter(
+            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
+
+        # Send mail
+        mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
+        mail_sender.send()
+        return True
 
 
 class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
@@ -418,6 +451,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     date_invited = models.DateTimeField(default=timezone.now)
     invited_by = models.ForeignKey('scipost.Contributor', related_name='referee_invited_by',
                                    blank=True, null=True, on_delete=models.CASCADE)
+    auto_reminders_allowed = models.BooleanField(default=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
@@ -449,7 +483,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this RefereeInvitation as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def related_report(self):
@@ -499,13 +533,13 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                related_name='reports')
     qualification = models.PositiveSmallIntegerField(
-        choices=REFEREE_QUALIFICATION,
+        null=True, blank=True, choices=REFEREE_QUALIFICATION,
         verbose_name="Qualification to referee this: I am")
 
     # Text-based reporting
     strengths = models.TextField(blank=True)
     weaknesses = models.TextField(blank=True)
-    report = models.TextField()
+    report = models.TextField(blank=True)
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
     # Comments can be added to a Submission
@@ -525,7 +559,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     grammar = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
                                        verbose_name="Quality of English grammar")
 
-    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    recommendation = models.SmallIntegerField(null=True, blank=True, choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
     needs_doi = models.NullBooleanField(default=None)
@@ -573,7 +607,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def get_attachment_url(self):
         """Return url of the Report its attachment if exists."""
         return reverse('submissions:report_attachment', kwargs={
-            'arxiv_identifier_w_vn_nr': self.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr,
             'report_nr': self.report_nr})
 
     @property
@@ -600,7 +634,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this Report as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def doi_string(self):
@@ -626,8 +660,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         field if this information will become necessary in more general information representation.
         """
         return (self.author.reports.accepted().filter(
-            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr,
-            submission__arxiv_vn_nr__lt=self.submission.arxiv_vn_nr).exists())
+            submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr,
+            submission__preprint__vn_nr__lt=self.submission.preprint.vn_nr).exists())
 
     @property
     def associated_published_doi(self):
@@ -638,7 +672,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                accepted_submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr)
         except Publication.DoesNotExist:
             return None
         return publication.doi_string
@@ -652,7 +686,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr)
+                accepted_submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr)
         except Publication.DoesNotExist:
             return None
 
@@ -660,7 +694,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
             'isReviewOfDOI': publication.doi_string,
             'stage': 'pre-publication',
             'type': 'referee-report',
-            'title': 'Report on ' + self.submission.arxiv_identifier_w_vn_nr,
+            'title': 'Report on ' + self.submission.preprint.identifier_w_vn_nr,
             'contributor_role': 'reviewer',
         }
         return relation
@@ -674,7 +708,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
                 citation += 'Anonymous, '
             else:
                 citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
-            citation += 'Report on arXiv:%s, ' % self.submission.arxiv_identifier_w_vn_nr
+            citation += 'Report on arXiv:%s, ' % self.submission.preprint.identifier_w_vn_nr
             citation += 'delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
             citation += 'doi: %s' % self.doi_string
         return citation
@@ -686,8 +720,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def latest_report_from_thread(self):
         """Get latest Report of this Report's author for the Submission thread."""
         return self.author.reports.accepted().filter(
-            submission__arxiv_identifier_wo_vn_nr=self.submission.arxiv_identifier_wo_vn_nr
-        ).order_by('submission__arxiv_identifier_wo_vn_nr').last()
+            submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr
+        ).order_by('submission__preprint__identifier_wo_vn_nr').last()
 
 
 ##########################
@@ -779,7 +813,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def notification_name(self):
         """Return string representation of this EICRecommendation as shown in Notifications."""
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
 
     @property
     def nr_for(self):
@@ -813,6 +847,13 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         """Return other versions of EICRecommendations for this Submission."""
         return self.submission.eicrecommendations.exclude(id=self.id)
 
+    def get_full_status_display(self):
+        """Return `status` field display plus possible `recommendation` display."""
+        _str = self.get_status_display()
+        if self.status == DECISION_FIXED and self.submission.status == STATUS_EIC_ASSIGNED:
+            return '{} ({})'.format(_str, self.get_recommendation_display())
+        return _str
+
 
 class iThenticateReport(TimeStampedModel):
     """iThenticate report registration.
@@ -836,7 +877,7 @@ class iThenticateReport(TimeStampedModel):
         _str = 'Report {doc_id}'.format(doc_id=self.doc_id)
         if hasattr(self, 'to_submission'):
             _str += ' on Submission {arxiv}'.format(
-                arxiv=self.to_submission.arxiv_identifier_w_vn_nr)
+                arxiv=self.to_submission.preprint.identifier_w_vn_nr)
         return _str
 
     def save(self, *args, **kwargs):
@@ -851,7 +892,7 @@ class iThenticateReport(TimeStampedModel):
         if hasattr(self, 'to_submission'):
             return reverse(
                 'submissions:plagiarism',
-                kwargs={'arxiv_identifier_w_vn_nr': self.to_submission.arxiv_identifier_w_vn_nr})
+                kwargs={'identifier_w_vn_nr': self.to_submission.preprint.identifier_w_vn_nr})
         return ''
 
     def get_report_url(self):

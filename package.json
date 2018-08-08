@@ -47,7 +47,7 @@
     "webpack-glob-entry": "^2.1.1"
   },
   "dependencies": {
-    "npm": "^5.3.0",
+    "npm": "^5.10.0",
     "schema-utils": "^0.3.0"
   }
 }

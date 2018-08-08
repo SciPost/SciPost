@@ -9,7 +9,7 @@
     <div class="container">
         <nav class="breadcrumb">
             <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-            <a href="{{ report.submission.get_absolute_url }}" class="breadcrumb-item">{{ report.submission.arxiv_identifier_w_vn_nr }}</a>
+            <a href="{{ report.submission.get_absolute_url }}" class="breadcrumb-item">{{ report.submission.preprint.identifier_w_vn_nr }}</a>
             <span class="breadcrumb-item">Sign existing Report</span>
 
         </nav>

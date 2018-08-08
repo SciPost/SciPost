@@ -1,4 +1,5 @@
-
+{% load user_groups %}
+{% is_scipost_admin request.user as is_scipost_admin %}
 <div class="row">
     <div class="col-12">
         <div class="card card-gray">
@@ -49,7 +50,8 @@
 
             <h3>SciPost Administation</h3>
             <ul>
-                <li><a href="{% url 'affiliations:institutions' %}">Manage Institutions database</a></li>
+	      <li><a href="{% url 'partners:organization_list' %}">Manage Organizations</a></li>
+              <li><a href="{% url 'affiliations:institutions' %}">Manage Institutions database</a></li>
             </ul>
         {% endif %}
 
@@ -107,7 +109,7 @@
         {% endif %}
     </div>
 
-    {% if perms.scipost.can_oversee_refereeing or perms.scipost.can_take_charge_of_submissions %}
+    {% if perms.scipost.can_oversee_refereeing or request.user.contributor.is_MEC %}
         <div class="col-md-4">
             <h3>Info</h3>
             <ul>
@@ -122,7 +124,7 @@
                 {% if perms.scipost.can_assign_submissions %}
                     <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
                 {% endif %}
-                {% if perms.scipost.can_take_charge_of_submissions %}
+                {% if request.user.contributor.is_MEC %}
                     <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
                 {% endif %}
             </ul>
@@ -154,7 +156,7 @@
                         <div class="card-body px-0">
                             {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
                             {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
-                            <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a>.</p>
+                            <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial Page</a>.</p>
                         </div>
                     </li>
                 {% endfor %}

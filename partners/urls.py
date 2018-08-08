@@ -12,6 +12,23 @@ urlpatterns = [
     url(r'^membership_request$', views.membership_request, name='membership_request'),
     url(r'^process_contact_requests$', views.process_contact_requests, name='process_contact_requests'),
 
+    # Organizations
+    url(r'^organizations/$',
+        views.OrganizationListView.as_view(),
+        name='organization_list'),
+    url(r'^organizations/add/$',
+        views.OrganizationCreateView.as_view(),
+        name='organization_create'),
+    url(r'^organizations/(?P<pk>[0-9]+)/update/$',
+        views.OrganizationUpdateView.as_view(),
+        name='organization_update'),
+    url(r'^organizations/(?P<pk>[0-9]+)/delete/$',
+        views.OrganizationDeleteView.as_view(),
+        name='organization_delete'),
+    url(r'^organizations/(?P<pk>[0-9]+)/$',
+        views.OrganizationDetailView.as_view(),
+        name='organization_details'),
+
     # Prospects
     url(r'^prospects/add$', views.add_prospective_partner,
         name='add_prospective_partner'),

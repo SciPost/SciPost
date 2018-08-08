@@ -1,6 +1,6 @@
 {% spaceless %}
 <?xml version="1.0" encoding="UTF-8"?>
-<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd">
+<doi_batch version="4.4.0" xmlns="http://www.crossref.org/schema/4.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/4.4.0 http://www.crossref.org/shema/deposit/crossref4.4.0.xsd" xmlns:ai="http://www.crossref.org/AccessIndicators.xsd" xmlns:jats="http://www.ncbi.nlm.nih.gov/JATS1" xmlns:mml="http://www.w3.org/1998/Math/MathML">
     <head>
         <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
         <timestamp>{% now "YmdHis" %}</timestamp>
@@ -46,7 +46,6 @@
                 <titles>
                     <title>{{ publication.title }}</title>
                 </titles>
-
                 <contributors>
                     {% for author_object in publication.authors.all %}
                         {% if author_object.order == 1 %}
@@ -56,20 +55,25 @@
                         {% endif %}
                         <given_name>{{ author_object.first_name }}</given_name>
                         <surname>{{ author_object.last_name }}</surname>
+			{% if author_object.affiliations %}
+			{% for aff in author_object.affiliations.all %}
+			<affiliation>{{ aff.name }}</affiliation>
+			{% endfor %}
+			{% endif %}
                         {% if author_object.contributor and author_object.contributor.orcid_id %}
                             <ORCID>https://orcid.org/{{ author_object.contributor.orcid_id }}</ORCID>
                         {% endif %}
                         </person_name>
                     {% endfor %}
                 </contributors>
-
+		<jats:abstract>{{ publication.abstract_jats|safe }}</jats:abstract>
                 <publication_date media_type='online'>
                     <month>{{ publication.publication_date|date:'m' }}</month>
                     <day>{{ publication.publication_date|date:'d' }}</day>
                     <year>{{ publication.publication_date|date:'Y' }}</year>
                 </publication_date>
                 <publisher_item>
-                    <item_number item_number_type='article_number'>{{ publication.paper_nr }}</item_number>
+                    <item_number item_number_type='article-number'>{{ publication.get_paper_nr }}</item_number>
                 </publisher_item>
                 <crossmark>
                     <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
@@ -84,26 +88,21 @@
                                     {% if funders|length > 1 %}
                                         <fr:assertion name='fundgroup'>
                                     {% endif %}
-
-                                    <fr:assertion name='funder_name'>{{ funder.name }}
-                                        <fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion>
-                                    </fr:assertion>
-
+                                    <fr:assertion name='funder_name'>{{ funder.name }}<fr:assertion name='funder_identifier'>{{ funder.identifier }}</fr:assertion></fr:assertion>
                                     {% for grant in publication.grants.all %}
                                         {% if grant.funder == funder %}
                                             <fr:assertion name='award_number'>{{ grant.number }}</fr:assertion>
                                         {% endif %}
                                     {% endfor %}
-
                                     {% if funders|length > 1 %}
                                         </fr:assertion>
                                     {% endif %}
                                 {% endfor %}
                             </fr:program>
                         {% endif %}
-
-                        <ai:program name="AccessIndicators">
-                            <ai:license_ref>{{ publication.get_cc_license_URI }}</ai:license_ref>
+                            <ai:program name="AccessIndicators">
+			      <ai:free_to_read start_date="{{ publication.publication_date|date:'Y-m-d' }}"/>
+                            <ai:license_ref applies_to="vor">{{ publication.get_cc_license_URI }}</ai:license_ref>
                         </ai:program>
                     </custom_metadata>
                 </crossmark>

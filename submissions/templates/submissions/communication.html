@@ -7,7 +7,7 @@
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.arxiv_identifier_w_vn_nr}})</a>
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Communication</span>
 {% endblock %}
 
@@ -35,13 +35,13 @@
 <div class="row">
     <div class="col-12">
         {% if referee_id %}
-          <form action="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype=comtype referee_id=referee_id %}" method="post">
+          <form action="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype=comtype referee_id=referee_id %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
             <input class="btn btn-primary" type="submit" value="Send communication"/>
           </form>
           {% else %}
-          <form action="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype=comtype %}" method="post">
+          <form action="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype=comtype %}" method="post">
             {% csrf_token %}
             {{ form|bootstrap:'0,12' }}
             <input class="btn btn-primary" type="submit" value="Send communication"/>

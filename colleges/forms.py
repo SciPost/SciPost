@@ -10,7 +10,7 @@ from proceedings.models import Proceedings
 from submissions.models import Submission
 from scipost.models import Contributor
 
-from .models import Fellowship
+from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
 
 
 class AddFellowshipForm(forms.ModelForm):
@@ -115,8 +115,9 @@ class FellowVotingRemoveSubmissionForm(forms.ModelForm):
 
 
 class FellowshipAddSubmissionForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(queryset=None, to_field_name='arxiv_identifier_w_vn_nr',
-                                        empty_label="Please choose the Submission to add to the pool")
+    submission = forms.ModelChoiceField(
+        queryset=Submission.objects.none(),
+        empty_label="Please choose the Submission to add to the pool")
 
     class Meta:
         model = Fellowship
@@ -135,8 +136,9 @@ class FellowshipAddSubmissionForm(forms.ModelForm):
 
 
 class SubmissionAddFellowshipForm(forms.ModelForm):
-    fellowship = forms.ModelChoiceField(queryset=None, to_field_name='id',
-                                        empty_label="Please choose the Fellow to add to the Pool")
+    fellowship = forms.ModelChoiceField(
+        queryset=None, to_field_name='id',
+        empty_label="Please choose the Fellow to add to the Pool")
 
     class Meta:
         model = Submission
@@ -200,8 +202,9 @@ class FellowshipRemoveProceedingsForm(forms.ModelForm):
 
 
 class FellowshipAddProceedingsForm(forms.ModelForm):
-    proceedings = forms.ModelChoiceField(queryset=None, to_field_name='id',
-                                         empty_label="Please choose the Proceedings to add to the Pool")
+    proceedings = forms.ModelChoiceField(
+        queryset=None, to_field_name='id',
+        empty_label="Please choose the Proceedings to add to the Pool")
 
     class Meta:
         model = Fellowship
@@ -217,3 +220,25 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
         fellowship = self.instance
         proceedings.fellowships.add(fellowship)
         return fellowship
+
+
+class ProspectiveFellowForm(forms.ModelForm):
+
+    class Meta:
+        model = ProspectiveFellow
+        fields = ['title', 'first_name', 'last_name', 'email',
+                  'discipline', 'expertises', 'webpage', 'status', 'contributor']
+
+
+class ProspectiveFellowStatusForm(forms.ModelForm):
+
+    class Meta:
+        model = ProspectiveFellow
+        fields = ['status']
+
+
+class ProspectiveFellowEventForm(forms.ModelForm):
+
+    class Meta:
+        model = ProspectiveFellowEvent
+        fields = ['event', 'comments']

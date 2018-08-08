@@ -21,7 +21,7 @@
                             {% endif %}
                             {% if report.pdf_report %}
                                 <li>
-                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
                                 </li>
                             {% endif %}
                         </ul>
@@ -78,7 +78,7 @@
                             {% endif %}
                             {% if report.pdf_report %}
                                 <li>
-                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.arxiv_identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                                    <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
                                 </li>
                             {% endif %}
                         </ul>

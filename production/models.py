@@ -63,7 +63,7 @@ class ProductionStream(models.Model):
         )
 
     def __str__(self):
-        return '{arxiv}, {title}'.format(arxiv=self.submission.arxiv_identifier_w_vn_nr,
+        return '{arxiv}, {title}'.format(arxiv=self.submission.preprint.identifier_w_vn_nr,
                                          title=self.submission.title)
 
     def get_absolute_url(self):
@@ -80,7 +80,13 @@ class ProductionStream(models.Model):
 
     @property
     def notification_name(self):
-        return self.submission.arxiv_identifier_w_vn_nr
+        return self.submission.preprint.identifier_w_vn_nr
+
+    @property
+    def latest_activity(self):
+        if self.events.last():
+            return self.events.last().noted_on
+        return self.closed or self.opened
 
 
 class ProductionEvent(models.Model):
@@ -118,7 +124,7 @@ def production_event_upload_location(instance, filename):
     submission = instance.production_event.stream.submission
     return 'UPLOADS/PRODSTREAMS/{year}/{arxiv}/{filename}'.format(
         year=submission.submission_date.year,
-        arxiv=submission.arxiv_identifier_wo_vn_nr,
+        arxiv=submission.preprint.identifier_wo_vn_nr,
         filename=filename)
 
 
@@ -141,7 +147,7 @@ def proofs_upload_location(instance, filename):
     submission = instance.stream.submission
     return 'UPLOADS/PROOFS/{year}/{arxiv}/{filename}'.format(
         year=submission.submission_date.year,
-        arxiv=submission.arxiv_identifier_wo_vn_nr,
+        arxiv=submission.preprint.identifier_wo_vn_nr,
         filename=filename)
 
 

@@ -29,8 +29,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
-    arxiv_link = factory.Faker('uri')
-    arxiv_identifier_wo_vn_nr = factory.Sequence(
+    identifier_wo_vn_nr = factory.Sequence(
         lambda n: random_arxiv_identifier_without_version_number())
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
@@ -38,11 +37,11 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     author_comments = factory.Faker('paragraph')
     remarks_for_editors = factory.Faker('paragraph')
     is_current = True
-    arxiv_vn_nr = 1
-    arxiv_link = factory.lazy_attribute(lambda o: (
-        'https://arxiv.org/abs/%s' % o.arxiv_identifier_wo_vn_nr))
-    arxiv_identifier_w_vn_nr = factory.lazy_attribute(lambda o: '%sv%i' % (
-        o.arxiv_identifier_wo_vn_nr, o.arxiv_vn_nr))
+    vn_nr = 1
+    url = factory.lazy_attribute(lambda o: (
+        'https://arxiv.org/abs/%s' % o.preprint.identifier_wo_vn_nr))
+    preprint__identifier_w_vn_nr = factory.lazy_attribute(lambda o: '%sv%i' % (
+        o.preprint.identifier_wo_vn_nr, o.preprint.vn_nr))
     submission_date = factory.Faker('date_this_decade')
     latest_activity = factory.LazyAttribute(lambda o: Faker().date_time_between(
         start_date=o.submission_date, end_date="now", tzinfo=pytz.UTC))
@@ -135,7 +134,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         """
         if create and extracted is not False:
             # Prevent infinite loops by checking the extracted argument
-            ResubmissionFactory(arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr,
+            ResubmissionFactory(preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr,
                                 previous_submission=False)
 
     @factory.post_generation
@@ -145,8 +144,8 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         more or less looks like any regular real resubmission.
         """
         submission = Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
-            arxiv_vn_nr=self.arxiv_vn_nr).first()
+            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(
+            preprint__vn_nr=self.preprint.vn_nr).first()
         if not submission:
             return
 
@@ -182,14 +181,15 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
     open_for_commenting = True
     open_for_reporting = True
     is_resubmission = True
-    arxiv_vn_nr = 2
+    preprint__vn_nr = 2
 
     @factory.post_generation
     def previous_submission(self, create, extracted, **kwargs):
         if create and extracted is not False:
             # Prevent infinite loops by checking the extracted argument
-            ResubmittedSubmissionFactory(arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr,
-                                         successive_submission=False)
+            ResubmittedSubmissionFactory(
+                preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr,
+                successive_submission=False)
 
     @factory.post_generation
     def gather_predecessor_data(self, create, extracted, **kwargs):
@@ -198,8 +198,8 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         more or less looks like any regular real resubmission.
         """
         submission = Submission.objects.filter(
-            arxiv_identifier_wo_vn_nr=self.arxiv_identifier_wo_vn_nr).exclude(
-            arxiv_vn_nr=self.arxiv_vn_nr).first()
+            identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(
+            preprint__vn_nr=self.preprint.vn_nr).first()
         if not submission:
             return
 

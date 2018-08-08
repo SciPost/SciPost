@@ -86,7 +86,7 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
-        'latest_newsitem': NewsItem.objects.filter(on_homepage=True).order_by('-date').first(),
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
@@ -455,7 +455,7 @@ def _personal_page_editorial_actions(request):
         context['nr_authorship_claims_to_vet'] = AuthorshipClaim.objects.awaiting_vetting().count()
 
     if contributor.is_MEC():
-        context['nr_assignments_to_consider'] = contributor.editorial_assignments.open().count()
+        context['nr_assignments_to_consider'] = contributor.editorial_assignments.invited().count()
         context['active_assignments'] = contributor.editorial_assignments.ongoing()
         context['nr_reports_to_vet'] = Report.objects.awaiting_vetting().filter(
             submission__editor_in_charge=contributor).count()

@@ -1,79 +1,88 @@
 {% extends 'submissions/admin/base.html' %}
 
 {% load bootstrap %}
+{% load submissions_admin %}
 {% load scipost_extras %}
+{% load conflict_tags %}
 
-{% block pagetitle %}: pre-screening ({{ submission.arxiv_identifier_w_vn_nr }}){% endblock pagetitle %}
+{% block pagetitle %}: pre-screening ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <span class="breadcrumb-item">Pre-screening {{ submission.arxiv_identifier_w_vn_nr }}</span>
+    <span class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
 {% block content %}
     <h1 class="highlight">Pre-screening of Submission</h1>
+    <h3 class="mb-0"><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
+    <h4>by {{submission.author_list}}</h4>
+    <br>
+
     <h3>Submission summary</h3>
     {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
-    <h3>Fellows ({{ submission.fellows.ordered|length }})</h3>
-    <a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">Manage Pool composition</a><br>
-    <a href="javascript:;" data-toggle="toggle" data-target="#fellows">Show/hide all Fellows</a>
-    <table style="display: none;" class="table table-hover my-2" id="fellows">
-        <thead>
-            <tr>
-                <th>Fellow name</th>
-                <th>Expertises</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fellow in submission.fellows.ordered %}
-                <tr>
-                    <td>{{ fellow }}</td>
-                    <td>
-                        {% for expertise in fellow.contributor.expertises %}
-                            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
-                        {% endfor %}
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
 
-    <h3 class="mt-2">Plagiarism report</h3>
-    {% if submission.plagiarism_report %}
-        <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Update plagiarism report</a>
-        <br>
-        <table>
-            <tr>
-                <td style="min-width: 150px;">iThenticate document</td>
-                <td>{{submission.plagiarism_report.doc_id}}</td>
-            </tr>
-            <tr>
-                <td>Percent match</td>
-                <td>{{ submission.plagiarism_report.percent_match|default:'?' }}%</td>
-            </tr>
-            <tr>
-                <td>Processed</td>
-                <td>{{submission.plagiarism_report.processed_time}}</td>
-            </tr>
-            <tr>
-                <td>Uploaded</td>
-                <td>{{submission.plagiarism_report.uploaded_time}}</td>
-            </tr>
-            <tr>
-                <td>Latest update</td>
-                <td>{{submission.plagiarism_report.latest_activity}}</td>
-            </tr>
-        </table>
-        <br>
-    {% else %}
-        <p>No Plagiarism Report found. <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>.</p>
-    {% endif %}
+    <h3>Pre-screening steps</h3>
+    <ul class="fa-ul">
+        <li>
+            <i class="fa-li fa fa-check-square text-success"></i>
+            <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition ({{ submission.fellows.count }} fellows)</a><br>
+        </li>
+        <li>
+            {% if submission.plagiarism_report %}
+                <i class="fa-li fa fa-check-square text-success"></i>
+                <a class="d-inline-block" href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism report</a>
+                <table>
+                    <tr>
+                        <td style="min-width: 150px;">iThenticate document</td>
+                        <td>{{submission.plagiarism_report.doc_id}}</td>
+                    </tr>
+                    <tr>
+                        <td>Percent match</td>
+                        <td>{{ submission.plagiarism_report.percent_match|default:'?' }}%</td>
+                    </tr>
+                    <tr>
+                        <td>Processed</td>
+                        <td>{{submission.plagiarism_report.processed_time}}</td>
+                    </tr>
+                    <tr>
+                        <td>Uploaded</td>
+                        <td>{{submission.plagiarism_report.uploaded_time}}</td>
+                    </tr>
+                    <tr>
+                        <td>Latest update</td>
+                        <td>{{submission.plagiarism_report.latest_activity}}</td>
+                    </tr>
+                </table>
+            {% else %}
+                <i class="fa-li fa fa-square"></i>
+                <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
+            {% endif %}
+        </li>
+        <li>
+            {% if submission|has_editor %}
+                <i class="fa-li fa fa-check-square text-success"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See assigned editor-in-charge</a>
+            {% elif submission|has_preassignments %}
+                <i class="fa-li fa fa-check-square text-success"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See selected pre-assignments ({{ submission.editorial_assignments.all|length }} assignments)</a>
+            {% else %}
+                <i class="fa-li fa fa-square"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Select pre-assignments</a>
+            {% endif %}
+        </li>
+    </ul>
 
-    <h3>Take decision on pre-screening</h3>
-    <form method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input type="submit" class="btn btn-primary" value="Submit">
-    </form>
+    <br>
+
+    <div class="p-3 border">
+        <h2>Take decision on pre-screening</h2>
+        <p>If the decision is to pass pre-screening, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">the pre-assignments system</a> will start inviting editors one-by-one.</p>
+        <br>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input type="submit" class="btn btn-primary" value="Submit">
+        </form>
+    </div>
+
+
 
 {% endblock content %}

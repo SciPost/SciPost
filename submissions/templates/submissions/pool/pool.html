@@ -10,7 +10,7 @@
     <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
     {% if submission %}
         <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
-        <span class="breadcrumb-item">{{ submission.arxiv_identifier_w_vn_nr }}</span>
+        <span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
     {% else %}
         <span class="breadcrumb-item">Pool</span>
     {% endif %}
@@ -26,7 +26,7 @@
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
-                {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events %}
+                {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events or pre_screening_subs %}
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
@@ -36,7 +36,7 @@
                                 {% for submission in pre_screening_subs %}
                                     <li>
                                         {{ submission }}<br>
-                                        <a href="{% url 'submissions:do_prescreening' submission.arxiv_identifier_w_vn_nr %}">Do pre-screening</a>
+                                        <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Do pre-screening</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -61,7 +61,7 @@
                                     <li>
                                         {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
                                         On Editorial Recommendation: {{ recommendation }}<br>
-                                        <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.arxiv_identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
+                                        <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
                                     </li>
                                 {% endfor %}
                             </ul>

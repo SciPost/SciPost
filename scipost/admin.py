@@ -105,7 +105,7 @@ def get_remark_type(remark):
 class RemarkAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
         required=False,
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
 
     class Meta:
         model = Remark

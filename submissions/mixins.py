@@ -54,8 +54,8 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin)
                      else Submission is element of the subset: editorial_page()
     """
     editorial_page = False
-    slug_field = 'arxiv_identifier_w_vn_nr'
-    slug_url_kwarg = 'arxiv_identifier_w_vn_nr'
+    slug_field = 'preprint__identifier_w_vn_nr'
+    slug_url_kwarg = 'identifier_w_vn_nr'
     queryset = Submission.objects.all()
 
     @property

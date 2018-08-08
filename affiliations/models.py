@@ -14,7 +14,9 @@ from .managers import AffiliationQuerySet, InstitutionQuerySet
 
 
 class Institution(models.Model):
-    """Any (scientific) Institution with a SciPost registration."""
+    """
+    Any (scientific) Institution with a SciPost registration.
+    """
 
     name = models.CharField(max_length=255)
     acronym = models.CharField(max_length=16, blank=True)

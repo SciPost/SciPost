@@ -34,12 +34,12 @@
                     <td>{{ fellowship.contributor }}</td>
                     <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
                     <td>
-                        <a class="text-danger" href="{% url 'colleges:fellowship_remove_submission_voting' fellowship.id submission.arxiv_identifier_w_vn_nr %}">Remove this Fellowship from Submission's Voting Fellows</a>
+                        <a class="text-danger" href="{% url 'colleges:fellowship_remove_submission_voting' fellowship.id submission.preprint.identifier_w_vn_nr %}">Remove this Fellowship from Submission's Voting Fellows</a>
                     </td>
                 </tr>
             {% endfor %}
             <tr>
-                <td colspan="4" class="py-3 text-center"><a href="{% url 'colleges:submission_add_fellowship_voting' submission.arxiv_identifier_w_vn_nr %}">Add Fellowship to this Submission's Voting Fellows</a></td>
+                <td colspan="4" class="py-3 text-center"><a href="{% url 'colleges:submission_add_fellowship_voting' submission.preprint.identifier_w_vn_nr %}">Add Fellowship to this Submission's Voting Fellows</a></td>
             </tr>
         </tbody>
     </table>

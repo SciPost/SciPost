@@ -2,7 +2,11 @@
     <h3 class="title">{{news.headline}}</h3>
     <h5 class="sub-title">{{news.date|date:'j F Y'}}</h5>
     <p class="mb-0">{{ news.blurb|safe }}</p>
-    {% if news.followup_link %}
-        <a class="mt-3 d-inline-block" href="{{news.followup_link}}">{{news.followup_link_text}}</a>
+    {% if news.image %}
+        <img class="d-flex mr-3 {{ news.image.css_class }}" src="{{ news.image.url }}" alt="image"/>
     {% endif %}
+    {% if news.followup_link %}
+        <a class="mt-3 d-inline-block" href="{{ news.followup_link }}">{{ news.followup_link_text }}</a>
+    {% endif %}
+
 </div>

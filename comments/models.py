@@ -213,12 +213,12 @@ class Comment(TimeStampedModel):
         to_object = self.core_content_object
         if isinstance(to_object, Submission):
             publication = Publication.objects.filter(
-                accepted_submission__arxiv_identifier_wo_vn_nr=to_object.arxiv_identifier_wo_vn_nr)
+                accepted_submission__preprint__identifier_wo_vn_nr=to_object.preprint.identifier_wo_vn_nr)
             if publication:
                 relation = {
                     'isReviewOfDOI': publication.doi_string,
                     'stage': 'pre-publication',
-                    'title': 'Comment on ' + to_object.arxiv_identifier_w_vn_nr,
+                    'title': 'Comment on ' + to_object.preprint.identifier_w_vn_nr,
                 }
                 if self.is_author_reply:
                     relation['type'] = 'author-comment'

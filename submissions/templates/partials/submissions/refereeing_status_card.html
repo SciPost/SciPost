@@ -26,9 +26,9 @@
                     {% else %}
                         <i class="fa-li fa fa-square-o"></i>
                         {% if invitation.related_report.is_in_draft %}
-                            You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.arxiv_identifier_w_vn_nr %}">finish your Report</a>.
+                            You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">finish your Report</a>.
                         {% else %}
-                            <a href="{% url 'submissions:submit_report' invitation.submission.arxiv_identifier_w_vn_nr %}">Submit your Report</a> due on {{ invitation.submission.reporting_deadline }}.
+                            <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> due on {{ invitation.submission.reporting_deadline }}.
                         {% endif %}
                     {% endif %}
                 </li>
@@ -40,7 +40,7 @@
 
             {% if invitation.submission.editor_in_charge %}
                 <h3 class="card-title">Communications</h3>
-                <a class="card-link" href="{% url 'submissions:communication' invitation.submission.arxiv_identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
+                <a class="card-link" href="{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
 
                 <ul class="pl-4 mt-2">
                     {% for comm in communication %}

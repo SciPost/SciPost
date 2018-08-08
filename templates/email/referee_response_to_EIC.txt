@@ -1,12 +1,13 @@
-Dear {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},\n\n
+Dear {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},
 
-Referee {% if invitation.referee %}{{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission\n\n
+Referee {% if invitation.referee %}{{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
 
-{{ invitation.submission.title }}\n by {{ invitation.submission.author_list }}\n\n
+{{ invitation.submission.title }}
+by {{ invitation.submission.author_list }}
 
 {% if not invitation.accepted %}
-Please invite another referee from the Submission\'s editorial page at https://scipost.org{% url 'submissions:editorial_page' invitation.submission.arxiv_identifier_w_vn_nr %}.\n\n
+Please invite another referee from the Submission\'s editorial page at https://scipost.org{% url 'submissions:editorial_page' invitation.submission.preprint.identifier_w_vn_nr %}.
 {% endif %}
 
-Many thanks for your collaboration,\n
+Many thanks for your collaboration,
 The SciPost Team.

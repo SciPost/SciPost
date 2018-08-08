@@ -2,11 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-import re
-
 from django import forms
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 
@@ -15,20 +11,16 @@ from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
 
 from comments.forms import CommentForm
 from scipost.services import DOICaller, ArxivCaller
-from scipost.models import Contributor
 
 import strings
 
 
 class DOIToQueryForm(forms.Form):
     VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
-    doi = forms.RegexField(regex=VALID_DOI_REGEXP, strip=True,
-                           help_text=strings.doi_query_help_text,
-                           error_messages={'invalid': strings.doi_query_invalid},
-                           widget=forms.TextInput({
-                                'label': 'DOI',
-                                'placeholder': strings.doi_query_placeholder
-                                }))
+    doi = forms.RegexField(
+        regex=VALID_DOI_REGEXP, strip=True, help_text=strings.doi_query_help_text,
+        error_messages={'invalid': strings.doi_query_invalid},
+        widget=forms.TextInput({'label': 'DOI','placeholder': strings.doi_query_placeholder}))
 
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
@@ -333,8 +325,8 @@ class CommentSciPostPublication(CommentForm):
                 'domain': self.publication.domain,
                 'subject_area': self.publication.subject_area,
                 'title': self.publication.title,
-                'arxiv_identifier': submission.arxiv_identifier_w_vn_nr,
-                'arxiv_link': submission.arxiv_link,
+                'arxiv_identifier': submission.preprint.identifier_w_vn_nr,
+                'arxiv_link': submission.preprint.url,
                 'pub_DOI': self.publication.doi_string,
                 'metadata': self.publication.metadata,
                 'scipost_publication': self.publication,

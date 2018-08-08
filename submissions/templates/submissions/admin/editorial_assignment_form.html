@@ -7,7 +7,7 @@
 {% block breadcrumb_items %}
     {{block.super}}
     <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
-    <a href="{% url 'submissions:editorial_page' submission_to_assign.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission_to_assign.arxiv_identifier_w_vn_nr}})</a>
+    <a href="{% url 'submissions:editorial_page' submission_to_assign.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission_to_assign.preprint.identifier_w_vn_nr}})</a>
     <span class="breadcrumb-item">Assign Submission</span>
 {% endblock %}
 
@@ -54,7 +54,7 @@
 <div class="row mb-md-4">
     <div class="col-12">
       <h2 class="highlight">Send a new assignment request:</h2>
-      <form action="{% url 'submissions:assign_submission' arxiv_identifier_w_vn_nr=submission_to_assign.arxiv_identifier_w_vn_nr %}" method="post">
+      <form action="{% url 'submissions:assign_submission' identifier_w_vn_nr=submission_to_assign.preprint.identifier_w_vn_nr %}" method="post">
         {% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-outline-secondary" type="submit" value="Submit" />
