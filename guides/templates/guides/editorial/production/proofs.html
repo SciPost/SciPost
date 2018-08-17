@@ -1,0 +1,44 @@
+{% extends 'guides/_guides_base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: guides: proofs{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{block.super}}
+<a href="{% url 'guides:guides_index' %}" class="breadcrumb-item">Guides</a>
+<span class="breadcrumb-item">Editorial</span>
+<span class="breadcrumb-item">Production</span>
+<span class="breadcrumb-item active">Proofs</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>Proofs</h1>
+<p>This guide is meant for <strong>Production supervisors</strong>. It describes the proofs cycle between production team and manuscript authors.</p>
+
+<h3>Proofs version production</h3>
+<ul>
+  <li>
+    Once the paper has been properly formatted, the <code>.tex</code> and <code>.pdf</code> files
+    should be copied into new files carrying the <code>_proofs_v[nr]</code> suffix,
+    for example <code>SciPost_Phys_1699_9999v9_Bee_proofs_v1.tex</code>.
+  </li>
+  <li>
+    The <code>.pdf</code> proofs should be emailed to the authors for verification.
+    Authors should return either an annotated pdf or a list of corrections
+    by plain text email.
+  </li>
+  <li>
+    Any modifications should be implemented directly in the main <code>.tex</code> file.
+  </li>
+  <li>
+    If any further check by the authors are required, start this proofs
+    todo-list again, increasing the proofs version number.
+  </li>
+  <li>
+    Once the authors have approved the proofs, the paper can be put forward
+    to online publication.
+  </li>
+
+  {% endblock content %}
