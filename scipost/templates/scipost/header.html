@@ -1,17 +1,45 @@
 {% load staticfiles %}
-    <header>
-        <div class="container">
-            <div class="content">
-              <div class="logobox">
-        	<a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" /></a>
-              </div>
-              <div class="blurbbox d-none d-md-block">
-            	<p>
-            	  <i>The complete scientific publication portal</i><br />
-            	  <i>Managed by professional scientists</i><br />
-            	  <i>For open, global and perpetual access to science</i>
-            	</p>
-              </div>
+{% load notifications_tags %}
+
+<header>
+    <div class="container">
+        <div class="content">
+            <div class="logobox">
+                <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="160" /></a>
             </div>
+
         </div>
-    </header>
+        <ul class="navbar-nav mr-auto">
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% if user.contributor %}{% url 'scipost:personal_page' %}{% elif user.partner_contact %}{% url 'partners:dashboard' %}{% else %}javascript:;{% endif %}">Welcome {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
+                </li>
+                <li class="nav-item navbar-counter">
+                    &middot;
+                    <div class="nav-link notifications_container">
+                        <a href="javascript:;" class="d-inline-block ml-lg-1 badge_link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
+                            <span class="user d-inline d-lg-none d-xl-inline">Notifications</span>
+                            <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
+                            {% live_notify_badge classes="badge badge-pill" %}
+                        </a>
+                        {% live_notify_list %}
+                    </div>
+
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    &middot;
+                  <a class="nav-link" href="{% url 'scipost:login' %}">Login/register</a>
+                </li>
+            {% endif %}
+
+            <li class="nav-item">
+                &middot;
+              <a class="nav-link" href="{% url 'scipost:about' %}">About</a>
+            </li>
+            <li class="nav-item">
+                &middot;
+              <a class="nav-link" href="javascript:;">Our journals <i class="fa fa-caret-down"></i></a>
+            </li>
+    </div>
+</header>

@@ -91,7 +91,7 @@
             News
             <small><a href="{% url 'scipost:feeds' %}"><i class="fa fa-rss"></i></a></small>
         </h2>
-        <h4 class="sub-title"><a href="{% url 'news:news' %}">Latest news and announcements.</a></h4>
+        <a href="{% url 'news:news' %}">View all news and announcements.</a>
         <hr class="sm">
         <ul class="list-unstyled">
             {% if latest_newsitem %}
@@ -104,7 +104,6 @@
                 </li>
             {% endif %}
         </ul>
-        <!-- <a href="{% url 'news:news' %}">More news</a> -->
     </div><!-- End news -->
 
     <!-- Partners -->
@@ -136,7 +135,7 @@
     <!-- Summarized -->
     <div class="p-3 my-3 bg-light" id="summarized">
         <h2 class="title"><a href="{% url 'journals:journals' %}">Journals</a></h2>
-        <h4 class="sub-title">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
+        <h5 class="sub-title">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h5>
         <p>
             All SciPost Journals implement the stringent <a href="{% url 'scipost:FAQ' %}#pwr">peer-witnessed refereeing</a> principle.
             <br>

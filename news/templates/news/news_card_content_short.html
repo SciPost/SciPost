@@ -1,8 +1,8 @@
-<div class="news-item">
+<div class="news-item-short">
     <h3 class="title">{{news.headline}}</h3>
     <h5 class="sub-title">{{news.date|date:'j F Y'}}</h5>
     <p>
         {{news.blurb|truncatechars_html:180|safe}}
     </p>
-    <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1">Read more</a>
+    <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1">Read more &rarr;</a>
 </div>
