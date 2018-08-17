@@ -6,10 +6,19 @@
 .navbar {
     padding-left: 1rem;
     padding-right: 1rem;
+
+    .separator,
+    .nav-link {
+        display: inline-block;
+    }
 }
 
 .main-nav {
     background-color: $scipost-lightblue;
+
+    .separator {
+        color: $white;
+    }
 
     a {
         color: $white;

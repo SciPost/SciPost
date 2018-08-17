@@ -58,7 +58,7 @@ header {
 
     img {
         padding: 0;
-        margin: 10px 20px;
+        margin: 1rem 0.5rem;
     }
 
     p {
@@ -83,8 +83,41 @@ header {
             text-align: right;
         }
     }
+
+    .navbar-nav {
+        flex-direction: row;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .separator,
+    .nav-link {
+        display: inline-block;
+    }
+
+    .separator {
+        margin: 0 8px;
+    }
+
+    .nav-link {
+        color: $white;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
 }
 
 .loading {
     text-align: center;
+}
+
+
+.sidebar {
+    .bg-light {
+        background-color: #f2f2f2 !important;
+    }
 }

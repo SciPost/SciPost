@@ -7,13 +7,11 @@
 {% block pagetitle %} Submission: {{ submission.title|truncatechars:40 }}{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="container-outside breadcrumb-nav">
-        <div class="container">
-            <nav class="breadcrumb">
-                <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-                <span class="breadcrumb-item">{{submission.preprint.identifier_w_vn_nr}}</span>
-            </nav>
-        </div>
+    <div class="container">
+        <nav class="breadcrumb">
+            <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+            <span class="breadcrumb-item">{{submission.preprint.identifier_w_vn_nr}}</span>
+        </nav>
     </div>
 {% endblock %}
 

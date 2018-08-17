@@ -3,29 +3,7 @@
 {% load render_bundle from webpack_loader %}
 {% load staticfiles %}
 
-{% block body_class %}{{block.super}} has-breadcrumb-submenu homepage{% endblock %}
-
-{% block breadcrumb %}
-    <nav class="navbar navbar-expand-lg sub-nav">
-        <div class="container">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <span class="nav-link">Our Journals:</span>
-                </li>
-
-                {% for journal in journals %}
-                    <li class="nav-item">
-                        {% if journal.active %}
-                            <a href="{{ journal.get_absolute_url }}" class="nav-link">{{journal}}</a>
-                        {% else %}
-                            <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </nav>
-{% endblock %}
+{% block body_class %}{{block.super}} homepage{% endblock %}
 
 {% block footer_script %}
     {% render_bundle 'homepage' 'js' %}
@@ -37,8 +15,7 @@
             <!-- Latest publications -->
             <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
                 <div class="card-body pb-0">
-                    <h2 class="title">Latest Publications</h2>
-                    <p class="mb-1"><a href="{% url 'journals:publications' %}">View all Publications.</a></p>
+                    <h2 class="title mb-3">Latest Publications</h2>
                     <hr class="sm mb-0 mt-2">
                 </div>
                 <ul class="list-group list-group-flush px-3 mb-3">
@@ -48,6 +25,7 @@
                         </li>
                     {% endfor %}
                 </ul>
+                <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications.</a></p>
             </div><!-- End latest publications -->
         </div>
 
@@ -55,17 +33,17 @@
             <!-- Latest submissions -->
             <div class="card card-submissions bg-light px-1 mb-2 scipost-bar">
                 <div class="card-body pb-0">
-                    <h2 class="title">Latest Submissions</h2>
-                    <p class="mb-1"><a href="{% url 'submissions:submissions' %}">View all Submissions.</a></p>
+                    <h2 class="title mb-3">Latest Submissions</h2>
                     <hr class="sm mb-0 mt-2">
                 </div>
                 <ul class="list-group list-group-flush px-3 mb-3">
-                      {% for submission in submissions %}
-                          <li class="list-group-item py-2">
-                              {% include 'partials/submissions/submission_card_content_homepage.html' with submission=submission %}
-                          </li>
-                      {% endfor %}
+                  {% for submission in submissions %}
+                      <li class="list-group-item py-2">
+                          {% include 'partials/submissions/submission_card_content_homepage.html' with submission=submission %}
+                      </li>
+                  {% endfor %}
                 </ul>
+                <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions.</a></p>
             </div><!-- End latest submissions -->
         </div>
     </div>
