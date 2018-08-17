@@ -827,6 +827,10 @@ def recruit_referee(request, arxiv_identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
 
+    if request.method == 'GET':
+        # This leads to unexpected 500 errors
+        return redirect(reverse('submissions:select_referee', args=(arxiv_identifier_w_vn_nr,)))
+
     ref_recruit_form = RefereeRecruitmentForm(
         request.POST or None, request=request, submission=submission)
     if ref_recruit_form.is_valid():
