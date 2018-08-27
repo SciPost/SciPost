@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: refereeing and registration invitation",
+    "to_address": "email_address",
+    "bcc_to": "invited_by.email,edadmin@scipost.org",
+    "from_address_name": "SciPost Refereeing",
+    "from_address": "refereeing@scipost.org",
+    "context_object": "invitation"
+}

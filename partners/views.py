@@ -6,11 +6,16 @@ import mimetypes
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
+from django.db.models import F
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
@@ -20,16 +25,84 @@ from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
     PROSPECTIVE_PARTNER_FOLLOWED_UP
-from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
-                    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
-                    PartnersAttachment
+from .models import Organization,\
+    Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
+    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
+    PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
-                   PromoteToPartnerForm,\
-                   ProspectivePartnerEventForm, MembershipQueryForm,\
-                   PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
-                   NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
-                   MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
-                   ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
+    PromoteToPartnerForm,\
+    ProspectivePartnerEventForm, MembershipQueryForm,\
+    PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
+    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
+    MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
+    ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
+
+
+from funders.models import Funder
+
+from journals.models import Publication
+
+from scipost.mixins import PermissionsMixin
+
+
+
+class OrganizationCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Organization
+    fields = '__all__'
+    template_name = 'partners/organization_create.html'
+    success_url = reverse_lazy('partners:organization_list')
+
+
+class OrganizationUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update an Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Organization
+    fields = '__all__'
+    template_name = 'partners/organization_update.html'
+    success_url = reverse_lazy('partners:organization_list')
+
+
+class OrganizationDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete an Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Organization
+    success_url = reverse_lazy('partners:organization_list')
+
+
+class OrganizationListView(ListView):
+    model = Organization
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.request.user.has_perm('scipost.can_manage_organizations'):
+            context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
+        return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        order_by = self.request.GET.get('order_by')
+        ordering = self.request.GET.get('ordering')
+        if order_by == 'country':
+            qs = qs.order_by('country')
+        elif order_by == 'name':
+            qs = qs.order_by('name')
+        elif order_by == 'nap':
+            qs = qs.order_by('cf_nr_associated_publications')
+        if ordering == 'desc':
+            qs = qs.reverse()
+        return qs
+
+
+class OrganizationDetailView(DetailView):
+    model = Organization
 
 
 def supporting_partners(request):
@@ -47,10 +120,11 @@ def supporting_partners(request):
 @login_required
 @permission_required('scipost.can_read_partner_page', return_403=True)
 def dashboard(request):
-    '''
+    """Administration page for Partners and Prospective Partners.
+
     This page is meant as a personal page for Partners, where they will for example be able
     to read their personal data and agreements.
-    '''
+    """
     context = {}
     try:
         context['personal_agreements'] = (MembershipAgreement.objects.open_to_partner()
@@ -62,8 +136,8 @@ def dashboard(request):
         context['contact_requests_count'] = ContactRequest.objects.awaiting_processing().count()
         context['inactivate_contacts_count'] = Contact.objects.filter(user__is_active=False).count()
         context['partners'] = Partner.objects.all()
-        context['prospective_partners'] = (ProspectivePartner.objects.not_yet_partner()
-                                           .order_by('country', 'institution_name'))
+        context['prospective_partners'] = ProspectivePartner.objects.order_by(
+            'country', 'institution_name')
         context['ppevent_form'] = ProspectivePartnerEventForm()
         context['agreements'] = MembershipAgreement.objects.order_by('date_requested')
     return render(request, 'partners/dashboard.html', context)
@@ -159,7 +233,7 @@ def partner_edit(request, partner_id):
         form.save()
         contact_formset.save()
         messages.success(request, 'Partner saved')
-        return redirect(reverse('partners:partner_edit', args=(partner.id,)))
+        return redirect(reverse('partners:partner_view', args=(partner.id,)))
     context = {
         'form': form,
         'contact_formset': contact_formset

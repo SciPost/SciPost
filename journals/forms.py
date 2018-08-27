@@ -16,6 +16,8 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
 from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
@@ -26,11 +28,13 @@ from .signals import notify_manuscript_published
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
+from partners.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
 from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
+from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission
 
 
@@ -71,6 +75,23 @@ class CitationListBibitemsForm(forms.ModelForm):
         return super().save(*args, **kwargs)
 
 
+class AbstractJATSForm(forms.ModelForm):
+    abstract_jats = forms.CharField(widget=forms.Textarea({
+        'placeholder': 'Paste the JATS abstract here (use pandoc to generate; see docs)'}))
+
+    class Meta:
+        model = Publication
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['abstract_jats'].initial = self.instance.abstract_jats
+
+    def save(self, *args, **kwargs):
+        self.instance.abstract_jats = self.cleaned_data['abstract_jats']
+        return super().save(*args, **kwargs)
+
+
 class FundingInfoForm(forms.ModelForm):
     funding_statement = forms.CharField(widget=forms.Textarea({
         'placeholder': 'Paste the funding info statement here'}))
@@ -100,6 +121,15 @@ class BasePublicationAuthorsTableFormSet(BaseModelFormSet):
 PublicationAuthorOrderingFormSet = modelformset_factory(
     PublicationAuthorsTable, fields=(), can_order=True, extra=0,
     formset=BasePublicationAuthorsTableFormSet)
+
+
+class AuthorsTableOrganizationSelectForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+    #organization = forms.ModelChoiceField(queryset=Organization.objects.all())
+
+    class Meta:
+        model = PublicationAuthorsTable
+        fields = []
 
 
 class CreateMetadataXMLForm(forms.ModelForm):
@@ -168,7 +198,6 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                 'abstract': publication.abstract,
                 'year': publication.publication_date.strftime('%Y'),
                 'month': publication.publication_date.strftime('%m'),
-                'start_page': publication.get_paper_nr(),
                 'identifier': [
                     {
                         'type': 'eissn',
@@ -188,10 +217,11 @@ class CreateMetadataDOAJForm(forms.ModelForm):
             }
         }
         if publication.in_issue:
-            md['journal'] = {
+            md['bibjson']['journal'] = {
                 'publisher': 'SciPost',
                 'volume': str(publication.in_issue.in_volume.number),
                 'number': str(publication.in_issue.number),
+                'start_page': publication.get_paper_nr(),
                 'identifier': [{
                     'type': 'eissn',
                     'id': issn
@@ -209,8 +239,9 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                 'title': publication.in_issue.in_volume.in_journal.get_name_display(),
             }
         else:
-            md['journal'] = {
+            md['bibjson']['journal'] = {
                 'publisher': 'SciPost',
+                'start_page': publication.get_paper_nr(),
                 'identifier': [{
                     'type': 'eissn',
                     'id': issn
@@ -624,7 +655,7 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         # Mark the submission as having been published:
         submission = self.instance.accepted_submission
         submission.published_as = self.instance
-        submission.status = 'published'
+        submission.status = STATUS_PUBLISHED
         submission.save()
 
         # Add SubmissionEvents

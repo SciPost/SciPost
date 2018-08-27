@@ -76,3 +76,16 @@ nav.main-nav {
     text-align: center;
     padding: 3rem;
 }
+
+
+.nav-tabs .nav-link {
+    background-color: #f8f8f8;
+    border-radius: 0;
+    border-color: #e0e0e0;
+    border-bottom: 0;
+    margin: 0 3px;
+
+    &.active {
+        border-top: 3px solid $scipost-darkblue;
+    }
+}

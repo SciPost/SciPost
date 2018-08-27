@@ -6,8 +6,6 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-today = timezone.now().date()
-
 
 class FellowQuerySet(models.QuerySet):
     def guests(self):
@@ -17,12 +15,17 @@ class FellowQuerySet(models.QuerySet):
         return self.filter(guest=False)
 
     def active(self):
+        today = timezone.now().date()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |
             Q(start_date__lte=today, until_date__gte=today) |
             Q(start_date__isnull=True, until_date__isnull=True)
-            ).order_by('contributor__user__last_name')
+            ).ordered()
+
+    def ordered(self):
+        """Return ordered queryset explicitly, since this may have big affect on performance."""
+        return self.order_by('contributor__user__last_name')
 
     def return_active_for_submission(self, submission):
         """

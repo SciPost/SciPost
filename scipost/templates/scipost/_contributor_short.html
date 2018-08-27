@@ -12,8 +12,8 @@
     {% endif %}
 </p>
 
-{% if fellowship.affiliation %}
-    <span class="text-muted">({{fellowship.affiliation}})</span>
+{% if fellowship.contributor.affiliations.active.first %}
+    <span class="text-muted">({{ fellowship.contributor.affiliations.active.first.institution.name }})</span>
 {% endif %}
 <div>
     {% for expertise in fellowship.contributor.expertises %}

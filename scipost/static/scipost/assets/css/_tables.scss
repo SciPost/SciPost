@@ -1,8 +1,13 @@
 .table {
-    th,
+    &.v-center {
+        th,
+        td {
+            vertical-align: middle;
+        }
+    }
+
     td {
-    padding: $table-cell-padding;
-        vertical-align: middle;
+        padding: $table-body-cell-padding;
     }
 }
 
@@ -28,5 +33,17 @@ table.contributor-info {
     td {
         padding: 0 0.5rem;
         vertical-align: top;
+    }
+}
+
+.table-fixed {
+    table-layout: fixed;
+    white-space: nowrap;
+    width: 100%;
+
+    td {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }

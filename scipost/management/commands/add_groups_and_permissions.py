@@ -17,7 +17,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, verbose=True, **options):
         """Append all user Groups and setup a Contributor roles to user."""
-
         # Create Groups
         SciPostAdmin, created = Group.objects.get_or_create(name='SciPost Administrators')
         FinancialAdmin, created = Group.objects.get_or_create(name='Financial Administrators')
@@ -29,6 +28,7 @@ class Command(BaseCommand):
                                                             name='Registered Contributors')
         Developers, created = Group.objects.get_or_create(name='Developers')
         Testers, created = Group.objects.get_or_create(name='Testers')
+        NewsAdmin, created = Group.objects.get_or_create(name='News Administrators')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
         ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
@@ -40,10 +40,12 @@ class Command(BaseCommand):
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
-        content_type_contact = ContentType.objects.get_for_model(Contact)
-        content_type_draft_invitation = ContentType.objects.get_for_model(DraftInvitation)
 
         # Supporting Partners
+        can_manage_organizations, created = Permission.objects.get_or_create(
+            codename='can_manage_organizations',
+            name='Can manage Organizations',
+            content_type=content_type)
         can_manage_SPB, created = Permission.objects.get_or_create(
             codename='can_manage_SPB',
             name='Can manage Supporting Partners Board',
@@ -188,6 +190,10 @@ class Command(BaseCommand):
             codename='can_oversee_refereeing',
             name='Can oversee refereeing',
             content_type=content_type)
+        can_run_pre_screening, created = Permission.objects.get_or_create(
+            codename='can_run_pre_screening',
+            name='Can run pre-screening on Submissions',
+            content_type=content_type)
 
         # Reports
         can_manage_reports, created = Permission.objects.get_or_create(
@@ -279,6 +285,12 @@ class Command(BaseCommand):
             name='Can manage affiliations',
             content_type=content_type)
 
+        # News administration
+        can_manage_news, created = Permission.objects.get_or_create(
+            codename='can_manage_news',
+            name='Can manage News',
+            content_type=content_type)
+
         # Mailchimp
         can_manage_mailchimp, created = Permission.objects.get_or_create(
             codename='can_manage_mailchimp',
@@ -331,6 +343,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,
+            can_run_pre_screening,
             can_prepare_recommendations_for_voting,
             can_manage_college_composition,
             can_fix_College_decision,
@@ -406,6 +419,7 @@ class Command(BaseCommand):
         ])
 
         PartnersAdmin.permissions.set([
+            can_manage_organizations,
             can_read_partner_page,
             can_view_own_partner_details,
             can_manage_SPB,

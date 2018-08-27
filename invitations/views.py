@@ -164,7 +164,7 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
 
 
 class RegistrationInvitationsMergeView(RequestArgumentMixin, PermissionsMixin, UpdateView):
-    permission_required = 'scipost.can_invite_fellows'
+    permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.no_response()
     form_class = RegistrationInvitationMergeForm
     template_name = 'invitations/registrationinvitation_form_merge.html'

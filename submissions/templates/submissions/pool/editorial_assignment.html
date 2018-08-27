@@ -1,0 +1,65 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% load bootstrap %}
+{% load guardian_tags %}
+{% load scipost_extras %}
+{% load submissions_extras %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Editorial Assignment</span>
+{% endblock %}
+
+{% block pagetitle %}: Editorial Assignment{% endblock pagetitle %}
+
+{% block content %}
+
+<h1 class="highlight">Editorial Assignment</h1>
+
+{% if form.instance.id %}
+    <h4 class="pt-0">We have received a Submission to SciPost for which we would like you to consider becoming Editor-in-charge.</h4>
+{% endif %}
+    <h4 class="pt-0">Can you act as Editor-in-charge?{% if form.instance.id %} (see below to accept/decline){% endif %}</h4>
+<br>
+
+<h3>Submission details</h3>
+{% include 'partials/submissions/submission_summary.html' with submission=submission %}
+
+<br>
+{% if form.instance.id %}
+    <h2 class="highlight">Accept or decline this Editorial Assignment</h2>
+{% else %}
+    <h2 class="highlight">Volunteer to become Editor-in-charge</h2>
+{% endif %}
+<h4 class="mb-2">By accepting, you will be required to start a refereeing round on the next screen.</h4>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input class="btn btn-primary" type="submit" value="Submit" />
+    <p class="border p-2 mt-3">
+        <strong>Clarification</strong>
+        <br>
+        If you choose the <em>Normal refereeing cycle</em>, you will be redirected to the Editorial Page to proceed further. The Submission will be publicly available and the authors will be informed that the refereeing process has started.
+        <br>
+        If you choose to <em>directly formulate an Editorial Recommendation for rejection</em>, the Submission will not become publicly available. After formulation of the Editorial Recommendation, it will be put forward for voting as normal.
+    </p>
+</form>
+
+
+<script>
+    $(function() {
+        $('[name="decision"]').on('change', function() {
+            var val = $('[name="decision"]:checked').val();
+            if(val == 'decline') {
+                $('[name="refusal_reason"]').closest('.form-group').show();
+                $('[name="refereeing_cycle"]').closest('.form-group').hide();
+            } else {
+                $('[name="refusal_reason"]').closest('.form-group').hide();
+                $('[name="refereeing_cycle"]').closest('.form-group').show();
+            }
+        }).trigger('change');
+    });
+</script>
+
+{% endblock %}

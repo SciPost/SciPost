@@ -15,7 +15,6 @@ from commentaries.models import Commentary
 from journals.models import Publication
 from news.models import NewsItem
 from scipost.models import subject_areas_dict
-from submissions.constants import SUBMISSION_STATUS_PUBLICLY_INVISIBLE
 from submissions.models import Submission
 from theses.models import ThesisLink
 
@@ -98,12 +97,11 @@ class LatestSubmissionsFeedRSS(Feed):
         if subject_area != '':
             queryset = Submission.objects.filter(
                 Q(subject_area=subject_area) | Q(secondary_areas__contains=[subject_area])
-            ).exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE
-            ).order_by('-submission_date')[:10]
+            ).filter(visible_public=True).order_by('-submission_date')[:10]
             queryset.subject_area = subject_area
         else:
-            queryset = Submission.objects.exclude(status__in=SUBMISSION_STATUS_PUBLICLY_INVISIBLE
-            ).order_by('-submission_date')[:10]
+            queryset = Submission.objects.filter(
+                visible_public=True).order_by('-submission_date')[:10]
             queryset.subject_area = None
         return queryset
 

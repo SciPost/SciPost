@@ -102,6 +102,15 @@
 
                     {% if fellowship.guest %}
                         (Guest Fellowship)
+                        <br>
+                        Your Proceedings:
+                        <ul>
+                            {% for proc in fellowship.proceedings.all %}
+                                <li>{{ proc }}</li>
+                            {% empty %}
+                                <li><em>No proceedings assigned yet.</em></li>
+                            {% endfor %}
+                        </ul>
                     {% else %}
                         (Regular Fellowship)
                     {% endif %}

@@ -1,0 +1,16 @@
+<div class="row">
+  <div class="col-12">
+    <div class="card card-grey card-news p-3">
+      <h1>SciPost Newsletter {{ nl.date|date:'Y-m-d' }}</h1>
+      <p>{{ nl.intro|safe }}</p>
+    </div>
+    {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
+    <div class="card card-grey card-news">
+      {% include 'news/news_card_content.html' with news=nt.newsitem %}
+    </div>
+    {% endfor %}
+    <div class="card card-grey card-news p-3">
+      <p>{{ nl.closing|safe }}</p>
+    </div>
+  </div>
+</div>

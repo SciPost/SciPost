@@ -1,0 +1,29 @@
+{% extends 'funders/base.html' %}
+
+{% block pagetitle %}: Funders list{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    <span class="breadcrumb-item">Funders</span>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="highlight">Funders</h1>
+
+{% if perms.scipost.can_view_all_funding_info %}
+    <a href="{% url 'funders:funders_dashboard' %}">Go to dashboard</a>
+    <br><br>
+{% endif %}
+
+<h3>All Funders with a SciPost publication</h3>
+
+<ul>
+    {% for funder in funders %}
+        <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+    {% empty %}
+        <li>No funders</li>
+    {% endfor %}
+</ul>
+
+
+{% endblock content %}

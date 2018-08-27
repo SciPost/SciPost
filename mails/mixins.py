@@ -16,49 +16,76 @@ from scipost.models import Contributor
 
 
 class MailUtilsMixin:
-    """
-    This mixin takes care of inserting the default data into the Utils or Form.
-    """
-    object = None
-    mail_fields = {}
+    """This mixin takes care of inserting the default data into the Utils or Form."""
+
+    instance = None
+    mail_data = {}
     mail_template = ''
     html_message = ''
     message = ''
     original_recipient = ''
 
     def __init__(self, *args, **kwargs):
+        """Init an instance for a specific mail_code.
+
+        Arguments:
+        -- mail_code (str)
+        -- subject (str)
+        -- to (str): Email address or relation on the `instance`. Separated by comma.
+        -- bcc_to (str, optional): Email address or relation on the `instance`. Separated by comma.
+        -- instance: Instance of central object in email.
+        -- from (str, optional): Plain email address.
+        -- from_name (str, optional): Display name for from address.
+        """
         self.pre_validation(*args, **kwargs)
         super().__init__(*args)
 
     def pre_validation(self, *args, **kwargs):
-        """
-        This method should be called when initiating the object.
-        """
+        """Validate the incoming data to initiate a specific mail."""
         self.mail_code = kwargs.pop('mail_code')
         self.instance = kwargs.pop('instance', None)
+        kwargs['object'] = self.instance  # Similar template nomenclature as Django.
+        self.mail_data = {
+            'subject': kwargs.pop('subject', ''),
+            'to_address': kwargs.pop('to', ''),
+            'bcc_to': kwargs.pop('bcc', ''),
+            'from_address_name': kwargs.pop('from_name', 'SciPost'),
+            'from_address': kwargs.pop('from', 'no-reply@scipost.org'),
+        }
 
         # Gather meta data
-        json_location = '%s/mails/templates/mail_templates/%s.json' % (settings.BASE_DIR,
-                                                                       self.mail_code)
-        try:
-            self.mail_data = json.loads(open(json_location).read())
-        except OSError:
-            raise NotImplementedError(('You did not create a valid .html and .json file '
-                                       'for mail_code: %s' % self.mail_code))
+        json_location = '%s/templates/email/%s.json' % (settings.BASE_DIR, self.mail_code)
 
-        # Save central object/instance
-        self.object = self.get_object(**kwargs)
+        try:
+            self.mail_data.update(json.loads(open(json_location).read()))
+        except OSError:
+            if not self.mail_data['subject']:
+                raise NotImplementedError(('You did not create a valid .html and .json file '
+                                           'for mail_code: %s' % self.mail_code))
+
+        # Save central object/instance if not already
+        self.instance = self.get_object(**kwargs)
 
         # Digest the templates
-        mail_template = loader.get_template('mail_templates/%s.html' % self.mail_code)
+        mail_template = loader.get_template('email/%s.html' % self.mail_code)
         if self.instance and self.mail_data.get('context_object'):
             kwargs[self.mail_data['context_object']] = self.instance
         self.mail_template = mail_template.render(kwargs)
 
         # Gather Recipients data
-        self.original_recipient = self._validate_single_entry(self.mail_data.get('to_address'))[0]
+        try:
+            self.original_recipient = self._validate_single_entry(self.mail_data.get('to_address'))[0]
+        except IndexError:
+            self.original_recipient = ''
 
         self.subject = self.mail_data['subject']
+
+    def get_object(self, **kwargs):
+        if self.instance:
+            return self.instance
+
+        if self.mail_data.get('context_object'):
+            return kwargs.get(self.mail_data['context_object'], None)
 
     def _validate_single_entry(self, entry):
         """
@@ -66,12 +93,12 @@ class MailUtilsMixin:
 
         Returns a list of email addresses found.
         """
-        if entry and self.object:
+        if entry and self.instance:
             if re.match("[^@]+@[^@]+\.[^@]+", entry):
                 # Email string
                 return [entry]
             else:
-                mail_to = self.object
+                mail_to = self.instance
                 for attr in entry.split('.'):
                     try:
                         mail_to = getattr(mail_to, attr)
@@ -87,6 +114,8 @@ class MailUtilsMixin:
                     return mail_to
         elif re.match("[^@]+@[^@]+\.[^@]+", entry):
             return [entry]
+        else:
+            return []
 
     def validate_bcc_list(self):
         """
@@ -130,8 +159,7 @@ class MailUtilsMixin:
         self.message = handler.handle(self.html_message)
 
     def validate(self):
-        """
-        Ease workflow by called this wrapper validation method.
+        """Execute different validation methods.
 
         Only to be used when the default data is used, eg. not in the EmailTemplateForm.
         """
@@ -141,42 +169,38 @@ class MailUtilsMixin:
         self.save_mail_data()
 
     def save_mail_data(self):
-        self.mail_fields = {
+        """Save mail validated mail data; update default values of mail data."""
+        self.mail_data.update({
             'subject': self.subject,
             'message': self.message,
             'html_message': self.html_message,
             'recipients': self.recipients,
             'bcc_list': self.bcc_list,
-        }
+        })
 
     def set_alternative_sender(self, from_name, from_address):
-        """
+        """TODO: REMOVE; DEPRECATED
+
         Set an alternative from address/name from the default values received from the json
         config file. The arguments only take raw string data, no methods/properties!
         """
         self.mail_data['from_address_name'] = from_name
         self.mail_data['from_address'] = from_address
 
-    def get_object(self, **kwargs):
-        if self.object:
-            return self.object
-        if self.instance:
-            return self.instance
-
-        if self.mail_data.get('context_object'):
-            return kwargs.get(self.mail_data['context_object'], None)
-
     def send(self):
-        # Send the mail
+        """Send the mail assuming `mail_data` is validated and complete."""
         email = EmailMultiAlternatives(
-            self.mail_fields['subject'],
-            self.mail_fields['message'],
-            '%s <%s>' % (self.mail_data.get('from_address_name', 'SciPost'),
-                         self.mail_data.get('from_address', 'no-reply@scipost.org')),  # From
-            self.mail_fields['recipients'],  # To
-            bcc=self.mail_fields['bcc_list'],
-            reply_to=[self.mail_data.get('from_address', 'no-reply@scipost.org')])
-        email.attach_alternative(self.mail_fields['html_message'], 'text/html')
+            self.mail_data['subject'],
+            self.mail_data['message'],
+            '%s <%s>' % (self.mail_data['from_address_name'], self.mail_data['from_address']),
+            self.mail_data['recipients'],
+            bcc=self.mail_data['bcc_list'],
+            reply_to=[self.mail_data['from_address']])
+
+        # Send html version if available
+        if 'html_message' in self.mail_data:
+            email.attach_alternative(self.mail_data['html_message'], 'text/html')
+
         email.send(fail_silently=False)
-        if self.object and hasattr(self.object, 'mail_sent'):
-            self.object.mail_sent()
+        if self.instance and hasattr(self.instance, 'mail_sent'):
+            self.instance.mail_sent()

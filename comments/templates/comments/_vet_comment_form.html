@@ -18,7 +18,7 @@
                 <hr class="small">
 
                 <h3>Comment text:</h3>
-                <p>{{ comment.comment_text }}</p>
+                <p>{{ comment.comment_text|linebreaksbr }}</p>
 
                 {% if comment.file_attachment %}
                     <h3>Attachment:</h3>
@@ -35,7 +35,7 @@
 
                 {% if comment.remarks_for_editors %}
                     <h3>Remarks for Editors only:</h3>
-                    <p>{{ comment.remarks_for_editors }}</p>
+                    <p>{{ comment.remarks_for_editors|linebreaksbr }}</p>
                 {% endif %}
             </div>
             <div class="col-md-6">

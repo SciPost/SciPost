@@ -30,7 +30,8 @@ from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
 from .constants import (
-    SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
+    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict,
+    SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
 from .decorators import has_contributor, is_contributor_user
 from .models import (
     Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege,
@@ -43,6 +44,7 @@ from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_
 
 from affiliations.forms import AffiliationsFormset
 from colleges.permissions import fellowship_or_admin_required
+from colleges.models import Fellowship
 from commentaries.models import Commentary
 from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
@@ -84,7 +86,7 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
-        'latest_newsitem': NewsItem.objects.filter(on_homepage=True).order_by('-date').first(),
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
@@ -266,15 +268,16 @@ def vet_registration_request_ack(request, contributor_id):
             contributor.save()
             group = Group.objects.get(name='Registered Contributors')
             contributor.user.groups.add(group)
-            # Verify if there is a pending refereeing invitation
-            pending_ref_inv_exists = True
-            try:
-                pending_ref_inv = RefereeInvitation.objects.get(
-                    invitation_key=contributor.invitation_key, cancelled=False)
-                pending_ref_inv.referee = contributor
-                pending_ref_inv.save()
-            except RefereeInvitation.DoesNotExist:
-                pending_ref_inv_exists = False
+
+            # Verify if there is a pending refereeing invitation using email and invitation key.
+            updated_rows = RefereeInvitation.objects.open().filter(
+                referee__isnull=True,
+                email_address=contributor.user.email).update(referee=contributor)
+            if contributor.invitation_key:
+                updated_rows += RefereeInvitation.objects.open().filter(
+                    referee__isnull=True,
+                    invitation_key=contributor.invitation_key).update(referee=contributor)
+            pending_ref_inv_exists = updated_rows > 0
 
             email_text = (
                 'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
@@ -441,8 +444,8 @@ def _personal_page_editorial_actions(request):
         context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
         context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
         context['nr_submissions_to_assign'] = Submission.objects.prescreening().count()
-        context['nr_recommendations_to_prepare_for_voting'] = EICRecommendation.objects.filter(
-            submission__status='voting_in_preparation').count()
+        context['nr_recommendations_to_prepare_for_voting'] = \
+            EICRecommendation.objects.voting_in_preparation().count()
 
     if contributor.is_VE():
         context['nr_commentary_page_requests_to_vet'] = (Commentary.objects.awaiting_vetting()
@@ -459,7 +462,7 @@ def _personal_page_editorial_actions(request):
 
     if contributor.is_EdCol_Admin():
         context['nr_reports_without_pdf'] = Report.objects.accepted().filter(pdf_report='').count()
-        context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().filter(
+        context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().public().filter(
             pdf_refereeing_pack='').count()
 
     return render(request, 'partials/scipost/personal_page/editorial_actions.html', context)
@@ -865,7 +868,7 @@ def contributor_info(request, contributor_id):
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
     contributor_publications = Publication.objects.published().filter(authors_registered=contributor)
-    contributor_submissions = Submission.objects.public_unlisted().filter(authors=contributor)
+    contributor_submissions = Submission.objects.public_listed().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)
     contributor_comments = (Comment.objects.vetted().publicly_visible()
@@ -1060,34 +1063,26 @@ def Fellow_activity_overview(request):
 
 
 class AboutView(ListView):
+    """Basic information page with stream of current regular Fellows."""
+
     model = EditorialCollege
     template_name = 'scipost/about.html'
-    queryset = EditorialCollege.objects.prefetch_related(
-                Prefetch('fellowships',
-                         queryset=EditorialCollegeFellowship.objects.active().select_related(
-                            'contributor__user').order_by('contributor__user__last_name'),
-                         to_attr='current_fellows'))
+    queryset = Fellowship.objects.none()
 
     def get_context_data(self, *args, **kwargs):
+        """Save Fellowships per discipline to the context."""
         context = super().get_context_data(*args, **kwargs)
-        object_list = []
-        for college in context['object_list']:
-            try:
-                spec_list = subject_areas_raw_dict[str(college)]
-            except KeyError:
-                spec_list = None
-            object_list.append((
-                college,
-                spec_list,
-            ))
-        context['object_list'] = object_list
+        context['disciplines'] = {}
+        for discipline in SCIPOST_DISCIPLINES:
+            qs = Fellowship.objects.active().regular().filter(
+                contributor__discipline=discipline[0])
+            if qs:
+                context['disciplines'][discipline[1]] = (qs, subject_areas_raw_dict[discipline[1]])
         return context
 
 
-def csrf_failure(request, reason=""):
-    """
-    Custom CSRF Failure. Informing admins via email as well.
-    """
+def csrf_failure(request, reason=''):
+    """CSRF Failure page with an admin mailing action."""
     # Filter out privacy data
     post_data = {}
     for key in request.POST.keys():

@@ -30,11 +30,24 @@
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
+                        {% if pre_screening_subs %}
+                            <h3>Submissions in pre-screening phase <i class="fa fa-exclamation-circle text-warning"></i></h3>
+                            <ul>
+                                {% for submission in pre_screening_subs %}
+                                    <li>
+                                        {{ submission }}<br>
+                                        <a href="{% url 'submissions:do_prescreening' submission.arxiv_identifier_w_vn_nr %}">Do pre-screening</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+
                         {% if recommendations.voting_in_preparation %}
                             <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
                             <ul>
                                 {% for recommendation in recommendations.voting_in_preparation %}
-                                    <li>On Editorial Recommendation: {{ recommendation }}<br>
+                                    <li>
+                                        On Editorial Recommendation: {{ recommendation }}<br>
                                         <a href="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}">Prepare for voting</a>
                                     </li>
                                 {% endfor %}
@@ -45,7 +58,8 @@
                             <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
                             <ul class="fa-ul">
                                 {% for recommendation in recommendations.put_to_voting %}
-                                    <li>{% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
+                                    <li>
+                                        {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
                                         On Editorial Recommendation: {{ recommendation }}<br>
                                         <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.arxiv_identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
                                     </li>
@@ -99,8 +113,8 @@
                 <h3>All Submissions with status: <span class="text-primary">{{ search_form.status_verbose }}</span></h3>
                 {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions %}
             {% else %}
-                <h3>Submissions currently in pre-screening</h3>
-                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.prescreening %}
+                <h3>Submissions currently unassigned</h3>
+                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.unassigned %}
 
                 <h3>Submissions currently in active refereeing phase</h3>
                 {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.actively_refereeing %}

@@ -22,10 +22,9 @@
 <hr>
 <div class="row">
   <div class="col-12">
-      <h2 class="highlight">Guiding principles</h2>
+      <h2 class="highlight" id="guiding_principles">Guiding principles</h2>
   </div>
 </div>
-
 
 <div class="row">
     <div class="col-md-6">
@@ -45,6 +44,58 @@
       <p>The fourth and fifth principles are implemented using SciPost’s maximally stringent peer-witnessed refereeing process.</p>
       <p>The sixth principle is implemented in the form of Commentary Pages associated to publications. These can either be SciPost Publications, or papers published elsewhere.</p>
     </div>
+</div>
+
+<div class="row">
+  <p>As an organization, and for all its Journals, SciPost follows the <a href="https://jscaux.org/blog/post/2018/05/05/genuine-open-access/">Genuine Open Access Principles:</a></p>
+<table class="table table-bordered table-responsive">
+<tr>
+<td>[CO]</td>
+<td style="width: 30%;"><strong>Community Ownership</strong> </td>
+<td>The Journal has a transparent community-anchored ownership structure, and is controlled by and responsive to the scholarly community.</td>
+</tr>
+<tr>
+<td>[OI]</td>
+<td><strong>Open Infrastructure</strong></td>
+<td>The infrastructure for operating the Journal belongs to, and is open sourced to the community. The entire technological stack and all operating protocols are documented and made easily transferable between community owners.</td>
+</tr>
+<tr>
+<td>[CA]</td>
+<td><strong>Copyright to authors</strong></td>
+<td>Authors of articles in the Journal retain copyright. The Journal assists authors in protecting their rights in case of infringement.</td>
+</tr>
+<tr>
+<td>[OA]</td>
+<td><strong>Open Access</strong></td>
+<td>All articles are published open access and an explicit open access licence is used which is preferably <a href="https://creativecommons.org/share-your-work/public-domain/freeworks/" target="_blank">Approved for Free Cultural Works</a>.</td>
+</tr>
+<tr>
+<td>[OC]</td>
+<td><strong>Open Citations</strong></td>
+<td>The Journal makes its citation metadata openly accessibly by actively participating in the <a href="https://i4oc.org" target="_blank">Initiative for Open Citations.</a></td>
+</tr>
+<tr>
+<td>[FF]</td>
+<td><strong>Fee Free</strong></td>
+<td>Submission, peer evaluation and publication are not conditional in any way on the payment of a fee from authors or their employing institution, or on membership of an institution or society.</td>
+</tr>
+<tr>
+<td>[NP]</td>
+<td><strong>Non Profit</strong></td>
+<td>The Journal publisher's operations are entirely non profit.</td>
+</tr>
+<tr>
+<td>[OF]</td>
+<td><strong>Open Finances</strong></td>
+<td>The Journal's finances are openly published and available for public scrutiny.</td>
+</tr>
+<tr>
+<td>[AE]</td>
+<td><strong>Academic Editing</strong></td>
+<td>The editorial processes of the Journal are run by the community, and all editorial decisions are taken by active professional scientists, using exclusively academic scholarship-based criteria.</td>
+</tr>
+</table>
+<p>These principles are an extension and sharpening up of the <a href="https://www.fairopenaccess.org/" target="_blank">Fair Open Access Principles</a>, the most important difference being the insistence on the non profit business model.</p>
 </div>
 
 
@@ -68,16 +119,16 @@
       <ul>
     	<li>J.-S. Caux</li>
     	<li>J. de Wit</li>
+	<li>B. Ponsioen</li>
       </ul>
-      <p><em>with special thanks to M. Moeys, B. Ponsioen and G. Kapteijns</em></p>
     </div>
 </div>
 
 <div class="row justify-content-center">
   <div class="col-md-4 col-lg-3">
-    <h3>Editorial Admin</h3>
+    <h3>Editorial and Partners Admin</h3>
     <ul>
-      <li>A. de Hoogh</li>
+      <li>P. Perez</li>
     </ul>
   </div>
   <div class="col-md-7 col-lg-6">
@@ -125,22 +176,21 @@
 
 <hr>
 
-{% for college, codes in object_list %}
-    <h2 class="highlight" id="editorial_college_{{ college|lower }}">Editorial College ({{ college }})</h2>
+{% for discipline,fellowships in disciplines.items %}
+    <h2 class="highlight" id="editorial_college_{{ discipline|lower }}">Editorial College ({{ discipline }})</h2>
 
-    {% if codes %}
     <div class="row">
         <div class="col-12">
-            <a href="#editorial_college_{{ college|lower }}" class="mx-2" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show Fellows by specialization</a>
-            <a href="#editorial_college_{{ college|lower }}" class="mx-2" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{college|lower}}">Show full list of Fellows</a>
-            <div id="specializations-{{college|lower}}" class="card bg-white border-default all-specializations mt-2" style="display: none">
+            <a href="#editorial_college_{{ discipline|lower }}" class="mx-2" data-toggle="toggle-show" data-target="#specializations-{{discipline|lower}}">Show Fellows by specialization</a>
+            <a href="#editorial_college_{{ discipline|lower }}" class="mx-2" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{discipline|lower}}">Show full list of Fellows</a>
+            <div id="specializations-{{ discipline|lower }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
                 <div class="card-body">
                     <p class="text-muted mt-2">Hover to highlight or click to select</p>
 
                     <div class="row">
                         <div class="col-md-6">
-                            {% with total_count=codes|length %}
-                                {% for code in codes %}
+                            {% with total_count=fellowships.1|length %}
+                                {% for code in fellowships.1 %}
                                     <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
                                     {% if forloop.counter|is_modulo_one_half:total_count %}
                                         </div>
@@ -154,14 +204,13 @@
             </div>
         </div>
     </div>
-    {% endif %}
 
-    <div class="row search-contributors" data-contributors="{{ college|lower }}">
+    <div class="row search-contributors" data-contributors="{{ discipline|lower }}">
         <div class="col-12">
             <div class="card-columns">
-                {% for fellowship in college.current_fellows %}
+                {% for fellowship in fellowships.0 %}
                     <div class="card bg-white contributor mb-1">
-                        {% include 'scipost/_contributor_short.html' with contributor=fellowship.contributor %}
+                        {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
                     </div>
                 {% endfor %}
             </div>
@@ -169,10 +218,6 @@
     </div>
 
 {% endfor %}
-
-<br/>
-<h2 class="text-danger">We are currently building our Editorial College</h2>
-<h3 class="text-danger">We welcome your nominations for Editorial Fellows in all fields of Physics</h3>
 
 {% endblock content %}
 

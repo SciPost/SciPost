@@ -8,8 +8,20 @@
         comment_text_input.on('keyup', function(){
             var new_text = $(this).val()
             $("#preview-comment_text").text(new_text)
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-        }).trigger('keyup')
+            if( typeof MathJax !== 'undefined' ) {
+                MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+            }
+        }).trigger('keyup');
+
+        $('input[name$="anonymous"]').on('change', function() {
+            $('.anonymous-alert').show()
+            .children('h3').hide()
+            if ($(this).prop('checked')) {
+                $('.anonymous-yes').show();
+            } else {
+                $('.anonymous-no').show();
+            }
+        }).trigger('change');
     });
 </script>
 {% endblock %}
@@ -50,9 +62,19 @@
 
       <div class="row">
           <div class="col-12">
-              {% if form.anonymous %}{{ form.anonymous|bootstrap }}{% endif %}
+            {% if form.anonymous %}
+                {{ form.anonymous|bootstrap }}
+                <div class="anonymous-alert" style="display: none;">
+                    <h3 class="anonymous-yes">Your Comment will remain anonymous.</h3>
+                    <h3 class="anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
+                </div>
+            {% endif %}
               <input type="submit" name="submit" value="Submit your Comment for vetting" class="btn btn-primary" id="submit-id-submit">
+          {% if form.anonymous %}
+              <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
+          {% else %}
               <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>, in particular that <span class="text-danger">your identity will be attached to the Comment</span>.</i></p>
+          {% endif %}
           </div>
       </div>
 </form>

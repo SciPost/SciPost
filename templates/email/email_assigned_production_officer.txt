@@ -1,15 +1,11 @@
-Dear {{ stream.invitations_officer.user.last_name }},
-\n
-\n
+Dear {{ stream.officer.user.last_name }},
+
 You are now assigned as Production Officer to the stream
-\n
-\n
+
 {{ stream }}
-\n
+
 Production Supervisor: {{ stream.supervisor }}
-\n
-\n
+
 The stream will now be open for you on the Production page (https://scipost.org/{% url 'production:production' %}).
 
-\n\n
 This mail is automatically generated and therefore not signed.
