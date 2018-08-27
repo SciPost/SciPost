@@ -692,7 +692,7 @@ class VotingEligibilityForm(forms.ModelForm):
 
     eligible_fellows = forms.ModelMultipleChoiceField(
         queryset=Contributor.objects.none(),
-        widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
+        widget=forms.CheckboxSelectMultiple(),
         required=True, label='Eligible for voting')
 
     class Meta:
