@@ -27,7 +27,7 @@ def import_journal_incremental(issn, from_index_date, cursor='*'):
     # Get from date from the journal itself (necessary for periodic tasks)
     # TODO: make periodic tasks call this function without the date
     journal = Journal.objects.get(ISSN_digital=issn)
-    from_index_date = journal.last_full_sync
+    from_index_date = journal.last_full_sync.strftime('%Y-%m-%d')
 
     import_journal(issn=issn, cursor=cursor, from_index_date=from_index_date)
 
