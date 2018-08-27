@@ -23,6 +23,12 @@ def import_journal_incremental(issn, from_index_date, cursor='*'):
     Task to query CrossRef for all works of a journal with given ISSN
     from a given date onward and store them in the Metacore mongo database
     """
+
+    # Get from date from the journal itself (necessary for periodic tasks)
+    # TODO: make periodic tasks call this function without the date
+    journal = Journal.objects.get(ISSN_digital=issn)
+    from_index_date = journal.last_full_sync
+
     import_journal(issn=issn, cursor=cursor, from_index_date=from_index_date)
 
 def import_journal(issn, cursor='*', from_index_date=None):
