@@ -101,11 +101,11 @@
                 {% endif %}
 
                 {% if recs_current_voted %}
-                    <h3>Current recommendations you have voted on</h3>
+                    <h3>Current recommendations you have voted on:</h3>
                     <ul>
                         {% for recommendation in recs_current_voted %}
                             <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
-                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation to view votes and/or revise your vote</a>
+                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation, view votes and/or revise your vote</a>
                             </li>
                         {% endfor %}
                     </ul>

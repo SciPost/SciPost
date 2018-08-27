@@ -1526,18 +1526,34 @@ def prepare_for_voting(request, rec_id):
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
     submissions = Submission.objects.pool_editable(request.user)
-    recommendation = get_object_or_404(
-        EICRecommendation.objects.user_must_vote_on(
+    try:
+        recommendation = EICRecommendation.objects.user_must_vote_on(
+            request.user).get(submission__in=submissions, id=rec_id)
+        initial = {'vote': 'abstain'}
+    except EICRecommendation.DoesNotExist: #Try to find an EICRec already voted on:
+        recommendation = get_object_or_404(EICRecommendation.objects.user_current_voted(
             request.user).filter(submission__in=submissions), id=rec_id)
+        previous_vote = None
+        if request.user.contributor in recommendation.voted_for.all():
+            previous_vote = 'agree'
+        elif request.user.contributor in recommendation.voted_against.all():
+            previous_vote = 'disagree'
+        elif request.user.contributor in recommendation.voted_abstain.all():
+            previous_vote = 'abstain'
+        initial = {'vote': previous_vote}
 
-    form = RecommendationVoteForm(request.POST or None)
+    if request.POST:
+        form = RecommendationVoteForm(request.POST)
+    else:
+        form = RecommendationVoteForm(initial=initial)
     if form.is_valid():
         if form.cleaned_data['vote'] == 'agree':
             try:
                 recommendation.voted_for.add(request.user.contributor)
             except IntegrityError:
                 messages.warning(request, 'You have already voted for this Recommendation.')
-                return redirect(reverse('submissions:pool'))
+                #return redirect(reverse('submissions:pool'))
+                pass
             recommendation.voted_against.remove(request.user.contributor)
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'disagree':
@@ -1546,7 +1562,8 @@ def vote_on_rec(request, rec_id):
                 recommendation.voted_against.add(request.user.contributor)
             except IntegrityError:
                 messages.warning(request, 'You have already voted against this Recommendation.')
-                return redirect(reverse('submissions:pool'))
+                #return redirect(reverse('submissions:pool'))
+                pass
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'abstain':
             recommendation.voted_for.remove(request.user.contributor)
@@ -1554,13 +1571,23 @@ def vote_on_rec(request, rec_id):
             try:
                 recommendation.voted_abstain.add(request.user.contributor)
             except IntegrityError:
-                messages.warning(request, 'You have already voted for this Recommendation.')
-                return redirect(reverse('submissions:pool'))
-        if form.cleaned_data['remark']:
+                messages.warning(request, 'You have already abstained on this Recommendation.')
+                #return redirect(reverse('submissions:pool'))
+                pass
+        votechanged = (previous_vote and form.cleaned_data['vote'] != previous_vote)
+        if form.cleaned_data['remark'] or votechanged:
+            # If the vote is changed, we automatically put a remark
+            extra_remark = ''
+            if votechanged:
+                if form.cleaned_data['remark']:
+                    extra_remark += '\n'
+                extra_remark += 'Note from EdAdmin: %s %s changed vote from %s to %s' % (
+                    request.user.first_name, request.user.last_name,
+                    previous_vote, form.cleaned_data['vote'])
             remark = Remark(contributor=request.user.contributor,
                             recommendation=recommendation,
                             date=timezone.now(),
-                            remark=form.cleaned_data['remark'])
+                            remark=form.cleaned_data['remark'] + extra_remark)
             remark.save()
         recommendation.save()
         messages.success(request, 'Thank you for your vote.')
