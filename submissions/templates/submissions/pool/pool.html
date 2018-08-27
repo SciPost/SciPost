@@ -77,7 +77,7 @@
                 {% endif %}
             {% endif %}
 
-            {% if assignments_to_consider or recs_to_vote_on %}
+            {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
                 {% if assignments_to_consider %}
                     <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
                     <ul>
@@ -99,7 +99,19 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
-                <hr>
+
+                {% if recs_current_voted %}
+                    <h3>Current recommendations you have voted on</h3>
+                    <ul>
+                        {% for recommendation in recs_current_voted %}
+                            <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation to view votes and/or revise your vote</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                    <hr>
             {% endif %}
 
             {% if search_form %}

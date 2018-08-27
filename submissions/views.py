@@ -401,6 +401,8 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
 
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
+    recs_current_voted = EICRecommendation.objects.user_current_voted(request.user).filter(
+        submission__in=submissions)
     assignments_to_consider = EditorialAssignment.objects.open().filter(
         to=request.user.contributor)
 
@@ -416,6 +418,7 @@ def pool(request, arxiv_identifier_w_vn_nr=None):
         'assignments_to_consider': assignments_to_consider,
         'consider_assignment_form': consider_assignment_form,
         'recs_to_vote_on': recs_to_vote_on,
+        'recs_current_voted': recs_current_voted,
         'rec_vote_form': rec_vote_form,
         'remark_form': remark_form,
     }
@@ -1542,7 +1545,7 @@ def vote_on_rec(request, rec_id):
             try:
                 recommendation.voted_against.add(request.user.contributor)
             except IntegrityError:
-                messages.warning(request, 'You have already voted for this Recommendation.')
+                messages.warning(request, 'You have already voted against this Recommendation.')
                 return redirect(reverse('submissions:pool'))
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'abstain':
