@@ -1526,6 +1526,7 @@ def prepare_for_voting(request, rec_id):
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
     submissions = Submission.objects.pool_editable(request.user)
+    previous_vote = None
     try:
         recommendation = EICRecommendation.objects.user_must_vote_on(
             request.user).get(submission__in=submissions, id=rec_id)
@@ -1533,14 +1534,13 @@ def vote_on_rec(request, rec_id):
     except EICRecommendation.DoesNotExist: #Try to find an EICRec already voted on:
         recommendation = get_object_or_404(EICRecommendation.objects.user_current_voted(
             request.user).filter(submission__in=submissions), id=rec_id)
-        previous_vote = None
         if request.user.contributor in recommendation.voted_for.all():
             previous_vote = 'agree'
         elif request.user.contributor in recommendation.voted_against.all():
             previous_vote = 'disagree'
         elif request.user.contributor in recommendation.voted_abstain.all():
             previous_vote = 'abstain'
-        initial = {'vote': previous_vote}
+    initial = {'vote': previous_vote}
 
     if request.POST:
         form = RecommendationVoteForm(request.POST)
