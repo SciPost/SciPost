@@ -1036,11 +1036,11 @@ class RecommendationVoteForm(forms.Form):
 
     vote = forms.ChoiceField(
         widget=forms.RadioSelect, choices=[
-            ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')], label='')
+            ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')])
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,
         'cols': 30,
-        'placeholder': 'Your remarks (optional)'
+        'placeholder': 'Your remark (optional)'
     }), label='', required=False)
 
 

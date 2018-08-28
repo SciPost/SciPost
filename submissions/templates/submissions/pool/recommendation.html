@@ -97,6 +97,9 @@
 
     {% if voting_form %}
         <h3 class="mt-4">Your position on this recommendation</h3>
+	{% if previous_vote %}
+	<p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
+	{% endif %}
         <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
             {% csrf_token %}
             {{ voting_form|bootstrap:'0,12' }}
