@@ -1595,7 +1595,8 @@ def vote_on_rec(request, rec_id):
 
     context = {
         'recommendation': recommendation,
-        'voting_form': form
+        'voting_form': form,
+        'previous_vote': previous_vote
     }
     return render(request, 'submissions/pool/recommendation.html', context)
 

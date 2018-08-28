@@ -1040,7 +1040,7 @@ class RecommendationVoteForm(forms.Form):
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,
         'cols': 30,
-        'placeholder': 'Your remarks (optional)'
+        'placeholder': 'Your remark (optional)'
     }), label='', required=False)
 
 
