@@ -1603,11 +1603,9 @@ def vote_on_rec(request, rec_id):
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
 def remind_Fellows_to_vote(request):
-    """Send an email to all Fellow with pending voting duties.
-
-    It must be called by and Editorial Administrator.
-
-    Possible TODO: This reminder function doesn't filter per submission?!
+    """
+    Send an email to all Fellows with at least one pending voting duties.
+    It must be called by an Editorial Administrator.
     """
     submissions = Submission.objects.pool_editable(request.user)
     recommendations = EICRecommendation.objects.active().filter(
