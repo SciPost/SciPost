@@ -23,7 +23,7 @@ class FunderForm(forms.ModelForm):
 
 
 class FunderSelectForm(forms.Form):
-    funder = forms.ModelChoiceField(queryset=Funder.objects.all())
+    funder = AutoCompleteSelectField('funder_lookup')
 
 
 class FunderOrganizationSelectForm(forms.ModelForm):
@@ -47,4 +47,4 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
 
 
 class GrantSelectForm(forms.Form):
-    grant = forms.ModelChoiceField(queryset=Grant.objects.all().select_related('funder'))
+    grant = AutoCompleteSelectField('grant_lookup')

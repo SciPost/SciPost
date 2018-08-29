@@ -336,7 +336,7 @@ def add_author(request, doi_label, contributor_id=None, unregistered_author_id=N
         messages.success(request, 'Added {} as an unregistered author.'.format(
             unregistered_author
         ))
-        return redirect(reverse('journals:manage_metadata',
+        return redirect(reverse('journals:add_author',
                                 kwargs={'doi_label': publication.doi_label}))
     elif form.is_valid():
         contributors_found = Contributor.objects.filter(

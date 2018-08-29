@@ -1,0 +1,532 @@
+{% extends 'guides/_guides_base.html' %}
+
+{% block pagetitle %}: guides: initial production{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{block.super}}
+<a href="{% url 'guides:guides_index' %}" class="breadcrumb-item">Guides</a>
+<span class="breadcrumb-item">Editorial</span>
+<span class="breadcrumb-item">Production</span>
+<span class="breadcrumb-item active">Initial production</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>Initial Production of SciPost Publications</h1>
+<p>
+  This guide is meant for <strong>Editorial Administrators</strong>, <strong>Production Supervisors</strong> and <strong>Production Officers</strong>. It describes the post-acceptance workflow from paper acceptance to publication.
+</p>
+
+<h3>Formatting check</h3>
+<p>
+  If the Submission's references are not properly formatted,
+  and/or if these do not include the required DOIs,
+  the authors should be emailed and asked to provide them,
+  by sending in either an updated <code>.bbl</code> file or <code>.bib</code> source.
+</p>
+<p>
+   Any extra material provided by the authors which supplements
+   the arXiv source should be put in a folder <code>EXTRA_FROM_AUTH</code>.
+</p>
+
+<h3>Source retrieval and folder preparation</h3>
+<ol>
+  <li>
+    On the SciPost server, navigate to folder
+    <code>[Journal full name]/IN_PRODUCTION</code>.
+  </li>
+  <li>
+    Create a folder
+    <code>[journal abbrev. name]_[arxiv identifier]_[first author last name]</code>,
+    e.g. <code>SciPost_Phys_1604.98141v3_Smart</code>.
+  </li>
+  <li>
+    Save the source from arXiv into this folder.
+  </li>
+  <li>
+    NOTE: the file will be named <code>####.#####v#</code>, which is not recognized
+    as a <code>.tar.gz</code> file on a UNIX system. Rename the file
+    <code>####.####v#.tar.gz</code>. Unzip it to produce the folder <code>####.#####v#</code>.
+    If this produces another tar file, it is because the submission consists of
+    a single <code>.tex</code> file; you should then rename this to <code>####.#####v#.tex</code>.
+  </li>
+  <li>
+    Copy the paper’s sources one level down (so from <code>####.#####v#</code> to
+    the current directory). BE CAREFUL: if the authors have included any of
+    the SciPost style files (<code>SciPost.cls</code>, <code>SciPost_bibstyle.bst</code>), DO NOT
+    copy those down. You can skip this step if the previous step immediately led
+    to a <code>.tex</code> file.
+  </li>
+  <li>
+    Copy the files in
+    <code>[Journal full name]/v##_production/FILES_TO_COPY_IN_PAPER_DIR</code>
+    to the current directory. There are 5 files:
+    <ul>
+      <li><code>by.eps</code></li>
+      <li><code>logo_scipost_with_bgd.pdf</code></li>
+      <li><code>SciPost_bibstyle.bst</code></li>
+      <li><code>SciPost.cls</code></li>
+      <li><code>SciPost_[Phys, or other as appropriate]_Skeleton.tex</code></li>
+    </ul>
+  </li>
+  <li>
+    Copy the skeleton <code>.tex</code> source to a new file using the name convention
+    <code>[Journal abbrev. name]_####_#####v#_[first author last name].tex</code>
+    (careful: use underscore instead of . between numbers).
+  </li>
+</ol>
+
+<h3>LaTeX file preparation</h3>
+<p>
+ The next step is to transfer the submission's LaTeX contents into the final file.
+</p>
+<p>
+ All steps involed appear in the skeleton <code>.tex</code> source in the form <code>%%%%%%%%%% TODO: [TOKEN]</code> opening marked, followed by a corresponding <code>%%%%%%%%%% END TODO: [TOKEN]</code> marker.
+</p>
+<p>
+ The easiest way to proceed is to copy and paste material from the authors' <code>.tex</code>
+ source directly into the (appropriately renamed as per the instructions above)
+ skeleton file.
+</p>
+<p>
+  During the file preparation, if there is anything worth noting about the
+  production process, please include this in the
+ </p>
+ <pre><code>
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+     % Production Notes
+     % [your name here]
+     %
+     % [your notes here]
+     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ </code></pre>
+ <p>
+  block at the beginning of the document, just before the <code>\documentclass</code> declaration.
+ </p>
+ <p>
+   As the person running the production, please identify yourself by writing
+   your initials and surname in this block.
+ </p>
+
+ <h3>General LaTeX tips</h3>
+ <ul>
+   <li>
+     Prefer the <code>align</code> (from package <code>amsmath</code>) environment
+     to <code>eqnarray</code>.
+     For a technical discussion, see for example <a href="https://tug.org/TUGboat/tb33-1/tb103madsen.pdf">this link</a>.
+   </li>
+   <li>
+     You do <strong>not</strong> have to systematically replace all
+     <code>eqnarray</code> with <code>align</code>.
+     However, if you do reformat some equations, do shift to <code>align</code>.
+   </li>
+ </ul>
+
+ <h3>Step-by-step procedure</h3>
+
+ <ol>
+   <li>TODO: PAPER CITATION
+     <p>
+       In this place, fill the missing numbers in the citation header:
+     </p>
+     <pre><code>\rhead{\small \href{https://scipost.org/SciPostPhys.?.?.???}{SciPost Phys. ?, ??? (20??)}}</pre></code>
+     <p>
+       The first argument of the <code>href</code> is the simple permanent URL for the publication. This includes 3 numbers: the volume number, issue, and three-digit paper number, for example <code>SciPostPhys.1.2.011</code>. Verify the appropriate issue number (this will be verified later by an EdAdmin). At this stage, leave the paper number to <code>???</code>: this number will be assigned and filled in in the last stage of production.
+     </p>
+     <p>
+       The second argument to the <code>href</code> uses the simple citation, dropping the issue number, for example <code>SciPostPhys. 1, 011 (2016)</code>.
+     </p>
+   </li>
+   <li>
+     TODO: PACKAGES
+     <p>
+       The <code>SciPost.cls</code> (v1b) class definition requires the following packages:
+     </p>
+     <ul>
+       <li>amsmath [NOTE: amssymb is redundant and clashes with mathdesign]</li>
+       <li>cite</li>
+       <li>doi</li>
+       <li>fancyhdr</li>
+       <li>geometry</li>
+       <li>graphicx</li>
+       <li>hyperref</li>
+       <li>inputenc</li>
+       <li>lineno [for proofs only]</li>
+       <li>titlesec</li>
+       <li>tocloft, nottoc,notlot,notlof</li>
+       <li>xcolor</li>
+     </ul>
+     <p>
+       If the authors are using extra packages not already in the list above,
+       you should paste their list within this TODO block.
+     </p>
+     <p>
+       Any package originally included by the authors which you do <strong>not</strong>
+       include should be commented out with a  <code>% REMOVED IN PROD</code>
+       comments prepended.
+     </p>
+     <p>
+       Any package which is added during production should be listed after
+       the <code>% ADDED IN PRODUCTION</code> marker.
+     </p>
+   </li>
+   <li>
+     TODO: COMMANDS
+     <p>
+       If the authors have redefined commands, paste the redefinitions in this block.
+     </p>
+     <p>
+       Discard (namely: do not copy and paste) any length (and similar) redefinitions.
+     </p>
+   </li>
+   <li>
+     TODO: TITLE
+     <p>
+       The title is enclosed in:
+     </p>
+     <pre><code>
+	 \begin{center}{\Large \textbf{\color{scipostdeepblue}{
+	 [title]
+	 }}}\end{center}
+     </pre></code>
+     <p>
+       Paste the title in this block. End the title with <code>\\</code>
+       in order to ensure proper uniform spacing between the lines.
+     </p>
+   </li>
+   <li>
+     TODO: AUTHORS
+     <p>
+       Author names should be in format <code>firstname lastname</code>, e.g. <code>John Smith</code>,
+       and should be in textbf. No <code>comma</code> but rather an <code>and</code> before
+       the last author. If multiple authors and affiliations, use <code>\textsuperscript</code>
+       and positive integer labels, with a <code>$\star$</code> for the corresponding author.
+       If all authors are from the same institution, there is no need for superscripts
+       (except to mark the corresponding author if desired).
+       If multiple email addresses are given, reference them with <code>$\dagger$, ...</code>.
+     </p>
+   </li>
+   <li>
+     TODO: AFFILIATIONS
+     <p>
+       If there are many affiliations, each is prepended by the appropriate
+       <code>{\bf [nr]}</code>. Separate affiliations with double-backslash.
+     </p>
+     <p>
+       Put a <code>\\[\baselineskip]</code> after the affiliations.
+     </p>
+   </li>
+   <li>
+     TODO: EMAIL (OPTION)
+     <p>
+       Optionally, provide the email of the corresponding author using:
+     </p>
+     <pre><code>\href{mailto:[email]}{\small \sf [email]}</code></pre>
+     <p>
+       prepended with <code>$\star$</code> if corresponding author. If no email is to be given,
+       comment out the <code>$\star$ \href{mailto:[email]}{\small \sf [email]}</code> line.
+     </p>
+     <p>
+       If a web link is offered, use the format <code>{\small \url{[url]}}</code>.
+     </p>
+   </li>
+   <li>
+     TODO: ABSTRACT
+     <p>
+       Paste the abstract in the provided block:
+     </p>
+     <pre><code>
+	 \section*{\color{scipostdeepblue}{Abstract}}
+	 {\bf
+	 [abstract]
+	 }
+     </code></pre>
+   </li>
+   <li>
+     TODO: TOC
+     <p>
+       As a general guideline, the paper should contain a table of contents
+       if it has more than 6 pages.
+     </p>
+     <p>
+       If a TOC should be included, leave the skeleton as it is. If no TOC
+       should be there, simply comment out the 2nd and 3rd lines of:
+     </p>
+     <pre><code>
+	 \vspace{10pt}
+	 \noindent\rule{\textwidth}{1pt}
+	 \tableofcontents
+	 \noindent\rule{\textwidth}{1pt}
+	 \vspace{10pt}
+     </code></pre>
+     <p>
+       explicitly leaving:
+     </p>
+     <pre><code>
+	 \vspace{10pt}
+	 %\noindent\rule{\textwidth}{1pt}
+	 %\tableofcontents
+	 \noindent\rule{\textwidth}{1pt}
+	 \vspace{10pt}
+     </code></pre>
+     <p>
+       If a single horizontal line is pushed to the next page, correct by
+       playing with negatime <code>\vspace</code>.
+     </p>
+   </li>
+   <li>
+     TODO: COPYRIGHT
+     <p>
+       Include the first author's initials and family name in the copyright
+       statement. If there are just two authors: give both authors' initials
+       and last names. If there are more than two authors, use the format
+       <code>A. Bee {\it et al.}</code>. Be respectful of any special (non-latin)
+       characters in authors' names.
+     </p>
+   </li>
+   <li>
+     TODO: DATES
+     <p>
+       Fill in the appropriate received and accepted dates in
+       format <code>DD-MM-YYYY</code>. Be careful to use the correct submission data,
+       namely that of the original submission.
+     </p>
+     <p>
+       The accepted and published dates will be filled in later on.
+     </p>
+   </li>
+   <li>
+     TODO: DOI
+     <p>
+       Provide the volume and issue numbers (two places) in the DOI specifier.
+       The paper number will be assigned in the final stage of production.
+     </p>
+   </li>
+   <li>
+     TODO: LINENO
+     <p>
+       During proofs stage, make sure line numbers are activated (they should
+       be by default).
+     </p>
+   </li>
+   <li>
+     TODO: CONTENTS
+     <p>
+       Paste the entire bulk of the paper in this block,
+       including all sections and eventual appendices.
+       Check that there are no appendices after the references in the
+       original tex file.
+     </p>
+   </li>
+   <li>
+     TODO: BIBNR
+     <p>
+       If the bibliography contains more than 100 entries, use
+       <code>999</code> instead of <code>99</code> in the <code>\begin{thebibliotraphy}{[nr]}</code>
+       statement.
+     </p>
+   </li>
+   <li>
+     TODO: BBL
+     <p>
+       The references are explicitly pasted into this block.
+     </p>
+     <p>
+       If using BiBTeX, use a <code>\bibliography{[bibfilename]}</code> command,
+       and comment out the <code>\begin{thebibliography}</code> and <code>\end{thebibliography}</code>
+       commands. After running BiBTeX, the contents of the generated
+       <code>.bib</code> file should be pasted in the uncommented
+       <code>\begin,\end{thebibliography}</code>
+       block, and the <code>\bibliography{[bibfilename]}</code> should be commented out.
+     </p>
+     <p>
+       Note: the reason to not use BiBTeX from now on is to easy in-file
+       correction of improperly formatted references (instead of having to correct
+       the <code>.bib</code> file).
+     </p>
+   </li>
+ </ol>
+
+ <p>
+   <strong>You are now ready to typeset the <code>.tex</code> file</strong>. Simple issues are listed
+   below. If you encounter further problems, see the <strong>Problems</strong> list below.
+ </p>
+ <p>
+   If you need to run BiBTeX for the references, do so (remembering to do it
+   at least twice so the references appear), and then paste the contents of the
+   <code>.bbl</code> file in the <code>% TODO: REFERENCES</code> block.
+   <strong>Make sure you use the correct</strong> <code>.bib</code> <strong>file</strong>.
+ </p>
+</ol>
+
+<h3>Gotchas</h3>
+<ul>
+  <li>
+    Authors have included the <code>\usepackage{lmodern}</code> in their LaTeX packages,
+    overriding the normal fonts we use. <strong>Check whether the right font is being used!</strong>
+  </li>
+</ul>
+
+<h3>Simple issues</h3>
+<ul>
+  <li>
+    <code>LaTeX Error: environment acknowledgements undefined</code> or
+    <code>Undefined control sequence \acknowledgements</code>
+    <p>
+      The users have used ReVTeX; simply change the <code>\begin{acknowledgements}</code>
+      or <code>\acknowledgements</code>
+      to <code>\section*{Acknowledgements}</code> (of course also removing any eventual
+      <code>\end{acknowledgements}</code>).
+    </p>
+  </li>
+  <li>
+    <code>LaTeX Error: Environment widetext undefined.</code>
+    <p>
+      The authors have used ReVTeX; simply comment out all <code>\begin{widetext}</code>
+      and <code>\end{widetext}</code> markers.
+    </p>
+  </li>
+</ul>
+
+<h3>Problems</h3>
+<ul>
+  <li>
+    package <code>lineno</code> and <code>amsmath</code> are incompatible
+    <p>
+      Problem: line numbers don't appear when paragraph is followed by align etc.
+    </p>
+    <p>
+      Solution (from <a href="https://phaseportrait.blogspot.nl/2007/08/lineno-and-amsmath-compatibility.html">this link</a>): paste this in the preamble:
+    </p>
+    <pre><code>
+       %% Patch lineno when used with amsmath
+       \newcommand*\patchAmsMathEnvironmentForLineno[1]{%
+       \expandafter\let\csname old#1\expandafter\endcsname\csname #1\endcsname
+       \expandafter\let\csname oldend#1\expandafter\endcsname\csname end#1\endcsname
+       \renewenvironment{#1}%
+       {\linenomath\csname old#1\endcsname}%
+       {\csname oldend#1\endcsname\endlinenomath}}%
+       \newcommand*\patchBothAmsMathEnvironmentsForLineno[1]{%
+       \patchAmsMathEnvironmentForLineno{#1}%
+       \patchAmsMathEnvironmentForLineno{#1*}}%
+       \AtBeginDocument{%
+       \patchBothAmsMathEnvironmentsForLineno{equation}%
+       \patchBothAmsMathEnvironmentsForLineno{align}%
+       \patchBothAmsMathEnvironmentsForLineno{flalign}%
+       \patchBothAmsMathEnvironmentsForLineno{alignat}%
+       \patchBothAmsMathEnvironmentsForLineno{gather}%
+       \patchBothAmsMathEnvironmentsForLineno{multline}%
+       }
+       %% End patch lineno
+    </code></pre>
+  </li>
+  <li>
+    Breaking of in-line math equations
+    <p>
+      Simply prevent by forcing equations into a math atom by surrouding them with braces,:
+    </p>
+    <pre><code>Here is an equation that should not be broken: ${E=mc^2}$.</code></pre>
+  </li>
+  <li>
+    Equation/table or other text/maths element is just too wide.
+    <p>
+      Option: locally change the fontsize by embedding the object in a <code>\fontsize</code> block:
+    </p>
+    <pre><code>
+	\begingroup
+	\fontsize{new font size, e.g. 10pt}{skip, 120% of previous}\selectfont
+	[ element]
+	\endgroup
+    </code></pre>
+  </li>
+  <li>
+    package <code>MnSymbol</code> is problematic and clashes with amsmath.
+    <p>
+      One solution is to import individual symbols according to these
+      <a href="https://tex.stackexchange.com/questions/36006/importing-single-symbol-from-mnsymbol">instructions</a>.
+    </p>
+  </li>
+  <li>
+    Equations spacing in <code>align</code> environment is too tight.
+    <p>
+      The simple solution is to include a spacing specifier of the form <code>\nonumber \\[5pt]</code>,
+      where <code>5pt</code> is a good compromise.
+    </p>
+    <p>
+      This spacing can also be set globally by including <code>\setlength{\jot}{5pt}</code> before the
+      <code>\begin{document}</code>.
+    </p>
+  </li>
+</ul>
+
+<h3>References formatting</h3>
+<p>
+  References should be in the following format:
+</p>
+<ul>
+  <li>
+    Author names are in comma-separated list (except for the last author,
+    with no comma and an *and*) with format [initials] [last name].
+  </li>
+  <li>
+    Titles are in italics, and capitalization is displayed (using *e.g.* \{\{ [title] \}\} in BiBTeX). For PRL: nouns capitalized.
+  </li>
+  <li>
+    Journal names are abbreviated. A useful resource is this <a href="https://www.efm.leeds.ac.uk/~mark/ISIabbr/A_abrvjt.html">list of journal abbreviations</a>.
+  </li>
+  <li>
+    Volume number is in bold.
+  </li>
+  <li>
+    Issue number can be left out; if included, in parentheses after volume nr.
+  </li>
+  <li>
+    Year is in parentheses.
+  </li>
+  <li>
+    Commas separate all elements.
+  </li>
+  <li>
+    All doi are present and displayed in format doi:[doi]. Note that the doi does
+    <strong>not</strong> include any <code>http://doi.org</code> or similar URL prefix. Instead, it should
+    be of the form <code>10.###[...]/[...]</code>.
+  </li>
+  <li>
+    The reference is closed by a <code>.</code>
+  </li>
+</ul>
+<p>
+  For arXiv entries, verify if the paper has been published in the meantime.
+  If so, replace this reference with its proper citation.
+  If not, use the format <code>\href{https://arxiv.org/abs/####.#####}{arXiv:####.#####}</code>,
+  and remove any <code>(YEAR)</code>.
+</p>
+<p>
+  J. Stat. Mech. and JHEP are annoying (because the volume number is the year).
+  Manually remove volume nr for these, so the format becomes <code>A. Bee, \emp{Bee's nice paper}, J. Stat. Mech.: Th. Exp. [P,L]##### (20##), \doi{10...}.</code>
+</p>
+<p>
+  J. Phys. A is also annoying. Up to and including volume 39 (2006), it's
+  J. Phys. A: Math. Gen. Afterwards, volume 40 (2007) onwards, it's
+  J. Phys. A: Math. Theor.
+</p>
+<p>
+  Entries in the bibliography which are not references but footnotes,
+  should be formatted as such in the main text (using <code>\footnote{}</code>).
+</p>
+<p>
+  Check that all DOIs work. Remove the <code>\meta</code> at the end of the bibitem
+  if it is present.
+</p>
+
+<h3>Layout verification</h3>
+<p>
+  The whole paper should be scanned through, and the layout of equations
+  and figures should be checked and corrected if necessary.
+</p>
+<p>
+  In particular, the punctuation of equations should be checked and corrected
+  if necessary.
+</p>
+
+{% endblock content %}
