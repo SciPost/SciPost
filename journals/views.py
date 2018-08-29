@@ -131,20 +131,21 @@ def redirect_to_about(request, doi_label):
         reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
 
 def info_for_authors(request, doi_label):
+    """Author information about the Journal."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {'journal': journal}
     return render(request, 'journals/%s_info_for_authors.html' % doi_label, context)
 
 
 def about(request, doi_label):
+    """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {
-        'journal': journal,
-    }
+    context = {'journal': journal}
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
 def issue_detail(request, doi_label):
+    """Issue detail page."""
     issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
     journal = issue.in_volume.in_journal
 
@@ -170,9 +171,7 @@ def issue_detail(request, doi_label):
 # Publication process #
 #######################
 class PublicationGrantsView(PermissionsMixin, UpdateView):
-    """
-    Add/update grants associated to a Publication.
-    """
+    """Add/update grants associated to a Publication."""
     permission_required = 'scipost.can_draft_publication'
     queryset = Publication.objects.drafts()
     slug_field = slug_url_kwarg = 'doi_label'

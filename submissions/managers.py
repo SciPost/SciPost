@@ -321,50 +321,85 @@ class EICRecommendationQuerySet(models.QuerySet):
 
 
 class ReportQuerySet(models.QuerySet):
+    """QuerySet for the Report model."""
+
     def accepted(self):
+        """Return the subset of vetted Reports."""
         return self.filter(status=constants.STATUS_VETTED)
 
     def awaiting_vetting(self):
+        """Return the subset of unvetted Reports."""
         return self.filter(status=constants.STATUS_UNVETTED)
 
     def rejected(self):
+        """Return the subset of rejected Reports."""
         return self.filter(status__in=[
             constants.STATUS_UNCLEAR, constants.STATUS_INCORRECT, constants.STATUS_NOT_USEFUL,
             constants.STATUS_NOT_ACADEMIC])
 
     def in_draft(self):
+        """Return the subset of Reports in draft."""
         return self.filter(status=constants.STATUS_DRAFT)
 
     def non_draft(self):
+        """Return the subset of unvetted, vetted and rejected Reports."""
         return self.exclude(status=constants.STATUS_DRAFT)
 
     def contributed(self):
+        """Return the subset of contributed Reports."""
         return self.filter(invited=False)
 
     def invited(self):
+        """Return the subset of invited Reports."""
         return self.filter(invited=True)
 
 
 class RefereeInvitationQuerySet(models.QuerySet):
-    def awaiting_response(self):
-        return self.pending().open()
+    """Queryset for RefereeInvitation model."""
 
-    def pending(self):
+    def awaiting_response(self):
+        """Filter invitations awaiting response by referee."""
         return self.filter(accepted=None, cancelled=False)
 
+    def pending(self):
+        """DEPRECATED."""
+        return self.awaiting_response()
+
+    def open(self):
+        """DEPRECATED."""
+        return self.awaiting_response()
+
     def accepted(self):
+        """Filter invitations (non-cancelled) accepted by referee."""
         return self.filter(accepted=True, cancelled=False)
 
     def declined(self):
+        """Filter invitations declined by referee."""
         return self.filter(accepted=False)
 
-    def open(self):
-        return self.pending().filter(cancelled=False)
-
     def in_process(self):
+        """Filter invitations (non-cancelled) accepted by referee that are not fulfilled."""
         return self.accepted().filter(fulfilled=False, cancelled=False)
 
+    def non_cancelled(self):
+        """Return invitations awaiting reponse, accepted or fulfilled."""
+        return self.filter(cancelled=False)
+
+    def needs_attention(self):
+        """Filter invitations that needs attention.
+
+        The following is defined as `needs attention`:
+        1. not responded to invite in more than 3 days.
+        2. not fulfilled (but accepted) with deadline within 7 days.
+        """
+        compare_3_days = timezone.now() + datetime.timedelta(days=3)
+        compare_7_days = timezone.now() + datetime.timedelta(days=7)
+        return self.filter(cancelled=False, fulfilled=False).filter(
+            Q(accepted=None, date_last_reminded__lt=compare_3_days) |
+            Q(accepted=True, submission__reporting_deadline__lt=compare_7_days)).distinct()
+
     def approaching_deadline(self, days=2):
+        """Filter non-fulfilled invitations for which the deadline is within `days` days."""
         qs = self.in_process()
         pseudo_deadline = now + datetime.timedelta(days)
         deadline = datetime.datetime.now()
@@ -373,9 +408,15 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return qs
 
     def overdue(self):
+        """Filter non-fulfilled invitations that are overdue."""
         return self.in_process().filter(submission__reporting_deadline__lte=now)
 
 
 class EditorialCommunicationQueryset(models.QuerySet):
     def for_referees(self):
+        """Only return communication between Referees and Editors."""
         return self.filter(comtype__in=['EtoR', 'RtoE'])
+
+    def for_authors(self):
+        """Only return communication between Authors and Editors."""
+        return self.filter(comtype__in=['EtoA', 'AtoE'])

@@ -19,28 +19,24 @@
         color: $scipost-darkblue;
     }
 
-    &.positive_count {
+    .positive_count {
         .fa {
             color: $scipost-orange;
         }
 
-        .live_notify_badge {
-            display: inline-block;
-        }
-    }
-
-    .badge {
-        position: absolute;
-        right: -5px;
-        top: -6px;
-        display: none;
-
-        &.positive_count {
+        .badge {
             display: inline-block;
             background-color: $scipost-orange;
             border: 2px solid $scipost-lightblue;
             color: $white;
         }
+    }
+
+    .badge {
+        position: absolute;
+        right: -3px;
+        top: -1px;
+        display: none;
     }
 }
 
@@ -51,7 +47,9 @@
 
 .notifications {
     padding: 0;
-    min-width: 450px;
+    width: 450px;
+    // min-width: 450px;
+    max-width: 100%;
     border-color: $gray-600;
     border-radius: 1px;
 

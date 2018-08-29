@@ -42,19 +42,24 @@
       <div class="modal-header">
           <h4 class="modal-title">Inbox</h4>
       </div>
-      <div class="modal-body py-2">
+      <div class="modal-body p-2 px-md-3">
           <ul class="list-unstyled notifications" id="notifications-list">
               <div style="display: none;" class="template">
                   <li class="{unread} item" data-refresh=1>
                       <div>
-                          <strong>{actor}</strong>
-                          <span>{verb}</span>
-                          &middot; <span class="text-muted">{timesince}</span>
-                          <a href="{forward_link}">{target}</a>
+                          <div>
+                              <strong>{actor}</strong>
+                              <span>{verb}</span>
+                          </div>
+                          <div class="mt-1">
+                              <span class="text-muted">{timesince}</span>
+                              &middot;
+                              <a href="{forward_link}">See item page &rarr;</a>
+                          </div>
                       </div>
                       <div class="actions">
-                          <a href="javascript:;" class="mark-toggle show-unread" data-slug="{slug}"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a>
-                          <a href="javascript:;" class="mark-toggle show-read" data-slug="{slug}"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a>
+                          <!-- <a href="javascript:;" class="mark-toggle show-unread" data-slug="{slug}"><i class="fa fa-circle" data-toggle="tooltip" data-placement="auto" title="Mark as read" aria-hidden="true"></i></a> -->
+                          <!-- <a href="javascript:;" class="mark-toggle show-read" data-slug="{slug}"><i class="fa fa-circle-o" data-toggle="tooltip" data-placement="auto" title="Mark as unread" aria-hidden="true"></i></a> -->
                           <a href="{forward_link}" data-toggle='tooltip' data-placement="auto" title="Go to item"><i class="fa fa-share" aria-hidden="true"></i></a>
                       </div>
                   </li>

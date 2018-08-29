@@ -1,5 +1,5 @@
 
-{% extends 'journals/_base.html' %}
+{% extends 'journals/base.html' %}
 
 {% block pagetitle %}{{block.super}}: About{% endblock pagetitle %}
 
@@ -12,10 +12,12 @@
 {% endblock %}
 
 {% block content %}
-
-    {% with header_text='About SciPost Physics' %}
-        {{block.super}}
-    {% endwith %}
+    {{ block.super }}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-blue m-0 p-0 py-2">About SciPost Physics</h2>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-md-6">

@@ -3,48 +3,49 @@
 {% load file_extentions %}
 {% load comment_extras %}
 
-<div class="card card-vetting">
-    <div class="card-header">
-        <h2>From {{comment.core_content_object|get_core_content_type|capfirst}} (<a href="{{comment.get_absolute_url}}" target="_blank">link</a>)</h2>
+<div>
+    <h3>Details of the related {{comment.core_content_object|get_core_content_type|capfirst}}</h3>
+    <a href="{{comment.get_absolute_url}}" target="_blank">See detail page</a>
+    <div class="py-2">
         {% get_summary_template comment.core_content_object %}
     </div>
-    <div class="card-body">
 
-        <h2 class="card-title">The Comment to be vetted:</h2>
+    <hr class="small">
 
-        <div class="row">
-            <div class="col-md-6">
-                {% include 'comments/_comment_identifier.html' with comment=comment %}
-                <hr class="small">
+    <h3 class="my-3">The Comment to be vetted:</h3>
 
-                <h3>Comment text:</h3>
-                <p>{{ comment.comment_text|linebreaksbr }}</p>
+    <div class="row">
+        <div class="col-md-6">
+            <!-- {% include 'comments/_comment_identifier.html' with comment=comment %} -->
+            {% include 'comments/_single_comment.html' with comment=comment hide_votes=1 %}
 
-                {% if comment.file_attachment %}
-                    <h3>Attachment:</h3>
-                    <p>
-                        <a target="_blank" href="{{ comment.get_attachment_url }}">
-                            {% if comment.file_attachment|is_image %}
-                                <img class="attachment attachment-comment" src="{{ comment.get_attachment_url }}">
-                            {% else %}
-                                {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
-                            {% endif %}
-                        </a>
-                    </p>
-                {% endif %}
+            <h3>Comment text:</h3>
+            <p>{{ comment.comment_text|linebreaksbr }}</p>
 
-                {% if comment.remarks_for_editors %}
-                    <h3>Remarks for Editors only:</h3>
-                    <p>{{ comment.remarks_for_editors|linebreaksbr }}</p>
-                {% endif %}
-            </div>
-            <div class="col-md-6">
-                <form action="{% url 'comments:vet_submitted_comment' comment_id=comment.id %}" method="post">
-                    {% csrf_token %}
-                    {{ form|bootstrap }}
-                    <input class="btn btn-primary" type="submit" value="Submit" />
-                </form>
-            </div>
+            {% if comment.file_attachment %}
+                <h3>Attachment:</h3>
+                <p>
+                    <a target="_blank" href="{{ comment.get_attachment_url }}">
+                        {% if comment.file_attachment|is_image %}
+                            <img class="attachment attachment-comment" src="{{ comment.get_attachment_url }}">
+                        {% else %}
+                            {{ comment.file_attachment|filename }}<br><small>{{ comment.file_attachment.size|filesizeformat }}</small>
+                        {% endif %}
+                    </a>
+                </p>
+            {% endif %}
+
+            {% if comment.remarks_for_editors %}
+                <h3>Remarks for Editors only:</h3>
+                <p>{{ comment.remarks_for_editors|linebreaksbr }}</p>
+            {% endif %}
+        </div>
+        <div class="col-md-6">
+            <form action="{% url 'comments:vet_submitted_comment' comment_id=comment.id %}" method="post">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <input class="btn btn-primary" type="submit" value="Submit" />
+            </form>
         </div>
     </div>
 </div>

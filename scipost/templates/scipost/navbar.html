@@ -35,45 +35,59 @@
                   <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
                     <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
                   </li>
+            </ul>
 
+            <hr class="lg d-lg-none">
 
-
-                  {% if user.is_authenticated %}
-                      {% if user.contributor %}
-                          <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
+            <ul class="navbar-nav mr-0">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="nav-link text-white">
+                            Welcome {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                            {% if request.user.contributor and not request.user.contributor.is_currently_available %}
+                                <a href="javascript:;" class="text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true"><i class="fa fa-warning"></i></a>
+                            {% endif %}
+                        </span>
+                    </li>
+                  {% if user.contributor %}
+                      {% if user.contributor.fellowships.active.exists %}
+                          <li class="nav-item{% if '/submissions/pool/' in request.path %} active{% endif %}">
                               <span class="separator">&middot;</span>
-                            <a class="nav-link" href="{% url 'scipost:personal_page' %}">My Personal Page &rarr;</a>
+                            <a class="nav-link" href="{% url 'submissions:pool' %}">Submissions Pool</a>
                           </li>
                       {% endif %}
-                      {% if user.partner_contact %}
-                          <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
-                              <span class="separator">&middot;</span>
-                            <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page &rarr;</a>
-                          </li>
-                      {% endif %}
-                  {% else %}
-                      <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
+                      <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
                           <span class="separator">&middot;</span>
-                        <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
+                        <a class="nav-link" href="{% url 'scipost:personal_page' %}">My Personal Page</a>
                       </li>
                   {% endif %}
-
-
-
-
+                  {% if user.partner_contact %}
+                      <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
+                          <span class="separator">&middot;</span>
+                        <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page &rarr;</a>
+                      </li>
+                  {% endif %}
+                  <li class="nav-item navbar-counter">
+                      <span class="separator">&middot;</span>
+                      <div class="d-inline-block notifications_container">
+                          <a href="javascript:;" class="d-inline-block badge_link nav-link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
+                              <span class="user d-inline d-lg-none d-xl-inline">Notifications</span>
+                              <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
+                              {% live_notify_badge classes="badge badge-pill" %}
+                          </a>
+                          {% live_notify_list %}
+                      </div>
+                  </li>
+                  <li class="nav-item">
+                      <span class="separator">&middot;</span>
+                      <a class="nav-link" href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
+                  </li>
+                {% else %}
+                    <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
+                      <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
+                    </li>
+                {% endif %}
             </ul>
-            <div class="full-height-bar">
-                <div class="container">
-                    <div class="form-wrapper">
-                        <form action="{% url 'scipost:search' %}" method="get" class="form-inline my-2 my-lg-0 search-form">
-                            <input class="form-control" aria-label="Search" id="id_q" name="q" type="text" value="{{ search_query|default:'' }}">
-                            <button class="btn btn-outline-success my-0" type="submit">
-                                <i class="fa fa-search"></i> <span class="text">Search</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 </nav>

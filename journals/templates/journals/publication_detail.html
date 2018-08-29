@@ -1,4 +1,4 @@
-{% extends 'journals/_base.html' %}
+{% extends 'journals/base.html' %}
 
 {% load journals_extras %}
 {% load publication_administration %}
@@ -54,6 +54,7 @@
 {% endblock headsup %}
 
 {% block content %}
+    {{ block.super }}
     {% if not publication.is_published and perms.can_publish_accepted_submission %}
         <div class="card bg-warning text-white">
             <div class="card-body">
@@ -67,72 +68,113 @@
 
     {% is_edcol_admin request.user as is_edcol_admin %}
 
-    {% include 'partials/journals/publication_summary.html' with publication=publication %}
+    <div class="row">
+        <div class="col-lg-8">
 
-    {% if publication.commentary and publication.commentary.comments.vetted.exists %}
-        <h3>Post-publication commentaries</h3>
-        <p>
-            This Publication ({{ publication.commentary.comments.vetted.count }}) has been commented on, see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
-        </p>
-    {% endif %}
+        {% include 'partials/journals/publication_summary.html' with publication=publication %}
 
-    {% if publication.citedby|length >= 1 %}
+        {% if publication.commentary and publication.commentary.comments.vetted.exists %}
+            <h3>Post-publication commentaries</h3>
+            <p>
+                This Publication ({{ publication.commentary.comments.vetted.count }}) has been commented on, see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
+            </p>
+        {% endif %}
+
+
+
+        {% if publication.citedby|length >= 1 %}
+
+            <div class="row">
+                <div class="col-6 col-md-2">
+                    <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
+                    <a href="javascript:;" data-toggle="toggle" data-target="#citationslist">Toggle view</a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+                </div>
+            </div>
+            <div class="row" id="citationslist" style="display: none;">
+                <div class="col-12">
+                    {% include 'journals/_publication_citations.html' with publication=publication %}
+                </div>
+            </div>
+        {% endif %}
 
         <div class="row">
-            <div class="col-6 col-md-2">
-                <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
-                <a href="javascript:;" data-toggle="toggle" data-target="#citationslist">Toggle view</a>
-            </div>
-            <div class="col-6 col-md-2">
-                <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
-            </div>
-        </div>
-        <div class="row" id="citationslist" style="display: none;">
             <div class="col-12">
-                {% include 'journals/_publication_citations.html' with publication=publication %}
+                <h3>Authors</h3>
+                <ul>
+                    {% for author in publication.authors.all %}
+                        {% if author.is_registered %}
+                            <li><a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor }}</a></li>
+                        {% else %}
+                            <li>{{ author.unregistered_author }}</li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                {% if publication.get_all_funders %}
+                    <h3>Funder{{ publication.get_all_funders|length|pluralize }} for this publication</h3>
+                    <ul>
+                        {% for funder in publication.get_all_funders %}
+                            <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                {% if publication.institutions.all %}
+                    <h3>Institution{{ publication.institutions.all|pluralize }} related to this Publication</h3>
+                    <ul>
+                        {% for institution in publication.institutions.all %}
+                            <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
             </div>
         </div>
-    {% endif %}
 
-    <div class="row">
-        <div class="col-12">
-            <h3>Authors</h3>
+        {% if request.user and request.user.contributor in publication.registered_authors.all %}
+            <h3>Author actions</h3>
             <ul>
-                {% for author in publication.authors.all %}
-                    {% if author.is_registered %}
-                        <li><a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor }}</a></li>
-                    {% else %}
-                        <li>{{ author.unregistered_author }}</li>
-                    {% endif %}
-                {% endfor %}
+                <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
             </ul>
+        {% endif %}
+        </div>
+        <div class="col-lg-4">
+            <div class="row">
 
-            {% if publication.get_all_funders %}
-                <h3>Funder{{ publication.get_all_funders|length|pluralize }} for this publication</h3>
-                <ul>
-                    {% for funder in publication.get_all_funders %}
-                        <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+                {% if publication.get_issue_related_publications %}
+                    <!-- <hr class="lg"> -->
+                    <div class="related-publications col-12 mt-4 mb-1">
+                        <h4>Other Publications in this Issue</h4>
 
-            {% if publication.institutions.all %}
-                <h3>Institution{{ publication.institutions.all|pluralize }} related to this Publication</h3>
-                <ul>
-                    {% for institution in publication.institutions.all %}
-                        <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+                        {% for rel_pub in publication.get_issue_related_publications %}
+                            <div class="pub py-2">
+                                <div class="title"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.title }}</a></div>
+                                <div class="authors">by {{ rel_pub.author_list }}</div>
+                                <p class="meta"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.citation }}</a> &middot; <span class="font-weight-light">published {{ rel_pub.publication_date|date:'j F Y' }}</span></p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if publication.get_similar_publications %}
+                    <!-- <hr class="lg"> -->
+                    <div class="related-publications col-12 mt-4 mb-1">
+                        <h4>Other Publications you may also be interested in</h4>
+
+                        {% for rel_pub in publication.get_similar_publications %}
+                            <div class="pub py-2">
+                                <div class="title"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.title }}</a></div>
+                                <div class="authors">by {{ rel_pub.author_list }}</div>
+                                <p class="meta"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.citation }}</a> &middot; <span class="font-weight-light">published {{ rel_pub.publication_date|date:'j F Y' }}</span></p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
         </div>
     </div>
-
-    {% if request.user and request.user.contributor in publication.registered_authors.all %}
-        <h3>Author actions</h3>
-        <ul>
-            <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
-        </ul>
-    {% endif %}
 
     {% if publication.status == 'draft' and perms.scipost.can_draft_publication %}
         <hr class="divider">

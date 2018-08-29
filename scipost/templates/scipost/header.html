@@ -3,34 +3,33 @@
 
 <header>
     <div class="container">
-        <div class="d-flex justify-content-between">
+        <div class="d-md-flex justify-content-between">
             <div class="logobox">
                 <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="160" /></a>
             </div>
 
             <ul class="navbar-nav">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% if user.contributor %}{% url 'scipost:personal_page' %}{% elif user.partner_contact %}{% url 'partners:dashboard' %}{% else %}javascript:;{% endif %}">Welcome {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
-                    </li>
-                    <li class="nav-item navbar-counter">
-                        <span class="separator">&middot;</span>
-                        <div class="d-inline-block notifications_container">
-                            <a href="javascript:;" class="d-inline-block badge_link nav-link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
-                                <span class="user d-inline d-lg-none d-xl-inline">Notifications</span>
-                                <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
-                                {% live_notify_badge classes="badge badge-pill" %}
+                <li class="nav-item">
+                  <a class="nav-link" id="header-search-button" href="{% url 'scipost:search' %}">
+                      <i class="fa fa-search"></i>
+                      Search
+                  </a>
+
+                  <div id="header-search-form"{% if not request.GET.q %} style="display: none;"{% endif %}>
+                    <form method="get" action="{% url 'scipost:search' %}">
+                        <input type="text" name="q" placeholder="Search term" value="{{ request.GET.q }}">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-link">
+                                <i class="fa fa-search"></i>
+                                Search
+                            </button>
+                            <a href="javascript:;" class="btn btn-link close-form" id="header-search-close-btn">
+                                <i class="fa fa-times"></i>
                             </a>
-                            {% live_notify_list %}
                         </div>
-
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                      <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
-                    </li>
-                {% endif %}
-
+                    </form>
+                  </div>
+                </li>
                 <li class="nav-item">
                     <span class="separator">&middot;</span>
                   <a class="nav-link" href="{% url 'scipost:about' %}">About</a>
@@ -53,5 +52,40 @@
                 </li>
             </ul>
         </div>
+
+        <script type="text/javascript">
+            function searchHeader() {
+                document.getElementById("header-search-button").addEventListener("click", function(event){
+                    if (document.documentElement.clientWidth > 768) {
+                        event.preventDefault();
+                        var x = document.getElementById("header-search-form");
+                        if (x.style.display === "none") {
+                            x.style.display = "block";
+                        } else {
+                            x.style.display = "none";
+                        }
+                    }
+                });
+
+                document.getElementById("header-search-close-btn").addEventListener("click", function(event){
+                    var x = document.getElementById("header-search-form");
+                    x.style.display = "none"
+                });
+
+                if (document.documentElement.clientWidth <= 768) {
+                    // Force-close if form is prefilled.
+                    x.style.display = "none";
+                }
+            }
+            searchHeader();
+        </script>
+
+        {% comment %}
+            <div id="search-header">
+                <form method="get" action="{% url 'scipost:search' %}">
+                    <input type="text" name="q" placeholder="Search term">
+                </form>
+            </div>
+        {% endcomment %}
     </div>
 </header>

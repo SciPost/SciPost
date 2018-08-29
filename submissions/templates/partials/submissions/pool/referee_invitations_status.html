@@ -4,13 +4,13 @@
             <tr>
                 <td>Nr referees invited:</td>
                 <td>
-                    {{submission.referee_invitations.count}} <span>[{{submission.count_accepted_invitations}} acccepted / {{submission.count_declined_invitations}} declined / {{submission.count_pending_invitations}} response pending]</span>
+                    {{ submission.referee_invitations.count }} <span>[{{ submission.referee_invitations.accepted.count }} acccepted / {{ submission.referee_invitations.declined.count }} declined / {{ submission.referee_invitations.awaiting_response.count }} response pending]</span>
                 </td>
             </tr>
             <tr>
                 <td>Nr reports obtained:</td>
                 <td>
-                    {{submission.count_obtained_reports}} [{{submission.count_invited_reports}} invited / {{submission.count_contrib_reports}} contributed], nr refused: {{submission.reports.rejected.count}}, nr awaiting vetting: {{submission.reports.awaiting_vetting.count}}
+                    {{ submission.reports.accepted.count }} [{{ submission.reports.accepted.invited.count }} invited / {{ submission.reports.contributed.accepted.count }} contributed], nr refused: {{submission.reports.rejected.count}}, nr awaiting vetting: {{submission.reports.awaiting_vetting.count}}
                 </td>
             </tr>
         </tbody>

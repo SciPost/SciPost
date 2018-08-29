@@ -1,9 +1,9 @@
-{% if submission.cycle.has_required_actions and submission.cycle.get_required_actions %}
+{% if submission.cycle_2.has_required_actions %}
     <i class="fa fa-exclamation-circle {{ classes }}" data-toggle="tooltip" data-html="true" title="
         Required Actions:
         <ul class='mb-0 pl-3 text-left'>
-            {% for action in submission.cycle.get_required_actions %}
-                <li>{{action.1}}</li>
+            {% for action in submission.cycle_2.required_actions %}
+                <li>{{ action.1 }}</li>
             {% endfor %}
         </ul>
     "></i>

@@ -8,10 +8,20 @@
 
                 <div class="reportid">
                     <h3>
-                        {% if report.anonymous %}(chose public anonymity) {% endif %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
+                        {% if report.anonymous %}
+                            (chose public anonymity)
+                        {% endif %}
+
+                        Report {{report.report_nr}} by <a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
                         on {{ report.date_submitted|date:'Y-n-j' }}
                         {% if report.report_type == 'report_post_edrec' %}
                             <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <i class="fa fa-question-circle-o text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true"></i></small>
+                        {% endif %}
+
+                        {% if report.invited %}
+                            <span class="report-label">Invited Report</span>
+                        {% else %}
+                            <span class="report-label">Contributed Report</span>
                         {% endif %}
                     </h3>
                     {% if report.doi_string or report.pdf_report %}
@@ -27,8 +37,8 @@
                         </ul>
                     {% endif %}
                     {% if perms.scipost.can_manage_reports %}
-                        <h3 class="mt-2">Administration</h3>
-                        <ul>
+                        <h3 class="mt-3">Administration</h3>
+                        <ul class="mb-0">
                             <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
                             <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
                             <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
@@ -49,7 +59,7 @@
 
                 {% include 'partials/submissions/report_content.html' with report=report %}
 
-                <div class="row">
+                <div class="row mt-3">
                     <div class="col-12">
                         <h3>Remarks for editors</h3>
                         <div class="pl-md-4">{{ report.remarks_for_editors|default:'-' }}</div>
@@ -65,10 +75,21 @@
             {% else %}
                 <div class="reportid">
                     <h3>
-                        {% if report.anonymous %}Anonymous Report {{report.report_nr}}{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}
+                        {% if report.anonymous %}
+                            Anonymous Report {{report.report_nr}}
+                        {% else %}
+                            Report {{report.report_nr}} by <a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
+                        {% endif %}
+
                         on {{ report.date_submitted|date:'Y-n-j' }}
                         {% if report.report_type == 'report_post_edrec' %}
                             <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <i class="fa fa-question-circle-o text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true"></i></small>
+                        {% endif %}
+
+                        {% if report.invited %}
+                            <span class="report-label">Invited Report</span>
+                        {% else %}
+                            <span class="report-label">Contributed Report</span>
                         {% endif %}
                     </h3>
                     {% if report.doi_string or report.pdf_report %}

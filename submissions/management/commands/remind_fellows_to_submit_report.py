@@ -11,6 +11,10 @@ from ...signals import notify_invitation_approaching_deadline, notify_invitation
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
+        return
+
+        # Deprecated.
+        # Moving to Celery: Use tasks.py instead.
         for invitation in RefereeInvitation.objects.approaching_deadline():
             notify_invitation_approaching_deadline(RefereeInvitation, invitation, False)
         for invitation in RefereeInvitation.objects.overdue():

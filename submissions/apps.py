@@ -21,3 +21,5 @@ class SubmissionsConfig(AppConfig):
                           sender=models.EditorialAssignment)
         post_save.connect(signals.notify_new_referee_invitation,
                           sender=models.RefereeInvitation)
+        post_save.connect(signals.notify_new_communication,
+                          sender=models.EditorialCommunication)

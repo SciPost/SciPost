@@ -14,14 +14,15 @@ register = template.Library()
 
 
 class CommentTemplateNode(template.Node):
-    """
-    This template node accepts an object being a Submission, Commentary or ThesisLink
-    and includes its summary page.
+    """Render template summarizing the related object of the Comment.
+
+    Related object be a Submission, Commentary or ThesisLink.
     """
     def __init__(self, content_object):
         self.content_object = content_object
 
     def render(self, context):
+        """Find and render the correct template."""
         content_object = self.content_object.resolve(context)
         if isinstance(content_object, Submission):
             t = context.template.engine.get_template('partials/submissions/submission_summary.html')

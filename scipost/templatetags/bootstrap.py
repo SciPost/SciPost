@@ -71,6 +71,16 @@ def add_input_classes(field, extra_classes=''):
         field.field.widget.attrs['class'] = field_classes
 
 
+@register.filter
+def add_css_class(field, extra_class):
+    """Add additional CSS classes to a field in the template."""
+    if not is_checkbox(field) and not is_multiple_checkbox(field) \
+       and not is_radio(field) and not is_file(field):
+        field_classes = field.field.widget.attrs.get('class', '')
+        field_classes += ' ' + extra_class
+        field.field.widget.attrs['class'] = field_classes
+    return ''
+
 def render(element, markup_classes):
     element_type = element.__class__.__name__.lower()
 

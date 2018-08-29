@@ -93,7 +93,7 @@
           <h3>You are a SciPost Production Officer.</h3>
       {% endif %}
 
-      {% if contributor.fellowships.exists %}
+      {% if contributor.fellowships.all %}
           <h3>Your Fellowships:</h3>
           <ul class="mb-2">
               {% for fellowship in contributor.fellowships.all %}

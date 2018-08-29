@@ -24,7 +24,7 @@ from django.views.generic.list import ListView
 
 from .constants import (
     STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
-    STATUS_DRAFT, CYCLE_DIRECT_REC)
+    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_ACCEPTED, STATUS_DEPRECATED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
@@ -37,6 +37,9 @@ from .forms import (
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
     PreassignEditorsFormSet)
+from .signals import (
+    notify_editor_assigned, notify_eic_new_report, notify_invitation_cancelled,
+    notify_submission_author_new_report, notify_eic_invitation_reponse, notify_report_vetted)
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
@@ -245,7 +248,7 @@ def submission_detail(request, identifier_w_vn_nr):
     if is_author:
         context['proofs_decision_form'] = ProofsDecisionForm()
 
-    if submission.open_for_commenting and request.user.has_perms('scipost.can_submit_comments'):
+    if submission.open_for_commenting and request.user.has_perm('scipost.can_submit_comments'):
         context['comment_form'] = CommentForm()
 
     invited_reports = submission.reports.accepted().invited()
@@ -257,7 +260,8 @@ def submission_detail(request, identifier_w_vn_nr):
     if request.user.is_authenticated:
         context['unfinished_report_for_user'] = submission.reports.in_draft().filter(
             author__user=request.user).first()
-        context['invitations'] = submission.referee_invitations.filter(referee__user=request.user)
+        context['invitations'] = submission.referee_invitations.non_cancelled().filter(
+            referee__user=request.user)
 
         if is_author or is_author_unchecked:
             # Authors are not allowed to read all editorial info! Whatever
@@ -578,6 +582,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
                 SubmissionUtils.send_author_prescreening_passed_email()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
+            notify_editor_assigned(request.user, assignment, False)
             msg = 'Thank you for becoming Editor-in-charge of this submission.'
             url = reverse(
                 'submissions:editorial_page', args=(submission.preprint.identifier_w_vn_nr,))
@@ -641,14 +646,12 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
         messages.warning(request, errormessage)
         return redirect(reverse('submissions:pool'))
 
-    contributor = request.user.contributor
     # The Contributor may already have an EditorialAssignment due to an earlier invitation.
     assignment, __ = EditorialAssignment.objects.get_or_create(
-        submission=submission,
-        to=contributor)
+        submission=submission, to=request.user.contributor)
     # Explicitly update afterwards, since update_or_create does not properly do the job.
     EditorialAssignment.objects.filter(id=assignment.id).update(
-        accepted=True, date_answered=timezone.now())
+        status=STATUS_ACCEPTED, accepted=True, date_answered=timezone.now())
 
     # Set deadlines
     deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
@@ -658,14 +661,15 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
     # Update Submission data
     Submission.objects.filter(id=submission.id).update(
         status=STATUS_EIC_ASSIGNED,
-        editor_in_charge=contributor,
+        editor_in_charge=request.user.contributor,
         open_for_reporting=True,
         reporting_deadline=deadline,
         open_for_commenting=True,
         latest_activity=timezone.now())
 
     # Deprecate old Editorial Assignments
-    EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
+    EditorialAssignment.objects.filter(submission=submission).invited().update(
+        deprecated=True, status=STATUS_DEPRECATED)
 
     # Send emails to EIC and authors regarding the EIC assignment.
     assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
@@ -675,6 +679,7 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
 
     # Add SubmissionEvents
     submission.add_general_event('The Editor-in-charge has been assigned.')
+    notify_editor_assigned(request.user, assignment, False)
 
     messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
     return redirect(reverse('submissions:editorial_page',
@@ -698,7 +703,8 @@ def assignment_failed(request, identifier_w_vn_nr):
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
     if mail_request.is_valid():
         # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
+        EditorialAssignment.objects.filter(submission=submission).invited().update(
+            deprecated=True, status=STATUS_DEPRECATED)
 
         # Update status of Submission
         submission.touch()
@@ -780,9 +786,8 @@ def cycle_form_submit(request, identifier_w_vn_nr):
     form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
     if form.is_valid():
         submission = form.save()
-        submission.cycle.update_status()
-        submission.cycle.update_deadline()
-        submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'], request)
+        submission.cycle_2.reset_refereeing_round()
+        submission.cycle_2.reinvite_referees(form.cleaned_data['referees_reinvite'], request)
         messages.success(request, ('<h3>Your choice has been confirmed</h3>'
                                    'The new cycle will be <em>%s</em>'
                                    % submission.get_refereeing_cycle_display()))
@@ -1039,6 +1044,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
                                                 % (invitation.referee.user.last_name,
                                                    decision_string))
+        notify_eic_invitation_reponse(request.user, invitation, False)
 
         if request.user.contributor.referee_invitations.awaiting_response().exists():
             return redirect('submissions:accept_or_decline_ref_invitations')
@@ -1106,7 +1112,9 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     invitation.submission.add_event_for_author('A referee invitation has been cancelled.')
     invitation.submission.add_event_for_eic('Referee invitation for %s has been cancelled.'
                                             % invitation.last_name)
+    notify_invitation_cancelled(request.user, invitation, False)
 
+    messages.success(request, 'Invitation cancelled')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
 
@@ -1142,12 +1150,22 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
+    if not submission.can_reset_reporting_deadline:
+        # Protect eg. published submissions.
+        messages.warning(request, 'Reporting deadline can not be reset.')
+        return redirect(reverse(
+            'submissions:editorial_page', kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
+
     form = SetRefereeingDeadlineForm(request.POST or None)
     if form.is_valid():
         submission.reporting_deadline = form.cleaned_data['deadline']
         if form.cleaned_data['deadline'] > timezone.now().date():
             submission.open_for_reporting = True
             submission.open_for_commenting = True
+            submission.latest_activity = timezone.now()
+        else:
+            submission.open_for_reporting = False
+            submission.open_for_commenting = False
             submission.latest_activity = timezone.now()
         # submission.status = STATUS_EIC_ASSIGNED  # This is dangerous as shit.
         submission.save()
@@ -1230,10 +1248,12 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     # Get the showpiece itself or return 404
     submission = get_object_or_404(submissions_qs, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    if referee_id and not referee:
+    if referee_id and comtype in ['EtoA', 'EtoR', 'EtoS']:
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
-        referee = get_object_or_404(Contributor, pk=referee_id)
+        referee = get_object_or_404(Contributor.objects.active(), pk=referee_id)
+    elif comtype == 'EtoA':
+        referee = submission.submitted_by
 
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
@@ -1246,11 +1266,12 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         SubmissionUtils.load({'communication': communication})
         SubmissionUtils.send_communication_email()
 
+        messages.success(request, 'Communication submitted')
         if comtype in ['EtoA', 'EtoR', 'EtoS']:
             return redirect(reverse('submissions:editorial_page',
                                     kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
         elif comtype == 'AtoE':
-            return redirect(reverse('scipost:personal_page'))
+            return redirect(submission.get_absolute_url())
         elif comtype == 'StoE':
             return redirect(reverse('submissions:pool'))
         return redirect(submission.get_absolute_url())
@@ -1323,7 +1344,7 @@ def reformulate_eic_recommendation(request, identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    recommendation = submission.eicrecommendations.first()
+    recommendation = submission.eicrecommendations.last()
     if not recommendation:
         raise Http404('No EICRecommendation formulated yet.')
 
@@ -1429,6 +1450,7 @@ def submit_report(request, identifier_w_vn_nr):
                                      % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
+        notify_eic_new_report(request.user, newreport, False)
         return redirect(submission.get_absolute_url())
     elif request.POST:
         messages.error(request, 'Report not submitted, please read the errors below.')
@@ -1460,7 +1482,7 @@ def vet_submitted_report(request, report_id):
     After vetting an email is sent to the report author, bcc EIC. If report
     has not been refused, the submission author is also mailed.
     """
-    if request.user.has_perms('scipost.can_vet_submitted_reports'):
+    if request.user.has_perm('scipost.can_vet_submitted_reports'):
         # Vetting Editors may vote on everything.
         report = get_object_or_404(Report.objects.awaiting_vetting(), id=report_id)
     else:
@@ -1468,7 +1490,7 @@ def vet_submitted_report(request, report_id):
         report = get_object_or_404(Report.objects.filter(
             submission__in=submissions).awaiting_vetting(), id=report_id)
 
-    form = VetReportForm(request.POST or None, initial={'report': report})
+    form = VetReportForm(request.POST or None, report=report)
     if form.is_valid():
         report = form.process_vetting(request.user.contributor)
 
@@ -1476,6 +1498,7 @@ def vet_submitted_report(request, report_id):
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
+        notify_report_vetted(request.user, report, False)
 
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic('The Report by %s is vetted.'
@@ -1486,6 +1509,7 @@ def vet_submitted_report(request, report_id):
 
             # Add SubmissionEvent to tell the author about the new report
             report.submission.add_event_for_author('A new Report has been submitted.')
+            notify_submission_author_new_report(request.user, report, False)
 
         message = 'Submitted Report vetted for <a href="{url}">{arxiv}</a>.'.format(
             url=report.submission.get_absolute_url(),
@@ -1497,6 +1521,7 @@ def vet_submitted_report(request, report_id):
             return redirect(reverse('submissions:editorial_page',
                                     args=(report.submission.preprint.identifier_w_vn_nr,)))
         return redirect(reverse('submissions:vet_submitted_reports_list'))
+
     context = {'report_to_vet': report, 'form': form}
     return render(request, 'submissions/vet_submitted_report.html', context)
 
@@ -1523,10 +1548,14 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.preprint.identifier_w_vn_nr]))
     else:
+        secondary_areas = recommendation.submission.secondary_areas
+        if not secondary_areas:
+            secondary_areas = []
+
         fellows_with_expertise = recommendation.submission.fellows.filter(
             Q(contributor=recommendation.submission.editor_in_charge) |
             Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
-            Q(contributor__expertises__contains=recommendation.submission.secondary_areas)).order_by(
+            Q(contributor__expertises__contains=secondary_areas)).order_by(
                 'contributor__user__last_name')
         coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
 

@@ -18,37 +18,24 @@
 <br>
 {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
 
-<br>
-<div class="card card-gray">
-    <div class="card-body">
-        <h2 class="card-title">Reformulate Editorial Recommendation</h2>
-        <p class="card-text">You recommendation will be processed by the Editorial Administration.</p>
-        <ul>
-            <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
-            <li>request for revision: sent directly to the authors</li>
-        </ul>
 
-        <p class="card-text">
-            This recommendation will be saved with a new version number and any other Editorial Recommendation will be deactived. <b>All obtained votes will be lost.</b>
-        </p>
-    </div>
+<br>
+<div class="border bg-light p-3 mb-3">
+    <h2>Reformulate your Editorial Recommendation</h2>
+    <p>You recommendation will be processed by the Editorial Administration.</p>
+    <ul>
+        <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
+        <li>request for revision: sent directly to the authors</li>
+    </ul>
+    <p class="mb-0">
+        This recommendation will be saved with a new version number and any other Editorial Recommendation will be deactivated.
+    </p>
 </div>
 
 {% if submission.editor_in_charge != request.user.contributor %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card border-danger">
-                <div class="card-body d-flex flex-row">
-                    <div class="p-2">
-                        <i class="fa fa-2x fa-exclamation-triangle text-warning" aria-hidden="true"></i>
-                    </div>
-                    <div class="px-2">
-                        You are not assigned as Editor in charge. However, you can formulate an Editorial Recommendation because you are Editorial Administrator. <strong>This Editorial Recommendation will still be signed by the Editor-in-charge.</strong>
-                    </div>
-
-                </div>
-            </div>
-        </div>
+    <div class="border border-danger p-3">
+        <i class="fa fa-exclamation-triangle text-warning" aria-hidden="true"></i>
+        You are not assigned as Editor in charge. However, you can formulate an Editorial Recommendation because you are Editorial Administrator. <strong>This Editorial Recommendation will still be signed by the Editor-in-charge.</strong>
     </div>
 {% endif %}
 

@@ -11,12 +11,12 @@ from django.db.models import Avg, F
 from django.utils import timezone
 from django.urls import reverse
 
-from .behaviors import doi_journal_validator, doi_volume_validator,\
-                       doi_issue_validator, doi_publication_validator
-from .constants import SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,\
-                       STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES, PUBLICATION_PUBLISHED,\
-                       CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES,\
-                       JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
+from .behaviors import (
+    doi_journal_validator, doi_volume_validator, doi_issue_validator, doi_publication_validator)
+from .constants import (
+    SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS, STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,
+    PUBLICATION_PUBLISHED, CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES,
+    JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY)
 from .helpers import paper_nr_string, journal_name_abbrev_citation
 from .managers import IssueQuerySet, PublicationQuerySet, JournalQuerySet
 
@@ -29,6 +29,8 @@ from scipost.fields import ChoiceArrayField
 ################
 
 class UnregisteredAuthor(models.Model):
+    """UnregisteredAuthor is a replacement for a Contributor if an author has not registered."""
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
 
@@ -37,6 +39,8 @@ class UnregisteredAuthor(models.Model):
 
 
 class PublicationAuthorsTable(models.Model):
+    """PublicationAuthorsTable is an ordered link between people and Publications."""
+
     publication = models.ForeignKey('journals.Publication', related_name='authors')
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
@@ -54,16 +58,19 @@ class PublicationAuthorsTable(models.Model):
             return str(self.unregistered_author)
 
     def save(self, *args, **kwargs):
+        """Auto increment order number if not explicitly set."""
         if not self.order:
             self.order = self.publication.authors.count() + 1
         return super().save(*args, **kwargs)
 
     @property
     def is_registered(self):
+        """Check if author is registered at SciPost."""
         return self.contributor is not None
 
     @property
     def first_name(self):
+        """Return first name of author."""
         if self.contributor:
             return self.contributor.user.first_name
         if self.unregistered_author:
@@ -71,6 +78,7 @@ class PublicationAuthorsTable(models.Model):
 
     @property
     def last_name(self):
+        """Return last name of author."""
         if self.contributor:
             return self.contributor.user.last_name
         if self.unregistered_author:
@@ -78,10 +86,11 @@ class PublicationAuthorsTable(models.Model):
 
 
 class Journal(models.Model):
-    """
-    Journal is a container of Publications with a unique issn and doi_label.
+    """Journal is a container of Publications with a unique issn and doi_label.
+
     Publications may be categorized into issues or issues and volumes.
     """
+
     name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_journal_validator])
@@ -96,10 +105,12 @@ class Journal(models.Model):
         return self.get_name_display()
 
     def get_absolute_url(self):
+        """Return Journal's homepage url."""
         return reverse('scipost:landing_page', args=(self.doi_label,))
 
     @property
     def doi_string(self):
+        """Return DOI including the SciPost registrant prefix."""
         return '10.21468/' + self.doi_label
 
     @property
@@ -144,9 +155,7 @@ class Journal(models.Model):
         return 0
 
     def citation_rate(self, tier=None):
-        """
-        Returns the citation rate in units of nr citations per article per year.
-        """
+        """Return the citation rate in units of nr citations per article per year."""
         publications = Publication.objects.filter(in_issue__in_volume__in_journal=self)
         if tier:
             publications = publications.filter(
@@ -160,8 +169,8 @@ class Journal(models.Model):
         return (ncites * 365.25/deltat)
 
     def citedby_impact_factor(self, year):
-        """
-        Computes the impact factor for a given year YYYY, from Crossref cited-by data.
+        """Compute the impact factor for a given year YYYY, from Crossref cited-by data.
+
         This is defined as the total number of citations in year YYYY
         for all papers published in years YYYY-1 and YYYY-2, divided
         by the number of papers published in year YYYY.
@@ -181,9 +190,8 @@ class Journal(models.Model):
         return ncites/nrpub
 
 class Volume(models.Model):
-    """
-    A Volume may be used as a subgroup of Publications related to a specific Issue object.
-    """
+    """A Volume may be used as a subgroup of Publications related to a specific Issue object."""
+
     in_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
@@ -200,9 +208,7 @@ class Volume(models.Model):
         return str(self.in_journal) + ' Vol. ' + str(self.number)
 
     def clean(self):
-        """
-        Check if the Volume is assigned to a valid Journal.
-        """
+        """Check if the Volume is assigned to a valid Journal."""
         if not self.in_journal.has_volumes:
             raise ValidationError({
                 'in_journal': ValidationError('This journal does not allow for the use of Volumes',
@@ -229,9 +235,7 @@ class Volume(models.Model):
         return 0
 
     def citation_rate(self, tier=None):
-        """
-        Returns the citation rate in units of nr citations per article per year.
-        """
+        """Returns the citation rate in units of nr citations per article per year."""
         publications = Publication.objects.filter(in_issue__in_volume=self)
         if tier:
             publications = publications.filter(
@@ -246,9 +250,8 @@ class Volume(models.Model):
 
 
 class Issue(models.Model):
-    """
-    An Issue may be used as a subgroup of Publications related to a specific Journal object.
-    """
+    """An Issue may be used as a subgroup of Publications related to a specific Journal object."""
+
     in_journal = models.ForeignKey(
         'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
@@ -282,10 +285,7 @@ class Issue(models.Model):
         return text
 
     def clean(self):
-        """
-        Check if either a Journal or Volume is assigned to the Issue, else the Issue be floating
-        like Musk's red Roadster.
-        """
+        """Check if either a Journal or Volume is assigned to the Issue."""
         if not (self.in_journal or self.in_volume):
             raise ValidationError({
                 'in_journal': ValidationError('Either assign a Journal or Volume to this Issue',
@@ -340,9 +340,7 @@ class Issue(models.Model):
         return 0
 
     def citation_rate(self, tier=None):
-        """
-        Returns the citation rate in units of nr citations per article per year.
-        """
+        """Return the citation rate in units of nr citations per article per year."""
         publications = Publication.objects.filter(in_issue=self)
         if tier:
             publications = publications.filter(
@@ -353,16 +351,16 @@ class Issue(models.Model):
             if pub.citedby and pub.latest_citedby_update:
                 ncites += len(pub.citedby)
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
-        return (ncites * 365.25/deltat)
+        return (ncites * 365.25 / deltat)
 
 
 class Publication(models.Model):
-    """
-    A Publication is an object directly related to an accepted Submission. It contains metadata,
-    the actual publication file, author data, etc. etc.
+    """A Publication is an object directly related to an accepted Submission.
 
+    It contains metadata, the actual publication file, author data, etc. etc.
     It may be directly related to a Journal or to an Issue.
     """
+
     # Publication data
     accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
                                                related_name='publication')
@@ -444,9 +442,7 @@ class Publication(models.Model):
             date=self.publication_date.strftime('%Y-%m-%d'))
 
     def clean(self):
-        """
-        Check if either a valid Journal or Issue is assigned to the Publication.
-        """
+        """Check if either a valid Journal or Issue is assigned to the Publication."""
         if not (self.in_journal or self.in_issue):
             raise ValidationError({
                 'in_journal': ValidationError(
@@ -479,17 +475,6 @@ class Publication(models.Model):
 
     def get_absolute_url(self):
         return reverse('scipost:publication_detail', args=(self.doi_label,))
-
-    def get_cc_license_URI(self):
-        for (key, val) in CC_LICENSES_URI:
-            if key == self.cc_license:
-                return val
-        raise KeyError
-
-    def get_all_funders(self):
-        from funders.models import Funder
-        return Funder.objects.filter(
-            models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
 
     @property
     def doi_string(self):
@@ -528,9 +513,7 @@ class Publication(models.Model):
 
     @property
     def citation(self):
-        """
-        Return Publication name in the preferred citation format.
-        """
+        """Return Publication name in the preferred citation format."""
         if self.in_issue:
             return '{journal} {volume}, {paper_nr} ({year})'.format(
                 journal=self.in_issue.in_volume.in_journal.abbreviation_citation,
@@ -546,6 +529,17 @@ class Publication(models.Model):
             paper_nr=self.paper_nr,
             year=self.publication_date.strftime('%Y'))
 
+    def get_cc_license_URI(self):
+        for (key, val) in CC_LICENSES_URI:
+            if key == self.cc_license:
+                return val
+        raise KeyError
+
+    def get_all_funders(self):
+        from funders.models import Funder
+        return Funder.objects.filter(
+            models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
+
     def get_journal(self):
         return self.in_journal or self.in_issue.in_volume.in_journal
 
@@ -555,9 +549,7 @@ class Publication(models.Model):
         return paper_nr_string(self.paper_nr)
 
     def citation_rate(self):
-        """
-        Returns the citation rate in units of nr citations per article per year.
-        """
+        """Returns the citation rate in units of nr citations per article per year."""
         if self.citedby and self.latest_citedby_update:
             ncites = len(self.citedby)
             deltat = (self.latest_citedby_update.date() - self.publication_date).days
@@ -565,11 +557,19 @@ class Publication(models.Model):
         else:
             return 0
 
+    def get_similar_publications(self):
+        """Return 4 Publications with same subject area."""
+        return Publication.objects.published().filter(
+            subject_area=self.subject_area).exclude(id=self.id)[:4]
+
+    def get_issue_related_publications(self):
+        """Return 4 Publications within same Issue."""
+        return Publication.objects.published().filter(
+            in_issue=self.in_issue).exclude(id=self.id)[:4]
+
 
 class Reference(models.Model):
-    """
-    A Refence is a reference used in a specific Publication.
-    """
+    """A Refence is a reference used in a specific Publication."""
     reference_number = models.IntegerField()
     publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
 

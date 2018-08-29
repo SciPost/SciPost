@@ -11,6 +11,10 @@ a {
     &.muted-link {
         color: inherit;
     }
+
+    &.active {
+        font-weight: bold;
+    }
 }
 a:hover {
     color: $scipost-darkblue;
@@ -33,17 +37,6 @@ h1 > a {
     color: $scipost-darkblue;
 }
 
-// h3,
-// .h3,
-// h4,
-// .h4,
-// h5,
-// .h5,
-// h6
-// .h6 {
-//     margin-bottom: 0;
-// }
-
 .text-black {
     color: $scipost-darkblue;
 }
@@ -63,9 +56,9 @@ h1 > a {
 }
 
 .highlight {
-    background-color: $body-bg;
+    background-color: $gray-100;
     border-radius: $card-border-radius;
-    border: 1px solid #ddd;
+    border: $card-border-width solid $card-border-color;
 
     &.tight {
         display: inline-block;
@@ -93,7 +86,7 @@ h2.highlight-empty {
 
 h3.highlight,
 h3.highlight-empty {
-    padding: 10px;
+    padding: 10px 15px;
 }
 
 h5,
@@ -130,14 +123,25 @@ hr.hr12 {
     }
 }
 
-hr.sm {
+hr.sm,
+hr.lg {
     height: 0;
     background: none;
     box-shadow: none;
     margin: 1rem 0;
-    border-top: 1px solid rgba(0,0,0,.1);
     box-sizing: content-box;
     border-radius: 0;
+}
+
+hr {
+    &.sm {
+        border-top: 1px solid rgba(0,0,0,.1);
+    }
+
+    &.lg {
+        height: 5px;
+        background-color: $scipost-darkblue;
+    }
 }
 
 .text-blue {
@@ -158,4 +162,8 @@ hr.sm {
 
 p {
     line-height: 1.25rem;
+}
+
+a.disabled {
+    text-decoration: line-through;
 }

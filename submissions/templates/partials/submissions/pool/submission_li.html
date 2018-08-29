@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    {% if submission.cycle.has_required_actions and submission.cycle.get_required_actions %}
+    {% if submission.cycle_2.has_required_actions %}
         <div class="card-text bg-danger text-white mt-1 py-1 px-2">
             This Submission contains required actions, <a href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" class="text-white" data-toggle="dynamic" data-target="#container_{{ submission.id }}">click to see details.</a> {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}
         </div>

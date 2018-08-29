@@ -13,6 +13,7 @@ today = timezone.now().date()
 
 class FellowManager(models.Manager):
     def active(self):
+        """Filter Fellows active within its set date ranges."""
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |

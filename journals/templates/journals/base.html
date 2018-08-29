@@ -6,12 +6,14 @@
 {% block body_class %}{{ block.super }} journals{% endblock %}
 
 {% block breadcrumb %}
-    <div class="container">
-        <nav class="breadcrumb hidden-sm-down">
-            {% block breadcrumb_items %}
-                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-            {% endblock %}
-        </nav>
+    <div class="breadcrumb-container">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                {% block breadcrumb_items %}
+                    <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+                {% endblock %}
+            </nav>
+        </div>
     </div>
 {% endblock %}
 
@@ -19,7 +21,7 @@
 {% block content %}
     <div class="row">
         <div class="col-12 journal-head">
-            <h1 class="banner"><a href="{{ journal.get_absolute_url }}">{{journal}}</a></h1>
+            <h2 class="banner"><a href="{{ journal.get_absolute_url }}">{{ journal.get_name_display }}</a></h2>
         </div>
         <div class="col-12 journal-sub-head">
             <ul class="links">

@@ -3,10 +3,12 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import json
 
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 from django.utils import timezone
+from django.utils.html import format_html, format_html_join, html_safe
 
 from .constants import (
     NO_REQUIRED_ACTION_STATUSES, STATUS_VETTED, STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_INCOMING,
@@ -14,6 +16,49 @@ from .constants import (
 
 from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
+
+
+@html_safe
+class RequiredActionsDict(dict):
+    """A collection of required actions.
+
+    The required action, meant for the editors-in-charge know how to display itself in
+    various formats. Dictionary keys are the action-codes, the values are the texts
+    to present to the user.
+    """
+
+    def as_data(self):
+        return {f: e.as_data() for f, e in self.items()}
+
+    def as_list_text(self):
+        return [e.__str__() for e in self.values()]
+
+    def get_json_data(self, escape_html=False):
+        return {f: e.get_json_data(escape_html) for f, e in self.items()}
+
+    def as_json(self, escape_html=False):
+        return json.dumps(self.get_json_data(escape_html))
+
+    def as_ul(self):
+        if not self:
+            return '<div class="no-actions-msg">No required actions.</div>'
+        return format_html(
+            '<ul class="actions-list">{}</ul>', format_html_join('', '<li>{}</li>', self.values()))
+
+    def as_text(self):
+        return ' '.join([action.as_text() for action in self.values()])
+
+    def __getitem__(self, action):
+        return super().__getitem__(action.id)
+
+    def __setitem__(self, action, val):
+        super().__setitem__(action.id, val)
+
+    def __contains__(self, value):
+        return value.id in list(self.keys())
+
+    def __str__(self):
+        return self.as_ul()
 
 
 class BaseSubmissionCycle:
@@ -48,12 +93,6 @@ class BaseSubmissionCycle:
         if self.submission.revision_requested:
             # Editor-in-charge has requested revision.
             return False
-
-        # if not self.submission.plagiarism_report:
-        #     # No plagiarism report is known yet.
-        #     self.required_actions.append((
-        #         'plagiarism_report',
-        #         'No plagiarism report found. Please run the plagiarism check.'))
 
         if self.submission.eicrecommendations.active().exists():
             # An Editorial Recommendation has already been submitted. Cycle done.

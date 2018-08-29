@@ -5,13 +5,15 @@
 {% is_edcol_admin request.user as is_edcol_admin %}
 
 <div class="commentid" id="comment_id{{ comment.id }}">
-    <h3>
+
         {% if request.user.contributor and request.user.contributor == comment.core_content_object.editor_in_charge or is_edcol_admin %}
             {% if request.user|is_possible_author_of_submission:comment.core_content_object %}
-                Anonymous on {{comment.date_submitted|date:'Y-m-d'}}
+                <h3>Anonymous on {{comment.date_submitted|date:'Y-m-d'}}</h3>
             {% else %}
-                {% if comment.anonymous %}(chose public anonymity) {% endif %}<a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
-                  on {{ comment.date_submitted|date:'Y-m-d' }}
+                <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
+                on {{ comment.date_submitted|date:'Y-m-d' }}
+                <br>
+                {% if comment.anonymous %}<small class="text-danger py-2">Chose public anonymity</small>{% endif %}
             {% endif %}
         {% elif comment.anonymous %}
             Anonymous on {{comment.date_submitted|date:'Y-m-d'}}

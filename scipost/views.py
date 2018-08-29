@@ -8,19 +8,20 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from django.contrib.auth.views import password_reset, password_reset_confirm
+from django.contrib.auth.views import password_reset, password_reset_confirm, LogoutView
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
-from django.core.urlresolvers import reverse
-from django.db.models import Prefetch
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template import Context, Template
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
 from django.views.debug import cleanse_setting
@@ -33,9 +34,7 @@ from .constants import (
     SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict,
     SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
 from .decorators import has_contributor, is_contributor_user
-from .models import (
-    Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege,
-    EditorialCollegeFellowship)
+from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege
 from .forms import (
     AuthenticationForm, UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
@@ -49,7 +48,7 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
-from journals.models import Publication, Journal, PublicationAuthorsTable
+from journals.models import Publication, PublicationAuthorsTable
 from news.models import NewsItem
 from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from partners.models import MembershipAgreement
@@ -86,9 +85,10 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'journals': Journal.objects.order_by('name'),
+        # 'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
         'current_agreements': MembershipAgreement.objects.now_active(),
@@ -372,12 +372,18 @@ def login_view(request):
     return render(request, 'scipost/login.html', context)
 
 
-def logout_view(request):
-    """Logout form page."""
-    logout(request)
-    messages.success(request, ('<h3>Keep contributing!</h3>'
-                               'You are now logged out of SciPost.'))
-    return redirect(reverse('scipost:index'))
+class SciPostLogoutView(LogoutView):
+    """Logout processing page."""
+
+    next_page = reverse_lazy('scipost:index')
+    redirect_field_name = 'next'
+
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        """Add message to request after logout."""
+        response = super().dispatch(request, *args, **kwargs)
+        messages.success(request, '<h3>Keep contributing!</h3> You are now logged out of SciPost.')
+        return response
 
 
 @login_required

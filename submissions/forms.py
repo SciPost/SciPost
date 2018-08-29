@@ -831,7 +831,11 @@ class ConsiderRefereeInvitationForm(forms.Form):
 
 
 class SetRefereeingDeadlineForm(forms.Form):
-    deadline = forms.DateField(required=False, label='', widget=forms.SelectDateWidget)
+    deadline = forms.DateField(
+        required=False, label='', widget=forms.SelectDateWidget(
+            years=[timezone.now().year + i for i in range(2)],
+            empty_label=("Year", "Month", "Day"),
+        ))
 
     def clean_deadline(self):
         if not self.cleaned_data.get('deadline'):
@@ -854,11 +858,15 @@ class VotingEligibilityForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Get queryset of Contributors eligibile for voting."""
         super().__init__(*args, **kwargs)
+        secondary_areas = self.instance.submission.secondary_areas
+        if not secondary_areas:
+            secondary_areas = []
+
         self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
             fellowships__pool=self.instance.submission).filter(
                 Q(EIC=self.instance.submission) |
                 Q(expertises__contains=[self.instance.submission.subject_area]) |
-                Q(expertises__contains=self.instance.submission.secondary_areas)).order_by(
+                Q(expertises__contains=secondary_areas)).order_by(
                     'user__last_name').distinct()
 
     def save(self, commit=True):
@@ -1009,11 +1017,10 @@ class VetReportForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=REPORT_REFUSAL_CHOICES, required=False)
     email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
-    report = forms.ModelChoiceField(queryset=Report.objects.awaiting_vetting(), required=True,
-                                    widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
-        super(VetReportForm, self).__init__(*args, **kwargs)
+        self.report = kwargs.pop('report', None)
+        super().__init__(*args, **kwargs)
         self.fields['email_response_field'].widget.attrs.update({
             'placeholder': ('Optional: give a textual justification '
                             '(will be included in the email to the Report\'s author)'),
@@ -1030,20 +1037,19 @@ class VetReportForm(forms.Form):
 
     def process_vetting(self, current_contributor):
         """Set the right report status and update submission fields if needed."""
-        report = self.cleaned_data['report']
-        report.vetted_by = current_contributor
+        self.report.vetted_by = current_contributor
         if self.cleaned_data['action_option'] == REPORT_ACTION_ACCEPT:
             # Accept the report as is
-            report.status = STATUS_VETTED
-            report.submission.latest_activity = timezone.now()
-            report.submission.save()
+            self.report.status = STATUS_VETTED
+            self.report.submission.latest_activity = timezone.now()
+            self.report.submission.save()
         elif self.cleaned_data['action_option'] == REPORT_ACTION_REFUSE:
             # The report is rejected
-            report.status = self.cleaned_data['refusal_reason']
+            self.report.status = self.cleaned_data['refusal_reason']
         else:
             raise exceptions.InvalidReportVettingValue(self.cleaned_data['action_option'])
-        report.save()
-        return report
+        self.report.save()
+        return self.report
 
 
 ###################
@@ -1071,7 +1077,7 @@ class EICRecommendationForm(forms.ModelForm):
 
     DAYS_TO_VOTE = 7
     assignment = None
-    earlier_recommendations = None
+    earlier_recommendations = []
 
     class Meta:
         model = EICRecommendation
@@ -1104,8 +1110,9 @@ class EICRecommendationForm(forms.ModelForm):
         """
         self.submission = kwargs.pop('submission')
         self.reformulate = kwargs.pop('reformulate', False)
+        self.load_earlier_recommendations()
+
         if self.reformulate:
-            self.load_earlier_recommendations()
             latest_recommendation = self.earlier_recommendations.first()
             if latest_recommendation:
                 kwargs['initial'] = {
@@ -1123,9 +1130,9 @@ class EICRecommendationForm(forms.ModelForm):
         recommendation = super().save(commit=False)
         recommendation.submission = self.submission
         recommendation.voting_deadline += datetime.timedelta(days=self.DAYS_TO_VOTE)  # Test this
+        recommendation.version = len(self.earlier_recommendations) + 1
+
         if self.reformulate:
-            # Increment version number
-            recommendation.version = len(self.earlier_recommendations) + 1
             event_text = 'The Editorial Recommendation has been reformulated: {}.'
         else:
             event_text = 'An Editorial Recommendation has been formulated: {}.'

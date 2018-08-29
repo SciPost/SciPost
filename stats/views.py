@@ -36,12 +36,12 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
             nr_rep_obt_con = 0
             for submission in submissions:
                 nr_ref_inv += submission.referee_invitations.count()
-                nr_acc += submission.count_accepted_invitations()
-                nr_dec += submission.count_declined_invitations()
-                nr_pen += submission.count_pending_invitations()
-                nr_rep_obt += submission.count_obtained_reports()
-                nr_rep_obt_inv += submission.count_invited_reports()
-                nr_rep_obt_con += submission.count_contrib_reports()
+                nr_acc += submission.referee_invitations.accepted().count()
+                nr_dec += submission.referee_invitations.declined().count()
+                nr_pen += submission.referee_invitations.awaiting_response().count()
+                nr_rep_obt += submission.reports.accepted().count()
+                nr_rep_obt_inv += submission.reports.accepted().invited().count()
+                nr_rep_obt_con += submission.reports.acccepted().contributed().count()
             context['nr_ref_inv'] = nr_ref_inv
             context['nr_acc'] = nr_acc
             context['nr_dec'] = nr_dec

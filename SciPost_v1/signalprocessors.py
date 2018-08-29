@@ -47,7 +47,7 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         if isinstance(instance, Submission):
             # Submission have complex status handling, so a status change should lead to
             # more drastic reindexing.
-            self.remove_objects_indexes(sender, instance.thread)
+            self.remove_objects_indexes(sender, instance.thread.public())
             self.update_instance_indexes(sender, instance)
         else:
             # Objects such as Reports, Comments, Commentaries, etc. may get rejected. This

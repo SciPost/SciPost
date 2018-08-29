@@ -1,6 +1,7 @@
-<table class="table bg-light table-hover v-center">
-    <thead>
+<table class="table table-light table-hover v-center">
+    <thead class="thead-light">
         <tr>
+            <th></th>
             <th>Referee</th>
             <th>Status</th>
             <th>Recommendation</th>
@@ -10,7 +11,15 @@
     </thead>
     <tbody>
         {% for report in submission.reports.all %}
-            <tr>
+            <tr{% if report.is_unvetted %} class="table-warning"{% endif %}>
+                <td class="text-center">
+                    {% if report.is_unvetted %}
+                    <div class="text-center" data-toggle="tooltip" data-title="This Report has not yet been vetted." data-html="true">
+                        <i class="fa fa-info"></i>
+                        <i class="fa fa-long-arrow-right" ></i>
+                    </div>
+                    {% endif %}
+                </td>
                 <td>
                     {{ report.author }}
                     {% if report.anonymous %}
@@ -23,6 +32,8 @@
                         <i class="fa fa-check-circle text-success"></i>
                     {% elif report.is_rejected %}
                         <i class="fa fa-times-circle text-danger"></i>
+                    {% elif report.is_unvetted %}
+                        <i class="fa fa-exclamation-triangle text-warning"></i>
                     {% endif %}
                     {{ report.get_status_display }}
                     {% if report.is_unvetted %}
@@ -39,7 +50,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td class="text-center py-3" colspan="5">There are no Reports yet.</td>
+                <td class="text-center py-3" colspan="6">There are no Reports yet.</td>
             </tr>
         {% endfor %}
     </tbody>

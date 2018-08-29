@@ -19,7 +19,8 @@ function fetch_api_data(url, callback, args) {
 }
 
 
-function update_count(el) {
+function update_count() {
+    var el = '#live_notify_badge';
     fetch_api_data("/notifications/api/unread_count/", update_count_callback, {'element': el});
 }
 
@@ -27,9 +28,9 @@ function update_count_callback(data, args) {
     var el = $(args['element']);
     var count = data['unread_count'];
     if( count > 0 ) {
-        el.html(count).addClass('positive_count');
+        el.html(count).parent().addClass('positive_count');
     } else {
-        el.html(count).removeClass('positive_count');
+        el.html(count).parent().removeClass('positive_count');
     }
 }
 
@@ -52,6 +53,7 @@ function update_list_callback(data, args) {
         target: new RegExp("{target}","g"),
         timesince: new RegExp("{timesince}","g"),
         unread: new RegExp("{unread}","g"),
+        slug: new RegExp("{slug}","g"),
     };
     var messages = items.map(function (item) {
         // Notification content
@@ -63,6 +65,7 @@ function update_list_callback(data, args) {
         t = t.replace(re.forward_link, item.forward_link);
         t = t.replace(re.target, item.target);
         t = t.replace(re.timesince, item.timesince);
+        t = t.replace(re.slug, item.slug);
         if(item.unread) {
             t = t.replace(re.unread, 'unread');
         } else {
@@ -82,12 +85,12 @@ function update_list_callback(data, args) {
 }
 
 $(function(){
-    update_count('#live_notify_badge');
+    update_count();
+    setInterval(update_count, 10000);
 
     $('#notification_center').on('show.bs.modal', function(e) {
         if( typeof $('#notification_center').data('reload') == 'undefined' ) {
             update_list('#notifications-list');
-            update_count('#live_notify_badge');
             $('#notification_center').data('reload', 1);
         }
     }).on('hide.bs.modal', function() {
@@ -110,5 +113,6 @@ $(function(){
         });
 
         list.removeAttr('data-refresh');
+        update_count();
     });
 });

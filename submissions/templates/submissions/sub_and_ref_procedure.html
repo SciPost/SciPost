@@ -1,16 +1,10 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/base.html' %}
 
 {% block pagetitle %}: submission and refereeing procedure{% endblock pagetitle %}
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-                <span class="breadcrumb-item">Submission and refereeing procedure</span>
-            </nav>
-        </div>
-    </div>
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Submission and refereeing procedure</span>
 {% endblock %}
 
 {% block content %}

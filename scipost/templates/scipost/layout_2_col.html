@@ -3,12 +3,14 @@
 {% block body_class %}{{block.super}} has-sidebar layout-2-col{% endblock %}
 
 {% block breadcrumb %}
-    <div class="container">
-        <ol class="breadcrumb">
-            {% block breadcrumb_items %}
-                <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}">Home</a></li>
-            {% endblock %}
-        </ol>
+    <div class="breadcrumb-container">
+        <div class="container">
+            <ol class="breadcrumb">
+                {% block breadcrumb_items %}
+                    <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}">Home</a></li>
+                {% endblock %}
+            </ol>
+        </div>
     </div>
 {% endblock %}
 

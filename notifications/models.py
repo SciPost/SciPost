@@ -13,9 +13,8 @@ from .managers import NotificationQuerySet
 
 
 class FakeActors(models.Model):
-    """
-    This Model acts as a surrogate person that either is unknown, deceased, fake, etc. etc.
-    """
+    """This Model acts as a surrogate person that either is unknown, deceased, fake, etc. etc."""
+
     name = models.CharField(max_length=256)
 
     def __str__(self):
@@ -23,7 +22,8 @@ class FakeActors(models.Model):
 
 
 class Notification(models.Model):
-    """
+    """A short message meant for one user.
+
     Action model describing the actor acting out a verb (on an optional
     target).
     Nomenclature based on http://activitystrea.ms/specs/atom/1.0/
@@ -40,6 +40,7 @@ class Notification(models.Model):
         justquick reached level 60 1 minute ago
         mitsuhiko closed issue 70 on mitsuhiko/flask 3 hours ago
     """
+
     LEVELS = (('success', 'Success'), ('info', 'Info'), ('warning', 'Warning'), ('error', 'Error'))
     level = models.CharField(choices=LEVELS, default='info', max_length=20)
 
@@ -59,6 +60,8 @@ class Notification(models.Model):
                                             blank=True, null=True)
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
+
+    url_code = models.CharField(max_length=16, blank=True)
 
     action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
                                                    related_name='notify_action_object')

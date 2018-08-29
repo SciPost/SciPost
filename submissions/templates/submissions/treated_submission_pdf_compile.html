@@ -19,7 +19,8 @@
             <p class="my-2"><a href="{{submission.get_absolute_url}}">Go to Submission page</a></p>
         </div>
     </div>
-    <hr>
+
+    <hr class="lg">
 
     <div class="row">
         <div class="col-12">
@@ -33,7 +34,7 @@
                 Number of Reports: {{submission.reports.accepted.count}}<br>
                 Number of Comments <small>(nested comments not counted)</small>: {{submission.comments.vetted.count}}
             </p>
-            <pre class="clickfocus" style="max-height: 200px;"><code>{% include 'partials/submissions/refereeing_pack_tex_template.html' with submission=submission %}</code></pre>
+            <pre class="clickfocus border" style="max-height: 200px;"><code>{% include 'partials/submissions/refereeing_pack_tex_template.html' with submission=submission %}</code></pre>
         </div>
     </div>
 
@@ -43,7 +44,7 @@
           <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|bootstrap }}
-            <input class="btn btn-outline-secondary" type="submit" value="Upload"/>
+            <input class="btn btn-primary" type="submit" value="Upload"/>
           </form>
         </div>
     </div>

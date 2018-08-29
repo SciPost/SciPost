@@ -1,20 +1,38 @@
-<table class="table bg-light table-hover v-center">
-    <thead>
+{% load submissions_extras %}
+
+<table class="table table-light table-hover v-center">
+    <thead class="thead-light">
         <tr>
+            <th></th>
             <th>Referee</th>
             <th>Invitation date</th>
             <th>Task status</th>
-	    <th>Auto reminders {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}</th>
+            <th>Auto reminders <small>{% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}</small></th>
             <th colspan="4">Actions</th>
         </tr>
     </thead>
     <tbody>
     {% for invitation in invitations %}
-        <tr>
-            <td>{{ invitation.get_title_display }} {{invitation.first_name}} {{invitation.last_name}}</td>
+        <tr{% if invitation.needs_attention %} class="table-warning"{% endif %}>
             <td>
-                invited <br>
-                {{invitation.date_invited}}
+                {% if invitation.needs_response %}
+                    <div class="text-center" data-toggle="tooltip" data-title="This referee has not responded in over three days.<br>Consider sending a reminder or cancelling the invitation." data-html="true">
+                        <i class="fa fa-info"></i>
+                        <i class="fa fa-long-arrow-right"></i>
+                    </div>
+                {% elif invitation.needs_fulfillment_reminder %}
+                    <div class="text-center" data-toggle="tooltip" data-title="This referee has accepted to send a Report, but not yet delivered it.<br>Consider sending a reminder." data-html="true">
+                        <i class="fa fa-info"></i>
+                        <i class="fa fa-long-arrow-right"></i>
+                    </div>
+                {% endif %}
+                {% if invitation.is_overdue %}
+                    <div class="badge badge-danger">overdue</div>
+                {% endif %}
+            </td>
+            <td class="py-3">{{ invitation.get_title_display }} {{invitation.first_name}} {{invitation.last_name}}</td>
+            <td>
+                {{ invitation.date_invited }}
             </td>
             <td>
                 {% if invitation.fulfilled %}
@@ -27,7 +45,7 @@
                     {% else %}
                         <strong class="text-danger">task declined</strong>
                     {% endif %}
-                    <div>{{invitation.date_responded}}</div>
+                    <div>{{ invitation.date_responded }}</div>
                 {% else %}
                     response pending
                 {% endif %}
@@ -36,20 +54,20 @@
             {% if not invitation.accepted == False and not invitation.cancelled %}
         	    <td>
         	      <div>
-        		{% if invitation.auto_reminders_allowed %}
-            		<div><span class="label-outline-success">On</span></div>
-            		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
-        		{% else %}
-            		<div><span class="label-outline-danger">Off</span></div>
-            		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
-        		{% endif %}
+            		{% if invitation.auto_reminders_allowed %}
+                		<div><span class="label-outline-success">On</span></div>
+                		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
+            		{% else %}
+                		<div><span class="label-outline-danger">Off</span></div>
+                		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
+            		{% endif %}
         	      </div>
         	    </td>
                 <td>
                     {% if not invitation.fulfilled %}
                         <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email manually</a>
                     {% else %}
-                        <strong style="color: green">Report has been delivered</strong>
+                        <strong class="text-success">Report has been delivered</strong>
                     {% endif %}
                 </td>
                 <td>
@@ -61,6 +79,12 @@
                 <td>
                     {% if invitation.referee %}
                         <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
+                        {% if invitation.referee.editorial_communications|filter_for_submission:submission %}
+                            <br>
+                            <a href="javascript:;" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
+                                Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})
+                            </a>
+                        {% endif %}
                     {% else %}
                         (not yet registered)
                     {% endif %}
@@ -71,13 +95,43 @@
                     {% endif %}
                 </td>
             {% else %}
-                <td colspan="5"></td>
+                <td colspan="3"></td>
+                <td colspan="2">
+                    {% if invitation.referee %}
+                        <a href="javascript:;" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
+                            Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})
+                        </a>
+                    {% endif %}
+                </td>
             {% endif %}
         </tr>
+        {% if invitation.referee %}
+            <tr style="display: none;" class="pt-1 table-info" id="comm-row-{{ invitation.id }}">
+                <td></td>
+                <td colspan="8">
+                    {% include 'partials/submissions/communication_thread.html' with communication=invitation.referee.editorial_communications|filter_for_submission:submission css_class='wide' %}
+                    <a href="javascript:;" class="d-inline-block mb-2" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">Hide communication</a>
+                </td>
+            </tr>
+        {% endif %}
     {% empty %}
         <tr>
-            <td class="text-center py-3" colspan="7">You have not invited any referees yet.</td>
+            <td class="text-center py-3" colspan="9">You do not have any referees.</td>
         </tr>
     {% endfor %}
+
+        {# {% if submission.refereeing_cycle != 'direct_rec' and submission.is_open_for_reporting %} #}
+        {% if submission.in_refereeing_phase %}
+            <tr class="bg-white">
+                <td class="text-center py-3" colspan="9">
+                    {% if invitations %}
+                        <h4><a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">+ Invite an additional referee</a></h4>
+                    {% else %}
+                        <i class="fa fa-exclamation-circle text-danger"></i>
+                        You have not invited any referees yet. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>.
+                    {% endif %}
+                </td>
+            </tr>
+        {% endif %}
     </tbody>
 </table>

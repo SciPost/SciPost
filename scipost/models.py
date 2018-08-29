@@ -79,6 +79,10 @@ class Contributor(models.Model):
         return reverse('scipost:contributor_info', args=(self.id,))
 
     @property
+    def formal_str(self):
+        return '%s %s' % (self.get_title_display(), self.user.last_name)
+
+    @property
     def is_currently_available(self):
         """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
@@ -134,6 +138,8 @@ class UnavailabilityPeriod(models.Model):
 
 
 class Remark(models.Model):
+    """A form of non-public communication for VGMs and/or submissions and recommendations."""
+
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
     feedback = models.ForeignKey('virtualmeetings.Feedback', on_delete=models.CASCADE,
                                  blank=True, null=True)
@@ -164,9 +170,8 @@ class Remark(models.Model):
 ###############
 
 class DraftInvitation(models.Model):
-    """
-    Draft of an invitation, filled in by an officer.
-    """
+    """Draft of an invitation, filled in by an officer."""
+
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
@@ -189,9 +194,8 @@ class DraftInvitation(models.Model):
 
 
 class RegistrationInvitation(models.Model):
-    """
-    Deprecated: Use the `invitations` app
-    """
+    """Deprecated: Use the `invitations` app"""
+
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
@@ -224,9 +228,8 @@ class RegistrationInvitation(models.Model):
 
 
 class CitationNotification(models.Model):
-    """
-    Deprecated: Use the `invitations` app
-    """
+    """Deprecated: Use the `invitations` app"""
+
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     cited_in_submission = models.ForeignKey('submissions.Submission',
                                             on_delete=models.CASCADE,

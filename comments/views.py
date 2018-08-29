@@ -20,7 +20,6 @@ from .utils import validate_file_extention
 
 from commentaries.models import Commentary
 from mails.utils import DirectMailUtil
-from submissions.utils import SubmissionUtils
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
@@ -28,6 +27,7 @@ from theses.models import ThesisLink
 @login_required
 @permission_required('scipost.can_submit_comments', raise_exception=True)
 def new_comment(request, **kwargs):
+    """Form view to submit new Comment."""
     form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         object_id = int(kwargs["object_id"])
@@ -55,6 +55,7 @@ def new_comment(request, **kwargs):
 
 @permission_required('scipost.can_vet_comments', raise_exception=True)
 def vet_submitted_comments_list(request):
+    """Replace by a list page instead?"""
     comments_to_vet = Comment.objects.awaiting_vetting().order_by('date_submitted')
     form = VetCommentForm()
     context = {'comments_to_vet': comments_to_vet, 'form': form}
