@@ -1541,10 +1541,8 @@ def vote_on_rec(request, rec_id):
                 previous_vote = 'disagree'
             elif request.user.contributor in recommendation.voted_abstain.all():
                 previous_vote = 'abstain'
-        except EICRecommendation.MultipleObjectsReturned:
-            messages.warning(request, 'Multiple recommendations were found; '
-                             'please inform techsupport@scipost.org.')
-            return redirect(reverse('submissions:pool'))
+        except EICRecommendation.DoesNotExist:
+            raise Http404
     initial = {'vote': previous_vote}
 
     if request.POST:
