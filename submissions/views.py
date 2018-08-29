@@ -1532,14 +1532,19 @@ def vote_on_rec(request, rec_id):
             request.user).get(submission__in=submissions, id=rec_id)
         initial = {'vote': 'abstain'}
     except EICRecommendation.DoesNotExist: #Try to find an EICRec already voted on:
-        recommendation = get_object_or_404(EICRecommendation.objects.user_current_voted(
-            request.user).filter(submission__in=submissions), id=rec_id)
-        if request.user.contributor in recommendation.voted_for.all():
-            previous_vote = 'agree'
-        elif request.user.contributor in recommendation.voted_against.all():
-            previous_vote = 'disagree'
-        elif request.user.contributor in recommendation.voted_abstain.all():
-            previous_vote = 'abstain'
+        try:
+            recommendation = EICRecommendation.objects.user_current_voted(
+                request.user).get(submission__in=submissions, id=rec_id)
+            if request.user.contributor in recommendation.voted_for.all():
+                previous_vote = 'agree'
+            elif request.user.contributor in recommendation.voted_against.all():
+                previous_vote = 'disagree'
+            elif request.user.contributor in recommendation.voted_abstain.all():
+                previous_vote = 'abstain'
+        except EICRecommendation.MultipleObjectsReturned:
+            messages.warning(request, 'Multiple recommendations were found; '
+                             'please inform techsupport@scipost.org.')
+            return redirect(reverse('submissions:pool'))
     initial = {'vote': previous_vote}
 
     if request.POST:
