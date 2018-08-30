@@ -263,7 +263,7 @@ class EICRecommendationQuerySet(models.QuerySet):
                 models.Q(voted_abstain=user.contributor)).exclude(submission__status__in=[
                     constants.STATUS_REJECTED,
                     constants.STATUS_PUBLISHED,
-                    constants.STATUS_WITHDRAWN])
+                    constants.STATUS_WITHDRAWN]).distinct()
 
     def user_current_voted(self, user):
         """
@@ -278,7 +278,7 @@ class EICRecommendationQuerySet(models.QuerySet):
                 models.Q(voted_abstain=user.contributor)).exclude(submission__status__in=[
                     constants.STATUS_REJECTED,
                     constants.STATUS_PUBLISHED,
-                    constants.STATUS_WITHDRAWN])
+                    constants.STATUS_WITHDRAWN]).distinct()
 
     def put_to_voting(self):
         """Return the subset of EICRecommendation currently undergoing voting."""
