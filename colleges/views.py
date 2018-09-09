@@ -389,18 +389,15 @@ class ProspectiveFellowListView(PermissionsMixin, ListView):
 
 
 class ProspectiveFellowInitialEmailView(PermissionsMixin, MailView):
-    """
-    Send a templated email to a Prospective Fellow.
-    """
+    """Send a templated email to a Prospective Fellow."""
+
     permission_required = 'scipost.can_manage_college_composition'
     queryset = ProspectiveFellow.objects.all()
     mail_code = 'prospectivefellows/invite_prospective_fellow_initial'
     success_url = reverse_lazy('colleges:prospective_Fellows')
 
     def form_valid(self, form):
-        """
-        Create an event associated to this outgoing email.
-        """
+        """Create an event associated to this outgoing email."""
         event = ProspectiveFellowEvent(
             prosfellow=self.object,
             event=PROSPECTIVE_FELLOW_EVENT_EMAILED,
@@ -408,7 +405,7 @@ class ProspectiveFellowInitialEmailView(PermissionsMixin, MailView):
             noted_on=timezone.now(),
             noted_by=self.request.user.contributor)
         event.save()
-        self.object.status=PROSPECTIVE_FELLOW_INVITED
+        self.object.status = PROSPECTIVE_FELLOW_INVITED
         self.object.save()
         return super().form_valid(form)
 

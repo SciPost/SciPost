@@ -24,6 +24,7 @@ class MailUtilsMixin:
     html_message = ''
     message = ''
     original_recipient = ''
+    mail_sent = False
 
     def __init__(self, *args, **kwargs):
         """Init an instance for a specific mail_code.
@@ -189,6 +190,10 @@ class MailUtilsMixin:
 
     def send(self):
         """Send the mail assuming `mail_data` is validated and complete."""
+        if self.mail_sent:
+            # Prevent double sending when using a Django form.
+            return
+
         email = EmailMultiAlternatives(
             self.mail_data['subject'],
             self.mail_data['message'],
@@ -202,5 +207,7 @@ class MailUtilsMixin:
             email.attach_alternative(self.mail_data['html_message'], 'text/html')
 
         email.send(fail_silently=False)
+        self.mail_sent = True
+
         if self.instance and hasattr(self.instance, 'mail_sent'):
             self.instance.mail_sent()

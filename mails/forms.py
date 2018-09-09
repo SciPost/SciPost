@@ -27,6 +27,12 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
                 '%s-text' % self.prefix: data.get('%s-text' % self.prefix),
                 '%s-extra_recipient' % self.prefix: data.get('%s-extra_recipient' % self.prefix),
             }
+        elif kwargs.get('data', False):
+            data = {
+                '%s-subject' % self.prefix: kwargs['data'].get('%s-subject' % self.prefix),
+                '%s-text' % self.prefix: kwargs['data'].get('%s-text' % self.prefix),
+                '%s-extra_recipient' % self.prefix: kwargs['data'].get('%s-extra_recipient' % self.prefix),
+            }
         else:
             data = None
         super().__init__(data or None)
@@ -61,6 +67,12 @@ class EmailTemplateForm(forms.Form, MailUtilsMixin):
         data = super().clean()
         self.save_data()
         return data
+
+    def save(self):
+        """Because Django uses .save() by default..."""
+        self.send()
+        return self.instance
+
 
 
 class HiddenDataForm(forms.Form):
