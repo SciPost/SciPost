@@ -8,11 +8,10 @@ from django.utils import timezone
 
 from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
-today = timezone.now().date()
-
 
 class FellowManager(models.Manager):
     def active(self):
+        today = timezone.now().date()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |
@@ -30,6 +29,7 @@ class ContributorQuerySet(models.QuerySet):
 
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""
+        today = timezone.now().date()
         return self.exclude(
             unavailability_periods__start__lte=today,
             unavailability_periods__end__gte=today)
@@ -49,9 +49,11 @@ class ContributorQuerySet(models.QuerySet):
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
+        today = timezone.now().date()
         return self.filter(start__lte=today, end__gte=today)
 
     def future(self):
+        today = timezone.now().date()
         return self.filter(end__gte=today)
 
 
