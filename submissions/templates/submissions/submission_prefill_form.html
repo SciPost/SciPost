@@ -38,9 +38,11 @@
                 <form action="{% url 'submissions:submit_manuscript_arxiv' %}" method="get">
                   {{ form|bootstrap }}
                   <input type="submit" class="btn btn-outline-secondary" value="Query arXiv"/>
-                  <br>
-                  <br>
-                  <a href="{% url 'submissions:submit_manuscript_scipost' %}">Submit manuscript without arXiv instead</a>
+                  {% comment %}
+                      <br>
+                      <br>
+                      <a href="{% url 'submissions:submit_manuscript_scipost' %}">Submit manuscript without arXiv instead</a>
+                  {% endcomment %}
                 </form>
             </div>
         </div>
