@@ -3,7 +3,7 @@
 from .base import *
 
 # THE MAIN THING HERE
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['128.199.54.82']
 
 # Static and media
