@@ -412,7 +412,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
         # Create new EditorialAssigment for the current Editor-in-Charge
         EditorialAssignment.objects.create(
-            submission=submission, to=self.last_submission.editor_in_charge, accepted=True)
+            submission=submission, to=self.last_submission.editor_in_charge, status=STATUS_ACCEPTED)
 
     def set_pool(self, submission):
         """Set the default set of (guest) Fellows for this Submission."""
@@ -781,18 +781,14 @@ class EditorialAssignmentForm(forms.ModelForm):
                     latest_activity=timezone.now())
 
             # Implicitly or explicity accept the assignment and deprecate others.
-            assignment.accepted = True  # Deprecated field
+            # assignment.accepted = True  # Deprecated field
             assignment.status = STATUS_ACCEPTED
 
             # Update all other 'open' invitations
             EditorialAssignment.objects.filter(submission=self.submission).need_response().exclude(
                 id=assignment.id).update(status=STATUS_DEPRECATED)
-
-            # Deprecated update
-            EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
-                id=assignment.id).update(deprecated=True)
         else:
-            assignment.accepted = False  # Deprecated field
+            # assignment.accepted = False  # Deprecated field
             assignment.status = STATUS_DECLINED
             assignment.refusal_reason = self.cleaned_data['refusal_reason']
         assignment.save()  # Save again to register acceptance
@@ -1206,7 +1202,7 @@ class EICRecommendationForm(forms.ModelForm):
 
         if self.assignment:
             # The EIC has fulfilled this editorial assignment.
-            self.assignment.completed = True
+            self.assignment.status = STATUS_COMPLETED
             self.assignment.save()
         return recommendation
 

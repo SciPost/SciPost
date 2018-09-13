@@ -25,7 +25,7 @@ from django.views.generic.list import ListView
 
 from .constants import (
     STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
-    STATUS_DRAFT, CYCLE_DIRECT_REC)
+    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_ACCEPTED, STATUS_DEPRECATED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
@@ -656,11 +656,10 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
     contributor = request.user.contributor
     # The Contributor may already have an EditorialAssignment due to an earlier invitation.
     assignment, __ = EditorialAssignment.objects.get_or_create(
-        submission=submission,
-        to=contributor)
+        submission=submission, to=contributor)
     # Explicitly update afterwards, since update_or_create does not properly do the job.
     EditorialAssignment.objects.filter(id=assignment.id).update(
-        accepted=True, date_answered=timezone.now())
+        status=STATUS_ACCEPTED, date_answered=timezone.now())
 
     # Set deadlines
     deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
@@ -677,7 +676,8 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
         latest_activity=timezone.now())
 
     # Deprecate old Editorial Assignments
-    EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
+    EditorialAssignment.objects.filter(submission=submission).invited().update(
+        status=STATUS_DEPRECATED)
 
     # Send emails to EIC and authors regarding the EIC assignment.
     assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
@@ -710,7 +710,8 @@ def assignment_failed(request, identifier_w_vn_nr):
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
     if mail_request.is_valid():
         # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).invited().update(deprecated=True)
+        EditorialAssignment.objects.filter(submission=submission).invited().update(
+            status=STATUS_DEPRECATED)
 
         # Update status of Submission
         submission.touch()
