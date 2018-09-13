@@ -9,6 +9,7 @@ import strings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
@@ -36,7 +37,7 @@ from .forms import (
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
-    PreassignEditorsFormSet)
+    PreassignEditorsFormSet, SubmissionReassignmentForm)
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
@@ -1713,6 +1714,18 @@ def send_editorial_assignment_invitation(request, identifier_w_vn_nr, assignment
     return redirect(reverse(
         'submissions:editor_invitations',
         args=(assignment.submission.preprint.identifier_w_vn_nr,)))
+
+
+class SubmissionReassignmentView(SuccessMessageMixin, SubmissionAdminViewMixin, UpdateView):
+    """Assign new EIC to Submission."""
+
+    permission_required = 'scipost.can_reassign_submissions'  # TODO: New permission
+    queryset = Submission.objects.assigned()
+    template_name = 'submissions/admin/submission_reassign.html'
+    form_class = SubmissionReassignmentForm
+    editorial_page = True
+    success_url = reverse_lazy('submissions:pool')
+    success_message = 'Editor successfully replaced.'
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):

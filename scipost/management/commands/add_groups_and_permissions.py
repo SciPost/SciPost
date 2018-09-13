@@ -166,6 +166,10 @@ class Command(BaseCommand):
             codename='can_do_plagiarism_checks',
             name='Can do plagiarism checks on submissions',
             content_type=content_type)
+        can_reassign_submissions, created = Permission.objects.get_or_create(
+            codename='can_reassign_submissions',
+            name='Can force-assign new EIC to Submission',
+            content_type=content_type)
 
         # Submission handling
         can_view_pool, created = Permission.objects.get_or_create(
@@ -343,6 +347,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,
+            can_reassign_submissions,
             can_run_pre_screening,
             can_prepare_recommendations_for_voting,
             can_manage_college_composition,

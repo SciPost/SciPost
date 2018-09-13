@@ -22,7 +22,7 @@ from .constants import (
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
     STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
-    STATUS_INVITED)
+    STATUS_INVITED, STATUS_REPLACED, STATUS_ACCEPTED, STATUS_DEPRECATED, STATUS_COMPLETED)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -391,9 +391,9 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     objects = EditorialAssignmentQuerySet.as_manager()
 
     # Deprecated fields
-    accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
-    deprecated = models.BooleanField(default=False)
-    completed = models.BooleanField(default=False)
+    old_accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
+    old_deprecated = models.BooleanField(default=False)
+    old_completed = models.BooleanField(default=False)
 
     class Meta:
         default_related_name = 'editorial_assignments'
@@ -413,6 +413,22 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
     def notification_name(self):
         """Return string representation of this EditorialAssigment as shown in Notifications."""
         return self.submission.preprint.identifier_w_vn_nr
+
+    @property
+    def replaced(self):
+        return self.status == STATUS_REPLACED
+
+    @property
+    def accepted(self):
+        return self.status == STATUS_ACCEPTED
+
+    @property
+    def deprecated(self):
+        return self.status == STATUS_DEPRECATED
+
+    @property
+    def completed(self):
+        return self.status == STATUS_COMPLETED
 
     def send_invitation(self):
         """Send invitation and update status."""

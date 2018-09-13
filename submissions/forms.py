@@ -19,7 +19,7 @@ from .constants import (
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
     REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED,
-    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED,
+    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
 from . import exceptions, helpers
 from .models import (
@@ -31,6 +31,7 @@ from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
+from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
@@ -567,6 +568,56 @@ class BasePreassignEditorsFormSet(forms.BaseModelFormSet):
 PreassignEditorsFormSet = forms.modelformset_factory(
     EditorialAssignment, can_order=True, extra=0,
     formset=BasePreassignEditorsFormSet, form=PreassignEditorsForm)
+
+
+class SubmissionReassignmentForm(forms.ModelForm):
+    """Process reassignment of EIC for Submission."""
+    new_editor = forms.ModelChoiceField(queryset=Contributor.objects.none(), required=True)
+
+    class Meta:
+        model = Submission
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+
+        self.fields['new_editor'].queryset = Contributor.objects.filter(
+            fellowships__in=self.submission.fellows.all()).exclude(
+            id=self.submission.editor_in_charge.id)
+
+    def save(self):
+        """Update old/create new Assignment and send mails."""
+        old_editor = self.submission.editor_in_charge
+        old_assignment = self.submission.editorial_assignments.ongoing().filter(
+            to=old_editor).first()
+        if old_assignment:
+            EditorialAssignment.objects.filter(id=old_assignment.id).update(status=STATUS_REPLACED)
+
+        # Update Submission and update/create Editorial Assignments
+        now = timezone.now()
+        assignment = EditorialAssignment.objects.create(
+            submission=self.submission,
+            to=self.cleaned_data['new_editor'],
+            status=STATUS_ACCEPTED,
+            date_invited=now,
+            date_answered=now,
+        )
+        self.submission.editor_in_charge = self.cleaned_data['new_editor']
+        self.submission.save()
+
+        # Email old and new editor
+        if old_assignment:
+            mail_sender = DirectMailUtil(
+                mail_code='fellows/email_fellow_replaced_by_other',
+                assignment=old_assignment)
+            mail_sender.send()
+
+        mail_sender = DirectMailUtil(
+            mail_code='fellows/email_fellow_assigned_submission',
+            assignment=assignment)
+        mail_sender.send()
 
 
 class SubmissionPrescreeningForm(forms.ModelForm):

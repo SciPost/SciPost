@@ -1,0 +1,11 @@
+Dear {{ assignment.to.get_title_display }} {{ assignment.to.user.last_name }},
+
+We have cancelled your assignment as Editor-in-charge to the SciPost Submission
+
+{{ assignment.submission.title }} by {{ assignment.submission.author_list }}.
+
+To see your current active assignments, check <a href="https://scipost.org{% url 'submissions:pool' %}?editor_in_charge=on.">the Pool</a>.
+
+Many thanks for your valuable work,
+
+SciPost Editorial Administration

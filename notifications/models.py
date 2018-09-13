@@ -67,6 +67,8 @@ class Notification(models.Model):
 
     created = models.DateTimeField(auto_now_add=True)
 
+    url_code = models.CharField(max_length=255)  # Fake
+
     # This field is for internal use only. It is used to prevent duplicate sending
     # of notifications.
     internal_type = models.CharField(max_length=255, blank=True, choices=NOTIFICATION_TYPES)
