@@ -441,7 +441,7 @@ def pool(request, identifier_w_vn_nr=None):
         submission__in=submissions)
     recs_current_voted = EICRecommendation.objects.user_current_voted(request.user).filter(
         submission__in=submissions)
-    assignments_to_consider = EditorialAssignment.objects.open().filter(
+    assignments_to_consider = EditorialAssignment.objects.invited().filter(
         to=request.user.contributor)
 
     # Forms
