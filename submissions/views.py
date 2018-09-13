@@ -439,7 +439,9 @@ def pool(request, identifier_w_vn_nr=None):
 
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
-    assignments_to_consider = EditorialAssignment.objects.invited().filter(
+    recs_current_voted = EICRecommendation.objects.user_current_voted(request.user).filter(
+        submission__in=submissions)
+    assignments_to_consider = EditorialAssignment.objects.open().filter(
         to=request.user.contributor)
 
     # Forms
@@ -454,6 +456,7 @@ def pool(request, identifier_w_vn_nr=None):
         'assignments_to_consider': assignments_to_consider,
         'consider_assignment_form': consider_assignment_form,
         'recs_to_vote_on': recs_to_vote_on,
+        'recs_current_voted': recs_current_voted,
         'rec_vote_form': rec_vote_form,
         'remark_form': remark_form,
     }
@@ -864,6 +867,10 @@ def recruit_referee(request, identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    if request.method == 'GET':
+        # This leads to unexpected 500 errors
+        return redirect(reverse('submissions:select_referee', args=(arxiv_identifier_w_vn_nr,)))
 
     ref_recruit_form = RefereeRecruitmentForm(
         request.POST or None, request=request, submission=submission)
@@ -1553,18 +1560,37 @@ def prepare_for_voting(request, rec_id):
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
     submissions = Submission.objects.pool_editable(request.user)
-    recommendation = get_object_or_404(
-        EICRecommendation.objects.user_must_vote_on(
-            request.user).filter(submission__in=submissions), id=rec_id)
+    previous_vote = None
+    try:
+        recommendation = EICRecommendation.objects.user_must_vote_on(
+            request.user).get(submission__in=submissions, id=rec_id)
+        initial = {'vote': 'abstain'}
+    except EICRecommendation.DoesNotExist: #Try to find an EICRec already voted on:
+        try:
+            recommendation = EICRecommendation.objects.user_current_voted(
+                request.user).get(submission__in=submissions, id=rec_id)
+            if request.user.contributor in recommendation.voted_for.all():
+                previous_vote = 'agree'
+            elif request.user.contributor in recommendation.voted_against.all():
+                previous_vote = 'disagree'
+            elif request.user.contributor in recommendation.voted_abstain.all():
+                previous_vote = 'abstain'
+        except EICRecommendation.DoesNotExist:
+            raise Http404
+    initial = {'vote': previous_vote}
 
-    form = RecommendationVoteForm(request.POST or None)
+    if request.POST:
+        form = RecommendationVoteForm(request.POST)
+    else:
+        form = RecommendationVoteForm(initial=initial)
     if form.is_valid():
         if form.cleaned_data['vote'] == 'agree':
             try:
                 recommendation.voted_for.add(request.user.contributor)
             except IntegrityError:
                 messages.warning(request, 'You have already voted for this Recommendation.')
-                return redirect(reverse('submissions:pool'))
+                #return redirect(reverse('submissions:pool'))
+                pass
             recommendation.voted_against.remove(request.user.contributor)
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'disagree':
@@ -1572,8 +1598,9 @@ def vote_on_rec(request, rec_id):
             try:
                 recommendation.voted_against.add(request.user.contributor)
             except IntegrityError:
-                messages.warning(request, 'You have already voted for this Recommendation.')
-                return redirect(reverse('submissions:pool'))
+                messages.warning(request, 'You have already voted against this Recommendation.')
+                #return redirect(reverse('submissions:pool'))
+                pass
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'abstain':
             recommendation.voted_for.remove(request.user.contributor)
@@ -1581,13 +1608,23 @@ def vote_on_rec(request, rec_id):
             try:
                 recommendation.voted_abstain.add(request.user.contributor)
             except IntegrityError:
-                messages.warning(request, 'You have already voted for this Recommendation.')
-                return redirect(reverse('submissions:pool'))
-        if form.cleaned_data['remark']:
+                messages.warning(request, 'You have already abstained on this Recommendation.')
+                #return redirect(reverse('submissions:pool'))
+                pass
+        votechanged = (previous_vote and form.cleaned_data['vote'] != previous_vote)
+        if form.cleaned_data['remark'] or votechanged:
+            # If the vote is changed, we automatically put a remark
+            extra_remark = ''
+            if votechanged:
+                if form.cleaned_data['remark']:
+                    extra_remark += '\n'
+                extra_remark += 'Note from EdAdmin: %s %s changed vote from %s to %s' % (
+                    request.user.first_name, request.user.last_name,
+                    previous_vote, form.cleaned_data['vote'])
             remark = Remark(contributor=request.user.contributor,
                             recommendation=recommendation,
                             date=timezone.now(),
-                            remark=form.cleaned_data['remark'])
+                            remark=form.cleaned_data['remark'] + extra_remark)
             remark.save()
         recommendation.save()
         messages.success(request, 'Thank you for your vote.')
@@ -1595,18 +1632,17 @@ def vote_on_rec(request, rec_id):
 
     context = {
         'recommendation': recommendation,
-        'voting_form': form
+        'voting_form': form,
+        'previous_vote': previous_vote
     }
     return render(request, 'submissions/pool/recommendation.html', context)
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
 def remind_Fellows_to_vote(request):
-    """Send an email to all Fellow with pending voting duties.
-
-    It must be called by and Editorial Administrator.
-
-    Possible TODO: This reminder function doesn't filter per submission?!
+    """
+    Send an email to all Fellows with at least one pending voting duties.
+    It must be called by an Editorial Administrator.
     """
     submissions = Submission.objects.pool_editable(request.user)
     recommendations = EICRecommendation.objects.active().filter(

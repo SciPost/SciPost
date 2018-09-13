@@ -38,3 +38,5 @@ UPLOADS
 static_bundles/
 
 whoosh_index
+
+*.pid

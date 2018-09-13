@@ -1,0 +1,37 @@
+{% extends 'guides/_guides_base.html' %}
+
+{% block pagetitle %}: guides{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{block.super}}
+<span class="breadcrumb-item">Guides</span>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Guides</h1>
+    <ul>
+      <li>
+	Editorial
+	<ul>
+	  <li>
+	    Submissions
+	    <ul>
+	      <li><a href="{% url 'guides:submission_prescreening' %}">Submission prescreening</a></li>
+	    </ul>
+	  </li>
+	  <li>
+	    Production
+	    <ul>
+	      <li><a href="{% url 'guides:initial_production' %}">Initial production</a></li>
+	      <li><a href="{% url 'guides:proofs' %}">Proofs</a></li>
+	      <li><a href="{% url 'guides:online_publication' %}">Online publication</a></li>
+	    </ul>
+	  </li>
+	</ul>
+      </li>
+    </ul>
+  </div>
+</div>
+{% endblock content %}

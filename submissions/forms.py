@@ -844,7 +844,7 @@ class VotingEligibilityForm(forms.ModelForm):
 
     eligible_fellows = forms.ModelMultipleChoiceField(
         queryset=Contributor.objects.none(),
-        widget=forms.CheckboxSelectMultiple({'checked': 'checked'}),
+        widget=forms.CheckboxSelectMultiple(),
         required=True, label='Eligible for voting')
 
     class Meta:
@@ -1188,11 +1188,11 @@ class RecommendationVoteForm(forms.Form):
 
     vote = forms.ChoiceField(
         widget=forms.RadioSelect, choices=[
-            ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')], label='')
+            ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')])
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,
         'cols': 30,
-        'placeholder': 'Your remarks (optional)'
+        'placeholder': 'Your remark (optional)'
     }), label='', required=False)
 
 

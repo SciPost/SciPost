@@ -1,6 +1,0 @@
-Stichting SciPost
-=================
-
-
-History
--------

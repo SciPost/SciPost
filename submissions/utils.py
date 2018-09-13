@@ -1239,9 +1239,9 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: voting duties', email_text,
-            'SciPost Editorial Admin <admin@scipost.org>',
-            to=['admin@scipost.org'],
+            'SciPost Editorial Admin <edadmin@scipost.org>',
+            to=['edadmin@scipost.org'],
             bcc=cls.Fellow_emails,
-            reply_to=['admin@scipost.org'])
+            reply_to=['edadmin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)

@@ -39,7 +39,7 @@ SERVER_EMAIL = get_secret("SERVER_EMAIL")
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
 CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
 CROSSREF_DEBUG = False
-CROSSREF_DEPOSIT_EMAIL = 'admin@scipost.org'
+CROSSREF_DEPOSIT_EMAIL = 'edadmin@scipost.org'
 
 DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
 HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/scipost/webapps/scipost/scipost_v1/whoosh_index'
@@ -53,3 +53,6 @@ ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 # Logging
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost/logs/doi.log'
+
+
+#BROKER_URL = 'amqp://guest:guest@localhost:5672//'

@@ -94,12 +94,19 @@
               <li><a href="{% url 'submissions:treated_submissions_list' %}">Fully treated Submissions</a>{% if nr_treated_submissions_without_pdf %} ({{nr_treated_submissions_without_pdf}} unfinished){% endif %}</li>
               <li><a href="{% url 'journals:harvest_citedby_list' %}">Harvest citedby data</a></li>
               <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
-              <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
               <li><a href="{% url 'journals:manage_metadata' %}">Manage Publication metadata</a></li>
               <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
               <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
             </ul>
         {% endif %}
+
+	    {% if perms.scipost.can_manage_college_composition %}
+	    <h3>Colleges and Fellowships</h3>
+	    <ul>
+	      <li><a href="{% url 'colleges:prospective_Fellows' %}">Manage Prospective Fellows</a></li>
+              <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
+	    </ul>
+	    {% endif %}
 
         {% if perms.scipost.can_attend_VGMs %}
             <h3>Virtual General Meetings</h3>
