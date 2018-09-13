@@ -22,7 +22,7 @@ class Command(BaseCommand):
         for fellow in fellows:
             recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(fellow.user)
             assignments_ongoing = fellow.editorial_assignments.ongoing()
-            assignments_to_consider = fellow.editorial_assignments.open()
+            assignments_to_consider = fellow.editorial_assignments.invited()
             assignments_upcoming_deadline = assignments_ongoing.refereeing_deadline_within(days=7)
             if recs_to_vote_on or assignments_ongoing or assignments_to_consider or assignments_upcoming_deadline:
                 mail_sender = DirectMailUtil(

@@ -80,7 +80,7 @@ class TestNewComment(TestCase):
         response.client = Client()
         expected_redirect_link = reverse(
             'submissions:submission',
-            kwargs={'arxiv_identifier_w_vn_nr': submission.arxiv_identifier_w_vn_nr}
+            kwargs={'identifier_w_vn_nr': submission.preprint.identifier_w_vn_nr}
         )
         self.assertRedirects(response, expected_redirect_link)
 

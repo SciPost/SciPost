@@ -163,7 +163,7 @@
                         <div class="card-body px-0">
                             {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
                             {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
-                            <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a>.</p>
+                            <p class="card-text mt-2">Manage this Submission from its <a href="{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial Page</a>.</p>
                         </div>
                     </li>
                 {% endfor %}

@@ -3,6 +3,6 @@
 <h4 class="card-subtitle text-muted">due: {{ invitation.submission.reporting_deadline }}</h4>
 
 <div class="d-block">
-    <a class="d-inline-block" href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=invitation.submission.arxiv_identifier_w_vn_nr %}">Submit your Report</a> <span class="text-blue">|</span>
-    <a class="d-inline-block" href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=invitation.submission.arxiv_identifier_w_vn_nr comtype='RtoE' referee_id=request.user.contributor.id %}">Write to the Editor-in-charge</a>.
+    <a class="d-inline-block" href="{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> <span class="text-blue">|</span>
+    <a class="d-inline-block" href="{% url 'submissions:communication' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr comtype='RtoE' referee_id=request.user.contributor.id %}">Write to the Editor-in-charge</a>.
 </div>

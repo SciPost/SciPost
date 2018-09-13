@@ -29,7 +29,7 @@ class RegistrationInvitationFilterForm(forms.Form):
         term = self.cleaned_data.get('term')
         return qs.filter(
             Q(last_name__icontains=term) |
-            Q(citation_notifications__submission__arxiv_identifier_w_vn_nr__icontains=term) |
+            Q(citation_notifications__submission__preprint__identifier_w_vn_nr__icontains=term) |
             Q(citation_notifications__publication__doi_label__icontains=term))
 
 

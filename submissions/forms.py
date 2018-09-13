@@ -6,10 +6,10 @@ import datetime
 import re
 
 from django import forms
-from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import transaction
 from django.db.models import Q
+from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
 from .constants import (
@@ -18,8 +18,9 @@ from .constants import (
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, STATUS_ACCEPTED, DECISION_FIXED, DEPRECATED,
-    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC)
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED,
+    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED,
+    STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
 from . import exceptions, helpers
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
@@ -30,13 +31,17 @@ from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
+from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
+from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
-from scipost.models import Contributor
+from scipost.models import Contributor, Remark
 import strings
 
 import iThenticate
+
+IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
 
 
 class SubmissionSearchForm(forms.Form):
@@ -93,6 +98,8 @@ class SubmissionPoolFilterForm(forms.Form):
 class SubmissionChecks:
     """Mixin with checks run at least the Submission creation form."""
 
+    use_arxiv_preprint = True
+    arxiv_data = {}
     is_resubmission = False
     last_submission = None
 
@@ -110,15 +117,15 @@ class SubmissionChecks:
                 self.is_resubmission = kwargs['data']['is_resubmission'] in ('True', True)
 
     def _submission_already_exists(self, identifier):
-        if Submission.objects.filter(arxiv_identifier_w_vn_nr=identifier).exists():
+        if Submission.objects.filter(preprint__identifier_w_vn_nr=identifier).exists():
             error_message = 'This preprint version has already been submitted to SciPost.'
             raise forms.ValidationError(error_message, code='duplicate')
 
     def _call_arxiv(self, identifier):
         caller = ArxivCaller(identifier)
         if caller.is_valid:
-            self.arxiv_data = ArxivCaller(identifier).data
-            self.metadata = ArxivCaller(identifier).metadata
+            self.arxiv_data = caller.data
+            self.metadata = caller.metadata
         else:
             error_message = 'A preprint associated to this identifier does not exist.'
             raise forms.ValidationError(error_message)
@@ -140,8 +147,8 @@ class SubmissionChecks:
         """Check if previous submitted versions have the appropriate status."""
         identifiers = self.identifier_into_parts(identifier)
         submission = (Submission.objects
-                      .filter(arxiv_identifier_wo_vn_nr=identifiers['arxiv_identifier_wo_vn_nr'])
-                      .order_by('arxiv_vn_nr').last())
+                      .filter(preprint__identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'])
+                      .order_by('preprint__vn_nr').last())
 
         # If submissions are found; check their statuses
         if submission:
@@ -170,7 +177,7 @@ class SubmissionChecks:
                                  'before proceeding with a resubmission.')
                 raise forms.ValidationError(error_message)
 
-    def arxiv_meets_regex(self, identifier, journal_code):
+    def identifier_matches_regex(self, identifier, journal_code):
         """Check if arXiv identifier is valid for the Journal submitting to."""
         if journal_code in EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS.keys():
             regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS[journal_code]
@@ -190,18 +197,19 @@ class SubmissionChecks:
         return self.is_resubmission
 
     def identifier_into_parts(self, identifier):
-        """Split the arXiv identifier into parts."""
+        """Split the preprint identifier into parts."""
         data = {
-            'arxiv_identifier_w_vn_nr': identifier,
-            'arxiv_identifier_wo_vn_nr': identifier.rpartition('v')[0],
-            'arxiv_vn_nr': int(identifier.rpartition('v')[2])
+            'identifier_w_vn_nr': identifier,
+            'identifier_wo_vn_nr': identifier.rpartition('v')[0],
+            'vn_nr': int(identifier.rpartition('v')[2])
         }
         return data
 
     def do_pre_checks(self, identifier):
         """Group call of different checks."""
         self._submission_already_exists(identifier)
-        self._call_arxiv(identifier)
+        if self.use_arxiv_preprint:
+            self._call_arxiv(identifier)
         self._submission_is_already_published(identifier)
         self._submission_previous_version_is_valid_for_submission(identifier)
 
@@ -209,17 +217,16 @@ class SubmissionChecks:
 class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
     """Prefill SubmissionForm using this form that takes an arXiv ID only."""
 
-    IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
     IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
-    identifier = forms.RegexField(regex=IDENTIFIER_PATTERN_NEW, strip=True,
-                                  #   help_text=strings.arxiv_query_help_text,
-                                  error_messages={'invalid': strings.arxiv_query_invalid},
-                                  widget=forms.TextInput({'placeholder': IDENTIFIER_PLACEHOLDER}))
+    identifier_w_vn_nr = forms.RegexField(
+        regex=IDENTIFIER_PATTERN_NEW, strip=True,
+        error_messages={'invalid': strings.arxiv_query_invalid},
+        widget=forms.TextInput({'placeholder': IDENTIFIER_PLACEHOLDER}))
 
-    def clean_identifier(self):
+    def clean_identifier_w_vn_nr(self):
         """Do basic prechecks based on the arXiv ID only."""
-        identifier = self.cleaned_data['identifier']
+        identifier = self.cleaned_data['identifier_w_vn_nr']
         self.do_pre_checks(identifier)
         return identifier
 
@@ -242,7 +249,7 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
     def request_arxiv_preprint_form_prefill_data(self):
         """Return dictionary to prefill `RequestSubmissionForm`."""
         form_data = self.arxiv_data
-        form_data.update(self.identifier_into_parts(self.cleaned_data['identifier']))
+        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
         if self.submission_is_resubmission():
             form_data.update(self._gather_data_from_last_submission())
         return form_data
@@ -250,6 +257,13 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
 
 class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     """Form to submit a new Submission."""
+
+    scipost_identifier = None
+
+    identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
+    arxiv_link = forms.URLField(
+        widget=forms.TextInput(attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}))
+    preprint_file = forms.FileField()
 
     class Meta:
         model = Submission
@@ -265,8 +279,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'title',
             'author_list',
             'abstract',
-            'arxiv_identifier_w_vn_nr',
-            'arxiv_link',
             'author_comments',
             'list_of_changes',
             'remarks_for_editors',
@@ -275,13 +287,21 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         ]
         widgets = {
             'is_resubmission': forms.HiddenInput(),
-            'arxiv_identifier_w_vn_nr': forms.HiddenInput(),
-            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS)
+            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
+            'remarks_for_editors': forms.TextInput(
+                attrs={'placeholder': 'Any private remarks (for the editors only)', 'rows': 3}),
+            'referees_suggested': forms.TextInput(
+                attrs={'placeholder': 'Optional: names of suggested referees', 'rows': 3}),
+            'referees_flagged': forms.TextInput(
+                attrs={'placeholder': 'Optional: names of referees whose reports should be treated with caution (+ short reason)', 'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
+        self.use_arxiv_preprint = kwargs.pop('use_arxiv_preprint', True)
+
         super().__init__(*args, **kwargs)
 
+        # Alter resubmission-dependent fields
         if not self.submission_is_resubmission():
             # These fields are only available for resubmissions
             del self.fields['author_comments']
@@ -292,7 +312,14 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             self.fields['list_of_changes'].widget.attrs.update({
                 'placeholder': 'Give a point-by-point list of changes (will be viewable online)'})
 
-        # Proceedings submission
+        # ArXiv or SciPost preprint fields
+        if self.use_arxiv_preprint:
+            del self.fields['preprint_file']
+        else:
+            del self.fields['arxiv_link']
+            del self.fields['identifier_w_vn_nr']
+
+        # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()
         self.fields['proceedings'].queryset = qs
         self.fields['proceedings'].empty_label = None
@@ -305,29 +332,20 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
                 filter_proceedings, self.fields['submitted_to_journal'].choices)
             del self.fields['proceedings']
 
-        # Update placeholder for the other fields
+        # Submission type is optional
         self.fields['submission_type'].required = False
-        self.fields['arxiv_link'].widget.attrs.update({
-            'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'})
-        self.fields['abstract'].widget.attrs.update({'cols': 100})
-        self.fields['remarks_for_editors'].widget.attrs.update({
-            'placeholder': 'Any private remarks (for the editors only)', })
-        self.fields['referees_suggested'].widget.attrs.update({
-            'placeholder': 'Optional: names of suggested referees',
-            'rows': 3})
-        self.fields['referees_flagged'].widget.attrs.update({
-            'placeholder': ('Optional: names of referees whose reports should'
-                            ' be treated with caution (+ short reason)'),
-            'rows': 3})
 
     def clean(self, *args, **kwargs):
-        """
-        Do all prechecks which are also done in the prefiller.
-        """
+        """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
-        self.do_pre_checks(cleaned_data['arxiv_identifier_w_vn_nr'])
-        self.arxiv_meets_regex(cleaned_data['arxiv_identifier_w_vn_nr'],
-                               cleaned_data['submitted_to_journal'])
+        if 'identifier_w_vn_nr' not in cleaned_data:
+            # New series of SciPost preprints
+            identifier_str, self.scipost_identifier = generate_new_scipost_identifier()
+            cleaned_data['identifier_w_vn_nr'] = format_scipost_identifier(identifier_str)
+
+        self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
+        self.identifier_matches_regex(
+            cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to_journal'])
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
             try:
@@ -346,6 +364,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         power to certain user groups.
         """
         author_list = self.cleaned_data['author_list']
+        if not self.use_arxiv_preprint:
+            # Using SciPost preprints, there is nothing to check with.
+            return author_list
+
         if not self.requested_by.last_name.lower() in author_list.lower():
             error_message = ('Your name does not match that of any of the authors. '
                              'You are not authorized to submit this preprint.')
@@ -416,13 +438,19 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         submission = super().save(commit=False)
         submission.submitted_by = self.requested_by.contributor
 
-        # Save metadata directly from ArXiv call without possible user interception
-        submission.metadata = self.metadata
+        # Save identifiers
+        identifiers = self.identifier_into_parts(self.cleaned_data['identifier_w_vn_nr'])
+        preprint, __ = Preprint.objects.get_or_create(
+            identifier_w_vn_nr=identifiers['identifier_w_vn_nr'],
+            identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'],
+            vn_nr=identifiers['vn_nr'],
+            url=self.cleaned_data.get('arxiv_link', ''),
+            scipost_preprint_identifier=self.scipost_identifier,
+            _file=self.cleaned_data.get('preprint_file', None), )
 
-        # Update identifiers
-        identifiers = self.identifier_into_parts(submission.arxiv_identifier_w_vn_nr)
-        submission.arxiv_identifier_wo_vn_nr = identifiers['arxiv_identifier_wo_vn_nr']
-        submission.arxiv_vn_nr = identifiers['arxiv_vn_nr']
+        # Save metadata directly from ArXiv call without possible user interception
+        submission.metadata = self.metadata if hasattr(self, 'metadata') else {}
+        submission.preprint = preprint
 
         if self.submission_is_resubmission():
             # Reset Refereeing Cycle. EIC needs to pick a cycle on resubmission.
@@ -450,12 +478,110 @@ class SubmissionReportsForm(forms.ModelForm):
         fields = ['pdf_refereeing_pack']
 
 
+class PreassignEditorsForm(forms.ModelForm):
+    """Preassign editors for incoming Submission."""
+
+    assign = forms.BooleanField(required=False)
+    to = forms.ModelChoiceField(
+        queryset=Contributor.objects.none(), required=True, widget=forms.HiddenInput())
+
+    class Meta:
+        model = EditorialAssignment
+        fields = ('to',)
+
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.fields['to'].queryset = Contributor.objects.filter(
+            fellowships__in=self.submission.fellows.all())
+        self.fields['assign'].initial = self.instance.id is not None
+
+    def save(self, commit=True):
+        """Create/get unordered EditorialAssignments or delete existing if needed."""
+        if self.cleaned_data['assign']:
+            # Create/save
+            self.instance, __ = EditorialAssignment.objects.get_or_create(
+                submission=self.submission, to=self.cleaned_data['to'])
+        elif self.instance.id is not None:
+            # Delete if exists
+            if self.instance.status == STATUS_PREASSIGNED:
+                self.instance.delete()
+        return self.instance
+
+    def get_fellow(self):
+        """Get fellow either via initial data or instance."""
+        if self.instance.id is not None:
+            return self.instance.to
+        return self.initial.get('to', None)
+
+
+class BasePreassignEditorsFormSet(forms.BaseModelFormSet):
+    """Preassign editors for incoming Submission."""
+
+    def __init__(self, *args, **kwargs):
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.queryset = self.submission.editorial_assignments.order_by('invitation_order')
+
+        # Prefill form fields and create unassigned rows for unassigned fellows.
+        assigned_fellows = self.submission.fellows.filter(
+            contributor__editorial_assignments__in=self.queryset)
+        unassigned_fellows = self.submission.fellows.exclude(
+            contributor__editorial_assignments__in=self.queryset)
+
+        possible_assignments = [{ORDERING_FIELD_NAME: -1} for fellow in assigned_fellows]
+        for fellow in unassigned_fellows:
+            possible_assignments.append({
+                'submission': self.submission, 'to': fellow.contributor, ORDERING_FIELD_NAME: -1})
+        self.initial = possible_assignments
+        self.extra += len(unassigned_fellows)
+
+    def add_fields(self, form, index):
+        """Force hidden input for ORDER field."""
+        super().add_fields(form, index)
+        if ORDERING_FIELD_NAME in form.fields:
+            form.fields[ORDERING_FIELD_NAME].widget = forms.HiddenInput()
+
+    def get_form_kwargs(self, index):
+        """Add submission to form arguments."""
+        kwargs = super().get_form_kwargs(index)
+        kwargs['submission'] = self.submission
+        return kwargs
+
+    def save(self, commit=True):
+        """Save each form and order EditorialAssignments."""
+        objects = super().save(commit=False)
+        objects = []
+
+        count = 0
+        for form in self.ordered_forms:
+            ed_assignment = form.save()
+            if ed_assignment.id is None:
+                continue
+            count += 1
+            EditorialAssignment.objects.filter(id=ed_assignment.id).update(invitation_order=count)
+            objects.append(ed_assignment)
+        return objects
+
+
+PreassignEditorsFormSet = forms.modelformset_factory(
+    EditorialAssignment, can_order=True, extra=0,
+    formset=BasePreassignEditorsFormSet, form=PreassignEditorsForm)
+
+
 class SubmissionPrescreeningForm(forms.ModelForm):
     """Processing decision for pre-screening of Submission."""
 
-    PASS = 'pass'
-    CHOICES = ((PASS, 'Pass pre-screening. Proceed to the Pool.'),)
+    PASS, FAIL = 'pass', 'fail'
+    CHOICES = (
+        (PASS, 'Pass pre-screening. Proceed to the Pool.'),
+        (FAIL, 'Fail pre-screening.'))
     decision = forms.ChoiceField(widget=forms.RadioSelect, choices=CHOICES, required=False)
+
+    message_for_authors = forms.CharField(required=False, widget=forms.Textarea({
+        'placeholder': 'Message for authors'}))
+    remark_for_pool = forms.CharField(required=False, widget=forms.Textarea({
+        'placeholder': 'Remark for the pool'}))
 
     class Meta:
         model = Submission
@@ -464,6 +590,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Add related submission as argument."""
         self.submission = kwargs.pop('submission')
+        self.current_user = kwargs.pop('current_user')
         super().__init__(*args, **kwargs)
 
     def clean(self):
@@ -471,13 +598,33 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         data = super().clean()
         if self.instance.status != STATUS_INCOMING:
             self.add_error(None, 'This Submission is currently not in pre-screening.')
+        if not self.instance.fellows.exists():
+            self.add_error(None, 'Please add at least one fellow to the pool first.')
+        if not self.instance.editorial_assignments.exists():
+            self.add_error(None, 'Please complete the pre-assignments form first.')
         return data
 
     @transaction.atomic
     def save(self):
         """Update Submission status."""
-        Submission.objects.filter(id=self.instance.id).update(
-            status=STATUS_UNASSIGNED, visible_pool=True)
+        if self.cleaned_data['decision'] == self.PASS:
+            Submission.objects.filter(id=self.instance.id).update(
+                status=STATUS_UNASSIGNED, visible_pool=True, visible_public=False)
+            self.instance.add_general_event('Submission passed pre-screening.')
+        elif self.cleaned_data['decision'] == self.FAIL:
+            Submission.objects.filter(id=self.instance.id).update(
+                status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
+            self.instance.add_general_event('Submission failed pre-screening.')
+
+        if self.cleaned_data['remark_for_pool']:
+            Remark.objects.create(
+                submission=self.instance,
+                contributor=self.current_user.contributor,
+                remark=self.cleaned_data['remark_for_pool'])
+        if self.cleaned_data['message_for_authors']:
+            pass
+
+        # TODO: Send mail now.
 
 
 ######################
@@ -550,14 +697,14 @@ class EditorialAssignmentForm(forms.ModelForm):
         self.instance.submission = self.submission
         self.instance.date_answered = timezone.now()
         self.instance.to = self.request.user.contributor
-        recommendation = super().save()  # Save already, in case it's a new recommendation.
+        assignment = super().save()  # Save already, in case it's a new recommendation.
 
         if self.has_accepted_invite():
+            # Update related Submission.
             if self.is_normal_cycle():
-                # Default Refereeing process!
-
+                # Default Refereeing process
                 deadline = timezone.now() + datetime.timedelta(days=28)
-                if recommendation.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+                if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
                     deadline += datetime.timedelta(days=28)
 
                 # Update related Submission.
@@ -571,9 +718,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     visible_public=True,
                     latest_activity=timezone.now())
             else:
-                # Formulate rejection recommendation instead
-
-                # Update related Submission.
+                # Short Refereeing process
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DIRECT_REC,
                     status=STATUS_EIC_ASSIGNED,
@@ -584,16 +729,23 @@ class EditorialAssignmentForm(forms.ModelForm):
                     visible_public=False,
                     latest_activity=timezone.now())
 
-        if self.has_accepted_invite():
             # Implicitly or explicity accept the assignment and deprecate others.
-            recommendation.accepted = True
+            assignment.accepted = True  # Deprecated field
+            assignment.status = STATUS_ACCEPTED
+
+            # Update all other 'open' invitations
+            EditorialAssignment.objects.filter(submission=self.submission).need_response().exclude(
+                id=assignment.id).update(status=STATUS_DEPRECATED)
+
+            # Deprecated update
             EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
-                id=recommendation.id).update(deprecated=True)
+                id=assignment.id).update(deprecated=True)
         else:
-            recommendation.accepted = False
-            recommendation.refusal_reason = self.cleaned_data['refusal_reason']
-        recommendation.save()  # Save again to register acceptance
-        return recommendation
+            assignment.accepted = False  # Deprecated field
+            assignment.status = STATUS_DECLINED
+            assignment.refusal_reason = self.cleaned_data['refusal_reason']
+        assignment.save()  # Save again to register acceptance
+        return assignment
 
 
 class ConsiderAssignmentForm(forms.Form):
@@ -1091,7 +1243,7 @@ class iThenticateReportForm(forms.ModelForm):
         if not doc_id and not self.fields.get('file'):
             try:
                 cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
-                    self.submission.arxiv_identifier_w_vn_nr)
+                    self.submission.preprint.identifier_w_vn_nr)
             except exceptions.ArxivPDFNotFound:
                 self.add_error(
                     None, 'The pdf could not be found at arXiv. Please upload the pdf manually.')

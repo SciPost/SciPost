@@ -23,7 +23,7 @@
             {% for report in reports_to_vet %}
                 <tr>
                     <td>{{report.report_nr}}</td>
-                    <td>{{report.submission.title}} ({{report.submission.arxiv_identifier_w_vn_nr}})</td>
+                    <td>{{report.submission.title}} ({{report.submission.preprint.identifier_w_vn_nr}})</td>
                     <td>{{report.date_submitted|timesince}} ago</td>
                     <td><a href="{% url 'submissions:vet_submitted_report' report.id  %}">Go to vetting page</a></td>
                 </tr>

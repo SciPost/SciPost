@@ -34,20 +34,20 @@
             </td>
 
             {% if not invitation.accepted == False and not invitation.cancelled %}
-	    <td>
-	      <div>
-		{% if invitation.auto_reminders_allowed %}
-    		<div><span class="label-outline-success">On</span></div>
-    		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
-		{% else %}
-    		<div><span class="label-outline-danger">Off</span></div>
-    		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
-		{% endif %}
-	      </div>
-	    </td>
-            <td>
+        	    <td>
+        	      <div>
+        		{% if invitation.auto_reminders_allowed %}
+            		<div><span class="label-outline-success">On</span></div>
+            		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=0 %}">turn off</a>)</div>
+        		{% else %}
+            		<div><span class="label-outline-danger">Off</span></div>
+            		<div>(<a href="{% url 'submissions:set_refinv_auto_reminder' invitation_id=invitation.id auto_reminders=1 %}">turn on</a>)</div>
+        		{% endif %}
+        	      </div>
+        	    </td>
+                <td>
                     {% if not invitation.fulfilled %}
-                        <a href="{% url 'submissions:ref_invitation_reminder' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email manually</a>
+                        <a href="{% url 'submissions:ref_invitation_reminder' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Send reminder email manually</a>
                     {% else %}
                         <strong style="color: green">Report has been delivered</strong>
                     {% endif %}
@@ -60,14 +60,14 @@
                 </td>
                 <td>
                     {% if invitation.referee %}
-                        <a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
+                        <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
                     {% else %}
                         (not yet registered)
                     {% endif %}
                 </td>
                 <td>
                     {% if not invitation.fulfilled %}
-                    <a href="{% url 'submissions:cancel_ref_invitation' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr invitation_id=invitation.id %}">Cancel invitation</a>
+                    <a href="{% url 'submissions:cancel_ref_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr invitation_id=invitation.id %}">Cancel invitation</a>
                     {% endif %}
                 </td>
             {% else %}

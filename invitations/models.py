@@ -141,7 +141,7 @@ class CitationNotification(models.Model):
 
         _str += ' on '
         if self.submission:
-            _str += 'Submission ({})'.format(self.submission.arxiv_identifier_w_vn_nr)
+            _str += 'Submission ({})'.format(self.submission.preprint.identifier_w_vn_nr)
         elif self.publication:
             _str += 'Publication ({})'.format(self.publication.doi_label)
         return _str

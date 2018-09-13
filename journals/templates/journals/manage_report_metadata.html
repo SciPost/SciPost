@@ -47,7 +47,7 @@ event: "focusin"
   <tbody id="accordion" role="tablist" aria-multiselectable="true">
     {% for report in reports %}
     <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
-      <td>{{ report.submission.arxiv_identifier_w_vn_nr }}</td>
+      <td>{{ report.submission.preprint.identifier_w_vn_nr }}</td>
       <td>{{ report.associated_published_doi }}</td>
       <td>{{ report.report_nr }}</td>
       <td>{{ report.needs_doi }}</td>
@@ -57,7 +57,7 @@ event: "focusin"
     </tr>
     <tr id="collapse{{ report.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ report.id }}" style="background-color: #fff;">
       <td colspan="7">
-	<p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.arxiv_identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">{{ report.report_nr }}</a></p>
+	<p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.preprint.identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">{{ report.report_nr }}</a></p>
 
 	<h2 class="ml-3">Actions</h2>
         <ul>

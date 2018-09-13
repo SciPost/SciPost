@@ -115,8 +115,9 @@ class FellowVotingRemoveSubmissionForm(forms.ModelForm):
 
 
 class FellowshipAddSubmissionForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(queryset=None, to_field_name='arxiv_identifier_w_vn_nr',
-                                        empty_label="Please choose the Submission to add to the pool")
+    submission = forms.ModelChoiceField(
+        queryset=Submission.objects.none(),
+        empty_label="Please choose the Submission to add to the pool")
 
     class Meta:
         model = Fellowship
@@ -135,8 +136,9 @@ class FellowshipAddSubmissionForm(forms.ModelForm):
 
 
 class SubmissionAddFellowshipForm(forms.ModelForm):
-    fellowship = forms.ModelChoiceField(queryset=None, to_field_name='id',
-                                        empty_label="Please choose the Fellow to add to the Pool")
+    fellowship = forms.ModelChoiceField(
+        queryset=None, to_field_name='id',
+        empty_label="Please choose the Fellow to add to the Pool")
 
     class Meta:
         model = Submission
@@ -200,8 +202,9 @@ class FellowshipRemoveProceedingsForm(forms.ModelForm):
 
 
 class FellowshipAddProceedingsForm(forms.ModelForm):
-    proceedings = forms.ModelChoiceField(queryset=None, to_field_name='id',
-                                         empty_label="Please choose the Proceedings to add to the Pool")
+    proceedings = forms.ModelChoiceField(
+        queryset=None, to_field_name='id',
+        empty_label="Please choose the Proceedings to add to the Pool")
 
     class Meta:
         model = Fellowship

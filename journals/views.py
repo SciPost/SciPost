@@ -218,19 +218,19 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     """
     permission_required = 'scipost.can_draft_publication'
     queryset = Publication.objects.unpublished()
-    slug_url_kwarg = 'arxiv_identifier_w_vn_nr'
-    slug_field = 'accepted_submission__arxiv_identifier_w_vn_nr'
+    slug_url_kwarg = 'identifier_w_vn_nr'
+    slug_field = 'accepted_submission__preprint__identifier_w_vn_nr'
     form_class = DraftPublicationForm
     template_name = 'journals/publication_form.html'
 
     def get_object(self, queryset=None):
         try:
             publication = Publication.objects.get(
-                accepted_submission__arxiv_identifier_w_vn_nr=self.kwargs.get(
-                    'arxiv_identifier_w_vn_nr'))
+                accepted_submission__preprint__identifier_w_vn_nr=self.kwargs.get(
+                    'preprint__identifier_w_vn_nr'))
         except Publication.DoesNotExist:
-            if Submission.objects.accepted().filter(arxiv_identifier_w_vn_nr=self.kwargs.get(
-              'arxiv_identifier_w_vn_nr')).exists():
+            if Submission.objects.accepted().filter(preprint__identifier_w_vn_nr=self.kwargs.get(
+              'preprint__identifier_w_vn_nr')).exists():
                 return None
             raise Http404('No accepted Submission found')
         if publication.status == STATUS_DRAFT:
@@ -241,7 +241,7 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['arxiv_identifier_w_vn_nr'] = self.kwargs.get('arxiv_identifier_w_vn_nr')
+        kwargs['identifier_w_vn_nr'] = self.kwargs.get('identifier_w_vn_nr')
         kwargs['issue_id'] = self.request.GET.get('issue')
         return kwargs
 
@@ -1111,7 +1111,7 @@ def email_object_made_citable(request, **kwargs):
         publication_doi = None
         try:
             publication = Publication.objects.get(
-                accepted_submission__arxiv_identifier_wo_vn_nr=_object.submission.arxiv_identifier_wo_vn_nr)
+                accepted_submission__preprint__identifier_wo_vn_nr=_object.submission.preprint.identifier_wo_vn_nr)
             publication_citation = publication.citation
             publication_doi = publication.doi_string
         except Publication.DoesNotExist:
@@ -1219,7 +1219,7 @@ def arxiv_doi_feed(request, doi_label):
         in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:100]
     for publication in publications:
         feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
-            publication.accepted_submission.arxiv_identifier_wo_vn_nr, publication.doi_string,
+            publication.accepted_submission.preprint.identifier_wo_vn_nr, publication.doi_string,
             publication.citation))
     feedxml += '\n</preprint>'
     return HttpResponse(feedxml, content_type='text/xml')

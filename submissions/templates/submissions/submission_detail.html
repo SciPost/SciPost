@@ -11,7 +11,7 @@
         <div class="container">
             <nav class="breadcrumb">
                 <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-                <span class="breadcrumb-item">{{submission.arxiv_identifier_w_vn_nr}}</span>
+                <span class="breadcrumb-item">{{submission.preprint.identifier_w_vn_nr}}</span>
             </nav>
         </div>
     </div>
@@ -31,7 +31,7 @@
     {% if unfinished_report_for_user %}
         <div class="col-12">
             <div class="border border-warning py-2 px-3 mb-3">
-                <i class="fa fa-exclamation-circle text-warning"></i> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here.</a></h3>
+                <i class="fa fa-exclamation-circle text-warning"></i> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a></h3>
             </div>
         </div>
     {% endif %}
@@ -53,7 +53,7 @@
 
 
             {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
-                <h3>- You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions</h3>
+                <h3>- You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions</h3>
             {% endif %}
 
             {% if not submission.is_current %}
@@ -107,7 +107,7 @@
             {% if submission.is_open_for_reporting or 1 and perms.scipost.can_referee %}
                 {% if not is_author and not is_author_unchecked %}
                     <li>
-                      <h3><a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
+                      <h3><a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
                       <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
 		    </li>
 		    <li>
@@ -126,7 +126,7 @@
                     </li>
                 {% endif %}
             {% elif unfinished_report_for_user %}
-                <li><i class="fa fa-exclamation"></i> You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">finish your report here</a>.</li>
+                <li><i class="fa fa-exclamation"></i> You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
             {% else %}
                 <li>Reporting for this Submission is closed.</li>
             {% endif %}
@@ -138,11 +138,11 @@
                 <li>Commenting on this Submission is closed.</li>
             {% endif %}
             {% if submission.editor_in_charge == request.user.contributor %}
-                <li><a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Go to the Editorial Page</a></li>
+                <li><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Editorial Page</a></li>
             {% endif %}
             {% if perms.scipost.can_manage_reports %}
                 <li>
-                    <a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
+                    <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
                 </li>
             {% endif %}
         <ul>

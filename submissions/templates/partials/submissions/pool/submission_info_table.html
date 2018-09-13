@@ -1,14 +1,23 @@
 <table class="w-100 mb-1">
     <tr>
         <td style="min-width: 40%;">Version</td>
-        <td>{{submission.arxiv_vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.arxiv_vn_nr}}{% endif %})</td>
+        <td>{{submission.preprint.vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.preprint.vn_nr}}{% endif %})</td>
     </tr>
-    <tr>
-        <td>Arxiv Link:</td>
-        <td>
-            <a href="{{ submission.arxiv_link }}" target="_blank">{{ submission.arxiv_link }}</a>
-        </td>
-    </tr>
+    {% if submission.preprint.url %}
+        <tr>
+            <td>Arxiv Link:</td>
+            <td>
+                <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
+            </td>
+        </tr>
+        {% elif submission.preprint.get_absolute_url %}
+            <tr>
+                <td>Preprint link:</td>
+                <td>
+                    <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
+                </td>
+            </tr>
+        {% endif %}
     <tr>
         <td>Submitted</td>
         <td>{{submission.submission_date}} to {{submission.get_submitted_to_journal_display}}</td>
@@ -31,9 +40,9 @@
             {% if submission.editor_in_charge %}
                 {{ submission.editor_in_charge }}
             {% elif perms.scipost.can_assign_submissions %}
-                <a href="{% url 'submissions:assign_submission' submission.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a>
+                <a href="{% url 'submissions:assign_submission' submission.preprint.identifier_w_vn_nr %}">Send a new assignment request</a>
             {% else %}
-                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.arxiv_identifier_w_vn_nr %}">clicking here</a>.</strong>
+                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
             {% endif %}
         </td>
     </tr>
@@ -74,7 +83,7 @@
                 {% if submission.plagiarism_report %}
                     {{ submission.plagiarism_report.score }}%
                 {% else %}
-                    <a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Run plagiarism check</a>
+                    <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
                 {% endif %}
             </td>
         </tr>
@@ -83,11 +92,11 @@
     {% if perms.scipost.can_manage_college_composition %}
         <tr>
             <td>Pool composition</td>
-            <td><a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
+            <td><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
         </tr>
         <tr>
             <td>Fellows voting</td>
-            <td><a href="{% url 'colleges:submission_voting_fellows' submission.arxiv_identifier_w_vn_nr %}">{{ submission.voting_fellows.count }} Fellowship{{ submission.voting_fellows.count|pluralize }}</a></td>
+            <td><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">{{ submission.voting_fellows.count }} Fellowship{{ submission.voting_fellows.count|pluralize }}</a></td>
         </tr>
 
     {% endif %}

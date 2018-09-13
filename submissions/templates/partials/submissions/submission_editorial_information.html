@@ -6,9 +6,9 @@
 <div id="editorialinformation" class="mt-2" style="display:none;">
     <div class="mb-4">
         {% if submission.editor_in_charge == request.user.contributor %}
-            <p><strong>You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions.</strong></p>
+            <p><strong>You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions.</strong></p>
         {% elif perms.scipost.can_oversee_refereeing and not is_author and not is_author_unchecked %}
-            <p><strong>You are Editorial Administrator. See <a href="{% url 'submissions:editorial_page' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr %}">Editorial Page</a> for detailed information.</strong></p>
+            <p><strong>You are Editorial Administrator. See <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> for detailed information.</strong></p>
         {% endif %}
 
         <h3>Status summary:</h3>

@@ -4,7 +4,7 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
-    <a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}" class="breadcrumb-item">Submission Pool Composition</a>
+    <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Submission Pool Composition</a>
     <span class="breadcrumb-item">Add Fellowship</span>
 {% endblock %}
 
