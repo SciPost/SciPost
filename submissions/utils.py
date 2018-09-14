@@ -253,18 +253,6 @@ class SubmissionUtils(BaseMailUtil):
     mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
-    def deprecate_all_assignments(cls):
-        """
-        Called when the pre-screening has failed.
-        Requires loading 'submission' attribute.
-        """
-        # Import here due to circular import error
-        from .models import EditorialAssignment
-
-        EditorialAssignment.objects.filter(
-            submission=cls.submission, accepted=None).update(deprecated=True)
-
-    @classmethod
     def reinvite_referees_email(cls):
         """
         Email to be sent to referees when they are being reinvited by the EIC.
