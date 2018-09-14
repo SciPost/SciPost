@@ -7,6 +7,9 @@
     {% if assignment.deprecated %}
         <span class="label label-sm label-outline-info">deprecated</span>
     {% endif %}
+    {% if assignment.replaced %}
+        <span class="label label-sm label-outline-warning">replaced</span>
+    {% endif %}
     {% if assignment.refusal_reason %}
         <span class="label label-sm label-outline-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">declined
             | Reason: {{ assignment.get_refusal_reason_display }}

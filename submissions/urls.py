@@ -42,6 +42,9 @@ urlpatterns = [
     url(r'^admin/{regex}/editor_invitations/(?P<assignment_id>[0-9]+)$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.send_editorial_assignment_invitation,
         name='send_editorial_assignment_invitation'),
+    url(r'^admin/{regex}/reassign_editor$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.SubmissionReassignmentView.as_view(),
+        name='reassign_submission'),
     url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
     url(r'^admin/{regex}/plagiarism$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),

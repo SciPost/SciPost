@@ -77,6 +77,7 @@ ASSIGNMENT_REFUSAL_REASONS = (
 STATUS_PREASSIGNED, STATUS_INVITED = 'preassigned', 'invited'
 STATUS_DECLINED = 'declined'
 STATUS_DEPRECATED, STATUS_COMPLETED = 'deprecated', 'completed'
+STATUS_REPLACED = 'replaced'
 ASSIGNMENT_STATUSES = (
     (STATUS_PREASSIGNED, 'Pre-assigned'),
     (STATUS_INVITED, 'Invited'),
@@ -84,6 +85,7 @@ ASSIGNMENT_STATUSES = (
     (STATUS_DECLINED, 'Declined'),
     (STATUS_COMPLETED, 'Completed'),
     (STATUS_DEPRECATED, 'Deprecated'),
+    (STATUS_REPLACED, 'Replaced'),
 )
 
 REFEREE_QUALIFICATION = (

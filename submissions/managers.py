@@ -104,6 +104,10 @@ class SubmissionQuerySet(models.QuerySet):
         """Return submissions just coming in and going through pre-screening."""
         return self.filter(status=constants.STATUS_INCOMING)
 
+    def assigned(self):
+        """Return submissions with assigned Editor-in-charge."""
+        return self.filter(editor_in_charge__isnull=False)
+
     def unassigned(self):
         """Return submissions passed pre-screening, but unassigned."""
         return self.filter(status=constants.STATUS_UNASSIGNED)
@@ -277,7 +281,7 @@ class EditorialAssignmentQuerySet(models.QuerySet):
         return self.declined().filter(refusal_reason__in=['NIE', 'DNP'])
 
     def deprecated(self):
-        return self.filter(status=constants.STATUS_DECLINED)
+        return self.filter(status=constants.STATUS_DEPRECATED)
 
     def completed(self):
         return self.filter(status=constants.STATUS_COMPLETED)
