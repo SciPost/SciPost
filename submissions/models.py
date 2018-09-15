@@ -890,9 +890,9 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
         return self.get_absolute_url()
 
 
-
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
-    """The recommendation formulated for a specific Submission, formulated by the EIC.
+    """
+    The recommendation formulated for a specific Submission, formulated by the EIC.
 
     The EICRecommendation is the recommendation of a Submission written by the Editor-in-charge
     formulated at the end of the refereeing cycle. It can be voted for by a subset of Fellows and

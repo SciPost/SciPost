@@ -427,7 +427,8 @@ def editorial_workflow(request):
 @login_required
 @fellowship_or_admin_required()
 def pool(request, identifier_w_vn_nr=None):
-    """List page of Submissions in refereeing.
+    """
+    List page of Submissions in refereeing.
 
     The Submissions pool contains all submissions which are undergoing
     the editorial process, from submission
@@ -439,8 +440,11 @@ def pool(request, identifier_w_vn_nr=None):
     if search_form.is_valid():
         submissions = search_form.search(Submission.objects.all(), request.user)
     else:
-        # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
+
+    # Query optimization
+    submissions = submissions.select_related(
+        'preprint', 'publication').prefetch_related('eicrecommendations')
 
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)

@@ -110,7 +110,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         }),
         ('Meta', {
             'classes': ('collapse',),
-            'fields': ('metadata', 'submission_date'),
+            'fields': ('metadata', 'submission_date', 'needs_conflicts_update'),
         }),
 
     )
