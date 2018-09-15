@@ -9,6 +9,7 @@ import strings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
@@ -36,7 +37,7 @@ from .forms import (
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
-    PreassignEditorsFormSet)
+    PreassignEditorsFormSet, SubmissionReassignmentForm)
 from .signals import (
     notify_editor_assigned, notify_eic_new_report, notify_invitation_cancelled,
     notify_submission_author_new_report, notify_eic_invitation_reponse, notify_report_vetted)
@@ -50,6 +51,8 @@ from production.forms import ProofsDecisionForm
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
+
+from notifications.views import is_test_user  # Temporarily until release
 
 
 ###############
@@ -123,6 +126,12 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
 
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     """Formview to submit a new Submission using SciPost's preprint server."""
+
+    def dispatch(self, request, *args, **kwargs):
+        """TEMPORARY: Not accessible unless in test group."""
+        if not is_test_user(request.user):
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
@@ -654,7 +663,7 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
         submission=submission, to=request.user.contributor)
     # Explicitly update afterwards, since update_or_create does not properly do the job.
     EditorialAssignment.objects.filter(id=assignment.id).update(
-        status=STATUS_ACCEPTED, accepted=True, date_answered=timezone.now())
+        status=STATUS_ACCEPTED, date_answered=timezone.now())
 
     # Set deadlines
     deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
@@ -672,7 +681,7 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
 
     # Deprecate old Editorial Assignments
     EditorialAssignment.objects.filter(submission=submission).invited().update(
-        deprecated=True, status=STATUS_DEPRECATED)
+        status=STATUS_DEPRECATED)
 
     # Send emails to EIC and authors regarding the EIC assignment.
     assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
@@ -707,7 +716,7 @@ def assignment_failed(request, identifier_w_vn_nr):
     if mail_request.is_valid():
         # Deprecate old Editorial Assignments
         EditorialAssignment.objects.filter(submission=submission).invited().update(
-            deprecated=True, status=STATUS_DEPRECATED)
+            status=STATUS_DEPRECATED)
 
         # Update status of Submission
         submission.touch()
@@ -1587,14 +1596,17 @@ def vote_on_rec(request, rec_id):
             request.user).get(submission__in=submissions, id=rec_id)
         initial = {'vote': 'abstain'}
     except EICRecommendation.DoesNotExist: #Try to find an EICRec already voted on:
-        recommendation = get_object_or_404(EICRecommendation.objects.user_current_voted(
-            request.user).filter(submission__in=submissions), id=rec_id)
-        if request.user.contributor in recommendation.voted_for.all():
-            previous_vote = 'agree'
-        elif request.user.contributor in recommendation.voted_against.all():
-            previous_vote = 'disagree'
-        elif request.user.contributor in recommendation.voted_abstain.all():
-            previous_vote = 'abstain'
+        try:
+            recommendation = EICRecommendation.objects.user_current_voted(
+                request.user).get(submission__in=submissions, id=rec_id)
+            if request.user.contributor in recommendation.voted_for.all():
+                previous_vote = 'agree'
+            elif request.user.contributor in recommendation.voted_against.all():
+                previous_vote = 'disagree'
+            elif request.user.contributor in recommendation.voted_abstain.all():
+                previous_vote = 'abstain'
+        except EICRecommendation.DoesNotExist:
+            raise Http404
     initial = {'vote': previous_vote}
 
     if request.POST:
@@ -1658,11 +1670,9 @@ def vote_on_rec(request, rec_id):
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
 def remind_Fellows_to_vote(request):
-    """Send an email to all Fellow with pending voting duties.
-
-    It must be called by and Editorial Administrator.
-
-    Possible TODO: This reminder function doesn't filter per submission?!
+    """
+    Send an email to all Fellows with at least one pending voting duties.
+    It must be called by an Editorial Administrator.
     """
     submissions = Submission.objects.pool_editable(request.user)
     recommendations = EICRecommendation.objects.active().filter(
@@ -1733,6 +1743,18 @@ def send_editorial_assignment_invitation(request, identifier_w_vn_nr, assignment
     return redirect(reverse(
         'submissions:editor_invitations',
         args=(assignment.submission.preprint.identifier_w_vn_nr,)))
+
+
+class SubmissionReassignmentView(SuccessMessageMixin, SubmissionAdminViewMixin, UpdateView):
+    """Assign new EIC to Submission."""
+
+    permission_required = 'scipost.can_reassign_submissions'  # TODO: New permission
+    queryset = Submission.objects.assigned()
+    template_name = 'submissions/admin/submission_reassign.html'
+    form_class = SubmissionReassignmentForm
+    editorial_page = True
+    success_url = reverse_lazy('submissions:pool')
+    success_message = 'Editor successfully replaced.'
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):

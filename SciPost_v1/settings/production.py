@@ -53,3 +53,6 @@ ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 # Logging
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost/logs/doi.log'
+
+
+#BROKER_URL = 'amqp://guest:guest@localhost:5672//'

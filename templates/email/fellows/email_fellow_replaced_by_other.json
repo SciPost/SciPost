@@ -1,8 +1,8 @@
 {
-    "subject": "SciPost: current assignments, pending tasks",
-    "to_address": "user.email",
+    "subject": "SciPost: assignment cancelled",
+    "to_address": "to.user.email",
     "bcc_to": "edadmin@scipost.org",
     "from_address_name": "SciPost EdAdmin",
     "from_address": "edadmin@scipost.org",
-    "context_object": "fellow"
+    "context_object": "assignment"
 }

@@ -229,7 +229,7 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
                     'preprint__identifier_w_vn_nr'))
         except Publication.DoesNotExist:
             if Submission.objects.accepted().filter(preprint__identifier_w_vn_nr=self.kwargs.get(
-              'preprint__identifier_w_vn_nr')).exists():
+              'identifier_w_vn_nr')).exists():
                 return None
             raise Http404('No accepted Submission found')
         if publication.status == STATUS_DRAFT:

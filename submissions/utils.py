@@ -292,18 +292,6 @@ class SubmissionUtils(BaseMailUtil):
     mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
-    def deprecate_all_assignments(cls):
-        """
-        Called when the pre-screening has failed.
-        Requires loading 'submission' attribute.
-        """
-        # Import here due to circular import error
-        from .models import EditorialAssignment
-
-        EditorialAssignment.objects.filter(
-            submission=cls.submission, accepted=None).update(deprecated=True)
-
-    @classmethod
     def reinvite_referees_email(cls):
         """
         Email to be sent to referees when they are being reinvited by the EIC.
@@ -1278,9 +1266,9 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: voting duties', email_text,
-            'SciPost Editorial Admin <admin@scipost.org>',
-            to=['admin@scipost.org'],
+            'SciPost Editorial Admin <edadmin@scipost.org>',
+            to=['edadmin@scipost.org'],
             bcc=cls.Fellow_emails,
-            reply_to=['admin@scipost.org'])
+            reply_to=['edadmin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
