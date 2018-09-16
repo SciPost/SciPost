@@ -89,42 +89,4 @@ urlpatterns = [
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),
-
-    # TO BE DEPRECATED:
-    # Prospective Fellows
-    url(
-        r'^prospectivefellows/$',
-        views.ProspectiveFellowListView.as_view(),
-        name='prospective_Fellows'
-    ),
-    url(
-        r'^prospectivefellows/add/$',
-        views.ProspectiveFellowCreateView.as_view(),
-        name='prospective_Fellow_create'
-    ),
-    url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/update/$',
-        views.ProspectiveFellowUpdateView.as_view(),
-        name='prospective_Fellow_update'
-    ),
-    url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/update_status/$',
-        views.ProspectiveFellowUpdateStatusView.as_view(),
-        name='prospective_Fellow_update_status'
-    ),
-    url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/delete/$',
-        views.ProspectiveFellowDeleteView.as_view(),
-        name='prospective_Fellow_delete'
-    ),
-    url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/events/add$',
-        views.ProspectiveFellowEventCreateView.as_view(),
-        name='prospective_Fellow_event_create'
-    ),
-    url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/email/$',
-        views.ProspectiveFellowInitialEmailView.as_view(),
-        name='prospective_Fellow_email_initial'
-    ),
 ]
