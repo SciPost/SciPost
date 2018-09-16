@@ -52,6 +52,7 @@ urlpatterns = [
     url(r'^preprints/', include('preprints.urls', namespace="preprints")),
     url(r'^proceedings/', include('proceedings.urls', namespace="proceedings")),
     url(r'^production/', include('production.urls', namespace="production")),
+    url(r'^profiles/', include('profiles.urls', namespace="profiles")),
     url(r'^partners/', include('partners.urls', namespace="partners")),
     url(r'^stats/', include('stats.urls', namespace="stats")),
     # Keep temporarily for historical reasons

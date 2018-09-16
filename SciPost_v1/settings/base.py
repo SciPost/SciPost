@@ -107,6 +107,7 @@ INSTALLED_APPS = (
     'virtualmeetings',
     'proceedings',
     'production',
+    'profiles',
     'partners',
     'preprints',
     'funders',

@@ -96,6 +96,15 @@ class Command(BaseCommand):
             codename='can_read_all_privacy_sensitive_data',
             name='Can read all privacy sensitive data',
             content_type=content_type)
+        can_create_profiles, created = Permission.objects.get_or_create(
+            codename='can_create_profiles',
+            name='Can create Profiles',
+            content_type=content_type)
+        can_view_profiles, created = Permission.objects.get_or_create(
+            codename='can_view_profiles',
+            name='Can view Profiles',
+            content_type=content_type)
+
 
         # Communications
         can_email_group_members, created = Permission.objects.get_or_create(
@@ -328,6 +337,8 @@ class Command(BaseCommand):
             can_promote_to_production_team,
             can_manage_affiliations,
             can_view_statistics,
+            can_create_profiles,
+            can_view_profiles,
         ])
 
         FinancialAdmin.permissions.set([
@@ -366,6 +377,8 @@ class Command(BaseCommand):
             can_upload_proofs,
             can_run_proofs_by_authors,
             can_view_statistics,
+            can_create_profiles,
+            can_view_profiles,
         ])
 
         EditorialCollege.permissions.set([

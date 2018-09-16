@@ -1,0 +1,25 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Delete Profile{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Delete Profile</h1>
+	{% include 'profiles/_profile_card.html' with profile=profile %}
+    </div>
+</div>
+<div class="row">
+  <div class="col-12">
+      <form method="post">
+        {% csrf_token %}
+        <h3 class="mb-2">Are you sure you want to delete this Profile?</h3>
+        <input type="submit" class="btn btn-danger" value="Yes, delete it" />
+      </form>
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}

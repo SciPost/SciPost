@@ -1,0 +1,23 @@
+{% load bootstrap %}
+
+<div class="card-body">
+  <div class="row">
+    <div class="col-6">
+      <p>
+	{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}
+	<br/>
+	{{ profile.email }}
+	<br/>
+	{% if profile.webpage %}<a href="{{ profile.webpage }}" target="_blank">webpage</a>
+	{% else %}No personal webpage given
+	{% endif %}
+      </p>
+    </div>
+    <div class="col-6">
+      <ul>
+	<li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> the data</li>
+	<li><a href="{% url 'profiles:profile_delete' pk=profile.id %}">Delete</a> this Profile</li>
+      </ul>
+    </div>
+  </div>
+</div>
