@@ -45,5 +45,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(transfer_prosfel_data_to_potfellowship),
+        migrations.RunPython(transfer_prosfel_data_to_potfellowship,
+                             reverse_code=migrations.RunPython.noop),
     ]
