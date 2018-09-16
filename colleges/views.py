@@ -13,6 +13,10 @@ from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
+from .constants import POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
+    POTENTIAL_FELLOWSHIP_EVENT_EMAILED, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,\
+    POTENTIAL_FELLOWSHIP_EVENT_COMMENT
+# NEXT IMPORTS TO BE DEPRECATED
 from .constants import PROSPECTIVE_FELLOW_INVITED,\
     prospective_Fellow_statuses_dict,\
     PROSPECTIVE_FELLOW_EVENT_EMAILED, PROSPECTIVE_FELLOW_EVENT_STATUSUPDATED,\
@@ -21,8 +25,10 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
+    PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm,\
     ProspectiveFellowForm, ProspectiveFellowStatusForm, ProspectiveFellowEventForm
-from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
+from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent,\
+    ProspectiveFellow, ProspectiveFellowEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
@@ -300,6 +306,125 @@ def fellowship_add_proceedings(request, id):
 
 
 
+# Potential Fellowships
+
+class PotentialFellowshipCreateView(PermissionsMixin, CreateView):
+    """
+    Formview to create a new Potential Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    form_class = PotentialFellowshipForm
+    template_name = 'colleges/potentialfellowship_form.html'
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+
+class PotentialFellowshipUpdateView(PermissionsMixin, UpdateView):
+    """
+    Formview to update a Potential Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
+    form_class = PotentialFellowshipForm
+    template_name = 'colleges/potentialfellowship_form.html'
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+
+class PotentialFellowshipUpdateStatusView(PermissionsMixin, UpdateView):
+    """
+    Formview to update the status of a Potential Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
+    fields = ['status']
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+    def form_valid(self, form):
+        event = PotentialFellowshipEvent(
+            potfel=self.object,
+            event=POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
+            comments=('Status updated to %s'
+                      % potential_fellowship_statuses_dict[form.cleaned_data['status']]),
+            noted_on=timezone.now(),
+            noted_by=self.request.user.contributor)
+        event.save()
+        return super().form_valid(form)
+
+
+class PotentialFellowshipDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete a Potential Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+
+class PotentialFellowshipListView(PermissionsMixin, ListView):
+    """
+    List the PotentialFellowship object instances.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
+    paginate_by = 25
+
+    def get_queryset(self):
+        """
+        Return a queryset of PotentialFellowships using optional GET data.
+        """
+        queryset = PotentialFellowship.objects.all()
+        if 'discipline' in self.request.GET:
+            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
+            if 'expertise' in self.request.GET:
+                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        context['pfstatus_form'] = PotentialFellowshipStatusForm()
+        context['pfevent_form'] = PotentialFellowshipEventForm()
+        return context
+
+
+class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):
+    """Send a templated email to a Potential Fellow."""
+
+    permission_required = 'scipost.can_manage_college_composition'
+    queryset = PotentialFellowship.objects.all()
+    mail_code = 'potentialfellows/invite_potential_fellow_initial'
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+    def form_valid(self, form):
+        """Create an event associated to this outgoing email."""
+        event = PotentialFellowshipEvent(
+            potfel=self.object,
+            event=POTENTIAL_FELLOWSHIP_EVENT_EMAILED,
+            comments='Emailed initial template to potential Fellow',
+            noted_on=timezone.now(),
+            noted_by=self.request.user.contributor)
+        event.save()
+        self.object.status = POTENTIAL_FELLOWSHIP_INVITED
+        self.object.save()
+        return super().form_valid(form)
+
+
+class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
+    """
+    Add an event for a Potential Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    form_class = PotentialFellowshipEventForm
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+    def form_valid(self, form):
+        form.instance.potfel = get_object_or_404(PotentialFellowship, id=self.kwargs['pk'])
+        form.instance.noted_on = timezone.now()
+        form.instance.noted_by = self.request.user.contributor
+        messages.success(self.request, 'Event added successfully')
+        return super().form_valid(form)
+
+
+# TO BE DEPRECATED:
 class ProspectiveFellowCreateView(PermissionsMixin, CreateView):
     """
     Formview to create a new Prospective Fellow.

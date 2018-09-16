@@ -6,11 +6,14 @@ import datetime
 
 from django import forms
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from proceedings.models import Proceedings
 from submissions.models import Submission
 from scipost.models import Contributor
 
-from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
+from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent,\
+    ProspectiveFellow, ProspectiveFellowEvent
 
 
 class AddFellowshipForm(forms.ModelForm):
@@ -222,6 +225,29 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
         return fellowship
 
 
+class PotentialFellowshipForm(forms.ModelForm):
+    profile = AutoCompleteSelectField('profile_lookup')
+
+    class Meta:
+        model = PotentialFellowship
+        fields = ['status']
+
+
+class PotentialFellowshipStatusForm(forms.ModelForm):
+
+    class Meta:
+        model = PotentialFellowship
+        fields = ['status']
+
+
+class PotentialFellowshipEventForm(forms.ModelForm):
+
+    class Meta:
+        model = PotentialFellowshipEvent
+        fields = ['event', 'comments']
+
+
+# TO BE DEPRECATED
 class ProspectiveFellowForm(forms.ModelForm):
 
     class Meta:

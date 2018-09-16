@@ -22,6 +22,17 @@ class FellowshipAdmin(admin.ModelAdmin):
 admin.site.register(Fellowship, FellowshipAdmin)
 
 
+class PotentialFellowshipEventInline(admin.TabularInline):
+    model = PotentialFellowshipEvent
+
+class PotentialFellowshipAdmin(admin.ModelAdmin):
+    inlines = (PotentialFellowshipEventInline,)
+    search_fields = ['last_name', 'email']
+
+admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)
+
+
+# TO BE DEPRECATED
 class ProspectiveFellowEventInline(admin.TabularInline):
     model = ProspectiveFellowEvent
 

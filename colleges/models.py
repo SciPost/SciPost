@@ -8,9 +8,13 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from .constants import PROSPECTIVE_FELLOW_STATUSES, PROSPECTIVE_FELLOW_IDENTIFIED,\
+from .constants import POTENTIAL_FELLOWSHIP_STATUSES,\
+    POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_EVENTS,\
+    PROSPECTIVE_FELLOW_STATUSES, PROSPECTIVE_FELLOW_IDENTIFIED,\
     PROSPECTIVE_FELLOW_EVENTS
 from .managers import FellowQuerySet
+
+from profiles.models import Profile
 
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,\
@@ -66,6 +70,29 @@ class Fellowship(TimeStampedModel):
             return today >= self.start_date
         return today >= self.start_date and today <= self.until_date
 
+
+class PotentialFellowship(models.Model):
+    """
+    A PotentialFellowship is defined when a researcher has been identified by
+    Admin or EdAdmin as a potential member of an Editorial College.
+    """
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
+    status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,
+                              default=POTENTIAL_FELLOWSHIP_IDENTIFIED)
+
+
+class PotentialFellowshipEvent(models.Model):
+    potfel = models.ForeignKey('colleges.PotentialFellowship', on_delete=models.CASCADE)
+    event = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_EVENTS)
+    comments = models.TextField(blank=True)
+    noted_on = models.DateTimeField(default=timezone.now)
+    noted_by = models.ForeignKey('scipost.Contributor',
+                                 on_delete=models.SET(get_sentinel_user),
+                                 blank=True, null=True)
+
+    def __str__(self):
+        return '%s, %s %s: %s' % (self.potfel.last_name, self.potfel.get_title_display(),
+                                  self.potfel.first_name, self.get_event_display())
 
 
 class ProspectiveFellow(models.Model):

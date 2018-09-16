@@ -43,6 +43,44 @@ urlpatterns = [
     url(r'^fellowships/(?P<id>[0-9]+)/proceedings/(?P<proceedings_id>[0-9]+)/remove$',
         views.fellowship_remove_proceedings, name='fellowship_remove_proceedings'),
 
+    # Potential Fellowships
+    url(
+        r'^potentialfellowships/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
+    ),
+    url(
+        r'^potentialfellowships/add/$',
+        views.PotentialFellowshipCreateView.as_view(),
+        name='potential_fellowship_create'
+    ),
+    url(
+        r'^potentialfellowships/(?P<pk>[0-9]+)/update/$',
+        views.PotentialFellowshipUpdateView.as_view(),
+        name='potential_fellowship_update'
+    ),
+    url(
+        r'^potentialfellowsships/(?P<pk>[0-9]+)/update_status/$',
+        views.PotentialFellowshipUpdateStatusView.as_view(),
+        name='potential_fellowship_update_status'
+    ),
+    url(
+        r'^potentialfellowships/(?P<pk>[0-9]+)/delete/$',
+        views.PotentialFellowshipDeleteView.as_view(),
+        name='potential_fellowship_delete'
+    ),
+    url(
+        r'^potentialfellowships/(?P<pk>[0-9]+)/events/add$',
+        views.PotentialFellowshipEventCreateView.as_view(),
+        name='potential_fellowship_event_create'
+    ),
+    url(
+        r'^potentialfellowships/(?P<pk>[0-9]+)/email/$',
+        views.PotentialFellowshipInitialEmailView.as_view(),
+        name='potential_fellowship_email_initial'
+    ),
+
+    # TO BE DEPRECATED:
     # Prospective Fellows
     url(
         r'^prospectivefellows/$',
