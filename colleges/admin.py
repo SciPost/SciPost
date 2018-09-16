@@ -4,7 +4,8 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
+from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent,\
+    ProspectiveFellow, ProspectiveFellowEvent
 
 
 def fellowhip_is_active(fellowship):

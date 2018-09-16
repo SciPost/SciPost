@@ -230,7 +230,7 @@ class PotentialFellowshipForm(forms.ModelForm):
 
     class Meta:
         model = PotentialFellowship
-        fields = ['status']
+        fields = ['profile', 'status']
 
 
 class PotentialFellowshipStatusForm(forms.ModelForm):

@@ -75,6 +75,9 @@ class PotentialFellowship(models.Model):
     """
     A PotentialFellowship is defined when a researcher has been identified by
     Admin or EdAdmin as a potential member of an Editorial College.
+
+    It is linked to Profile as ForeignKey and not as OneToOne, since the same
+    person can eventually be approached on different occasions.
     """
     profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,

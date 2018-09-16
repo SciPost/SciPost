@@ -372,10 +372,10 @@ class PotentialFellowshipListView(PermissionsMixin, ListView):
         Return a queryset of PotentialFellowships using optional GET data.
         """
         queryset = PotentialFellowship.objects.all()
-        if 'discipline' in self.request.GET:
-            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
-            if 'expertise' in self.request.GET:
-                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
+        if self.kwargs.get('discipline', None):
+            queryset = queryset.filter(profile__discipline=self.kwargs['discipline'].lower())
+            if self.kwargs.get('expertise', None):
+                queryset = queryset.filter(profile__expertises__contains=[self.kwargs['expertise']])
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -391,7 +391,7 @@ class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):
 
     permission_required = 'scipost.can_manage_college_composition'
     queryset = PotentialFellowship.objects.all()
-    mail_code = 'potentialfellows/invite_potential_fellow_initial'
+    mail_code = 'potentialfellowships/invite_potential_fellow_initial'
     success_url = reverse_lazy('colleges:potential_fellowships')
 
     def form_valid(self, form):

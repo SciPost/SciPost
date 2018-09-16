@@ -45,11 +45,6 @@ urlpatterns = [
 
     # Potential Fellowships
     url(
-        r'^potentialfellowships/$',
-        views.PotentialFellowshipListView.as_view(),
-        name='potential_fellowships'
-    ),
-    url(
         r'^potentialfellowships/add/$',
         views.PotentialFellowshipCreateView.as_view(),
         name='potential_fellowship_create'
@@ -78,6 +73,21 @@ urlpatterns = [
         r'^potentialfellowships/(?P<pk>[0-9]+)/email/$',
         views.PotentialFellowshipInitialEmailView.as_view(),
         name='potential_fellowship_email_initial'
+    ),
+    url(
+        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
+    ),
+    url(
+        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
+    ),
+    url(
+        r'^potentialfellowships/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
     ),
 
     # TO BE DEPRECATED:
