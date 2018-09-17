@@ -76,7 +76,10 @@ class PotentialFellowship(models.Model):
 
     It is linked to Profile as ForeignKey and not as OneToOne, since the same
     person can eventually be approached on different occasions.
+
+    COMMENT: Why is this only nonregistered people only?
     """
+
     profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,
                               default=POTENTIAL_FELLOWSHIP_IDENTIFIED)
@@ -86,10 +89,13 @@ class PotentialFellowship(models.Model):
 
 
 class PotentialFellowshipEvent(models.Model):
+    """Any event directly related to a PotentialFellowship instance registered as plain text."""
+
     potfel = models.ForeignKey('colleges.PotentialFellowship', on_delete=models.CASCADE)
     event = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_EVENTS)
     comments = models.TextField(blank=True)
-    noted_on = models.DateTimeField(default=timezone.now)
+
+    noted_on = models.DateTimeField(auto_now_add=True)
     noted_by = models.ForeignKey('scipost.Contributor',
                                  on_delete=models.SET(get_sentinel_user),
                                  blank=True, null=True)

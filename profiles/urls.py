@@ -26,12 +26,12 @@ urlpatterns = [
         r'^(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
         views.ProfileListView.as_view(),
         name='profiles'
-        ),
+    ),
     url(
         r'^(?P<discipline>[a-zA-Z]+)/$',
         views.ProfileListView.as_view(),
         name='profiles'
-        ),
+    ),
     url(
         r'^$',
         views.ProfileListView.as_view(),

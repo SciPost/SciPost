@@ -6,17 +6,15 @@ from django.db import models
 
 from scipost.behaviors import orcid_validator
 from scipost.constants import (
-    TITLE_CHOICES,
-    SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,
-    SCIPOST_SUBJECT_AREAS,
-    )
+    TITLE_CHOICES, SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS)
 from scipost.fields import ChoiceArrayField
 
 
 class Profile(models.Model):
     """
-    A Profile object instance contains information about an individual
-    who is a potential SciPost Contributor but is not necessarily registered.
+    A Profile object instance contains information about an individual.
+
+    This individual is a potential SciPost Contributor but is not necessarily registered.
     It is created and used by Admin, EdAdmin or other internal SciPost staff.
 
     For registered Contributors, a profile is initially created from the contributor-filled
@@ -34,6 +32,7 @@ class Profile(models.Model):
        #. mark somebody as not willing to receive emails from SciPost.
        #. mark somebody as a non-referee (if that person does not want to referee for SciPost)
     """
+
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
