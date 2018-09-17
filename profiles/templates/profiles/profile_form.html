@@ -1,6 +1,11 @@
-{% extends 'scipost/base.html' %}
+{% extends 'profiles/base.html' %}
 
 {% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Profile{% endif %}</span>
+{% endblock %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 

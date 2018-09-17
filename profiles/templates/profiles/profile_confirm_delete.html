@@ -1,6 +1,11 @@
-{% extends 'scipost/base.html' %}
+{% extends 'profiles/base.html' %}
 
 {% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Delete {{ profile }}</span>
+{% endblock %}
 
 {% block pagetitle %}: Delete Profile{% endblock pagetitle %}
 
