@@ -1,5 +1,7 @@
 {% load bootstrap %}
 
+{% load partners_extras %}
+
 <div class="card-body">
 
   <div class="row">
@@ -11,7 +13,7 @@
 	</li>
 	{% endif %}
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Associated Publications</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
@@ -40,15 +42,20 @@
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization:</h3>
+	  {% for pubyear in pubyears %}
+	  <h4>{{ pubyear }} <span class="text-muted">(total pubfractions: {{ org|pubfractions_in_year:pubyear }})</span></h4>
 	  <ul>
 	    {% for publication in org.get_publications %}
+	    {% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
 	    <li>
               <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
               <br>by {{ publication.author_list }},
               <br>{{ publication.citation }}
 	    </li>
+	    {% endif %}
 	    {% endfor %}
 	  </ul>
+	  {% endfor %}
 	</div>
 
 	<div class="tab-pane pt-4" id="authors-{{ org.id }}" role="tabpanel" aria-labelledby="authors-{{ org.id }}-tab">

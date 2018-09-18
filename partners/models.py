@@ -10,6 +10,7 @@ import string
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
 from django.urls import reverse
 
@@ -32,7 +33,7 @@ from .managers import (
     MembershipAgreementManager, ProspectivePartnerManager, PartnerManager, ContactRequestManager,
     PartnersAttachmentManager)
 
-from journals.models import Publication, PublicationAuthorsTable
+from journals.models import Publication, PublicationAuthorsTable, OrgPubFraction
 
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
@@ -130,6 +131,15 @@ class Organization(models.Model):
         """
         self.cf_nr_associated_publications = self.count_publications()
         self.save()
+
+    def pubfractions_in_year(self, year):
+        """
+        Returns the sum of pubfractions for the given year.
+        """
+        return OrgPubFraction.objects.filter(
+            organization=self,
+            publication__publication_date__year=year
+        ).aggregate(Sum('fraction'))['fraction__sum']
 
     def get_contributor_authors(self):
         return self.publicationauthorstable_set.select_related(
