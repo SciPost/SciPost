@@ -737,9 +737,20 @@ def metadata_DOAJ_deposit(request, doi_label):
                             kwargs={'doi_label': publication.doi_label}))
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def allocate_orgpubfractions(request, doi_label):
+    """
+    Set the relative support obtained from Organizations
+    for the research contained in a Publication.
+
+    This view is accessible to EdAdmin as well as to the corresponding author
+    of the Publication.
+    """
     publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not request.user.is_authenticated:
+        raise Http404
+    elif not (request.user == publication.accepted_submission.submitted_by.user or
+              request.user.has_perm('scipost.can_publish_accepted_submission')):
+        raise Http404
     initial = []
     if not publication.pubfractions.all().exists():
         # Create new OrgPubFraction objects from existing data, spreading weight evenly
@@ -751,6 +762,9 @@ def allocate_orgpubfractions(request, doi_label):
                                      queryset=publication.pubfractions.all())
     if formset.is_valid():
         formset.save()
+        if request.user == publication.accepted_submission.submitted_by.user:
+            publication.pubfractions_confirmed_by_authors = True
+            publication.save()
         messages.success(request, 'Funding fractions successfully allocated.')
         return redirect(publication.get_absolute_url())
     context = {

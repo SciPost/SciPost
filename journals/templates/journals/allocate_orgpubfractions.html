@@ -1,6 +1,6 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Allocate pub org fractions{% endblock pagetitle %}
+{% block pagetitle %}: Allocate support fractions{% endblock pagetitle %}
 
 {% block breadcrumb %}
     <div class="container-outside header">
@@ -9,7 +9,7 @@
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
                 <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
                 <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
-                <span class="breadcrumb-item active">Allocate pub org fractions</span>
+                <span class="breadcrumb-item active">Allocate support fractions</span>
             </nav>
         </div>
     </div>
@@ -21,13 +21,14 @@
 
 <div class="row">
   <div class="col-12">
-    <h1 class="highlight">Allocate funding fractions for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+    <h1 class="highlight">Allocate support fractions for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
     {% include 'partials/journals/publication_li_content.html' with publication=publication %}
 
     <hr class="divider">
 
     <h3 class="highlight">Which Organizations supported the research in this publication?</h3>
     <p>Data provided here is indicative and does not need to be extremely accurate.<br/> Note however that this data <strong>is used</strong> to set the suggested level of support from external Organizations which SciPost needs to remain sustainable.</p>
+
     <form method="post" action="{% url 'journals:allocate_orgpubfractions' doi_label=publication.doi_label %}">
       {% csrf_token %}
       {{ formset.management_form }}
@@ -60,7 +61,7 @@
       {% if formset.non_form_errors %}
       <h4 class="text-danger">Error: {{ formset.non_form_errors }}</h4>
       {% endif %}
-      <input type="submit" class="btn btn-primary" value="Save fractions">
+      <input type="submit" class="btn btn-primary" value="Save/confirm fractions">
     </form>
     <br/>
     <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>

@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Avg, F
+from django.db.models import Avg, Sum, F
 from django.utils import timezone
 from django.urls import reverse
 
@@ -410,6 +410,7 @@ class Publication(models.Model):
     grants = models.ManyToManyField('funders.Grant', blank=True)
     funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
     institutions = models.ManyToManyField('affiliations.Institution', blank=True)
+    pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
@@ -538,6 +539,11 @@ class Publication(models.Model):
         return 'funding_statement' in self.metadata and self.metadata['funding_statement']
 
     @property
+    def pubfractions_sum_to_1(self):
+        """ Checks that the support fractions sum up to one. """
+        return self.pubfractions.aggregate(Sum('fraction'))['fraction__sum'] == 1
+
+    @property
     def citation(self):
         """
         Return Publication name in the preferred citation format.
@@ -608,7 +614,7 @@ class OrgPubFraction(models.Model):
     This data is used to compile publicly-displayed information on Organizations
     as well as to set suggested contributions from Partners.
 
-    To be set during production phase, based on information provided by the authors.
+    To be set (ideally) during production phase, based on information provided by the authors.
     """
     organization = models.ForeignKey('partners.Organization', on_delete=models.CASCADE,
                                      related_name='pubfractions')
