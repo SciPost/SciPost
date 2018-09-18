@@ -12,7 +12,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.forms import BaseModelFormSet, modelformset_factory
+from django.forms import BaseFormSet, formset_factory, BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
@@ -20,7 +20,8 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
-from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
+from .models import Issue, Publication, Reference,\
+    UnregisteredAuthor, PublicationAuthorsTable, OrgPubFraction
 from .utils import JournalUtils
 from .signals import notify_manuscript_published
 
@@ -125,7 +126,6 @@ PublicationAuthorOrderingFormSet = modelformset_factory(
 
 class AuthorsTableOrganizationSelectForm(forms.ModelForm):
     organization = AutoCompleteSelectField('organization_lookup')
-    #organization = forms.ModelChoiceField(queryset=Organization.objects.all())
 
     class Meta:
         model = PublicationAuthorsTable
@@ -691,3 +691,50 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             notify_manuscript_published(self.request.user, self.instance, False)
 
         return self.instance
+
+
+# class SetOrgPubFractionForm(forms.ModelForm):
+
+#     class Meta:
+#         model = OrgPubFraction
+#         fields = ['publication', 'organization', 'fraction']
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         #self.fields['publication'].disabled = True
+#         #self.fields['publication'].widget = forms.HiddenInput()
+#         #self.fields['organization'].disabled = True
+
+class SetOrgPubFractionForm(forms.ModelForm):
+    class Meta:
+        model = OrgPubFraction
+        fields = ['organization', 'publication', 'fraction']
+
+    def __init__(self, *args, **kwargs):
+        super(SetOrgPubFractionForm, self).__init__(*args, **kwargs)
+        if self.instance.id:
+            #self.fields['organization'].widget.attrs['readonly'] = True
+            #self.fields['organization'].widget = forms.HiddenInput()
+            self.fields['organization'].disabled = True
+            self.fields['publication'].widget = forms.HiddenInput()
+
+
+class BaseOrgPubFractionsFormSet(BaseModelFormSet):
+
+    def clean(self):
+        """
+        Checks that the fractions add up to one.
+        """
+        if any(self.errors):
+            return
+        norm = 0
+        for form in self.forms:
+            norm += 1000 * form.cleaned_data['fraction']
+        if norm != 1000:
+            raise forms.ValidationError('The fractions do not add up to one!')
+
+
+OrgPubFractionsFormSet = modelformset_factory(OrgPubFraction,
+                                              fields=('publication', 'organization', 'fraction'),
+                                              formset=BaseOrgPubFractionsFormSet,
+                                              form=SetOrgPubFractionForm, extra=0)

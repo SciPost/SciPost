@@ -37,7 +37,7 @@ from .forms import AbstractJATSForm, FundingInfoForm,\
                    CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
-                   PublicationAuthorOrderingFormSet
+                   PublicationAuthorOrderingFormSet, OrgPubFractionsFormSet
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
@@ -735,6 +735,29 @@ def metadata_DOAJ_deposit(request, doi_label):
                               % publication.doi_label)
     return redirect(reverse('journals:manage_metadata',
                             kwargs={'doi_label': publication.doi_label}))
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def allocate_orgpubfractions(request, doi_label):
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    initial = []
+    if not publication.pubfractions.all().exists():
+        # Create new OrgPubFraction objects from existing data, spreading weight evenly
+        for org in publication.get_organizations():
+            pubfrac = OrbPubFraction(publication=publication,
+                                     organization=org, fraction=0)
+            pubfrac.save()
+    formset = OrgPubFractionsFormSet(request.POST or None,
+                                     queryset=publication.pubfractions.all())
+    if formset.is_valid():
+        formset.save()
+        messages.success(request, 'Funding fractions successfully allocated.')
+        return redirect(publication.get_absolute_url())
+    context = {
+        'publication': publication,
+        'formset': formset,
+    }
+    return render(request, 'journals/allocate_orgpubfractions.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)

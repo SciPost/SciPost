@@ -491,6 +491,17 @@ class Publication(models.Model):
         return Funder.objects.filter(
             models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
 
+    def get_organizations(self):
+        """
+        Returns a queryset of all Organizations which are associated to this Publication,
+        through being in author affiliations, funders or generic funders.
+        """
+        from partners.models import Organization
+        return Organization.objects.filter(
+            models.Q(publicationauthorstable__publication=self) |
+            models.Q(funder__grants__publications=self) |
+            models.Q(funder__publications=self)).distinct()
+
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
@@ -585,6 +596,28 @@ class Reference(models.Model):
 
     def __str__(self):
         return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
+
+
+class OrgPubFraction(models.Model):
+    """
+    Associates a fraction of the funding credit for a given publication to an Organization,
+    to help answer the question: who funded this research?
+
+    Fractions for a given publication should sum up to one.
+
+    This data is used to compile publicly-displayed information on Organizations
+    as well as to set suggested contributions from Partners.
+
+    To be set during production phase, based on information provided by the authors.
+    """
+    organization = models.ForeignKey('partners.Organization', on_delete=models.CASCADE,
+                                     related_name='pubfractions')
+    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
+                                    related_name='pubfractions')
+    fraction = models.DecimalField(max_digits=4, decimal_places=3)
+
+    class Meta:
+        unique_together = (('organization', 'publication'),)
 
 
 class Deposit(models.Model):
