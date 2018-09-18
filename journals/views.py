@@ -31,7 +31,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
-                    GenericDOIDeposit, PublicationAuthorsTable
+                    GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
 from .forms import AbstractJATSForm, FundingInfoForm,\
                    UnregisteredAuthorForm, AuthorsTableOrganizationSelectForm,\
                    CreateMetadataXMLForm, CitationListBibitemsForm,\
@@ -744,7 +744,7 @@ def allocate_orgpubfractions(request, doi_label):
     if not publication.pubfractions.all().exists():
         # Create new OrgPubFraction objects from existing data, spreading weight evenly
         for org in publication.get_organizations():
-            pubfrac = OrbPubFraction(publication=publication,
+            pubfrac = OrgPubFraction(publication=publication,
                                      organization=org, fraction=0)
             pubfrac.save()
     formset = OrgPubFractionsFormSet(request.POST or None,
