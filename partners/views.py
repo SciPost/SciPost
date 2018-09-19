@@ -105,6 +105,11 @@ class OrganizationListView(ListView):
 class OrganizationDetailView(DetailView):
     model = Organization
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        return context
+
 
 def supporting_partners(request):
     current_agreements = MembershipAgreement.objects.now_active()
