@@ -24,7 +24,7 @@ event: "focusin"
     <div class="rol">
       <div class="col-12">
 	<a href="{% url 'journals:manage_report_metadata' %}?needing_update=True" method="GET">View only Reports needing an update</a>
-	<br/>
+	<br/><br/>
 	{% for page in reports.paginator.page_range %}
 	{% if forloop.counter != 1 %} | {% endif %}
 	<a href="?page={{ page }}">{{ page }}</a>

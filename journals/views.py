@@ -47,6 +47,7 @@ from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditingSubView
 from partners.models import Organization
+from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
@@ -953,7 +954,8 @@ def manage_report_metadata(request):
     if needing_update == 'True':
         reports = reports.filter(
             Q(needs_doi=None) |
-            Q(needs_doi=True, doideposit_needs_updating=True))
+            Q(needs_doi=True, doideposit_needs_updating=True)).filter(
+                submission__status=STATUS_PUBLISHED)
     paginator = Paginator(reports, 25)
 
     page = request.GET.get('page')
