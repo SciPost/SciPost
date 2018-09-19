@@ -139,6 +139,9 @@ urlpatterns = [
     url(r'^allocate_orgpubfractions/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.allocate_orgpubfractions,
         name='allocate_orgpubfractions'),
+    url(r'^request_pubfrac_check/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
+        journals_views.request_pubfrac_check,
+        name='request_pubfrac_check'),
 
     # Citedby
     url(r'^admin/citedby/$',

@@ -44,6 +44,7 @@ from .utils import JournalUtils
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
+from mails.views import MailEditingSubView
 from partners.models import Organization
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -772,6 +773,27 @@ def allocate_orgpubfractions(request, doi_label):
         'formset': formset,
     }
     return render(request, 'journals/allocate_orgpubfractions.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def request_pubfrac_check(request, doi_label):
+    """
+    This view is used by EdAdmin to request confirmation of the OrgPubFractions
+    for a given Publication.
+
+    This occurs post-publication, after all the affiliations and funders have
+    been confirmed.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    mail_request = MailEditingSubView(
+        request, mail_code='authors/request_pubfrac_check', instance=publication)
+    if mail_request.is_valid():
+        messages.success(request, 'The corresponding author has been emailed.')
+        mail_request.send()
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': deposit.publication.doi_label}))
+    else:
+        return mail_request.return_render()
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)

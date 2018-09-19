@@ -693,17 +693,6 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         return self.instance
 
 
-# class SetOrgPubFractionForm(forms.ModelForm):
-
-#     class Meta:
-#         model = OrgPubFraction
-#         fields = ['publication', 'organization', 'fraction']
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         #self.fields['publication'].disabled = True
-#         #self.fields['publication'].widget = forms.HiddenInput()
-#         #self.fields['organization'].disabled = True
 
 class SetOrgPubFractionForm(forms.ModelForm):
     class Meta:
