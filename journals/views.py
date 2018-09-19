@@ -20,6 +20,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -948,6 +949,11 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
+    needing_update = request.GET.get('needing_update')
+    if needing_update == 'True':
+        reports = reports.filter(
+            Q(needs_doi=None) |
+            Q(needs_doi=True, doideposit_needs_updating=True))
     paginator = Paginator(reports, 25)
 
     page = request.GET.get('page')
