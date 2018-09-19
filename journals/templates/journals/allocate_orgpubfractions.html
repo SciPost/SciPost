@@ -61,6 +61,7 @@
       {% if formset.non_form_errors %}
       <h4 class="text-danger">Error: {{ formset.non_form_errors }}</h4>
       {% endif %}
+      <p>These fractions {% if publication.pubfractions_confirmed_by_authors %}<span class="text-success">have been confirmed</span>{% else %}<span class="text-danger">have not yet been confirmed</span>{% endif %} by the authors.</p>
       <input type="submit" class="btn btn-primary" value="Save/confirm fractions">
     </form>
     <br/>
