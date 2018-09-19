@@ -1,9 +1,24 @@
-{% extends 'scipost/base.html' %}
+{% extends 'partners/base.html' %}
 
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
 {% load partners_extras %}
+
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Organizations</span>
+{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -18,6 +33,10 @@
       {% endif %}
     </div>
 </div>
+
+
+
+
 
 
 <div class="row">
@@ -35,9 +54,9 @@
 	  <th>Partner?</th>
 	</tr>
       </thead>
-      <tbody id="accordion" role="tablist" aria-multiselectable="true">
+      <tbody>
 	{% for org in object_list %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ org.id }}" aria-expanded="true" aria-controls="collapse{{ org.id }}" style="cursor: pointer;">
+	<tr class="table-row" data-href="{% url 'partners:organization_details' pk=org.id %}" target="_blank" style="cursor: pointer;">
 	  <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
 	  <td>
 	    {{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>
@@ -67,11 +86,6 @@
 	  {% endif %}
 	  <td></td>
 	</tr>
-	<tr id="collapse{{ org.id }}" class="collapse" role="tabpanel" aria-labbeledby="heading{{ org.id }}" style="background-color: #fff;">
-	  <td colspan="4">
-	    {% include 'partners/_organization_card.html' with org=org %}
-	  </td>
-	</tr>
 	{% empty %}
 	<tr><td colspan="4">No organizations found</td></tr>
 	{% endfor %}
@@ -79,5 +93,6 @@
     </table>
   </div>
 </div>
+
 
 {% endblock content %}
