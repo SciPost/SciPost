@@ -791,7 +791,7 @@ def request_pubfrac_check(request, doi_label):
         messages.success(request, 'The corresponding author has been emailed.')
         mail_request.send()
         return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': deposit.publication.doi_label}))
+                                kwargs={'doi_label': publication.doi_label}))
     else:
         return mail_request.return_render()
 
