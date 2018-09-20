@@ -740,6 +740,7 @@ def metadata_DOAJ_deposit(request, doi_label):
                             kwargs={'doi_label': publication.doi_label}))
 
 
+@login_required
 def allocate_orgpubfractions(request, doi_label):
     """
     Set the relative support obtained from Organizations
@@ -777,6 +778,7 @@ def allocate_orgpubfractions(request, doi_label):
     return render(request, 'journals/allocate_orgpubfractions.html', context)
 
 
+@login_required
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def request_pubfrac_check(request, doi_label):
     """
