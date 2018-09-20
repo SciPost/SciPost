@@ -16,7 +16,7 @@
                 <journal_metadata>
                     <full_title>{{ publication.in_issue.in_volume.in_journal.get_name_display }}</full_title>
                     <abbrev_title>{{ publication.in_issue.in_volume.in_journal.abbreviation_citation }}</abbrev_title>
-                    {% if publication.journal_issn %}<issn media_type='electronic'>{{ publication.journal_issn }}</issn>{% endif %}
+                    <issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>
                     <doi_data>
                         <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
                         <resource>https://scipost.org/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
@@ -35,7 +35,7 @@
                 <journal_metadata>
                     <full_title>{{ publication.in_journal.get_name_display }}</full_title>
                     <abbrev_title>{{ publication.in_journal.abbreviation_citation }}</abbrev_title>
-                    <issn media_type='electronic'>{{ publication.in_journal.issn }}</issn>
+                    {% if publication.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_journal.doi_string }}</doi>
                         <resource>https://scipost.org/{{ publication.in_journal.doi_string }}</resource>
