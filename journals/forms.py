@@ -712,10 +712,10 @@ class BaseOrgPubFractionsFormSet(BaseModelFormSet):
         """
         Checks that the fractions add up to one.
         """
-        cleaned_data = super().clean()
         norm = 0
         for form in self.forms:
-            norm += 1000 * form.cleaned_data['fraction']
+            form.is_valid()
+            norm += 1000 * form.cleaned_data.get('fraction', 0)
         if norm != 1000:
             raise forms.ValidationError('The fractions do not add up to one!')
 
