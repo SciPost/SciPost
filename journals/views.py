@@ -46,7 +46,7 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditingSubView
-from partners.models import Organization
+from organizations.models import Organization
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
