@@ -8,7 +8,10 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('funders', '0011_remove_funder_organization'),
+        ('journals', '0040_auto_20180922_1544'),
         ('partners', '0016_remove_partner_organization'),
+        ('petitions', '0007_remove_petitionsignatory_organization_tbd'),
     ]
 
     operations = [
