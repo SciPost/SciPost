@@ -41,7 +41,7 @@ class PublicationAuthorsTable(models.Model):
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
-    affs = models.ManyToManyField('organizations.Organization', blank=True)
+    affiliations = models.ManyToManyField('organizations.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -619,14 +619,14 @@ class OrgPubFraction(models.Model):
 
     To be set (ideally) during production phase, based on information provided by the authors.
     """
-    org = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
                                      related_name='pubfractions', blank=True, null=True)
     publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
                                     related_name='pubfractions')
     fraction = models.DecimalField(max_digits=4, decimal_places=3)
 
     class Meta:
-        unique_together = (('org', 'publication'),)
+        unique_together = (('organization', 'publication'),)
 
 
 class Deposit(models.Model):

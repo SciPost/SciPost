@@ -125,7 +125,7 @@ PublicationAuthorOrderingFormSet = modelformset_factory(
 
 
 class AuthorsTableOrganizationSelectForm(forms.ModelForm):
-    org = AutoCompleteSelectField('organization_lookup')
+    organization = AutoCompleteSelectField('organization_lookup')
 
     class Meta:
         model = PublicationAuthorsTable
@@ -697,12 +697,12 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
 class SetOrgPubFractionForm(forms.ModelForm):
     class Meta:
         model = OrgPubFraction
-        fields = ['org', 'publication', 'fraction']
+        fields = ['organization', 'publication', 'fraction']
 
     def __init__(self, *args, **kwargs):
         super(SetOrgPubFractionForm, self).__init__(*args, **kwargs)
         if self.instance.id:
-            self.fields['org'].disabled = True
+            self.fields['organization'].disabled = True
             self.fields['publication'].widget = forms.HiddenInput()
 
 
@@ -721,6 +721,6 @@ class BaseOrgPubFractionsFormSet(BaseModelFormSet):
 
 
 OrgPubFractionsFormSet = modelformset_factory(OrgPubFraction,
-                                              fields=('publication', 'org', 'fraction'),
+                                              fields=('publication', 'organization', 'fraction'),
                                               formset=BaseOrgPubFractionsFormSet,
                                               form=SetOrgPubFractionForm, extra=0)

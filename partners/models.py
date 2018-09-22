@@ -230,7 +230,7 @@ class Partner(models.Model):
     """
     institution = models.ForeignKey('partners.Institution', on_delete=models.CASCADE,
                                     blank=True, null=True)
-    org = models.OneToOneField('organizations.Organization', on_delete=models.CASCADE,
+    organization = models.OneToOneField('organizations.Organization', on_delete=models.CASCADE,
                                         blank=True, null=True)
     status = models.CharField(max_length=16, choices=PARTNER_STATUS, default=PARTNER_INITIATED)
     main_contact = models.ForeignKey('partners.Contact', on_delete=models.SET_NULL,

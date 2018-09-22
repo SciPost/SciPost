@@ -23,7 +23,7 @@ class Funder(models.Model):
     name = models.CharField(max_length=256)
     acronym = models.CharField(max_length=32, blank=True)
     identifier = models.CharField(max_length=200, unique=True)
-    org = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
                                      blank=True, null=True)
 
     objects = FunderQuerySet.as_manager()
