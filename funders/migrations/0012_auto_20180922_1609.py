@@ -8,6 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('partners', '0017_auto_20180922_1603'),
         ('funders', '0011_remove_funder_organization'),
     ]
 
