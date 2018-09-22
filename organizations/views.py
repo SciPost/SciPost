@@ -11,6 +11,8 @@ from django.views.generic.list import ListView
 
 from .models import Organization
 
+from funders.models import Funder
+
 from scipost.mixins import PermissionsMixin
 
 

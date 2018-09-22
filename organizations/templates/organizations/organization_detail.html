@@ -6,7 +6,6 @@
 
 {% block breadcrumb_items %}
 {{ block.super }}
-<a href="{% url 'organizations:organization_list' %}" class="breadcrumb-item">Organizations</a>
 <span class="breadcrumb-item">{{ organization }}</span>
 {% endblock %}
 
