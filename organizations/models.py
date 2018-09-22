@@ -81,7 +81,7 @@ class Organization(models.Model):
         return full_name_str + self.full_name
 
     def get_absolute_url(self):
-        return reverse('partners:organization_details', args=(self.id,))
+        return reverse('organizations:organization_details', args=(self.id,))
 
     def get_publications(self):
         return Publication.objects.filter(
