@@ -29,7 +29,7 @@ from .signals import notify_manuscript_published
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
-from partners.models import Organization
+from organizations.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
@@ -125,7 +125,7 @@ PublicationAuthorOrderingFormSet = modelformset_factory(
 
 
 class AuthorsTableOrganizationSelectForm(forms.ModelForm):
-    organization = AutoCompleteSelectField('organization_lookup')
+    org = AutoCompleteSelectField('organization_lookup')
 
     class Meta:
         model = PublicationAuthorsTable
@@ -697,12 +697,12 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
 class SetOrgPubFractionForm(forms.ModelForm):
     class Meta:
         model = OrgPubFraction
-        fields = ['organization', 'publication', 'fraction']
+        fields = ['org', 'publication', 'fraction']
 
     def __init__(self, *args, **kwargs):
         super(SetOrgPubFractionForm, self).__init__(*args, **kwargs)
         if self.instance.id:
-            self.fields['organization'].disabled = True
+            self.fields['org'].disabled = True
             self.fields['publication'].widget = forms.HiddenInput()
 
 
@@ -721,6 +721,6 @@ class BaseOrgPubFractionsFormSet(BaseModelFormSet):
 
 
 OrgPubFractionsFormSet = modelformset_factory(OrgPubFraction,
-                                              fields=('publication', 'organization', 'fraction'),
+                                              fields=('publication', 'org', 'fraction'),
                                               formset=BaseOrgPubFractionsFormSet,
                                               form=SetOrgPubFractionForm, extra=0)
