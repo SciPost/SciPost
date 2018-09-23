@@ -22,6 +22,7 @@ django-sphinxdoc==1.5.1
 django-silk==2.0.0
 django-recaptcha==1.3.1
 django-webpack-loader==0.5
+django-maintenancemode-2==1.1.11
 
 
 # Documentation Packages
