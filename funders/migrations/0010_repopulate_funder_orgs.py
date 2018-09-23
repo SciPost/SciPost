@@ -9,7 +9,7 @@ def repopulate_organization_field(apps, schema_editor):
     Funder = apps.get_model('funders', 'Funder')
     Organization = apps.get_model('organizations', 'Organization')
 
-    for funder in Funder.objects.all():
+    for funder in Funder.objects.filter(organization__isnull=False):
         funder.org = Organization.objects.get(name=funder.organization.name)
         funder.save()
 

@@ -10,7 +10,7 @@ def repopulate_organization_field(apps, schema_editor):
     PublicationAuthorsTable = apps.get_model('journals', 'PublicationAuthorsTable')
     Organization = apps.get_model('organizations', 'Organization')
 
-    for frac in OrgPubFraction.objects.all():
+    for frac in OrgPubFraction.objects.filter(organization__isnull=False):
         frac.org = Organization.objects.get(name=frac.organization.name)
         frac.save()
 
