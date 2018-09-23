@@ -9,7 +9,7 @@ def repopulate_organization_field(apps, schema_editor):
     Partner = apps.get_model('partners', 'Partner')
     Organization = apps.get_model('organizations', 'Organization')
 
-    for partner in Partner.objects.all():
+    for partner in Partner.objects.filter(organization__isnull=False):
         partner.org = Organization.objects.get(name=partner.organization.name)
         partner.save()
 
