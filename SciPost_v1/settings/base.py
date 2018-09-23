@@ -115,7 +115,8 @@ INSTALLED_APPS = (
     'stats',
     'petitions',
     'sitesserved',
-    'webpack_loader'
+    'webpack_loader',
+    'maintenancemode',
 )
 
 SITE_ID = 1
@@ -176,6 +177,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 ROOT_URLCONF = 'SciPost_v1.urls'
