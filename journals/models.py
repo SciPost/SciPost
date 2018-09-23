@@ -308,11 +308,15 @@ class Issue(models.Model):
 
     @property
     def issue_number(self):
-        return '%s issue %s' % (self.in_volume, self.number)
+        if self.in_volume:
+            return '%s issue %s' % (self.in_volume, self.number)
+        return self.short_str
 
     @property
     def short_str(self):
-        return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
+        if self.in_volume:
+            return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
+        return 'Issue %s' % self.number
 
     @property
     def period_as_string(self):
@@ -321,8 +325,8 @@ class Issue(models.Model):
         return '%s - %s' % (self.start_date.strftime('%B'), self.until_date.strftime('%B %Y'))
 
     def is_current(self):
-        return self.start_date <= timezone.now().date() and\
-               self.until_date >= timezone.now().date()
+        today = timezone.now().date()
+        return self.start_date <= today and self.until_date >= today
 
     def nr_publications(self, tier=None):
         publications = Publication.objects.filter(in_issue=self)
