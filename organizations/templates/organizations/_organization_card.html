@@ -1,6 +1,6 @@
 {% load bootstrap %}
 
-{% load partners_extras %}
+{% load organizations_extras %}
 
 <div class="card-body">
 
@@ -36,7 +36,7 @@
 	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
 	  <h3>Details:</h3>
-	  {% include 'partners/_organization_details_contents.html' with org=org %}
+	  {% include 'organizations/_organization_details_contents.html' with org=org %}
 	</div>
 	{% endif %}
 
@@ -132,8 +132,8 @@
 	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Manage this organization:</h3>
 	  <ul>
-	    <li><a href="{% url 'partners:organization_update' pk=org.id %}">Update</a></li>
-	    <li><a href="{% url 'partners:organization_delete' pk=org.id %}">Delete</a></li>
+	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
+	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
 	  </ul>
 	  <hr/>
 	  {% endif %}

@@ -29,7 +29,7 @@ from .signals import notify_manuscript_published
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
-from partners.models import Organization
+from organizations.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change

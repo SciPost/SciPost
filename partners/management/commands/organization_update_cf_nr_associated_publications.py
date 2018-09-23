@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.core.management.base import BaseCommand
 
-from partners.models import Organization
+from organizations.models import Organization
 
 
 class Command(BaseCommand):

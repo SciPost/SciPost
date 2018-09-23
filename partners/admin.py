@@ -4,13 +4,9 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Organization, Contact, Partner, Consortium, Institution,\
+from .models import Contact, Partner, Consortium, Institution,\
                     ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
                     MembershipAgreement, ContactRequest, PartnersAttachment
-
-
-class OrganizationAdmin(admin.ModelAdmin):
-    search_fields = ['name', 'acronym']
 
 
 class AttachmentInline(admin.TabularInline):
@@ -60,7 +56,6 @@ class MembershipAgreementAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(Consortium)
 admin.site.register(Contact)

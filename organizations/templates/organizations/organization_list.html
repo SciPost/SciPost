@@ -1,9 +1,9 @@
-{% extends 'partners/base.html' %}
+{% extends 'organizations/base.html' %}
 
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
-{% load partners_extras %}
+{% load organizations_extras %}
 
 {% block headsup %}
 <script type="text/javascript">
@@ -27,7 +27,7 @@ $(document).ready(function($) {
       {% if perms.scipost.can_manage_organizations %}
       <h3>Management actions:</h3>
       <ul>
-	<li><a href="{% url 'partners:organization_create' %}">Create a new Organization instance</a></li>
+	<li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
 	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
       </ul>
       {% endif %}
@@ -75,7 +75,7 @@ $(document).ready(function($) {
       </thead>
       <tbody>
 	{% for org in object_list %}
-	<tr class="table-row" data-href="{% url 'partners:organization_details' pk=org.id %}" target="_blank" style="cursor: pointer;">
+	<tr class="table-row" data-href="{% url 'organizations:organization_details' pk=org.id %}" target="_blank" style="cursor: pointer;">
 	  <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
 	  <td>
 	    {{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>

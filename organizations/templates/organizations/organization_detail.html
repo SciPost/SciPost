@@ -1,4 +1,4 @@
-{% extends 'partners/base.html' %}
+{% extends 'organizations/base.html' %}
 
 {% load bootstrap %}
 
@@ -6,7 +6,6 @@
 
 {% block breadcrumb_items %}
 {{ block.super }}
-<a href="{% url 'partners:organization_list' %}" class="breadcrumb-item">Organizations</a>
 <span class="breadcrumb-item">{{ organization }}</span>
 {% endblock %}
 
@@ -16,7 +15,7 @@
 
 <div class="row">
   <div class="col-12">
-    {% include 'partners/_organization_card.html' with org=organization pubyears=pubyears %}
+    {% include 'organizations/_organization_card.html' with org=organization pubyears=pubyears %}
   </div>
 </div>
 
