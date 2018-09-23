@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_countries',
     'django_extensions',
     'django_mathjax',
@@ -113,8 +114,11 @@ INSTALLED_APPS = (
     'funders',
     'stats',
     'petitions',
+    'sitesserved',
     'webpack_loader'
 )
+
+SITE_ID = 1
 
 
 HAYSTACK_CONNECTIONS = {
