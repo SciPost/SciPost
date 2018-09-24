@@ -24,7 +24,6 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
@@ -1231,8 +1230,8 @@ def publication_detail(request, doi_label):
     The actual Publication detail page. This is visible for everyone if published or
     visible for Production Supervisors and Administrators if in draft.
     """
-    publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published  and not publication.status == PUBLICATION_PREPUBLISHED:
+    publication = Publication.objects.get(doi_label=doi_label)
+    if not publication.is_published and not publication.status == PUBLICATION_PREPUBLISHED:
         if not request.user.has_perm('scipost.can_draft_publication'):
             raise Http404('Publication is not publicly visible')
 

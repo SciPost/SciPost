@@ -18,9 +18,9 @@ class Proceedings(TimeStampedModel):
     A Proceeding is a special kind of Journal Issue.
     """
     # Link to the actual Journal platform
-    issue = models.OneToOneField('journals.Issue', related_name='proceedings',
-                                 limit_choices_to={
-                                    'in_volume__in_journal__name': 'SciPostPhysProc'})
+    issue = models.OneToOneField(
+        'journals.Issue', related_name='proceedings',
+        limit_choices_to=models.Q(in_volume__in_journal__name='SciPostPhysProc') | models.Q(in_journal__name='SciPostPhysProc'))
 
     # Event the Proceedings is for
     event_name = models.CharField(max_length=256, blank=True)

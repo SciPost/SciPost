@@ -310,7 +310,7 @@ class Issue(models.Model):
     def issue_number(self):
         if self.in_volume:
             return '%s issue %s' % (self.in_volume, self.number)
-        return self.short_str
+        return '%s issue %s' % (self.in_journal, self.number)
 
     @property
     def short_str(self):

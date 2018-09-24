@@ -207,9 +207,9 @@ urlpatterns = [
         name='publication_pdf'),
 
     # Journal issue
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+(.[0-9]+)?.[0-9])$',
         journals_views.issue_detail, name='issue_detail'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^(?P<doi_label>[a-zA-Z]+(.[0-9]+)?.[0-9])$',
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
