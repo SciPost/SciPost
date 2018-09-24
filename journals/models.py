@@ -497,7 +497,7 @@ class Publication(models.Model):
         Returns a queryset of all Organizations which are associated to this Publication,
         through being in author affiliations, funders or generic funders.
         """
-        from partners.models import Organization
+        from organizations.models import Organization
         return Organization.objects.filter(
             models.Q(publicationauthorstable__publication=self) |
             models.Q(funder__grants__publications=self) |
