@@ -16,7 +16,7 @@ django-debug-toolbar==1.8
 django-extensions==1.7.6
 django-filter==1.0.4
 django-guardian==1.4.9
-django-mathjax==0.0.5  # This thing looks dead as well
+django-mathjax==0.0.8
 django-mptt==0.8.6  # Dead
 django-sphinxdoc==1.5.1
 django-silk==2.0.0
@@ -34,7 +34,7 @@ sphinx-rtd-theme==0.1.9  # Sphinx theme
 
 # Testing
 factory-boy==2.10.0
-Faker==0.8.12
+Faker==0.8.1
 
 
 # Django Utils
