@@ -1235,16 +1235,9 @@ def publication_detail(request, doi_label):
         if not request.user.has_perm('scipost.can_draft_publication'):
             raise Http404('Publication is not publicly visible')
 
-    if publication.in_issue:
-        journal = publication.in_issue.in_volume.in_journal
-    elif publication.in_journal:
-        journal = publication.in_journal
-    else:
-        raise Http404('Publication configuration is valid')
-
     context = {
         'publication': publication,
-        'journal': journal
+        'journal': publication.get_journal(),
     }
     return render(request, 'journals/publication_detail.html', context)
 

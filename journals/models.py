@@ -467,14 +467,14 @@ class Publication(models.Model):
                 'in_issue': ValidationError(
                     'Either assign only a Journal or Issue to this Publication', code='invalid'),
             })
-        if self.in_issue and not self.in_issue.in_volume.in_journal.has_issues:
+        if self.in_issue and not self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
             raise ValidationError({
                 'in_issue': ValidationError(
                     'This journal does not allow the use of Issues',
                     code='invalid'),
             })
-        if self.in_journal and self.in_journal.has_issues:
+        if self.in_journal and self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
             raise ValidationError({
                 'in_journal': ValidationError(
@@ -552,10 +552,16 @@ class Publication(models.Model):
         """
         Return Publication name in the preferred citation format.
         """
-        if self.in_issue:
+        if self.in_issue and self.in_issue.in_volume:
             return '{journal} {volume}, {paper_nr} ({year})'.format(
                 journal=self.in_issue.in_volume.in_journal.abbreviation_citation,
                 volume=self.in_issue.in_volume.number,
+                paper_nr=self.get_paper_nr(),
+                year=self.publication_date.strftime('%Y'))
+        elif self.in_issue and self.in_issue.in_journal:
+            return '{journal} {issue}, {paper_nr} ({year})'.format(
+                journal=self.in_issue.in_journal.abbreviation_citation,
+                issue=self.in_issue.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
@@ -568,7 +574,11 @@ class Publication(models.Model):
             year=self.publication_date.strftime('%Y'))
 
     def get_journal(self):
-        return self.in_journal or self.in_issue.in_volume.in_journal
+        if self.in_journal:
+            return self.in_journal
+        elif self.in_issue.in_journal:
+            return self.in_issue.in_journal
+        return self.in_issue.in_volume.in_journal
 
     def journal_issn(self):
         return self.get_journal().issn
@@ -585,7 +595,7 @@ class Publication(models.Model):
         if self.citedby and self.latest_citedby_update:
             ncites = len(self.citedby)
             deltat = (self.latest_citedby_update.date() - self.publication_date).days
-            return (ncites * 365.25/deltat)
+            return (ncites * 365.25 / deltat)
         else:
             return 0
 

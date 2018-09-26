@@ -497,44 +497,61 @@ class DraftPublicationForm(forms.ModelForm):
             self.fields['acceptance_date'].initial = self.submission.acceptance_date
             self.fields['publication_date'].initial = timezone.now()
 
-        # Fill data that may be derived from the issue data
-        issue = None
+        # Fill data for Publications grouped by Issues (or Issue+Volume).
         if hasattr(self.instance, 'in_issue') and self.instance.in_issue:
-            issue = self.instance.in_issue
-        elif self.issue:
-            issue = self.issue
-        if issue:
-            self.prefill_with_issue(issue)
+            self.issue = self.instance.in_issue
+        if self.issue:
+            self.prefill_with_issue(self.issue)
 
-        # Fill data that may be derived from the issue data
-        journal = None
+        # Fill data for Publications ungrouped; directly linked to a Journal.
         if hasattr(self.instance, 'in_journal') and self.instance.in_journal:
-            journal = self.instance.in_issue
-        elif self.to_journal:
-            journal = self.to_journal
-        if journal:
-            self.prefill_with_journal(journal)
+            self.to_journal = self.instance.in_issue
+        if self.to_journal:
+            self.prefill_with_journal(self.to_journal)
 
     def prefill_with_issue(self, issue):
         # Determine next available paper number:
-        paper_nr = Publication.objects.filter(in_issue__in_volume=issue.in_volume).count() + 1
+        if issue.in_volume:
+            # Issue/Volume
+            paper_nr = Publication.objects.filter(in_issue__in_volume=issue.in_volume).count() + 1
+        elif issue.in_journal:
+            # Issue only
+            paper_nr = Publication.objects.filter(in_issue=issue).count() + 1
         if paper_nr > 999:
             raise PaperNumberingError(paper_nr)
-        self.fields['paper_nr'].initial = str(paper_nr)
-        doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
-            journal=issue.in_volume.in_journal.name,
-            vol=issue.in_volume.number,
-            issue=issue.number,
-            paper=str(paper_nr).rjust(3, '0'))
-        self.fields['doi_label'].initial = doi_label
 
+        self.fields['paper_nr'].initial = str(paper_nr)
+        if issue.in_volume:
+            doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
+                journal=issue.in_volume.in_journal.name,
+                vol=issue.in_volume.number,
+                issue=issue.number,
+                paper=str(paper_nr).rjust(3, '0'))
+        elif issue.in_journal:
+            doi_label = '{journal}.{issue}.{paper}'.format(
+                journal=issue.in_journal.name,
+                issue=issue.number,
+                paper=str(paper_nr).rjust(3, '0'))
+        self.fields['doi_label'].initial = doi_label
         doi_string = '10.21468/{doi}'.format(doi=doi_label)
+
+        # Initiate a BibTex entry
         bibtex_entry = (
             '@Article{%s,\n'
-            '\ttitle={{%s},\n'
+            '\ttitle={{%s}},\n'
             '\tauthor={%s},\n'
-            '\tjournal={%s},\n'
-            '\tvolume={%i},\n'
+        ) % (
+            doi_string,
+            self.submission.title,
+            self.submission.author_list.replace(',', ' and'))
+
+        if issue.in_volume:
+            bibtex_entry += '\tjournal={%s},\n\tvolume={%i},\n' % (
+                issue.in_volume.in_journal.abbreviation_citation, issue.in_volume.number)
+        elif issue.in_journal:
+            bibtex_entry += '\tjournal={%s},\n' % (issue.in_journal.abbreviation_citation)
+
+        bibtex_entry += (
             '\tissue={%i},\n'
             '\tpages={%i},\n'
             '\tyear={%s},\n'
@@ -543,16 +560,12 @@ class DraftPublicationForm(forms.ModelForm):
             '\turl={https://scipost.org/%s},\n'
             '}'
         ) % (
-            doi_string,
-            self.submission.title,
-            self.submission.author_list.replace(',', ' and'),
-            issue.in_volume.in_journal.abbreviation_citation,
-            issue.in_volume.number,
             issue.number,
             paper_nr,
             issue.until_date.strftime('%Y'),
             doi_string,
             doi_string)
+
         self.fields['BiBTeX_entry'].initial = bibtex_entry
         if not self.instance.BiBTeX_entry:
             self.instance.BiBTeX_entry = bibtex_entry
@@ -569,7 +582,7 @@ class DraftPublicationForm(forms.ModelForm):
         doi_string = '10.21468/{doi}'.format(doi=doi_label)
         bibtex_entry = (
             '@Article{%s,\n'
-            '\ttitle={{%s},\n'
+            '\ttitle={{%s}},\n'
             '\tauthor={%s},\n'
             '\tjournal={%s},\n'
             '\tpages={%i},\n'
