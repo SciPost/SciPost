@@ -12,6 +12,7 @@ class ProceedingsForm(forms.ModelForm):
         model = Proceedings
         fields = (
             'issue',
+            'minimum_referees',
             'event_name',
             'event_suffix',
             'event_description',
