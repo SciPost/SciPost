@@ -29,8 +29,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
-from .constants import (
-    STATUS_DRAFT, PUBLICATION_PREPUBLISHED, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLCATIONS)
+from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLCATIONS
 from .exceptions import InvalidDOIError
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
@@ -85,6 +84,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
 
         if journal.structure == ISSUES_AND_VOLUMES:
             # Issue DOI for Issue+Volumes Journals.
+            # This should not happen. --> Where does this lead to even?
             return issue_detail(request, doi_label)
         elif journal.structure == ISSUES_ONLY:
             # Publication DOI for Issue only Journals.
@@ -1257,10 +1257,9 @@ def publication_detail(request, doi_label):
     The actual Publication detail page. This is visible for everyone if published or
     visible for Production Supervisors and Administrators if in draft.
     """
-    publication = Publication.objects.get(doi_label=doi_label)
-    if not publication.is_published and not publication.status == PUBLICATION_PREPUBLISHED:
-        if not request.user.has_perm('scipost.can_draft_publication'):
-            raise Http404('Publication is not publicly visible')
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
+        raise Http404('Publication is not publicly visible')
 
     context = {
         'publication': publication,
