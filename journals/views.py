@@ -29,7 +29,7 @@ from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
-from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLCATIONS
+from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
 from .exceptions import InvalidDOIError
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
@@ -73,18 +73,21 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
     elif part_2 is None:
         doi_label = '{0}.{1}'.format(journal_tag, part_1)
 
-        if journal.structure == INDIVIDUAL_PUBLCATIONS:
+        if journal.structure == INDIVIDUAL_PUBLICATIONS:
             # Publication DOI for invidivual publication Journals.
             return publication_detail(request, doi_label)
         elif journal.structure == ISSUES_ONLY:
             # Issue DOI for Issue only Journals.
             return issue_detail(request, doi_label)
+
+        # The third option: a `Issue and Volume Journal DOI` would lead to a "volume detail page",
+        # but that does not exist. Redirect to the Journal landing page instead.
+        return landing_page(request, journal_tag)
     elif part_3 is None:
         doi_label = '{0}.{1}.{2}'.format(journal_tag, part_1, part_2)
 
         if journal.structure == ISSUES_AND_VOLUMES:
             # Issue DOI for Issue+Volumes Journals.
-            # This should not happen. --> Where does this lead to even?
             return issue_detail(request, doi_label)
         elif journal.structure == ISSUES_ONLY:
             # Publication DOI for Issue only Journals.
@@ -193,15 +196,15 @@ def about(request, doi_label):
 
 def issue_detail(request, doi_label):
     issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
-    journal = issue.in_volume.in_journal
+    journal = issue.in_journal or issue.in_volume.in_journal
 
     papers = issue.publications.published().order_by('paper_nr')
-    next_issue = Issue.objects.published().filter(
-        in_volume__in_journal=journal, start_date__gt=issue.start_date
-        ).order_by('start_date').first()
-    prev_issue = Issue.objects.published().filter(
-        in_volume__in_journal=journal, start_date__lt=issue.start_date
-        ).order_by('start_date').last()
+    next_issue = Issue.objects.published().filter(start_date__gt=issue.start_date).filter(
+        Q(in_volume__in_journal=journal) | Q(in_journal=journal),
+        ).distinct().order_by('start_date').first()
+    prev_issue = Issue.objects.published().filter(start_date__lt=issue.start_date).filter(
+        Q(in_volume__in_journal=journal) | Q(in_journal=journal)
+        ).distinct().order_by('start_date').last()
 
     context = {
         'issue': issue,
