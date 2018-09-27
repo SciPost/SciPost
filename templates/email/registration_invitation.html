@@ -50,7 +50,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         <ul>
             {% for notification in invitation.citation_notifications.for_publications %}
                 <li>
-                    <a href="https://doi.org/{{ notification.publication.doi_label }}">{{ notification.publication.citation }}</a>
+                    <a href="https://doi.org/{{ notification.publication.doi_string }}">{{ notification.publication.citation }}</a>
                     <br>
                     {{ notification.publication.title }}
                     <br>

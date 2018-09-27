@@ -380,4 +380,4 @@ CELERY_IMPORTS = ('submissions.tasks', )
 
 
 # Automation.
-ED_ASSIGMENT_DT_DELTA = timedelta(hours=12)
+ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)
