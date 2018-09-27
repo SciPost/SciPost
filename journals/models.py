@@ -256,7 +256,7 @@ class Issue(models.Model):
         'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     number = models.PositiveSmallIntegerField()
-    # slug = models.SlugField(null=True)
+    slug = models.SlugField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=ISSUE_STATUSES, default=STATUS_PUBLISHED)
