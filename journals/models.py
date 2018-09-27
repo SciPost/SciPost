@@ -256,6 +256,7 @@ class Issue(models.Model):
         'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     number = models.PositiveSmallIntegerField()
+    slug = models.SlugField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=ISSUE_STATUSES, default=STATUS_PUBLISHED)
@@ -308,11 +309,15 @@ class Issue(models.Model):
 
     @property
     def issue_number(self):
-        return '%s issue %s' % (self.in_volume, self.number)
+        if self.in_volume:
+            return '%s issue %s' % (self.in_volume, self.number)
+        return '%s issue %s' % (self.in_journal, self.number)
 
     @property
     def short_str(self):
-        return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
+        if self.in_volume:
+            return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
+        return 'Issue %s' % self.number
 
     @property
     def period_as_string(self):
@@ -321,8 +326,8 @@ class Issue(models.Model):
         return '%s - %s' % (self.start_date.strftime('%B'), self.until_date.strftime('%B %Y'))
 
     def is_current(self):
-        return self.start_date <= timezone.now().date() and\
-               self.until_date >= timezone.now().date()
+        today = timezone.now().date()
+        return self.start_date <= today and self.until_date >= today
 
     def nr_publications(self, tier=None):
         publications = Publication.objects.filter(in_issue=self)
@@ -463,14 +468,14 @@ class Publication(models.Model):
                 'in_issue': ValidationError(
                     'Either assign only a Journal or Issue to this Publication', code='invalid'),
             })
-        if self.in_issue and not self.in_issue.in_volume.in_journal.has_issues:
+        if self.in_issue and not self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
             raise ValidationError({
                 'in_issue': ValidationError(
                     'This journal does not allow the use of Issues',
                     code='invalid'),
             })
-        if self.in_journal and self.in_journal.has_issues:
+        if self.in_journal and self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
             raise ValidationError({
                 'in_journal': ValidationError(
@@ -548,10 +553,16 @@ class Publication(models.Model):
         """
         Return Publication name in the preferred citation format.
         """
-        if self.in_issue:
+        if self.in_issue and self.in_issue.in_volume:
             return '{journal} {volume}, {paper_nr} ({year})'.format(
                 journal=self.in_issue.in_volume.in_journal.abbreviation_citation,
                 volume=self.in_issue.in_volume.number,
+                paper_nr=self.get_paper_nr(),
+                year=self.publication_date.strftime('%Y'))
+        elif self.in_issue and self.in_issue.in_journal:
+            return '{journal} {issue}, {paper_nr} ({year})'.format(
+                journal=self.in_issue.in_journal.abbreviation_citation,
+                issue=self.in_issue.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
@@ -564,7 +575,11 @@ class Publication(models.Model):
             year=self.publication_date.strftime('%Y'))
 
     def get_journal(self):
-        return self.in_journal or self.in_issue.in_volume.in_journal
+        if self.in_journal:
+            return self.in_journal
+        elif self.in_issue.in_journal:
+            return self.in_issue.in_journal
+        return self.in_issue.in_volume.in_journal
 
     def journal_issn(self):
         return self.get_journal().issn
@@ -581,7 +596,7 @@ class Publication(models.Model):
         if self.citedby and self.latest_citedby_update:
             ncites = len(self.citedby)
             deltat = (self.latest_citedby_update.date() - self.publication_date).days
-            return (ncites * 365.25/deltat)
+            return (ncites * 365.25 / deltat)
         else:
             return 0
 

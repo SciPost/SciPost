@@ -9,7 +9,7 @@ import random
 
 from common.helpers import random_digits, random_external_doi, random_external_journal_abbrev
 from journals.constants import SCIPOST_JOURNALS, SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES,\
-    ISSUES_AND_VOLUMES, INDIVIDUAL_PUBLCATIONS, PUBLICATION_PUBLISHED
+    ISSUES_AND_VOLUMES, INDIVIDUAL_PUBLICATIONS, PUBLICATION_PUBLISHED
 from submissions.factories import PublishedSubmissionFactory
 
 from .models import Journal, Volume, Issue, Publication, Reference
@@ -48,7 +48,7 @@ class JournalFactory(factory.django.DjangoModelFactory):
     @factory.lazy_attribute
     def structure(self):
         if self.name == SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES:
-            return INDIVIDUAL_PUBLCATIONS
+            return INDIVIDUAL_PUBLICATIONS
         return ISSUES_AND_VOLUMES
 
 
