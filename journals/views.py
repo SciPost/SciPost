@@ -20,6 +20,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
@@ -31,20 +32,22 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
-                    GenericDOIDeposit, PublicationAuthorsTable
+                    GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
 from .forms import AbstractJATSForm, FundingInfoForm,\
                    UnregisteredAuthorForm, AuthorsTableOrganizationSelectForm,\
                    CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
-                   PublicationAuthorOrderingFormSet
+                   PublicationAuthorOrderingFormSet, OrgPubFractionsFormSet
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
-from partners.models import Organization
+from mails.views import MailEditingSubView
+from organizations.models import Organization
+from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
@@ -737,6 +740,66 @@ def metadata_DOAJ_deposit(request, doi_label):
                             kwargs={'doi_label': publication.doi_label}))
 
 
+@login_required
+def allocate_orgpubfractions(request, doi_label):
+    """
+    Set the relative support obtained from Organizations
+    for the research contained in a Publication.
+
+    This view is accessible to EdAdmin as well as to the corresponding author
+    of the Publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not request.user.is_authenticated:
+        raise Http404
+    elif not (request.user == publication.accepted_submission.submitted_by.user or
+              request.user.has_perm('scipost.can_publish_accepted_submission')):
+        raise Http404
+    initial = []
+    if not publication.pubfractions.all().exists():
+        # Create new OrgPubFraction objects from existing data, spreading weight evenly
+        for org in publication.get_organizations():
+            pubfrac = OrgPubFraction(publication=publication,
+                                     organization=org, fraction=0)
+            pubfrac.save()
+    formset = OrgPubFractionsFormSet(request.POST or None,
+                                     queryset=publication.pubfractions.all())
+    if formset.is_valid():
+        formset.save()
+        if request.user == publication.accepted_submission.submitted_by.user:
+            publication.pubfractions_confirmed_by_authors = True
+            publication.save()
+        messages.success(request, 'Funding fractions successfully allocated.')
+        return redirect(publication.get_absolute_url())
+    context = {
+        'publication': publication,
+        'formset': formset,
+    }
+    return render(request, 'journals/allocate_orgpubfractions.html', context)
+
+
+@login_required
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def request_pubfrac_check(request, doi_label):
+    """
+    This view is used by EdAdmin to request confirmation of the OrgPubFractions
+    for a given Publication.
+
+    This occurs post-publication, after all the affiliations and funders have
+    been confirmed.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    mail_request = MailEditingSubView(
+        request, mail_code='authors/request_pubfrac_check', instance=publication)
+    if mail_request.is_valid():
+        messages.success(request, 'The corresponding author has been emailed.')
+        mail_request.send()
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
+    else:
+        return mail_request.return_render()
+
+
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_doaj_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
@@ -889,6 +952,12 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
+    needing_update = request.GET.get('needing_update')
+    if needing_update == 'True':
+        reports = reports.filter(
+            Q(needs_doi=None) |
+            Q(needs_doi=True, doideposit_needs_updating=True)).filter(
+                submission__status=STATUS_PUBLISHED)
     paginator = Paginator(reports, 25)
 
     page = request.GET.get('page')

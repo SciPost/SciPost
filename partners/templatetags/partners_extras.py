@@ -33,3 +33,8 @@ def partnerstatuscolor(status):
     elif status == PROSPECTIVE_PARTNER_FOLLOWED_UP:
         color = '#d2e3f6'
     return color
+
+
+@register.filter(name='pubfractions_in_year')
+def pubfractions_in_year(org, year):
+    return org.pubfractions_in_year(int(year))

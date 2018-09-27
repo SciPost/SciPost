@@ -77,6 +77,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_countries',
     'django_extensions',
     'django_mathjax',
@@ -105,6 +106,7 @@ INSTALLED_APPS = (
     'submissions',
     'theses',
     'virtualmeetings',
+    'organizations',
     'proceedings',
     'production',
     'profiles',
@@ -113,8 +115,12 @@ INSTALLED_APPS = (
     'funders',
     'stats',
     'petitions',
-    'webpack_loader'
+    'sitesserved',
+    'webpack_loader',
+    'maintenancemode',
 )
+
+SITE_ID = 1
 
 
 HAYSTACK_CONNECTIONS = {
@@ -172,6 +178,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 ROOT_URLCONF = 'SciPost_v1.urls'
@@ -373,4 +380,4 @@ CELERY_IMPORTS = ('submissions.tasks', )
 
 
 # Automation.
-ED_ASSIGMENT_DT_DELTA = timedelta(hours=12)
+ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)

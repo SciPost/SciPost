@@ -2,12 +2,12 @@
 
 {% load bootstrap %}
 
-{% block pagetitle %}: Create Organization{% endblock pagetitle %}
+{% block pagetitle %}: Update Organization{% endblock pagetitle %}
 
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <form action="{% url 'partners:organization_create' %}" method="post" enctype="multipart/form-data">
+    <form action="{% url 'organizations:organization_update' pk=object.id %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form|bootstrap }}
       <input type="submit" value="Submit" class="btn btn-primary">

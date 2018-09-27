@@ -1,5 +1,7 @@
 {% load bootstrap %}
 
+{% load organizations_extras %}
+
 <div class="card-body">
 
   <div class="row">
@@ -11,7 +13,7 @@
 	</li>
 	{% endif %}
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Associated Publications</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
@@ -34,21 +36,26 @@
 	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
 	  <h3>Details:</h3>
-	  {% include 'partners/_organization_details_contents.html' with org=org %}
+	  {% include 'organizations/_organization_details_contents.html' with org=org %}
 	</div>
 	{% endif %}
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
-	  <h3>Publications associated to this Organization:</h3>
+	  <h3>Publications associated to this Organization <span class="text-muted small">(with total PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>:</h3>
+	  {% for pubyear in pubyears %}
+	  <h4>{{ pubyear }} <span class="text-muted small">(total pubfractions: {{ org|pubfractions_in_year:pubyear }})</span></h4>
 	  <ul>
 	    {% for publication in org.get_publications %}
+	    {% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
 	    <li>
               <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
               <br>by {{ publication.author_list }},
               <br>{{ publication.citation }}
 	    </li>
+	    {% endif %}
 	    {% endfor %}
 	  </ul>
+	  {% endfor %}
 	</div>
 
 	<div class="tab-pane pt-4" id="authors-{{ org.id }}" role="tabpanel" aria-labelledby="authors-{{ org.id }}-tab">
@@ -125,8 +132,8 @@
 	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Manage this organization:</h3>
 	  <ul>
-	    <li><a href="{% url 'partners:organization_update' pk=org.id %}">Update</a></li>
-	    <li><a href="{% url 'partners:organization_delete' pk=org.id %}">Delete</a></li>
+	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
+	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
 	  </ul>
 	  <hr/>
 	  {% endif %}

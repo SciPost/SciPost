@@ -1,9 +1,24 @@
-{% extends 'scipost/base.html' %}
+{% extends 'organizations/base.html' %}
 
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
-{% load partners_extras %}
+{% load organizations_extras %}
+
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Organizations</span>
+{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -12,7 +27,7 @@
       {% if perms.scipost.can_manage_organizations %}
       <h3>Management actions:</h3>
       <ul>
-	<li><a href="{% url 'partners:organization_create' %}">Create a new Organization instance</a></li>
+	<li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
 	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
       </ul>
       {% endif %}
@@ -22,7 +37,30 @@
 
 <div class="row">
   <div class="col-12">
-    <p>Click on a row to see more details about the Organization</p>
+    <h3>This page lists Organizations which have benefitted from SciPost's publishing activities.</h3>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-5">
+    <p>Organizations are linked through being in a publication's author affiliations, grant-giving agencies or explicit support acknowledgements.</p>
+    <p>For each Organization, the NAP (number of associated publications) is given (you can order in decreasing/increasing NAP using the header arrows).</p>
+  </div>
+  <div class="col-1"></div>
+  <div class="col-5">
+    <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
+    <ul>
+      <li>associated publications</li>
+      <li>associated support fractions</li>
+      <li>associated authors</li>
+      <li>partnership history</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
     <table class="table table-hover mb-5">
       <thead class="thead-default">
 	<tr>
@@ -35,9 +73,9 @@
 	  <th>Partner?</th>
 	</tr>
       </thead>
-      <tbody id="accordion" role="tablist" aria-multiselectable="true">
+      <tbody>
 	{% for org in object_list %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ org.id }}" aria-expanded="true" aria-controls="collapse{{ org.id }}" style="cursor: pointer;">
+	<tr class="table-row" data-href="{% url 'organizations:organization_details' pk=org.id %}" target="_blank" style="cursor: pointer;">
 	  <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
 	  <td>
 	    {{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>
@@ -67,11 +105,6 @@
 	  {% endif %}
 	  <td></td>
 	</tr>
-	<tr id="collapse{{ org.id }}" class="collapse" role="tabpanel" aria-labbeledby="heading{{ org.id }}" style="background-color: #fff;">
-	  <td colspan="4">
-	    {% include 'partners/_organization_card.html' with org=org %}
-	  </td>
-	</tr>
 	{% empty %}
 	<tr><td colspan="4">No organizations found</td></tr>
 	{% endfor %}
@@ -79,5 +112,6 @@
     </table>
   </div>
 </div>
+
 
 {% endblock content %}

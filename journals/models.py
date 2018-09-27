@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Avg, F
+from django.db.models import Avg, Sum, F
 from django.utils import timezone
 from django.urls import reverse
 
@@ -41,7 +41,7 @@ class PublicationAuthorsTable(models.Model):
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
-    affiliations = models.ManyToManyField('partners.Organization', blank=True)
+    affiliations = models.ManyToManyField('organizations.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -410,6 +410,7 @@ class Publication(models.Model):
     grants = models.ManyToManyField('funders.Grant', blank=True)
     funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
     institutions = models.ManyToManyField('affiliations.Institution', blank=True)
+    pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
@@ -491,6 +492,17 @@ class Publication(models.Model):
         return Funder.objects.filter(
             models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
 
+    def get_organizations(self):
+        """
+        Returns a queryset of all Organizations which are associated to this Publication,
+        through being in author affiliations, funders or generic funders.
+        """
+        from organizations.models import Organization
+        return Organization.objects.filter(
+            models.Q(publicationauthorstable__publication=self) |
+            models.Q(funder__grants__publications=self) |
+            models.Q(funder__publications=self)).distinct()
+
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
@@ -527,6 +539,11 @@ class Publication(models.Model):
         return 'funding_statement' in self.metadata and self.metadata['funding_statement']
 
     @property
+    def pubfractions_sum_to_1(self):
+        """ Checks that the support fractions sum up to one. """
+        return self.pubfractions.aggregate(Sum('fraction'))['fraction__sum'] == 1
+
+    @property
     def citation(self):
         """
         Return Publication name in the preferred citation format.
@@ -548,6 +565,9 @@ class Publication(models.Model):
 
     def get_journal(self):
         return self.in_journal or self.in_issue.in_volume.in_journal
+
+    def journal_issn(self):
+        return self.get_journal().issn
 
     def get_paper_nr(self):
         if self.in_journal:
@@ -585,6 +605,28 @@ class Reference(models.Model):
 
     def __str__(self):
         return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
+
+
+class OrgPubFraction(models.Model):
+    """
+    Associates a fraction of the funding credit for a given publication to an Organization,
+    to help answer the question: who funded this research?
+
+    Fractions for a given publication should sum up to one.
+
+    This data is used to compile publicly-displayed information on Organizations
+    as well as to set suggested contributions from Partners.
+
+    To be set (ideally) during production phase, based on information provided by the authors.
+    """
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
+                                     related_name='pubfractions', blank=True, null=True)
+    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
+                                    related_name='pubfractions')
+    fraction = models.DecimalField(max_digits=4, decimal_places=3)
+
+    class Meta:
+        unique_together = (('organization', 'publication'),)
 
 
 class Deposit(models.Model):

@@ -52,3 +52,8 @@ def latest_successful_crossref_deposit_comment(comment):
         return latest.deposition_date.strftime('%Y-%m-%d')
     else:
         return "No successful deposit found"
+
+
+@register.filter(name='pubfracs_fixed')
+def pubfracs_fixed(publication):
+    return publication.pubfractions_confirmed_by_authors and publication.pubfractions_sum_to_1
