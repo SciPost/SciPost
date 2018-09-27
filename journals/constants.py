@@ -35,6 +35,8 @@ REGEX_CHOICES = '|'.join([
 PUBLICATION_DOI_REGEX = '({})'.format(REGEX_CHOICES)
 PUBLICATION_DOI_REGEX += '.[0-9]+((.[0-9]+)?.[0-9]{3,})?'
 PUBLICATION_DOI_VALIDATION_REGEX = PUBLICATION_DOI_REGEX
+DOI_DISPATCH_REGEX = '(?P<journal_tag>{})'.format(REGEX_CHOICES)
+DOI_DISPATCH_REGEX += '(.(?P<part_1>[a-zA-Z0-9]+))?(.(?P<part_2>[0-9]+))?(.(?P<part_3>[0-9]{3,}))?'
 
 SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),

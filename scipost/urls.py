@@ -11,7 +11,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX
+from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX, DOI_DISPATCH_REGEX
 from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -193,6 +193,13 @@ urlpatterns = [
         name='author_reply_detail'),
 
     # Publication detail (+pdf)
+    url(r'^10.21468/{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+        journals_views.doi_dispatch, name='doi_dispatch'),
+    url(r'^{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+        journals_views.doi_dispatch, name='doi_dispatch'),
+    url(r'^10.21468/(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
+        journals_views.publication_detail_pdf,
+        name='publication_pdf'),
     url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
