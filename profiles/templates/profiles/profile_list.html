@@ -24,9 +24,9 @@
 	  <div class="dropdown">
 	    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
 	    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-	      <a class="dropdown-item" href="{% url 'profiles:profiles' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+	      <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}">View all in {{ discipline.0 }}</a>
 	      {% for area in discipline.1 %}
-	      <a class="dropdown-item" href="{% url 'profiles:profiles' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+	      <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}&expertise={{ area.0}}">{{ area.0 }}</a>
 	      {% endfor %}
 	    </div>
 	  </div>

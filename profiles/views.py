@@ -81,10 +81,10 @@ class ProfileListView(PermissionsMixin, ListView):
         Return a queryset of Profiles using optional GET data.
         """
         queryset = Profile.objects.all()
-        if self.kwargs.get('discipline', None):
-            queryset = queryset.filter(discipline=self.kwargs['discipline'].lower())
-            if self.kwargs.get('expertise', None):
-                queryset = queryset.filter(expertises__contains=[self.kwargs['expertise']])
+        if self.request.GET.get('discipline', None):
+            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
+            if self.request.GET.get('expertise', None):
+                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
         return queryset
 
     def get_context_data(self, **kwargs):
