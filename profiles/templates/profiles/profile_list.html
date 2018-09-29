@@ -1,6 +1,7 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
 {% load bootstrap %}
+{% load add_get_parameters %}
 
 {% block breadcrumb_items %}
     {{ block.super }}
@@ -15,6 +16,7 @@
 <div class="row">
   <div class="col-12">
     <p>
+      View Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor
       <ul class="list-inline">
 	<li class="list-inline-item">
 	  <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:

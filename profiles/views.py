@@ -85,6 +85,10 @@ class ProfileListView(PermissionsMixin, ListView):
             queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
             if self.request.GET.get('expertise', None):
                 queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
+        if self.request.GET.get('contributor', None) == 'False':
+            queryset = queryset.filter(contributor=None)
+        elif self.request.GET.get('contributor', None) == 'True':
+            queryset = queryset.exclude(contributor=None)
         return queryset
 
     def get_context_data(self, **kwargs):
