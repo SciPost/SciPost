@@ -11,6 +11,10 @@
 	{% if profile.webpage %}<a href="{{ profile.webpage }}" target="_blank">webpage</a>
 	{% else %}No personal webpage given
 	{% endif %}
+	{% if profile.contributor %}
+	<br/>
+	Registered as Contributor (see <a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}">info page</a>)
+	{% endif %}
       </p>
     </div>
     <div class="col-6">

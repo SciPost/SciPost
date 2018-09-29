@@ -3,12 +3,13 @@ __license__ = "AGPL v3"
 
 
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
+from scipost.models import Contributor
 
 from .models import Profile
 from .forms import ProfileForm
@@ -22,6 +23,29 @@ class ProfileCreateView(PermissionsMixin, CreateView):
     form_class = ProfileForm
     template_name = 'profiles/profile_form.html'
     success_url = reverse_lazy('profiles:profiles')
+
+    def get_initial(self):
+        """
+        Provide initial data based on kwargs.
+        The data can come from a Contributor, Invitation, UnregisteredAuthor, ...
+        """
+        initial = super().get_initial()
+        from_type = self.kwargs.get('from_type', None)
+        pk = self.kwargs.get('pk', None)
+        if pk:
+            pk = int(pk)
+            if from_type == 'contributor':
+                contributor = get_object_or_404(Contributor, pk=pk)
+                initial['title'] = contributor.title
+                initial['first_name'] = contributor.user.first_name
+                initial['last_name'] = contributor.user.last_name
+                initial['email'] = contributor.user.email
+                initial['discipline'] = contributor.discipline
+                initial['expertises'] = contributor.expertises
+                initial['orcid_id'] = contributor.orcid_id
+                initial['webpage'] = contributor.personalwebpage
+                initial['accepts_SciPost_emails'] = contributor.accepts_SciPost_emails
+        return initial
 
 
 class ProfileUpdateView(PermissionsMixin, UpdateView):
