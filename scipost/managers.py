@@ -3,7 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.db.models.functions import Lower
 from django.utils import timezone
 
 from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
@@ -26,6 +27,12 @@ class ContributorQuerySet(models.QuerySet):
     def active(self):
         """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
+
+    def have_duplicate_email(self):
+        """ Return Contributors having duplicate emails. """
+        duplicates = self.values(lower_email=Lower('user__email')).annotate(
+            Count('id')).order_by('user__last_name').filter(id__count__gt=1)
+        return self.annotate(lower_email=Lower('user__email')).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
 
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""

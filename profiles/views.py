@@ -103,6 +103,8 @@ class ProfileListView(PermissionsMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         contributors_wo_profile = Contributor.objects.filter(profile=None)
+        context['nr_contributors_w_duplicate_email'] = Contributor.objects.have_duplicate_email().count()
+        context['contributors_w_duplicate_email'] = Contributor.objects.have_duplicate_email()
         context['nr_contributors_wo_profile'] = contributors_wo_profile.count()
         #context['next_contributor_wo_profile'] = random.choice(contributors_wo_profile)
         context['next_contributor_wo_profile'] = contributors_wo_profile.first()
