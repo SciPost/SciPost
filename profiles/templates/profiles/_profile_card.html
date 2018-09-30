@@ -1,26 +1,56 @@
 {% load bootstrap %}
+{% load scipost_extras %}
 
 <div class="card-body">
   <div class="row">
     <div class="col-6">
-      <p>
-	{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}
-	<br/>
-	{{ profile.email }}
-	<br/>
-	{% if profile.webpage %}<a href="{{ profile.webpage }}" target="_blank">webpage</a>
-	{% else %}No personal webpage given
-	{% endif %}
-	{% if profile.contributor %}
-	<br/>
-	Registered as Contributor (see <a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}">info page</a>)
-	{% endif %}
-      </p>
+      <table class="table">
+	<tr>
+	  <td>Name:</td><td>{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}</td>
+	</tr>
+	<tr>
+	  <td>Email(s)</td>
+	  <td>
+	    <ul>
+	      <li>{{ profile.email }} (current)</li>
+	      {% for altemail in profile.alternativeemail_set.all %}
+	      <li>{{ altemail.email }} (alt, {% if altemail.still_valid %}still valid{% else %}deprecated{% endif %})</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	</tr>
+	<tr>
+	  <td>Discipline</td><td>{{ profile.get_discipline_display }}</td>
+	</tr>
+	<tr>
+	  <td>Expertises</td>
+	  <td>{% for expertise in profile.expertises %}
+	    <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{ expertise|get_specialization_code }}</div>
+	    {% endfor %}
+	  </td>
+	</tr>
+	<tr><td>ORCID ID</td><td><a href="https://orcid.org/{{ profile.orcid_id}}" target="_blank">{{ profile.orcid_id }}</a></td></tr>
+	<tr><td>Webpage</td><td><a href="{{ profile.webpage }}" target="_blank">{{ profile.webpage }}</a></td></tr>
+	<tr><td>Accepts SciPost emails</td><td>{{ profile.accepts_SciPost_emails }}</td></tr>
+	<tr><td>Accepts refereeing requests</td><td>{{ profile.accepts_refereeing_requests }}</td></tr>
+	<tr><td>Contributor</td><td>{% if profile.contributor %}Yes (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>){% else %}No{% endif %}</td></tr>
+      </table>
     </div>
     <div class="col-6">
+      <h4>Actions:</h4>
       <ul>
-	<li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> the data</li>
+	<li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
 	<li><a href="{% url 'profiles:profile_delete' pk=profile.id %}">Delete</a> this Profile</li>
+	<li>
+	  <div>
+	    Add an alternative email to this Profile:
+	    <form action="{% url 'profiles:add_alternative_email' profile_id=profile.id %}" method="post">
+	      {% csrf_token %}
+	      {{ alternative_email_form|bootstrap }}
+	      <input class="btn btn-outline-secondary" type="submit" value="Add">
+	    </form>
+	  </div>
+	</li>
       </ul>
     </div>
   </div>

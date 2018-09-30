@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from .models import Profile
+from .models import Profile, AlternativeEmail
 
 
 class ProfileForm(forms.ModelForm):
@@ -14,3 +14,10 @@ class ProfileForm(forms.ModelForm):
         fields = ['title', 'first_name', 'last_name', 'email',
                   'discipline', 'expertises', 'orcid_id', 'webpage',
                   'accepts_SciPost_emails', 'accepts_refereeing_requests']
+
+
+class AlternativeEmailForm(forms.ModelForm):
+
+    class Meta:
+        model = AlternativeEmail
+        fields = ['email', 'still_valid']

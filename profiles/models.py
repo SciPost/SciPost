@@ -67,3 +67,6 @@ class AlternativeEmail(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = ['profile', 'email']

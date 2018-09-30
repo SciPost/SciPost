@@ -4,17 +4,21 @@ __license__ = "AGPL v3"
 
 import random
 
-from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import get_object_or_404, render
+from django.contrib import messages
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import IntegrityError
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+
+from guardian.decorators import permission_required
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
 from scipost.models import Contributor
 
-from .models import Profile
-from .forms import ProfileForm
+from .models import Profile, AlternativeEmail
+from .forms import ProfileForm, AlternativeEmailForm
 
 
 class ProfileCreateView(PermissionsMixin, CreateView):
@@ -101,4 +105,30 @@ class ProfileListView(PermissionsMixin, ListView):
         contributors_wo_profile = Contributor.objects.filter(profile=None)
         context['nr_contributors_wo_profile'] = contributors_wo_profile.count()
         context['next_contributor_wo_profile'] = random.choice(contributors_wo_profile)
+        context['alternative_email_form'] = AlternativeEmailForm()
         return context
+
+
+@permission_required('scipost.can_create_profiles')
+def add_alternative_email(request, profile_id):
+    """
+    Add an alternative email address to a Profile.
+    """
+    profile = get_object_or_404(Profile, pk=profile_id)
+    form = AlternativeEmailForm(request.POST or None)
+    if form.is_valid():
+        try:
+            newaltemail = AlternativeEmail(profile=profile,
+                                           email=form.cleaned_data['email'],
+                                           still_valid=form.cleaned_data['still_valid'])
+            newaltemail.save()
+            messages.success(request, 'Alternative email successfully added.')
+        except IntegrityError:
+            errormessage = 'This profile/email pair is already defined.'
+            return render(request, 'scipost/error.html',
+                          context={'errormessage': errormessage})
+    else:
+        errormessage = 'Please enter a valid email address'
+        return render(request, 'scipost/error.html',
+                          context={'errormessage': errormessage})
+    return redirect(reverse('profiles:profiles'))

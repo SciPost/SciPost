@@ -32,4 +32,9 @@ urlpatterns = [
         views.ProfileListView.as_view(),
         name='profiles'
     ),
+    url(
+        r'^(?P<profile_id>[0-9]+)/add_alternative_email/$',
+        views.add_alternative_email,
+        name='add_alternative_email'
+    ),
 ]
