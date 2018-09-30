@@ -31,7 +31,7 @@
 	</li>
 	{% endif %}
 	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
-	<li><a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">Create a Profile</a> for Contributors without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a>/<a href="{% url 'profiles:profile_create' from_type='contributor' pk=random_contributor_wo_profile.id %}">a random</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
       </ul>
       <br/>
       <ul class="list-inline">
