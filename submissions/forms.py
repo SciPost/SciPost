@@ -35,6 +35,7 @@ from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
+from profiles.models import Profile
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
@@ -864,6 +865,21 @@ class RefereeRecruitmentForm(forms.ModelForm):
             invited_by=self.request.user,
             invitation_key=referee_invitation.invitation_key,
             key_expires=timezone.now() + datetime.timedelta(days=365))
+
+        # Try to associate an existing Profile to ref/reg invitations:
+        # profile = Profile.objects.get_unique_from_email_or_None(
+        #     email=referee_invitation.email_address)
+        # referee_invitation.profile = profile
+        # registration_invitation.profile = profile
+        try:
+            profile = Profile.objects.get(
+                Q(email=referee_invitation.email_address) |
+                Q(alternativeemail__email__in=[referee_invitation.email_address]))
+            print(profile)
+            referee_invitation.profile = profile
+            registration_invitation.profile = profile
+        except:
+            pass
 
         if commit:
             referee_invitation.save()

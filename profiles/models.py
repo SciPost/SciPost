@@ -9,6 +9,8 @@ from scipost.constants import (
     TITLE_CHOICES, SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS)
 from scipost.fields import ChoiceArrayField
 
+from .managers import ProfileQuerySet
+
 
 class Profile(models.Model):
     """
@@ -48,6 +50,8 @@ class Profile(models.Model):
     # Preferences for interactions with SciPost:
     accepts_SciPost_emails = models.BooleanField(default=True)
     accepts_refereeing_requests = models.BooleanField(default=True)
+
+    objects = ProfileQuerySet.as_manager()
 
     class Meta:
         ordering = ['last_name']
