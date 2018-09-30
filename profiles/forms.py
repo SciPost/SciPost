@@ -15,6 +15,20 @@ class ProfileForm(forms.ModelForm):
                   'discipline', 'expertises', 'orcid_id', 'webpage',
                   'accepts_SciPost_emails', 'accepts_refereeing_requests']
 
+    def clean_email(self):
+        """
+        Check that the email isn't yet associated to an existing Profile
+        (via either the email field or the m2m-related alternativeemails).
+        """
+        cleaned_email = self.cleaned_data['email']
+        if Profile.objects.filter(email=cleaned_email).exists:
+            raise forms.ValidationError(
+                'A Profile with this email (as primary email) already exists.')
+        elif Profile.objects.filter(alternativeemails__in=cleaned_email).exists():
+            raise forms.ValidationError(
+                'A Profile with this email (as alternative email) already exists.')
+        return cleaned_email
+
 
 class AlternativeEmailForm(forms.ModelForm):
 
