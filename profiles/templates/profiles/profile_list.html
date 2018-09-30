@@ -22,7 +22,7 @@
 	  {{ nr_contributors_w_duplicate_email }} Contributor duplicates (via email) identified
 	  <ul>
 	    {% for dup in contributors_w_duplicate_email %}
-	    <li>{{ dup }}, id {{ dup.id }}, {{ dup.user.email }}</li>
+	    <li>{{ dup }}, {{ dup.user.email }}, id {{ dup.id }}</li>
 	    {% empty %}
 	    <li>No duplicates found</li>
 	    {% endfor %}
@@ -30,6 +30,7 @@
 	  Please take action by merging these Contributor instances.
 	</li>
 	{% endif %}
+	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
 	<li><a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">Create a Profile</a> for Contributors without one ({{ nr_contributors_wo_profile }} to handle)</li>
       </ul>
       <br/>
@@ -59,12 +60,8 @@
 
 <div class="row">
   <div class="col-12">
-    <a href="{% url 'profiles:profile_create' %}">Add a Profile</a>
-    <br/><br/>
-    {% if request.GET.discipline %}
-    <h3>Profiles in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}):</h3>
+    <h3>Profiles {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}):</h3>
     <br/>
-    {% endif %}
     <table class="table table-hover mb-5">
       <thead class="thead-default">
 	<tr>
