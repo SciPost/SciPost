@@ -872,7 +872,7 @@ def recruit_referee(request, identifier_w_vn_nr):
 
     if request.method == 'GET':
         # This leads to unexpected 500 errors
-        return redirect(reverse('submissions:select_referee', args=(arxiv_identifier_w_vn_nr,)))
+        return redirect(reverse('submissions:select_referee', args=(identifier_w_vn_nr,)))
 
     ref_recruit_form = RefereeRecruitmentForm(
         request.POST or None, request=request, submission=submission)

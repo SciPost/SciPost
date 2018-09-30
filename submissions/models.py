@@ -390,11 +390,6 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
     objects = EditorialAssignmentQuerySet.as_manager()
 
-    # Deprecated fields
-    old_accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
-    old_deprecated = models.BooleanField(default=False)
-    old_completed = models.BooleanField(default=False)
-
     class Meta:
         default_related_name = 'editorial_assignments'
         ordering = ['-date_created']
