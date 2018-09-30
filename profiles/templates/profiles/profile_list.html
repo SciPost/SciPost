@@ -31,7 +31,9 @@
 	</li>
 	{% endif %}
 	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
-	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a>/<a href="{% url 'profiles:profile_create' from_type='contributor' pk=random_contributor_wo_profile.id %}">a random</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	{% if next_contributor_wo_profile %}
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	{% endif %}
       </ul>
       <br/>
       <ul class="list-inline">
@@ -60,7 +62,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h3>Profiles {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}):</h3>
+    <h3>Profiles {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
     <br/>
     <table class="table table-hover mb-5">
       <thead class="thead-default">
@@ -96,21 +98,11 @@
       </tbody>
     </table>
 
-    <div class="pagination">
-      <span class="step-links">
-        {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">next</a>
-        {% endif %}
-      </span>
+    {% if is_paginated %}
+    <div class="col-12">
+      {% include 'partials/pagination.html' with page_obj=page_obj %}
     </div>
+    {% endif %}
 
   </div>
 </div>

@@ -2,8 +2,6 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-import random
-
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import IntegrityError
@@ -14,7 +12,7 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
-from scipost.mixins import PermissionsMixin
+from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
 
 from .models import Profile, AlternativeEmail
@@ -76,7 +74,7 @@ class ProfileDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy('profiles:profiles')
 
 
-class ProfileListView(PermissionsMixin, ListView):
+class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List Profile object instances.
     """
@@ -107,7 +105,6 @@ class ProfileListView(PermissionsMixin, ListView):
         context['contributors_w_duplicate_email'] = contributors_dup_email
         contributors_wo_profile = Contributor.objects.filter(profile=None)
         context['nr_contributors_wo_profile'] = contributors_wo_profile.count()
-        context['random_contributor_wo_profile'] = random.choice(contributors_wo_profile)
         context['next_contributor_wo_profile'] = contributors_wo_profile.first()
         context['alternative_email_form'] = AlternativeEmailForm()
         return context

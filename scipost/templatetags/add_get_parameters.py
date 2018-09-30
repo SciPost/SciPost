@@ -16,6 +16,7 @@ def add_get_parameters(context, **kwargs):
     if parameters:
         params = '?'
         for k, v in parameters.items():
-            params += '&%s=%s' % (k, v)
-        return params.replace('?&', '?')
+            if k != 'page': # remove any pagination
+                params += '&%s=%s' % (k, v)
+        return params.replace('?&', '?') # remove extra & of first parameter
     return ''
