@@ -16,7 +16,10 @@
 <div class="row">
   <div class="col-12">
     <p>
-      View Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor
+      <ul>
+	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
+	<li><a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">Create a Profile</a> for Contributors without one ({{ nr_contributors_wo_profile }} to handle)</li>
+      </ul>
       <ul class="list-inline">
 	<li class="list-inline-item">
 	  <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:

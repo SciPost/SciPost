@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import random
+
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404, render
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -32,6 +34,8 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         initial = super().get_initial()
         from_type = self.kwargs.get('from_type', None)
         pk = self.kwargs.get('pk', None)
+        print(from_type)
+        print(pk)
         if pk:
             pk = int(pk)
             if from_type == 'contributor':
@@ -94,4 +98,7 @@ class ProfileListView(PermissionsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        contributors_wo_profile = Contributor.objects.filter(profile=None)
+        context['nr_contributors_wo_profile'] = contributors_wo_profile.count()
+        context['next_contributor_wo_profile'] = random.choice(contributors_wo_profile)
         return context

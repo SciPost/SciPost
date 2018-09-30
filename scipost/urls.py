@@ -73,6 +73,10 @@ urlpatterns = [
     # Contributors:
     ################
 
+    # Contributor info (public view)
+    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
+        name="contributor_info"),
+
     # Registration
     url(r'^register$', views.register, name='register'),
     url(r'^thanks_for_registering$',
@@ -129,10 +133,6 @@ urlpatterns = [
     url(r'^unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
     url(r'^unavailable_period/(?P<period_id>[0-9]+)/delete$', views.delete_unavailable_period,
         name='delete_unavailable_period'),
-
-    # Contributor info
-    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
-        name="contributor_info"),
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),

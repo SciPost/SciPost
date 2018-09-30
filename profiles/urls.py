@@ -8,7 +8,12 @@ from . import views
 
 urlpatterns = [
     url(
-        r'^add/((?P<from_type>[a-z]+)/(?P<pk>[0-9]+))?$',
+        r"^add/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$",
+        views.ProfileCreateView.as_view(),
+        name='profile_create'
+    ),
+    url(
+        r"^add/$",
         views.ProfileCreateView.as_view(),
         name='profile_create'
     ),
