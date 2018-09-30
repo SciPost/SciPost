@@ -46,8 +46,8 @@
   <div class="col-12">
     <a href="{% url 'profiles:profile_create' %}">Add a Profile</a>
     <br/><br/>
-    {% if view.kwargs.discipline %}
-    <h3>Profiles in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}:</h3>
+    {% if request.GET.discipline %}
+    <h3>Profiles in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}):</h3>
     <br/>
     {% endif %}
     <table class="table table-hover mb-5">
@@ -56,6 +56,7 @@
 	  <th>Name</th>
 	  <th>Discipline</th>
 	  <th>Expertises</th>
+	  <th>Contributor?</th>
 	</tr>
       </thead>
       <tbody id="accordion" role="tablist" aria-multiselectable="true">
@@ -68,7 +69,7 @@
             <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	    {% endfor %}
 	  </td>
-	  <td>{{ profile.get_status_display }}</td>
+	  <td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	</tr>
 	<tr id="collapse{{ profile.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ profile.id }}" style="background-color: #fff;">
 	  <td colspan="4">
