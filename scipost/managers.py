@@ -32,7 +32,8 @@ class ContributorQuerySet(models.QuerySet):
         """ Return Contributors having duplicate emails. """
         duplicates = self.values(lower_email=Lower('user__email')).annotate(
             Count('id')).order_by('user__last_name').filter(id__count__gt=1)
-        return self.annotate(lower_email=Lower('user__email')).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
+        return self.annotate(lower_email=Lower('user__email')
+        ).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
 
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""
