@@ -15,10 +15,12 @@ from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
 
+from invitations.models import RegistrationInvitation
 from submissions.models import RefereeInvitation
 
 from .models import Profile, AlternativeEmail
 from .forms import ProfileForm, AlternativeEmailForm
+
 
 
 class ProfileCreateView(PermissionsMixin, CreateView):
@@ -53,14 +55,20 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 initial['orcid_id'] = contributor.orcid_id
                 initial['webpage'] = contributor.personalwebpage
                 initial['accepts_SciPost_emails'] = contributor.accepts_SciPost_emails
-            if from_type == 'refereeinvitation':
+            elif from_type == 'refereeinvitation':
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
                 initial['title'] = refinv.title
                 initial['first_name'] = refinv.first_name
                 initial['last_name'] = refinv.last_name
-                initial['email'] = refinv.email
+                initial['email'] = refinv.email_address
                 initial['discipline'] = refinv.submission.discipline
                 initial['expertises'] = refinv.submission.secondary_areas
+            elif from_type == 'registrationinvitation':
+                reginv = get_object_or_404(RegistrationInvitation, pk=pk)
+                initial['title'] = reginv.title
+                initial['first_name'] = reginv.first_name
+                initial['last_name'] = reginv.last_name
+                initial['email'] = reginv.email
         return initial
 
 
@@ -119,6 +127,9 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         refinv_wo_profile = RefereeInvitation.objects.filter(profile=None)
         context['nr_refinv_wo_profile'] = refinv_wo_profile.count()
         context['next_refinv_wo_profile'] = refinv_wo_profile.first()
+        reginv_wo_profile = RegistrationInvitation.objects.filter(profile=None)
+        context['nr_reginv_wo_profile'] = reginv_wo_profile.count()
+        context['next_reginv_wo_profile'] = reginv_wo_profile.first()
         context['alternative_email_form'] = AlternativeEmailForm()
         return context
 

@@ -817,6 +817,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
     class Meta:
         model = RefereeInvitation
         fields = [
+            'profile',
             'title',
             'first_name',
             'last_name',
@@ -824,6 +825,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
             'auto_reminders_allowed',
             'invitation_key']
         widgets = {
+            'profile': forms.HiddenInput(),
             'invitation_key': forms.HiddenInput()
         }
 
@@ -851,11 +853,17 @@ class RefereeRecruitmentForm(forms.ModelForm):
         if not self.request or not self.submission:
             raise forms.ValidationError('No request or Submission given.')
 
+        # Try to associate an existing Profile to ref/reg invitations:
+        profile = Profile.objects.get_unique_from_email_or_None(
+            email=self.cleaned_data['email_address'])
+        self.instance.profile = profile
+
         self.instance.submission = self.submission
         self.instance.invited_by = self.request.user.contributor
         referee_invitation = super().save(commit=False)
 
         registration_invitation = RegistrationInvitation(
+            profile=profile,
             title=referee_invitation.title,
             first_name=referee_invitation.first_name,
             last_name=referee_invitation.last_name,
@@ -865,21 +873,6 @@ class RefereeRecruitmentForm(forms.ModelForm):
             invited_by=self.request.user,
             invitation_key=referee_invitation.invitation_key,
             key_expires=timezone.now() + datetime.timedelta(days=365))
-
-        # Try to associate an existing Profile to ref/reg invitations:
-        # profile = Profile.objects.get_unique_from_email_or_None(
-        #     email=referee_invitation.email_address)
-        # referee_invitation.profile = profile
-        # registration_invitation.profile = profile
-        try:
-            profile = Profile.objects.get(
-                Q(email=referee_invitation.email_address) |
-                Q(alternativeemail__email__in=[referee_invitation.email_address]))
-            print(profile)
-            referee_invitation.profile = profile
-            registration_invitation.profile = profile
-        except:
-            pass
 
         if commit:
             referee_invitation.save()
