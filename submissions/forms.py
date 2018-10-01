@@ -649,10 +649,12 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         data = super().clean()
         if self.instance.status != STATUS_INCOMING:
             self.add_error(None, 'This Submission is currently not in pre-screening.')
-        if not self.instance.fellows.exists():
-            self.add_error(None, 'Please add at least one fellow to the pool first.')
-        if not self.instance.editorial_assignments.exists():
-            self.add_error(None, 'Please complete the pre-assignments form first.')
+
+        if data['decision'] == self.PASS:
+            if not self.instance.fellows.exists():
+                self.add_error(None, 'Please add at least one fellow to the pool first.')
+            if not self.instance.editorial_assignments.exists():
+                self.add_error(None, 'Please complete the pre-assignments form first.')
         return data
 
     @transaction.atomic
