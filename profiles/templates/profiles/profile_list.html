@@ -41,27 +41,39 @@
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
 	{% endif %}
       </ul>
-      <br/>
-      <ul class="list-inline">
-	<li class="list-inline-item">
-	  <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
-	</li>
-	{% for discipline in subject_areas %}
-	<li class="list-inline-item">
-	  <div class="dropdown">
-	    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-	    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-	      <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}">View all in {{ discipline.0 }}</a>
-	      {% for area in discipline.1 %}
-	      <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}&expertise={{ area.0}}">{{ area.0 }}</a>
-	      {% endfor %}
-	    </div>
-	  </div>
-	  </li>
-	{% endfor %}
-      </ul>
+      <h4>Specialize the list:</h4>
       <ul>
+	<li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">
+	      <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
+	    </li>
+	    {% for discipline in subject_areas %}
+	    <li class="list-inline-item">
+	      <div class="dropdown">
+		<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+		  <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}">View all in {{ discipline.0 }}</a>
+		  {% for area in discipline.1 %}
+		  <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}&expertise={{ area.0}}">{{ area.0 }}</a>
+		  {% endfor %}
+		</div>
+	      </div>
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</li>
 	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
+	<li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">Last name startswith:</li>
+	    <li class="list-inline-item">
+	      <form action="" method="get">{{ searchform }}
+	    </li>
+	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
+	    </li>
+	  </ul>
+	</li>
       </ul>
   </div>
 </div>

@@ -35,3 +35,7 @@ class AlternativeEmailForm(forms.ModelForm):
     class Meta:
         model = AlternativeEmail
         fields = ['email', 'still_valid']
+
+
+class SearchTextForm(forms.Form):
+    text = forms.CharField(label='')

@@ -19,7 +19,7 @@ from invitations.models import RegistrationInvitation
 from submissions.models import RefereeInvitation
 
 from .models import Profile, AlternativeEmail
-from .forms import ProfileForm, AlternativeEmailForm
+from .forms import ProfileForm, AlternativeEmailForm, SearchTextForm
 
 
 
@@ -113,11 +113,14 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             queryset = queryset.filter(contributor=None)
         elif self.request.GET.get('contributor', None) == 'True':
             queryset = queryset.exclude(contributor=None)
+        if self.request.GET.get('text', None):
+            queryset = queryset.filter(last_name__startswith=self.request.GET.get('text'))
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        context['searchform'] = SearchTextForm(initial={'text': self.request.GET.get('text', None)})
         contributors_dup_email = Contributor.objects.have_duplicate_email()
         context['nr_contributors_w_duplicate_email'] = contributors_dup_email.count()
         context['contributors_w_duplicate_email'] = contributors_dup_email

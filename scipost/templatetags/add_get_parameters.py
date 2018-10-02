@@ -13,6 +13,8 @@ def add_get_parameters(context, **kwargs):
     for k, v in kwargs.items():
         if v is not None:
             parameters[k] = v
+        elif k in parameters.keys():
+            del parameters[k]
     if parameters:
         params = '?'
         for k, v in parameters.items():
