@@ -8,11 +8,9 @@
   <div class="row">
     <div class="col-12">
       <ul class="nav nav-tabs" id="organization-{{ org.id }}-tab" role="tablist">
-	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
-	{% endif %}
 	<li class="nav-item">
 	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if is_scipost_admin %} & PubFractions{% endif %}</a>
 	</li>
@@ -20,7 +18,7 @@
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">Funder instances</a>
+	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">FundRef instances</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="partnership-{{ org.id }}-tab" data-toggle="tab" href="#partnership-{{ org.id }}" role="tab" aria-controls="partnership-{{ org.id }}" aria-selected="true">Partnership history</a>
@@ -34,12 +32,10 @@
 
       <div class="tab-content" id="organization-{{ org.id }}-tab">
 
-	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
 	  <h3>Details:</h3>
 	  {% include 'organizations/_organization_details_contents.html' with org=org %}
 	</div>
-	{% endif %}
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization{% if is_scipost_admin %} <span class="text-muted small">(with total PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>{% endif %}:</h3>
@@ -86,12 +82,19 @@
 	</div>
 
 	<div class="tab-pane pt-4" id="funders-{{ org.id }}" role="tabpanel" aria-labelledby="funders-{{ org.id }}-tab">
-	  <h3>Funder instances (from FundRef) associated to this Organization:</h3>
+	  <h3>FundRef instances associated to this Organization:</h3>
 	  <ul>
 	    {% for funder in org.funder_set.all %}
 	    <li>{{ funder }}</li>
 	    {% empty %}
-	    <li>No FundRef instance found</li>
+	    <li>No FundRef instance found<br/><br/>
+	      <strong class="text-danger">Without a FundRef instance, we cannot record funding acknowledgements to this Organization at Crossref.</strong>
+	      <p>Are you a representative of this Organization? Please:</p>
+	      <ol>
+		<li>Make sure your Organization is included in Crossref's FundRef database</li>
+		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in FundRef">contact our administration</a> with this information so that we can update our records.</li>
+	      </ol>
+	    </li>
 	    {% endfor %}
 	  </ul>
 	</div>
