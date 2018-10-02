@@ -16,19 +16,24 @@ class ProfileForm(forms.ModelForm):
                   'discipline', 'expertises', 'orcid_id', 'webpage',
                   'accepts_SciPost_emails', 'accepts_refereeing_requests']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email'].initial = self.instance.email.email
+
     def clean_email(self):
         """Check that the email isn't yet associated to an existing Profile."""
         cleaned_email = self.cleaned_data['email']
-        if self.instance.emails.filter(email=cleaned_email).exists():
+        if ProfileEmail.objects.filter(email=cleaned_email).exclude(profile__id=self.instance.id).exists():
             raise forms.ValidationError('A Profile with this email already exists.')
         return cleaned_email
 
     def save(self):
         profile = super().save()
-        ProfileEmail.objects.create(
-            profile=profile,
-            email=self.cleaned_data['email'],
-            primary=True)
+        profile.emails.update(primary=False)
+        email, __ = ProfileEmail.objects.get_or_create(
+            profile=profile, email=self.cleaned_data['email'])
+        profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
+        return profile
 
 
 class ProfileEmailForm(forms.ModelForm):

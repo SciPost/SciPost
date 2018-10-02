@@ -46,6 +46,7 @@ class Profile(models.Model):
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True, validators=[orcid_validator])
     webpage = models.URLField(blank=True)
+
     # Preferences for interactions with SciPost:
     accepts_SciPost_emails = models.BooleanField(default=True)
     accepts_refereeing_requests = models.BooleanField(default=True)
@@ -74,3 +75,6 @@ class ProfileEmail(models.Model):
         unique_together = ['profile', 'email']
         ordering = ['-primary', '-still_valid', 'email']
         default_related_name = 'emails'
+
+    def __str__(self):
+        return self.email
