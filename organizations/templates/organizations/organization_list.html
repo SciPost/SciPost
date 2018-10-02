@@ -3,6 +3,7 @@
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
+{% load user_groups %}
 {% load organizations_extras %}
 
 {% block headsup %}
@@ -52,7 +53,9 @@ $(document).ready(function($) {
     <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
     <ul>
       <li>associated publications</li>
+      {% if is_scipost_admin %}
       <li>associated support fractions</li>
+      {% endif %}
       <li>associated authors</li>
       <li>partnership history</li>
     </ul>
