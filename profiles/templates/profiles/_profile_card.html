@@ -11,12 +11,29 @@
 	<tr>
 	  <td>Email(s)</td>
 	  <td>
-	    <ul>
-	      <li>{{ profile.email }} (current)</li>
-	      {% for altemail in profile.emails.all %}
-	      <li>{{ altemail.email }} (alt, {{ altemail.still_valid|yesno:"still valid,deprecated" }})</li>
-	      {% endfor %}
-	    </ul>
+	    <table class="table table-sm table-borderless">
+            <thead>
+                <tr>
+                    <th colspan="2">Email</th>
+                    <th>Still valid</th>
+                    <th></th>
+                </tr>
+            </thead>
+    	      {% for profile_mail in profile.emails.all %}
+        	      <tr>
+                      <td>{% if profile_mail.primary %}<strong>{% endif %}{{ profile_mail.email }}{% if profile_mail.primary %}</strong>{% endif %}</td>
+                      <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
+                      <td>
+                          <i class="fa {{ profile_mail.still_valid|yesno:'fa-check-circle text-success,fa-times-circle text-danger' }}"></i>
+
+                      </td>
+                      <td class="d-flex">
+                          <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link p-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
+                          <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link text-danger p-0 ml-2" onclick="return confirm('Sure you want to delete {{ profile_mail.email }}?')"><i class="fa fa-trash"></i></button></form>
+                      </td>
+                  </tr>
+    	      {% endfor %}
+          </table>
 	  </td>
 	</tr>
 	<tr>
@@ -43,10 +60,10 @@
 	<li><a href="{% url 'profiles:profile_delete' pk=profile.id %}">Delete</a> this Profile</li>
 	<li>
 	  <div>
-	    Add an alternative email to this Profile:
-	    <form action="{% url 'profiles:add_alternative_email' profile_id=profile.id %}" method="post">
+	    Add an email to this Profile:
+	    <form action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
 	      {% csrf_token %}
-	      {{ alternative_email_form|bootstrap }}
+	      {{ email_form|bootstrap }}
 	      <input class="btn btn-outline-secondary" type="submit" value="Add">
 	    </form>
 	  </div>

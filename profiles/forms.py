@@ -4,36 +4,37 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from .models import Profile, AlternativeEmail
+from .models import Profile, ProfileEmail
 
 
 class ProfileForm(forms.ModelForm):
+    email = forms.EmailField()
 
     class Meta:
         model = Profile
-        fields = ['title', 'first_name', 'last_name', 'email',
+        fields = ['title', 'first_name', 'last_name',
                   'discipline', 'expertises', 'orcid_id', 'webpage',
                   'accepts_SciPost_emails', 'accepts_refereeing_requests']
 
     def clean_email(self):
-        """
-        Check that the email isn't yet associated to an existing Profile
-        (via either the email field or the m2m-related alternativeemails).
-        """
+        """Check that the email isn't yet associated to an existing Profile."""
         cleaned_email = self.cleaned_data['email']
-        if Profile.objects.filter(email=cleaned_email).exists():
-            raise forms.ValidationError(
-                'A Profile with this email (as primary email) already exists.')
-        elif AlternativeEmail.objects.filter(email=cleaned_email).exists():
-            raise forms.ValidationError(
-                'A Profile with this email (as alternative email) already exists.')
+        if self.instance.emails.filter(email=cleaned_email).exists():
+            raise forms.ValidationError('A Profile with this email already exists.')
         return cleaned_email
 
+    def save(self):
+        profile = super().save()
+        ProfileEmail.objects.create(
+            profile=profile,
+            email=self.cleaned_data['email'],
+            primary=True)
 
-class AlternativeEmailForm(forms.ModelForm):
+
+class ProfileEmailForm(forms.ModelForm):
 
     class Meta:
-        model = AlternativeEmail
+        model = ProfileEmail
         fields = ['email', 'still_valid']
 
     def __init__(self, *args, **kwargs):

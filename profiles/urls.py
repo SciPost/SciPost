@@ -33,8 +33,18 @@ urlpatterns = [
         name='profiles'
     ),
     url(
-        r'^(?P<profile_id>[0-9]+)/add_alternative_email/$',
-        views.add_alternative_email,
-        name='add_alternative_email'
+        r'^(?P<profile_id>[0-9]+)/add_email$',
+        views.add_profile_email,
+        name='add_profile_email'
+    ),
+    url(
+        r'^(?P<email_id>[0-9]+)/toggle$',
+        views.toggle_email_status,
+        name='toggle_email_status'
+    ),
+    url(
+        r'^(?P<email_id>[0-9]+)/delete$',
+        views.delete_profile_email,
+        name='delete_profile_email'
     ),
 ]

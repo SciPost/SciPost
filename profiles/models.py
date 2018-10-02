@@ -38,7 +38,6 @@ class Profile(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
-    email = models.EmailField()
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
                                   default=DISCIPLINE_PHYSICS, verbose_name='Main discipline')
     expertises = ChoiceArrayField(
@@ -59,19 +58,19 @@ class Profile(models.Model):
     def __str__(self):
         return '%s, %s %s' % (self.last_name, self.get_title_display(), self.first_name)
 
+    @property
+    def email(self):
+        return self.emails.filter(primary=True).first()
 
-class AlternativeEmail(models.Model):
-    """
-    It is often the case that somebody has multiple email addresses.
-    The 'email' field of a given Profile, Contributor or other person-based object
-    is then interpreted as representing the current address.
-    An AlternativeEmail is bound to a Profile and holds info on eventual
-    secondary email addresses.
-    """
+
+class ProfileEmail(models.Model):
+    """Any email related to a Profile instance."""
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
     email = models.EmailField()
     still_valid = models.BooleanField(default=True)
+    primary = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ['profile', 'email']
+        ordering = ['-primary', '-still_valid', 'email']
         default_related_name = 'emails'

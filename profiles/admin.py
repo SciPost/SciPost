@@ -4,10 +4,16 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Profile
+from .models import Profile, ProfileEmail
+
+
+class ProfileEmailInline(admin.TabularInline):
+    model = ProfileEmail
+    extra = 0
 
 
 class ProfileAdmin(admin.ModelAdmin):
     search_fields = ['first_name', 'last_name', 'email', 'orcid_id']
+    inlines = [ProfileEmailInline]
 
 admin.site.register(Profile, ProfileAdmin)

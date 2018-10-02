@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render, redirect
+from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
@@ -18,8 +19,8 @@ from scipost.models import Contributor
 from invitations.models import RegistrationInvitation
 from submissions.models import RefereeInvitation
 
-from .models import Profile, AlternativeEmail
-from .forms import ProfileForm, AlternativeEmailForm, SearchTextForm
+from .models import Profile, ProfileEmail
+from .forms import ProfileForm, ProfileEmailForm, SearchTextForm
 
 
 
@@ -138,22 +139,42 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             'next_refinv_wo_profile': refinv_wo_profile.first(),
             'nr_reginv_wo_profile': reginv_wo_profile.count(),
             'next_reginv_wo_profile': reginv_wo_profile.first(),
-            'alternative_email_form': AlternativeEmailForm(),
+            'email_form': ProfileEmailForm(),
         })
         return context
 
 
 @permission_required('scipost.can_create_profiles')
-def add_alternative_email(request, profile_id):
+def add_profile_email(request, profile_id):
     """
-    Add an alternative email address to a Profile.
+    Add an email address to a Profile.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
-    form = AlternativeEmailForm(request.POST or None, profile=profile)
+    form = ProfileEmailForm(request.POST or None, profile=profile)
     if form.is_valid():
         form.save()
-        messages.success(request, 'Alternative email successfully added.')
+        messages.success(request, 'Email successfully added.')
     else:
         for field, err in form.errors.items():
             messages.warning(request, err[0])
     return redirect(reverse('profiles:profiles'))
+
+
+@require_POST
+@permission_required('scipost.can_create_profiles')
+def toggle_email_status(request, email_id):
+    """Toggle valid/deprecated status of ProfileEmail."""
+    profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+    ProfileEmail.objects.filter(id=email_id).update(still_valid=not profile_email.still_valid)
+    messages.success(request, 'Email updated')
+    return redirect('profiles:profiles')
+
+
+@require_POST
+@permission_required('scipost.can_create_profiles')
+def delete_profile_email(request, email_id):
+    """Delete ProfileEmail."""
+    profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+    profile_email.delete()
+    messages.success(request, 'Email deleted')
+    return redirect('profiles:profiles')
