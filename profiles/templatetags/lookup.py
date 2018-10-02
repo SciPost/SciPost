@@ -18,7 +18,7 @@ class ProfileLookup(LookupChannel):
         return (self.model.objects.order_by('last_name')
                 .filter(Q(first_name__icontains=q) |
                         Q(last_name__icontains=q) |
-                        Q(email__icontains=q) |
+                        Q(emails__email__icontains=q) |
                         Q(orcid_id__icontains=q))[:10])
 
     def format_item_display(self, item):
