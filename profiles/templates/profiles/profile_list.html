@@ -53,9 +53,9 @@
 	      <div class="dropdown">
 		<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
 		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-		  <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}">View all in {{ discipline.0 }}</a>
+		  <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
 		  {% for area in discipline.1 %}
-		  <a class="dropdown-item" href="?discipline={{ discipline.0|cut:' '}}&expertise={{ area.0}}">{{ area.0 }}</a>
+		  <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
 		  {% endfor %}
 		</div>
 	      </div>
@@ -69,6 +69,15 @@
 	    <li class="list-inline-item">Last name startswith:</li>
 	    <li class="list-inline-item">
 	      <form action="" method="get">{{ searchform }}
+		{% if request.GET.discipline %}
+		<input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
+		{% if request.GET.expertise %}
+		<input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
+		{% endif %}
+		{% endif %}
+		{% if request.GET.contributor %}
+		<input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
+		{% endif %}
 	    </li>
 	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
 	    </li>
@@ -80,7 +89,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h3>Profiles {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
+    <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
     <br/>
     <table class="table table-hover mb-5">
       <thead class="thead-default">
