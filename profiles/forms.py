@@ -18,7 +18,7 @@ class ProfileForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['email'].initial = self.instance.email.email
+        self.fields['email'].initial = self.instance.email
 
     def clean_email(self):
         """Check that the email isn't yet associated to an existing Profile."""

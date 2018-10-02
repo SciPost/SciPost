@@ -61,7 +61,7 @@ class Profile(models.Model):
 
     @property
     def email(self):
-        return self.emails.filter(primary=True).first()
+        return getattr(self.emails.filter(primary=True).first(), 'email', '')
 
 
 class ProfileEmail(models.Model):
