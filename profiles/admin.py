@@ -13,7 +13,7 @@ class ProfileEmailInline(admin.TabularInline):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    search_fields = ['first_name', 'last_name', 'email', 'orcid_id']
+    search_fields = ['first_name', 'last_name', 'emails__email', 'orcid_id']
     inlines = [ProfileEmailInline]
 
 admin.site.register(Profile, ProfileAdmin)
