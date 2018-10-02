@@ -1,6 +1,7 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
 {% load bootstrap %}
+{% load add_get_parameters %}
 
 {% block breadcrumb_items %}
     {{ block.super }}
@@ -14,43 +15,89 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <p>
-      <ul class="list-inline">
-	<li class="list-inline-item">
-	  <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
-	</li>
-	{% for discipline in subject_areas %}
-	<li class="list-inline-item">
-	  <div class="dropdown">
-	    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-	    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-	      <a class="dropdown-item" href="{% url 'profiles:profiles' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
-	      {% for area in discipline.1 %}
-	      <a class="dropdown-item" href="{% url 'profiles:profiles' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
-	      {% endfor %}
-	    </div>
-	  </div>
-	  </li>
-	{% endfor %}
+    <h4>Profiles-related Actions:</h4>
+      <ul>
+	{% if contributors_w_duplicate_email %}
+    	<li class="text-danger">
+    	  {{ contributors_w_duplicate_email|length }} Contributor duplicates (via email) identified
+    	  <ul>
+    	    {% for dup in contributors_w_duplicate_email %}
+    	    <li>{{ dup }}, {{ dup.user.email }}, id {{ dup.id }}</li>
+    	    {% empty %}
+    	    <li>No duplicates found</li>
+    	    {% endfor %}
+    	  </ul>
+    	  Please take action by merging these Contributor instances.
+    	</li>
+	{% endif %}
+	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
+	{% if next_reginv_wo_profile %}
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
+	{% endif %}
+	{% if next_contributor_wo_profile %}
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	{% endif %}
+	{% if next_refinv_wo_profile %}
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
+	{% endif %}
       </ul>
-    </p>
+      <h4>Specialize the list:</h4>
+      <ul>
+	<li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">
+	      <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
+	    </li>
+	    {% for discipline in subject_areas %}
+	    <li class="list-inline-item">
+	      <div class="dropdown">
+		<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+		  <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+		  {% for area in discipline.1 %}
+		  <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+		  {% endfor %}
+		</div>
+	      </div>
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</li>
+	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
+	<li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">Last name startswith:</li>
+	    <li class="list-inline-item">
+	      <form action="" method="get">{{ searchform }}
+		{% if request.GET.discipline %}
+		<input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
+		{% if request.GET.expertise %}
+		<input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
+		{% endif %}
+		{% endif %}
+		{% if request.GET.contributor %}
+		<input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
+		{% endif %}
+	    </li>
+	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
+	    </li>
+	  </ul>
+	</li>
+      </ul>
   </div>
 </div>
 
 <div class="row">
   <div class="col-12">
-    <a href="{% url 'profiles:profile_create' %}">Add a Profile</a>
-    <br/><br/>
-    {% if view.kwargs.discipline %}
-    <h3>Profiles in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}:</h3>
+    <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
     <br/>
-    {% endif %}
     <table class="table table-hover mb-5">
       <thead class="thead-default">
 	<tr>
 	  <th>Name</th>
 	  <th>Discipline</th>
 	  <th>Expertises</th>
+	  <th>Contributor?</th>
 	</tr>
       </thead>
       <tbody id="accordion" role="tablist" aria-multiselectable="true">
@@ -63,7 +110,7 @@
             <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	    {% endfor %}
 	  </td>
-	  <td>{{ profile.get_status_display }}</td>
+	  <td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	</tr>
 	<tr id="collapse{{ profile.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ profile.id }}" style="background-color: #fff;">
 	  <td colspan="4">
@@ -78,21 +125,11 @@
       </tbody>
     </table>
 
-    <div class="pagination">
-      <span class="step-links">
-        {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">next</a>
-        {% endif %}
-      </span>
+    {% if is_paginated %}
+    <div class="col-12">
+      {% include 'partials/pagination.html' with page_obj=page_obj %}
     </div>
+    {% endif %}
 
   </div>
 </div>

@@ -45,6 +45,7 @@ from comments.forms import CommentForm
 from journals.models import Journal
 from mails.views import MailEditingSubView
 from production.forms import ProofsDecisionForm
+from profiles.models import Profile
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
@@ -928,6 +929,7 @@ def send_refereeing_invitation(request, identifier_w_vn_nr, contributor_id,
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     contributor = get_object_or_404(Contributor, pk=contributor_id)
+    profile = Profile.objects.get_unique_from_email_or_None(contributor.user.email)
 
     if not contributor.is_currently_available:
         errormessage = ('This Contributor is marked as currently unavailable. '
@@ -935,6 +937,7 @@ def send_refereeing_invitation(request, identifier_w_vn_nr, contributor_id,
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
     invitation = RefereeInvitation(
+        profile=profile,
         submission=submission,
         referee=contributor,
         title=contributor.title,

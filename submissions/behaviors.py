@@ -6,5 +6,8 @@ class SubmissionRelatedObjectMixin:
     def save(self, *args, **kwargs):
         obj = super().save(*args, **kwargs)
         if hasattr(self, 'submission'):
-            self.submission.touch()
+            try:
+                self.submission.touch()
+            except AttributeError:
+                pass
         return obj

@@ -35,6 +35,7 @@ from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
+from profiles.models import Profile
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
@@ -818,6 +819,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
     class Meta:
         model = RefereeInvitation
         fields = [
+            'profile',
             'title',
             'first_name',
             'last_name',
@@ -825,6 +827,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
             'auto_reminders_allowed',
             'invitation_key']
         widgets = {
+            'profile': forms.HiddenInput(),
             'invitation_key': forms.HiddenInput()
         }
 
@@ -852,11 +855,17 @@ class RefereeRecruitmentForm(forms.ModelForm):
         if not self.request or not self.submission:
             raise forms.ValidationError('No request or Submission given.')
 
+        # Try to associate an existing Profile to ref/reg invitations:
+        profile = Profile.objects.get_unique_from_email_or_None(
+            email=self.cleaned_data['email_address'])
+        self.instance.profile = profile
+
         self.instance.submission = self.submission
         self.instance.invited_by = self.request.user.contributor
         referee_invitation = super().save(commit=False)
 
         registration_invitation = RegistrationInvitation(
+            profile=profile,
             title=referee_invitation.title,
             first_name=referee_invitation.first_name,
             last_name=referee_invitation.last_name,

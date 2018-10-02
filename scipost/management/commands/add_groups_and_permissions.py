@@ -72,6 +72,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Registration and invitations
+        can_manage_contributors, created = Permission.objects.get_or_create(
+            codename='can_manage_contributors',
+            name='Can manage Contributors',
+            content_type=content_type)
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name='Can vet registration requests',

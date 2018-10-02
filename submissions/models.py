@@ -447,7 +447,8 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     a Report for a specific Submission. It will register its response to the invitation and
     the current status its refereeing duty if the invitation has been accepted.
     """
-
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.SET_NULL,
+                                blank=True, null=True)
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='referee_invitations')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_invitations',

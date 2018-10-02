@@ -8,7 +8,12 @@ from . import views
 
 urlpatterns = [
     url(
-        r'^add/$',
+        r"^add/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$",
+        views.ProfileCreateView.as_view(),
+        name='profile_create'
+    ),
+    url(
+        r"^add/$",
         views.ProfileCreateView.as_view(),
         name='profile_create'
     ),
@@ -23,18 +28,23 @@ urlpatterns = [
         name='profile_delete'
     ),
     url(
-        r'^(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
-        views.ProfileListView.as_view(),
-        name='profiles'
-    ),
-    url(
-        r'^(?P<discipline>[a-zA-Z]+)/$',
-        views.ProfileListView.as_view(),
-        name='profiles'
-    ),
-    url(
         r'^$',
         views.ProfileListView.as_view(),
         name='profiles'
+    ),
+    url(
+        r'^(?P<profile_id>[0-9]+)/add_email$',
+        views.add_profile_email,
+        name='add_profile_email'
+    ),
+    url(
+        r'^emails/(?P<email_id>[0-9]+)/toggle$',
+        views.toggle_email_status,
+        name='toggle_email_status'
+    ),
+    url(
+        r'^emails/(?P<email_id>[0-9]+)/delete$',
+        views.delete_profile_email,
+        name='delete_profile_email'
     ),
 ]
