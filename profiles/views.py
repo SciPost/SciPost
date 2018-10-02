@@ -40,35 +40,40 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         initial = super().get_initial()
         from_type = self.kwargs.get('from_type', None)
         pk = self.kwargs.get('pk', None)
-        print(from_type)
-        print(pk)
-        if pk:
+
+        if pk and from_type:
             pk = int(pk)
             if from_type == 'contributor':
                 contributor = get_object_or_404(Contributor, pk=pk)
-                initial['title'] = contributor.title
-                initial['first_name'] = contributor.user.first_name
-                initial['last_name'] = contributor.user.last_name
-                initial['email'] = contributor.user.email
-                initial['discipline'] = contributor.discipline
-                initial['expertises'] = contributor.expertises
-                initial['orcid_id'] = contributor.orcid_id
-                initial['webpage'] = contributor.personalwebpage
-                initial['accepts_SciPost_emails'] = contributor.accepts_SciPost_emails
+                initial.update({
+                    'title': contributor.title,
+                    'first_name': contributor.user.first_name,
+                    'last_name': contributor.user.last_name,
+                    'email': contributor.user.email,
+                    'discipline': contributor.discipline,
+                    'expertises': contributor.expertises,
+                    'orcid_id': contributor.orcid_id,
+                    'webpage': contributor.personalwebpage,
+                    'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
+                })
             elif from_type == 'refereeinvitation':
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
-                initial['title'] = refinv.title
-                initial['first_name'] = refinv.first_name
-                initial['last_name'] = refinv.last_name
-                initial['email'] = refinv.email_address
-                initial['discipline'] = refinv.submission.discipline
-                initial['expertises'] = refinv.submission.secondary_areas
+                initial.update({
+                    'title': refinv.title,
+                    'first_name': refinv.first_name,
+                    'last_name': refinv.last_name,
+                    'email': refinv.email_address,
+                    'discipline': refinv.submission.discipline,
+                    'expertises': refinv.submission.secondary_areas,
+                })
             elif from_type == 'registrationinvitation':
                 reginv = get_object_or_404(RegistrationInvitation, pk=pk)
-                initial['title'] = reginv.title
-                initial['first_name'] = reginv.first_name
-                initial['last_name'] = reginv.last_name
-                initial['email'] = reginv.email
+                initial.update({
+                    'title': reginv.title,
+                    'first_name': reginv.first_name,
+                    'last_name': reginv.last_name,
+                    'email': reginv.email,
+                })
         return initial
 
 
@@ -105,35 +110,36 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of Profiles using optional GET data.
         """
         queryset = Profile.objects.all()
-        if self.request.GET.get('discipline', None):
+        if self.request.GET.get('discipline'):
             queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
-            if self.request.GET.get('expertise', None):
+            if self.request.GET.get('expertise'):
                 queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
-        if self.request.GET.get('contributor', None) == 'False':
-            queryset = queryset.filter(contributor=None)
-        elif self.request.GET.get('contributor', None) == 'True':
-            queryset = queryset.exclude(contributor=None)
-        if self.request.GET.get('text', None):
-            queryset = queryset.filter(last_name__startswith=self.request.GET.get('text'))
+        if self.request.GET.get('contributor') == 'False':
+            queryset = queryset.filter(contributor__isnull=True)
+        elif self.request.GET.get('contributor') == 'True':
+            queryset = queryset.filter(contributor__isnull=False)
+        if self.request.GET.get('text'):
+            queryset = queryset.filter(last_name__istartswith=self.request.GET['text'])
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
-        context['searchform'] = SearchTextForm(initial={'text': self.request.GET.get('text', None)})
-        contributors_dup_email = Contributor.objects.have_duplicate_email()
-        context['nr_contributors_w_duplicate_email'] = contributors_dup_email.count()
-        context['contributors_w_duplicate_email'] = contributors_dup_email
-        contributors_wo_profile = Contributor.objects.filter(profile=None)
-        context['nr_contributors_wo_profile'] = contributors_wo_profile.count()
-        context['next_contributor_wo_profile'] = contributors_wo_profile.first()
-        refinv_wo_profile = RefereeInvitation.objects.filter(profile=None)
-        context['nr_refinv_wo_profile'] = refinv_wo_profile.count()
-        context['next_refinv_wo_profile'] = refinv_wo_profile.first()
-        reginv_wo_profile = RegistrationInvitation.objects.filter(profile=None)
-        context['nr_reginv_wo_profile'] = reginv_wo_profile.count()
-        context['next_reginv_wo_profile'] = reginv_wo_profile.first()
-        context['alternative_email_form'] = AlternativeEmailForm()
+        contributors_wo_profile = Contributor.objects.filter(profile__isnull=True)
+        refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
+        reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
+
+        context.update({
+            'subject_areas': SCIPOST_SUBJECT_AREAS,
+            'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
+            'contributors_w_duplicate_email': Contributor.objects.have_duplicate_email(),
+            'nr_contributors_wo_profile': contributors_wo_profile.count(),
+            'next_contributor_wo_profile': contributors_wo_profile.first(),
+            'nr_refinv_wo_profile': refinv_wo_profile.count(),
+            'next_refinv_wo_profile': refinv_wo_profile.first(),
+            'nr_reginv_wo_profile': reginv_wo_profile.count(),
+            'next_reginv_wo_profile': reginv_wo_profile.first(),
+            'alternative_email_form': AlternativeEmailForm(),
+        })
         return context
 
 
@@ -143,20 +149,11 @@ def add_alternative_email(request, profile_id):
     Add an alternative email address to a Profile.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
-    form = AlternativeEmailForm(request.POST or None)
+    form = AlternativeEmailForm(request.POST or None, profile=profile)
     if form.is_valid():
-        try:
-            newaltemail = AlternativeEmail(profile=profile,
-                                           email=form.cleaned_data['email'],
-                                           still_valid=form.cleaned_data['still_valid'])
-            newaltemail.save()
-            messages.success(request, 'Alternative email successfully added.')
-        except IntegrityError:
-            errormessage = 'This profile/email pair is already defined.'
-            return render(request, 'scipost/error.html',
-                          context={'errormessage': errormessage})
+        form.save()
+        messages.success(request, 'Alternative email successfully added.')
     else:
-        errormessage = 'Please enter a valid email address'
-        return render(request, 'scipost/error.html',
-                          context={'errormessage': errormessage})
+        for field, err in form.errors.items():
+            messages.warning(request, err[0])
     return redirect(reverse('profiles:profiles'))

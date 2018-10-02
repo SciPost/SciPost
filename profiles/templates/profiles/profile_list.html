@@ -17,18 +17,18 @@
   <div class="col-12">
     <h4>Profiles-related Actions:</h4>
       <ul>
-	{% if nr_contributors_w_duplicate_email > 0 %}
-	<li class="text-danger">
-	  {{ nr_contributors_w_duplicate_email }} Contributor duplicates (via email) identified
-	  <ul>
-	    {% for dup in contributors_w_duplicate_email %}
-	    <li>{{ dup }}, {{ dup.user.email }}, id {{ dup.id }}</li>
-	    {% empty %}
-	    <li>No duplicates found</li>
-	    {% endfor %}
-	  </ul>
-	  Please take action by merging these Contributor instances.
-	</li>
+	{% if contributors_w_duplicate_email %}
+    	<li class="text-danger">
+    	  {{ contributors_w_duplicate_email|length }} Contributor duplicates (via email) identified
+    	  <ul>
+    	    {% for dup in contributors_w_duplicate_email %}
+    	    <li>{{ dup }}, {{ dup.user.email }}, id {{ dup.id }}</li>
+    	    {% empty %}
+    	    <li>No duplicates found</li>
+    	    {% endfor %}
+    	  </ul>
+    	  Please take action by merging these Contributor instances.
+    	</li>
 	{% endif %}
 	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
 	{% if next_reginv_wo_profile %}

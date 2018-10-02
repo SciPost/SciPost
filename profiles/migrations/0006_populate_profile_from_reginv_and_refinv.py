@@ -14,7 +14,7 @@ def populate_profile_from_refinv(apps, schema_editor):
         try:
             profile = Profile.objects.get(
                 Q(email=refinv.email_address) |
-                Q(alternativeemail__email__in=[refinv.email_address]))
+                Q(alternativeemail__email=refinv.email_address))
         except Profile.DoesNotExist:
             profile = Profile(title=refinv.title,
                               first_name=refinv.first_name,
@@ -26,7 +26,7 @@ def populate_profile_from_refinv(apps, schema_editor):
         except Profile.MultipleObjectsReturned:
             profile = Profile.objects.filter(
                 Q(email=refinv.email_address) |
-                Q(alternativeemail__email__in=[refinv.email_address])).first()
+                Q(alternativeemail__email=refinv.email_address)).first()
 
         refinv.profile = profile
         refinv.save()
@@ -40,7 +40,7 @@ def populate_profile_from_reginv(apps, schema_editor):
         try:
             profile = Profile.objects.get(
                 Q(email=reginv.email) |
-                Q(alternativeemail__email__in=[reginv.email]))
+                Q(alternativeemail__email=reginv.email))
         except Profile.DoesNotExist:
             profile = Profile(title=reginv.title,
                               first_name=reginv.first_name,
@@ -50,7 +50,7 @@ def populate_profile_from_reginv(apps, schema_editor):
         except Profile.MultipleObjectsReturned:
             profile = Profile.objects.filter(
                 Q(email=reginv.email) |
-                Q(alternativeemail__email__in=[reginv.email])).first()
+                Q(alternativeemail__email=reginv.email)).first()
 
         reginv.profile = profile
         reginv.save()

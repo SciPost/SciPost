@@ -36,6 +36,22 @@ class AlternativeEmailForm(forms.ModelForm):
         model = AlternativeEmail
         fields = ['email', 'still_valid']
 
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile', None)
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        """Check if profile/email combination exists."""
+        email = self.cleaned_data['email']
+        if self.profile.emails.filter(email=email).exists():
+            self.add_error('email', 'This profile/email pair is already defined.')
+        return email
+
+    def save(self):
+        """Save to a profile."""
+        self.instance.profile = self.profile
+        return super().save()
+
 
 class SearchTextForm(forms.Form):
     text = forms.CharField(label='')

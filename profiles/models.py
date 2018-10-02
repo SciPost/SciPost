@@ -74,3 +74,4 @@ class AlternativeEmail(models.Model):
 
     class Meta:
         unique_together = ['profile', 'email']
+        default_related_name = 'emails'

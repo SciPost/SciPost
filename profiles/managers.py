@@ -10,9 +10,9 @@ class ProfileQuerySet(models.QuerySet):
 
     def get_unique_from_email_or_None(self, email):
         try:
-            return self.get(Q(email=email) | Q(alternativeemail__email__in=[email]))
+            return self.get(Q(email=email) | Q(alternativeemail__email=email))
         except self.model.DoesNotExist:
             pass
         except self.model.MultipleObjectsReturned:
             pass
-        return None
+        return self.none()

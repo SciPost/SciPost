@@ -13,8 +13,8 @@
 	  <td>
 	    <ul>
 	      <li>{{ profile.email }} (current)</li>
-	      {% for altemail in profile.alternativeemail_set.all %}
-	      <li>{{ altemail.email }} (alt, {% if altemail.still_valid %}still valid{% else %}deprecated{% endif %})</li>
+	      {% for altemail in profile.emails.all %}
+	      <li>{{ altemail.email }} (alt, {{ altemail.still_valid|yesno:"still valid,deprecated" }})</li>
 	      {% endfor %}
 	    </ul>
 	  </td>
