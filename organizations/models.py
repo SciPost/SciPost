@@ -12,7 +12,8 @@ from django_countries.fields import CountryField
 
 from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
 
-from journals.models import Publication, PublicationAuthorsTable, OrgPubFraction
+from scipost.models import Contributor
+from journals.models import Publication, PublicationAuthorsTable, OrgPubFraction, UnregisteredAuthor
 
 class Organization(models.Model):
     """
@@ -109,12 +110,14 @@ class Organization(models.Model):
         ).aggregate(Sum('fraction'))['fraction__sum']
 
     def get_contributor_authors(self):
-        return self.publicationauthorstable_set.select_related(
-            'contributor').order_by('contributor__user__last_name')
+        cont_id_list = [tbl.contributor.id for tbl in self.publicationauthorstable_set.all() \
+                     if tbl.contributor is not None]
+        return Contributor.objects.filter(id__in=cont_id_list).order_by('user__last_name')
 
     def get_unregistered_authors(self):
-        return self.publicationauthorstable_set.select_related(
-            'unregistered_author').order_by('unregistered_author__last_name')
+        unreg_id_list = [tbl.unregistered_author.id for tbl in self.publicationauthorstable_set.all(
+        ) if tbl.unregistered_author is not None]
+        return UnregisteredAuthor.objects.filter(id__in=unreg_id_list).order_by('last_name')
 
     @property
     def has_current_agreement(self):
