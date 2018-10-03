@@ -24,16 +24,18 @@ event: "focusin"
 
     <div class="rol">
       <div class="col-12">
-    	{% for page in reports.paginator.page_range %}
-    	{% if forloop.counter != 1 %} | {% endif %}
-    	<a href="?page={{ page }}">{{ page }}</a>
-    	{% endfor %}
+	<a href="{% url 'journals:manage_report_metadata' %}?needing_update=True" method="GET">Only view Reports needing an update</a><br/>
+	<a href="{% url 'journals:manage_report_metadata' %}">View all Reports</a>
+	<br/><br/>
+	{% for page in reports.paginator.page_range %}
+	{% if forloop.counter != 1 %} | {% endif %}
+	<a href="?page={{ page }}">{{ page }}</a>
+	{% endfor %}
       </div>
     </div>
 
-
 <table class="table table-hover mt-4">
-  <thead class="thead-light">
+  <thead class="thead-default">
     <tr>
       <th>Submission</th>
       <th>Associated doi</th>

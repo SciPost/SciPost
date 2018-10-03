@@ -8,6 +8,7 @@
 
 {% load bootstrap %}
 {% load scipost_extras %}
+{% load submissions_extras %}
 
 {% block content %}
 
@@ -55,6 +56,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 30%;">Submission</th>
+				<th>Target Journal<br/>(Tier)</th>
                                 <th>Status</th>
                                 <th class="py-1">
                                     Latest activity
@@ -77,6 +79,7 @@
                                         <br>
                                         by {{ stream.submission.author_list }}
                                     </td>
+				    <td>{{ stream.submission.get_submitted_to_journal_display }}{% for rec in stream.submission.eicrecommendations.all %}<br/>({{ rec|Tier }}){% endfor %}</td>
                                     <td>
                                         <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
                                     </td>

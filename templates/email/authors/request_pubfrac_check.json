@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: please check your publication's support info",
+    "to_address": "accepted_submission.submitted_by.user.email",
+    "bcc_to": "edadmin@scipost.org",
+    "from_address_name": "SciPost Editorial Administration",
+    "from_address": "edadmin@scipost.org",
+    "context_object": "publication"
+}

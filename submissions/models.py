@@ -434,11 +434,6 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
 
     objects = EditorialAssignmentQuerySet.as_manager()
 
-    # Deprecated fields
-    old_accepted = models.NullBooleanField(choices=ASSIGNMENT_NULLBOOL, default=None)
-    old_deprecated = models.BooleanField(default=False)
-    old_completed = models.BooleanField(default=False)
-
     class Meta:
         default_related_name = 'editorial_assignments'
         ordering = ['-date_created']
@@ -496,7 +491,8 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     a Report for a specific Submission. It will register its response to the invitation and
     the current status its refereeing duty if the invitation has been accepted.
     """
-
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.SET_NULL,
+                                blank=True, null=True)
     submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
                                    related_name='referee_invitations')
     referee = models.ForeignKey('scipost.Contributor', related_name='referee_invitations',

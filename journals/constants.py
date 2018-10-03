@@ -33,8 +33,12 @@ REGEX_CHOICES = '|'.join([
 # Regex used for URLs of specific Publications and for
 # doi validation during the publication process.
 PUBLICATION_DOI_REGEX = '({})'.format(REGEX_CHOICES)
-PUBLICATION_DOI_REGEX += '.[0-9]+(.[0-9]+.[0-9]{3,})?'
+PUBLICATION_DOI_REGEX += '(.\w+(.[0-9]+(.[0-9]{3,})?)?)?'
 PUBLICATION_DOI_VALIDATION_REGEX = PUBLICATION_DOI_REGEX
+DOI_DISPATCH_REGEX = '(?P<journal_tag>{})'.format(REGEX_CHOICES)
+DOI_DISPATCH_REGEX += '(.(?P<part_1>\w+)(.(?P<part_2>[0-9]+)(.(?P<part_3>[0-9]{3,}))?)?)?'
+
+DOI_ISSUE_REGEX = '(?P<doi_label>({}).\w+(.[0-9]+)?)'.format(REGEX_CHOICES)
 
 SCIPOST_JOURNALS_DOMAINS = (
     ('E', 'Experimental'),
@@ -90,9 +94,9 @@ CC_LICENSES_URI = (
 
 ISSUES_AND_VOLUMES = 'IV'
 ISSUES_ONLY = 'IO'
-INDIVIDUAL_PUBLCATIONS = 'IP'
+INDIVIDUAL_PUBLICATIONS = 'IP'
 JOURNAL_STRUCTURE = (
     (ISSUES_AND_VOLUMES, 'Issues and Volumes'),
-    # (ISSUES_ONLY, 'Issues only'),  # This option complies with Crossref's rules, but is not implemented (yet).
-    (INDIVIDUAL_PUBLCATIONS, 'Individual Publications'),
+    (ISSUES_ONLY, 'Issues only'),
+    (INDIVIDUAL_PUBLICATIONS, 'Individual Publications'),
 )

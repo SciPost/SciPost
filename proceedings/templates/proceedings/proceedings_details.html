@@ -11,6 +11,7 @@
 {% block content %}
     <h1>Proceedings details</h1>
     <h2 class="text-primary">{{ proceedings }}</h2>
+    <a href="{% url 'proceedings:proceedings_edit' proceedings.id %}" class="breadcrumb-item">Edit Proceedings</a>
     <br>
 
     {% include 'partials/proceedings/summary.html' with proceedings=proceedings %}

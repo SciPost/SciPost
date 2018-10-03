@@ -80,6 +80,7 @@ class MailEditorMixin:
         if not self.has_permission_to_send_mail:
             # Don't use the mail form; don't send out the mail.
             return super().post(request, *args, **kwargs)
+        self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():
             self.mail_form = EmailTemplateForm(request.POST or None, mail_code=self.mail_code,

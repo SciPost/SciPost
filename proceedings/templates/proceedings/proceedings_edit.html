@@ -5,7 +5,7 @@
 {% block breadcrumb_items %}
     {{ block.super }}
     <a href="{% url 'proceedings:proceedings' %}" class="breadcrumb-item">Proceedings</a>
-    <span class="breadcrumb-item">Edit new</span>
+    <span class="breadcrumb-item">Edit {{ proceedings.event_name }}</span>
 {% endblock %}
 
 {% block pagetitle %}: Edit Proceedings{% endblock pagetitle %}

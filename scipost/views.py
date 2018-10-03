@@ -124,7 +124,8 @@ def feeds(request):
 ################
 
 def register(request):
-    """Contributor registration form page.
+    """
+    Contributor registration form page.
 
     This public registration view shows and processes the form
     that will create new user account requests. After registration

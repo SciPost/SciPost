@@ -20,31 +20,34 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.conf import settings
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
-from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED
+from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
+from .exceptions import InvalidDOIError
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
-                    GenericDOIDeposit, PublicationAuthorsTable
+                    GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
 from .forms import AbstractJATSForm, FundingInfoForm,\
                    UnregisteredAuthorForm, AuthorsTableOrganizationSelectForm,\
                    CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
-                   PublicationAuthorOrderingFormSet
+                   PublicationAuthorOrderingFormSet, OrgPubFractionsFormSet
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .utils import JournalUtils
 
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
-from partners.models import Organization
+from mails.views import MailEditingSubView
+from organizations.models import Organization
+from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
@@ -54,12 +57,59 @@ from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
 from guardian.decorators import permission_required
 
 
+def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
+    """
+    Dispatch given DOI route to the appropriate view according to the Journal's settings.
+
+    journal_tag -- Part of the DOI right before the first period.
+    part_1 (optional) -- Part of the DOI after the first period.
+    part_2 (optional) -- Part of the DOI after the second period.
+    part_3 (optional) -- Part of the DOI after the third period.
+    """
+    journal = get_object_or_404(Journal, doi_label=journal_tag)
+    if part_1 is None:
+        # This DOI refers to a Journal landing page.
+        return landing_page(request, journal_tag)
+    elif part_2 is None:
+        doi_label = '{0}.{1}'.format(journal_tag, part_1)
+
+        if journal.structure == INDIVIDUAL_PUBLICATIONS:
+            # Publication DOI for invidivual publication Journals.
+            return publication_detail(request, doi_label)
+        elif journal.structure == ISSUES_ONLY:
+            # Issue DOI for Issue only Journals.
+            return issue_detail(request, doi_label)
+
+        # The third option: a `Issue and Volume Journal DOI` would lead to a "volume detail page",
+        # but that does not exist. Redirect to the Journal landing page instead.
+        return landing_page(request, journal_tag)
+    elif part_3 is None:
+        doi_label = '{0}.{1}.{2}'.format(journal_tag, part_1, part_2)
+
+        if journal.structure == ISSUES_AND_VOLUMES:
+            # Issue DOI for Issue+Volumes Journals.
+            return issue_detail(request, doi_label)
+        elif journal.structure == ISSUES_ONLY:
+            # Publication DOI for Issue only Journals.
+            return publication_detail(request, doi_label)
+    else:
+        doi_label = '{0}.{1}.{2}.{3}'.format(journal_tag, part_1, part_2, part_3)
+        return publication_detail(request, doi_label)
+
+    # Invalid db configure
+    raise InvalidDOIError({
+        'journal_tag': journal_tag,
+        'part_1': part_1,
+        'part_2': part_2,
+        'part_3': part_3})
+
+
 ############
 # Journals
 ############
 
 def journals(request):
-    '''Main landing page for Journals application.'''
+    """Main landing page for Journals application."""
     context = {'journals': Journal.objects.order_by('name')}
     return render(request, 'journals/journals.html', context)
 
@@ -147,15 +197,15 @@ def about(request, doi_label):
 def issue_detail(request, doi_label):
     """Issue detail page."""
     issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
-    journal = issue.in_volume.in_journal
+    journal = issue.in_journal or issue.in_volume.in_journal
 
     papers = issue.publications.published().order_by('paper_nr')
-    next_issue = Issue.objects.published().filter(
-        in_volume__in_journal=journal, start_date__gt=issue.start_date
-        ).order_by('start_date').first()
-    prev_issue = Issue.objects.published().filter(
-        in_volume__in_journal=journal, start_date__lt=issue.start_date
-        ).order_by('start_date').last()
+    next_issue = Issue.objects.published().filter(start_date__gt=issue.start_date).filter(
+        Q(in_volume__in_journal=journal) | Q(in_journal=journal),
+        ).distinct().order_by('start_date').first()
+    prev_issue = Issue.objects.published().filter(start_date__lt=issue.start_date).filter(
+        Q(in_volume__in_journal=journal) | Q(in_journal=journal)
+        ).distinct().order_by('start_date').last()
 
     context = {
         'issue': issue,
@@ -360,24 +410,6 @@ class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['add_affiliation_form'] = AuthorsTableOrganizationSelectForm()
         return context
-
-# NOT WORKING, using the FBV below instead
-# class AddAffiliationView(PermissionsMixin, UpdateView):
-#     """
-#     Add an affiliation to a PublicationAuthorsTable instance.
-#     """
-#     permission_required = 'scipost.can_draft_publication'
-#     model = PublicationAuthorsTable
-#     form_class = AuthorsTableOrganizationSelectForm
-#     template_name = 'journals/author_affiliations.html'
-
-#     def form_valid(self, form):
-#         self.object.affiliations.add(form.cleaned_data['organization'])
-#         return super().form_valid(form)
-
-#     def get_success_url(self):
-#         return reverse_lazy('journals:author_affiliations',
-#                             kwargs={'doi_label': self.kwargs['.doi_label']})
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
@@ -736,6 +768,66 @@ def metadata_DOAJ_deposit(request, doi_label):
                             kwargs={'doi_label': publication.doi_label}))
 
 
+@login_required
+def allocate_orgpubfractions(request, doi_label):
+    """
+    Set the relative support obtained from Organizations
+    for the research contained in a Publication.
+
+    This view is accessible to EdAdmin as well as to the corresponding author
+    of the Publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    if not request.user.is_authenticated:
+        raise Http404
+    elif not (request.user == publication.accepted_submission.submitted_by.user or
+              request.user.has_perm('scipost.can_publish_accepted_submission')):
+        raise Http404
+
+    if not publication.pubfractions.all().exists():
+        # Create new OrgPubFraction objects from existing data, spreading weight evenly
+        for org in publication.get_organizations():
+            pubfrac = OrgPubFraction(publication=publication,
+                                     organization=org, fraction=0)
+            pubfrac.save()
+    formset = OrgPubFractionsFormSet(request.POST or None,
+                                     queryset=publication.pubfractions.all())
+    if formset.is_valid():
+        formset.save()
+        if request.user == publication.accepted_submission.submitted_by.user:
+            publication.pubfractions_confirmed_by_authors = True
+            publication.save()
+        messages.success(request, 'Funding fractions successfully allocated.')
+        return redirect(publication.get_absolute_url())
+    context = {
+        'publication': publication,
+        'formset': formset,
+    }
+    return render(request, 'journals/allocate_orgpubfractions.html', context)
+
+
+@login_required
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def request_pubfrac_check(request, doi_label):
+    """
+    This view is used by EdAdmin to request confirmation of the OrgPubFractions
+    for a given Publication.
+
+    This occurs post-publication, after all the affiliations and funders have
+    been confirmed.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    mail_request = MailEditingSubView(
+        request, mail_code='authors/request_pubfrac_check', instance=publication)
+    if mail_request.is_valid():
+        messages.success(request, 'The corresponding author has been emailed.')
+        mail_request.send()
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
+    else:
+        return mail_request.return_render()
+
+
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_doaj_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
@@ -888,6 +980,12 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
+    needing_update = request.GET.get('needing_update')
+    if needing_update == 'True':
+        reports = reports.filter(
+            Q(needs_doi=None) |
+            Q(needs_doi=True, doideposit_needs_updating=True)).filter(
+                submission__status=STATUS_PUBLISHED)
     paginator = Paginator(reports, 25)
 
     page = request.GET.get('page')
@@ -1162,20 +1260,12 @@ def publication_detail(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published  and not publication.status == PUBLICATION_PREPUBLISHED:
-        if not request.user.has_perm('scipost.can_draft_publication'):
-            raise Http404('Publication is not publicly visible')
-
-    if publication.in_issue:
-        journal = publication.in_issue.in_volume.in_journal
-    elif publication.in_journal:
-        journal = publication.in_journal
-    else:
-        raise Http404('Publication configuration is valid')
+    if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
+        raise Http404('Publication is not publicly visible')
 
     context = {
         'publication': publication,
-        'journal': journal
+        'journal': publication.get_journal(),
     }
     return render(request, 'journals/publication_detail.html', context)
 

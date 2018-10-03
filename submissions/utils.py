@@ -192,6 +192,14 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     This *abstract* submission cycle adds the specific actions needed for submission cycles
     that require referees to be invited.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.submission.proceedings:
+            # Check if proceedings has overwritten the `minimum_referees`
+            if self.submission.proceedings.minimum_referees:
+                self.minimum_referees = self.submission.proceedings.minimum_referees
+
     def update_status(self):
         if self.submission.status == STATUS_INCOMING and self.submission.is_resubmission:
             from .models import Submission

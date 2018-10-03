@@ -135,6 +135,14 @@ urlpatterns = [
         journals_views.email_object_made_citable,
         name='email_object_made_citable'),
 
+    # PubFraction allocation:
+    url(r'^allocate_orgpubfractions/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
+        journals_views.allocate_orgpubfractions,
+        name='allocate_orgpubfractions'),
+    url(r'^request_pubfrac_check/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
+        journals_views.request_pubfrac_check,
+        name='request_pubfrac_check'),
+
     # Citedby
     url(r'^admin/citedby/$',
         journals_views.harvest_citedby_list,
@@ -161,4 +169,4 @@ urlpatterns = [
     url(r'^comments/(?P<comment_id>[0-9]+)/mark_doi_needed/(?P<needed>[0-1])$',
         journals_views.mark_comment_doi_needed,
         name='mark_comment_doi_needed'),
-]
+    ]

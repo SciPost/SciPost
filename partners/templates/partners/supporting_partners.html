@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'partners/base.html' %}
 
 {% block pagetitle %}: Supporting Partners{% endblock pagetitle %}
 
@@ -7,16 +7,17 @@
 {% load scipost_extras %}
 
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <h1>SciPost Supporting Partners</h1>
-        </div>
-    </div>
+{% block breadcrumb_items %}
+{{ block.super }}
 {% endblock %}
 
-
 {% block content %}
+
+<div class="container-outside header">
+  <div class="container">
+    <h1>SciPost Supporting Partners</h1>
+  </div>
+</div>
 
 {% if perms.scipost.can_manage_SPB %}
     <div class="row">

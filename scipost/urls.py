@@ -11,7 +11,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX
+from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX, DOI_DISPATCH_REGEX, DOI_ISSUE_REGEX
 from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -73,6 +73,10 @@ urlpatterns = [
     # Contributors:
     ################
 
+    # Contributor info (public view)
+    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
+        name="contributor_info"),
+
     # Registration
     url(r'^register$', views.register, name='register'),
     url(r'^thanks_for_registering$',
@@ -129,10 +133,6 @@ urlpatterns = [
     url(r'^unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
     url(r'^unavailable_period/(?P<period_id>[0-9]+)/delete$', views.delete_unavailable_period,
         name='delete_unavailable_period'),
-
-    # Contributor info
-    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
-        name="contributor_info"),
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),
@@ -193,6 +193,10 @@ urlpatterns = [
         name='author_reply_detail'),
 
     # Publication detail (+pdf)
+    url(r'^10.21468/{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+        journals_views.doi_dispatch, name='doi_dispatch'),
+    url(r'^{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+        journals_views.doi_dispatch, name='doi_dispatch'),
     url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
@@ -207,9 +211,9 @@ urlpatterns = [
         name='publication_pdf'),
 
     # Journal issue
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^10.21468/{regex}$'.format(regex=DOI_ISSUE_REGEX),
         journals_views.issue_detail, name='issue_detail'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^{regex}$'.format(regex=DOI_ISSUE_REGEX),
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page

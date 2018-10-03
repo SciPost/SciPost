@@ -1,0 +1,78 @@
+{% extends 'scipost/base.html' %}
+
+{% load scipost_extras %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Potential Fellowships{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <p>
+      <ul class="list-inline">
+	<li class="list-inline-item">
+	  <a href="{% url 'colleges:potential_fellowships' %}">View all</a> or view by discipline/subject area:
+	</li>
+	{% for discipline in subject_areas %}
+	<li class="list-inline-item">
+	  <div class="dropdown">
+	    <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+	    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+	      <a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+	      {% for area in discipline.1 %}
+	      <a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+	      {% endfor %}
+	    </div>
+	  </div>
+	  </li>
+	{% endfor %}
+      </ul>
+    </p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <a href="{% url 'colleges:potential_fellowship_create' %}">Add a Potential Fellowship</a>
+    <br/><br/>
+    {% if view.kwargs.discipline %}
+    <h3>Potential Fellowships in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}:</h3>
+    <br/>
+    {% endif %}
+    <table class="table table-hover mb-5">
+      <thead class="thead-default">
+	<tr>
+	  <th>Name</th>
+	  <th>Discipline</th>
+	  <th>Expertises</th>
+	  <th>Status</th>
+	</tr>
+      </thead>
+      <tbody id="accordion" role="tablist" aria-multiselectable="true">
+	{% for potfel in object_list %}
+	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ potfel.id }}" aria-expanded="false" aria-controls="collapse{{ potfel.id }}" style="cursor: pointer;">
+	  <td>{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</td>
+	  <td>{{ potfel.profile.get_discipline_display }}</td>
+	  <td>
+	    {% for expertise in potfel.profile.expertises %}
+            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	    {% endfor %}
+	  </td>
+	  <td>{{ potfel.get_status_display }}</td>
+	</tr>
+	<tr id="collapse{{ potfel.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ potfel.id }}" style="background-color: #fff;">
+	  <td colspan="4">
+	    {% include 'colleges/_potentialfellowship_card.html' with potfel=potfel pfevent_form=pfevent_form %}
+	  </td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <td colspan="4">No Potential Fellowships found</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock content %}

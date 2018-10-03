@@ -50,7 +50,7 @@
 
             <h3>SciPost Administation</h3>
             <ul>
-	      <li><a href="{% url 'partners:organization_list' %}">Manage Organizations</a></li>
+	      <li><a href="{% url 'organizations:organizations' %}">Manage Organizations</a></li>
               <li><a href="{% url 'affiliations:institutions' %}">Manage Institutions database</a></li>
             </ul>
         {% endif %}
@@ -100,11 +100,18 @@
             </ul>
         {% endif %}
 
+	    {% if perms.scipost.can_view_profiles %}
+	    <h3>Profiles</h3>
+	    <ul>
+	      <li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
+	    </ul>
+	    {% endif %}
+
 	    {% if perms.scipost.can_manage_college_composition %}
 	    <h3>Colleges and Fellowships</h3>
 	    <ul>
-	      <li><a href="{% url 'colleges:prospective_Fellows' %}">Manage Prospective Fellows</a></li>
-              <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
+	      <li><a href="{% url 'colleges:potential_fellowships' %}">Manage Potential Fellowships</a></li>
+          <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
 	    </ul>
 	    {% endif %}
 

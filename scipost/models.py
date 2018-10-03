@@ -42,7 +42,8 @@ class Contributor(models.Model):
     All *science* users of SciPost are Contributors.
     username, password, email, first_name and last_name are inherited from User.
     """
-
+    profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
+                                   null=True, blank=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
