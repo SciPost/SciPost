@@ -24,6 +24,7 @@ from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
 
 
+
 ################
 # Journals etc #
 ################
@@ -491,6 +492,14 @@ class Publication(models.Model):
             if key == self.cc_license:
                 return val
         raise KeyError
+
+    def get_all_affiliations(self):
+        """
+        Returns all author affiliations.
+        """
+        from organizations.models import Organization
+        return Organization.objects.filter(
+            publicationauthorstable__publication=self).distinct()
 
     def get_all_funders(self):
         from funders.models import Funder

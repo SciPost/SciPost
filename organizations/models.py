@@ -13,7 +13,7 @@ from django_countries.fields import CountryField
 from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
 
 from scipost.models import Contributor
-from journals.models import Publication, PublicationAuthorsTable, OrgPubFraction, UnregisteredAuthor
+from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
 
 class Organization(models.Model):
     """
@@ -65,6 +65,20 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+    def name_and_acronym(self):
+        if self.acronym:
+            return '%s (%s)' % (self.name, self.acronym)
+        return self.name
+
+    def name_full(self):
+        text = ''
+        if self.name_original:
+            text += self.name_original + ' / '
+        text += self.name
+        if self.acronym:
+            text += ' (' + self.acronym + ')'
+        return text
 
     @property
     def full_name(self):

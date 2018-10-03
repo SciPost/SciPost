@@ -96,7 +96,7 @@
 
     <div class="row">
         <div class="col-12">
-            <h3>Authors</h3>
+            <h3>Author{{ publication.authors.all|length|pluralize }}</h3>
             <ul>
                 {% for author in publication.authors.all %}
                     {% if author.is_registered %}
@@ -107,8 +107,15 @@
                 {% endfor %}
             </ul>
 
+	    <h3>Affiliation{{ publication.get_all_affiliations|length|pluralize }}</h3>
+	    <ul>
+	      {% for aff in publication.get_all_affiliations %}
+	      <li><a href="{{ aff.get_absolute_url }}">{{ aff.name_full }}</a></li>
+	      {% endfor %}
+	    </ul>
+
             {% if publication.get_all_funders %}
-                <h3>Funder{{ publication.get_all_funders|length|pluralize }} for this publication</h3>
+                <h3>Funder{{ publication.get_all_funders|length|pluralize }} for the research work leading to this publication</h3>
                 <ul>
                     {% for funder in publication.get_all_funders %}
                         <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
@@ -116,14 +123,16 @@
                 </ul>
             {% endif %}
 
+		{% if is_scipost_admin or is_edcol_admin %}
             {% if publication.institutions.all %}
-                <h3>Institution{{ publication.institutions.all|pluralize }} related to this Publication</h3>
+                <h3>Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)</h3>
                 <ul>
                     {% for institution in publication.institutions.all %}
                         <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
                     {% endfor %}
                 </ul>
-            {% endif %}
+		{% endif %}
+		{% endif %}
         </div>
     </div>
 
