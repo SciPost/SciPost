@@ -1266,6 +1266,7 @@ def publication_detail(request, doi_label):
 
     context = {
         'publication': publication,
+        'affiliations_list': publication.get_all_affiliations(),
         'journal': publication.get_journal(),
     }
     return render(request, 'journals/publication_detail.html', context)
