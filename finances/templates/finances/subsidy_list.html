@@ -1,0 +1,20 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Subsidies{% endblock pagetitle %}
+
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3>Subsidies</h3>
+    <ul>
+      {% for subsidy in object_list %}
+      <li>{{ subsidy }}</li>
+      {% empty %}
+      <li>No Subsidy found</li>
+      {% endfor %}
+  </div>
+</div>
+
+{% endblock content %}

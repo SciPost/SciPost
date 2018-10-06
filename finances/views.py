@@ -5,13 +5,53 @@ __license__ = "AGPL v3"
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.shortcuts import render
-from django.views.generic.edit import DeleteView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.list import ListView
 
 from .forms import LogsMonthlyActiveFilter
-from .models import WorkLog
+from .models import Subsidy, WorkLog
 from .utils import slug_to_id
+
+from scipost.mixins import PermissionsMixin
+
+
+class SubsidyCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new Subsidy.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = Subsidy
+    fields = '__all__'
+    template_name = 'finances/subsidy_create.html'
+    success_url = reverse_lazy('finances:subsidies')
+
+
+class SubsidyUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update a Subsidy.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = Subsidy
+    fields = '__all__'
+    template_name = 'finances/subsidy_update.html'
+    success_url = reverse_lazy('finances:subsidies')
+
+
+class SubsidyDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete a Subsidy.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = Subsidy
+    success_url = reverse_lazy('finances:subsidies')
+
+
+class SubsidyListView(ListView):
+    model = Subsidy
 
 
 @permission_required('scipost.can_view_timesheets', raise_exception=True)

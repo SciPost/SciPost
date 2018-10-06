@@ -18,10 +18,10 @@
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">FundRef instances</a>
+	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">Funder Registry instances</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="partnership-{{ org.id }}-tab" data-toggle="tab" href="#partnership-{{ org.id }}" role="tab" aria-controls="partnership-{{ org.id }}" aria-selected="true">Partnership history</a>
+	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
 	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
@@ -82,25 +82,25 @@
 	</div>
 
 	<div class="tab-pane pt-4" id="funders-{{ org.id }}" role="tabpanel" aria-labelledby="funders-{{ org.id }}-tab">
-	  <h3>FundRef instances associated to this Organization:</h3>
+	  <h3>Funder Registry instances associated to this Organization:</h3>
 	  <ul>
 	    {% for funder in org.funder_set.all %}
 	    <li>{{ funder }}</li>
 	    {% empty %}
-	    <li>No FundRef instance found<br/><br/>
-	      <strong class="text-danger">Without a FundRef instance, we cannot record funding acknowledgements to this Organization at Crossref.</strong>
+	    <li>No Funder Registry instance found<br/><br/>
+	      <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
 	      <p>Are you a representative of this Organization? Please:</p>
 	      <ol>
-		<li>Make sure your Organization is included in Crossref's FundRef database</li>
-		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in FundRef">contact our administration</a> with this information so that we can update our records.</li>
+		<li>Make sure your Organization is included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a></li>
+		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
 	      </ol>
 	    </li>
 	    {% endfor %}
 	  </ul>
 	</div>
 
-	<div class="tab-pane pt-4" id="partnership-{{ org.id }}" role="tabpanel" aria-labelledby="partnership-{{ org.id }}-tab">
-	  <h3>Partnership history:</h3>
+	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
+	  <h3>Supporting Partner Agreements history:</h3>
 	  {% with agreement=org.partner.get_latest_active_agreement %}
 	  {% if agreement %}
 	  <p>This organization is currently a SciPost Supporting Partner.</p>

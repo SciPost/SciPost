@@ -291,6 +291,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Financial administration
+        can_manage_subsidies, created = Permission.objects.get_or_create(
+            codename='can_manage_subsidies',
+            name='Can manage subsidies',
+            content_type=content_type)
         can_view_timesheets, created = Permission.objects.get_or_create(
             codename='can_view_timesheets',
             name='Can view timesheets',
