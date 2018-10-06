@@ -96,49 +96,49 @@
 	<hr/>
     <div class="row">
         <div class="col-12">
-            <h4>Author{{ publication.authors.all|length|pluralize }} and Organization{{ affiliations_list|length|pluralize }} links</h4>
-            <ul class="list-inline">
-                {% for author in publication.authors.all %}
-                <li class="list-inline-item">
-		  {% for aff in affiliations_list %}
-		  {% if aff in author.affiliations.all %}
-		  <sup>{{ forloop.counter }} </sup>
-		  {% endif %}{% endfor %}
-                  {% if author.is_registered %}
-		  <a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor.user.first_name }} {{ author.contributor.user.last_name }}</a>
-		  {% else %}
-                  {{ author.unregistered_author.first_name }} {{ author.unregistered_author.last_name }}
-                  {% endif %}
-		</li>
-        	{% if not forloop.last %}, {% endif %}
-		{% endfor %}
-            </ul>
-
-	    <ul class="list list-unstyled">
+          <h4>Author{{ publication.authors.all|length|pluralize }} and Organization{{ affiliations_list|length|pluralize }} links</h4>
+          <ul class="list-inline">
+            {% for author in publication.authors.all %}
+            <li class="list-inline-item">
 	      {% for aff in affiliations_list %}
-	      <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.name_full }}</a></li>
-	      {% endfor %}
-	    </ul>
+	      {% if aff in author.affiliations.all %}
+	      <sup>{{ forloop.counter }} </sup>
+	      {% endif %}{% endfor %}
+              {% if author.is_registered %}
+	      <a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor.user.first_name }} {{ author.contributor.user.last_name }}</a>
+	      {% else %}
+              {{ author.unregistered_author.first_name }} {{ author.unregistered_author.last_name }}
+              {% endif %}
+	    </li>
+            {% if not forloop.last %}, {% endif %}
+	    {% endfor %}
+          </ul>
 
-            {% if publication.get_all_funders %}
-                <h4>Funder{{ publication.get_all_funders|length|pluralize }} for the research work leading to this publication</h4>
-                <ul>
-                    {% for funder in publication.get_all_funders %}
-                        <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+	  <ul class="list list-unstyled">
+	    {% for aff in affiliations_list %}
+	    <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.name_full }}</a></li>
+	    {% endfor %}
+	  </ul>
 
-		{% if is_scipost_admin or is_edcol_admin %}
-            {% if publication.institutions.all %}
-                <h4>Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)</h4>
-                <ul>
-                    {% for institution in publication.institutions.all %}
-                        <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
-                    {% endfor %}
-                </ul>
-		{% endif %}
-		{% endif %}
+          {% if publication.get_all_funders %}
+          <h4>Funder{{ publication.get_all_funders|length|pluralize }} for the research work leading to this publication</h4>
+          <ul>
+            {% for funder in publication.get_all_funders %}
+            <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+            {% endfor %}
+          </ul>
+          {% endif %}
+
+	  {% if is_scipost_admin or is_edcol_admin %}
+          {% if publication.institutions.all %}
+          <h4>Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)</h4>
+          <ul>
+            {% for institution in publication.institutions.all %}
+            <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
+            {% endfor %}
+          </ul>
+	  {% endif %}
+	  {% endif %}
         </div>
     </div>
 

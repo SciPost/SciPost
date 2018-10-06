@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Avg, Sum, F
+from django.db.models import Avg, Min, Sum, F
 from django.utils import timezone
 from django.urls import reverse
 
@@ -499,7 +499,8 @@ class Publication(models.Model):
         """
         from organizations.models import Organization
         return Organization.objects.filter(
-            publicationauthorstable__publication=self).distinct()
+            publicationauthorstable__publication=self
+        ).annotate(order=Min('publicationauthorstable__order')).order_by('order')
 
     def get_all_funders(self):
         from funders.models import Funder
