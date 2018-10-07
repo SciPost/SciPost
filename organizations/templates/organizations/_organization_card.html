@@ -101,11 +101,11 @@ $(document).ready(function($) {
 	    {% empty %}
 	    <li>No Funder Registry instance found<br/><br/>
 	      <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
-	      <p>Are you a representative of this Organization? Then <em>for <strong>your Organization's</strong> benefit, not SciPost's</em>, you really should:</p>
-	      <ol>
-		<li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a></li>
+	      <p>Are you a representative of this Organization? We advise you to:</p>
+	      <ul>
+		<li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a>;</li>
 		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
-	      </ol>
+	      </ul>
 	    </li>
 	    {% endfor %}
 	  </ul>
@@ -141,7 +141,7 @@ $(document).ready(function($) {
 	    </tbody>
 	  </table>
 	  {% else %}
-	  <p><strong>This Organization has <span class="text-danger">not yet</span> subsidized SciPost</strong></p>
+	  <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
 	  {% endif %}
 
 	  {% if is_scipost_admin %}
