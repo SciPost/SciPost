@@ -148,11 +148,7 @@ class Organization(models.Model):
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
         """
-        contrib = 0
-        now = timezone.now().date()
-        for subsidy in self.subsidy_set.all():
-            contrib += subsidy.amount
-        return contrib
+        return self.subsidy_set.aggregate(models.Sum('amount')).get('amount__sum', 0)
 
     def get_total_contribution_obtained(self, n_years_past=None):
         """
@@ -160,7 +156,6 @@ class Organization(models.Model):
         summed over all time.
         """
         contrib = 0
-        now = timezone.now().date()
         for agreement in self.partner.agreements.all():
-            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days/365)
+            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days / 365)
         return contrib
