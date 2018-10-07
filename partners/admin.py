@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Contact, Partner, Consortium, Institution,\
+from .models import Contact, Partner, PartnerEvent, Consortium, Institution,\
                     ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
                     MembershipAgreement, ContactRequest, PartnersAttachment
 
@@ -43,10 +43,16 @@ class ProspectivePartnerAdmin(admin.ModelAdmin):
     list_filter = ('kind', 'status')
 
 
+class PartnerEventInline(admin.TabularInline):
+    model = PartnerEvent
+    extra = 0
+
+
 class PartnerAdmin(admin.ModelAdmin):
     search_fields = ('institution', )
     inlines = (
         ContactToPartnerInline,
+        PartnerEventInline,
     )
 
 

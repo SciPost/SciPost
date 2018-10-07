@@ -121,6 +121,8 @@ class ProspectivePartnerEvent(models.Model):
 class Institution(models.Model):
     """
     An Institution is any form of academic organization which SciPost interacts with.
+
+    TO BE DEPRECATED: replaced by Organizations.
     """
     kind = models.CharField(max_length=32, choices=PARTNER_KINDS)
     name = models.CharField(max_length=256)

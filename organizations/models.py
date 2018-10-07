@@ -15,6 +15,7 @@ from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTI
 from scipost.models import Contributor
 from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
 
+
 class Organization(models.Model):
     """
     An Organization instance is any type of administrative unit which SciPost
