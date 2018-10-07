@@ -69,11 +69,11 @@
                 <ul class="list-unstyled mb-5">
                     {% for partner in request.user.partner_contact.partners.all %}
                         <li class="media mb-2">
-                            <img class="d-flex mr-3" width="64" src="{% if partner.institution.logo %}{{partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
+                            <img class="d-flex mr-3" width="64" src="{% if partner.organization.logo %}{{partner.organization.logo.url}}{% endif %}" alt="Partner Logo">
                             <div class="media-body">
-                                <h3 class="mt-0"><strong>{{partner.institution.name}}</strong></h3>
+                                <h3 class="mt-0"><strong>{{partner.organization.name}}</strong></h3>
                                 <p>
-                                    {{partner.institution.acronym}} ({{partner.institution.get_kind_display}})<br>
+                                    {{partner.organization.acronym}} ({{partner.organization.get_orgtype_display}})<br>
                                     <a href="{{partner.get_absolute_url}}">View/edit</a>
                                 </p>
                             </div>

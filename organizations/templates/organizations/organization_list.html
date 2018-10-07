@@ -32,6 +32,7 @@ $(document).ready(function($) {
     <ul>
       <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
       <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
+      <li>Link Partners to Organizations ({{ nr_partners_wo_organization }} found in need of linking)</li>
     </ul>
     {% endif %}
   </div>

@@ -201,8 +201,8 @@
                 <div class="supporting-partners">
                     <ul id="fader">
                         {% for agreement in current_agreements %}
-                            {% if agreement.partner.institution.logo %}
-                                <li class="item"><img height="100" class="rounded" src="{{ agreement.partner.institution.logo.url }}" alt="Partner Logo"></li>
+                            {% if agreement.partner.organization.logo %}
+                                <li class="item"><img height="100" class="rounded" src="{{ agreement.partner.organization.logo.url }}" alt="Partner Logo"></li>
                             {% endif %}
                         {% endfor %}
                     </ul>

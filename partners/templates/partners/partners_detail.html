@@ -23,10 +23,10 @@
             <a href="{% url 'partners:partner_edit' partner.id %}">Edit partner</a>
         {% endif %}
         <address>
-            <h3>{{ partner.institution.name }}</h3>
-            <strong>{{ partner.institution.acronym }} ({{ partner.institution.get_kind_display }})</strong><br>
-            {{ partner.institution.address|linebreaks }}
-            {{ partner.institution.get_country_display }}<br>
+            <h3>{{ partner.organization.name }}</h3>
+            <strong>{{ partner.organization.acronym }} ({{ partner.organization.get_orgtype_display }})</strong><br>
+            {{ partner.organization.address|linebreaks }}
+            {{ partner.organization.get_country_display }}<br>
             Main contact: {{ partner.main_contact|default_if_none:'<em>Unknown</em>' }}
         </address>
 

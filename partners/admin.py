@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Contact, Partner, PartnerEvent, Institution,\
+from .models import Contact, Partner, PartnerEvent, \
                     ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
                     MembershipAgreement, ContactRequest, PartnersAttachment
 
@@ -65,6 +65,5 @@ class MembershipAgreementAdmin(admin.ModelAdmin):
 admin.site.register(Partner, PartnerAdmin)
 admin.site.register(Contact)
 admin.site.register(ContactRequest)
-admin.site.register(Institution)
 admin.site.register(ProspectivePartner, ProspectivePartnerAdmin)
 admin.site.register(MembershipAgreement, MembershipAgreementAdmin)
