@@ -25,16 +25,16 @@ $(document).ready(function($) {
 
 {% block content %}
 <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">Organizations</h1>
-      {% if perms.scipost.can_manage_organizations %}
-      <h3>Management actions:</h3>
-      <ul>
-	<li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
-	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
-      </ul>
-      {% endif %}
-    </div>
+  <div class="col-12">
+    <h1 class="highlight">Organizations</h1>
+    {% if perms.scipost.can_manage_organizations %}
+    <h3>Management actions:</h3>
+    <ul>
+      <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
+      <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
+    </ul>
+    {% endif %}
+  </div>
 </div>
 
 

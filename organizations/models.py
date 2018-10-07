@@ -142,6 +142,17 @@ class Organization(models.Model):
             return False
         return self.partner.agreements.now_active().exists()
 
+    def get_total_subsidies_obtained(self, n_years_part=None):
+        """
+        Computes the total amount received by SciPost, in the form
+        of subsidies from this Organization.
+        """
+        contrib = 0
+        now = timezone.now().date()
+        for subsidy in self.subsidy_set.all():
+            contrib += subsidy.amount
+        return contrib
+
     def get_total_contribution_obtained(self, n_years_past=None):
         """
         Computes the contribution obtained from this organization,

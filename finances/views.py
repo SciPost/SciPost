@@ -59,6 +59,10 @@ class SubsidyListView(ListView):
     model = Subsidy
 
 
+class SubsidyDetailView(DetailView):
+    model = Subsidy
+
+
 ############################
 # Timesheets and Work Logs #
 ############################

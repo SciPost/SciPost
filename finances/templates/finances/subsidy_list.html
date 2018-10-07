@@ -2,6 +2,19 @@
 
 {% block pagetitle %}: Subsidies{% endblock pagetitle %}
 
+{% load staticfiles %}
+
+
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
 
 {% block breadcrumb_items %}
 {{ block.super }}
@@ -18,10 +31,14 @@
       <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
     </ul>
     {% endif %}
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-12">
     <h4>Subsidies obtained:</h4>
     <table class="table table-hover mb-5">
-      <thead>
+      <thead class="thead-default">
 	<tr>
 	  <th>From Organization</th>
 	  <th>Type</th>
@@ -29,32 +46,13 @@
 	  <th>Date</th>
 	</tr>
       </thead>
-      <tbody id="accordion" role="tablist" aria-multiselectable="true">
+      <tbody>
 	{% for subsidy in object_list %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ subsidy.id }}" aria-expanded="false" aria-controls="collapse{{ subsidy.id }}" style="cursor: pointer;">
+	<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 	  <td>{{ subsidy.organization }}</td>
-	  <td>{{ subsidy.get_type_display }}</td>
-	  <td>{{ subsidy.amount }}</td>
-	  <td>{{ subside.date|date:"Y-m-d" }}</td>
-	</tr>
-	<tr id="collapse{{ subsidy.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ subsidy.id }}" style="background-color: #fff;">
-	  <td colspan="3">
-	    <h5>Description:</h5>
-	    <p>{{ subsidy.description }}</p>
-	    {% if subsidy.duration %}
-	    <h5>Duration:</h5>
-	    {{ subsidy.get_duration_display }}
-	    {% endif %}
-	  </td>
-	  <td>
-	    {% if perms.scipost.can_manage_subsidies %}
-	    <h5>Admin actions:</h5>
-	    <ul>
-	      <li><a href="{% url 'finances:subsidy_update' pk=subsidy.id %}"><span class="text-warning">Update</span></a></li>
-	      <li><a href="{% url 'finances:subsidy_delete' pk=subsidy.id %}"><span class="text-danger">Delete</span></a></li>
-	    </ul>
-	    {% endif %}
-	  </td>
+	  <td>{{ subsidy.get_subsidy_type_display }}</td>
+	  <td>&euro;{{ subsidy.amount }}</td>
+	  <td>{{ subsidy.date }}</td>
 	</tr>
 	{% empty %}
 	<tr>

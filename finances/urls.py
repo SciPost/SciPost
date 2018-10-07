@@ -35,6 +35,11 @@ urlpatterns = [
         views.SubsidyDeleteView.as_view(),
         name='subsidy_delete'
     ),
+    url(
+        r'^subsidies/(?P<pk>[0-9]+)/$',
+        views.SubsidyDetailView.as_view(),
+        name='subsidy_details'
+    ),
 
     # Timesheets
     url(

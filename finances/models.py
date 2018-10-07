@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
@@ -24,6 +25,7 @@ class Subsidy(models.Model):
     - an incidental grant
     - a development grant for a specific purpose
     - a Collaboration Agreement
+    - a donation
     """
     organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
@@ -39,6 +41,10 @@ class Subsidy(models.Model):
     def __str__(self):
         return format_html('{}: &euro;{} from {}, for {}',
                            self.date, self.amount, self.organization, self.description)
+
+    def get_absolute_url(self):
+        return reverse('finances:subsidy_details', args=(self.id,))
+
 
 class WorkLog(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL)

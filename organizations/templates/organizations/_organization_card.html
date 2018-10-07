@@ -3,6 +3,16 @@
 {% load user_groups %}
 {% load organizations_extras %}
 
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
 {% is_scipost_admin request.user as is_scipost_admin %}
 
 <div class="card-body">
@@ -91,9 +101,9 @@
 	    {% empty %}
 	    <li>No Funder Registry instance found<br/><br/>
 	      <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
-	      <p>Are you a representative of this Organization? Please:</p>
+	      <p>Are you a representative of this Organization? Then <em>for <strong>your Organization's</strong> benefit, not SciPost's</em>, you really should:</p>
 	      <ol>
-		<li>Make sure your Organization is included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a></li>
+		<li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a></li>
 		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
 	      </ol>
 	    </li>
@@ -102,6 +112,40 @@
 	</div>
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
+	  <h3>Support history</h3>
+	  {% if org.subsidy_set.all|length > 0 %}
+	  <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
+	  <table class="table table-hover mb-5">
+	    <thead class="thead-default">
+	      <tr>
+		<th>Type</th>
+		<th>Amount</th>
+		<th>Date</th>
+		<th>Duration</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {% for subsidy in org.subsidy_set.all %}
+	      <tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
+		<td>{{ subsidy.get_subsidy_type_display }}</td>
+		<td>&euro;{{ subsidy.amount }}</td>
+		<td>{{ subsidy.date }}</td>
+		<td>{{ subsidy.get_duration_display }}</td>
+	      </tr>
+	      {% endfor %}
+	      <tr style="border-top: 2px solid black">
+		<td>Total support obtained:</td>
+		<td>&euro;{{ org.get_total_subsidies_obtained }}</td>
+		<td colspan="2">
+	      </tr>
+	    </tbody>
+	  </table>
+	  {% else %}
+	  <p><strong>This Organization has <span class="text-danger">not yet</span> subsidized SciPost</strong></p>
+	  {% endif %}
+
+	  {% if is_scipost_admin %}
+	  <h3 class="text-danger">To be removed (Admin view only):</h3>
 	  <h3>Supporting Partner Agreements history:</h3>
 	  {% with agreement=org.partner.get_latest_active_agreement %}
 	  {% if agreement %}
@@ -122,7 +166,7 @@
 		<td>{{ agreement.get_status_display }}</td>
 		<td>{{ agreement.get_duration_display }}</td>
 		<td>{{ agreement.start_date }}</td>
-		<td>&euro; {{ agreement.offered_yearly_contribution }}</td>
+		<td>&euro;{{ agreement.offered_yearly_contribution }}</td>
 	      </tr>
 	      {% endfor %}
 	      <tr style="border-top: 2px solid black">
@@ -133,6 +177,7 @@
 	  <p>This organization has <span class="text-danger">not yet</span> been a SciPost Supporting Partner.</p>
 	  {% endif %}
 	</div>
+	{% endif %}
 
 	<div class="tab-pane pt-4" id="manage-{{ org.id }}" role="tabpanel" aria-labelledby="manage-{{ org.id }}-tab">
 	  {% if perms.scipost.can_manage_organizations %}

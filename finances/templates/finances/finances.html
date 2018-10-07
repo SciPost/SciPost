@@ -14,8 +14,10 @@
   <div class="col-12">
     <h3 class="highlight">Finances</h3>
     <ul>
-      <li><a href="{% url 'finances:subsidies' %}">Manage Subsidies</a></li>
+      <li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>
+      {% if perms.scipost.can_view_timesheets %}
       <li><a href="{% url 'finances:timesheets' %}">Manage Timesheets</a></li>
+      {% endif %}
     </ul>
   </div>
 </div>
