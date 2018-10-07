@@ -6,6 +6,9 @@
 {% load scipost_extras %}
 {% load user_groups %}
 
+{% is_scipost_admin request.user as is_scipost_admin %}
+{% is_edcol_admin request.user as is_edcol_admin %}
+
 {% block pagetitle %}: {{ publication.citation }} - {{ publication.title }}{% endblock pagetitle %}
 
 {% block body_class %}{{ block.super }} publication{% endblock %}
@@ -64,8 +67,6 @@
   </div>
 </div>
 {% endif %}
-
-{% is_edcol_admin request.user as is_edcol_admin %}
 
 {% include 'partials/journals/publication_summary.html' with publication=publication %}
 

@@ -1,0 +1,22 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Finances</span>
+{% endblock %}
+
+{% block pagetitle %}: Finances{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Finances</h3>
+    <ul>
+      <li><a href="{% url 'finances:subsidies' %}">Manage Subsidies</a></li>
+      <li><a href="{% url 'finances:timesheets' %}">Manage Timesheets</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock content %}

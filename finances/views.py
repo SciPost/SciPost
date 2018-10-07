@@ -19,6 +19,11 @@ from .utils import slug_to_id
 from scipost.mixins import PermissionsMixin
 
 
+
+#############
+# Subsidies #
+#############
+
 class SubsidyCreateView(PermissionsMixin, CreateView):
     """
     Create a new Subsidy.
@@ -26,7 +31,7 @@ class SubsidyCreateView(PermissionsMixin, CreateView):
     permission_required = 'scipost.can_manage_subsidies'
     model = Subsidy
     fields = '__all__'
-    template_name = 'finances/subsidy_create.html'
+    template_name = 'finances/subsidy_form.html'
     success_url = reverse_lazy('finances:subsidies')
 
 
@@ -37,7 +42,7 @@ class SubsidyUpdateView(PermissionsMixin, UpdateView):
     permission_required = 'scipost.can_manage_subsidies'
     model = Subsidy
     fields = '__all__'
-    template_name = 'finances/subsidy_update.html'
+    template_name = 'finances/subsidy_form.html'
     success_url = reverse_lazy('finances:subsidies')
 
 
@@ -53,6 +58,10 @@ class SubsidyDeleteView(PermissionsMixin, DeleteView):
 class SubsidyListView(ListView):
     model = Subsidy
 
+
+############################
+# Timesheets and Work Logs #
+############################
 
 @permission_required('scipost.can_view_timesheets', raise_exception=True)
 def timesheets(request):

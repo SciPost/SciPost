@@ -3,12 +3,18 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.views.generic import TemplateView
 
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.timesheets, name='finance'),
+    url(
+        r'^$',
+        TemplateView.as_view(template_name='finances/finances.html'),
+        name='finances'
+    ),
 
+    # Subsidies
     url(
         r'^subsidies/$',
         views.SubsidyListView.as_view(),
@@ -30,7 +36,15 @@ urlpatterns = [
         name='subsidy_delete'
     ),
 
-
-    url(r'^timesheets$', views.timesheets, name='timesheets'),
-    url(r'^logs/(?P<slug>\d+)/delete$', views.LogDeleteView.as_view(), name='log_delete'),
+    # Timesheets
+    url(
+        r'^timesheets$',
+        views.timesheets,
+        name='timesheets'
+    ),
+    url(
+        r'^logs/(?P<slug>\d+)/delete$',
+        views.LogDeleteView.as_view(),
+        name='log_delete'
+    ),
 ]

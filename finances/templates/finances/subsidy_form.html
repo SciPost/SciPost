@@ -1,13 +1,15 @@
-{% extends 'profiles/base.html' %}
+{% extends 'finances/base.html' %}
 
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Subsidy{% endif %}</span>
+{{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Subsidy{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: Subsidies{% endblock pagetitle %}
+
 
 {% block content %}
 <div class="row">

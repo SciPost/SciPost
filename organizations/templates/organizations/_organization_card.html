@@ -3,6 +3,8 @@
 {% load user_groups %}
 {% load organizations_extras %}
 
+{% is_scipost_admin request.user as is_scipost_admin %}
+
 <div class="card-body">
 
   <div class="row">

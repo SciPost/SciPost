@@ -6,6 +6,8 @@
 {% load user_groups %}
 {% load organizations_extras %}
 
+{% is_scipost_admin request.user as is_scipost_admin %}
+
 {% block headsup %}
 <script type="text/javascript">
 $(document).ready(function($) {
