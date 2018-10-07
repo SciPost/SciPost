@@ -112,6 +112,8 @@ urlpatterns = [
     url(r'^personal_page/$', views.personal_page, name='personal_page'),
     url(r'^personal_page/account$', views.personal_page,
         name='personal_page_account', kwargs={'tab': 'account'}),
+    url(r'^personal_page/admin_actions$', views.personal_page,
+        name='personal_page_admin_actions', kwargs={'tab': 'admin_actions'}),
     url(r'^personal_page/editorial_actions$', views.personal_page,
         name='personal_page_editorial_actions', kwargs={'tab': 'editorial_actions'}),
     url(r'^personal_page/refereeing$', views.personal_page,

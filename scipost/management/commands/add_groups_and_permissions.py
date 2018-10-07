@@ -350,6 +350,7 @@ class Command(BaseCommand):
         ])
 
         FinancialAdmin.permissions.set([
+            can_manage_subsidies,
             can_view_timesheets,
         ])
 
