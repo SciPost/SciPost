@@ -412,7 +412,7 @@ def delete_unavailable_period(request, period_id):
 
 @login_required
 @is_contributor_user()
-def _personal_page_editorial_account(request):
+def _personal_page_account(request):
     """ Personal Page tab: Account. """
     contributor = request.user.contributor
     context = {
@@ -613,7 +613,7 @@ def personal_page(request, tab='account'):
     """
     if request.is_ajax():
         if tab == 'account':
-            return _personal_page_editorial_account(request)
+            return _personal_page_account(request)
         elif tab == 'admin_actions':
             return _personal_page_admin_actions(request)
         elif tab == 'editorial_actions':
