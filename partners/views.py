@@ -124,7 +124,7 @@ def promote_prospartner(request, prospartner_id):
     contact_formset = ContactModelFormset(request.POST or None,
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
-        partner, institution = form.promote_to_partner(request.user)
+        partner = form.promote_to_partner(request.user)
         contacts = contact_formset.promote_contacts(partner, request.user)
         messages.success(request, ('<h3>Upgraded Partner %s</h3>'
                                    '%i contacts have received a validation mail.') %
