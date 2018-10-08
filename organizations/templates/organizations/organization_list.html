@@ -103,9 +103,9 @@ $(document).ready(function($) {
 	  </td>
 	  <td>{{ org.cf_nr_associated_publications }}</td>
 	  {% if org.has_current_subsidy %}
-	  <td class="bg-success">Yes</td>
+	  <td class="bg-success">Yes, current</td>
 	  {% elif org.subsidy_set.all|length > 0 %}
-	  <td class="bg-primary text-white">Due for renewal</td>
+	  <td class="bg-primary text-white">Yes, past</td>
 	  {% else %}
 	  <td class="bg-warning">Not yet</td>
 	  {% endif %}
