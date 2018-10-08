@@ -12,7 +12,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import LogsMonthlyActiveFilter
+from .forms import SubsidyForm, LogsMonthlyActiveFilter
 from .models import Subsidy, WorkLog
 from .utils import slug_to_id
 
@@ -30,7 +30,7 @@ class SubsidyCreateView(PermissionsMixin, CreateView):
     """
     permission_required = 'scipost.can_manage_subsidies'
     model = Subsidy
-    fields = '__all__'
+    form_class = SubsidyForm
     template_name = 'finances/subsidy_form.html'
     success_url = reverse_lazy('finances:subsidies')
 
@@ -41,7 +41,7 @@ class SubsidyUpdateView(PermissionsMixin, UpdateView):
     """
     permission_required = 'scipost.can_manage_subsidies'
     model = Subsidy
-    fields = '__all__'
+    form_class = SubsidyForm
     template_name = 'finances/subsidy_form.html'
     success_url = reverse_lazy('finances:subsidies')
 
