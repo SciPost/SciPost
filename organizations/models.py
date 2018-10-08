@@ -67,34 +67,20 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
-    def name_and_acronym(self):
-        if self.acronym:
-            return '%s (%s)' % (self.name, self.acronym)
-        return self.name
-
-    def name_full(self):
-        text = ''
-        if self.name_original:
-            text += self.name_original + ' / '
-        text += self.name
-        if self.acronym:
-            text += ' (' + self.acronym + ')'
-        return text
-
     @property
     def full_name(self):
         full_name_str = ""
         if self.name_original:
             full_name_str += "%s / " % self.name_original
-        full_name_str += "%s" % self
+        full_name_str += "%s" % self.name
         return full_name_str
 
     @property
     def full_name_with_acronym(self):
-        full_name_str = ""
+        full_name_str = self.full_name
         if self.acronym:
-            full_name_str += "[%s] " % self.acronym
-        return full_name_str + self.full_name
+            full_name_str += " [%s]" % self.acronym
+        return full_name_str
 
     def get_absolute_url(self):
         return reverse('organizations:organization_details', kwargs = {'pk': self.id})

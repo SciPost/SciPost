@@ -116,7 +116,7 @@
 
     <ul class="list list-unstyled m-2">
       {% for aff in affiliations_list %}
-      <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.name_full }}</a></li>
+      <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.full_name_with_acronym }}</a></li>
       {% endfor %}
     </ul>
   </div>
@@ -132,9 +132,9 @@
       {% for funder in publication.get_all_funders %}
       {% if funder.organization %}
       {% if funder.name != funder.organization.name and funder.name != funder.organization.name_original %}
-      <li>{{ funder }} (through Organization: <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.name_and_acronym }}</a>)</li>
+      <li>{{ funder }} (through Organization: <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a>)</li>
       {% else %}
-      <li><a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.name_and_acronym }}</a></li>
+      <li><a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a></li>
       {% endif %}
       {% else %}
       <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
