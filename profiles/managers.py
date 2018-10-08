@@ -14,4 +14,4 @@ class ProfileQuerySet(models.QuerySet):
             pass
         except self.model.MultipleObjectsReturned:
             pass
-        return self.none()
+        return None
