@@ -1,6 +1,9 @@
 <li class="py-1">
     {{ assignment.to.user.first_name }} {{ assignment.to.user.last_name }}
 
+    {% if assignment.invited %}
+        <span class="label label-sm label-info">invited</span>
+    {% endif %}
     {% if assignment.accepted %}
         <span class="label label-sm label-outline-success">accepted</span>
     {% endif %}
@@ -18,7 +21,7 @@
 
     <br>
     <span class="text-muted">
-        requested {{ assignment.date_created }}
+        invited {{ assignment.date_invited|default:'<i>TBA</i>'|safe }}
         {% if assignment.date_answered %}
             | answered {{ assignment.date_answered }}
         {% endif %}

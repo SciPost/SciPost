@@ -410,6 +410,14 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         return self.submission.preprint.identifier_w_vn_nr
 
     @property
+    def preassigned(self):
+        return self.status == STATUS_PREASSIGNED
+
+    @property
+    def invited(self):
+        return self.status == STATUS_INVITED
+
+    @property
     def replaced(self):
         return self.status == STATUS_REPLACED
 
