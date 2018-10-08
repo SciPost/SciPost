@@ -25,14 +25,3 @@ SUBSIDY_STATUS = (
     (SUBSIDY_INVOICED, 'invoiced'),
     (SUBSIDY_RECEIVED, 'received'),
 )
-
-
-SUBSIDY_DURATION = (
-    (datetime.timedelta(days=365), '1 year'),
-    (datetime.timedelta(days=730), '2 years'),
-    (datetime.timedelta(days=1095), '3 years'),
-    (datetime.timedelta(days=1460), '4 years'),
-    (datetime.timedelta(days=1825), '5 years'),
-    (datetime.timedelta(days=3650), '10 years'),
-    (datetime.timedelta(days=36500), 'Indefinite (100 years)'),
-)

@@ -76,7 +76,7 @@ $(document).ready(function($) {
 	    {% if request.GET.ordering != 'asc' %}</a> <a href="?order_by=nap&ordering=asc"><i class="fa fa-sort-asc"></i></a>{% endif %}
 {% if request.GET.ordering != 'desc' %}<a href="?order_by=nap&ordering=desc"><i class="fa fa-sort-desc"></i></a>{% endif %}
 </th>
-	  <th>Partner?</th>
+	  <th>SciPost sponsor?</th>
 	</tr>
       </thead>
       <tbody>
@@ -102,9 +102,9 @@ $(document).ready(function($) {
 	    {% endif %}
 	  </td>
 	  <td>{{ org.cf_nr_associated_publications }}</td>
-	  {% if org.has_current_agreement %}
+	  {% if org.has_current_subsidy %}
 	  <td class="bg-success">Yes</td>
-	  {% elif org.partner.agreements %}
+	  {% elif org.subsidy_set.all|length > 0 %}
 	  <td class="bg-primary text-white">Due for renewal</td>
 	  {% else %}
 	  <td class="bg-warning">Not yet</td>

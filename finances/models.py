@@ -10,7 +10,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .constants import SUBSIDY_TYPES, SUBSIDY_STATUS, SUBSIDY_DURATION
+from .constants import SUBSIDY_TYPES, SUBSIDY_STATUS
 from .utils import id_to_slug
 
 
@@ -26,6 +26,11 @@ class Subsidy(models.Model):
     - a development grant for a specific purpose
     - a Collaboration Agreement
     - a donation
+
+    The date field represents the date at which the Subsidy was formally agreed,
+    or the agreement enters into force.
+    The date_until field is optional, and represents (where applicable) the date
+    after which the object of the Subsidy is officially terminated.
     """
     organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
@@ -33,7 +38,7 @@ class Subsidy(models.Model):
     amount = models.PositiveSmallIntegerField(help_text="in &euro; (rounded)")
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     date = models.DateField()
-    duration = models.DurationField(choices=SUBSIDY_DURATION, blank=True, null=True)
+    date_until = models.DateField(blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'subsidies'

@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Sum
@@ -128,6 +130,13 @@ class Organization(models.Model):
         if not self.partner:
             return False
         return self.partner.agreements.now_active().exists()
+
+    @property
+    def has_current_subsidy(self):
+        """
+        Check if this organization has a Subsidy with a still-running validity period.
+        """
+        return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
 
     def get_total_subsidies_obtained(self, n_years_part=None):
         """
