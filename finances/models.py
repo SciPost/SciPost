@@ -35,7 +35,7 @@ class Subsidy(models.Model):
     organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
     description = models.TextField()
-    amount = models.PositiveSmallIntegerField(help_text="in &euro; (rounded)")
+    amount = models.PositiveIntegerField(help_text="in &euro; (rounded)")
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     date = models.DateField()
     date_until = models.DateField(blank=True, null=True)
