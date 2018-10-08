@@ -12,7 +12,9 @@ from django_countries.fields import CountryField
 
 from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
 
-from journals.models import Publication, PublicationAuthorsTable, OrgPubFraction
+from scipost.models import Contributor
+from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
+
 
 class Organization(models.Model):
     """
@@ -65,6 +67,20 @@ class Organization(models.Model):
     def __str__(self):
         return self.name
 
+    def name_and_acronym(self):
+        if self.acronym:
+            return '%s (%s)' % (self.name, self.acronym)
+        return self.name
+
+    def name_full(self):
+        text = ''
+        if self.name_original:
+            text += self.name_original + ' / '
+        text += self.name
+        if self.acronym:
+            text += ' (' + self.acronym + ')'
+        return text
+
     @property
     def full_name(self):
         full_name_str = ""
@@ -81,7 +97,7 @@ class Organization(models.Model):
         return full_name_str + self.full_name
 
     def get_absolute_url(self):
-        return reverse('organizations:organization_details', args=(self.id,))
+        return reverse('organizations:organization_details', kwargs = {'pk': self.id})
 
     def get_publications(self):
         return Publication.objects.filter(
@@ -109,12 +125,14 @@ class Organization(models.Model):
         ).aggregate(Sum('fraction'))['fraction__sum']
 
     def get_contributor_authors(self):
-        return self.publicationauthorstable_set.select_related(
-            'contributor').order_by('contributor__user__last_name')
+        cont_id_list = [tbl.contributor.id for tbl in self.publicationauthorstable_set.all() \
+                     if tbl.contributor is not None]
+        return Contributor.objects.filter(id__in=cont_id_list).order_by('user__last_name')
 
     def get_unregistered_authors(self):
-        return self.publicationauthorstable_set.select_related(
-            'unregistered_author').order_by('unregistered_author__last_name')
+        unreg_id_list = [tbl.unregistered_author.id for tbl in self.publicationauthorstable_set.all(
+        ) if tbl.unregistered_author is not None]
+        return UnregisteredAuthor.objects.filter(id__in=unreg_id_list).order_by('last_name')
 
     @property
     def has_current_agreement(self):
@@ -125,13 +143,19 @@ class Organization(models.Model):
             return False
         return self.partner.agreements.now_active().exists()
 
+    def get_total_subsidies_obtained(self, n_years_part=None):
+        """
+        Computes the total amount received by SciPost, in the form
+        of subsidies from this Organization.
+        """
+        return self.subsidy_set.aggregate(models.Sum('amount')).get('amount__sum', 0)
+
     def get_total_contribution_obtained(self, n_years_past=None):
         """
         Computes the contribution obtained from this organization,
         summed over all time.
         """
         contrib = 0
-        now = timezone.now().date()
         for agreement in self.partner.agreements.all():
-            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days/365)
+            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days / 365)
         return contrib

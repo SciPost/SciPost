@@ -3,7 +3,10 @@
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
+{% load user_groups %}
 {% load organizations_extras %}
+
+{% is_scipost_admin request.user as is_scipost_admin %}
 
 {% block headsup %}
 <script type="text/javascript">
@@ -22,16 +25,17 @@ $(document).ready(function($) {
 
 {% block content %}
 <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">Organizations</h1>
-      {% if perms.scipost.can_manage_organizations %}
-      <h3>Management actions:</h3>
-      <ul>
-	<li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
-	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
-      </ul>
-      {% endif %}
-    </div>
+  <div class="col-12">
+    <h1 class="highlight">Organizations</h1>
+    {% if perms.scipost.can_manage_organizations %}
+    <h3>Management actions:</h3>
+    <ul>
+      <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
+      <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
+      <li>Link Partners to Organizations ({{ nr_partners_wo_organization }} found in need of linking)</li>
+    </ul>
+    {% endif %}
+  </div>
 </div>
 
 
@@ -52,7 +56,9 @@ $(document).ready(function($) {
     <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
     <ul>
       <li>associated publications</li>
+      {% if is_scipost_admin %}
       <li>associated support fractions</li>
+      {% endif %}
       <li>associated authors</li>
       <li>partnership history</li>
     </ul>

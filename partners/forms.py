@@ -9,6 +9,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Q
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from captcha.fields import ReCaptchaField
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
@@ -17,7 +19,7 @@ from django_countries.fields import LazyTypedChoiceField
 from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
                        PARTNER_STATUS_UPDATE, REQUEST_PROCESSED, REQUEST_DECLINED, CONTACT_GENERAL
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
-                    Institution, Contact, PartnerEvent, MembershipAgreement, ContactRequest,\
+                    Contact, PartnerEvent, MembershipAgreement, ContactRequest,\
                     PartnersAttachment
 from .utils import PartnerUtils
 
@@ -130,25 +132,12 @@ class PartnerEventForm(forms.ModelForm):
         )
 
 
-class InstitutionForm(forms.ModelForm):
-    class Meta:
-        model = Institution
-        fields = (
-            'kind',
-            'name',
-            'acronym',
-            'address',
-            'country',
-            'logo',
-            'css_class',
-        )
-
-
 class PartnerForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+
     class Meta:
         model = Partner
         fields = (
-            'institution',
             'organization',
             'status',
             'main_contact'
@@ -322,8 +311,7 @@ class ContactFormset(forms.BaseModelFormSet):
 
 
 class PromoteToPartnerForm(forms.ModelForm):
-    address = forms.CharField(widget=forms.Textarea(), required=False)
-    acronym = forms.CharField(max_length=16)
+    organization = AutoCompleteSelectField('organization_lookup')
 
     class Meta:
         model = ProspectivePartner
@@ -334,17 +322,8 @@ class PromoteToPartnerForm(forms.ModelForm):
         )
 
     def promote_to_partner(self, current_user):
-        # Create new instances
-        institution = Institution(
-            kind=self.cleaned_data['kind'],
-            name=self.cleaned_data['institution_name'],
-            acronym=self.cleaned_data['acronym'],
-            address=self.cleaned_data['address'],
-            country=self.cleaned_data['country']
-        )
-        institution.save()
         partner = Partner(
-            institution=institution,
+            organization=self.cleaned_data['organization'],
             main_contact=None
         )
         partner.save()
@@ -360,7 +339,7 @@ class PromoteToPartnerForm(forms.ModelForm):
         # Close Prospect
         self.instance.status = PROSPECTIVE_PARTNER_PROCESSED
         self.instance.save()
-        return (partner, institution,)
+        return partner
 
 
 class PromoteToContactForm(forms.ModelForm):

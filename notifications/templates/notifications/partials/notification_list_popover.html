@@ -1,4 +1,7 @@
 {% load request_filters %}
+{% load user_groups %}
+
+{% is_financial_admin request.user as if_financial_admin %}
 
 <div class="popover-template">
     <div class="popover notifications" role="tooltip">
@@ -26,8 +29,8 @@
                   <a class="item {% active 'partners:dashboard' %}" href="{% url 'partners:dashboard' %}">Partner Page</a>
             {% endif %}
 
-            {% if perms.scipost.can_view_timesheets %}
-                <a class="item {% active 'finances:finance' %}" href="{% url 'finances:finance' %}">Financial Administration</a>
+            {% if is_financial_admin %}
+                <a class="item {% active 'finances:finances' %}" href="{% url 'finances:finance' %}">Financial Administration</a>
             {% endif %}
 
             {% if perms.scipost.can_view_all_funding_info %}

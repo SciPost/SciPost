@@ -11,7 +11,31 @@
 
 {% block content %}
 
-<h1 class="highlight">{{ organization }}</h1>
+
+  <table class="table highlight">
+    <tr>
+      <td><img src="{{ organization.country.flag }}" style="width:20px;" alt="{{ organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ organization.country }}]</small></span>&nbsp;&nbsp;{{ organization.get_country_display }}</td>
+      <td>
+	<h2>{{ organization.full_name }}&nbsp;&nbsp;<small>{% if organization.acronym %}[{{ organization.acronym }}]{% endif %}</small></h2>
+	{% if organization.parent %}
+	<small class="text-muted"><p>Parent: <a href="{{ organization.parent.get_absolute_url }}">{{ organization.parent }}</a></p></small>
+	{% endif %}
+	{% if organization.children.all %}
+	<small class="text-muted">
+	  <p>Parent of:
+	    {% for child in organization.children.all %}
+	    <a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %},&nbsp;{% endif %}
+	    {% endfor %}
+	  </p>
+	</small>
+	{% endif %}
+	{% if organization.superseded_by %}
+	<small class="text-muted"><p>Superseded by {{ organization.superseded_by }}</p></small>
+	{% endif %}
+      </td>
+    </tr>
+  </table>
+
 
 <div class="row">
   <div class="col-12">

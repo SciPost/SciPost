@@ -38,10 +38,6 @@ urlpatterns = [
     url(r'agreements/(?P<agreement_id>[0-9]+)/attachments/(?P<attachment_id>[0-9]+)$',
         views.agreement_attachments, name='agreement_attachments'),
 
-    # Institutions
-    url(r'institutions/(?P<institution_id>[0-9]+)/edit$', views.institution_edit,
-        name='institution_edit'),
-
     # Users
     url(r'activate/(?P<activation_key>.+)$', views.activate_account, name='activate_account'),
 

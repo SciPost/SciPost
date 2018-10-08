@@ -74,12 +74,6 @@ REQUEST_STATUSES = (
 )
 
 
-CONSORTIUM_STATUS = (
-    ('Prospective', 'Prospective'),
-    ('Active', 'Active'),
-    ('Inactive', 'Inactive'),
-)
-
 PARTNER_STATUS_UPDATE = 'status_update'
 PARTNER_EVENTS = (
     ('initial', 'Contacted (initial)'),

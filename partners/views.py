@@ -26,13 +26,12 @@ from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
     PROSPECTIVE_PARTNER_FOLLOWED_UP
 from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
-    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
-    PartnersAttachment
+    ProspectivePartnerEvent, MembershipAgreement, Contact, PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     PromoteToPartnerForm,\
     ProspectivePartnerEventForm, MembershipQueryForm,\
     PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
-    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
+    NewContactForm, ActivationForm, PartnerEventForm,\
     MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
     ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
 
@@ -125,7 +124,7 @@ def promote_prospartner(request, prospartner_id):
     contact_formset = ContactModelFormset(request.POST or None,
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
-        partner, institution = form.promote_to_partner(request.user)
+        partner = form.promote_to_partner(request.user)
         contacts = contact_formset.promote_contacts(partner, request.user)
         messages.success(request, ('<h3>Upgraded Partner %s</h3>'
                                    '%i contacts have received a validation mail.') %
@@ -234,26 +233,11 @@ def process_contact_requests(request):
     return render(request, 'partners/process_contact_requests.html', context)
 
 
-###################
-# Institution Views
-###################
-@permission_required('scipost.can_manage_SPB', return_403=True)
-def institution_edit(request, institution_id):
-    institution = get_object_or_404(Institution, id=institution_id)
-    form = InstitutionForm(request.POST or None, request.FILES or None, instance=institution)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Institution has been updated.')
-        return redirect(reverse('partners:dashboard'))
-    context = {
-        'form': form
-    }
-    return render(request, 'partners/institution_edit.html', context)
-
 
 ###########################
 # Prospective Partner Views
 ###########################
+
 @permission_required('scipost.can_manage_SPB', return_403=True)
 def add_prospective_partner(request):
     form = ProspectivePartnerForm(request.POST or None)

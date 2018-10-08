@@ -1,16 +1,15 @@
 {% extends 'scipost/base.html' %}
 
+{% block body_class %}{{ block.super }} finances{% endblock %}
+
 {% block breadcrumb %}
     <div class="container-outside header">
         <div class="container">
             <nav class="breadcrumb hidden-sm-down">
                 {% block breadcrumb_items %}
-                    <a href="{% url 'partners:dashboard' %}" class="breadcrumb-item">Partners Page</a>
+                    <a href="{% url 'finances:finances' %}" class="breadcrumb-item">Finances</a>
                 {% endblock %}
             </nav>
         </div>
     </div>
 {% endblock %}
-
-
-{% block pagetitle %}: Supporting Partners:{% endblock pagetitle %}

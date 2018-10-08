@@ -44,6 +44,9 @@
 {% endblock content %}
 
 {% block footer_script %}
+{ block.super }}
+{{ form.media }}
+
 <script>
     function delete_hide_contact_groups(delete_input) {
         input_el = $(delete_input);

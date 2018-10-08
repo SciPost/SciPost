@@ -3,14 +3,14 @@
 <div class="card-body">
   <div class="row">
     <div class="col-md-1">
-      <p>{{ partner.institution.country }}</p>
+      <p>{{ partner.organization.country }}</p>
     </div>
     <div class="col-md-4">
       <address>
-        <h3><a href="{{partner.get_absolute_url}}">{{ partner.institution.name }}</a></h3>
-        <strong>{{ partner.institution.acronym }} ({{ partner.institution.get_kind_display }})</strong><br>
-        {{ partner.institution.address|linebreaks }}
-        {{ partner.institution.get_country_display }}<br>
+        <h3><a href="{{partner.get_absolute_url}}">{{ partner.organization.name }}</a></h3>
+        <strong>{{ partner.organization.acronym }} ({{ partner.organization.get_orgtype_display }})</strong><br>
+        {{ partner.organization.address|linebreaks }}
+        {{ partner.organization.get_country_display }}<br>
         Main contact: {{ partner.main_contact|default_if_none:'<em>Unknown</em>' }}
       </address>
     </div>
@@ -29,9 +29,9 @@
           <li><a href="{% url 'partners:partner_edit' partner.id %}">Edit Partner</a>
 	    {% if not partner.organization %}<span class="text-danger">please specify the Organization{% endif %}
 </li>
-            <li><a href="{% url 'partners:institution_edit' partner.institution.id %}">Edit Institution</a></li>
+            <li><a href="{% url 'organizations:organization_update' partner.organization.id %}">Update the Organization</a></li>
             <li><a href="{% url 'partners:partner_add_contact' partner.id %}">Add Contact</a></li>
-            <li><a href="{{partner.get_absolute_url}}">View events ({{partner.events.count}})</a></li>
+            <li><a href="{{ partner.get_absolute_url }}">View events ({{ partner.events.count }})</a></li>
         </ul>
 
     </div>
