@@ -30,9 +30,9 @@
 	<tr>
 	  <td>Date:</td><td>{{ subsidy.date }}</td>
 	</tr>
-	{% if subsidy.duration %}
+	{% if subsidy.date_until %}
 	<tr>
-	  <td>Duration:</td><td>{{ subsidy.get_duration_display }}</td>
+	  <td>Date until:</td><td>{{ subsidy.date_until }}</td>
 	</tr>
 	{% endif %}
       </table>
