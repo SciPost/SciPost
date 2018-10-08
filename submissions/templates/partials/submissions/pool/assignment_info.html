@@ -21,7 +21,7 @@
 
     <br>
     <span class="text-muted">
-        invited {{ assignment.date_invited|default:'<i>TBA</i>'|safe }}
+        invited {{ assignment.date_invited|default:'<i>TBA</i>' }}
         {% if assignment.date_answered %}
             | answered {{ assignment.date_answered }}
         {% endif %}
