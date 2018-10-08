@@ -88,10 +88,12 @@ class Organization(models.Model):
         return reverse('organizations:organization_details', kwargs = {'pk': self.id})
 
     def get_publications(self):
+        org_and_children_ids = [k['id'] for k in list(self.children.all().values('id'))]
+        org_and_children_ids += [self.id]
         return Publication.objects.filter(
-            models.Q(authors__affiliations__in=[self]) |
-            models.Q(grants__funder__organization=self) |
-            models.Q(funders_generic__organization=self)).distinct()
+            models.Q(authors__affiliations__pk__in=org_and_children_ids) |
+            models.Q(grants__funder__organization__pk__in=org_and_children_ids) |
+            models.Q(funders_generic__organization__pk__in=org_and_children_ids)).distinct()
 
     def count_publications(self):
         return self.get_publications().count()
