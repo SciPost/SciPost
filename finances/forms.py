@@ -8,9 +8,20 @@ from django.utils.dates import MONTHS
 from django.db.models import Sum
 from django.utils import timezone
 
-from .models import WorkLog
+from ajax_select.fields import AutoCompleteSelectField
+
+from .models import Subsidy, WorkLog
 
 today = timezone.now().date()
+
+
+class SubsidyForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+
+    class Meta:
+        model = Subsidy
+        fields = ['organization', 'subsidy_type', 'description',
+                  'amount', 'status', 'date', 'date_until']
 
 
 class WorkLogForm(forms.ModelForm):

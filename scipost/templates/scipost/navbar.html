@@ -1,3 +1,4 @@
+{% load request_filters %}
 {% load staticfiles %}
 {% load notifications_tags %}
 {% load scipost_extras %}
@@ -60,6 +61,12 @@
                           <span class="separator">&middot;</span>
                         <a class="nav-link" href="{% url 'scipost:personal_page' %}">My Personal Page</a>
                       </li>
+                      {% if perms.scipost.can_view_production %}
+                          <li class="nav-item {% active 'production:production' %}">
+                              <span class="separator">&middot;</span>
+                              <a class="nav-link" href="{% url 'production:production' %}">Production</a>
+                          </li>
+                      {% endif %}
                   {% endif %}
                   {% if user.partner_contact %}
                       <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">

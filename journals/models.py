@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Avg, Sum, F
+from django.db.models import Avg, Min, Sum, F
 from django.utils import timezone
 from django.urls import reverse
 
@@ -22,6 +22,7 @@ from .managers import IssueQuerySet, PublicationQuerySet, JournalQuerySet
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
+
 
 
 ################
@@ -487,6 +488,15 @@ class Publication(models.Model):
             if key == self.cc_license:
                 return val
         raise KeyError
+
+    def get_all_affiliations(self):
+        """
+        Returns all author affiliations.
+        """
+        from organizations.models import Organization
+        return Organization.objects.filter(
+            publicationauthorstable__publication=self
+        ).annotate(order=Min('publicationauthorstable__order')).order_by('order')
 
     def get_all_funders(self):
         from funders.models import Funder

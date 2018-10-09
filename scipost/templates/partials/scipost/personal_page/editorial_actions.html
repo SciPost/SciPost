@@ -11,58 +11,6 @@
 </div>
 
 <div class="row">
-    {% if perms.scipost.can_vet_registration_requests or perms.scipost.can_create_registration_invitations or perms.scipost.can_resend_registration_requests %}
-    <div class="col-md-4">
-        <h3>Registration actions</h3>
-        <ul>
-            {% if perms.scipost.can_vet_registration_requests %}
-                <li><a href="{% url 'scipost:vet_registration_requests' %}">Vet Registration requests</a> ({{ nr_reg_to_vet }})</li>
-            {% endif %}
-            {% if perms.scipost.can_resend_registration_requests %}
-                <li><a href="{% url 'scipost:registration_requests' %}">Awaiting validation</a> ({{ nr_reg_awaiting_validation }})</li>
-            {% endif %}
-            {% if perms.scipost.can_create_registration_invitations %}
-                <li><a href="{% url 'invitations:list' %}">Manage Registration Invitations</a></li>
-            {% endif %}
-        </ul>
-
-        {% if perms.scipost.can_manage_registration_invitations %}
-            <h3>Notifications</h3>
-            <ul>
-                <li><a href="{% url 'invitations:citation_notification_list' %}">Manage citation notifications</a></li>
-            </ul>
-        {% endif %}
-
-        {% if is_scipost_admin %}
-            <h3>Email communications</h3>
-            <ul>
-                {% if perms.scipost.can_email_group_members %}
-                    <li><a href="{% url 'scipost:email_group_members' %}">Email Group Members</a></li>
-                {% endif %}
-                {% if perms.scipost.can_email_particulars %}
-                    <li><a href="{% url 'scipost:send_precooked_email' %}">Send a precooked email</a></li>
-                    <li><a href="{% url 'scipost:email_particular' %}">Email a particular individual/address</a></li>
-                {% endif %}
-                {% if perms.scipost.can_manage_mailchimp %}
-                    <li><a href="{% url 'mailing_lists:overview' %}">Manage mailing lists</a></li>
-                {% endif %}
-            </ul>
-
-            <h3>SciPost Administation</h3>
-            <ul>
-	      <li><a href="{% url 'organizations:organizations' %}">Manage Organizations</a></li>
-              <li><a href="{% url 'affiliations:institutions' %}">Manage Institutions database</a></li>
-            </ul>
-        {% endif %}
-
-        {% if perms.scipost.can_view_timesheets %}
-            <h3>Finance</h3>
-            <ul>
-                <li><a href="{% url 'finances:timesheets' %}">Production Team Timesheets</a></li>
-            </ul>
-        {% endif %}
-    </div>
-    {% endif %}
 
     <div class="col-md-4">
         {% if perms.scipost.can_vet_comments or perms.scipost.can_vet_submitted_reports %}
@@ -100,27 +48,6 @@
             </ul>
         {% endif %}
 
-	    {% if perms.scipost.can_view_profiles %}
-	    <h3>Profiles</h3>
-	    <ul>
-	      <li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
-	    </ul>
-	    {% endif %}
-
-	    {% if perms.scipost.can_manage_college_composition %}
-	    <h3>Colleges and Fellowships</h3>
-	    <ul>
-	      <li><a href="{% url 'colleges:potential_fellowships' %}">Manage Potential Fellowships</a></li>
-          <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
-	    </ul>
-	    {% endif %}
-
-        {% if perms.scipost.can_attend_VGMs %}
-            <h3>Virtual General Meetings</h3>
-            <ul>
-                <li><a href="{% url 'virtualmeetings:VGMs' %}">List of VGMs</a></li>
-            </ul>
-        {% endif %}
     </div>
 
     {% if perms.scipost.can_oversee_refereeing or request.user.contributor.is_MEC %}
@@ -156,6 +83,24 @@
             {% endif %}
         </div>
     {% endif %}
+
+	<div class="col-md-4">
+	  {% if perms.scipost.can_manage_college_composition %}
+	  <h3>Colleges and Fellowships</h3>
+	  <ul>
+	    <li><a href="{% url 'colleges:potential_fellowships' %}">Manage Potential Fellowships</a></li>
+            <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
+	  </ul>
+	  {% endif %}
+
+          {% if perms.scipost.can_attend_VGMs %}
+          <h3>Virtual General Meetings</h3>
+          <ul>
+            <li><a href="{% url 'virtualmeetings:VGMs' %}">List of VGMs</a></li>
+          </ul>
+          {% endif %}
+	</div>
+
 </div>
 
 {% if active_assignments %}

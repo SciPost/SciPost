@@ -1,0 +1,22 @@
+{% extends 'finances/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: Subsidy details{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+<span class="breadcrumb-item">{{ subsidy }}</span>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    {% include 'finances/_subsidy_card.html' with subsidy=subsidy %}
+  </div>
+</div>
+
+{% endblock content %}

@@ -3,7 +3,10 @@
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load staticfiles %}
+{% load user_groups %}
 {% load organizations_extras %}
+
+{% is_scipost_admin request.user as is_scipost_admin %}
 
 {% block headsup %}
 <script type="text/javascript">
@@ -22,16 +25,17 @@ $(document).ready(function($) {
 
 {% block content %}
 <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">Organizations</h1>
-      {% if perms.scipost.can_manage_organizations %}
-      <h3>Management actions:</h3>
-      <ul>
-	<li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
-	<li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
-      </ul>
-      {% endif %}
-    </div>
+  <div class="col-12">
+    <h1 class="highlight">Organizations</h1>
+    {% if perms.scipost.can_manage_organizations %}
+    <h3>Management actions:</h3>
+    <ul>
+      <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
+      <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
+      <li>Link Partners to Organizations ({{ nr_partners_wo_organization }} found in need of linking)</li>
+    </ul>
+    {% endif %}
+  </div>
 </div>
 
 
@@ -52,7 +56,9 @@ $(document).ready(function($) {
     <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
     <ul>
       <li>associated publications</li>
+      {% if is_scipost_admin %}
       <li>associated support fractions</li>
+      {% endif %}
       <li>associated authors</li>
       <li>partnership history</li>
     </ul>
@@ -70,7 +76,7 @@ $(document).ready(function($) {
 	    {% if request.GET.ordering != 'asc' %}</a> <a href="?order_by=nap&ordering=asc"><i class="fa fa-sort-asc"></i></a>{% endif %}
 {% if request.GET.ordering != 'desc' %}<a href="?order_by=nap&ordering=desc"><i class="fa fa-sort-desc"></i></a>{% endif %}
 </th>
-	  <th>Partner?</th>
+	  <th>SciPost sponsor?</th>
 	</tr>
       </thead>
       <tbody>
@@ -96,10 +102,10 @@ $(document).ready(function($) {
 	    {% endif %}
 	  </td>
 	  <td>{{ org.cf_nr_associated_publications }}</td>
-	  {% if org.has_current_agreement %}
-	  <td class="bg-success">Yes</td>
-	  {% elif org.partner.agreements %}
-	  <td class="bg-primary text-white">Due for renewal</td>
+	  {% if org.has_current_subsidy %}
+	  <td class="bg-success">Yes, current</td>
+	  {% elif org.subsidy_set.all|length > 0 %}
+	  <td class="bg-primary text-white">Yes, past</td>
 	  {% else %}
 	  <td class="bg-warning">Not yet</td>
 	  {% endif %}

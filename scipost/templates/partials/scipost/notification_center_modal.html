@@ -21,7 +21,7 @@
               {% endif %}
 
               {% if perms.scipost.can_view_timesheets %}
-                  <li><a class="item {% active 'finances:finance' %}" href="{% url 'finances:finance' %}">Financial Administration</a></li>
+                  <li><a class="item {% active 'finances:finances' %}" href="{% url 'finances:finances' %}">Financial Administration</a></li>
               {% endif %}
 
               {% if perms.scipost.can_view_all_funding_info %}

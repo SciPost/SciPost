@@ -6,192 +6,188 @@
 {% load scipost_extras %}
 {% load user_groups %}
 
+{% is_scipost_admin request.user as is_scipost_admin %}
+{% is_edcol_admin request.user as is_edcol_admin %}
+
 {% block pagetitle %}: {{ publication.citation }} - {{ publication.title }}{% endblock pagetitle %}
 
 {% block body_class %}{{ block.super }} publication{% endblock %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
-    {% if publication.in_issue %}
-        <a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
-    {% endif %}
-    <span class="breadcrumb-item active">{{publication.title}}</span>
+{{block.super}}
+<a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
+{% if publication.in_issue %}
+<a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
+{% endif %}
+<span class="breadcrumb-item active">{{publication.title}}</span>
 {% endblock %}
 
 {% block headsup %}
 
-    <meta name="citation_title" content="{{ publication.title }}"/>
-    {% for author in publication.authors.all %}
-        {% if author.contributor %}
-            <meta name="citation_author" content="{{ author.contributor.user.last_name }}, {{ author.contributor.user.first_name }}"/>
-        {% elif author.unregistered_author %}
-            <meta name="citation_author" content="{{ author.unregistered_author.last_name }}, {{ author.unregistered_author.first_name }}"/>
-        {% endif %}
-    {% endfor %}
-    <meta name="citation_doi" content="{{ publication.doi_string }}"/>
-    <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
-    <meta name="citation_journal_title" content="{{ journal }}"/>
-    <meta name="citation_issn" content="{{ journal.issn }}"/>
-    {% if publication.in_issue %}
-        <meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
-        <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
-    {% endif %}
-    <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
-    <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
-    <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
+<meta name="citation_title" content="{{ publication.title }}"/>
+{% for author in publication.authors.all %}
+{% if author.contributor %}
+<meta name="citation_author" content="{{ author.contributor.user.last_name }}, {{ author.contributor.user.first_name }}"/>
+{% elif author.unregistered_author %}
+<meta name="citation_author" content="{{ author.unregistered_author.last_name }}, {{ author.unregistered_author.first_name }}"/>
+{% endif %}
+{% endfor %}
+<meta name="citation_doi" content="{{ publication.doi_string }}"/>
+<meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
+<meta name="citation_journal_title" content="{{ journal }}"/>
+<meta name="citation_issn" content="{{ journal.issn }}"/>
+{% if publication.in_issue %}
+<meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
+<meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
+{% endif %}
+<meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
+<meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
+<meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
 
-    <script>
-      $(document).ready(function(){
-        $("#citationslist").hide();
+<script>
+  $(document).ready(function(){
+      $("#citationslist").hide();
 
-        $("#citationslistbutton").click(function(){
+      $("#citationslistbutton").click(function(){
           $("#citationslist").toggle();
-        });
       });
-    </script>
+  });
+</script>
 
 {% endblock headsup %}
 
 {% block content %}
     {{ block.super }}
+
     {% if not publication.is_published and perms.can_publish_accepted_submission %}
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <p class="card-text text-center">
-                    This Publication is not published yet.
-                    Current status: {{ publication.get_status_display }}
-                </p>
-            </div>
+        <div class="card bg-warning text-white mb-3">
+          <div class="card-body">
+            <p class="card-text text-center">
+              This Publication is not published yet.
+              Current status: {{ publication.get_status_display }}
+            </p>
+          </div>
         </div>
     {% endif %}
 
-    {% is_edcol_admin request.user as is_edcol_admin %}
+    {% include 'partials/journals/publication_summary.html' with publication=publication %}
+
+    {% if publication.commentary and publication.commentary.comments.vetted.exists %}
+    <h3>Post-publication commentaries</h3>
+    <p>
+      This Publication ({{ publication.commentary.comments.vetted.count }}) has been commented on, see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
+    </p>
+    {% endif %}
+
+    {% if publication.citedby|length >= 1 %}
 
     <div class="row">
-        <div class="col-lg-8">
+      <div class="col-6 col-md-2">
+        <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
+        <a href="javascript:;" data-toggle="toggle" data-target="#citationslist">Toggle view</a>
+      </div>
+      <div class="col-6 col-md-2">
+        <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
+      </div>
+    </div>
+    <div class="row" id="citationslist" style="display: none;">
+      <div class="col-12">
+        {% include 'journals/_publication_citations.html' with publication=publication %}
+      </div>
+    </div>
+    {% endif %}
+    <hr/>
 
-        {% include 'partials/journals/publication_summary.html' with publication=publication %}
+    <div class="card">
+      <div class="card-header">
+        Author{{ publication.authors.all|length|pluralize }}/Affiliation{{ affiliations_list|length|pluralize }}: mappings to Contributors and <a href="{% url 'organizations:organizations' %}" target="_blank">Organizations</a>
+      </div>
+      <div class="card-body">
+        <ul class="list-inline m-1">
+          {% for author in publication.authors.all %}
+          <li class="list-inline-item mr-1">
+    	{% for aff in affiliations_list %}
+    	{% if aff in author.affiliations.all %}
+    	<sup>{{ forloop.counter }} </sup>
+    	{% endif %}{% endfor %}
+    	{% if author.is_registered %}
+    	<a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor.user.first_name }} {{ author.contributor.user.last_name }}</a>{% else %}{{ author.unregistered_author.first_name }} {{ author.unregistered_author.last_name }}{% endif %}{% if not forloop.last %}, {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
 
-        {% if publication.commentary and publication.commentary.comments.vetted.exists %}
-            <h3>Post-publication commentaries</h3>
-            <p>
-                This Publication ({{ publication.commentary.comments.vetted.count }}) has been commented on, see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
-            </p>
-        {% endif %}
-
-
-
-        {% if publication.citedby|length >= 1 %}
-
-            <div class="row">
-                <div class="col-6 col-md-2">
-                    <h3 class="mb-2">Cited by {{ publication.citedby|length }}</h3>
-                    <a href="javascript:;" data-toggle="toggle" data-target="#citationslist">Toggle view</a>
-                </div>
-                <div class="col-6 col-md-2">
-                    <img src="{% static 'scipost/images/citedby.gif' %}" alt="Crossref Cited-by" width="64" />
-                </div>
-            </div>
-            <div class="row" id="citationslist" style="display: none;">
-                <div class="col-12">
-                    {% include 'journals/_publication_citations.html' with publication=publication %}
-                </div>
-            </div>
-        {% endif %}
-
-        <div class="row">
-            <div class="col-12">
-                <h3>Authors</h3>
-                <ul>
-                    {% for author in publication.authors.all %}
-                        {% if author.is_registered %}
-                            <li><a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor }}</a></li>
-                        {% else %}
-                            <li>{{ author.unregistered_author }}</li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-
-                {% if publication.get_all_funders %}
-                    <h3>Funder{{ publication.get_all_funders|length|pluralize }} for this publication</h3>
-                    <ul>
-                        {% for funder in publication.get_all_funders %}
-                            <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
-                {% if publication.institutions.all %}
-                    <h3>Institution{{ publication.institutions.all|pluralize }} related to this Publication</h3>
-                    <ul>
-                        {% for institution in publication.institutions.all %}
-                            <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            </div>
-        </div>
-
-        {% if request.user and request.user.contributor in publication.registered_authors.all %}
-            <h3>Author actions</h3>
-            <ul>
-                <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
-            </ul>
-        {% endif %}
-        </div>
-        <div class="col-lg-4">
-            <div class="row">
-
-                {% if publication.get_issue_related_publications %}
-                    <!-- <hr class="lg"> -->
-                    <div class="related-publications col-12 mt-4 mb-1">
-                        <h4>Other Publications in this Issue</h4>
-
-                        {% for rel_pub in publication.get_issue_related_publications %}
-                            <div class="pub py-2">
-                                <div class="title"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.title }}</a></div>
-                                <div class="authors">by {{ rel_pub.author_list }}</div>
-                                <p class="meta"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.citation }}</a> &middot; <span class="font-weight-light">published {{ rel_pub.publication_date|date:'j F Y' }}</span></p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-
-                {% if publication.get_similar_publications %}
-                    <!-- <hr class="lg"> -->
-                    <div class="related-publications col-12 mt-4 mb-1">
-                        <h4>Other Publications you may also be interested in</h4>
-
-                        {% for rel_pub in publication.get_similar_publications %}
-                            <div class="pub py-2">
-                                <div class="title"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.title }}</a></div>
-                                <div class="authors">by {{ rel_pub.author_list }}</div>
-                                <p class="meta"><a href="{{ rel_pub.get_absolute_url }}">{{ rel_pub.citation }}</a> &middot; <span class="font-weight-light">published {{ rel_pub.publication_date|date:'j F Y' }}</span></p>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+        <ul class="list list-unstyled m-2">
+          {% for aff in affiliations_list %}
+          <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.full_name_with_acronym }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
 
+    {% if publication.get_all_funders %}
+    <div class="card">
+      <div class="card-header">
+        Funder{{ publication.get_all_funders|length|pluralize }} for the research work leading to this publication
+      </div>
+      <div class="card-content">
+        <ul class="m-2">
+          {% for funder in publication.get_all_funders %}
+          {% if funder.organization %}
+          {% if funder.name != funder.organization.name and funder.name != funder.organization.name_original %}
+          <li>{{ funder }} (through Organization: <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a>)</li>
+          {% else %}
+          <li><a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a></li>
+          {% endif %}
+          {% else %}
+          <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+          {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if is_scipost_admin or is_edcol_admin %}
+    {% if publication.institutions.all %}
+    <div class="card">
+      <div class="card-header">
+        Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)
+      </div>
+      <div class="card-content">
+        <ul class="m-2">
+          {% for institution in publication.institutions.all %}
+          <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endif %}
+    {% endif %}
+
+
+    {% if request.user and request.user.contributor in publication.registered_authors.all %}
+    <h3>Author actions</h3>
+    <ul>
+      <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
+    </ul>
+    {% endif %}
+
     {% if publication.status == 'draft' and perms.scipost.can_draft_publication %}
-        <hr class="divider">
-        <div class="row">
-            <div class="col-12">
-                {% include 'partials/journals/publication_preparation.html' with publication=publication %}
-            </div>
-        </div>
+    <hr class="divider">
+    <div class="row">
+      <div class="col-12">
+        {% include 'partials/journals/publication_preparation.html' with publication=publication %}
+      </div>
+    </div>
     {% endif %}
 
     {% if is_edcol_admin %}
         <hr class="divider">
         <div class="row">
-            <div class="col-12">
-                <h3>Editorial Administration tools</h3>
-                {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
-            </div>
+          <div class="col-12">
+            <h3>Editorial Administration tools</h3>
+            {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
+          </div>
         </div>
     {% endif %}
 

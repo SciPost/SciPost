@@ -48,9 +48,9 @@ $label-label-spacing-y:            .5rem !default;
 
 // Allows for customizing button radius independently from global border radius
 $label-border-width:               $input-btn-border-width;
-$label-border-radius:              4px;
-$label-border-radius-lg:           4px;
-$label-border-radius-sm:           4px;
+$label-border-radius:              2px;
+$label-border-radius-lg:           2px;
+$label-border-radius-sm:           2px;
 
 $label-transition:                 all .2s ease-in-out !default;
 
@@ -66,7 +66,7 @@ $label-transition:                 all .2s ease-in-out !default;
     border: $label-border-width solid transparent;
     box-shadow: $label-box-shadow;
 
-    @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-border-radius, $btn-border-radius);
+    @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-border-radius, $label-border-radius);
     @include transition($label-transition);
 }
 

@@ -1,28 +1,39 @@
 {% load bootstrap %}
 
+{% load user_groups %}
 {% load organizations_extras %}
+
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
+{% is_scipost_admin request.user as is_scipost_admin %}
 
 <div class="card-body">
 
   <div class="row">
     <div class="col-12">
       <ul class="nav nav-tabs" id="organization-{{ org.id }}-tab" role="tablist">
-	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
-	{% endif %}
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if is_scipost_admin %} & PubFractions{% endif %}</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">Funder instances</a>
+	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">Funder Registry instances</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="partnership-{{ org.id }}-tab" data-toggle="tab" href="#partnership-{{ org.id }}" role="tab" aria-controls="partnership-{{ org.id }}" aria-selected="true">Partnership history</a>
+	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
 	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
@@ -33,17 +44,15 @@
 
       <div class="tab-content" id="organization-{{ org.id }}-tab">
 
-	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
 	  <h3>Details:</h3>
 	  {% include 'organizations/_organization_details_contents.html' with org=org %}
 	</div>
-	{% endif %}
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
-	  <h3>Publications associated to this Organization <span class="text-muted small">(with total PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>:</h3>
+	  <h3>Publications associated to this Organization{% if is_scipost_admin %} <span class="text-muted small">(with total PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>{% endif %}:</h3>
 	  {% for pubyear in pubyears %}
-	  <h4>{{ pubyear }} <span class="text-muted small">(total pubfractions: {{ org|pubfractions_in_year:pubyear }})</span></h4>
+	  <h4>{{ pubyear }}{% if is_scipost_admin %} <span class="text-muted small">(total pubfractions: {{ org|pubfractions_in_year:pubyear }})</span>{% endif %}</h4>
 	  <ul>
 	    {% for publication in org.get_publications %}
 	    {% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
@@ -85,18 +94,57 @@
 	</div>
 
 	<div class="tab-pane pt-4" id="funders-{{ org.id }}" role="tabpanel" aria-labelledby="funders-{{ org.id }}-tab">
-	  <h3>Funder instances (from FundRef) associated to this Organization:</h3>
+	  <h3>Funder Registry instances associated to this Organization:</h3>
 	  <ul>
 	    {% for funder in org.funder_set.all %}
 	    <li>{{ funder }}</li>
 	    {% empty %}
-	    <li>No FundRef instance found</li>
+	    <li>No Funder Registry instance found<br/><br/>
+	      <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
+	      <p>Are you a representative of this Organization? We advise you to:</p>
+	      <ul>
+		<li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a>;</li>
+		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
+	      </ul>
+	    </li>
 	    {% endfor %}
 	  </ul>
 	</div>
 
-	<div class="tab-pane pt-4" id="partnership-{{ org.id }}" role="tabpanel" aria-labelledby="partnership-{{ org.id }}-tab">
-	  <h3>Partnership history:</h3>
+	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
+	  <h3>Support history</h3>
+	  {% if org.subsidy_set.all|length > 0 %}
+	  <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
+	  <table class="table table-hover mb-5">
+	    <thead class="thead-default">
+	      <tr>
+		<th>Type</th>
+		<th>Amount</th>
+		<th>Date</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {% for subsidy in org.subsidy_set.all %}
+	      <tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
+		<td>{{ subsidy.get_subsidy_type_display }}</td>
+		<td>&euro;{{ subsidy.amount }}</td>
+		<td>{{ subsidy.date }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
+	      </tr>
+	      {% endfor %}
+	      <tr style="border-top: 2px solid black">
+		<td>Total support obtained:</td>
+		<td>&euro;{{ org.get_total_subsidies_obtained }}</td>
+		<td colspan="2">
+	      </tr>
+	    </tbody>
+	  </table>
+	  {% else %}
+	  <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
+	  {% endif %}
+
+	  {% if is_scipost_admin %}
+	  <h3 class="text-danger">To be removed (Admin view only):</h3>
+	  <h3>Supporting Partner Agreements history:</h3>
 	  {% with agreement=org.partner.get_latest_active_agreement %}
 	  {% if agreement %}
 	  <p>This organization is currently a SciPost Supporting Partner.</p>
@@ -116,7 +164,7 @@
 		<td>{{ agreement.get_status_display }}</td>
 		<td>{{ agreement.get_duration_display }}</td>
 		<td>{{ agreement.start_date }}</td>
-		<td>&euro; {{ agreement.offered_yearly_contribution }}</td>
+		<td>&euro;{{ agreement.offered_yearly_contribution }}</td>
 	      </tr>
 	      {% endfor %}
 	      <tr style="border-top: 2px solid black">
@@ -127,6 +175,7 @@
 	  <p>This organization has <span class="text-danger">not yet</span> been a SciPost Supporting Partner.</p>
 	  {% endif %}
 	</div>
+	{% endif %}
 
 	<div class="tab-pane pt-4" id="manage-{{ org.id }}" role="tabpanel" aria-labelledby="manage-{{ org.id }}-tab">
 	  {% if perms.scipost.can_manage_organizations %}

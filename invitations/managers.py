@@ -8,6 +8,9 @@ from . import constants
 
 
 class RegistrationInvitationQuerySet(models.QuerySet):
+    def for_contributors(self):
+        return self.filter(invitation_type=constants.INVITATION_CONTRIBUTOR)
+
     def for_fellows(self):
         return self.filter(invitation_type=constants.INVITATION_EDITORIAL_FELLOW)
 

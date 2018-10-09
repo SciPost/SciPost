@@ -17,7 +17,7 @@ from django.urls import reverse
 from django_countries.fields import CountryField
 
 from .constants import (
-    PARTNER_KINDS, PARTNER_STATUS, CONSORTIUM_STATUS, MEMBERSHIP_DURATION, PARTNER_EVENTS,
+    PARTNER_KINDS, PARTNER_STATUS, MEMBERSHIP_DURATION, PARTNER_EVENTS,
     PROSPECTIVE_PARTNER_STATUS, PROSPECTIVE_PARTNER_EVENTS, MEMBERSHIP_AGREEMENT_STATUS,
     PROSPECTIVE_PARTNER_ADDED, PARTNER_KIND_UNI_LIBRARY)
 from .constants import (
@@ -118,23 +118,6 @@ class ProspectivePartnerEvent(models.Model):
 # Partner-related objects #
 ###########################
 
-class Institution(models.Model):
-    """
-    An Institution is any form of academic organization which SciPost interacts with.
-    """
-    kind = models.CharField(max_length=32, choices=PARTNER_KINDS)
-    name = models.CharField(max_length=256)
-    logo = models.ImageField(upload_to='institutions/logo/%Y/', blank=True)
-    css_class = models.CharField(max_length=256, blank=True,
-                                 verbose_name="Additional logo CSS class")
-    acronym = models.CharField(max_length=16)
-    address = models.TextField(blank=True)
-    country = CountryField()
-
-    def __str__(self):
-        return '%s (%s)' % (self.name, self.get_kind_display())
-
-
 class ContactRequest(models.Model):
     """
     A ContactRequest request for a new Contact usually made by another Contact.
@@ -169,11 +152,8 @@ class Contact(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     description = models.CharField(max_length=256, blank=True)
     partners = models.ManyToManyField('partners.Partner',
-                                      help_text=('All Partners (+related Institutions)'
+                                      help_text=('All Partners (+related Organizations)'
                                                  ' the Contact is related to.'))
-    consortia = models.ManyToManyField('partners.Consortium', blank=True,
-                                       help_text=('All Consortia for which the Contact has'
-                                                  ' explicit permission to view/edit its data.'))
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
 
@@ -228,8 +208,6 @@ class Partner(models.Model):
     Supporting Partners.
     These are the official Partner objects created by SciPost Admin.
     """
-    institution = models.ForeignKey('partners.Institution', on_delete=models.CASCADE,
-                                    blank=True, null=True)
     organization = models.OneToOneField('organizations.Organization', on_delete=models.CASCADE,
                                         blank=True, null=True)
     status = models.CharField(max_length=16, choices=PARTNER_STATUS, default=PARTNER_INITIATED)
@@ -239,9 +217,7 @@ class Partner(models.Model):
     objects = PartnerManager()
 
     def __str__(self):
-        if self.institution:
-            return self.institution.acronym + ' (' + self.get_status_display() + ')'
-        return self.get_status_display()
+        return self.organization.__str__() + ' (' + self.get_status_display() + ')'
 
     def get_absolute_url(self):
         return reverse('partners:partner_view', args=(self.id,))
@@ -269,18 +245,6 @@ class PartnerEvent(models.Model):
         return '%s: %s' % (str(self.partner), self.get_event_display())
 
 
-class Consortium(models.Model):
-    """
-    Collection of Partners.
-    """
-    name = models.CharField(max_length=128)
-    partners = models.ManyToManyField('partners.Partner', blank=True)
-    status = models.CharField(max_length=16, choices=CONSORTIUM_STATUS)
-
-    class Meta:
-        verbose_name_plural = 'consortia'
-
-
 class MembershipAgreement(models.Model):
     """
     Agreement for membership of the Supporting Partners Board.
@@ -288,8 +252,6 @@ class MembershipAgreement(models.Model):
     """
     partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
                                 blank=True, null=True, related_name='agreements')
-    consortium = models.ForeignKey('partners.Consortium', on_delete=models.CASCADE,
-                                   blank=True, null=True)
     status = models.CharField(max_length=16, choices=MEMBERSHIP_AGREEMENT_STATUS)
     date_requested = models.DateField()
     start_date = models.DateField()
