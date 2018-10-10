@@ -174,14 +174,14 @@ class Submission(models.Model):
                                       Q(comments__submissions=self)).distinct()
 
     @property
-    def cycle_2(self):
+    def cycle(self):
         """Get cycle object that's relevant for the Submission."""
         if not hasattr(self, '_cycle'):
             self._cycle = RegularCycle(self)
         return self._cycle
 
     @property
-    def cycle(self):
+    def cycle_old(self):
         """Get cycle object that's relevant for the Submission."""
         if not hasattr(self, '__cycle'):
             self.set_cycle()

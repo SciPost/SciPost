@@ -148,24 +148,24 @@
     {% endif %}
 
     {% if is_scipost_admin or is_edcol_admin %}
-    {% if publication.institutions.all %}
-    <div class="card">
-      <div class="card-header">
-        Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)
-      </div>
-      <div class="card-content">
-        <ul class="m-2">
-          {% for institution in publication.institutions.all %}
-          <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-    {% endif %}
+        {% if publication.institutions.all %}
+        <div class="card">
+          <div class="card-header">
+            Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)
+          </div>
+          <div class="card-content">
+            <ul class="m-2">
+              {% for institution in publication.institutions.all %}
+              <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
     {% endif %}
 
 
-    {% if request.user and request.user.contributor in publication.registered_authors.all %}
+    {% if request.user.contributor in publication.registered_authors.all %}
     <h3>Author actions</h3>
     <ul>
       <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>

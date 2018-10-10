@@ -463,6 +463,7 @@ def _personal_page_editorial_actions(request):
         'Editorial College',
         'Vetting Editors',
         'Junior Ambassadors']).exists() or request.user.is_superuser
+    permission = permission or request.user.contributor.is_MEC()
 
     if not permission:
         raise PermissionDenied

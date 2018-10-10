@@ -2,6 +2,9 @@
 {% load staticfiles %}
 {% load notifications_tags %}
 {% load scipost_extras %}
+{% load user_groups %}
+
+{% is_editorial_college request.user as is_editorial_college %}
 
 <nav class="navbar navbar-expand-lg main-nav">
     <!-- <a class="navbar-brand mr-auto mr-lg-0" href="#">Offcanvas navbar</a> -->
@@ -51,7 +54,7 @@
                         </span>
                     </li>
                   {% if user.contributor %}
-                      {% if user.contributor.fellowships.active.exists %}
+                      {% if is_editorial_college %}
                           <li class="nav-item{% if '/submissions/pool/' in request.path %} active{% endif %}">
                               <span class="separator">&middot;</span>
                             <a class="nav-link" href="{% url 'submissions:pool' %}">Submissions Pool</a>

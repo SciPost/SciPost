@@ -38,15 +38,14 @@ def is_financial_admin(user):
 def is_editorial_college(user):
     """
     Assign template variable (boolean) to check if user is member of Editorial College group.
-
-    !!!
-    This filter should actually be dynamic, not checking the permissions group but the current
-    active Fellowship instances for the user.
-    !!!
-
-    This assignment is limited to a certain context block!
     """
-    return user.groups.filter(name='Editorial College').exists() or user.is_superuser
+    if not hasattr(user, 'contributor'):
+        return False
+    if user.is_superuser:
+        return True
+    elif user.groups.filter(name='Editorial College').exists():
+        return True
+    return user.contributor.fellowships.exists()
 
 
 @register.simple_tag

@@ -80,7 +80,7 @@
                 <li>
                     <a href="#editorial-status">Editorial status</a>
                     <ul>
-                        <li><a href="#required-actions">Required actions</a> ({{ submission.cycle_2.required_actions|length }})</li>
+                        <li><a href="#required-actions">Required actions</a> ({{ submission.cycle.required_actions|length }})</li>
                         <li><a href="#referee-details">Refereeing invitations</a></li>
                     </ul>
                 </li>
@@ -111,7 +111,7 @@
 
 
     <h2 id="editorial-status">Editorial status</h2>
-    <p>{{ submission.cycle_2 }}</p>
+    <p>{{ submission.cycle }}</p>
     <table class="table table-borderless">
         <tr>
             <td>Submission status:</td>
@@ -127,6 +127,16 @@
                     {% if submission.eic_recommendation_required %}
                         <br><a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation here.</a>
                     {% endif %}
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <td>Editor-in-charge:</td>
+            <td>
+                {% if submission.editor_in_charge %}
+                    {{ submission.editor_in_charge.formal_str }}
+                {% else %}
+                    Unassigned{% if is_editorial_admin %}, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">see editor invitations</a>.{% endif %}
                 {% endif %}
             </td>
         </tr>
@@ -275,16 +285,16 @@
     </table>
 
     {% if full_access %}
-        <div class="my-5 p-3 border{% if submission.cycle_2.has_required_actions %} border-danger{% endif %}" id="required-actions">
+        <div class="my-5 p-3 border{% if submission.cycle.has_required_actions %} border-danger{% endif %}" id="required-actions">
             <h3>
-                {% if submission.cycle_2.has_required_actions %}
+                {% if submission.cycle.has_required_actions %}
                     <i class="fa fa-exclamation-triangle text-danger"></i>
                 {% else %}
                     <i class="fa fa-check-circle"></i>
                 {% endif %}
                 Required actions
             </h3>
-            {{ submission.cycle_2.required_actions }}
+            {{ submission.cycle.required_actions }}
         </div>
         {# {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %} #}
     {% endif %}
@@ -309,13 +319,16 @@
                 {% if submission.refereeing_cycle != 'direct_rec' %}
                     <h3 class="mt-3" id="referee-details">Refereeing invitations</h3>
                     {% if not submission.referee_invitations.exists %}
-                        <p>You have not yet invited referees. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least 3 referees</a>.</p>
+                        <p>You have not yet invited referees. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
                     {% elif submission.eicrecommendations.active %}
                         <p>Thank you for formulating your Editorial Recommendation. The statuses of the referee invitations might still change, see details below.</p>
-                    {% elif submission.referee_invitations.non_cancelled|length == 1 %}
-                        <p>You have 1 referee who {% if submission.referee_invitations.non_cancelled.first.fulfilled %}submitted a Report{% elif submission.referee_invitations.non_cancelled.first.accepted %}has accepted to referee{% else %} is invited{% endif %}. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least two more referees</a>.</p>
-                    {% elif submission.referee_invitations.non_cancelled|length < 3 %}
-                        <p>You have {{ submission.referee_invitations.non_cancelled|length }} referee{{ submission.referee_invitations.non_cancelled|length|pluralize }} who are either invited, have accepted or submitted a Report. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least 3 referees</a>.</p>
+                    {% elif submission.referee_invitations.non_cancelled|length < submission.cycle.minimum_number_of_referees %}
+                        {% if submission.referee_invitations.non_cancelled|length == 1 %}
+                            <p>You have 1 referee who {% if submission.referee_invitations.non_cancelled.first.fulfilled %}submitted a Report{% elif submission.referee_invitations.non_cancelled.first.accepted %}has accepted to referee{% else %} is invited{% endif %}.
+                        {% else %}
+                            <p>You have {{ submission.referee_invitations.non_cancelled|length }} referee{{ submission.referee_invitations.non_cancelled|length|pluralize }} who are either invited, have accepted or submitted a Report.
+                        {% endif %}
+                        <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
                     {% else %}
                         <p>Currently, you have {{ submission.referee_invitations.non_cancelled|length }} referees who are either invited, have accepted or submitted a Report. See details below.</p>
                     {% endif %}
