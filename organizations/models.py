@@ -105,6 +105,17 @@ class Organization(models.Model):
         self.cf_nr_associated_publications = self.count_publications()
         self.save()
 
+    def pubfraction_for_publication(self, doi_label):
+        """
+        Return the organization's pubfraction for this publication, or the string 'Not defined'.
+        """
+        try:
+            return OrgPubFraction.objects.get(
+                organization=self,
+                publication__doi_label=doi_label).fraction
+        except:
+            return 'Not yet defined'
+
     def pubfractions_in_year(self, year):
         """
         Returns the sum of pubfractions for the given year.
