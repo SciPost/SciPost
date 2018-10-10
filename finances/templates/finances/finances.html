@@ -14,6 +14,10 @@
 <div class="row">
   <div class="col-12">
     <h2>Finances</h2>
+
+    <h3 class="highlight">Sponsors</h3>
+    <p>Visit our <a href="{% url 'finances:sponsors' %}">Sponsors page</a> to view our list of sponsors and more information on our sponsorship scheme.</p>
+
     <h3 class="highlight">Subsidies</h3>
     <ul>
       <li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>

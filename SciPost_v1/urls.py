@@ -54,7 +54,9 @@ urlpatterns = [
     url(r'^proceedings/', include('proceedings.urls', namespace="proceedings")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^profiles/', include('profiles.urls', namespace="profiles")),
+    # TODO: partners to be deprecated in favour of sponsors
     url(r'^partners/', include('partners.urls', namespace="partners")),
+    url(r'^sponsors/', include('sponsors.urls', namespace="sponsors")),
     url(r'^stats/', include('stats.urls', namespace="stats")),
     # Keep temporarily for historical reasons
     url(r'^supporting_partners/', include('partners.urls', namespace="_partners")),

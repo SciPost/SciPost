@@ -13,6 +13,7 @@ from django.urls import reverse
 from django_countries.fields import CountryField
 
 from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
+from .managers import OrganizationQuerySet
 
 from scipost.models import Contributor
 from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
@@ -62,6 +63,8 @@ class Organization(models.Model):
     cf_nr_associated_publications = models.PositiveIntegerField(
         blank=True, null=True,
         help_text='NB: nr_associated_publications is a calculated field. Do not modify.')
+
+    objects = OrganizationQuerySet.as_manager()
 
     class Meta:
         ordering = ['country', 'name']

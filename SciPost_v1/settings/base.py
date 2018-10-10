@@ -110,7 +110,9 @@ INSTALLED_APPS = (
     'proceedings',
     'production',
     'profiles',
+    # TODO: partners to be deprecated in favour of sponsors
     'partners',
+    'sponsors',
     'preprints',
     'funders',
     'stats',
