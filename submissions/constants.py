@@ -203,6 +203,19 @@ EIC_REC_STATUSES = (
     (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
+# Plagiarism Report statuses
+STATUS_WAITING = 'waiting'
+STATUS_SENT, STATUS_RECEIVED = 'sent', 'received'
+STATUS_FAILED_DOWNLOAD, STATUS_FAILED_UPLOAD = 'fail_down', 'fail_up'
+
+PLAGIARISM_STATUSES = (
+    (STATUS_WAITING, 'Awaiting action'),
+    (STATUS_SENT, 'Sent succesfully, awaiting report'),
+    (STATUS_RECEIVED, 'Report received'),
+    (STATUS_FAILED_DOWNLOAD, 'Failed (downloading failed)'),
+    (STATUS_FAILED_UPLOAD, 'Failed (uploading failed)'),
+)
+
 # Define regexes
 arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
 arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'

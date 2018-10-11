@@ -23,7 +23,8 @@ from .constants import (
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
     STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_REJECTED, STATUS_WITHDRAWN, REPORT_REC,
-    STATUS_PUBLISHED, STATUS_REPLACED, STATUS_ACCEPTED, STATUS_DEPRECATED, STATUS_COMPLETED)
+    STATUS_PUBLISHED, STATUS_REPLACED, STATUS_ACCEPTED, STATUS_DEPRECATED, STATUS_COMPLETED,
+    PLAGIARISM_STATUSES, STATUS_WAITING)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
@@ -1007,6 +1008,7 @@ class iThenticateReport(TimeStampedModel):
     doc_id = models.IntegerField(primary_key=True)
     part_id = models.IntegerField(null=True, blank=True)
     percent_match = models.IntegerField(null=True, blank=True)
+    status = models.CharField(max_length=16, choices=PLAGIARISM_STATUSES, default=STATUS_WAITING)
 
     class Meta:
         verbose_name = 'iThenticate Report'

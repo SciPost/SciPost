@@ -219,6 +219,16 @@ class SubmissionEventQuerySet(models.QuerySet):
         """Return all events of the last `hours` hours."""
         return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
 
+    def plagiarism_report_to_be_uploaded(self):
+        """Return Submissions that has not been sent to iThenticate for their plagiarism check."""
+        return self.filter(
+            models.Q(plagiarism_report__isnull=True) |
+            models.Q(plagiarism_report__status=constants.STATUS_WAITING)).distinct()
+
+    def plagiarism_report_to_be_updated(self):
+        """Return Submissions for which their iThenticateReport has not received a report yet."""
+        return self.filter(plagiarism_report__status=constants.STATUS_SENT)
+
 
 class EditorialAssignmentQuerySet(models.QuerySet):
     def get_for_user_in_pool(self, user):

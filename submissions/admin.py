@@ -7,7 +7,6 @@ from django import forms
 
 from guardian.admin import GuardedModelAdmin
 
-from preprints.models import Preprint
 from submissions.models import (
     Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
     EICRecommendation, SubmissionEvent, iThenticateReport)
@@ -18,7 +17,12 @@ def submission_short_title(obj):
     return obj.submission.title[:30]
 
 
-admin.site.register(iThenticateReport)
+class iThenticateReportAdmin(admin.ModelAdmin):
+    list_display = ['doc_id', 'to_submission', 'status']
+    list_filter = ['status']
+
+
+admin.site.register(iThenticateReport, iThenticateReportAdmin)
 
 
 class SubmissionAdminForm(forms.ModelForm):
@@ -132,7 +136,6 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
     list_display = (
         'to', submission_short_title, 'status', 'date_created', 'date_invited', 'invitation_order')
     date_hierarchy = 'date_created'
-    # list_filter = ('accepted', 'deprecated', 'completed', )
     list_filter = ('status',)
     form = EditorialAssignmentAdminForm
 
