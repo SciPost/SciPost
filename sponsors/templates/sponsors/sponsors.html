@@ -23,7 +23,7 @@
     </h4>
     <br/>
     <p>
-      Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>)? If this is the case, consider helping SciPost:
+      Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>)? Then consider helping SciPost:
     </p>
     <ul>
       <li>
@@ -42,41 +42,38 @@
   </div>
 </div>
 
-
 <div class="row">
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-header">
-	<h3>Community service; no user fees</h3>
+  <div class="col-12">
+    <div class="card-deck">
+      <div class="card">
+	<div class="card-header">
+	  <h3>Community service; no user fees</h3>
+	</div>
+	<div class="card-body">
+	  <p>SciPost does not charge any subscription fees or article processing charges (APCs): all our operations are performed as a community service, with no user-facing charges;</p>
+	  <p>Our initiative's scope is resolutely international: we do not impose any geographical or institutional restrictions on the delivery of our services;</p>
+	  <p>SciPost is dedicated to serving the academic community, with no further competing interests.</p>
+	</div>
       </div>
-      <div class="card-body">
-	<p>SciPost does not charge any subscription fees or article processing charges (APCs): all our operations are performed as a community service, with no user-facing charges;</p>
-	<p>Our initiative's scope is resolutely international: we do not impose any geographical or institutional restrictions on the delivery of our services;</p>
-	<p>SciPost is dedicated to serving the academic community, without suffering from competing interests.</p>
+      <div class="card">
+	<div class="card-header">
+	  <h3>Quality through Openness</h3>
+	</div>
+	<div class="card-body">
+	  <p>Our sharp focus on openness through our <a href="/FAQ#pwr">peer-witnessed refereeing</a> procedure equips us with arguably the most stringent editorial quality control system available;</p>
+	  <p>Our <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a> is composed of a broad selection of top academics;</p>
+	  <p>Our fully professional publishing services meet or surpass best practices in all respects. Our flagship journal SciPost Physics has been awarded the <a href="https://doaj.org">DOAJ</a> Seal.</p>
+	</div>
       </div>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-header">
-	<h3>Quality through Openness</h3>
-      </div>
-      <div class="card-body">
-	<p>Our sharp focus on openness through our <a href="/FAQ#pwr">peer-witnessed refereeing</a> procedure equips us with arguably the most stringent editorial quality control system available;</p>
-	<p>Our <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a> is composed of a broad selection of top academics;</p>
-	<p>Our fully professional publishing services meet or surpass best practices in all respects. Our flagship journal SciPost Physics has been awarded the <a href="https://doaj.org">DOAJ</a> Seal.</p>
-      </div>
-    </div>
-  </div>
-  <div class="col-lg-4">
-    <div class="card">
-      <div class="card-header">
-	<h3>Community funded</h3>
-      </div>
-      <div class="card-body">
-	<p>Our operations are obviously not without cost, but our strictly not-for-profit setup, community-led workflow, streamlined infrastructure and no-frills administration mean that the average per-publication costs are much lower than those of competing services;</p>
-	<p>Our financing model relies on sponsorship from the organizations which benefit from our activities (see our <a href="{% url 'organizations:organizations' %}">organizations page</a>);</p>
-	<p>All sponsorship funds are pooled and exclusively used to run our infrastructure and services.</p>
+      <div class="card">
+	<div class="card-header">
+	  <h3>Community funded</h3>
+	</div>
+	<div class="card-body">
+	  <p>Our operations are obviously not without cost, but our strictly not-for-profit setup, community-led workflow, streamlined infrastructure and no-frills administration mean that the average per-publication costs are much lower than those of competing services;</p>
+	  <p>Our financing model relies on sponsorship from the organizations which benefit from our activities (see our <a href="{% url 'organizations:organizations' %}">organizations page</a>);</p>
+	  <p>All sponsorship funds are pooled and exclusively used to run our infrastructure and services.</p>
+	</div>
       </div>
     </div>
   </div>
@@ -84,28 +81,35 @@
 
 <div class="row">
   <div class="col-12">
-    <h3>In a nutshell: supporting us reduces your costs</h3>
-    <p>We are able to run a fully sustainable infrastructure at an estimated cost of under &euro;400 per publication, much below the current norm. The more scientists shift their publishing to SciPost, the fewer subscription/article processing charges you will have to pay as an organization. We need your sponsorship to help make our initiative sustainable.</p>
+    <h3>In a nutshell, for the business savvy: support our model to reduce your costs</h3>
+    <p>We are able to run a fully sustainable infrastructure at an estimated cost of under &euro;400 per publication, much below the current norm for APCs. The more scientists shift their publishing to SciPost, the fewer subscription/article processing charges you will have to pay as an organization. Your sponsorship will help us scale up and make our initiative sustainable.</p>
   </div>
 </div>
 
 <div class="row">
   <div class="col-12">
     <h1 class="highlight">Our current Sponsors</h1>
-    <ul class="list-unstyled mb-5">
+
+    <div class="card-columns">
       {% for sponsor in current_sponsors %}
-      <li class="media mb-2">
-	<img class="d-flex mr-3 {{ sponsor.css_class }}" width="192" src="{% if sponsor.logo %}{{ sponsor.logo.url }}{% endif %}" alt="{{ sponsor.name }} logo">
-	<div class="media-body">
-	  <p>
-	    <strong>{{ sponsor.full_name_with_acronym }}</strong>
-	    <br/>{{ sponsor.get_countery_display }}
-	  </p>
+      <div class="card">
+	<img class="card-img-top {{ sponsor.css_class }} p-2" src="{% if sponsor.logo %}{{ sponsor.logo.url }}{% endif %}" alt="{{ sponsor.name }} logo">
+	<div class="card-body bg-light">
+	  <h4 class="card-title">
+	    {% if sponsor.name_original %}{{ sponsor.name_original }}{% else %}{{ sponsor.name }}{% endif %}</h4>
+	  {% if sponsor.name_original %}
+	  <p class="card-text">({{ sponsor.name }})</p>
+	  {% endif %}
+	  <img src="{{ sponsor.country.flag }}" alt="{{ sponsor.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ sponsor.country }}]</small></span>&nbsp;&nbsp;{{ sponsor.get_country_display }}
 	</div>
-      </li>
+      </div>
       {% endfor %}
-    </ul>
+    </div>
+
   </div>
 </div>
+
+
+
 
 {% endblock content %}
