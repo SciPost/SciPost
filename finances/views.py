@@ -58,6 +58,18 @@ class SubsidyDeleteView(PermissionsMixin, DeleteView):
 class SubsidyListView(ListView):
     model = Subsidy
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        order_by = self.request.GET.get('order_by')
+        ordering = self.request.GET.get('ordering')
+        if order_by == 'amount':
+            qs = qs.order_by('amount')
+        elif order_by == 'date':
+            qs = qs.order_by('date')
+        if ordering == 'desc':
+            qs = qs.reverse()
+        return qs
+
 
 class SubsidyDetailView(DetailView):
     model = Subsidy

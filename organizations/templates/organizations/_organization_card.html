@@ -60,6 +60,9 @@ $(document).ready(function($) {
               <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
               <br>by {{ publication.author_list }},
               <br>{{ publication.citation }}
+	      {% if is_scipost_admin %}
+	      <br><span class="text-muted small">Pubfraction: {{ org|pubfraction_for_publication:publication }}</span>
+	      {% endif %}
 	    </li>
 	    {% endif %}
 	    {% endfor %}
