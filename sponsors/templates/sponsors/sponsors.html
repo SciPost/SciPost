@@ -10,62 +10,102 @@
 
 {% block content %}
 
-<div class="container-outside header">
-  <div class="container">
-    <h1>SciPost Sponsors</h1>
+<div class="row">
+  <div class="col">
+    <h1 class="highlight">SciPost Sponsors</h1>
   </div>
 </div>
 
 <div class="row">
   <div class="col-12">
-
-    <h1 class="highlight">Sponsorship scheme</h1>
-
-    <p>
-      Is your organization benefitting from SciPost's activities? You can easily visualize this by perusing our <a href="{% url 'organizations:organizations' %}">organizations page</a>.
-    </p>
     <h4>
       <strong>We cordially invite organizations worldwide to join our Sponsorship scheme, and make <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a> a reality.</strong>
     </h4>
     <br/>
     <p>
-      You will find details of our Foundation, its activities and financial aspects in the <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template. Here follows a summary of the most important aspects:
+      Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>)? If this is the case, consider helping SciPost:
     </p>
     <ul>
-      <li>SciPost does not charge any subscription fees or article processing charges: all our operations are provided to the community as a whole, without any per-service charge;</li>
-      <li>Our sharp focus on openness through our <a href="/FAQ#pwr">peer-witnessed refereeing</a> procedure equips us with one of, if not <strong>the</strong> most stringent editorial quality control systems available;</li>
-      <li>Our operations are obviously not without cost, but our strictly not-for-profit setup, streamlined systems and no-frills administration mean that the average per-publication costs are much lower than those of competing services;</li>
-      <li>Our financing model relies on sponsorship from the organizations which benefit from our activities (organizations can visualize how they are positively impacted by SciPost's publishing activities by perusing our <a href="{% url 'organizations:organizations' %}">organizations page</a>);</li>
-      <li>All sponsorship funds are pooled and exclusively used to run our infrastructure.</li>
+      <li>
+	<p>
+	  <strong>Are you a scientist?</strong><br/>
+	  Please petition your local librarian/director/... to visit this page and consider sponsoring us.
+	</p>
+      </li>
+      <li>
+	<p>
+	  <strong>Are you a librarian, funding agency representative or other potential supporter?</strong><br/>
+	  Take a look at our <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template, and contact us at <a href="mailto:admin@scipost.org?subject=Sponsors enquiry">admin@scipost.org</a> to enquire about further details or initiate your sponsorship.
+	</p>
+      </li>
     </ul>
-    <p>
-      The end result is that we provide top-quality publishing services for the lowest-available integrated costs. Part of our mission to reform scientific publishing is focused on cleaning up its business model. We invite you and your organization to help us implement this mission.
-    </p>
+  </div>
+</div>
 
-    <h3>Interested in joining?</h3>
-    <p>
-      Take a look at our <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template, and contact us at <a href="mailto:admin@scipost.org?subject=Sponsors enquiry">admin@scipost.org</a>.
-    </p>
+
+<div class="row">
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+	<h3>Community service; no user fees</h3>
+      </div>
+      <div class="card-body">
+	<p>SciPost does not charge any subscription fees or article processing charges (APCs): all our operations are performed as a community service, with no user-facing charges;</p>
+	<p>Our initiative's scope is resolutely international: we do not impose any geographical or institutional restrictions on the delivery of our services;</p>
+	<p>SciPost is dedicated to serving the academic community, without suffering from competing interests.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+	<h3>Quality through Openness</h3>
+      </div>
+      <div class="card-body">
+	<p>Our sharp focus on openness through our <a href="/FAQ#pwr">peer-witnessed refereeing</a> procedure equips us with arguably the most stringent editorial quality control system available;</p>
+	<p>Our <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a> is composed of a broad selection of top academics;</p>
+	<p>Our fully professional publishing services meet or surpass best practices in all respects. Our flagship journal SciPost Physics has been awarded the <a href="https://doaj.org">DOAJ</a> Seal.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header">
+	<h3>Community funded</h3>
+      </div>
+      <div class="card-body">
+	<p>Our operations are obviously not without cost, but our strictly not-for-profit setup, community-led workflow, streamlined infrastructure and no-frills administration mean that the average per-publication costs are much lower than those of competing services;</p>
+	<p>Our financing model relies on sponsorship from the organizations which benefit from our activities (see our <a href="{% url 'organizations:organizations' %}">organizations page</a>);</p>
+	<p>All sponsorship funds are pooled and exclusively used to run our infrastructure and services.</p>
+      </div>
+    </div>
   </div>
 </div>
 
 <div class="row">
-    <div class="col-12">
-        <h1 class="highlight">Our current Sponsors</h1>
-	<ul class="list-unstyled mb-5">
-	  {% for sponsor in current_sponsors %}
-	  <li class="media mb-2">
-	    <img class="d-flex mr-3 {{ sponsor.css_class }}" width="192" src="{% if sponsor.logo %}{{ sponsor.logo.url }}{% endif %}" alt="{{ sponsor.name }} logo">
-	    <div class="media-body">
-	      <p>
-		<strong>{{ sponsor.full_name_with_acronym }}</strong>
-		<br/>{{ sponsor.get_countery_display }}
-	      </p>
-	    </div>
-	  </li>
-	  {% endfor %}
-	</ul>
-    </div>
+  <div class="col-12">
+    <h3>In a nutshell: supporting us reduces your costs</h3>
+    <p>We are able to run a fully sustainable infrastructure at an estimated cost of under &euro;400 per publication, much below the current norm. The more scientists shift their publishing to SciPost, the fewer subscription/article processing charges you will have to pay as an organization. We need your sponsorship to help make our initiative sustainable.</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Our current Sponsors</h1>
+    <ul class="list-unstyled mb-5">
+      {% for sponsor in current_sponsors %}
+      <li class="media mb-2">
+	<img class="d-flex mr-3 {{ sponsor.css_class }}" width="192" src="{% if sponsor.logo %}{{ sponsor.logo.url }}{% endif %}" alt="{{ sponsor.name }} logo">
+	<div class="media-body">
+	  <p>
+	    <strong>{{ sponsor.full_name_with_acronym }}</strong>
+	    <br/>{{ sponsor.get_countery_display }}
+	  </p>
+	</div>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>
 
 {% endblock content %}
