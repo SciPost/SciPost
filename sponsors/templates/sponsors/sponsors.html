@@ -90,19 +90,31 @@
   <div class="col-12">
     <h1 class="highlight">Our current Sponsors</h1>
 
+    <h3 class="highlight">Platinum sponsors (&euro;20000 and above):</h3>
+    <div class="card-columns">
+      {% for sponsor in sponsors_20kplus %}
+      {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+      {% endfor %}
+    </div>
+
+    <h3 class="highlight">Gold sponsors (&euro;10000 and above):</h3>
+    <div class="card-columns">
+      {% for sponsor in sponsors_10kplus %}
+      {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+      {% endfor %}
+    </div>
+
+    <h3 class="highlight">Silver sponsors (&euro;5000 and above):</h3>
+    <div class="card-columns">
+      {% for sponsor in sponsors_5kplus %}
+      {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
+      {% endfor %}
+    </div>
+
+    <h3 class="highlight">All current Sponsors</h3>
     <div class="card-columns">
       {% for sponsor in current_sponsors %}
-      <div class="card">
-	<img class="card-img-top {{ sponsor.css_class }} p-2" src="{% if sponsor.logo %}{{ sponsor.logo.url }}{% endif %}" alt="{{ sponsor.name }} logo">
-	<div class="card-body bg-light">
-	  <h4 class="card-title">
-	    {% if sponsor.name_original %}{{ sponsor.name_original }}{% else %}{{ sponsor.name }}{% endif %}</h4>
-	  {% if sponsor.name_original %}
-	  <p class="card-text">({{ sponsor.name }})</p>
-	  {% endif %}
-	  <img src="{{ sponsor.country.flag }}" alt="{{ sponsor.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ sponsor.country }}]</small></span>&nbsp;&nbsp;{{ sponsor.get_country_display }}
-	</div>
-      </div>
+      {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
       {% endfor %}
     </div>
 

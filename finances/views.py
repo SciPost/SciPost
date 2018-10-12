@@ -60,6 +60,9 @@ class SubsidyListView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        org = self.request.GET.get('org')
+        if org:
+            qs = qs.filter(organization__pk=org)
         order_by = self.request.GET.get('order_by')
         ordering = self.request.GET.get('ordering')
         if order_by == 'amount':
