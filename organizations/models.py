@@ -154,7 +154,7 @@ class Organization(models.Model):
         """
         return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
 
-    def get_total_subsidies_obtained(self, n_years_part=None):
+    def get_total_subsidies_obtained(self, n_years_past=None):
         """
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
