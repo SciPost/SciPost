@@ -23,7 +23,7 @@
     </h4>
     <br/>
     <p>
-      Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>), and are they not in our list of Sponsors below? Then consider helping SciPost:
+      Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>), and does it not appear in our list of Sponsors below? Then consider helping SciPost:
     </p>
     <ul>
       <li>
@@ -90,21 +90,21 @@
   <div class="col-12">
     <h1 class="highlight">Our current Sponsors</h1>
 
-    <h3 class="highlight">Platinum sponsors (&euro;20000 and above):</h3>
+    <h3 class="highlight">Platinum sponsors (&euro;20k and above):</h3>
     <div class="card-columns">
       {% for sponsor in sponsors_20kplus %}
       {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
       {% endfor %}
     </div>
 
-    <h3 class="highlight">Gold sponsors (&euro;10000 and above):</h3>
+    <h3 class="highlight">Gold sponsors (&euro;10k and above):</h3>
     <div class="card-columns">
       {% for sponsor in sponsors_10kplus %}
       {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
       {% endfor %}
     </div>
 
-    <h3 class="highlight">Silver sponsors (&euro;5000 and above):</h3>
+    <h3 class="highlight">Silver sponsors (&euro;5k and above):</h3>
     <div class="card-columns">
       {% for sponsor in sponsors_5kplus %}
       {% include 'sponsors/_sponsor_card.html' with sponsor=sponsor %}
