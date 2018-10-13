@@ -1,0 +1,75 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Plan SciPost{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container border border-danger">
+  <span class="text-danger">DRAFT (POOLVIEW ONLY) - <a href="mailto:admin@scipost.org">COMMENTS WELCOME</a></span>
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Plan Scipost</h1>
+    <p class="ml-2 mr-2">At SciPost, we believe that cleaning up the business of scientific publishing requires building new infrastructure. We also believe that this business is most appropriately left in the hands of people with the best interests of science at heart, and who do not suffer from interfering or competing interests: scientists themselves. Our achievements so far in the field of Physics have demonstrated the success and further potential of this approach.</p>
+    <p class="ml-2 mr-2">Increasing numbers of governments, funding agencies, universities and other academic instances have taken position in favour of a faster, larger-scale transition to Open Access. SciPost applauds these encouraging and empowering statements.</p>
+    <p class="ml-2 mr-2">Our initiative volunteers to provide the missing element in the proposed solutions: <strong>the infrastructure</strong>.</p>
+
+    <h2 class="highlight">Our vision for the future</h2>
+    <p class="ml-2 mr-2">We propose a simple hierarchy:</p>
+    <ul class="ml-3 mr-3">
+      <li><strong>A family of Journals for each field of science, headed by a field-leading title, and managed by a field-specific Editorial College</strong></li>
+      <li><strong>A central Journal for top-level breakthroughs selected from field-leading titles</strong></li>
+    </ul>
+    <p class="ml-2 mr-2">The general architecture is illustrated as follows:</p>
+    <img src="{% static 'scipost/2018_10_SciPost_Journals_plan.pdf' %}"></img>
+
+    <p class="ml-2 mr-2">Within a given field, the set of journal titles is designed to respond to and serve field-specific needs (see the example of our family of <a href="{% url 'journals:journals' %}#physics">Physics Journals</a>). Each field however features a field-leading title mirroring our pioneering Journal <a href="{% url 'journal:about' 'SciPostPhys' %}">SciPost Physics</a> and implementing Editorial College-driven selections.</p>
+
+    <h3>Current situation and triggers for expansion</h3>
+    <p class="ml-2 mr-2 mt-2">
+      The Physics side of our operations is by now well-established and steadily growing under the leadership of the <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>.</p>
+    <p class="ml-2 mr-2">On the infrastructure side, we are now equipped with a fully-featured system to handle all aspects of the publication business, from manuscript submission all the way to professional metadata curation. Since our systems are implemented from the start in a field-agnostic way, we are now in perfect position to enable other fields to profit from our development work.
+    </p>
+    <p class="ml-2 mr-2">
+      To start operations in other fields, simple preconditions (triggers) must be met:
+      <div class="card-deck">
+	<div class="card">
+	  <div class="card-header"><strong>Academic involvement</strong></div>
+	  <div class="card-body">
+	    <ul>
+	      <li>At least 3 field-specific Advisory Board members</li>
+	      <li>A field-specific Editorial College (with at least 25 Fellows)</li>
+	    </ul>
+	    <p>The Advisory Board is composed of preeminent senior academics.</p>
+	    <p>Fellows of an Editorial College should be permanent, professorial-level active academics with an outstanding reputation.</p>
+	    <p>Know somebody appropriate? Send us your suggestion at <a href="mailto:admin@scipost.org?subject=Fellow suggestion">admin@scipost.org</a>.</p>
+	  </div>
+	</div>
+	<div class="card">
+	  <div class="card-header"><strong>Support</strong></div>
+	  <div class="card-body">
+	    <ul>
+	      <li>Sufficient <a href="{% url 'sponsors:sponsors' %}">Sponsorships</a> to cover our operational costs</li>
+	    </ul>
+	    <p>We are able to run a fully sustainable infrastructure at an estimated cost of under &euro;400 per publication on average.</p>
+	    <p>We invite <a href="{% url 'organizations:organizations' %}">organizations which benefit</a> from our activities to support our cost-slashing infrastructure and join our growing list of <a href="{% url 'sponsors:sponsors' %}">sponsors</a>.</p>
+	  </div>
+	</div>
+      </div>
+
+    </p>
+
+  </div>
+</div>
+
+
+</div>
+
+{% endblock content %}

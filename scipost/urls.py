@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
 
 from . import views
@@ -29,9 +30,17 @@ urlpatterns = [
     url(r'^about$', views.AboutView.as_view(), name='about'),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
     url(r'^donations/thank-you/$', TemplateView.as_view(template_name='scipost/donation_thank_you.html'), name='donation_thank_you'),
-    url(r'^ExpSustDrive2018$',
+    url(
+        r'^ExpSustDrive2018$',
         TemplateView.as_view(template_name='scipost/ExpSustDrive2018.html'),
-        name='ExpSustDrive2018'),
+        name='ExpSustDrive2018'
+    ),
+    url(
+        r'^PlanSciPost$',
+        permission_required('scipost.can_view_pool')(
+            TemplateView.as_view(template_name='scipost/PlanSciPost.html')),
+        name='PlanSciPost'
+    ),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
         name='foundation'),
     url(r'^tour$', TemplateView.as_view(template_name='scipost/quick_tour.html'),
