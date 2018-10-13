@@ -189,6 +189,7 @@ def info_for_authors(request, doi_label):
 def about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
+        'subject_areas': SCIPOST_SUBJECT_AREAS,
         'journal': journal,
     }
     return render(request, 'journals/%s_about.html' % doi_label, context)
