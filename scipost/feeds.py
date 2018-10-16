@@ -65,7 +65,7 @@ class LatestNewsFeedRSS(Feed):
     description = "SciPost: recent news and announcements"
 
     def items(self):
-        return NewsItem.objects.order_by('-date')[:5]
+        return NewsItem.objects.homepage.order_by('-date')[:5]
 
     def item_title(self, item):
         return item.headline
