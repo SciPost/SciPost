@@ -1307,8 +1307,7 @@ def arxiv_doi_feed(request, doi_label):
     now = timezone.now()
     feedxml += '<date year="%s" month="%s" day="%s" />' % (now.strftime('%Y'),
                                                            now.strftime('%m'), now.strftime('%d'))
-    publications = Publication.objects.filter(
-        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:100]
+    publications = journal.get_publications().order_by('-publication_date')[:100]
     for publication in publications:
         feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
             publication.accepted_submission.preprint.identifier_wo_vn_nr, publication.doi_string,
