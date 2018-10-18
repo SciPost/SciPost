@@ -7,6 +7,7 @@ from ajax_select import urls as ajax_select_urls
 from rest_framework import routers
 
 from conflicts.viewsets import ConflictOfInterestViewSet
+from journals.viewsets import PublicationViewSetForGoogleScholar
 from news.viewsets import NewsItemViewSet
 from journals.constants import REGEX_CHOICES
 
@@ -18,6 +19,7 @@ JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 router = routers.SimpleRouter()
 router.register(r'news', NewsItemViewSet)
 router.register(r'conflicts', ConflictOfInterestViewSet)
+router.register(r'publications/GoogleScholar', PublicationViewSetForGoogleScholar)
 
 
 # Base URLs
