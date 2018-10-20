@@ -89,7 +89,7 @@ class iThenticate:
             folder_id,
             author.user.first_name,
             author.user.last_name,
-            str(submission.title),
+            submission.title,
         )
 
         if response['status'] == 200:
