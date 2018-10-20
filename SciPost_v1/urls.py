@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
@@ -10,6 +14,7 @@ from conflicts.viewsets import ConflictOfInterestViewSet
 from journals.viewsets import PublicationViewSetForGoogleScholar
 from news.viewsets import NewsItemViewSet
 from journals.constants import REGEX_CHOICES
+from scipost import views as scipost_views
 
 # Journal URL Regex
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -22,8 +27,10 @@ router.register(r'conflicts', ConflictOfInterestViewSet)
 router.register(r'publications/GoogleScholar', PublicationViewSetForGoogleScholar)
 
 
+
 # Base URLs
 urlpatterns = [
+    url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
