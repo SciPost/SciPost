@@ -786,12 +786,11 @@ def allocate_orgpubfractions(request, doi_label):
               request.user.has_perm('scipost.can_publish_accepted_submission')):
         raise Http404
 
-    if not publication.pubfractions.all().exists():
-        # Create new OrgPubFraction objects from existing data, spreading weight evenly
-        for org in publication.get_organizations():
-            pubfrac = OrgPubFraction(publication=publication,
-                                     organization=org, fraction=0)
-            pubfrac.save()
+    # Create OrgPubFraction objects from existing organization links
+    for org in publication.get_organizations():
+        pubfrac, created = OrgPubFraction.objects.get_or_create(
+            publication=publication, organization=org)
+
     formset = OrgPubFractionsFormSet(request.POST or None,
                                      queryset=publication.pubfractions.all())
     if formset.is_valid():
