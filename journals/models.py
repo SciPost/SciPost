@@ -117,9 +117,9 @@ class Journal(models.Model):
 
     def get_issues(self):
         if self.structure == ISSUES_AND_VOLUMES:
-            return Issue.objects.filter(in_volume__in_journal=self)
+            return Issue.objects.filter(in_volume__in_journal=self).published()
         elif self.structure == ISSUES_ONLY:
-            return self.issues.all()
+            return self.issues.published()
         return Issue.objects.none()
 
     def get_publications(self):
