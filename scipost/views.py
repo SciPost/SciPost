@@ -121,7 +121,8 @@ def index(request):
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
-        'current_agreements': MembershipAgreement.objects.now_active(),
+        'current_sponsors': (Organization.objects.with_subsidy_above_and_up_to(5000, 1000000000)
+                             | Organization.objects.current_sponsors()),
     }
     return render(request, 'scipost/index.html', context)
 
