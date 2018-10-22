@@ -58,18 +58,19 @@
         background-color: $white;
     }
 }
+.homepage {
+    .sponsors ul {
+        height: 100px !important;
+        list-style: none;
 
-.sponsors ul {
-    // height: 100px !important;
-    // list-style: none;
+        li {
+            height: 100px !important;
 
-    li {
-        // height: 100px !important;
-
-        img {
-            max-height: 100px !important;
-            height: auto !important;
-            width: auto !important;
+            img {
+                max-height: 100px !important;
+                height: auto !important;
+                width: auto !important;
+            }
         }
     }
 }
