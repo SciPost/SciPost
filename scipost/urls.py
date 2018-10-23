@@ -228,8 +228,8 @@ urlpatterns = [
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
-    url(r'^10.21468/%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
-    url(r'^%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
+    url(r'^10.21468/%s$' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
+    url(r'^%s$' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
     url(r'^arxiv_doi_feed/%s' % JOURNAL_REGEX, journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
 
     ################
