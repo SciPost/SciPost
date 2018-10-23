@@ -1,0 +1,109 @@
+
+{% extends 'journals/_base.html' %}
+
+{% block pagetitle %}{{block.super}}: About{% endblock pagetitle %}
+
+{% block link_class_physics_about %}active{% endblock %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'journal:issues' journal.doi_label %}" class="breadcrumb-item">SciPost Physics Codebases</a>
+    <span class="breadcrumb-item active">About</span>
+{% endblock %}
+
+{% block content %}
+
+    {% with header_text='About SciPost Physics Codebases' %}
+        {{block.super}}
+    {% endwith %}
+
+
+{% if perms.scipost.can_view_pool %}
+<div class="container border border-danger">
+  <span class="text-danger">DRAFT (POOLVIEW ONLY) - <a href="mailto:admin@scipost.org">COMMENTS WELCOME</a></span>
+
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Aims</h2>
+            <p>SciPost Physics Codebases is a new-generation publication venue for computer codes and algorithms of relevance to research in Physics.</p>
+	    <p>It aims to offer a high-profile venue in which top-level numerical algorithms, protocols and software packages can be disseminated as fully-featured publication objects benefitting from all things expected of top-quality papers.</p>
+	    <p>Contributors to research-level software development can thus obtain proper recognition and find their rightful place within modern scientific literature.</p>
+	    <p>As per other SciPost Journals, SciPost Physics Codebases is two-way open access, peer-witnessed refereed. Publications in SciPost Physics Codebases benefit from the same professional treatment given to our other Journals, including metadata handling, citable DOI, citations listing, funding information handling, and permanent archiving.</p>
+        </div>
+        <div class="col-md-6">
+            <h2>Scope</h2>
+            <p>SciPost Physics Codebases publishes outstanding-quality Codebases relevant to all specializations in Computational, Experimental and Theoretical Physics.</p>
+	    <p>Examples of publishable Codebases include:</p>
+	    <ul>
+	      <li>Novel algorithms</li>
+	      <li>Significant and original reimplementations of well-known algorithms</li>
+	      <li>Ports of existing codebases to new languages and platforms</li>
+	    </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+          <h2>Content</h2>
+	    <p>A Codebase by definition consists of the following elements:</p>
+	    <ul>
+	      <li>A detailed userguide consisting of:
+		<ul>
+		  <li>An introduction with background information on the field of applicability of the software</li>
+		  <li>A description of the generic workings of the algorithm, its novelty and added value</li>
+		  <li>Installation instructions including listing of dependencies and requirements</li>
+
+		  <li>A guide to using the software</li>
+		  <li>Worked-out examples and tests for benchmarking</li>
+		</ul>
+	      </li>
+	      <li>The source code</li>
+	    </ul>
+	    <p>The source code itself is expected to be self-contained and to include installation instructions and benchmarking tests.</p>
+        </div>
+
+	<div class="col-md-6">
+          <h2>Submission and Editorial Process</h2>
+          <p>Authors should follow the <a href="{% url 'submissions:author_guidelines' %}">submission guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to SciPost Physics Codebases.</p>
+          <p>All incoming Submissions are checked for plagiarism and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a>.</p>
+          <p>All publication decisions are taken by the <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
+        </div>
+    </div>
+
+    <div class="row">
+	<div class="col-md-6">
+          <h2>Licensing</h2>
+	  <p>The submitted software must be released under a license which is compliant with the <a href="https://opensource.org/osd">Open Source Definition</a> of the <a href="https://opensource.org">Open Source Initiative</a>. There are many <a href="https://opensource.org/licenses">acceptable licenses</a>, among which:</p>
+	  <ul>
+	    <li>Apache License 2.0 (Apache-2.0)</li>
+	    <li>BSD 3-Clause "New" or "Revised" license (BSD-3-Clause)</li>
+	    <li>BSD 2-Clause "Simplified" or "FreeBSD" license (BSD-2-Clause)</li>
+	    <li>GNU General Public License (GPL)</li>
+	    <li>GNU Library or "Lesser" General Public License (LGPL)</li>
+	    <li>MIT license (MIT)</li>
+	    <li>Mozilla Public License 2.0 (MPL-2.0)</li>
+	    <li>Common Development and Distribution License (CDDL-1.0)</li>
+	    <li>Eclipse Public License (EPL-1.0)</li>
+	  </ul>
+	  <p>We also accept</p>
+	  <ul>
+	    <li><a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a></li>
+	    <li><a href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International (CC BY-NC 4.0) License</a></li>
+	    <li><a href="http://creativecommons.org/licenses/by-nc/4.0/">Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0) License</a></li>
+	    <li><a href="https://creativecommons.org/share-your-work/public-domain/cc0/">Creative Commons CC0 Public Domain Dedication "No Rights Reserved"</a></li>
+	  </ul>
+	  <p>Other licenses can be considered upon request (please contact our <a href="mailto:edadmin@scipost.org">Editorial Administration</a>).</p>
+	  <p>Upon acceptance of the codebase for publication, the detailed userguide will be published in SciPost Physics Codebases with a CC BY 4.0 license, allowing freedom to use, reproduce and distribute the articles and related content (unless otherwise noted), for commercial and noncommercial purposes, subject to the citation of the original source.</p>
+	  <p>The publication will be citable (DOI registration via Crossref), and will benefit from full handling as per all other SciPost Journals. The source code will be hosted by SciPost and directly linked from the publication's page.</p>
+	</div>
+
+    </div>
+
+
+</div>
+{% endif %}
+
+
+{% endblock %}
