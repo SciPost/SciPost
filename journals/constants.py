@@ -5,14 +5,18 @@ __license__ = "AGPL v3"
 # These are DOI's of the Journals, they are used as keys for the choicefield in `models.Journal`!
 SCIPOST_JOURNAL_PHYSICS = 'SciPostPhys'
 SCIPOST_JOURNAL_PHYSICS_SELECT = 'SciPostPhysSel'
+SCIPOST_JOURNAL_PHYSICS_COMMONS = 'SciPostPhysComm'
 SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES = 'SciPostPhysLectNotes'
 SCIPOST_JOURNAL_PHYSICS_PROC = 'SciPostPhysProc'
+SCIPOST_JOURNAL_PHYSICS_CODEBASES = 'SciPostPhysCodeb'
 
 # Journal open for submission
 SCIPOST_JOURNALS_SUBMIT = (
     (SCIPOST_JOURNAL_PHYSICS, 'SciPost Physics'),
+    (SCIPOST_JOURNAL_PHYSICS_COMMONS, 'SciPost Physics Commons'),
     (SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES, 'SciPost Physics Lecture Notes'),
-    (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Physics Proceedings')
+    (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Physics Proceedings'),
+    (SCIPOST_JOURNAL_PHYSICS_CODEBASES, 'SciPost Physics Codebases'),
 )
 
 # Journal closed for submission
