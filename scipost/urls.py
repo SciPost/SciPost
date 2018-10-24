@@ -37,7 +37,7 @@ urlpatterns = [
     ),
     url(
         r'^PlanSciPost$',
-        permission_required('scipost.can_view_pool')(
+        permission_required('scipost.can_attend_VGMs')(
             TemplateView.as_view(template_name='scipost/PlanSciPost.html')),
         name='PlanSciPost'
     ),
