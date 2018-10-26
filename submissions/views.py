@@ -50,7 +50,7 @@ from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
 
-from notifications.views import is_test_user  # Temporarily until release
+# from notifications.views import is_test_user  # Temporarily until release
 
 
 ###############
@@ -127,8 +127,8 @@ class RequestSubmissionUsingSciPostView(RequestSubmissionView):
 
     def dispatch(self, request, *args, **kwargs):
         """TEMPORARY: Not accessible unless in test group."""
-        if not is_test_user(request.user):
-            raise Http404
+        # if not is_test_user(request.user):
+        #     raise Http404
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
