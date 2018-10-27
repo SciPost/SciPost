@@ -25,7 +25,7 @@
   <div class="col-12">
     <ul>
       {% for topic in object_list %}
-      <li>{{ topic }}</li>
+      <li><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a></li>
       {% endfor %}
     </ul>
   </div>

@@ -15,6 +15,9 @@ class Tag(models.Model):
     class Meta:
         ordering = ['name']
 
+    def __str__(self):
+        return self.name
+
 
 class Topic(models.Model):
     """
@@ -26,3 +29,6 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_abolute_url(self):
+        return reverse('ontology:topic_details', kwargs={'slug': self.slug})

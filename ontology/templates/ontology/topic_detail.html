@@ -1,0 +1,19 @@
+{% extends 'ontology/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'ontology:topics' %}">Topics</a></span>
+<span class="breadcrumb-item">{{ topic }}</span>
+{% endblock %}
+
+{% block pagetitle %}: Topic details{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    {{ topic }}
+  </div>
+</div>
+{% endblock content %}

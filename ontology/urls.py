@@ -18,6 +18,11 @@ urlpatterns = [
         name='topic_update'
         ),
     url(
+        r'^topic/(?P<slug>[-\w]+)/$',
+        views.TopicDetailView.as_view(),
+        name='topic_details'
+        ),
+    url(
         r'^topics/$',
         views.TopicListView.as_view(),
         name='topics'
