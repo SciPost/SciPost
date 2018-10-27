@@ -15,5 +15,28 @@
       {% endfor %}
     </ul>
     {% endif %}
+    <h4>Relations</h4>
+    <div class="row">
+      <div class="col-6">
+	<h5>asymmetric:</h5>
+	<ul>
+	  {% for rel in relations_asym %}
+	  <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} {{ rel.get_relation_display }} {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %}</li>
+	  {% empty %}
+	  <li>No relations have been defined</li>
+	  {% endfor %}
+	</ul>
+      </div>
+      <div class="col-6">
+	<h5>symmetric:</h5>
+	<ul>
+	  {% for rel in topic.relationsym_set.all %}
+	  <li>{% for reltopic in rel.topics.all %}{% if reltopic != topic %}<a href="{% url 'ontology:topic_details' slug=reltopic.slug %}">{{ reltopic }}</a>{% else %}{{ reltopic }}{% endif %}, {% endfor %} {{ rel.get_relation_display }}</li>
+	  {% empty %}
+	  <li>No symmetric relations have been defined</li>
+	  {% endfor %}
+	</ul>
+      </div>
+    </div>
   </div>
 </div>

@@ -3,11 +3,12 @@ __license__ = "AGPL v3"
 
 
 from django.core.urlresolvers import reverse_lazy
+from django.db.models import Q
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from .models import Topic
+from .models import Topic, RelationAsym, RelationSym
 
 from scipost.mixins import PermissionsMixin
 
@@ -40,3 +41,8 @@ class TopicListView(ListView):
 
 class TopicDetailView(DetailView):
     model = Topic
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['relations_asym'] = RelationAsym.objects.filter(Q(A=self.object) | Q(B=self.object))
+        return context
