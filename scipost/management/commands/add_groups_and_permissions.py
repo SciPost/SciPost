@@ -318,6 +318,13 @@ class Command(BaseCommand):
             name='Can manage Mailchimp settings',
             content_type=content_type)
 
+        # Ontology
+        can_manage_ontology, created = Permission.objects.get_or_create(
+            codename='can_manage_ontology',
+            name='Can manage ontology',
+            content_type=content_type)
+
+
         # Assign permissions to groups
         SciPostAdmin.permissions.set([
             can_read_all_privacy_sensitive_data,
@@ -347,6 +354,7 @@ class Command(BaseCommand):
             can_view_statistics,
             can_create_profiles,
             can_view_profiles,
+            can_manage_ontology,
         ])
 
         FinancialAdmin.permissions.set([
@@ -388,6 +396,7 @@ class Command(BaseCommand):
             can_view_statistics,
             can_create_profiles,
             can_view_profiles,
+            can_manage_ontology,
         ])
 
         EditorialCollege.permissions.set([
@@ -395,6 +404,7 @@ class Command(BaseCommand):
             can_take_charge_of_submissions,
             can_attend_VGMs,
             can_view_statistics,
+            can_manage_ontology,
         ])
 
         VettingEditors.permissions.set([

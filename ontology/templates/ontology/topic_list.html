@@ -1,0 +1,34 @@
+{% extends 'ontology/base.html' %}
+
+{% block pagetitle %}: Topics{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Topics</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Topics</h3>
+    {% if perms.scipost.can_manage_ontology %}
+    <ul>
+      <li><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
+    </ul>
+    {% endif %}
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-12">
+    <ul>
+      {% for topic in object_list %}
+      <li>{{ topic }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}
