@@ -13,14 +13,14 @@ SCIPOST_JOURNAL_PHYSICS_CODEBASES = 'SciPostPhysCodeb'
 # Journal open for submission
 SCIPOST_JOURNALS_SUBMIT = (
     (SCIPOST_JOURNAL_PHYSICS, 'SciPost Physics'),
-    # (SCIPOST_JOURNAL_PHYSICS_COMMONS, 'SciPost Physics Commons'),
     (SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES, 'SciPost Physics Lecture Notes'),
     (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Physics Proceedings'),
-    # (SCIPOST_JOURNAL_PHYSICS_CODEBASES, 'SciPost Physics Codebases'),
 )
 
 # Journal closed for submission
 SCIPOST_JOURNALS_NO_SUBMIT = (
+    (SCIPOST_JOURNAL_PHYSICS_COMMONS, 'SciPost Physics Commons'),
+    (SCIPOST_JOURNAL_PHYSICS_CODEBASES, 'SciPost Physics Codebases'),
     (SCIPOST_JOURNAL_PHYSICS_SELECT, 'SciPost Physics Select'),
 )
 
