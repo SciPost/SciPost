@@ -4,7 +4,6 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
-<span class="breadcrumb-item"><a href="{% url 'ontology:topics' %}">Topics</a></span>
 <span class="breadcrumb-item">{{ topic }}</span>
 {% endblock %}
 
@@ -13,7 +12,7 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    {{ topic }}
+    {% include 'ontology/_topic_card.html' with topic=topic %}
   </div>
 </div>
 {% endblock content %}

@@ -1,0 +1,19 @@
+
+<div class="card">
+  <div class="card-header">
+    <h3>{{ topic }}</h3>
+    {% if perms.scipost.can_manage_ontology %}
+    <a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
+    {% endif %}
+  </div>
+  <div class="card-body">
+    {% if topic.tags.all %}
+    <ul class="list list-inline">
+      <li class="list-inline-item"><strong>Tags</strong>:</li>
+      {% for tag in topic.tags.all %}
+      <li class="list-inline-item">{{ tag }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>

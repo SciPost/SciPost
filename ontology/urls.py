@@ -14,7 +14,7 @@ urlpatterns = [
         ),
     url(
         r'^topic/(?P<slug>[-\w]+)/update/$',
-        views.TopicCreateView.as_view(),
+        views.TopicUpdateView.as_view(),
         name='topic_update'
         ),
     url(
