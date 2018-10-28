@@ -18,6 +18,7 @@ from scipost.models import Contributor
 from scipost.forms import SearchTextForm
 
 from invitations.models import RegistrationInvitation
+from journals.models import UnregisteredAuthor
 from submissions.models import RefereeInvitation
 
 from .models import Profile, ProfileEmail
@@ -58,6 +59,12 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'webpage': contributor.personalwebpage,
                     'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
                 })
+            elif from_type == 'unregistered_author':
+                unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
+                initial.update({
+                    'first_name': unreg_auth.first_name,
+                    'last_name': unreg_auth.last_name,
+                })
             elif from_type == 'refereeinvitation':
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
                 initial.update({
@@ -76,6 +83,10 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'last_name': reginv.last_name,
                     'email': reginv.email,
                 })
+            initial.update({
+                'instance_from_type': from_type,
+                'instance_pk': pk,
+            })
         return initial
 
 

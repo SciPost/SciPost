@@ -770,6 +770,19 @@ def metadata_DOAJ_deposit(request, doi_label):
                             kwargs={'doi_label': publication.doi_label}))
 
 
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def publication_add_topic(request, doi_label):
+    """
+    Add a predefined Topic to an existing Publication object.
+    This also adds the Topic to all authors' Profiles.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    select_topic_form = SelectTopicForm(request.POST or None)
+    if select_topic_form.is_valid():
+        publication.topics.add(select_topic_form.cleaned_data['topic'])
+        publication.save()
+
+
 @login_required
 def allocate_orgpubfractions(request, doi_label):
     """

@@ -34,6 +34,8 @@ from scipost.fields import ChoiceArrayField
 class UnregisteredAuthor(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
+                                   null=True, blank=True)
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
@@ -430,6 +432,9 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = JSONField(default={}, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
+
+    # Topics for semantic linking
+    topics = models.ManyToManyField('ontology.Topic', blank=True)
 
     # Date fields
     submission_date = models.DateField(verbose_name='submission date')
