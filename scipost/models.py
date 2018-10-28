@@ -42,7 +42,8 @@ class Contributor(models.Model):
     All *science* users of SciPost are Contributors.
     username, password, email, first_name and last_name are inherited from User.
     """
-
+    profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
+                                   null=True, blank=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True)
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
@@ -83,14 +84,21 @@ class Contributor(models.Model):
         """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
 
-    def is_EdCol_Admin(self):
-        """Check if Contributor is an Editorial Administrator."""
-        return (self.user.groups.filter(name='Editorial Administrators').exists()
-                or self.user.is_superuser)
-
     def is_SP_Admin(self):
         """Check if Contributor is a SciPost Administrator."""
         return (self.user.groups.filter(name='SciPost Administrators').exists()
+                or self.user.is_superuser)
+
+    def is_Fin_Admin(self):
+        """
+        Check if Contributor is a SciPost Financial Administrator.
+        """
+        return (self.user.groups.filter(name='Financial Administrators').exists()
+                or self.user.is_superuser)
+
+    def is_EdCol_Admin(self):
+        """Check if Contributor is an Editorial Administrator."""
+        return (self.user.groups.filter(name='Editorial Administrators').exists()
                 or self.user.is_superuser)
 
     def is_MEC(self):

@@ -41,15 +41,20 @@
             <br>
             {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
             <h4>
-                <a href="{% url 'submissions:editorial_page' submission.arxiv_identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+                <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
             </h4>
         {% endif %}
 
         {% if is_editorial_admin %}
             <h3>Editorial Administration</h3>
             <ul class="pl-4 mb-3">
-                <li><a href="{% url 'colleges:submission' submission.arxiv_identifier_w_vn_nr %}">Manage Pool composition</a></li>
-                <li><a href="{% url 'colleges:submission_voting_fellows' submission.arxiv_identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
+                <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition</a></li>
+                <li><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
+                {% if not submission.editor_in_charge %}
+                    <li><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
+                {% elif perms.scipost.can_reassign_submissions %}
+                    <li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
+                {% endif %}
 
                 {# EIC Assignments #}
                 {% if perms.scipost.can_assign_submissions %}
@@ -58,27 +63,26 @@
                         {% for assignment in submission.editorial_assignments.all %}
                             {% include 'partials/submissions/pool/assignment_info.html' with assignment=assignment %}
                         {% empty %}
-                            <li>No assignment requests have been sent</li>
+                            <li>No assignment requests have been selected</li>
                         {% endfor %}
 
                         {% if not submission.editor_in_charge %}
-                            <li><a href="{% url 'submissions:assign_submission' submission.arxiv_identifier_w_vn_nr %}">Send a new assignment request</a></li>
-                            <li><a href="{% url 'submissions:assignment_failed' submission.arxiv_identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
+                            <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
                         {% endif %}
                     </ul>
                 {% endif %}
 
                 {# Plagiarism #}
-                <li><a href="{% url 'submissions:plagiarism' submission.arxiv_identifier_w_vn_nr %}">Manage plagiarism report</a></li>
+                <li><a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Manage plagiarism report</a></li>
 
                 {# Compile pdfs #}
                 {% if submission.reports.accepted.exists %}
-                    <li><a href="{% url 'submissions:reports_accepted_list' %}?submission={{submission.arxiv_identifier_w_vn_nr}}">Compile accepted reports</a></li>
+                    <li><a href="{% url 'submissions:reports_accepted_list' %}?submission={{ submission.preprint.identifier_w_vn_nr }}">Compile accepted reports</a></li>
                 {% endif %}
 
                 {# Communication #}
                 {% if submission.editor_in_charge %}
-                    <li><a href="{% url 'submissions:communication' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
+                    <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
                 {% endif %}
 
                 {# EIC Recommendations #}
@@ -86,15 +90,15 @@
                     <li>See Editorial Recommendations:</li>
                     <ul class="pl-3">
                         {% for rec in submission.eicrecommendations.all %}
-                            <li><a href="{% url 'submissions:eic_recommendation_detail' arxiv_identifier_w_vn_nr=submission.arxiv_identifier_w_vn_nr rec_id=rec.id %}">{{rec.get_recommendation_display}}</a></li>
+                            <li><a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr rec_id=rec.id %}">{{rec.get_recommendation_display}}</a></li>
                         {% endfor %}
                     </ul>
                 {% endif %}
 
                 {# Accepted submission actions #}
                 {% if submission.status == 'accepted' %}
-                    <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.arxiv_identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
-                    <li><a href="{% url 'journals:update_publication' submission.arxiv_identifier_w_vn_nr %}">Draft Publication</a></li>
+                    <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
+                    <li><a href="{% url 'journals:update_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
                 {% endif %}
 
             </ul>

@@ -72,6 +72,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Registration and invitations
+        can_manage_contributors, created = Permission.objects.get_or_create(
+            codename='can_manage_contributors',
+            name='Can manage Contributors',
+            content_type=content_type)
         can_vet_registration_requests, created = Permission.objects.get_or_create(
             codename='can_vet_registration_requests',
             name='Can vet registration requests',
@@ -96,6 +100,15 @@ class Command(BaseCommand):
             codename='can_read_all_privacy_sensitive_data',
             name='Can read all privacy sensitive data',
             content_type=content_type)
+        can_create_profiles, created = Permission.objects.get_or_create(
+            codename='can_create_profiles',
+            name='Can create Profiles',
+            content_type=content_type)
+        can_view_profiles, created = Permission.objects.get_or_create(
+            codename='can_view_profiles',
+            name='Can view Profiles',
+            content_type=content_type)
+
 
         # Communications
         can_email_group_members, created = Permission.objects.get_or_create(
@@ -165,6 +178,10 @@ class Command(BaseCommand):
         can_do_plagiarism_checks, created = Permission.objects.get_or_create(
             codename='can_do_plagiarism_checks',
             name='Can do plagiarism checks on submissions',
+            content_type=content_type)
+        can_reassign_submissions, created = Permission.objects.get_or_create(
+            codename='can_reassign_submissions',
+            name='Can force-assign new EIC to Submission',
             content_type=content_type)
 
         # Submission handling
@@ -274,6 +291,10 @@ class Command(BaseCommand):
             content_type=content_type)
 
         # Financial administration
+        can_manage_subsidies, created = Permission.objects.get_or_create(
+            codename='can_manage_subsidies',
+            name='Can manage subsidies',
+            content_type=content_type)
         can_view_timesheets, created = Permission.objects.get_or_create(
             codename='can_view_timesheets',
             name='Can view timesheets',
@@ -324,9 +345,12 @@ class Command(BaseCommand):
             can_promote_to_production_team,
             can_manage_affiliations,
             can_view_statistics,
+            can_create_profiles,
+            can_view_profiles,
         ])
 
         FinancialAdmin.permissions.set([
+            can_manage_subsidies,
             can_view_timesheets,
         ])
 
@@ -343,6 +367,7 @@ class Command(BaseCommand):
             can_assign_submissions,
             can_do_plagiarism_checks,
             can_oversee_refereeing,
+            can_reassign_submissions,
             can_run_pre_screening,
             can_prepare_recommendations_for_voting,
             can_manage_college_composition,
@@ -361,6 +386,8 @@ class Command(BaseCommand):
             can_upload_proofs,
             can_run_proofs_by_authors,
             can_view_statistics,
+            can_create_profiles,
+            can_view_profiles,
         ])
 
         EditorialCollege.permissions.set([

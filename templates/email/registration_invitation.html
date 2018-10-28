@@ -50,7 +50,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         <ul>
             {% for notification in invitation.citation_notifications.for_publications %}
                 <li>
-                    <a href="https://doi.org/{{ notification.publication.doi_label }}">{{ notification.publication.citation }}</a>
+                    <a href="https://doi.org/{{ notification.publication.doi_string }}">{{ notification.publication.citation }}</a>
                     <br>
                     {{ notification.publication.title }}
                     <br>
@@ -83,7 +83,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         We would hereby like to use this opportunity to quickly introduce you to the SciPost initiative, and to invite you to become an active Contributor.
     </p>
     <p>
-        In summary, SciPost.org is a publication portal managed by
+        In summary, SciPost is a publication portal managed by
         professional scientists, offering (among others) high-quality
         Open Access journals with innovative forms of refereeing, and a
         means of commenting on all existing literature. SciPost is established as
@@ -129,7 +129,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         portal established by and for professional scientists.
     </p>
     <p>
-        SciPost.org is legally based on a not-for-profit foundation and will
+        SciPost is legally based on a not-for-profit foundation and will
         operate in perpetuity as a non-commercial entity at the exclusive service
         of the academic sector, bringing a cost-slashing alternative to existing practices.
     </p>

@@ -25,15 +25,13 @@ from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
     PROSPECTIVE_PARTNER_EVENT_REQUESTED, PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,\
     PROSPECTIVE_PARTNER_FOLLOWED_UP
-from .models import Organization,\
-    Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
-    ProspectivePartnerEvent, MembershipAgreement, Contact, Institution,\
-    PartnersAttachment
+from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequest,\
+    ProspectivePartnerEvent, MembershipAgreement, Contact, PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     PromoteToPartnerForm,\
     ProspectivePartnerEventForm, MembershipQueryForm,\
     PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
-    NewContactForm, InstitutionForm, ActivationForm, PartnerEventForm,\
+    NewContactForm, ActivationForm, PartnerEventForm,\
     MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
     ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
 
@@ -44,65 +42,6 @@ from journals.models import Publication
 
 from scipost.mixins import PermissionsMixin
 
-
-
-class OrganizationCreateView(PermissionsMixin, CreateView):
-    """
-    Create a new Organization.
-    """
-    permission_required = 'scipost.can_manage_organizations'
-    model = Organization
-    fields = '__all__'
-    template_name = 'partners/organization_create.html'
-    success_url = reverse_lazy('partners:organization_list')
-
-
-class OrganizationUpdateView(PermissionsMixin, UpdateView):
-    """
-    Update an Organization.
-    """
-    permission_required = 'scipost.can_manage_organizations'
-    model = Organization
-    fields = '__all__'
-    template_name = 'partners/organization_update.html'
-    success_url = reverse_lazy('partners:organization_list')
-
-
-class OrganizationDeleteView(PermissionsMixin, DeleteView):
-    """
-    Delete an Organization.
-    """
-    permission_required = 'scipost.can_manage_organizations'
-    model = Organization
-    success_url = reverse_lazy('partners:organization_list')
-
-
-class OrganizationListView(ListView):
-    model = Organization
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        if self.request.user.has_perm('scipost.can_manage_organizations'):
-            context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
-        return context
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        order_by = self.request.GET.get('order_by')
-        ordering = self.request.GET.get('ordering')
-        if order_by == 'country':
-            qs = qs.order_by('country')
-        elif order_by == 'name':
-            qs = qs.order_by('name')
-        elif order_by == 'nap':
-            qs = qs.order_by('cf_nr_associated_publications')
-        if ordering == 'desc':
-            qs = qs.reverse()
-        return qs
-
-
-class OrganizationDetailView(DetailView):
-    model = Organization
 
 
 def supporting_partners(request):
@@ -185,7 +124,7 @@ def promote_prospartner(request, prospartner_id):
     contact_formset = ContactModelFormset(request.POST or None,
                                           queryset=prospartner.prospective_contacts.all())
     if form.is_valid() and contact_formset.is_valid():
-        partner, institution = form.promote_to_partner(request.user)
+        partner = form.promote_to_partner(request.user)
         contacts = contact_formset.promote_contacts(partner, request.user)
         messages.success(request, ('<h3>Upgraded Partner %s</h3>'
                                    '%i contacts have received a validation mail.') %
@@ -294,26 +233,11 @@ def process_contact_requests(request):
     return render(request, 'partners/process_contact_requests.html', context)
 
 
-###################
-# Institution Views
-###################
-@permission_required('scipost.can_manage_SPB', return_403=True)
-def institution_edit(request, institution_id):
-    institution = get_object_or_404(Institution, id=institution_id)
-    form = InstitutionForm(request.POST or None, request.FILES or None, instance=institution)
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Institution has been updated.')
-        return redirect(reverse('partners:dashboard'))
-    context = {
-        'form': form
-    }
-    return render(request, 'partners/institution_edit.html', context)
-
 
 ###########################
 # Prospective Partner Views
 ###########################
+
 @permission_required('scipost.can_manage_SPB', return_403=True)
 def add_prospective_partner(request):
     form = ProspectivePartnerForm(request.POST or None)

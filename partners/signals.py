@@ -16,7 +16,7 @@ def funder_signal_update_org_nr_associated_publications(sender, instance, **kwar
     cf_nr_associated_publications is recalculated.
     BEWARE: this updates the newly linked organization, but does not unlink the
     previous one if the organization is replaced (and not just added).
-    The management command partners:organization_update_cf_nr_associated_publications
+    The management command organizations:organization_update_cf_nr_associated_publications
     must thus be run regularly on the whole set of publications to ensure consistency.
     """
     if instance.organization:

@@ -13,10 +13,10 @@ MIDDLEWARE += (
 INTERNAL_IPS = ['127.0.0.1', '::1']
 
 # Static and media
-STATIC_ROOT = '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/local_files/static/'
-MEDIA_ROOT = '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/local_files/media/'
+STATIC_ROOT = '/Users/jorrandewit/Documents/SciPost/codebase/local_files/static/'
+MEDIA_ROOT = '/Users/jorrandewit/Documents/SciPost/codebase/local_files/media/'
 WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] =\
-    '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/local_files/static/bundles/'
+    '/Users/jorrandewit/Documents/SciPost/codebase/local_files/static/bundles/'
 
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
@@ -27,8 +27,8 @@ ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 
 # Logging
-LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/logs/arxiv.log'
-LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorrandewit/Documents/Develop/SciPost/scipost_v1/logs/doi.log'
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jorrandewit/Documents/SciPost/codebase/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jorrandewit/Documents/SciPost/codebase/logs/doi.log'
 
 # Other
 CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")

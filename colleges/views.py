@@ -13,16 +13,15 @@ from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
-from .constants import PROSPECTIVE_FELLOW_INVITED,\
-    prospective_Fellow_statuses_dict,\
-    PROSPECTIVE_FELLOW_EVENT_EMAILED, PROSPECTIVE_FELLOW_EVENT_STATUSUPDATED,\
-    PROSPECTIVE_FELLOW_EVENT_COMMENT
+from .constants import POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
+    POTENTIAL_FELLOWSHIP_EVENT_EMAILED, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,\
+    POTENTIAL_FELLOWSHIP_EVENT_COMMENT
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
-    ProspectiveFellowForm, ProspectiveFellowStatusForm, ProspectiveFellowEventForm
-from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
+    PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
+from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin
@@ -114,11 +113,11 @@ def fellowship_terminate(request, id):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_pool(request, arxiv_identifier_w_vn_nr):
+def submission_pool(request, identifier_w_vn_nr):
     """
     List all Fellowships related to Submission.
     """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     context = {
         'submission': submission
@@ -128,11 +127,11 @@ def submission_pool(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_voting_fellows(request, arxiv_identifier_w_vn_nr):
+def submission_voting_fellows(request, identifier_w_vn_nr):
     """
     List all Fellowships selected for voting on the EIC related to Submission.
     """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     context = {
         'submission': submission
@@ -142,11 +141,9 @@ def submission_voting_fellows(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
-    """
-    Add Fellowship to the Fellows voting on the EICRecommendation of a Submission.
-    """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+def submission_add_fellowship_voting(request, identifier_w_vn_nr):
+    """Add Fellowship to the Fellows voting on the EICRecommendation of a Submission."""
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = SubmissionAddVotingFellowForm(request.POST or None, instance=submission)
 
     if form.is_valid():
@@ -155,7 +152,7 @@ def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
             fellowship=form.cleaned_data['fellowship'].contributor,
             id=form.cleaned_data['fellowship'].id))
         return redirect(reverse('colleges:submission_voting_fellows',
-                                args=(submission.arxiv_identifier_w_vn_nr,)))
+                                args=(submission.preprint.identifier_w_vn_nr,)))
 
     context = {
         'submission': submission,
@@ -166,22 +163,20 @@ def submission_add_fellowship_voting(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_remove_submission_voting(request, id, arxiv_identifier_w_vn_nr):
-    """
-    Remove Fellow from the EICRecommendation voting group for the Submission.
-    """
+def fellowship_remove_submission_voting(request, id, identifier_w_vn_nr):
+    """Remove Fellow from the EICRecommendation voting group for the Submission."""
     fellowship = get_object_or_404(Fellowship, id=id)
-    submission = get_object_or_404(fellowship.voting_pool.all(),
-                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(
+        fellowship.voting_pool.all(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = FellowVotingRemoveSubmissionForm(request.POST or None,
                                             submission=submission, instance=fellowship)
 
     if form.is_valid() and request.POST:
         form.save()
-        messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
-            sub=arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Submission {submission_id} removed from Fellowship.'.format(
+            submission_id=identifier_w_vn_nr))
         return redirect(reverse('colleges:submission_voting_fellows',
-                                args=(submission.arxiv_identifier_w_vn_nr,)))
+                                args=(submission.preprint.identifier_w_vn_nr,)))
 
     context = {
         'fellowship': fellowship,
@@ -193,11 +188,9 @@ def fellowship_remove_submission_voting(request, id, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
-    """
-    Add Fellowship to the pool of a Submission.
-    """
-    submission = get_object_or_404(Submission, arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+def submission_add_fellowship(request, identifier_w_vn_nr):
+    """Add Fellowship to the pool of a Submission."""
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = SubmissionAddFellowshipForm(request.POST or None, instance=submission)
 
     if form.is_valid():
@@ -206,7 +199,7 @@ def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
             fellowship=form.cleaned_data['fellowship'].contributor,
             id=form.cleaned_data['fellowship'].id))
         return redirect(reverse('colleges:submission',
-                                args=(submission.arxiv_identifier_w_vn_nr,)))
+                                args=(submission.preprint.identifier_w_vn_nr,)))
 
     context = {
         'submission': submission,
@@ -217,20 +210,18 @@ def submission_add_fellowship(request, arxiv_identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_remove_submission(request, id, arxiv_identifier_w_vn_nr):
-    """
-    Remove Submission from the pool of a Fellowship.
-    """
+def fellowship_remove_submission(request, id, identifier_w_vn_nr):
+    """Remove Submission from the pool of a Fellowship."""
     fellowship = get_object_or_404(Fellowship, id=id)
-    submission = get_object_or_404(fellowship.pool.all(),
-                                   arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+    submission = get_object_or_404(
+        fellowship.pool.all(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = FellowshipRemoveSubmissionForm(request.POST or None,
                                           submission=submission, instance=fellowship)
 
     if form.is_valid() and request.POST:
         form.save()
-        messages.success(request, 'Submission {sub} removed from Fellowship.'.format(
-            sub=arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Submission {submission_id} removed from Fellowship.'.format(
+            submission_id=identifier_w_vn_nr))
         return redirect(fellowship.get_absolute_url())
 
     context = {
@@ -244,16 +235,14 @@ def fellowship_remove_submission(request, id, arxiv_identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def fellowship_add_submission(request, id):
-    """
-    Add Submission to the pool of a Fellowship.
-    """
+    """Add Submission to the pool of a Fellowship."""
     fellowship = get_object_or_404(Fellowship, id=id)
     form = FellowshipAddSubmissionForm(request.POST or None, instance=fellowship)
 
     if form.is_valid():
         form.save()
-        messages.success(request, 'Submission {submission} added to Fellowship.'.format(
-            submission=form.cleaned_data['submission'].arxiv_identifier_w_vn_nr))
+        messages.success(request, 'Submission {submission_id} added to Fellowship.'.format(
+            submission_id=form.cleaned_data['submission'].preprint.identifier_w_vn_nr))
         return redirect(fellowship.get_absolute_url())
 
     context = {
@@ -310,119 +299,118 @@ def fellowship_add_proceedings(request, id):
 
 
 
-class ProspectiveFellowCreateView(PermissionsMixin, CreateView):
+# Potential Fellowships
+
+class PotentialFellowshipCreateView(PermissionsMixin, CreateView):
     """
-    Formview to create a new Prospective Fellow.
+    Formview to create a new Potential Fellowship.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    form_class = ProspectiveFellowForm
-    template_name = 'colleges/prospectivefellow_form.html'
-    success_url = reverse_lazy('colleges:prospective_Fellows')
+    form_class = PotentialFellowshipForm
+    template_name = 'colleges/potentialfellowship_form.html'
+    success_url = reverse_lazy('colleges:potential_fellowships')
 
 
-class ProspectiveFellowUpdateView(PermissionsMixin, UpdateView):
+class PotentialFellowshipUpdateView(PermissionsMixin, UpdateView):
     """
-    Formview to update a Prospective Fellow.
-    """
-    permission_required = 'scipost.can_manage_college_composition'
-    model = ProspectiveFellow
-    form_class = ProspectiveFellowForm
-    template_name = 'colleges/prospectivefellow_form.html'
-    success_url = reverse_lazy('colleges:prospective_Fellows')
-
-
-class ProspectiveFellowUpdateStatusView(PermissionsMixin, UpdateView):
-    """
-    Formview to update the status of a Prospective Fellow.
+    Formview to update a Potential Fellowship.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    model = ProspectiveFellow
+    model = PotentialFellowship
+    form_class = PotentialFellowshipForm
+    template_name = 'colleges/potentialfellowship_form.html'
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+
+class PotentialFellowshipUpdateStatusView(PermissionsMixin, UpdateView):
+    """
+    Formview to update the status of a Potential Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
     fields = ['status']
-    success_url = reverse_lazy('colleges:prospective_Fellows')
+    success_url = reverse_lazy('colleges:potential_fellowships')
 
     def form_valid(self, form):
-        event = ProspectiveFellowEvent(
-            prosfellow=self.object,
-            event=PROSPECTIVE_FELLOW_EVENT_STATUSUPDATED,
+        event = PotentialFellowshipEvent(
+            potfel=self.object,
+            event=POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
             comments=('Status updated to %s'
-                      % prospective_Fellow_statuses_dict[form.cleaned_data['status']]),
+                      % potential_fellowship_statuses_dict[form.cleaned_data['status']]),
             noted_on=timezone.now(),
             noted_by=self.request.user.contributor)
         event.save()
         return super().form_valid(form)
 
 
-class ProspectiveFellowDeleteView(PermissionsMixin, DeleteView):
+class PotentialFellowshipDeleteView(PermissionsMixin, DeleteView):
     """
-    Delete a Prospective Fellow.
-    """
-    permission_required = 'scipost.can_manage_college_composition'
-    model = ProspectiveFellow
-    success_url = reverse_lazy('colleges:prospective_Fellows')
-
-
-class ProspectiveFellowListView(PermissionsMixin, ListView):
-    """
-    List the ProspectiveFellow object instances.
+    Delete a Potential Fellowship.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    model = ProspectiveFellow
-    paginate_by = 50
+    model = PotentialFellowship
+    success_url = reverse_lazy('colleges:potential_fellowships')
+
+
+class PotentialFellowshipListView(PermissionsMixin, ListView):
+    """
+    List the PotentialFellowship object instances.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
+    paginate_by = 25
 
     def get_queryset(self):
         """
-        Return a queryset of ProspectiveFellows using optional GET data.
+        Return a queryset of PotentialFellowships using optional GET data.
         """
-        queryset = ProspectiveFellow.objects.all()
-        if 'discipline' in self.request.GET:
-            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
-            if 'expertise' in self.request.GET:
-                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
+        queryset = PotentialFellowship.objects.all()
+        if self.kwargs.get('discipline', None):
+            queryset = queryset.filter(profile__discipline=self.kwargs['discipline'].lower())
+            if self.kwargs.get('expertise', None):
+                queryset = queryset.filter(profile__expertises__contains=[self.kwargs['expertise']])
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
-        context['pfstatus_form'] = ProspectiveFellowStatusForm()
-        context['pfevent_form'] = ProspectiveFellowEventForm()
+        context['pfstatus_form'] = PotentialFellowshipStatusForm()
+        context['pfevent_form'] = PotentialFellowshipEventForm()
         return context
 
 
-class ProspectiveFellowInitialEmailView(PermissionsMixin, MailView):
-    """
-    Send a templated email to a Prospective Fellow.
-    """
+class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):
+    """Send a templated email to a Potential Fellow."""
+
     permission_required = 'scipost.can_manage_college_composition'
-    queryset = ProspectiveFellow.objects.all()
-    mail_code = 'prospectivefellows/invite_prospective_fellow_initial'
-    success_url = reverse_lazy('colleges:prospective_Fellows')
+    queryset = PotentialFellowship.objects.all()
+    mail_code = 'potentialfellowships/invite_potential_fellow_initial'
+    success_url = reverse_lazy('colleges:potential_fellowships')
 
     def form_valid(self, form):
-        """
-        Create an event associated to this outgoing email.
-        """
-        event = ProspectiveFellowEvent(
-            prosfellow=self.object,
-            event=PROSPECTIVE_FELLOW_EVENT_EMAILED,
-            comments='Emailed initial template',
+        """Create an event associated to this outgoing email."""
+        event = PotentialFellowshipEvent(
+            potfel=self.object,
+            event=POTENTIAL_FELLOWSHIP_EVENT_EMAILED,
+            comments='Emailed initial template to potential Fellow',
             noted_on=timezone.now(),
             noted_by=self.request.user.contributor)
         event.save()
-        self.object.status=PROSPECTIVE_FELLOW_INVITED
+        self.object.status = POTENTIAL_FELLOWSHIP_INVITED
         self.object.save()
         return super().form_valid(form)
 
 
-class ProspectiveFellowEventCreateView(PermissionsMixin, CreateView):
+class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
     """
-    Add an event for a Prospective Fellow.
+    Add an event for a Potential Fellowship.
     """
     permission_required = 'scipost.can_manage_college_composition'
-    form_class = ProspectiveFellowEventForm
-    success_url = reverse_lazy('colleges:prospective_Fellows')
+    form_class = PotentialFellowshipEventForm
+    success_url = reverse_lazy('colleges:potential_fellowships')
 
     def form_valid(self, form):
-        form.instance.prosfellow = get_object_or_404(ProspectiveFellow, id=self.kwargs['pk'])
+        form.instance.potfel = get_object_or_404(PotentialFellowship, id=self.kwargs['pk'])
         form.instance.noted_on = timezone.now()
         form.instance.noted_by = self.request.user.contributor
         messages.success(self.request, 'Event added successfully')

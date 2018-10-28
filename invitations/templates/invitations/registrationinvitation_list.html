@@ -23,6 +23,7 @@
             {% if perms.scipost.can_manage_registration_invitations %}
                 <li><a href="{% url 'invitations:cleanup' %}">Perform a cleanup</a></li>
                 <li><a href="{% url 'invitations:citation_notification_list' %}">List unprocessed Citation Notifications</a></li>
+                <li><a href="{% url 'invitations:list_contributors' %}">List draft Contributor Invitations (to be sent)</a></li>
             {% endif %}
             {% if perms.scipost.can_invite_fellows %}
                 <li><a href="{% url 'invitations:list_fellows' %}">List Fellow Invitations</a></li>

@@ -3,20 +3,15 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import admin
-from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
 
 from guardian.admin import GuardedModelAdmin
 
-from comments.models import Comment
-from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report,\
-                               EditorialCommunication, EICRecommendation, SubmissionEvent,\
-                               iThenticateReport
+from preprints.models import Preprint
+from submissions.models import (
+    Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
+    EICRecommendation, SubmissionEvent, iThenticateReport)
 from scipost.models import Contributor
-
-
-class CommentsGenericInline(GenericTabularInline):
-    model = Comment
 
 
 def submission_short_title(obj):
@@ -49,7 +44,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     list_filter = ('status', 'discipline', 'submission_type', 'submitted_to_journal')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
-    readonly_fields = ('arxiv_identifier_w_vn_nr', 'publication')
+    readonly_fields = ('publication',)
 
     # Admin fields should be added in the fieldsets
     radio_fields = {
@@ -61,13 +56,11 @@ class SubmissionAdmin(GuardedModelAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'preprint',
                 'publication',
                 'title',
                 'abstract',
-                'submission_type',
-                ('arxiv_identifier_wo_vn_nr', 'arxiv_vn_nr', 'arxiv_identifier_w_vn_nr'),
-                'arxiv_link'
-                ),
+                'submission_type'),
         }),
         ('Versioning', {
             'fields': (
@@ -127,7 +120,7 @@ admin.site.register(Submission, SubmissionAdmin)
 
 class EditorialAssignmentAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
 
     class Meta:
         model = EditorialAssignment
@@ -136,9 +129,11 @@ class EditorialAssignmentAdminForm(forms.ModelForm):
 
 class EditorialAssignmentAdmin(admin.ModelAdmin):
     search_fields = ['submission__title', 'submission__author_list', 'to__user__last_name']
-    list_display = ('to', submission_short_title, 'accepted', 'completed', 'date_created',)
+    list_display = (
+        'to', submission_short_title, 'status', 'date_created', 'date_invited', 'invitation_order')
     date_hierarchy = 'date_created'
-    list_filter = ('accepted', 'deprecated', 'completed', )
+    # list_filter = ('accepted', 'deprecated', 'completed', )
+    list_filter = ('status',)
     form = EditorialAssignmentAdminForm
 
 
@@ -147,7 +142,7 @@ admin.site.register(EditorialAssignment, EditorialAssignmentAdmin)
 
 class RefereeInvitationAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
     referee = forms.ModelChoiceField(
         required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
@@ -172,7 +167,7 @@ admin.site.register(RefereeInvitation, RefereeInvitationAdmin)
 
 class ReportAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
 
     class Meta:
         model = Report
@@ -201,7 +196,7 @@ admin.site.register(EditorialCommunication, EditorialCommunicationAdmin)
 
 class EICRecommendationAdminForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-arxiv_identifier_w_vn_nr'))
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
     eligible_to_vote = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(

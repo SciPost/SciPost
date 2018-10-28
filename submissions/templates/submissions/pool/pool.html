@@ -10,7 +10,7 @@
     <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
     {% if submission %}
         <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
-        <span class="breadcrumb-item">{{ submission.arxiv_identifier_w_vn_nr }}</span>
+        <span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
     {% else %}
         <span class="breadcrumb-item">Pool</span>
     {% endif %}
@@ -26,7 +26,7 @@
             <h1>SciPost Submissions Pool</h1>
             {% if is_ECAdmin %}
 
-                {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events %}
+                {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events or pre_screening_subs %}
                     <div class="quote-border">
                         <h2 class="text-primary">Administrative Tasks</h2>
 
@@ -36,7 +36,7 @@
                                 {% for submission in pre_screening_subs %}
                                     <li>
                                         {{ submission }}<br>
-                                        <a href="{% url 'submissions:do_prescreening' submission.arxiv_identifier_w_vn_nr %}">Do pre-screening</a>
+                                        <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Do pre-screening</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -61,7 +61,7 @@
                                     <li>
                                         {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
                                         On Editorial Recommendation: {{ recommendation }}<br>
-                                        <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.arxiv_identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
+                                        <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -77,7 +77,7 @@
                 {% endif %}
             {% endif %}
 
-            {% if assignments_to_consider or recs_to_vote_on %}
+            {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
                 {% if assignments_to_consider %}
                     <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
                     <ul>
@@ -99,7 +99,19 @@
                         {% endfor %}
                     </ul>
                 {% endif %}
-                <hr>
+
+                {% if recs_current_voted %}
+                    <h3>Current recommendations you have voted on:</h3>
+                    <ul>
+                        {% for recommendation in recs_current_voted %}
+                            <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation, view votes and/or revise your vote</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
+                    <hr>
             {% endif %}
 
             {% if search_form %}

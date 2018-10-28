@@ -15,6 +15,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 import os
 import json
 
+from datetime import timedelta
+
 from django.utils.translation import ugettext_lazy as _
 
 from django.core.exceptions import ImproperlyConfigured
@@ -75,6 +77,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'django_countries',
     'django_extensions',
     'django_mathjax',
@@ -84,12 +87,13 @@ INSTALLED_APPS = (
     'colleges',
     'commentaries',
     'comments',
+    'conflicts',
     'django_celery_results',
     'django_celery_beat',
     'finances',
-    'funders',
-    'guardian',
-    'haystack',
+    'guides',
+    # 'guardian',
+    # 'haystack',
     'invitations',
     'journals',
     'mailing_lists',
@@ -108,8 +112,29 @@ INSTALLED_APPS = (
     'submissions',
     'theses',
     'virtualmeetings',
+    'organizations',
+    'proceedings',
+    'production',
+    'profiles',
+    # TODO: partners to be deprecated in favour of sponsors
+    'partners',
+    'sponsors',
+    'preprints',
+    'funders',
+    'stats',
+    'petitions',
+    'sitesserved',
     'webpack_loader',
+    'maintenancemode',
 )
+
+SITE_ID = 1
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25
+}
 
 
 HAYSTACK_CONNECTIONS = {
@@ -127,10 +152,9 @@ HAYSTACK_SIGNAL_PROCESSOR = 'SciPost_v1.signalprocessors.AutoSearchIndexingProce
 
 
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
+SPHINXDOC_BUILD_DIR = '../build'
 SPHINXDOC_PROTECTED_PROJECTS = {
-    'admin': ['scipost.can_view_docs_scipost'],
-    'codebase': ['scipost.can_view_docs_scipost'],
-    'users': ['scipost.can_view_docs_scipost'],
+    'developers': ['scipost.can_view_docs_scipost'],
 }
 
 CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
@@ -168,6 +192,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
 ROOT_URLCONF = 'SciPost_v1.urls'
@@ -368,6 +393,11 @@ LOGGING = {
     },
 }
 
-# Celery extra config
+# Celery scheduled tasks
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_IMPORTS = ('submissions.tasks', 'metacore.tasks')
+
+
+# Automation.
+ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)

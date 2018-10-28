@@ -43,40 +43,50 @@ urlpatterns = [
     url(r'^fellowships/(?P<id>[0-9]+)/proceedings/(?P<proceedings_id>[0-9]+)/remove$',
         views.fellowship_remove_proceedings, name='fellowship_remove_proceedings'),
 
-    # Prospective Fellows
+    # Potential Fellowships
     url(
-        r'^prospectivefellows/$',
-        views.ProspectiveFellowListView.as_view(),
-        name='prospective_Fellows'
+        r'^potentialfellowships/add/$',
+        views.PotentialFellowshipCreateView.as_view(),
+        name='potential_fellowship_create'
     ),
     url(
-        r'^prospectivefellows/add/$',
-        views.ProspectiveFellowCreateView.as_view(),
-        name='prospective_Fellow_create'
+        r'^potentialfellowships/(?P<pk>[0-9]+)/update/$',
+        views.PotentialFellowshipUpdateView.as_view(),
+        name='potential_fellowship_update'
     ),
     url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/update/$',
-        views.ProspectiveFellowUpdateView.as_view(),
-        name='prospective_Fellow_update'
+        r'^potentialfellowsships/(?P<pk>[0-9]+)/update_status/$',
+        views.PotentialFellowshipUpdateStatusView.as_view(),
+        name='potential_fellowship_update_status'
     ),
     url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/update_status/$',
-        views.ProspectiveFellowUpdateStatusView.as_view(),
-        name='prospective_Fellow_update_status'
+        r'^potentialfellowships/(?P<pk>[0-9]+)/delete/$',
+        views.PotentialFellowshipDeleteView.as_view(),
+        name='potential_fellowship_delete'
     ),
     url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/delete/$',
-        views.ProspectiveFellowDeleteView.as_view(),
-        name='prospective_Fellow_delete'
+        r'^potentialfellowships/(?P<pk>[0-9]+)/events/add$',
+        views.PotentialFellowshipEventCreateView.as_view(),
+        name='potential_fellowship_event_create'
     ),
     url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/events/add$',
-        views.ProspectiveFellowEventCreateView.as_view(),
-        name='prospective_Fellow_event_create'
+        r'^potentialfellowships/(?P<pk>[0-9]+)/email/$',
+        views.PotentialFellowshipInitialEmailView.as_view(),
+        name='potential_fellowship_email_initial'
     ),
     url(
-        r'^prospectivefellows/(?P<pk>[0-9]+)/email/$',
-        views.ProspectiveFellowInitialEmailView.as_view(),
-        name='prospective_Fellow_email_initial'
+        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
+    ),
+    url(
+        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
+    ),
+    url(
+        r'^potentialfellowships/$',
+        views.PotentialFellowshipListView.as_view(),
+        name='potential_fellowships'
     ),
 ]

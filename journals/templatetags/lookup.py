@@ -2,13 +2,15 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 
 from ajax_select import register, LookupChannel
 
 from ..models import Publication
 
-from partners.models import Organization
+from funders.models import Funder, Grant
+from organizations.models import Organization
 
 
 @register('publication_lookup')
@@ -37,7 +39,8 @@ class PublicationLookup(LookupChannel):
         Right now only used for draft registration invitations. May be extended in the
         future for other purposes as well.
         """
-        return request.user.has_perm('can_create_registration_invitations')
+        if not request.user.has_perm('scipost.can_create_registration_invitations'):
+            raise PermissionDenied
 
 
 @register('organization_lookup')
@@ -51,9 +54,65 @@ class OrganizationLookup(LookupChannel):
                         Q(name_original__icontains=q))[:10])
 
     def format_item_display(self, item):
-        '''(HTML) format item for displaying item in the selected deck area.'''
+        """(HTML) format item for displaying item in the selected deck area."""
         return u"<span class='auto_lookup_display'>%s</span>" % item.full_name_with_acronym
 
     def format_match(self, item):
-        '''(HTML) Format item for displaying in the dropdown.'''
+        """(HTML) Format item for displaying in the dropdown."""
         return item.full_name_with_acronym
+
+    def check_auth(self, request):
+        """Check if has organization administrative permissions."""
+        if not request.user.has_perm('scipost.can_manage_organizations'):
+            raise PermissionDenied
+
+
+@register('funder_lookup')
+class FunderLookup(LookupChannel):
+    model = Funder
+
+    def get_query(self, q, request):
+        return self.model.objects.filter(
+            Q(name__icontains=q) | Q(acronym__icontains=q) |
+            Q(identifier__icontains=q) | Q(organization__name__icontains=q) |
+            Q(organization__name_original__icontains=q) |
+            Q(organization__acronym__icontains=q)).order_by('name')[:10]
+
+    def format_item_display(self, item):
+        """(HTML) format item for displaying item in the selected deck area."""
+        return u"<span class='auto_lookup_display'>%s</span>" % str(item)
+
+    def format_match(self, item):
+        """(HTML) Format item for displaying in the dropdown."""
+        return str(item)
+
+    def check_auth(self, request):
+        """Check for required permissions."""
+        if not request.user.has_perm('scipost.can_draft_publication'):
+            raise PermissionDenied
+
+
+@register('grant_lookup')
+class GrantLookup(LookupChannel):
+    model = Grant
+
+    def get_query(self, q, request):
+        return (self.model.objects.filter(
+            Q(funder__name__icontains=q) | Q(funder__acronym__icontains=q) |
+            Q(number__icontains=q) | Q(recipient_name__icontains=q) |
+            Q(recipient__user__last_name__icontains=q) |
+            Q(recipient__user__first_name__icontains=q) |
+            Q(further_details__icontains=q)).order_by('funder__name', 'number')[:10])
+
+    def format_item_display(self, item):
+        """(HTML) format item for displaying item in the selected deck area."""
+        return u"<span class='auto_lookup_display'>%s</span>" % str(item)
+
+    def format_match(self, item):
+        """(HTML) Format item for displaying in the dropdown."""
+        return str(item)
+
+    def check_auth(self, request):
+        """Check for required permissions."""
+        if not request.user.has_perm('scipost.can_draft_publication'):
+            raise PermissionDenied

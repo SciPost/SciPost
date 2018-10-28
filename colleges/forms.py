@@ -6,11 +6,13 @@ import datetime
 
 from django import forms
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from proceedings.models import Proceedings
 from submissions.models import Submission
 from scipost.models import Contributor
 
-from .models import Fellowship, ProspectiveFellow, ProspectiveFellowEvent
+from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 
 class AddFellowshipForm(forms.ModelForm):
@@ -61,7 +63,7 @@ class FellowshipTerminateForm(forms.ModelForm):
     def save(self):
         today = datetime.date.today()
         fellowship = self.instance
-        if fellowship.until_date > today:
+        if not fellowship.until_date or fellowship.until_date > today:
             fellowship.until_date = today
         return fellowship.save()
 
@@ -115,8 +117,9 @@ class FellowVotingRemoveSubmissionForm(forms.ModelForm):
 
 
 class FellowshipAddSubmissionForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(queryset=None, to_field_name='arxiv_identifier_w_vn_nr',
-                                        empty_label="Please choose the Submission to add to the pool")
+    submission = forms.ModelChoiceField(
+        queryset=Submission.objects.none(),
+        empty_label="Please choose the Submission to add to the pool")
 
     class Meta:
         model = Fellowship
@@ -135,8 +138,9 @@ class FellowshipAddSubmissionForm(forms.ModelForm):
 
 
 class SubmissionAddFellowshipForm(forms.ModelForm):
-    fellowship = forms.ModelChoiceField(queryset=None, to_field_name='id',
-                                        empty_label="Please choose the Fellow to add to the Pool")
+    fellowship = forms.ModelChoiceField(
+        queryset=None, to_field_name='id',
+        empty_label="Please choose the Fellow to add to the Pool")
 
     class Meta:
         model = Submission
@@ -200,8 +204,9 @@ class FellowshipRemoveProceedingsForm(forms.ModelForm):
 
 
 class FellowshipAddProceedingsForm(forms.ModelForm):
-    proceedings = forms.ModelChoiceField(queryset=None, to_field_name='id',
-                                         empty_label="Please choose the Proceedings to add to the Pool")
+    proceedings = forms.ModelChoiceField(
+        queryset=None, to_field_name='id',
+        empty_label="Please choose the Proceedings to add to the Pool")
 
     class Meta:
         model = Fellowship
@@ -219,23 +224,23 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
         return fellowship
 
 
-class ProspectiveFellowForm(forms.ModelForm):
+class PotentialFellowshipForm(forms.ModelForm):
+    profile = AutoCompleteSelectField('profile_lookup')
 
     class Meta:
-        model = ProspectiveFellow
-        fields = ['title', 'first_name', 'last_name', 'email',
-                  'discipline', 'expertises', 'webpage', 'status', 'contributor']
+        model = PotentialFellowship
+        fields = ['profile', 'status']
 
 
-class ProspectiveFellowStatusForm(forms.ModelForm):
+class PotentialFellowshipStatusForm(forms.ModelForm):
 
     class Meta:
-        model = ProspectiveFellow
+        model = PotentialFellowship
         fields = ['status']
 
 
-class ProspectiveFellowEventForm(forms.ModelForm):
+class PotentialFellowshipEventForm(forms.ModelForm):
 
     class Meta:
-        model = ProspectiveFellowEvent
+        model = PotentialFellowshipEvent
         fields = ['event', 'comments']

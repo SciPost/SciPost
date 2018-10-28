@@ -34,7 +34,7 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     pub_date = factory.Faker('date_this_decade')
     pub_abstract = factory.Faker('paragraph')
 
-    arxiv_link = factory.lazy_attribute(lambda o: 'https://arxiv.org/abs/%s' % o.arxiv_identifier)
+    url = factory.lazy_attribute(lambda o: 'https://arxiv.org/abs/%s' % o.arxiv_identifier)
     arxiv_or_DOI_string = factory.lazy_attribute(lambda o: (
         o.arxiv_identifier if o.arxiv_identifier else o.pub_DOI))
 
@@ -84,5 +84,5 @@ class UnvettedUnpublishedCommentaryFactory(UnpublishedCommentaryFactory):
 
 class PublishedCommentaryFactory(BaseCommentaryFactory):
     arxiv_identifier = ''
-    arxiv_link = ''
+    url = ''
     arxiv_or_DOI_string = factory.lazy_attribute(lambda o: o.pub_DOI)

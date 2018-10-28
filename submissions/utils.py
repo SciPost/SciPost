@@ -153,6 +153,14 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     This *abstract* submission cycle adds the specific actions needed for submission cycles
     that require referees to be invited.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.submission.proceedings:
+            # Check if proceedings has overwritten the `minimum_referees`
+            if self.submission.proceedings.minimum_referees:
+                self.minimum_referees = self.submission.proceedings.minimum_referees
+
     def update_status(self):
         if self.submission.status == STATUS_INCOMING and self.submission.is_resubmission:
             from .models import Submission
@@ -251,18 +259,6 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
 class SubmissionUtils(BaseMailUtil):
     mail_sender = 'submissions@scipost.org'
     mail_sender_title = 'SciPost Editorial Admin'
-
-    @classmethod
-    def deprecate_all_assignments(cls):
-        """
-        Called when the pre-screening has failed.
-        Requires loading 'submission' attribute.
-        """
-        # Import here due to circular import error
-        from .models import EditorialAssignment
-
-        EditorialAssignment.objects.filter(
-            submission=cls.submission, accepted=None).update(deprecated=True)
 
     @classmethod
     def reinvite_referees_email(cls):
@@ -424,7 +420,7 @@ class SubmissionUtils(BaseMailUtil):
                       + cls.assignment.submission.author_list + '.'
                       '\n\nYou can take your editorial actions from the editorial page '
                       'https://scipost.org/submission/editorial_page/'
-                      + cls.assignment.submission.arxiv_identifier_w_vn_nr
+                      + cls.assignment.submission.preprint.identifier_w_vn_nr
                       + ' (also accessible from your personal page '
                       'https://scipost.org/personal_page under the Editorial Actions tab). '
                       'In particular, you should now invite at least 3 referees; you might want to'
@@ -441,7 +437,7 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>by {{ author_list }}.</p>'
             '\n<p>You can take your editorial actions from the '
             '<a href="https://scipost.org/submission/editorial_page/'
-            '{{ arxiv_identifier_w_vn_nr }}">editorial page</a> '
+            '{{ identifier_w_vn_nr }}">editorial page</a> '
             '(also accessible from your '
             '<a href="https://scipost.org/personal_page">personal page</a> '
             'under the Editorial Actions tab).</p>'
@@ -456,7 +452,7 @@ class SubmissionUtils(BaseMailUtil):
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.assignment.submission.preprint.identifier_w_vn_nr,
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
@@ -487,7 +483,7 @@ class SubmissionUtils(BaseMailUtil):
                       + '\n\nhas successfully passed the pre-screening stage. '
                       '\n\nA Submission Page has been activated at '
                       'https://scipost.org/submission/'
-                      + cls.assignment.submission.arxiv_identifier_w_vn_nr
+                      + cls.assignment.submission.preprint.identifier_w_vn_nr
                       + ' and a refereeing round has been started, with deadline '
                       'currently set at '
                       + datetime.datetime.strftime(cls.assignment.submission.reporting_deadline, "%Y-%m-%d")
@@ -513,7 +509,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
             '\n<p>has successfully passed the pre-screening stage.</p>'
-            '\n<p>A <a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
+            '\n<p>A <a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
             'Submission Page</a> has been activated '
             'and a refereeing round has been started, with deadline '
             'currently set at {{ deadline }}.</p>'
@@ -539,7 +535,7 @@ class SubmissionUtils(BaseMailUtil):
             'last_name': cls.assignment.submission.submitted_by.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.assignment.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.assignment.submission.preprint.identifier_w_vn_nr,
             'deadline': datetime.datetime.strftime(cls.assignment.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
         }
@@ -597,7 +593,7 @@ class SubmissionUtils(BaseMailUtil):
             'Your report can thereafter be submitted by simply clicking on '
             'the "Contribute a Report" link at '
             'https://scipost.org/submission/'
-            + cls.invitation.submission.arxiv_identifier_w_vn_nr
+            + cls.invitation.submission.preprint.identifier_w_vn_nr
             + ' before the reporting deadline (currently set at '
             + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
             + '; your report will be automatically recognized as an invited report). '
@@ -627,7 +623,7 @@ class SubmissionUtils(BaseMailUtil):
             'and logging in (you will automatically be prompted for a confirmation). '
             'Your report can thereafter be submitted by simply clicking on '
             'the "Contribute a Report" link at '
-            'the <a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
+            'the <a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a> before the reporting deadline (currently set at '
             '{{ deadline }}; your report will be automatically recognized as an invited report).</p>'
             '\n<p>You might want to make sure you are familiar with our '
@@ -645,7 +641,7 @@ class SubmissionUtils(BaseMailUtil):
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.invitation.submission.preprint.identifier_w_vn_nr,
             'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
             'invitation_key': cls.invitation.invitation_key,
@@ -701,7 +697,7 @@ class SubmissionUtils(BaseMailUtil):
             '\n\nYour report can be submitted by simply clicking on '
             'the "Contribute a Report" link at '
             'https://scipost.org/submission/'
-            + cls.invitation.submission.arxiv_identifier_w_vn_nr
+            + cls.invitation.submission.preprint.identifier_w_vn_nr
             + ' before the reporting deadline (currently set at '
             + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
             + '; your report will be automatically recognized as an invited report). '
@@ -713,7 +709,7 @@ class SubmissionUtils(BaseMailUtil):
         email_text_html += (
             '\n<p>Your report can be submitted by simply clicking on '
             'the "Contribute a Report" link at '
-            'the <a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
+            'the <a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a> before the reporting deadline (currently set at '
             '{{ deadline }}; your report will be automatically recognized as an invited report).</p>'
             '\n<p>You might want to make sure you are familiar with our '
@@ -731,7 +727,7 @@ class SubmissionUtils(BaseMailUtil):
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.invitation.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.invitation.submission.preprint.identifier_w_vn_nr,
             'deadline': datetime.datetime.strftime(cls.invitation.submission.reporting_deadline,
                                                    "%Y-%m-%d"),
             'invitation_key': cls.invitation.invitation_key,
@@ -868,11 +864,11 @@ class SubmissionUtils(BaseMailUtil):
         if cls.report.status == STATUS_VETTED:
             email_text += ('\n\nYour Report has been vetted through and is viewable at '
                            'https://scipost.org/submissions/'
-                           + cls.report.submission.arxiv_identifier_w_vn_nr + '.')
+                           + cls.report.submission.preprint.identifier_w_vn_nr + '.')
             email_text_html += (
                 '\n<p>Your Report has been vetted through and is viewable at '
                 'the <a href="https://scipost.org/submissions/'
-                '{{ arxiv_identifier_w_vn_nr }}">Submission\'s page</a>.</p>')
+                '{{ identifier_w_vn_nr }}">Submission\'s page</a>.</p>')
         else:
             email_text += ('\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, '
                            'who decided not to admit it for online posting, citing the reason: '
@@ -913,7 +909,7 @@ class SubmissionUtils(BaseMailUtil):
             'ref_last_name': cls.report.author.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.report.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.report.submission.preprint.identifier_w_vn_nr,
             'strengths': cls.report.strengths,
             'weaknesses': cls.report.weaknesses,
             'report': cls.report.report,
@@ -945,7 +941,7 @@ class SubmissionUtils(BaseMailUtil):
                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
                       'https://scipost.org/submission/'
-                      + cls.report.submission.arxiv_identifier_w_vn_nr + '.'
+                      + cls.report.submission.preprint.identifier_w_vn_nr + '.'
                       '\n\nWe remind you that you can provide an author reply '
                       '(only if you wish, to clarify points eventually raised '
                       'by the report) directly from this Submission Page. '
@@ -959,7 +955,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>A Report has been posted on your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>You can view it at the '
-            '<a href="https://scipost.org/submission/{{ arxiv_identifier_w_vn_nr }}">'
+            '<a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a>.</p>'
             '<p>We remind you that you can provide an author reply '
             '(only if you wish, to clarify points eventually raised '
@@ -974,7 +970,7 @@ class SubmissionUtils(BaseMailUtil):
             'auth_last_name': cls.report.submission.submitted_by.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.report.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.report.submission.preprint.identifier_w_vn_nr,
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
@@ -1005,7 +1001,7 @@ class SubmissionUtils(BaseMailUtil):
                                   cls.communication.submission.editor_in_charge.get_title_display() + ' ' +
                                   cls.communication.submission.editor_in_charge.user.last_name)
             further_action_page = ('https://scipost.org/submission/editorial_page/'
-                                   + cls.communication.submission.arxiv_identifier_w_vn_nr)
+                                   + cls.communication.submission.preprint.identifier_w_vn_nr)
             if cls.communication.comtype == 'RtoE':
                 bcc_emails.append(cls.communication.referee.user.email)
             bcc_emails.append('submissions@scipost.org')
@@ -1073,7 +1069,7 @@ class SubmissionUtils(BaseMailUtil):
         email_text += (' revision.'
                        '\n\nYou can view it at the Submission Page '
                        'https://scipost.org/submission/'
-                       + cls.submission.arxiv_identifier_w_vn_nr + '. '
+                       + cls.submission.preprint.identifier_w_vn_nr + '. '
                        'Note that the recommendation is viewable only by '
                        'the registered authors of the submission.'
                        'To resubmit your paper, please first update the version '
@@ -1088,7 +1084,7 @@ class SubmissionUtils(BaseMailUtil):
             ' revision.</p>'
             '\n<p>You can view it at the '
             '<a href="https://scipost.org/submission/'
-            '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>.</p>'
+            '{{ identifier_w_vn_nr }}">Submission\'s Page</a>.</p>'
             '<p>Note that the recommendation is viewable only by '
             'the registered authors of the submission.</p>'
             '<p>To resubmit your paper, please first update the version '
@@ -1105,7 +1101,7 @@ class SubmissionUtils(BaseMailUtil):
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.submission.preprint.identifier_w_vn_nr,
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)
@@ -1165,7 +1161,7 @@ class SubmissionUtils(BaseMailUtil):
                            'has not been accepted for publication. '
                            '\n\nYou can view more details at the Submission Page '
                            'https://scipost.org/submission/'
-                           + cls.submission.arxiv_identifier_w_vn_nr + '. '
+                           + cls.submission.preprint.identifier_w_vn_nr + '. '
                            'Note that these details are viewable only by '
                            'the registered authors of the submission.'
                            '\n\nThis Submission Page has now been removed '
@@ -1176,7 +1172,7 @@ class SubmissionUtils(BaseMailUtil):
                 'has not been accepted for publication.</p>'
                 '\n<p>You can view more details at the '
                 '<a href="https://scipost.org/submission/'
-                '{{ arxiv_identifier_w_vn_nr }}">Submission\'s Page</a>. '
+                '{{ identifier_w_vn_nr }}">Submission\'s Page</a>. '
                 'Note that these details are viewable only by '
                 'the registered authors of the submission.</p>'
                 '<p>This Submission Page has now been removed '
@@ -1194,7 +1190,7 @@ class SubmissionUtils(BaseMailUtil):
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
-            'arxiv_identifier_w_vn_nr': cls.submission.arxiv_identifier_w_vn_nr,
+            'identifier_w_vn_nr': cls.submission.preprint.identifier_w_vn_nr,
             'journal': cls.submission.get_submitted_to_journal_display(),
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
@@ -1239,9 +1235,9 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: voting duties', email_text,
-            'SciPost Editorial Admin <admin@scipost.org>',
-            to=['admin@scipost.org'],
+            'SciPost Editorial Admin <edadmin@scipost.org>',
+            to=['edadmin@scipost.org'],
             bcc=cls.Fellow_emails,
-            reply_to=['admin@scipost.org'])
+            reply_to=['edadmin@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)

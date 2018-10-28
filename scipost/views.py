@@ -51,9 +51,39 @@ from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Publication, Journal, PublicationAuthorsTable
 from news.models import NewsItem
-from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
+from organizations.models import Organization
 from partners.models import MembershipAgreement
+from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from theses.models import ThesisLink
+
+
+###########
+# Sitemap #
+###########
+
+def sitemap_xml(request):
+    """
+    Dynamically generate a sitemap (xml) for search engines.
+    """
+    newsitems = NewsItem.objects.homepage()
+    journals = Journal.objects.active()
+    contributors = Contributor.objects.active()
+    submissions = Submission.objects.public()
+    publications = Publication.objects.published().order_by('-publication_date')
+    commentaries = Commentary.objects.vetted()
+    theses = ThesisLink.objects.vetted()
+    organizations = Organization.objects.all()
+    context = {
+        'newsitems': newsitems,
+        'journals': journals,
+        'contributors': contributors,
+        'submissions': submissions,
+        'publications': publications,
+        'commentaries': commentaries,
+        'theses': theses,
+        'organizations': organizations,
+    }
+    return render(request, 'scipost/sitemap.xml', context)
 
 
 ##############
@@ -91,7 +121,8 @@ def index(request):
         'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
-        'current_agreements': MembershipAgreement.objects.now_active(),
+        'current_sponsors': (Organization.objects.with_subsidy_above_and_up_to(5000, 1000000000)
+                             | Organization.objects.current_sponsors()),
     }
     return render(request, 'scipost/index.html', context)
 
@@ -124,7 +155,8 @@ def feeds(request):
 ################
 
 def register(request):
-    """Contributor registration form page.
+    """
+    Contributor registration form page.
 
     This public registration view shows and processes the form
     that will create new user account requests. After registration
@@ -411,8 +443,8 @@ def delete_unavailable_period(request, period_id):
 
 @login_required
 @is_contributor_user()
-def _personal_page_editorial_account(request):
-    """Personal Page tab: Account."""
+def _personal_page_account(request):
+    """ Personal Page tab: Account. """
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -422,9 +454,33 @@ def _personal_page_editorial_account(request):
     return render(request, 'partials/scipost/personal_page/account.html', context)
 
 
+@login_required
+@is_contributor_user()
+def _personal_page_admin_actions(request):
+    """ Personal Page tab: Admin Actions. """
+    permission = request.user.groups.filter(name__in=[
+        'SciPost Administrators',
+        'Financial Administrators']).exists() or request.user.is_superuser
+
+    if not permission:
+        raise PermissionDenied
+
+    context = {}
+    contributor = request.user.contributor
+
+    if contributor.is_SP_Admin():
+        # count the number of pending registration requests
+        context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
+        context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
+
+    return render(request, 'partials/scipost/personal_page/admin_actions.html', context)
+
+
 @is_contributor_user()
 def _personal_page_editorial_actions(request):
-    """Personal Page tab: Editorial Actions."""
+    """
+    Personal Page tab: Editorial Actions.
+    """
     permission = request.user.groups.filter(name__in=[
         'Ambassadors',
         'Advisory Board',
@@ -440,9 +496,6 @@ def _personal_page_editorial_actions(request):
     contributor = request.user.contributor
 
     if contributor.is_SP_Admin():
-        # count the number of pending registration requests
-        context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
-        context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
         context['nr_submissions_to_assign'] = Submission.objects.prescreening().count()
         context['nr_recommendations_to_prepare_for_voting'] = \
             EICRecommendation.objects.voting_in_preparation().count()
@@ -455,7 +508,7 @@ def _personal_page_editorial_actions(request):
         context['nr_authorship_claims_to_vet'] = AuthorshipClaim.objects.awaiting_vetting().count()
 
     if contributor.is_MEC():
-        context['nr_assignments_to_consider'] = contributor.editorial_assignments.open().count()
+        context['nr_assignments_to_consider'] = contributor.editorial_assignments.invited().count()
         context['active_assignments'] = contributor.editorial_assignments.ongoing()
         context['nr_reports_to_vet'] = Report.objects.awaiting_vetting().filter(
             submission__editor_in_charge=contributor).count()
@@ -471,7 +524,9 @@ def _personal_page_editorial_actions(request):
 @permission_required('scipost.can_referee', return_403=True)
 @is_contributor_user()
 def _personal_page_refereeing(request):
-    """Personal Page tab: Refereeing."""
+    """
+    Personal Page tab: Refereeing.
+    """
     context = {
         'contributor': request.user.contributor
     }
@@ -481,7 +536,9 @@ def _personal_page_refereeing(request):
 @login_required
 @is_contributor_user()
 def _personal_page_publications(request):
-    """Personal Page tab: Publications."""
+    """
+    Personal Page tab: Publications.
+    """
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -498,7 +555,9 @@ def _personal_page_publications(request):
 @login_required
 @is_contributor_user()
 def _personal_page_submissions(request):
-    """Personal Page tab: Submissions."""
+    """
+    Personal Page tab: Submissions.
+    """
     contributor = request.user.contributor
     context = {'contributor': contributor}
 
@@ -515,7 +574,9 @@ def _personal_page_submissions(request):
 @login_required
 @is_contributor_user()
 def _personal_page_commentaries(request):
-    """Personal Page tab: Commentaries."""
+    """
+    Personal Page tab: Commentaries.
+    """
     contributor = request.user.contributor
     context = {'contributor': contributor}
 
@@ -531,7 +592,9 @@ def _personal_page_commentaries(request):
 @login_required
 @is_contributor_user()
 def _personal_page_theses(request):
-    """Personal Page tab: Theses."""
+    """
+    Personal Page tab: Theses.
+    """
     contributor = request.user.contributor
     context = {'contributor': contributor}
 
@@ -547,7 +610,9 @@ def _personal_page_theses(request):
 @login_required
 @is_contributor_user()
 def _personal_page_comments(request):
-    """Personal Page tab: Comments."""
+    """
+    Personal Page tab: Comments.
+    """
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -560,7 +625,9 @@ def _personal_page_comments(request):
 @login_required
 @is_contributor_user()
 def _personal_page_author_replies(request):
-    """Personal Page tab: Author Replies."""
+    """
+    Personal Page tab: Author Replies.
+    """
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
@@ -572,10 +639,14 @@ def _personal_page_author_replies(request):
 
 @login_required
 def personal_page(request, tab='account'):
-    """Personal Page is the main view for accessing user functions."""
+    """
+    Personal Page is the main view for accessing user functions.
+    """
     if request.is_ajax():
         if tab == 'account':
-            return _personal_page_editorial_account(request)
+            return _personal_page_account(request)
+        elif tab == 'admin_actions':
+            return _personal_page_admin_actions(request)
         elif tab == 'editorial_actions':
             return _personal_page_editorial_actions(request)
         elif tab == 'refereeing':

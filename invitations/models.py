@@ -21,6 +21,8 @@ class RegistrationInvitation(models.Model):
     """
     Invitation to particular persons for registration
     """
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.SET_NULL,
+                                blank=True, null=True)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=150)
@@ -141,7 +143,7 @@ class CitationNotification(models.Model):
 
         _str += ' on '
         if self.submission:
-            _str += 'Submission ({})'.format(self.submission.arxiv_identifier_w_vn_nr)
+            _str += 'Submission ({})'.format(self.submission.preprint.identifier_w_vn_nr)
         elif self.publication:
             _str += 'Publication ({})'.format(self.publication.doi_label)
         return _str

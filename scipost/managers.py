@@ -3,16 +3,16 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-from django.db.models import Q
+from django.db.models import Count, Q
+from django.db.models.functions import Lower
 from django.utils import timezone
 
 from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
 
-today = timezone.now().date()
-
 
 class FellowManager(models.Manager):
     def active(self):
+        today = timezone.now().date()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
             Q(start_date__isnull=True, until_date__gte=today) |
@@ -28,8 +28,16 @@ class ContributorQuerySet(models.QuerySet):
         """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
+    def have_duplicate_email(self):
+        """ Return Contributors having duplicate emails. """
+        duplicates = self.values(lower_email=Lower('user__email')).annotate(
+            Count('id')).order_by('user__last_name').filter(id__count__gt=1)
+        return self.annotate(lower_email=Lower('user__email')
+        ).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
+
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""
+        today = timezone.now().date()
         return self.exclude(
             unavailability_periods__start__lte=today,
             unavailability_periods__end__gte=today)
@@ -49,9 +57,11 @@ class ContributorQuerySet(models.QuerySet):
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):
+        today = timezone.now().date()
         return self.filter(start__lte=today, end__gte=today)
 
     def future(self):
+        today = timezone.now().date()
         return self.filter(end__gte=today)
 
 

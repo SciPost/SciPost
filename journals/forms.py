@@ -12,7 +12,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.forms import BaseModelFormSet, modelformset_factory
+from django.forms import BaseFormSet, formset_factory, BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
@@ -20,7 +20,8 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
-from .models import Issue, Publication, Reference, UnregisteredAuthor, PublicationAuthorsTable
+from .models import Issue, Publication, Reference,\
+    UnregisteredAuthor, PublicationAuthorsTable, OrgPubFraction
 from .utils import JournalUtils
 from .signals import notify_manuscript_published
 
@@ -28,7 +29,7 @@ from .signals import notify_manuscript_published
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
-from partners.models import Organization
+from organizations.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
@@ -125,7 +126,6 @@ PublicationAuthorOrderingFormSet = modelformset_factory(
 
 class AuthorsTableOrganizationSelectForm(forms.ModelForm):
     organization = AutoCompleteSelectField('organization_lookup')
-    #organization = forms.ModelChoiceField(queryset=Organization.objects.all())
 
     class Meta:
         model = PublicationAuthorsTable
@@ -376,15 +376,15 @@ class DraftPublicationForm(forms.ModelForm):
             'acceptance_date',
             'publication_date']
 
-    def __init__(self, data=None, arxiv_identifier_w_vn_nr=None, issue_id=None, *args, **kwargs):
+    def __init__(self, data=None, identifier_w_vn_nr=None, issue_id=None, *args, **kwargs):
         # Use separate instance to be able to prefill the form without any existing Publication
         self.submission = None
         self.issue = None
         self.to_journal = None
-        if arxiv_identifier_w_vn_nr:
+        if identifier_w_vn_nr:
             try:
                 self.submission = Submission.objects.accepted().get(
-                    arxiv_identifier_w_vn_nr=arxiv_identifier_w_vn_nr)
+                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
             except Submission.DoesNotExist:
                 self.submission = None
 
@@ -497,44 +497,61 @@ class DraftPublicationForm(forms.ModelForm):
             self.fields['acceptance_date'].initial = self.submission.acceptance_date
             self.fields['publication_date'].initial = timezone.now()
 
-        # Fill data that may be derived from the issue data
-        issue = None
+        # Fill data for Publications grouped by Issues (or Issue+Volume).
         if hasattr(self.instance, 'in_issue') and self.instance.in_issue:
-            issue = self.instance.in_issue
-        elif self.issue:
-            issue = self.issue
-        if issue:
-            self.prefill_with_issue(issue)
+            self.issue = self.instance.in_issue
+        if self.issue:
+            self.prefill_with_issue(self.issue)
 
-        # Fill data that may be derived from the issue data
-        journal = None
+        # Fill data for Publications ungrouped; directly linked to a Journal.
         if hasattr(self.instance, 'in_journal') and self.instance.in_journal:
-            journal = self.instance.in_issue
-        elif self.to_journal:
-            journal = self.to_journal
-        if journal:
-            self.prefill_with_journal(journal)
+            self.to_journal = self.instance.in_issue
+        if self.to_journal:
+            self.prefill_with_journal(self.to_journal)
 
     def prefill_with_issue(self, issue):
         # Determine next available paper number:
-        paper_nr = Publication.objects.filter(in_issue__in_volume=issue.in_volume).count() + 1
+        if issue.in_volume:
+            # Issue/Volume
+            paper_nr = Publication.objects.filter(in_issue__in_volume=issue.in_volume).count() + 1
+        elif issue.in_journal:
+            # Issue only
+            paper_nr = Publication.objects.filter(in_issue=issue).count() + 1
         if paper_nr > 999:
             raise PaperNumberingError(paper_nr)
-        self.fields['paper_nr'].initial = str(paper_nr)
-        doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
-            journal=issue.in_volume.in_journal.name,
-            vol=issue.in_volume.number,
-            issue=issue.number,
-            paper=str(paper_nr).rjust(3, '0'))
-        self.fields['doi_label'].initial = doi_label
 
+        self.fields['paper_nr'].initial = str(paper_nr)
+        if issue.in_volume:
+            doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
+                journal=issue.in_volume.in_journal.name,
+                vol=issue.in_volume.number,
+                issue=issue.number,
+                paper=str(paper_nr).rjust(3, '0'))
+        elif issue.in_journal:
+            doi_label = '{journal}.{issue}.{paper}'.format(
+                journal=issue.in_journal.name,
+                issue=issue.number,
+                paper=str(paper_nr).rjust(3, '0'))
+        self.fields['doi_label'].initial = doi_label
         doi_string = '10.21468/{doi}'.format(doi=doi_label)
+
+        # Initiate a BibTex entry
         bibtex_entry = (
             '@Article{%s,\n'
-            '\ttitle={{%s},\n'
+            '\ttitle={{%s}},\n'
             '\tauthor={%s},\n'
-            '\tjournal={%s},\n'
-            '\tvolume={%i},\n'
+        ) % (
+            doi_string,
+            self.submission.title,
+            self.submission.author_list.replace(',', ' and'))
+
+        if issue.in_volume:
+            bibtex_entry += '\tjournal={%s},\n\tvolume={%i},\n' % (
+                issue.in_volume.in_journal.abbreviation_citation, issue.in_volume.number)
+        elif issue.in_journal:
+            bibtex_entry += '\tjournal={%s},\n' % (issue.in_journal.abbreviation_citation)
+
+        bibtex_entry += (
             '\tissue={%i},\n'
             '\tpages={%i},\n'
             '\tyear={%s},\n'
@@ -543,16 +560,12 @@ class DraftPublicationForm(forms.ModelForm):
             '\turl={https://scipost.org/%s},\n'
             '}'
         ) % (
-            doi_string,
-            self.submission.title,
-            self.submission.author_list.replace(',', ' and'),
-            issue.in_volume.in_journal.abbreviation_citation,
-            issue.in_volume.number,
             issue.number,
             paper_nr,
             issue.until_date.strftime('%Y'),
             doi_string,
             doi_string)
+
         self.fields['BiBTeX_entry'].initial = bibtex_entry
         if not self.instance.BiBTeX_entry:
             self.instance.BiBTeX_entry = bibtex_entry
@@ -569,7 +582,7 @@ class DraftPublicationForm(forms.ModelForm):
         doi_string = '10.21468/{doi}'.format(doi=doi_label)
         bibtex_entry = (
             '@Article{%s,\n'
-            '\ttitle={{%s},\n'
+            '\ttitle={{%s}},\n'
             '\tauthor={%s},\n'
             '\tjournal={%s},\n'
             '\tpages={%i},\n'
@@ -691,3 +704,36 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             notify_manuscript_published(self.request.user, self.instance, False)
 
         return self.instance
+
+
+
+class SetOrgPubFractionForm(forms.ModelForm):
+    class Meta:
+        model = OrgPubFraction
+        fields = ['organization', 'publication', 'fraction']
+
+    def __init__(self, *args, **kwargs):
+        super(SetOrgPubFractionForm, self).__init__(*args, **kwargs)
+        if self.instance.id:
+            self.fields['organization'].disabled = True
+            self.fields['publication'].widget = forms.HiddenInput()
+
+
+class BaseOrgPubFractionsFormSet(BaseModelFormSet):
+
+    def clean(self):
+        """
+        Checks that the fractions add up to one.
+        """
+        norm = 0
+        for form in self.forms:
+            form.is_valid()
+            norm += 1000 * form.cleaned_data.get('fraction', 0)
+        if norm != 1000:
+            raise forms.ValidationError('The fractions do not add up to one!')
+
+
+OrgPubFractionsFormSet = modelformset_factory(OrgPubFraction,
+                                              fields=('publication', 'organization', 'fraction'),
+                                              formset=BaseOrgPubFractionsFormSet,
+                                              form=SetOrgPubFractionForm, extra=0)

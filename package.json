@@ -19,8 +19,7 @@
   "homepage": "https://www.scipost.org",
   "devDependencies": {
     "ajv": "^5.2.2",
-    "bootstrap": "^4.1.0",
-    "bootstrap-loader": "^2.1.0",
+    "bootstrap": "^4.1.3",
     "clean-webpack-plugin": "^0.1.15",
     "css-loader": "^0.28.4",
     "enhanced-resolve": "^3.4.1",
@@ -41,13 +40,15 @@
     "style-loader": "^0.13.1",
     "tapable": "^0.2.8",
     "tether": "^1.4.0",
-    "url-loader": "^0.5.7",
+    "url-loader": "^1.1.1",
     "webpack": "^3.5.4",
-    "webpack-bundle-tracker": "^0.2.0",
+    "webpack-bundle-tracker": "^0.3.0",
     "webpack-glob-entry": "^2.1.1"
   },
   "dependencies": {
-    "npm": "^5.3.0",
+    "bootstrap-loader": "^2.2.0",
+    "npm": "^6.4.1",
+    "npm-install-peers": "^1.2.1",
     "schema-utils": "^0.3.0"
   }
 }

@@ -8,6 +8,7 @@ from journals.constants import SCIPOST_JOURNAL_PHYSICS
 # All Submission statuses
 STATUS_INCOMING = 'incoming'
 STATUS_UNASSIGNED = 'unassigned'
+STATUS_FAILED_PRESCREENING = 'failed_pre'
 STATUS_EIC_ASSIGNED = 'assigned'
 STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
 STATUS_RESUBMITTED = 'resubmitted'
@@ -25,6 +26,7 @@ STATUS_PUBLISHED = 'published'
 SUBMISSION_STATUS = (
     (STATUS_INCOMING, 'Submission incoming, undergoing pre-screening'),
     (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
+    (STATUS_FAILED_PRESCREENING, 'Failed pre-screening'),
     (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_RESUBMITTED, 'Has been resubmitted'),
@@ -37,6 +39,7 @@ SUBMISSION_STATUS = (
 # Submissions with these statuses never have required actions.
 NO_REQUIRED_ACTION_STATUSES = [
     STATUS_UNASSIGNED,
+    STATUS_FAILED_PRESCREENING,
     STATUS_ASSIGNMENT_FAILED,
     STATUS_REJECTED,
     STATUS_WITHDRAWN,
@@ -69,6 +72,20 @@ ASSIGNMENT_REFUSAL_REASONS = (
     ('OFE', 'Outside of my field of expertise'),
     ('NIE', 'Not interested enough'),
     ('DNP', 'SciPost should not even consider this paper'),
+)
+
+STATUS_PREASSIGNED, STATUS_INVITED = 'preassigned', 'invited'
+STATUS_DECLINED = 'declined'
+STATUS_DEPRECATED, STATUS_COMPLETED = 'deprecated', 'completed'
+STATUS_REPLACED = 'replaced'
+ASSIGNMENT_STATUSES = (
+    (STATUS_PREASSIGNED, 'Pre-assigned'),
+    (STATUS_INVITED, 'Invited'),
+    (STATUS_ACCEPTED, 'Accepted'),
+    (STATUS_DECLINED, 'Declined'),
+    (STATUS_COMPLETED, 'Completed'),
+    (STATUS_DEPRECATED, 'Deprecated'),
+    (STATUS_REPLACED, 'Replaced'),
 )
 
 REFEREE_QUALIFICATION = (
@@ -186,11 +203,14 @@ EIC_REC_STATUSES = (
     (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
-# Use `.format()` https://docs.python.org/3.5/library/string.html#format-string-syntax
-# In your regex multiple brackets may occur;
-# Please make sure to double them in that case as per instructions in the reference!
-SUBMISSIONS_NO_VN_REGEX = '(?P<arxiv_identifier_wo_vn_nr>[0-9]{4,}.[0-9]{4,})'
-SUBMISSIONS_COMPLETE_REGEX = '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})'
+# Define regexes
+arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
+arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
+scipost_regex_wo_vn = 'scipost_[0-9]{4,}.[0-9]{4,}'
+scipost_regex_w_vn = 'scipost_[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
+SUBMISSIONS_NO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s))' % (arxiv_regex_wo_vn, scipost_regex_wo_vn)
+SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (arxiv_regex_w_vn, scipost_regex_w_vn)
+SCIPOST_PREPRINT_W_VN_REGEX = '(?P<identifier_w_vn_nr>%s)' % scipost_regex_w_vn
 
 
 # `EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS` tracks the regex rules for the manuscripts
@@ -198,6 +218,6 @@ SUBMISSIONS_COMPLETE_REGEX = '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[
 #
 # CAUTION: *triple* check whether the `default` regex also meets any other explicit journal regex!
 EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS = {
-    SCIPOST_JOURNAL_PHYSICS: '(?P<arxiv_identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})',
+    # SCIPOST_JOURNAL_PHYSICS: '(?P<identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})',
     'default': SUBMISSIONS_COMPLETE_REGEX
 }

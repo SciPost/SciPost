@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'partners/base.html' %}
 
 {% block pagetitle %}: Supporting Partners{% endblock pagetitle %}
 
@@ -7,16 +7,23 @@
 {% load scipost_extras %}
 
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <h1>SciPost Supporting Partners</h1>
-        </div>
-    </div>
+{% block breadcrumb_items %}
+{{ block.super }}
 {% endblock %}
 
-
 {% block content %}
+
+<div class="container-outside header">
+  <div class="container">
+    <h1>SciPost Supporting Partners</h1>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h2 class="text-danger">We are deprecating our Partners pages, please go to our <a href="{% url 'sponsors:sponsors' %}">Sponsors page</a> instead.</h2>
+  </div>
+</div>
 
 {% if perms.scipost.can_manage_SPB %}
     <div class="row">
@@ -154,11 +161,11 @@
         <ul class="list-unstyled mb-5">
             {% for agreement in current_agreements %}
                 <li class="media mb-2">
-                    <img class="d-flex mr-3 {{ agreement.partner.institution.css_class }}" width="192" src="{% if agreement.partner.institution.logo %}{{agreement.partner.institution.logo.url}}{% endif %}" alt="Partner Logo">
+                    <img class="d-flex mr-3 {{ agreement.partner.organization.css_class }}" width="192" src="{% if agreement.partner.organization.logo %}{{agreement.partner.organization.logo.url}}{% endif %}" alt="Partner Logo">
                     <div class="media-body">
                         <p>
-                            <strong>{{agreement.partner.institution.name}}</strong><br>
-                            {{agreement.partner.institution.get_country_display}}
+                            <strong>{{ agreement.partner.organization.name }}</strong><br>
+                            {{ agreement.partner.organization.get_country_display }}
                         </p>
                     </div>
                 </li>

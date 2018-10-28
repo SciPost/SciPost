@@ -13,6 +13,8 @@ from submissions.models import Submission
 from . import constants
 from .models import RegistrationInvitation, CitationNotification
 
+from profiles.models import Profile
+
 from ajax_select.fields import AutoCompleteSelectField, AutoCompleteSelectMultipleField
 
 
@@ -29,7 +31,7 @@ class RegistrationInvitationFilterForm(forms.Form):
         term = self.cleaned_data.get('term')
         return qs.filter(
             Q(last_name__icontains=term) |
-            Q(citation_notifications__submission__arxiv_identifier_w_vn_nr__icontains=term) |
+            Q(citation_notifications__submission__preprint__identifier_w_vn_nr__icontains=term) |
             Q(citation_notifications__publication__doi_label__icontains=term))
 
 
@@ -193,6 +195,7 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
     class Meta:
         model = RegistrationInvitation
         fields = (
+            'profile',
             'title',
             'first_name',
             'last_name',
@@ -200,6 +203,9 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
             'message_style',
             'invitation_type',
             'personal_message')
+        widgets = {
+            'profile': forms.HiddenInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         # Find Submissions/Publications related to the invitation and fill the autocomplete fields
@@ -232,6 +238,12 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
     def save(self, *args, **kwargs):
         if not hasattr(self.instance, 'created_by'):
             self.instance.created_by = self.request.user
+
+        # Try to associate an existing Profile to invitation:
+        profile = Profile.objects.get_unique_from_email_or_None(
+            email=self.cleaned_data['email'])
+        self.instance.profile = profile
+
         invitation = super().save(*args, **kwargs)
         if kwargs.get('commit', True):
             # Save the Submission notifications

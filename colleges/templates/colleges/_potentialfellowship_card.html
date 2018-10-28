@@ -1,0 +1,44 @@
+{% load bootstrap %}
+
+<div class="card-body">
+  <div class="row">
+    <div class="col-6">
+      {% include 'profiles/_profile_card.html' with profile=potfel.profile %}
+    </div>
+    <div class="col-6">
+      <ul>
+	<li><a href="{% url 'colleges:potential_fellowship_update' pk=potfel.id %}">Update</a> the data</li>
+	<li><a href="{% url 'colleges:potential_fellowship_delete' pk=potfel.id %}">Delete</a> this Potential Fellowship</li>
+	<li><a href="{% url 'colleges:potential_fellowship_email_initial' pk=potfel.id %}">Prepare and send initial email</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-6 ml-auto">
+      <h3>Events</h3>
+      <ul>
+	{% for event in potfel.potentialfellowshipevent_set.all %}
+	{% include 'colleges/_potentialfellowship_event_li.html' with event=event %}
+	{% empty %}
+	<li>No events found.</li>
+	{% endfor %}
+      </ul>
+    </div>
+    <div class="col-md-5">
+      <h3>Update the status of this Potential Fellowship</h3>
+      <form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_update_status' pk=potfel.id %}" method="post">
+	{% csrf_token %}
+	{{ pfstatus_form|bootstrap }}
+	<input type="submit" name="submit" value="Update status" class="btn btn-outline-secondary">
+      </form>
+      <hr/>
+      <h3>Add an event for this Potential Fellowship</h3>
+      <form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
+        {% csrf_token %}
+        {{ pfevent_form|bootstrap }}
+        <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
+      </form>
+    </div>
+  </div>
+</div>

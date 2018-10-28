@@ -22,12 +22,53 @@
     <br>
 
     {% if recommendation.get_other_versions %}
-        <h3>Other versions of Editorial Recommendations for this Submission</h3>
-        {% for old_rec in recommendation.get_other_versions %}
-            {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=old_rec %}
-        {% endfor %}
-        <br>
-        <br>
+    <div class="card text-white bg-dark">
+      <div class="card-header">
+	<a class="btn btn-secondary text-white bg-dark" data-toggle="collapse" href="#previousEdRecs" role="button" aria-expanded="false" aria-controls="previousEdRecs">Deprecated versions of Editorial Recommendations for this Submission (click to expand/collapse)</a>
+      </div>
+      <div class="collapse" id="previousEdRecs">
+	<div class="card-body">
+	  {% for old_rec in recommendation.get_other_versions %}
+          {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=old_rec %}
+          <h3 class="card-title">Fellows eligible to vote:</h3>
+          <ul>
+            {% for eligible in old_rec.eligible_to_vote.all|sort_by:'user__last_name' %}
+            <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
+            {% endfor %}
+          </ul>
+          <h3 class="card-title">Voting results:</h3>
+          <ul>
+            <li>
+              Agreed ({{ old_rec.voted_for.all.count }}):
+              {% for agreed in old_rec.voted_for.all|sort_by:'user__last_name' %}
+              {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </li>
+            <li>
+              Disagreed ({{ old_rec.voted_against.all.count }}):
+              {% for disagreed in old_rec.voted_against.all|sort_by:'user__last_name' %}
+              {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </li>
+            <li>
+              Abstained ({{ old_rec.voted_abstain.all.count }}):
+              {% for abstained in old_rec.voted_abstain.all|sort_by:'user__last_name' %}
+              {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
+              {% endfor %}
+            </li>
+          </ul>
+          <h3 class="card-title">Remarks:</h3>
+          <ul>
+            {% for rem in old_rec.remarks.all %}
+            <li>{% include 'partials/submissions/remark_small.html' with remark=rem %}</li>
+            {% empty %}
+            <li><em>No remarks</em></li>
+            {% endfor %}
+          </ul>
+	  {% endfor %}
+	</div>
+      </div>
+    </div>
     {% endif %}
 
     <h2 class="highlight">Editorial Recommendation to vote on</h2>
@@ -83,7 +124,7 @@
                     <li>
                         The current Editorial Recommendation: {{ recommendation.get_recommendation_display }}.
                         <br>
-                        <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.arxiv_identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
+                        <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
                             {% csrf_token %}
                             <button type="submit" name="action" value="fix" class="btn btn-primary btn-sm mr-2">Fix College decision</button>
                             <button type="submit" name="action" value="deprecate" class="btn btn-danger btn-sm text-white">Deprecate College decision</button>
@@ -97,6 +138,9 @@
 
     {% if voting_form %}
         <h3 class="mt-4">Your position on this recommendation</h3>
+	{% if previous_vote %}
+	<p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
+	{% endif %}
         <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
             {% csrf_token %}
             {{ voting_form|bootstrap:'0,12' }}

@@ -39,8 +39,8 @@ class LatestCommentsFeedRSS(Feed):
                            kwargs={'arxiv_or_DOI_string': item.content_object.arxiv_or_DOI_string})
         elif isinstance(item.content_object, Submission):
             return reverse('submissions:submission',
-                           kwargs={'arxiv_identifier_w_vn_nr':
-                                   item.content_object.arxiv_identifier_w_vn_nr})
+                           kwargs={'identifier_w_vn_nr':
+                                   item.content_object.preprint.identifier_w_vn_nr})
         elif isinstance(item.content_object, ThesisLink):
             return reverse('theses:thesis',
                            kwargs={'thesislink_id': item.thesislink.id})
@@ -65,7 +65,7 @@ class LatestNewsFeedRSS(Feed):
     description = "SciPost: recent news and announcements"
 
     def items(self):
-        return NewsItem.objects.order_by('-date')[:5]
+        return NewsItem.objects.homepage().order_by('-date')[:5]
 
     def item_title(self, item):
         return item.headline
@@ -125,7 +125,7 @@ class LatestSubmissionsFeedRSS(Feed):
 
     def item_link(self, item):
         return reverse('submissions:submission',
-                       kwargs={'arxiv_identifier_w_vn_nr': item.arxiv_identifier_w_vn_nr})
+                       kwargs={'identifier_w_vn_nr': item.preprint.identifier_w_vn_nr})
 
 
 class LatestSubmissionsFeedAtom(LatestSubmissionsFeedRSS):

@@ -72,6 +72,7 @@ event: "focusin"
       <th>Latest successful Crossref deposit</th>
       <th>Deposit needs updating?</th>
       <th>DOAJ</th>
+      <th>PubFracs fixed?</th>
     </tr>
   </thead>
 
@@ -90,9 +91,10 @@ event: "focusin"
       <td>{{ publication|latest_successful_crossref_deposit }}</td>
       <td>{{ publication.doideposit_needs_updating }}</td>
       <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
+      <td>{{ publication|pubfracs_fixed }}</td>
     </tr>
     <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
-      <td colspan="6" class="py-3">
+      <td colspan="7" class="py-3">
         <div class="row">
           {% if not publication.is_published %}
             <div class="col-12">
@@ -129,7 +131,7 @@ event: "focusin"
 	    <h3>Associate a grant to this publication:</h3>
 	    <form action="{% url 'journals:add_associated_grant' publication.doi_label %}" method="post">
 	      {% csrf_token %}
-	      {{associate_grant_form|bootstrap}}
+	      {{ associate_grant_form|bootstrap }}
 	      <input class="btn btn-outline-secondary" type="submit" value="Add">
 	    </form>
 	    <br/>
@@ -144,7 +146,7 @@ event: "focusin"
 	    <h3>Associate a generic funder to this publication:</h3>
 	    <form action="{% url 'journals:add_generic_funder' publication.doi_label %}" method="post">
 	      {% csrf_token %}
-	      {{associate_generic_funder_form|bootstrap}}
+	      {{ associate_generic_funder_form|bootstrap }}
 	      <input class="btn btn-outline-secondary" type="submit" value="Add">
 	    </form>
 	    <br/>
@@ -220,7 +222,7 @@ event: "focusin"
     </tr>
     {% empty %}
     <tr>
-      <td colspan="6">No publications found.</td>
+      <td colspan="7">No publications found.</td>
     </tr>
     {% endfor %}
   </tbody>
@@ -228,3 +230,10 @@ event: "focusin"
 
 
 {% endblock content %}
+
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ associate_grant_form.media }}
+    {{ associate_generic_funder_form.media }}
+{% endblock footer_script %}

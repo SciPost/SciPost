@@ -2,15 +2,15 @@
 
 {% load bootstrap %}
 
-{% block pagetitle %}: plagiarism report ({{ submission.arxiv_identifier_w_vn_nr }}){% endblock pagetitle %}
+{% block pagetitle %}: plagiarism report ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <span class="breadcrumb-item">Plagiarism Report ({{ submission.arxiv_identifier_w_vn_nr }})</span>
+    <span class="breadcrumb-item">Plagiarism Report ({{ submission.preprint.identifier_w_vn_nr }})</span>
 {% endblock %}
 
 {% block content %}
-    <h1>Plagiarism Report for <a href="{{submission.get_absolute_url}}">{{submission.arxiv_identifier_w_vn_nr}}</a></h1>
+    <h1>Plagiarism Report for <a href="{{submission.get_absolute_url}}">{{submission.preprint.identifier_w_vn_nr}}</a></h1>
     <h2>{{submission.title}}</h2>
     <h3 class="mb-4">by {{submission.author_list}}</h3>
     {% if submission.plagiarism_report %}
@@ -45,7 +45,7 @@
         {{form|bootstrap}}
         <input type="submit" class="btn btn-primary" value="{% if submission.plagiarism_report %}Update report status{% else %}Submit submission for plagiarism check{% endif %}">
         {% if submission.plagiarism_report %}
-            <a href="{% url 'submissions:plagiarism_report' submission.arxiv_identifier_w_vn_nr %}" class="ml-2 btn btn-default">Download report pdf</a>
+            <a href="{% url 'submissions:plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ml-2 btn btn-default">Download report pdf</a>
         {% endif %}
     </form>
 

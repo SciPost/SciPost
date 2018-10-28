@@ -1,5 +1,6 @@
 *.pyc
 __pycache__
+*.pid
 
 *.json
 
@@ -37,3 +38,5 @@ UPLOADS
 static_bundles/
 
 whoosh_index
+
+*.pid
