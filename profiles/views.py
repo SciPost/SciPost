@@ -59,7 +59,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'webpage': contributor.personalwebpage,
                     'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
                 })
-            elif from_type == 'unregistered_author':
+            elif from_type == 'unregisteredauthor':
                 unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
                 initial.update({
                     'first_name': unreg_auth.first_name,
@@ -138,6 +138,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         contributors_wo_profile = Contributor.objects.filter(profile__isnull=True)
+        unreg_auth_wo_profile = UnregisteredAuthor.objects.filter(profile__isnull=True)
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
 
@@ -147,6 +148,8 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             'contributors_w_duplicate_email': Contributor.objects.have_duplicate_email(),
             'nr_contributors_wo_profile': contributors_wo_profile.count(),
             'next_contributor_wo_profile': contributors_wo_profile.first(),
+            'nr_unreg_auth_wo_profile': unreg_auth_wo_profile.count(),
+            'next_unreg_auth_wo_profile': unreg_auth_wo_profile.first(),
             'nr_refinv_wo_profile': refinv_wo_profile.count(),
             'next_refinv_wo_profile': refinv_wo_profile.first(),
             'nr_reginv_wo_profile': reginv_wo_profile.count(),

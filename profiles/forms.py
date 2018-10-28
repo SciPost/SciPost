@@ -44,7 +44,7 @@ class ProfileForm(forms.ModelForm):
         Check that only recognized types are used.
         """
         cleaned_instance_from_type = self.cleaned_data['instance_from_type']
-        if cleaned_instance_from_type not in ['', 'contributor', 'unregistered_author',
+        if cleaned_instance_from_type not in ['', 'contributor', 'unregisteredauthor',
                                               'refereeinvitation', 'registrationinvitation']:
             raise forms.ValidationError('The from_type hidden field is inconsistent.')
         return cleaned_instance_from_type
@@ -62,7 +62,7 @@ class ProfileForm(forms.ModelForm):
                 contributor = get_object_or_404(Contributor, pk=instance_pk)
                 contributor.profile = profile
                 contributor.save()
-            elif self.cleaned_data['instance_from_type'] == 'unregistered_author':
+            elif self.cleaned_data['instance_from_type'] == 'unregisteredauthor':
                 unreg_auth = get_object_or_404(UnregisteredAuthor, pk=instance_pk)
                 unreg_auth.profile = profile
                 unreg_auth.save()

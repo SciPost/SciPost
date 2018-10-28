@@ -37,6 +37,9 @@
 	{% if next_contributor_wo_profile %}
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
 	{% endif %}
+	{% if next_unreg_auth_wo_profile %}
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='unregisteredauthor' pk=next_unreg_auth_wo_profile.id %}">the next</a> UnregisteredAuthor without one ({{ nr_unreg_auth_wo_profile }} to handle)</li>
+	{% endif %}
 	{% if next_refinv_wo_profile %}
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
 	{% endif %}
