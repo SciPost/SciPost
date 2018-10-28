@@ -2,15 +2,19 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.core.urlresolvers import reverse_lazy
+from django.contrib import messages
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.models import Q
 from django.http import HttpResponse, HttpResponseServerError
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from .models import Topic, RelationAsym, RelationSym
+from guardian.decorators import permission_required
+
+from .models import Tag, Topic, RelationAsym, RelationSym
+from .forms import SelectTagForm
 
 from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
@@ -42,6 +46,27 @@ class TopicUpdateView(PermissionsMixin, UpdateView):
     success_url = reverse_lazy('ontology:topics')
 
 
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def topic_add_tag(request, slug):
+    topic = get_object_or_404(Topic, slug=slug)
+    select_tag_form = SelectTagForm(request.POST or None)
+    if select_tag_form.is_valid():
+        topic.tags.add(select_tag_form.cleaned_data['tag'])
+        topic.save()
+        messages.success(request, 'Tag %s added to Topic %s' % (
+            select_tag_form.cleaned_data['tag'], str(topic)))
+    return redirect(reverse('ontology:topic_details', kwargs={'slug': topic.slug}))
+
+
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def topic_remove_tag(request, slug, tag_id):
+    topic = get_object_or_404(Topic, slug=slug)
+    tag = get_object_or_404(Tag, pk=tag_id)
+    topic.tags.remove(tag)
+    topic.save()
+    return redirect(reverse('ontology:topic_details', kwargs={'slug': topic.slug}))
+
+
 class TopicListView(PaginationMixin, ListView):
     model = Topic
     paginate_by = 25
@@ -68,5 +93,6 @@ class TopicDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context['select_tag_form'] = SelectTagForm()
         context['relations_asym'] = RelationAsym.objects.filter(Q(A=self.object) | Q(B=self.object))
         return context

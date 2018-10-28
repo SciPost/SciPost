@@ -13,7 +13,12 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    {% include 'ontology/_topic_card.html' with topic=topic %}
+    {% include 'ontology/_topic_card.html' with topic=topic select_tag_form=select_tag_form %}
   </div>
 </div>
 {% endblock content %}
+
+{% block footer_script %}
+{{ block.super }}
+{{ select_tag_form.media }}
+{% endblock footer_script %}

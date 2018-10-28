@@ -1,22 +1,39 @@
+{% load bootstrap %}
 
 <div class="card">
   <div class="card-header">
-    <h3>{{ topic }}</h3>
-    {% if perms.scipost.can_manage_ontology %}
-    <a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
-    {% endif %}
-  </div>
-  <div class="card-body">
-    {% if topic.tags.all %}
-    <ul class="list list-inline">
-      <li class="list-inline-item"><strong>Tags</strong>:</li>
-      {% for tag in topic.tags.all %}
-      <li class="list-inline-item">{{ tag }}</li>
-      {% endfor %}
-    </ul>
-    {% endif %}
-    <h4>Relations</h4>
     <div class="row">
+      <div class="{% if perms.scipost.can_manage_ontology %}col-6{% else %}col-12{% endif %}">
+	<ul class="list-inline">
+	  <li class="list-inline-item"><h3>{{ topic }}</h3></li>
+	  {% if perms.scipost.can_manage_ontology %}
+	  <li class="list-inline-item small">
+	    <a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
+	  </li>
+	  {% endif %}
+	</ul>
+	{% if topic.tags.all %}
+	<ul class="list list-inline mb-0">
+	  <li class="list-inline-item"><strong>Tags</strong>:</li>
+	  {% for tag in topic.tags.all %}
+	  <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+	  {% endfor %}
+	</ul>
+	{% endif %}
+      </div>
+      {% if perms.scipost.can_manage_ontology %}
+      <div class="col-6">
+	<form class="form-inline" action="{% url 'ontology:topic_add_tag' slug=topic.slug %}" method="post">{% csrf_token %}{{ select_tag_form|bootstrap }}
+	  <input type="submit" class="form-control btn btn-outline-secondary" value="Add Tag"/>
+	</form>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card-body">
+    <h4>Relations</h4>
+    <div class="row mb-0">
       <div class="col-6">
 	<h5>asymmetric:</h5>
 	<ul>
