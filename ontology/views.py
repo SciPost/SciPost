@@ -12,7 +12,7 @@ from django.views.generic.list import ListView
 
 from .models import Topic, RelationAsym, RelationSym
 
-from scipost.mixins import PermissionsMixin
+from scipost.mixins import PaginationMixin, PermissionsMixin
 
 
 def ontology(request):
@@ -41,8 +41,9 @@ class TopicUpdateView(PermissionsMixin, UpdateView):
     success_url = reverse_lazy('ontology:topics')
 
 
-class TopicListView(ListView):
+class TopicListView(PaginationMixin, ListView):
     model = Topic
+    paginate_by = 25
 
 
 class TopicDetailView(DetailView):
