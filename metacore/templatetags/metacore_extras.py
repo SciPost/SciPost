@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def truncate_list(authors, max_n):
     """ Returns author list, truncated to max_n authors when the list is longer """

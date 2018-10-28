@@ -319,11 +319,20 @@ SHELL_PLUS_POST_IMPORTS = (
 The Metacore app for citables, sourced - for now only - from Crossref, is available at /metacore.
 In order to get it running on the server (right now implemented on staging), the following things need to be running:
 
-First of all the Mongo daemon:
+First of all the Mongo daemon (staging server):
 ```bash
 /home/scipoststg/webapps/mongo/mongodb-linux-x86_64-amazon-3.6.3/bin/mongod --auth --dbpath /home/scipoststg/webapps/mongo/data --port 21145 --logpath /home/scipoststg/webapps/scipost/logs/mongod.log --fork
 ```
 
+### Indexing
+The search methods use the mongo text index for authors/title. They are defined through
+the mongo shell. Execute the following in the mongo shell:
+```bash
+use scipost
+db.citable.createIndex({authors: "text", title: "text", journal: "text"})
+```
+
+### Scheduled tasks
 The tasks that involve large requests from CR are supposed to run in the background. For this to work, Celery is required. The following commands assume that you are in the `scipost_v1` main folder, inside the right virtual environment.
 
 Celery depends on a broker, for which we use RabbitMQ. Start it with

@@ -49,13 +49,8 @@ python-dateutil==2.6.0  # Doesn't Django have this functionality built-in?  -- J
 Pillow==3.4.2  # Latest version is v4.2.1; need to know about usage before upgrade. -- JdW
 html2text
 
-
 # Mongo (Metacore)
 mongoengine==0.15.0
-celery==4.1.1
-django-celery-results==1.0.1
-django-celery-beat==1.1.1
-flower==0.9.2
 
 # Possibly dead (most probably not used anymore and possibly not up-to-date packages)  -- JdW (August 15th, 2017)
 imagesize==0.7.1

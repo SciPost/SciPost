@@ -1,13 +1,19 @@
 from __future__ import absolute_import, unicode_literals
-import requests
-from .models import Citable, CitableWithDOI, Journal
-from rest_framework import serializers
-from mongoengine.python_support import pymongo
-from django.utils import timezone
+
 import logging
+import requests
+
 from celery import shared_task, current_task
+from mongoengine.python_support import pymongo
+from rest_framework import serializers
+
+from django.utils import timezone
+
+from .models import Citable, CitableWithDOI, Journal
+
 
 logger = logging.getLogger(__name__)
+
 
 @shared_task
 def import_journal_full(issn, cursor='*'):
@@ -16,6 +22,7 @@ def import_journal_full(issn, cursor='*'):
     and store them in the Metacore mongo database
     """
     return import_journal(issn=issn, cursor=cursor, from_index_date=None)
+
 
 @shared_task
 def import_journal_incremental(issn, from_index_date, cursor='*'):
@@ -31,6 +38,7 @@ def import_journal_incremental(issn, from_index_date, cursor='*'):
 
     import_journal(issn=issn, cursor=cursor, from_index_date=from_index_date)
 
+
 def import_journal(issn, cursor='*', from_index_date=None):
     # Get journal to track progress
 
@@ -45,23 +53,18 @@ def import_journal(issn, cursor='*', from_index_date=None):
     error_count = 0
     total_upserted = 0
     total_modified = 0
-    
+
     validation_errors = []
 
-    for i in range(0,batches):
-        # print("-------------------------------")
-        # print("Batch %s" % (i, ))
-        # print("Last cursor: ", last_cursor)
-        # print("Current cursor: ", cursor)
+    for i in range(batches):
         logger.info("-------------------------------")
         logger.info("Batch %s" % (i, ))
         logger.info("Last cursor: {}".format(last_cursor))
         logger.info("Current cursor: {}".format(cursor))
 
+        params = {'cursor': cursor, 'rows': rows, 'mailto': 'jorrandewit@scipost.org'}
         if from_index_date:
-            params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl', 'filter': 'from-index-date:{}'.format(from_index_date)}
-        else:
-            params = {'cursor': cursor, 'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
+            params['filter'] = 'from-index-date:{}'.format(from_index_date)
 
         last_cursor = cursor
         r = requests.get(url, params=params)
@@ -88,7 +91,6 @@ def import_journal(issn, cursor='*', from_index_date=None):
         # Parser returns False if there's an error
         errors = [not i for i in citables if i == False]
         error_count = error_count + len(errors)
-        orig_citables = citables
         citables = [citable for citable in citables if citable]
 
         # Mass insert in database (will fail on encountering existing documents
@@ -129,14 +131,9 @@ def import_journal(issn, cursor='*', from_index_date=None):
 
 
         if number_of_results < rows:
-            # print(number_of_results)
-            # print('End reached.')
             logger.info(number_of_results)
             logger.info('End reached.')
             break
-
-    # Get a full count when done
-    current_count = get_crossref_work_count(issn)
 
     journal = Journal.objects.get(ISSN_digital=issn)
     journal.count_metacore = Citable.objects(metadata__ISSN=issn).count()
@@ -151,6 +148,7 @@ def import_journal(issn, cursor='*', from_index_date=None):
     results = {'total processed': total_processed, 'total inserted': total_upserted, 'total modified': total_modified, 'validation errors': len(validation_errors)}
     return results
 
+
 def get_crossref_work_count(issn):
     """
     Returns the total number of citables that are present in CR for a given ISSN
@@ -162,7 +160,7 @@ def get_crossref_work_count(issn):
     # If the loop is allowed to complete, it fetches (rows * batches) records
     rows = 0
 
-    params = {'rows': rows, 'mailto': 'b.g.t.ponsioen@uva.nl'}
+    params = {'rows': rows, 'mailto': 'jorrandewit@scipost.org'}
     r = requests.get(url, params=params)
     r_json = r.json()
 
@@ -170,6 +168,7 @@ def get_crossref_work_count(issn):
 
     if 'total-results' in result:
         return result['total-results']
+
 
 def convert_doi_to_lower_case():
     # If you accidentally import 100.000+ records that have random uppercase characters
@@ -183,6 +182,7 @@ def convert_doi_to_lower_case():
 
         if i % 1000 == 0:
             print(i)
+
 
 def add_journal_to_existing(journal_issn=None):
     # Take journal from metadata ('container-title') and put it in top-level 'journal' field
@@ -208,14 +208,15 @@ def add_journal_to_existing(journal_issn=None):
             print(errors, ' errors')
             print('-------')
 
+
 def parse_crossref_citable(citable_item):
     if not citable_item['type'] == 'journal-article':
         return
-    
+
     if 'DOI' in citable_item:
         doi = citable_item['DOI'].lower()
     else:
-        return 
+        return
 
     if not Citable.objects(doi=doi):
         try:
@@ -249,17 +250,10 @@ def parse_crossref_citable(citable_item):
             if 'container-title' in citable_item:
                 journal = citable_item['container-title'][0]
 
-            return CitableWithDOI(doi=doi, references=references, authors=authors, publisher=publisher, title=title, 
+            return CitableWithDOI(doi=doi, references=references, authors=authors, publisher=publisher, title=title,
                     publication_date=publication_date, license=license, metadata=citable_item, journal=journal)
 
-            # except BaseException as e:
-            #     print("Error!")
-            #     print(e)
-            #     # raise
         except Exception as e:
-            # print("Error: ", e)
-            # print(citable_item['DOI'])
-            # print(citable_item.keys())
             logger.error("Error: ", e)
             logger.error(citable_item['DOI'])
             logger.error(citable_item.keys())
@@ -272,7 +266,7 @@ class CitableCrossrefSerializer(serializers.BaseSerializer):
     Specifically for Crossref REST API format
 
     Usage:
-        json_data = { ... } 
+        json_data = { ... }
         serialized_object = CitableCrossrefSerializer(data=json_data)
         serialized_object.is_valid()
         # Validated/parsed data: serialized_object.validated_data

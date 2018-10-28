@@ -10,7 +10,9 @@ class CitableQuerySet(QuerySet):
             return self.only('references').filter(references=dois)
 
     def simple(self):
-        return self.only('doi', 'title', 'authors', 'metadata.is-referenced-by-count', 'publication_date', 'publisher', 'metadata.container-title', 'journal')
+        return self.only(
+            'doi', 'title', 'authors', 'metadata.is-referenced-by-count', 'publication_date',
+            'publisher', 'metadata.container-title', 'journal')
 
     def prl(self):
         return self.filter(metadata__ISSN='0031-9007')
@@ -24,11 +26,10 @@ class CitableQuerySet(QuerySet):
             query_with_quotes = '"{0}"'.format('" "'.join(query_list_without_excludes))
 
             query_list_excludes = [q for q in query_list if q not in query_list_without_excludes]
-            query_with_quotes = query_with_quotes + ' ' + ' '.join(query_list_excludes) 
+            query_with_quotes = query_with_quotes + ' ' + ' '.join(query_list_excludes)
 
             return self.search_text(query_with_quotes)
         elif mode == 'or':
             return self.search_text(query)
         else:
             raise ValueError('Invalid mode used in omni_search')
-

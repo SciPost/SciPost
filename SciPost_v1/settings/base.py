@@ -80,7 +80,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    'django_mathjax',
+    # 'django_mathjax',
     'affiliations',
     'ajax_select',
     'captcha',
@@ -92,7 +92,7 @@ INSTALLED_APPS = (
     'django_celery_beat',
     'finances',
     'guides',
-    # 'guardian',
+    'guardian',
     # 'haystack',
     'invitations',
     'journals',
@@ -113,16 +113,11 @@ INSTALLED_APPS = (
     'theses',
     'virtualmeetings',
     'organizations',
-    'proceedings',
-    'production',
     'profiles',
     # TODO: partners to be deprecated in favour of sponsors
-    'partners',
     'sponsors',
     'preprints',
     'funders',
-    'stats',
-    'petitions',
     'sitesserved',
     'webpack_loader',
     'maintenancemode',
@@ -173,13 +168,13 @@ SHELL_PLUS_POST_IMPORTS = (
     ('scipost.factories', ('ContributorFactory')),
 )
 
-MATHJAX_ENABLED = True
-MATHJAX_CONFIG_DATA = {
-    "tex2jax": {
-        "inlineMath": [['$', '$'], ['\\(', '\\)']],
-        "processEscapes": True
-        }
-    }
+# MATHJAX_ENABLED = True
+# MATHJAX_CONFIG_DATA = {
+#     "tex2jax": {
+#         "inlineMath": [['$', '$'], ['\\(', '\\)']],
+#         "processEscapes": True
+#         }
+#     }
 
 MIDDLEWARE = (
     # 'django.middleware.http.ConditionalGetMiddleware',
