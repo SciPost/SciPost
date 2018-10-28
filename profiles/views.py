@@ -15,12 +15,13 @@ from guardian.decorators import permission_required
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
+from scipost.forms import SearchTextForm
 
 from invitations.models import RegistrationInvitation
 from submissions.models import RefereeInvitation
 
 from .models import Profile, ProfileEmail
-from .forms import ProfileForm, ProfileEmailForm, SearchTextForm
+from .forms import ProfileForm, ProfileEmailForm
 
 
 

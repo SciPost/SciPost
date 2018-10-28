@@ -12,11 +12,19 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Topics</h3>
-    {% if perms.scipost.can_manage_ontology %}
     <ul>
+      {% if perms.scipost.can_manage_ontology %}
       <li><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
+      {% endif %}
+      <li>
+	<ul class="list-inline">
+	  <li class="list-inline-item">Filter to Topic name containing:</li>
+	  <li class="list-inline-item">
+	    <form action="" method="get">{{ searchform }}
+	  </li>
+	  <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Submit"></form></li>
+      </ul>
     </ul>
-    {% endif %}
   </div>
 </div>
 

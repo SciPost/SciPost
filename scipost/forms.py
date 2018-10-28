@@ -431,6 +431,13 @@ def get_date_filter_choices():
     return months, years
 
 
+class SearchTextForm(forms.Form):
+    """
+    Simple text-based search form.
+    """
+    text = forms.CharField(label='')
+
+
 class SearchForm(HayStackSearchForm):
     # The date filters don't function well...
     start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month

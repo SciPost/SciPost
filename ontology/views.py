@@ -12,6 +12,7 @@ from django.views.generic.list import ListView
 
 from .models import Topic, RelationAsym, RelationSym
 
+from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 
 
@@ -44,6 +45,22 @@ class TopicUpdateView(PermissionsMixin, UpdateView):
 class TopicListView(PaginationMixin, ListView):
     model = Topic
     paginate_by = 25
+
+    def get_queryset(self):
+        """
+        Return a queryset of Topics using optional GET data.
+        """
+        queryset = Topic.objects.all()
+        if self.request.GET.get('text'):
+            queryset = queryset.filter(name__icontains=self.request.GET['text'])
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({
+            'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
+        })
+        return context
 
 
 class TopicDetailView(DetailView):

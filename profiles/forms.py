@@ -57,7 +57,3 @@ class ProfileEmailForm(forms.ModelForm):
         """Save to a profile."""
         self.instance.profile = self.profile
         return super().save()
-
-
-class SearchTextForm(forms.Form):
-    text = forms.CharField(label='')
