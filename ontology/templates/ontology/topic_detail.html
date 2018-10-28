@@ -4,6 +4,7 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'ontology:topics' %}">Topics</a></span>
 <span class="breadcrumb-item">{{ topic }}</span>
 {% endblock %}
 

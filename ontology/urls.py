@@ -8,6 +8,11 @@ from . import views
 
 urlpatterns = [
     url(
+        r'^$',
+        views.ontology,
+        name='ontology'
+        ),
+    url(
         r'^topic/add/$',
         views.TopicCreateView.as_view(),
         name='topic_create'

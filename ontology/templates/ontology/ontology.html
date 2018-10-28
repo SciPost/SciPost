@@ -1,0 +1,24 @@
+{% extends 'ontology/base.html' %}
+
+{% block pagetitle %}: Ontology{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Ontology</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Ontology</h3>
+    <ul>
+      {% if perms.scipost.can_manage_ontology %}
+      <li><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
+      {% endif %}
+      <li><a href="{% url 'ontology:topics' %}">View list of Topics</a></li>
+    </ul>
+  </div>
+</div>
+
+{% endblock content %}

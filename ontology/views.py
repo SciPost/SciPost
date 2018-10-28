@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
+from django.http import HttpResponse, HttpResponseServerError
+from django.shortcuts import render
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
@@ -11,6 +13,10 @@ from django.views.generic.list import ListView
 from .models import Topic, RelationAsym, RelationSym
 
 from scipost.mixins import PermissionsMixin
+
+
+def ontology(request):
+    return render(request, 'ontology/ontology.html')
 
 
 class TopicCreateView(PermissionsMixin, CreateView):
