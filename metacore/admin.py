@@ -1,15 +1,21 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
+import json
+
 from django.contrib import admin
 from django.contrib import messages
+
+from celery.result import AsyncResult
+from django_celery_beat.models import PeriodicTask, IntervalSchedule
+
 from .models import Citable, Journal
 from .services import (
     import_journal_full, import_journal_incremental, get_crossref_work_count,
     add_journal_to_existing)
-from celery.result import AsyncResult
-from django_celery_beat.models import PeriodicTask, IntervalSchedule
-import json
 
 
-# Register your models here.
 class JournalAdmin(admin.ModelAdmin):
     fields = ('name', 'ISSN_digital', 'last_full_sync')
     list_display = (
@@ -24,9 +30,8 @@ class JournalAdmin(admin.ModelAdmin):
 
         for journal in queryset:
             # Celery Async version
-            t = import_journal_full.delay(journal.ISSN_digital)
-            # t = import_journal_full(journal.ISSN_digital)
-            journal.last_task_id = t.id
+            task = import_journal_full.delay(journal.ISSN_digital)
+            journal.last_task_id = task.id
             journal.save()
 
             messages.add_message(
@@ -34,13 +39,13 @@ class JournalAdmin(admin.ModelAdmin):
 
 
     def import_incremental(self, request, queryset):
-        """ Starts background task to import all works by this journal """
+        """Starts background task to import all works by this journal."""
 
         for journal in queryset:
             if journal.last_full_sync:
-                t = import_journal_incremental.delay(
+                task = import_journal_incremental.delay(
                     journal.ISSN_digital, journal.last_full_sync.strftime('%Y-%m-%d'))
-                journal.last_task_id = t.id
+                journal.last_task_id = task.id
                 journal.save()
                 messages.add_message(
                     request, messages.INFO,
@@ -52,35 +57,38 @@ class JournalAdmin(admin.ModelAdmin):
                      'since date of last full sync is not set.'.format(journal.name)))
 
     def scheduled_import_incremental(self, request, queryset):
-        """ Starts background task to import all works by this journal and repeats every day """
+        """Starts background task to import all works by this journal and repeats every day."""
         # TODO: make sure the from_date gets updated!
 
-        schedule, created = IntervalSchedule.objects.get_or_create(
+        schedule, __ = IntervalSchedule.objects.get_or_create(
             every=1, period=IntervalSchedule.DAYS)
 
         for journal in queryset:
+            last_sync = ''
             if journal.last_full_sync:
+                last_sync = journal.last_full_sync.strftime('%Y-%m-%d')
 
-                PeriodicTask.objects.create(
-                    interval=schedule,
-                    name='Inc. import {}'.format(journal.name),
-                    task='metacore.services.import_journal_incremental',
-                    args=json.dumps([
-                        journal.ISSN_digital, journal.last_full_sync.strftime('%Y-%m-%d')]))
+            task, created = PeriodicTask.objects.get_or_create(
+                interval=schedule,
+                name='Inc. import {}'.format(journal.name),
+                task='metacore.services.import_journal_incremental',
+                args=json.dumps([journal.ISSN_digital, last_sync]))
+            PeriodicTask.objects.filter(id=task.id).update(enabled=True)
 
-                #TODO: figure out a way to put the individual task id in the journal
-                # everytime the scheduled task fires
-                journal.last_task_id = ''
-                journal.save()
-                messages.add_message(
-                    request, messages.INFO,
-                    ('Repeating import task for journal {} added. '
-                     'Go to Periodic Tasks in admin to view'.format(journal.name)))
+            #TODO: figure out a way to put the individual task id in the journal
+            # everytime the scheduled task fires
+            journal.last_task_id = ''
+            journal.save()
+
+            if created:
+                txt = 'Repeating import task for journal {} added.'.format(journal.name)
+            elif task.enabled:
+                txt = 'Repeating import task for journal {} already exists.'.format(journal.name)
             else:
-                messages.add_message(
-                    request, messages.WARNING,
-                    ('Incremental import task for journal {} could not be started, '
-                     'since date of last full sync is not set.'.format(journal.name)))
+                txt = 'Repeating import task for journal {} activated.'.format(journal.name)
+            txt += ' Go to Periodic Tasks in admin to view.'.format(journal.name)
+
+            messages.add_message(request, messages.INFO, txt)
 
     def update_counts(self, request, queryset):
         for journal in queryset:

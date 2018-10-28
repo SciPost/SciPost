@@ -1,3 +1,7 @@
+__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__license__ = "AGPL v3"
+
+
 import requests
 
 from mongoengine import (
@@ -77,12 +81,11 @@ class Journal(models.Model):
     """Provides interface for importing citables of a journal into Metacore."""
 
     name = models.CharField(max_length=250, blank=False)
-    ISSN_digital = models.CharField(
-        max_length=9, blank=False, unique=True,
+    ISSN_digital = models.CharField(max_length=9, unique=True,
         validators=[RegexValidator(r'^[0-9]{4}-[0-9]{3}[0-9X]$')])
     # Print ISSN not used right now, but there for future use
     ISSN_print = models.CharField(
-        max_length=9, blank=True, unique=True,
+        max_length=9, blank=True,
         validators=[RegexValidator(r'^[0-9]{4}-[0-9]{3}[0-9X]$')])
     last_full_sync = models.DateTimeField(blank=True, null=True)
     last_cursor = models.CharField(max_length=250, blank=True)
@@ -92,6 +95,9 @@ class Journal(models.Model):
     count_running = models.IntegerField(blank=True, null=True) # Tracks progress during import tasks
     last_update = models.DateTimeField(blank=True, null=True, auto_now=True) # Set during import tasks
     last_task_id = models.CharField(max_length=250, blank=True) # Set after task related to journal is started
+
+    def __str__(self):
+        return self.name
 
     def update_count_metacore(self):
          count = Citable.objects(metadata__ISSN=self.ISSN_digital).count()

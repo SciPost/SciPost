@@ -1,100 +1,77 @@
 {% extends 'scipost/base.html' %}
 
 {% load bootstrap %}
+{% load humanize %}
 {% load request_filters %}
 
 {% block pagetitle %}: Metacore{% endblock pagetitle %}
 
 {% block content %}
-<!-- <div class="row"> -->
-<!--     <div class="col-md-4"> -->
-<!--         <div class="card card-grey"> -->
-<!--             <div class="card-body min-height-190"> -->
-<!--               <h1 class="card-title">SciPost Metacore</h1> -->
-<!--             </div> -->
-<!--         </div> -->
-<!--     </div> -->
-<!--     <div class="col-md-4"> -->
-<!--         <div class="card card-grey"> -->
-<!--             <div class="card-body min-height-190"> -->
-<!--               <h2 class="card-title">Search Citables:</h2> -->
-<!--               <form action="{% url 'metacore:citable-list' %}" class="small" method="get"> -->
-<!--                 <1!-- {{ form|bootstrap:'4,8,sm' }} --1> -->
-<!--                 {{ form }} -->
-<!--                 <input class="btn btn-sm btn-secondary" type="submit" value="Search"/> -->
-<!--                 <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a> -->
-<!--               </form> -->
-<!--             </div> -->
-<!--         </div> -->
-<!--     </div> -->
-<!--     <div class="col-md-4"> -->
-<!--         <div class="card card-grey"> -->
-<!--             <div class="card-body min-height-190"> -->
-<!--             </div> -->
-<!--         </div> -->
-<!--     </div> -->
-<!-- </div> -->
+<h1 class="highlight">Metacore</h1>
+
 <div class="row">
-    <div class="col-md-6">
-        <div class="card card-grey">
-            <div class="card-body min-height-190">
-              <h2 class="card-title">Search Citables:</h2>
-              <form action="{% url 'metacore:citable-list' %}" class="small" method="get">
-                <!-- {{ form|bootstrap:'2,6,lg' }} -->
-
-                <div class="fieldWrapper">
-                  {{ form.omni.errors }}
-                  <label for="{{ form.subject.id_for_label }}">Author, title, journal - matches only full words</label>
-                  {{ form.omni }}
+    <div class="col-12">
+        <form action="{% url 'metacore:citable-list' %}" method="get" class="form-xinline">
+            <div class="form-group">
+                {{ form.omni.errors }}
+                <label for="{{ form.omni.auto_id }}" class="my-1 mr-2">{{ form.omni.label }}</label>
+                <div class="input-group">
+                    <input type="text" name="{{ form.omni.name }}" class="form-control form-control-lg" id="{{ form.omni.auto_id }}" aria-describedby="search_help" placeholder="Search term" value="{{ form.omni.value|default:'' }}" required="required">
+                    <div class="input-group-append">
+                        <input type="submit" class="btn btn-primary px-4" value="Search">
+                    </div>
                 </div>
-                <br/>
-                <input class="btn btn-sm btn-secondary" type="submit" value="Search"/>
-                <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a>
-                <hr/>
-                <h3>Advanced search</h3>
+            </div>
+            <a href="javascript:;" data-toggle="toggle" data-target="#advanced-search" class="float-right">Use advanced search</a>
+            <br>
 
+            <div id="advanced-search"{% if not form.is_bound_advanced_search %} style="display: none"{% endif %} class="pb-3">
                 {% for field in form %}
-                    <div class="fieldWrapper">
+                    <div class="form-group">
                         {% if field.id_for_label != 'id_omni' %}
                           {{ field.errors }}
-                          {{ field.label_tag }} {{ field }}
+                          {{ field|bootstrap }}
                           {% if field.help_text %}
                           <p class="help">{{ field.help_text|safe }}</p>
                           {% endif %}
                         {% endif %}
                     </div>
                 {% endfor %}
-                <input class="btn btn-sm btn-secondary" type="submit" value="Search"/>
-                <a href="{% url 'metacore:citable-list' %}" class="btn btn-sm btn-secondary">Clear</a>
-
-              </form>
             </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card card-grey">
-            <div class="card-body min-height-190">
-              <h1 class="card-title">SciPost Metacore</h1>
-            </div>
-        </div>
-    </div>
-</div>
 
-<hr>
-<div class="row">
+            <div class="text-muted">
+                Found {{ object_list.count|intcomma }} results
+                {% if object_list %}
+                    &nbsp;&middot;&nbsp;
+                    Order by:
+                    <a href="?{% url_replace orderby='citations' page='' %}" class="d-inline-block mb-1 ml-2 active-bold {% active_get_request 'orderby' 'citations' %}{% if not request.GET.orderby %} active{% endif %}">Citations</a>
+                    <a href="?{% url_replace orderby='journal' page='' %}" class="d-inline-block mb-1 ml-2 active-bold {% active_get_request 'orderby' 'journal' %}">Journal</a>
+                    <a href="?{% url_replace orderby='name' page='' %}" class="d-inline-block mb-1 ml-2 active-bold {% active_get_request 'orderby' 'name' %}">Name</a>
+
+                    &nbsp;&middot;&nbsp;
+                    Show
+                    <select name="results" class="form-control d-inline-block w-auto" onchange="this.form.submit()">
+                        <option value="10"{% if not request.GET.results or request.GET.results == '10' %} selected{% endif %}>10</option>
+                        <option value="20"{% if request.GET.results == '20' %} selected{% endif %}>20</option>
+                        <option value="50"{% if request.GET.results == '50' %} selected{% endif %}>50</option>
+                        <option value="100"{% if request.GET.results == '100' %} selected{% endif %}>100</option>
+                    </select>
+                    results
+                {% endif %}
+            </div>
+
+        </form>
+    </div>
+
     <div class="col-12">
-        {% if browse %}
-          <h2>Citables </h2>
-        {% else %}
-        <h2>Search results ({{ object_list.count }}  total):</h3>
+        <hr>
+
+        {% if is_paginated %}
+            <div class="pb-3">
+                {% include 'partials/pagination.html' with page_obj=page_obj %}
+            </div>
         {% endif %}
-    </div>
-    {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
-    {% endif %}
-    <div class="col-12">
+
         <ul class="list-group list-group-flush">
             {% for citable in object_list %}
                 <li class="list-group-item">
@@ -103,15 +80,17 @@
                     </div>
                 </li>
             {% empty %}
-                <h3><em>No match found for your search query.</em></h3>
+                <p>No match found for your search query.</p>
             {% endfor %}
         </ul>
+
+        {% if is_paginated %}
+            <div class="p-3">
+                {% include 'partials/pagination.html' with page_obj=page_obj %}
+            </div>
+        {% endif %}
     </div>
-    {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
-    {% endif %}
+
 </div>
 
 {% endblock content %}

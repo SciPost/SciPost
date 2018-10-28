@@ -10,12 +10,11 @@
 
 {% block card_footer %}
     <p class="text-muted mb-0">
-    Cited {{ citable.crossref_ref_count }} times (CrossRef) / {{ citable.times_cited}} times (SciPost Meta) 
-        | DOI <a href='https://doi.org/{{ citable.doi }}'> {{ citable.doi }} </a>
+    Cited {{ citable.crossref_ref_count }} times (CrossRef) / {{ citable.times_cited}} times (SciPost Meta)
+        &middot; doi: <a href="//doi.org/{{ citable.doi }}" target="_blank">{{ citable.doi }}</a>
       <br>
       Published {{ citable.publication_date|date:"d-m-Y" }} by <b>{{ citable.publisher }}</b>
       {% if citable.journal %}
-        <!-- <br> -->
         in <b>{{ citable.journal }}</b>
       {% endif %}
     </p>

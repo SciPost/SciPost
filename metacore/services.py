@@ -11,7 +11,6 @@ from django.utils import timezone
 
 from .models import Citable, CitableWithDOI, Journal
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -67,14 +66,12 @@ def import_journal(issn, cursor='*', from_index_date=None):
             params['filter'] = 'from-index-date:{}'.format(from_index_date)
 
         last_cursor = cursor
-        r = requests.get(url, params=params)
-        r_json = r.json()
+        r_json = requests.get(url, params=params).json()
 
         citables_json = r_json['message']['items']
         cursor = r_json['message']['next-cursor']
         number_of_results = len(r_json['message']['items'])
 
-        # citables = [parse_crossref_citable(it) for it in citables_json]
         citables = []
         serialized_objects = []
         for cit in citables_json:
@@ -100,25 +97,22 @@ def import_journal(issn, cursor='*', from_index_date=None):
             col = Citable._get_collection()
             bulk_res = col.bulk_write(operations, ordered=False)
 
-            current_task.update_state(state='PROGRESS',
-                meta={'current': total_processed, 'errors': error_count, 'last_upserted': bulk_res.upserted_count,
-                      'last_matched_count': bulk_res.matched_count, 'last_inserted': bulk_res.inserted_count})
+            current_task.update_state(state='PROGRESS', meta={
+                'current': total_processed,
+                'errors': error_count,
+                'last_upserted': bulk_res.upserted_count,
+                'last_matched_count': bulk_res.matched_count,
+                'last_inserted': bulk_res.inserted_count
+            })
 
             total_upserted += bulk_res.upserted_count
             total_modified += bulk_res.modified_count
-        else:
-            current_task.update_state(state='PROGRESS',
-                meta={'current': total_processed, 'errors': error_count})
 
         # Save current count so progress can be tracked in the admin page
-        # TODO: make this work (currently only executed after whole import
-        # task is completed!
         total_processed += number_of_results
-        # Journal.objects.filter(ISSN_digital=issn).update(count_running = total_processed)
-        # logger.info('Journal count updated')
-        # print('Journal count updated to {}.'.format(Journal.objects.get(ISSN_digital=issn).count_running))
-
-        current_task.send_event('task-started', current=total_processed);
+        Journal.objects.filter(ISSN_digital=issn).update(count_running=total_processed)
+        current_task.update_state(state='PROGRESS',
+            meta={'current': total_processed, 'errors': error_count})
 
         # For debugging purposes
         logger.info(current_task)
@@ -135,18 +129,22 @@ def import_journal(issn, cursor='*', from_index_date=None):
             logger.info('End reached.')
             break
 
-    journal = Journal.objects.get(ISSN_digital=issn)
-    journal.count_metacore = Citable.objects(metadata__ISSN=issn).count()
-    journal.count_crossref = get_crossref_work_count(issn)
-
-    if journal.count_metacore == journal.count_crossref:
-        journal.last_full_sync = timezone.now()
-
-    journal.save()
+    count_crossref = get_crossref_work_count(issn)
+    Journal.objects.filter(ISSN_digital=issn).update(
+        count_metacore=Citable.objects(metadata__ISSN=issn).count(),
+        count_crossref=count_crossref,
+        last_task_id=current_task.id
+    )
+    Journal.objects.filter(ISSN_digital=issn, count_metacore=count_crossref).update(
+        last_full_sync=timezone.now())
 
     # Pack stuff for result
-    results = {'total processed': total_processed, 'total inserted': total_upserted, 'total modified': total_modified, 'validation errors': len(validation_errors)}
-    return results
+    return {
+        'total processed': total_processed,
+        'total inserted': total_upserted,
+        'total modified': total_modified,
+        'validation errors': len(validation_errors)
+    }
 
 
 def get_crossref_work_count(issn):
@@ -209,57 +207,6 @@ def add_journal_to_existing(journal_issn=None):
             print('-------')
 
 
-def parse_crossref_citable(citable_item):
-    if not citable_item['type'] == 'journal-article':
-        return
-
-    if 'DOI' in citable_item:
-        doi = citable_item['DOI'].lower()
-    else:
-        return
-
-    if not Citable.objects(doi=doi):
-        try:
-            # Parse certain fields for storage on top level in document
-            # Blame the convoluted joining and looping on CR
-
-            if 'reference' in citable_item:
-                references_with_doi = [ref for ref in citable_item['reference'] if 'DOI' in ref]
-                references = [ref['DOI'].lower() for ref in references_with_doi]
-            else:
-                references = []
-
-            authors = []
-            for author_names in citable_item['author']:
-                author = []
-                if 'given' in author_names:
-                    author.append(author_names['given'])
-                if 'family' in author_names:
-                    author.append(author_names['family'])
-
-                authors.append(' '.join(author))
-
-            publisher = citable_item['publisher']
-            title = citable_item['title'][0]
-            publication_date = '-'.join([str(date_part) for date_part in citable_item['issued']['date-parts'][0]])
-            if 'license' in citable_item:
-                license = citable_item['license'][0]['URL']
-            else:
-                license = ''
-
-            if 'container-title' in citable_item:
-                journal = citable_item['container-title'][0]
-
-            return CitableWithDOI(doi=doi, references=references, authors=authors, publisher=publisher, title=title,
-                    publication_date=publication_date, license=license, metadata=citable_item, journal=journal)
-
-        except Exception as e:
-            logger.error("Error: ", e)
-            logger.error(citable_item['DOI'])
-            logger.error(citable_item.keys())
-            return False
-
-
 class CitableCrossrefSerializer(serializers.BaseSerializer):
     """
     Class for deserializing a JSON object into the correct form to create a CitableWithDOI out of.
@@ -287,7 +234,6 @@ class CitableCrossrefSerializer(serializers.BaseSerializer):
         journal = data.get('container-title', [''])[0]
         # {'license': [{'url': '...'}]}
         license = data.get('license', [{}])[0].get('URL')
-        metadata = data
 
         # Validation errors
         if not doi:
@@ -327,7 +273,7 @@ class CitableCrossrefSerializer(serializers.BaseSerializer):
             'title': title,
             'journal': journal,
             'license': license,
-            'metadata': metadata
+            'metadata': data,
         }
 
     def to_UpdateOne(self):
