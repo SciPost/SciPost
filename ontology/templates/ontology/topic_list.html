@@ -25,7 +25,9 @@
 	    </li>
 	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Filter"></li>
 	  </ul>
-      </form>
+	</form>
+      </li>
+      <li>{{ select_linked_topic_form }}</li>
     </ul>
   </div>
 </div>
@@ -33,9 +35,10 @@
 
 <div class="row">
   <div class="col-12">
-    <ul>
+    <h3>Topics</h3>
+    <ul class="list-inline">
       {% for topic in object_list %}
-      <li><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a></li>
+      <li class="list-inline-item p-1"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a></li>
       {% endfor %}
     </ul>
 
@@ -50,3 +53,8 @@
 </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+{{ block.super }}
+{{ select_linked_topic_form.media }}
+{% endblock footer_script %}

@@ -12,13 +12,30 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Ontology</h3>
+    <p>
+      Welcome to SciPost's Ontology, which is a curated set of interlinked Topics
+      pertaining to all of the sciences.
+    </p>
+    <p>
+      Topics and their relations are defined by Editorial-level personnel.
+    </p>
     <ul>
       {% if perms.scipost.can_manage_ontology %}
       <li><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
       {% endif %}
       <li><a href="{% url 'ontology:topics' %}">View list of Topics</a></li>
+      <li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">{{ select_linked_topic_form }}</li>
+	  </ul>
+      </li>
     </ul>
   </div>
 </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+{{ block.super }}
+{{ select_linked_topic_form.media }}
+{% endblock footer_script %}

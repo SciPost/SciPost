@@ -17,6 +17,11 @@ class SelectTopicForm(forms.Form):
     topic = AutoCompleteSelectField('topic_lookup')
 
 
+class SelectLinkedTopicForm(forms.Form):
+    topic = AutoCompleteSelectField('linked_topic_lookup',
+                                    label='Lookup topic (click to see) ', help_text='')
+
+
 class AddRelationAsymForm(forms.Form):
     A = AutoCompleteSelectField('topic_lookup', label='', help_text='')
     relation = forms.ChoiceField(choices=TOPIC_RELATIONS_ASYM, label='')

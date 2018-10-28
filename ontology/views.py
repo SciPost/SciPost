@@ -14,14 +14,17 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from .models import Tag, Topic, RelationAsym, RelationSym
-from .forms import SelectTagForm, AddRelationAsymForm
+from .forms import SelectTagForm, SelectLinkedTopicForm, AddRelationAsymForm
 
 from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 
 
 def ontology(request):
-    return render(request, 'ontology/ontology.html')
+    context = {
+        'select_linked_topic_form': SelectLinkedTopicForm(),
+    }
+    return render(request, 'ontology/ontology.html', context=context)
 
 
 class TopicCreateView(PermissionsMixin, CreateView):
@@ -69,7 +72,7 @@ def topic_remove_tag(request, slug, tag_id):
 
 class TopicListView(PaginationMixin, ListView):
     model = Topic
-    paginate_by = 25
+    paginate_by = 100
 
     def get_queryset(self):
         """
@@ -84,6 +87,7 @@ class TopicListView(PaginationMixin, ListView):
         context = super().get_context_data(**kwargs)
         context.update({
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
+            'select_linked_topic_form': SelectLinkedTopicForm(),
         })
         return context
 
@@ -103,10 +107,13 @@ class TopicDetailView(DetailView):
 def add_relation_asym(request, slug):
     form = AddRelationAsymForm(request.POST or None)
     if form.is_valid():
-        relation = RelationAsym(A=form.cleaned_data['A'], relation=form.cleaned_data['relation'],
-                                B=form.cleaned_data['B'])
-        relation.save()
-        messages.success(request, 'Relation successfully created')
+        relation, created = RelationAsym.objects.get_or_create(
+            A=form.cleaned_data['A'], relation=form.cleaned_data['relation'],
+            B=form.cleaned_data['B'])
+        if created:
+            messages.success(request, 'Relation successfully created')
+        else:
+            messages.info(request, 'This relation already exists')
     else:
         for error_messages in form.errors.values():
             messages.warning(request, *error_messages)
