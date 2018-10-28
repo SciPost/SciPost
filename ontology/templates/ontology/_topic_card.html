@@ -1,34 +1,46 @@
 {% load bootstrap %}
 
+<script>
+  $(document).ready(function() {
+  $("#id_A_text").keyup(function() {
+  $("#id_B_text").val("{{ topic }}");
+  $("#id_B").val({{ topic.id }});
+  });
+  $("#id_B_text").keyup(function() {
+  $("#id_A_text").val("{{ topic }}");
+  $("#id_A").val({{ topic.id }});
+  });
+  });
+</script>
+
 <div class="card">
   <div class="card-header">
-    <div class="row">
-      <div class="{% if perms.scipost.can_manage_ontology %}col-6{% else %}col-12{% endif %}">
-	<ul class="list-inline">
-	  <li class="list-inline-item"><h3>{{ topic }}</h3></li>
-	  {% if perms.scipost.can_manage_ontology %}
-	  <li class="list-inline-item small">
-	    <a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
-	  </li>
-	  {% endif %}
-	</ul>
-	{% if topic.tags.all %}
-	<ul class="list list-inline mb-0">
-	  <li class="list-inline-item"><strong>Tags</strong>:</li>
-	  {% for tag in topic.tags.all %}
-	  <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
-	  {% endfor %}
-	</ul>
-	{% endif %}
-      </div>
+    <ul class="list-inline">
+      <li class="list-inline-item"><h3>{{ topic }}</h3></li>
       {% if perms.scipost.can_manage_ontology %}
-      <div class="col-6">
-	<form class="form-inline" action="{% url 'ontology:topic_add_tag' slug=topic.slug %}" method="post">{% csrf_token %}{{ select_tag_form|bootstrap }}
-	  <input type="submit" class="form-control btn btn-outline-secondary" value="Add Tag"/>
-	</form>
-      </div>
+      <li class="list-inline-item small">
+	<a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
+      </li>
       {% endif %}
-    </div>
+    </ul>
+    {% if topic.tags.all %}
+    <ul class="list list-inline mb-0">
+      <li class="list-inline-item"><strong>Tags</strong>:</li>
+      {% for tag in topic.tags.all %}
+      <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+      {% endfor %}
+      {% if perms.scipost.can_manage_ontology %}
+      <li class="list-inline-item pull-right">
+	<form class="form-inline" action="{% url 'ontology:topic_add_tag' slug=topic.slug %}" method="post">
+	  <ul class="list-inline">
+	    <li class="list-inline-item">{% csrf_token %}{{ select_tag_form }}</li>
+	    <li class="list-inline-item"><input type="submit" class="form-control btn btn-outline-secondary" value="Add Tag"/></li>
+	  </ul>
+	</form>
+      </li>
+      {% endif %}
+    </ul>
+    {% endif %}
   </div>
 
   <div class="card-body">
@@ -38,11 +50,19 @@
 	<h5>asymmetric:</h5>
 	<ul>
 	  {% for rel in relations_asym %}
-	  <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} <em>{{ rel.get_relation_display }}</em> {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %}</li>
+	  <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} <em>{{ rel.get_relation_display }}</em> {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %} {% if perms.scipost.can_manage_ontology %}<a href="{% url 'ontology:delete_relation_asym' relation_id=rel.id slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
 	  {% empty %}
 	  <li>No relations have been defined</li>
 	  {% endfor %}
 	</ul>
+	{% if perms.scipost.can_manage_ontology %}
+	<h5>Add an asymmetric relation:</h5>
+	<form action = "{% url 'ontology:add_relation_asym' slug=topic.slug %}" method="post">
+	  {% csrf_token %}
+	  {{ add_relation_asym_form }}
+	  <input type="submit" class="btn btn-outline-secondary" value="Add"/>
+	</form>
+	{% endif %}
       </div>
       <div class="col-6">
 	<h5>symmetric:</h5>

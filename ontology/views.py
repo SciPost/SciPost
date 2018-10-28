@@ -14,7 +14,7 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from .models import Tag, Topic, RelationAsym, RelationSym
-from .forms import SelectTagForm
+from .forms import SelectTagForm, AddRelationAsymForm
 
 from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
@@ -94,5 +94,28 @@ class TopicDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['select_tag_form'] = SelectTagForm()
+        context['add_relation_asym_form'] = AddRelationAsymForm()
         context['relations_asym'] = RelationAsym.objects.filter(Q(A=self.object) | Q(B=self.object))
         return context
+
+
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def add_relation_asym(request, slug):
+    form = AddRelationAsymForm(request.POST or None)
+    if form.is_valid():
+        relation = RelationAsym(A=form.cleaned_data['A'], relation=form.cleaned_data['relation'],
+                                B=form.cleaned_data['B'])
+        relation.save()
+        messages.success(request, 'Relation successfully created')
+    else:
+        for error_messages in form.errors.values():
+            messages.warning(request, *error_messages)
+    return redirect(reverse('ontology:topic_details', kwargs={'slug': slug}))
+
+
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def delete_relation_asym(request, relation_id, slug):
+    relation = get_object_or_404(RelationAsym, pk=relation_id)
+    relation.delete()
+    messages.success(request, 'Relation deleted')
+    return redirect(reverse('ontology:topic_details', kwargs={'slug': slug}))

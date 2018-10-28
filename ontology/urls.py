@@ -42,4 +42,14 @@ urlpatterns = [
         views.TopicListView.as_view(),
         name='topics'
     ),
+    url(
+        r'^add_relation_asym/(?P<slug>[-\w]+)/$',
+        views.add_relation_asym,
+        name='add_relation_asym'
+    ),
+    url(
+        r'^delete_relation_asym/(?P<relation_id>[0-9]+)/(?P<slug>[-\w]+)/$',
+        views.delete_relation_asym,
+        name='delete_relation_asym'
+    ),
 ]

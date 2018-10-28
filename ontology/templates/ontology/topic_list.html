@@ -17,13 +17,15 @@
       <li><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
       {% endif %}
       <li>
-	<ul class="list-inline">
-	  <li class="list-inline-item">Filter to Topic name containing:</li>
-	  <li class="list-inline-item">
-	    <form action="" method="get">{{ searchform }}
-	  </li>
-	  <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Submit"></form></li>
-      </ul>
+	<form action="" method="get">
+	  <ul class="list-inline">
+	    <li class="list-inline-item">Filter to Topic name containing:</li>
+	    <li class="list-inline-item">
+	      {{ searchform }}
+	    </li>
+	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Filter"></li>
+	  </ul>
+      </form>
     </ul>
   </div>
 </div>

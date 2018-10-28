@@ -29,6 +29,9 @@ class Topic(models.Model):
     slug = models.SlugField(unique=True, allow_unicode=True)
     tags = models.ManyToManyField(Tag, blank=True)
 
+    class Meta:
+        ordering = ['name']
+
     def __str__(self):
         return self.name
 

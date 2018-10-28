@@ -6,8 +6,18 @@ from django import forms
 
 from ajax_select.fields import AutoCompleteSelectField
 
-from .models import Topic
+from .constants import TOPIC_RELATIONS_ASYM
 
 
 class SelectTagForm(forms.Form):
-    tag = AutoCompleteSelectField('tag_lookup', label='Add Tag:', help_text='')
+    tag = AutoCompleteSelectField('tag_lookup', label='', help_text='')
+
+
+class SelectTopicForm(forms.Form):
+    topic = AutoCompleteSelectField('topic_lookup')
+
+
+class AddRelationAsymForm(forms.Form):
+    A = AutoCompleteSelectField('topic_lookup', label='', help_text='')
+    relation = forms.ChoiceField(choices=TOPIC_RELATIONS_ASYM, label='')
+    B = AutoCompleteSelectField('topic_lookup', label='', help_text='')
