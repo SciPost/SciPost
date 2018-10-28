@@ -61,6 +61,11 @@
       </ul>
       {% endif %}
 
+      <h3>Ontology</h3>
+      <ul>
+	<li><a href="{% url 'ontology:ontology' %}">View/Manage the Ontology</a></li>
+      </ul>
+
       {% if perms.scipost.can_manage_organizations %}
       <h3>Organizations</h3>
       <ul>
