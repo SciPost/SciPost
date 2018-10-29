@@ -38,3 +38,8 @@ CROSSREF_DEPOSIT_EMAIL = 'jorrandewit@scipost.org'
 # Customized mailbackend
 EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
 EMAIL_BACKEND_ORIGINAL = 'mails.backends.filebased.EmailBackend'
+
+# Mongo
+MONGO_DATABASE['user'] = get_secret('MONGO_DB_USER')
+MONGO_DATABASE['password'] = get_secret('MONGO_DB_PASSWORD')
+MONGO_DATABASE['port'] = get_secret('MONGO_DB_PORT')

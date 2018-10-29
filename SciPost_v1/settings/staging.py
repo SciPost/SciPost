@@ -29,3 +29,8 @@ CSRF_COOKIE_SECURE = True
 # Email
 EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
 EMAIL_BACKEND_ORIGINAL = 'django.core.mail.backends.dummy.EmailBackend'  # Disable real processing
+
+# Mongo
+MONGO_DATABASE['user'] = get_secret('MONGO_DB_USER')
+MONGO_DATABASE['password'] = get_secret('MONGO_DB_PASSWORD')
+MONGO_DATABASE['port'] = get_secret('MONGO_DB_PORT')

@@ -19,6 +19,41 @@ higher. Python dependencies are listed in `requirements.txt`. Frontend dependenc
 Make sure that PostgreSQL is installed and running and that a database with user is set up. A
 good guide how to do this can be found [here](https://djangogirls.gitbooks.io/django-girls-tutorial-extensions/content/optional_postgresql_installation/) (NOTE: stop before the 'Update settings' part).
 
+#### MongoDB
+The metacore part of the project runs on a [MongoDB database](https://docs.mongodb.com/manual/installation/). Make sure to install a MongoDB as well. Eg. on MacOS:
+
+```shell
+$ brew update
+$ brew install mongodb
+```
+
+After installing, create the database:
+```shell
+$ mongo
+> use <database>
+switched to db <database>
+```
+
+To create a user for the database:
+```shell
+> db.createUser({
+user: "<name>",
+pwd: "<cleartext password>",
+roles: [{ role: "readWrite", db: "<database>" }]
+})
+```
+
+The following MongoDB configuration is set by default, you may overwrite it in your local settings:
+```python
+MONGO_DATABASE = {
+    'database': 'scipost',
+    'host': 'localhost',
+    'user': '',
+    'password': '',
+    'port': '27017',
+}
+```
+
 ### Python version
 Make sure you're using Python 3.5. You are strongly encouraged to use a [virtual environment](https://docs.python.org/3.5/library/venv.html).
 
@@ -313,4 +348,51 @@ SHELL_PLUS_POST_IMPORTS = (
     ('theses.factories', ('ThesisLinkFactory')),
     ('comments.factories', ('CommentFactory')),
 )
+```
+
+## Scheduled tasks
+The tasks that involve large requests from CR are supposed to run in the background. For this to work, Celery is required. The following commands assume that you are in the `scipost_v1` main folder, inside the right virtual environment.
+
+Celery depends on a broker, for which we use RabbitMQ. On MacOS one may simply install this by executing:
+
+```shell
+$ brew update
+$ brew install rabbitmq
+```
+
+To start the RabbitMQ broker:
+```bash
+nohup nice rabbitmq-server > ../logs/rabbitmq.log 2>&1 &
+```
+
+Then the Celery worker itself:
+```bash
+nohup nice celery -A SciPost_v1 worker --loglevel=info -E > ../logs/celery_worker.log 2>&1 &
+```
+
+And finally `beat`, which enables setting up periodic tasks:
+```bash
+nohup nice celery -A SciPost_v1 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler > ../logs/celery_beat.log 2>&1 &
+```
+
+Note: on the staging server, these commands are contained in two shell scripts in the `scipoststg` home folder. Just run
+```bash
+./start_celery.sh
+```
+
+## Metacore (still in development)
+The Metacore app for citables, sourced - for now only - from Crossref, is available at /metacore.
+In order to get it running on the server (right now implemented on staging), the following things need to be running:
+
+First of all the Mongo daemon (staging server):
+```bash
+/home/scipoststg/webapps/mongo/mongodb-linux-x86_64-amazon-3.6.3/bin/mongod --auth --dbpath /home/scipoststg/webapps/mongo/data --port 21145 --logpath /home/scipoststg/webapps/scipost/logs/mongod.log --fork
+```
+
+### Indexing
+The search methods use the mongo text index for authors/title. They are defined through
+the mongo shell. Execute the following in the mongo shell:
+```bash
+use scipost
+db.citable.createIndex({authors: "text", title: "text", journal: "text"})
 ```
