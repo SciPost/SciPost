@@ -40,13 +40,11 @@
 
                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
                       {% for journal in journals %}
-                          <!-- <li class="nav-item"> -->
-                              {% if journal.active %}
-                                  <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{journal}}</a>
-                              {% else %}
-                                  <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{journal}}</a>
-                              {% endif %}
-                          <!-- </li> -->
+                          {% if journal.active %}
+                              <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{journal}}</a>
+                          {% elif perms.scipost.can_view_pool %}
+                              <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{journal}}</a>
+                          {% endif %}
                       {% endfor %}
                   </div>
                 </li>
