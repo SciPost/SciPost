@@ -776,12 +776,16 @@ def metadata_DOAJ_deposit(request, doi_label):
 def publication_add_topic(request, doi_label):
     """
     Add a predefined Topic to an existing Publication object.
+    This also adds the Topic to all Submissions of this Publication.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
         publication.topics.add(select_topic_form.cleaned_data['topic'])
         publication.save()
+        for sub in publication.accepted_submission.thread:
+            sub.topics.add(select_topic_form.cleaned_data['topic'])
+            sub.save()
         messages.success(request, 'Successfully linked Topic to this publication')
     return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_label': publication.doi_label}))
