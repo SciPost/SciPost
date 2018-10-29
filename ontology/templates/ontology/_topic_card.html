@@ -44,7 +44,7 @@
   </div>
 
   <div class="card-body">
-    <h4>Relations</h4>
+    <h4>Relations to other Topics</h4>
     <div class="row mb-0">
       <div class="col-6">
 	<h5>asymmetric:</h5>
@@ -73,6 +73,44 @@
 	  <li>No symmetric relations have been defined</li>
 	  {% endfor %}
 	</ul>
+      </div>
+    </div>
+    <hr/>
+    <div class="card-deck">
+      <div class="card">
+	<div class="card-header">
+	  Publications
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% for pub in topic.publications.all %}
+	    <li>
+              <a href="{{ pub.get_absolute_url }}">{{ pub.title }}</a>
+              <br>by {{ pub.author_list }},
+              <br>{{ pub.citation }}
+	    </li>
+	    {% empty %}
+	    <li>No Publication found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+      <div class="card">
+	<div class="card-header">
+	  Submissions
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% for sub in topic.submission_set.public_newest %}
+	    <li>
+	      <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
+	      <br>by {{ sub.author_list }}
+	    </li>
+	    {% empty %}
+	    <li>No Submission found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
       </div>
     </div>
   </div>

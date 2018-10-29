@@ -129,6 +129,9 @@ class Submission(models.Model):
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
 
+    # Topics for semantic linking
+    topics = models.ManyToManyField('ontology.Topic', blank=True)
+
     objects = SubmissionQuerySet.as_manager()
 
     # Temporary
