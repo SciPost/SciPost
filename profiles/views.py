@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import IntegrityError
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -34,6 +35,42 @@ class ProfileCreateView(PermissionsMixin, CreateView):
     form_class = ProfileForm
     template_name = 'profiles/profile_form.html'
     success_url = reverse_lazy('profiles:profiles')
+
+    def get_context_data(self, *args, **kwargs):
+        """
+        When creating a Profile, if initial data obtained from another model
+        (Contributor, UnregisteredAuthor, RefereeInvitation or RegistrationInvitation)
+        is provided, this fills the context with possible already-existing Profiles.
+        """
+        context = super().get_context_data(*args, **kwargs)
+        from_type = self.kwargs.get('from_type', None)
+        pk = self.kwargs.get('pk', None)
+        context['from_type'] = from_type
+        context['pk'] = pk
+        print ('Hello, %s, %s' % (from_type, pk))
+        if pk and from_type:
+            matching_profiles = Profile.objects.all()
+            if from_type == 'contributor':
+                contributor = get_object_or_404(Contributor, pk=pk)
+                matching_profiles = matching_profiles.filter(
+                    Q(last_name=contributor.user.last_name) |
+                    Q(emails__email__in=contributor.user.email))
+            elif from_type == 'unregisteredauthor':
+                unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
+                matching_profiles = matching_profiles.filter(last_name=unreg_auth.last_name)
+            elif from_type == 'refereeinvitation':
+                print ('Here refinv')
+                refinv = get_object_or_404(RefereeInvitation, pk=pk)
+                matching_profiles = matching_profiles.filter(
+                    Q(last_name=refinv.last_name) |
+                    Q(emails__email__in=refinv.email_address))
+            elif from_type == 'registrationinvitation':
+                reginv = get_object_or_404(RegistrationInvitation, pk=pk)
+                matching_profiles = matching_profiles.filter(
+                    Q(last_name=reginv.last_name) |
+                    Q(emails__email__in=reginv.email))
+            context['matching_profiles'] = matching_profiles[:10]
+        return context
 
     def get_initial(self):
         """
@@ -88,6 +125,35 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 'instance_pk': pk,
             })
         return initial
+
+@permission_required('scipost.can_create_profiles')
+def profile_match(request, profile_id, from_type, pk):
+    """
+    Links an existing Profile to one of existing
+    Contributor, UnregisteredAuthor, RefereeInvitation, RegistrationInvitation.
+    """
+    profile = get_object_or_404(Profile, pk=profile_id)
+    if from_type == 'contributor':
+        contributor = get_object_or_404(Contributor, pk=pk)
+        contributor.profile = profile
+        contributor.save()
+        messages.success(request, 'Profile matched with Contributor')
+    elif from_type == 'unregisteredauthor':
+        unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
+        unreg_auth.profile = profile
+        unreg_auth.save()
+        messages.success(request, 'Profile matched with UnregisteredAuthor')
+    elif from_type == 'refereeinvitation':
+        ref_inv = get_object_or_404(RefereeInvitation, pk=pk)
+        ref_inv.profile = profile
+        ref_inv.save()
+        messages.success(request, 'Profile matched with RefereeInvitation')
+    elif from_type == 'registrationinvitation':
+        reg_inv = get_object_or_404(RegistrationInvitation, pk=pk)
+        reg_inv.profile = profile
+        reg_inv.save()
+        messages.success(request, 'Profile matched with RegistrationInvitation')
+    return redirect(reverse('profiles:profiles'))
 
 
 class ProfileUpdateView(PermissionsMixin, UpdateView):

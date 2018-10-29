@@ -51,6 +51,18 @@
 	<tr><td>Accepts SciPost emails</td><td>{{ profile.accepts_SciPost_emails }}</td></tr>
 	<tr><td>Accepts refereeing requests</td><td>{{ profile.accepts_refereeing_requests }}</td></tr>
 	<tr><td>Contributor</td><td>{% if profile.contributor %}Yes (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>){% else %}No{% endif %}</td></tr>
+	<tr>
+	  <td>Referee Invitations</td>
+	  <td>
+	    <ul>
+	      {% for inv in profile.refereeinvitation_set.all %}
+	      <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<i class="fa fa-check-square text-success"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %})</li>
+	      {% empty %}
+	      <li>No refereeing invitation found</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	</tr>
       </table>
     </div>
     <div class="col-6">

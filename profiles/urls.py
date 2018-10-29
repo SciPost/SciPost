@@ -18,6 +18,11 @@ urlpatterns = [
         name='profile_create'
     ),
     url(
+        r'^match/(?P<profile_id>[0-9]+)/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$',
+        views.profile_match,
+        name='profile_match'
+    ),
+    url(
         r'^(?P<pk>[0-9]+)/update/$',
         views.ProfileUpdateView.as_view(),
         name='profile_update'

@@ -57,7 +57,6 @@ class ProfileForm(forms.ModelForm):
         profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
         instance_pk = self.cleaned_data['instance_pk']
         if instance_pk:
-            print('%s, %s' % (instance_pk, self.cleaned_data['instance_from_type']))
             if self.cleaned_data['instance_from_type'] == 'contributor':
                 contributor = get_object_or_404(Contributor, pk=instance_pk)
                 contributor.profile = profile

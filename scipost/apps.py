@@ -14,5 +14,5 @@ class SciPostConfig(AppConfig):
 
         from . import signals
         from profiles.models import Profile
-        # post_save.connect(signals.link_created_profile_to_contributor,
-        #                   sender=Profile)
+        post_save.connect(signals.link_created_profile_to_contributor,
+                          sender=Profile)
