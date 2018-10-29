@@ -55,6 +55,10 @@ class RegistrationInvitationsDraftContributorView(RegistrationInvitationsView):
     queryset = RegistrationInvitation.objects.drafts().for_contributors()
     template_name = 'invitations/registrationinvitation_list_contributors.html'
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.order_by('created')
+
 
 class RegistrationInvitationsFellowView(RegistrationInvitationsView):
     permission_required = 'scipost.can_invite_fellows'

@@ -190,7 +190,10 @@ def info_for_authors(request, doi_label):
 def about(request, doi_label):
     """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {'journal': journal}
+    context = {
+        'subject_areas': SCIPOST_SUBJECT_AREAS,
+        'journal': journal,
+    }
     return render(request, 'journals/%s_about.html' % doi_label, context)
 
 
@@ -784,12 +787,11 @@ def allocate_orgpubfractions(request, doi_label):
               request.user.has_perm('scipost.can_publish_accepted_submission')):
         raise Http404
 
-    if not publication.pubfractions.all().exists():
-        # Create new OrgPubFraction objects from existing data, spreading weight evenly
-        for org in publication.get_organizations():
-            pubfrac = OrgPubFraction(publication=publication,
-                                     organization=org, fraction=0)
-            pubfrac.save()
+    # Create OrgPubFraction objects from existing organization links
+    for org in publication.get_organizations():
+        pubfrac, created = OrgPubFraction.objects.get_or_create(
+            publication=publication, organization=org)
+
     formset = OrgPubFractionsFormSet(request.POST or None,
                                      queryset=publication.pubfractions.all())
     if formset.is_valid():
@@ -1305,8 +1307,7 @@ def arxiv_doi_feed(request, doi_label):
     now = timezone.now()
     feedxml += '<date year="%s" month="%s" day="%s" />' % (now.strftime('%Y'),
                                                            now.strftime('%m'), now.strftime('%d'))
-    publications = Publication.objects.filter(
-        in_issue__in_volume__in_journal=journal).order_by('-publication_date')[:100]
+    publications = journal.get_publications().order_by('-publication_date')[:100]
     for publication in publications:
         feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
             publication.accepted_submission.preprint.identifier_wo_vn_nr, publication.doi_string,

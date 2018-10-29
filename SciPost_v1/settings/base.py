@@ -74,20 +74,17 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.humanize',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    'django_mathjax',
+    # 'django_mathjax',
+    'affiliations',
     'ajax_select',
     'captcha',
-    'guardian',
-    'haystack',
-    'rest_framework',
-    'sphinxdoc',
-    'affiliations',
     'colleges',
     'commentaries',
     'comments',
@@ -96,31 +93,44 @@ INSTALLED_APPS = (
     'django_celery_beat',
     'finances',
     'guides',
+    'guardian',
+    # 'haystack',
     'invitations',
     'journals',
-    'mails',
     'mailing_lists',
+    'mails',
+    'metacore',
     'news',
     'notifications',
+    'partners',
+    'petitions',
+    'proceedings',
+    'production',
+    'rest_framework',
     'scipost',
+    'sphinxdoc',
+    'stats',
     'submissions',
     'theses',
     'virtualmeetings',
     'organizations',
-    'proceedings',
-    'production',
     'profiles',
-    'partners',
+    # TODO: partners to be deprecated in favour of sponsors
+    'sponsors',
     'preprints',
     'funders',
-    'stats',
-    'petitions',
     'sitesserved',
     'webpack_loader',
     'maintenancemode',
 )
 
 SITE_ID = 1
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 25
+}
 
 
 HAYSTACK_CONNECTIONS = {
@@ -159,13 +169,13 @@ SHELL_PLUS_POST_IMPORTS = (
     ('scipost.factories', ('ContributorFactory')),
 )
 
-MATHJAX_ENABLED = True
-MATHJAX_CONFIG_DATA = {
-    "tex2jax": {
-        "inlineMath": [['$', '$'], ['\\(', '\\)']],
-        "processEscapes": True
-        }
-    }
+# MATHJAX_ENABLED = True
+# MATHJAX_CONFIG_DATA = {
+#     "tex2jax": {
+#         "inlineMath": [['$', '$'], ['\\(', '\\)']],
+#         "processEscapes": True
+#         }
+#     }
 
 MIDDLEWARE = (
     # 'django.middleware.http.ConditionalGetMiddleware',
@@ -227,7 +237,13 @@ DATABASES = {
         'PORT': '5432'
     }
 }
-
+MONGO_DATABASE = {
+    'database': 'scipost',
+    'host': 'localhost',
+    'user': '',
+    'password': '',
+    'port': '27017',
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -377,7 +393,7 @@ LOGGING = {
 # Celery scheduled tasks
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = 'amqp://localhost'
-CELERY_IMPORTS = ('submissions.tasks', )
+CELERY_IMPORTS = ('submissions.tasks', 'metacore.tasks')
 
 
 # Automation.

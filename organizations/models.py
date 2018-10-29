@@ -13,6 +13,7 @@ from django.urls import reverse
 from django_countries.fields import CountryField
 
 from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
+from .managers import OrganizationQuerySet
 
 from scipost.models import Contributor
 from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
@@ -63,6 +64,8 @@ class Organization(models.Model):
         blank=True, null=True,
         help_text='NB: nr_associated_publications is a calculated field. Do not modify.')
 
+    objects = OrganizationQuerySet.as_manager()
+
     class Meta:
         ordering = ['country', 'name']
 
@@ -105,6 +108,17 @@ class Organization(models.Model):
         self.cf_nr_associated_publications = self.count_publications()
         self.save()
 
+    def pubfraction_for_publication(self, doi_label):
+        """
+        Return the organization's pubfraction for this publication, or the string 'Not defined'.
+        """
+        try:
+            return OrgPubFraction.objects.get(
+                organization=self,
+                publication__doi_label=doi_label).fraction
+        except:
+            return 'Not yet defined'
+
     def pubfractions_in_year(self, year):
         """
         Returns the sum of pubfractions for the given year.
@@ -140,7 +154,7 @@ class Organization(models.Model):
         """
         return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
 
-    def get_total_subsidies_obtained(self, n_years_part=None):
+    def get_total_subsidies_obtained(self, n_years_past=None):
         """
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.

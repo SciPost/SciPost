@@ -42,6 +42,7 @@ class Subsidy(models.Model):
 
     class Meta:
         verbose_name_plural = 'subsidies'
+        ordering = ['-date']
 
     def __str__(self):
         return format_html('{}: &euro;{} from {}, for {}',

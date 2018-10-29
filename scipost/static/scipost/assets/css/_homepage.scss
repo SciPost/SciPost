@@ -72,11 +72,16 @@
 
     li {
         height: 100px !important;
+        list-style: none;
 
-        img {
-            max-height: 100px !important;
-            height: auto !important;
-            width: auto !important;
+        li {
+            height: 100px !important;
+
+            img {
+                max-height: 100px !important;
+                height: auto !important;
+                width: auto !important;
+            }
         }
     }
 }

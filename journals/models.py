@@ -2,6 +2,8 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from decimal import Decimal
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
@@ -128,9 +130,9 @@ class Journal(models.Model):
 
     def get_issues(self):
         if self.structure == ISSUES_AND_VOLUMES:
-            return Issue.objects.filter(in_volume__in_journal=self)
+            return Issue.objects.filter(in_volume__in_journal=self).published()
         elif self.structure == ISSUES_ONLY:
-            return self.issues.all()
+            return self.issues.published()
         return Issue.objects.none()
 
     def get_publications(self):
@@ -659,7 +661,7 @@ class OrgPubFraction(models.Model):
                                      related_name='pubfractions', blank=True, null=True)
     publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
                                     related_name='pubfractions')
-    fraction = models.DecimalField(max_digits=4, decimal_places=3)
+    fraction = models.DecimalField(max_digits=4, decimal_places=3, default=Decimal('0.000'))
 
     class Meta:
         unique_together = (('organization', 'publication'),)

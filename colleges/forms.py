@@ -63,7 +63,7 @@ class FellowshipTerminateForm(forms.ModelForm):
     def save(self):
         today = datetime.date.today()
         fellowship = self.instance
-        if fellowship.until_date > today:
+        if not fellowship.until_date or fellowship.until_date > today:
             fellowship.until_date = today
         return fellowship.save()
 

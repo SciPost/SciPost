@@ -50,9 +50,39 @@ from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Publication, PublicationAuthorsTable
 from news.models import NewsItem
-from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
+from organizations.models import Organization
 from partners.models import MembershipAgreement
+from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from theses.models import ThesisLink
+
+
+###########
+# Sitemap #
+###########
+
+def sitemap_xml(request):
+    """
+    Dynamically generate a sitemap (xml) for search engines.
+    """
+    newsitems = NewsItem.objects.homepage()
+    journals = Journal.objects.active()
+    contributors = Contributor.objects.active()
+    submissions = Submission.objects.public()
+    publications = Publication.objects.published().order_by('-publication_date')
+    commentaries = Commentary.objects.vetted()
+    theses = ThesisLink.objects.vetted()
+    organizations = Organization.objects.all()
+    context = {
+        'newsitems': newsitems,
+        'journals': journals,
+        'contributors': contributors,
+        'submissions': submissions,
+        'publications': publications,
+        'commentaries': commentaries,
+        'theses': theses,
+        'organizations': organizations,
+    }
+    return render(request, 'scipost/sitemap.xml', context)
 
 
 ##############
@@ -91,7 +121,8 @@ def index(request):
         # 'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
-        'current_agreements': MembershipAgreement.objects.now_active(),
+        'current_sponsors': (Organization.objects.with_subsidy_above_and_up_to(5000, 1000000000)
+                             | Organization.objects.current_sponsors()),
     }
     return render(request, 'scipost/index.html', context)
 

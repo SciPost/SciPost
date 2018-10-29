@@ -3,7 +3,7 @@
 {% load render_bundle from webpack_loader %}
 {% load staticfiles %}
 
-{% block body_class %}{{block.super}} homepage{% endblock %}
+{% block body_class %}{{ block.super }} homepage{% endblock %}
 
 {% block footer_script %}
     {% render_bundle 'homepage' 'js' %}
@@ -50,25 +50,27 @@
 {% endblock %}
 
 {% block sidebar %}
+
     {% include 'scipost/index_sidebar_2.html' %}
+
 {% endblock %}
 
 {% block content_footer %}
     <footer class="container-fluid text-left secondary pt-4 mt-5">
         <div class="row">
             <div class="col-lg-6">
-                <h1>Supporting partners</h1>
-                <a class="mb-2 d-inline-block" href="{% url 'partners:partners' %}">See all Partners</a>
-                <div class="supporting-partners">
+                <h1>Sponsors <a class="mb-2 d-inline-block" href="{% url 'sponsors:sponsors' %}"><small class="text-muted">[see all]</small></a></h1>
+                <div class="sponsors">
                     <ul id="fader">
-                        {% for agreement in current_agreements %}
-                            {% if agreement.partner.organization.logo %}
-                                <li class="item"><img height="100" class="rounded" src="{{ agreement.partner.organization.logo.url }}" alt="Partner Logo"></li>
+                        {% for sponsor in current_sponsors %}
+                            {% if sponsor.logo %}
+                                <li class="item"><img height="100" class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
                             {% endif %}
                         {% endfor %}
                     </ul>
                 </div>
             </div>
+	    <br/>
             <div class="col-lg-6 logos">
                 <h1>SciPost participates in</h1>
                 <br/>
@@ -78,17 +80,6 @@
                 <a href="//i4oc.org/" target="_blank"><img width="100" src="{% static 'scipost/images/I4OC.png' %}"></a>
 		<a href="//freejournals.org" target="_blank"><img width="100" src="{% static 'scipost/images/FJN-logo-long.png' %}"></a>
             </div>
-	    </div>
-	    <div class="row">
-	      <div class"col-lg-6 logos">
-		<h1>Granting institutions</h1>
-            <div class="granting-institutions">
-        		<a href="//www.nwo.nl/en" target="_blank" style="max-width: 600px;"><img width="600" src="{% static 'scipost/images/NWO_LOGO_EN_2.png' %}"></a>
-        		<a href="//www.mpg.de/en" target="_blank"><img width="100" src="{% static 'scipost/images/Max-Planck-Gesellschaft.svg' %}"></a>
-        		<a href="//www.vsnu.nl" target="_blank"><img width="100" src="{% static 'scipost/images/logovsnu.jpg' %}"></a>
-        		<a href="//www.openaire.eu" target="_blank"><img width="100" src="{% static 'scipost/images/OpenAIRE.png' %}"></a>
-            </div>
-	      </div>
-	    </div>
+	</div>
     </footer>
 {% endblock %}

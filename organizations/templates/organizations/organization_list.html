@@ -48,7 +48,7 @@ $(document).ready(function($) {
 
 <div class="row">
   <div class="col-5">
-    <p>Organizations are linked through being in a publication's author affiliations, grant-giving agencies or explicit support acknowledgements.</p>
+    <p>Organizations are linked through appearing in a publication's author affiliations, grant-giving agencies or explicit support acknowledgements.</p>
     <p>For each Organization, the NAP (number of associated publications) is given (you can order in decreasing/increasing NAP using the header arrows).</p>
   </div>
   <div class="col-1"></div>
@@ -73,8 +73,16 @@ $(document).ready(function($) {
 	  <th><a href="?order_by=country">Country</a></th>
 	  <th><a href="?order_by=name">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
 	  <th>NAP <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab"></i>
-	    {% if request.GET.ordering != 'asc' %}</a> <a href="?order_by=nap&ordering=asc"><i class="fa fa-sort-asc"></i></a>{% endif %}
-{% if request.GET.ordering != 'desc' %}<a href="?order_by=nap&ordering=desc"><i class="fa fa-sort-desc"></i></a>{% endif %}
+	    {% if request.GET.ordering != 'asc' %}
+	    <a href="?order_by=nap&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	    {% else %}
+	    <a href="{% url 'organizations:organizations' %}"><i class="fa fa-sort-asc"></i></a>
+	    {% endif %}
+	    {% if request.GET.ordering != 'desc' %}
+	    <a href="?order_by=nap&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	    {% else %}
+	    <a href="{% url 'organizations:organizations' %}"><i class="fa fa-sort-desc"></i></a>
+	    {% endif %}
 </th>
 	  <th>SciPost sponsor?</th>
 	</tr>
