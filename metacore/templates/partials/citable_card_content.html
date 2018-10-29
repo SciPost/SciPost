@@ -2,15 +2,17 @@
 {% load metacore_extras %}
 
 <div class="submission_title">
-    <!-- <h5 class="pb-0 subject_area">{{ submission.get_subject_area_display }}</h5> -->
-    <h3 class="card-title mb-0 submisssion_title">
-        {{ citable.title }}
-    </h3>
-    <p class="mb-3 author_list">by {{ citable.authors|truncate_list:10 }}</p>
+    <h3 class="card-title mb-0 submisssion_title">{{ citable.title }}</h3>
+    <div class="author_list mb-0">by {{ citable.authors|join_authors_list:16 }}
+        {% if citable.authors|length > 16 %}
+            &middot; <a href="javascript:;" data-toggle="toggle" data-target="#authors-{{ citable.id }}">See all authors</a>
+            <div style="display: none;" id="authors-{{ citable.id }}" class="py-2">{{ citable.authors|join_authors_list }}</div>
+        {% endif %}
+    </div>
 </div>
 
 {% block card_footer %}
-    <p class="text-muted mb-0">
+    <p class="text-muted mb-0 mt-3">
     Cited {{ citable.crossref_ref_count|intcomma }} times (CrossRef) / {{ citable.times_cited|intcomma }} times (SciPost Meta)
         &middot; doi: <a href="//doi.org/{{ citable.doi }}" target="_blank">{{ citable.doi }}</a>
       <br>
