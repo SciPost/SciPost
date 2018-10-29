@@ -1,0 +1,35 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+{% load submissions_admin %}
+{% load scipost_extras %}
+{% load conflict_tags %}
+
+{% block pagetitle %}: reassign ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Reassign {{ submission.preprint.identifier_w_vn_nr }}</span>
+{% endblock %}
+
+{% block content %}
+    <h1 class="highlight">Reassign Submission</h1>
+    <h3 class="mb-0"><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
+    <h4>by {{submission.author_list}}</h4>
+    <br>
+    <p>Current Editor-in-charge: {{ submission.editor_in_charge }}</p>
+
+    <div class="p-3 border">
+        <h2>Assign new Editor-in-charge to Submission</h2>
+        <p>Select the new Editor-in-charge below. This will have immediate effect, so first be sure you have agreed with the fellow to take over this duty.</p>
+        <br>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <input type="submit" class="btn btn-primary" onClick="confirm('Are you certain? There is no way back here.')" value="Confirm reassignment">
+        </form>
+    </div>
+
+
+
+{% endblock content %}

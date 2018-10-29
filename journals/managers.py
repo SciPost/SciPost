@@ -6,7 +6,7 @@ from django.db import models
 from django.utils import timezone
 
 from .constants import STATUS_PUBLISHED, STATUS_DRAFT, PUBLICATION_PUBLISHED, ISSUES_AND_VOLUMES,\
-    ISSUES_ONLY, INDIVIDUAL_PUBLCATIONS
+    ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
 
 
 class JournalQuerySet(models.QuerySet):
@@ -17,7 +17,7 @@ class JournalQuerySet(models.QuerySet):
         return self.filter(structure__in=(ISSUES_AND_VOLUMES, ISSUES_ONLY))
 
     def has_individual_publications(self):
-        return self.filter(structure=INDIVIDUAL_PUBLCATIONS)
+        return self.filter(structure=INDIVIDUAL_PUBLICATIONS)
 
 
 class IssueQuerySet(models.QuerySet):

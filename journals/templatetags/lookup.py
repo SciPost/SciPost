@@ -10,7 +10,7 @@ from ajax_select import register, LookupChannel
 from ..models import Publication
 
 from funders.models import Funder, Grant
-from partners.models import Organization
+from organizations.models import Organization
 
 
 @register('publication_lookup')

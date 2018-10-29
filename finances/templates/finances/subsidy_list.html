@@ -1,0 +1,89 @@
+{% extends 'finances/base.html' %}
+
+{% block pagetitle %}: Subsidies{% endblock pagetitle %}
+
+{% load staticfiles %}
+
+
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Subsidies</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Subsidies</h3>
+    {% if perms.scipost.can_manage_subsidies %}
+    <ul>
+      <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
+    </ul>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <table class="table table-hover mb-5">
+      <thead class="thead-default">
+	<tr>
+	  <th>From Organization</th>
+	  <th>Type</th>
+	  <th>Amount
+	    {% if request.GET.ordering != 'asc' %}
+	    <a href="?order_by=amount&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	    {% else %}
+	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+	    {% endif %}
+	    {% if request.GET.ordering != 'desc' %}
+	    <a href="?order_by=amount&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	    {% else %}
+	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	    {% endif %}
+	  </th>
+	  <th>Date
+	    {% if request.GET.ordering != 'asc' %}
+	    <a href="?order_by=date&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	    {% else %}
+	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+	    {% endif %}
+	    {% if request.GET.ordering != 'desc' %}
+	    <a href="?order_by=date&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	    {% else %}
+	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	    {% endif %}
+	  </th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for subsidy in object_list %}
+	<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
+	  <td>{{ subsidy.organization }}</td>
+	  <td>{{ subsidy.get_subsidy_type_display }}</td>
+	  <td>&euro;{{ subsidy.amount }}</td>
+	  <td>{{ subsidy.date }}</td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <td colspan="4">No Subsidy found</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+{% endblock content %}

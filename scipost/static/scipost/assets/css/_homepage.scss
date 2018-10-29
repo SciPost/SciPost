@@ -58,25 +58,19 @@
         background-color: $white;
     }
 }
-
-.granting-institutions > a {
-    width: 25%;
-    display: inline-block;
-    max-width: 100px;
-    padding: 0 0.25rem;
-}
-
-.supporting-partners ul {
-    height: 100px !important;
-    list-style: none;
-
-    li {
+.homepage {
+    .sponsors ul {
         height: 100px !important;
+        list-style: none;
 
-        img {
-            max-height: 100px !important;
-            height: auto !important;
-            width: auto !important;
+        li {
+            height: 100px !important;
+
+            img {
+                max-height: 100px !important;
+                height: auto !important;
+                width: auto !important;
+            }
         }
     }
 }

@@ -4,7 +4,9 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import WorkLog
+from .models import Subsidy, WorkLog
 
+
+admin.site.register(Subsidy)
 
 admin.site.register(WorkLog)

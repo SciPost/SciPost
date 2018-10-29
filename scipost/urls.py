@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
 
 from . import views
@@ -11,7 +12,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX
+from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX, DOI_DISPATCH_REGEX, DOI_ISSUE_REGEX
 from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -29,9 +30,17 @@ urlpatterns = [
     url(r'^about$', views.AboutView.as_view(), name='about'),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
     url(r'^donations/thank-you/$', TemplateView.as_view(template_name='scipost/donation_thank_you.html'), name='donation_thank_you'),
-    url(r'^ExpSustDrive2018$',
+    url(
+        r'^ExpSustDrive2018$',
         TemplateView.as_view(template_name='scipost/ExpSustDrive2018.html'),
-        name='ExpSustDrive2018'),
+        name='ExpSustDrive2018'
+    ),
+    url(
+        r'^PlanSciPost$',
+        permission_required('scipost.can_attend_VGMs')(
+            TemplateView.as_view(template_name='scipost/PlanSciPost.html')),
+        name='PlanSciPost'
+    ),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
         name='foundation'),
     url(r'^tour$', TemplateView.as_view(template_name='scipost/quick_tour.html'),
@@ -73,6 +82,10 @@ urlpatterns = [
     # Contributors:
     ################
 
+    # Contributor info (public view)
+    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
+        name="contributor_info"),
+
     # Registration
     url(r'^register$', views.register, name='register'),
     url(r'^thanks_for_registering$',
@@ -108,6 +121,8 @@ urlpatterns = [
     url(r'^personal_page/$', views.personal_page, name='personal_page'),
     url(r'^personal_page/account$', views.personal_page,
         name='personal_page_account', kwargs={'tab': 'account'}),
+    url(r'^personal_page/admin_actions$', views.personal_page,
+        name='personal_page_admin_actions', kwargs={'tab': 'admin_actions'}),
     url(r'^personal_page/editorial_actions$', views.personal_page,
         name='personal_page_editorial_actions', kwargs={'tab': 'editorial_actions'}),
     url(r'^personal_page/refereeing$', views.personal_page,
@@ -129,10 +144,6 @@ urlpatterns = [
     url(r'^unavailable_period$', views.mark_unavailable_period, name='mark_unavailable_period'),
     url(r'^unavailable_period/(?P<period_id>[0-9]+)/delete$', views.delete_unavailable_period,
         name='delete_unavailable_period'),
-
-    # Contributor info
-    url(r'^contributor/(?P<contributor_id>[0-9]+)$', views.contributor_info,
-        name="contributor_info"),
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),
@@ -193,6 +204,10 @@ urlpatterns = [
         name='author_reply_detail'),
 
     # Publication detail (+pdf)
+    url(r'^10.21468/{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+        journals_views.doi_dispatch, name='doi_dispatch'),
+    url(r'^{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+        journals_views.doi_dispatch, name='doi_dispatch'),
     url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
@@ -207,14 +222,14 @@ urlpatterns = [
         name='publication_pdf'),
 
     # Journal issue
-    url(r'^10.21468/(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^10.21468/{regex}$'.format(regex=DOI_ISSUE_REGEX),
         journals_views.issue_detail, name='issue_detail'),
-    url(r'^(?P<doi_label>[a-zA-Z]+.[0-9]+.[0-9])$',
+    url(r'^{regex}$'.format(regex=DOI_ISSUE_REGEX),
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
-    url(r'^10.21468/%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
-    url(r'^%s' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
+    url(r'^10.21468/%s$' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
+    url(r'^%s$' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
     url(r'^arxiv_doi_feed/%s' % JOURNAL_REGEX, journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
 
     ################

@@ -44,10 +44,20 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
         return context
 
 
-class RegistrationInvitationsSendView(RegistrationInvitationsView):
+class RegistrationInvitationsSentView(RegistrationInvitationsView):
     permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.sent().not_for_fellows()
     template_name = 'invitations/registrationinvitation_list_sent.html'
+
+
+class RegistrationInvitationsDraftContributorView(RegistrationInvitationsView):
+    permission_required = 'scipost.can_manage_registration_invitations'
+    queryset = RegistrationInvitation.objects.drafts().for_contributors()
+    template_name = 'invitations/registrationinvitation_list_contributors.html'
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.order_by('created')
 
 
 class RegistrationInvitationsFellowView(RegistrationInvitationsView):

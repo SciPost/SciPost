@@ -30,7 +30,7 @@ var sort_form_list = function(list_el) {
     $(list_el).sortable({handle: ".handle, li"})
     .on('sortupdate', function() {
         $.each($(list_el + ' > *'), function(index, el) {
-            $(el).find('input[name$=ORDER]').val(index);
+            $(el).find('input[name$=ORDER]').val(index + 1);
         });
     }).trigger('sortupdate');
 };

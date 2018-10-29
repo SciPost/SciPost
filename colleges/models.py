@@ -8,9 +8,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from .constants import PROSPECTIVE_FELLOW_STATUSES, PROSPECTIVE_FELLOW_IDENTIFIED,\
-    PROSPECTIVE_FELLOW_EVENTS
+from .constants import POTENTIAL_FELLOWSHIP_STATUSES,\
+    POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_EVENTS
 from .managers import FellowQuerySet
+
+from profiles.models import Profile
 
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,\
@@ -67,44 +69,37 @@ class Fellowship(TimeStampedModel):
         return today >= self.start_date and today <= self.until_date
 
 
-
-class ProspectiveFellow(models.Model):
+class PotentialFellowship(models.Model):
     """
-    A ProspectiveFellow is somebody who has been identified as
-    a potential member of an Editorial College.
-    """
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=150)
-    email = models.EmailField()
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
-                                  default=DISCIPLINE_PHYSICS, verbose_name='Main discipline')
-    expertises = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
-    webpage = models.URLField(blank=True)
-    status = models.CharField(max_length=32, choices=PROSPECTIVE_FELLOW_STATUSES,
-                              default=PROSPECTIVE_FELLOW_IDENTIFIED)
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                                    null=True, blank=True, related_name='+')
+    A PotentialFellowship is defined when a researcher has been identified by
+    Admin or EdAdmin as a potential member of an Editorial College.
 
-    class Meta:
-        ordering = ['last_name']
+    It is linked to Profile as ForeignKey and not as OneToOne, since the same
+    person can eventually be approached on different occasions.
+
+    COMMENT: Why is this only nonregistered people only?
+    """
+
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
+    status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,
+                              default=POTENTIAL_FELLOWSHIP_IDENTIFIED)
 
     def __str__(self):
-        return '%s, %s %s (%s)' % (self.last_name, self.get_title_display(), self.first_name,
-                                   self.get_status_display())
+        return '%s, %s' % (self.profile.__str__(), self.get_status_display())
 
 
-class ProspectiveFellowEvent(models.Model):
-    prosfellow = models.ForeignKey('colleges.ProspectiveFellow', on_delete=models.CASCADE)
-    event = models.CharField(max_length=32, choices=PROSPECTIVE_FELLOW_EVENTS)
+class PotentialFellowshipEvent(models.Model):
+    """Any event directly related to a PotentialFellowship instance registered as plain text."""
+
+    potfel = models.ForeignKey('colleges.PotentialFellowship', on_delete=models.CASCADE)
+    event = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_EVENTS)
     comments = models.TextField(blank=True)
-    noted_on = models.DateTimeField(default=timezone.now)
+
+    noted_on = models.DateTimeField(auto_now_add=True)
     noted_by = models.ForeignKey('scipost.Contributor',
                                  on_delete=models.SET(get_sentinel_user),
                                  blank=True, null=True)
 
     def __str__(self):
-        return '%s, %s %s: %s' % (self.prosfellow.last_name, self.prosfellow.get_title_display(),
-                                  self.prosfellow.first_name, self.get_event_display())
+        return '%s, %s %s: %s' % (self.potfel.last_name, self.potfel.get_title_display(),
+                                  self.potfel.first_name, self.get_event_display())

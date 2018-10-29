@@ -18,8 +18,8 @@ from .constants import (
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED,
-    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED,
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
+    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
 from . import exceptions, helpers
 from .models import (
@@ -31,9 +31,11 @@ from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
+from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
+from profiles.models import Profile
 from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
@@ -411,7 +413,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
         # Create new EditorialAssigment for the current Editor-in-Charge
         EditorialAssignment.objects.create(
-            submission=submission, to=self.last_submission.editor_in_charge, accepted=True)
+            submission=submission, to=self.last_submission.editor_in_charge, status=STATUS_ACCEPTED)
 
     def set_pool(self, submission):
         """Set the default set of (guest) Fellows for this Submission."""
@@ -569,6 +571,56 @@ PreassignEditorsFormSet = forms.modelformset_factory(
     formset=BasePreassignEditorsFormSet, form=PreassignEditorsForm)
 
 
+class SubmissionReassignmentForm(forms.ModelForm):
+    """Process reassignment of EIC for Submission."""
+    new_editor = forms.ModelChoiceField(queryset=Contributor.objects.none(), required=True)
+
+    class Meta:
+        model = Submission
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+
+        self.fields['new_editor'].queryset = Contributor.objects.filter(
+            fellowships__in=self.submission.fellows.all()).exclude(
+            id=self.submission.editor_in_charge.id)
+
+    def save(self):
+        """Update old/create new Assignment and send mails."""
+        old_editor = self.submission.editor_in_charge
+        old_assignment = self.submission.editorial_assignments.ongoing().filter(
+            to=old_editor).first()
+        if old_assignment:
+            EditorialAssignment.objects.filter(id=old_assignment.id).update(status=STATUS_REPLACED)
+
+        # Update Submission and update/create Editorial Assignments
+        now = timezone.now()
+        assignment = EditorialAssignment.objects.create(
+            submission=self.submission,
+            to=self.cleaned_data['new_editor'],
+            status=STATUS_ACCEPTED,
+            date_invited=now,
+            date_answered=now,
+        )
+        self.submission.editor_in_charge = self.cleaned_data['new_editor']
+        self.submission.save()
+
+        # Email old and new editor
+        if old_assignment:
+            mail_sender = DirectMailUtil(
+                mail_code='fellows/email_fellow_replaced_by_other',
+                assignment=old_assignment)
+            mail_sender.send()
+
+        mail_sender = DirectMailUtil(
+            mail_code='fellows/email_fellow_assigned_submission',
+            assignment=assignment)
+        mail_sender.send()
+
+
 class SubmissionPrescreeningForm(forms.ModelForm):
     """Processing decision for pre-screening of Submission."""
 
@@ -598,10 +650,12 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         data = super().clean()
         if self.instance.status != STATUS_INCOMING:
             self.add_error(None, 'This Submission is currently not in pre-screening.')
-        if not self.instance.fellows.exists():
-            self.add_error(None, 'Please add at least one fellow to the pool first.')
-        if not self.instance.editorial_assignments.exists():
-            self.add_error(None, 'Please complete the pre-assignments form first.')
+
+        if data['decision'] == self.PASS:
+            if not self.instance.fellows.exists():
+                self.add_error(None, 'Please add at least one fellow to the pool first.')
+            if not self.instance.editorial_assignments.exists():
+                self.add_error(None, 'Please complete the pre-assignments form first.')
         return data
 
     @transaction.atomic
@@ -730,18 +784,14 @@ class EditorialAssignmentForm(forms.ModelForm):
                     latest_activity=timezone.now())
 
             # Implicitly or explicity accept the assignment and deprecate others.
-            assignment.accepted = True  # Deprecated field
+            # assignment.accepted = True  # Deprecated field
             assignment.status = STATUS_ACCEPTED
 
             # Update all other 'open' invitations
             EditorialAssignment.objects.filter(submission=self.submission).need_response().exclude(
                 id=assignment.id).update(status=STATUS_DEPRECATED)
-
-            # Deprecated update
-            EditorialAssignment.objects.filter(submission=self.submission, accepted=None).exclude(
-                id=assignment.id).update(deprecated=True)
         else:
-            assignment.accepted = False  # Deprecated field
+            # assignment.accepted = False  # Deprecated field
             assignment.status = STATUS_DECLINED
             assignment.refusal_reason = self.cleaned_data['refusal_reason']
         assignment.save()  # Save again to register acceptance
@@ -769,6 +819,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
     class Meta:
         model = RefereeInvitation
         fields = [
+            'profile',
             'title',
             'first_name',
             'last_name',
@@ -776,6 +827,7 @@ class RefereeRecruitmentForm(forms.ModelForm):
             'auto_reminders_allowed',
             'invitation_key']
         widgets = {
+            'profile': forms.HiddenInput(),
             'invitation_key': forms.HiddenInput()
         }
 
@@ -803,11 +855,17 @@ class RefereeRecruitmentForm(forms.ModelForm):
         if not self.request or not self.submission:
             raise forms.ValidationError('No request or Submission given.')
 
+        # Try to associate an existing Profile to ref/reg invitations:
+        profile = Profile.objects.get_unique_from_email_or_None(
+            email=self.cleaned_data['email_address'])
+        self.instance.profile = profile
+
         self.instance.submission = self.submission
         self.instance.invited_by = self.request.user.contributor
         referee_invitation = super().save(commit=False)
 
         registration_invitation = RegistrationInvitation(
+            profile=profile,
             title=referee_invitation.title,
             first_name=referee_invitation.first_name,
             last_name=referee_invitation.last_name,
@@ -1155,7 +1213,7 @@ class EICRecommendationForm(forms.ModelForm):
 
         if self.assignment:
             # The EIC has fulfilled this editorial assignment.
-            self.assignment.completed = True
+            self.assignment.status = STATUS_COMPLETED
             self.assignment.save()
         return recommendation
 

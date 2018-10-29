@@ -27,16 +27,17 @@
 
     {% else %}
         {# Save all Permission groups into template variables #}
-            {% is_edcol_admin request.user as is_edcol_admin %}
-            {% is_scipost_admin request.user as is_scipost_admin %}
-            {% is_editorial_college request.user as is_editorial_college %}
-            {% is_advisory_board request.user as is_advisory_board %}
-            {% is_vetting_editor request.user as is_vetting_editor %}
-            {% is_ambassador request.user as is_ambassador %}
-            {% is_junior_ambassador request.user as is_junior_ambassador %}
-            {% is_registered_contributor request.user as is_registered_contributor %}
-            {% is_tester request.user as is_tester %}
-            {% is_production_officer request.user as is_production_officer %}
+        {% is_edcol_admin request.user as is_edcol_admin %}
+        {% is_scipost_admin request.user as is_scipost_admin %}
+	{% is_financial_admin request.user as is_financial_admin %}
+        {% is_editorial_college request.user as is_editorial_college %}
+        {% is_advisory_board request.user as is_advisory_board %}
+        {% is_vetting_editor request.user as is_vetting_editor %}
+        {% is_ambassador request.user as is_ambassador %}
+        {% is_junior_ambassador request.user as is_junior_ambassador %}
+        {% is_registered_contributor request.user as is_registered_contributor %}
+        {% is_tester request.user as is_tester %}
+        {% is_production_officer request.user as is_production_officer %}
 
         <div class="row">
             <div class="col-12">
@@ -47,6 +48,11 @@
                           <li class="nav-item btn btn-outline-secondary">
                             <a class="nav-link" {% if tab == 'account' %}sp-autoload='true'{% endif %} href="#account" sp-dynamic-load="{% url 'scipost:personal_page_account' %}" data-toggle="tab">Account</a>
                           </li>
+			  {% if is_scipost_admin or is_financial_admin %}
+			  <li class="nav-item btn btn-outline-secondary">
+			    <a class="nav-link" {% if tab == 'admin_actions' %}sp-autoload='true'{% endif %} href="#admin-actions" sp-dynamic-load="{% url 'scipost:personal_page_admin_actions' %}" data-toggle="tab">Admin Actions</a>
+			  </li>
+			  {% endif %}
                           {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
                               <li class="nav-item btn btn-outline-secondary">
                                 <a class="nav-link" {% if tab == 'editorial_actions' %}sp-autoload='true'{% endif %} href="#editorial-actions" sp-dynamic-load="{% url 'scipost:personal_page_editorial_actions' %}" data-toggle="tab">Editorial Actions</a>
@@ -93,6 +99,12 @@
             <!-- Tab: Account -->
             <div class="tab-pane active" id="account" role="tabpanel">
             </div><!-- End tab -->
+
+	    {% if is_scipost_admin %}
+	    <!-- Tab: Admin Actions -->
+	    <div class="tab-pane" id="admin-actions" role="tabpanel">
+	    </div>
+	    {% endif %}
 
             {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
                 <!-- Tab: Editorial Actions -->

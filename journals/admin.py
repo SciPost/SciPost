@@ -6,7 +6,8 @@ from django.contrib import admin, messages
 from django import forms
 
 from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, \
-    Deposit, DOAJDeposit, GenericDOIDeposit, Reference, PublicationAuthorsTable
+    Deposit, DOAJDeposit, GenericDOIDeposit, Reference, PublicationAuthorsTable,\
+    OrgPubFraction
 
 from scipost.models import Contributor
 from submissions.models import Submission
@@ -67,12 +68,17 @@ class AuthorsInline(admin.TabularInline):
     extra = 0
 
 
+class OrgPubFractionInline(admin.TabularInline):
+    model = OrgPubFraction
+    list_display = ('organization', 'publication', 'fraction')
+
+
 class PublicationAdmin(admin.ModelAdmin):
     search_fields = ['title', 'author_list']
     list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date', 'status']
     date_hierarchy = 'publication_date'
     list_filter = ['in_issue']
-    inlines = [AuthorsInline, ReferenceInline]
+    inlines = [AuthorsInline, ReferenceInline, OrgPubFractionInline]
     form = PublicationAdminForm
 
 

@@ -2,10 +2,10 @@
   <div class="row">
     <div class="col-md-4">
       <address>
-            <h3>{{ agreement.partner.institution.name }}</h3>
-            <strong>{{ agreement.partner.institution.acronym }} ({{ agreement.partner.institution.get_kind_display }})</strong><br>
-            {{ agreement.partner.institution.address|linebreaks }}
-            {{ agreement.partner.institution.get_country_display }}
+            <h3>{{ agreement.partner.organization.name }}</h3>
+            <strong>{{ agreement.partner.organization.acronym }} ({{ agreement.partner.organization.get_kind_display }})</strong><br>
+            {{ agreement.partner.organization.address|linebreaks }}
+            {{ agreement.partner.organization.get_country_display }}
       </address>
     </div>
     <div class="col-md-4">

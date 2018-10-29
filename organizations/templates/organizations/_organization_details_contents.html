@@ -1,0 +1,50 @@
+<div class="row">
+  <div class="col-6">
+    <table class="table">
+      <tr>
+	<td>Name</td><td>{{ org.name }}</td>
+      </tr>
+      {% if org.name_original %}
+      <tr>
+	<td>Name (original vn)</td><td>{{ org.name_original }}</td>
+      </tr>
+      {% endif %}
+      <tr>
+	<td>Acronym</td><td>{{ org.acronym }}</td>
+      </tr>
+      <tr>
+	<td>Country</td><td>{{ org.get_country_display }}</td>
+      </tr>
+      <tr>
+	<td>Address</td><td>{{ org.address }}</td>
+      </tr>
+      <tr>
+	<td>Type</td><td>{{ org.get_orgtype_display }}</td>
+      </tr>
+      <tr>
+	<td>Status</td><td>{{ org.get_status_display }}</td>
+      </tr>
+      <tr>
+	<td>GRID id (link)</td><td>{% if org.grid_json.id %}<a href="https://grid.ac/institutes/{{ org.grid_json.id }}" target="_blank">{{ org.grid_json.id }}{% else %}No GRID id found{% endif %}</td>
+      </tr>
+      <tr>
+	<td>Crossref Org ID (link)</td><td>{% if org.crossref_json.org_id %}<a href="https://crossref.org" target="_blank">{{ org.crossref_json.org_id }}{% else %}No Crossref Org ID found{% endif %}</td>
+      </tr>
+      {% if org.parent %}
+      <tr>
+	<td>Parent</td><td><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></td>
+      </tr>
+      {% endif %}
+      {% if org.superseded_by %}
+      <tr>
+	<td>Superseded by</td><td><a href="{{ org.superseded_by.get_absolute_url }}">{{ org.superseded_by }}</a></td>
+      </tr>
+      {% endif %}
+    </table>
+  </div>
+  <div class="col-6">
+    {% if org.logo %}
+      <img class="d-flex mr-3 {{ org.css_class }}" src="{{ org.logo.url }}" alt="image"/>
+    {% endif %}
+  </div>
+</div>

@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import admin
-# from django.contrib.contenttypes.admin import GenericTabularInline
 from django import forms
 
 from guardian.admin import GuardedModelAdmin

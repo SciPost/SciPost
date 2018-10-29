@@ -1,11 +1,17 @@
 <li class="py-1">
     {{ assignment.to.user.first_name }} {{ assignment.to.user.last_name }}
 
+    {% if assignment.invited %}
+        <span class="label label-sm label-info">invited</span>
+    {% endif %}
     {% if assignment.accepted %}
         <span class="label label-sm label-outline-success">accepted</span>
     {% endif %}
     {% if assignment.deprecated %}
         <span class="label label-sm label-outline-info">deprecated</span>
+    {% endif %}
+    {% if assignment.replaced %}
+        <span class="label label-sm label-outline-warning">replaced</span>
     {% endif %}
     {% if assignment.refusal_reason %}
         <span class="label label-sm label-outline-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">declined
@@ -15,7 +21,7 @@
 
     <br>
     <span class="text-muted">
-        requested {{ assignment.date_created }}
+        invited {{ assignment.date_invited|default:'<i>TBA</i>' }}
         {% if assignment.date_answered %}
             | answered {{ assignment.date_answered }}
         {% endif %}

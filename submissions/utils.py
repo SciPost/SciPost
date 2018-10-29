@@ -153,6 +153,14 @@ class BaseRefereeSubmissionCycle(BaseSubmissionCycle):
     This *abstract* submission cycle adds the specific actions needed for submission cycles
     that require referees to be invited.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.submission.proceedings:
+            # Check if proceedings has overwritten the `minimum_referees`
+            if self.submission.proceedings.minimum_referees:
+                self.minimum_referees = self.submission.proceedings.minimum_referees
+
     def update_status(self):
         if self.submission.status == STATUS_INCOMING and self.submission.is_resubmission:
             from .models import Submission
@@ -251,18 +259,6 @@ class DirectRecommendationSubmissionCycle(BaseSubmissionCycle):
 class SubmissionUtils(BaseMailUtil):
     mail_sender = 'submissions@scipost.org'
     mail_sender_title = 'SciPost Editorial Admin'
-
-    @classmethod
-    def deprecate_all_assignments(cls):
-        """
-        Called when the pre-screening has failed.
-        Requires loading 'submission' attribute.
-        """
-        # Import here due to circular import error
-        from .models import EditorialAssignment
-
-        EditorialAssignment.objects.filter(
-            submission=cls.submission, accepted=None).update(deprecated=True)
 
     @classmethod
     def reinvite_referees_email(cls):

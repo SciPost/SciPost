@@ -26,6 +26,15 @@ def is_scipost_admin(user):
 
 
 @register.simple_tag
+def is_financial_admin(user):
+    """
+    Assign template variable (boolean) to check if user is Financial Administrator.
+    This assignment is limited to a certain context block!
+    """
+    return user.groups.filter(name='Financial Administrators').exists() or user.is_superuser
+
+
+@register.simple_tag
 def is_editorial_college(user):
     """
     Assign template variable (boolean) to check if user is member of Editorial College group.

@@ -2,12 +2,14 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from decimal import Decimal
+
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Avg, F
+from django.db.models import Avg, Min, Sum, F
 from django.utils import timezone
 from django.urls import reverse
 
@@ -22,6 +24,7 @@ from .managers import IssueQuerySet, PublicationQuerySet, JournalQuerySet
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
+
 
 
 ################
@@ -41,7 +44,7 @@ class PublicationAuthorsTable(models.Model):
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
-    affiliations = models.ManyToManyField('partners.Organization', blank=True)
+    affiliations = models.ManyToManyField('organizations.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -116,9 +119,9 @@ class Journal(models.Model):
 
     def get_issues(self):
         if self.structure == ISSUES_AND_VOLUMES:
-            return Issue.objects.filter(in_volume__in_journal=self)
+            return Issue.objects.filter(in_volume__in_journal=self).published()
         elif self.structure == ISSUES_ONLY:
-            return self.issues.all()
+            return self.issues.published()
         return Issue.objects.none()
 
     def get_publications(self):
@@ -256,6 +259,7 @@ class Issue(models.Model):
         'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either an Volume or Journal to the Issue')
     number = models.PositiveSmallIntegerField()
+    slug = models.SlugField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=ISSUE_STATUSES, default=STATUS_PUBLISHED)
@@ -308,11 +312,15 @@ class Issue(models.Model):
 
     @property
     def issue_number(self):
-        return '%s issue %s' % (self.in_volume, self.number)
+        if self.in_volume:
+            return '%s issue %s' % (self.in_volume, self.number)
+        return '%s issue %s' % (self.in_journal, self.number)
 
     @property
     def short_str(self):
-        return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
+        if self.in_volume:
+            return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
+        return 'Issue %s' % self.number
 
     @property
     def period_as_string(self):
@@ -321,8 +329,8 @@ class Issue(models.Model):
         return '%s - %s' % (self.start_date.strftime('%B'), self.until_date.strftime('%B %Y'))
 
     def is_current(self):
-        return self.start_date <= timezone.now().date() and\
-               self.until_date >= timezone.now().date()
+        today = timezone.now().date()
+        return self.start_date <= today and self.until_date >= today
 
     def nr_publications(self, tier=None):
         publications = Publication.objects.filter(in_issue=self)
@@ -410,6 +418,7 @@ class Publication(models.Model):
     grants = models.ManyToManyField('funders.Grant', blank=True)
     funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
     institutions = models.ManyToManyField('affiliations.Institution', blank=True)
+    pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
     metadata = JSONField(default={}, blank=True, null=True)
@@ -462,14 +471,14 @@ class Publication(models.Model):
                 'in_issue': ValidationError(
                     'Either assign only a Journal or Issue to this Publication', code='invalid'),
             })
-        if self.in_issue and not self.in_issue.in_volume.in_journal.has_issues:
+        if self.in_issue and not self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
             raise ValidationError({
                 'in_issue': ValidationError(
                     'This journal does not allow the use of Issues',
                     code='invalid'),
             })
-        if self.in_journal and self.in_journal.has_issues:
+        if self.in_journal and self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
             raise ValidationError({
                 'in_journal': ValidationError(
@@ -486,10 +495,30 @@ class Publication(models.Model):
                 return val
         raise KeyError
 
+    def get_all_affiliations(self):
+        """
+        Returns all author affiliations.
+        """
+        from organizations.models import Organization
+        return Organization.objects.filter(
+            publicationauthorstable__publication=self
+        ).annotate(order=Min('publicationauthorstable__order')).order_by('order')
+
     def get_all_funders(self):
         from funders.models import Funder
         return Funder.objects.filter(
             models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
+
+    def get_organizations(self):
+        """
+        Returns a queryset of all Organizations which are associated to this Publication,
+        through being in author affiliations, funders or generic funders.
+        """
+        from organizations.models import Organization
+        return Organization.objects.filter(
+            models.Q(publicationauthorstable__publication=self) |
+            models.Q(funder__grants__publications=self) |
+            models.Q(funder__publications=self)).distinct()
 
     @property
     def doi_string(self):
@@ -527,14 +556,25 @@ class Publication(models.Model):
         return 'funding_statement' in self.metadata and self.metadata['funding_statement']
 
     @property
+    def pubfractions_sum_to_1(self):
+        """ Checks that the support fractions sum up to one. """
+        return self.pubfractions.aggregate(Sum('fraction'))['fraction__sum'] == 1
+
+    @property
     def citation(self):
         """
         Return Publication name in the preferred citation format.
         """
-        if self.in_issue:
+        if self.in_issue and self.in_issue.in_volume:
             return '{journal} {volume}, {paper_nr} ({year})'.format(
                 journal=self.in_issue.in_volume.in_journal.abbreviation_citation,
                 volume=self.in_issue.in_volume.number,
+                paper_nr=self.get_paper_nr(),
+                year=self.publication_date.strftime('%Y'))
+        elif self.in_issue and self.in_issue.in_journal:
+            return '{journal} {issue}, {paper_nr} ({year})'.format(
+                journal=self.in_issue.in_journal.abbreviation_citation,
+                issue=self.in_issue.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
@@ -547,7 +587,14 @@ class Publication(models.Model):
             year=self.publication_date.strftime('%Y'))
 
     def get_journal(self):
-        return self.in_journal or self.in_issue.in_volume.in_journal
+        if self.in_journal:
+            return self.in_journal
+        elif self.in_issue.in_journal:
+            return self.in_issue.in_journal
+        return self.in_issue.in_volume.in_journal
+
+    def journal_issn(self):
+        return self.get_journal().issn
 
     def get_paper_nr(self):
         if self.in_journal:
@@ -561,7 +608,7 @@ class Publication(models.Model):
         if self.citedby and self.latest_citedby_update:
             ncites = len(self.citedby)
             deltat = (self.latest_citedby_update.date() - self.publication_date).days
-            return (ncites * 365.25/deltat)
+            return (ncites * 365.25 / deltat)
         else:
             return 0
 
@@ -585,6 +632,28 @@ class Reference(models.Model):
 
     def __str__(self):
         return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
+
+
+class OrgPubFraction(models.Model):
+    """
+    Associates a fraction of the funding credit for a given publication to an Organization,
+    to help answer the question: who funded this research?
+
+    Fractions for a given publication should sum up to one.
+
+    This data is used to compile publicly-displayed information on Organizations
+    as well as to set suggested contributions from Partners.
+
+    To be set (ideally) during production phase, based on information provided by the authors.
+    """
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
+                                     related_name='pubfractions', blank=True, null=True)
+    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
+                                    related_name='pubfractions')
+    fraction = models.DecimalField(max_digits=4, decimal_places=3, default=Decimal('0.000'))
+
+    class Meta:
+        unique_together = (('organization', 'publication'),)
 
 
 class Deposit(models.Model):
