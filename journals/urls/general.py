@@ -135,6 +135,14 @@ urlpatterns = [
         journals_views.email_object_made_citable,
         name='email_object_made_citable'),
 
+    # Topics:
+    url(r'^publication_add_topic/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
+        journals_views.publication_add_topic,
+        name='publication_add_topic'),
+    url(r'^publication_remove_topic/(?P<doi_label>{regex})/(?P<slug>[-\w]+)/$'.format(regex=PUBLICATION_DOI_REGEX),
+        journals_views.publication_remove_topic,
+        name='publication_remove_topic'),
+
     # PubFraction allocation:
     url(r'^allocate_orgpubfractions/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.allocate_orgpubfractions,

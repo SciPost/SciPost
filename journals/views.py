@@ -46,6 +46,8 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditingSubView
+from ontology.models import Topic
+from ontology.forms import SelectTopicForm
 from organizations.models import Organization
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
@@ -774,13 +776,28 @@ def metadata_DOAJ_deposit(request, doi_label):
 def publication_add_topic(request, doi_label):
     """
     Add a predefined Topic to an existing Publication object.
-    This also adds the Topic to all authors' Profiles.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
         publication.topics.add(select_topic_form.cleaned_data['topic'])
         publication.save()
+        messages.success(request, 'Successfully linked Topic to this publication')
+    return redirect(reverse('scipost:publication_detail',
+                            kwargs={'doi_label': publication.doi_label}))
+
+
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def publication_remove_topic(request, doi_label, slug):
+    """
+    Remove the Topic from the Publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    topic = get_object_or_404(Topic, slug=slug)
+    publication.topics.remove(topic)
+    messages.success(request, 'Successfully removed Topic')
+    return redirect(reverse('scipost:publication_detail',
+                            kwargs={'doi_label': publication.doi_label}))
 
 
 @login_required
@@ -1281,6 +1298,7 @@ def publication_detail(request, doi_label):
         'publication': publication,
         'affiliations_list': publication.get_all_affiliations(),
         'journal': publication.get_journal(),
+        'select_topic_form': SelectTopicForm(),
     }
     return render(request, 'journals/publication_detail.html', context)
 

@@ -14,7 +14,7 @@ class SelectTagForm(forms.Form):
 
 
 class SelectTopicForm(forms.Form):
-    topic = AutoCompleteSelectField('topic_lookup')
+    topic = AutoCompleteSelectField('topic_lookup', label='', help_text='')
 
 
 class SelectLinkedTopicForm(forms.Form):
