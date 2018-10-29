@@ -1,3 +1,4 @@
+{% load humanize %}
 {% load metacore_extras %}
 
 <div class="submission_title">
@@ -10,7 +11,7 @@
 
 {% block card_footer %}
     <p class="text-muted mb-0">
-    Cited {{ citable.crossref_ref_count }} times (CrossRef) / {{ citable.times_cited}} times (SciPost Meta)
+    Cited {{ citable.crossref_ref_count|intcomma }} times (CrossRef) / {{ citable.times_cited|intcomma }} times (SciPost Meta)
         &middot; doi: <a href="//doi.org/{{ citable.doi }}" target="_blank">{{ citable.doi }}</a>
       <br>
       Published {{ citable.publication_date|date:"d-m-Y" }} by <b>{{ citable.publisher }}</b>
