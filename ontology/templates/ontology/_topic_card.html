@@ -103,16 +103,12 @@
 	</div>
 	<div class="card-body">
 	  <ul>
-	    {% for sub in topic.submission_set.public_newest %}
-	    {% if not sub.publication and not sub.publication.is_published %}
-	    <li>
-	      <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
-	      <br>by {{ sub.author_list }}
-	      <br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.get_submitted_to_journal_display }})
-	    </li>
-	    {% else %}
-	    <li>No Submission found</li>
-	    {% endif %}
+	    {% for sub in topic.submission_set.unpublished.public_newest %}
+    	    <li>
+    	      <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
+    	      <br>by {{ sub.author_list }}
+    	      <br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.get_submitted_to_journal_display }})
+    	    </li>
 	    {% empty %}
 	    <li>No Submission found</li>
 	    {% endfor %}
