@@ -15,6 +15,7 @@ class BaseAction:
     """An item in the RequiredActionsDict dictionary for the Submission refereeing cycle."""
     txt = ''
     url = '#'
+    url2 = '#'
     submission = None
 
     def __init__(self, object=None, **kwargs):
@@ -47,7 +48,8 @@ class BaseAction:
             days=timedelta.days,
             deadline=deadline.days,
             deadline_min=-deadline.days,
-            url=self.url)
+            url=self.url,
+            url2=self.url2)
 
     def as_text(self):
         return ' '.join([e for e in self])
@@ -106,13 +108,18 @@ class NoEICRecommendationAction(BaseAction):
             txt = (
                 'The refereeing deadline has passed. Please either '
                 '<a href="{url}">extend it</a>, '
-                'or formulate your Editorial Recommendation.')
+                'or <a href="{url2}">formulate your Editorial Recommendation</a>.')
         return txt
 
     @property
     def url(self):
         return '{}#reporting-deadline'.format(reverse(
             'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,)))
+
+    @property
+    def url2(self):
+        return reverse(
+            'submissions:eic_recommendation',args=(self.submission.preprint.identifier_w_vn_nr,))
 
 
 class NeedRefereesAction(BaseAction):

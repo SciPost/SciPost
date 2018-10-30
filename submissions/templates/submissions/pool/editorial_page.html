@@ -56,17 +56,20 @@
         <h3 id="editorial-recommendation">Editorial Recommendation</h3>
         {% for recommendation in submission.eicrecommendations.all %}
             {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
-        {% empty %}
-            <p>No Editorial Recommendation has been formulated yet.</p>
         {% endfor %}
 
         {% if submission.eic_recommendation_required %}
             <div class="mb-4">
-                <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>.
-                <br>
-                If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
-                <br>
-                If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
+                {% if not submission.eicrecommendations.all %}
+                    No Editorial Recommendation has been formulated yet.
+                {% endif %}
+                {% if submission.in_refereeing_phase %}
+                    Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a> when the refereeing round is closed.
+                {% elif not submission.reports.accepted %}
+                    Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.
+                {% else %}
+                    When refereeing has finished, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a>.
+                {% endif %}
             </div>
         {% endif %}
     </div>
@@ -259,6 +262,8 @@
                         </div>
                     {% endif %}
                 {% endif %}
+
+                <strong>TODO: CHECK: Does this *ALWAYS* show when in direct-eic refereeing cycle??!!!!</strong>
                 {% if submission.reporting_deadline_has_passed and submission.eic_recommendation_required %}
                     <div class="px-3 py-2 my-1 border">
                         <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>.

@@ -265,7 +265,7 @@ class Submission(models.Model):
     def in_refereeing_phase(self):
         """Check if Submission is in active refereeing phase.
 
-        This is not meant for functional logic, rather for explanatory logic for the user.
+        This is not meant for functional logic, rather for explanatory functionality to the user.
         """
         if self.eicrecommendations.active().exists():
             # Editorial Recommendation is formulated!
