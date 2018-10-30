@@ -476,6 +476,7 @@ class DraftPublicationForm(forms.ModelForm):
             for submission_author in self.submission.authors.all():
                 PublicationAuthorsTable.objects.create(
                     publication=self.instance, contributor=submission_author)
+            self.instance.topics.add(*self.submission.topics.all())
             self.instance.authors_claims.add(*self.submission.authors_claims.all())
             self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
 
