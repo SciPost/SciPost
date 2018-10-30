@@ -3,11 +3,15 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
+from django.shortcuts import get_object_or_404
 
 from scipost.behaviors import orcid_validator
 from scipost.constants import (
     TITLE_CHOICES, SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS)
 from scipost.fields import ChoiceArrayField
+
+from ontology.models import Topic
+from journals.models import PublicationAuthorsTable
 
 from .managers import ProfileQuerySet
 
@@ -81,3 +85,19 @@ class ProfileEmail(models.Model):
 
     def __str__(self):
         return self.email
+
+
+def get_profiles(slug):
+    """
+    Returns a list of Profiles for which there exists at least one
+    Publication/Submission object carrying this Topic.
+    """
+    topic = get_object_or_404(Topic, slug=slug)
+    publications = PublicationAuthorsTable.objects.filter(publication__topics__in=[topic,])
+    cont_id_list = [tbl.contributor.id for tbl in publications.all() \
+                    if tbl.contributor is not None]
+    unreg_id_list = [tbl.unregistered_author.id for tbl in publications.all() \
+                     if tbl.unregistered_author is not None]
+    print (unreg_id_list)
+    return Profile.objects.filter(models.Q(contributor__id__in=cont_id_list) |
+                                  models.Q(unregisteredauthor__id__in=unreg_id_list))
