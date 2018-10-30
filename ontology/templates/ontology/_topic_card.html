@@ -1,5 +1,7 @@
 {% load bootstrap %}
 
+{% load profiles_extras %}
+
 <script>
   $(document).ready(function() {
   $("#id_A_text").keyup(function() {
@@ -78,7 +80,7 @@
     </div>
     <hr/>
     {% endif %}
-    <div class="card-deck">
+    <div class="card-columns">
       <div class="card">
 	<div class="card-header">
 	  Publications
@@ -115,6 +117,25 @@
 	    {% endif %}
 	    {% empty %}
 	    <li>No Submission found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+      <div class="card">
+	<div class="card-header">
+	  Profiles
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% get_profiles topic.slug as profiles %}
+	    {% for profile in profiles %}
+	    {% if profile.contributor %}
+	    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+	    {% else %}
+	    <li>{{ profile }}</li>
+	    {% endif %}
+	    {% empty %}
+	    <li>No Profile found</li>
 	    {% endfor %}
 	  </ul>
 	</div>
