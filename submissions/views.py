@@ -537,7 +537,7 @@ def submission_add_topic(request, identifier_w_vn_nr):
         except:
             pass
         messages.success(request, 'Successfully linked Topic to this Submission')
-    return submission_detail(request, identifier_w_vn_nr)
+    return redirect(submission.get_absolute_url())
 
 
 @permission_required('scipost.can_manage_ontology', raise_exception=True)
@@ -558,7 +558,7 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
     except:
         pass
     messages.success(request, 'Successfully removed Topic')
-    return submission_detail(request, identifier_w_vn_nr)
+    return redirect(submission.get_absolute_url())
 
 
 @login_required

@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
+from django.urls import reverse
 
 from .constants import TOPIC_RELATIONS_ASYM, TOPIC_RELATIONS_SYM
 
@@ -27,7 +28,7 @@ class Topic(models.Model):
     """
     name = models.CharField(max_length=256, unique=True)
     slug = models.SlugField(unique=True, allow_unicode=True)
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField('ontology.Tag', blank=True)
 
     class Meta:
         ordering = ['name']
@@ -61,8 +62,6 @@ class RelationSym(models.Model):
     relation = models.CharField(max_length=32, choices=TOPIC_RELATIONS_SYM)
 
     def __str__(self):
-        text = ''
-        for topic in self.topics.all():
-            text += '%s, ' % topic
+        text = ', '.join(self.topics.values_list('name', flat=True))
         text += self.get_relation_display()
         return text
