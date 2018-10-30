@@ -792,11 +792,13 @@ def publication_add_topic(request, doi_label):
 @permission_required('scipost.can_manage_ontology', return_403=True)
 def publication_remove_topic(request, doi_label, slug):
     """
-    Remove the Topic from the Publication.
+    Remove the Topic from the Publication, and from all associated Submissions.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     topic = get_object_or_404(Topic, slug=slug)
     publication.topics.remove(topic)
+    for sub in publication.accepted_submission.thread:
+        sub.topics.remove(topic)
     messages.success(request, 'Successfully removed Topic')
     return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_label': publication.doi_label}))

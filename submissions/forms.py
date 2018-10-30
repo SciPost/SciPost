@@ -397,6 +397,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         Submission.objects.filter(id=self.last_submission.id).update(
             is_current=False, open_for_reporting=False, status=STATUS_RESUBMITTED)
 
+        # Copy Topics
+        submission.topics.add(*self.last_submission.topics.all())
+
         # Open for comment and reporting and copy EIC info
         Submission.objects.filter(id=submission.id).update(
             open_for_reporting=True,

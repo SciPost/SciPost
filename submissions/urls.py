@@ -33,6 +33,14 @@ urlpatterns = [
     url(r'^{regex}/reports/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
 
+    # Topics
+    url(r'^submission_add_topic/{regex}/'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.submission_add_topic,
+        name='submission_add_topic'),
+    url(r'^submission_remove_topic/{regex}/(?P<slug>[-\w]+)/'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.submission_remove_topic,
+        name='submission_remove_topic'),
+
     # Editorial Administration
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/{regex}/prescreening$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),

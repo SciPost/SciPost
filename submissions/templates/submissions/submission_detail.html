@@ -66,8 +66,9 @@
 
         {% include 'partials/submissions/submission_status.html' with submission=submission %}
 
-        <br>
-        <br>
+	<br/>
+	{% include 'partials/submissions/submission_topics_card.html' with submission=submission %}
+
         {% if submission.author_comments %}
             <h3>Author comments upon resubmission</h3>
             <div class="blockquote">
@@ -213,3 +214,9 @@
 {% endif %}
 
 {% endblock content %}
+
+
+{% block footer_script %}
+{{ block.super }}
+{{ select_topic_form.media }}
+{% endblock footer_script %}
