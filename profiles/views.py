@@ -47,7 +47,6 @@ class ProfileCreateView(PermissionsMixin, CreateView):
         pk = self.kwargs.get('pk', None)
         context['from_type'] = from_type
         context['pk'] = pk
-        print ('Hello, %s, %s' % (from_type, pk))
         if pk and from_type:
             matching_profiles = Profile.objects.all()
             if from_type == 'contributor':
