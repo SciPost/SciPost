@@ -37,8 +37,7 @@ urlpatterns = [
     ),
     url(
         r'^PlanSciPost$',
-        permission_required('scipost.can_attend_VGMs')(
-            TemplateView.as_view(template_name='scipost/PlanSciPost.html')),
+        TemplateView.as_view(template_name='scipost/PlanSciPost.html'),
         name='PlanSciPost'
     ),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
