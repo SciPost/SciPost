@@ -388,7 +388,7 @@ class Publication(models.Model):
 
     # Core fields
     title = models.CharField(max_length=300)
-    author_list = models.CharField(max_length=1000, verbose_name="author list")
+    author_list = models.CharField(max_length=10000, verbose_name="author list")
     abstract = models.TextField()
     abstract_jats = models.TextField(blank=True, default='',
                                      help_text='JATS version of abstract for Crossref deposit')
