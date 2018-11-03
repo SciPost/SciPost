@@ -236,25 +236,29 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         return context
 
 
-class ProfileDuplicateListView(PermissionsMixin, ListView):
+class ProfileDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List Profiles with potential duplicates; allow to merge if necessary.
     """
     permission_required = 'scipost.can_create_profiles'
     model = Profile
     template_name = 'profiles/profile_duplicate_list.html'
+    paginate_by = 16
 
     def get_queryset(self):
         profiles = Profile.objects.annotate(full_name=Concat('last_name', 'first_name'))
         duplicates = profiles.values('full_name').annotate(
             nr_count=Count('full_name')
         ).filter(nr_count__gt=1)
-        queryset = profiles.filter(full_name__in=[item['full_name'] for item in duplicates])
+        queryset = profiles.filter(full_name__in=[item['full_name'] for item in duplicates]
+        ).order_by('last_name', '-id')
         return queryset
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['merge_form'] = ProfileMergeForm()
+        initial = {'to_merge': self.object_list[0].id,
+                   'to_merge_into': self.object_list[1].id}
+        context['merge_form'] = ProfileMergeForm(initial=initial)
         return context
 
 

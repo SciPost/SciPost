@@ -15,15 +15,15 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <h3>Merge Profiles</h3>
+    <h2>Merge Profiles</h2>
 
-    <h4 class="highlight">Profile {{ profile_to_merge.id }}</h4>
+    <h3 class="highlight">Profile {{ profile_to_merge.id }}</h3>
 	{% include 'profiles/_profile_card.html' with profile=profile_to_merge %}
-
-    <h4 class="highlight">Profile {{ profile_to_merge_into.id }}</h4>
+    <hr/>
+    <h3 class="highlight">Profile {{ profile_to_merge_into.id }}</h3>
 	{% include 'profiles/_profile_card.html' with profile=profile_to_merge_into %}
-
-    <h4 class="highlight">Merge:</h4>
+    <hr/>
+    <h3 class="highlight">Merge:</h3>
     <form action="{% url 'profiles:merge' %}" method="post">
       {% csrf_token %}
       {{ merge_form }}
