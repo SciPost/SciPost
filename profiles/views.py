@@ -180,6 +180,11 @@ class ProfileDetailView(PermissionsMixin, DetailView):
     permission_required = 'scipost.can_view_profiles'
     model = Profile
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['email_form'] = ProfileEmailForm()
+        return context
+
 
 class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
     """

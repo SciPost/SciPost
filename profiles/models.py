@@ -11,8 +11,10 @@ from scipost.constants import (
     TITLE_CHOICES, SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS)
 from scipost.fields import ChoiceArrayField
 
+from comments.models import Comment
+from journals.models import Publication, PublicationAuthorsTable
 from ontology.models import Topic
-from journals.models import PublicationAuthorsTable
+from theses.models import ThesisLink
 
 from .managers import ProfileQuerySet
 
@@ -73,6 +75,26 @@ class Profile(models.Model):
 
     def get_absolute_url(self):
         return reverse('profiles:profile_detail', kwargs={'pk': self.id})
+
+    def publications(self):
+        """
+        Returns all the publications associated to this Profile.
+        """
+        return Publication.objects.published().filter(
+            models.Q(authors__unregistered_author__profile=self) |
+            models.Q(authors__contributor__profile=self))
+
+    def comments(self):
+        """
+        Returns all the Comments associated to this Profile.
+        """
+        return Comment.objects.filter(author__profile=self)
+
+    def theses(self):
+        """
+        Returns all the Theses associated to this Profile.
+        """
+        return ThesisLink.objects.filter(author_as_cont__profile=self)
 
 
 class ProfileEmail(models.Model):

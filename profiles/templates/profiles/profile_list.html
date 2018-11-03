@@ -2,13 +2,22 @@
 
 {% load bootstrap %}
 {% load add_get_parameters %}
+{% load scipost_extras %}
 
 {% block breadcrumb_items %}
     {{ block.super }}
     <span class="breadcrumb-item">Profiles</span>
 {% endblock %}
 
-{% load scipost_extras %}
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
@@ -95,6 +104,38 @@
   <div class="col-12">
     <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
     <br/>
+
+    <table class="table table-hover mb-5">
+      <thead class="thead-default">
+	<tr>
+	  <th>Name</th>
+	  <th>Discipline</th>
+	  <th>Expertises</th>
+	  <th>Contributor?</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for profile in object_list %}
+	<tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
+	  <td>{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}</td>
+	  <td>{{ profile.get_discipline_display }}</td>
+	  <td>
+	    {% for expertise in profile.expertises %}
+            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	    {% endfor %}
+	  </td>
+	  <td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <td colspan="4">No Profiles found</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+
+
+
     <table class="table table-hover mb-5">
       <thead class="thead-default">
 	<tr>
