@@ -4,10 +4,11 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Count
+from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
@@ -23,7 +24,7 @@ from journals.models import UnregisteredAuthor
 from submissions.models import RefereeInvitation
 
 from .models import Profile, ProfileEmail
-from .forms import ProfileForm, ProfileEmailForm
+from .forms import ProfileForm, ProfileMergeForm, ProfileEmailForm
 
 
 
@@ -175,6 +176,11 @@ class ProfileDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy('profiles:profiles')
 
 
+class ProfileDetailView(PermissionsMixin, DetailView):
+    permission_required = 'scipost.can_view_profiles'
+    model = Profile
+
+
 class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List Profile object instances.
@@ -222,6 +228,57 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             'email_form': ProfileEmailForm(),
         })
         return context
+
+
+class ProfileDuplicateListView(PermissionsMixin, ListView):
+    """
+    List Profiles with potential duplicates; allow to merge if necessary.
+    """
+    permission_required = 'scipost.can_create_profiles'
+    model = Profile
+    template_name = 'profiles/profile_duplicate_list.html'
+
+    def get_queryset(self):
+        profiles = Profile.objects.annotate(full_name=Concat('last_name', 'first_name'))
+        duplicates = profiles.values('full_name').annotate(
+            nr_count=Count('full_name')
+        ).filter(nr_count__gt=1)
+        queryset = profiles.filter(full_name__in=[item['full_name'] for item in duplicates])
+        # duplicates = Profile.objects.values('last_name').annotate(
+        #     nr=Count('last_name')).filter(nr__gt=1)
+        # queryset = Profile.objects.filter(last_name__in=[item['last_name'] for item in duplicates])
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['merge_form'] = ProfileMergeForm()
+        return context
+
+
+@permission_required('scipost.can_create_profiles')
+def profile_merge(request):
+    """
+    Merges one Profile into another.
+    """
+    merge_form = ProfileMergeForm(request.POST or request.GET or None)
+    if merge_form.is_valid():
+        profile_to_merge = get_object_or_404(Profile,
+                                             pk=merge_form.cleaned_data['to_merge'])
+        profile_to_merge_into = get_object_or_404(Profile,
+                                                  pk=merge_form.cleaned_data['to_merge_into'])
+        if request.method == 'GET':
+            context = {'profile_to_merge': profile_to_merge,
+                       'profile_to_merge_into': profile_to_merge_into,
+                       'merge_form': merge_form}
+            return render(request, 'profiles/profile_merge.html', context)
+        elif request.method == 'POST':
+            merge_form.save()
+            messages.success(request, 'Profiles merged')
+            return redirect(profile_to_merge_into.get_absolute_url())
+    else:
+        for field, err in merge_form.errors.items():
+            messages.warning(request, err[0])
+    return redirect(reverse('profiles:duplicates'))
 
 
 @permission_required('scipost.can_create_profiles')

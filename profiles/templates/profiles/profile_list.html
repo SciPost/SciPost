@@ -1,4 +1,4 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'profiles/base.html' %}
 
 {% load bootstrap %}
 {% load add_get_parameters %}
@@ -16,7 +16,8 @@
 <div class="row">
   <div class="col-12">
     <h4>Profiles-related Actions:</h4>
-      <ul>
+    <ul>
+      <li><a href="{% url 'profiles:duplicates' %}">Check for duplicates</a></li>
 	{% if contributors_w_duplicate_email %}
     	<li class="text-danger">
     	  {{ contributors_w_duplicate_email|length }} Contributor duplicates (via email) identified

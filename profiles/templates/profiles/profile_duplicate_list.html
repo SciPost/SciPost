@@ -1,0 +1,34 @@
+{% extends 'profiles/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item">Duplicates</span>
+{% endblock %}
+
+{% load scipost_extras %}
+
+{% block pagetitle %}: Profile duplicates{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h4>Potentially duplicate Profiles</h4>
+    <form action="{% url 'profiles:merge' %}" method="get">
+      {% csrf_token %}
+      {{ merge_form }}
+      <input class="btn btn-outline-secondary" type="submit" value="Check">
+    </form>
+    <ul>
+      {% for prof_dup in object_list %}
+      <li>{{ prof_dup }} {{ prof_dup.id }}</li>
+      {% empty %}
+      <li>No duplicates found</li>
+      {% endfor %}
+    </ul>
+
+  </div>
+</div>
+
+{% endblock content %}

@@ -38,6 +38,21 @@ urlpatterns = [
         name='profiles'
     ),
     url(
+        r'^(?P<pk>[0-9]+)/$',
+        views.ProfileDetailView.as_view(),
+        name='profile_detail'
+    ),
+    url(
+        r'^merge/$',
+        views.profile_merge,
+        name='merge'
+    ),
+    url(
+        r'^duplicates/$',
+        views.ProfileDuplicateListView.as_view(),
+        name='duplicates'
+    ),
+    url(
         r'^(?P<profile_id>[0-9]+)/add_email$',
         views.add_profile_email,
         name='add_profile_email'

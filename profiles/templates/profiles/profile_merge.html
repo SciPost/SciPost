@@ -1,0 +1,40 @@
+{% extends 'profiles/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'profiles:duplicates' %}">Duplicates</a></span>
+<span class="breadcrumb-item">Merge</span>
+{% endblock %}
+
+{% load scipost_extras %}
+
+{% block pagetitle %}: Profile duplicates: merge{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h4>Merge Profiles</h4>
+
+    <div class="row">
+      <div class="col-6">
+	Profile to merge:
+	{% include 'profiles/_profile_card.html' with profile=profile_to_merge %}
+      </div>
+      <div class="col-6">
+	Profile to merge into:
+	{% include 'profiles/_profile_card.html' with profile=profile_to_merge_into %}
+      </div>
+    </div>
+
+    <form action="{% url 'profiles:merge' %}" method="post">
+      {% csrf_token %}
+      {{ merge_form }}
+      <input class="btn btn-outline-secondary" type="submit" value="Confirm merge">
+    </form>
+
+  </div>
+</div>
+
+{% endblock content %}

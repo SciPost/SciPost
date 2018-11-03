@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.shortcuts import get_object_or_404
 
@@ -69,6 +70,9 @@ class Profile(models.Model):
     @property
     def email(self):
         return getattr(self.emails.filter(primary=True).first(), 'email', '')
+
+    def get_absolute_url(self):
+        return reverse('profiles:profile_detail', kwargs={'pk': self.id})
 
 
 class ProfileEmail(models.Model):

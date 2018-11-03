@@ -10,6 +10,7 @@ from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Avg, Min, Sum, F
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 
@@ -39,6 +40,18 @@ class UnregisteredAuthor(models.Model):
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
+
+    def merge(self, id_to_merge):
+        """
+        Merge another UnregisteredAuthor into this object.
+        """
+        if int(id_to_merge) == self.pk: #do nothing
+            return
+        unreg_auth_to_merge = get_object_or_404(UnregisteredAuthor, pk=int(id_to_merge))
+        for tbl in PublicationAuthorsTable.objects.filter(unregistered_author=unreg_auth_to_merge):
+            tbl.unregistered_author = self
+            tbl.save()
+        unreg_auth_to_merge.delete()
 
 
 class PublicationAuthorsTable(models.Model):
