@@ -10,6 +10,7 @@ from scipost.behaviors import orcid_validator
 from scipost.constants import (
     TITLE_CHOICES, SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS)
 from scipost.fields import ChoiceArrayField
+from scipost.models import Contributor
 
 from comments.models import Comment
 from journals.models import Publication, PublicationAuthorsTable
@@ -72,6 +73,15 @@ class Profile(models.Model):
     @property
     def email(self):
         return getattr(self.emails.filter(primary=True).first(), 'email', '')
+
+    @property
+    def has_contributor(self):
+        has_contributor = False
+        try:
+            has_contributor = (self.contributor is not None)
+        except Contributor.DoesNotExist:
+            pass
+        return has_contributor
 
     def get_absolute_url(self):
         return reverse('profiles:profile_detail', kwargs={'pk': self.id})

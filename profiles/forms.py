@@ -81,6 +81,21 @@ class ProfileMergeForm(forms.Form):
     to_merge = forms.IntegerField()
     to_merge_into = forms.IntegerField()
 
+    def clean(self):
+        """
+        To merge Profiles, they must be distinct, and it must not be the
+        case that they both are associated to a Contributor instance
+        (which would mean two Contributor objects for the same person).
+        """
+        data = super().clean()
+        if self.cleaned_data['to_merge'] == self.cleaned_data['to_merge_into']:
+            self.add_error(None, 'A Profile cannot be merged into itself.')
+        profile_to_merge = get_object_or_404(Profile, pk=self.cleaned_data['to_merge'])
+        profile_to_merge_into = get_object_or_404(Profile, pk=self.cleaned_data['to_merge_into'])
+        if profile_to_merge.has_contributor and profile_to_merge_into.has_contributor:
+            self.add_error(None, 'Each of these two Profiles has a Contributor. Cannot merge.')
+        return data
+
     def save(self):
         """
         Perform the actual merge: save all data from to-be-deleted profile
