@@ -103,6 +103,21 @@
 
   <div class="card">
     <div class="card-header">
+      Registration invitations
+    </div>
+    <div class="card-body">
+      <ul>
+	{% for reginv in profile.registrationinvitation_set.all %}
+	<li>{{ reginv }}</li>
+	{% empty %}
+	<li>No invitation found</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
       Publications
     </div>
     <div class="card-body">
@@ -115,7 +130,6 @@
       </ul>
     </div>
   </div>
-
 
   <div class="card">
     <div class="card-header">

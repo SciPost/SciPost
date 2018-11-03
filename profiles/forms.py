@@ -91,7 +91,8 @@ class ProfileMergeForm(forms.Form):
         # Model fields:
         if profile_to_merge.expertises:
             for expertise in profile_to_merge.expertises:
-                if expertise not in profile_to_merge_into.expertises:
+                if profile_to_merge_into.expertises and \
+                   expertise not in profile_to_merge_into.expertises:
                     profile_to_merge_into.expertises.append(expertise)
         if profile_to_merge.orcid_id and (profile_to_merge_into.orcid_id is None):
             profile_to_merge_into.orcid_id = profile_to_merge.orcid_id
