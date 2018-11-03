@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import transaction
 from django.db.models import Q, Count
 from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404, render, redirect
@@ -249,9 +250,6 @@ class ProfileDuplicateListView(PermissionsMixin, ListView):
             nr_count=Count('full_name')
         ).filter(nr_count__gt=1)
         queryset = profiles.filter(full_name__in=[item['full_name'] for item in duplicates])
-        # duplicates = Profile.objects.values('last_name').annotate(
-        #     nr=Count('last_name')).filter(nr__gt=1)
-        # queryset = Profile.objects.filter(last_name__in=[item['last_name'] for item in duplicates])
         return queryset
 
     def get_context_data(self, *args, **kwargs):
@@ -260,6 +258,7 @@ class ProfileDuplicateListView(PermissionsMixin, ListView):
         return context
 
 
+@transaction.atomic
 @permission_required('scipost.can_create_profiles')
 def profile_merge(request):
     """
@@ -300,6 +299,19 @@ def add_profile_email(request, profile_id):
         for field, err in form.errors.items():
             messages.warning(request, err[0])
     return redirect(reverse('profiles:profiles'))
+
+
+@require_POST
+@permission_required('scipost.can_create_profiles')
+def email_make_primary(request, email_id):
+    """
+    Make this email the primary one for this Profile.
+    """
+    profile_email = get_object_or_404(ProfileEmail, pk=email_id)
+    ProfileEmail.objects.filter(profile=profile_email.profile).update(primary=False)
+    profile_email.primary = True
+    profile_email.save()
+    return redirect(profile_email.profile.get_absolute_url())
 
 
 @require_POST

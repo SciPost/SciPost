@@ -58,6 +58,11 @@ urlpatterns = [
         name='add_profile_email'
     ),
     url(
+        r'^emails/(?P<email_id>[0-9]+)/make_primary$',
+        views.email_make_primary,
+        name='email_make_primary'
+    ),
+    url(
         r'^emails/(?P<email_id>[0-9]+)/toggle$',
         views.toggle_email_status,
         name='toggle_email_status'

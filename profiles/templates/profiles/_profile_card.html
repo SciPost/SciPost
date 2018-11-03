@@ -32,8 +32,9 @@
 
                       </td>
                       <td class="d-flex">
-                          <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link p-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
-                          <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link text-danger p-0 ml-2" onclick="return confirm('Sure you want to delete {{ profile_mail.email }}?')"><i class="fa fa-trash"></i></button></form>
+                        <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
+			<form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link">Make primary</button></form>
+                        <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link text-danger ml-2" onclick="return confirm('Sure you want to delete {{ profile_mail.email }}?')"><i class="fa fa-trash"></i></button></form>
                       </td>
                   </tr>
     	      {% endfor %}
