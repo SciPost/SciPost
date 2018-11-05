@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 
 from scipost.behaviors import orcid_validator
@@ -147,3 +148,7 @@ class ProfileNonDuplicates(models.Model):
     """
     profiles = models.ManyToManyField('profiles.Profile')
     reason = models.CharField(max_length=32, choices=PROFILE_NON_DUPLICATE_REASONS)
+
+    @property
+    def full_name(self):
+        return '%s%s' % (self.profiles.first().last_name, self.profiles.first().first_name)
