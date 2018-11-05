@@ -77,9 +77,14 @@ class ProfileForm(forms.ModelForm):
         return profile
 
 
+class ModelChoiceFieldwithid(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return '%s (id = %i)' % (super().label_from_instance(obj), obj.id)
+
+
 class ProfileMergeForm(forms.Form):
-    to_merge = forms.ModelChoiceField(queryset=Profile.objects.all(), empty_label=None)
-    to_merge_into = forms.ModelChoiceField(queryset=Profile.objects.all(), empty_label=None)
+    to_merge = ModelChoiceFieldwithid(queryset=Profile.objects.all(), empty_label=None)
+    to_merge_into = ModelChoiceFieldwithid(queryset=Profile.objects.all(), empty_label=None)
 
     def clean(self):
         """
