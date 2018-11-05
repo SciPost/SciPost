@@ -111,21 +111,23 @@ class ProfileMergeForm(forms.Form):
         profile_old = self.cleaned_data['to_merge']
 
         # Merge scientific information from old Profile to the new Profile.
-        profile.expertises = list(set(profile_old.expertises) - set(profile.expertises))
+        profile.expertises += list(set(profile_old.expertises) - set(profile.expertises))
         if profile.orcid_id is None:
             profile.orcid_id = profile_old.orcid_id
         if profile.webpage is None:
             profile.webpage = profile_old.webpage
+        profile.save()  # Save all the field updates.
 
         profile.topics.add(*profile_old.topics.all())
 
-        if not profile_old.unregisteredauthor:
+        if hasattr(profile_old, 'unregisteredauthor') and profile_old.unregisteredauthor:
             profile.unregisteredauthor.merge(profile_old.unregisteredauthor)
 
         # Merge email and Contributor information
         profile_old.emails.exclude(
-            email__in=profile.emails.all()).update(primary=False, profile=profile)
-        if profile.contributor:
+            email__in=profile.emails.values_list('email', flat=True)).update(
+            primary=False, profile=profile)
+        if hasattr(profile_old, 'contributor') and profile_old.contributor:
             profile.contributor = profile_old.contributor
             profile.contributor.save()
 
