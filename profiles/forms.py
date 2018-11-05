@@ -111,7 +111,8 @@ class ProfileMergeForm(forms.Form):
         profile_old = self.cleaned_data['to_merge']
 
         # Merge scientific information from old Profile to the new Profile.
-        profile.expertises += list(set(profile_old.expertises) - set(profile.expertises))
+        profile.expertises = list(
+            set(profile_old.expertises or []) | set(profile.expertises or []))
         if profile.orcid_id is None:
             profile.orcid_id = profile_old.orcid_id
         if profile.webpage is None:
