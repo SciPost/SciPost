@@ -3,15 +3,15 @@ __license__ = "AGPL v3"
 
 
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 
-from .models import Profile, ProfileEmail
-
-from scipost.models import Contributor
 from invitations.models import RegistrationInvitation
 from journals.models import UnregisteredAuthor
+from ontology.models import Topic
+from scipost.models import Contributor
 from submissions.models import RefereeInvitation
+
+from .models import Profile, ProfileEmail
 
 
 class ProfileForm(forms.ModelForm):
@@ -78,8 +78,8 @@ class ProfileForm(forms.ModelForm):
 
 
 class ProfileMergeForm(forms.Form):
-    to_merge = forms.IntegerField()
-    to_merge_into = forms.IntegerField()
+    to_merge = forms.ModelChoiceField(queryset=Profile.objects.all(), empty_label=None)
+    to_merge_into = forms.ModelChoiceField(queryset=Profile.objects.all(), empty_label=None)
 
     def clean(self):
         """
@@ -90,9 +90,7 @@ class ProfileMergeForm(forms.Form):
         data = super().clean()
         if self.cleaned_data['to_merge'] == self.cleaned_data['to_merge_into']:
             self.add_error(None, 'A Profile cannot be merged into itself.')
-        profile_to_merge = get_object_or_404(Profile, pk=self.cleaned_data['to_merge'])
-        profile_to_merge_into = get_object_or_404(Profile, pk=self.cleaned_data['to_merge_into'])
-        if profile_to_merge.has_contributor and profile_to_merge_into.has_contributor:
+        if self.cleaned_data['to_merge'].has_contributor and self.cleaned_data['to_merge_into'].has_contributor:
             self.add_error(None, 'Each of these two Profiles has a Contributor. Cannot merge.')
         return data
 
@@ -101,52 +99,34 @@ class ProfileMergeForm(forms.Form):
         Perform the actual merge: save all data from to-be-deleted profile
         into the one to be kept.
         """
-        profile_to_merge = get_object_or_404(Profile, pk=self.cleaned_data['to_merge'])
-        profile_to_merge_into = get_object_or_404(Profile, pk=self.cleaned_data['to_merge_into'])
-        # Model fields:
-        if profile_to_merge.expertises:
-            for expertise in profile_to_merge.expertises:
-                if profile_to_merge_into.expertises and \
-                   expertise not in profile_to_merge_into.expertises:
-                    profile_to_merge_into.expertises.append(expertise)
-        if profile_to_merge.orcid_id and (profile_to_merge_into.orcid_id is None):
-            profile_to_merge_into.orcid_id = profile_to_merge.orcid_id
-        if profile_to_merge.webpage and (profile_to_merge_into.webpage is None):
-            profile_to_merge_into.webpage = profile_to_merge.webpage
-        for topic in profile_to_merge.topics.all():
-            profile_to_merge_into.topics.add(topic)
-        # Related objects:
-        for profileemail in profile_to_merge.emails.all():
-            if profileemail.email not in profile_to_merge_into.emails.all():
-                print('Adding email %s' % profileemail.email)
-                profileemail.primary = False
-                profileemail.profile = profile_to_merge_into
-                profileemail.save()
-        try:
-            contrib_into = profile_to_merge_into.contributor
-        except ObjectDoesNotExist:
-            try:
-                contrib = profile_to_merge.contributor
-                contrib.profile = profile_to_merge_into
-                contrib.save()
-            except ObjectDoesNotExist:
-                pass
-        try:
-            unreg_auth = profile_to_merge.unregisteredauthor
-            try:
-                profile_to_merge_into.unregisteredauthor.merge(unreg_auth.id)
-            except ObjectDoesNotExist:
-                pass
-        except ObjectDoesNotExist:
-            pass
-        for refinv in profile_to_merge.refereeinvitation_set.all():
-            refinv.profile = profile_to_merge_into
-            refinv.save()
-        for reginv in profile_to_merge.registrationinvitation_set.all():
-            reginv.profile = profile_to_merge_into
-            reginv.save()
-        # Delete the deprecated object:
-        profile_to_merge.delete()
+        profile = self.cleaned_data['to_merge_into']
+        profile_old = self.cleaned_data['to_merge']
+
+        # Merge scientific information from old Profile to the new Profile.
+        profile.expertises = list(set(profile_old.expertises) - set(profile.expertises))
+        if profile.orcid_id is None:
+            profile.orcid_id = profile_old.orcid_id
+        if profile.webpage is None:
+            profile.webpage = profile_old.webpage
+
+        profile.topics.add(*profile_old.topics.all())
+
+        if not profile_old.unregisteredauthor:
+            profile.unregisteredauthor.merge(profile_old.unregisteredauthor)
+
+        # Merge email and Contributor information
+        profile_old.emails.exclude(
+            email__in=profile.emails.all()).update(primary=False, profile=profile)
+        if profile.contributor:
+            profile.contributor = profile_old.contributor
+            profile.contributor.save()
+
+        # Move all invitations to the "new" profile.
+        profile_old.refereeinvitation_set.all().update(profile=profile)
+        profile_old.registrationinvitation_set.all().update(profile=profile)
+
+        profile_old.delete()
+        return Profile.objects.get(id=profile.id)  # Retrieve again because of all the db updates.
 
 
 class ProfileEmailForm(forms.ModelForm):

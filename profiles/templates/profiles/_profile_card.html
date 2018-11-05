@@ -10,12 +10,13 @@
     <div class="card-body">
       <table class="table">
 	<tr>
-	  <td>Name:</td><td>{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}</td>
+	  <td>Name:</td>
+      <td>{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}</td>
 	</tr>
 	<tr>
 	  <td>Email(s)</td>
 	  <td>
-	    <table class="table">
+	    <table class="table table-sm">
             <thead>
                 <tr>
                     <th colspan="2">Email</th>
@@ -47,7 +48,7 @@
 	<tr>
 	  <td>Expertises</td>
 	  <td>{% for expertise in profile.expertises %}
-	    <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{ expertise|get_specialization_code }}</div>
+    	    <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{ expertise|get_specialization_code }}</div>
 	    {% endfor %}
 	  </td>
 	</tr>
@@ -68,20 +69,20 @@
     </div>
     <div class="card-body">
       <ul>
-	<li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
-	<li><a href="{% url 'profiles:profile_delete' pk=profile.id %}">Delete</a> this Profile</li>
-    {% if email_form %}
-    	<li>
-    	  <div>
-    	    Add an email to this Profile:
-    	    <form action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
-    	      {% csrf_token %}
-    	      {{ email_form|bootstrap }}
-    	      <input class="btn btn-outline-secondary" type="submit" value="Add">
-    	    </form>
-    	  </div>
-    	</li>
-    {% endif %}
+    	<li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
+    	<li><a href="{% url 'profiles:profile_delete' pk=profile.id %}" class="text-danger">Delete</a> this Profile</li>
+        {% if email_form %}
+        	<li>
+        	  <div>
+        	    Add an email to this Profile:
+        	    <form action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
+        	      {% csrf_token %}
+        	      {{ email_form|bootstrap }}
+        	      <input class="btn btn-outline-secondary" type="submit" value="Add">
+        	    </form>
+        	  </div>
+        	</li>
+        {% endif %}
       </ul>
     </div>
   </div>
