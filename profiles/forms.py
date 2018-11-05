@@ -93,7 +93,7 @@ class ProfileMergeForm(forms.Form):
         profile_to_merge = get_object_or_404(Profile, pk=self.cleaned_data['to_merge'])
         profile_to_merge_into = get_object_or_404(Profile, pk=self.cleaned_data['to_merge_into'])
         if profile_to_merge.has_contributor and profile_to_merge_into.has_contributor:
-            self.add_error(None, 'Each of these two Profiles has a Contributor. Cannot merge.')
+            self.add_error(None, 'Each of these two Profiles has a Contributor. Cannot merge. A ProfileNonDuplicate instance should be created; contact techsupport.')
         return data
 
     def save(self):
