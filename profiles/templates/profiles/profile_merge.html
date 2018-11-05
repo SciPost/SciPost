@@ -5,7 +5,7 @@
 {% block breadcrumb_items %}
     {{ block.super }}
 <span class="breadcrumb-item"><a href="{% url 'profiles:duplicates' %}">Duplicates</a></span>
-<span class="breadcrumb-item">Merge</span>
+<span class="breadcrumb-item">Merge Profiles {{ profile_to_merge.id }} and {{ profile_to_merge_into.id }}</span>
 {% endblock %}
 
 {% load scipost_extras %}
@@ -14,23 +14,27 @@
 
 {% block content %}
 <div class="row">
-  <div class="col-12">
-    <h2>Merge Profiles</h2>
+    <div class="col-12">
+        <h1 class="highlight">Merge Profiles {{ profile_to_merge.id }} and {{ profile_to_merge_into.id }}</h1>
+    </div>
+    <div class="col-lg-6">
+        <h3 class="mb-3">Profile {{ profile_to_merge.id }}</h3>
+    	{% include 'profiles/_profile_card.html' with profile=profile_to_merge %}
+    </div>
+    <div class="col-lg-6">
+        <h3 class="mb-3">Profile {{ profile_to_merge_into.id }}</h3>
+    	{% include 'profiles/_profile_card.html' with profile=profile_to_merge_into %}
+    </div>
 
-    <h3 class="highlight">Profile {{ profile_to_merge.id }}</h3>
-	{% include 'profiles/_profile_card.html' with profile=profile_to_merge %}
-    <hr/>
-    <h3 class="highlight">Profile {{ profile_to_merge_into.id }}</h3>
-	{% include 'profiles/_profile_card.html' with profile=profile_to_merge_into %}
-    <hr/>
-    <h3 class="highlight">Merge:</h3>
-    <form action="{% url 'profiles:merge' %}" method="post">
-      {% csrf_token %}
-      {{ merge_form }}
-      <input class="btn btn-outline-secondary" type="submit" value="Confirm merge">
-    </form>
-
-  </div>
+    <div class="col-12">
+        <hr>
+        <h3 class="highlight">Merge:</h3>
+        <form method="post">
+          {% csrf_token %}
+          {{ merge_form|bootstrap }}
+          <input class="btn btn-primary" type="submit" value="Confirm merge">
+        </form>
+    </div>
 </div>
 
 {% endblock content %}

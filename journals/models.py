@@ -35,23 +35,22 @@ from scipost.fields import ChoiceArrayField
 class UnregisteredAuthor(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
-                                   null=True, blank=True)
+    profile = models.OneToOneField(
+        'profiles.Profile', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
 
-    def merge(self, id_to_merge):
+    def merge(self, unregistered_author):
         """
         Merge another UnregisteredAuthor into this object.
         """
-        if int(id_to_merge) == self.pk: #do nothing
+        if unregistered_author == self:  # Do nothing.
             return
-        unreg_auth_to_merge = get_object_or_404(UnregisteredAuthor, pk=int(id_to_merge))
-        for tbl in PublicationAuthorsTable.objects.filter(unregistered_author=unreg_auth_to_merge):
-            tbl.unregistered_author = self
-            tbl.save()
-        unreg_auth_to_merge.delete()
+
+        self.profile = unregistered_author.profile
+        self.save()
+        unregistered_author.delete()
 
 
 class PublicationAuthorsTable(models.Model):

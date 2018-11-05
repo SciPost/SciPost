@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic.detail import DetailView
@@ -249,12 +250,13 @@ class ProfileDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        try:
-            initial = {'to_merge': self.object_list[0].id,
-                       'to_merge_into': self.object_list[1].id}
-        except TypeError: # if list has length 0
-            initial = {}
-        context['merge_form'] = ProfileMergeForm(initial=initial)
+
+        if len(context['object_list']) > 1:
+            initial = {
+                'to_merge': context['object_list'][0].id,
+                'to_merge_into': context['object_list'][1].id
+            }
+            context['merge_form'] = ProfileMergeForm(initial=initial)
         return context
 
 
@@ -264,25 +266,23 @@ def profile_merge(request):
     """
     Merges one Profile into another.
     """
-    merge_form = ProfileMergeForm(request.POST or request.GET or None)
+    merge_form = ProfileMergeForm(request.POST or None, initial=request.GET)
+    context = {'merge_form': merge_form}
+
     if merge_form.is_valid():
-        profile_to_merge = get_object_or_404(Profile,
-                                             pk=merge_form.cleaned_data['to_merge'])
-        profile_to_merge_into = get_object_or_404(Profile,
-                                                  pk=merge_form.cleaned_data['to_merge_into'])
-        if request.method == 'GET':
-            context = {'profile_to_merge': profile_to_merge,
-                       'profile_to_merge_into': profile_to_merge_into,
-                       'merge_form': merge_form}
-            return render(request, 'profiles/profile_merge.html', context)
-        elif request.method == 'POST':
-            merge_form.save()
-            messages.success(request, 'Profiles merged')
-            return redirect(profile_to_merge_into.get_absolute_url())
-    else:
-        for field, err in merge_form.errors.items():
-            messages.warning(request, err[0])
-    return redirect(reverse('profiles:duplicates'))
+        profile = merge_form.save()
+        messages.success(request, 'Profiles merged')
+        return redirect(profile.get_absolute_url())
+    elif request.method == 'GET':
+        try:
+            context.update({
+                'profile_to_merge': get_object_or_404(Profile, pk=int(request.GET['to_merge'])),
+                'profile_to_merge_into': get_object_or_404(Profile, pk=int(request.GET['to_merge_into']))
+            })
+        except ValueError:
+            raise Http404
+
+    return render(request, 'profiles/profile_merge.html', context)
 
 
 @permission_required('scipost.can_create_profiles')
