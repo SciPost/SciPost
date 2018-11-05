@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Profile, ProfileEmail
+from .models import Profile, ProfileEmail, ProfileNonDuplicates
 
 
 class ProfileEmailInline(admin.TabularInline):
@@ -17,3 +17,6 @@ class ProfileAdmin(admin.ModelAdmin):
     inlines = [ProfileEmailInline]
 
 admin.site.register(Profile, ProfileAdmin)
+
+
+admin.site.register(ProfileNonDuplicates)

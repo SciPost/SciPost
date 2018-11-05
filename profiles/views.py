@@ -5,8 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
-from django.db.models import Q, Count
-from django.db.models.functions import Concat
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic.detail import DetailView
@@ -246,18 +245,15 @@ class ProfileDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
     paginate_by = 16
 
     def get_queryset(self):
-        profiles = Profile.objects.annotate(full_name=Concat('last_name', 'first_name'))
-        duplicates = profiles.values('full_name').annotate(
-            nr_count=Count('full_name')
-        ).filter(nr_count__gt=1)
-        queryset = profiles.filter(full_name__in=[item['full_name'] for item in duplicates]
-        ).order_by('last_name', '-id')
-        return queryset
+        return Profile.objects.potential_duplicates()
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        initial = {'to_merge': self.object_list[0].id,
-                   'to_merge_into': self.object_list[1].id}
+        try:
+            initial = {'to_merge': self.object_list[0].id,
+                       'to_merge_into': self.object_list[1].id}
+        except TypeError: # if list has length 0
+            initial = {}
         context['merge_form'] = ProfileMergeForm(initial=initial)
         return context
 

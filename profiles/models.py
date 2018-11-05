@@ -17,6 +17,7 @@ from journals.models import Publication, PublicationAuthorsTable
 from ontology.models import Topic
 from theses.models import ThesisLink
 
+from .constants import PROFILE_NON_DUPLICATE_REASONS
 from .managers import ProfileQuerySet
 
 
@@ -137,3 +138,12 @@ def get_profiles(slug):
     print (unreg_id_list)
     return Profile.objects.filter(models.Q(contributor__id__in=cont_id_list) |
                                   models.Q(unregisteredauthor__id__in=unreg_id_list))
+
+
+class ProfileNonDuplicates(models.Model):
+    """
+    Sets of Profiles which are not duplicates of each other,
+    and thus can be filtered out of any dynamically generated list of potential duplicates.
+    """
+    profiles = models.ManyToManyField('profiles.Profile')
+    reason = models.CharField(max_length=32, choices=PROFILE_NON_DUPLICATE_REASONS)
