@@ -79,7 +79,7 @@ def vet_submitted_comment(request, comment_id):
 
             # Update `latest_activity` fields
             content_object = comment.content_object
-            content_object.objects.filter(id=content_object.id).update(
+            content_object.__class__.objects.filter(id=content_object.id).update(
                 latest_activity=timezone.now())
             content_object.refresh_from_db()
 
