@@ -279,7 +279,8 @@ class SubmissionUtils(BaseMailUtil):
         """ Requires loading 'submission' attribute. """
         email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
-                      ', \n\nWe have received your Submission to SciPost,\n\n' +
+                      ', \n\nWe have received your Submission to ' +
+                      cls.submission.get_submitted_to_journal_display() + ',\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.' +
                       '\n\nWe will update you on the results of the pre-screening process '
                       'within the next 5 working days.'
@@ -289,7 +290,7 @@ class SubmissionUtils(BaseMailUtil):
                       '\n\nThe SciPost Team.')
         email_text_html = (
             '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>We have received your Submission to SciPost,</p>'
+            '<p>We have received your Submission to {{ submitted_to_journal }},</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>'
             '\n<p>We will update you on the results of the pre-screening process '
@@ -302,6 +303,7 @@ class SubmissionUtils(BaseMailUtil):
             'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
+            'submitted_to_journal': cls.submission.get_submitted_to_journal_display(),
             'author_list': cls.submission.author_list,
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
