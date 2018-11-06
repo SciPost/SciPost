@@ -42,10 +42,7 @@ class VetCommentForm(forms.Form):
         If the comment is refused, make sure a valid refusal reason is given.
         """
         data = super().clean()
-        print('Cleaning, action_option = %s' % data['action_option'])
         if data['action_option'] == str(COMMENT_ACTION_REFUSE):
-            print('Refusing')
             if data['refusal_reason'] == str(COMMENT_REFUSAL_EMPTY):
-                print('Flagging invalid reason')
                 self.add_error(None, 'Please choose a valid refusal reason')
         return data
