@@ -79,9 +79,10 @@ def vet_submitted_comment(request, comment_id):
 
             # Update `latest_activity` fields
             content_object = comment.content_object
-            content_object.__class__.objects.filter(id=content_object.id).update(
-                latest_activity=timezone.now())
-            content_object.refresh_from_db()
+            if hasattr(content_object, 'latest_activity'):
+                content_object.__class__.objects.filter(id=content_object.id).update(
+                    latest_activity=timezone.now())
+                content_object.refresh_from_db()
 
             if isinstance(content_object, Submission):
                 # Add events to Submission and send mail to author of the Submission
