@@ -59,21 +59,13 @@ class ProfileForm(forms.ModelForm):
         instance_pk = self.cleaned_data['instance_pk']
         if instance_pk:
             if self.cleaned_data['instance_from_type'] == 'contributor':
-                contributor = get_object_or_404(Contributor, pk=instance_pk)
-                contributor.profile = profile
-                contributor.save()
+                Contributor.objects.filter(pk=instance_pk).update(profile=profile)
             elif self.cleaned_data['instance_from_type'] == 'unregisteredauthor':
-                unreg_auth = get_object_or_404(UnregisteredAuthor, pk=instance_pk)
-                unreg_auth.profile = profile
-                unreg_auth.save()
+                UnregisteredAuthor.objects.filter(pk=instance_pk).update(profile=profile)
             elif self.cleaned_data['instance_from_type'] == 'refereeinvitation':
-                ref_inv = get_object_or_404(RefereeInvitation, pk=instance_pk)
-                ref_inv.profile = profile
-                ref_inv.save()
+                RefereeInvitation.objects.filter(pk=instance_pk).update(profile=profile)
             elif self.cleaned_data['instance_from_type'] == 'registrationinvitation':
-                reg_inv = get_object_or_404(RegistrationInvitation, pk=instance_pk)
-                reg_inv.profile = profile
-                reg_inv.save()
+                RegistrationInvitation.objects.filter(pk=instance_pk).update(profile=profile)
         return profile
 
 
