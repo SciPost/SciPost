@@ -149,6 +149,15 @@ class ProfileNonDuplicates(models.Model):
     profiles = models.ManyToManyField('profiles.Profile')
     reason = models.CharField(max_length=32, choices=PROFILE_NON_DUPLICATE_REASONS)
 
+    class Meta:
+        verbose_name = 'Profile non-duplicates'
+        verbose_name_plural = 'Profile non-duplicates'
+
+    def __str__(self):
+        return '%s, %s (%i)' % (self.profiles.first().last_name,
+                                self.profiles.first().first_name,
+                                self.profiles.count())
+
     @property
     def full_name(self):
         return '%s%s' % (self.profiles.first().last_name, self.profiles.first().first_name)
