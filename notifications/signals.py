@@ -31,7 +31,6 @@ def notify_receiver(sender, **kwargs):
             internal_type=kwargs.get('type', '')
         )
         notification.save()
-    print("Request finished!")
 
 
 # Basic working method to send a notification to a user using signals:
