@@ -98,7 +98,8 @@ class ProfileMergeForm(forms.Form):
         if self.cleaned_data['to_merge'].has_contributor and \
            self.cleaned_data['to_merge_into'].has_contributor:
             self.add_error(None, 'Each of these two Profiles has a Contributor. '
-                           'Cannot merge. A ProfileNonDuplicate instance should be created; '
+                           'Cannot merge. If these are distinct people or if two separate '
+                           'accounts are needed, a ProfileNonDuplicate instance should be created; '
                            'contact techsupport.')
         return data
 
