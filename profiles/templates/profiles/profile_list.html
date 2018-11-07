@@ -1,14 +1,23 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'profiles/base.html' %}
 
 {% load bootstrap %}
 {% load add_get_parameters %}
+{% load scipost_extras %}
 
 {% block breadcrumb_items %}
     {{ block.super }}
     <span class="breadcrumb-item">Profiles</span>
 {% endblock %}
 
-{% load scipost_extras %}
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
@@ -16,7 +25,8 @@
 <div class="row">
   <div class="col-12">
     <h4>Profiles-related Actions:</h4>
-      <ul>
+    <ul>
+      <li><a href="{% url 'profiles:duplicates' %}">Check for duplicates</a></li>
 	{% if contributors_w_duplicate_email %}
     	<li class="text-danger">
     	  {{ contributors_w_duplicate_email|length }} Contributor duplicates (via email) identified
@@ -36,6 +46,9 @@
 	{% endif %}
 	{% if next_contributor_wo_profile %}
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	{% endif %}
+	{% if next_unreg_auth_wo_profile %}
+	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='unregisteredauthor' pk=next_unreg_auth_wo_profile.id %}">the next</a> UnregisteredAuthor without one ({{ nr_unreg_auth_wo_profile }} to handle)</li>
 	{% endif %}
 	{% if next_refinv_wo_profile %}
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
@@ -91,6 +104,7 @@
   <div class="col-12">
     <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
     <br/>
+
     <table class="table table-hover mb-5">
       <thead class="thead-default">
 	<tr>
@@ -100,9 +114,9 @@
 	  <th>Contributor?</th>
 	</tr>
       </thead>
-      <tbody id="accordion" role="tablist" aria-multiselectable="true">
+      <tbody>
 	{% for profile in object_list %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ profile.id }}" aria-expanded="false" aria-controls="collapse{{ profile.id }}" style="cursor: pointer;">
+	<tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
 	  <td>{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}</td>
 	  <td>{{ profile.get_discipline_display }}</td>
 	  <td>
@@ -111,11 +125,6 @@
 	    {% endfor %}
 	  </td>
 	  <td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-	</tr>
-	<tr id="collapse{{ profile.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ profile.id }}" style="background-color: #fff;">
-	  <td colspan="4">
-	    {% include 'profiles/_profile_card.html' with profile=profile %}
-	  </td>
 	</tr>
 	{% empty %}
 	<tr>

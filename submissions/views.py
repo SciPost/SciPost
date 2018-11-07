@@ -47,6 +47,8 @@ from colleges.permissions import fellowship_required, fellowship_or_admin_requir
 from comments.forms import CommentForm
 from journals.models import Journal
 from mails.views import MailEditingSubView
+from ontology.models import Topic
+from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
 from profiles.models import Profile
 from scipost.forms import RemarkForm
@@ -240,7 +242,8 @@ def submission_detail(request, identifier_w_vn_nr):
     """Public detail page of Submission."""
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {
-        'can_read_editorial_information': False
+        'can_read_editorial_information': False,
+        'select_topic_form': SelectTopicForm(),
     }
 
     # Check if Contributor is author of the Submission
@@ -520,6 +523,50 @@ def add_remark(request, identifier_w_vn_nr):
     else:
         messages.warning(request, 'The form was invalidly filled.')
     return redirect(reverse('submissions:pool', args=(identifier_w_vn_nr,)))
+
+
+@permission_required('scipost.can_manage_ontology', raise_exception=True)
+def submission_add_topic(request, identifier_w_vn_nr):
+    """
+    Add a predefined Topic to an existing Submission object.
+    This also adds the Topic to all Submissions predating this one,
+    and to any existing associated Publication object.
+    """
+    submission = get_object_or_404(Submission,
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    select_topic_form = SelectTopicForm(request.POST or None)
+    if select_topic_form.is_valid():
+        submission.topics.add(select_topic_form.cleaned_data['topic'])
+        for sub in submission.get_other_versions():
+            sub.topics.add(select_topic_form.cleaned_data['topic'])
+        try:
+            if submission.publication:
+                submission.publication.topics.add(select_topic_form.cleaned_data['topic'])
+        except:
+            pass
+        messages.success(request, 'Successfully linked Topic to this Submission')
+    return redirect(submission.get_absolute_url())
+
+
+@permission_required('scipost.can_manage_ontology', raise_exception=True)
+def submission_remove_topic(request, identifier_w_vn_nr, slug):
+    """
+    Remove the Topic from the Submission, from all associated Submissions
+    and from any existing associated Publication object.
+    """
+    submission = get_object_or_404(Submission,
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    topic = get_object_or_404(Topic, slug=slug)
+    submission.topics.remove(topic)
+    for sub in submission.get_other_versions():
+        sub.topics.remove(topic)
+    try:
+        if submission.publication:
+            submission.publication.topics.remove(topic)
+    except:
+        pass
+    messages.success(request, 'Successfully removed Topic')
+    return redirect(submission.get_absolute_url())
 
 
 @login_required

@@ -397,6 +397,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         Submission.objects.filter(id=self.last_submission.id).update(
             is_current=False, open_for_reporting=False, status=STATUS_RESUBMITTED)
 
+        # Copy Topics
+        submission.topics.add(*self.last_submission.topics.all())
+
         # Open for comment and reporting and copy EIC info
         Submission.objects.filter(id=submission.id).update(
             open_for_reporting=True,
@@ -1200,6 +1203,11 @@ class EICRecommendationForm(forms.ModelForm):
             recommendation.status = DECISION_FIXED
             Submission.objects.filter(id=self.submission.id).update(open_for_reporting=False)
 
+            if self.assignment:
+                # The EIC has fulfilled this editorial assignment.
+                self.assignment.status = STATUS_COMPLETED
+                self.assignment.save()
+
             # Add SubmissionEvents for both Author and EIC
             self.submission.add_general_event(event_text.format(
                 recommendation.get_recommendation_display()))
@@ -1218,10 +1226,6 @@ class EICRecommendationForm(forms.ModelForm):
 
         recommendation.save()
 
-        if self.assignment:
-            # The EIC has fulfilled this editorial assignment.
-            self.assignment.status = STATUS_COMPLETED
-            self.assignment.save()
         return recommendation
 
     def revision_requested(self):
@@ -1459,6 +1463,10 @@ class FixCollegeDecisionForm(forms.ModelForm):
                 visible_public=False, visible_pool=False,
                 status=STATUS_REJECTED, latest_activity=timezone.now())
             submission.get_other_versions().update(visible_public=False)
+
+        # Update Editorial Assignment statuses.
+        EditorialAssignment.objects.filter(
+            submission=submission, to=submission.editor_in_charge).update(status=STATUS_COMPLETED)
 
         # Add SubmissionEvent for authors
         submission.add_event_for_author(

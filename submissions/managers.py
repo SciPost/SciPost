@@ -177,6 +177,10 @@ class SubmissionQuerySet(models.QuerySet):
         """Return published Submissions."""
         return self.filter(status=constants.STATUS_PUBLISHED)
 
+    def unpublished(self):
+        """Return unpublished Submissions."""
+        return self.exclude(status=constants.STATUS_PUBLISHED)
+
     def assignment_failed(self):
         """Return Submissions which have failed assignment."""
         return self.filter(status=constants.STATUS_ASSIGNMENT_FAILED)

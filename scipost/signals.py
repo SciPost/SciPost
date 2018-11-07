@@ -15,12 +15,15 @@ from .models import Contributor
 def link_created_profile_to_contributor(sender, instance, created, **kwargs):
     """
     When a new Profile is created, it is linked to a corresponding
-    existing Contributor object, provided it is unique (as defined by the email).
+    existing Contributor object, provided it is unique (as defined by the name and email).
     If it is not unique, no action is taken.
     """
     if created:
         try:
-            contributor = Contributor.objects.get(user__email=instance.email)
+            contributor = Contributor.objects.get(
+                user__first_name=instance.first_name,
+                user__last_name=instance.last_name,
+                user__email=instance.email)
             contributor.profile = instance
             contributor.save()
         except Contributor.DoesNotExist:

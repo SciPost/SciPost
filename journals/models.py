@@ -10,6 +10,7 @@ from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Avg, Min, Sum, F
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 
@@ -36,9 +37,22 @@ class UnregisteredAuthor(models.Model):
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
+    profile = models.OneToOneField(
+        'profiles.Profile', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
+
+    def merge(self, unregistered_author):
+        """
+        Merge another UnregisteredAuthor into this object.
+        """
+        if unregistered_author == self:  # Do nothing.
+            return
+
+        self.profile = unregistered_author.profile
+        self.save()
+        unregistered_author.delete()
 
 
 class PublicationAuthorsTable(models.Model):
@@ -384,7 +398,7 @@ class Publication(models.Model):
 
     # Core fields
     title = models.CharField(max_length=300)
-    author_list = models.CharField(max_length=1000, verbose_name="author list")
+    author_list = models.CharField(max_length=10000, verbose_name="author list")
     abstract = models.TextField()
     abstract_jats = models.TextField(blank=True, default='',
                                      help_text='JATS version of abstract for Crossref deposit')
@@ -428,6 +442,9 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = JSONField(default={}, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
+
+    # Topics for semantic linking
+    topics = models.ManyToManyField('ontology.Topic', blank=True)
 
     # Date fields
     submission_date = models.DateField(verbose_name='submission date')

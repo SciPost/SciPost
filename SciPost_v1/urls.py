@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^meetings/', include('virtualmeetings.urls', namespace="virtualmeetings")),
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^notifications/', include('notifications.urls', namespace="notifications")),
+    url(r'^ontology/', include('ontology.urls', namespace="ontology")),
     url(r'^organizations/', include('organizations.urls', namespace="organizations")),
     url(r'^petitions/', include('petitions.urls', namespace="petitions")),
     url(r'^preprints/', include('preprints.urls', namespace="preprints")),

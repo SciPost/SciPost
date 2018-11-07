@@ -1,0 +1,48 @@
+{% extends 'ontology/base.html' %}
+
+{% block pagetitle %}: Ontology{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Welcome</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Ontology</h3>
+    <ul class="list-inline">
+      {% if perms.scipost.can_manage_ontology %}
+      <li class="list-inline-item ml-2 mr-2"><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
+      {% endif %}
+      <li class="list-inline-item ml-2 mr-2"><a href="{% url 'ontology:topics' %}">View list of Topics</a></li>
+      <li class="list-inline-item ml-2 mr-2">{{ select_linked_topic_form }}</li>
+    </ul>
+    <p>
+      Welcome to SciPost's Ontology, which is a curated set of interlinked Topics
+      pertaining to all of the sciences.
+    </p>
+    <p>
+      Topics and their relations are defined by Editorial-level personnel.
+      The ontology is used at many levels within SciPost, including but not limited to:
+      <ul>
+    	<li>identifying the best potential Editors-in-charge for incoming submissions</li>
+    	<li>identifying thematic areas for which the editorial workforce should be increased</li>
+    	<li>providing Editors-in-charge with referee suggestions</li>
+    	<li>giving readers a way to identify interesting published content</li>
+    	<li>assisting our internal metadata- and content-driven engines.</li>
+      </ul>
+    </p>
+    <p>
+      The Ontology is currently under development.
+    </p>
+  </div>
+</div>
+
+{% endblock content %}
+
+{% block footer_script %}
+{{ block.super }}
+{{ select_linked_topic_form.media }}
+{% endblock footer_script %}

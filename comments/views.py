@@ -74,14 +74,16 @@ def vet_submitted_comment(request, comment_id):
     if form.is_valid():
         if form.cleaned_data['action_option'] == '1':
             # Accept the comment as is
-            comment.status = 1
-            comment.vetted_by = request.user.contributor
-            comment.save()
+            Comment.objects.filter(id=comment_id).update(status=1,
+                                                         vetted_by=request.user.contributor)
+            comment.refresh_from_db()
 
             # Update `latest_activity` fields
             content_object = comment.content_object
-            content_object.latest_activity = timezone.now()
-            content_object.save()
+            if hasattr(content_object, 'latest_activity'):
+                content_object.__class__.objects.filter(id=content_object.id).update(
+                    latest_activity=timezone.now())
+                content_object.refresh_from_db()
 
             if isinstance(content_object, Submission):
                 # Add events to Submission and send mail to author of the Submission
@@ -122,10 +124,9 @@ def vet_submitted_comment(request, comment_id):
 
         elif form.cleaned_data['action_option'] == '2':
             # The comment request is simply rejected
-            comment.status = int(form.cleaned_data['refusal_reason'])
-            if comment.status == 0:
-                comment.status = -1  # Why's this here??
-            comment.save()
+            Comment.objects.filter(id=comment.id).update(
+                status=int(form.cleaned_data['refusal_reason']))
+            comment.refresh_from_db()
 
             # Send emails
             mail_sender = DirectMailUtil(

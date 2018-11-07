@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView

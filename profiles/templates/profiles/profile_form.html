@@ -12,6 +12,17 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
+    {% if matching_profiles %}
+    <h4>Matching profiles found for this {{ from_type }}</h4>
+    <ul>
+      {% for matching_profile in matching_profiles %}
+      <li>{{ matching_profile }} <a href="{% url 'profiles:profile_match' profile_id=matching_profile.id from_type=from_type pk=pk %}">match this {{ from_type }} to this Profile</a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+
+
     <form action="" method="post">
       {% csrf_token %}
       {{ form|bootstrap }}

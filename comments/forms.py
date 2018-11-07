@@ -4,7 +4,8 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from .constants import COMMENT_ACTION_CHOICES, COMMENT_REFUSAL_CHOICES
+from .constants import COMMENT_ACTION_CHOICES, COMMENT_ACTION_REFUSE, \
+    COMMENT_REFUSAL_CHOICES, COMMENT_REFUSAL_EMPTY
 from .models import Comment
 
 
@@ -35,3 +36,13 @@ class VetCommentForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=COMMENT_REFUSAL_CHOICES)
     email_response_field = forms.CharField(widget=forms.Textarea(),
                                            label='Justification (optional)', required=False)
+
+    def clean(self):
+        """
+        If the comment is refused, make sure a valid refusal reason is given.
+        """
+        data = super().clean()
+        if data['action_option'] == str(COMMENT_ACTION_REFUSE):
+            if data['refusal_reason'] == str(COMMENT_REFUSAL_EMPTY):
+                self.add_error(None, 'Please choose a valid refusal reason')
+        return data

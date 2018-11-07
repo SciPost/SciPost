@@ -56,7 +56,7 @@ class Submission(models.Model):
     preprint = models.OneToOneField('preprints.Preprint', related_name='submission')
 
     author_comments = models.TextField(blank=True)
-    author_list = models.CharField(max_length=1000, verbose_name="author list")
+    author_list = models.CharField(max_length=10000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
@@ -131,6 +131,9 @@ class Submission(models.Model):
     submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
+
+    # Topics for semantic linking
+    topics = models.ManyToManyField('ontology.Topic', blank=True)
 
     objects = SubmissionQuerySet.as_manager()
 
