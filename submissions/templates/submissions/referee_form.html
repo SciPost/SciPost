@@ -72,7 +72,30 @@
 {% endif %}
 
 <div class="row">
-    <div class="col-12">
+  <div class="col-12">
+    {% if profiles_found %}
+    <h3>Matching people in our database:</h3>
+    <table class="table">
+      <tr>
+	<th>Name</th>
+	<th>Contributor?</th>
+	<th>Action</th>
+      </tr>
+      {% for profile in profiles_found %}
+      <tr>
+	<td>{{ profile }}</td>
+	<td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	<td>Send refereeing invitation <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}</td>
+      </tr>
+      {% empty %}
+      <tr>
+	<td>No Profiles found</td>
+	<td></td>
+      </tr>
+      {% endfor %}
+      </table>
+    {% endif %}
+
         {% if contributors_found %}
                 <h3>Identified as contributor:</h3>
                 <table class="table">

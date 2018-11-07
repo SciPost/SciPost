@@ -809,6 +809,11 @@ class ConsiderAssignmentForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
 
+class RefereeSearchForm(forms.Form):
+    last_name = forms.CharField(widget=forms.TextInput({
+        'placeholder': 'Search for a referee in the SciPost database'}))
+
+
 class RefereeSelectForm(forms.Form):
     """Pre-fill form to get the last name of the requested referee."""
 

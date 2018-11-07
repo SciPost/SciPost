@@ -33,7 +33,8 @@ from .mixins import SubmissionAdminViewMixin
 from .forms import (
     SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
-    SetRefereeingDeadlineForm, RefereeSelectForm, iThenticateReportForm, VotingEligibilityForm,
+    SetRefereeingDeadlineForm, RefereeSearchForm, RefereeSelectForm,
+    iThenticateReportForm, VotingEligibilityForm,
     RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
@@ -857,6 +858,42 @@ def cycle_form_submit(request, identifier_w_vn_nr):
 
 @login_required
 @fellowship_or_admin_required()
+def find_referee(request, identifier_w_vn_nr):
+    """
+    Search for a referee in the set of Profiles, and if none is found,
+    create a new Profile and return to this page for further processing.
+    """
+    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    context = {}
+    queryresults = ''
+    referee_search_form = RefereeSearchForm(request.POST or None)
+    if referee_search_form.is_valid():
+        profiles_found = Profile.objects.filter(
+            last_name__icontains=ref_search_form.cleaned_data['last_name'])
+        context['profiles_found'] = profiles_found
+        # Check for recent co-authorship (thus referee disqualification)
+        try:
+            sub_auth_boolean_str = '((' + (submission
+                                           .metadata['entries'][0]['authors'][0]['name']
+                                           .split()[-1])
+            for author in submission.metadata['entries'][0]['authors'][1:]:
+                sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
+            sub_auth_boolean_str += ')+AND+'
+            search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
+            queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
+                        % search_str + '&sortBy=submittedDate&sortOrder=descending'
+                        '&max_results=5')
+            arxivquery = feedparser.parse(queryurl)
+            queryresults = arxivquery
+        except KeyError:
+            pass
+        context['ref_recruit_form'] = RefereeRecruitmentForm()
+
+
+# The coming 3 methods are to be deprecated
+@login_required
+@fellowship_or_admin_required()
 def select_referee(request, identifier_w_vn_nr):
     """Invite scientist to referee a Submission.
 
@@ -875,7 +912,6 @@ def select_referee(request, identifier_w_vn_nr):
         contributors_found = Contributor.objects.filter(
             user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
         context['contributors_found'] = contributors_found
-
         # Check for recent co-authorship (thus referee disqualification)
         try:
             sub_auth_boolean_str = '((' + (submission
@@ -964,14 +1000,15 @@ def recruit_referee(request, identifier_w_vn_nr):
 @transaction.atomic
 def send_refereeing_invitation(request, identifier_w_vn_nr, contributor_id,
                                auto_reminders_allowed):
-    """Send RefereeInvitation to a registered Contributor.
+    """
+    Send RefereeInvitation to a registered Contributor.
 
     This method is called by the EIC from the submission's editorial_page,
     in the case where the referee is an identified Contributor.
     For a referee who isn't a Contributor yet, the method recruit_referee above
     is called instead.
 
-    Accessible for: Editor-in-charge and Editorial Administration
+    Accessible for: Editor-in-charge and Editorial Administration.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
