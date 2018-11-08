@@ -33,9 +33,10 @@ from .mixins import SubmissionAdminViewMixin
 from .forms import (
     SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
-    SetRefereeingDeadlineForm, RefereeSearchForm, RefereeSelectForm,
+    SetRefereeingDeadlineForm, RefereeSearchForm, #RefereeSelectForm,
     iThenticateReportForm, VotingEligibilityForm,
-    RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
+    #RefereeRecruitmentForm,
+    ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
@@ -43,15 +44,21 @@ from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
+from common.helpers import get_new_secrets_key
+from invitations.constants import STATUS_SENT
+from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from mails.views import MailEditingSubView
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
 from profiles.models import Profile
+from profiles.forms import SimpleProfileForm
+from scipost.constants import INVITATION_REFEREEING
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
+from submissions.models import RefereeInvitation
 
 # from notifications.views import is_test_user  # Temporarily until release
 
@@ -858,7 +865,7 @@ def cycle_form_submit(request, identifier_w_vn_nr):
 
 @login_required
 @fellowship_or_admin_required()
-def find_referee(request, identifier_w_vn_nr):
+def select_referee(request, identifier_w_vn_nr):
     """
     Search for a referee in the set of Profiles, and if none is found,
     create a new Profile and return to this page for further processing.
@@ -867,10 +874,10 @@ def find_referee(request, identifier_w_vn_nr):
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {}
     queryresults = ''
-    referee_search_form = RefereeSearchForm(request.POST or None)
+    referee_search_form = RefereeSearchForm(request.GET or None)
     if referee_search_form.is_valid():
         profiles_found = Profile.objects.filter(
-            last_name__icontains=ref_search_form.cleaned_data['last_name'])
+            last_name__icontains=referee_search_form.cleaned_data['last_name'])
         context['profiles_found'] = profiles_found
         # Check for recent co-authorship (thus referee disqualification)
         try:
@@ -880,7 +887,7 @@ def find_referee(request, identifier_w_vn_nr):
             for author in submission.metadata['entries'][0]['authors'][1:]:
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
-            search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
+            search_str = sub_auth_boolean_str + referee_search_form.cleaned_data['last_name'] + ')'
             queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
@@ -888,157 +895,104 @@ def find_referee(request, identifier_w_vn_nr):
             queryresults = arxivquery
         except KeyError:
             pass
-        context['ref_recruit_form'] = RefereeRecruitmentForm()
-
-
-# The coming 3 methods are to be deprecated
-@login_required
-@fellowship_or_admin_required()
-def select_referee(request, identifier_w_vn_nr):
-    """Invite scientist to referee a Submission.
-
-    Accessible for: Editor-in-charge and Editorial Administration.
-    It'll list possible already registered Contributors that match the search. If the scientist
-    is not yet registered, he will be invited using a RegistrationInvitation as well. In
-    addition the page will show possible conflicts of interests, with that information
-    coming from the ArXiv API.
-    """
-    submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
-                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    context = {}
-    queryresults = ''
-    ref_search_form = RefereeSelectForm(request.POST or None)
-    if ref_search_form.is_valid():
-        contributors_found = Contributor.objects.filter(
-            user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
-        context['contributors_found'] = contributors_found
-        # Check for recent co-authorship (thus referee disqualification)
-        try:
-            sub_auth_boolean_str = '((' + (submission
-                                           .metadata['entries'][0]['authors'][0]['name']
-                                           .split()[-1])
-            for author in submission.metadata['entries'][0]['authors'][1:]:
-                sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
-            sub_auth_boolean_str += ')+AND+'
-            search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
-            queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
-                        % search_str + '&sortBy=submittedDate&sortOrder=descending'
-                        '&max_results=5')
-            arxivquery = feedparser.parse(queryurl)
-            queryresults = arxivquery
-        except KeyError:
-            pass
-        context['ref_recruit_form'] = RefereeRecruitmentForm()
-
+        context['profile_form'] = SimpleProfileForm()
     context.update({
         'submission': submission,
-        'ref_search_form': ref_search_form,
-        'queryresults': queryresults
+        'referee_search_form': referee_search_form,
+        'queryresults': queryresults,
     })
-    return render(request, 'submissions/referee_form.html', context)
+    return render(request, 'submissions/select_referee.html', context)
 
 
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def recruit_referee(request, identifier_w_vn_nr):
-    """Invite a non-registered scientist to register and referee a Submission.
-
-    Accessible for: Editor-in-charge and Editorial Administration
-    If the Editor-in-charge does not find the desired referee among Contributors
-    (otherwise, the method send_refereeing_invitation is used), he/she can invite somebody
-    by providing name + contact details. This function emails a registration invitation to this
-    person. The pending refereeing invitation is then recognized upon registration, using the
-    invitation token.
-    """
+def add_referee_profile(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
-    if request.method == 'GET':
-        # This leads to unexpected 500 errors
-        return redirect(reverse('submissions:select_referee', args=(identifier_w_vn_nr,)))
-
-    ref_recruit_form = RefereeRecruitmentForm(
-        request.POST or None, request=request, submission=submission)
-    if ref_recruit_form.is_valid():
-        referee_invitation, registration_invitation = ref_recruit_form.save(commit=False)
-        mail_request = MailEditingSubView(request,
-                                          mail_code='referees/invite_unregistered_to_referee',
-                                          instance=referee_invitation)
-        mail_request.add_form(ref_recruit_form)
-        if mail_request.is_valid():
-            referee_invitation.save()
-            registration_invitation.save()
-
-            messages.success(request, 'Referee {} invited'.format(
-                registration_invitation.last_name))
-            submission.add_event_for_author('A referee has been invited.')
-            submission.add_event_for_eic('{} has been recruited and invited as a referee.'.format(
-                referee_invitation.last_name))
-
-            mail_request.send()
-            return redirect(reverse('submissions:editorial_page',
-                                    kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
-        else:
-            return mail_request.return_render()
-
-    ref_search_form = RefereeSelectForm(request.POST or None)
-    contributors_found = Contributor.objects.filter(
-        user__email=ref_recruit_form.cleaned_data['email_address'])
-    context = {
-        'ref_recruit_form': ref_recruit_form,
-        'ref_search_form': ref_search_form,
-        'submission': submission,
-        'queryresults': [],
-        'contributors_found': contributors_found,
-    }
-    return render(request, 'submissions/referee_form.html', context)
+    profile_form = SimpleProfileForm(request.POST or None)
+    if profile_form.is_valid():
+        profile_form.save()
+        messages.success(request,
+                         'Profile added, you can now invite this referee using the links above')
+    else:
+        messages.error(request, 'Could not create this Profile')
+        for error_messages in profile_form.errors.values():
+            messages.warning(request, *error_messages)
+    return redirect(reverse(
+        'submissions:select_referee',
+        kwargs={'identifier_w_vn_nr': submission.preprint.identifier_w_vn_nr}) +
+                    ('?last_name=%s' % profile_form.cleaned_data['last_name']))
 
 
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def send_refereeing_invitation(request, identifier_w_vn_nr, contributor_id,
-                               auto_reminders_allowed):
+def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allowed):
     """
-    Send RefereeInvitation to a registered Contributor.
-
-    This method is called by the EIC from the submission's editorial_page,
-    in the case where the referee is an identified Contributor.
-    For a referee who isn't a Contributor yet, the method recruit_referee above
-    is called instead.
-
-    Accessible for: Editor-in-charge and Editorial Administration.
+    Invite a referee linked to a Profile.
+    If the Profile has a Contributor object, a simple invitation is sent.
+    If there is no associated Contributor, a registration invitation is included.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    contributor = get_object_or_404(Contributor, pk=contributor_id)
-    profile = Profile.objects.get_unique_from_email_or_None(contributor.user.email)
+    profile = get_object_or_404(Profile, pk=profile_id)
 
-    if not contributor.is_currently_available:
-        errormessage = ('This Contributor is marked as currently unavailable. '
-                        'Please go back and select another referee.')
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    contributor = None
+    if hasattr(profile, 'contributor') and profile.contributor:
+        contributor = profile.contributor
 
-    invitation = RefereeInvitation(
+    referee_invitation, created = RefereeInvitation.objects.get_or_create(
         profile=profile,
-        submission=submission,
         referee=contributor,
-        title=contributor.title,
-        first_name=contributor.user.first_name,
-        last_name=contributor.user.last_name,
-        email_address=contributor.user.email,
+        submission=submission,
+        title=profile.title,
+        first_name=profile.first_name,
+        last_name=profile.last_name,
+        email_address=profile.email,
         auto_reminders_allowed=auto_reminders_allowed,
-        # the key is only used for inviting unregistered users
-        date_invited=timezone.now(),
         invited_by=request.user.contributor)
 
-    mail_request = MailEditingSubView(request, mail_code='referees/invite_contributor_to_referee',
-                                      invitation=invitation)
+    key = ''
+    if created:
+        key = get_new_secrets_key()
+        referee_invitation.invitation_key = key
+        referee_invitation.save()
+
+    registration_invitation = None
+    if contributor:
+        if not profile.contributor.is_currently_available:
+            errormessage = ('This Contributor is marked as currently unavailable. '
+                            'Please go back and select another referee.')
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+        mail_request = MailEditingSubView(request,
+                                          mail_code='referees/invite_contributor_to_referee',
+                                          invitation=referee_invitation)
+    else: # no Contributor, so registration invitation
+        registration_invitation, reginv_created = RegistrationInvitation.objects.get_or_create(
+            profile=profile,
+            title=profile.title,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            email=profile.email,
+            invitation_type=INVITATION_REFEREEING,
+            created_by=request.user,
+            invited_by=request.user,
+            invitation_key=referee_invitation.invitation_key)
+        mail_request = MailEditingSubView(request,
+                                          mail_code='referees/invite_unregistered_to_referee',
+                                          invitation=referee_invitation)
+
     if mail_request.is_valid():
-        invitation.save()
+        referee_invitation.date_invited = timezone.now()
+        referee_invitation.save()
+        if registration_invitation:
+            registration_invitation.status = STATUS_SENT
+            registration_invitation.key_expires = timezone.now() + datetime.timedelta(days=365)
+            registration_invitation.save()
         submission.add_event_for_author('A referee has been invited.')
-        submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
+        submission.add_event_for_eic('Referee %s has been invited.' % profile.last_name)
         messages.success(request, 'Invitation sent')
         mail_request.send()
         return redirect(reverse('submissions:editorial_page',

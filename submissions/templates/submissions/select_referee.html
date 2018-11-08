@@ -41,10 +41,9 @@
     <div class="col-12">
         <h2 class="highlight" id="form">Select an additional Referee</h2>
 
-        <form action="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}#form" method="post">
-            {% csrf_token %}
-            {{ ref_search_form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Find referee">
+        <form action="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="get">
+          {{ referee_search_form|bootstrap }}
+          <input class="btn btn-primary" type="submit" value="Find referee">
         </form>
     </div>
 </div>
@@ -85,7 +84,7 @@
       <tr>
 	<td>{{ profile }}</td>
 	<td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-	<td>Send refereeing invitation <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}</td>
+	<td>Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}</td>
       </tr>
       {% empty %}
       <tr>
@@ -96,36 +95,21 @@
       </table>
     {% endif %}
 
-        {% if contributors_found %}
-                <h3>Identified as contributor:</h3>
-                <table class="table">
-                    {% for contributor in contributors_found %}
-                        <tr>
-                            <td>{{ contributor.user.first_name }} {{ contributor.user.last_name }}</td>
-                            <td>
-                                <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=1 %}">Send refereeing invitation with</a> or <a href="{% url 'submissions:send_refereeing_invitation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr contributor_id=contributor.id auto_reminders_allowed=0 %}">without</a> auto reminders
-                                {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-        {% elif ref_search_form.has_changed %}
-            <p>No Contributor with this last name could be identified.</p>
-        {% endif %}
     </div>
 </div>
 
-{% if ref_recruit_form %}
-    <div class="row">
-        <div class="col-12">
-            <h3 class="mb-2">If the referee you were looking for was not found by using the method above, you can send a registration and refereeing invitation by filling this form:</h3>
-            <form action="{% url 'submissions:recruit_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-                {% csrf_token %}
-                {{ ref_recruit_form|bootstrap }}
-                <input type="submit" name="submit" value="Send invitation" class="btn btn-primary">
-            </form>
-        </div>
-    </div>
+{% if profile_form %}
+<div class="row">
+  <div class="col-12">
+    <h3 class="mb-2">If the referee you were looking for was not found by using the method above, you can define a new Profile by filling this form:</h3>
+    <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+      {% csrf_token %}
+      {{ profile_form|bootstrap }}
+      <input type="submit" name="submit" value="Create Profile" class="btn btn-primary">
+    </form>
+    <h4>(you will be taken back to this page, and the newly-created Profile will appear in the list above, from which you can then invite this referee)</h4>
+  </div>
+</div>
 {% endif %}
 
 

@@ -36,7 +36,8 @@ class ProfileForm(forms.ModelForm):
     def clean_email(self):
         """Check that the email isn't yet associated to an existing Profile."""
         cleaned_email = self.cleaned_data['email']
-        if ProfileEmail.objects.filter(email=cleaned_email).exclude(profile__id=self.instance.id).exists():
+        if ProfileEmail.objects.filter(
+                email=cleaned_email).exclude(profile__id=self.instance.id).exists():
             raise forms.ValidationError('A Profile with this email already exists.')
         return cleaned_email
 
@@ -67,6 +68,20 @@ class ProfileForm(forms.ModelForm):
             elif self.cleaned_data['instance_from_type'] == 'registrationinvitation':
                 RegistrationInvitation.objects.filter(pk=instance_pk).update(profile=profile)
         return profile
+
+
+class SimpleProfileForm(ProfileForm):
+    """
+    Simple version of ProfileForm, displaying only required fields.
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['expertises'].widget = forms.HiddenInput()
+        self.fields['orcid_id'].widget = forms.HiddenInput()
+        self.fields['webpage'].widget = forms.HiddenInput()
+        self.fields['accepts_SciPost_emails'].widget = forms.HiddenInput()
+        self.fields['accepts_refereeing_requests'].widget = forms.HiddenInput()
 
 
 class ModelChoiceFieldwithid(forms.ModelChoiceField):
