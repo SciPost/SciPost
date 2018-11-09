@@ -77,8 +77,8 @@
     <table class="table">
       <tr>
 	<th>Name</th>
-	<th>Contributor?</th>
-	<th>Action</th>
+	<th>Registered<br/>Contributor?</th>
+	<th>Action<br/><span class="text-muted"><small>(Unregistered people will also receive a registration invitation)</small></span></th>
       </tr>
       {% for profile in profiles_found %}
       <tr>
@@ -101,13 +101,13 @@
 {% if profile_form %}
 <div class="row">
   <div class="col-12">
-    <h3 class="mb-2">If the referee you were looking for was not found by using the method above, you can define a new Profile by filling this form:</h3>
+    <h3 class="mb-2">Not found? Then add to our database by filling this form:</h3>
     <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
       {% csrf_token %}
       {{ profile_form|bootstrap }}
-      <input type="submit" name="submit" value="Create Profile" class="btn btn-primary">
+      <input type="submit" name="submit" value="Add to database" class="btn btn-primary">
     </form>
-    <h4>(you will be taken back to this page, and the newly-created Profile will appear in the list above, from which you can then invite this referee)</h4>
+    <h4>(does not invite referee yet: you will return to this page, from which you can then invite this referee)</h4>
   </div>
 </div>
 {% endif %}
