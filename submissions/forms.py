@@ -1201,7 +1201,10 @@ class EICRecommendationForm(forms.ModelForm):
         if recommendation.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]:
             # Minor/Major revision: return to Author; ask to resubmit
             recommendation.status = DECISION_FIXED
-            Submission.objects.filter(id=self.submission.id).update(open_for_reporting=False)
+            Submission.objects.filter(id=self.submission.id).update(
+                open_for_reporting=False,
+                open_for_commenting=False,
+                reporting_deadline=timezone.now())
 
             if self.assignment:
                 # The EIC has fulfilled this editorial assignment.
@@ -1443,7 +1446,8 @@ class FixCollegeDecisionForm(forms.ModelForm):
 
     def fix_decision(self, recommendation):
         """Fix decision of EICRecommendation."""
-        EICRecommendation.objects.filter(id=recommendation.id).update(status=DECISION_FIXED)
+        EICRecommendation.objects.filter(id=recommendation.id).update(
+            status=DECISION_FIXED)
         submission = recommendation.submission
         if recommendation.recommendation in [REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]:
             # Publish as Tier I, II or III
@@ -1463,6 +1467,11 @@ class FixCollegeDecisionForm(forms.ModelForm):
                 visible_public=False, visible_pool=False,
                 status=STATUS_REJECTED, latest_activity=timezone.now())
             submission.get_other_versions().update(visible_public=False)
+
+        # Force-close the refereeing round for new referees.
+        Submission.objects.filter(id=submission.id).update(
+            open_for_reporting=False,
+            open_for_commenting=False)
 
         # Update Editorial Assignment statuses.
         EditorialAssignment.objects.filter(

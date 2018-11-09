@@ -1206,6 +1206,9 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
     submission.latest_activity = timezone.now()
     submission.save()
 
+    messages.success(request, 'Refereeing deadline set to {0}.'.format(
+        submission.reporting_deadline.strftime('%Y-%m-%d')))
+
     submission.add_general_event('A new refereeing deadline is set.')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
