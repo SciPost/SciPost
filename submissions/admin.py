@@ -50,7 +50,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     # Admin fields should be added in the fieldsets
     radio_fields = {
         "discipline": admin.VERTICAL,
-        "submitted_to_journal": admin.VERTICAL,
+        "submitted_to": admin.VERTICAL,
         "refereeing_cycle": admin.HORIZONTAL,
         "submission_type": admin.VERTICAL
     }
@@ -101,7 +101,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'referees_flagged',
                 'referees_suggested',
                 'remarks_for_editors',
-                'submitted_to_journal',
+                'submitted_to',
                 'proceedings',
                 'pdf_refereeing_pack',
                 'plagiarism_report',

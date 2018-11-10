@@ -79,7 +79,7 @@
                                         <br>
                                         by {{ stream.submission.author_list }}
                                     </td>
-				    <td>{{ stream.submission.get_submitted_to_journal_display }}{% for rec in stream.submission.eicrecommendations.all %}<br/>({{ rec|Tier }}){% endfor %}</td>
+				    <td>{{ stream.submission.submitted_to }}{% for rec in stream.submission.eicrecommendations.all %}<br/>({{ rec|Tier }}){% endfor %}</td>
                                     <td>
                                         <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
                                     </td>

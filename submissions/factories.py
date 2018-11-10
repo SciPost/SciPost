@@ -26,7 +26,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     author_list = factory.Faker('name')
     submitted_by = factory.Iterator(Contributor.objects.all())
     submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
-    submitted_to_journal = factory.Sequence(lambda n: random_scipost_journal())
+    submitted_to = factory.Sequence(lambda n: Journal.objects.get(doi_label=random_scipost_journal()))
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
     identifier_wo_vn_nr = factory.Sequence(
@@ -153,7 +153,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         self.submitted_by = submission.submitted_by
         self.editor_in_charge = submission.editor_in_charge
         self.submission_type = submission.submission_type
-        self.submitted_to_journal = submission.submitted_to_journal
+        self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.subject_area = submission.subject_area
         self.domain = submission.domain
@@ -207,7 +207,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         self.submitted_by = submission.submitted_by
         self.editor_in_charge = submission.editor_in_charge
         self.submission_type = submission.submission_type
-        self.submitted_to_journal = submission.submitted_to_journal
+        self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.subject_area = submission.subject_area
         self.domain = submission.domain
@@ -232,7 +232,7 @@ class PublishedSubmissionFactory(EICassignedSubmissionFactory):
         if create and extracted is not False:
             from journals.factories import PublicationFactory
             PublicationFactory(
-                journal=self.submitted_to_journal,
+                journal=self.submitted_to.doi_label,
                 accepted_submission=self, title=self.title, author_list=self.author_list)
 
     @factory.post_generation

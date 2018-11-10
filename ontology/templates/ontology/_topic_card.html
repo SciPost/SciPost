@@ -109,7 +109,7 @@
     	    <li>
     	      <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
     	      <br>by {{ sub.author_list }}
-    	      <br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.get_submitted_to_journal_display }})
+    	      <br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.submitted_to }})
     	    </li>
 	    {% empty %}
 	    <li>No Submission found</li>

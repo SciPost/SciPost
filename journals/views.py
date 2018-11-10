@@ -163,7 +163,7 @@ def landing_page(request, doi_label):
         'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
         'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
         'accepted_submissions': Submission.objects.accepted().filter(
-            submitted_to_journal=journal.name).order_by('-latest_activity'),
+            submitted_to=journal).order_by('-latest_activity'),
     }
     return render(request, 'journals/journal_landing_page.html', context)
 

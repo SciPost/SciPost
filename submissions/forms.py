@@ -244,7 +244,6 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
                 'referees_suggested': self.last_submission.referees_suggested,
                 'secondary_areas': self.last_submission.secondary_areas,
                 'subject_area': self.last_submission.subject_area,
-                'submitted_to_journal': self.last_submission.submitted_to_journal,
                 'submitted_to': self.last_submission.submitted_to,
                 'submission_type': self.last_submission.submission_type,
             }
@@ -274,7 +273,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         fields = [
             'is_resubmission',
             'discipline',
-            'submitted_to_journal',
             'submitted_to',
             'proceedings',
             'submission_type',
@@ -332,12 +330,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         self.fields['proceedings'].queryset = qs
         self.fields['proceedings'].empty_label = None
         if not qs.exists():
-            # Open the proceedings Journal for submission
-            def filter_proceedings(item):
-                return item[0] != SCIPOST_JOURNAL_PHYSICS_PROC
-
-            self.fields['submitted_to_journal'].choices = filter(
-                filter_proceedings, self.fields['submitted_to_journal'].choices)
+            # No proceedings issue to submit to, so adapt the form fields
             self.fields['submitted_to'].queryset = self.fields['submitted_to'].exclude(
                 doi_label=SCIPOST_JOURNAL_PHYSICS_PROC)
             del self.fields['proceedings']
@@ -357,7 +350,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         self.identifier_matches_regex(
             cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to'].doi_label)
 
-        if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
+        if self.cleaned_data['submitted_to'].doi_label != SCIPOST_JOURNAL_PHYSICS_PROC:
             try:
                 del self.cleaned_data['proceedings']
             except KeyError:
@@ -390,7 +383,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         The SciPost Physics journal requires a Submission type to be specified.
         """
         submission_type = self.cleaned_data['submission_type']
-        journal = self.cleaned_data['submitted_to_journal']
         journal_doi_label = self.cleaned_data['submitted_to'].doi_label
         if journal_doi_label == SCIPOST_JOURNAL_PHYSICS and not submission_type:
             self.add_error('submission_type', 'Please specify the submission type.')
@@ -769,9 +761,6 @@ class EditorialAssignmentForm(forms.ModelForm):
             # Update related Submission.
             if self.is_normal_cycle():
                 # Default Refereeing process
-                # deadline = timezone.now() + datetime.timedelta(days=28)
-                # if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
-                #     deadline += datetime.timedelta(days=28)
                 deadline = timezone.now() + self.instance.submission.submitted_to.refereeing_period
 
                 # Update related Submission.

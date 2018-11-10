@@ -96,7 +96,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
         submission.add_general_event('The manuscript has been submitted to %s.'
-                                     % submission.get_submitted_to_journal_display())
+                                     % str(submission.submitted_to))
 
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
@@ -206,7 +206,7 @@ class SubmissionListView(PaginationMixin, ListView):
         if 'to_journal' in self.request.GET:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
-                submitted_to_journal=self.request.GET['to_journal']
+                submitted_to__doi_label=self.request.GET['to_journal']
             )
         elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
             discipline = self.kwargs['discipline']
@@ -726,9 +726,7 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
         status=STATUS_ACCEPTED, date_answered=timezone.now())
 
     # Set deadlines
-    deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-    if submission.submitted_to_journal == 'SciPostPhysLectNotes':
-        deadline += datetime.timedelta(days=28)
+    deadline = timezone.now() + submission.submitted_to.refereeing_period
 
     # Update Submission data
     Submission.objects.filter(id=submission.id).update(
