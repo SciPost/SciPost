@@ -40,8 +40,9 @@ class SubmissionAdminForm(forms.ModelForm):
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
-    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication')
-    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to_journal')
+    list_display = ('title', 'author_list', 'submitted_to',
+                    'status', 'submission_date', 'publication')
+    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
     readonly_fields = ('publication',)

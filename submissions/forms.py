@@ -30,6 +30,7 @@ from .signals import notify_manuscript_accepted
 from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
+from journals.models import Journal
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
@@ -192,7 +193,7 @@ class SubmissionChecks:
             error_message = ('The journal you want to submit to does not allow for this'
                              ' arXiv identifier. Please contact SciPost if you have'
                              ' any further questions.')
-            raise forms.ValidationError(error_message, code='submitted_to_journal')
+            raise forms.ValidationError(error_message, code='submitted_to')
 
     def submission_is_resubmission(self):
         """Check if the Submission is a resubmission."""
@@ -244,6 +245,7 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
                 'secondary_areas': self.last_submission.secondary_areas,
                 'subject_area': self.last_submission.subject_area,
                 'submitted_to_journal': self.last_submission.submitted_to_journal,
+                'submitted_to': self.last_submission.submitted_to,
                 'submission_type': self.last_submission.submission_type,
             }
         return data or {}
@@ -273,6 +275,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             'is_resubmission',
             'discipline',
             'submitted_to_journal',
+            'submitted_to',
             'proceedings',
             'submission_type',
             'domain',
@@ -321,6 +324,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             del self.fields['arxiv_link']
             del self.fields['identifier_w_vn_nr']
 
+        self.fields['submitted_to'].queryset = Journal.objects.filter(active=True)
+        self.fields['submitted_to'].label = 'Journal: submit to'
+
         # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()
         self.fields['proceedings'].queryset = qs
@@ -332,6 +338,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
             self.fields['submitted_to_journal'].choices = filter(
                 filter_proceedings, self.fields['submitted_to_journal'].choices)
+            self.fields['submitted_to'].queryset = self.fields['submitted_to'].exclude(
+                doi_label=SCIPOST_JOURNAL_PHYSICS_PROC)
             del self.fields['proceedings']
 
         # Submission type is optional
@@ -347,7 +355,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
         self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
         self.identifier_matches_regex(
-            cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to_journal'])
+            cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to'].doi_label)
 
         if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
             try:
@@ -383,7 +391,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         """
         submission_type = self.cleaned_data['submission_type']
         journal = self.cleaned_data['submitted_to_journal']
-        if journal == SCIPOST_JOURNAL_PHYSICS and not submission_type:
+        journal_doi_label = self.cleaned_data['submitted_to'].doi_label
+        if journal_doi_label == SCIPOST_JOURNAL_PHYSICS and not submission_type:
             self.add_error('submission_type', 'Please specify the submission type.')
         return submission_type
 
@@ -760,9 +769,10 @@ class EditorialAssignmentForm(forms.ModelForm):
             # Update related Submission.
             if self.is_normal_cycle():
                 # Default Refereeing process
-                deadline = timezone.now() + datetime.timedelta(days=28)
-                if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
-                    deadline += datetime.timedelta(days=28)
+                # deadline = timezone.now() + datetime.timedelta(days=28)
+                # if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
+                #     deadline += datetime.timedelta(days=28)
+                deadline = timezone.now() + self.instance.submission.submitted_to.refereeing_period
 
                 # Update related Submission.
                 Submission.objects.filter(id=self.submission.id).update(

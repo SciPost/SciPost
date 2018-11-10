@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
 from decimal import Decimal
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -106,6 +107,7 @@ class Journal(models.Model):
     active = models.BooleanField(default=True)
     structure = models.CharField(max_length=2,
                                  choices=JOURNAL_STRUCTURE, default=ISSUES_AND_VOLUMES)
+    refereeing_period = models.DurationField(default=datetime.timedelta(days=28))
 
     objects = JournalQuerySet.as_manager()
 

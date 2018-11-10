@@ -6,16 +6,18 @@
 
 {% block footer_script %}
     <script>
-        $(document).ready(function(){
-          $('select#id_submitted_to_journal').on('change', function (){
+
+      $(document).ready(function(){
+
+      $('select#id_submitted_to').on('change', function (){
               var selection = $(this).val();
               $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
 
               switch(selection){
-                case "SciPostPhys":
+                case "{{ id_SciPostPhys }}":
                   $("#id_submission_type").parents('.form-group').show()
                   break;
-                case "SciPostPhysProc":
+                case "{{ id_SciPostPhysProc }}":
                   $("#id_proceedings").parents('.form-group').show()
                   break;
               }
@@ -25,7 +27,6 @@
 {% endblock %}
 
 {% block content %}
-
 
 <div class="row">
     <div class="col-12">

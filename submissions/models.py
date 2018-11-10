@@ -93,6 +93,8 @@ class Submission(models.Model):
     # Replace this by foreignkey?
     submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
                                             verbose_name="Journal to be submitted to")
+    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE,
+                                     blank=True, null=True)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
                                     related_name='submissions')
     title = models.CharField(max_length=300)

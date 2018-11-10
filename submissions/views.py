@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import feedparser
+import json
 import strings
 
 from django.contrib import messages
@@ -75,6 +76,12 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     success_url = reverse_lazy('scipost:personal_page')
     form_class = RequestSubmissionForm
     template_name = 'submissions/submission_form.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['id_SciPostPhys'] = get_object_or_404(Journal, doi_label='SciPostPhys').id
+        context['id_SciPostPhysProc'] = get_object_or_404(Journal, doi_label='SciPostPhysProc').id
+        return context
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
