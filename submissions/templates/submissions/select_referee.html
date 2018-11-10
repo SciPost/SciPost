@@ -73,7 +73,7 @@
 <div class="row">
   <div class="col-12">
     {% if workdays_left_to_report < 15 %}
-    <h4 class="highlight p-1"><strong class="text-danger">Warning: there are {{ workdays_left_to_report }} days left before the refereeing deadline.</strong><br/><br/>Consider resetting the deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.</h4>
+    <h4 class="highlight p-1"><strong class="text-danger">Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.</strong><br/><br/>Consider resetting the deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.</h4>
     {% endif %}
     {% if profiles_found %}
     <h3>Matching people in our database:</h3>

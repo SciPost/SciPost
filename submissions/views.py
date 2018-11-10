@@ -1181,12 +1181,11 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    submission.reporting_deadline += datetime.timedelta(days=int(days))
-    submission.open_for_reporting = True
-    submission.open_for_commenting = True
-    submission.status = STATUS_EIC_ASSIGNED
-    submission.latest_activity = timezone.now()
-    submission.save()
+    Submission.objects.filter(pk=submission.id).update(
+        reporting_deadline=submission.reporting_deadline + datetime.timedelta(days=int(days)),
+        open_for_reporting=True,
+        open_for_commenting=True,
+        latest_activity=timezone.now())
 
     submission.add_general_event('A new refereeing deadline is set.')
     return redirect(reverse('submissions:editorial_page',
@@ -1204,13 +1203,10 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
 
     form = SetRefereeingDeadlineForm(request.POST or None)
     if form.is_valid():
-        submission.reporting_deadline = form.cleaned_data['deadline']
-        if form.cleaned_data['deadline'] > timezone.now().date():
-            submission.open_for_reporting = True
-            submission.open_for_commenting = True
-            submission.latest_activity = timezone.now()
-        # submission.status = STATUS_EIC_ASSIGNED  # This is dangerous as shit.
-        submission.save()
+        Submission.objects.filter(pk=submission.id).update(
+            reporting_deadline=form.cleaned_data['deadline'],
+            open_for_reporting=(form.cleaned_data['deadline'] >= timezone.now().date()),
+            latest_activity = timezone.now())
         submission.add_general_event('A new refereeing deadline is set.')
         messages.success(request, 'New reporting deadline set.')
     else:
