@@ -45,6 +45,7 @@ from .utils import SubmissionUtils
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
+from common.utils import workdays_between
 from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
@@ -898,6 +899,7 @@ def select_referee(request, identifier_w_vn_nr):
         context['profile_form'] = SimpleProfileForm()
     context.update({
         'submission': submission,
+        'workdays_left_to_report': workdays_between(timezone.now(), submission.reporting_deadline),
         'referee_search_form': referee_search_form,
         'queryresults': queryresults,
     })
