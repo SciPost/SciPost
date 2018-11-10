@@ -36,7 +36,7 @@ from scipost.constants import TITLE_CHOICES
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
 from scipost.storage import SecureFileStorage
-from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 from mails.utils import DirectMailUtil
 
@@ -90,9 +90,6 @@ class Submission(models.Model):
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                             related_name='voting_pool')
 
-    # Replace this by foreignkey?
-    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
-                                            verbose_name="Journal to be submitted to")
     submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE,
                                      blank=True, null=True)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
