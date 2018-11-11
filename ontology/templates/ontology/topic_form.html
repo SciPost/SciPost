@@ -31,7 +31,7 @@ $("#id_name").keyup(function() {
       <li>Start with a capital letter</li>
       <li>Use plural words (<em>e.g.</em> <strong>superconductors</strong> instead of <strong>superconductor</strong>)</li>
       <li>If an acronym exists, put it in parentheses at the end (<em>e.g.</em> <strong>Renormalization group (RG)</strong>). <strong class="text-danger">Remove any parentheses from the slug!</strong></li>
-      <li>Mix equivalent words by using a slash, <em>e.g.</em> <strong>Superconductivity&frasl;superconductors</strong></li>
+      <li>Mix equivalent words by using a slash, <em>e.g.</em> <strong>Superconductivity&frasl;superconductors</strong>. <strong class="text-danger">You will similarly need to remove the slash from the slug!</strong></li>
     </ul>
     <form action="" method="post">
       {% csrf_token %}
