@@ -16,6 +16,11 @@ class SelectTagForm(forms.Form):
 class SelectTopicForm(forms.Form):
     topic = AutoCompleteSelectField('topic_lookup', label='', help_text='')
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['topic'].widget.attrs.update({
+            'placeholder':'type here to find topic'})
+
 
 class SelectLinkedTopicForm(forms.Form):
     topic = AutoCompleteSelectField('linked_topic_lookup',
