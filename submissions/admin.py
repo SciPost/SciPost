@@ -44,8 +44,9 @@ class SubmissionAdminForm(forms.ModelForm):
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
-    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication')
-    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to_journal')
+    list_display = ('title', 'author_list', 'submitted_to',
+                    'status', 'submission_date', 'publication')
+    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
     readonly_fields = ('publication',)
@@ -53,7 +54,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     # Admin fields should be added in the fieldsets
     radio_fields = {
         "discipline": admin.VERTICAL,
-        "submitted_to_journal": admin.VERTICAL,
+        "submitted_to": admin.VERTICAL,
         "refereeing_cycle": admin.HORIZONTAL,
         "submission_type": admin.VERTICAL
     }
@@ -104,7 +105,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'referees_flagged',
                 'referees_suggested',
                 'remarks_for_editors',
-                'submitted_to_journal',
+                'submitted_to',
                 'proceedings',
                 'pdf_refereeing_pack',
                 'plagiarism_report',

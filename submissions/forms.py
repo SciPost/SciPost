@@ -30,6 +30,7 @@ from .signals import notify_manuscript_accepted
 from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
 from invitations.models import RegistrationInvitation
+from journals.models import Journal
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
@@ -192,7 +193,7 @@ class SubmissionChecks:
             error_message = ('The journal you want to submit to does not allow for this'
                              ' arXiv identifier. Please contact SciPost if you have'
                              ' any further questions.')
-            raise forms.ValidationError(error_message, code='submitted_to_journal')
+            raise forms.ValidationError(error_message, code='submitted_to')
 
     def submission_is_resubmission(self):
         """Check if the Submission is a resubmission."""
@@ -243,7 +244,7 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
                 'referees_suggested': self.last_submission.referees_suggested,
                 'secondary_areas': self.last_submission.secondary_areas,
                 'subject_area': self.last_submission.subject_area,
-                'submitted_to_journal': self.last_submission.submitted_to_journal,
+                'submitted_to': self.last_submission.submitted_to,
                 'submission_type': self.last_submission.submission_type,
             }
         return data or {}
@@ -272,7 +273,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         fields = [
             'is_resubmission',
             'discipline',
-            'submitted_to_journal',
+            'submitted_to',
             'proceedings',
             'submission_type',
             'domain',
@@ -321,17 +322,17 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             del self.fields['arxiv_link']
             del self.fields['identifier_w_vn_nr']
 
+        self.fields['submitted_to'].queryset = Journal.objects.filter(active=True)
+        self.fields['submitted_to'].label = 'Journal: submit to'
+
         # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()
         self.fields['proceedings'].queryset = qs
         self.fields['proceedings'].empty_label = None
         if not qs.exists():
-            # Open the proceedings Journal for submission
-            def filter_proceedings(item):
-                return item[0] != SCIPOST_JOURNAL_PHYSICS_PROC
-
-            self.fields['submitted_to_journal'].choices = filter(
-                filter_proceedings, self.fields['submitted_to_journal'].choices)
+            # No proceedings issue to submit to, so adapt the form fields
+            self.fields['submitted_to'].queryset = self.fields['submitted_to'].exclude(
+                doi_label=SCIPOST_JOURNAL_PHYSICS_PROC)
             del self.fields['proceedings']
 
         # Submission type is optional
@@ -347,9 +348,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
         self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
         self.identifier_matches_regex(
-            cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to_journal'])
+            cleaned_data['identifier_w_vn_nr'], cleaned_data['submitted_to'].doi_label)
 
-        if self.cleaned_data['submitted_to_journal'] != SCIPOST_JOURNAL_PHYSICS_PROC:
+        if self.cleaned_data['submitted_to'].doi_label != SCIPOST_JOURNAL_PHYSICS_PROC:
             try:
                 del self.cleaned_data['proceedings']
             except KeyError:
@@ -382,8 +383,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         The SciPost Physics journal requires a Submission type to be specified.
         """
         submission_type = self.cleaned_data['submission_type']
-        journal = self.cleaned_data['submitted_to_journal']
-        if journal == SCIPOST_JOURNAL_PHYSICS and not submission_type:
+        journal_doi_label = self.cleaned_data['submitted_to'].doi_label
+        if journal_doi_label == SCIPOST_JOURNAL_PHYSICS and not submission_type:
             self.add_error('submission_type', 'Please specify the submission type.')
         return submission_type
 
@@ -760,9 +761,7 @@ class EditorialAssignmentForm(forms.ModelForm):
             # Update related Submission.
             if self.is_normal_cycle():
                 # Default Refereeing process
-                deadline = timezone.now() + datetime.timedelta(days=28)
-                if assignment.submission.submitted_to_journal == 'SciPostPhysLectNotes':
-                    deadline += datetime.timedelta(days=28)
+                deadline = timezone.now() + self.instance.submission.submitted_to.refereeing_period
 
                 # Update related Submission.
                 Submission.objects.filter(id=self.submission.id).update(
@@ -809,80 +808,9 @@ class ConsiderAssignmentForm(forms.Form):
     refusal_reason = forms.ChoiceField(choices=ASSIGNMENT_REFUSAL_REASONS, required=False)
 
 
-class RefereeSelectForm(forms.Form):
-    """Pre-fill form to get the last name of the requested referee."""
-
+class RefereeSearchForm(forms.Form):
     last_name = forms.CharField(widget=forms.TextInput({
-        'placeholder': 'Search in contributors database'}))
-
-
-class RefereeRecruitmentForm(forms.ModelForm):
-    """Invite non-registered scientist to register and referee a Submission."""
-
-    class Meta:
-        model = RefereeInvitation
-        fields = [
-            'profile',
-            'title',
-            'first_name',
-            'last_name',
-            'email_address',
-            'auto_reminders_allowed',
-            'invitation_key']
-        widgets = {
-            'profile': forms.HiddenInput(),
-            'invitation_key': forms.HiddenInput()
-        }
-
-    def __init__(self, *args, **kwargs):
-        self.request = kwargs.pop('request', None)
-        self.submission = kwargs.pop('submission', None)
-
-        initial = kwargs.pop('initial', {})
-        initial['invitation_key'] = get_new_secrets_key()
-        kwargs['initial'] = initial
-        super().__init__(*args, **kwargs)
-
-    def clean_email_address(self):
-        email = self.cleaned_data['email_address']
-        if Contributor.objects.filter(user__email=email).exists():
-            contr = Contributor.objects.get(user__email=email)
-            msg = (
-                'This email address is already registered. '
-                'Invite {title} {last_name} using the link above.')
-            self.add_error('email_address', msg.format(
-                title=contr.get_title_display(), last_name=contr.user.last_name))
-        return email
-
-    def save(self, commit=True):
-        if not self.request or not self.submission:
-            raise forms.ValidationError('No request or Submission given.')
-
-        # Try to associate an existing Profile to ref/reg invitations:
-        profile = Profile.objects.get_unique_from_email_or_None(
-            email=self.cleaned_data['email_address'])
-        self.instance.profile = profile
-
-        self.instance.submission = self.submission
-        self.instance.invited_by = self.request.user.contributor
-        referee_invitation = super().save(commit=False)
-
-        registration_invitation = RegistrationInvitation(
-            profile=profile,
-            title=referee_invitation.title,
-            first_name=referee_invitation.first_name,
-            last_name=referee_invitation.last_name,
-            email=referee_invitation.email_address,
-            invitation_type=INVITATION_REFEREEING,
-            created_by=self.request.user,
-            invited_by=self.request.user,
-            invitation_key=referee_invitation.invitation_key,
-            key_expires=timezone.now() + datetime.timedelta(days=365))
-
-        if commit:
-            referee_invitation.save()
-            registration_invitation.save()
-        return (referee_invitation, registration_invitation)
+        'placeholder': 'Search for a referee in the SciPost Profiles database'}))
 
 
 class ConsiderRefereeInvitationForm(forms.Form):

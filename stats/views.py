@@ -24,7 +24,7 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
             context['year'] = year
             context['citedby_impact_factor'] = journal.citedby_impact_factor(year)
             submissions = Submission.objects.filter(
-                submitted_to_journal=journal_doi_label).originally_submitted(
+                submitted_to__doi_label=journal_doi_label).originally_submitted(
                 datetime.date(int(year), 1, 1), datetime.date(int(year), 12, 31))
             context['submissions'] = submissions
             nr_ref_inv = 0

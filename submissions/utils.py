@@ -319,7 +319,7 @@ class SubmissionUtils(BaseMailUtil):
         email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nWe have received your Submission to ' +
-                      cls.submission.get_submitted_to_journal_display() + ',\n\n' +
+                      str(cls.submission.submitted_to) + ',\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + '.' +
                       '\n\nWe will update you on the results of the pre-screening process '
                       'within the next 5 working days.'
@@ -329,7 +329,7 @@ class SubmissionUtils(BaseMailUtil):
                       '\n\nThe SciPost Team.')
         email_text_html = (
             '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>We have received your Submission to {{ submitted_to_journal }},</p>'
+            '<p>We have received your Submission to {{ submitted_to }},</p>'
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>'
             '\n<p>We will update you on the results of the pre-screening process '
@@ -342,7 +342,7 @@ class SubmissionUtils(BaseMailUtil):
             'title': cls.submission.submitted_by.get_title_display(),
             'last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
-            'submitted_to_journal': cls.submission.get_submitted_to_journal_display(),
+            'submitted_to': str(cls.submission.submitted_to),
             'author_list': cls.submission.author_list,
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
@@ -1175,7 +1175,7 @@ class SubmissionUtils(BaseMailUtil):
             or cls.recommendation.recommendation == 3):
             email_text += ('We are pleased to inform you that your Submission '
                            'has been accepted for publication in '
-                           + cls.submission.get_submitted_to_journal_display())
+                           + str(cls.submission.submitted_to))
             email_text_html += (
                 '<p>We are pleased to inform you that your Submission '
                 'has been accepted for publication in <strong>{{ journal }}</strong>')
@@ -1232,7 +1232,7 @@ class SubmissionUtils(BaseMailUtil):
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'identifier_w_vn_nr': cls.submission.preprint.identifier_w_vn_nr,
-            'journal': cls.submission.get_submitted_to_journal_display(),
+            'journal': str(cls.submission.submitted_to),
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)

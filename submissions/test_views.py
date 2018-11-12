@@ -18,6 +18,8 @@ from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory
 from .forms import RequestSubmissionForm, SubmissionIdentifierForm, ReportForm
 from .models import Submission, Report, RefereeInvitation
 
+from journals.models import Journal
+
 from faker import Faker
 
 
@@ -139,7 +141,7 @@ class SubmitManuscriptTest(BaseContributorTestCase):
         params.update({
             'discipline': 'physics',
             'subject_area': 'Phys:MP',
-            'submitted_to_journal': 'SciPostPhys',
+            'submitted_to': Journal.objects.filter(doi_label='SciPostPhys'),
             'submission_type': 'Article',
             'domain': 'T'
         })
@@ -179,7 +181,7 @@ class SubmitManuscriptTest(BaseContributorTestCase):
         params.update({
             'discipline': 'physics',
             'subject_area': 'Phys:MP',
-            'submitted_to_journal': 'SciPostPhys',
+            'submitted_to': Journal.objects.get(doi_label='SciPostPhys'),
             'submission_type': 'Article',
             'domain': 'T'
         })
