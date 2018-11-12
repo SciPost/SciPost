@@ -81,3 +81,12 @@ class OrganizationDetailView(DetailView):
         context = super().get_context_data(*args, **kwargs)
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
         return context
+
+    def get_queryset(self):
+        """
+        Restrict view to permitted people if Organization details not publicly viewable.
+        """
+        queryset = super().get_queryset()
+        if not self.request.user.has_perm('scipost.can_manage_organizations'):
+            queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
+        return queryset

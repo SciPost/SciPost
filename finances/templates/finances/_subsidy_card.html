@@ -16,7 +16,7 @@
 
       <table class="table">
 	<tr>
-	  <td>From:</td><td><a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></td>
+	  <td>From:</td><td>{% if subsidy.organization.details_publicly_viewable or perms.scipost.can_manage_organizations %}<a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a>{% else %}{{ subsidy.organization }}{% endif %}</td>
 	</tr>
 	<tr>
 	  <td>Type:</td><td>{{ subsidy.get_subsidy_type_display }}</td>
