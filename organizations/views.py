@@ -8,6 +8,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from .constants import ORGTYPE_PRIVATE_BENEFACTOR
 from .models import Organization
 
 from funders.models import Funder
@@ -59,7 +60,7 @@ class OrganizationListView(ListView):
         return context
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = super().get_queryset().exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
         order_by = self.request.GET.get('order_by')
         ordering = self.request.GET.get('ordering')
         if order_by == 'country':
