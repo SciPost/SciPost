@@ -8,6 +8,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse_lazy
 from django.db.models import Q
@@ -98,7 +99,8 @@ class RegistrationForm(forms.Form):
     personalwebpage = forms.URLField(
         label='Personal web page', required=False,
         widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}))
-    username = forms.CharField(label='* Username', max_length=100)
+    username = forms.CharField(label='* Username', max_length=100,
+                               validators=[UnicodeUsernameValidator,])
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
                                      help_text='Your password must contain at least 8 characters')
