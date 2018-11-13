@@ -1,8 +1,8 @@
 {
-    "subject": "SciPost: Supporting Partners Board",
+    "subject": "SciPost: Sponsors Board",
     "to_address": "email",
-    "bcc_to": "partners@scipost.org",
-    "from_address_name": "SciPost Supporting Partners",
-    "from_address": "partners@scipost.org",
+    "bcc_to": "sponsors@scipost.org",
+    "from_address_name": "SciPost Sponsors",
+    "from_address": "sponsors@scipost.org",
     "context_object": "contact"
 }
