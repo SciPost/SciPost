@@ -51,7 +51,7 @@ class ReCaptchaField(forms.CharField):
         self.use_ssl = getattr(settings, 'RECAPTCHA_USE_SSL', True)
         self.widget = ReCaptcha(public_key=public_key, attrs=attrs)
         self.required = True
-        self. = 'https://www.recaptcha.net/recaptcha/api/siteverify'
+        self.verify_url = 'https://www.recaptcha.net/recaptcha/api/siteverify'
         super().__init__(*args, **kwargs)
 
     def clean(self, values):
