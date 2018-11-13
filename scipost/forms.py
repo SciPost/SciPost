@@ -19,7 +19,6 @@ from django.utils.http import is_safe_url
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 from django_countries.fields import LazyTypedChoiceField
-from captcha.fields import ReCaptchaField
 
 from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
@@ -29,6 +28,7 @@ from .constants import (
     SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, NO_SCIENTIST, DOUBLE_ACCOUNT,
     BARRED)
 from .decorators import has_contributor
+from .fields import ReCaptchaField
 from .models import Contributor, DraftInvitation, UnavailabilityPeriod, PrecookedEmail
 
 from affiliations.models import Affiliation, Institution
@@ -104,7 +104,7 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
                                      help_text='Your password must contain at least 8 characters')
-    captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
+    captcha = ReCaptchaField(label='*Please verify to continue:')
     subscribe = forms.BooleanField(
         required=False, initial=False, label='Stay informed, subscribe to the SciPost newsletter.')
 
