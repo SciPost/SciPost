@@ -82,7 +82,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'django_mathjax',
     'ajax_select',
-    'captcha',
     'guardian',
     'haystack',
     'rest_framework',
@@ -152,9 +151,6 @@ SPHINXDOC_PROTECTED_PROJECTS = {
     'developers': ['scipost.can_view_docs_scipost'],
 }
 
-CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
-CAPTCHA_LETTER_ROTATION = (-15, 15)
-CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_dots',)
 
 SHELL_PLUS_POST_IMPORTS = (
     ('theses.factories', ('ThesisLinkFactory')),
@@ -311,7 +307,6 @@ DOAJ_API_KEY = ''
 # https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha-v2-what-should-i-do
 RECAPTCHA_PUBLIC_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 RECAPTCHA_PRIVATE_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
-NOCAPTCHA = True
 
 
 # PASSWORDS

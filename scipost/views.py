@@ -17,7 +17,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
-from django.db.models import Prefetch
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template import Context, Template
@@ -155,6 +155,7 @@ def feeds(request):
 # Contributors:
 ################
 
+@transaction.atomic
 def register(request):
     """
     Contributor registration form page.
