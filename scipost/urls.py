@@ -158,6 +158,10 @@ urlpatterns = [
     url(r'^vet_authorship_claim/(?P<claim_id>[0-9]+)/(?P<claim>[0-1])$',
         views.vet_authorship_claim, name='vet_authorship_claim'),
 
+    # Potential duplicates
+    url(r'contributor_duplicates/$',
+        views.ContributorDuplicateListView.as_view(),
+        name='duplicates'),
 
     ####################
     # Email facilities #

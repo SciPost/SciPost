@@ -40,6 +40,7 @@ from .forms import (
     AuthenticationForm, UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
     PasswordChangeForm, EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
+from .mixins import PermissionsMixin, PaginationMixin
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
@@ -956,6 +957,18 @@ def contributor_info(request, contributor_id):
                'contributor_comments': contributor_comments,
                'contributor_authorreplies': contributor_authorreplies}
     return render(request, 'scipost/contributor_info.html', context)
+
+
+class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
+    """
+    List Contributors with potential duplicates.
+    """
+    permission_required = 'scipost.can_vet_registration_requests'
+    model = Contributor
+    template_name = 'scipost/contributor_duplicate_list.html'
+
+    def get_queryset(self):
+        return Contributor.objects.potential_duplicates()
 
 
 ####################

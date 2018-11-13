@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.db import models
 from django.db.models import Count, Q
-from django.db.models.functions import Lower
+from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
 from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
@@ -53,6 +53,15 @@ class ContributorQuerySet(models.QuerySet):
     def fellows(self):
         """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
         return self.filter(fellowships__isnull=False).distinct()
+
+    def potential_duplicates(self):
+        """
+        Returns only potential duplicate Contributors (as identified by first and
+        last names).
+        """
+        contribs = self.annotate(full_name=Concat('user__last_name', 'user__first_name')
+        ).values('full_name').annotate(nr_count=Count('full_name')).filter(nr_count__gt=1)
+        return contribs.order_by('user__last_name', 'user__first_name', '-id')
 
 
 class UnavailabilityPeriodManager(models.Manager):
