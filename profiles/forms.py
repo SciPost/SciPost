@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django import forms
 from django.shortcuts import get_object_or_404
 
+from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
 from journals.models import UnregisteredAuthor
 from ontology.models import Topic
@@ -82,11 +83,6 @@ class SimpleProfileForm(ProfileForm):
         self.fields['webpage'].widget = forms.HiddenInput()
         self.fields['accepts_SciPost_emails'].widget = forms.HiddenInput()
         self.fields['accepts_refereeing_requests'].widget = forms.HiddenInput()
-
-
-class ModelChoiceFieldwithid(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-        return '%s (id = %i)' % (super().label_from_instance(obj), obj.id)
 
 
 class ProfileMergeForm(forms.Form):

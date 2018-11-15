@@ -161,7 +161,10 @@ urlpatterns = [
     # Potential duplicates
     url(r'contributor_duplicates/$',
         views.ContributorDuplicateListView.as_view(),
-        name='duplicates'),
+        name='contributor_duplicates'),
+    url(r'contributor_merge/$',
+        views.contributor_merge,
+        name='contributor_merge'),
 
     ####################
     # Email facilities #

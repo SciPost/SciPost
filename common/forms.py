@@ -6,6 +6,7 @@ import calendar
 import datetime
 import re
 
+from django import forms
 from django.forms.widgets import Widget, Select
 from django.utils.dates import MONTHS
 from django.utils.safestring import mark_safe
@@ -115,3 +116,8 @@ class MonthYearWidget(Widget):
 
             return '%s-%s-%s' % (y, m, d)
         return data.get(name, None)
+
+
+class ModelChoiceFieldwithid(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+        return '%s (id = %i)' % (super().label_from_instance(obj), obj.id)

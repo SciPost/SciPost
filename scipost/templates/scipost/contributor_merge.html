@@ -1,0 +1,69 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'scipost:contributor_duplicates' %}">Duplicates</a></span>
+<span class="breadcrumb-item">Merge Contributors {{ contributor_to_merge.id }} and {{ contributor_to_merge_into.id }}</span>
+{% endblock %}
+
+{% load scipost_extras %}
+
+{% block pagetitle %}: Contributor duplicates: merge{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Merge Contributors {{ contributor_to_merge.id }} and {{ contributor_to_merge_into.id }}</h1>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+  <h3 class="highlight">Contributor {{ contributor_to_merge.id }}</h3>
+  {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+  <h4>One to One:</h4>
+  <ul>
+    {% for field in contributor_to_merge.related_fields_one_to_one %}
+    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
+    {% endfor %}
+  </ul>
+  <h4>One to Many:</h4>
+  <ul>
+    {% for field in contributor_to_merge.related_fields_one_to_many %}
+    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
+    {% endfor %}
+  </ul>
+  <h4>Many to One:</h4>
+  <ul>
+    {% for field in contributor_to_merge.related_fields_many_to_one %}
+    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
+    {% endfor %}
+  </ul>
+  <h4>Many to Many:</h4>
+  <ul>
+    {% for field in contributor_to_merge.related_fields_many_to_many %}
+    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Contributor {{ contributor_to_merge_into.id }}</h3>
+    {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Merge:</h3>
+    <form method="post">
+      {% csrf_token %}
+      {{ merge_form|bootstrap }}
+      <input class="btn btn-primary" type="submit" value="Confirm merge">
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

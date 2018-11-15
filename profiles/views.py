@@ -214,7 +214,9 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contributors_wo_profile = Contributor.objects.filter(profile__isnull=True)
+        contributors_w_duplicate_email = Contributor.objects.with_duplicate_email()
+        contributors_w_duplicate_names = Contributor.objects.with_duplicate_names()
+        contributors_wo_profile = Contributor.objects.active().filter(profile__isnull=True)
         unreg_auth_wo_profile = UnregisteredAuthor.objects.filter(profile__isnull=True)
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
@@ -222,7 +224,8 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         context.update({
             'subject_areas': SCIPOST_SUBJECT_AREAS,
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
-            'contributors_w_duplicate_email': Contributor.objects.have_duplicate_email(),
+            'nr_contributors_w_duplicate_email': contributors_w_duplicate_email.count(),
+            'nr_contributors_w_duplicate_names': contributors_w_duplicate_names.count(),
             'nr_contributors_wo_profile': contributors_wo_profile.count(),
             'next_contributor_wo_profile': contributors_wo_profile.first(),
             'nr_unreg_auth_wo_profile': unreg_auth_wo_profile.count(),

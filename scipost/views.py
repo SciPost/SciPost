@@ -39,7 +39,8 @@ from .models import (
 from .forms import (
     AuthenticationForm, UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
-    PasswordChangeForm, EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
+    PasswordChangeForm, ContributorMergeForm,
+    EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
 from .mixins import PermissionsMixin, PaginationMixin
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
@@ -969,7 +970,55 @@ class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
     template_name = 'scipost/contributor_duplicate_list.html'
 
     def get_queryset(self):
-        return Contributor.objects.potential_duplicates()
+        queryset = Contributor.objects.active()
+        if self.request.GET.get('kind') == 'names':
+            queryset = queryset.with_duplicate_names()
+        elif self.request.GET.get('kind') == 'emails':
+            queryset = queryset.with_duplicate_emails()
+        else:
+            queryset = queryset.with_duplicate_names()
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        if len(context['object_list']) > 1:
+            initial = {
+                'to_merge': context['object_list'][0].id,
+                'to_merge_into': context['object_list'][1].id
+                }
+            context['merge_form'] = ContributorMergeForm(initial=initial)
+        return context
+
+
+@transaction.atomic
+@permission_required('scipost.can_vet_registration_requests')
+def contributor_merge(request):
+    """
+    Handles the merging of data from one Contributor instance to another,
+    to solve multiple registration issues.
+
+    Both instances are preserved, but the merge_from instance is set to inactive.
+    """
+    merge_form = ContributorMergeForm(request.POST or None, initial=request.GET)
+    context = {'merge_form': merge_form}
+
+    if merge_form.is_valid():
+        contributor = merge_form.save()
+        messages.success(request, 'Contributors merged')
+        return redirect(reverse('scipost:contributor_duplicates'))
+    elif request.method == 'GET':
+        try:
+            context.update({
+                'contributor_to_merge': get_object_or_404(Contributor,
+                                                          pk=int(request.GET['to_merge'])),
+                'contributor_to_merge_into': get_object_or_404(Contributor,
+                                                               pk=int(request.GET['to_merge_into'])),
+                })
+        except ValueError:
+            raise Http404
+
+    return render(request, 'scipost/contributor_merge.html', context)
 
 
 ####################

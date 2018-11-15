@@ -26,18 +26,25 @@ from haystack.forms import ModelSearchForm as HayStackSearchForm
 from .behaviors import orcid_validator
 from .constants import (
     SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, NO_SCIENTIST, DOUBLE_ACCOUNT,
-    BARRED)
+    BARRED, DISABLED)
 from .decorators import has_contributor
 from .fields import ReCaptchaField
-from .models import Contributor, DraftInvitation, UnavailabilityPeriod, PrecookedEmail
+from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
+    Remark, DraftInvitation, AuthorshipClaim, PrecookedEmail
 
 from affiliations.models import Affiliation, Institution
-from common.forms import MonthYearWidget
+from common.forms import MonthYearWidget, ModelChoiceFieldwithid
 from partners.decorators import has_contact
 
+from colleges.models import Fellowship, PotentialFellowshipEvent
+from commentaries.models import Commentary
 from comments.models import Comment
-from journals.models import Publication
-from submissions.models import Report
+from funders.models import Grant
+from journals.models import PublicationAuthorsTable, Publication
+from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
+    EditorialCommunication, EICRecommendation
+from theses.models import ThesisLink
+from virtualmeetings.models import Feedback, Nomination, Motion
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -413,6 +420,208 @@ class UnavailabilityPeriodForm(forms.ModelForm):
         if end < now.date():
             self.add_error('end', 'You have entered an end date in the past.')
         return end
+
+
+class ContributorMergeForm(forms.Form):
+    to_merge = ModelChoiceFieldwithid(queryset=Contributor.objects.all(), empty_label=None)
+    to_merge_into = ModelChoiceFieldwithid(queryset=Contributor.objects.all(), empty_label=None)
+
+    def clean(self):
+        data = super().clean()
+        if self.cleaned_data['to_merge'] == self.cleaned_data['to_merge_into']:
+            self.add_error(None, 'A Contributor cannot be merged into itself.')
+        return data
+
+    def save(self):
+        """
+        Merge one Contributor into another. Set the previous Contributor to inactive.
+        """
+        contrib_from = self.cleaned_data['to_merge']
+        contrib_into = self.cleaned_data['to_merge_into']
+
+        contrib_from_qs = Contributor.objects.filter(pk=contrib_from.id)
+        contrib_into_qs = Contributor.objects.filter(pk=contrib_into.id)
+
+        # Step 1: update all fields within Contributor
+        if contrib_from.profile and not contrib_into.profile:
+            contrib_into_qs.update(profile=contrib_from.profile)
+        User.objects.filter(pk=contrib_from.user.id).update(is_active=False)
+        User.objects.filter(pk=contrib_into.user.id).update(is_active=True)
+        contrib_from_qs.update(status=DISABLED)
+        if contrib_from.orcid_id and not contrib_into.orcid_id:
+            contrib_into_qs.update(orcid_id=contrib_from.orcid_id)
+
+        # Step 2: update all ForeignKey relations
+        Affiliation.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
+        Fellowship.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
+        PotentialFellowshipEvent.objects.filter(
+            noted_by=contrib_from).update(noted_by=contrib_into)
+        Commentary.objects.filter(requested_by=contrib_from).update(requested_by=contrib_into)
+        Commentary.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
+        Comment.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
+        Comment.objects.filter(author=contrib_from).update(author=contrib_into)
+        Grant.objects.filter(recipient=contrib_from).update(recipient=contrib_into)
+        PublicationAuthorsTable.objects.filter(
+            contributor=contrib_from).update(contributor=contrib_into)
+        UnavailabilityPeriod.objects.filter(
+            contributor=contrib_from).update(contributor=contrib_into)
+        Remark.objects.filter(
+            contributor=contrib_from).update(contributor=contrib_into)
+        DraftInvitation.objects.filter(
+            drafted_by=contrib_from).update(drafted_by=contrib_into)
+        AuthorshipClaim.objects.filter(
+            claimant=contrib_from).update(claimant=contrib_into)
+        AuthorshipClaim.objects.filter(
+            vetted_by=contrib_from).update(vetted_by=contrib_into)
+        Submission.objects.filter(
+            editor_in_charge=contrib_from).update(editor_in_charge=contrib_into)
+        Submission.objects.filter(
+            submitted_by=contrib_from).update(submitted_by=contrib_into)
+        EditorialAssignment.objects.filter(to=contrib_from).update(to=contrib_into)
+        RefereeInvitation.objects.filter(referee=contrib_from).update(referee=contrib_into)
+        RefereeInvitation.objects.filter(invited_by=contrib_from).update(invited_by=contrib_into)
+        Report.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
+        Report.objects.filter(author=contrib_from).update(author=contrib_into)
+        EditorialCommunication.objects.filter(
+            referee=contrib_from).update(referee=contrib_into)
+        ThesisLink.objects.filter(requested_by=contrib_from).update(requested_by=contrib_into)
+        ThesisLink.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
+        Feedback.objects.filter(by=contrib_from).update(by=contrib_into)
+        Nomination.objects.filter(by=contrib_from).update(by=contrib_into)
+        Motion.objects.filter(put_forward_by=contrib_from).update(put_forward_by=contrib_into)
+
+        # Step 3: update all ManyToMany
+        commentaries = Commentary.objects.filter(authors__in=[contrib_from,]).all()
+        for commentary in commentaries:
+            commentary.authors.remove(contrib_from)
+            commentary.authors.add(contrib_into)
+            commentary.save()
+        commentaries = Commentary.objects.filter(authors_claims__in=[contrib_from,]).all()
+        for commentary in commentaries:
+            commentary.authors_claims.remove(contrib_from)
+            commentary.authors_claims.add(contrib_into)
+            commentary.save()
+        commentaries = Commentary.objects.filter(authors_false_claims__in=[contrib_from,]).all()
+        for commentary in commentaries:
+            commentary.authors_false_claims.remove(contrib_from)
+            commentary.authors_false_claims.add(contrib_into)
+            commentary.save()
+        comments = Comment.objects.filter(in_agreement__in=[contrib_from,]).all()
+        for comment in comments:
+            comment.in_agreement.remove(contrib_from)
+            comment.in_agreement.add(contrib_into)
+            comment.save()
+        comments = Comment.objects.filter(in_notsure__in=[contrib_from,]).all()
+        for comment in comments:
+            comment.in_notsure.remove(contrib_from)
+            comment.in_notsure.add(contrib_into)
+            comment.save()
+        comments = Comment.objects.filter(in_disagreement__in=[contrib_from,]).all()
+        for comment in comments:
+            comment.in_disagreement.remove(contrib_from)
+            comment.in_disagreement.add(contrib_into)
+            comment.save()
+        publications = Publication.objects.filter(authors_registered__in=[contrib_from,]).all()
+        for publication in publications:
+            publication.authors_registered.remove(contrib_from)
+            publication.authors_registared.add(contrib_into)
+            publication.save()
+        publications = Publication.objects.filter(authors_claims__in=[contrib_from,]).all()
+        for publication in publications:
+            publication.authors_claims.remove(contrib_from)
+            publication.authors_claims.add(contrib_into)
+            publication.save()
+        publications = Publication.objects.filter(authors_false_claims__in=[contrib_from,]).all()
+        for publication in publications:
+            publication.authors_false_claims.remove(contrib_from)
+            publication.authors_false_claims.add(contrib_into)
+            publication.save()
+        submissions = Submission.objects.filter(authors__in=[contrib_from,]).all()
+        for submission in submissions:
+            submission.authors.remove(contrib_from)
+            submission.authors.add(contrib_into)
+            submission.save()
+        submissions = Submission.objects.filter(authors_claims__in=[contrib_from,]).all()
+        for submission in submissions:
+            submission.authors_claims.remove(contrib_from)
+            submission.authors_claims.add(contrib_into)
+            submission.save()
+        submissions = Submission.objects.filter(authors_false_claims__in=[contrib_from,]).all()
+        for submission in submissions:
+            submission.authors_false_claims.remove(contrib_from)
+            submission.authors_false_claims.add(contrib_into)
+            submission.save()
+        eicrecs = EICRecommendation.objects.filter(eligible_to_vote__in=[contrib_from,]).all()
+        for eicrec in eicrecs:
+            eicrec.eligible_to_vote.remove(contrib_from)
+            eicrec.eligible_to_vote.add(contrib_into)
+            eicrec.save()
+        eicrecs = EICRecommendation.objects.filter(voted_for__in=[contrib_from,]).all()
+        for eicrec in eicrecs:
+            eicrec.voted_for.remove(contrib_from)
+            eicrec.voted_for.add(contrib_into)
+            eicrec.save()
+        eicrecs = EICRecommendation.objects.filter(voted_against__in=[contrib_from,]).all()
+        for eicrec in eicrecs:
+            eicrec.voted_against.remove(contrib_from)
+            eicrec.voted_against.add(contrib_into)
+            eicrec.save()
+        eicrecs = EICRecommendation.objects.filter(voted_abstain__in=[contrib_from,]).all()
+        for eicrec in eicrecs:
+            eicrec.voted_abstain.remove(contrib_from)
+            eicrec.voted_abstain.add(contrib_into)
+            eicrec.save()
+        thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contrib_from,]).all()
+        for tl in thesislinks:
+            tl.author_as_cont.remove(contrib_from)
+            tl.author_as_cont.add(contrib_into)
+            tl.save()
+        thesislinks = ThesisLink.objects.filter(author_claims__in=[contrib_from,]).all()
+        for tl in thesislinks:
+            tl.author_claims.remove(contrib_from)
+            tl.author_claims.add(contrib_into)
+            tl.save()
+        thesislinks = ThesisLink.objects.filter(author_false_claims__in=[contrib_from,]).all()
+        for tl in thesislinks:
+            tl.author_false_claims.remove(contrib_from)
+            tl.author_false_claims.add(contrib_into)
+            tl.save()
+        thesislinks = ThesisLink.objects.filter(supervisor_as_cont__in=[contrib_from,]).all()
+        for tl in thesislinks:
+            tl.supervisor_as_cont.remove(contrib_from)
+            tl.supervisor_as_cont.add(contrib_into)
+            tl.save()
+        nominations = Nomination.objects.filter(in_agreement__in=[contrib_from,]).all()
+        for nom in nominations:
+            nom.in_agreement.remove(contrib_from)
+            nom.in_agreement.add(contrib_into)
+            nom.save()
+        nominations = Nomination.objects.filter(in_notsure__in=[contrib_from,]).all()
+        for nom in nominations:
+            nom.in_notsure.remove(contrib_from)
+            nom.in_notsure.add(contrib_into)
+            nom.save()
+        nominations = Nomination.objects.filter(in_disagreement__in=[contrib_from,]).all()
+        for nom in nominations:
+            nom.in_disagreement.remove(contrib_from)
+            nom.in_disagreement.add(contrib_into)
+            nom.save()
+        motions = Motion.objects.filter(in_agreement__in=[contrib_from,]).all()
+        for nom in motions:
+            nom.in_agreement.remove(contrib_from)
+            nom.in_agreement.add(contrib_into)
+            nom.save()
+        motions = Motion.objects.filter(in_notsure__in=[contrib_from,]).all()
+        for nom in motions:
+            nom.in_notsure.remove(contrib_from)
+            nom.in_notsure.add(contrib_into)
+            nom.save()
+        motions = Motion.objects.filter(in_disagreement__in=[contrib_from,]).all()
+        for nom in motions:
+            nom.in_disagreement.remove(contrib_from)
+            nom.in_disagreement.add(contrib_into)
+            nom.save()
+        return Contributor.objects.get(id=contrib_into.id)
 
 
 class RemarkForm(forms.Form):

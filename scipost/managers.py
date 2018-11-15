@@ -28,13 +28,6 @@ class ContributorQuerySet(models.QuerySet):
         """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
-    def have_duplicate_email(self):
-        """ Return Contributors having duplicate emails. """
-        duplicates = self.values(lower_email=Lower('user__email')).annotate(
-            Count('id')).order_by('user__last_name').filter(id__count__gt=1)
-        return self.annotate(lower_email=Lower('user__email')
-        ).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
-
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""
         today = timezone.now().date()
@@ -54,14 +47,25 @@ class ContributorQuerySet(models.QuerySet):
         """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
         return self.filter(fellowships__isnull=False).distinct()
 
-    def potential_duplicates(self):
+    def with_duplicate_names(self):
         """
         Returns only potential duplicate Contributors (as identified by first and
         last names).
         """
-        contribs = self.annotate(full_name=Concat('user__last_name', 'user__first_name')
-        ).values('full_name').annotate(nr_count=Count('full_name')).filter(nr_count__gt=1)
-        return contribs.order_by('user__last_name', 'user__first_name', '-id')
+        contribs = self.annotate(full_name=Concat('user__last_name', 'user__first_name'))
+        duplicates = contribs.values('full_name').annotate(
+            nr_count=Count('full_name')).filter(nr_count__gt=1)
+        return contribs.filter(full_name__in=[item['full_name'] for item in duplicates]
+                              ).order_by('user__last_name', 'user__first_name', '-id')
+
+    def with_duplicate_email(self):
+        """
+        Return Contributors having duplicate emails.
+        """
+        duplicates = self.values(lower_email=Lower('user__email')).annotate(
+            Count('id')).order_by('user__last_name').filter(id__count__gt=1)
+        return self.annotate(lower_email=Lower('user__email')
+        ).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
 
 
 class UnavailabilityPeriodManager(models.Manager):

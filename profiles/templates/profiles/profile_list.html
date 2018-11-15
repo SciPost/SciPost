@@ -26,21 +26,13 @@ $(document).ready(function($) {
   <div class="col-12">
     <h4>Profiles-related Actions:</h4>
     <ul>
-      <li><a href="{% url 'profiles:duplicates' %}">Check for duplicates</a></li>
-	{% if contributors_w_duplicate_email %}
-    	<li class="text-danger">
-    	  {{ contributors_w_duplicate_email|length }} Contributor duplicates (via email) identified
-    	  <ul>
-    	    {% for dup in contributors_w_duplicate_email %}
-    	    <li>{{ dup }}, {{ dup.user.email }}, id {{ dup.id }}</li>
-    	    {% empty %}
-    	    <li>No duplicates found</li>
-    	    {% endfor %}
-    	  </ul>
-    	  Please take action by merging these Contributor instances.
-    	</li>
-	{% endif %}
-	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
+      {% if nr_contributors_w_duplicate_names > 0 %}
+      <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
+      {% endif %}
+      {% if nr_contributors_w_duplicate_emails > 0 %}
+      <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
+      {% endif %}
+      <li><a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles</a></li>
 	{% if next_reginv_wo_profile %}
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
 	{% endif %}
@@ -53,6 +45,7 @@ $(document).ready(function($) {
 	{% if next_refinv_wo_profile %}
 	<li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
 	{% endif %}
+      <li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
       </ul>
       <h4>Specialize the list:</h4>
       <ul>

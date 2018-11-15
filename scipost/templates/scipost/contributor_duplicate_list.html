@@ -16,7 +16,7 @@
   <div class="col-12">
     <h1 class="highlight">Potentially duplicate Contributors</h1>
     {% if merge_form %}
-        <form action="{% url 'profiles:merge' %}" method="get">
+        <form action="{% url 'scipost:contributor_merge' %}" method="get">
           {{ merge_form|bootstrap }}
           <input class="btn btn-outline-secondary" type="submit" value="Check">
         </form>
@@ -26,7 +26,7 @@
     <h3>All found duplicates</h3>
     <ul>
       {% for contrib_dup in object_list %}
-          <li>{{ contrib_dup }} (<em>id={{ contrib_dup.id }}</em>)</li>
+      <li>{{ contrib_dup }} (<em>id={{ contrib_dup.id }}</em>)</li>
       {% empty %}
           <li<em>No duplicates found</em></li>
       {% endfor %}
