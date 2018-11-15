@@ -440,12 +440,13 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
             # Only send if status is appropriate to prevent double sending
             return False
 
-        EditorialAssignment.objects.filter(
-            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
-
         # Send mail
         mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
         mail_sender.send()
+
+        EditorialAssignment.objects.filter(
+            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
+
         return True
 
 
