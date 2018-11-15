@@ -1,10 +1,8 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
 import datetime
 import feedparser
-import json
 import strings
 
 from django.contrib import messages
@@ -60,7 +58,6 @@ from scipost.constants import INVITATION_REFEREEING
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
-from submissions.models import RefereeInvitation
 
 # from notifications.views import is_test_user  # Temporarily until release
 
@@ -76,6 +73,9 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     success_url = reverse_lazy('scipost:personal_page')
     form_class = RequestSubmissionForm
     template_name = 'submissions/submission_form.html'
+
+    # def dispatch(self, *args, **kwargs):
+    #     candidate_for_resubmission
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -182,8 +182,7 @@ def prefill_using_arxiv_identifier(request):
         response = redirect('submissions:submit_manuscript_arxiv')
         response['location'] += '?identifier_w_vn_nr={}'.format(
             query_form.cleaned_data['identifier_w_vn_nr'])
-        # return render(request, 'submissions/submission_form.html', context)
-        return reponse
+        return response
 
     context = {
         'form': query_form,
