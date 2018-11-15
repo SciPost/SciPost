@@ -48,6 +48,9 @@
         <p>
             Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
         </p>
+        {% if form.fields.resubmission %}
+            {{ form.fields.resubmission.initial }}
+        {% endif %}
     </div>
 </div>
 

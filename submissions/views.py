@@ -55,16 +55,46 @@ from production.forms import ProofsDecisionForm
 from profiles.models import Profile
 from profiles.forms import SimpleProfileForm
 from scipost.constants import INVITATION_REFEREEING
+from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
-
-# from notifications.views import is_test_user  # Temporarily until release
 
 
 ###############
 # SUBMISSIONS:
 ###############
+@login_required
+@is_contributor_user()
+def resubmit_manuscript(request):
+    """
+    Choose which Submission to resubmit if Submission is available.
+
+    On POST, redirect to submit page.
+    """
+    submissions = get_list_or_404(
+        Submission.objects.candidate_for_resubmission(request.user.contributor))
+    if request.POST and request.POST.get('submission'):
+        if request.POST['submission'] == 'new':
+            return redirect(reverse('submissions:submit_manuscript_scipost') + '?resubmission=false')
+        try:
+            last_submission = Submission.objects.candidate_for_resubmission(
+                request.user.contributor).get(
+                preprint__identifier_w_vn_nr=request.POST['submission'])
+            extra_param = '?resubmission={}'.format(request.POST['submission'])
+
+            if last_submission.preprint.scipost_preprint_identifier:
+                # Determine right preprint-view.
+                return redirect(reverse('submissions:submit_manuscript_scipost') + extra_param)
+            return redirect(reverse('submissions:submit_manuscript') + extra_param)
+        except Submission.DoesNotExist:
+            # POST request invalid. Try again with GET request.
+            return redirect('submissions:resubmit_manuscript')
+    context = {
+        'submissions': submissions,
+    }
+    return render(request, 'submissions/submission_resubmission_candidates.html', context)
+
 
 class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Formview to submit a new manuscript (Submission)."""
@@ -73,9 +103,6 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     success_url = reverse_lazy('scipost:personal_page')
     form_class = RequestSubmissionForm
     template_name = 'submissions/submission_form.html'
-
-    # def dispatch(self, *args, **kwargs):
-    #     candidate_for_resubmission
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -87,8 +114,8 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
-        if hasattr(self, 'initial_data'):
-            kwargs['initial'] = self.initial_data
+        kwargs['initial'] = getattr(self, 'initial_data', {})
+        kwargs['initial']['resubmission'] = self.request.GET.get('resubmission')
         return kwargs
 
     @transaction.atomic
@@ -143,11 +170,12 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     """Formview to submit a new Submission using SciPost's preprint server."""
 
-    def dispatch(self, request, *args, **kwargs):
-        """TEMPORARY: Not accessible unless in test group."""
-        # if not is_test_user(request.user):
-        #     raise Http404
-        return super().dispatch(request, *args, **kwargs)
+    def get(self, request):
+        """Check for possible Resubmissions before dispatching."""
+        if Submission.objects.candidate_for_resubmission(request.user.contributor).exists():
+            if not request.GET.get('resubmission'):
+                return redirect('submissions:resubmit_manuscript')
+        return super().get(request)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""

@@ -263,6 +263,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     scipost_identifier = None
 
+    resubmission = forms.ModelChoiceField(
+        # to_field_name='preprint__identifier_w_vn_nr',
+        queryset=Submission.objects.all(), required=False, widget=forms.HiddenInput())
+
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     arxiv_link = forms.URLField(
         widget=forms.TextInput(attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}))
@@ -305,6 +309,10 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Alter resubmission-dependent fields
+        # self.fields['resubmission'].queryset = Submission.objects.candidate_for_resubmission(
+        #     self.requested_by.contributor)  # This is auto-filled by the resubmit_manuscript view.
+        # r = self.fields['resubmission'].initial = self.fields['resubmission'].queryset.get
+        # raise
         if not self.submission_is_resubmission():
             # These fields are only available for resubmissions
             del self.fields['author_comments']
