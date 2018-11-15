@@ -331,7 +331,7 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         self.fields['proceedings'].empty_label = None
         if not qs.exists():
             # No proceedings issue to submit to, so adapt the form fields
-            self.fields['submitted_to'].queryset = self.fields['submitted_to'].exclude(
+            self.fields['submitted_to'].queryset = self.fields['submitted_to'].queryset.exclude(
                 doi_label=SCIPOST_JOURNAL_PHYSICS_PROC)
             del self.fields['proceedings']
 

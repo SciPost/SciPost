@@ -90,8 +90,7 @@ class Submission(models.Model):
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                             related_name='voting_pool')
 
-    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE,
-                                     blank=True, null=True)
+    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
                                     related_name='submissions')
     title = models.CharField(max_length=300)
@@ -441,12 +440,13 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
             # Only send if status is appropriate to prevent double sending
             return False
 
-        EditorialAssignment.objects.filter(
-            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
-
         # Send mail
         mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
         mail_sender.send()
+
+        EditorialAssignment.objects.filter(
+            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
+
         return True
 
 
