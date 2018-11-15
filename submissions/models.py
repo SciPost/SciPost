@@ -90,8 +90,7 @@ class Submission(models.Model):
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                             related_name='voting_pool')
 
-    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE,
-                                     blank=True, null=True)
+    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
                                     related_name='submissions')
     title = models.CharField(max_length=300)
