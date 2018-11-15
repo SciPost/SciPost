@@ -128,58 +128,6 @@ class Contributor(models.Model):
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
         return ''
 
-    def related_fields_one_to_one(self):
-        related_fields = [ f for f in self._meta.get_fields(include_hidden=True)
-                           if f.one_to_one
-                           #and f.auto_created and not f.concrete
-        ]
-        # print('related fields one_to_one for %s' % str(self))
-        # for related_field in related_fields:
-        #     # try:
-        #     related_object = getattr(self, related_field.name)
-        #     print ('\t%s, %s, %s' % (related_field.name, 'one_to_one', '1'))
-        #     print('\t\t%s, %s' % (related_object.id, str(related_object)))
-        #     # except:
-        #     #     print('%s, %s, %s' % (related_field.name, 'one_to_one', 'ERROR'))
-        return related_fields
-
-    def related_fields_one_to_many(self):
-        related_fields = [ f for f in self._meta.get_fields(include_hidden=True)
-                           if f.one_to_many
-                           #and f.auto_created and not f.concrete
-        ]
-        # print('related fields one_to_many for %s' % str(self))
-        # for related_field in related_fields:
-        #     # try:
-        #     related_objects = getattr(self, '%s_set' % (related_field.attname if hasattr(related_field, 'attname') else related_field.name)).all()
-        #     #related_objects = getattr(self, related_field.name).all()
-        #     print ('\t%s, %s, %s' %
-        #            (related_field.name, 'one_to_many', related_objects.count()))
-        #     for obj in related_objects:
-        #         print('\t\t%s, %s' % (obj.id, str(obj)))
-        #     # except:
-        #     #     print('\t\t%s, %s, %s' %
-        #     #           (related_field.name, 'one_to_many', 'ERROR'))
-        return related_fields
-
-    def related_fields_many_to_one(self):
-        related_fields = [ f for f in self._meta.get_fields(include_hidden=True)
-                           if f.many_to_one ]
-        return related_fields
-
-    def related_fields_many_to_many(self):
-        related_fields = [ f for f in self._meta.get_fields(include_hidden=True)
-                           if f.many_to_many and f.auto_created ]
-        # print('related fields many_to_many for %s' % str(self))
-        # for related_field in related_fields:
-        #     related_objects = getattr(self, '%s' % related_field.name).all()
-        #     print ('\t%s, %s' % (related_field.name, related_objects.count()))
-        #     print ('\t%s, %s, %s' %
-        #            (related_field.name, 'many_to_many', related_objects.count()))
-        #     for obj in related_objects:
-        #         print('\t\t%s, %s' % (obj.id, str(obj)))
-        return related_fields
-
 
 class UnavailabilityPeriod(models.Model):
     contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,

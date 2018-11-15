@@ -22,30 +22,6 @@
   <div class="col-12">
   <h3 class="highlight">Contributor {{ contributor_to_merge.id }}</h3>
   {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
-  <h4>One to One:</h4>
-  <ul>
-    {% for field in contributor_to_merge.related_fields_one_to_one %}
-    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
-    {% endfor %}
-  </ul>
-  <h4>One to Many:</h4>
-  <ul>
-    {% for field in contributor_to_merge.related_fields_one_to_many %}
-    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
-    {% endfor %}
-  </ul>
-  <h4>Many to One:</h4>
-  <ul>
-    {% for field in contributor_to_merge.related_fields_many_to_one %}
-    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
-    {% endfor %}
-  </ul>
-  <h4>Many to Many:</h4>
-  <ul>
-    {% for field in contributor_to_merge.related_fields_many_to_many %}
-    <li>{{ field }} -- {{ field.name }} -- {{ field.attname }}</li>
-    {% endfor %}
-  </ul>
   </div>
 </div>
 <div class="row">
