@@ -450,6 +450,8 @@ class ContributorMergeForm(forms.Form):
         contrib_from_qs.update(status=DISABLED)
         if contrib_from.orcid_id and not contrib_into.orcid_id:
             contrib_into_qs.update(orcid_id=contrib_from.orcid_id)
+        if contrib_from.personalwebpage and not contrib_into.personalwebpage:
+            contrib_into_qs.update(personalwebpage=contrib_from.personalwebpage)
 
         # Step 2: update all ForeignKey relations
         Affiliation.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
@@ -495,132 +497,106 @@ class ContributorMergeForm(forms.Form):
         for commentary in commentaries:
             commentary.authors.remove(contrib_from)
             commentary.authors.add(contrib_into)
-            commentary.save()
         commentaries = Commentary.objects.filter(authors_claims__in=[contrib_from,]).all()
         for commentary in commentaries:
             commentary.authors_claims.remove(contrib_from)
             commentary.authors_claims.add(contrib_into)
-            commentary.save()
         commentaries = Commentary.objects.filter(authors_false_claims__in=[contrib_from,]).all()
         for commentary in commentaries:
             commentary.authors_false_claims.remove(contrib_from)
             commentary.authors_false_claims.add(contrib_into)
-            commentary.save()
         comments = Comment.objects.filter(in_agreement__in=[contrib_from,]).all()
         for comment in comments:
             comment.in_agreement.remove(contrib_from)
             comment.in_agreement.add(contrib_into)
-            comment.save()
         comments = Comment.objects.filter(in_notsure__in=[contrib_from,]).all()
         for comment in comments:
             comment.in_notsure.remove(contrib_from)
             comment.in_notsure.add(contrib_into)
-            comment.save()
         comments = Comment.objects.filter(in_disagreement__in=[contrib_from,]).all()
         for comment in comments:
             comment.in_disagreement.remove(contrib_from)
             comment.in_disagreement.add(contrib_into)
-            comment.save()
         publications = Publication.objects.filter(authors_registered__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_registered.remove(contrib_from)
             publication.authors_registared.add(contrib_into)
-            publication.save()
         publications = Publication.objects.filter(authors_claims__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_claims.remove(contrib_from)
             publication.authors_claims.add(contrib_into)
-            publication.save()
         publications = Publication.objects.filter(authors_false_claims__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_false_claims.remove(contrib_from)
             publication.authors_false_claims.add(contrib_into)
-            publication.save()
         submissions = Submission.objects.filter(authors__in=[contrib_from,]).all()
         for submission in submissions:
             submission.authors.remove(contrib_from)
             submission.authors.add(contrib_into)
-            submission.save()
         submissions = Submission.objects.filter(authors_claims__in=[contrib_from,]).all()
         for submission in submissions:
             submission.authors_claims.remove(contrib_from)
             submission.authors_claims.add(contrib_into)
-            submission.save()
         submissions = Submission.objects.filter(authors_false_claims__in=[contrib_from,]).all()
         for submission in submissions:
             submission.authors_false_claims.remove(contrib_from)
             submission.authors_false_claims.add(contrib_into)
-            submission.save()
         eicrecs = EICRecommendation.objects.filter(eligible_to_vote__in=[contrib_from,]).all()
         for eicrec in eicrecs:
             eicrec.eligible_to_vote.remove(contrib_from)
             eicrec.eligible_to_vote.add(contrib_into)
-            eicrec.save()
         eicrecs = EICRecommendation.objects.filter(voted_for__in=[contrib_from,]).all()
         for eicrec in eicrecs:
             eicrec.voted_for.remove(contrib_from)
             eicrec.voted_for.add(contrib_into)
-            eicrec.save()
         eicrecs = EICRecommendation.objects.filter(voted_against__in=[contrib_from,]).all()
         for eicrec in eicrecs:
             eicrec.voted_against.remove(contrib_from)
             eicrec.voted_against.add(contrib_into)
-            eicrec.save()
         eicrecs = EICRecommendation.objects.filter(voted_abstain__in=[contrib_from,]).all()
         for eicrec in eicrecs:
             eicrec.voted_abstain.remove(contrib_from)
             eicrec.voted_abstain.add(contrib_into)
-            eicrec.save()
         thesislinks = ThesisLink.objects.filter(author_as_cont__in=[contrib_from,]).all()
         for tl in thesislinks:
             tl.author_as_cont.remove(contrib_from)
             tl.author_as_cont.add(contrib_into)
-            tl.save()
         thesislinks = ThesisLink.objects.filter(author_claims__in=[contrib_from,]).all()
         for tl in thesislinks:
             tl.author_claims.remove(contrib_from)
             tl.author_claims.add(contrib_into)
-            tl.save()
         thesislinks = ThesisLink.objects.filter(author_false_claims__in=[contrib_from,]).all()
         for tl in thesislinks:
             tl.author_false_claims.remove(contrib_from)
             tl.author_false_claims.add(contrib_into)
-            tl.save()
         thesislinks = ThesisLink.objects.filter(supervisor_as_cont__in=[contrib_from,]).all()
         for tl in thesislinks:
             tl.supervisor_as_cont.remove(contrib_from)
             tl.supervisor_as_cont.add(contrib_into)
-            tl.save()
         nominations = Nomination.objects.filter(in_agreement__in=[contrib_from,]).all()
         for nom in nominations:
             nom.in_agreement.remove(contrib_from)
             nom.in_agreement.add(contrib_into)
-            nom.save()
         nominations = Nomination.objects.filter(in_notsure__in=[contrib_from,]).all()
         for nom in nominations:
             nom.in_notsure.remove(contrib_from)
             nom.in_notsure.add(contrib_into)
-            nom.save()
         nominations = Nomination.objects.filter(in_disagreement__in=[contrib_from,]).all()
         for nom in nominations:
             nom.in_disagreement.remove(contrib_from)
             nom.in_disagreement.add(contrib_into)
-            nom.save()
         motions = Motion.objects.filter(in_agreement__in=[contrib_from,]).all()
         for nom in motions:
             nom.in_agreement.remove(contrib_from)
             nom.in_agreement.add(contrib_into)
-            nom.save()
         motions = Motion.objects.filter(in_notsure__in=[contrib_from,]).all()
         for nom in motions:
             nom.in_notsure.remove(contrib_from)
             nom.in_notsure.add(contrib_into)
-            nom.save()
         motions = Motion.objects.filter(in_disagreement__in=[contrib_from,]).all()
         for nom in motions:
             nom.in_disagreement.remove(contrib_from)
             nom.in_disagreement.add(contrib_into)
-            nom.save()
         return Contributor.objects.get(id=contrib_into.id)
 
 

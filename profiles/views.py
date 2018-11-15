@@ -70,7 +70,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=reginv.last_name) |
                     Q(emails__email__in=reginv.email))
-            context['matching_profiles'] = matching_profiles[:10]
+            context['matching_profiles'] = matching_profiles
         return context
 
     def get_initial(self):
@@ -217,6 +217,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         contributors_w_duplicate_email = Contributor.objects.with_duplicate_email()
         contributors_w_duplicate_names = Contributor.objects.with_duplicate_names()
         contributors_wo_profile = Contributor.objects.active().filter(profile__isnull=True)
+        nr_potential_duplicate_profiles = Profile.objects.potential_duplicates().count()
         unreg_auth_wo_profile = UnregisteredAuthor.objects.filter(profile__isnull=True)
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
@@ -227,6 +228,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             'nr_contributors_w_duplicate_email': contributors_w_duplicate_email.count(),
             'nr_contributors_w_duplicate_names': contributors_w_duplicate_names.count(),
             'nr_contributors_wo_profile': contributors_wo_profile.count(),
+            'nr_potential_duplicate_profiles': nr_potential_duplicate_profiles,
             'next_contributor_wo_profile': contributors_wo_profile.first(),
             'nr_unreg_auth_wo_profile': unreg_auth_wo_profile.count(),
             'next_unreg_auth_wo_profile': unreg_auth_wo_profile.first(),
