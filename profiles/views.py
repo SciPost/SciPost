@@ -225,7 +225,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         context.update({
             'subject_areas': SCIPOST_SUBJECT_AREAS,
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
-            'nr_contributors_w_duplicate_email': contributors_w_duplicate_email.count(),
+            'nr_contributors_w_duplicate_emails': contributors_w_duplicate_email.count(),
             'nr_contributors_w_duplicate_names': contributors_w_duplicate_names.count(),
             'nr_contributors_wo_profile': contributors_wo_profile.count(),
             'nr_potential_duplicate_profiles': nr_potential_duplicate_profiles,
