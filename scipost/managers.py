@@ -52,23 +52,25 @@ class ContributorQuerySet(models.QuerySet):
         Returns only potential duplicate Contributors (as identified by first and
         last names).
         Admins and superusers are explicitly excluded.
+
+        Be careful: This query may have a big impact on performance.
         """
-        contribs = self.active().exclude(user__is_superuser=True).exclude(user__is_staff=True
-        ).annotate(full_name=Concat('user__last_name', 'user__first_name'))
+        contribs = self.active().exclude(user__is_superuser=True).exclude(
+            user__is_staff=True).annotate(full_name=Concat('user__last_name', 'user__first_name'))
         duplicates = contribs.values('full_name').annotate(
-            nr_count=Count('full_name')).filter(nr_count__gt=1)
-        return contribs.filter(full_name__in=[item['full_name'] for item in duplicates]
-                              ).order_by('user__last_name', 'user__first_name', '-id')
+            nr_count=Count('full_name')).filter(nr_count__gt=1).values_list('full_name', flat=True)
+        return contribs.filter(
+            full_name__in=duplicates).order_by('user__last_name', 'user__first_name', '-id')
 
     def with_duplicate_email(self):
         """
         Return Contributors having duplicate emails.
         """
-        duplicates = self.active().exclude(user__is_superuser=True).exclude(user__is_staff=True
-        ).values(lower_email=Lower('user__email')).annotate(
-            Count('id')).order_by('user__last_name').filter(id__count__gt=1)
-        return self.annotate(lower_email=Lower('user__email')
-        ).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
+        qs = self.active().exclude(user__is_superuser=True).exclude(
+            user__is_staff=True).annotate(lower_email=Lower('user__email'))
+        duplicates = qs.values('lower_email').annotate(
+            Count('id')).filter(id__count__gt=1).values_list('lower_email', flat=True)
+        return qs.filter(user__email__in=duplicates)
 
 
 class UnavailabilityPeriodManager(models.Manager):
