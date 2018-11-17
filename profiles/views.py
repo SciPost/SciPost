@@ -70,7 +70,8 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=reginv.last_name) |
                     Q(emails__email__in=reginv.email))
-            context['matching_profiles'] = matching_profiles.distinct()
+            context['matching_profiles'] = matching_profiles.distinct().order_by(
+                'last_name', 'first_name')
         return context
 
     def get_initial(self):
@@ -137,6 +138,12 @@ def profile_match(request, profile_id, from_type, pk):
     nr_rows = 0
     if from_type == 'contributor':
         nr_rows = Contributor.objects.filter(pk=pk).update(profile=profile)
+        # Give priority to the email coming from Contributor
+        if nr_rows == 1:
+            profile.emails.update(primary=False)
+            email, __ = ProfileEmail.objects.get_or_create(
+                profile=profile, email=get_object_or_404(Contributor, pk=pk).user.email)
+            profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
     elif from_type == 'unregisteredauthor':
         nr_rows = UnregisteredAuthor.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'refereeinvitation':
