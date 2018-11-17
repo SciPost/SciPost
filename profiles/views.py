@@ -70,7 +70,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=reginv.last_name) |
                     Q(emails__email__in=reginv.email))
-            context['matching_profiles'] = matching_profiles
+            context['matching_profiles'] = matching_profiles.distinct()
         return context
 
     def get_initial(self):
@@ -134,26 +134,22 @@ def profile_match(request, profile_id, from_type, pk):
     Contributor, UnregisteredAuthor, RefereeInvitation, RegistrationInvitation.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
+    nr_rows = 0
     if from_type == 'contributor':
-        contributor = get_object_or_404(Contributor, pk=pk)
-        contributor.profile = profile
-        contributor.save()
-        messages.success(request, 'Profile matched with Contributor')
+        nr_rows = Contributor.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'unregisteredauthor':
-        unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
-        unreg_auth.profile = profile
-        unreg_auth.save()
-        messages.success(request, 'Profile matched with UnregisteredAuthor')
+        nr_rows = UnregisteredAuthor.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'refereeinvitation':
-        ref_inv = get_object_or_404(RefereeInvitation, pk=pk)
-        ref_inv.profile = profile
-        ref_inv.save()
-        messages.success(request, 'Profile matched with RefereeInvitation')
+        nr_rows = RefereeInvitation.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'registrationinvitation':
-        reg_inv = get_object_or_404(RegistrationInvitation, pk=pk)
-        reg_inv.profile = profile
-        reg_inv.save()
-        messages.success(request, 'Profile matched with RegistrationInvitation')
+        nr_rows = RegistrationInvitation.objects.filter(pk=pk).update(profile=profile)
+    if nr_rows == 1:
+        messages.success(request, 'Profile matched with %s' % from_type)
+    else:
+        messages.error(
+            request,
+            'Error: Profile matching with %s: updated %s rows instead of 1!'
+            'Please contact techsupport' % (from_type, nr_rows))
     return redirect(reverse('profiles:profiles'))
 
 
@@ -274,15 +270,29 @@ def profile_merge(request):
     merge_form = ProfileMergeForm(request.POST or None, initial=request.GET)
     context = {'merge_form': merge_form}
 
-    if merge_form.is_valid():
-        profile = merge_form.save()
-        messages.success(request, 'Profiles merged')
-        return redirect(profile.get_absolute_url())
+    if request.method == 'POST':
+        if merge_form.is_valid():
+            profile = merge_form.save()
+            messages.success(request, 'Profiles merged')
+            return redirect(profile.get_absolute_url())
+        else:
+            try:
+                context.update({
+                    'profile_to_merge': get_object_or_404(
+                        Profile, pk=merge_form.cleaned_data['to_merge'].id),
+                    'profile_to_merge_into': get_object_or_404(
+                        Profile, pk=merge_form.cleaned_data['to_merge_into'].id)
+                })
+            except ValueError:
+                raise Http404
+
     elif request.method == 'GET':
         try:
             context.update({
-                'profile_to_merge': get_object_or_404(Profile, pk=int(request.GET['to_merge'])),
-                'profile_to_merge_into': get_object_or_404(Profile, pk=int(request.GET['to_merge_into']))
+                'profile_to_merge': get_object_or_404(Profile,
+                                                      pk=int(request.GET['to_merge'])),
+                'profile_to_merge_into': get_object_or_404(Profile,
+                                                           pk=int(request.GET['to_merge_into']))
             })
         except ValueError:
             raise Http404

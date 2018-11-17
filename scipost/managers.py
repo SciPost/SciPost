@@ -7,7 +7,7 @@ from django.db.models import Count, Q
 from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
-from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
+from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, DOUBLE_ACCOUNT, AUTHORSHIP_CLAIM_PENDING
 
 
 class FellowManager(models.Manager):
@@ -41,7 +41,8 @@ class ContributorQuerySet(models.QuerySet):
 
     def awaiting_vetting(self):
         """Filter Contributors that have not been vetted through."""
-        return self.filter(user__is_active=True, status=NEWLY_REGISTERED)
+        return self.filter(user__is_active=True, status=NEWLY_REGISTERED
+                           ).exclude(status=DOUBLE_ACCOUNT)
 
     def fellows(self):
         """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
@@ -53,7 +54,8 @@ class ContributorQuerySet(models.QuerySet):
         last names).
         Admins and superusers are explicitly excluded.
         """
-        contribs = self.active().exclude(user__is_superuser=True).exclude(user__is_staff=True
+        contribs = self.exclude(status=DOUBLE_ACCOUNT
+        ).exclude(user__is_superuser=True).exclude(user__is_staff=True
         ).annotate(full_name=Concat('user__last_name', 'user__first_name'))
         duplicates = contribs.values('full_name').annotate(
             nr_count=Count('full_name')).filter(nr_count__gt=1)
@@ -64,7 +66,8 @@ class ContributorQuerySet(models.QuerySet):
         """
         Return Contributors having duplicate emails.
         """
-        duplicates = self.active().exclude(user__is_superuser=True).exclude(user__is_staff=True
+        duplicates = self.exclude(status=DOUBLE_ACCOUNT
+        ).exclude(user__is_superuser=True).exclude(user__is_staff=True
         ).values(lower_email=Lower('user__email')).annotate(
             Count('id')).order_by('user__last_name').filter(id__count__gt=1)
         return self.annotate(lower_email=Lower('user__email')

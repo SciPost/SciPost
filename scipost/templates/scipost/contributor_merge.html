@@ -16,18 +16,22 @@
 <div class="row">
   <div class="col-12">
     <h1 class="highlight">Merge Contributors {{ contributor_to_merge.id }} and {{ contributor_to_merge_into.id }}</h1>
+    {% if contributor_to_merge.user.is_active and not contributor_to_merge_into.user.is_active %}
+    <h3 class="text-danger">Warning: the contributor to merge is active, while the one to merge into is not</h3>
+    <p>Consider <a href="{% url 'scipost:contributor_merge' %}?to_merge={{ contributor_to_merge_into.id }}&to_merge_into={{ contributor_to_merge.id }}" method="get">merging the other way around</a></p>
+    {% endif %}
   </div>
 </div>
 <div class="row">
   <div class="col-12">
   <h3 class="highlight">Contributor {{ contributor_to_merge.id }}</h3>
-  {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+  {% include "scipost/_public_info_as_table.html" with contributor=contributor_to_merge %}
   </div>
 </div>
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Contributor {{ contributor_to_merge_into.id }}</h3>
-    {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+    {% include "scipost/_public_info_as_table.html" with contributor=contributor_to_merge_into %}
   </div>
 </div>
 

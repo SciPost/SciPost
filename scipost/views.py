@@ -963,14 +963,14 @@ def contributor_info(request, contributor_id):
 
 class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
     """
-    List Contributors with potential duplicates.
+    List Contributors with potential (not yet handled) duplicates.
     """
     permission_required = 'scipost.can_vet_registration_requests'
     model = Contributor
     template_name = 'scipost/contributor_duplicate_list.html'
 
     def get_queryset(self):
-        queryset = Contributor.objects.active()
+        queryset = Contributor.objects.all()
         if self.request.GET.get('kind') == 'names':
             queryset = queryset.with_duplicate_names()
         elif self.request.GET.get('kind') == 'emails':
@@ -998,15 +998,28 @@ def contributor_merge(request):
     Handles the merging of data from one Contributor instance to another,
     to solve multiple registration issues.
 
-    Both instances are preserved, but the merge_from instance is set to inactive.
+    Both instances are preserved, but the merge_from instance is set to inactive,
+    and its status is set to DOUBLE_ACCOUNT.
     """
     merge_form = ContributorMergeForm(request.POST or None, initial=request.GET)
     context = {'merge_form': merge_form}
 
-    if merge_form.is_valid():
-        contributor = merge_form.save()
-        messages.success(request, 'Contributors merged')
-        return redirect(reverse('scipost:contributor_duplicates'))
+    if request.method == 'POST':
+        if merge_form.is_valid():
+            contributor = merge_form.save()
+            messages.success(request, 'Contributors merged')
+            return redirect(reverse('scipost:contributor_duplicates'))
+        else:
+            try:
+                context.update({
+                    'contributor_to_merge': get_object_or_404(
+                        Contributor, pk=merge_form.cleaned_data['to_merge'].id),
+                    'contributor_to_merge_into': get_object_or_404(
+                        Contributor, pk=merge_form.cleaned_data['to_merge_into'].id)
+                })
+            except ValueError:
+                raise Http404
+
     elif request.method == 'GET':
         try:
             context.update({

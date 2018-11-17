@@ -5,7 +5,7 @@
 
   <div class="card">
     <div class="card-header">
-      Details
+      Details for profile {{ profile.id }}
     </div>
     <div class="card-body">
       <table class="table">
@@ -18,11 +18,11 @@
 	  <td>
 	    <table class="table table-sm">
             <thead>
-                <tr>
-                    <th colspan="2">Email</th>
-                    <th>Still valid</th>
-                    <th></th>
-                </tr>
+              <tr>
+                <th colspan="2">Email</th>
+                <th>Still valid</th>
+                <th></th>
+              </tr>
             </thead>
     	      {% for profile_mail in profile.emails.all %}
         	      <tr>
@@ -56,7 +56,7 @@
 	<tr><td>Webpage</td><td><a href="{{ profile.webpage }}" target="_blank">{{ profile.webpage }}</a></td></tr>
 	<tr><td>Accepts SciPost emails</td><td>{{ profile.accepts_SciPost_emails }}</td></tr>
 	<tr><td>Accepts refereeing requests</td><td>{{ profile.accepts_refereeing_requests }}</td></tr>
-	<tr><td>Contributor</td><td>{% if profile.contributor %}Yes (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>){% else %}No{% endif %}</td></tr>
+	<tr><td>Contributor</td><td>{% if profile.contributor %}Yes, id: {{ profile.contributor.pk }}, status: {{ profile.contributor.get_status_display }}, user active: {{ profile.contributor.user.is_active }} (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>){% else %}No{% endif %}</td></tr>
       </table>
     </div>
   </div>

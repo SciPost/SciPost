@@ -26,11 +26,11 @@ from haystack.forms import ModelSearchForm as HayStackSearchForm
 from .behaviors import orcid_validator
 from .constants import (
     SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, NO_SCIENTIST, DOUBLE_ACCOUNT,
-    BARRED, DISABLED)
+    BARRED)
 from .decorators import has_contributor
 from .fields import ReCaptchaField
 from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
-    Remark, DraftInvitation, AuthorshipClaim, PrecookedEmail
+    Remark, AuthorshipClaim, PrecookedEmail
 
 from affiliations.models import Affiliation, Institution
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
@@ -447,7 +447,7 @@ class ContributorMergeForm(forms.Form):
             contrib_into_qs.update(profile=contrib_from.profile)
         User.objects.filter(pk=contrib_from.user.id).update(is_active=False)
         User.objects.filter(pk=contrib_into.user.id).update(is_active=True)
-        contrib_from_qs.update(status=DISABLED)
+        contrib_from_qs.update(status=DOUBLE_ACCOUNT)
         if contrib_from.orcid_id and not contrib_into.orcid_id:
             contrib_into_qs.update(orcid_id=contrib_from.orcid_id)
         if contrib_from.personalwebpage and not contrib_into.personalwebpage:
