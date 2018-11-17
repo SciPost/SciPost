@@ -15,7 +15,10 @@
         </td>
     </tr>
     <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage|default:'-' }}</td></tr>
+
     {% if perms.scipost.can_vet_registration_requests %}
+    <tr><td>Username</td><td>{{ contributor.user.username }}</td></tr>
+    <tr><td>Email (from User)</td><td>{{ contributor.user.email }}</td></tr>
     <tr><td>Status</td><td>{{ contributor.get_status_display }}</td></tr>
     <tr><td>User active?</td><td>{{ contributor.user.is_active }}</td></tr>
     <tr><td>Id</td><td>{{ contributor.id }}{% if contributor.profile %}&nbsp;&nbsp;<a href="{% url 'profiles:profile_detail' pk=contributor.profile.id %}">View Profile <i class="fa fa-arrow-right"></i></a>{% endif %}</td></tr>
