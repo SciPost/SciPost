@@ -109,7 +109,7 @@
     <div class="card-body">
       <ul>
 	{% for reginv in profile.registrationinvitation_set.all %}
-	<li>{{ reginv }}</li>
+	<li>{{ reginv }}<br/>status: {{ reginv.get_status_display }}</li>
 	{% empty %}
 	<li>No invitation found</li>
 	{% endfor %}
