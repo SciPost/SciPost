@@ -610,7 +610,7 @@ class ContributorMergeForm(forms.Form):
             nom.in_disagreement.remove(contrib_from)
             nom.in_disagreement.add(contrib_into)
         # If both accounts were active, inform the Contributor of the merge
-        if both_contribs_active or True:
+        if both_contribs_active:
             mail_sender = DirectMailUtil(
                 mail_code='contributors/inform_contributor_duplicate_accounts_merged',
                 contrib_from=contrib_from)
