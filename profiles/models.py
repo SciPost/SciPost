@@ -137,7 +137,6 @@ def get_profiles(slug):
                     if tbl.contributor is not None]
     unreg_id_list = [tbl.unregistered_author.id for tbl in publications.all() \
                      if tbl.unregistered_author is not None]
-    print (unreg_id_list)
     return Profile.objects.filter(models.Q(contributor__id__in=cont_id_list) |
                                   models.Q(unregisteredauthor__id__in=unreg_id_list))
 
