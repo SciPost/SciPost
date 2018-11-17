@@ -440,7 +440,7 @@ class ContributorMergeForm(forms.Form):
         contrib_from = self.cleaned_data['to_merge']
         contrib_into = self.cleaned_data['to_merge_into']
 
-        both_contribs_active = contrib_from.is_active and contrib_info.is_active
+        both_contribs_active = contrib_from.is_active and contrib_into.is_active
 
         contrib_from_qs = Contributor.objects.filter(pk=contrib_from.id)
         contrib_into_qs = Contributor.objects.filter(pk=contrib_into.id)
@@ -613,7 +613,7 @@ class ContributorMergeForm(forms.Form):
         if both_contribs_active:
             mail_sender = DirectMailUtil(
                 mail_code='contributors/inform_contributor_duplicate_accounts_merged',
-                contrib_from=contrib_from)
+                contrib_from=Contributor.objects.get(id=contrib_from.id))
             mail_sender.send()
         return Contributor.objects.get(id=contrib_into.id)
 

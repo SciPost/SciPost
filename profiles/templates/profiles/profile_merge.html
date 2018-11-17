@@ -42,6 +42,7 @@
       {% csrf_token %}
       {{ merge_form|bootstrap }}
       <input class="btn btn-primary" type="submit" value="Confirm merge">
+      &nbsp;<a class="text-warning" href="{% url 'profiles:merge' %}?to_merge={{ profile_to_merge_into.id }}&to_merge_into={{ profile_to_merge.id }}" method="get">Merge the other way around</a></p>
     </form>
   </div>
 </div>

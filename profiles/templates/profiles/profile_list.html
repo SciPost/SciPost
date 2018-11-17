@@ -121,7 +121,7 @@ $(document).ready(function($) {
             <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	    {% endfor %}
 	  </td>
-	  <td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	  <td>{% if profile.has_active_contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	</tr>
 	{% empty %}
 	<tr>
