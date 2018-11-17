@@ -964,6 +964,10 @@ def contributor_info(request, contributor_id):
 class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List Contributors with potential (not yet handled) duplicates.
+    Two sources of duplicates are separately considered:
+    - duplicate full names (last name + first name)
+    - duplicate email addresses.
+
     """
     permission_required = 'scipost.can_vet_registration_requests'
     model = Contributor
@@ -996,10 +1000,13 @@ class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
 def contributor_merge(request):
     """
     Handles the merging of data from one Contributor instance to another,
-    to solve multiple registration issues.
+    to solve one person - multiple registrations issues.
 
-    Both instances are preserved, but the merge_from instance is set to inactive,
-    and its status is set to DOUBLE_ACCOUNT.
+    Both instances are preserved, but the merge_from instance's
+    status is set to DOUBLE_ACCOUNT and its User is set to inactive.
+
+    If both Contributor instances were active, then the account owner
+    is emailed with information about the merge.
     """
     merge_form = ContributorMergeForm(request.POST or None, initial=request.GET)
     context = {'merge_form': merge_form}

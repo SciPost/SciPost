@@ -1,0 +1,18 @@
+<p>
+  Dear {{ contrib_from.duplicate_of.get_title_display }} {{ contrib_from.duplicate_of.user.last_name }},
+</p>
+<p>
+  We noticed that you had two separate registrations at SciPost, and have consolidated your two accounts into a single active one, namely your account with username <strong>{{ contrib_from.duplicate_of.user.username }}</strong>.
+</p>
+<p>
+  Your alternate account with username <strong>{{ contrib_from.user.username }}</strong> has been deactivated, but all the data associated to it has been transferred to your active account.
+</p>
+<p>
+  Please get in touch with us at <a href="mailto:techsupport@scipost.org">SciPost techsupport</a> if you have any questions.
+</p>
+<p>
+  Many thanks,
+  <br><br>
+  The SciPost Team
+</p>
+{% include 'email/_footer.html' %}

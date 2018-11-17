@@ -41,6 +41,7 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from funders.models import Grant
 from journals.models import PublicationAuthorsTable, Publication
+from mails.utils import DirectMailUtil
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
     EditorialCommunication, EICRecommendation
 from theses.models import ThesisLink
@@ -439,19 +440,30 @@ class ContributorMergeForm(forms.Form):
         contrib_from = self.cleaned_data['to_merge']
         contrib_into = self.cleaned_data['to_merge_into']
 
+        both_contribs_active = contrib_from.is_active and contrib_info.is_active
+
         contrib_from_qs = Contributor.objects.filter(pk=contrib_from.id)
         contrib_into_qs = Contributor.objects.filter(pk=contrib_into.id)
 
         # Step 1: update all fields within Contributor
         if contrib_from.profile and not contrib_into.profile:
-            contrib_into_qs.update(profile=contrib_from.profile)
+            profile = contrib_from.profile
+            contrib_from_qs.update(profile=None)
+            contrib_into_qs.update(profile=profile)
         User.objects.filter(pk=contrib_from.user.id).update(is_active=False)
         User.objects.filter(pk=contrib_into.user.id).update(is_active=True)
+        if contrib_from.invitation_key and not contrib_into.invitation_key:
+            contrib_into_qs.update(invitation_key=contrib_into.invitation_key)
+        if contrib_from.activation_key and not contrib_into.activation_key:
+            contrib_into_qs.update(activation_key=contrib_into.activation_key)
         contrib_from_qs.update(status=DOUBLE_ACCOUNT)
         if contrib_from.orcid_id and not contrib_into.orcid_id:
             contrib_into_qs.update(orcid_id=contrib_from.orcid_id)
         if contrib_from.personalwebpage and not contrib_into.personalwebpage:
             contrib_into_qs.update(personalwebpage=contrib_from.personalwebpage)
+
+        # Specify duplicate_of for deactivated Contributor
+        contrib_from_qs.update(duplicate_of=contrib_into)
 
         # Step 2: update all ForeignKey relations
         Affiliation.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
@@ -597,6 +609,12 @@ class ContributorMergeForm(forms.Form):
         for nom in motions:
             nom.in_disagreement.remove(contrib_from)
             nom.in_disagreement.add(contrib_into)
+        # If both accounts were active, inform the Contributor of the merge
+        if both_contribs_active or True:
+            mail_sender = DirectMailUtil(
+                mail_code='contributors/inform_contributor_duplicate_accounts_merged',
+                contrib_from=contrib_from)
+            mail_sender.send()
         return Contributor.objects.get(id=contrib_into.id)
 
 

@@ -77,13 +77,14 @@ class Profile(models.Model):
         return getattr(self.emails.filter(primary=True).first(), 'email', '')
 
     @property
-    def has_contributor(self):
-        has_contributor = False
+    def has_active_contributor(self):
+        has_active_contributor = False
         try:
-            has_contributor = (self.contributor is not None)
+            has_active_contributor = (self.contributor is not None and
+                                      self.contributor.is_active)
         except Contributor.DoesNotExist:
             pass
-        return has_contributor
+        return has_active_contributor
 
     def get_absolute_url(self):
         return reverse('profiles:profile_detail', kwargs={'pk': self.id})

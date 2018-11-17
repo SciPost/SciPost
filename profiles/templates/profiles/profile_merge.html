@@ -16,7 +16,7 @@
 <div class="row">
   <div class="col-12">
     <h1 class="highlight">Merge Profiles {{ profile_to_merge.id }} and {{ profile_to_merge_into.id }}</h1>
-    {% if profile_to_merge.contributor and profile_to_merge.contributor.user.is_active and profile_to_merge_into.contributor and not profile_to_merge_into.contributor.user.is_active %}
+    {% if profile_to_merge.has_active_contributor and not profile_to_merge_into.has_active_contributor %}
     <h3 class="text-danger">Warning: the Profile to merge is associated to an active Contributor, while the one to merge into is not</h3>
     <p>Consider <a href="{% url 'profiles:merge' %}?to_merge={{ profile_to_merge_into.id }}&to_merge_into={{ profile_to_merge.id }}" method="get">merging the other way around</a></p>
     {% endif %}

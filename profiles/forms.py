@@ -98,10 +98,11 @@ class ProfileMergeForm(forms.Form):
         data = super().clean()
         if self.cleaned_data['to_merge'] == self.cleaned_data['to_merge_into']:
             self.add_error(None, 'A Profile cannot be merged into itself.')
-        if self.cleaned_data['to_merge'].has_contributor and \
-           self.cleaned_data['to_merge_into'].has_contributor:
-            self.add_error(None, 'Each of these two Profiles has a Contributor. '
-                           'Cannot merge. If these are distinct people or if two separate '
+        if self.cleaned_data['to_merge'].has_active_contributor and \
+           self.cleaned_data['to_merge_into'].has_active_contributor:
+            self.add_error(None, 'Each of these two Profiles has an active Contributor. '
+                           'Merge the Contributors first.\n'
+                           'If these are distinct people or if two separate '
                            'accounts are needed, a ProfileNonDuplicate instance should be created; '
                            'contact techsupport.')
         return data
@@ -114,13 +115,15 @@ class ProfileMergeForm(forms.Form):
         profile = self.cleaned_data['to_merge_into']
         profile_old = self.cleaned_data['to_merge']
 
-        # Merge scientific information from old Profile to the new Profile.
+        # Merge information from old to new Profile.
         profile.expertises = list(
             set(profile_old.expertises or []) | set(profile.expertises or []))
         if profile.orcid_id is None:
             profile.orcid_id = profile_old.orcid_id
         if profile.webpage is None:
             profile.webpage = profile_old.webpage
+        if profile_old.has_active_contributor and not profile.has_active_contributor:
+            profile.contributor = profile_old.contributor
         profile.save()  # Save all the field updates.
 
         profile.topics.add(*profile_old.topics.all())
@@ -128,13 +131,10 @@ class ProfileMergeForm(forms.Form):
         if hasattr(profile_old, 'unregisteredauthor') and profile_old.unregisteredauthor:
             profile.unregisteredauthor.merge(profile_old.unregisteredauthor)
 
-        # Merge email and Contributor information
+        # Merge email
         profile_old.emails.exclude(
             email__in=profile.emails.values_list('email', flat=True)).update(
             primary=False, profile=profile)
-        if hasattr(profile_old, 'contributor') and profile_old.contributor:
-            profile.contributor = profile_old.contributor
-            profile.contributor.save()
 
         # Move all invitations to the "new" profile.
         profile_old.refereeinvitation_set.all().update(profile=profile)
