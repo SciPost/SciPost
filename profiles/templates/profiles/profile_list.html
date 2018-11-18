@@ -37,7 +37,7 @@ $(document).ready(function($) {
       <li><i class="fa fa-check-circle text-success"></i> No email-duplicate Contributors found</li>
       {% endif %}
       {% if next_contributor_wo_profile %}
-      <li>Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+      <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
       {% else %}
       <li><i class="fa fa-check-circle text-success"></i> All registered Contributors have a Profile</li>
       {% endif %}
