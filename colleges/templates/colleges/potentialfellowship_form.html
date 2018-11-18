@@ -1,6 +1,11 @@
-{% extends 'scipost/base.html' %}
+{% extends 'colleges/base.html' %}
 
 {% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">{% if form.instance.id %}Update{% else %}Add new{% endif %} Potential Fellowship</span>
+{% endblock %}
 
 {% block pagetitle %}: Potential Fellowships{% endblock pagetitle %}
 

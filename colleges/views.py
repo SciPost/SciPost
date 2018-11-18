@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
@@ -24,7 +25,7 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
-from scipost.mixins import PermissionsMixin
+from scipost.mixins import PermissionsMixin, PaginationMixin
 
 from mails.forms import EmailTemplateForm
 from mails.views import MailView
@@ -352,7 +353,7 @@ class PotentialFellowshipDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy('colleges:potential_fellowships')
 
 
-class PotentialFellowshipListView(PermissionsMixin, ListView):
+class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List the PotentialFellowship object instances.
     """
@@ -374,6 +375,15 @@ class PotentialFellowshipListView(PermissionsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        return context
+
+
+class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
+    permission_required = 'scipost.can_manage_college_composition'
+    model = PotentialFellowship
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
         context['pfstatus_form'] = PotentialFellowshipStatusForm()
         context['pfevent_form'] = PotentialFellowshipEventForm()
         return context
