@@ -27,7 +27,7 @@ $(document).ready(function($) {
     <h4>Profiles-related Actions:</h4>
     <ul>
       {% if nr_contributors_w_duplicate_names > 0 %}
-      <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
+      <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
       {% else %}
       <li><i class="fa fa-check-circle text-success"></i> No name-duplicate Contributors found</li>
       {% endif %}
