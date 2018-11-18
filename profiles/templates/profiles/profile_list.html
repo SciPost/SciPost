@@ -3,6 +3,8 @@
 {% load bootstrap %}
 {% load add_get_parameters %}
 {% load scipost_extras %}
+{% load user_groups %}
+
 
 {% block breadcrumb_items %}
     {{ block.super }}
@@ -22,10 +24,15 @@ $(document).ready(function($) {
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
 {% block content %}
+
+{% is_edcol_admin request.user as is_edcol_admin %}
+{% is_scipost_admin request.user as is_scipost_admin %}
+
 <div class="row">
   <div class="col-12">
     <h4>Profiles-related Actions:</h4>
     <ul>
+      {% if is_scipost_admin or is_edcol_admin %}
       {% if nr_contributors_w_duplicate_names > 0 %}
       <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
       {% else %}
@@ -61,52 +68,58 @@ $(document).ready(function($) {
       {% else %}
       <li><i class="fa fa-check-circle text-success"></i> All Referee Invitations have a Profile</li>
       {% endif %}
+      {% endif %}
       <li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
-      </ul>
-      <h4>Specialize the list:</h4>
-      <ul>
-	<li>
-	  <ul class="list-inline">
-	    <li class="list-inline-item">
-	      <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
-	    </li>
-	    {% for discipline in subject_areas %}
-	    <li class="list-inline-item">
-	      <div class="dropdown">
-		<button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-		<div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-		  <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
-		  {% for area in discipline.1 %}
-		  <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
-		  {% endfor %}
-		</div>
-	      </div>
-	    </li>
-	    {% endfor %}
-	  </ul>
-	</li>
-	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
-	<li>
-	  <ul class="list-inline">
-	    <li class="list-inline-item">Last name startswith:</li>
-	    <li class="list-inline-item">
-	      <form action="" method="get">{{ searchform }}
-		{% if request.GET.discipline %}
-		<input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
-		{% if request.GET.expertise %}
-		<input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
-		{% endif %}
-		{% endif %}
-		{% if request.GET.contributor %}
-		<input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
-		{% endif %}
-	    </li>
-	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
-	    </li>
-	  </ul>
-	</li>
-      </ul>
+    </ul>
   </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h4>Specialize the list:</h4>
+    <ul>
+      <li>
+	<ul class="list-inline">
+	  <li class="list-inline-item">
+	    <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
+	  </li>
+	  {% for discipline in subject_areas %}
+	  <li class="list-inline-item">
+	    <div class="dropdown">
+	      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+	      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+		<a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+		{% for area in discipline.1 %}
+		<a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+		{% endfor %}
+	      </div>
+	    </div>
+	  </li>
+	  {% endfor %}
+	</ul>
+      </li>
+      <li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
+      <li>
+	<ul class="list-inline">
+	  <li class="list-inline-item">Last name startswith:</li>
+	  <li class="list-inline-item">
+	    <form action="" method="get">{{ searchform }}
+	      {% if request.GET.discipline %}
+	      <input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
+	      {% if request.GET.expertise %}
+	      <input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
+	      {% endif %}
+	      {% endif %}
+	      {% if request.GET.contributor %}
+	      <input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
+	      {% endif %}
+	  </li>
+	  <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
+      </li>
+      </ul>
+</li>
+</ul>
+</div>
 </div>
 
 <div class="row">
