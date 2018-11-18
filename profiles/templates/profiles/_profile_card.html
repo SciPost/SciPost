@@ -136,7 +136,7 @@
       <h5>Fellowships</h5>
       <ul>
 	{% for fellowship in profile.contributor.fellowships.all %}
-	<li><a href="fellowship.get_absolute_url">{{ fellowship }}</li>
+	<li><a href="fellowship.get_absolute_url">{{ fellowship }}</a></li>
 	{% empty %}
 	<li>No fellowships found</li>
 	{% endfor %}
