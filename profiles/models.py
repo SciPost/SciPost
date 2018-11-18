@@ -45,7 +45,7 @@ class Profile(models.Model):
        #. mark somebody as a non-referee (if that person does not want to referee for SciPost)
     """
 
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES, blank=True, null=True)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
@@ -70,7 +70,9 @@ class Profile(models.Model):
         ordering = ['last_name']
 
     def __str__(self):
-        return '%s, %s %s' % (self.last_name, self.get_title_display(), self.first_name)
+        return '%s, %s %s' % (self.last_name,
+                              self.get_title_display() if self.title != None else '',
+                              self.first_name)
 
     @property
     def email(self):

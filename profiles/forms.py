@@ -16,7 +16,7 @@ from .models import Profile, ProfileEmail
 
 
 class ProfileForm(forms.ModelForm):
-    email = forms.EmailField()
+    email = forms.EmailField(required=False)
     # If the Profile is created from an existing object (so we can update the object):
     instance_from_type = forms.CharField(max_length=32, required=False)
     instance_pk = forms.IntegerField(required=False)
@@ -37,7 +37,7 @@ class ProfileForm(forms.ModelForm):
     def clean_email(self):
         """Check that the email isn't yet associated to an existing Profile."""
         cleaned_email = self.cleaned_data['email']
-        if ProfileEmail.objects.filter(
+        if cleaned_email and ProfileEmail.objects.filter(
                 email=cleaned_email).exclude(profile__id=self.instance.id).exists():
             raise forms.ValidationError('A Profile with this email already exists.')
         return cleaned_email
@@ -54,10 +54,11 @@ class ProfileForm(forms.ModelForm):
 
     def save(self):
         profile = super().save()
-        profile.emails.update(primary=False)
-        email, __ = ProfileEmail.objects.get_or_create(
-            profile=profile, email=self.cleaned_data['email'])
-        profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
+        if self.cleaned_data['email']:
+            profile.emails.update(primary=False)
+            email, __ = ProfileEmail.objects.get_or_create(
+                profile=profile, email=self.cleaned_data['email'])
+            profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
         instance_pk = self.cleaned_data['instance_pk']
         if instance_pk:
             if self.cleaned_data['instance_from_type'] == 'contributor':
@@ -148,7 +149,7 @@ class ProfileEmailForm(forms.ModelForm):
 
     class Meta:
         model = ProfileEmail
-        fields = ['email', 'still_valid']
+        fields = ['email', 'still_valid', 'primary']
 
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile', None)

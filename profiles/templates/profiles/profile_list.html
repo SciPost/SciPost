@@ -126,7 +126,7 @@ $(document).ready(function($) {
       <tbody>
 	{% for profile in object_list %}
 	<tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
-	  <td>{{ profile.last_name }}, {{ profile.get_title_display }} {{ profile.first_name }}</td>
+	  <td>{{ profile }}</td>
 	  <td>{{ profile.get_discipline_display }}</td>
 	  <td>
 	    {% for expertise in profile.expertises %}

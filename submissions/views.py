@@ -55,7 +55,7 @@ from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
 from profiles.models import Profile
-from profiles.forms import SimpleProfileForm
+from profiles.forms import SimpleProfileForm, ProfileEmailForm
 from scipost.constants import INVITATION_REFEREEING
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
@@ -907,6 +907,7 @@ def select_referee(request, identifier_w_vn_nr):
         'workdays_left_to_report': workdays_between(timezone.now(), submission.reporting_deadline),
         'referee_search_form': referee_search_form,
         'queryresults': queryresults,
+        'profile_email_form': ProfileEmailForm(initial={'primary': True}),
     })
     return render(request, 'submissions/select_referee.html', context)
 

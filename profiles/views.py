@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic.detail import DetailView
@@ -320,7 +320,9 @@ def add_profile_email(request, profile_id):
     else:
         for field, err in form.errors.items():
             messages.warning(request, err[0])
-    return redirect(reverse('profiles:profiles'))
+    if request.POST.get('next', None):
+        return HttpResponseRedirect(request.POST.get('next'))
+    return redirect(profile.get_absolute_url())
 
 
 @require_POST
@@ -343,7 +345,7 @@ def toggle_email_status(request, email_id):
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
     ProfileEmail.objects.filter(id=email_id).update(still_valid=not profile_email.still_valid)
     messages.success(request, 'Email updated')
-    return redirect('profiles:profiles')
+    return redirect(profile_email.profile.get_absolute_url())
 
 
 @require_POST
@@ -353,4 +355,4 @@ def delete_profile_email(request, email_id):
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
     profile_email.delete()
     messages.success(request, 'Email deleted')
-    return redirect('profiles:profiles')
+    return redirect(profile_email.profile.get_absolute_url())
