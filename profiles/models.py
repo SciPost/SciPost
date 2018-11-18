@@ -141,7 +141,7 @@ def get_profiles(slug):
                      if tbl.unregistered_author is not None]
     return Profile.objects.filter(models.Q(contributor__id__in=cont_id_list) |
                                   models.Q(unregisteredauthor__id__in=unreg_id_list
-                                  )).annotate(count=models.Count('id')).distinct().order_by('-count')
+                                  )).distinct()
 
 
 class ProfileNonDuplicates(models.Model):
