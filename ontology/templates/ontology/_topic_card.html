@@ -126,9 +126,9 @@
 	    {% get_profiles topic.slug as profiles %}
 	    {% for profile in profiles %}
 	    {% if profile.contributor %}
-	    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a> ({{ profile.count }})</li>
+	    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
 	    {% else %}
-	    <li>{{ profile }} ({{ profile.count }})</li>
+	    <li>{{ profile }}</li>
 	    {% endif %}
 	    {% empty %}
 	    <li>No Profile found</li>
