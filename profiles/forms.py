@@ -129,8 +129,7 @@ class ProfileMergeForm(forms.Form):
 
         profile.topics.add(*profile_old.topics.all())
 
-        if hasattr(profile_old, 'unregisteredauthor') and profile_old.unregisteredauthor:
-            profile.unregisteredauthor.merge(profile_old.unregisteredauthor)
+        UnregisteredAuthor.objects.filter(profile=profile_old).update(profile=profile)
 
         # Merge email
         profile_old.emails.exclude(

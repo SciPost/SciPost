@@ -532,7 +532,7 @@ class ContributorMergeForm(forms.Form):
         publications = Publication.objects.filter(authors_registered__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_registered.remove(contrib_from)
-            publication.authors_registared.add(contrib_into)
+            publication.authors_registered.add(contrib_into)
         publications = Publication.objects.filter(authors_claims__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_claims.remove(contrib_from)

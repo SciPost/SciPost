@@ -132,18 +132,39 @@ class ProfileCreateView(PermissionsMixin, CreateView):
 def profile_match(request, profile_id, from_type, pk):
     """
     Links an existing Profile to one of existing
-    Contributor, UnregisteredAuthor, RefereeInvitation, RegistrationInvitation.
+    Contributor, UnregisteredAuthor, RefereeInvitation or RegistrationInvitation.
+
+    Profile relates to Contributor as OneToOne.
+    Matching is thus only allowed if there are no duplicate objects for these elements.
+
+    For matching the Profile to a Contributor, the following preconditions are defined:
+    - the Profile has no association to another Contributor
+    - the Contributor has no association to another Profile
+    If these are not met, no action is taken.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
     nr_rows = 0
     if from_type == 'contributor':
+        if hasattr(profile, 'contributor') and profile.contributor.id != pk:
+            messages.error(request,
+                           'Error: cannot math this Profile to this Contributor, '
+                           'since this Profile already has a different Contributor.\n'
+                           'Please merge the duplicate Contributors first.')
+            return redirect(reverse('profiles:profiles'))
+        contributor = get_object_or_404(Contributor, pk=pk)
+        if contributor.profile and contributor.profile.id != profile.id:
+            messages.error(request,
+                           'Error: cannot match this Profile to this Contributor, '
+                           'since this Contributor already has a different Profile.\n'
+                           'Please merge the duplicate Profiles first.')
+            return redirect(reverse('profiles:profiles'))
+        # Preconditions are met, match:
         nr_rows = Contributor.objects.filter(pk=pk).update(profile=profile)
         # Give priority to the email coming from Contributor
-        if nr_rows == 1:
-            profile.emails.update(primary=False)
-            email, __ = ProfileEmail.objects.get_or_create(
-                profile=profile, email=get_object_or_404(Contributor, pk=pk).user.email)
-            profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
+        profile.emails.update(primary=False)
+        email, __ = ProfileEmail.objects.get_or_create(
+            profile=profile, email=contributor.user.email)
+        profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
     elif from_type == 'unregisteredauthor':
         nr_rows = UnregisteredAuthor.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'refereeinvitation':
