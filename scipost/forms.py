@@ -40,6 +40,7 @@ from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
 from comments.models import Comment
 from funders.models import Grant
+from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
@@ -475,6 +476,8 @@ class ContributorMergeForm(forms.Form):
         Comment.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
         Comment.objects.filter(author=contrib_from).update(author=contrib_into)
         Grant.objects.filter(recipient=contrib_from).update(recipient=contrib_into)
+        CitationNotification.objects.filter(
+            contributor=contrib_from).update(contributor=contrib_into)
         PublicationAuthorsTable.objects.filter(
             contributor=contrib_from).update(contributor=contrib_into)
         UnavailabilityPeriod.objects.filter(
