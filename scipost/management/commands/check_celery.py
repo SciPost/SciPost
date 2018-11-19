@@ -18,14 +18,14 @@ class Command(BaseCommand):
         # check failed.
         compare_dt = timezone.now() - datetime.timedelta(hours=1)
         results_failed = TaskResult.objects.filter(
-            status='FAILURE', date_done__gt=compare_dt).values_list('id', flat=True)
+            status='FAILURE', date_done__gt=compare_dt).order_by('date_done').last()
         if results_failed:
             # Mail failed
-            body = 'Celery has failed task results. Failed IDs: {}'.format(
-                ', '.join(results_failed))
+            body = 'Celery has failed task results. Last failed ID: {}'.format(
+                results_failed.id)
             mail.mail_admins('Celery failed', body)
             self.stdout.write(
-                self.style.SUCCESS('Celery failed, IDs: {}.'.format(', '.join(results_failed))))
+                self.style.SUCCESS('Celery failed, last ID: {}.'.format(results_failed.id)))
         else:
             last_result = TaskResult.objects.filter(
                 date_done__gt=compare_dt).order_by('date_done').last()
