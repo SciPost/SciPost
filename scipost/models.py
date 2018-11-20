@@ -94,6 +94,10 @@ class Contributor(models.Model):
         return self.user.is_active and self.status == NORMAL_CONTRIBUTOR
 
     @property
+    def is_duplicate(self):
+        return self.duplicate_of is not None
+
+    @property
     def is_currently_available(self):
         """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
