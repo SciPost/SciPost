@@ -73,13 +73,12 @@ def resubmit_manuscript(request):
     On POST, redirect to submit page.
     """
     submissions = get_list_or_404(
-        Submission.objects.candidate_for_resubmission(request.user.contributor))
+        Submission.objects.candidate_for_resubmission(request.user))
     if request.POST and request.POST.get('submission'):
         if request.POST['submission'] == 'new':
             return redirect(reverse('submissions:submit_manuscript_scipost') + '?resubmission=false')
         try:
-            last_submission = Submission.objects.candidate_for_resubmission(
-                request.user.contributor).get(
+            last_submission = Submission.objects.candidate_for_resubmission(request.user).get(
                 preprint__identifier_w_vn_nr=request.POST['submission'])
             extra_param = '?resubmission={}'.format(request.POST['submission'])
 
@@ -172,7 +171,7 @@ class RequestSubmissionUsingSciPostView(RequestSubmissionView):
 
     def get(self, request):
         """Check for possible Resubmissions before dispatching."""
-        if Submission.objects.candidate_for_resubmission(request.user.contributor).exists():
+        if Submission.objects.candidate_for_resubmission(request.user).exists():
             if not request.GET.get('resubmission'):
                 return redirect('submissions:resubmit_manuscript')
         return super().get(request)

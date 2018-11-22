@@ -209,19 +209,18 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submissions that have EditorialAssignments that still need to be sent."""
         return self.filter(editorial_assignments__status=constants.STATUS_PREASSIGNED)
 
-    def candidate_for_resubmission(self, contributor):
+    def candidate_for_resubmission(self, user):
         """
-        Return all Submissions that are open for resubmission specialised
-        for a certain Contributor.
+        Return all Submissions that are open for resubmission specialised for a certain User.
         """
-        if not contributor:
+        if not hasattr(user, 'contributor'):
             return self.none()
 
         return self.filter(is_current=True, status__in=[
             constants.STATUS_INCOMING,
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
-            ], submitted_by=contributor)
+            ], submitted_by=user.contributor)
 
 
 class SubmissionEventQuerySet(models.QuerySet):

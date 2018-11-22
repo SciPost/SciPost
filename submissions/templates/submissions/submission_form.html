@@ -49,7 +49,14 @@
             Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
         </p>
         {% if form.fields.resubmission %}
-            {{ form.fields.resubmission.initial }}
+            <hr>
+            <p class="mb-1">You are submitting a new version of your manuscript:</p>
+            <h3><a href="{{ form.fields.resubmission.initial.get_absolute_url }}" target="_blank">{{ form.fields.resubmission.initial.title }}</a></h3>
+            <p>
+                by {{ form.fields.resubmission.initial.author_list }}
+                <br>
+                Preprint number: {{ form.fields.resubmission.initial.preprint.identifier_w_vn_nr }}
+            </p>
         {% endif %}
     </div>
 </div>

@@ -27,17 +27,17 @@ from .models import (
     iThenticateReport, EditorialCommunication)
 from .signals import notify_manuscript_accepted
 
-from common.helpers import get_new_secrets_key
+# from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
-from invitations.models import RegistrationInvitation
+# from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from mails.utils import DirectMailUtil
-from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
+from preprints.helpers import generate_new_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
-from profiles.models import Profile
-from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
+# from profiles.models import Profile
+from scipost.constants import SCIPOST_SUBJECT_AREAS  #, INVITATION_REFEREEING
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
 import strings
@@ -113,6 +113,9 @@ class SubmissionChecks:
         if kwargs.get('initial', None):
             if kwargs['initial'].get('is_resubmission', None):
                 self.is_resubmission = kwargs['initial']['is_resubmission'] in ('True', True)
+            elif kwargs['initial'].get('resubmission', None):
+                # Resubmission is explicitly chosen by user.
+                self.is_resubmission = True
 
         # `is_resubmission` property if data is coming from (POST) request
         if kwargs.get('data', None):
@@ -120,11 +123,17 @@ class SubmissionChecks:
                 self.is_resubmission = kwargs['data']['is_resubmission'] in ('True', True)
 
     def _submission_already_exists(self, identifier):
+        """
+        Check if preprint has already been submitted before.
+        """
         if Submission.objects.filter(preprint__identifier_w_vn_nr=identifier).exists():
             error_message = 'This preprint version has already been submitted to SciPost.'
             raise forms.ValidationError(error_message, code='duplicate')
 
     def _call_arxiv(self, identifier):
+        """
+        Retrieve all data from the ArXiv database for `identifier`.
+        """
         caller = ArxivCaller(identifier)
         if caller.is_valid:
             self.arxiv_data = caller.data
@@ -134,6 +143,9 @@ class SubmissionChecks:
             raise forms.ValidationError(error_message)
 
     def _submission_is_already_published(self, identifier):
+        """
+        Check if preprint number is already registered with a DOI in the *ArXiv* database.
+        """
         published_id = None
         if 'arxiv_doi' in self.arxiv_data:
             published_id = self.arxiv_data['arxiv_doi']
@@ -147,30 +159,31 @@ class SubmissionChecks:
                                         params={'published_id': published_id})
 
     def _submission_previous_version_is_valid_for_submission(self, identifier):
-        """Check if previous submitted versions have the appropriate status."""
+        """
+        Check if previous submitted versions have the appropriate status.
+        """
         identifiers = self.identifier_into_parts(identifier)
-        submission = (Submission.objects
-                      .filter(preprint__identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr'])
-                      .order_by('preprint__vn_nr').last())
+        self.last_submission = Submission.objects.filter(
+            preprint__identifier_wo_vn_nr=identifiers['identifier_wo_vn_nr']).order_by(
+            'preprint__vn_nr').last()
 
         # If submissions are found; check their statuses
-        if submission:
-            self.last_submission = submission
-            if submission.open_for_resubmission:
+        if self.last_submission:
+            if self.last_submission.open_for_resubmission:
                 self.is_resubmission = True
-                if self.requested_by.contributor not in submission.authors.all():
-                    error_message = ('There exists a preprint with this arXiv identifier '
+                if self.requested_by.contributor not in self.last_submission.authors.all():
+                    error_message = ('There exists a preprint with this identifier '
                                      'but an earlier version number. Resubmission is only possible'
                                      ' if you are a registered author of this manuscript.')
                     raise forms.ValidationError(error_message)
-            elif submission.status == STATUS_REJECTED:
-                error_message = ('This arXiv preprint has previously undergone refereeing '
+            elif self.last_submission.status == STATUS_REJECTED:
+                error_message = ('This preprint has previously undergone refereeing '
                                  'and has been rejected. Resubmission is only possible '
                                  'if the manuscript has been substantially reworked into '
-                                 'a new arXiv submission with distinct identifier.')
+                                 'a new submission with distinct identifier.')
                 raise forms.ValidationError(error_message)
             else:
-                error_message = ('There exists a preprint with this arXiv identifier '
+                error_message = ('There exists a preprint with this identifier '
                                  'but an earlier version number, which is still undergoing '
                                  'peer refereeing. '
                                  'A resubmission can only be performed after request '
@@ -181,7 +194,9 @@ class SubmissionChecks:
                 raise forms.ValidationError(error_message)
 
     def identifier_matches_regex(self, identifier, journal_code):
-        """Check if arXiv identifier is valid for the Journal submitting to."""
+        """
+        Check if identifier is valid for the Journal submitting to.
+        """
         if journal_code in EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS.keys():
             regex = EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS[journal_code]
         else:
@@ -191,7 +206,7 @@ class SubmissionChecks:
         if not pattern.match(identifier):
             # No match object returned, identifier is invalid
             error_message = ('The journal you want to submit to does not allow for this'
-                             ' arXiv identifier. Please contact SciPost if you have'
+                             ' identifier. Please contact SciPost if you have'
                              ' any further questions.')
             raise forms.ValidationError(error_message, code='submitted_to')
 
@@ -233,10 +248,12 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
         self.do_pre_checks(identifier)
         return identifier
 
-    def _gather_data_from_last_submission(self):
-        """Return dictionary with data coming from previous submission version."""
+    def request_arxiv_preprint_form_prefill_data(self):
+        """Return dictionary to prefill `RequestSubmissionForm`."""
+        form_data = self.arxiv_data
+        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
         if self.submission_is_resubmission():
-            data = {
+            form_data.update({
                 'is_resubmission': True,
                 'discipline': self.last_submission.discipline,
                 'domain': self.last_submission.domain,
@@ -246,15 +263,7 @@ class SubmissionIdentifierForm(SubmissionChecks, forms.Form):
                 'subject_area': self.last_submission.subject_area,
                 'submitted_to': self.last_submission.submitted_to,
                 'submission_type': self.last_submission.submission_type,
-            }
-        return data or {}
-
-    def request_arxiv_preprint_form_prefill_data(self):
-        """Return dictionary to prefill `RequestSubmissionForm`."""
-        form_data = self.arxiv_data
-        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
-        if self.submission_is_resubmission():
-            form_data.update(self._gather_data_from_last_submission())
+            })
         return form_data
 
 
@@ -264,9 +273,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     scipost_identifier = None
 
     resubmission = forms.ModelChoiceField(
-        # to_field_name='preprint__identifier_w_vn_nr',
-        queryset=Submission.objects.all(), required=False, widget=forms.HiddenInput())
-
+        to_field_name='preprint__identifier_w_vn_nr',
+        queryset=Submission.objects.none(), required=False, widget=forms.HiddenInput())
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     arxiv_link = forms.URLField(
         widget=forms.TextInput(attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}))
@@ -305,14 +313,16 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.use_arxiv_preprint = kwargs.pop('use_arxiv_preprint', True)
-
         super().__init__(*args, **kwargs)
 
-        # Alter resubmission-dependent fields
-        # self.fields['resubmission'].queryset = Submission.objects.candidate_for_resubmission(
-        #     self.requested_by.contributor)  # This is auto-filled by the resubmit_manuscript view.
-        # r = self.fields['resubmission'].initial = self.fields['resubmission'].queryset.get
-        # raise
+        # Update resubmission-dependent fields
+        resubmission_preprint = kwargs.get('initial', {}).get('resubmission', None)
+        self.fields['resubmission'].queryset = Submission.objects.candidate_for_resubmission(
+            self.requested_by)  # This is auto-filled by the resubmit_manuscript view.
+        if resubmission_preprint:
+            self.fields['resubmission'].initial = self.fields['resubmission'].queryset.get(
+                    preprint__identifier_w_vn_nr=resubmission_preprint)
+
         if not self.submission_is_resubmission():
             # These fields are only available for resubmissions
             del self.fields['author_comments']
@@ -330,7 +340,8 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
             del self.fields['arxiv_link']
             del self.fields['identifier_w_vn_nr']
 
-        self.fields['submitted_to'].queryset = Journal.objects.filter(active=True)
+        # Select Journal instances.
+        self.fields['submitted_to'].queryset = Journal.objects.active()
         self.fields['submitted_to'].label = 'Journal: submit to'
 
         # Proceedings submission fields
@@ -349,10 +360,9 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
     def clean(self, *args, **kwargs):
         """Do all prechecks which are also done in the prefiller."""
         cleaned_data = super().clean(*args, **kwargs)
+        # SciPost preprints are auto-generated here.
         if 'identifier_w_vn_nr' not in cleaned_data:
-            # New series of SciPost preprints
-            identifier_str, self.scipost_identifier = generate_new_scipost_identifier()
-            cleaned_data['identifier_w_vn_nr'] = format_scipost_identifier(identifier_str)
+            cleaned_data['identifier_w_vn_nr'], self.scipost_identifier = generate_new_scipost_identifier(cleaned_data.get('resubmission', None))
 
         self.do_pre_checks(cleaned_data['identifier_w_vn_nr'])
         self.identifier_matches_regex(
@@ -375,9 +385,6 @@ class RequestSubmissionForm(SubmissionChecks, forms.ModelForm):
         power to certain user groups.
         """
         author_list = self.cleaned_data['author_list']
-        if not self.use_arxiv_preprint:
-            # Using SciPost preprints, there is nothing to check with.
-            return author_list
 
         if not self.requested_by.last_name.lower() in author_list.lower():
             error_message = ('Your name does not match that of any of the authors. '
