@@ -7,6 +7,22 @@ from django.core.mail import EmailMultiAlternatives
 from django.template import loader
 
 
+def hslColorWheel(N=10, index=0, saturation=50, lightness=50):
+    """
+    Distributes colors into N values around a color wheel,
+    according to hue-saturation-lightness (HSL).
+
+    index takes values from 0 to N-1.
+    """
+    hue = int(index * 360/N % 360)
+    saturation = max(saturation, 0)
+    saturation = min(saturation, 100)
+    lightness = max(lightness, 0)
+    lightness = min(lightness, 100)
+
+    return 'hsl(%s, %s%%, %s%%)' % (str(hue), str(saturation), str(lightness))
+
+
 def workdays_between(datetime_from, datetime_until):
     """Return number of complete workdays.
 
