@@ -27,17 +27,14 @@ from .models import (
     iThenticateReport, EditorialCommunication)
 from .signals import notify_manuscript_accepted
 
-from common.helpers import get_new_secrets_key
 from colleges.models import Fellowship
-from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier, format_scipost_identifier
 from preprints.models import Preprint
 from production.utils import get_or_create_production_stream
-from profiles.models import Profile
-from scipost.constants import SCIPOST_SUBJECT_AREAS, INVITATION_REFEREEING
+from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
 import strings
@@ -925,7 +922,7 @@ class ReportForm(forms.ModelForm):
         required_fields_label = ['report', 'recommendation', 'qualification']
 
         # If the Report is not a followup: Explicitly assign more fields as being required!
-        if not self.instance.is_followup_report:
+        if not self.instance.is_followup_report and self.submission.submitted_to.name != SCIPOST_JOURNAL_PHYSICS_PROC:
             required_fields_label += [
                 'strengths',
                 'weaknesses',
