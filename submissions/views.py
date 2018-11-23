@@ -1590,7 +1590,8 @@ def prepare_for_voting(request, rec_id):
             Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
             Q(contributor__expertises__contains=recommendation.submission.secondary_areas)).order_by(
                 'contributor__user__last_name')
-        coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
+        #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
+        coauthorships = None
 
     context = {
         'recommendation': recommendation,
