@@ -75,6 +75,8 @@ class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
+    is_resubmission_of = models.ForeignKey(
+        'self', blank=True, null=True, related_name='successor')
     is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
@@ -84,7 +86,7 @@ class Submission(models.Model):
 
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, blank=True)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,

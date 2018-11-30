@@ -48,16 +48,24 @@
         <p>
             Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
         </p>
-        {% if form.fields.resubmission %}
+
+
+        {% if form.is_resubmission %}
             <hr>
             <p class="mb-1">You are submitting a new version of your manuscript:</p>
-            <h3><a href="{{ form.fields.resubmission.initial.get_absolute_url }}" target="_blank">{{ form.fields.resubmission.initial.title }}</a></h3>
+            <h3><a href="{{ form.fields.is_resubmission_of.initial.get_absolute_url }}" target="_blank">{{ form.fields.is_resubmission_of.initial.title }}</a></h3>
             <p>
-                by {{ form.fields.resubmission.initial.author_list }}
+                by {{ form.fields.is_resubmission_of.initial.author_list }}
                 <br>
-                Preprint number: {{ form.fields.resubmission.initial.preprint.identifier_w_vn_nr }}
+                Preprint number: {{ form.fields.is_resubmission_of.initial.preprint.identifier_w_vn_nr }}
             </p>
         {% endif %}
+
+        {% comment %}
+        {% if not form.form_complete %}
+            <h3 class="text-danger">Please check the preprint identifier used for resubmission. Current identifier {{ form.resubmission_preprint }} is not valid.</h3>
+        {% endif %}
+        {% endcomment %}
     </div>
 </div>
 

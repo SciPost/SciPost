@@ -67,6 +67,7 @@ class SubmissionAdmin(GuardedModelAdmin):
             'fields': (
                 'is_current',
                 'is_resubmission',
+                'is_resubmission_of',
                 'list_of_changes'),
         }),
         ('Submission details', {

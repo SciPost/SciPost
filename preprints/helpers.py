@@ -11,7 +11,11 @@ from .models import Preprint
 
 
 def generate_new_scipost_identifier(old_preprint=None):
-    """Return an identifier for a new SciPost preprint series without version number."""
+    """
+    Return an identifier for a new SciPost preprint series without version number.
+
+    TODO: This method will explode as soon as it will be used similtaneously by two or more people.
+    """
     now = timezone.now()
 
     if isinstance(old_preprint, Submission):
@@ -34,7 +38,7 @@ def generate_new_scipost_identifier(old_preprint=None):
         else:
             existing_identifier = str(existing_identifier + 1)
 
-        identifier = '{year}{month}_{identifier}'.format(
+        identifier = '{year}{month}_{identifier}v1'.format(
             year=now.year, month=str(now.month).rjust(2, '0'),
             identifier=existing_identifier.rjust(5, '0'))
         return identifier, int(existing_identifier)

@@ -30,7 +30,7 @@ from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
-    SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    SubmissionIdentifierForm, SubmissionForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm, #RefereeSelectForm,
     iThenticateReportForm, VotingEligibilityForm,
@@ -77,16 +77,20 @@ def resubmit_manuscript(request):
     if request.POST and request.POST.get('submission'):
         if request.POST['submission'] == 'new':
             return redirect(reverse('submissions:submit_manuscript_scipost') + '?resubmission=false')
-        try:
-            last_submission = Submission.objects.candidate_for_resubmission(request.user).get(
-                preprint__identifier_w_vn_nr=request.POST['submission'])
-            extra_param = '?resubmission={}'.format(request.POST['submission'])
 
+        last_submission = Submission.objects.candidate_for_resubmission(request.user).filter(
+            id=request.POST['submission']).first()
+
+        if last_submission:
             if last_submission.preprint.scipost_preprint_identifier:
                 # Determine right preprint-view.
+                extra_param = '?resubmission={}'.format(request.POST['submission'])
                 return redirect(reverse('submissions:submit_manuscript_scipost') + extra_param)
-            return redirect(reverse('submissions:submit_manuscript') + extra_param)
-        except Submission.DoesNotExist:
+            else:
+                extra_param = '?identifier_w_vn_nr={}'.format(
+                    last_submission.preprint.identifier_w_vn_nr)
+                return redirect(reverse('submissions:submit_manuscript') + extra_param)
+        else:
             # POST request invalid. Try again with GET request.
             return redirect('submissions:resubmit_manuscript')
     context = {
@@ -100,7 +104,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
     permission_required = 'scipost.can_submit_manuscript'
     success_url = reverse_lazy('scipost:personal_page')
-    form_class = RequestSubmissionForm
+    form_class = SubmissionForm  #RequestSubmissionForm
     template_name = 'submissions/submission_form.html'
 
     def get_context_data(self, *args, **kwargs):
@@ -154,15 +158,17 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         form = SubmissionIdentifierForm(request.GET or None, requested_by=self.request.user)
         if form.is_valid():
             # Gather data from ArXiv API if prefill form is valid
-            self.initial_data = form.request_arxiv_preprint_form_prefill_data()
+            self.initial_data = form.get_initial_submission_data()
             return super().get(request)
         else:
+            raise
             return redirect('submissions:prefill_using_identifier')
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['use_arxiv_preprint'] = True
+        # kwargs['use_arxiv_preprint'] = True
+        kwargs['preprint_server'] = 'arxiv'
         return kwargs
 
 
@@ -179,7 +185,8 @@ class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['use_arxiv_preprint'] = False
+        # kwargs['use_arxiv_preprint'] = False
+        kwargs['preprint_server'] = 'scipost'
         return kwargs
 
 
@@ -189,13 +196,10 @@ def prefill_using_arxiv_identifier(request):
     """Form view asking for the arXiv ID related to the new Submission to submit."""
     query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None,
                                           requested_by=request.user)
-    if query_form.is_valid():
-        prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
-        form = RequestSubmissionForm(
-            initial=prefill_data, requested_by=request.user, use_arxiv_preprint=True)
 
+    if query_form.is_valid():
         # Submit message to user
-        if query_form.submission_is_resubmission():
+        if query_form.service.is_resubmission():
             resubmessage = ('There already exists a preprint with this arXiv identifier '
                             'but a different version number. \nYour Submission will be '
                             'handled as a resubmission.')
@@ -203,9 +207,6 @@ def prefill_using_arxiv_identifier(request):
         else:
             messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
 
-        context = {
-            'form': form,
-        }
         response = redirect('submissions:submit_manuscript_arxiv')
         response['location'] += '?identifier_w_vn_nr={}'.format(
             query_form.cleaned_data['identifier_w_vn_nr'])
