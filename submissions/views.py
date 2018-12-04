@@ -30,7 +30,7 @@ from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
-    SubmissionIdentifierForm, SubmissionForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm, #RefereeSelectForm,
     iThenticateReportForm, VotingEligibilityForm,
@@ -104,7 +104,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
     permission_required = 'scipost.can_submit_manuscript'
     success_url = reverse_lazy('scipost:personal_page')
-    form_class = SubmissionForm  #RequestSubmissionForm
+    form_class = SubmissionForm
     template_name = 'submissions/submission_form.html'
 
     def get_context_data(self, *args, **kwargs):
