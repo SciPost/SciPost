@@ -132,7 +132,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                 'Your Submission will soon be handled by an Editor.')
         messages.success(self.request, text)
 
-        if form.submission_is_resubmission():
+        if form.is_resubmission():
             # Send emails
             SubmissionUtils.load({'submission': submission}, self.request)
             SubmissionUtils.send_authors_resubmission_ack_email()
@@ -154,20 +154,22 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
     """Formview to submit a new Submission using arXiv."""
 
     def get(self, request):
-        """Redirect to the arXiv prefill form if arXiv ID is not known."""
+        """
+        Redirect to the arXiv prefill form if arXiv ID is not known.
+        """
         form = SubmissionIdentifierForm(request.GET or None, requested_by=self.request.user)
         if form.is_valid():
             # Gather data from ArXiv API if prefill form is valid
             self.initial_data = form.get_initial_submission_data()
             return super().get(request)
         else:
-            raise
+            for code, err in form.errors.items():
+                messages.warning(request, err[0])
             return redirect('submissions:prefill_using_identifier')
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        # kwargs['use_arxiv_preprint'] = True
         kwargs['preprint_server'] = 'arxiv'
         return kwargs
 

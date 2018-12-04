@@ -103,17 +103,14 @@ class SubmissionService:
     Object to run checks for prefiller and submit manuscript forms.
     """
 
-    arxiv_data = {}
+    metadata = {}
 
     def __init__(self, requested_by, preprint_server, identifier=None, resubmission_of_id=None):
         self.requested_by = requested_by
         self.preprint_server = preprint_server
         self.identifier = identifier
         self.resubmission_of_id = resubmission_of_id
-
-        if self.preprint_server == 'arxiv':
-            # Do the call here to prevent multiple calls to the arXiv API in one request.
-            self._call_arxiv()
+        self._arxiv_data = None
 
     @property
     def latest_submission(self):
@@ -138,18 +135,44 @@ class SubmissionService:
                 self._latest_submission = None
         return self._latest_submission
 
+    @property
+    def arxiv_data(self):
+        if self._arxiv_data is None:
+            self._call_arxiv()
+        return self._arxiv_data
+
     def run_checks(self):
         """
         Do several pre-checks (using the arXiv API if needed).
 
         This is needed for both the prefill and submission forms.
         """
-        self.arxiv_data = {}
         self._submission_already_exists()
         self._submission_previous_version_is_valid_for_submission()
 
         if self.preprint_server == 'arxiv':
             self._submission_is_already_published()
+
+    def _call_arxiv(self):
+        """
+        Retrieve all data from the ArXiv database for `identifier`.
+        """
+        if self.preprint_server != 'arxiv':
+            # Do the call here to prevent multiple calls to the arXiv API in one request.
+            self._arxiv_data = {}
+            return
+        if not self.identifier:
+            print('crap', self.identifier)
+            return
+
+        caller = ArxivCaller(self.identifier)
+
+        if caller.is_valid:
+            self._arxiv_data = caller.data
+            self.metadata = caller.metadata
+        else:
+            error_message = 'A preprint associated to this identifier does not exist.'
+            raise forms.ValidationError(error_message)
 
     def get_latest_submission_data(self):
         """
@@ -277,18 +300,6 @@ class SubmissionService:
                                  'before proceeding with a resubmission.')
                 raise forms.ValidationError(error_message)
 
-    def _call_arxiv(self):
-        """
-        Retrieve all data from the ArXiv database for `identifier`.
-        """
-        caller = ArxivCaller(self.identifier)
-        if caller.is_valid:
-            self.arxiv_data = caller.data
-            self.metadata = caller.metadata
-        else:
-            error_message = 'A preprint associated to this identifier does not exist.'
-            raise forms.ValidationError(error_message)
-
     def _submission_is_already_published(self):
         """
         Check if preprint number is already registered with a DOI in the *ArXiv* database.
@@ -360,15 +371,17 @@ class SubmissionForm(forms.ModelForm):
         self.preprint_server = kwargs.pop('preprint_server', 'arxiv')
         self.resubmission_preprint = kwargs['initial'].get('resubmission', False)
 
+        data = args[0] if len(args) > 1 else kwargs.get('data', {})
+        identifier = kwargs['initial'].get('identifier_w_vn_nr', None) or data.get('identifier_w_vn_nr')
+
         self.service = SubmissionService(
             self.requested_by, self.preprint_server,
-            identifier=kwargs['initial'].get('identifier_w_vn_nr', None),
+            identifier=identifier,
             resubmission_of_id=self.resubmission_preprint)
         if self.preprint_server == 'scipost':
             kwargs['initial'] = self.service.get_latest_submission_data()
 
         super().__init__(*args, **kwargs)
-        # self.service.run_checks()
 
         if not self.preprint_server == 'arxiv':
             # No arXiv-specific data required.
@@ -418,6 +431,7 @@ class SubmissionForm(forms.ModelForm):
         cleaned_data = super().clean(*args, **kwargs)
 
         # SciPost preprints are auto-generated here.
+        self.scipost_identifier = None
         if 'identifier_w_vn_nr' not in cleaned_data:
             self.service.identifier, self.scipost_identifier = generate_new_scipost_identifier(
                 cleaned_data.get('resubmission', None))
@@ -524,11 +538,13 @@ class SubmissionIdentifierForm(forms.Form):
         self.requested_by = kwargs.pop('requested_by')
         return super().__init__(*args, **kwargs)
 
+
     def clean_identifier_w_vn_nr(self):
         """
         Do basic prechecks based on the arXiv ID only.
         """
-        identifier = self.cleaned_data['identifier_w_vn_nr']
+        identifier = self.cleaned_data.get('identifier_w_vn_nr', None)
+
         self.service = SubmissionService(self.requested_by, 'arxiv', identifier=identifier)
         self.service.run_checks()
         return identifier
