@@ -38,7 +38,7 @@ def generate_new_scipost_identifier(old_preprint=None):
         else:
             existing_identifier = str(existing_identifier + 1)
 
-        identifier = '{year}{month}_{identifier}v1'.format(
+        identifier = 'scipost_{year}{month}_{identifier}v1'.format(
             year=now.year, month=str(now.month).rjust(2, '0'),
             identifier=existing_identifier.rjust(5, '0'))
         return identifier, int(existing_identifier)
