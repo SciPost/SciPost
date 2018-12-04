@@ -21,7 +21,11 @@
                         <br>
                         Preprint number: {{ submission.preprint.identifier_w_vn_nr }}
                         <br>
-                        <button type="submit" name="submission" value="{{ submission.preprint.id }}"class="btn btn-primary py-1 mt-1">Resubmit this Submission</button>
+                        {% if not submission.open_for_resubmission %}
+                            <strong class="text-danger">This submission is still undergoing peer refereeing. A resubmission can only be performed after request from the Editor-in-charge. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before proceeding with a resubmission.</strong>
+                        {% else %}
+                            <button type="submit" name="submission" value="{{ submission.id }}"class="btn btn-primary py-1 mt-1">Resubmit this Submission</button>
+                        {% endif %}
                     </li>
                 {% endfor %}
             </ul>

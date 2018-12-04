@@ -282,7 +282,6 @@ class SubmissionService:
                 raise forms.ValidationError(error_message)
             elif self.latest_submission.open_for_resubmission:
                 # Check if verified author list contains current user.
-                self.is_resubmission = True
                 if self.requested_by.contributor not in self.latest_submission.authors.all():
                     error_message = ('There exists a preprint with this identifier '
                                      'but an earlier version number. Resubmission is only possible'
@@ -455,11 +454,12 @@ class SubmissionForm(forms.ModelForm):
         """
         Check if author list matches the Contributor submitting.
         """
-        if not self.requested_by.last_name.lower() in self.cleaned_data['author_list'].lower():
+        author_list = self.cleaned_data['author_list']
+        if not self.requested_by.last_name.lower() in author_list.lower():
             error_message = ('Your name does not match that of any of the authors. '
                              'You are not authorized to submit this preprint.')
             self.add_error('author_list', error_message)
-        return self.cleaned_data['author_list']
+        return author_list
 
     def clean_submission_type(self):
         """
@@ -510,7 +510,7 @@ class SubmissionForm(forms.ModelForm):
 
         submission.save()
         if self.is_resubmission():
-            self.process_resubmission_procedure(submission)
+            self.service.process_resubmission_procedure(submission)
 
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)
