@@ -65,8 +65,9 @@ class SubmissionAdmin(GuardedModelAdmin):
         }),
         ('Versioning', {
             'fields': (
+                'thread_hash',
                 'is_current',
-                'is_resubmission',
+                '_is_resubmission',
                 'is_resubmission_of',
                 'list_of_changes'),
         }),

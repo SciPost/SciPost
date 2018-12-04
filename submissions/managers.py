@@ -17,6 +17,8 @@ now = timezone.now()
 class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
         """
+        TODO: Make more efficient... with agregation or whatever.
+
         The current Queryset should return only the latest version
         of the Arxiv submissions known to SciPost.
 
@@ -157,7 +159,7 @@ class SubmissionQuerySet(models.QuerySet):
         (including subsequent resubmissions, even if those came in later).
         """
         identifiers = []
-        for sub in self.filter(is_resubmission=False,
+        for sub in self.filter(is_resubmission_of__isnull=True,
                                submission_date__range=(from_date, until_date)):
             identifiers.append(sub.preprint.identifier_wo_vn_nr)
         return self.filter(preprint__identifier_wo_vn_nr__in=identifiers)

@@ -242,11 +242,12 @@ class SubmissionService:
         Submission.objects.filter(id=submission.id).update(
             open_for_reporting=True,
             open_for_commenting=True,
-            is_resubmission=True,
+            is_resubmission_of=self.latest_submission,
             visible_pool=True,
             refereeing_cycle=CYCLE_UNDETERMINED,
             editor_in_charge=self.latest_submission.editor_in_charge,
-            status=STATUS_EIC_ASSIGNED)
+            status=STATUS_EIC_ASSIGNED,
+            thread_hash=self.latest_submission.thread_hash)
 
         # Add author(s) (claim) fields
         submission.authors.add(*self.latest_submission.authors.all())
