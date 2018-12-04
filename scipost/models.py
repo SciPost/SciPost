@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from .behaviors import TimeStampedModel, orcid_validator
 from .constants import (
-    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, DISABLED,
+    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, NORMAL_CONTRIBUTOR, DISABLED,
     TITLE_CHOICES, INVITATION_STYLE, INVITATION_TYPE, INVITATION_CONTRIBUTOR, INVITATION_FORMAL,
     AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
 from .fields import ChoiceArrayField
@@ -63,8 +63,14 @@ class Contributor(models.Model):
                                   related_name="contrib_vetted_by", blank=True, null=True)
     accepts_SciPost_emails = models.BooleanField(
         default=True, verbose_name="I accept to receive SciPost emails")
+    # If this Contributor is merged into another, then this field is set to point to the new one:
+    duplicate_of = models.ForeignKey('scipost.Contributor', on_delete=models.SET_NULL,
+                                     null=True, blank=True, related_name='duplicates')
 
     objects = ContributorQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['user__last_name', 'user__first_name']
 
     def __str__(self):
         return '%s, %s' % (self.user.last_name, self.user.first_name)
@@ -78,6 +84,18 @@ class Contributor(models.Model):
     def get_absolute_url(self):
         """Return public information page url."""
         return reverse('scipost:contributor_info', args=(self.id,))
+
+    @property
+    def is_active(self):
+        """
+        Checks if the Contributor is registered, vetted,
+        and has not been deactivated for any reason.
+        """
+        return self.user.is_active and self.status == NORMAL_CONTRIBUTOR
+
+    @property
+    def is_duplicate(self):
+        return self.duplicate_of is not None
 
     @property
     def is_currently_available(self):

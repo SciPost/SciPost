@@ -15,4 +15,13 @@
         </td>
     </tr>
     <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage|default:'-' }}</td></tr>
+
+    {% if perms.scipost.can_vet_registration_requests %}
+    <tr class="text-muted"><td>Username</td><td>{{ contributor.user.username }}</td></tr>
+    <tr class="text-muted"><td>Email (from User)</td><td>{{ contributor.user.email }}</td></tr>
+    <tr class="text-muted"><td>Date joined / last login</td><td>{{ contributor.user.date_joined }} / {{ contributor.user.last_login }}</td></tr>
+    <tr class="text-muted"><td>Status</td><td>{{ contributor.get_status_display }}</td></tr>
+    <tr class="text-muted"><td>User active?</td><td>{{ contributor.user.is_active }}</td></tr>
+    <tr class="text-muted"><td>Id</td><td>{{ contributor.id }}{% if contributor.profile %}&nbsp;&nbsp;<a href="{% url 'profiles:profile_detail' pk=contributor.profile.id %}">View Profile <i class="fa fa-arrow-right"></i></a>{% endif %}</td></tr>
+    {% endif %}
 </table>

@@ -41,8 +41,14 @@ class UserAdmin(UserAdmin):
         ContactToUserInline,
         ProductionUserInline
         ]
+    list_display = ['username', 'email', 'first_name', 'last_name',
+                    'is_active', 'is_staff', 'is_duplicate']
     search_fields = ['last_name', 'email']
 
+    def is_duplicate(self, obj):
+        return obj.contributor.is_duplicate
+    is_duplicate.short_description = 'Is duplicate?'
+    is_duplicate.boolean = True
 
 admin.site.unregister(User)
 admin.site.register(Contributor, ContributorAdmin)

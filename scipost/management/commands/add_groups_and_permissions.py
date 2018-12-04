@@ -403,6 +403,7 @@ class Command(BaseCommand):
             can_view_pool,
             can_take_charge_of_submissions,
             can_create_profiles,
+            can_view_profiles,
             can_attend_VGMs,
             can_view_statistics,
             can_manage_ontology,

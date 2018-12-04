@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.decorators.http import require_POST
 from django.views.generic.detail import DetailView
@@ -70,7 +70,8 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=reginv.last_name) |
                     Q(emails__email__in=reginv.email))
-            context['matching_profiles'] = matching_profiles[:10]
+            context['matching_profiles'] = matching_profiles.distinct().order_by(
+                'last_name', 'first_name')
         return context
 
     def get_initial(self):
@@ -131,29 +132,52 @@ class ProfileCreateView(PermissionsMixin, CreateView):
 def profile_match(request, profile_id, from_type, pk):
     """
     Links an existing Profile to one of existing
-    Contributor, UnregisteredAuthor, RefereeInvitation, RegistrationInvitation.
+    Contributor, UnregisteredAuthor, RefereeInvitation or RegistrationInvitation.
+
+    Profile relates to Contributor as OneToOne.
+    Matching is thus only allowed if there are no duplicate objects for these elements.
+
+    For matching the Profile to a Contributor, the following preconditions are defined:
+    - the Profile has no association to another Contributor
+    - the Contributor has no association to another Profile
+    If these are not met, no action is taken.
     """
     profile = get_object_or_404(Profile, pk=profile_id)
+    nr_rows = 0
     if from_type == 'contributor':
+        if hasattr(profile, 'contributor') and profile.contributor.id != pk:
+            messages.error(request,
+                           'Error: cannot math this Profile to this Contributor, '
+                           'since this Profile already has a different Contributor.\n'
+                           'Please merge the duplicate Contributors first.')
+            return redirect(reverse('profiles:profiles'))
         contributor = get_object_or_404(Contributor, pk=pk)
-        contributor.profile = profile
-        contributor.save()
-        messages.success(request, 'Profile matched with Contributor')
+        if contributor.profile and contributor.profile.id != profile.id:
+            messages.error(request,
+                           'Error: cannot match this Profile to this Contributor, '
+                           'since this Contributor already has a different Profile.\n'
+                           'Please merge the duplicate Profiles first.')
+            return redirect(reverse('profiles:profiles'))
+        # Preconditions are met, match:
+        nr_rows = Contributor.objects.filter(pk=pk).update(profile=profile)
+        # Give priority to the email coming from Contributor
+        profile.emails.update(primary=False)
+        email, __ = ProfileEmail.objects.get_or_create(
+            profile=profile, email=contributor.user.email)
+        profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
     elif from_type == 'unregisteredauthor':
-        unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
-        unreg_auth.profile = profile
-        unreg_auth.save()
-        messages.success(request, 'Profile matched with UnregisteredAuthor')
+        nr_rows = UnregisteredAuthor.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'refereeinvitation':
-        ref_inv = get_object_or_404(RefereeInvitation, pk=pk)
-        ref_inv.profile = profile
-        ref_inv.save()
-        messages.success(request, 'Profile matched with RefereeInvitation')
+        nr_rows = RefereeInvitation.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'registrationinvitation':
-        reg_inv = get_object_or_404(RegistrationInvitation, pk=pk)
-        reg_inv.profile = profile
-        reg_inv.save()
-        messages.success(request, 'Profile matched with RegistrationInvitation')
+        nr_rows = RegistrationInvitation.objects.filter(pk=pk).update(profile=profile)
+    if nr_rows == 1:
+        messages.success(request, 'Profile matched with %s' % from_type)
+    else:
+        messages.error(
+            request,
+            'Error: Profile matching with %s: updated %s rows instead of 1!'
+            'Please contact techsupport' % (from_type, nr_rows))
     return redirect(reverse('profiles:profiles'))
 
 
@@ -214,7 +238,10 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        contributors_wo_profile = Contributor.objects.filter(profile__isnull=True)
+        contributors_w_duplicate_email = Contributor.objects.with_duplicate_email()
+        contributors_w_duplicate_names = Contributor.objects.with_duplicate_names()
+        contributors_wo_profile = Contributor.objects.active().filter(profile__isnull=True)
+        nr_potential_duplicate_profiles = Profile.objects.potential_duplicates().count()
         unreg_auth_wo_profile = UnregisteredAuthor.objects.filter(profile__isnull=True)
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
@@ -222,8 +249,10 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         context.update({
             'subject_areas': SCIPOST_SUBJECT_AREAS,
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
-            'contributors_w_duplicate_email': Contributor.objects.have_duplicate_email(),
+            'nr_contributors_w_duplicate_emails': contributors_w_duplicate_email.count(),
+            'nr_contributors_w_duplicate_names': contributors_w_duplicate_names.count(),
             'nr_contributors_wo_profile': contributors_wo_profile.count(),
+            'nr_potential_duplicate_profiles': nr_potential_duplicate_profiles,
             'next_contributor_wo_profile': contributors_wo_profile.first(),
             'nr_unreg_auth_wo_profile': unreg_auth_wo_profile.count(),
             'next_unreg_auth_wo_profile': unreg_auth_wo_profile.first(),
@@ -269,15 +298,29 @@ def profile_merge(request):
     merge_form = ProfileMergeForm(request.POST or None, initial=request.GET)
     context = {'merge_form': merge_form}
 
-    if merge_form.is_valid():
-        profile = merge_form.save()
-        messages.success(request, 'Profiles merged')
-        return redirect(profile.get_absolute_url())
+    if request.method == 'POST':
+        if merge_form.is_valid():
+            profile = merge_form.save()
+            messages.success(request, 'Profiles merged')
+            return redirect(profile.get_absolute_url())
+        else:
+            try:
+                context.update({
+                    'profile_to_merge': get_object_or_404(
+                        Profile, pk=merge_form.cleaned_data['to_merge'].id),
+                    'profile_to_merge_into': get_object_or_404(
+                        Profile, pk=merge_form.cleaned_data['to_merge_into'].id)
+                })
+            except ValueError:
+                raise Http404
+
     elif request.method == 'GET':
         try:
             context.update({
-                'profile_to_merge': get_object_or_404(Profile, pk=int(request.GET['to_merge'])),
-                'profile_to_merge_into': get_object_or_404(Profile, pk=int(request.GET['to_merge_into']))
+                'profile_to_merge': get_object_or_404(Profile,
+                                                      pk=int(request.GET['to_merge'])),
+                'profile_to_merge_into': get_object_or_404(Profile,
+                                                           pk=int(request.GET['to_merge_into']))
             })
         except ValueError:
             raise Http404
@@ -298,7 +341,9 @@ def add_profile_email(request, profile_id):
     else:
         for field, err in form.errors.items():
             messages.warning(request, err[0])
-    return redirect(reverse('profiles:profiles'))
+    if request.POST.get('next', None):
+        return HttpResponseRedirect(request.POST.get('next'))
+    return redirect(profile.get_absolute_url())
 
 
 @require_POST
@@ -321,7 +366,7 @@ def toggle_email_status(request, email_id):
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
     ProfileEmail.objects.filter(id=email_id).update(still_valid=not profile_email.still_valid)
     messages.success(request, 'Email updated')
-    return redirect('profiles:profiles')
+    return redirect(profile_email.profile.get_absolute_url())
 
 
 @require_POST
@@ -331,4 +376,4 @@ def delete_profile_email(request, email_id):
     profile_email = get_object_or_404(ProfileEmail, pk=email_id)
     profile_email.delete()
     messages.success(request, 'Email deleted')
-    return redirect('profiles:profiles')
+    return redirect(profile_email.profile.get_absolute_url())

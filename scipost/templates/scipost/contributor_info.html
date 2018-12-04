@@ -6,9 +6,16 @@
 
 <h1 class="highlight mb-4">Contributor info: {{ contributor.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}</h1>
 
-{% include "scipost/_public_info_as_table.html" with contributor=contributor %}
 
-<br>
+<div class="card">
+  <div class="card-header">
+    Details
+  </div>
+  <div class="card-body">
+    {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+  </div>
+</div>
+
 {% if contributor_publications %}
 
     <div class="row">
