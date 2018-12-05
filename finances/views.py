@@ -66,7 +66,7 @@ class SubsidyListView(ListView):
         order_by = self.request.GET.get('order_by')
         ordering = self.request.GET.get('ordering')
         if order_by == 'amount':
-            qs = qs.order_by('amount')
+            qs = qs.filter(amount_publicly_shown=True).order_by('amount')
         elif order_by == 'date':
             qs = qs.order_by('date')
         if ordering == 'desc':
