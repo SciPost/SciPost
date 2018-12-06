@@ -130,6 +130,8 @@ class SubmissionService:
                     id=int(self.resubmission_of_id)).order_by('-preprint__vn_nr').first()
             except ValueError:
                 self._latest_submission = None
+        else:
+            self._latest_submission = None
         return self._latest_submission
 
     @property
