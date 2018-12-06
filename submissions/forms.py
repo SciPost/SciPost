@@ -431,7 +431,7 @@ class SubmissionForm(forms.ModelForm):
         self.scipost_identifier = None
         if 'identifier_w_vn_nr' not in cleaned_data:
             self.service.identifier, self.scipost_identifier = generate_new_scipost_identifier(
-                cleaned_data.get('resubmission', None))
+                cleaned_data.get('is_resubmission_of', None))
             # Also copy to the form data
             self.cleaned_data['identifier_w_vn_nr'] = self.service.identifier
 
