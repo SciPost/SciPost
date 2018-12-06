@@ -244,7 +244,7 @@ class Submission(models.Model):
     def thread(self):
         """Return all (public) Submissions in the database in this ArXiv identifier series."""
         return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
-                '-preprint__vn_nr')
+                '-preprint__vn_nr', '-submission_date')
 
     @cached_property
     def other_versions_public(self):
