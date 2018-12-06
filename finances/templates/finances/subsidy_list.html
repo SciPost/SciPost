@@ -72,7 +72,7 @@ $(document).ready(function($) {
 	<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 	  <td>{{ subsidy.organization }}</td>
 	  <td>{{ subsidy.get_subsidy_type_display }}</td>
-	  <td>&euro;{{ subsidy.amount }}</td>
+	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  <td>{{ subsidy.date }}</td>
 	</tr>
 	{% empty %}

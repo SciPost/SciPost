@@ -25,7 +25,7 @@
 	  <td>Description:</td><td>{{ subsidy.description }}</td>
 	</tr>
 	<tr>
-	  <td>Amount:</td><td>&euro;{{ subsidy.amount }}</td>
+	  <td>Amount:</td><td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	</tr>
 	<tr>
 	  <td>Date:</td><td>{{ subsidy.date }}</td>
