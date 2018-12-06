@@ -21,7 +21,7 @@ def populate_thread_hashes(apps, schema_editor):
 
     for original_submission in Submission.objects.filter(is_resubmission_of__isnull=True):
         children_ids = get_thread_ids(original_submission, [original_submission.id])
-        Submission.objects.filter(id__in=children_ids).update(thread_hash=uuid.uuid4())
+        Submission.objects.filter(id__in=children_ids).update(thread_hash=original_submission.thread_hash)
 
 
 class Migration(migrations.Migration):

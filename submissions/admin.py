@@ -31,6 +31,8 @@ class SubmissionAdminForm(forms.ModelForm):
     authors_false_claims = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
+    is_resubmission_of = forms.ModelChoiceField(
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
 
     class Meta:
         model = Submission

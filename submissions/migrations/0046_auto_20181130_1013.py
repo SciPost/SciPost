@@ -10,7 +10,8 @@ def populate_explicit_resubmission_links(apps, schema_editor):
 
     for resubmission in Submission.objects.filter(preprint__vn_nr__gt=1):
         resub_of = Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=resubmission.preprint.identifier_wo_vn_nr).order_by(
+            preprint__identifier_wo_vn_nr=resubmission.preprint.identifier_wo_vn_nr,
+            preprint__vn_nr__lt=resubmission.preprint.vn_nr).order_by(
             '-preprint__vn_nr').exclude(id=resubmission.id).first()
         Submission.objects.filter(id=resubmission.id).update(is_resubmission_of=resub_of)
 
