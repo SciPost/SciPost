@@ -74,6 +74,8 @@ class Notification(models.Model):
     # of notifications.
     internal_type = models.CharField(max_length=255, blank=True, choices=NOTIFICATION_TYPES)
 
+    url_code = models.CharField(max_length=255, blank=True)
+
     objects = NotificationQuerySet.as_manager()
 
     class Meta:

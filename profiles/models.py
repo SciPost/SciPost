@@ -45,7 +45,7 @@ class Profile(models.Model):
        #. mark somebody as a non-referee (if that person does not want to referee for SciPost)
     """
 
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES, blank=True, null=True)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
@@ -70,20 +70,23 @@ class Profile(models.Model):
         ordering = ['last_name']
 
     def __str__(self):
-        return '%s, %s %s' % (self.last_name, self.get_title_display(), self.first_name)
+        return '%s, %s %s' % (self.last_name,
+                              self.get_title_display() if self.title != None else '',
+                              self.first_name)
 
     @property
     def email(self):
         return getattr(self.emails.filter(primary=True).first(), 'email', '')
 
     @property
-    def has_contributor(self):
-        has_contributor = False
+    def has_active_contributor(self):
+        has_active_contributor = False
         try:
-            has_contributor = (self.contributor is not None)
+            has_active_contributor = (self.contributor is not None and
+                                      self.contributor.is_active)
         except Contributor.DoesNotExist:
             pass
-        return has_contributor
+        return has_active_contributor
 
     def get_absolute_url(self):
         return reverse('profiles:profile_detail', kwargs={'pk': self.id})
@@ -136,9 +139,9 @@ def get_profiles(slug):
                     if tbl.contributor is not None]
     unreg_id_list = [tbl.unregistered_author.id for tbl in publications.all() \
                      if tbl.unregistered_author is not None]
-    print (unreg_id_list)
     return Profile.objects.filter(models.Q(contributor__id__in=cont_id_list) |
-                                  models.Q(unregisteredauthor__id__in=unreg_id_list))
+                                  models.Q(unregisteredauthor__id__in=unreg_id_list
+                                  )).distinct()
 
 
 class ProfileNonDuplicates(models.Model):

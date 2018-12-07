@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import feedparser
+import uuid
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.fields import GenericRelation
@@ -78,7 +79,10 @@ class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
-    is_resubmission = models.BooleanField(default=False)
+    is_resubmission_of = models.ForeignKey(
+        'self', blank=True, null=True, related_name='successor')
+    thread_hash = models.UUIDField(default=uuid.uuid4)
+    _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
 
@@ -87,14 +91,13 @@ class Submission(models.Model):
 
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, blank=True)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                             related_name='voting_pool')
 
-    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE,
-                                     blank=True, null=True)
+    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
                                     related_name='submissions')
     title = models.CharField(max_length=300)
@@ -211,6 +214,10 @@ class Submission(models.Model):
         return self.get_absolute_url()
 
     @property
+    def is_resubmission(self):
+        return self.is_resubmission_of is not None
+
+    @property
     def notification_name(self):
         """Return string representation of this Submission as shown in Notifications."""
         return self.preprint.identifier_w_vn_nr
@@ -261,7 +268,7 @@ class Submission(models.Model):
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).first().submission_date
+            thread_hash=self.thread_hash, is_resubmission_of__isnull=True).first().submission_date
 
     @property
     def in_refereeing_phase(self):
@@ -306,9 +313,8 @@ class Submission(models.Model):
     @property
     def thread(self):
         """Return all (public) Submissions in the database in this ArXiv identifier series."""
-        return Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).order_by(
-                '-preprint__vn_nr')
+        return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
+                '-preprint__vn_nr', '-submission_date')
 
     @cached_property
     def other_versions(self):
@@ -317,8 +323,7 @@ class Submission(models.Model):
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this ArXiv identifier series."""
-        return Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(pk=self.id)
+        return Submission.objects.filter(thread_hash=self.thread_hash).exclude(pk=self.id)
 
     def get_latest_version(self):
         """Return the latest known version in the thread of this Submission."""
@@ -486,12 +491,13 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
             # Only send if status is appropriate to prevent double sending
             return False
 
-        EditorialAssignment.objects.filter(
-            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
-
         # Send mail
         mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
         mail_sender.send()
+
+        EditorialAssignment.objects.filter(
+            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
+
         return True
 
 

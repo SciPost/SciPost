@@ -46,6 +46,7 @@ NO_REQUIRED_ACTION_STATUSES = [
 ]
 
 SUBMISSION_TYPE = (
+    # ('', None),
     ('Letter', 'Letter (broad-interest breakthrough results)'),
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),

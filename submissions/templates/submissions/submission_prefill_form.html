@@ -39,7 +39,8 @@
             <div class='card-body'>
                 <h3>Please provide the arXiv identifier for your Submission</h3>
                 <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
-                <form action="{% url 'submissions:submit_manuscript_arxiv' %}" method="get">
+                <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
+                  {% csrf_token %}
                   {{ form|bootstrap }}
                   <input type="submit" class="btn btn-outline-secondary" value="Query arXiv"/>
                       <br>

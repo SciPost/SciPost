@@ -38,22 +38,11 @@ class UnregisteredAuthor(models.Model):
 
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    profile = models.OneToOneField(
+    profile = models.ForeignKey(
         'profiles.Profile', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.last_name + ', ' + self.first_name
-
-    def merge(self, unregistered_author):
-        """
-        Merge another UnregisteredAuthor into this object.
-        """
-        if unregistered_author == self:  # Do nothing.
-            return
-
-        self.profile = unregistered_author.profile
-        self.save()
-        unregistered_author.delete()
 
 
 class PublicationAuthorsTable(models.Model):

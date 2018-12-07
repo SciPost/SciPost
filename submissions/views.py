@@ -1,10 +1,8 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
 import datetime
 import feedparser
-import json
 import strings
 
 from django.contrib import messages
@@ -32,7 +30,7 @@ from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
-    SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm, #RefereeSelectForm,
     iThenticateReportForm, VotingEligibilityForm,
@@ -58,26 +56,58 @@ from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
 from profiles.models import Profile
-from profiles.forms import SimpleProfileForm
+from profiles.forms import SimpleProfileForm, ProfileEmailForm
 from scipost.constants import INVITATION_REFEREEING
+from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
-from submissions.models import RefereeInvitation
-
-# from notifications.views import is_test_user  # Temporarily until release
 
 
 ###############
 # SUBMISSIONS:
 ###############
+@login_required
+@is_contributor_user()
+def resubmit_manuscript(request):
+    """
+    Choose which Submission to resubmit if Submission is available.
+
+    On POST, redirect to submit page.
+    """
+    submissions = get_list_or_404(
+        Submission.objects.candidate_for_resubmission(request.user))
+    if request.POST and request.POST.get('submission'):
+        if request.POST['submission'] == 'new':
+            return redirect(reverse('submissions:submit_manuscript_scipost') + '?resubmission=false')
+
+        last_submission = Submission.objects.candidate_for_resubmission(request.user).filter(
+            id=request.POST['submission']).first()
+
+        if last_submission:
+            if last_submission.preprint.scipost_preprint_identifier:
+                # Determine right preprint-view.
+                extra_param = '?resubmission={}'.format(request.POST['submission'])
+                return redirect(reverse('submissions:submit_manuscript_scipost') + extra_param)
+            else:
+                extra_param = '?identifier_w_vn_nr={}'.format(
+                    last_submission.preprint.identifier_w_vn_nr)
+                return redirect(reverse('submissions:submit_manuscript') + extra_param)
+        else:
+            # POST request invalid. Try again with GET request.
+            return redirect('submissions:resubmit_manuscript')
+    context = {
+        'submissions': submissions,
+    }
+    return render(request, 'submissions/submission_resubmission_candidates.html', context)
+
 
 class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Formview to submit a new manuscript (Submission)."""
 
     permission_required = 'scipost.can_submit_manuscript'
     success_url = reverse_lazy('scipost:personal_page')
-    form_class = RequestSubmissionForm
+    form_class = SubmissionForm
     template_name = 'submissions/submission_form.html'
 
     def get_context_data(self, *args, **kwargs):
@@ -90,8 +120,8 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
-        if hasattr(self, 'initial_data'):
-            kwargs['initial'] = self.initial_data
+        kwargs['initial'] = getattr(self, 'initial_data', {})
+        kwargs['initial']['resubmission'] = self.request.GET.get('resubmission')
         return kwargs
 
     @transaction.atomic
@@ -105,7 +135,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                 'Your Submission will soon be handled by an Editor.')
         messages.success(self.request, text)
 
-        if form.submission_is_resubmission():
+        if form.is_resubmission():
             # Send emails
             SubmissionUtils.load({'submission': submission}, self.request)
             SubmissionUtils.send_authors_resubmission_ack_email()
@@ -127,35 +157,41 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
     """Formview to submit a new Submission using arXiv."""
 
     def get(self, request):
-        """Redirect to the arXiv prefill form if arXiv ID is not known."""
+        """
+        Redirect to the arXiv prefill form if arXiv ID is not known.
+        """
         form = SubmissionIdentifierForm(request.GET or None, requested_by=self.request.user)
         if form.is_valid():
             # Gather data from ArXiv API if prefill form is valid
-            self.initial_data = form.request_arxiv_preprint_form_prefill_data()
+            self.initial_data = form.get_initial_submission_data()
             return super().get(request)
         else:
+            for code, err in form.errors.items():
+                messages.warning(request, err[0])
             return redirect('submissions:prefill_using_identifier')
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['use_arxiv_preprint'] = True
+        kwargs['preprint_server'] = 'arxiv'
         return kwargs
 
 
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     """Formview to submit a new Submission using SciPost's preprint server."""
 
-    def dispatch(self, request, *args, **kwargs):
-        """TEMPORARY: Not accessible unless in test group."""
-        # if not is_test_user(request.user):
-        #     raise Http404
-        return super().dispatch(request, *args, **kwargs)
+    def get(self, request):
+        """Check for possible Resubmissions before dispatching."""
+        if Submission.objects.candidate_for_resubmission(request.user).exists():
+            if not request.GET.get('resubmission'):
+                return redirect('submissions:resubmit_manuscript')
+        return super().get(request)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['use_arxiv_preprint'] = False
+        # kwargs['use_arxiv_preprint'] = False
+        kwargs['preprint_server'] = 'scipost'
         return kwargs
 
 
@@ -165,13 +201,10 @@ def prefill_using_arxiv_identifier(request):
     """Form view asking for the arXiv ID related to the new Submission to submit."""
     query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None,
                                           requested_by=request.user)
-    if query_form.is_valid():
-        prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
-        form = RequestSubmissionForm(
-            initial=prefill_data, requested_by=request.user, use_arxiv_preprint=True)
 
+    if query_form.is_valid():
         # Submit message to user
-        if query_form.submission_is_resubmission():
+        if query_form.service.is_resubmission():
             resubmessage = ('There already exists a preprint with this arXiv identifier '
                             'but a different version number. \nYour Submission will be '
                             'handled as a resubmission.')
@@ -179,14 +212,10 @@ def prefill_using_arxiv_identifier(request):
         else:
             messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
 
-        context = {
-            'form': form,
-        }
         response = redirect('submissions:submit_manuscript_arxiv')
         response['location'] += '?identifier_w_vn_nr={}'.format(
             query_form.cleaned_data['identifier_w_vn_nr'])
-        # return render(request, 'submissions/submission_form.html', context)
-        return reponse
+        return response
 
     context = {
         'form': query_form,
@@ -915,6 +944,7 @@ def select_referee(request, identifier_w_vn_nr):
         'workdays_left_to_report': workdays_between(timezone.now(), submission.reporting_deadline),
         'referee_search_form': referee_search_form,
         'queryresults': queryresults,
+        'profile_email_form': ProfileEmailForm(initial={'primary': True}),
     })
     return render(request, 'submissions/select_referee.html', context)
 
@@ -1620,7 +1650,8 @@ def prepare_for_voting(request, rec_id):
             Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
             Q(contributor__expertises__contains=secondary_areas)).order_by(
                 'contributor__user__last_name')
-        coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
+        #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
+        coauthorships = None
 
     context = {
         'recommendation': recommendation,

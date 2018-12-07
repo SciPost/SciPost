@@ -65,14 +65,19 @@ urlpatterns = [
         name='potential_fellowship_delete'
     ),
     url(
-        r'^potentialfellowships/(?P<pk>[0-9]+)/events/add$',
+        r'^potentialfellowships/(?P<pk>[0-9]+)/events/add/$',
         views.PotentialFellowshipEventCreateView.as_view(),
         name='potential_fellowship_event_create'
     ),
     url(
-        r'^potentialfellowships/(?P<pk>[0-9]+)/email/$',
+        r'^potentialfellowships/(?P<pk>[0-9]+)/email_initial/$',
         views.PotentialFellowshipInitialEmailView.as_view(),
         name='potential_fellowship_email_initial'
+    ),
+    url(
+        r'^potentialfellowships/(?P<pk>[0-9]+)/$',
+        views.PotentialFellowshipDetailView.as_view(),
+        name='potential_fellowship_detail'
     ),
     url(
         r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',

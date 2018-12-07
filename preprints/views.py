@@ -1,6 +1,7 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import os
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -28,7 +29,13 @@ def preprint_pdf(request, identifier_w_vn_nr):
                 contributor__user=request.user).exists():
                     raise Http404
 
-    response = HttpResponse(preprint._file.read(), content_type='application/pdf')
-    filename = '{}.pdf'.format(preprint.identifier_w_vn_nr)
-    response['Content-Disposition'] = ('filename=' + filename)
+    __, extension = os.path.splitext(preprint._file.name)
+    if extension == '.pdf':
+        response = HttpResponse(preprint._file.read(), content_type='application/pdf')
+        filename = '{}.pdf'.format(preprint.identifier_w_vn_nr)
+        response['Content-Disposition'] = ('filename=' + filename)
+    else:
+        response = HttpResponse(preprint._file.read(), content_type='application/force-download')
+        filename = '{}{}'.format(preprint.identifier_w_vn_nr, extension)
+        response['Content-Disposition'] = ('filename=' + filename)
     return response
