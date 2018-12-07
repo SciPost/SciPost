@@ -89,8 +89,8 @@
 
         {% include 'partials/submissions/submission_status.html' with submission=submission %}
 
+        {% include 'partials/submissions/submission_topics.html' with submission=submission %}
 	<br/>
-	{% include 'partials/submissions/submission_topics_card.html' with submission=submission %}
 
         {% if submission.author_comments %}
             <h3>Author comments upon resubmission</h3>
