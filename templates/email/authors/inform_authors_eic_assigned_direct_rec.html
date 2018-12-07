@@ -1,0 +1,19 @@
+<p>
+    Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},
+</p>
+<p>
+  For your information, a Contributor Comment has been posted on a recent Report on your Submission
+  <br><br>
+  {{ submission.title }}
+  <br>by {{ submission.author_list }}<br>
+  (see https://scipost.org{{ submission.get_absolute_url }}.
+</p>
+
+<p>has been assigned to an editor. The editor chose to directly formulate an Editorial Recommendation.</p>
+<p>You will be informed shortly by email about the status of this Editorial Recommendation.</p>
+
+<p>
+    Sincerely,
+    <br>
+    The SciPost Team.
+</p>

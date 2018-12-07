@@ -48,6 +48,7 @@ from common.utils import workdays_between
 from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
+from mails.utils import DirectMailUtil
 from mails.views import MailEditingSubView
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
@@ -681,6 +682,12 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             if form.is_normal_cycle():
                 # Inform authors about new status.
                 SubmissionUtils.send_author_prescreening_passed_email()
+            else:
+                # Inform authors about new status.
+                mail_sender = DirectMailUtil(
+                    mail_code='authors/inform_authors_eic_assigned_direct_eic',
+                    assignment=submission)
+                mail_sender.send()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
             msg = 'Thank you for becoming Editor-in-charge of this submission.'
