@@ -46,6 +46,8 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditingSubView
+from ontology.models import Topic
+from ontology.forms import SelectTopicForm
 from organizations.models import Organization
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
@@ -161,7 +163,7 @@ def landing_page(request, doi_label):
         'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
         'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
         'accepted_submissions': Submission.objects.accepted().filter(
-            submitted_to_journal=journal.name).order_by('-latest_activity'),
+            submitted_to=journal).order_by('-latest_activity'),
     }
     return render(request, 'journals/journal_landing_page.html', context)
 
@@ -181,12 +183,14 @@ def redirect_to_about(request, doi_label):
         reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
 
 def info_for_authors(request, doi_label):
+    """Author information about the Journal."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {'journal': journal}
     return render(request, 'journals/%s_info_for_authors.html' % doi_label, context)
 
 
 def about(request, doi_label):
+    """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
         'subject_areas': SCIPOST_SUBJECT_AREAS,
@@ -196,6 +200,7 @@ def about(request, doi_label):
 
 
 def issue_detail(request, doi_label):
+    """Issue detail page."""
     issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
     journal = issue.in_journal or issue.in_volume.in_journal
 
@@ -221,9 +226,7 @@ def issue_detail(request, doi_label):
 # Publication process #
 #######################
 class PublicationGrantsView(PermissionsMixin, UpdateView):
-    """
-    Add/update grants associated to a Publication.
-    """
+    """Add/update grants associated to a Publication."""
     permission_required = 'scipost.can_draft_publication'
     queryset = Publication.objects.drafts()
     slug_field = slug_url_kwarg = 'doi_label'
@@ -770,6 +773,38 @@ def metadata_DOAJ_deposit(request, doi_label):
                             kwargs={'doi_label': publication.doi_label}))
 
 
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def publication_add_topic(request, doi_label):
+    """
+    Add a predefined Topic to an existing Publication object.
+    This also adds the Topic to all Submissions of this Publication.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    select_topic_form = SelectTopicForm(request.POST or None)
+    if select_topic_form.is_valid():
+        publication.topics.add(select_topic_form.cleaned_data['topic'])
+        for sub in publication.accepted_submission.thread:
+            sub.topics.add(select_topic_form.cleaned_data['topic'])
+        messages.success(request, 'Successfully linked Topic to this publication')
+    return redirect(reverse('scipost:publication_detail',
+                            kwargs={'doi_label': publication.doi_label}))
+
+
+@permission_required('scipost.can_manage_ontology', return_403=True)
+def publication_remove_topic(request, doi_label, slug):
+    """
+    Remove the Topic from the Publication, and from all associated Submissions.
+    """
+    publication = get_object_or_404(Publication, doi_label=doi_label)
+    topic = get_object_or_404(Topic, slug=slug)
+    publication.topics.remove(topic)
+    for sub in publication.accepted_submission.thread:
+        sub.topics.remove(topic)
+    messages.success(request, 'Successfully removed Topic')
+    return redirect(reverse('scipost:publication_detail',
+                            kwargs={'doi_label': publication.doi_label}))
+
+
 @login_required
 def allocate_orgpubfractions(request, doi_label):
     """
@@ -1268,6 +1303,7 @@ def publication_detail(request, doi_label):
         'publication': publication,
         'affiliations_list': publication.get_all_affiliations(),
         'journal': publication.get_journal(),
+        'select_topic_form': SelectTopicForm(),
     }
     return render(request, 'journals/publication_detail.html', context)
 

@@ -5,30 +5,25 @@
 {% block pagetitle %}: Journals{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="container-outside header">
+    <nav class="navbar navbar-expand-lg sub-nav">
         <div class="container">
-            <h1 class="highlight">SciPost Journals</h1>
-        </div>
-    </div>
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <span class="nav-link">Our Journals:</span>
+                </li>
 
-    <div class="container-outside sub-nav lighter">
-        <div class="container">
-            <nav class="navbar sub-nav navbar-expand-lg">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><span class="nav-link">Our Journals:</span></li>
-                    {% for journal in journals %}
-                        <li class="nav-item">
-                            {% if journal.active %}
-                                <a href="{{journal.get_absolute_url}}" class="nav-link">{{journal}}</a>
-                            {% elif perms.scipost.can_view_pool %}
-                                <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </div>
-            </nav>
+                {% for journal in journals %}
+                    <li class="nav-item">
+                        {% if journal.active %}
+                            <a href="{{ journal.get_absolute_url }}" class="nav-link">{{journal}}</a>
+                        {% elif perms.scipost.can_view_pool %}
+                            <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
-    </div>
+    </nav>
 
 
 {% endblock %}
@@ -89,7 +84,7 @@
     </div>
     <div class="card">
       <div class="card-header banner">
-	<h1 class="m-0"><a href="{% url 'scipost:landing_page' 'SciPostPhysComm' %}">SciPost Physics Commons</a>&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
+	<h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysComm' %}">SciPost Physics Commons</a>&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
       </div>
       <div class="card-body">
 	<p>SciPost Physics Commons is a premium-quality refereed Journal for the general field of Physics.</p>
@@ -103,17 +98,17 @@
   <div class="card-deck">
     <div class="card">
       <div class="card-header banner">
-	<h1 class="m-0"><a href="{% url 'scipost:landing_page' 'SciPostPhysLectNotes' %}">SciPost Physics Lecture Notes</a></h1>
+	<h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysLectNotes' %}">SciPost Physics Lecture Notes</a></h1>
       </div>
       <div class="card-body">
 	<p>SciPost Physics Lecture Notes publishes didactic material in all domains and subject areas of Physics.</p>
-	<p>SciPost Physics Lecture Notes is the ideal venue for research-level didactic material, (post-)graduate course notes, or for lecture notes from international-level summer/winter schools.</p>
+	<p>SciPost Physics Lecture Notes is the ideal venue for research-level didactic material, (post-)graduate course notes, or for lecture notes from international-level schools.</p>
 	<p>All submissions undergo an extended peer-witnessed refereeing process, and publications benefit from all the advantages of our Genuine Open Access standards.</p>
       </div>
     </div>
     <div class="card">
       <div class="card-header banner">
-	<h1 class="m-0"><a href="{% url 'scipost:landing_page' 'SciPostPhysProc' %}">SciPost Physics Proceedings</a></h1>
+	<h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysProc' %}">SciPost Physics Proceedings</a></h1>
       </div>
       <div class="card-body">
         <p>SciPost Physics Proceedings is a premium-quality, two-way open access, community-run peer-witnessed refereed publishing venue for conference/workshop/school proceedings in Experimental, Theoretical and Computational physics, in all specializations.</p>
@@ -122,7 +117,7 @@
     </div>
     <div class="card">
       <div class="card-header banner">
-	<h1 class="m-0"><a href="{% url 'scipost:landing_page' 'SciPostPhysCodeb' %}">SciPost Physics Codebases</a>&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
+	<h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysCodeb' %}">SciPost Physics Codebases</a>&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
       </div>
       <div class="card-body">
 	<p>SciPost Physics Codebases is an innovative peer-reviewed publication venue for modern forms of scientific contributions which too often remain unrecognized: codes and algorithms at the heart of contemporary research.</p>
@@ -139,7 +134,8 @@
 
 <div class="row">
     <div class="col-12">
-      <h2>View and comment on current <a href="{% url 'submissions:submissions' %}">Submissions</a> <small>(login required)</small></h2>
+      <h1 class="highlight">SciPost Physics Journals</h1>
+      <h3>View and comment on current <a href="{% url 'submissions:submissions' %}">Submissions</a> <small>(login required)</small></h3>
     </div>
 </div>
 

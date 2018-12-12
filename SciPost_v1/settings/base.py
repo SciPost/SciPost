@@ -81,7 +81,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    # 'django_mathjax',
     'affiliations',
     'ajax_select',
     'captcha',
@@ -94,7 +93,6 @@ INSTALLED_APPS = (
     'finances',
     'guides',
     'guardian',
-    # 'haystack',
     'invitations',
     'journals',
     'mailing_lists',
@@ -113,6 +111,7 @@ INSTALLED_APPS = (
     'submissions',
     'theses',
     'virtualmeetings',
+    'ontology',
     'organizations',
     'profiles',
     # TODO: partners to be deprecated in favour of sponsors
@@ -153,9 +152,6 @@ SPHINXDOC_PROTECTED_PROJECTS = {
     'developers': ['scipost.can_view_docs_scipost'],
 }
 
-CAPTCHA_CHALLENGE_FUNCT = 'captcha.helpers.math_challenge'
-CAPTCHA_LETTER_ROTATION = (-15, 15)
-CAPTCHA_NOISE_FUNCTIONS = ('captcha.helpers.noise_dots',)
 
 SHELL_PLUS_POST_IMPORTS = (
     ('theses.factories', ('ThesisLinkFactory')),
@@ -206,6 +202,7 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'journals.context_processors.journals_processor',
             ],
         },
     },
@@ -318,7 +315,6 @@ DOAJ_API_KEY = ''
 # https://developers.google.com/recaptcha/docs/faq#id-like-to-run-automated-tests-with-recaptcha-v2-what-should-i-do
 RECAPTCHA_PUBLIC_KEY = '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'
 RECAPTCHA_PRIVATE_KEY = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'
-NOCAPTCHA = True
 
 
 # PASSWORDS

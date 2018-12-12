@@ -1,24 +1,18 @@
-{% extends 'scipost/base.html' %}
+{% extends 'submissions/base.html' %}
 
 {% load staticfiles %}
 
 {% block pagetitle %}: refereeing guide{% endblock pagetitle %}
 
-
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <span class="breadcrumb-item">Refereeing guide</span>
-            </nav>
-        </div>
-    </div>
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Refereeing guide</span>
 {% endblock %}
 
 {% block content %}
 
 
-<h1 class="highlight-x">Refereeing at SciPost</h1>
+<h1 class="highlight">Refereeing at SciPost</h1>
 <h2 class="highlight-x">A guide for referees and authors</h2>
 
 <div class="row">

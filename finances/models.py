@@ -36,6 +36,7 @@ class Subsidy(models.Model):
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
     description = models.TextField()
     amount = models.PositiveIntegerField(help_text="in &euro; (rounded)")
+    amount_publicly_shown = models.BooleanField(default=True)
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     date = models.DateField()
     date_until = models.DateField(blank=True, null=True)

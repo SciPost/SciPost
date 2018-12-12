@@ -50,7 +50,7 @@
     </tr>
     <tr>
         <td>Submitted to:</td>
-        <td>{{submission.get_submitted_to_journal_display}}</td>
+        <td>{{submission.submitted_to}}</td>
     </tr>
     <tr>
         <td>Domain(s):</td>
@@ -68,6 +68,6 @@
             <a href="{% url 'submissions:refereeing_package_pdf' submission.preprint.identifier_w_vn_nr %}" target="_blank" class="btn btn-outline-primary">Download Refereeing Package</a>
         </p>
     {% endif %}
-    <h3 class="mt-3">Abstract</h3>
+    <h3 class="mt-4">Abstract</h3>
     <p>{{submission.abstract}}</p>
 {% endif %}

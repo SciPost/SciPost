@@ -3,28 +3,7 @@
 {% load render_bundle from webpack_loader %}
 {% load staticfiles %}
 
-{% block body_class %}{{block.super}} has-breadcrumb-submenu homepage{% endblock %}
-
-{% block breadcrumb %}
-    <div class="container-outside sub-nav">
-        <div class="container">
-            <nav class="navbar sub-nav navbar-expand-lg">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><span class="nav-link">Our Journals:</span></li>
-                    {% for journal in journals %}
-                        <li class="nav-item">
-                            {% if journal.active %}
-                                <a href="{{journal.get_absolute_url}}" class="nav-link">{{journal}}</a>
-                            {% elif perms.scipost.can_view_pool %}
-                                <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </div>
-            </nav>
-        </div>
-    </div>
-{% endblock %}
+{% block body_class %}{{ block.super }} homepage{% endblock %}
 
 {% block footer_script %}
     {% render_bundle 'homepage' 'js' %}
@@ -34,165 +13,48 @@
     <div class="row">
         <div class="col-lg-6">
             <!-- Latest publications -->
-            <div class="card card-grey px-3">
-                <div class="card-header px-0">
-                    <h2 class="mb-0"><a href="{% url 'journals:journals' %}" class="text-black">Latest Publications</a></h2>
+            <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
+                <div class="card-body pb-0">
+                    <h2 class="title mb-3">Latest Publications</h2>
+                    <hr class="sm mb-0 mt-2">
                 </div>
-                <div class="card-body p-0">
-                  <ul class="list-group list-group-flush">
-                      {% for publication in publications %}
-                          <li class="list-group-item">
-                              <div class="card-body px-0">
-                                  {% include 'partials/journals/publication_li_content.html' with publication=publication %}
-                              </div>
-                          </li>
-                      {% endfor %}
-                      <li class="list-group-item">
-                          <div class="card-body pt-3 mb-2">
-                              <a href="{% url 'journals:journals' %}">All Journals</a>
-                          </div>
-                      </li>
-                  </ul>
-                </div>
+                <ul class="list-group list-group-flush px-3 mb-3">
+                    {% for publication in publications %}
+                        <li class="list-group-item py-2">
+                            {% include 'partials/journals/publication_li_content.html' with publication=publication %}
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications.</a></p>
             </div><!-- End latest publications -->
         </div>
 
         <div class="col-lg-6">
             <!-- Latest submissions -->
-            <div class="card card-grey px-3">
-                <div class="card-header px-0">
-                    <h2 class="mb-0"><a href="{% url 'submissions:submissions' %}" class="text-black">Latest Submissions</a></h2>
+            <div class="card card-submissions bg-light px-1 mb-2 scipost-bar">
+                <div class="card-body pb-0">
+                    <h2 class="title mb-3">Latest Submissions</h2>
+                    <hr class="sm mb-0 mt-2">
                 </div>
-                <div class="card-body p-0">
-                  <ul class="list-group list-group-flush">
-                      {% for submission in submissions %}
-                          <li class="list-group-item">
-                              <div class="card-body px-0">
-                                  {% include 'partials/submissions/submission_card_content_homepage.html' with submission=submission %}
-                              </div>
-                          </li>
-                      {% endfor %}
-                      <li class="list-group-item">
-                          <div class="card-body pt-3 mb-2">
-                              <a href="{% url 'submissions:submissions' %}">All submissions</a>
-                          </div>
+                <ul class="list-group list-group-flush px-3 mb-3">
+                  {% for submission in submissions %}
+                      <li class="list-group-item py-2">
+                          {% include 'partials/submissions/submission_card_content_homepage.html' with submission=submission %}
                       </li>
-                  </ul>
-                </div>
+                  {% endfor %}
+                </ul>
+                <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions.</a></p>
             </div><!-- End latest submissions -->
         </div>
     </div>
 {% endblock %}
 
 {% block sidebar %}
-    <div class="card card-grey">
-      <div class="card-body">
-	<h2 class="card-title mb-0"><a href="{% url 'scipost:ExpSustDrive2018' %}">Expansion and Sustainability Drive 2018</a></h2>
-	<p class="m-0">It is time for us to be bold and unleash the next steps in our implementation plans. Read more <a href="{% url 'scipost:ExpSustDrive2018' %}">here</a> on how you can concretely help. Follow developments at <a href="https://twitter.com/hashtag/SciPostDrive2018">#SciPostDrive2018</a>.</p>
-      </div>
-    </div>
+    {% include 'scipost/index_sidebar_2.html' %}
 
-    {% if not user.is_authenticated %}
-        <!-- Register -->
-        <div class="card card-grey">
-            <div class="card-body">
-                <h2 class="card-title mb-0">Register</h2>
-                <p class="m-0">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
-            </div>
-        </div><!-- End Register -->
-    {% endif %}
-
-    <!-- News -->
-    <div class="card card-grey" id="news">
-        <div class="card-header border-0">
-            <h2 class="card-title mb-0">
-                News
-                <a class="floating-rss-icon" href="{% url 'scipost:feeds' %}">
-                    <img src="{% static 'scipost/images/feed-icon-14x14.png' %}" alt="Feed logo" width="14">
-                </a>
-            </h2>
-            <h4 class="card-subtitle pb-0 text-muted">Latest news and announcements.</h4>
-        </div>
-        <div class="card-body">
-            <ul class="list-group list-group-flush">
-                {% if latest_newsitem %}
-                    <li class="list-group-item">
-                        {% include 'news/news_card_content_short.html' with news=latest_newsitem %}
-                    </li>
-                {% else %}
-                    <li class="list-group-item">
-                        No current newsitems found.
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-        <div class="card-footer"><a href="{% url 'news:news' %}">More news</a></div>
-    </div><!-- End news -->
-
-    {# {% comment %}#}
-    <!-- Sponsors -->
-    <div class="card card-grey">
-        <div class="card-body">
-            <h2 class="card-title">Sponsors</h2>
-
-            <div>
-                <p>
-                    SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Sponsors provide operating funds to SciPost through a cost-slashing consortial model.
-                </p>
-                <p>
-		  We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
-                </p>
-		<p>
-		  <span style="color: red;">Scientists, please help us out:</span> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
-		</p>
-		<p>Do you or somebody you know have the means to make a difference?
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
-">
-<input type="image" src="https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal – The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.paypalobjects.com/nl_NL/i/scr/pixel.gif" width="1" height="1">
-</form>
-		</p>
-            </div>
-        </div>
-    </div><!-- End Sponsors -->
-    {# {% endcomment %}#}
-
-    <!-- Summarized -->
-    <div class="card card-grey">
-        <div class="card-body">
-            <h2 class="card-title">
-                <a href="{% url 'journals:journals' %}">Journals</a>
-            </h2>
-            <h4 class="card-subtitle pt-0 mb-2 text-muted">SciPost publishes a portfolio of high-quality two-way open access scientific journals.</h4>
-            <p>
-                All SciPost Journals implement the stringent <a href="{% url 'scipost:FAQ' %}#pwr">peer-witnessed refereeing</a> principle.
-                <br>
-                All Journals are fully managed by professional scientists.
-            </p>
-            <p>
-                <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>
-                <br>
-                <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
-		<br>
-		<a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>
-		<br>
-		<a href="{% url 'submissions:referee_guidelines' %}">Referee guidelines</a>
-            </p>
-            <h2 class="card-title">
-                <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
-            </h2>
-            <p>SciPost Commentaries allow Contributors to comment and build on all existing literature.</p>
-            <h2 class="card-title">
-                <a href="{% url 'theses:theses' %}">Theses</a>
-            </h2>
-            <p>SciPost Theses allow Contributors to find Master's, Ph.D. and Habilitation theses relevant to their work.</p>
-        </div>
-    </div><!-- End Summarized -->
 {% endblock %}
 
-{% block secondary_footer %}
+{% block content_footer %}
     <footer class="container-fluid text-left secondary pt-4 mt-5">
         <div class="row">
             <div class="col-lg-6">

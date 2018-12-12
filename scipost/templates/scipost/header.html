@@ -1,17 +1,89 @@
 {% load staticfiles %}
-    <header>
-        <div class="container">
-            <div class="content">
-              <div class="logobox">
-        	<a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" /></a>
-              </div>
-              <div class="blurbbox d-none d-md-block">
-            	<p>
-            	  <i>The complete scientific publication portal</i><br />
-            	  <i>Managed by professional scientists</i><br />
-            	  <i>For open, global and perpetual access to science</i>
-            	</p>
-              </div>
+{% load notifications_tags %}
+
+<header>
+    <div class="container">
+        <div class="d-md-flex justify-content-between">
+            <div class="logobox">
+                <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="180" /></a>
             </div>
+
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a class="nav-link" id="header-search-button" href="{% url 'scipost:search' %}">
+                      <i class="fa fa-search"></i>
+                      Search
+                  </a>
+
+                  <div id="header-search-form"{% if not request.GET.q %} style="display: none;"{% endif %}>
+                    <form method="get" action="{% url 'scipost:search' %}">
+                        <input type="text" name="q" placeholder="Search term" value="{{ request.GET.q }}">
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-link">
+                                <i class="fa fa-search"></i>
+                                Search
+                            </button>
+                            <a href="javascript:;" class="btn btn-link close-form" id="header-search-close-btn">
+                                <i class="fa fa-times"></i>
+                            </a>
+                        </div>
+                    </form>
+                  </div>
+                </li>
+                <li class="nav-item">
+                    <span class="separator">&middot;</span>
+                  <a class="nav-link" href="{% url 'scipost:about' %}">About</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <span class="separator">&middot;</span>
+                  <a class="nav-link dropdown-toggle" href="javascript:;" data-toggle="dropdown">Our journals </a>
+
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                      {% for journal in journals %}
+                          {% if journal.active %}
+                              <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{journal}}</a>
+                          {% elif perms.scipost.can_view_pool %}
+                              <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{journal}}</a>
+                          {% endif %}
+                      {% endfor %}
+                  </div>
+                </li>
+            </ul>
         </div>
-    </header>
+
+        <script type="text/javascript">
+            function searchHeader() {
+                document.getElementById("header-search-button").addEventListener("click", function(event){
+                    if (document.documentElement.clientWidth > 768) {
+                        event.preventDefault();
+                        var x = document.getElementById("header-search-form");
+                        if (x.style.display === "none") {
+                            x.style.display = "block";
+                        } else {
+                            x.style.display = "none";
+                        }
+                    }
+                });
+
+                document.getElementById("header-search-close-btn").addEventListener("click", function(event){
+                    var x = document.getElementById("header-search-form");
+                    x.style.display = "none"
+                });
+
+                if (document.documentElement.clientWidth <= 768) {
+                    // Force-close if form is prefilled.
+                    x.style.display = "none";
+                }
+            }
+            searchHeader();
+        </script>
+
+        {% comment %}
+            <div id="search-header">
+                <form method="get" action="{% url 'scipost:search' %}">
+                    <input type="text" name="q" placeholder="Search term">
+                </form>
+            </div>
+        {% endcomment %}
+    </div>
+</header>

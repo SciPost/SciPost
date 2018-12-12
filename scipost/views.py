@@ -8,19 +8,21 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from django.contrib.auth.views import password_reset, password_reset_confirm
+from django.contrib.auth.views import password_reset, password_reset_confirm, LogoutView
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
-from django.core.urlresolvers import reverse
-from django.db.models import Prefetch
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import transaction
 from django.http import Http404
 from django.shortcuts import redirect
 from django.template import Context, Template
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
 from django.views.debug import cleanse_setting
@@ -33,13 +35,13 @@ from .constants import (
     SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict,
     SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
 from .decorators import has_contributor, is_contributor_user
-from .models import (
-    Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege,
-    EditorialCollegeFellowship)
+from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege
 from .forms import (
     AuthenticationForm, UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
-    PasswordChangeForm, EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
+    PasswordChangeForm, ContributorMergeForm,
+    EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
+from .mixins import PermissionsMixin, PaginationMixin
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from affiliations.forms import AffiliationsFormset
@@ -49,7 +51,7 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
-from journals.models import Publication, Journal, PublicationAuthorsTable
+from journals.models import Publication, PublicationAuthorsTable
 from news.models import NewsItem
 from organizations.models import Organization
 from partners.models import MembershipAgreement
@@ -116,9 +118,10 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'journals': Journal.objects.order_by('name'),
+        # 'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
         'current_sponsors': (Organization.objects.with_subsidy_above_and_up_to(5000, 1000000000)
@@ -154,6 +157,7 @@ def feeds(request):
 # Contributors:
 ################
 
+@transaction.atomic
 def register(request):
     """
     Contributor registration form page.
@@ -404,12 +408,18 @@ def login_view(request):
     return render(request, 'scipost/login.html', context)
 
 
-def logout_view(request):
-    """Logout form page."""
-    logout(request)
-    messages.success(request, ('<h3>Keep contributing!</h3>'
-                               'You are now logged out of SciPost.'))
-    return redirect(reverse('scipost:index'))
+class SciPostLogoutView(LogoutView):
+    """Logout processing page."""
+
+    next_page = reverse_lazy('scipost:index')
+    redirect_field_name = 'next'
+
+    @method_decorator(never_cache)
+    def dispatch(self, request, *args, **kwargs):
+        """Add message to request after logout."""
+        response = super().dispatch(request, *args, **kwargs)
+        messages.success(request, '<h3>Keep contributing!</h3> You are now logged out of SciPost.')
+        return response
 
 
 @login_required
@@ -488,6 +498,7 @@ def _personal_page_editorial_actions(request):
         'Editorial College',
         'Vetting Editors',
         'Junior Ambassadors']).exists() or request.user.is_superuser
+    permission = permission or request.user.contributor.is_MEC()
 
     if not permission:
         raise PermissionDenied
@@ -956,6 +967,86 @@ def contributor_info(request, contributor_id):
                'contributor_comments': contributor_comments,
                'contributor_authorreplies': contributor_authorreplies}
     return render(request, 'scipost/contributor_info.html', context)
+
+
+class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
+    """
+    List Contributors with potential (not yet handled) duplicates.
+    Two sources of duplicates are separately considered:
+    - duplicate full names (last name + first name)
+    - duplicate email addresses.
+
+    """
+    permission_required = 'scipost.can_vet_registration_requests'
+    model = Contributor
+    template_name = 'scipost/contributor_duplicate_list.html'
+
+    def get_queryset(self):
+        queryset = Contributor.objects.all()
+        if self.request.GET.get('kind') == 'names':
+            queryset = queryset.with_duplicate_names()
+        elif self.request.GET.get('kind') == 'emails':
+            queryset = queryset.with_duplicate_emails()
+        else:
+            queryset = queryset.with_duplicate_names()
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        if len(context['object_list']) > 1:
+            initial = {
+                'to_merge': context['object_list'][0].id,
+                'to_merge_into': context['object_list'][1].id
+                }
+            context['merge_form'] = ContributorMergeForm(initial=initial)
+        return context
+
+
+@transaction.atomic
+@permission_required('scipost.can_vet_registration_requests')
+def contributor_merge(request):
+    """
+    Handles the merging of data from one Contributor instance to another,
+    to solve one person - multiple registrations issues.
+
+    Both instances are preserved, but the merge_from instance's
+    status is set to DOUBLE_ACCOUNT and its User is set to inactive.
+
+    If both Contributor instances were active, then the account owner
+    is emailed with information about the merge.
+    """
+    merge_form = ContributorMergeForm(request.POST or None, initial=request.GET)
+    context = {'merge_form': merge_form}
+
+    if request.method == 'POST':
+        if merge_form.is_valid():
+            contributor = merge_form.save()
+            messages.success(request, 'Contributors merged')
+            return redirect(reverse('scipost:contributor_duplicates'))
+        else:
+            try:
+                context.update({
+                    'contributor_to_merge': get_object_or_404(
+                        Contributor, pk=merge_form.cleaned_data['to_merge'].id),
+                    'contributor_to_merge_into': get_object_or_404(
+                        Contributor, pk=merge_form.cleaned_data['to_merge_into'].id)
+                })
+            except ValueError:
+                raise Http404
+
+    elif request.method == 'GET':
+        try:
+            context.update({
+                'contributor_to_merge': get_object_or_404(Contributor,
+                                                          pk=int(request.GET['to_merge'])),
+                'contributor_to_merge_into': get_object_or_404(Contributor,
+                                                               pk=int(request.GET['to_merge_into'])),
+                })
+        except ValueError:
+            raise Http404
+
+    return render(request, 'scipost/contributor_merge.html', context)
 
 
 ####################

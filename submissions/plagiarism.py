@@ -49,7 +49,7 @@ class iThenticate:
 
         Generates a new folder and id if needed.
         """
-        group_re = '{journal}_submissions'.format(journal=submission.submitted_to_journal)
+        group_re = '{journal}_submissions'.format(journal=submission.submitted_to.doi_label)
         folder_re = '{year}_{month}'.format(
             year=submission.submission_date.year,
             month=submission.submission_date.month

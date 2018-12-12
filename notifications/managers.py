@@ -3,26 +3,37 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
+from django.utils import timezone
+
+from datetime import timedelta
 
 
 class NotificationQuerySet(models.query.QuerySet):
+    """Queryset for Notification model."""
 
     def unsent(self):
+        """Return all non-emailed Notications."""
         return self.filter(emailed=False)
 
     def sent(self):
+        """Return all emailed Notications."""
         return self.filter(emailed=True)
 
     def unread(self):
-        """Return only unread items in the current queryset"""
+        """Return only unread items in the current queryset."""
         return self.filter(unread=True)
 
+    def unread_or_today(self):
+        """Return only unread items and those created in the last 24 hours."""
+        now_min_24 = timezone.now() - timedelta(hours=24)
+        return self.filter(models.Q(unread=True) | models.Q(created__gt=now_min_24)).distinct()
+
     def pseudo_unread(self):
-        """Return only unread items in the current queryset"""
+        """Return only unread items in the current queryset."""
         return self.filter(pseudo_unread=True)
 
     def read(self):
-        """Return only read items in the current queryset"""
+        """Return only read items in the current queryset."""
         return self.filter(unread=False)
 
     def mark_all_as_read(self, recipient=None):
@@ -55,12 +66,12 @@ class NotificationQuerySet(models.query.QuerySet):
         return qs.update(unread=True)
 
     def deleted(self):
-        """Return only deleted items in the current queryset"""
+        """Return only deleted items in the current queryset."""
         raise DeprecationWarning
         return self.filter(deleted=True)
 
     def active(self):
-        """Return only active(un-deleted) items in the current queryset"""
+        """Return only active(un-deleted) items in the current queryset."""
         raise DeprecationWarning
         return self.filter(deleted=False)
 

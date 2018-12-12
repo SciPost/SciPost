@@ -29,14 +29,15 @@
 
 <br>
 
-<li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
-{% if submission.status == 'incoming' %}
-    <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
-{% else %}
-    <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
-{% endif %}
+<ul>
+    <li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
+    {% if submission.status == 'incoming' %}
+        <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
+    {% else %}
+        <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
+    {% endif %}
+</ul>
 
-<br><br>
 
 <h3 class="highlight">Current invitations</h3>
 <table class="submission" id="current-status">
@@ -183,8 +184,8 @@
                                 {% if conflict_groups %}
                                     {{ conflict_groups|length }} potential conflict{{ conflict_groups|length|pluralize }} found
                                     <br>
-                                    <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ form.instance.id }}">Show/hide conflicts</a>
-                                    <div id="fellow-conflicts-{{ form.instance.id }}">
+                                    <a href="javascript:;" data-toggle="toggle" data-target="#fellow-conflicts-{{ forloop.counter }}">Show/hide conflicts</a>
+                                    <div id="fellow-conflicts-{{ forloop.counter }}">
                                         {% for conflict_group in conflict_groups %}
                                             <div class="my-1">
                                                 <h4 class="mb-1"><a href="{{ conflict_group.url }}" target="_blank">{{ conflict_group.title }}</a></h4>

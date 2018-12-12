@@ -1,12 +1,8 @@
-<div class="card-body px-0 py-2 news-item">
-    <h3 class="card-title mb-0 pb-0">{{news.headline}}</h3>
-    <div>
-        <h5 class="text-muted mb-2">{{news.date|date:'j F Y'}}</h5>
-        <div>
-            {{news.blurb|truncatechars_html:180|safe}}
-
-            <br>
-            <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1 d-inline-block">Read more</a>
-        </div>
-    </div>
+<div class="news-item-short">
+    <h3 class="title">{{news.headline}}</h3>
+    <h5 class="sub-title">{{news.date|date:'j F Y'}}</h5>
+    <p>
+        {{news.blurb|truncatechars_html:180|safe}}
+    </p>
+    <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1">Read more &rarr;</a>
 </div>

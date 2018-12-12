@@ -4,7 +4,13 @@
 
 <hr class="divider">
 
-<h2 class="highlight" id="contribute_comment">Contribute a Comment: {% if user_is_referee and submission %}&nbsp;<small class="text-danger">you are an invited referee, please <a href="{% url 'submissions:submit_report' submission.preprint.identifier_w_vn_nr %}">submit a Report</a> instead</small>{% endif %}</h2>
+<h2 class="highlight" id="contribute_comment">Contribute a Comment</h2>
+{% if user_is_referee and submission %}
+    <h4 class="text-danger my-3">
+        <i class="fa fa-exclamation-triangle"></i>
+        You are an invited referee, please <a href="{% url 'submissions:submit_report' submission.preprint.identifier_w_vn_nr %}">submit a Report</a> instead.
+    </h4>
+{% endif %}
 
 {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
 {% include 'comments/_add_comment_form.html' with form=form url=url %}

@@ -32,6 +32,10 @@ class Preprint(models.Model):
     modified = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['-identifier_w_vn_nr']
+
+
     def __str__(self):
         return 'Preprint {}'.format(self.identifier_w_vn_nr)
 

@@ -4,27 +4,36 @@
 
 {% load scipost_extras %}
 {% load bootstrap %}
+{% load user_groups %}
+
+{% is_edcol_admin request.user as is_editorial_admin %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
+
+    {% if request.user.contributor == submissions.editor_in_charge or is_edcol_admin %}
+        {{block.super}}
+        <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
+    {% else %}
+        <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+        <a href="{{ submission.get_absolute_url }}" class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</a>
+    {% endif %}
     <span class="breadcrumb-item">Communication</span>
 {% endblock %}
 
 {% block content %}
 
 
-<div class="card card-grey">
+<div class="card bg-light mb-3">
   <div class="card-body">
     <h1 class="pb-0">Send a Communication</h1>
       {% if comtype == 'EtoA' %}
-          <h3>to the submitting Author of Submission</h3>
+          <h3 class="mb-0">to the submitting Author of Submission</h3>
       {% elif comtype == 'AtoE' or comtype == 'RtoE' or comtype == 'StoE' %}
-          <h3>to the Editor-in-charge of Submission</h3>
+          <h3 class="mb-0">to the Editor-in-charge of Submission</h3>
       {% elif comtype == 'EtoR' %}
-          <h3>to Referee of Submission</h3>
+          <h3 class="mb-0">to Referee of Submission</h3>
       {% elif comtype == 'EtoS' %}
-          <h3>to SciPost Editorial Administrators</h3>
+          <h3 class="mb-0">to SciPost Editorial Administrators</h3>
       {% endif %}
     </div>
 </div>

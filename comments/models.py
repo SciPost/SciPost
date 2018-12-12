@@ -99,10 +99,7 @@ class Comment(TimeStampedModel):
 
     @property
     def title(self):
-        """
-        This property is (mainly) used to let Comments get the title of the Submission without
-        annoying logic.
-        """
+        """Get title of Submission if Comment is pointed to Submission."""
         try:
             return self.content_object.title
         except:
@@ -110,7 +107,7 @@ class Comment(TimeStampedModel):
 
     @cached_property
     def core_content_object(self):
-        # Import here due to circular import errors
+        """Return object Comment is pointed to."""
         from commentaries.models import Commentary
         from submissions.models import Submission, Report
         from theses.models import ThesisLink
@@ -143,16 +140,16 @@ class Comment(TimeStampedModel):
         """Check if Comment is rejected."""
         return self.status in [STATUS_UNCLEAR, STATUS_INCORRECT, STATUS_NOT_USEFUL]
 
-    def create_doi_label(self):
-        self.doi_label = 'SciPost.Comment.' + str(self.id)
-        self.save()
-
     @property
     def doi_string(self):
         if self.doi_label:
             return '10.21468/' + self.doi_label
         else:
             return None
+
+    def create_doi_label(self):
+        self.doi_label = 'SciPost.Comment.' + str(self.id)
+        self.save()
 
     def get_absolute_url(self):
         return self.content_object.get_absolute_url().split('#')[0] + '#comment_id' + str(self.id)

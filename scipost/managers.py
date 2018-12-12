@@ -4,14 +4,17 @@ __license__ = "AGPL v3"
 
 from django.db import models
 from django.db.models import Count, Q
-from django.db.models.functions import Lower
+from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
-from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, AUTHORSHIP_CLAIM_PENDING
+from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, DOUBLE_ACCOUNT, AUTHORSHIP_CLAIM_PENDING
 
 
 class FellowManager(models.Manager):
+    """Custom defined filters for the Fellow model."""
+
     def active(self):
+        """Filter Fellows active within its set date ranges."""
         today = timezone.now().date()
         return self.filter(
             Q(start_date__lte=today, until_date__isnull=True) |
@@ -28,13 +31,6 @@ class ContributorQuerySet(models.QuerySet):
         """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
-    def have_duplicate_email(self):
-        """ Return Contributors having duplicate emails. """
-        duplicates = self.values(lower_email=Lower('user__email')).annotate(
-            Count('id')).order_by('user__last_name').filter(id__count__gt=1)
-        return self.annotate(lower_email=Lower('user__email')
-        ).filter(lower_email__in=[dup['lower_email'] for dup in duplicates])
-
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""
         today = timezone.now().date()
@@ -48,11 +44,37 @@ class ContributorQuerySet(models.QuerySet):
 
     def awaiting_vetting(self):
         """Filter Contributors that have not been vetted through."""
-        return self.filter(user__is_active=True, status=NEWLY_REGISTERED)
+        return self.filter(user__is_active=True, status=NEWLY_REGISTERED
+                           ).exclude(status=DOUBLE_ACCOUNT)
 
     def fellows(self):
         """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
         return self.filter(fellowships__isnull=False).distinct()
+
+    def with_duplicate_names(self):
+        """
+        Returns only potential duplicate Contributors (as identified by first and
+        last names).
+        Admins and superusers are explicitly excluded.
+        """
+        contribs = self.exclude(status=DOUBLE_ACCOUNT
+        ).exclude(user__is_superuser=True).exclude(user__is_staff=True
+        ).annotate(full_name=Concat('user__last_name', 'user__first_name'))
+        duplicates = contribs.values('full_name').annotate(
+            nr_count=Count('full_name')).filter(nr_count__gt=1).values_list('full_name', flat=True)
+        return contribs.filter(
+            full_name__in=duplicates).order_by('user__last_name', 'user__first_name', '-id')
+
+    def with_duplicate_email(self):
+        """
+        Return Contributors having duplicate emails.
+        """
+        qs = self.exclude(status=DOUBLE_ACCOUNT
+        ).exclude(user__is_superuser=True).exclude(
+            user__is_staff=True).annotate(lower_email=Lower('user__email'))
+        duplicates = qs.values('lower_email').annotate(
+            Count('id')).filter(id__count__gt=1).values_list('lower_email', flat=True)
+        return qs.filter(user__email__in=duplicates)
 
 
 class UnavailabilityPeriodManager(models.Manager):

@@ -87,3 +87,25 @@ ul.publicationClickables {
         margin-bottom: 0;
     }
 }
+
+.journal-mini {
+    li {
+        padding: 0.15rem 0;
+    }
+}
+
+.related-publications {
+    .title {
+        font-size: 0.85rem;
+    }
+
+    .meta {
+        margin-top: 0.25rem;
+        margin-bottom: 0;
+        color: $text-muted;
+
+        a {
+            color: $text-muted;
+        }
+    }
+}

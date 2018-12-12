@@ -1,0 +1,129 @@
+{% extends 'submissions/pool/base.html' %}
+
+{% block pagetitle %}: select referee for submission{% endblock pagetitle %}
+
+{% load scipost_extras %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
+    <span class="breadcrumb-item">Select Referee</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-light">
+            <div class="card-body">
+                <h1 class="card-text">Referee Selection Page for Submission</h1>
+                <p class="card-text">(go to the <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Submissions Page</a> to view Reports and Comments)</p>
+                <p class="card-text">(go back to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2>Submission:</h2>
+        {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
+
+        {% if submission.referees_flagged %}
+            <h3>Referees flagged upon submission (treat reports with caution):</h3>
+            <p>{{ submission.referees_flagged }}</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="highlight" id="form">Select an additional Referee</h2>
+
+        <form action="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="get">
+          {{ referee_search_form|bootstrap }}
+          <input class="btn btn-primary" type="submit" value="Find referee">
+        </form>
+    </div>
+</div>
+
+{% if queryresults.entries %}
+<div class="row">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-body">
+                <h3 class="card-title text-danger">The system identified the following potential coauthorships (from arXiv database)</h3>
+                <p class="card-text text-danger">(only up to 5 most recent shown; if within the last 3 years, referee is disqualified):</p>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush px-0">
+                    {% for entry in queryresults.entries %}
+                        <li class="list-group-item">
+                            {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=0 %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+  <div class="col-12">
+    {% if workdays_left_to_report < 15 %}
+    <h4 class="highlight p-1"><strong class="text-danger">Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.</strong><br/><br/><span class="text-muted">Standard refereeing period for {{ submission.submitted_to }}: &nbsp;<em>{{ submission.submitted_to.refereeing_period.days }} days</em></span><br/><br/>Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.</h4>
+    {% endif %}
+    {% if profiles_found %}
+    <h3>Matching people in our database:</h3>
+    <table class="table">
+      <tr>
+	<th>Name</th>
+	<th>Registered<br/>Contributor?</th>
+	<th>Email<br/>known?</th>
+	<th>Action<br/><span class="text-muted"><small>(Unregistered people will also automatically receive a registration invitation)</small></span></th>
+      </tr>
+      {% for profile in profiles_found %}
+      <tr>
+	<td>{{ profile }}</td>
+	<td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	<td>{% if profile.email %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	<td>{% if profile.email %}Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}{% else %}<span class="text-danger">Cannot send an invitation without an email</span> <i class="fa fa-arrow-right"></i> Add one:
+	  <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
+            {% csrf_token %}
+            {{ profile_email_form|bootstrap }}
+	    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <input class="btn btn-outline-secondary" type="submit" value="Add">
+          </form>
+	  {% endif %}
+	</td>
+      </tr>
+      {% empty %}
+      <tr>
+	<td>No Profiles found</td>
+	<td></td>
+      </tr>
+      {% endfor %}
+      </table>
+    {% endif %}
+
+    </div>
+</div>
+
+{% if profile_form %}
+<div class="row">
+  <div class="col-12">
+    <h3 class="mb-2">Not found? Then add to our database by filling this form:</h3>
+    <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+      {% csrf_token %}
+      {{ profile_form|bootstrap }}
+      <input type="submit" name="submit" value="Add to database" class="btn btn-primary">
+    </form>
+    <h4>(does not send invitation yet: you will return to this page, from which you can then invite this referee)</h4>
+  </div>
+</div>
+{% endif %}
+
+
+{% endblock %}

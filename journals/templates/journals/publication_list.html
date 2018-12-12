@@ -11,27 +11,26 @@
 {% block page_header %}<h1 class="highlight">Recent SciPost Publications</h1>{% endblock page_header %}
 
 {% block breadcrumb_items %}
-    <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-    <span class="breadcrumb-item">Publications</span>
+    <li class="breadcrumb-item"><a href="{% url 'journals:journals' %}">Journals</a></li>
+    <li class="breadcrumb-item active">Publications</li>
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
     <div class="col-12 ordering">
+        <h1>Publications</h1>
         <p>
-            Found {{ page_obj.paginator.count }} Publications
-            <br>
             Order by:
 
             <a href="?{% url_replace orderby='date' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'date' %}">publication date</a>
             <a href="?{% url_replace orderby='citations' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'citations' %}">number of citations</a>
         </p>
-        <hr class="divider">
+
         <ul class="list-unstyled">
             {% for publication in object_list %}
-                <li>
-                    <div class="card card-grey card-publication">
+                <li class="">
+                    <div class="card card-gray card-publication">
                         {% include 'journals/_publication_card_content.html' with publication=publication include_citation_rate=1 %}
                     </div>
                 </li>
@@ -53,7 +52,7 @@
 {% block sidebar %}
     <div class="row">
         <div class="col-12">
-            <h2 class="mb-2">Recent Issues</h2>
+            <h2>Recent Issues</h2>
             <div class="mb-1 pl-2">
                 <a href="?{% url_replace issue='' page='' subject='' %}" class="{% active_get_request 'issue' '' %}">All Issues</a>
             </div>

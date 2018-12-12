@@ -16,7 +16,7 @@ table.submission_header {
         left: 0;
         box-shadow: 0 1px 0 0 $card-shadow-color;
         border: 1px solid;
-        border-color: $card-grey-border-color;
+        border-color: $card-gray-border-color;
         z-index: 1;
         border-radius: $border-radius 0 $border-radius $border-radius;
     }
@@ -29,11 +29,15 @@ table.submission_header {
         padding: 0.5rem calc(1rem - 3px);
         background: #f4f4f4;
         border: 1px solid;
-        border-color: $card-grey-border-color;
+        border-color: $card-gray-border-color;
         border-radius: 0 $border-radius $border-radius 0;
         box-shadow: 0 1px 0 0 $card-shadow-color;
         border-left: 0;
         z-index: 99;
+
+        h3 {
+            margin: 0.25rem 0;
+        }
     }
 }
 
@@ -55,4 +59,23 @@ table.submission_header {
             display: inline-block;
         }
     }
+}
+
+.related-publications,
+.submission-quick-actions,
+.submission-contents {
+    border-left: 5px solid $scipost-darkblue;
+    padding: 0 1rem;
+    margin-bottom: 2rem;
+}
+
+.related-publications {
+    margin-left: $grid-gutter-width / 2;
+}
+
+.referee-box {
+    border: 1px solid $scipost-darkblue;
+    border-left-width: 5px;
+    padding: 1rem;
+    margin-bottom: 2rem;
 }

@@ -3,45 +3,32 @@
 {% block body_class %}{{block.super}} has-sidebar layout-2-col{% endblock %}
 
 {% block breadcrumb %}
-    <div class="container-outside header">
+    <div class="breadcrumb-container">
         <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
+            <ol class="breadcrumb">
                 {% block breadcrumb_items %}
-                    <a href="{% url 'scipost:index' %}" class="breadcrumb-item">SciPost</a>
+                    <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}">Home</a></li>
                 {% endblock %}
-            </nav>
+            </ol>
         </div>
     </div>
 {% endblock %}
 
 
 {% block base %}
-        <div class="container mb-4 header">
-            {% block page_header %}{% endblock page_header %}
-        </div>
-
-        <div class="container">
-            <div class="content-wrapper">
-                <div class="main-panel">
-                    <div class="container-inner">
-                        <div class="{% block container_class %}{% endblock %}">
-                            {% block content %}{% endblock content %}
-
-                            {% block content_footer %}{% endblock content_footer %}
-                        </div>
-
-                        {% block secondary_footer %}{% endblock secondary_footer %}
-                    </div>
-
-                </div>
-
-                <div class="sidebar {% block sidebar_class %}{% endblock %}">
-                    <div class="container-inner">
-                        {% block sidebar %}{% endblock %}
-                    </div>
-                </div>
+    <main class="container">
+        <div class="row">
+            <div class="col-md-4 col-lg-3 sidebar">
+                {% block sidebar %}{% endblock %}
+            </div>
+            <div class="col-md-8 col-lg-9">
+                {% block content %}{% endblock content %}
+                {% block content_footer %}{% endblock content_footer %}
+                <hr>
+                {% block secondary_footer %}{% endblock secondary_footer %}
             </div>
         </div>
+    </main>
     {% include 'scipost/footer.html' %}
 
 {% endblock base %}

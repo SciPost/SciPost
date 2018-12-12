@@ -12,7 +12,7 @@ register = Library()
 
 @register.simple_tag(takes_context=True)
 def live_notify_badge(context, classes=''):
-    html = "<span class='live_notify_badge {classes}'>0</span>".format(classes=classes)
+    html = "<span id='live_notify_badge' class='live_notify_badge {classes}'>0</span>".format(classes=classes)
     return format_html(html)
 
 

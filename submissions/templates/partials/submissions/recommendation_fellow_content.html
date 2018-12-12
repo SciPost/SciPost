@@ -8,3 +8,9 @@
     <h3 class="pb-0">Remarks for Editorial College</h3>
     <p class="pl-md-3">{{recommendation.remarks_for_editorial_college|default:'-'}}</p>
 {% endblock %}
+
+{% block recommendation_footer %}
+    {% if recommendation.may_be_reformulated %}
+        <a href="{% url 'submissions:reformulate_eic_recommendation' recommendation.submission.preprint.identifier_w_vn_nr %}" class="d-block my-2">Reformulate Editorial Recommendation</a>
+    {% endif %}
+{% endblock %}

@@ -21,7 +21,8 @@ class SubsidyForm(forms.ModelForm):
     class Meta:
         model = Subsidy
         fields = ['organization', 'subsidy_type', 'description',
-                  'amount', 'status', 'date', 'date_until']
+                  'amount', 'amount_publicly_shown', 'status',
+                  'date', 'date_until']
 
 
 class WorkLogForm(forms.ModelForm):

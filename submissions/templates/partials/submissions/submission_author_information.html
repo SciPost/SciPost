@@ -1,11 +1,26 @@
 {% load bootstrap %}
 
-<h3 class="highlight">Author information <small><small class="text-muted"><i class="fa fa-question-circle-o" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission."></i></small></small></h3>
-<a href="javascript:;" class="btn btn-default mb-2" data-toggle="toggle" data-target="#authorinformation">Show/hide author information</a>
+<h3 class="highlight">
+    Author information
+    <small><a href="javascript:;" class="text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission.">?</a></small>
+    <br>
+    <small><a href="javascript:;" class="mt-2 d-inline-block text-sm" data-toggle="toggle" data-target="#authorinformation">Show/hide author information</a></small>
+</h3>
 
 <div id="authorinformation" class="mt-2">
     <div class="mb-4">
-        <h3>Status summary:</h3>
+        <h3 class="mt-3">Status summary</h3>
+        <p>
+            {% if not submission.editor_in_charge %}
+                No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
+            {% elif submission.in_refereeing_phase %}
+                The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
+            {% elif submission.eicrecommendations.active.first %}
+                An Editorial Recommendation has been formulated. See its details below.
+            {% elif not submission.open_for_reporting %}
+                The refereeing round is closed, but no Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+            {% endif %}
+        </p>
         <table class="table table-borderless">
             <tr>
                 <td>Submission status:</td>
@@ -50,17 +65,29 @@
         </table>
     </div>
 
+    {% if submission.eicrecommendations.active %}
+        <div class="mb-4">
+            <h3 class="mb-2">Editorial Recommendation:</h3>
+            {% for recommendation in submission.eicrecommendations.active %}
+                {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+            {% empty %}
+                No Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="mb-4">
-        <h3 class="mb-2">Editorial Recommendation:</h3>
-        {% for recommendation in submission.eicrecommendations.active %}
-            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-        {% empty %}
-            No Editorial Recommendation is formulated yet.
-        {% endfor %}
+        <h3>Communication</h3>
+        <div id="communications">
+            {% if submission.editor_in_charge %}
+                <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
+            {% endif %}
+            {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
+        </div>
     </div>
 
     <div class="mb-4">
-        <h3>Events:</h3>
+        <h3>Events</h3>
         <div id="eventslist">
             {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
         </div>
@@ -68,7 +95,7 @@
 
 
     <div class="mb-4" id="proofsslist">
-        <h3>Proofs:</h3>
+        <h3>Proofs</h3>
         <ul class="list-group list-group-flush events-list">
             {% for proofs in submission.production_stream.proofs.for_authors %}
                 <li>
@@ -91,5 +118,3 @@
         </ul>
     </div>
 </div>
-
-<hr class="divider">

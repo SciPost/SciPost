@@ -18,6 +18,11 @@ urlpatterns = [
         name='profile_create'
     ),
     url(
+        r'^match/(?P<profile_id>[0-9]+)/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$',
+        views.profile_match,
+        name='profile_match'
+    ),
+    url(
         r'^(?P<pk>[0-9]+)/update/$',
         views.ProfileUpdateView.as_view(),
         name='profile_update'
@@ -33,9 +38,29 @@ urlpatterns = [
         name='profiles'
     ),
     url(
+        r'^(?P<pk>[0-9]+)/$',
+        views.ProfileDetailView.as_view(),
+        name='profile_detail'
+    ),
+    url(
+        r'^merge/$',
+        views.profile_merge,
+        name='merge'
+    ),
+    url(
+        r'^duplicates/$',
+        views.ProfileDuplicateListView.as_view(),
+        name='duplicates'
+    ),
+    url(
         r'^(?P<profile_id>[0-9]+)/add_email$',
         views.add_profile_email,
         name='add_profile_email'
+    ),
+    url(
+        r'^emails/(?P<email_id>[0-9]+)/make_primary$',
+        views.email_make_primary,
+        name='email_make_primary'
     ),
     url(
         r'^emails/(?P<email_id>[0-9]+)/toggle$',

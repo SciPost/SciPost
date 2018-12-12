@@ -7,30 +7,34 @@ a {
     text-decoration: none;
     cursor: pointer;
     outline: none;
+
+    &.muted-link {
+        color: inherit;
+    }
+
+    &.active {
+        font-weight: bold;
+    }
 }
 a:hover {
     color: $scipost-darkblue;
     text-decoration: underline;
 }
 h1, h2, h3, h4, h5, h6 {
-    padding-top: 5px;
-    padding-bottom: 5px;
     text-shadow: none;
+
+    &.title {
+        margin-bottom: 0.25rem;
+    }
+
+    &.sub-title {
+        color: $gray-500;
+        margin-bottom: 1.25rem;
+    }
 }
 
 h1 > a {
     color: $scipost-darkblue;
-}
-
-h3,
-.h3,
-h4,
-.h4,
-h5,
-.h5,
-h6
-.h6 {
-    margin-bottom: 0;
 }
 
 .text-black {
@@ -51,26 +55,10 @@ h6
     font-weight: 300;
 }
 
-.container-outside.header {
-    background-color: $gray-200;
-
-    h1,
-    h2 {
-        padding: 15px;
-        background-color: $gray-200;
-        border-radius: $card-border-radius;
-        border: 0;
-        margin-top: 0;
-        margin-bottom: 0;
-        // margin-bottom: 10px;
-        box-shadow: none;
-    }
-}
-
 .highlight {
-    background-color: $body-bg;
+    background-color: $gray-100;
     border-radius: $card-border-radius;
-    border: 1px solid #ddd;
+    border: $card-border-width solid $card-border-color;
 
     &.tight {
         display: inline-block;
@@ -98,12 +86,14 @@ h2.highlight-empty {
 
 h3.highlight,
 h3.highlight-empty {
-    padding: 10px;
+    padding: 10px 15px;
 }
 
 h5,
 .h5 {
     font-weight: 300;
+    // text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 hr,
@@ -133,6 +123,28 @@ hr.hr12 {
     }
 }
 
+hr.sm,
+hr.lg {
+    height: 0;
+    background: none;
+    box-shadow: none;
+    margin: 1rem 0;
+    box-sizing: content-box;
+    border-radius: 0;
+}
+
+hr {
+    &.sm {
+        border-top: 1px solid rgba(0,0,0,.1);
+    }
+
+    &.lg {
+        height: 5px;
+        background-color: $scipost-darkblue;
+        border-radius: 3px;
+    }
+}
+
 .text-blue {
     color: $scipost-lightblue;
 }
@@ -149,7 +161,16 @@ hr.hr12 {
     font-size: 1.5em;
 }
 
+p {
+    line-height: 1.25rem;
+}
+
+a.disabled {
+    text-decoration: line-through;
+}
+
 .active-bold.active {
     font-weight: bold;
     text-decoration: underline;
+
 }

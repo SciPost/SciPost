@@ -46,6 +46,7 @@ NO_REQUIRED_ACTION_STATUSES = [
 ]
 
 SUBMISSION_TYPE = (
+    # ('', None),
     ('Letter', 'Letter (broad-interest breakthrough results)'),
     ('Article', 'Article (in-depth reports on specialized research)'),
     ('Review', 'Review (candid snapshot of current research in a given area)'),
@@ -203,11 +204,24 @@ EIC_REC_STATUSES = (
     (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
+# Plagiarism Report statuses
+STATUS_WAITING = 'waiting'
+STATUS_SENT, STATUS_RECEIVED = 'sent', 'received'
+STATUS_FAILED_DOWNLOAD, STATUS_FAILED_UPLOAD = 'fail_down', 'fail_up'
+
+PLAGIARISM_STATUSES = (
+    (STATUS_WAITING, 'Awaiting action'),
+    (STATUS_SENT, 'Sent succesfully, awaiting report'),
+    (STATUS_RECEIVED, 'Report received'),
+    (STATUS_FAILED_DOWNLOAD, 'Failed (downloading failed)'),
+    (STATUS_FAILED_UPLOAD, 'Failed (uploading failed)'),
+)
+
 # Define regexes
 arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
 arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
-scipost_regex_wo_vn = 'scipost_[0-9]{4,}.[0-9]{4,}'
-scipost_regex_w_vn = 'scipost_[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
+scipost_regex_wo_vn = 'scipost_[0-9]{4,}_[0-9]{4,}'
+scipost_regex_w_vn = 'scipost_[0-9]{4,}_[0-9]{4,}v[0-9]{1,2}'
 SUBMISSIONS_NO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s))' % (arxiv_regex_wo_vn, scipost_regex_wo_vn)
 SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (arxiv_regex_w_vn, scipost_regex_w_vn)
 SCIPOST_PREPRINT_W_VN_REGEX = '(?P<identifier_w_vn_nr>%s)' % scipost_regex_w_vn

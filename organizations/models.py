@@ -12,7 +12,8 @@ from django.urls import reverse
 
 from django_countries.fields import CountryField
 
-from .constants import ORGANIZATION_TYPES, ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
+from .constants import ORGANIZATION_TYPES, ORGTYPE_PRIVATE_BENEFACTOR,\
+    ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
 from .managers import OrganizationQuerySet
 
 from scipost.models import Contributor
@@ -89,6 +90,10 @@ class Organization(models.Model):
 
     def get_absolute_url(self):
         return reverse('organizations:organization_details', kwargs = {'pk': self.id})
+
+    @property
+    def details_publicly_viewable(self):
+        return self.orgtype != ORGTYPE_PRIVATE_BENEFACTOR
 
     def get_publications(self):
         org_and_children_ids = [k['id'] for k in list(self.children.all().values('id'))]

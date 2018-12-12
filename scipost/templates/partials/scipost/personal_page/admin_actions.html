@@ -2,7 +2,7 @@
 {% is_scipost_admin request.user as is_scipost_admin %}
 <div class="row">
     <div class="col-12">
-        <div class="card card-grey">
+        <div class="card bg-light">
             <div class="card-body">
                 <h2 class="card-title mb-0">Admin Actions</h2>
             </div>
@@ -11,7 +11,7 @@
 </div>
 
 <div class="row">
-    {% if perms.scipost.can_vet_registration_requests or perms.scipost.can_create_registration_invitations or perms.scipost.can_resend_registration_requests %}
+    {% if perms.scipost.can_vet_registration_requests or perms.scipost.can_create_registration_invitations or perms.scipost.can_resend_registration_requests or perms.scipost.can_manage_news %}
     <div class="col-md-4">
         <h3>Registration actions</h3>
         <ul>
@@ -25,6 +25,13 @@
                 <li><a href="{% url 'invitations:list' %}">Manage Registration Invitations</a></li>
             {% endif %}
         </ul>
+
+	{% if perms.scipost.can_manage_news %}
+	<h3>News management</h3>
+	<ul>
+	  <li><a href="{% url 'news:manage' %}">Manage News Items and Newsletters</a></li>
+	</ul>
+	{% endif %}
 
         {% if perms.scipost.can_manage_registration_invitations %}
             <h3>Notifications</h3>
@@ -60,6 +67,11 @@
 	<li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
       </ul>
       {% endif %}
+
+      <h3>Ontology</h3>
+      <ul>
+	<li><a href="{% url 'ontology:ontology' %}">View/Manage the Ontology</a></li>
+      </ul>
 
       {% if perms.scipost.can_manage_organizations %}
       <h3>Organizations</h3>

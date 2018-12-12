@@ -48,8 +48,9 @@ $text-muted: #636c72;
 
 // Body
 //
-$body-bg: $gray-100;
+$body-bg: #f3f3f3;  // $gray-100
 $body-color: $scipost-darkblue;
+
 
 
 // Alerts
@@ -62,16 +63,23 @@ $card-border-radius: $base-border-radius;
 $card-spacer-x: 0.75rem;
 $card-spacer-y: 0.5rem;
 $card-shadow-color: #ccc;
-$card-grey-border-bottom-color: #d0d1d5;
-$card-grey-bg: $gray-100;
-$card-grey-border-color: $scipost-lightblue $gray-100 $gray-100;
+$card-gray-border-bottom-color: #d0d1d5;
+$card-gray-bg: $gray-100;
+$card-gray-border-color: $scipost-lightblue $gray-100 $gray-100;
 
 
 // breadcrumb
 //
-$breadcrumb-bg: $gray-100;
+$breadcrumb-bg: #f3f3f3;
 $breadcrumb-active-color: $scipost-darkblue;
 $breadcrumb-divider-color: $scipost-orange;
+
+// Dropdown
+//
+$dropdown-border-radius: $base-border-radius;
+$dropdown-border-color: $scipost-darkblue;
+$dropdown-item-padding-y: 0.35rem;
+$dropdown-item-padding-x: 1.0rem;
 
 // Forms
 //
@@ -104,6 +112,7 @@ $list-group-active-border-color: $scipost-lightestblue;
 //
 $font-family-sans-serif: 'Merriweather Sans', "Helvetica Neue", Arial, sans-serif;
 $headings-font-family: $font-family-sans-serif;
+// $headings-line-height: $line-height-lg;
 $font-family-serif:      $font-family-sans-serif;
 $font-family-monospace:  $font-family-sans-serif;
 $font-family-base:       $font-family-sans-serif;
@@ -112,12 +121,12 @@ $font-size-base: 0.8rem;
 $font-size-sm: 0.7rem;
 $font-size-lg: 1.0rem;
 
-$h1-font-size: 1.8em;
-$h2-font-size: 1.5em;
-$h3-font-size: 1.3em;
-$h4-font-size: 1.2em;
-$h5-font-size: 1.0em;
-$h6-font-size: 1.0em;
+$h1-font-size: 1.5rem;
+$h2-font-size: 1.25rem;
+$h3-font-size: 1.05rem;
+$h4-font-size: 1.0rem;
+$h5-font-size: 0.8rem;
+$h6-font-size: 0.8rem;
 
 $close-font-weight: 100;
 
@@ -135,7 +144,7 @@ $tooltip-font-size: $font-size-sm;
 $navbar-light-color: $scipost-darkblue;
 $navbar-light-hover-color: $scipost-darkblue;
 $navbar-padding-x: 0.3rem;
-$navbar-padding-y: 0.35rem;
+$navbar-padding-y: 0.2rem;
 $nav-tabs-border-color: $scipost-darkblue;
 $nav-tabs-link-active-border-color: $scipost-darkblue $scipost-darkblue $nav-tabs-link-active-bg;
 

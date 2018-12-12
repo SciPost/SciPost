@@ -11,6 +11,12 @@ register = template.Library()
 
 
 @register.filter
+def filter_for_submission(qs, submission):
+    """Filter (any) query with the given Submission."""
+    return qs.filter(submission=submission)
+
+
+@register.filter
 def is_possible_author_of_submission(user, submission):
     """Check if User may be related to the Submission as author."""
     if not isinstance(submission, Submission):

@@ -19,7 +19,7 @@
 
 <div class="row">
     <div class="col-12">
-        <table class="table">
+        <table class="table table-hover">
             <thead>
                 <tr>
                     <th>Submission</th>
@@ -32,7 +32,7 @@
             </thead>
             <tbody>
                 {% for submission in submissions %}
-                    <tr{% if not submission.pdf_refereeing_pack %} class="table-danger"{% endif %}>
+                    <tr{% if not submission.pdf_refereeing_pack %} class="table-warning"{% endif %}>
                         <td><a href="{{submission.get_absolute_url}}">{{submission.preprint.identifier_w_vn_nr}}</a></td>
                         <td>{{submission.get_status_display}}</td>
                         <td>{{submission.acceptance_date|default_if_none:'Date unknown'}}</td>

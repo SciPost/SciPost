@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required

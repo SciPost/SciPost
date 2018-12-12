@@ -17,6 +17,8 @@ now = timezone.now()
 class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
         """
+        TODO: Make more efficient... with agregation or whatever.
+
         The current Queryset should return only the latest version
         of the Arxiv submissions known to SciPost.
 
@@ -157,7 +159,7 @@ class SubmissionQuerySet(models.QuerySet):
         (including subsequent resubmissions, even if those came in later).
         """
         identifiers = []
-        for sub in self.filter(is_resubmission=False,
+        for sub in self.filter(is_resubmission_of__isnull=True,
                                submission_date__range=(from_date, until_date)):
             identifiers.append(sub.preprint.identifier_wo_vn_nr)
         return self.filter(preprint__identifier_wo_vn_nr__in=identifiers)
@@ -176,6 +178,10 @@ class SubmissionQuerySet(models.QuerySet):
     def published(self):
         """Return published Submissions."""
         return self.filter(status=constants.STATUS_PUBLISHED)
+
+    def unpublished(self):
+        """Return unpublished Submissions."""
+        return self.exclude(status=constants.STATUS_PUBLISHED)
 
     def assignment_failed(self):
         """Return Submissions which have failed assignment."""
@@ -205,6 +211,19 @@ class SubmissionQuerySet(models.QuerySet):
         """Return Submissions that have EditorialAssignments that still need to be sent."""
         return self.filter(editorial_assignments__status=constants.STATUS_PREASSIGNED)
 
+    def candidate_for_resubmission(self, user):
+        """
+        Return all Submissions that are open for resubmission specialised for a certain User.
+        """
+        if not hasattr(user, 'contributor'):
+            return self.none()
+
+        return self.filter(is_current=True, status__in=[
+            constants.STATUS_INCOMING,
+            constants.STATUS_UNASSIGNED,
+            constants.STATUS_EIC_ASSIGNED,
+            ], submitted_by=user.contributor)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):
@@ -218,6 +237,16 @@ class SubmissionEventQuerySet(models.QuerySet):
     def last_hours(self, hours=24):
         """Return all events of the last `hours` hours."""
         return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
+
+    def plagiarism_report_to_be_uploaded(self):
+        """Return Submissions that has not been sent to iThenticate for their plagiarism check."""
+        return self.filter(
+            models.Q(plagiarism_report__isnull=True) |
+            models.Q(plagiarism_report__status=constants.STATUS_WAITING)).distinct()
+
+    def plagiarism_report_to_be_updated(self):
+        """Return Submissions for which their iThenticateReport has not received a report yet."""
+        return self.filter(plagiarism_report__status=constants.STATUS_SENT)
 
 
 class EditorialAssignmentQuerySet(models.QuerySet):
@@ -340,50 +369,85 @@ class EICRecommendationQuerySet(models.QuerySet):
 
 
 class ReportQuerySet(models.QuerySet):
+    """QuerySet for the Report model."""
+
     def accepted(self):
+        """Return the subset of vetted Reports."""
         return self.filter(status=constants.STATUS_VETTED)
 
     def awaiting_vetting(self):
+        """Return the subset of unvetted Reports."""
         return self.filter(status=constants.STATUS_UNVETTED)
 
     def rejected(self):
+        """Return the subset of rejected Reports."""
         return self.filter(status__in=[
             constants.STATUS_UNCLEAR, constants.STATUS_INCORRECT, constants.STATUS_NOT_USEFUL,
             constants.STATUS_NOT_ACADEMIC])
 
     def in_draft(self):
+        """Return the subset of Reports in draft."""
         return self.filter(status=constants.STATUS_DRAFT)
 
     def non_draft(self):
+        """Return the subset of unvetted, vetted and rejected Reports."""
         return self.exclude(status=constants.STATUS_DRAFT)
 
     def contributed(self):
+        """Return the subset of contributed Reports."""
         return self.filter(invited=False)
 
     def invited(self):
+        """Return the subset of invited Reports."""
         return self.filter(invited=True)
 
 
 class RefereeInvitationQuerySet(models.QuerySet):
-    def awaiting_response(self):
-        return self.pending().open()
+    """Queryset for RefereeInvitation model."""
 
-    def pending(self):
+    def awaiting_response(self):
+        """Filter invitations awaiting response by referee."""
         return self.filter(accepted=None, cancelled=False)
 
+    def pending(self):
+        """DEPRECATED."""
+        return self.awaiting_response()
+
+    def open(self):
+        """DEPRECATED."""
+        return self.awaiting_response()
+
     def accepted(self):
+        """Filter invitations (non-cancelled) accepted by referee."""
         return self.filter(accepted=True, cancelled=False)
 
     def declined(self):
+        """Filter invitations declined by referee."""
         return self.filter(accepted=False)
 
-    def open(self):
-        return self.pending().filter(cancelled=False)
-
     def in_process(self):
+        """Filter invitations (non-cancelled) accepted by referee that are not fulfilled."""
         return self.accepted().filter(fulfilled=False, cancelled=False)
 
+    def non_cancelled(self):
+        """Return invitations awaiting reponse, accepted or fulfilled."""
+        return self.filter(cancelled=False)
+
+    def needs_attention(self):
+        """Filter invitations that needs attention.
+
+        The following is defined as `needs attention`:
+        1. not responded to invite in more than 3 days.
+        2. not fulfilled (but accepted) with deadline within 7 days.
+        """
+        compare_3_days = timezone.now() + datetime.timedelta(days=3)
+        compare_7_days = timezone.now() + datetime.timedelta(days=7)
+        return self.filter(cancelled=False, fulfilled=False).filter(
+            Q(accepted=None, date_last_reminded__lt=compare_3_days) |
+            Q(accepted=True, submission__reporting_deadline__lt=compare_7_days)).distinct()
+
     def approaching_deadline(self, days=2):
+        """Filter non-fulfilled invitations for which the deadline is within `days` days."""
         qs = self.in_process()
         pseudo_deadline = now + datetime.timedelta(days)
         deadline = datetime.datetime.now()
@@ -392,9 +456,15 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return qs
 
     def overdue(self):
+        """Filter non-fulfilled invitations that are overdue."""
         return self.in_process().filter(submission__reporting_deadline__lte=now)
 
 
 class EditorialCommunicationQueryset(models.QuerySet):
     def for_referees(self):
+        """Only return communication between Referees and Editors."""
         return self.filter(comtype__in=['EtoR', 'RtoE'])
+
+    def for_authors(self):
+        """Only return communication between Authors and Editors."""
+        return self.filter(comtype__in=['EtoA', 'AtoE'])

@@ -33,6 +33,14 @@ urlpatterns = [
     url(r'^{regex}/reports/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
 
+    # Topics
+    url(r'^submission_add_topic/{regex}/'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.submission_add_topic,
+        name='submission_add_topic'),
+    url(r'^submission_remove_topic/{regex}/(?P<slug>[-\w]+)/'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.submission_remove_topic,
+        name='submission_remove_topic'),
+
     # Editorial Administration
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/{regex}/prescreening$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
@@ -60,6 +68,7 @@ urlpatterns = [
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),
 
+    url(r'^resubmit_manuscript$', views.resubmit_manuscript, name='resubmit_manuscript'),
     url(r'^submit_manuscript$', views.prefill_using_arxiv_identifier, name='submit_manuscript'),
     url(r'^submit_manuscript/scipost$',
         views.RequestSubmissionUsingSciPostView.as_view(), name='submit_manuscript_scipost'),
@@ -94,12 +103,12 @@ urlpatterns = [
         views.editorial_page, name='editorial_page'),
     url(r'^select_referee/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.select_referee, name='select_referee'),
-    url(r'^recruit_referee/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.recruit_referee, name='recruit_referee'),
-    url(r'^send_refereeing_invitation/{regex}/(?P<contributor_id>[0-9]+)'
+    url(r'^add_referee_profile/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.add_referee_profile, name='add_referee_profile'),
+    url(r'^invite_referee/{regex}/(?P<profile_id>[0-9]+)'
         '/(?P<auto_reminders_allowed>[0-1])$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.send_refereeing_invitation, name='send_refereeing_invitation'),
+        views.invite_referee, name='invite_referee'),
     url(r'^set_refinv_auto_reminder/(?P<invitation_id>[0-9]+)/(?P<auto_reminders>[0-1])$',
         views.set_refinv_auto_reminder, name='set_refinv_auto_reminder'),
     url(r'^accept_or_decline_ref_invitations/$',

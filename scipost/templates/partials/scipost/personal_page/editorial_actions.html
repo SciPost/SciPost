@@ -1,8 +1,9 @@
 {% load user_groups %}
 {% is_scipost_admin request.user as is_scipost_admin %}
+
 <div class="row">
     <div class="col-12">
-        <div class="card card-grey">
+        <div class="card bg-light">
             <div class="card-body">
                 <h2 class="card-title mb-0">Pending Editorial Actions</h2>
             </div>
@@ -14,24 +15,24 @@
 
     <div class="col-md-4">
         {% if perms.scipost.can_vet_comments or perms.scipost.can_vet_submitted_reports %}
-        <h3>Vetting actions</h3>
-        <ul>
-            {% if perms.scipost.can_vet_commentary_requests %}
-                <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
-            {% endif %}
-            {% if perms.scipost.can_vet_comments %}
-                <li><a href="{% url 'comments:vet_submitted_comments_list' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
-            {% endif %}
-            {% if perms.scipost.can_vet_thesislink_requests %}
-                <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
-            {% endif %}
-            {% if perms.scipost.can_vet_authorship_claims %}
-                <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
-            {% endif %}
-            {% if perms.scipost.can_vet_submitted_reports %}
-                <li><a href="{% url 'submissions:vet_submitted_reports_list' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
-            {% endif %}
-        </ul>
+            <h3>Vetting actions</h3>
+            <ul>
+                {% if perms.scipost.can_vet_commentary_requests %}
+                    <li><a href="{% url 'commentaries:vet_commentary_requests' %}">Vet Commentary Page requests</a> ({{ nr_commentary_page_requests_to_vet }})</li>
+                {% endif %}
+                {% if perms.scipost.can_vet_comments %}
+                    <li><a href="{% url 'comments:vet_submitted_comments_list' %}">Vet submitted Comments</a> ({{ nr_comments_to_vet }})</li>
+                {% endif %}
+                {% if perms.scipost.can_vet_thesislink_requests %}
+                    <li><a href="{% url 'theses:unvetted_thesislinks' %}">Vet Thesis Link Requests</a> ({{ nr_thesislink_requests_to_vet }})</li>
+                {% endif %}
+                {% if perms.scipost.can_vet_authorship_claims %}
+                    <li><a href="{% url 'scipost:vet_authorship_claims' %}">Vet Authorship Claims</a> ({{ nr_authorship_claims_to_vet }})</li>
+                {% endif %}
+                {% if perms.scipost.can_vet_submitted_reports %}
+                    <li><a href="{% url 'submissions:vet_submitted_reports_list' %}">Vet submitted Reports</a> ({{ nr_reports_to_vet }})</li>
+                {% endif %}
+            </ul>
         {% endif %}
 
         {% if perms.scipost.can_oversee_refereeing %}

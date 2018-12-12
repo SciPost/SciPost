@@ -1,7 +1,6 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
 import datetime
 import feedparser
 import strings
@@ -31,46 +30,98 @@ from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
-    SubmissionIdentifierForm, RequestSubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
-    SetRefereeingDeadlineForm, RefereeSelectForm, iThenticateReportForm, VotingEligibilityForm,
-    RefereeRecruitmentForm, ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
+    SetRefereeingDeadlineForm, RefereeSearchForm, #RefereeSelectForm,
+    iThenticateReportForm, VotingEligibilityForm,
+    #RefereeRecruitmentForm,
+    ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
+from .signals import (
+    notify_editor_assigned, notify_eic_new_report, notify_invitation_cancelled,
+    notify_submission_author_new_report, notify_eic_invitation_reponse, notify_report_vetted)
 from .utils import SubmissionUtils
 
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
+from common.helpers import get_new_secrets_key
+from common.utils import workdays_between
+from invitations.constants import STATUS_SENT
+from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from mails.views import MailEditingSubView
+from ontology.models import Topic
+from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
 from profiles.models import Profile
+from profiles.forms import SimpleProfileForm, ProfileEmailForm
+from scipost.constants import INVITATION_REFEREEING
+from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
-
-# from notifications.views import is_test_user  # Temporarily until release
 
 
 ###############
 # SUBMISSIONS:
 ###############
+@login_required
+@is_contributor_user()
+def resubmit_manuscript(request):
+    """
+    Choose which Submission to resubmit if Submission is available.
+
+    On POST, redirect to submit page.
+    """
+    submissions = get_list_or_404(
+        Submission.objects.candidate_for_resubmission(request.user))
+    if request.POST and request.POST.get('submission'):
+        if request.POST['submission'] == 'new':
+            return redirect(reverse('submissions:submit_manuscript_scipost') + '?resubmission=false')
+
+        last_submission = Submission.objects.candidate_for_resubmission(request.user).filter(
+            id=request.POST['submission']).first()
+
+        if last_submission:
+            if last_submission.preprint.scipost_preprint_identifier:
+                # Determine right preprint-view.
+                extra_param = '?resubmission={}'.format(request.POST['submission'])
+                return redirect(reverse('submissions:submit_manuscript_scipost') + extra_param)
+            else:
+                extra_param = '?identifier_w_vn_nr={}'.format(
+                    last_submission.preprint.identifier_w_vn_nr)
+                return redirect(reverse('submissions:submit_manuscript') + extra_param)
+        else:
+            # POST request invalid. Try again with GET request.
+            return redirect('submissions:resubmit_manuscript')
+    context = {
+        'submissions': submissions,
+    }
+    return render(request, 'submissions/submission_resubmission_candidates.html', context)
+
 
 class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     """Formview to submit a new manuscript (Submission)."""
 
     permission_required = 'scipost.can_submit_manuscript'
     success_url = reverse_lazy('scipost:personal_page')
-    form_class = RequestSubmissionForm
+    form_class = SubmissionForm
     template_name = 'submissions/submission_form.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['id_SciPostPhys'] = get_object_or_404(Journal, doi_label='SciPostPhys').id
+        context['id_SciPostPhysProc'] = get_object_or_404(Journal, doi_label='SciPostPhysProc').id
+        return context
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
-        if hasattr(self, 'initial_data'):
-            kwargs['initial'] = self.initial_data
+        kwargs['initial'] = getattr(self, 'initial_data', {})
+        kwargs['initial']['resubmission'] = self.request.GET.get('resubmission')
         return kwargs
 
     @transaction.atomic
@@ -78,13 +129,13 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
         submission.add_general_event('The manuscript has been submitted to %s.'
-                                     % submission.get_submitted_to_journal_display())
+                                     % str(submission.submitted_to))
 
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
         messages.success(self.request, text)
 
-        if form.submission_is_resubmission():
+        if form.is_resubmission():
             # Send emails
             SubmissionUtils.load({'submission': submission}, self.request)
             SubmissionUtils.send_authors_resubmission_ack_email()
@@ -106,35 +157,41 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
     """Formview to submit a new Submission using arXiv."""
 
     def get(self, request):
-        """Redirect to the arXiv prefill form if arXiv ID is not known."""
+        """
+        Redirect to the arXiv prefill form if arXiv ID is not known.
+        """
         form = SubmissionIdentifierForm(request.GET or None, requested_by=self.request.user)
         if form.is_valid():
             # Gather data from ArXiv API if prefill form is valid
-            self.initial_data = form.request_arxiv_preprint_form_prefill_data()
+            self.initial_data = form.get_initial_submission_data()
             return super().get(request)
         else:
+            for code, err in form.errors.items():
+                messages.warning(request, err[0])
             return redirect('submissions:prefill_using_identifier')
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['use_arxiv_preprint'] = True
+        kwargs['preprint_server'] = 'arxiv'
         return kwargs
 
 
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     """Formview to submit a new Submission using SciPost's preprint server."""
 
-    def dispatch(self, request, *args, **kwargs):
-        """TEMPORARY: Not accessible unless in test group."""
-        # if not is_test_user(request.user):
-        #     raise Http404
-        return super().dispatch(request, *args, **kwargs)
+    def get(self, request):
+        """Check for possible Resubmissions before dispatching."""
+        if Submission.objects.candidate_for_resubmission(request.user).exists():
+            if not request.GET.get('resubmission'):
+                return redirect('submissions:resubmit_manuscript')
+        return super().get(request)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['use_arxiv_preprint'] = False
+        # kwargs['use_arxiv_preprint'] = False
+        kwargs['preprint_server'] = 'scipost'
         return kwargs
 
 
@@ -144,13 +201,10 @@ def prefill_using_arxiv_identifier(request):
     """Form view asking for the arXiv ID related to the new Submission to submit."""
     query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None,
                                           requested_by=request.user)
-    if query_form.is_valid():
-        prefill_data = query_form.request_arxiv_preprint_form_prefill_data()
-        form = RequestSubmissionForm(
-            initial=prefill_data, requested_by=request.user, use_arxiv_preprint=True)
 
+    if query_form.is_valid():
         # Submit message to user
-        if query_form.submission_is_resubmission():
+        if query_form.service.is_resubmission():
             resubmessage = ('There already exists a preprint with this arXiv identifier '
                             'but a different version number. \nYour Submission will be '
                             'handled as a resubmission.')
@@ -158,14 +212,10 @@ def prefill_using_arxiv_identifier(request):
         else:
             messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
 
-        context = {
-            'form': form,
-        }
         response = redirect('submissions:submit_manuscript_arxiv')
         response['location'] += '?identifier_w_vn_nr={}'.format(
             query_form.cleaned_data['identifier_w_vn_nr'])
-        # return render(request, 'submissions/submission_form.html', context)
-        return reponse
+        return response
 
     context = {
         'form': query_form,
@@ -188,7 +238,7 @@ class SubmissionListView(PaginationMixin, ListView):
         if 'to_journal' in self.request.GET:
             queryset = queryset.filter(
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
-                submitted_to_journal=self.request.GET['to_journal']
+                submitted_to__doi_label=self.request.GET['to_journal']
             )
         elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
             discipline = self.kwargs['discipline']
@@ -237,7 +287,8 @@ def submission_detail(request, identifier_w_vn_nr):
     """Public detail page of Submission."""
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {
-        'can_read_editorial_information': False
+        'can_read_editorial_information': False,
+        'select_topic_form': SelectTopicForm(),
     }
 
     # Check if Contributor is author of the Submission
@@ -255,7 +306,7 @@ def submission_detail(request, identifier_w_vn_nr):
     if is_author:
         context['proofs_decision_form'] = ProofsDecisionForm()
 
-    if submission.open_for_commenting and request.user.has_perms('scipost.can_submit_comments'):
+    if submission.open_for_commenting and request.user.has_perm('scipost.can_submit_comments'):
         context['comment_form'] = CommentForm()
 
     invited_reports = submission.reports.accepted().invited()
@@ -267,7 +318,8 @@ def submission_detail(request, identifier_w_vn_nr):
     if request.user.is_authenticated:
         context['unfinished_report_for_user'] = submission.reports.in_draft().filter(
             author__user=request.user).first()
-        context['invitations'] = submission.referee_invitations.filter(referee__user=request.user)
+        context['invitations'] = submission.referee_invitations.non_cancelled().filter(
+            referee__user=request.user)
 
         if is_author or is_author_unchecked:
             # Authors are not allowed to read all editorial info! Whatever
@@ -424,7 +476,8 @@ def editorial_workflow(request):
 @login_required
 @fellowship_or_admin_required()
 def pool(request, identifier_w_vn_nr=None):
-    """List page of Submissions in refereeing.
+    """
+    List page of Submissions in refereeing.
 
     The Submissions pool contains all submissions which are undergoing
     the editorial process, from submission
@@ -436,8 +489,11 @@ def pool(request, identifier_w_vn_nr=None):
     if search_form.is_valid():
         submissions = search_form.search(Submission.objects.all(), request.user)
     else:
-        # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
+
+    # Query optimization
+    submissions = submissions.select_related(
+        'preprint', 'publication').prefetch_related('eicrecommendations')
 
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
@@ -512,6 +568,50 @@ def add_remark(request, identifier_w_vn_nr):
     else:
         messages.warning(request, 'The form was invalidly filled.')
     return redirect(reverse('submissions:pool', args=(identifier_w_vn_nr,)))
+
+
+@permission_required('scipost.can_manage_ontology', raise_exception=True)
+def submission_add_topic(request, identifier_w_vn_nr):
+    """
+    Add a predefined Topic to an existing Submission object.
+    This also adds the Topic to all Submissions predating this one,
+    and to any existing associated Publication object.
+    """
+    submission = get_object_or_404(Submission,
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    select_topic_form = SelectTopicForm(request.POST or None)
+    if select_topic_form.is_valid():
+        submission.topics.add(select_topic_form.cleaned_data['topic'])
+        for sub in submission.get_other_versions():
+            sub.topics.add(select_topic_form.cleaned_data['topic'])
+        try:
+            if submission.publication:
+                submission.publication.topics.add(select_topic_form.cleaned_data['topic'])
+        except:
+            pass
+        messages.success(request, 'Successfully linked Topic to this Submission')
+    return redirect(submission.get_absolute_url())
+
+
+@permission_required('scipost.can_manage_ontology', raise_exception=True)
+def submission_remove_topic(request, identifier_w_vn_nr, slug):
+    """
+    Remove the Topic from the Submission, from all associated Submissions
+    and from any existing associated Publication object.
+    """
+    submission = get_object_or_404(Submission,
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    topic = get_object_or_404(Topic, slug=slug)
+    submission.topics.remove(topic)
+    for sub in submission.get_other_versions():
+        sub.topics.remove(topic)
+    try:
+        if submission.publication:
+            submission.publication.topics.remove(topic)
+    except:
+        pass
+    messages.success(request, 'Successfully removed Topic')
+    return redirect(submission.get_absolute_url())
 
 
 @login_required
@@ -591,6 +691,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
                 SubmissionUtils.send_author_prescreening_passed_email()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
+            notify_editor_assigned(request.user, assignment, False)
             msg = 'Thank you for becoming Editor-in-charge of this submission.'
             url = reverse(
                 'submissions:editorial_page', args=(submission.preprint.identifier_w_vn_nr,))
@@ -654,23 +755,20 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
         messages.warning(request, errormessage)
         return redirect(reverse('submissions:pool'))
 
-    contributor = request.user.contributor
     # The Contributor may already have an EditorialAssignment due to an earlier invitation.
     assignment, __ = EditorialAssignment.objects.get_or_create(
-        submission=submission, to=contributor)
+        submission=submission, to=request.user.contributor)
     # Explicitly update afterwards, since update_or_create does not properly do the job.
     EditorialAssignment.objects.filter(id=assignment.id).update(
         status=STATUS_ACCEPTED, date_answered=timezone.now())
 
     # Set deadlines
-    deadline = timezone.now() + datetime.timedelta(days=28)  # for papers
-    if submission.submitted_to_journal == 'SciPostPhysLectNotes':
-        deadline += datetime.timedelta(days=28)
+    deadline = timezone.now() + submission.submitted_to.refereeing_period
 
     # Update Submission data
     Submission.objects.filter(id=submission.id).update(
         status=STATUS_EIC_ASSIGNED,
-        editor_in_charge=contributor,
+        editor_in_charge=request.user.contributor,
         open_for_reporting=True,
         reporting_deadline=deadline,
         open_for_commenting=True,
@@ -688,6 +786,7 @@ def volunteer_as_EIC(request, identifier_w_vn_nr):
 
     # Add SubmissionEvents
     submission.add_general_event('The Editor-in-charge has been assigned.')
+    notify_editor_assigned(request.user, assignment, False)
 
     messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
     return redirect(reverse('submissions:editorial_page',
@@ -794,8 +893,7 @@ def cycle_form_submit(request, identifier_w_vn_nr):
     form = SubmissionCycleChoiceForm(request.POST or None, instance=submission)
     if form.is_valid():
         submission = form.save()
-        submission.cycle.update_status()
-        submission.cycle.update_deadline()
+        submission.cycle.reset_refereeing_round()
         submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'], request)
         messages.success(request, ('<h3>Your choice has been confirmed</h3>'
                                    'The new cycle will be <em>%s</em>'
@@ -811,24 +909,19 @@ def cycle_form_submit(request, identifier_w_vn_nr):
 @login_required
 @fellowship_or_admin_required()
 def select_referee(request, identifier_w_vn_nr):
-    """Invite scientist to referee a Submission.
-
-    Accessible for: Editor-in-charge and Editorial Administration.
-    It'll list possible already registered Contributors that match the search. If the scientist
-    is not yet registered, he will be invited using a RegistrationInvitation as well. In
-    addition the page will show possible conflicts of interests, with that information
-    coming from the ArXiv API.
+    """
+    Search for a referee in the set of Profiles, and if none is found,
+    create a new Profile and return to this page for further processing.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {}
     queryresults = ''
-    ref_search_form = RefereeSelectForm(request.POST or None)
-    if ref_search_form.is_valid():
-        contributors_found = Contributor.objects.filter(
-            user__last_name__icontains=ref_search_form.cleaned_data['last_name'])
-        context['contributors_found'] = contributors_found
-
+    referee_search_form = RefereeSearchForm(request.GET or None)
+    if referee_search_form.is_valid():
+        profiles_found = Profile.objects.filter(
+            last_name__icontains=referee_search_form.cleaned_data['last_name'])
+        context['profiles_found'] = profiles_found
         # Check for recent co-authorship (thus referee disqualification)
         try:
             sub_auth_boolean_str = '((' + (submission
@@ -837,7 +930,7 @@ def select_referee(request, identifier_w_vn_nr):
             for author in submission.metadata['entries'][0]['authors'][1:]:
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
-            search_str = sub_auth_boolean_str + ref_search_form.cleaned_data['last_name'] + ')'
+            search_str = sub_auth_boolean_str + referee_search_form.cleaned_data['last_name'] + ')'
             queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
@@ -845,116 +938,106 @@ def select_referee(request, identifier_w_vn_nr):
             queryresults = arxivquery
         except KeyError:
             pass
-        context['ref_recruit_form'] = RefereeRecruitmentForm()
-
+        context['profile_form'] = SimpleProfileForm()
     context.update({
         'submission': submission,
-        'ref_search_form': ref_search_form,
-        'queryresults': queryresults
+        'workdays_left_to_report': workdays_between(timezone.now(), submission.reporting_deadline),
+        'referee_search_form': referee_search_form,
+        'queryresults': queryresults,
+        'profile_email_form': ProfileEmailForm(initial={'primary': True}),
     })
-    return render(request, 'submissions/referee_form.html', context)
+    return render(request, 'submissions/select_referee.html', context)
 
 
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def recruit_referee(request, identifier_w_vn_nr):
-    """Invite a non-registered scientist to register and referee a Submission.
-
-    Accessible for: Editor-in-charge and Editorial Administration
-    If the Editor-in-charge does not find the desired referee among Contributors
-    (otherwise, the method send_refereeing_invitation is used), he/she can invite somebody
-    by providing name + contact details. This function emails a registration invitation to this
-    person. The pending refereeing invitation is then recognized upon registration, using the
-    invitation token.
-    """
+def add_referee_profile(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
-    if request.method == 'GET':
-        # This leads to unexpected 500 errors
-        return redirect(reverse('submissions:select_referee', args=(identifier_w_vn_nr,)))
-
-    ref_recruit_form = RefereeRecruitmentForm(
-        request.POST or None, request=request, submission=submission)
-    if ref_recruit_form.is_valid():
-        referee_invitation, registration_invitation = ref_recruit_form.save(commit=False)
-        mail_request = MailEditingSubView(request,
-                                          mail_code='referees/invite_unregistered_to_referee',
-                                          instance=referee_invitation)
-        mail_request.add_form(ref_recruit_form)
-        if mail_request.is_valid():
-            referee_invitation.save()
-            registration_invitation.save()
-
-            messages.success(request, 'Referee {} invited'.format(
-                registration_invitation.last_name))
-            submission.add_event_for_author('A referee has been invited.')
-            submission.add_event_for_eic('{} has been recruited and invited as a referee.'.format(
-                referee_invitation.last_name))
-
-            mail_request.send()
-            return redirect(reverse('submissions:editorial_page',
-                                    kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
-        else:
-            return mail_request.return_render()
-
-    ref_search_form = RefereeSelectForm(request.POST or None)
-    contributors_found = Contributor.objects.filter(
-        user__email=ref_recruit_form.cleaned_data['email_address'])
-    context = {
-        'ref_recruit_form': ref_recruit_form,
-        'ref_search_form': ref_search_form,
-        'submission': submission,
-        'queryresults': [],
-        'contributors_found': contributors_found,
-    }
-    return render(request, 'submissions/referee_form.html', context)
+    profile_form = SimpleProfileForm(request.POST or None)
+    if profile_form.is_valid():
+        profile_form.save()
+        messages.success(request,
+                         'Profile added, you can now invite this referee using the links above')
+    else:
+        messages.error(request, 'Could not create this Profile')
+        for error_messages in profile_form.errors.values():
+            messages.warning(request, *error_messages)
+    return redirect(reverse(
+        'submissions:select_referee',
+        kwargs={'identifier_w_vn_nr': submission.preprint.identifier_w_vn_nr}) +
+                    ('?last_name=%s' % profile_form.cleaned_data['last_name']))
 
 
 @login_required
 @fellowship_or_admin_required()
 @transaction.atomic
-def send_refereeing_invitation(request, identifier_w_vn_nr, contributor_id,
-                               auto_reminders_allowed):
-    """Send RefereeInvitation to a registered Contributor.
-
-    This method is called by the EIC from the submission's editorial_page,
-    in the case where the referee is an identified Contributor.
-    For a referee who isn't a Contributor yet, the method recruit_referee above
-    is called instead.
-
-    Accessible for: Editor-in-charge and Editorial Administration
+def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allowed):
+    """
+    Invite a referee linked to a Profile.
+    If the Profile has a Contributor object, a simple invitation is sent.
+    If there is no associated Contributor, a registration invitation is included.
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    contributor = get_object_or_404(Contributor, pk=contributor_id)
-    profile = Profile.objects.get_unique_from_email_or_None(contributor.user.email)
+    profile = get_object_or_404(Profile, pk=profile_id)
 
-    if not contributor.is_currently_available:
-        errormessage = ('This Contributor is marked as currently unavailable. '
-                        'Please go back and select another referee.')
-        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    contributor = None
+    if hasattr(profile, 'contributor') and profile.contributor:
+        contributor = profile.contributor
 
-    invitation = RefereeInvitation(
+    referee_invitation, created = RefereeInvitation.objects.get_or_create(
         profile=profile,
-        submission=submission,
         referee=contributor,
-        title=contributor.title,
-        first_name=contributor.user.first_name,
-        last_name=contributor.user.last_name,
-        email_address=contributor.user.email,
+        submission=submission,
+        title=profile.title,
+        first_name=profile.first_name,
+        last_name=profile.last_name,
+        email_address=profile.email,
         auto_reminders_allowed=auto_reminders_allowed,
-        # the key is only used for inviting unregistered users
-        date_invited=timezone.now(),
         invited_by=request.user.contributor)
 
-    mail_request = MailEditingSubView(request, mail_code='referees/invite_contributor_to_referee',
-                                      invitation=invitation)
+    key = ''
+    if created:
+        key = get_new_secrets_key()
+        referee_invitation.invitation_key = key
+        referee_invitation.save()
+
+    registration_invitation = None
+    if contributor:
+        if not profile.contributor.is_currently_available:
+            errormessage = ('This Contributor is marked as currently unavailable. '
+                            'Please go back and select another referee.')
+            return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+        mail_request = MailEditingSubView(request,
+                                          mail_code='referees/invite_contributor_to_referee',
+                                          invitation=referee_invitation)
+    else: # no Contributor, so registration invitation
+        registration_invitation, reginv_created = RegistrationInvitation.objects.get_or_create(
+            profile=profile,
+            title=profile.title,
+            first_name=profile.first_name,
+            last_name=profile.last_name,
+            email=profile.email,
+            invitation_type=INVITATION_REFEREEING,
+            created_by=request.user,
+            invited_by=request.user,
+            invitation_key=referee_invitation.invitation_key)
+        mail_request = MailEditingSubView(request,
+                                          mail_code='referees/invite_unregistered_to_referee',
+                                          invitation=referee_invitation)
+
     if mail_request.is_valid():
-        invitation.save()
+        referee_invitation.date_invited = timezone.now()
+        referee_invitation.save()
+        if registration_invitation:
+            registration_invitation.status = STATUS_SENT
+            registration_invitation.key_expires = timezone.now() + datetime.timedelta(days=365)
+            registration_invitation.save()
         submission.add_event_for_author('A referee has been invited.')
-        submission.add_event_for_eic('Referee %s has been invited.' % contributor.user.last_name)
+        submission.add_event_for_eic('Referee %s has been invited.' % profile.last_name)
         messages.success(request, 'Invitation sent')
         mail_request.send()
         return redirect(reverse('submissions:editorial_page',
@@ -1059,6 +1142,7 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
                                                 % (invitation.referee.user.last_name,
                                                    decision_string))
+        notify_eic_invitation_reponse(request.user, invitation, False)
 
         if request.user.contributor.referee_invitations.awaiting_response().exists():
             return redirect('submissions:accept_or_decline_ref_invitations')
@@ -1126,7 +1210,9 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     invitation.submission.add_event_for_author('A referee invitation has been cancelled.')
     invitation.submission.add_event_for_eic('Referee invitation for %s has been cancelled.'
                                             % invitation.last_name)
+    notify_invitation_cancelled(request.user, invitation, False)
 
+    messages.success(request, 'Invitation cancelled')
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
 
@@ -1141,12 +1227,14 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    submission.reporting_deadline += datetime.timedelta(days=int(days))
-    submission.open_for_reporting = True
-    submission.open_for_commenting = True
-    submission.status = STATUS_EIC_ASSIGNED
-    submission.latest_activity = timezone.now()
-    submission.save()
+    Submission.objects.filter(pk=submission.id).update(
+        reporting_deadline=submission.reporting_deadline + datetime.timedelta(days=int(days)),
+        open_for_reporting=True,
+        open_for_commenting=True,
+        latest_activity=timezone.now())
+
+    messages.success(request, 'Refereeing deadline set to {0}.'.format(
+        submission.reporting_deadline.strftime('%Y-%m-%d')))
 
     submission.add_general_event('A new refereeing deadline is set.')
     return redirect(reverse('submissions:editorial_page',
@@ -1162,15 +1250,18 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
+    if not submission.can_reset_reporting_deadline:
+        # Protect eg. published submissions.
+        messages.warning(request, 'Reporting deadline can not be reset.')
+        return redirect(reverse(
+            'submissions:editorial_page', kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
+
     form = SetRefereeingDeadlineForm(request.POST or None)
     if form.is_valid():
-        submission.reporting_deadline = form.cleaned_data['deadline']
-        if form.cleaned_data['deadline'] > timezone.now().date():
-            submission.open_for_reporting = True
-            submission.open_for_commenting = True
-            submission.latest_activity = timezone.now()
-        # submission.status = STATUS_EIC_ASSIGNED  # This is dangerous as shit.
-        submission.save()
+        Submission.objects.filter(pk=submission.id).update(
+            reporting_deadline=form.cleaned_data['deadline'],
+            open_for_reporting=(form.cleaned_data['deadline'] >= timezone.now().date()),
+            latest_activity = timezone.now())
         submission.add_general_event('A new refereeing deadline is set.')
         messages.success(request, 'New reporting deadline set.')
     else:
@@ -1250,10 +1341,12 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
     # Get the showpiece itself or return 404
     submission = get_object_or_404(submissions_qs, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    if referee_id and not referee:
+    if referee_id and comtype in ['EtoA', 'EtoR', 'EtoS']:
         # Get the Contributor to communicate with if not already defined (`Eto?` communication)
         # To Fix: Assuming the Editorial Administrator won't make any `referee_id` mistakes
-        referee = get_object_or_404(Contributor, pk=referee_id)
+        referee = get_object_or_404(Contributor.objects.active(), pk=referee_id)
+    elif comtype == 'EtoA':
+        referee = submission.submitted_by
 
     form = EditorialCommunicationForm(request.POST or None)
     if form.is_valid():
@@ -1266,11 +1359,12 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         SubmissionUtils.load({'communication': communication})
         SubmissionUtils.send_communication_email()
 
+        messages.success(request, 'Communication submitted')
         if comtype in ['EtoA', 'EtoR', 'EtoS']:
             return redirect(reverse('submissions:editorial_page',
                                     kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
         elif comtype == 'AtoE':
-            return redirect(reverse('scipost:personal_page'))
+            return redirect(submission.get_absolute_url())
         elif comtype == 'StoE':
             return redirect(reverse('submissions:pool'))
         return redirect(submission.get_absolute_url())
@@ -1343,7 +1437,7 @@ def reformulate_eic_recommendation(request, identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    recommendation = submission.eicrecommendations.first()
+    recommendation = submission.eicrecommendations.last()
     if not recommendation:
         raise Http404('No EICRecommendation formulated yet.')
 
@@ -1449,6 +1543,7 @@ def submit_report(request, identifier_w_vn_nr):
                                      % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
+        notify_eic_new_report(request.user, newreport, False)
         return redirect(submission.get_absolute_url())
     elif request.POST:
         messages.error(request, 'Report not submitted, please read the errors below.')
@@ -1480,7 +1575,7 @@ def vet_submitted_report(request, report_id):
     After vetting an email is sent to the report author, bcc EIC. If report
     has not been refused, the submission author is also mailed.
     """
-    if request.user.has_perms('scipost.can_vet_submitted_reports'):
+    if request.user.has_perm('scipost.can_vet_submitted_reports'):
         # Vetting Editors may vote on everything.
         report = get_object_or_404(Report.objects.awaiting_vetting(), id=report_id)
     else:
@@ -1488,7 +1583,7 @@ def vet_submitted_report(request, report_id):
         report = get_object_or_404(Report.objects.filter(
             submission__in=submissions).awaiting_vetting(), id=report_id)
 
-    form = VetReportForm(request.POST or None, initial={'report': report})
+    form = VetReportForm(request.POST or None, report=report)
     if form.is_valid():
         report = form.process_vetting(request.user.contributor)
 
@@ -1496,6 +1591,7 @@ def vet_submitted_report(request, report_id):
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
+        notify_report_vetted(request.user, report, False)
 
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic('The Report by %s is vetted.'
@@ -1506,6 +1602,7 @@ def vet_submitted_report(request, report_id):
 
             # Add SubmissionEvent to tell the author about the new report
             report.submission.add_event_for_author('A new Report has been submitted.')
+            notify_submission_author_new_report(request.user, report, False)
 
         message = 'Submitted Report vetted for <a href="{url}">{arxiv}</a>.'.format(
             url=report.submission.get_absolute_url(),
@@ -1517,6 +1614,7 @@ def vet_submitted_report(request, report_id):
             return redirect(reverse('submissions:editorial_page',
                                     args=(report.submission.preprint.identifier_w_vn_nr,)))
         return redirect(reverse('submissions:vet_submitted_reports_list'))
+
     context = {'report_to_vet': report, 'form': form}
     return render(request, 'submissions/vet_submitted_report.html', context)
 
@@ -1543,12 +1641,17 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.preprint.identifier_w_vn_nr]))
     else:
+        secondary_areas = recommendation.submission.secondary_areas
+        if not secondary_areas:
+            secondary_areas = []
+
         fellows_with_expertise = recommendation.submission.fellows.filter(
             Q(contributor=recommendation.submission.editor_in_charge) |
             Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
-            Q(contributor__expertises__contains=recommendation.submission.secondary_areas)).order_by(
+            Q(contributor__expertises__contains=secondary_areas)).order_by(
                 'contributor__user__last_name')
-        coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
+        #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
+        coauthorships = None
 
     context = {
         'recommendation': recommendation,

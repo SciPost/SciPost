@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import feedparser
+import uuid
 
 from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.fields import GenericRelation
@@ -16,16 +17,19 @@ from django.utils.functional import cached_property
 from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE, STATUS_PREASSIGNED,
-    ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, REPORT_REC,
+    ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, STATUS_INVITED,
     SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
     STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
-    STATUS_INVITED, STATUS_REPLACED, STATUS_ACCEPTED, STATUS_DEPRECATED, STATUS_COMPLETED)
+    STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_REJECTED, STATUS_WITHDRAWN, REPORT_REC,
+    STATUS_PUBLISHED, STATUS_REPLACED, STATUS_ACCEPTED, STATUS_DEPRECATED, STATUS_COMPLETED,
+    PLAGIARISM_STATUSES, STATUS_WAITING)
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
+from .refereeing_cycles import RegularCycle
 from .utils import (
     ShortSubmissionCycle, DirectRecommendationSubmissionCycle, GeneralSubmissionCycle)
 
@@ -36,7 +40,7 @@ from scipost.constants import TITLE_CHOICES
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
 from scipost.storage import SecureFileStorage
-from journals.constants import SCIPOST_JOURNALS_SUBMIT, SCIPOST_JOURNALS_DOMAINS
+from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 from mails.utils import DirectMailUtil
 
@@ -53,7 +57,7 @@ class Submission(models.Model):
     preprint = models.OneToOneField('preprints.Preprint', related_name='submission')
 
     author_comments = models.TextField(blank=True)
-    author_list = models.CharField(max_length=1000, verbose_name="author list")
+    author_list = models.CharField(max_length=10000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
@@ -75,7 +79,10 @@ class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
-    is_resubmission = models.BooleanField(default=False)
+    is_resubmission_of = models.ForeignKey(
+        'self', blank=True, null=True, related_name='successor')
+    thread_hash = models.UUIDField(default=uuid.uuid4)
+    _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
 
@@ -84,15 +91,13 @@ class Submission(models.Model):
 
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE)
+    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, blank=True)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                             related_name='voting_pool')
 
-    # Replace this by foreignkey?
-    submitted_to_journal = models.CharField(max_length=30, choices=SCIPOST_JOURNALS_SUBMIT,
-                                            verbose_name="Journal to be submitted to")
+    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
                                     related_name='submissions')
     title = models.CharField(max_length=300)
@@ -129,6 +134,9 @@ class Submission(models.Model):
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
 
+    # Topics for semantic linking
+    topics = models.ManyToManyField('ontology.Topic', blank=True)
+
     objects = SubmissionQuerySet.as_manager()
 
     # Temporary
@@ -140,7 +148,6 @@ class Submission(models.Model):
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
-
         obj = super().save(*args, **kwargs)
         if hasattr(self, 'cycle'):
             self.set_cycle()
@@ -175,6 +182,13 @@ class Submission(models.Model):
     @property
     def cycle(self):
         """Get cycle object that's relevant for the Submission."""
+        if not hasattr(self, '_cycle'):
+            self._cycle = RegularCycle(self)
+        return self._cycle
+
+    @property
+    def cycle_old(self):
+        """Get cycle object that's relevant for the Submission."""
         if not hasattr(self, '__cycle'):
             self.set_cycle()
         return self.__cycle
@@ -192,6 +206,16 @@ class Submission(models.Model):
     def get_absolute_url(self):
         """Return url of the Submission detail page."""
         return reverse('submissions:submission', args=(self.preprint.identifier_w_vn_nr,))
+
+    def get_notification_url(self, url_code):
+        """Return url related to the Submission by the `url_code` meant for Notifications."""
+        if url_code == 'editorial_page':
+            return reverse('submissions:editorial_page', args=(self.preprint.identifier_w_vn_nr,))
+        return self.get_absolute_url()
+
+    @property
+    def is_resubmission(self):
+        return self.is_resubmission_of is not None
 
     @property
     def notification_name(self):
@@ -218,7 +242,22 @@ class Submission(models.Model):
     @property
     def reporting_deadline_has_passed(self):
         """Check if Submission has passed it's reporting deadline."""
+        if self.status in [STATUS_INCOMING, STATUS_UNASSIGNED]:
+            # These statuses do not have a deadline
+            return False
+
         return timezone.now() > self.reporting_deadline
+
+    @property
+    def reporting_deadline_approaching(self):
+        """Check if reporting deadline is within 7 days from now but not passed yet."""
+        if self.status in [STATUS_INCOMING, STATUS_UNASSIGNED]:
+            # These statuses do not have a deadline
+            return False
+
+        if self.reporting_deadline_has_passed:
+            return False
+        return timezone.now() > self.reporting_deadline - datetime.timedelta(days=7)
 
     @property
     def is_open_for_reporting(self):
@@ -229,19 +268,53 @@ class Submission(models.Model):
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).first().submission_date
+            thread_hash=self.thread_hash, is_resubmission_of__isnull=True).first().submission_date
+
+    @property
+    def in_refereeing_phase(self):
+        """Check if Submission is in active refereeing phase.
+
+        This is not meant for functional logic, rather for explanatory functionality to the user.
+        """
+        if self.eicrecommendations.active().exists():
+            # Editorial Recommendation is formulated!
+            return False
+
+        if self.refereeing_cycle == CYCLE_DIRECT_REC:
+            # There's no refereeing in this cycle at all.
+            return False
+
+        if self.referee_invitations.in_process().exists():
+            # Some unfinished invitations exist still.
+            return True
+
+        if self.referee_invitations.awaiting_response().exists():
+            # Some invitations have been sent out without a response.
+            return True
+
+        # Maybe: Check for unvetted Reports?
+        return self.status == STATUS_EIC_ASSIGNED and self.is_open_for_reporting
+
+    @property
+    def can_reset_reporting_deadline(self):
+        """Check if reporting deadline is allowed to be reset."""
+        blocked_statuses = [
+            STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
+            STATUS_REJECTED, STATUS_WITHDRAWN, STATUS_PUBLISHED]
+        if self.status in blocked_statuses:
+            return False
+
+        if self.refereeing_cycle == CYCLE_DIRECT_REC:
+            # This cycle doesn't have a formal refereeing round.
+            return False
+
+        return self.editor_in_charge is not None
 
     @property
     def thread(self):
         """Return all (public) Submissions in the database in this ArXiv identifier series."""
-        return Submission.objects.public().filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).order_by(
-                '-preprint__vn_nr')
-
-    @cached_property
-    def other_versions_public(self):
-        """Return other (public) Submissions in the database in this ArXiv identifier series."""
-        return self.get_other_versions().order_by('-preprint__vn_nr')
+        return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
+                '-preprint__vn_nr', '-submission_date')
 
     @cached_property
     def other_versions(self):
@@ -250,32 +323,11 @@ class Submission(models.Model):
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this ArXiv identifier series."""
-        return Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(pk=self.id)
+        return Submission.objects.filter(thread_hash=self.thread_hash).exclude(pk=self.id)
 
-    def count_accepted_invitations(self):
-        """Count number of accepted RefereeInvitations for this Submission."""
-        return self.referee_invitations.filter(accepted=True).count()
-
-    def count_declined_invitations(self):
-        """Count number of declined RefereeInvitations for this Submission."""
-        return self.referee_invitations.filter(accepted=False).count()
-
-    def count_pending_invitations(self):
-        """Count number of RefereeInvitations awaiting response for this Submission."""
-        return self.referee_invitations.filter(accepted=None).count()
-
-    def count_invited_reports(self):
-        """Count number of invited Reports for this Submission."""
-        return self.reports.accepted().filter(invited=True).count()
-
-    def count_contrib_reports(self):
-        """Count number of contributed Reports for this Submission."""
-        return self.reports.accepted().filter(invited=False).count()
-
-    def count_obtained_reports(self):
-        """Count total number of Reports for this Submission."""
-        return self.reports.accepted().filter(invited__isnull=False).count()
+    def get_latest_version(self):
+        """Return the latest known version in the thread of this Submission."""
+        return self.thread.first()
 
     def add_general_event(self, message):
         """Generate message meant for EIC and authors."""
@@ -439,12 +491,13 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
             # Only send if status is appropriate to prevent double sending
             return False
 
-        EditorialAssignment.objects.filter(
-            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
-
         # Send mail
         mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
         mail_sender.send()
+
+        EditorialAssignment.objects.filter(
+            id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)
+
         return True
 
 
@@ -483,6 +536,9 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
 
     objects = RefereeInvitationQuerySet.as_manager()
 
+    class Meta:
+        ordering = ['cancelled', 'date_invited']
+
     def __str__(self):
         """Summerize the RefereeInvitation's basic information."""
         return (self.first_name + ' ' + self.last_name + ' to referee ' +
@@ -508,7 +564,55 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def related_report(self):
         """Return the Report that's been created for this invitation."""
-        return self.submission.reports.filter(author=self.referee).first()
+        return self.submission.reports.filter(author=self.referee).last()
+
+    @property
+    def needs_response(self):
+        """Check if invitation has no response in more than three days."""
+        if not self.cancelled and self.accepted is None:
+            if self.date_last_reminded:
+                # No reponse in over three days since last reminder
+                return timezone.now() - self.date_last_reminded > datetime.timedelta(days=3)
+
+            # No reponse in over three days since original invite
+            return timezone.now() - self.date_invited > datetime.timedelta(days=3)
+
+        return False
+
+    @property
+    def needs_fulfillment_reminder(self):
+        """Check if isn't fullfilled but deadline is closing in."""
+        if self.accepted and not self.cancelled and not self.fulfilled:
+            # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
+            return (self.submission.reporting_deadline - timezone.now()).days < 7
+        return False
+
+    @property
+    def is_overdue(self):
+        """Check if isn't fullfilled but deadline has expired."""
+        if self.accepted and not self.cancelled and not self.fulfilled:
+            # Refereeing deadline closing in/overdue, but invitation isn't fulfilled yet.
+            return (self.submission.reporting_deadline - timezone.now()).days < 0
+        return False
+
+    @property
+    def needs_attention(self):
+        """Check if invitation needs attention by the editor."""
+        return self.needs_response or self.needs_fulfillment_reminder
+
+    @property
+    def get_status_display(self):
+        """Get status: a combination between different boolean fields."""
+        if self.cancelled:
+            return 'Cancelled'
+        if self.fulfilled:
+            return 'Fulfilled'
+        if self.accepted is None:
+            return 'Awaiting response'
+        elif self.accepted:
+            return 'Accepted'
+        else:
+            return 'Declined ({})'.format(self.get_refusal_reason_display())
 
     def reset_content(self):
         """Reset the invitation's information as a new invitation."""
@@ -549,7 +653,6 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
-    date_submitted = models.DateTimeField('date submitted')
     author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                related_name='reports')
     qualification = models.PositiveSmallIntegerField(
@@ -590,6 +693,10 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
     pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
 
+    date_submitted = models.DateTimeField('date submitted')
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
     # Attachment
     file_attachment = models.FileField(
         upload_to='uploads/reports/%Y/%m/%d/', blank=True,
@@ -623,6 +730,16 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def get_absolute_url(self):
         """Return url of the Report on the Submission detail page."""
         return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+
+    def get_notification_url(self, url_code):
+        """Return url related to the Report by the `url_code` meant for Notifications."""
+        if url_code == 'report_form':
+            return reverse(
+                'submissions:submit_report', args=(self.submission.preprint.identifier_w_vn_nr,))
+        elif url_code == 'editorial_page':
+            return reverse(
+                'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,))
+        return self.get_absolute_url()
 
     def get_attachment_url(self):
         """Return url of the Report its attachment if exists."""
@@ -774,9 +891,21 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
             authors=self.submission.author_list[:30])
         return output
 
+    def get_absolute_url(self):
+        """Return url of the related Submission detail page."""
+        return self.submission.get_absolute_url()
+
+    def get_notification_url(self, url_code):
+        """Return url related to the Communication by the `url_code` meant for Notifications."""
+        if url_code == 'editorial_page':
+            return reverse(
+                'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,))
+        return self.get_absolute_url()
+
 
 class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
-    """The recommendation formulated for a specific Submission, formulated by the EIC.
+    """
+    The recommendation formulated for a specific Submission, formulated by the EIC.
 
     The EICRecommendation is the recommendation of a Submission written by the Editor-in-charge
     formulated at the end of the refereeing cycle. It can be voted for by a subset of Fellows and
@@ -795,6 +924,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     status = models.CharField(max_length=32, choices=EIC_REC_STATUSES, default=VOTING_IN_PREP)
     version = models.SmallIntegerField(default=1)
     active = models.BooleanField(default=True)
+    # status = models.CharField(default='', max_length=180)
 
     # Editorial Fellows who have assessed this recommendation:
     eligible_to_vote = models.ManyToManyField('scipost.Contributor', blank=True,
@@ -857,7 +987,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def may_be_reformulated(self):
         """Check if this EICRecommdation is allowed to be reformulated in a new version."""
-        if not self.status == DEPRECATED:
+        if self.status == DEPRECATED:
             # Already reformulated before; please use the latest version
             return self.submission.eicrecommendations.last() == self
         return self.status != DECISION_FIXED
@@ -886,6 +1016,7 @@ class iThenticateReport(TimeStampedModel):
     doc_id = models.IntegerField(primary_key=True)
     part_id = models.IntegerField(null=True, blank=True)
     percent_match = models.IntegerField(null=True, blank=True)
+    status = models.CharField(max_length=16, choices=PLAGIARISM_STATUSES, default=STATUS_WAITING)
 
     class Meta:
         verbose_name = 'iThenticate Report'

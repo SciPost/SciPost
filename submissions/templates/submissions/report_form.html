@@ -1,4 +1,4 @@
-{% extends 'scipost/_personal_page_base.html' %}
+{% extends 'submissions/base.html' %}
 
 {% block breadcrumb_items %}
     {{block.super}}
@@ -28,7 +28,7 @@
     <hr class="divider">
     <div class="row">
         <div class="col-12">
-            <div class="card card-grey">
+            <div class="card bg-light">
                 <div class="card-body">
                     <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
                     <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
@@ -72,6 +72,7 @@
                     </form>
                 </div>
                 <div class="col-md-6">
+                    <br>
                     {% include 'partials/submissions/report_preview.html' %}
                 </div>
             </div>

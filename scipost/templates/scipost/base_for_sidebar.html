@@ -3,30 +3,22 @@
 {% block body_class %}{{block.super}} has-sidebar{% endblock %}
 
 {% block base %}
-        <div class="container">
-            <div class="content-wrapper">
-                <div class="main-panel">
-                    <div class="container-inner">
-                        <div class="{% block container_class %}{% endblock %}">
-                            {% block page_header %}{% endblock page_header %}
+    <main class="container">
+        <div class="row">
+            <div class="col-md-8 col-lg-9 pr-lg-3">
 
-                            {% block content %}{% endblock content %}
+                {% block page_header %}{% endblock page_header %}
 
-                            {% block content_footer %}{% endblock content_footer %}
-                        </div>
+                {% block content %}{% endblock content %}
 
-                        {% block secondary_footer %}{% endblock secondary_footer %}
-                    </div>
+                {% block content_footer %}{% endblock content_footer %}
+            </div>
 
-                </div>
-
-                <div class="sidebar">
-                    <div class="container-inner">
-                        {% block sidebar %}{% endblock %}
-                    </div>
-                </div>
+            <div class="col-md-4 col-lg-3 sidebar mt-4 mt-md-0">
+                {% block sidebar %}{% endblock %}
             </div>
         </div>
+    </main>
     {% include 'scipost/footer.html' %}
 
 {% endblock base %}

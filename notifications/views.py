@@ -13,24 +13,32 @@ from .utils import id2slug, slug2id
 
 
 def is_test_user(user):
+    """Check if user is test user.
+
+    To be removed after test-phase is over.
+    """
+    return True
     return user.groups.filter(name='Testers').exists()
 
 
 @login_required
 @user_passes_test(is_test_user)
 def forward(request, slug):
-    """
-    Open the url of the target object of the notification and redirect.
+    """Open the url of the target object of the notification and redirect.
+
     In addition, mark the notification as read.
     """
     notification = get_object_or_404(Notification, recipient=request.user, id=slug2id(slug))
     notification.mark_as_read()
+    if hasattr(notification.target, 'get_notification_url'):
+        return redirect(notification.target.get_notification_url(notification.url_code))
     return redirect(notification.target.get_absolute_url())
 
 
 @login_required
 @user_passes_test(is_test_user)
 def mark_toggle(request, slug=None):
+    """Toggle mark as read."""
     id = slug2id(slug)
 
     notification = get_object_or_404(Notification, recipient=request.user, id=id)
@@ -47,6 +55,7 @@ def mark_toggle(request, slug=None):
 
 
 def live_unread_notification_count(request):
+    """Return JSON of unread messages count."""
     if not request.user.is_authenticated():
         data = {'unread_count': 0}
     else:
@@ -55,10 +64,11 @@ def live_unread_notification_count(request):
 
 
 def live_notification_list(request):
+    """Return JSON of unread count and content of messages."""
     if not request.user.is_authenticated():
         data = {
-           'unread_count': 0,
-           'list': []
+            'unread_count': 0,
+            'list': []
         }
         return JsonResponse(data)
 
@@ -69,11 +79,16 @@ def live_notification_list(request):
     except ValueError:
         num_to_fetch = 5
 
+    try:
+        offset = int(request.GET.get('offset', 0))
+    except ValueError:
+        offset = 0
+
     list = []
 
-    for n in request.user.notifications.all()[:num_to_fetch]:
+    for n in request.user.notifications.all()[offset:offset + num_to_fetch]:
         struct = model_to_dict(n)
-        struct['unread'] = struct['pseudo_unread']
+        # struct['unread'] = struct['pseudo_unread']
         struct['slug'] = id2slug(n.id)
         if n.actor:
             if isinstance(n.actor, User):

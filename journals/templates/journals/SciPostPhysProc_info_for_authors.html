@@ -1,4 +1,4 @@
-{% extends 'journals/_base.html' %}
+{% extends 'journals/base.html' %}
 
 {% block pagetitle %}{{block.super}}: Info for Authors{% endblock pagetitle %}
 
@@ -11,10 +11,13 @@
 {% endblock %}
 
 {% block content %}
+    {{block.super}}
 
-    {% with header_text='Information for Authors' %}
-        {{block.super}}
-    {% endwith %}
+    <div class="row">
+        <div class="col-12">
+            <h2 class="text-blue m-0 py-2">Information for Authors</h2>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12">

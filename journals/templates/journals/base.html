@@ -6,7 +6,7 @@
 {% block body_class %}{{ block.super }} journals{% endblock %}
 
 {% block breadcrumb %}
-    <div class="container-outside breadcrumb-nav">
+    <div class="breadcrumb-container">
         <div class="container">
             <nav class="breadcrumb hidden-sm-down">
                 {% block breadcrumb_items %}
@@ -17,11 +17,11 @@
     </div>
 {% endblock %}
 
-{% block secondary_navbar %}
-<div class="container mt-3">
+
+{% block content %}
     <div class="row">
         <div class="col-12 journal-head">
-            <h1 class="banner"><a href="{{ journal.get_absolute_url }}">{{journal}}</a></h1>
+            <h2 class="banner"><a href="{{ journal.get_absolute_url }}">{{ journal.get_name_display }}</a></h2>
         </div>
         <div class="col-12 journal-sub-head">
             <ul class="links">
@@ -31,17 +31,6 @@
                 <li><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College</a></li>
                 <li><a class="{% block link_class_physics_about %}{% endblock %}" href="{% url 'journal:about' journal.doi_label %}">About</a></li>
             </ul>
-        </div>
-    </div>
-</div>
-{% endblock secondary_navbar %}
-
-
-{% block content %}
-    <div class="row">
-        <div class="col-12">
-            <h2 class="{% block header_text_class %}highlight-empty text-blue m-0 py-2 px-0{% endblock %}">{{header_text}}</h2>
-            {% block journal_header_block %}{% endblock %}
         </div>
     </div>
 {% endblock %}

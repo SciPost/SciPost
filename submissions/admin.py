@@ -7,7 +7,6 @@ from django import forms
 
 from guardian.admin import GuardedModelAdmin
 
-from preprints.models import Preprint
 from submissions.models import (
     Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
     EICRecommendation, SubmissionEvent, iThenticateReport)
@@ -18,7 +17,12 @@ def submission_short_title(obj):
     return obj.submission.title[:30]
 
 
-admin.site.register(iThenticateReport)
+class iThenticateReportAdmin(admin.ModelAdmin):
+    list_display = ['doc_id', 'to_submission', 'status']
+    list_filter = ['status']
+
+
+admin.site.register(iThenticateReport, iThenticateReportAdmin)
 
 
 class SubmissionAdminForm(forms.ModelForm):
@@ -31,6 +35,8 @@ class SubmissionAdminForm(forms.ModelForm):
     authors_false_claims = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
+    is_resubmission_of = forms.ModelChoiceField(
+        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
 
     class Meta:
         model = Submission
@@ -40,8 +46,9 @@ class SubmissionAdminForm(forms.ModelForm):
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
-    list_display = ('title', 'author_list', 'status', 'submission_date', 'publication')
-    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to_journal')
+    list_display = ('title', 'author_list', 'submitted_to',
+                    'status', 'submission_date', 'publication')
+    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
     readonly_fields = ('publication',)
@@ -49,7 +56,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     # Admin fields should be added in the fieldsets
     radio_fields = {
         "discipline": admin.VERTICAL,
-        "submitted_to_journal": admin.VERTICAL,
+        "submitted_to": admin.VERTICAL,
         "refereeing_cycle": admin.HORIZONTAL,
         "submission_type": admin.VERTICAL
     }
@@ -64,8 +71,10 @@ class SubmissionAdmin(GuardedModelAdmin):
         }),
         ('Versioning', {
             'fields': (
+                'thread_hash',
                 'is_current',
-                'is_resubmission',
+                '_is_resubmission',
+                'is_resubmission_of',
                 'list_of_changes'),
         }),
         ('Submission details', {
@@ -100,7 +109,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'referees_flagged',
                 'referees_suggested',
                 'remarks_for_editors',
-                'submitted_to_journal',
+                'submitted_to',
                 'proceedings',
                 'pdf_refereeing_pack',
                 'plagiarism_report',
@@ -109,7 +118,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         }),
         ('Meta', {
             'classes': ('collapse',),
-            'fields': ('metadata', 'submission_date'),
+            'fields': ('metadata', 'submission_date', 'needs_conflicts_update'),
         }),
 
     )
@@ -132,7 +141,6 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
     list_display = (
         'to', submission_short_title, 'status', 'date_created', 'date_invited', 'invitation_order')
     date_hierarchy = 'date_created'
-    # list_filter = ('accepted', 'deprecated', 'completed', )
     list_filter = ('status',)
     form = EditorialAssignmentAdminForm
 

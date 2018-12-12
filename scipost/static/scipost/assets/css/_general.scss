@@ -1,3 +1,6 @@
+// html {
+//     font-size: 12.8px;  // Base size for site!
+// }
 
 .fa {
     display: inline-block;
@@ -55,11 +58,11 @@ header {
 
     img {
         padding: 0;
-        margin: 10px 20px;
+        margin: .65rem 0rem .25rem;
     }
 
     p {
-        margin: 25px;
+        margin: 15px 25px;
     }
 
     .content {
@@ -79,5 +82,50 @@ header {
             margin-left: auto;
             text-align: right;
         }
+    }
+
+    .navbar-nav {
+        flex-direction: row;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .separator,
+    .nav-link {
+        display: inline-block;
+    }
+
+    .separator {
+        margin: 0 8px;
+    }
+
+    .nav-link {
+        color: $white;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+@media screen and (min-width: 768px) {
+    header {
+        img {
+            margin: .75rem 0.5rem;
+        }
+    }
+}
+
+.loading {
+    text-align: center;
+}
+
+
+.sidebar {
+    .bg-light {
+        background-color: #f2f2f2 !important;
     }
 }

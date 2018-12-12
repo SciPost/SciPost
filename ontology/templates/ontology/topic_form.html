@@ -1,0 +1,42 @@
+{% extends 'ontology/base.html' %}
+
+{% load bootstrap %}
+
+{% block headsup %}
+<script>
+$(document).ready(function() {
+
+$("#id_name").keyup(function() {
+  slug_value = this.value.split(" ").join("_");
+  $("#id_slug").val(slug_value);
+});
+
+});
+</script>
+{% endblock headsup %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item"><a href="{% url 'ontology:topics' %}">Topics</a></span>
+<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Topic{% endif %}</span>
+{% endblock %}
+
+{% block pagetitle %}: Topics{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h4>Please use the following conventions:</h4>
+    <ul>
+      <li>Start with a capital letter</li>
+      <li>Use plural words (<em>e.g.</em> <strong>superconductors</strong> instead of <strong>superconductor</strong>)</li>
+      <li>If an acronym exists, put it in parentheses at the end (<em>e.g.</em> <strong>Renormalization group (RG)</strong>). <strong class="text-danger">Remove any parentheses from the slug!</strong></li>
+      <li>Mix equivalent words by using a slash, <em>e.g.</em> <strong>Superconductivity&frasl;superconductors</strong>. <strong class="text-danger">You will similarly need to remove the slash from the slug!</strong></li>
+    </ul>
+    <form action="" method="post">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" value="Submit" class="btn btn-primary">
+  </div>
+</div>
+{% endblock content %}

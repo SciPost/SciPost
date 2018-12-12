@@ -2,11 +2,28 @@
 
 {% load bootstrap %}
 
-{% block pagetitle %}: NewsItems{% endblock pagetitle %}
+{% block pagetitle %}: Create News Item{% endblock pagetitle %}
+
+{% block breadcrumb %}
+    <nav class="breadcrumb-nav">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}" >Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'news:news' %}" >News</a></span>
+                <li class="breadcrumb-item"><a href="{% url 'news:manage' %}">News Management</a></span>
+                <li class="breadcrumb-item active" aria-current="page">Create News Item</span>
+            </ol>
+        </div>
+    </nav>
+{% endblock %}
+
 
 {% block content %}
+
 <div class="row">
   <div class="col-12">
+    <h1 class="highlight">Create News Item</h1>
+
     <form action="{% url 'news:newsitem_create' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       {{ form|bootstrap }}

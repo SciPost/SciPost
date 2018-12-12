@@ -30,7 +30,7 @@
             {% endif %}
 
             {% if is_financial_admin %}
-                <a class="item {% active 'finances:finances' %}" href="{% url 'finances:finance' %}">Financial Administration</a>
+                <a class="item {% active 'finances:finances' %}" href="{% url 'finances:finances' %}">Financial Administration</a>
             {% endif %}
 
             {% if perms.scipost.can_view_all_funding_info %}

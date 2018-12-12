@@ -1,3 +1,4 @@
+
  .list-group-noborder,
  .list-group-noborder .list-group-item {
      border: 0;
@@ -17,9 +18,9 @@ ul.events-list {
         border: 0;
 
         .time {
-            max-width: 9rem;
-            min-width: 9rem;
-            width: 9rem;
+            max-width: 10rem;
+            min-width: 10rem;
+            width: 10rem;
         }
     }
 }
@@ -73,12 +74,14 @@ li,
     .publication {
         .subject {
             margin-bottom: 0;
-            padding-bottom: 0;
+            padding-top: 5px;
             color: $text-muted;
         }
 
         .title {
             margin-bottom: 0;
+            padding-top: 5px;
+            padding-bottom: 5px;
         }
 
         .authors {
@@ -100,4 +103,140 @@ li,
             margin-bottom: 0.25rem;
         }
     }
+}
+
+
+ul.news-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    h4 {
+        margin: 0.25rem 0;
+
+        a {
+            color: $scipost-darkblue;
+        }
+    }
+
+    li {
+        margin-right: 0.5rem;
+        padding: 0.35rem 0;
+        border-top: 1px solid #bbb;
+
+        &:first-child {
+            border-top: 0;
+        }
+
+        p {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0.5rem 0;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        &:first-child p,
+        &:hover p {
+            max-height: 1000px;
+        }
+    }
+}
+
+
+ul.communications {
+    list-style: none;
+    padding: 0;
+    max-width: 750px;
+
+    .date {
+        position: relative;
+        text-align: center;
+        padding: 0.5rem 0;
+
+        &:before {
+            content: '';
+            height: 1px;
+            width: 100%;
+            background-color: $scipost-darkblue;
+            display: block;
+            position: absolute;
+            top: 50%;
+            z-index: 1;
+        }
+
+        span {
+            background-color: $white;
+            z-index: 20;
+            position: relative;
+            padding: 0.35rem;
+        }
+    }
+
+    .comm {
+        position: relative;
+        padding: 0.5rem 0;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+    }
+
+    p {
+        margin-bottom: 0;
+    }
+
+    .header {
+        font-weight: 700;
+    }
+
+    .datetime {
+        display: none;
+    }
+
+    .datetime,
+    .time {
+        max-width: 3rem;
+        min-width: 3rem;
+        width: 3rem;
+        padding: 0;
+        color: $scipost-darkblue;
+        font-weight: 100;
+    }
+
+    &.wide {
+        max-width: none;
+
+        .datetime {
+            display: block;
+        }
+
+        .time,
+        .date {
+            display: none;
+        }
+
+        .datetime {
+            font-weight: normal;
+            color: $text-muted;
+            max-width: 10rem;
+            min-width: 10rem;
+            width: 10rem;
+        }
+
+        .comm {
+            margin: 0.25rem 0;
+            display: block;
+        }
+
+        @media screen and (min-width: 768px) {
+            .comm {
+                margin: 0;
+                display: flex;
+            }
+        }
+    }
+}
+
+.actions-list {
+    margin-bottom: 0;
 }

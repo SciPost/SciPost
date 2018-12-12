@@ -3,7 +3,20 @@
 {% load bootstrap %}
 {% load extra_form_widgets %}
 
-{% block pagetitle %}: list{% endblock pagetitle %}
+{% block pagetitle %} search{% if form.q.value %}: {{ form.q.value }}{% endif %}{% endblock pagetitle %}
+
+
+{% block breadcrumb %}
+    <nav class="breadcrumb-container">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}" >Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Search</span>
+            </ol>
+        </div>
+    </nav>
+{% endblock %}
+
 
 {% block content %}
 

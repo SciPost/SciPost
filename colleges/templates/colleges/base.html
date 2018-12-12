@@ -1,0 +1,13 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+    <div class="container-outside header">
+        <div class="container">
+            <nav class="breadcrumb hidden-sm-down">
+                {% block breadcrumb_items %}
+                    <a href="{% url 'colleges:potential_fellowships' %}" class="breadcrumb-item">Potential Fellowships</a>
+                {% endblock %}
+            </nav>
+        </div>
+    </div>
+{% endblock %}

@@ -37,8 +37,7 @@ urlpatterns = [
     ),
     url(
         r'^PlanSciPost$',
-        permission_required('scipost.can_attend_VGMs')(
-            TemplateView.as_view(template_name='scipost/PlanSciPost.html')),
+        TemplateView.as_view(template_name='scipost/PlanSciPost.html'),
         name='PlanSciPost'
     ),
     url(r'^foundation$', TemplateView.as_view(template_name='scipost/foundation.html'),
@@ -110,7 +109,7 @@ urlpatterns = [
 
     # Authentication
     url(r'^login/$', views.login_view, name='login'),
-    url(r'^logout$', views.logout_view, name='logout'),
+    url(r'^logout$', views.SciPostLogoutView.as_view(), name='logout'),
     url(r'^change_password$', views.change_password, name='change_password'),
     url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
         views.reset_password_confirm, name='reset_password_confirm'),
@@ -159,6 +158,13 @@ urlpatterns = [
     url(r'^vet_authorship_claim/(?P<claim_id>[0-9]+)/(?P<claim>[0-1])$',
         views.vet_authorship_claim, name='vet_authorship_claim'),
 
+    # Potential duplicates
+    url(r'contributor_duplicates/$',
+        views.ContributorDuplicateListView.as_view(),
+        name='contributor_duplicates'),
+    url(r'contributor_merge/$',
+        views.contributor_merge,
+        name='contributor_merge'),
 
     ####################
     # Email facilities #

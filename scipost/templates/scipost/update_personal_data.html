@@ -71,6 +71,9 @@
 
     <div class="text-center">
         <input type="submit" class="btn btn-primary btn-lg px-3" value="Save changes" />
+        {% if request.user.contributor %}
+            <a href="{% url 'scipost:personal_page' %}" class="btn btn-link">Back to Personal Page</a>
+        {% endif %}
     </div>
 </form>
 

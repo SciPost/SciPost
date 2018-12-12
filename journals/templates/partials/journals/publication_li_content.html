@@ -1,5 +1,5 @@
 <div class="li publication">
-    <h5 class="subject">{{publication.get_subject_area_display}}</h5>
+    <h5 class="subject"><a href="{% url 'journals:publications' %}?subject={{ publication.subject_area }}" class="muted-link">{{ publication.get_subject_area_display }}</a></h5>
     <h3 class="title"><a href="{{publication.get_absolute_url}}">{{publication.title}}</a></h3>
 
     <p class="authors">{{ publication.author_list }}</p>

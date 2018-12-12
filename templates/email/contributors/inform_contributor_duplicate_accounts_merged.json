@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: duplicate accounts merged",
+    "to_address": "user.email",
+    "bcc_to": "admin@scipost.org",
+    "from_address_name": "SciPost Admin",
+    "from_address": "admin@scipost.org",
+    "context_object": "contrib_from"
+}
