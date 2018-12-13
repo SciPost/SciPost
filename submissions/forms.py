@@ -22,6 +22,7 @@ from .constants import (
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
 from . import exceptions, helpers
+from .helpers import to_ascii_only
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     iThenticateReport, EditorialCommunication)
@@ -455,7 +456,12 @@ class SubmissionForm(forms.ModelForm):
         Check if author list matches the Contributor submitting.
         """
         author_list = self.cleaned_data['author_list']
-        if not self.requested_by.last_name.lower() in author_list.lower():
+
+        # Remove punctuation and convert to ASCII-only string.
+        clean_author_name = to_ascii_only(self.requested_by.last_name)
+        clean_author_list = to_ascii_only(author_list)
+
+        if not clean_author_name in clean_author_list:
             error_message = ('Your name does not match that of any of the authors. '
                              'You are not authorized to submit this preprint.')
             self.add_error('author_list', error_message)

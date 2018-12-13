@@ -2,7 +2,9 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import re
 import requests
+import unicodedata
 
 from .exceptions import ArxivPDFNotFound
 
@@ -43,3 +45,11 @@ def check_unverified_author(submission, user):
     return (
         user.last_name in submission.author_list and
         not submission.authors_false_claims.filter(user=user).exists())
+
+
+def to_ascii_only(str):
+    """
+    Convert string to lowercase, ASCII-only characters without punctuation and whitespaces.
+    """
+    str = re.sub(r'[^\w]','', str).lower()
+    return unicodedata.normalize('NFKD', str).encode('ascii','ignore')
