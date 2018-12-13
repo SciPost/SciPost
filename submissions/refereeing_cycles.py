@@ -2,13 +2,56 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import datetime
+import json
 
 from django.core.urlresolvers import reverse
 from django.utils import timezone
-from django.utils.html import format_html
+from django.utils.html import format_html, format_html_join, html_safe
 
 from . import constants
-from .utils import RequiredActionsDict
+
+
+@html_safe
+class RequiredActionsDict(dict):
+    """A collection of required actions.
+
+    The required action, meant for the editors-in-charge know how to display itself in
+    various formats. Dictionary keys are the action-codes, the values are the texts
+    to present to the user.
+    """
+
+    def as_data(self):
+        return {f: e.as_data() for f, e in self.items()}
+
+    def as_list_text(self):
+        return [e.__str__() for e in self.values()]
+
+    def get_json_data(self, escape_html=False):
+        return {f: e.get_json_data(escape_html) for f, e in self.items()}
+
+    def as_json(self, escape_html=False):
+        return json.dumps(self.get_json_data(escape_html))
+
+    def as_ul(self):
+        if not self:
+            return '<div class="no-actions-msg">No required actions.</div>'
+        return format_html(
+            '<ul class="actions-list">{}</ul>', format_html_join('', '<li>{}</li>', self.values()))
+
+    def as_text(self):
+        return ' '.join([action.as_text() for action in self.values()])
+
+    def __getitem__(self, action):
+        return super().__getitem__(action.id)
+
+    def __setitem__(self, action, val):
+        super().__setitem__(action.id, val)
+
+    def __contains__(self, value):
+        return value.id in list(self.keys())
+
+    def __str__(self):
+        return self.as_ul()
 
 
 class BaseAction:
@@ -97,9 +140,11 @@ class ChoiceCycleAction(BaseAction):
 
 
 class NoEICRecommendationAction(BaseAction):
+    needs_referees = False
+
     @property
     def txt(self):
-        if not self.submission.reports.non_draft().exists():
+        if self.needs_referees:
             txt = (
                 'The refereeing deadline has passed and you have received no Reports yet.'
                 ' Please <a href="{url}">extend the reporting deadline</a> '
@@ -152,19 +197,23 @@ class BaseCycle:
     """
 
     days_for_refereeing = 28
-    minimum_number_of_referees = 3
     can_invite_referees = True
 
-    def __init__(self, submission, current_user=None):
+    def __init__(self, submission):
         self._submission = submission
         self._required_actions = None
-        self._current_user = current_user
 
     @property
     def required_actions(self):
         if self._required_actions is None:
             self.update_required_actions()
         return self._required_actions
+
+    @property
+    def minimum_number_of_referees(self):
+        if self._submission.proceedings and self._submission.proceedings.minimum_referees:
+            return self._submission.proceedings.minimum_referees
+        return 3  # Three by default
 
     def has_required_actions(self):
         return bool(self.required_actions)
@@ -188,7 +237,9 @@ class BaseCycle:
         # The EIC is late with formulating a Recommendation.
         if self._submission.eic_recommendation_required:
             if self._submission.reporting_deadline_has_passed:
-                self.add_action(NoEICRecommendationAction())
+                action = NoEICRecommendationAction()
+                action.needs_referees = not self._submission.reports.non_draft().exists()
+                self.add_action(action)
 
         # Submission is a resubmission: EIC has to determine which cycle to proceed with.
         comments_to_vet = self._submission.comments.awaiting_vetting().values_list('id')
@@ -269,7 +320,9 @@ class BaseCycle:
         return self.as_text()
 
     def reset_refereeing_round(self):
-        """Set the Submission status to EIC_ASSIGNED and reset the reporting deadline."""
+        """
+        Set the Submission status to EIC_ASSIGNED and reset the reporting deadline.
+        """
         from .models import Submission  # Prevent circular import errors
         if self._submission.status in [constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED]:
             Submission.objects.filter(id=self._submission.id).update(
@@ -279,12 +332,13 @@ class BaseCycle:
         Submission.objects.filter(id=self._submission.id).update(reporting_deadline=deadline)
 
     def reinvite_referees(self, referees, request):
-        """Duplicate and reset RefereeInvitations and send `reinvite` mail.
+        """
+        Duplicate and reset RefereeInvitations and send `reinvite` mail.
 
         referees - (list of) RefereeInvitation instances
         """
         from mails.utils import DirectMailUtil
-        SubmissionUtils.load({'submission': self._submission})
+        # SubmissionUtils.load({'submission': self._submission})
         for referee in referees:
             invitation = referee
             invitation.pk = None  # Duplicate, do not remove the old invitation
@@ -296,9 +350,33 @@ class BaseCycle:
                 mail_code='referees/reinvite_contributor_to_referee', instance=invitation)
             mail_sender.send()
 
-            # SubmissionUtils.load({'invitation': invitation}, request)
-            # SubmissionUtils.reinvite_referees_email()
-
 
 class RegularCycle(BaseCycle):
     pass
+
+
+class ShortCycle(BaseCycle):
+    """
+    Short (two weeks) version of the regular refereeing cycle, used for resubmissions on request
+    by the editor.
+    """
+    days_for_refereeing = 14
+
+    @property
+    def minimum_number_of_referees(self):
+        return 1
+
+
+class DirectCycle(BaseCycle):
+    """
+    Refereeing cycle without refereeing. The editor directly formulates an EICRecommendation.
+    """
+    can_invite_referees = False
+
+    def update_required_actions(self):
+        """Gather the required actions list and populate self._required_actions."""
+        super().update_required_actions()
+
+        # Always show `EICRec required` action disregarding the refereeing deadline.
+        if self._submission.eic_recommendation_required:
+            self.add_action(NoEICRecommendationAction())

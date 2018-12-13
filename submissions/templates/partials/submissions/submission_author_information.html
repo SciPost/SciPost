@@ -2,14 +2,12 @@
 
 <h3 class="highlight">
     Author information
-    <small><a href="javascript:;" class="text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission.">?</a></small>
-    <br>
-    <small><a href="javascript:;" class="mt-2 d-inline-block text-sm" data-toggle="toggle" data-target="#authorinformation">Show/hide author information</a></small>
+    <a href="javascript:;" class="text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission."><i class="fa fa-question-circle"></i></a>
 </h3>
 
 <div id="authorinformation" class="mt-2">
     <div class="mb-4">
-        <h3 class="mt-3">Status summary</h3>
+        <h4 class="mt-3">Status summary</h4>
         <p>
             {% if not submission.editor_in_charge %}
                 No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
@@ -67,7 +65,7 @@
 
     {% if submission.eicrecommendations.active %}
         <div class="mb-4">
-            <h3 class="mb-2">Editorial Recommendation:</h3>
+            <h4 class="mb-2">Editorial Recommendation:</h4>
             {% for recommendation in submission.eicrecommendations.active %}
                 {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
             {% empty %}
@@ -77,7 +75,7 @@
     {% endif %}
 
     <div class="mb-4">
-        <h3>Communication</h3>
+        <h4>Communication</h4>
         <div id="communications">
             {% if submission.editor_in_charge %}
                 <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
@@ -87,7 +85,7 @@
     </div>
 
     <div class="mb-4">
-        <h3>Events</h3>
+        <h4>Events</h4>
         <div id="eventslist">
             {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
         </div>
@@ -95,7 +93,7 @@
 
 
     <div class="mb-4" id="proofsslist">
-        <h3>Proofs</h3>
+        <h4>Proofs</h4>
         <ul class="list-group list-group-flush events-list">
             {% for proofs in submission.production_stream.proofs.for_authors %}
                 <li>
@@ -103,7 +101,7 @@
                     status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
                     {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
                         {% if proofs_decision_form and is_author %}
-                            <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
+                            <h4 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h4>
                             <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
                                 {% csrf_token %}
                                 {{ proofs_decision_form|bootstrap }}

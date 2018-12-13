@@ -38,8 +38,17 @@
         </ul>
 
         {% if is_editor_in_charge or is_editorial_admin or submission|is_voting_fellow:request.user %}
-            <br>
-            {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
+            <div class="my-4 p-3 border{% if submission.cycle.has_required_actions %} border-danger bg-light{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
+                <h3>
+                    {% if submission.cycle.has_required_actions %}
+                        <i class="fa fa-exclamation-triangle text-danger"></i>
+                    {% else %}
+                        <i class="fa fa-check-circle"></i>
+                    {% endif %}
+                    Required actions
+                </h3>
+                {{ submission.cycle.required_actions }}
+            </div>
             <h4>
                 <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
             </h4>

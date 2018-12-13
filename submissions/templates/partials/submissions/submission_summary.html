@@ -52,6 +52,12 @@
         <td>Submitted to:</td>
         <td>{{submission.submitted_to}}</td>
     </tr>
+    {% if submission.proceedings %}
+        <tr>
+            <td>Proceedings issue:</td>
+            <td>{{ submission.proceedings }}</td>
+        </tr>
+    {% endif %}
     <tr>
         <td>Domain(s):</td>
         <td>{{submission.get_domain_display}}</td>

@@ -5,7 +5,7 @@
     </tr>
     {% if submission.preprint.url %}
         <tr>
-            <td>Arxiv Link:</td>
+            <td>Arxiv Link</td>
             <td>
                 <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
             </td>
@@ -23,6 +23,13 @@
         <td>{{submission.submission_date}} to {{submission.submitted_to}}</td>
     </tr>
 
+    {% if submission.proceedings %}
+        <tr>
+            <td>Proceedings issue</td>
+            <td>{{ submission.proceedings }}</td>
+        </tr>
+    {% endif %}
+
     {% if submission.acceptance_date %}
         <tr>
             <td>Accepted</td>
@@ -39,10 +46,10 @@
         <td>
             {% if submission.editor_in_charge %}
                 {{ submission.editor_in_charge }}
-            {% elif perms.scipost.can_assign_submissions %}
-                <a href="{% url 'submissions:assign_submission' submission.preprint.identifier_w_vn_nr %}">Send a new assignment request</a>
-            {% else %}
+            {% elif request.user.contributor.is_MEC %}
                 <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
+            {% else %}
+                <em>No editor assigned yet.</em>
             {% endif %}
         </td>
     </tr>
@@ -100,5 +107,7 @@
         </tr>
 
     {% endif %}
+
+    {% block extended_info_table %}{% endblock %}
 
 </table>

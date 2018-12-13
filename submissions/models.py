@@ -29,9 +29,7 @@ from .constants import (
 from .managers import (
     SubmissionQuerySet, EditorialAssignmentQuerySet, EICRecommendationQuerySet, ReportQuerySet,
     SubmissionEventQuerySet, RefereeInvitationQuerySet, EditorialCommunicationQueryset)
-from .refereeing_cycles import RegularCycle
-from .utils import (
-    ShortSubmissionCycle, DirectRecommendationSubmissionCycle, GeneralSubmissionCycle)
+from .refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
 from comments.behaviors import validate_file_extension, validate_max_file_size
 from comments.models import Comment
@@ -174,34 +172,25 @@ class Submission(models.Model):
 
     def comments_set_complete(self):
         """Return Comments on Submissions, Reports and other Comments."""
-        return Comment.objects.filter(Q(submissions=self) |
-                                      Q(reports__submission=self) |
-                                      Q(comments__reports__submission=self) |
-                                      Q(comments__submissions=self)).distinct()
+        return Comment.objects.filter(
+            Q(submissions=self) | Q(reports__submission=self) |
+            Q(comments__reports__submission=self) | Q(comments__submissions=self)).distinct()
 
     @property
     def cycle(self):
         """Get cycle object that's relevant for the Submission."""
         if not hasattr(self, '_cycle'):
-            self._cycle = RegularCycle(self)
-        return self._cycle
-
-    @property
-    def cycle_old(self):
-        """Get cycle object that's relevant for the Submission."""
-        if not hasattr(self, '__cycle'):
             self.set_cycle()
-        return self.__cycle
+        return self._cycle
 
     def set_cycle(self):
         """Set cycle to the Submission on request."""
         if self.refereeing_cycle == CYCLE_SHORT:
-            cycle = ShortSubmissionCycle(self)
+            self._cycle = ShortCycle(self)
         elif self.refereeing_cycle == CYCLE_DIRECT_REC:
-            cycle = DirectRecommendationSubmissionCycle(self)
+            self._cycle = DirectCycle(self)
         else:
-            cycle = GeneralSubmissionCycle(self)
-        self.__cycle = cycle
+            self._cycle = RegularCycle(self)
 
     def get_absolute_url(self):
         """Return url of the Submission detail page."""
