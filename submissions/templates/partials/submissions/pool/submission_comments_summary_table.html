@@ -9,7 +9,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for comment in submission.comments.all %}
+        {% for comment in submission.comments_set_complete %}
             <tr>
                 <td>
                     {{ comment.author }}
