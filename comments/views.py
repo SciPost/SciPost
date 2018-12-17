@@ -46,6 +46,18 @@ def new_comment(request, **kwargs):
         new_comment.save()
         new_comment.grant_permissions()
 
+        # Mails
+        mail_sender = DirectMailUtil(
+            mail_code='commenters/inform_commenter_comment_received',
+            instance=new_comment)
+        mail_sender.send()
+
+        if isinstance(new_comment.core_content_object, Submission):
+            mail_sender = DirectMailUtil(
+                mail_code='eic/inform_eic_comment_received',
+                instance=new_comment)
+            mail_sender.send()
+
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
     context = {'form': form}

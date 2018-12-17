@@ -1,6 +1,6 @@
 {
     "subject": "SciPost: Comment delivered",
-    "to_address": "comment.core_content_object.editor_in_charge.user.email",
+    "to_address": "core_content_object.editor_in_charge.user.email",
     "bcc_to": "edadmin@scipost.org",
     "from_address_name": "SciPost Refereeing",
     "from_address": "refereeing@scipost.org",
