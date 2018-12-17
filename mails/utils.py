@@ -14,5 +14,6 @@ class DirectMailUtil(MailUtilsMixin):
     def __init__(self, mail_code, *args, **kwargs):
         kwargs['mail_code'] = mail_code
         kwargs['instance'] = kwargs.pop('instance', None)
+        self.delayed_processing = kwargs.pop('delayed_processing', False)
         super().__init__(*args, **kwargs)
         self.validate()

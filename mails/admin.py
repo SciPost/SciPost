@@ -8,7 +8,8 @@ from .models import MailLog
 
 
 class MailLogAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'to_recipients', 'created', 'processed']
+    list_display = ['__str__', 'to_recipients', 'created', 'status']
+    list_filter = ['status']
     readonly_fields = ('created', 'latest_activity')
 
 
