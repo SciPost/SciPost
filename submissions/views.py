@@ -1466,18 +1466,13 @@ def submit_report(request, identifier_w_vn_nr):
     has the reporting deadline not been reached yet and does there exist any invitation
     for the current user on this submission.
     """
-    time_1 = time.time()
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    time_2 = time.time()
-    print('1.', time_2 - time_1)
 
     # Check whether the user can submit a report:
     is_author = check_verified_author(submission, request.user)
     is_author_unchecked = check_unverified_author(submission, request.user)
     invitation = submission.referee_invitations.filter(
         fulfilled=False, cancelled=False, referee__user=request.user).first()
-    time_3 = time.time()
-    print('2.', time_3 - time_2)
 
     errormessage = None
     if is_author:
@@ -1511,8 +1506,6 @@ def submit_report(request, identifier_w_vn_nr):
     form = ReportForm(
         request.POST or None, request.FILES or None, instance=report_in_draft,
         submission=submission)
-    time_4 = time.time()
-    print('3.', time_4 - time_3)
 
     # Check if data sent is valid
     if form.is_valid():
@@ -1525,9 +1518,6 @@ def submit_report(request, identifier_w_vn_nr):
             return redirect(reverse('submissions:submit_report', kwargs={
                 'identifier_w_vn_nr': identifier_w_vn_nr}))
 
-        time_5 = time.time()
-        print('4.', time_5 - time_4)
-
         # Send mails if report is submitted
         mail_sender = DirectMailUtil(
             mail_code='referees/inform_referee_report_received',
@@ -1539,18 +1529,12 @@ def submit_report(request, identifier_w_vn_nr):
             instance=newreport,
             delayed_processing=True)
         mail_sender.send()
-        time_6 = time.time()
-        print('5.', time_6 - time_5)
 
         # Add SubmissionEvents for the EIC only, as it can also be rejected still
         submission.add_event_for_eic('%s has submitted a new Report.'
                                      % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
-        time_7 = time.time()
-        print('6.', time_7 - time_6)
-        print('T.', time_7 - time_1)
-        # raise
         return redirect(submission.get_absolute_url())
     elif request.POST:
         messages.error(request, 'Report not submitted, please read the errors below.')
@@ -1589,7 +1573,6 @@ def vet_submitted_report(request, report_id):
         submissions = Submission.objects.filter_for_eic(request.user)
         report = get_object_or_404(Report.objects.filter(
             submission__in=submissions).awaiting_vetting(), id=report_id)
-
     form = VetReportForm(request.POST or None, initial={'report': report})
     if form.is_valid():
         report = form.process_vetting(request.user.contributor)
@@ -1602,7 +1585,6 @@ def vet_submitted_report(request, report_id):
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic('The Report by %s is vetted.'
                                             % report.author.user.last_name)
-
         if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
 

@@ -1113,18 +1113,21 @@ class VetReportForm(forms.Form):
     def process_vetting(self, current_contributor):
         """Set the right report status and update submission fields if needed."""
         report = self.cleaned_data['report']
-        report.vetted_by = current_contributor
         if self.cleaned_data['action_option'] == REPORT_ACTION_ACCEPT:
             # Accept the report as is
-            report.status = STATUS_VETTED
-            report.submission.latest_activity = timezone.now()
-            report.submission.save()
+            Report.objects.filter(id=report.id).update(
+                status=STATUS_VETTED,
+                vetted_by=current_contributor,
+            )
+            report.submission.touch()
         elif self.cleaned_data['action_option'] == REPORT_ACTION_REFUSE:
             # The report is rejected
-            report.status = self.cleaned_data['refusal_reason']
+            Report.objects.filter(id=report.id).update(
+                status=self.cleaned_data['refusal_reason'],
+            )
         else:
             raise exceptions.InvalidReportVettingValue(self.cleaned_data['action_option'])
-        report.save()
+        report.refresh_from_db()
         return report
 
 
