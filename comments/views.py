@@ -20,7 +20,6 @@ from .utils import validate_file_extention
 
 from commentaries.models import Commentary
 from mails.utils import DirectMailUtil
-from submissions.utils import SubmissionUtils
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
 
@@ -193,6 +192,17 @@ def reply_to_comment(request, comment_id):
         newcomment.save()
         newcomment.grant_permissions()
 
+        mail_sender = DirectMailUtil(
+            mail_code='commenters/inform_commenter_comment_received',
+            instance=newcomment)
+        mail_sender.send()
+
+        if isinstance(newcomment.core_content_object, Submission):
+            mail_sender = DirectMailUtil(
+                mail_code='eic/inform_eic_comment_received',
+                instance=newcomment)
+            mail_sender.send()
+
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
         return redirect(newcomment.content_object.get_absolute_url())
@@ -216,6 +226,16 @@ def reply_to_report(request, report_id):
         newcomment.author = request.user.contributor
         newcomment.save()
         newcomment.grant_permissions()
+
+        mail_sender = DirectMailUtil(
+            mail_code='eic/inform_eic_comment_received',
+            instance=newcomment)
+        mail_sender.send()
+
+        mail_sender = DirectMailUtil(
+            mail_code='commenters/inform_commenter_comment_received',
+            instance=newcomment)
+        mail_sender.send()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')

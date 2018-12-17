@@ -36,6 +36,7 @@ from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
+from scipost.models import Contributor
 from scipost.storage import SecureFileStorage
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
@@ -342,6 +343,21 @@ class Submission(models.Model):
             return False
 
         return self.editorial_assignments.filter(status=STATUS_PREASSIGNED).exists()
+
+    def has_inadequate_pool_composition(self):
+        """
+        Check whether the EIC actually in the pool of the Submission.
+
+        (Could happen on resubmission or reassignment after wrong Journal selection)
+        """
+        if not self.editor_in_charge:
+            # None assigned yet.
+            return False
+
+        pool_contributors_ids = Contributor.objects.filter(
+            fellowships__pool=self).values_list('id', flat=True)
+        return self.editor_in_charge.id not in pool_contributors_ids
+
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
