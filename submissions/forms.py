@@ -7,6 +7,7 @@ import re
 
 from django import forms
 from django.conf import settings
+from django.contrib.postgres.search import TrigramSimilarity
 from django.db import transaction
 from django.db.models import Q
 from django.forms.formsets import ORDERING_FIELD_NAME
@@ -913,7 +914,9 @@ class RefereeSearchForm(forms.Form):
         'placeholder': 'Search for a referee in the SciPost Profiles database'}))
 
     def search(self):
-        return Profile.objects.filter(last_name__icontains=self.cleaned_data['last_name'])
+        return Profile.objects.annotate(
+            similarity=TrigramSimilarity('last_name', self.cleaned_data['last_name']),
+        ).filter(similarity__gt=0.3).order_by('-similarity')
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
