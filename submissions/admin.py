@@ -36,6 +36,7 @@ class SubmissionAdminForm(forms.ModelForm):
         required=False,
         queryset=Contributor.objects.order_by('user__last_name'))
     is_resubmission_of = forms.ModelChoiceField(
+        required=False,
         queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
 
     class Meta:

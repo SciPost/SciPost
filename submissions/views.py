@@ -1,6 +1,7 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import time
 import datetime
 import feedparser
 import strings
@@ -51,6 +52,7 @@ from common.utils import workdays_between
 from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
+from mails.utils import DirectMailUtil
 from mails.views import MailEditingSubView
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
@@ -689,6 +691,12 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             if form.is_normal_cycle():
                 # Inform authors about new status.
                 SubmissionUtils.send_author_prescreening_passed_email()
+            else:
+                # Inform authors about new status.
+                mail_sender = DirectMailUtil(
+                    mail_code='authors/inform_authors_eic_assigned_direct_eic',
+                    assignment=submission)
+                mail_sender.send()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
             notify_editor_assigned(request.user, assignment, False)
@@ -1534,9 +1542,16 @@ def submit_report(request, identifier_w_vn_nr):
                 'identifier_w_vn_nr': identifier_w_vn_nr}))
 
         # Send mails if report is submitted
-        SubmissionUtils.load({'report': newreport}, request)
-        SubmissionUtils.email_EIC_report_delivered()
-        SubmissionUtils.email_referee_report_delivered()
+        mail_sender = DirectMailUtil(
+            mail_code='referees/inform_referee_report_received',
+            instance=newreport,
+            delayed_processing=True)
+        mail_sender.send()
+        mail_sender = DirectMailUtil(
+            mail_code='eic/inform_eic_report_received',
+            instance=newreport,
+            delayed_processing=True)
+        mail_sender.send()
 
         # Add SubmissionEvents for the EIC only, as it can also be rejected still
         submission.add_event_for_eic('%s has submitted a new Report.'
@@ -1596,7 +1611,6 @@ def vet_submitted_report(request, report_id):
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic('The Report by %s is vetted.'
                                             % report.author.user.last_name)
-
         if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
 

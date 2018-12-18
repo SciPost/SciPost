@@ -22,6 +22,7 @@ from .constants import (
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
 from . import exceptions, helpers
+from .helpers import to_ascii_only
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     iThenticateReport, EditorialCommunication)
@@ -455,7 +456,12 @@ class SubmissionForm(forms.ModelForm):
         Check if author list matches the Contributor submitting.
         """
         author_list = self.cleaned_data['author_list']
-        if not self.requested_by.last_name.lower() in author_list.lower():
+
+        # Remove punctuation and convert to ASCII-only string.
+        clean_author_name = to_ascii_only(self.requested_by.last_name)
+        clean_author_list = to_ascii_only(author_list)
+
+        if not clean_author_name in clean_author_list:
             error_message = ('Your name does not match that of any of the authors. '
                              'You are not authorized to submit this preprint.')
             self.add_error('author_list', error_message)
@@ -1119,19 +1125,23 @@ class VetReportForm(forms.Form):
 
     def process_vetting(self, current_contributor):
         """Set the right report status and update submission fields if needed."""
-        self.report.vetted_by = current_contributor
+        report = self.cleaned_data['report']
         if self.cleaned_data['action_option'] == REPORT_ACTION_ACCEPT:
             # Accept the report as is
-            self.report.status = STATUS_VETTED
-            self.report.submission.latest_activity = timezone.now()
-            self.report.submission.save()
+            Report.objects.filter(id=report.id).update(
+                status=STATUS_VETTED,
+                vetted_by=current_contributor,
+            )
+            report.submission.touch()
         elif self.cleaned_data['action_option'] == REPORT_ACTION_REFUSE:
             # The report is rejected
-            self.report.status = self.cleaned_data['refusal_reason']
+            Report.objects.filter(id=report.id).update(
+                status=self.cleaned_data['refusal_reason'],
+            )
         else:
             raise exceptions.InvalidReportVettingValue(self.cleaned_data['action_option'])
-        self.report.save()
-        return self.report
+        report.refresh_from_db()
+        return report
 
 
 ###################

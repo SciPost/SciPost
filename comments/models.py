@@ -114,6 +114,7 @@ class Comment(TimeStampedModel):
 
         to_object = self.content_object
         while True:
+            # Loop because of possible nested relations
             if (isinstance(to_object, Submission) or isinstance(to_object, Commentary) or
                isinstance(to_object, ThesisLink)):
                 return to_object

@@ -312,6 +312,90 @@
         {% endif %}
     {% else %}
         {% if full_access %}
+                <h3>All available actions</h3>
+                <ul class="mb-5">
+                    {% if submission.refereeing_cycle != 'direct_rec' %}
+                        {% if submission.in_refereeing_phase %}
+                            <li>
+                                {% if submission.referee_invitations.all %}
+                                    <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite an additional referee</a>
+                                {% else %}
+                                    <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>
+                                {% endif %}
+                            </li>
+                            <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ml-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
+                                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
+                                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
+                                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>
+                            </li>
+                        {% endif %}
+                        <li>
+                            Set refereeing deadline:
+                            <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+                                {% csrf_token %}
+                                <div class="d-inline-block mx-2">
+                                    {% for field in set_deadline_form.visible_fields %}
+                                        {{ field|add_css_class:'form-control' }}
+                                        {{ field }}
+                                    {% endfor %}
+                                </div>
+
+                                <input class="btn btn-outline-secondary btn-sm" type="submit" value="Set deadline"/>
+                            </form>
+                        </li>
+
+                        {% if submission.is_open_for_reporting %}
+                            <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
+                        {% endif %}
+                    {% endif %}
+                    {% with submission.reports.awaiting_vetting as reports %}
+                        {% if reports %}
+                            <li>
+                                Vet submitted Report{{reports|pluralize}}:
+                                <ul class="mb-1">
+                                    {% for report in reports %}
+                                        <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">Report {{ report.report_nr }} by {{ report.author }} ({{ report.get_report_type_display }})</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li>All Reports have been vetted.</li>
+                        {% endif %}
+                    {% endwith %}
+
+                    {% with submission.comments_set_complete.awaiting_vetting as comments %}
+                        {% if comments %}
+                            <li>
+                                Vet submitted Comment{{comments|pluralize}}:
+                                <ul class="mb-1">
+                                    {% for comment in comments %}
+                                        <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% else %}
+                            <li>All Comments have been vetted.</li>
+                        {% endif %}
+                    {% endwith %}
+                    {% if submission.eic_recommendation_required %}
+                        <li>
+                            {% if submission.eicrecommendations.last %}
+                                <a href="{% url 'submissions:reformulate_eic_recommendation' submission.preprint.identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a>
+                            {% else %}
+                                <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation.</a>
+                            {% endif %}
+                            <p>
+                                If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+                                <br>
+                                If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
+                            </p>
+                        </li>
+                    {% elif submission.eicrecommendations.last %}
+                        {% if submission.eicrecommendations.last.may_be_reformulated %}
+                            <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.preprint.identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
 
                 {% if submission.refereeing_cycle != 'direct_rec' %}
                     <h3 class="mt-3" id="referee-details">Refereeing invitations</h3>

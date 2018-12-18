@@ -12,13 +12,8 @@
     <tbody>
         {% for report in submission.reports.all %}
             <tr{% if report.is_unvetted %} class="table-warning"{% endif %}>
-                <td class="text-center">
-                    {% if report.is_unvetted %}
-                    <div class="text-center" data-toggle="tooltip" data-title="This Report has not yet been vetted." data-html="true">
-                        <i class="fa fa-info"></i>
-                        <i class="fa fa-long-arrow-right" ></i>
-                    </div>
-                    {% endif %}
+                <td class="px-4">
+                    <strong>{{ report.report_nr }}</strong>
                 </td>
                 <td>
                     {{ report.author }}

@@ -1,7 +1,7 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
+import time
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -46,6 +46,18 @@ def new_comment(request, **kwargs):
         new_comment.content_object = _object
         new_comment.save()
         new_comment.grant_permissions()
+
+        # Mails
+        mail_sender = DirectMailUtil(
+            mail_code='commenters/inform_commenter_comment_received',
+            instance=new_comment)
+        mail_sender.send()
+
+        if isinstance(new_comment.core_content_object, Submission):
+            mail_sender = DirectMailUtil(
+                mail_code='eic/inform_eic_comment_received',
+                instance=new_comment)
+            mail_sender.send()
 
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
@@ -168,6 +180,7 @@ def vet_submitted_comment(request, comment_id):
 
 
 @permission_required('scipost.can_submit_comments', raise_exception=True)
+@transaction.atomic
 def reply_to_comment(request, comment_id):
     comment = get_object_or_404(Comment, pk=comment_id)
 
@@ -184,7 +197,6 @@ def reply_to_comment(request, comment_id):
     else:
         # No idea what this could be, but just to be sure
         is_author = related_object.author == request.user.contributor
-
     form = CommentForm(request.POST or None, request.FILES or None)
     if form.is_valid():
         newcomment = form.save(commit=False)
@@ -193,6 +205,19 @@ def reply_to_comment(request, comment_id):
         newcomment.author = request.user.contributor
         newcomment.save()
         newcomment.grant_permissions()
+
+        mail_sender = DirectMailUtil(
+            mail_code='commenters/inform_commenter_comment_received',
+            instance=newcomment,
+            delayed_processing=True)
+        mail_sender.send()
+
+        if isinstance(newcomment.core_content_object, Submission):
+            mail_sender = DirectMailUtil(
+                mail_code='eic/inform_eic_comment_received',
+                instance=newcomment,
+                delayed_processing=True)
+            mail_sender.send()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
@@ -217,6 +242,18 @@ def reply_to_report(request, report_id):
         newcomment.author = request.user.contributor
         newcomment.save()
         newcomment.grant_permissions()
+
+        mail_sender = DirectMailUtil(
+            mail_code='eic/inform_eic_comment_received',
+            instance=newcomment,
+            delayed_processing=True)
+        mail_sender.send()
+
+        mail_sender = DirectMailUtil(
+            mail_code='commenters/inform_commenter_comment_received',
+            instance=newcomment,
+            delayed_processing=True)
+        mail_sender.send()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
