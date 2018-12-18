@@ -2,6 +2,7 @@ __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import time
 import re
 import json
 import inspect
@@ -25,6 +26,7 @@ class MailUtilsMixin:
     message = ''
     original_recipient = ''
     mail_sent = False
+    delayed_processing = False
 
     def __init__(self, *args, **kwargs):
         """Init an instance for a specific mail_code.
@@ -68,10 +70,11 @@ class MailUtilsMixin:
         self.instance = self.get_object(**kwargs)
 
         # Digest the templates
-        mail_template = loader.get_template('email/%s.html' % self.mail_code)
-        if self.instance and self.mail_data.get('context_object'):
-            kwargs[self.mail_data['context_object']] = self.instance
-        self.mail_template = mail_template.render(kwargs)
+        if not self.delayed_processing:
+            mail_template = loader.get_template('email/%s.html' % self.mail_code)
+            if self.instance and self.mail_data.get('context_object'):
+                kwargs[self.mail_data['context_object']] = self.instance
+            self.mail_template = mail_template.render(kwargs)  # Damn slow.
 
         # Gather Recipients data
         try:
@@ -200,7 +203,12 @@ class MailUtilsMixin:
             '%s <%s>' % (self.mail_data['from_address_name'], self.mail_data['from_address']),
             self.mail_data['recipients'],
             bcc=self.mail_data['bcc_list'],
-            reply_to=[self.mail_data['from_address']])
+            reply_to=[self.mail_data['from_address']],
+            headers={
+                'delayed_processing': self.delayed_processing,
+                'content_object': self.get_object(),
+                'mail_code': self.mail_code,
+            })
 
         # Send html version if available
         if 'html_message' in self.mail_data:
