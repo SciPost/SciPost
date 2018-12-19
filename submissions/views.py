@@ -917,11 +917,9 @@ def select_referee(request, identifier_w_vn_nr):
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {}
     queryresults = ''
-    referee_search_form = RefereeSearchForm(request.GET or None)
-    if referee_search_form.is_valid():
-        profiles_found = Profile.objects.filter(
-            last_name__icontains=referee_search_form.cleaned_data['last_name'])
-        context['profiles_found'] = profiles_found
+    form = RefereeSearchForm(request.GET or None)
+    if form.is_valid():
+        context['profiles_found'] = form.search()
         # Check for recent co-authorship (thus referee disqualification)
         try:
             sub_auth_boolean_str = '((' + (submission
@@ -930,7 +928,7 @@ def select_referee(request, identifier_w_vn_nr):
             for author in submission.metadata['entries'][0]['authors'][1:]:
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
-            search_str = sub_auth_boolean_str + referee_search_form.cleaned_data['last_name'] + ')'
+            search_str = sub_auth_boolean_str + form.cleaned_data['last_name'] + ')'
             queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
@@ -942,7 +940,7 @@ def select_referee(request, identifier_w_vn_nr):
     context.update({
         'submission': submission,
         'workdays_left_to_report': workdays_between(timezone.now(), submission.reporting_deadline),
-        'referee_search_form': referee_search_form,
+        'referee_search_form': form,
         'queryresults': queryresults,
         'profile_email_form': ProfileEmailForm(initial={'primary': True}),
     })
