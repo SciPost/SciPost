@@ -975,6 +975,9 @@ class VotingEligibilityForm(forms.ModelForm):
             self.instance.voted_for.add(self.instance.submission.editor_in_charge)
         return self.instance
 
+    def get_eligible_fellows(self):
+        return self.fields['eligible_fellows'].queryset
+
 
 ############
 # Reports:

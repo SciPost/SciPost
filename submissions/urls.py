@@ -45,6 +45,8 @@ urlpatterns = [
     url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
     url(r'^admin/{regex}/prescreening$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.PreScreeningView.as_view(), name='do_prescreening'),
+    url(r'^admin/{regex}/conflicts$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.SubmissionConflictsView.as_view(), name='conflicts'),
     url(r'^admin/{regex}/editor_invitations$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.editor_invitations, name='editor_invitations'),
     url(r'^admin/{regex}/editor_invitations/(?P<assignment_id>[0-9]+)$'.format(

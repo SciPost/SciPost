@@ -44,5 +44,5 @@ class Command(BaseCommand):
                 Q(contributor__in=sub.authors.all()) |
                 Q(last_name__in=author_str_list)).distinct()
 
-            n_new_conflicts += caller.compare(author_profiles, fellow_profiles)
+            n_new_conflicts += caller.compare(author_profiles, fellow_profiles, submission=sub)
         return n_new_conflicts

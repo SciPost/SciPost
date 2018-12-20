@@ -31,7 +31,7 @@ class ArxivCaller:
             return 'title' in data['entries'][0]
         return False
 
-    def compare(self, author_profiles, relating_profiles):
+    def compare(self, author_profiles, relating_profiles, submission=None):
         """
         Compare two list of Profiles using the ArXiv API.
         """
@@ -62,6 +62,8 @@ class ArxivCaller:
                             related_profile=rel_profile,
                             type='coauthor',
                         )
+                        if submission:
+                            coi.related_submissions.add(submission)
                         count += 1 if new else 0
                     logger.info('Found results | {response}.'.format(response=response_content))
         return count

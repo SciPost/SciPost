@@ -19,7 +19,7 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from django.template import Template, Context
 from django.utils import timezone
 from django.views.generic.base import RedirectView
-from django.views.generic.detail import SingleObjectMixin
+from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
@@ -1861,6 +1861,15 @@ class PreScreeningView(SubmissionAdminViewMixin, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs['current_user'] = self.request.user
         return kwargs
+
+
+class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
+    """List all conflicts for a certain Submission."""
+
+    permission_required = 'scipost.can_run_pre_screening'
+    template_name = 'submissions/admin/submission_conflicts.html'
+    editorial_page = True
+    success_url = reverse_lazy('submissions:pool')
 
 
 class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):

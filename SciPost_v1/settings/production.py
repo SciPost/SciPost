@@ -55,4 +55,5 @@ LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/s
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost/logs/doi.log'
 
 
-#BROKER_URL = 'amqp://guest:guest@localhost:5672//'
+# API
+REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)

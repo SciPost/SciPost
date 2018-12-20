@@ -4,6 +4,7 @@
 
 {% load scipost_extras %}
 {% load bootstrap %}
+{% load conflict_tags %}
 
 {% block breadcrumb_items %}
     {{block.super}}
@@ -50,6 +51,34 @@
             <input class="btn btn-primary" type="submit" value="Submit" />
         </form>
     </div>
+
+    <div class="col-12">
+        <h3 class="highlight mt-4">Conflicts of Interest</h3>
+
+        <table class="table table-hover" id="current-pool">
+            <thead>
+                <tr>
+                    <th>Fellow</th>
+                    <th>Conflicts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fellow in eligibility_form.get_eligible_fellows %}
+                    <tr>
+                        <td>
+                            <strong>{{ fellow }}</strong>
+                        </td>
+                        <td>
+                            {% with fellow.conflict_of_interests.non_deprecated|filter_for_submission:recommendation.submission as conflicts %}
+                                {% include 'partials/submissions/admin/conflicts.html' with conflicts=conflicts submission=recommendation.submission %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
 </div>
 
 <div class="row">
@@ -78,7 +107,7 @@
                 </div>
             </div>
         {% else %}
-            <h3 class="text-success">The system has not identified any coauthorships (from arXiv database)</h3>
+            <h3 class="text-success">The system has not identified any coauthorships from the arXiv database</h3>
         {% endif %}
     </div>
 </div>

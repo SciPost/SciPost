@@ -23,6 +23,8 @@ from .fields import ChoiceArrayField
 from .managers import (
     FellowManager, ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
 
+from conflicts.models import ConflictOfInterest
+
 today = timezone.now().date()
 
 
@@ -145,6 +147,11 @@ class Contributor(models.Model):
         if self.expertises:
             return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
         return ''
+
+    def conflict_of_interests(self):
+        if not self.profile:
+            return ConflictOfInterest.objects.none()
+        return ConflictOfInterest.objects.filter_for_profile(self.profile)
 
 
 class UnavailabilityPeriod(models.Model):

@@ -33,6 +33,10 @@ class ConflictOfInterest(models.Model):
     profile = models.ForeignKey('profiles.Profile', related_name='conflicts')
     related_profile = models.ForeignKey('profiles.Profile', related_name='+')
 
+    # To
+    related_submissions = models.ManyToManyField(
+        'submissions.Submission', blank=True, related_name='conflict_of_interests')
+
     header = models.CharField(max_length=265)
     url = models.URLField(blank=True)
     comment = models.TextField(blank=True)

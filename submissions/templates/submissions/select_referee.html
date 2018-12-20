@@ -73,56 +73,61 @@
 <div class="row">
   <div class="col-12">
     {% if workdays_left_to_report < 15 %}
-    <h4 class="highlight p-1"><strong class="text-danger">Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.</strong><br/><br/><span class="text-muted">Standard refereeing period for {{ submission.submitted_to }}: &nbsp;<em>{{ submission.submitted_to.refereeing_period.days }} days</em></span><br/><br/>Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.</h4>
+        <div class="border border-danger bg-light p-2 mb-4">
+            <strong class="text-danger">
+                Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.
+            </strong>
+
+            <div class="text-muted my-2">Standard refereeing period for {{ submission.submitted_to }}: <strong>{{ submission.submitted_to.refereeing_period.days }} days</strong>.</div>
+
+            Consider resetting the refereeing deadline at the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> before inviting a referee.
+        </div>
     {% endif %}
     {% if profiles_found %}
-    <h3>Matching people in our database:</h3>
-    <table class="table">
-      <tr>
-	<th>Name</th>
-	<th>Registered<br/>Contributor?</th>
-	<th>Email<br/>known?</th>
-	<th>Action<br/><span class="text-muted"><small>(Unregistered people will also automatically receive a registration invitation)</small></span></th>
-      </tr>
-      {% for profile in profiles_found %}
-      <tr>
-	<td>{{ profile }}</td>
-	<td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-	<td>{% if profile.email %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-	<td>{% if profile.email %}Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}{% else %}<span class="text-danger">Cannot send an invitation without an email</span> <i class="fa fa-arrow-right"></i> Add one:
-	  <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
-            {% csrf_token %}
-            {{ profile_email_form|bootstrap }}
-	    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-            <input class="btn btn-outline-secondary" type="submit" value="Add">
-          </form>
-	  {% endif %}
-	</td>
-      </tr>
-      {% empty %}
-      <tr>
-	<td>No Profiles found</td>
-	<td></td>
-      </tr>
-      {% endfor %}
-      </table>
+        <h3>Matching people in our database:</h3>
+        <table class="table">
+          <tr>
+    	<th>Name</th>
+    	<th>Registered<br/>Contributor?</th>
+    	<th>Email<br/>known?</th>
+    	<th>Action<br/><span class="text-muted"><small>(Unregistered people will also automatically receive a registration invitation)</small></span></th>
+          </tr>
+          {% for profile in profiles_found %}
+              <tr>
+        	<td>{{ profile }}</td>
+        	<td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+        	<td>{% if profile.email %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+        	<td>{% if profile.email %}Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}{% else %}<span class="text-danger">Cannot send an invitation without an email</span> <i class="fa fa-arrow-right"></i> Add one:
+        	  <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
+                    {% csrf_token %}
+                    {{ profile_email_form|bootstrap }}
+        	    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <input class="btn btn-outline-secondary" type="submit" value="Add">
+                  </form>
+        	  {% endif %}
+        	</td>
+              </tr>
+          {% empty %}
+              <tr>
+        	<td>No Profiles found</td>
+        	<td></td>
+              </tr>
+          {% endfor %}
+          </table>
     {% endif %}
 
-    </div>
-</div>
 
-{% if profile_form %}
-<div class="row">
-  <div class="col-12">
-    <h3 class="mb-2">Not found? Then add to our database by filling this form:</h3>
-    <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-      {% csrf_token %}
-      {{ profile_form|bootstrap }}
-      <input type="submit" name="submit" value="Add to database" class="btn btn-primary">
-    </form>
-    <h4>(does not send invitation yet: you will return to this page, from which you can then invite this referee)</h4>
-  </div>
-</div>
+    {% if profile_form %}
+        <h3 class="mb-2">Not found? Then add to our database by filling this form:</h3>
+        <form action="{% url 'submissions:add_referee_profile' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+          {% csrf_token %}
+          {{ profile_form|bootstrap }}
+          <button type="submit" name="submit" class="btn btn-primary">Add to database</button>
+
+          <h4 class="d-inline"><em>(does not send invitation yet: you will return to this page, from which you can then invite this referee)</em></h4>
+        </form>
+      </div>
+    </div>
 {% endif %}
 
 
