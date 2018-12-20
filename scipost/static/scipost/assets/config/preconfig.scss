@@ -5,9 +5,9 @@
 // General variable structure
 //
 //
-$base-border-radius: 0;
-$border-radius: 0;
-$border-radius-lg: 2px;
+$border-radius-base: 1px;
+$border-radius-small: 1px;
+$border-radius-large: 2px;
 
 // Alert
 //
@@ -55,11 +55,11 @@ $body-color: $scipost-darkblue;
 
 // Alerts
 //
-$alert-border-radius: $base-border-radius;
+$alert-border-radius: $border-radius-base;
 
 // Cards
 //
-$card-border-radius: $base-border-radius;
+$card-border-radius: $border-radius-base;
 $card-spacer-x: 0.75rem;
 $card-spacer-y: 0.5rem;
 $card-shadow-color: #ccc;
@@ -76,7 +76,7 @@ $breadcrumb-divider-color: $scipost-orange;
 
 // Dropdown
 //
-$dropdown-border-radius: $base-border-radius;
+$dropdown-border-radius: $border-radius-base;
 $dropdown-border-color: $scipost-darkblue;
 $dropdown-item-padding-y: 0.35rem;
 $dropdown-item-padding-x: 1.0rem;
@@ -89,11 +89,10 @@ $input-btn-padding-y: 0.25rem;
 $input-btn-padding-x-lg: 0.75rem;
 $input-btn-padding-y-lg: 0.325rem;
 $input-btn-line-height-lg: 1.4;
-$input-border-radius-sm: $base-border-radius;
-$input-border-radius: $base-border-radius;
-$input-border-radius-lg: $base-border-radius;
+$input-border-radius-sm: $border-radius-base;
+$input-border-radius: $border-radius-base;
+$input-border-radius-lg: $border-radius-base;
 $enable-rounded: true !important;
-$btn-transition: none;
 
 $input-height: calc(1.5rem + 2px);
 $input-height-lg: calc(2.0rem + 2px);
@@ -148,10 +147,20 @@ $navbar-padding-y: 0.2rem;
 $nav-tabs-border-color: $scipost-darkblue;
 $nav-tabs-link-active-border-color: $scipost-darkblue $scipost-darkblue $nav-tabs-link-active-bg;
 
-$input-border-radius: 0;
-$btn-border-radius: $base-border-radius;
-$btn-border-radius-sm: $base-border-radius;
-$btn-border-radius-lg: $base-border-radius;
+$input-border-radius:            $border-radius-base;
+$input-border-radius-large:      $border-radius-large;
+$input-border-radius-small:      $border-radius-small;
+
+
+// Allows for customizing button radius independently from global border radius
+$btn-border-radius:         $border-radius-base;
+$btn-border-radius-lg:        $border-radius-large;
+$btn-border-radius-sm:        $border-radius-small;
+
+$btn-line-height-sm: 1.2;
+$btn-line-height-sm: 1.2;
+
+$btn-transition: none;
 
 
 // Block quote

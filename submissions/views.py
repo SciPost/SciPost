@@ -1,6 +1,7 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+
 import datetime
 import feedparser
 import strings
@@ -51,6 +52,7 @@ from common.utils import workdays_between
 from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
+from mails.utils import DirectMailUtil
 from mails.views import MailEditingSubView
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
@@ -689,6 +691,12 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             if form.is_normal_cycle():
                 # Inform authors about new status.
                 SubmissionUtils.send_author_prescreening_passed_email()
+            else:
+                # Inform authors about new status.
+                mail_sender = DirectMailUtil(
+                    mail_code='authors/inform_authors_eic_assigned_direct_eic',
+                    assignment=submission)
+                mail_sender.send()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
             notify_editor_assigned(request.user, assignment, False)
@@ -917,11 +925,9 @@ def select_referee(request, identifier_w_vn_nr):
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {}
     queryresults = ''
-    referee_search_form = RefereeSearchForm(request.GET or None)
-    if referee_search_form.is_valid():
-        profiles_found = Profile.objects.filter(
-            last_name__icontains=referee_search_form.cleaned_data['last_name'])
-        context['profiles_found'] = profiles_found
+    form = RefereeSearchForm(request.GET or None)
+    if form.is_valid():
+        context['profiles_found'] = form.search()
         # Check for recent co-authorship (thus referee disqualification)
         try:
             sub_auth_boolean_str = '((' + (submission
@@ -930,7 +936,7 @@ def select_referee(request, identifier_w_vn_nr):
             for author in submission.metadata['entries'][0]['authors'][1:]:
                 sub_auth_boolean_str += '+OR+' + author['name'].split()[-1]
             sub_auth_boolean_str += ')+AND+'
-            search_str = sub_auth_boolean_str + referee_search_form.cleaned_data['last_name'] + ')'
+            search_str = sub_auth_boolean_str + form.cleaned_data['last_name'] + ')'
             queryurl = ('https://export.arxiv.org/api/query?search_query=au:%s'
                         % search_str + '&sortBy=submittedDate&sortOrder=descending'
                         '&max_results=5')
@@ -942,7 +948,7 @@ def select_referee(request, identifier_w_vn_nr):
     context.update({
         'submission': submission,
         'workdays_left_to_report': workdays_between(timezone.now(), submission.reporting_deadline),
-        'referee_search_form': referee_search_form,
+        'referee_search_form': form,
         'queryresults': queryresults,
         'profile_email_form': ProfileEmailForm(initial={'primary': True}),
     })
@@ -1534,9 +1540,16 @@ def submit_report(request, identifier_w_vn_nr):
                 'identifier_w_vn_nr': identifier_w_vn_nr}))
 
         # Send mails if report is submitted
-        SubmissionUtils.load({'report': newreport}, request)
-        SubmissionUtils.email_EIC_report_delivered()
-        SubmissionUtils.email_referee_report_delivered()
+        mail_sender = DirectMailUtil(
+            mail_code='referees/inform_referee_report_received',
+            instance=newreport,
+            delayed_processing=True)
+        mail_sender.send()
+        mail_sender = DirectMailUtil(
+            mail_code='eic/inform_eic_report_received',
+            instance=newreport,
+            delayed_processing=True)
+        mail_sender.send()
 
         # Add SubmissionEvents for the EIC only, as it can also be rejected still
         submission.add_event_for_eic('%s has submitted a new Report.'
@@ -1596,7 +1609,6 @@ def vet_submitted_report(request, report_id):
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic('The Report by %s is vetted.'
                                             % report.author.user.last_name)
-
         if report.status == STATUS_VETTED:
             SubmissionUtils.send_author_report_received_email()
 

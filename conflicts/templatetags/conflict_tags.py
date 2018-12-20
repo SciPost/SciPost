@@ -7,7 +7,8 @@ from django import template
 register = template.Library()
 
 
-@register.filter
-def filter_for_contributor(qs, contributor):
-    """Filter ConflictGroup query for specific Contributor."""
-    return qs.filter(conflicts__origin=contributor).distinct()
+# @register.filter
+# def filter_for_contributor(qs, contributor):
+#     """Filter ConflictGroup query for specific Contributor."""
+#     # raise
+#     return qs.filter(conflicts__origin=contributor).distinct()

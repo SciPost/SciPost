@@ -49,11 +49,23 @@ class ModelEmailBackend(FileBacked):
         except AttributeError:
             pass
 
+        content_object = None
+        mail_code = ''
+        if 'delayed_processing' in email_message.extra_headers and email_message.extra_headers:
+            status = 'not_rendered'
+            content_object = email_message.extra_headers.get('content_object', None)
+            mail_code = email_message.extra_headers.get('mail_code', '')
+        else:
+            status = 'rendered'
+
         MailLog.objects.create(
             body=body,
             subject=subject,
             body_html=body_html,
             to_recipients=to_recipients,
             bcc_recipients=bcc_recipients,
-            from_email=from_email)
+            from_email=from_email,
+            status=status,
+            content_object=content_object,
+            mail_code=mail_code)
         return True

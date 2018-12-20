@@ -83,6 +83,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'affiliations',
     'ajax_select',
+    'haystack',
     'captcha',
     'colleges',
     'commentaries',
@@ -137,6 +138,7 @@ HAYSTACK_CONNECTIONS = {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
         'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
+        'INCLUDE_SPELLING': True,
     },
 }
 

@@ -179,7 +179,8 @@
                                 <div class="single d-inline specialization" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
                             {% endfor %}
                         </td>
-                        <td>
+                        <td>{{ form.get_fellow }}
+                            {% comment %}
                             {% with submission.conflict_groups.all|filter_for_contributor:form.get_fellow as conflict_groups %}
                                 {% if conflict_groups %}
                                     {{ conflict_groups|length }} potential conflict{{ conflict_groups|length|pluralize }} found
@@ -227,6 +228,7 @@
                                     <em><i class="fa fa-check text-success" aria-hidden="true"></i> No conflicts found</em>
                                 {% endif %}
                             {% endwith %}
+                            {% endcomment %}
                         </td>
                     </tr>
                 {% endfor %}
@@ -265,7 +267,7 @@
         function update_conflict(conflict_id, status) {
             $.ajax({
                 "method": "POST",
-                "url": "{% url 'api:conflictofinterest-verify_conflict' 0 %}".replace("0", conflict_id),
+                {# "url": "{% url 'api:conflictofinterest-verify_conflict' 0 %}".replace("0", conflict_id), #}
                 "data": {
                     'status': status,
                     'csrftoken': getCookie('csrftoken'),

@@ -5,8 +5,8 @@
         </div>
         <div class="card-body">
             <ul class="mb-0">
-                {% for key, action in submission.cycle.required_actions.items %}
-                    <li>{{ action|safe }}</li>
+                {% for code, action in submission.cycle.required_actions.items %}
+                    <li>{{ action }}</li>
                 {% empty %}
                     <li>No actions required</li>
                 {% endfor %}
