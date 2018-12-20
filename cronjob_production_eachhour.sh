@@ -7,3 +7,4 @@ source venv/bin/activate
 
 # Do tasks
 python3 manage.py check_celery
+python3 manage.py update_coi_via_arxiv
