@@ -200,8 +200,10 @@
                     <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
                     <span class="text-muted">
                         Refereeing closed.
-                        <br>
-                        <em>Invited referees may still submit a Report, as long as their invitation is not finished nor cancelled.</em>
+                        {% if submission.referee_invitations.exists %}
+                            <br>
+                            <em>Invited referees may still submit a Report, as long as their invitation is not finished nor cancelled.</em>
+                        {% endif %}
                     </span>
                 {% endif %}
                 {% if submission.in_refereeing_phase %}
@@ -329,20 +331,22 @@
                                 <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>
                             </li>
                         {% endif %}
-                        <li>
-                            Set refereeing deadline:
-                            <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-                                {% csrf_token %}
-                                <div class="d-inline-block mx-2">
-                                    {% for field in set_deadline_form.visible_fields %}
-                                        {{ field|add_css_class:'form-control' }}
-                                        {{ field }}
-                                    {% endfor %}
-                                </div>
+                        {% if submission.can_reset_reporting_deadline %}
+                            <li>
+                                Set refereeing deadline:
+                                <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+                                    {% csrf_token %}
+                                    <div class="d-inline-block mx-2">
+                                        {% for field in set_deadline_form.visible_fields %}
+                                            {{ field|add_css_class:'form-control' }}
+                                            {{ field }}
+                                        {% endfor %}
+                                    </div>
 
-                                <input class="btn btn-outline-secondary btn-sm" type="submit" value="Set deadline"/>
-                            </form>
-                        </li>
+                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="Set deadline"/>
+                                </form>
+                            </li>
+                        {% endif %}
 
                         {% if submission.is_open_for_reporting %}
                             <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>

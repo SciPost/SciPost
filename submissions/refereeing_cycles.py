@@ -13,7 +13,8 @@ from . import constants
 
 @html_safe
 class RequiredActionsDict(dict):
-    """A collection of required actions.
+    """
+    A collection of required actions.
 
     The required action, meant for the editors-in-charge know how to display itself in
     various formats. Dictionary keys are the action-codes, the values are the texts
@@ -62,14 +63,11 @@ class BaseAction:
     submission = None
 
     def __init__(self, object=None, **kwargs):
-        self._objects = []
-        self.add(object)
+        self._objects = [object] if object else []
+        self.id = '%s.%i' % (object.__class__.__name__, object.id) if object else self.__class__.__name__
 
-        self.id = object.__class__.__name__ if object else self.__class__.__name__
-
-    def add(self, object=None):
-        if object:
-            self._objects.append(object)
+    def __repr__(self):
+        return '<%s: %s>' % (self.__class__.__name__, self.id)
 
     def _format_text(self, text, obj=None):
         if obj is None and self._objects:
@@ -81,6 +79,7 @@ class BaseAction:
         if hasattr(obj, 'date_invited'):
             timedelta = timezone.now() - obj.date_invited
         if hasattr(obj, 'submission'):
+            print
             deadline = obj.submission.reporting_deadline - timezone.now()
 
         return text.format(
@@ -100,7 +99,7 @@ class BaseAction:
     def __iter__(self):
         if self._objects:
             for obj in self._objects:
-                yield format_html(self._format_text(self.txt))
+                yield format_html(self._format_text(self.txt, obj=obj))
         else:
             yield format_html(self._format_text(self.txt))
 
@@ -220,10 +219,8 @@ class BaseCycle:
 
     def add_action(self, action):
         if action not in self.required_actions:
-            self._required_actions[action] = action
-        else:
-            self._required_actions[action].add(action)
-        self._required_actions[action].submission = self._submission
+            self.required_actions[action] = action
+        self.required_actions[action].submission = self._submission
 
     def update_required_actions(self):
         """Gather the required actions list and populate self._required_actions."""

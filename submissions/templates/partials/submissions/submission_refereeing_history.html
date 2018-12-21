@@ -15,6 +15,6 @@
 
         {% include 'partials/comments/comments_list.html' with comments=sibling.comments.vetted css_class='my-2 pl-4' target_blank=target_blank %}
     {% empty %}
-        <h5 class="mt-4">There are no publicly visible links available yet.</h5>
+        <em>There are no publicly visible links available yet.</em>
     {% endfor %}
 </div>

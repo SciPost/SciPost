@@ -923,6 +923,15 @@ def select_referee(request, identifier_w_vn_nr):
     """
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    if not submission.is_open_for_reporting:
+        txt = (
+            'The refereeing deadline has passed. You cannot invite a referee anymore.'
+            ' Please, first extend the deadline of the refereeing to invite a referee.')
+        messages.error(request, txt)
+        return redirect(
+            reverse('submissions:editorial_page', args=(submission.preprint.identifier_w_vn_nr,)))
+
     context = {}
     queryresults = ''
     form = RefereeSearchForm(request.GET or None)
