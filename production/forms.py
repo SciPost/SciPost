@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 
 from django import forms
+from django.contrib.auth import get_user_model
 
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs,\
@@ -126,7 +127,15 @@ class StreamStatusForm(forms.ModelForm):
         return stream
 
 
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+         return '{}, {} ({})'.format(obj.last_name, obj.first_name, obj.email)
+
+
 class UserToOfficerForm(forms.ModelForm):
+    user = UserModelChoiceField(queryset=get_user_model().objects.filter(
+        production_user__isnull=True).order_by('last_name'))
+
     class Meta:
         model = ProductionUser
         fields = (

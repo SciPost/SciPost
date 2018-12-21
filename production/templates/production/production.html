@@ -25,7 +25,7 @@
       <div class="tab-nav-inner">
 	<ul class="nav btn-group personal-page-nav" role="tablist">
         <li class="nav-item btn btn-outline-secondary">
-          <a href="#summary" class="nav-link active" data-toggle="tab">Summary</a>
+          <a href="#summary" class="nav-link active" data-toggle="tab">Production streams</a>
         </li>
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#mytimesheet" class="nav-link" data-toggle="tab">My Timesheet</a>
@@ -45,12 +45,12 @@
         <div class="tab-pane active" id="summary" role="tabpanel">
             <div class="row">
               <div class="col-12">
-            	<h2 class="highlight">Streams summary</h2>
+            	<h2 class="highlight">Production streams</h2>
                 <table class="table table-fixed">
                     <thead>
                         <tr>
                             <th style="width: 30%;">Submission</th>
-    		<th>Target Journal<br/>(Tier)</th>
+                			<th>Target Journal<br/>(Tier)</th>
                             <th>Status</th>
                             <th class="py-1">
                                 Latest activity
@@ -75,7 +75,7 @@
                                 </td>
                     		    <td>{{ stream.submission.submitted_to }}{% for rec in stream.submission.eicrecommendations.all %}<br/>({{ rec|Tier }}){% endfor %}</td>
                                 <td>
-                                    <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %} label-sm">{{ stream.get_status_display }}</div>
+                                    <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %}">{{ stream.get_status_display }}</div>
                                 </td>
                                 <td>
                                     {{ stream.latest_activity|timesince }} ago
