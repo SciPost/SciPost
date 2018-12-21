@@ -280,7 +280,7 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
         try:
             publication = Publication.objects.get(
                 accepted_submission__preprint__identifier_w_vn_nr=self.kwargs.get(
-                    'preprint__identifier_w_vn_nr'))
+                    'identifier_w_vn_nr'))
         except Publication.DoesNotExist:
             if Submission.objects.accepted().filter(preprint__identifier_w_vn_nr=self.kwargs.get(
               'identifier_w_vn_nr')).exists():
