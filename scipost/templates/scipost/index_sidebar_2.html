@@ -14,7 +14,7 @@
 
 {% if not user.is_authenticated %}
     <!-- Register -->
-    <div class="p-3 border bg-light" id="register">
+    <div id="register">
         <h2>Register</h2>
         <p class="mb-1">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
     </div><!-- End Register -->
@@ -23,7 +23,7 @@
 {% endif %}
 
 <!-- News -->
-<div class="p-3 border bg-light" id="news2">
+<div id="news2">
     <h2 class="title">
         News
         <small><a href="{% url 'scipost:feeds' %}"><i class="fa fa-rss"></i></a></small>
@@ -49,7 +49,7 @@
 <hr class="lg">
 
 <!-- Sponsors -->
-<div class="p-3 border bg-light" id="sponsors">
+<div id="sponsors">
     <h2>Sponsors</h2>
 
     <p>
@@ -74,7 +74,7 @@ We invite <a href="{% url 'organizations:organizations' %}">organizations benefi
 <hr class="lg">
 
 <!-- Summarized -->
-<div class="p-3 border bg-light" id="summarized">
+<div id="summarized">
     <h2 class="title"><a href="{% url 'journals:journals' %}" class="text-black">Journals</a></h2>
     <p>
         SciPost publishes a portfolio of high-quality two-way open access scientific journals.

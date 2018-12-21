@@ -4,11 +4,12 @@
 <div class="modal notification-center" id="notification_center" tabindex="-1" role="dialog" aria-labelledby="notification_center" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
-      <div class="modal-header">
+      <div class="modal-header border-0 pt-3">
           {% if request.user.contributor %}
               <h4 class="modal-title">{{ request.user.contributor.get_title_display }} {{ request.user.first_name }} {{ request.user.last_name }}</h4>
+          {% else %}
+              <h4 class="modal-title">{{ request.user }}</h4>
           {% endif %}
-        <!-- <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5> -->
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
