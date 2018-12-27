@@ -5,8 +5,8 @@
 
 $label-padding-x:                  0.6rem !default;
 $label-padding-y:                  0.25rem !default;
-$label-line-height:                1.0;
-$label-line-height-sm:             0.9;
+$label-line-height:                1.2;
+$label-line-height-sm:             1.2;
 $label-line-height-lg:             1.2;
 $label-font-weight:                $font-weight-normal !default;
 $label-box-shadow:                 none;
@@ -44,7 +44,7 @@ $label-padding-x-sm:               $label-padding-x;
 $label-padding-y-sm:               $label-padding-y;
 
 $label-padding-x-lg:               0.75rem !default;
-$label-padding-y-lg:               0.5rem !default;
+$label-padding-y-lg:               0.35rem !default;
 
 $label-label-spacing-y:            .5rem !default;
 
@@ -66,7 +66,6 @@ $label-transition:                 all .2s ease-in-out !default;
     user-select: none;
     margin-right: 3px;
     margin-bottom: 3px;
-    // cursor: default;
     border: $label-border-width solid transparent;
     box-shadow: $label-box-shadow;
 
@@ -153,11 +152,11 @@ a.label-danger,
 
 .label-lg {
   // line-height: ensure even-numbered height of button next to large input
-  @include button-size($label-padding-y-lg, $label-padding-x-lg, $font-size-lg, $label-line-height-lg, $label-border-radius-lg);
+  @include button-size($label-padding-y-lg, $label-padding-x-lg, $label-font-size, $label-line-height-lg, $label-border-radius-lg);
 }
 .label-sm {
   // line-height: ensure proper height of button next to small input
-  @include button-size($label-padding-y-sm, $label-padding-x-sm, $font-size-sm, $label-line-height-sm, $label-border-radius-sm);
+  @include button-size($label-padding-y-sm, $label-padding-x-sm, $label-font-size, $label-line-height-sm, $label-border-radius-sm);
 }
 
 
