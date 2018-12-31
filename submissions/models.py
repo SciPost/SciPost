@@ -77,8 +77,7 @@ class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
-    is_resubmission_of = models.ForeignKey(
-        'self', blank=True, null=True, related_name='successor')
+    is_resubmission_of = models.ForeignKey('self', blank=True, null=True, related_name='successor')
     thread_hash = models.UUIDField(default=uuid.uuid4)
     _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(

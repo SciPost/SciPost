@@ -219,10 +219,8 @@ class SubmissionQuerySet(models.QuerySet):
             return self.none()
 
         return self.filter(is_current=True, status__in=[
-            constants.STATUS_INCOMING,
-            constants.STATUS_UNASSIGNED,
-            constants.STATUS_EIC_ASSIGNED,
-            ], submitted_by=user.contributor)
+            constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED, constants.STATUS_EIC_ASSIGNED,
+            ], authors=user.contributor)
 
 
 class SubmissionEventQuerySet(models.QuerySet):
