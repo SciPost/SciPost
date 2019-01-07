@@ -44,7 +44,8 @@ class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
     list_display = ('title', 'author_list', 'submitted_to',
-                    'status', 'submission_date', 'publication')
+                    'status', 'visible_public', 'visible_pool',
+                    'submission_date', 'publication')
     list_filter = ('status', 'discipline', 'submission_type', 'submitted_to')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
