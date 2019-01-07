@@ -42,7 +42,7 @@
             {% elif perms.scipost.can_assign_submissions %}
                 <a href="{% url 'submissions:assign_submission' submission.preprint.identifier_w_vn_nr %}">Send a new assignment request</a>
             {% else %}
-                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
+                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
             {% endif %}
         </td>
     </tr>

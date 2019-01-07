@@ -92,8 +92,6 @@ urlpatterns = [
     url(r'^pool/{regex}/editorial_assignment/(?P<assignment_id>[0-9]+)/$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
         name='editorial_assignment'),
-    url(r'^volunteer_as_EIC/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.volunteer_as_EIC, name='volunteer_as_EIC'),
     url(r'^assignment_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.assignment_failed, name='assignment_failed'),
     # Editorial workflow and refereeing
