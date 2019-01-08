@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import admin
+from django.db.models import Q
 from django import forms
 
 from guardian.admin import GuardedModelAdmin
@@ -207,23 +208,27 @@ class EICRecommendationAdminForm(forms.ModelForm):
     eligible_to_vote = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
     voted_for = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
     voted_against = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
     voted_abstain = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
 
     class Meta:
         model = EICRecommendation

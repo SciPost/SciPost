@@ -949,7 +949,7 @@ class VotingEligibilityForm(forms.ModelForm):
         fields = ()
 
     def __init__(self, *args, **kwargs):
-        """Get queryset of Contributors eligibile for voting."""
+        """Get queryset of Contributors eligible for voting."""
         super().__init__(*args, **kwargs)
         self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
             fellowships__pool=self.instance.submission).filter(
