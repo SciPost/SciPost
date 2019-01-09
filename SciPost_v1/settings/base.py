@@ -381,7 +381,6 @@ LOGGING = {
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_BROKER_URL = get_secret('CELERY_BROKER_URL')
 CELERY_IMPORTS = ('submissions.tasks', )
-FLOWER_PORT = get_secret('FLOWER_PORT')
 
 
 # Automation.
