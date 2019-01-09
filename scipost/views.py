@@ -129,6 +129,16 @@ def index(request):
     return render(request, 'scipost/index.html', context)
 
 
+def flower(request):
+    """
+    Monitoring pages for the Celery-driven scheduled tasks.
+    This view is accessible to superusers only.
+    """
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        raise Http404
+    return redirect('https://localhost:%s' % settings.FLOWER_PORT)
+
+
 def protected_serve(request, path, show_indexes=False):
     """
     Serve media files from outside the public MEDIA_ROOT folder.

@@ -19,6 +19,7 @@ JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'^flower/', views.flower, name='flower'), # monitor for Celery tasks; su only
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),
 
     # General use pages
