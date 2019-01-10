@@ -1,11 +1,11 @@
 from django.conf import settings
-from django.core.mail.backends.filebased import EmailBackend as FileBacked
+from django.core.mail.backends.filebased import EmailBackend as FileBackend
 from django.core.mail.message import sanitize_address
 
 from ..models import MailLog
 
 
-class EmailBackend(FileBacked):
+class EmailBackend(FileBackend):
     def write_message(self, message):
         bcc_str = ', '.join(message.bcc).encode()
         self.stream.write(b'Extended Mail FileBasedBackend\n\n')
@@ -13,7 +13,7 @@ class EmailBackend(FileBacked):
         super().write_message(message)
 
 
-class ModelEmailBackend(FileBacked):
+class ModelEmailBackend(FileBackend):
     def send_messages(self, email_messages, force_original=False):
         """Write all messages to the stream in a thread-safe way."""
         if force_original:
