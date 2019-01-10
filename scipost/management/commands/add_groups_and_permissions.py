@@ -58,10 +58,6 @@ class Command(BaseCommand):
             codename='can_read_partner_page',
             name='Can read Prospective Partner personal page',
             content_type=content_type)
-        can_promote_to_production_team, created = Permission.objects.get_or_create(
-            codename='can_promote_to_production_team',
-            name='Can promote Prospective Partner to Partner',
-            content_type=content_type)
         can_view_partners, created = Permission.objects.get_or_create(
             codename='can_view_partners',
             name='Can view Partner details of all Partners',
@@ -346,7 +342,6 @@ class Command(BaseCommand):
             can_promote_user_to_production_officer,
             can_view_production,
             can_view_all_production_streams,
-            can_promote_to_production_team,
             can_attend_VGMs,
             can_view_timesheets,
             can_manage_mailchimp,
