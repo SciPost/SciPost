@@ -190,7 +190,8 @@ class Journal(models.Model):
 
 class Volume(models.Model):
     """
-    A Volume may be used as a subgroup of Publications related to a specific Issue object.
+    A Volume belongs to a specific Journal, and is a container for
+    either (multiple) Issue(s) or Publication(s).
     """
     in_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
@@ -255,14 +256,15 @@ class Volume(models.Model):
 
 class Issue(models.Model):
     """
-    An Issue may be used as a subgroup of Publications related to a specific Journal object.
+    An Issue is related to a specific Journal, either indirectly via a Volume
+    container, or directly. It is a container for multiple Publications.
     """
     in_journal = models.ForeignKey(
         'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
-        help_text='Assign either an Volume or Journal to the Issue')
+        help_text='Assign either a Volume or Journal to the Issue')
     in_volume = models.ForeignKey(
         'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
-        help_text='Assign either an Volume or Journal to the Issue')
+        help_text='Assign either a Volume or Journal to the Issue')
     number = models.PositiveSmallIntegerField()
     slug = models.SlugField()
     start_date = models.DateField(default=timezone.now)
