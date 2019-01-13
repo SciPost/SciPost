@@ -85,6 +85,9 @@ class PotentialFellowship(models.Model):
     status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,
                               default=POTENTIAL_FELLOWSHIP_IDENTIFIED)
 
+    class Meta:
+        ordering = ['profile__last_name']
+
     def __str__(self):
         return '%s, %s' % (self.profile.__str__(), self.get_status_display())
 
