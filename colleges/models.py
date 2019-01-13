@@ -77,7 +77,8 @@ class PotentialFellowship(models.Model):
     It is linked to Profile as ForeignKey and not as OneToOne, since the same
     person can eventually be approached on different occasions.
 
-    COMMENT: Why is this only nonregistered people only?
+    Using Profile allows to treat both registered Contributors
+    and non-registered people equally well.
     """
 
     profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
