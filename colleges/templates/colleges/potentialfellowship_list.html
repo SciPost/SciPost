@@ -58,6 +58,7 @@ $(document).ready(function($) {
 	  <th>Discipline</th>
 	  <th>Expertises</th>
 	  <th>Status</th>
+	  <th>Latest event</th>
 	</tr>
       </thead>
       <tbody>
@@ -71,10 +72,11 @@ $(document).ready(function($) {
 	    {% endfor %}
 	  </td>
 	  <td style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}</td>
+	  <td>{{ potfel.latest_event_details }}</td>
 	</tr>
 	{% empty %}
 	<tr>
-	  <td colspan="4">No Potential Fellowships found</td>
+	  <td colspan="5">No Potential Fellowships found</td>
 	</tr>
 	{% endfor %}
       </tbody>

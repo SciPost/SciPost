@@ -91,6 +91,12 @@ class PotentialFellowship(models.Model):
     def __str__(self):
         return '%s, %s' % (self.profile.__str__(), self.get_status_display())
 
+    def latest_event_details(self):
+        event = self.potentialfellowshipevent_set.order_by('-noted_on').first()
+        if not event:
+            return 'No event recorded'
+        return '%s [%s]' % (event.get_event_display(), event.noted_on.strftime('%Y-%m-%d'))
+
 
 class PotentialFellowshipEvent(models.Model):
     """Any event directly related to a PotentialFellowship instance registered as plain text."""
@@ -105,5 +111,7 @@ class PotentialFellowshipEvent(models.Model):
                                  blank=True, null=True)
 
     def __str__(self):
-        return '%s, %s %s: %s' % (self.potfel.last_name, self.potfel.get_title_display(),
-                                  self.potfel.first_name, self.get_event_display())
+        return '%s, %s %s: %s' % (self.potfel.profile.last_name,
+                                  self.potfel.profile.get_title_display(),
+                                  self.potfel.profile.first_name,
+                                  self.get_event_display())
