@@ -72,7 +72,8 @@ class Fellowship(TimeStampedModel):
 class PotentialFellowship(models.Model):
     """
     A PotentialFellowship is defined when a researcher has been identified by
-    Admin or EdAdmin as a potential member of an Editorial College.
+    Admin or EdAdmin as a potential member of an Editorial College,
+    or when a current Advisory Board member or Fellow nominates the person.
 
     It is linked to Profile as ForeignKey and not as OneToOne, since the same
     person can eventually be approached on different occasions.
@@ -84,6 +85,17 @@ class PotentialFellowship(models.Model):
     profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,
                               default=POTENTIAL_FELLOWSHIP_IDENTIFIED)
+    in_agreement = models.ManyToManyField(
+        'scipost.Contributor',
+        related_name='in_agreement_with_election', blank=True)
+    in_abstain = models.ManyToManyField(
+        'scipost.Contributor',
+        related_name='in_abstain_with_election', blank=True)
+    in_disagreement = models.ManyToManyField(
+        'scipost.Contributor',
+        related_name='in_disagreement_with_election', blank=True)
+    voting_deadline = models.DateTimeField('voting deadline', default=timezone.now)
+    elected = models.NullBooleanField()
 
     class Meta:
         ordering = ['profile__last_name']

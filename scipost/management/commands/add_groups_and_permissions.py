@@ -125,6 +125,14 @@ class Command(BaseCommand):
             codename='can_attend_VGMs',
             name='Can attend Virtual General Meetings',
             content_type=content_type)
+        can_view_potentialfellowship_list, created = Permission.objects.get_or_create(
+            codename='can_view_potentialfellowship_list',
+            name='Can view PotentialFellowship list',
+            content_type=content_type)
+        can_add_potentialfellowship, created = Permission.objects.get_or_create(
+            codename='can_add_potentialfellowship',
+            name='Can add PotentialFellowship',
+            content_type=content_type)
 
         # Contributions (not related to submissions)
         can_submit_comments, created = Permission.objects.get_or_create(
@@ -350,6 +358,8 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         FinancialAdmin.permissions.set([
@@ -362,6 +372,8 @@ class Command(BaseCommand):
             can_create_registration_invitations,
             can_attend_VGMs,
             can_view_statistics,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         EditorialAdmin.permissions.set([
@@ -393,6 +405,8 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         EditorialCollege.permissions.set([
@@ -403,6 +417,8 @@ class Command(BaseCommand):
             can_attend_VGMs,
             can_view_statistics,
             can_manage_ontology,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         VettingEditors.permissions.set([

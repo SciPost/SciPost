@@ -25,7 +25,7 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
-from scipost.mixins import PermissionsMixin, PaginationMixin
+from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 
 from mails.forms import EmailTemplateForm
 from mails.views import MailView
@@ -302,7 +302,7 @@ def fellowship_add_proceedings(request, id):
 
 # Potential Fellowships
 
-class PotentialFellowshipCreateView(PermissionsMixin, CreateView):
+class PotentialFellowshipCreateView(PermissionsMixin, RequestViewMixin, CreateView):
     """
     Formview to create a new Potential Fellowship.
     """
@@ -310,6 +310,11 @@ class PotentialFellowshipCreateView(PermissionsMixin, CreateView):
     form_class = PotentialFellowshipForm
     template_name = 'colleges/potentialfellowship_form.html'
     success_url = reverse_lazy('colleges:potential_fellowships')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
 
 
 class PotentialFellowshipUpdateView(PermissionsMixin, UpdateView):
@@ -357,7 +362,7 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List the PotentialFellowship object instances.
     """
-    permission_required = 'scipost.can_manage_college_composition'
+    permission_required = 'scipost.can_view_potentialfellowship_list'
     model = PotentialFellowship
     paginate_by = 25
 
@@ -379,7 +384,7 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
 
 
 class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
-    permission_required = 'scipost.can_manage_college_composition'
+    permission_required = 'scipost.can_view_potentialfellowship_list'
     model = PotentialFellowship
 
     def get_context_data(self, *args, **kwargs):

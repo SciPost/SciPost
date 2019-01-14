@@ -10,9 +10,11 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from proceedings.models import Proceedings
 from submissions.models import Submission
+from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
 
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .constants import POTENTIAL_FELLOWSHIP_NOMINATED
 
 
 class AddFellowshipForm(forms.ModelForm):
@@ -224,12 +226,26 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
         return fellowship
 
 
-class PotentialFellowshipForm(forms.ModelForm):
+class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
     profile = AutoCompleteSelectField('profile_lookup')
 
     class Meta:
         model = PotentialFellowship
-        fields = ['profile', 'status']
+        fields = ['profile']
+
+    def save(self):
+        """
+        The default status is IDENTIFIED, which is appropriate if the
+        if the PotentialFellow was added directly by SciPost Admin.
+        But if the PotFel is nominated by somebody on the Advisory Board
+        or by an existing Fellow, the status is set to NOMINATED and
+        the person nominating is added to the list of in_agreement with election.
+        """
+        if self.request.user.groups.filter(name__in=[
+                'AdvisoryBoard', 'EditorialCollege']).exists():
+            self.instance.status = POTENTIAL_FELLOWSHIP_NOMINATED
+            self.instance.in_agreement.add(self.request.user.contributor)
+        return super().save()
 
 
 class PotentialFellowshipStatusForm(forms.ModelForm):

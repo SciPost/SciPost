@@ -20,8 +20,13 @@ $(document).ready(function($) {
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <a href="{% url 'colleges:potential_fellowship_create' %}">Add a Potential Fellowship</a>
+    {% if perms.scipost.can_add_potentialfellowship %}
+    <p>
+      Do you know somebody qualified who could serve as a Fellow?<br/>
+      Nominate them by <a href="{% url 'colleges:potential_fellowship_create' %}">adding a Potential Fellowship</a>.
+    </p>
     <br/><br/>
+    {% endif %}
     <p>
       <ul class="list-inline">
 	<li class="list-inline-item">
