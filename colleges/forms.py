@@ -241,11 +241,13 @@ class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
         or by an existing Fellow, the status is set to NOMINATED and
         the person nominating is added to the list of in_agreement with election.
         """
+        potfel = super().save()
         if self.request.user.groups.filter(name__in=[
-                'AdvisoryBoard', 'EditorialCollege']).exists():
-            self.instance.status = POTENTIAL_FELLOWSHIP_NOMINATED
-            self.instance.in_agreement.add(self.request.user.contributor)
-        return super().save()
+                'Advisory Board', 'Editorial College']).exists():
+            potfel.status = POTENTIAL_FELLOWSHIP_NOMINATED
+            potfel.in_agreement.add(self.request.user.contributor)
+        potfel.save()
+        return potfel
 
 
 class PotentialFellowshipStatusForm(forms.ModelForm):
