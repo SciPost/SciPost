@@ -16,7 +16,8 @@ from submissions.models import Submission
 
 from .constants import POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
     POTENTIAL_FELLOWSHIP_EVENT_EMAILED, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,\
-    POTENTIAL_FELLOWSHIP_EVENT_COMMENT
+    POTENTIAL_FELLOWSHIP_EVENT_COMMENT,\
+    POTENTIAL_FELLOWSHIP_STATUSES
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
@@ -375,11 +376,14 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
             queryset = queryset.filter(profile__discipline=self.kwargs['discipline'].lower())
             if self.kwargs.get('expertise', None):
                 queryset = queryset.filter(profile__expertises__contains=[self.kwargs['expertise']])
+        if self.request.GET.get('status', None):
+            queryset = queryset.filter(status=self.request.GET.get('status'))
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
         return context
 
 
