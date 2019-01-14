@@ -955,7 +955,7 @@ class VotingEligibilityForm(forms.ModelForm):
             fellowships__pool=self.instance.submission).filter(
                 Q(EIC=self.instance.submission) |
                 Q(expertises__contains=[self.instance.submission.subject_area]) |
-                Q(expertises__contains=self.instance.submission.secondary_areas)).order_by(
+                Q(expertises__overlap=self.instance.submission.secondary_areas)).order_by(
                     'user__last_name').distinct()
 
     def save(self, commit=True):
