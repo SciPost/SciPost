@@ -1562,7 +1562,7 @@ def prepare_for_voting(request, rec_id):
         fellows_with_expertise = recommendation.submission.fellows.filter(
             Q(contributor=recommendation.submission.editor_in_charge) |
             Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
-            Q(contributor__expertises__in=recommendation.submission.secondary_areas)).order_by(
+            Q(contributor__expertises__contains=recommendation.submission.secondary_areas)).order_by(
                 'contributor__user__last_name')
         #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
         coauthorships = None
