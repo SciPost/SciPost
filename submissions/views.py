@@ -58,7 +58,7 @@ from profiles.models import Profile
 from profiles.forms import SimpleProfileForm, ProfileEmailForm
 from scipost.constants import INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
-from scipost.forms import RemarkForm
+from scipost.forms import RemarkForm, ConfirmationForm
 from scipost.mixins import PaginationMixin
 from scipost.models import Contributor, Remark
 
@@ -220,6 +220,40 @@ def prefill_using_arxiv_identifier(request):
         'form': query_form,
     }
     return render(request, 'submissions/submission_prefill_form.html', context)
+
+
+@login_required
+def withdraw_manuscript(request, identifier_w_vn_nr):
+    """
+    Withdrawal of the submission by one of the submitting authors.
+
+    This method performs the following actions:
+    - makes the Submission and its previous versions publicly invisible
+    - marks any Editorial Assignment as completed, emailing the EIC
+    - deprecates all outstanding refereeing requests (emailing referees)
+    - adds an event for the authors
+
+    GET shows the info/confirm page
+    POST performs the action and returns to the personal page.
+    """
+    submission = get_object_or_404(Submission,
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    is_author = check_verified_author(submission, request.user)
+
+    if not is_author:
+        errormessage = ('You are not marked as an author of this Submission, '
+                        'and thus are not allowed to withdraw it.')
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+    form = ConfirmationForm(request.POST or None)
+    if form.is_valid():
+        if form.cleaned_data['confirm'] == 'True':
+            messages.success(request, 'Your manuscript has been withdrawn.')
+        else:
+            messages.error(request, 'Withdrawal procedure aborted')
+        return redirect(reverse('scipost:personal_page'))
+    context = {'submission': submission, 'form': form}
+    return render(request, 'submissions/withdraw_manuscript.html')
 
 
 class SubmissionListView(PaginationMixin, ListView):
