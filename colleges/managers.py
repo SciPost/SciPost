@@ -6,6 +6,8 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
+from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
+
 
 class FellowQuerySet(models.QuerySet):
     def guests(self):
@@ -47,3 +49,13 @@ class FellowQuerySet(models.QuerySet):
             return fellowships
         except AttributeError:
                 return []
+
+
+class PotentialFellowshipQuerySet(models.QuerySet):
+    def vote_needed(self, contributor):
+        return self.filter(profile__discipline=contributor.profile.discipline,
+                           status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
+                           ).exclude(Q(in_agreement__in=[contributor]) |
+                                     Q(in_abstain__in=[contributor]) |
+                                     Q(in_disagreement__in=[contributor])
+                                     ).order_by('profile__last_name')

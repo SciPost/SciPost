@@ -312,11 +312,6 @@ class PotentialFellowshipCreateView(PermissionsMixin, RequestViewMixin, CreateVi
     template_name = 'colleges/potentialfellowship_form.html'
     success_url = reverse_lazy('colleges:potential_fellowships')
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
 
 class PotentialFellowshipUpdateView(PermissionsMixin, UpdateView):
     """
@@ -382,6 +377,8 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['potfels_to_vote_on'] = PotentialFellowship.objects.vote_needed(
+            self.request.user.contributor)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
         return context

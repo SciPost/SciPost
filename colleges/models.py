@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from .constants import POTENTIAL_FELLOWSHIP_STATUSES,\
     POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_EVENTS
-from .managers import FellowQuerySet
+from .managers import FellowQuerySet, PotentialFellowshipQuerySet
 
 from profiles.models import Profile
 
@@ -96,6 +96,8 @@ class PotentialFellowship(models.Model):
         related_name='in_disagreement_with_election', blank=True)
     voting_deadline = models.DateTimeField('voting deadline', default=timezone.now)
     elected = models.NullBooleanField()
+
+    objects = PotentialFellowshipQuerySet.as_manager()
 
     class Meta:
         ordering = ['profile__last_name']

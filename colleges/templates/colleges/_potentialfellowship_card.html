@@ -22,6 +22,8 @@
       </div>
     </div>
   </div>
+
+  {% if perms.scipost.can_manage_college_composition %}
   <div class="row">
     <div class="col-md-6">
       <ul>
@@ -40,8 +42,10 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
   <div class="row">
+    {% if perms.scipost.can_manage_college_composition %}
     <div class="col-md-6">
       <h3>Add an event for this Potential Fellowship</h3>
       <form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
@@ -50,6 +54,7 @@
         <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
       </form>
     </div>
+    {% endif %}
     <div class="col-md-6">
       <h3>Events</h3>
       <ul>
