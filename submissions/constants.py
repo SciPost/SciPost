@@ -36,6 +36,11 @@ SUBMISSION_STATUS = (
     (STATUS_PUBLISHED, 'Published'),
 )
 
+# Submissions which are currently under consideration
+SUBMISSION_UNDER_CONSIDERATION = [
+    STATUS_INCOMING, STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMITTED
+]
+
 # Submissions with these statuses never have required actions.
 NO_REQUIRED_ACTION_STATUSES = [
     STATUS_UNASSIGNED,

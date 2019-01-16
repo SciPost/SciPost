@@ -24,8 +24,10 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from .constants import (
-    STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
-    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_ACCEPTED, STATUS_DEPRECATED)
+    STATUS_VETTED,
+    STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED, STATUS_WITHDRAWN,
+    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_ACCEPTED, STATUS_COMPLETED, STATUS_DEPRECATED,
+    DEPRECATED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
@@ -229,31 +231,65 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
 
     This method performs the following actions:
     - makes the Submission and its previous versions publicly invisible
-    - marks any Editorial Assignment as completed, emailing the EIC
+    - marks any Editorial Assignment as completed
+    - deprecates any Editorial Recommendation
+    - emailing authors, EIC (cc to EdAdmin)
     - deprecates all outstanding refereeing requests (emailing referees)
-    - adds an event for the authors
+    - adds an event.
 
     GET shows the info/confirm page
     POST performs the action and returns to the personal page.
     """
     submission = get_object_or_404(Submission,
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    is_author = check_verified_author(submission, request.user)
 
-    if not is_author:
-        errormessage = ('You are not marked as an author of this Submission, '
+    if not (request.user.contributor.id == submission.submitted_by.id):
+        errormessage = ('You are not marked as the submitting author of this Submission, '
                         'and thus are not allowed to withdraw it.')
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
     form = ConfirmationForm(request.POST or None)
     if form.is_valid():
         if form.cleaned_data['confirm'] == 'True':
+            # Update submission (current + any previous versions)
+            Submission.objects.filter(id=submission.id).update(
+                visible_public=False, visible_pool=False,
+                open_for_commenting=False, open_for_reporting=False,
+                status=STATUS_WITHDRAWN, latest_activity=timezone.now())
+            submission.get_other_versions().update(visible_public=False)
+            # Update all assignments
+            EditorialAssignment.objects.filter(submission=submission).need_response().update(
+                status=STATUS_DEPRECATED)
+            EditorialAssignment.objects.filter(submission=submission).accepted().update(
+                status=STATUS_COMPLETED)
+            # Deprecate any outstanding recommendation
+            EICRecommendation.objects.filter(submission=submission).active().update(
+                status=DEPRECATED)
+            # Inform EIC
+            mail_sender_eic = DirectMailUtil(
+                mail_code='eic/inform_eic_manuscript_withdrawn',
+                instance=submission)
+            mail_sender_eic.send()
+            # Confirm withdrawal to authors
+            mail_sender_authors = DirectMailUtil(
+                mail_code='authors/inform_authors_manuscript_withdrawn',
+                instance=submission)
+            mail_sender_authors.send()
+            # Email all referees (if outstanding), cancel all outstanding
+            for invitation in submission.referee_invitations.outstanding():
+                DirectMailUtil(
+                    mail_code='referees/inform_referee_manuscript_withdrawn',
+                    instance=invitation).send()
+            submission.referee_invitations.outstanding().update(cancelled=True)
+            # Add event
+            submission.add_general_event('The manuscript has been withdrawn by the authors.')
+            # All done
             messages.success(request, 'Your manuscript has been withdrawn.')
         else:
             messages.error(request, 'Withdrawal procedure aborted')
         return redirect(reverse('scipost:personal_page'))
     context = {'submission': submission, 'form': form}
-    return render(request, 'submissions/withdraw_manuscript.html')
+    return render(request, 'submissions/withdraw_manuscript.html', context)
 
 
 class SubmissionListView(PaginationMixin, ListView):

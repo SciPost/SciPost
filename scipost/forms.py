@@ -711,4 +711,5 @@ class SendPrecookedEmailForm(forms.Form):
 
 class ConfirmationForm(forms.Form):
     confirm = forms.ChoiceField(widget=forms.RadioSelect,
-                                choices=((True, 'Confirm'), (False, 'Abort')))
+                                choices=((True, 'Confirm'), (False, 'Abort')),
+                                label='')

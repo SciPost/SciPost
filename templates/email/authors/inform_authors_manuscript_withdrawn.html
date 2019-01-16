@@ -1,0 +1,20 @@
+<p>
+  Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},
+</p>
+<p>
+  We hereby acknowledge withdrawal of your recent SciPost submission,
+</p>
+<p>
+  {{ submission.title }}
+  <br/>
+  by {{ submission.author_list }}.
+</p>
+<p>
+  Editorial processing of your manuscript is hereby terminated, and the associated submission page has been removed from public view. You are now free to send your manuscript to an alternative journal.
+</p>
+<p>
+  Despite this outcome, we thank you very much for your contribution. If you have further questions or comments, please feel free to get in touch with our <a href="mailto:edadmin@scipost.org">editorial administration</a>.
+</p>
+<p>Sincerely,</p>
+<p>The SciPost Team</p>
+{% include 'email/_footer.html' %}

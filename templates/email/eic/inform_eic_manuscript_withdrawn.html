@@ -1,0 +1,19 @@
+<p>Dear {{ submission.editor_in_charge.get_title_display }} {{ submission.editor_in_charge.user.last_name }},</p>
+
+<p>
+  For your information, the authors of Submission
+</p>
+<p>
+  {{ submission.title }}
+  <br/>
+  by {{ submission.author_list }}
+</p>
+<p>
+  have withdrawn their manuscript. There is no further action required from your part, and your editorial assignment is now marked as completed.
+</p>
+<p>
+    Many thanks,<br>
+    The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}

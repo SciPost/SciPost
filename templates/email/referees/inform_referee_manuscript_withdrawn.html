@@ -1,0 +1,20 @@
+<p>
+    Dear {{invitation.referee.get_title_display}} {{invitation.referee.user.last_name}},
+</p>
+<p>
+  This is a simple email to inform you that the authors of
+</p>
+<p>
+  {{invitation.submission.title}}
+  <br>
+  by {{invitation.submission.author_list}}
+</p>
+<p>
+  have withdrawn their manuscript. Your report is thus not needed anymore.
+</p>
+<p>
+  Sincerely,
+  <br>
+  The SciPost Team.
+</p>
+{% include 'email/_footer.html' %}

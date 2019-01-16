@@ -394,8 +394,11 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def declined(self):
         return self.filter(accepted=False)
 
-    def open(self):
+    def open(self): # WRONG: pending already filters for cancelled=False
         return self.pending().filter(cancelled=False)
+
+    def outstanding(self):
+        return self.filter(cancelled=False).exclude(accepted=False).exclude(fulfilled=True)
 
     def in_process(self):
         return self.accepted().filter(fulfilled=False, cancelled=False)
