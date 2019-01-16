@@ -22,13 +22,13 @@ $(document).ready(function($) {
 {% if perms.scipost.can_add_potentialfellowship %}
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight">Nomination of/voting on potential Fellowships</h3>
+    <h3 class="highlight">Nominations for/voting on potential Fellowships</h3>
     <p>
       Do you know somebody qualified who could serve as a Fellow?<br/>
       Nominate them by <a href="{% url 'colleges:potential_fellowship_create' %}">adding a Potential Fellowship</a>.
     </p>
     {% if potfels_to_vote_on %}
-    <h4>To vote on:</h4>
+    <h4>Nominations to vote on:</h4>
     <ul>
       {% for potfel in potfels_to_vote_on %}
       <li>{{ potfel }}</li>
