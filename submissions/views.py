@@ -44,6 +44,7 @@ from .forms import (
     PreassignEditorsFormSet, SubmissionReassignmentForm)
 from .utils import SubmissionUtils
 
+from colleges.models import PotentialFellowship
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
@@ -559,6 +560,8 @@ def pool(request, identifier_w_vn_nr=None):
         # Mainly as fallback for the old-pool while in test phase.
         submissions = Submission.objects.pool(request.user)
 
+    nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
+        request.user.contributor).count()
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
     recs_current_voted = EICRecommendation.objects.user_current_voted(request.user).filter(
@@ -577,6 +580,7 @@ def pool(request, identifier_w_vn_nr=None):
         'submission_status': SUBMISSION_STATUS,
         'assignments_to_consider': assignments_to_consider,
         'consider_assignment_form': consider_assignment_form,
+        'nr_potfels_to_vote_on': nr_potfels_to_vote_on,
         'recs_to_vote_on': recs_to_vote_on,
         'recs_current_voted': recs_current_voted,
         'rec_vote_form': rec_vote_form,
