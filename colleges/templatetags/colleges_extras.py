@@ -57,3 +57,13 @@ def potfelstatuscolor(status):
     elif status == POTENTIAL_FELLOWSHIP_SCIPOST_EMERITUS:
         color = hslColorWheel(12, 4, 40, 40)
     return color
+
+
+@register.simple_tag
+def voting_results_display(potfel):
+    if potfel.status == POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING:
+        return ' Agree: %s, Abstain: %s, Disagree: %s' % (
+            potfel.in_agreement.count(),
+            potfel.in_abstain.count(),
+            potfel.in_disagreement.count())
+    return ''
