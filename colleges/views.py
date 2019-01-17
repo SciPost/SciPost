@@ -4,9 +4,10 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.db.models import Count
-from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db.models import Count
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
@@ -15,10 +16,10 @@ from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
-from .constants import POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
-    POTENTIAL_FELLOWSHIP_EVENT_EMAILED, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,\
-    POTENTIAL_FELLOWSHIP_EVENT_COMMENT,\
-    POTENTIAL_FELLOWSHIP_STATUSES
+from .constants import     POTENTIAL_FELLOWSHIP_STATUSES,\
+    POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
+    POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED,\
+    POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED, POTENTIAL_FELLOWSHIP_EVENT_COMMENT
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
@@ -314,7 +315,7 @@ class PotentialFellowshipCreateView(PermissionsMixin, RequestViewMixin, CreateVi
     success_url = reverse_lazy('colleges:potential_fellowships')
 
 
-class PotentialFellowshipUpdateView(PermissionsMixin, UpdateView):
+class PotentialFellowshipUpdateView(PermissionsMixin, RequestViewMixin, UpdateView):
     """
     Formview to update a Potential Fellowship.
     """
@@ -409,10 +410,19 @@ def vote_on_potential_fellowship(request, potfel_id, vote):
     potfel.in_disagreement.remove(request.user.contributor)
     if vote == 'A':
         potfel.in_agreement.add(request.user.contributor)
+        comments = 'Voted Agree'
     elif vote == 'N':
         potfel.in_abstain.add(request.user.contributor)
+        comments = 'Voted Abstain'
     elif vote == 'D':
         potfel.in_disagreement.add(request.user.contributor)
+        comments = 'Voted Disagree'
+    else:
+        raise Http404
+    newevent = PotentialFellowshipEvent(
+        potfel=potfel, event=POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON,
+        comments=comments, noted_by=request.user.contributor)
+    newevent.save()
     return redirect(reverse('colleges:potential_fellowships'))
 
 
