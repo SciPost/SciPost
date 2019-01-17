@@ -31,6 +31,7 @@ $(document).ready(function($) {
   </div>
 </div>
 
+{% if potfels_to_vote_on or potfels_voted_on %}
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Ongoing elections</h3>
@@ -48,6 +49,7 @@ $(document).ready(function($) {
     {% endif %}
   </div>
 </div>
+{% endif %}
 {% endif %}
 
 <div class="row">
