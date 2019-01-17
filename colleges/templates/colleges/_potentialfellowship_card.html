@@ -24,6 +24,7 @@
   </div>
 
   {% if perms.scipost.can_manage_college_composition %}
+  <h3>Admin actions</h3>
   <div class="row">
     <div class="col-md-6">
       <ul>
@@ -44,14 +45,55 @@
   </div>
   {% endif %}
 
+  {% if perms.scipost.can_manage_college_composition %}
+  <div class="row">
+    <div class="col-12">
+      <h3>Voting results</h3>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-1"></div>
+    <div class="col-3">
+      <h4>Agreed:</h4>
+      <ul>
+	{% for fellow in potfel.in_agreement.all %}
+	<li>{{ fellow }}</li>
+	{% empty %}
+	<li>No Fellow has agreed</li>
+	{% endfor %}
+      </ul>
+    </div>
+    <div class="col-3">
+      <h4>Abstained:</h4>
+      <ul>
+	{% for fellow in potfel.in_abstain.all %}
+	<li>{{ fellow }}</li>
+	{% empty %}
+	<li>No Fellow has abstained</li>
+	{% endfor %}
+      </ul>
+    </div>
+    <div class="col-3">
+      <h4>Agreed:</h4>
+      <ul>
+	{% for fellow in potfel.in_disagreement.all %}
+	<li>{{ fellow }}</li>
+	{% empty %}
+	<li>No Fellow has disagreed</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
   <div class="row">
     {% if perms.scipost.can_manage_college_composition %}
     <div class="col-md-6">
       <h3>Add an event for this Potential Fellowship</h3>
       <form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
-        {% csrf_token %}
-        {{ pfevent_form|bootstrap }}
-        <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
+	{% csrf_token %}
+	{{ pfevent_form|bootstrap }}
+	<input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
       </form>
     </div>
     {% endif %}
