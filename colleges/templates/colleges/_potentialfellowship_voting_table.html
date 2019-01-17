@@ -5,7 +5,7 @@
 <table class="table">
   {% for potfel in potfels_list %}
   <tr>
-    <td>{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</td>
+    <td><a href="{{ potfel.profile.get_absolute_url }}" target="_blank">{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</a></td>
     <td>{{ potfel.profile.get_discipline_display }}</td>
     <td>
       {% for expertise in potfel.profile.expertises %}

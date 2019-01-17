@@ -85,11 +85,13 @@
     {% endif %}
 
 	<div class="col-md-4">
-	  {% if perms.scipost.can_manage_college_composition %}
+	  {% if perms.scipost.can_manage_college_composition or perms.scipost.can_view_potentialfellowship_list %}
 	  <h3>Colleges and Fellowships</h3>
 	  <ul>
-	    <li><a href="{% url 'colleges:potential_fellowships' %}">Manage Potential Fellowships</a></li>
+	    <li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships: view{% if perms.scipost.can_manage_college_composition %} and manage{% endif %}</a></li>
+	    {% if perms.scipost.can_manage_college_composition %}
             <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
+	    {% endif %}
 	  </ul>
 	  {% endif %}
 
