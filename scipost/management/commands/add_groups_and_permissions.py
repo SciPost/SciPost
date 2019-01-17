@@ -133,6 +133,10 @@ class Command(BaseCommand):
             codename='can_add_potentialfellowship',
             name='Can add PotentialFellowship',
             content_type=content_type)
+        can_vote_on_potentialfellowship, created = Permission.objects.get_or_create(
+            codename='can_vote_on_potentialfellowship',
+            name='Can vote on PotentialFellowship',
+            content_type=content_type)
 
         # Contributions (not related to submissions)
         can_submit_comments, created = Permission.objects.get_or_create(
@@ -419,6 +423,7 @@ class Command(BaseCommand):
             can_manage_ontology,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
+            can_vote_on_potentialfellowship,
         ])
 
         VettingEditors.permissions.set([

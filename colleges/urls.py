@@ -70,6 +70,11 @@ urlpatterns = [
         name='potential_fellowship_event_create'
     ),
     url(
+        r'^potentialfellowships/(?P<potfel_id>[0-9]+)/vote/(?P<vote>[AND])/$',
+        views.vote_on_potential_fellowship,
+        name='vote_on_potential_fellowship'
+    ),
+    url(
         r'^potentialfellowships/(?P<pk>[0-9]+)/email_initial/$',
         views.PotentialFellowshipInitialEmailView.as_view(),
         name='potential_fellowship_email_initial'

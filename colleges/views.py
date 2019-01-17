@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.utils import timezone
@@ -378,7 +379,8 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['potfels_to_vote_on'] = PotentialFellowship.objects.vote_needed(
-            self.request.user.contributor)
+            self.request.user.contributor).annotate(
+                nr_A=Count('in_agreement'), nr_N=Count('in_abstain'), nr_D=Count('in_disagreement'))
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
         return context
@@ -393,6 +395,22 @@ class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
         context['pfstatus_form'] = PotentialFellowshipStatusForm()
         context['pfevent_form'] = PotentialFellowshipEventForm()
         return context
+
+
+@login_required
+@permission_required('scipost.can_vote_on_potentialfellowship', raise_exception=True)
+def vote_on_potential_fellowship(request, potfel_id, vote):
+    potfel = get_object_or_404(PotentialFellowship, pk=potfel_id)
+    potfel.in_agreement.remove(request.user.contributor)
+    potfel.in_abstain.remove(request.user.contributor)
+    potfel.in_disagreement.remove(request.user.contributor)
+    if vote == 'A':
+        potfel.in_agreement.add(request.user.contributor)
+    elif vote == 'N':
+        potfel.in_abstain.add(request.user.contributor)
+    elif vote == 'D':
+        potfel.in_disagreement.add(request.user.contributor)
+    return redirect(reverse('colleges:potential_fellowships'))
 
 
 class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):
