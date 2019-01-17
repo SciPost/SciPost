@@ -378,7 +378,10 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['potfels_to_vote_on'] = PotentialFellowship.objects.vote_needed(
+        context['potfels_to_vote_on'] = PotentialFellowship.objects.to_vote_on(
+            self.request.user.contributor).annotate(
+                nr_A=Count('in_agreement'), nr_N=Count('in_abstain'), nr_D=Count('in_disagreement'))
+        context['potfels_voted_on'] = PotentialFellowship.objects.voted_on(
             self.request.user.contributor).annotate(
                 nr_A=Count('in_agreement'), nr_N=Count('in_abstain'), nr_D=Count('in_disagreement'))
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS

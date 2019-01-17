@@ -57,3 +57,15 @@ class PotentialFellowshipQuerySet(models.QuerySet):
             profile__discipline=contributor.profile.discipline,
             status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
         ).order_by('profile__last_name')
+
+    def to_vote_on(self, contributor):
+        return self.vote_needed(contributor).exclude(
+            Q(in_agreement__in=[contributor]) |
+            Q(in_abstain__in=[contributor]) |
+            Q(in_disagreement__in=[contributor]))
+
+    def voted_on(self, contributor):
+        return self.vote_needed(contributor).filter(
+            Q(in_agreement__in=[contributor]) |
+            Q(in_abstain__in=[contributor]) |
+            Q(in_disagreement__in=[contributor]))
