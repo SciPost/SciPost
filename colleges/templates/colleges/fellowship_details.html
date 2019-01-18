@@ -68,21 +68,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for fellowship in fellowship.sibling_fellowships %}
+                    {% for fship in fellowship.sibling_fellowships %}
                         <tr>
-                            <td>{{ fellowship.id }}</td>
-                            <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
+                            <td>{{ fship.id }}</td>
+                            <td>{{ fship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
                             <td>
-                                {% if fellowship.start_date %}
-                                    from {{ fellowship.start_date }}
+                                {% if fship.start_date %}
+                                    from {{ fship.start_date }}
                                 {% endif %}
-                                {% if fellowship.until_date %}
-                                    until {{ fellowship.until_date }}
+                                {% if fship.until_date %}
+                                    until {{ fship.until_date }}
                                 {% endif %}
-                                {% if not fellowship.start_date and not fellowship.until_date %}
+                                {% if not fship.start_date and not fship.until_date %}
                                     <i>Unlimited</i>
                                 {% endif %}
                             </td>
+                            <td>{% if fship.id != fellowship.id %}<a href="{{ fellowship.get_absolute_url }}">See details</a>{% else %}(this page){% endif %}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
