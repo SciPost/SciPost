@@ -31,7 +31,7 @@
                         <p class="card-text mt-1">
 			  <ul>
                             {% if sub.open_for_resubmission %}
-                            <li><a href="{% url 'submissions:prefill_using_identifier' %}?identifier={{ sub.preprint.identifier_wo_vn_nr }}">Resubmit this manuscript</a></li>
+                            <li>To resubmit, go to the <a href="{% url 'submissions:resubmit_manuscript' %}">resubmission page</a></li>
                             {% endif %}
 			    {% if sub.under_consideration %}
                             {% if sub.editor_in_charge %}
