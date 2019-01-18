@@ -55,7 +55,7 @@ class Profile(models.Model):
         blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True, validators=[orcid_validator])
-    webpage = models.URLField(blank=True)
+    webpage = models.URLField(max_length=300, blank=True)
 
     # Topics for semantic linking
     topics = models.ManyToManyField('ontology.Topic', blank=True)
