@@ -51,7 +51,8 @@ class ModelEmailBackend(FileBackend):
 
         content_object = None
         mail_code = ''
-        if 'delayed_processing' in email_message.extra_headers and email_message.extra_headers:
+        if 'delayed_processing' in email_message.extra_headers \
+           and email_message.extra_headers['delayed_processing']:
             status = 'not_rendered'
             content_object = email_message.extra_headers.get('content_object', None)
             mail_code = email_message.extra_headers.get('mail_code', '')
