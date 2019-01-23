@@ -309,7 +309,7 @@ class PotentialFellowshipCreateView(PermissionsMixin, RequestViewMixin, CreateVi
     """
     Formview to create a new Potential Fellowship.
     """
-    permission_required = 'scipost.can_manage_college_composition'
+    permission_required = 'scipost.can_add_potentialfellowship'
     form_class = PotentialFellowshipForm
     template_name = 'colleges/potentialfellowship_form.html'
     success_url = reverse_lazy('colleges:potential_fellowships')
