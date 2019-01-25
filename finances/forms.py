@@ -45,8 +45,15 @@ class WorkLogForm(forms.ModelForm):
         }
 
 
-class LogsMonthlyActiveFilter(forms.Form):
-    month = forms.ChoiceField(choices=[(k, v) for k, v in MONTHS.items()])
+class LogsActiveFilter(forms.Form):
+    """
+    Filter work logs given the requested date range and users.
+    """
+
+    employee = forms.ModelChoiceField(
+        queryset=get_user_model().objects.filter(work_logs__isnull=False), required=False)
+    month = forms.ChoiceField(
+        choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False)
     year = forms.ChoiceField(choices=[(y, y) for y in reversed(range(today.year-6, today.year+1))])
 
     def __init__(self, *args, **kwargs):
@@ -63,22 +70,28 @@ class LogsMonthlyActiveFilter(forms.Form):
         }
         super().__init__(*args, **kwargs)
 
-    def get_totals(self):
-        # Make accessible without need to explicitly check validity of form.
-        self.is_valid()
-
-        users = get_user_model().objects.filter(
-            work_logs__work_date__month=self.cleaned_data['month'],
-            work_logs__work_date__year=self.cleaned_data['year']).distinct()
+    def filter(self):
+        """Filter work logs and return in output-convenient format."""
         output = []
-        for user in users:
-            logs = user.work_logs.filter(
-                work_date__month=self.cleaned_data['month'],
-                work_date__year=self.cleaned_data['year'])
-            output.append({
-                'logs': logs,
-                'duration': logs.aggregate(total=Sum('duration')),
-                'user': user
-            })
+        if self.is_valid():
+            user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+            if self.cleaned_data['employee']:
+                # Get as a queryset instead of single instead.
+                user_qs = user_qs.filter(id=self.cleaned_data['employee'].id)
+            user_qs = user_qs.distinct()
 
+            output = []
+            for user in user_qs:
+                logs = user.work_logs.filter(work_date__year=self.cleaned_data['year'])
+                if self.cleaned_data['month']:
+                    logs = logs.filter(work_date__month=self.cleaned_data['month'])
+                logs = logs.distinct()
+
+                if logs:
+                    # If logs exists for given filters
+                    output.append({
+                        'logs': logs,
+                        'duration': logs.aggregate(total=Sum('duration')),
+                        'user': user,
+                    })
         return output
