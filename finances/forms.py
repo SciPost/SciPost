@@ -53,7 +53,7 @@ class LogsActiveFilter(forms.Form):
     """
 
     employee = UserModelChoiceField(
-        queryset=get_user_model().objects.filter(work_logs__isnull=False), required=False)
+        queryset=get_user_model().objects.filter(work_logs__isnull=False).distinct(), required=False)
     month = forms.ChoiceField(
         choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False, initial=None)
     year = forms.ChoiceField(choices=[(y, y) for y in reversed(range(today.year-6, today.year+1))])
