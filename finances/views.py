@@ -12,7 +12,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, LogsMonthlyActiveFilter
+from .forms import SubsidyForm, LogsActiveFilter
 from .models import Subsidy, WorkLog
 from .utils import slug_to_id
 
@@ -87,13 +87,13 @@ def timesheets(request):
     """
     See an overview per month of all timesheets.
     """
-    form = LogsMonthlyActiveFilter(request.GET or None)
+    form = LogsActiveFilter(request.GET or None)
     context = {
         'form': form,
     }
 
     # if form.is_valid():
-    context['totals'] = form.get_totals()
+    context['user_logs'] = form.filter()
 
     return render(request, 'finances/timesheets.html', context)
 

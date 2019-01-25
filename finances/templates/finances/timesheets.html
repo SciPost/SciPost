@@ -25,8 +25,8 @@
 <div class="row">
     <div class="col-12">
         <h2 class="mb-2 mt-4">Team Timesheets</h2>
-        {% for total in totals %}
-            <h3 class="mb-1">{{ total.user.first_name }} {{ total.user.last_name }}</h3>
+        {% for user_log in user_logs %}
+            <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
             <table class="table">
                 <thead class="thead-default">
                   <tr>
@@ -38,7 +38,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                    {% for log in total.logs %}
+                    {% for log in user_log.logs %}
                         <tr>
                             <td>{{ log.work_date }}</td>
                             <td>{{ log.content }}</td>
@@ -48,13 +48,13 @@
                         </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan="4"></td>
-                        <td><strong>{{ total.duration.total }}</strong></td>
+                        <td colspan="4" class="text-right">Total:</td>
+                        <td><strong>{{ user_log.duration.total|duration }}</strong></td>
                     </tr>
                 </tbody>
             </table>
         {% empty %}
-            <h3>Timesheet is empty for this month.</h3>
+            <p>No logs found.</p>
         {% endfor %}
     </div>
 </div>
