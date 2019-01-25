@@ -55,21 +55,15 @@ class LogsActiveFilter(forms.Form):
     employee = UserModelChoiceField(
         queryset=get_user_model().objects.filter(work_logs__isnull=False), required=False)
     month = forms.ChoiceField(
-        choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False)
+        choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False, initial=None)
     year = forms.ChoiceField(choices=[(y, y) for y in reversed(range(today.year-6, today.year+1))])
 
     def __init__(self, *args, **kwargs):
         if not kwargs.get('data', False) and not args[0]:
             args = list(args)
-            args[0] = {
-                'month': today.month,
-                'year': today.year
-            }
+            args[0] = {'year': today.year}
             args = tuple(args)
-        kwargs['initial'] = {
-            'month': today.month,
-            'year': today.year
-        }
+        kwargs['initial'] = {'year': today.year}
         super().__init__(*args, **kwargs)
 
     def filter(self):
