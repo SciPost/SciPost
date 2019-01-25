@@ -87,3 +87,8 @@ class ReCaptchaField(forms.CharField):
                 self.error_messages['captcha_invalid']
             )
         return values[0]
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+         return '{}, {} ({})'.format(obj.last_name, obj.first_name, obj.email)

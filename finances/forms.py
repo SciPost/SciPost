@@ -10,6 +10,8 @@ from django.utils import timezone
 
 from ajax_select.fields import AutoCompleteSelectField
 
+from scipost.fields import UserModelChoiceField
+
 from .models import Subsidy, WorkLog
 
 today = timezone.now().date()
@@ -50,7 +52,7 @@ class LogsActiveFilter(forms.Form):
     Filter work logs given the requested date range and users.
     """
 
-    employee = forms.ModelChoiceField(
+    employee = UserModelChoiceField(
         queryset=get_user_model().objects.filter(work_logs__isnull=False), required=False)
     month = forms.ChoiceField(
         choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False)
@@ -74,7 +76,8 @@ class LogsActiveFilter(forms.Form):
         """Filter work logs and return in output-convenient format."""
         output = []
         if self.is_valid():
-            user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+            user_qs = get_user_model().objects.filter(
+                work_logs__isnull=False, work_logs__work_date__year=self.cleaned_data['year'])
             if self.cleaned_data['employee']:
                 # Get as a queryset instead of single instead.
                 user_qs = user_qs.filter(id=self.cleaned_data['employee'].id)
