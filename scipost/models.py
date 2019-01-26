@@ -178,6 +178,7 @@ class Remark(models.Model):
 
     class Meta:
         default_related_name = 'remarks'
+        ordering = ['date']
 
     def __str__(self):
         return (self.contributor.user.first_name + ' '
