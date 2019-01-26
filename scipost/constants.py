@@ -20,6 +20,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Phys:BI', 'Biophysics'),
         ('Phys:CE', 'Condensed Matter Physics - Experiment'),
         ('Phys:CT', 'Condensed Matter Physics - Theory'),
+        ('Phys:CC', 'Condensed Matter Physics - Computational'),
         ('Phys:FD', 'Fluid Dynamics'),
         ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'),
         ('Phys:HE', 'High-Energy Physics - Experiment'),
