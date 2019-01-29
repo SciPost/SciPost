@@ -74,8 +74,33 @@ class LogsFilter(forms.Form):
     def get_months(self):
         return self.cleaned_data['months']
 
+    def filter(self):
+        """Filter work logs and return in user-grouped format."""
+        output = []
+        if self.is_valid():
+            if self.cleaned_data['employee']:
+                user_qs = get_user_model().objects.filter(id=self.cleaned_data['employee'].id)
+            else:
+                user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+            user_qs = user_qs.filter(
+                work_logs__work_date__gte=self.cleaned_data['start'],
+                work_logs__work_date__lte=self.cleaned_data['end']).distinct()
+
+            output = []
+            for user in user_qs:
+                logs = user.work_logs.filter(
+                    work_date__gte=self.cleaned_data['start'],
+                    work_date__lte=self.cleaned_data['end']).distinct()
+
+                output.append({
+                    'logs': logs,
+                    'duration': logs.aggregate(total=Sum('duration')),
+                    'user': user,
+                })
+        return output
+
     def filter_per_month(self):
-        """Filter work logs and return in convenient format."""
+        """Filter work logs and return in per-month format."""
         output = []
         if self.is_valid():
             if self.cleaned_data['employee']:

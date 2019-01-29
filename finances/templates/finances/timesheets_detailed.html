@@ -43,7 +43,7 @@
             <h2 class="mb-2 mt-4">Team timesheets</h2>
             {% for user_log in form.filter %}
                 <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
-                <table class="table">
+                <table class="table table-hover">
                     <thead class="thead-default">
                       <tr>
                           <th>Date</th>
