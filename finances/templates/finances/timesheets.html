@@ -1,10 +1,11 @@
-{% extends 'scipost/base.html' %}
+{% extends 'finances/base.html' %}
 
 {% block breadcrumb_items %}
-    <span class="breadcrumb-item">Team Timesheets</span>
+    {{ block.super }}
+    <span class="breadcrumb-item">Team timesheets</span>
 {% endblock %}
 
-{% block pagetitle %}: Team Timesheets{% endblock pagetitle %}
+{% block pagetitle %}: Team timesheets{% endblock pagetitle %}
 
 {% load bootstrap %}
 {% load scipost_extras %}
@@ -13,9 +14,12 @@
 
 <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Team Timesheets</h1>
+        <h1 class="highlight">Timesheets</h1>
+        <a href="{% url 'finances:timesheets_detailed' %}">See detailed timesheets</a>
+        <br>
+        <br>
 
-        <form method="get" action="{% url 'finances:timesheets' %}">
+        <form method="get">
             {{ form|bootstrap }}
             <input type="submit" class="btn btn-primary" value="Filter">
         </form>
@@ -24,7 +28,7 @@
 
 <div class="row">
     <div class="col-12">
-        <h2 class="mb-2 mt-4">Team Timesheets</h2>
+        <h2 class="mb-2 mt-4">Team timesheets</h2>
         {% for user_log in user_logs %}
             <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
             <table class="table">
