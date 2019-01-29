@@ -10,6 +10,7 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from ajax_select.fields import AutoCompleteSelectField
+from dateutil.rrule import rrule, MONTHLY
 
 from common.forms import MonthYearWidget
 from scipost.fields import UserModelChoiceField
@@ -54,12 +55,9 @@ class LogsFilter(forms.Form):
 
     employee = UserModelChoiceField(
         queryset=get_user_model().objects.filter(work_logs__isnull=False).distinct(),
-        required=False)
+        required=False, empty_label='Show all')
     start = forms.DateField(widget=MonthYearWidget(required=True), required=True)  # Month
     end = forms.DateField(widget=MonthYearWidget(required=True, end=True), required=True)  # Month
-    # month = forms.ChoiceField(
-    #     choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False)
-    # year = forms.ChoiceField(choices=[(y, y) for y in reversed(range(today.year-6, today.year+1))])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,7 +65,16 @@ class LogsFilter(forms.Form):
         self.initial['start'] = today.today()
         self.initial['end'] = today.today()
 
-    def filter(self):
+    def clean(self):
+        data = super().clean()
+
+        data['months'] = [dt for dt in rrule(MONTHLY, dtstart=data['start'], until=data['end'])]
+        return data
+
+    def get_months(self):
+        return self.cleaned_data['months']
+
+    def filter_per_month(self):
         """Filter work logs and return in convenient format."""
         output = []
         if self.is_valid():
@@ -81,14 +88,13 @@ class LogsFilter(forms.Form):
 
             output = []
             for user in user_qs:
-                logs = user.work_logs.filter(
-                    work_date__gte=self.cleaned_data['start'],
-                    work_date__lte=self.cleaned_data['end']).distinct()
-
                 # If logs exists for given filters
                 output.append({
-                    'logs': logs,
-                    'duration': logs.aggregate(total=Sum('duration')),
+                    'logs': [],
                     'user': user,
                 })
+                for dt in self.get_months():
+                    output[-1]['logs'].append(
+                        user.work_logs.filter(
+                            work_date__year=dt.year, work_date__month=dt.month).aggregate(total=Sum('duration'))['total'])
         return output
