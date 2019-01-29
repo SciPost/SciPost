@@ -66,13 +66,15 @@ class LogsFilter(forms.Form):
         self.initial['end'] = today.today()
 
     def clean(self):
-        data = super().clean()
-
+        # TODO: Something's bugging here if `employee` data is given. Have no clue what's going on yet.
+        data = self.cleaned_data
         data['months'] = [dt for dt in rrule(MONTHLY, dtstart=data['start'], until=data['end'])]
         return data
 
     def get_months(self):
-        return self.cleaned_data['months']
+        if self.is_valid():
+            return self.cleaned_data['months']
+        return []
 
     def filter(self):
         """Filter work logs and return in user-grouped format."""
