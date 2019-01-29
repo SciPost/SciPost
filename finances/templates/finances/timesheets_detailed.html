@@ -1,0 +1,63 @@
+{% extends 'finances/base.html' %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'finances:timesheets' %}" class="breadcrumb-item">Team timesheets</a>
+    <span class="breadcrumb-item">Detailed timesheets</span>
+{% endblock %}
+
+{% block pagetitle %}: Team timesheets{% endblock pagetitle %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Detailed timesheets</h1>
+
+        <form method="get">
+            {{ form|bootstrap }}
+            <input type="submit" class="btn btn-primary" value="Filter">
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h2 class="mb-2 mt-4">Team timesheets</h2>
+        {% for user_log in user_logs %}
+            <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
+            <table class="table">
+                <thead class="thead-default">
+                  <tr>
+                      <th>Date</th>
+                      <th>Related to object</th>
+                      <th>Log type</th>
+                      <th>Comments</th>
+                      <th>Duration</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for log in user_log.logs %}
+                        <tr>
+                            <td>{{ log.work_date }}</td>
+                            <td>{{ log.content }}</td>
+                            <td>{{ log.log_type }}</td>
+                            <td>{{ log.comments }}</td>
+                            <td>{{ log.duration|duration }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="4" class="text-right">Total:</td>
+                        <td><strong>{{ user_log.duration.total|duration }}</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        {% empty %}
+            <p>No logs found.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
