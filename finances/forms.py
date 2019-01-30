@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import datetime
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -9,12 +10,12 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from ajax_select.fields import AutoCompleteSelectField
+from dateutil.rrule import rrule, MONTHLY
 
+from common.forms import MonthYearWidget
 from scipost.fields import UserModelChoiceField
 
 from .models import Subsidy, WorkLog
-
-today = timezone.now().date()
 
 
 class SubsidyForm(forms.ModelForm):
@@ -47,48 +48,83 @@ class WorkLogForm(forms.ModelForm):
         }
 
 
-class LogsActiveFilter(forms.Form):
+class LogsFilter(forms.Form):
     """
     Filter work logs given the requested date range and users.
     """
 
     employee = UserModelChoiceField(
-        queryset=get_user_model().objects.filter(work_logs__isnull=False).distinct(), required=False)
-    month = forms.ChoiceField(
-        choices=[(None, 9 * '-')] + [(k, v) for k, v in MONTHS.items()], required=False, initial=None)
-    year = forms.ChoiceField(choices=[(y, y) for y in reversed(range(today.year-6, today.year+1))])
+        queryset=get_user_model().objects.filter(work_logs__isnull=False).distinct(),
+        required=False, empty_label='Show all')
+    start = forms.DateField(widget=MonthYearWidget(required=True), required=True)  # Month
+    end = forms.DateField(widget=MonthYearWidget(required=True, end=True), required=True)  # Month
 
     def __init__(self, *args, **kwargs):
-        if not kwargs.get('data', False) and not args[0]:
-            args = list(args)
-            args[0] = {'year': today.year}
-            args = tuple(args)
-        kwargs['initial'] = {'year': today.year}
         super().__init__(*args, **kwargs)
+        today = timezone.now().date()
+        self.initial['start'] = today.today()
+        self.initial['end'] = today.today()
+
+    def clean(self):
+        if self.is_valid():
+            self.cleaned_data['months'] = [
+                dt for dt in rrule(
+                    MONTHLY,
+                    dtstart=self.cleaned_data['start'],
+                    until=self.cleaned_data['end'])]
+        return self.cleaned_data
+
+    def get_months(self):
+        if self.is_valid():
+            return self.cleaned_data.get('months', [])
+        return []
 
     def filter(self):
-        """Filter work logs and return in output-convenient format."""
+        """Filter work logs and return in user-grouped format."""
         output = []
         if self.is_valid():
-            user_qs = get_user_model().objects.filter(
-                work_logs__isnull=False, work_logs__work_date__year=self.cleaned_data['year'])
             if self.cleaned_data['employee']:
-                # Get as a queryset instead of single instead.
-                user_qs = user_qs.filter(id=self.cleaned_data['employee'].id)
-            user_qs = user_qs.distinct()
+                user_qs = get_user_model().objects.filter(id=self.cleaned_data['employee'].id)
+            else:
+                user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+            user_qs = user_qs.filter(
+                work_logs__work_date__gte=self.cleaned_data['start'],
+                work_logs__work_date__lte=self.cleaned_data['end']).distinct()
 
             output = []
             for user in user_qs:
-                logs = user.work_logs.filter(work_date__year=self.cleaned_data['year'])
-                if self.cleaned_data['month']:
-                    logs = logs.filter(work_date__month=self.cleaned_data['month'])
-                logs = logs.distinct()
+                logs = user.work_logs.filter(
+                    work_date__gte=self.cleaned_data['start'],
+                    work_date__lte=self.cleaned_data['end']).distinct()
 
-                if logs:
-                    # If logs exists for given filters
-                    output.append({
-                        'logs': logs,
-                        'duration': logs.aggregate(total=Sum('duration')),
-                        'user': user,
-                    })
+                output.append({
+                    'logs': logs,
+                    'duration': logs.aggregate(total=Sum('duration')),
+                    'user': user,
+                })
+        return output
+
+    def filter_per_month(self):
+        """Filter work logs and return in per-month format."""
+        output = []
+        if self.is_valid():
+            if self.cleaned_data['employee']:
+                user_qs = get_user_model().objects.filter(id=self.cleaned_data['employee'].id)
+            else:
+                user_qs = get_user_model().objects.filter(work_logs__isnull=False)
+            user_qs = user_qs.filter(
+                work_logs__work_date__gte=self.cleaned_data['start'],
+                work_logs__work_date__lte=self.cleaned_data['end']).distinct()
+
+            output = []
+            for user in user_qs:
+                # If logs exists for given filters
+                output.append({
+                    'logs': [],
+                    'user': user,
+                })
+                for dt in self.get_months():
+                    output[-1]['logs'].append(
+                        user.work_logs.filter(
+                            work_date__year=dt.year, work_date__month=dt.month).aggregate(total=Sum('duration'))['total'])
         return output
