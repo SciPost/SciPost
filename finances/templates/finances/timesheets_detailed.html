@@ -39,7 +39,7 @@
 
 <div class="row">
     <div class="col-12">
-        {% if form.is_bound %}
+        {% if form.is_bound and form.is_valid %}
             <h2 class="mb-2 mt-4">Team timesheets</h2>
             {% for user_log in form.filter %}
                 <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>

@@ -106,14 +106,12 @@ class MonthYearWidget(Widget):
                 if not self.required:
                     index += 1
                 y = self.year_choices[index][0]
-
         if y and m:
             # Days are used for filtering, but not communicated to the user
             if self.round_to_end:
                 d = calendar.monthrange(int(y), int(m))[1]
             else:
-                d = 1
-
+                d = '1'
             return '%s-%s-%s' % (y, m, d)
         return data.get(name, None)
 

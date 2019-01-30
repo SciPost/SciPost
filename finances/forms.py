@@ -66,14 +66,17 @@ class LogsFilter(forms.Form):
         self.initial['end'] = today.today()
 
     def clean(self):
-        # TODO: Something's bugging here if `employee` data is given. Have no clue what's going on yet.
-        data = self.cleaned_data
-        data['months'] = [dt for dt in rrule(MONTHLY, dtstart=data['start'], until=data['end'])]
-        return data
+        if self.is_valid():
+            self.cleaned_data['months'] = [
+                dt for dt in rrule(
+                    MONTHLY,
+                    dtstart=self.cleaned_data['start'],
+                    until=self.cleaned_data['end'])]
+        return self.cleaned_data
 
     def get_months(self):
         if self.is_valid():
-            return self.cleaned_data['months']
+            return self.cleaned_data.get('months', [])
         return []
 
     def filter(self):
