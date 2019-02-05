@@ -5,7 +5,7 @@
 {% if nr_potfels_to_vote_on > 0 %}
 <br/>
 <h3>Nominations to the Editorial College</h3>
-<p>You have {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }} to vote on, please visit the <a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page to cast your vote{{ nr_potfels_to_vote_on|pluralize }}.</p>
+<p>You have {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }} to vote on, please visit the <a href="https://scipost.org{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page to cast your vote{{ nr_potfels_to_vote_on|pluralize }}.</p>
 {% endif %}
 
 {% if recs_to_vote_on %}
