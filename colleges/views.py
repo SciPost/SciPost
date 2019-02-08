@@ -1,11 +1,13 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404, render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db.models import Count
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
@@ -14,9 +16,10 @@ from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
-from .constants import POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
-    POTENTIAL_FELLOWSHIP_EVENT_EMAILED, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,\
-    POTENTIAL_FELLOWSHIP_EVENT_COMMENT
+from .constants import     POTENTIAL_FELLOWSHIP_STATUSES,\
+    POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
+    POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED,\
+    POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED, POTENTIAL_FELLOWSHIP_EVENT_COMMENT
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
@@ -25,7 +28,7 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
-from scipost.mixins import PermissionsMixin, PaginationMixin
+from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 
 from mails.forms import EmailTemplateForm
 from mails.views import MailView
@@ -302,17 +305,17 @@ def fellowship_add_proceedings(request, id):
 
 # Potential Fellowships
 
-class PotentialFellowshipCreateView(PermissionsMixin, CreateView):
+class PotentialFellowshipCreateView(PermissionsMixin, RequestViewMixin, CreateView):
     """
     Formview to create a new Potential Fellowship.
     """
-    permission_required = 'scipost.can_manage_college_composition'
+    permission_required = 'scipost.can_add_potentialfellowship'
     form_class = PotentialFellowshipForm
     template_name = 'colleges/potentialfellowship_form.html'
     success_url = reverse_lazy('colleges:potential_fellowships')
 
 
-class PotentialFellowshipUpdateView(PermissionsMixin, UpdateView):
+class PotentialFellowshipUpdateView(PermissionsMixin, RequestViewMixin, UpdateView):
     """
     Formview to update a Potential Fellowship.
     """
@@ -357,7 +360,7 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List the PotentialFellowship object instances.
     """
-    permission_required = 'scipost.can_manage_college_composition'
+    permission_required = 'scipost.can_view_potentialfellowship_list'
     model = PotentialFellowship
     paginate_by = 25
 
@@ -370,16 +373,25 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
             queryset = queryset.filter(profile__discipline=self.kwargs['discipline'].lower())
             if self.kwargs.get('expertise', None):
                 queryset = queryset.filter(profile__expertises__contains=[self.kwargs['expertise']])
+        if self.request.GET.get('status', None):
+            queryset = queryset.filter(status=self.request.GET.get('status'))
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['potfels_to_vote_on'] = PotentialFellowship.objects.to_vote_on(
+            self.request.user.contributor).annotate(
+                nr_A=Count('in_agreement'), nr_N=Count('in_abstain'), nr_D=Count('in_disagreement'))
+        context['potfels_voted_on'] = PotentialFellowship.objects.voted_on(
+            self.request.user.contributor).annotate(
+                nr_A=Count('in_agreement'), nr_N=Count('in_abstain'), nr_D=Count('in_disagreement'))
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
         return context
 
 
 class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
-    permission_required = 'scipost.can_manage_college_composition'
+    permission_required = 'scipost.can_view_potentialfellowship_list'
     model = PotentialFellowship
 
     def get_context_data(self, *args, **kwargs):
@@ -387,6 +399,31 @@ class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
         context['pfstatus_form'] = PotentialFellowshipStatusForm()
         context['pfevent_form'] = PotentialFellowshipEventForm()
         return context
+
+
+@login_required
+@permission_required('scipost.can_vote_on_potentialfellowship', raise_exception=True)
+def vote_on_potential_fellowship(request, potfel_id, vote):
+    potfel = get_object_or_404(PotentialFellowship, pk=potfel_id)
+    potfel.in_agreement.remove(request.user.contributor)
+    potfel.in_abstain.remove(request.user.contributor)
+    potfel.in_disagreement.remove(request.user.contributor)
+    if vote == 'A':
+        potfel.in_agreement.add(request.user.contributor)
+        comments = 'Voted Agree'
+    elif vote == 'N':
+        potfel.in_abstain.add(request.user.contributor)
+        comments = 'Voted Abstain'
+    elif vote == 'D':
+        potfel.in_disagreement.add(request.user.contributor)
+        comments = 'Voted Disagree'
+    else:
+        raise Http404
+    newevent = PotentialFellowshipEvent(
+        potfel=potfel, event=POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON,
+        comments=comments, noted_by=request.user.contributor)
+    newevent.save()
+    return redirect(reverse('colleges:potential_fellowships'))
 
 
 class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):

@@ -6,7 +6,7 @@
   <url><loc>https://scipost.org/finances/subsidies</loc></url>
 
   {% for newsitem in newsitems %}
-  <url><loc>https://scipost.org{{ newsitem.get_absolute_url }}</locL</url>
+  <url><loc>https://scipost.org{{ newsitem.get_absolute_url }}>/locL>/url>
   {% endfor %}
 
   {% for journal in journals %}

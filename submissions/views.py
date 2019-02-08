@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -25,7 +25,8 @@ from django.views.generic.list import ListView
 
 from .constants import (
     STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
-    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_ACCEPTED, STATUS_DEPRECATED)
+    STATUS_WITHDRAWN, STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
+    DEPRECATED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
@@ -33,9 +34,8 @@ from .mixins import SubmissionAdminViewMixin
 from .forms import (
     SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
-    SetRefereeingDeadlineForm, RefereeSearchForm, #RefereeSelectForm,
-    iThenticateReportForm, VotingEligibilityForm,
-    #RefereeRecruitmentForm,
+    SetRefereeingDeadlineForm, RefereeSearchForm,
+    iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
     ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
@@ -45,6 +45,7 @@ from .signals import (
     notify_submission_author_new_report, notify_eic_invitation_reponse, notify_report_vetted)
 from .utils import SubmissionUtils
 
+from colleges.models import PotentialFellowship
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
@@ -223,6 +224,64 @@ def prefill_using_arxiv_identifier(request):
         'form': query_form,
     }
     return render(request, 'submissions/submission_prefill_form.html', context)
+
+
+@login_required
+def withdraw_manuscript(request, identifier_w_vn_nr):
+    """
+    Withdrawal of the submission by one of the submitting authors.
+
+    This method performs the following actions:
+    - makes the Submission and its previous versions publicly invisible
+    - marks any Editorial Assignment as completed
+    - deprecates any Editorial Recommendation
+    - emailing authors, EIC (cc to EdAdmin)
+    - deprecates all outstanding refereeing requests (emailing referees)
+    - adds an event.
+
+    GET shows the info/confirm page
+    POST performs the action and returns to the personal page.
+    """
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    if request.user.contributor.id != submission.submitted_by.id:
+        errormessage = ('You are not marked as the submitting author of this Submission, '
+                        'and thus are not allowed to withdraw it.')
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+
+    form = WithdrawSubmissionForm(request.POST or None, submission=submission)
+    # form = ConfirmationForm(request.POST or None)
+    if form.is_valid():
+        if form.is_confirmed():
+            submission = form.save()
+
+            # Inform EIC
+            mail_sender_eic = DirectMailUtil(
+                mail_code='eic/inform_eic_manuscript_withdrawn',
+                instance=submission)
+            mail_sender_eic.send()
+
+            # Confirm withdrawal to authors
+            mail_sender_authors = DirectMailUtil(
+                mail_code='authors/inform_authors_manuscript_withdrawn',
+                instance=submission)
+            mail_sender_authors.send()
+
+            # Email all referees (if outstanding), cancel all outstanding
+            for invitation in submission.referee_invitations.outstanding():
+                DirectMailUtil(
+                    mail_code='referees/inform_referee_manuscript_withdrawn',
+                    instance=invitation).send()
+            submission.referee_invitations.outstanding().update(cancelled=True)
+
+            # All done.
+            submission.add_general_event('The manuscript has been withdrawn by the authors.')
+            messages.success(request, 'Your manuscript has been withdrawn.')
+        else:
+            messages.error(request, 'Withdrawal procedure aborted')
+        return redirect(reverse('scipost:personal_page'))
+    context = {'submission': submission, 'form': form}
+    return render(request, 'submissions/withdraw_manuscript.html', context)
 
 
 class SubmissionListView(PaginationMixin, ListView):
@@ -497,6 +556,8 @@ def pool(request, identifier_w_vn_nr=None):
     submissions = submissions.select_related(
         'preprint', 'publication').prefetch_related('eicrecommendations')
 
+    nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
+        request.user.contributor).count()
     recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user).filter(
         submission__in=submissions)
     recs_current_voted = EICRecommendation.objects.user_current_voted(request.user).filter(
@@ -515,6 +576,7 @@ def pool(request, identifier_w_vn_nr=None):
         'submission_status': SUBMISSION_STATUS,
         'assignments_to_consider': assignments_to_consider,
         'consider_assignment_form': consider_assignment_form,
+        'nr_potfels_to_vote_on': nr_potfels_to_vote_on,
         'recs_to_vote_on': recs_to_vote_on,
         'recs_current_voted': recs_current_voted,
         'rec_vote_form': rec_vote_form,
@@ -694,8 +756,8 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             else:
                 # Inform authors about new status.
                 mail_sender = DirectMailUtil(
-                    mail_code='authors/inform_authors_eic_assigned_direct_eic',
-                    assignment=submission)
+                    mail_code='authors/inform_authors_eic_assigned_direct_rec',
+                    instance=submission)
                 mail_sender.send()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
@@ -733,72 +795,6 @@ def assignment_request(request, assignment_id):
         'identifier_w_vn_nr': assignment.submission.preprint.identifier_w_vn_nr,
         'assignment_id': assignment.id
     }))
-
-
-@login_required
-@fellowship_required()
-@transaction.atomic
-def volunteer_as_EIC(request, identifier_w_vn_nr):
-    """Single click action to take charge of a Submission.
-
-    Called when a Fellow volunteers while perusing the submissions pool.
-    This is an adapted version of the assignment_request method.
-    """
-    submission = get_object_or_404(Submission.objects.pool(request.user),
-                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    errormessage = None
-    if submission.status == STATUS_ASSIGNMENT_FAILED:
-        errormessage = '<h3>Thank you for considering.</h3>'
-        errormessage += 'This Submission has failed pre-screening and has been rejected.'
-    elif submission.editor_in_charge:
-        errormessage = '<h3>Thank you for considering.</h3>'
-        errormessage += (submission.editor_in_charge.get_title_display() + ' ' +
-                         submission.editor_in_charge.user.last_name +
-                         ' has already agreed to be Editor-in-charge of this Submission.')
-    elif not hasattr(request.user, 'contributor'):
-        errormessage = (
-            'You do not have an activated Contributor account. Therefore, you cannot take charge.')
-
-    if errormessage:
-        messages.warning(request, errormessage)
-        return redirect(reverse('submissions:pool'))
-
-    # The Contributor may already have an EditorialAssignment due to an earlier invitation.
-    assignment, __ = EditorialAssignment.objects.get_or_create(
-        submission=submission, to=request.user.contributor)
-    # Explicitly update afterwards, since update_or_create does not properly do the job.
-    EditorialAssignment.objects.filter(id=assignment.id).update(
-        status=STATUS_ACCEPTED, date_answered=timezone.now())
-
-    # Set deadlines
-    deadline = timezone.now() + submission.submitted_to.refereeing_period
-
-    # Update Submission data
-    Submission.objects.filter(id=submission.id).update(
-        status=STATUS_EIC_ASSIGNED,
-        editor_in_charge=request.user.contributor,
-        open_for_reporting=True,
-        reporting_deadline=deadline,
-        open_for_commenting=True,
-        latest_activity=timezone.now())
-
-    # Deprecate old Editorial Assignments
-    EditorialAssignment.objects.filter(submission=submission).invited().update(
-        status=STATUS_DEPRECATED)
-
-    # Send emails to EIC and authors regarding the EIC assignment.
-    assignment = EditorialAssignment.objects.get(id=assignment.id)  # Update before use in mail
-    SubmissionUtils.load({'assignment': assignment})
-    SubmissionUtils.send_EIC_appointment_email()
-    SubmissionUtils.send_author_prescreening_passed_email()
-
-    # Add SubmissionEvents
-    submission.add_general_event('The Editor-in-charge has been assigned.')
-    notify_editor_assigned(request.user, assignment, False)
-
-    messages.success(request, 'Thank you for becoming Editor-in-charge of this submission.')
-    return redirect(reverse('submissions:editorial_page',
-                            args=[submission.preprint.identifier_w_vn_nr]))
 
 
 @login_required

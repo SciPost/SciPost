@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -12,7 +12,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, LogsMonthlyActiveFilter
+from .forms import SubsidyForm, LogsFilter
 from .models import Subsidy, WorkLog
 from .utils import slug_to_id
 
@@ -85,17 +85,19 @@ class SubsidyDetailView(DetailView):
 @permission_required('scipost.can_view_timesheets', raise_exception=True)
 def timesheets(request):
     """
-    See an overview per month of all timesheets.
+    Overview of all timesheets including comments and related objects.
     """
-    form = LogsMonthlyActiveFilter(request.GET or None)
-    context = {
-        'form': form,
-    }
-
-    # if form.is_valid():
-    context['totals'] = form.get_totals()
-
+    form = LogsFilter(request.GET or None)
+    context = {'form': form}
     return render(request, 'finances/timesheets.html', context)
+
+
+@permission_required('scipost.can_view_timesheets', raise_exception=True)
+def timesheets_detailed(request):
+    """Overview of all timesheets. """
+    form = LogsFilter(request.GET or None)
+    context = {'form': form}
+    return render(request, 'finances/timesheets_detailed.html', context)
 
 
 class LogDeleteView(LoginRequiredMixin, DeleteView):

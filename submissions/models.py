@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -18,7 +18,8 @@ from .behaviors import SubmissionRelatedObjectMixin
 from .constants import (
     ASSIGNMENT_REFUSAL_REASONS, ASSIGNMENT_NULLBOOL, SUBMISSION_TYPE, STATUS_PREASSIGNED,
     ED_COMM_CHOICES, REFEREE_QUALIFICATION, QUALITY_SPEC, RANKING_CHOICES, STATUS_INVITED,
-    SUBMISSION_STATUS, REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
+    SUBMISSION_STATUS, SUBMISSION_UNDER_CONSIDERATION,
+    REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
@@ -78,8 +79,7 @@ class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
-    is_resubmission_of = models.ForeignKey(
-        'self', blank=True, null=True, related_name='successor')
+    is_resubmission_of = models.ForeignKey('self', blank=True, null=True, related_name='successor')
     thread_hash = models.UUIDField(default=uuid.uuid4)
     _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
@@ -221,6 +221,14 @@ class Submission(models.Model):
     def revision_requested(self):
         """Check if Submission has fixed EICRecommendation asking for revision."""
         return self.eicrecommendations.fixed().asking_revision().exists()
+
+    @property
+    def under_consideration(self):
+        """
+        Check if the Submission is currently under consideration
+        (in other words: is undergoing editorial processing).
+        """
+        return self.status in SUBMISSION_UNDER_CONSIDERATION
 
     @property
     def open_for_resubmission(self):

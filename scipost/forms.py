@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -25,8 +25,8 @@ from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
 from .constants import (
-    SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES, NO_SCIENTIST, DOUBLE_ACCOUNT,
-    BARRED)
+    SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
+    UNVERIFIABLE_CREDENTIALS, NO_SCIENTIST, DOUBLE_ACCOUNT, BARRED)
 from .decorators import has_contributor
 from .fields import ReCaptchaField
 from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
@@ -51,6 +51,7 @@ from virtualmeetings.models import Feedback, Nomination, Motion
 
 REGISTRATION_REFUSAL_CHOICES = (
     (None, '-'),
+    (UNVERIFIABLE_CREDENTIALS, 'unverifiable credentials'),
     (NO_SCIENTIST, 'not a professional scientist (>= PhD student)'),
     (DOUBLE_ACCOUNT, 'another account already exists for this person'),
     (BARRED, 'barred from SciPost (abusive behaviour)')
@@ -720,4 +721,5 @@ class SendPrecookedEmailForm(forms.Form):
 
 class ConfirmationForm(forms.Form):
     confirm = forms.ChoiceField(widget=forms.RadioSelect,
-                                choices=((True, 'Confirm'), (False, 'Abort')))
+                                choices=((True, 'Confirm'), (False, 'Abort')),
+                                label='')

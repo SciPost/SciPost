@@ -46,10 +46,10 @@
         <td>
             {% if submission.editor_in_charge %}
                 {{ submission.editor_in_charge }}
-            {% elif request.user.contributor.is_MEC %}
-                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:volunteer_as_EIC' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
+            {% elif perms.scipost.can_assign_submissions %}
+                <a href="{% url 'submissions:assign_submission' submission.preprint.identifier_w_vn_nr %}">Send a new assignment request</a>
             {% else %}
-                <em>No editor assigned yet.</em>
+                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
             {% endif %}
         </td>
     </tr>

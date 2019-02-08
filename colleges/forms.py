@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -10,9 +10,12 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from proceedings.models import Proceedings
 from submissions.models import Submission
+from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
 
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .constants import POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,\
+    POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
 
 
 class AddFellowshipForm(forms.ModelForm):
@@ -224,12 +227,36 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
         return fellowship
 
 
-class PotentialFellowshipForm(forms.ModelForm):
+class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
     profile = AutoCompleteSelectField('profile_lookup')
 
     class Meta:
         model = PotentialFellowship
-        fields = ['profile', 'status']
+        fields = ['profile']
+
+    def save(self):
+        """
+        The default status is IDENTIFIED, which is appropriate
+        if the PotentialFellow was added directly by SciPost Admin.
+        But if the PotFel is nominated by somebody on the Advisory Board
+        or by an existing Fellow, the status is set to NOMINATED and
+        the person nominating is added to the list of in_agreement with election.
+        """
+        potfel = super().save()
+        nominated = self.request.user.groups.filter(name__in=[
+            'Advisory Board', 'Editorial College']).exists()
+        if nominated:
+            potfel.status = POTENTIAL_FELLOWSHIP_NOMINATED
+            potfel.in_agreement.add(self.request.user.contributor)
+            event = POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
+        else:
+            potfel.status = POTENTIAL_FELLOWSHIP_IDENTIFIED
+            event = POTENTIAL_FELLOWSHIP_EVENT_DEFINED
+        potfel.save()
+        newevent = PotentialFellowshipEvent(
+            potfel=potfel, event=event, noted_by=self.request.user.contributor)
+        newevent.save()
+        return potfel
 
 
 class PotentialFellowshipStatusForm(forms.ModelForm):

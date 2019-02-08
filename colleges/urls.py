@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -68,6 +68,11 @@ urlpatterns = [
         r'^potentialfellowships/(?P<pk>[0-9]+)/events/add/$',
         views.PotentialFellowshipEventCreateView.as_view(),
         name='potential_fellowship_event_create'
+    ),
+    url(
+        r'^potentialfellowships/(?P<potfel_id>[0-9]+)/vote/(?P<vote>[AND])/$',
+        views.vote_on_potential_fellowship,
+        name='vote_on_potential_fellowship'
     ),
     url(
         r'^potentialfellowships/(?P<pk>[0-9]+)/email_initial/$',

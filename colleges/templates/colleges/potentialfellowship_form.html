@@ -18,6 +18,17 @@
       <input type="submit" value="Submit" class="btn btn-primary">
   </div>
 </div>
+
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="mb-2">Not found?</h3>
+    <p>Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).</p>
+  </div>
+</div>
+
+
+
 {% endblock content %}
 
 {% block footer_script %}

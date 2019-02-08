@@ -20,7 +20,9 @@
       <ul>
 	<li><a href="#Information">Information message</a></li>
 	<li><a href="#Feedback">Feedback</a></li>
+	{% if VGM.start_date|date:"Y" == '2017' or VGM.start_date|date:"Y" == '2018' %}
 	<li><a href="#Nominations">Nominations</a></li>
+	{% endif %}
 	<li><a href="#Motions">Motions</a></li>
       </ul>
     </div>
@@ -37,7 +39,7 @@
         <ul>
           <li>This VGM is scheduled from {{ VGM.start_date|date:'Y-m-d' }} to {{ VGM.end_date|date:'Y-m-d' }}.</li>
           <li>Your feedback/suggestions/criticisms on any aspect of SciPost are greatly valued. Provide them by filling the <a href="#FeedbackBox">feedback form</a>.</li>
-          <li>Your nominations to the Editorial College are welcome. Simply fill the <a href="#NominationBox">nomination form</a>, and cast your vote on current nominations.</li>
+          <li>Your nominations to the Editorial College are welcome. Simply visit the <a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page, and cast your vote on current nominations.</li>
           <li>For substantial changes, for example to the by-laws, new Motions can be put forward until the end of the meeting using the <a href="#MotionBox">form</a>.</li>
           <li>Voting on Motions is open until one week after the meeting.</li>
           <li>You a referred to the <a href="{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, section 2 for further details about the procedures.</li>
@@ -97,6 +99,8 @@
 
 <hr>
 
+
+{% if VGM.start_date|date:"Y" == '2017' or VGM.start_date|date:"Y" == '2018' %}
 <div class="row" id="Nominations">
     <div class="col-12">
         <div id="NominationBox">
@@ -233,7 +237,7 @@
         {% endfor %}
     </div>
 </div>
-
+{% endif %}
 
 <!-- Motions -->
 <div class="row" id="Motions">

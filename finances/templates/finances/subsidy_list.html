@@ -4,7 +4,6 @@
 
 {% load staticfiles %}
 
-
 {% block headsup %}
 <script type="text/javascript">
 $(document).ready(function($) {
@@ -17,16 +16,16 @@ $(document).ready(function($) {
 
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item">Subsidies</span>
+    {{ block.super }}
+    <span class="breadcrumb-item">Subsidies</span>
 {% endblock %}
 
 {% block content %}
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight">Subsidies</h3>
-    {% if perms.scipost.can_manage_subsidies %}
+    <h1 class="highlight">Subsidies</h1>
+        {% if perms.scipost.can_manage_subsidies %}
     <ul>
       <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
     </ul>

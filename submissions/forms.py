@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -21,7 +21,7 @@ from .constants import (
     SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
     REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
-    STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED)
+    STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
@@ -783,8 +783,43 @@ class SubmissionPrescreeningForm(forms.ModelForm):
         if self.cleaned_data['message_for_authors']:
             pass
 
-        # TODO: Send mail now.
 
+class WithdrawSubmissionForm(forms.ModelForm):
+    """
+    A submitting author has the right to withdraw the manuscript.
+    """
+
+    confirm = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=((True, 'Confirm'), (False, 'Abort')), label='')
+
+    def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+
+    def is_confirmed(self):
+        return self.cleaned_data.get('confirm') in (True, 'True')
+
+    def save(self):
+        if self.is_confirmed():
+            # Update submission (current + any previous versions)
+            Submission.objects.filter(id=self.instance.id).update(
+                visible_public=False, visible_pool=False,
+                open_for_commenting=False, open_for_reporting=False,
+                status=STATUS_WITHDRAWN, latest_activity=timezone.now())
+            self.instance.get_other_versions().update(visible_public=False)
+
+            # Update all assignments
+            EditorialAssignment.objects.filter(submission=self.instance).need_response().update(
+                status=STATUS_DEPRECATED)
+            EditorialAssignment.objects.filter(submission=self.instance).accepted().update(
+                status=STATUS_COMPLETED)
+
+            # Deprecate any outstanding recommendations
+            EICRecommendation.objects.filter(submission=self.instance).active().update(
+                status=DEPRECATED)
+            self.instance.refresh_from_db()
+        return self.instance
 
 ######################
 # Editorial workflow #
@@ -953,7 +988,7 @@ class VotingEligibilityForm(forms.ModelForm):
         fields = ()
 
     def __init__(self, *args, **kwargs):
-        """Get queryset of Contributors eligibile for voting."""
+        """Get queryset of Contributors eligible for voting."""
         super().__init__(*args, **kwargs)
         secondary_areas = self.instance.submission.secondary_areas
         if not secondary_areas:

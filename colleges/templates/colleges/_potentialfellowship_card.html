@@ -1,5 +1,7 @@
 {% load bootstrap %}
 
+{% load scipost_extras %}
+
 <div class="card-body">
   <div class="row">
     <div class="col-12">
@@ -22,6 +24,9 @@
       </div>
     </div>
   </div>
+
+  {% if perms.scipost.can_manage_college_composition %}
+  <h3 class="highlight">Admin actions</h3>
   <div class="row">
     <div class="col-md-6">
       <ul>
@@ -40,18 +45,73 @@
       </form>
     </div>
   </div>
+  {% endif %}
 
+  {% if perms.scipost.can_manage_college_composition %}
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">Voting results</h3>
+      <p>
+	Voting Fellows' matching expertises are marked in <span class="bg-success">green</span>.
+      </p>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-4">
+      <table class="table">
+	<tr><th>Agreed</th></tr>
+	{% for fellow in potfel.in_agreement.all %}
+	<tr>
+	  <td>{{ fellow }}</td>
+	  <td>{% for expertise in fellow.profile.expertises %}
+            <div class="single d-inline{% if expertise in potfel.profile.expertises %} bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	    {% endfor %}
+	  </td>
+	</tr>
+	{% empty %}
+	<tr><td>No Fellow has agreed</td></tr>
+	{% endfor %}
+      </table>
+    </div>
+    <div class="col-4">
+      <table class="table">
+	<tr><th>Abstained</th></tr>
+	{% for fellow in potfel.in_abstain.all %}
+	<tr>
+	  <td>{{ fellow }}</td>
+	  <td>{% for expertise in fellow.profile.expertises %}
+            <div class="single d-inline{% if expertise in potfel.profile.expertises %} bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	    {% endfor %}
+	  </td>
+	</tr>
+	{% empty %}
+	<tr><td>No Fellow has abstained</td></tr>
+	{% endfor %}
+      </table>
+    </div>
+    <div class="col-4">
+      <table class="table">
+	<tr><th>Disagreed</th></tr>
+	{% for fellow in potfel.in_disagreement.all %}
+	<tr>
+	  <td>{{ fellow }}</td>
+	  <td>{% for expertise in fellow.profile.expertises %}
+            <div class="single d-inline{% if expertise in potfel.profile.expertises %} bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	    {% endfor %}
+	  </td>
+	</tr>
+	{% empty %}
+	<tr><td>No Fellow has disagreed</td></tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if perms.scipost.can_manage_college_composition %}
+  <h3 class="highlight">Events</h3>
   <div class="row">
     <div class="col-md-6">
-      <h3>Add an event for this Potential Fellowship</h3>
-      <form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
-        {% csrf_token %}
-        {{ pfevent_form|bootstrap }}
-        <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
-      </form>
-    </div>
-    <div class="col-md-6">
-      <h3>Events</h3>
       <ul>
 	{% for event in potfel.potentialfellowshipevent_set.all %}
 	{% include 'colleges/_potentialfellowship_event_li.html' with event=event %}
@@ -60,5 +120,15 @@
 	{% endfor %}
       </ul>
     </div>
+
+    <div class="col-md-6">
+      <h3>Add an event for this Potential Fellowship</h3>
+      <form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
+	{% csrf_token %}
+	{{ pfevent_form|bootstrap }}
+	<input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
+      </form>
+    </div>
   </div>
+  {% endif %}
 </div>

@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -155,7 +155,7 @@ def landing_page(request, doi_label):
     """Journal details page.
 
     The landing page of a Journal lists either the latest and the current issue of a Journal
-    of paginates the individual Publications.
+    or paginates its individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {

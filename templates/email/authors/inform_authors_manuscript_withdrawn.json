@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: manuscript withdrawn",
+    "to_address": "submitted_by.user.email",
+    "bcc_to": "edadmin@scipost.org",
+    "from_address_name": "SciPost Submissions",
+    "from_address": "submissions@scipost.org",
+    "context_object": "submission"
+}

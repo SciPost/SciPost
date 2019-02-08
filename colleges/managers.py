@@ -1,10 +1,12 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
+
+from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 
 
 class FellowQuerySet(models.QuerySet):
@@ -47,3 +49,23 @@ class FellowQuerySet(models.QuerySet):
             return fellowships
         except AttributeError:
                 return []
+
+
+class PotentialFellowshipQuerySet(models.QuerySet):
+    def vote_needed(self, contributor):
+        return self.filter(
+            profile__discipline=contributor.profile.discipline,
+            status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
+        ).order_by('profile__last_name')
+
+    def to_vote_on(self, contributor):
+        return self.vote_needed(contributor).exclude(
+            Q(in_agreement__in=[contributor]) |
+            Q(in_abstain__in=[contributor]) |
+            Q(in_disagreement__in=[contributor]))
+
+    def voted_on(self, contributor):
+        return self.vote_needed(contributor).filter(
+            Q(in_agreement__in=[contributor]) |
+            Q(in_abstain__in=[contributor]) |
+            Q(in_disagreement__in=[contributor]))

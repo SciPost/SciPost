@@ -1,21 +1,13 @@
-{% extends 'scipost/base.html' %}
+{% extends 'news/base.html' %}
 
 {% load bootstrap %}
 
 {% block pagetitle %}: News Items{% endblock pagetitle %}
 
-
-{% block breadcrumb %}
-    <nav class="breadcrumb-nav">
-        <div class="container">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}" >Home</a></li>
-                <li class="breadcrumb-item"><a href="{% url 'news:news' %}" >News</a></span>
-                <li class="breadcrumb-item"><a href="{% url 'news:manage' %}">News Management</a></span>
-                <li class="breadcrumb-item active" aria-current="page">{{ object.headline|truncatechars:20 }}</span>
-            </ol>
-        </div>
-    </nav>
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <a href="{% url 'news:manage' %}" class="breadcrumb-item">News Management</a>
+    <span class="breadcrumb-item">{{ object.headline|truncatechars:20 }}</span>
 {% endblock %}
 
 

@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -57,10 +57,6 @@ class Command(BaseCommand):
         can_read_partner_page, created = Permission.objects.get_or_create(
             codename='can_read_partner_page',
             name='Can read Prospective Partner personal page',
-            content_type=content_type)
-        can_promote_to_production_team, created = Permission.objects.get_or_create(
-            codename='can_promote_to_production_team',
-            name='Can promote Prospective Partner to Partner',
             content_type=content_type)
         can_view_partners, created = Permission.objects.get_or_create(
             codename='can_view_partners',
@@ -128,6 +124,18 @@ class Command(BaseCommand):
         can_attend_VGMs, created = Permission.objects.get_or_create(
             codename='can_attend_VGMs',
             name='Can attend Virtual General Meetings',
+            content_type=content_type)
+        can_view_potentialfellowship_list, created = Permission.objects.get_or_create(
+            codename='can_view_potentialfellowship_list',
+            name='Can view PotentialFellowship list',
+            content_type=content_type)
+        can_add_potentialfellowship, created = Permission.objects.get_or_create(
+            codename='can_add_potentialfellowship',
+            name='Can add PotentialFellowship',
+            content_type=content_type)
+        can_vote_on_potentialfellowship, created = Permission.objects.get_or_create(
+            codename='can_vote_on_potentialfellowship',
+            name='Can vote on PotentialFellowship',
             content_type=content_type)
 
         # Contributions (not related to submissions)
@@ -346,7 +354,6 @@ class Command(BaseCommand):
             can_promote_user_to_production_officer,
             can_view_production,
             can_view_all_production_streams,
-            can_promote_to_production_team,
             can_attend_VGMs,
             can_view_timesheets,
             can_manage_mailchimp,
@@ -355,6 +362,8 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         FinancialAdmin.permissions.set([
@@ -367,6 +376,8 @@ class Command(BaseCommand):
             can_create_registration_invitations,
             can_attend_VGMs,
             can_view_statistics,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         EditorialAdmin.permissions.set([
@@ -398,6 +409,8 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
         ])
 
         EditorialCollege.permissions.set([
@@ -408,6 +421,9 @@ class Command(BaseCommand):
             can_attend_VGMs,
             can_view_statistics,
             can_manage_ontology,
+            can_view_potentialfellowship_list,
+            can_add_potentialfellowship,
+            can_vote_on_potentialfellowship,
         ])
 
         VettingEditors.permissions.set([

@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from datetime import timedelta
@@ -13,7 +13,7 @@ from .signals import (
 
 @app.task(bind=True)
 def send_editorial_assignment_invitations(self):
-    """Send invitation email to 'next EditorialAssignment' in que."""
+    """Send invitation email to 'next EditorialAssignment' in queue."""
     qs = Submission.objects.unassigned().has_editor_invitations_to_be_sent().distinct()
     submission_ids = qs.values_list('id', flat=True)
     submissions_count = len(submission_ids)

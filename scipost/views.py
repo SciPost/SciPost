@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -131,10 +131,11 @@ def index(request):
 
 
 def protected_serve(request, path, show_indexes=False):
-    """Serve media files from outside the public MEDIA_ROOT folder.
+    """
+    Serve media files from outside the public MEDIA_ROOT folder.
 
     Serve files that are saved outside the default MEDIA_ROOT folder for superusers only!
-    This will be usefull eg. in the admin pages.
+    This will be useful eg. in the admin pages.
     """
     if not request.user.is_authenticated or not request.user.is_superuser:
         # Only superusers may get to see secure files without an explicit serve method!

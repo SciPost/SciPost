@@ -1,0 +1,40 @@
+{% load scipost_extras %}
+{% load colleges_extras %}
+
+
+<table class="table">
+  {% for potfel in potfels_list %}
+  <tr>
+    <td><a href="{{ potfel.profile.get_absolute_url }}" target="_blank">{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</a></td>
+    <td>{{ potfel.profile.get_discipline_display }}</td>
+    <td>
+      {% for expertise in potfel.profile.expertises %}
+      <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+      {% endfor %}
+    </td>
+    <td>
+      <div class="opinionsDisplay mx-0 px-2 py-0">
+        Click to vote:
+	<form action="{% url 'colleges:vote_on_potential_fellowship' potfel_id=potfel.id vote='A' %}" method="post">
+          {% csrf_token %}
+          <input type="submit" class="agree" value="Agree {{ potfel.nr_A }} "/>
+        </form>
+        <form action="{% url 'colleges:vote_on_potential_fellowship' potfel_id=potfel.id vote='N' %}" method="post">
+          {% csrf_token %}
+          <input type="submit" class="notsure" value="Abstain {{ potfel.nr_N }}"/>
+        </form>
+        <form action="{% url 'colleges:vote_on_potential_fellowship' potfel_id=potfel.id vote='D' %}" method="post">
+          {% csrf_token %}
+          <input type="submit" class="disagree" value="Disagree {{ potfel.nr_D }}"/>
+        </form>
+        {% if request.user.contributor in potfel.in_agreement.all %}
+        <strong>(you have voted: Agreed)</strong>
+        {% elif request.user.contributor in potfel.in_abstain.all %}
+        <strong>(you have voted: Abstain)</strong>
+        {% elif request.user.contributor in potfel.in_disagreement.all %}
+        <strong>(you have voted: Disagree)</strong>
+        {% endif %}
+      </div>
+  </tr>
+  {% endfor %}
+</table>

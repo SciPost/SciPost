@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'news/base.html' %}
 
 {% block pagetitle %}: News{% endblock pagetitle %}
 
@@ -6,17 +6,10 @@
 {% load staticfiles %}
 
 
-{% block breadcrumb %}
-    <nav class="breadcrumb-nav">
-        <div class="container">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url 'scipost:index' %}" >Home</a></li>
-                <li class="breadcrumb-item active" aria-current="page">News</span>
-            </ol>
-        </div>
-    </nav>
+{% block breadcrumb_items %}
+    <a href="{% url 'scipost:index' %}" class="breadcrumb-item">Home</a>
+    <span class="breadcrumb-item">News</span>
 {% endblock %}
-
 
 {% block content %}
 

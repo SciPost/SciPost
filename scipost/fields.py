@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 import json
@@ -87,3 +87,8 @@ class ReCaptchaField(forms.CharField):
                 self.error_messages['captcha_invalid']
             )
         return values[0]
+
+
+class UserModelChoiceField(forms.ModelChoiceField):
+    def label_from_instance(self, obj):
+         return '{}, {} ({})'.format(obj.last_name, obj.first_name, obj.email)

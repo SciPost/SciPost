@@ -3,13 +3,6 @@ from .base import *
 # THE MAIN THING HERE
 DEBUG = True
 
-# Debug toolbar settings
-INSTALLED_APPS += (
-    'debug_toolbar',
-)
-MIDDLEWARE += (
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-)
 INTERNAL_IPS = ['127.0.0.1', '::1']
 
 # Static and media

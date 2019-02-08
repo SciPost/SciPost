@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -70,6 +70,7 @@ urlpatterns = [
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),
 
+    # Submission, resubmission, withdrawal
     url(r'^resubmit_manuscript$', views.resubmit_manuscript, name='resubmit_manuscript'),
     url(r'^submit_manuscript$', views.prefill_using_arxiv_identifier, name='submit_manuscript'),
     url(r'^submit_manuscript/scipost$',
@@ -78,6 +79,10 @@ urlpatterns = [
         views.RequestSubmissionUsingArXivView.as_view(), name='submit_manuscript_arxiv'),
     url(r'^submit_manuscript/prefill$',
         views.prefill_using_arxiv_identifier, name='prefill_using_identifier'),
+    url(r'^withdraw_manuscript/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.withdraw_manuscript, name='withdraw_manuscript'),
+
+    # Pool
     url(r'^pool/$', views.pool, name='pool'),
     url(r'^pool/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX), views.pool, name='pool'),
     url(r'^add_remark/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
@@ -94,8 +99,6 @@ urlpatterns = [
     url(r'^pool/{regex}/editorial_assignment/(?P<assignment_id>[0-9]+)/$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
         name='editorial_assignment'),
-    url(r'^volunteer_as_EIC/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.volunteer_as_EIC, name='volunteer_as_EIC'),
     url(r'^assignment_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.assignment_failed, name='assignment_failed'),
     # Editorial workflow and refereeing

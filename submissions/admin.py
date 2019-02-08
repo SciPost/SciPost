@@ -1,8 +1,9 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
 from django.contrib import admin
+from django.db.models import Q
 from django import forms
 
 from guardian.admin import GuardedModelAdmin
@@ -48,7 +49,8 @@ class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
     list_display = ('title', 'author_list', 'submitted_to',
-                    'status', 'submission_date', 'publication')
+                    'status', 'visible_public', 'visible_pool', 'refereeing_cycle',
+                    'submission_date', 'publication')
     list_filter = ('status', 'discipline', 'submission_type', 'submitted_to')
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
@@ -209,23 +211,27 @@ class EICRecommendationAdminForm(forms.ModelForm):
     eligible_to_vote = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
     voted_for = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
     voted_against = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
     voted_abstain = forms.ModelMultipleChoiceField(
         required=False,
         queryset=Contributor.objects.filter(
-            user__groups__name__in=['Editorial College'],
-        ).order_by('user__last_name'))
+            Q(user__groups__name__in=['Editorial College']) |
+            Q(fellowships__isnull=False),
+        ).distinct().order_by('user__last_name'))
 
     class Meta:
         model = EICRecommendation

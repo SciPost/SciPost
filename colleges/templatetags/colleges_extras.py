@@ -1,11 +1,14 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
 from django import template
 
 from ..constants import (
-    POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_REINVITED,
+    POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,
+    POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING,
+    POTENTIAL_FELLOWSHIP_ELECTED, POTENTIAL_FELLOWSHIP_NOT_ELECTED,
+    POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_REINVITED,
     POTENTIAL_FELLOWSHIP_MULTIPLY_REINVITED, POTENTIAL_FELLOWSHIP_DECLINED,
     POTENTIAL_FELLOWSHIP_UNRESPONSIVE, POTENTIAL_FELLOWSHIP_RETIRED, POTENTIAL_FELLOWSHIP_DECEASED,
     POTENTIAL_FELLOWSHIP_INTERESTED, POTENTIAL_FELLOWSHIP_REGISTERED,
@@ -23,6 +26,14 @@ def potfelstatuscolor(status):
     color = '#333333'
     if status == POTENTIAL_FELLOWSHIP_IDENTIFIED:
         color = hslColorWheel(12, 8)
+    elif status == POTENTIAL_FELLOWSHIP_NOMINATED:
+        color = 'Orange'
+    elif status == POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING:
+        color = 'DodgerBlue'
+    elif status == POTENTIAL_FELLOWSHIP_ELECTED:
+        color = 'MediumSeaGreen'
+    elif status == POTENTIAL_FELLOWSHIP_NOT_ELECTED:
+        color = 'Tomato'
     elif status == POTENTIAL_FELLOWSHIP_INVITED:
         color = hslColorWheel(12, 9)
     elif status == POTENTIAL_FELLOWSHIP_REINVITED:
@@ -46,3 +57,13 @@ def potfelstatuscolor(status):
     elif status == POTENTIAL_FELLOWSHIP_SCIPOST_EMERITUS:
         color = hslColorWheel(12, 4, 40, 40)
     return color
+
+
+@register.simple_tag
+def voting_results_display(potfel):
+    if potfel.status == POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING:
+        return ' Agree: %s, Abstain: %s, Disagree: %s' % (
+            potfel.in_agreement.count(),
+            potfel.in_abstain.count(),
+            potfel.in_disagreement.count())
+    return ''

@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -20,6 +20,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Phys:BI', 'Biophysics'),
         ('Phys:CE', 'Condensed Matter Physics - Experiment'),
         ('Phys:CT', 'Condensed Matter Physics - Theory'),
+        ('Phys:CC', 'Condensed Matter Physics - Computational'),
         ('Phys:FD', 'Fluid Dynamics'),
         ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'),
         ('Phys:HE', 'High-Energy Physics - Experiment'),
@@ -124,11 +125,13 @@ for k in subject_areas_raw_dict.keys():
 
 # Contributor types
 NEWLY_REGISTERED, NORMAL_CONTRIBUTOR = 'newly_registered', 'normal'
-NO_SCIENTIST, DOUBLE_ACCOUNT, OUT_OF_ACADEMIA = 'no_scientist', 'double_account', 'out_of_academia'
+UNVERIFIABLE_CREDENTIALS, NO_SCIENTIST = 'unverifiable', 'no_scientist'
+DOUBLE_ACCOUNT, OUT_OF_ACADEMIA = 'double_account', 'out_of_academia'
 BARRED, DISABLED, DECEASED = 'barred', 'disabled', 'deceased'
 CONTRIBUTOR_STATUSES = (
     (NEWLY_REGISTERED, 'Newly registered'),
     (NORMAL_CONTRIBUTOR, 'Normal user'),
+    (UNVERIFIABLE_CREDENTIALS, 'Unverifiable credentials'),
     (NO_SCIENTIST, 'Not a professional scientist'),
     (DOUBLE_ACCOUNT, 'Other account already exists'),
     (OUT_OF_ACADEMIA, 'Out of academia'),

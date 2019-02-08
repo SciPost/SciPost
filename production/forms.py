@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -6,6 +6,8 @@ import datetime
 
 from django import forms
 from django.contrib.auth import get_user_model
+
+from scipost.fields import UserModelChoiceField
 
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs,\
@@ -125,11 +127,6 @@ class StreamStatusForm(forms.ModelForm):
             notify_stream_status_change(sender=self.current_production_user.user, instance=stream,
                                         created=False)
         return stream
-
-
-class UserModelChoiceField(forms.ModelChoiceField):
-    def label_from_instance(self, obj):
-         return '{}, {} ({})'.format(obj.last_name, obj.first_name, obj.email)
 
 
 class UserToOfficerForm(forms.ModelForm):

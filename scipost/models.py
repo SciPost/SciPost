@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -60,7 +60,7 @@ class Contributor(models.Model):
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True, validators=[orcid_validator])
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
-    personalwebpage = models.URLField(verbose_name='personal web page', blank=True)
+    personalwebpage = models.URLField(max_length=300, verbose_name='personal web page', blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
                                   related_name="contrib_vetted_by", blank=True, null=True)
     accepts_SciPost_emails = models.BooleanField(
@@ -190,6 +190,7 @@ class Remark(models.Model):
 
     class Meta:
         default_related_name = 'remarks'
+        ordering = ['date']
 
     def __str__(self):
         return (self.contributor.user.first_name + ' '

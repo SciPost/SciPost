@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -35,6 +35,11 @@ SUBMISSION_STATUS = (
     (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
     (STATUS_PUBLISHED, 'Published'),
 )
+
+# Submissions which are currently under consideration
+SUBMISSION_UNDER_CONSIDERATION = [
+    STATUS_INCOMING, STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_RESUBMITTED
+]
 
 # Submissions with these statuses never have required actions.
 NO_REQUIRED_ACTION_STATUSES = [

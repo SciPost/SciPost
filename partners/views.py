@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -115,7 +115,7 @@ def membership_request(request):
     return render(request, 'partners/membership_request.html', context)
 
 
-@permission_required('scipost.can_promote_to_production_team', return_403=True)
+@permission_required('scipost.can_manage_organizations', return_403=True)
 @transaction.atomic
 def promote_prospartner(request, prospartner_id):
     prospartner = get_object_or_404(ProspectivePartner.objects.not_yet_partner(),

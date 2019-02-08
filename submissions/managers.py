@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -219,10 +219,8 @@ class SubmissionQuerySet(models.QuerySet):
             return self.none()
 
         return self.filter(is_current=True, status__in=[
-            constants.STATUS_INCOMING,
-            constants.STATUS_UNASSIGNED,
-            constants.STATUS_EIC_ASSIGNED,
-            ], submitted_by=user.contributor)
+            constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED, constants.STATUS_EIC_ASSIGNED,
+            ], authors=user.contributor)
 
 
 class SubmissionEventQuerySet(models.QuerySet):
@@ -424,6 +422,12 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def declined(self):
         """Filter invitations declined by referee."""
         return self.filter(accepted=False)
+
+    def open(self): # WRONG: pending already filters for cancelled=False
+        return self.pending().filter(cancelled=False)
+
+    def outstanding(self):
+        return self.filter(cancelled=False).exclude(accepted=False).exclude(fulfilled=True)
 
     def in_process(self):
         """Filter invitations (non-cancelled) accepted by referee that are not fulfilled."""

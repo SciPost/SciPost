@@ -1,4 +1,4 @@
-__copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -74,7 +74,7 @@ def production(request, stream_id=None):
     if request.user.has_perm('scipost.can_view_timesheets'):
         context['production_team'] = ProductionUser.objects.active()
 
-    if request.user.has_perm('scipost.can_promote_to_production_team'):
+    if request.user.has_perm('scipost.can_promote_user_to_production_officer'):
         context['production_officers'] = ProductionUser.objects.active()
         context['new_officer_form'] = UserToOfficerForm()
     return render(request, 'production/production.html', context)

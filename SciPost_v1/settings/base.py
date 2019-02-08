@@ -389,7 +389,7 @@ LOGGING = {
 
 # Celery scheduled tasks
 CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BROKER_URL = get_secret('CELERY_BROKER_URL')
 CELERY_IMPORTS = ('submissions.tasks', 'metacore.tasks')
 
 

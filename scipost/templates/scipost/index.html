@@ -25,7 +25,7 @@
                         </li>
                     {% endfor %}
                 </ul>
-                <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications.</a></p>
+                <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications</a></p>
             </div><!-- End latest publications -->
         </div>
 
@@ -43,7 +43,7 @@
                       </li>
                   {% endfor %}
                 </ul>
-                <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions.</a></p>
+                <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>
             </div><!-- End latest submissions -->
         </div>
     </div>
@@ -55,11 +55,12 @@
 {% endblock %}
 
 {% block content_footer %}
-    <footer class="container-fluid text-left secondary pt-4 mt-5">
+    <div class="container-fluid text-left secondary pt-4 mt-5 border-top border-primary">
         <div class="row">
             <div class="col-lg-6">
-                <h1>Sponsors <a class="mb-2 d-inline-block" href="{% url 'sponsors:sponsors' %}"><small class="text-muted">[see all]</small></a></h1>
-                <div class="sponsors">
+                <h1>Sponsors</h1>
+                <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
+                <div class="sponsors mt-3">
                     <ul id="fader">
                         {% for sponsor in current_sponsors %}
                             {% if sponsor.logo %}
@@ -77,8 +78,8 @@
                 <a href="//www.doaj.org" target="_blank"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
                 <a href="//www.clockss.org" target="_blank"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
                 <a href="//i4oc.org/" target="_blank"><img width="100" src="{% static 'scipost/images/I4OC.png' %}"></a>
-		<a href="//freejournals.org" target="_blank"><img width="100" src="{% static 'scipost/images/FJN-logo-long.png' %}"></a>
+        		<a href="//freejournals.org" target="_blank"><img width="100" src="{% static 'scipost/images/FJN-logo-long.png' %}"></a>
             </div>
-	</div>
-    </footer>
+    	</div>
+    </div>
 {% endblock %}
