@@ -12,9 +12,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='notification',
-            name='url_code',
-            field=models.CharField(blank=True, max_length=16),
-        ),
+        # migrations.AddField(
+        #     model_name='notification',
+        #     name='url_code',
+        #     field=models.CharField(blank=True, max_length=255),
+        # ),
     ]

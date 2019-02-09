@@ -61,7 +61,7 @@ class Notification(models.Model):
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
-    url_code = models.CharField(max_length=16, blank=True)
+    url_code = models.CharField(max_length=255, blank=True)
 
     action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
                                                    related_name='notify_action_object')
