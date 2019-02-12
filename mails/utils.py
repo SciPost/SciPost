@@ -2,18 +2,16 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from .mixins import MailUtilsMixin
+from .core import MailEngine
 
 
-class DirectMailUtil(MailUtilsMixin):
-    """
-    Same templates and json files as the form EmailTemplateForm, but this will directly send
-    the mails out, without intercepting and showing the mail editor to the user.
-    """
+class DirectMailUtil:
+    """Send a templated email directly; easiest possible way."""
 
-    def __init__(self, mail_code, *args, **kwargs):
-        kwargs['mail_code'] = mail_code
-        kwargs['instance'] = kwargs.pop('instance', None)
-        self.delayed_processing = kwargs.pop('delayed_processing', False)
-        super().__init__(*args, **kwargs)
-        self.validate()
+    def __init__(self, mail_code, delayed_processing=True, **kwargs):
+        # Set the data as initials
+        self.engine = MailEngine(mail_code, **kwargs)
+        self.engine.validate(render_template=not delayed_processing)
+
+    def send_mail(self):
+        return self.engine.send_mail()

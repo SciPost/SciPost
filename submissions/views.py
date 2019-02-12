@@ -54,7 +54,7 @@ from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from mails.utils import DirectMailUtil
-from mails.views import MailEditingSubView
+from mails.views import MailEditingSubView, MailEditorSubview
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
@@ -809,10 +809,10 @@ def assignment_failed(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    mail_request = MailEditingSubView(
+    mail_editor_view = MailEditorSubview(
         request, mail_code='submissions_assignment_failed', instance=submission,
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
-    if mail_request.is_valid():
+    if mail_editor_view.is_valid():
         # Deprecate old Editorial Assignments
         EditorialAssignment.objects.filter(submission=submission).invited().update(
             status=STATUS_DEPRECATED)
@@ -826,10 +826,9 @@ def assignment_failed(request, identifier_w_vn_nr):
             request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
                 arxiv=submission.preprint.identifier_w_vn_nr))
         messages.success(request, 'Authors have been informed by email.')
-        mail_request.send()
+        mail_editor_view.send_mail()
         return redirect(reverse('submissions:pool'))
-    else:
-        return mail_request.return_render()
+    return mail_editor_view.interrupt()
 
 
 @login_required

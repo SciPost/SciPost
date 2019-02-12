@@ -1,8 +1,11 @@
 {
     "subject": "SciPost: pre-screening not passed",
-    "to_address": "submitted_by.user.email",
-    "bcc_to": "submissions@scipost.org",
-    "from_address_name": "SciPost Editorial Admin",
-    "from_address": "submissions@scipost.org",
-    "context_object": "submission"
+    "recipient_list": [
+        "submitted_by.user.email"
+    ],
+    "bcc": [
+        "submissions@scipost.org"
+    ],
+    "from_name": "SciPost Editorial Admin",
+    "from_email": "submissions@scipost.org"
 }
