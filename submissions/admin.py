@@ -25,13 +25,13 @@ admin.site.register(iThenticateReport)
 class SubmissionAdminForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
+        queryset=Contributor.objects.nonduplicates().order_by('user__last_name'))
     authors_claims = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
+        queryset=Contributor.objects.nonduplicates().order_by('user__last_name'))
     authors_false_claims = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
+        queryset=Contributor.objects.nonduplicates().order_by('user__last_name'))
     is_resubmission_of = forms.ModelChoiceField(
         required=False,
         queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
