@@ -21,7 +21,7 @@ class Subsidy(models.Model):
     to a corresponding Subsidy instance.
 
     This can for example be:
-    - a Partners agreement
+    - a Sponsorship agreement
     - an incidental grant
     - a development grant for a specific purpose
     - a Collaboration Agreement

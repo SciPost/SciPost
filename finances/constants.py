@@ -5,14 +5,19 @@ __license__ = "AGPL v3"
 import datetime
 
 
-SUBSIDY_TYPE_GRANT = 'grant'
-SUBSIDY_TYPE_PARTNERAGREEMENT = 'partneragreement'
+SUBSIDY_TYPE_SPONSORSHIPAGREEMENT = 'sponsorshipagreement'
+SUBSIDY_TYPE_INCIDENTALGRANT = 'incidentalgrant'
+SUBSIDY_TYPE_DEVELOPMENTGRANT = 'developmentgrant'
 SUBSIDY_TYPE_COLLABORATION = 'collaborationagreement'
+SUBSIDY_TYPE_DONATION = 'donation'
+
 
 SUBSIDY_TYPES = (
-    (SUBSIDY_TYPE_GRANT, 'Grant'),
-    (SUBSIDY_TYPE_PARTNERAGREEMENT, 'Partner Agreement'),
+    (SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, 'Sponsorship Agreement'),
+    (SUBSIDY_TYPE_INCIDENTALGRANT, 'Incidental Grant'),
+    (SUBSIDY_TYPE_DEVELOPMENTGRANT, 'Development Grant'),
     (SUBSIDY_TYPE_COLLABORATION, 'Collaboration Agreement'),
+    (SUBSIDY_TYPE_DONATION, 'Donation'),
 )
 
 
