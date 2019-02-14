@@ -78,6 +78,19 @@ class SubsidyDetailView(DetailView):
     model = Subsidy
 
 
+def subsidy_attachment(request, subsidy_id, attachment_id):
+    attachment = get_object_or_404(SubsidyAttachment.objects,
+                                   subsidy__id=subsidy_id, id=attachment_id)
+
+    content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(attachment.attachment.read(), content_type=content_type)
+    response["Content-Encoding"] = encoding
+    response['Content-Disposition'] = ('filename=%s' % attachment.name)
+    return response
+
+
+
 ############################
 # Timesheets and Work Logs #
 ############################

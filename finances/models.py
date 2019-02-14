@@ -13,6 +13,8 @@ from django.utils.html import format_html
 from .constants import SUBSIDY_TYPES, SUBSIDY_STATUS
 from .utils import id_to_slug
 
+from scipost.storage import SecureFileStorage
+
 
 class Subsidy(models.Model):
     """
@@ -51,6 +53,29 @@ class Subsidy(models.Model):
 
     def get_absolute_url(self):
         return reverse('finances:subsidy_details', args=(self.id,))
+
+
+class SubsidyAttachment(models.Model):
+    """
+    A document related to a Subsidy.
+    """
+    attachment = models.FileField(upload_to='UPLOADS/FINANCES/SUBSIDIES/ATTACHMENTS',
+                                  storage=SecureFileStorage())
+    name = models.CharField(max_length=128)
+    subsidy = models.ForeignKey('finances.Subsidy', related_name='attachments',
+                                  blank=True)
+    publicly_visible = models.BooleanField(default=False)
+
+
+    def get_absolute_url(self):
+        if self.subsidy:
+            return reverse('finances:subsidy_attachment', args=(self.subsidy.id, self.id))
+
+
+
+###########################
+# Work hours registration #
+###########################
 
 
 class WorkLog(models.Model):

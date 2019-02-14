@@ -15,7 +15,7 @@ from dateutil.rrule import rrule, MONTHLY
 from common.forms import MonthYearWidget
 from scipost.fields import UserModelChoiceField
 
-from .models import Subsidy, WorkLog
+from .models import Subsidy, SubsidyAttachment, WorkLog
 
 
 class SubsidyForm(forms.ModelForm):
@@ -26,6 +26,48 @@ class SubsidyForm(forms.ModelForm):
         fields = ['organization', 'subsidy_type', 'description',
                   'amount', 'amount_publicly_shown', 'status',
                   'date', 'date_until']
+
+
+class SubsidyAttachmentForm(forms.ModelForm):
+    class Meta:
+        model = SubsidyAttachment
+        fields = (
+            'name',
+            'attachment',
+            'publicly_visible',
+        )
+
+    def save(self, to_object, commit=True):
+        """
+        This custom save method will automatically assign the file to the object
+        given when it is a valid instance type.
+        """
+        attachment = super().save(commit=False)
+
+        # Formset might save an empty Instance
+        if not attachment.name or not attachment.attachment:
+            return None
+
+        if isinstance(to_object, Subsidy):
+            attachment.subsidy = to_object
+        else:
+            raise forms.ValidationError('You cannot save Attachments to this type of object.')
+        if commit:
+            attachment.save()
+        return attachment
+
+
+class SubsidyAttachmentFormSet(forms.BaseModelFormSet):
+    def save(self, to_object, commit=True):
+        """
+        This custom save method will automatically assign the file to the object
+        given when it is a valid instance type.
+        """
+        returns = []
+        for form in self.forms:
+            returns.append(form.save(to_object))
+        return returns
+
 
 
 class WorkLogForm(forms.ModelForm):

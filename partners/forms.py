@@ -472,6 +472,7 @@ class MembershipQueryForm(forms.Form):
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
 
 
+#done
 class PartnersAttachmentForm(forms.ModelForm):
     class Meta:
         model = PartnersAttachment
@@ -500,6 +501,7 @@ class PartnersAttachmentForm(forms.ModelForm):
         return attachment
 
 
+# done
 class PartnersAttachmentFormSet(forms.BaseModelFormSet):
     def save(self, to_object, commit=True):
         """
