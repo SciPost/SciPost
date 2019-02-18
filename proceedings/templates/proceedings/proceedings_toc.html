@@ -1,0 +1,7 @@
+<pre>
+\begin{itemize}
+{% for pub in proceedings.issue.publications.all|dictsort:"paper_nr" %}
+\item {{ pub.author_list }}, {\it {{ pub.title }} }, {{ pub.paper_nr }}
+{% endfor %}
+\end{itemize}
+</pre>
