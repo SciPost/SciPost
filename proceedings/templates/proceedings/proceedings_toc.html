@@ -1,7 +1,8 @@
 <pre>
-\begin{itemize}
+\begin{tabular}{l r}
 {% for pub in proceedings.issue.publications.all|dictsort:"paper_nr" %}
-\item {{ pub.author_list }}, {\it {{ pub.title }} }, {{ pub.paper_nr }}
+{{ pub.title }} & {{ pub.paper_nr }} \\
+\textit{by {{ pub.author_list }} } \\ \\
 {% endfor %}
-\end{itemize}
+\end{tabular}
 </pre>
