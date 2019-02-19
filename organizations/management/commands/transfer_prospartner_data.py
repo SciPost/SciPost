@@ -33,7 +33,7 @@ class Command(BaseCommand):
                     event=prosevent.event,
                     comments=prosevent.comments,
                     noted_on=prosevent.noted_on,
-                    noted_by=prosevent.noted_by)
+                    noted_by=prosevent.noted_by.user)
                 event.save()
                 prosevent.delete()
             prospartner.delete()

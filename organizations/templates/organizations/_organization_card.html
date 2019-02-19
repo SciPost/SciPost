@@ -37,6 +37,12 @@ $(document).ready(function($) {
 	</li>
 	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
+	  <a class="nav-link" id="contacts-{{ org.id }}-tab" data-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
+	</li>
+	<li class="nav-item">
+	  <a class="nav-link" id="events-{{ org.id }}-tab" data-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
+	</li>
+	<li class="nav-item">
 	  <a class="nav-link" id="manage-{{ org.id }}-tab" data-toggle="tab" href="#manage-{{ org.id }}" role="tab" aria-controls="manage-{{ org.id }}" aria-selected="true">Manage</a>
 	</li>
 	{% endif %}
@@ -179,6 +185,50 @@ $(document).ready(function($) {
 	  {% endif %}
 	</div>
 	{% endif %}
+
+	<div class="tab-pane pt-4" id="contacts-{{ org.id }}" role="tabpanel" aria-labelledby="contacts-{{ org.id }}-tab">
+	  {% if perms.scipost.can_manage_organizations %}
+	  <h3>Contacts (with explicit role)</h3>
+	  <table class="table">
+	    {% for contactrole in org.contactrole_set.all %}
+	    <tr>
+	      <td>{{ contactrole.contact }}</td>
+	      <td>{{ contactrole.get_kind_display }}</td>
+	      <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
+	      <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+
+	  <h3>Contact persons</h3>
+	  <table class="table">
+	    {% for contact in org.contactperson_set.all %}
+	    <tr>
+	      <td>{{ contact }}</td>
+	      <td>{{ contact.email }}</td>
+	      <td>{{ contact.role }}</td>
+	    </tr>
+	    {% empty %}
+	    <tr>
+	      <td>>No contact person defined</td>
+	    </tr>
+	    {% endfor %}
+	  </table>
+	  {% endif %}
+	</div>
+
+	<div class="tab-pane pt-4" id="events-{{ org.id }}" role="tabpanel" aria-labelledby="events-{{ org.id }}-tab">
+	  {% if perms.scipost.can_manage_organizations %}
+	  <h3>Events</h3>
+	  <ul>
+	    {% for event in org.organizationevent_set.all %}
+	    {% include 'organizations/_organization_event_li.html' with event=event %}
+	    {% empty %}
+	    <li>No event found</li>
+	    {% endfor %}
+	  </ul>
+	  {% endif %}
+	</div>
 
 	<div class="tab-pane pt-4" id="manage-{{ org.id }}" role="tabpanel" aria-labelledby="manage-{{ org.id }}-tab">
 	  {% if perms.scipost.can_manage_organizations %}
