@@ -3,7 +3,11 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import hashlib
+import random
+import string
 
+from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Sum
@@ -13,9 +17,12 @@ from django.urls import reverse
 from django_countries.fields import CountryField
 
 from .constants import ORGANIZATION_TYPES, ORGTYPE_PRIVATE_BENEFACTOR,\
-    ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE
+    ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE,\
+    ROLE_KINDS
 from .managers import OrganizationQuerySet
 
+from scipost.constants import TITLE_CHOICES
+from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
 
@@ -175,3 +182,71 @@ class Organization(models.Model):
         for agreement in self.partner.agreements.all():
             contrib += agreement.offered_yearly_contribution * int(agreement.duration.days / 365)
         return contrib
+
+
+
+####################################
+# Contact persons, users and roles #
+####################################
+
+class ContactPerson(models.Model):
+    """
+    A ContactPerson instance holds information about a person who can function
+    as a contact for one or more organizations.
+    These instances are created by SPAdmin during sponsor harvesting.
+    Instances can be promoted to Contact instances, which possess login credentials.
+    """
+    organization = models.ForeignKey('organizations.Organization',
+                                     on_delete=models.CASCADE)
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    first_name = models.CharField(max_length=64)
+    last_name = models.CharField(max_length=64)
+    email = models.EmailField()
+    role = models.CharField(max_length=128)
+
+    def __str__(self):
+        return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
+
+
+class Contact(models.Model):
+    """
+    A Contact instance is a basic User to be used for Organization-type contacts.
+    Specific Organizations are linked to Contact via the ContactRole model defined below.
+    """
+    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True,
+                                related_name='org_contact')
+    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
+    activation_key = models.CharField(max_length=40, blank=True)
+    key_expires = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
+
+    def generate_key(self, feed=''):
+        """
+        Generate and save a new activation_key for the Contact, given a certain feed.
+        """
+        for i in range(5):
+            feed += random.choice(string.ascii_letters)
+        feed = feed.encode('utf8')
+        salt = self.user.username.encode('utf8')
+        self.activation_key = hashlib.sha1(salt + feed).hexdigest()
+        self.key_expires = timezone.now() + datetime.timedelta(days=2)
+
+    def save(self, *args, **kwargs):
+        if not self.activation_key:
+            self.generate_key()
+        super().save(*args, **kwargs)
+
+
+class ContactRole(models.Model):
+    """
+    A ContactRole instance links a Contact to an Organization, for a specific period of
+    time, and for a specific period in time.
+    """
+    contact = models.ForeignKey('organizations.Contact', on_delete=models.CASCADE,
+                                related_name='roles')
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
+    kind = ChoiceArrayField(models.CharField(max_length=4, choices=ROLE_KINDS))
+    date_from = models.DateField()
+    date_until = models.DateField()

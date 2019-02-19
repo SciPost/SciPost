@@ -63,3 +63,14 @@ ORGANIZATION_STATUSES = (
     (ORGSTATUS_SUPERSEDED, 'Superseded'),
     (ORGSTATUS_OBSOLETE, 'Obsolete'),
 )
+
+ROLE_GENERAL = 'gen'
+ROLE_TECH = 'tech'
+ROLE_FIN = 'fin'
+ROLE_LEG = 'leg'
+ROLE_KINDS = (
+    (ROLE_GENERAL, 'General Contact'),
+    (ROLE_TECH, 'Technical Contact'),
+    (ROLE_FIN, 'Financial Contact'),
+    (ROLE_LEG, 'Legal Contact')
+)

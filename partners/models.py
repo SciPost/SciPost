@@ -82,6 +82,7 @@ class ProspectivePartner(models.Model):
         self.save()
 
 
+# TODO: to be deleted, superseded by organizations.ContactPerson
 class ProspectiveContact(models.Model):
     """
     A ProspectiveContact is a person's name and contact details, with a
