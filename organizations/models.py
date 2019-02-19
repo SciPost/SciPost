@@ -17,8 +17,7 @@ from django.urls import reverse
 from django_countries.fields import CountryField
 
 from .constants import ORGANIZATION_TYPES, ORGTYPE_PRIVATE_BENEFACTOR,\
-    ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE,\
-    ROLE_KINDS
+    ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE, ORGANIZATION_EVENTS, ROLE_KINDS
 from .managers import OrganizationQuerySet
 
 from scipost.constants import TITLE_CHOICES
@@ -182,6 +181,25 @@ class Organization(models.Model):
         for agreement in self.partner.agreements.all():
             contrib += agreement.offered_yearly_contribution * int(agreement.duration.days / 365)
         return contrib
+
+
+
+###################################
+# Events related to Organizations #
+###################################
+
+class OrganizationEvent(models.Model):
+    """
+    Documents an event related to an Organization.
+    """
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
+    event = models.CharField(max_length=64, choices=ORGANIZATION_EVENTS)
+    comments = models.TextField(blank=True)
+    noted_on = models.DateTimeField(auto_now_add=True)
+    noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '%s: %s' % (str(self.organization), self.get_event_display())
 
 
 

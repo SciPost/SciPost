@@ -47,6 +47,7 @@ now = timezone.now()
 # Prospective Partners #
 ########################
 
+# TODO: to be deleted, use Organization instead
 class ProspectivePartner(models.Model):
     """A prospect Partner is a Partner without explicit contract with SciPost yet."""
 
@@ -102,6 +103,7 @@ class ProspectiveContact(models.Model):
         return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
 
 
+# TODO: delete, superseded by OrganizationEvent
 class ProspectivePartnerEvent(models.Model):
     prospartner = models.ForeignKey('partners.ProspectivePartner', on_delete=models.CASCADE)
     event = models.CharField(max_length=64, choices=PROSPECTIVE_PARTNER_EVENTS)
@@ -204,6 +206,7 @@ class Contact(models.Model):
         return ', '.join([choices[value] for index, value in enumerate(self.kind)])
 
 
+# TODO: delete, use Organizations instead
 class Partner(models.Model):
     """
     Supporting Partners.
@@ -234,6 +237,7 @@ class Partner(models.Model):
         raise NotImplemented
 
 
+# TODO: delete, superseded by OrganizationEvent
 class PartnerEvent(models.Model):
     partner = models.ForeignKey('partners.Partner', on_delete=models.CASCADE,
                                 related_name='events')
@@ -246,6 +250,7 @@ class PartnerEvent(models.Model):
         return '%s: %s' % (str(self.partner), self.get_event_display())
 
 
+# TODO: delete, use finances.Subsidy instead
 class MembershipAgreement(models.Model):
     """
     Agreement for membership of the Supporting Partners Board.
@@ -271,6 +276,7 @@ class MembershipAgreement(models.Model):
         return reverse('partners:agreement_details', args=(self.id,))
 
 
+# TODO: delete, use finances.SubsidyAttachment instead
 class PartnersAttachment(models.Model):
     """
     An Attachment which can (in the future) be related to a Partner, Contact, MembershipAgreement,
