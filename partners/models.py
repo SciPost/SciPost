@@ -51,6 +51,8 @@ now = timezone.now()
 class ProspectivePartner(models.Model):
     """A prospect Partner is a Partner without explicit contract with SciPost yet."""
 
+    organization = models.OneToOneField('organizations.Organization', on_delete=models.CASCADE,
+                                        blank=True, null=True)
     kind = models.CharField(max_length=32, choices=PARTNER_KINDS, default=PARTNER_KIND_UNI_LIBRARY)
     institution_name = models.CharField(max_length=256)
     country = CountryField()
