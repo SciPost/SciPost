@@ -59,6 +59,7 @@ class PublicationQuerySet(models.QuerySet):
     def for_journal(self, journal_name):
         return self.filter(
             models.Q(in_issue__in_volume__in_journal__name=journal_name) |
+            models.Q(in_issue__in_journal__name=journal_name) |
             models.Q(in_journal__name=journal_name))
 
     def most_cited(self, n_returns=5):
