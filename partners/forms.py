@@ -452,6 +452,14 @@ class ProspectivePartnerEventForm(forms.ModelForm):
         }
 
 
+class ProspectivePartnerOrganizationSelectForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+
+    class Meta:
+        model = ProspectivePartner
+        fields = []
+
+
 class MembershipQueryForm(forms.Form):
     """
     This form is to be used by an agent of the prospective Partner,

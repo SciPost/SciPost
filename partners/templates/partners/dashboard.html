@@ -120,6 +120,7 @@
             	<div class="col-12">
             	  <h2 class="highlight">Prospective Partners</h2>
                   <h3><a href="{% url 'partners:add_prospective_partner' %}">Add a prospective partner</a></h3>
+		  <h3><i class="fa fa-exclamation-circle text-warning"></i> Link an Organization to <a href="{% url 'partners:prospartner_link_organization' %}">the next</a> ProspectivePartner without one ({{ nr_prospartners_wo_organization }} to handle)</h3>
             	</div>
               </div>
 
@@ -129,6 +130,7 @@
                     	<th>Country</th>
                     	<th>Institution name</th>
                     	<th>Kind</th>
+			<th>Organization</th>
                     	<th>Status</th>
                     	<th>Date received</th>
                     </tr>
@@ -140,6 +142,7 @@
                     		  <td>{{ partner.get_country_display }}</td>
                     		  <td>{{ partner.institution_name }}</td>
                     		  <td>{{ partner.get_kind_display }}</td>
+				  <td>{{ partner.organization }}</td>
                     		  <td style="background-color:{{ partner.status|partnerstatuscolor }}">{{ partner.get_status_display }}</td>
                     		  <td>{{ partner.date_received|date:"Y-m-d" }}</td>
                     	</tr>

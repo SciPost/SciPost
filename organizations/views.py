@@ -12,7 +12,7 @@ from .constants import ORGTYPE_PRIVATE_BENEFACTOR
 from .models import Organization
 
 from funders.models import Funder
-from partners.models import Partner
+from partners.models import ProspectivePartner, Partner
 
 from scipost.mixins import PermissionsMixin
 
@@ -55,6 +55,8 @@ class OrganizationListView(ListView):
         context = super().get_context_data(*args, **kwargs)
         if self.request.user.has_perm('scipost.can_manage_organizations'):
             context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
+            context['nr_prospartners_wo_organization'] = ProspectivePartner.objects.filter(
+                organization=None).count()
             context['nr_partners_wo_organization'] = Partner.objects.filter(organization=None).count()
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
         return context

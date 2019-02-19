@@ -29,7 +29,7 @@ from .models import Partner, ProspectivePartner, ProspectiveContact, ContactRequ
     ProspectivePartnerEvent, MembershipAgreement, Contact, PartnersAttachment
 from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     PromoteToPartnerForm,\
-    ProspectivePartnerEventForm, MembershipQueryForm,\
+    ProspectivePartnerEventForm, ProspectivePartnerOrganizationSelectForm, MembershipQueryForm,\
     PartnerForm, ContactForm, ContactFormset, ContactModelFormset,\
     NewContactForm, ActivationForm, PartnerEventForm,\
     MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
@@ -77,6 +77,8 @@ def dashboard(request):
         context['partners'] = Partner.objects.all()
         context['prospective_partners'] = ProspectivePartner.objects.order_by(
             'country', 'institution_name')
+        context['nr_prospartners_wo_organization'] = ProspectivePartner.objects.filter(
+            organization=None).count()
         context['ppevent_form'] = ProspectivePartnerEventForm()
         context['agreements'] = MembershipAgreement.objects.order_by('date_requested')
     return render(request, 'partners/dashboard.html', context)
@@ -132,6 +134,28 @@ def promote_prospartner(request, prospartner_id):
         return redirect(reverse('partners:dashboard'))
     context = {'form': form, 'contact_formset': contact_formset}
     return render(request, 'partners/promote_prospartner.html', context)
+
+
+class LinkProspectivePartnerToOrganizationView(PermissionsMixin, UpdateView):
+    """
+    For an existing ProspectivePartner instance, specify the link to an Organization.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = ProspectivePartner
+    form_class = ProspectivePartnerOrganizationSelectForm
+    template_name = 'partners/prospartner_link_organization.html'
+    success_url = reverse_lazy('partners:prospartner_link_organization')
+
+    def get_object(self):
+        prospectivepartner = ProspectivePartner.objects.filter(
+                organization=None).first()
+        return prospectivepartner
+
+    def form_valid(self, form):
+        form.instance.organization = form.cleaned_data['organization']
+        return super().form_valid(form)
+
+
 
 
 ###############

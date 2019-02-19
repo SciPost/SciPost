@@ -15,6 +15,9 @@ urlpatterns = [
     # Prospects
     url(r'^prospects/add$', views.add_prospective_partner,
         name='add_prospective_partner'),
+    url(r'^prospects/prospartner_link_organization/$',
+        views.LinkProspectivePartnerToOrganizationView.as_view(),
+        name='prospartner_link_organization'),
     url(r'^prospects/contacts/(?P<contact_id>[0-9]+)/email$',
         views.email_prospartner_contact, name='email_prospartner_contact'),
     url(r'^prospects/contacts/(?P<contact_id>[0-9]+)/email/(?P<mail>followup)$',
