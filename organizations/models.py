@@ -195,7 +195,7 @@ class OrganizationEvent(models.Model):
     organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
     event = models.CharField(max_length=64, choices=ORGANIZATION_EVENTS)
     comments = models.TextField(blank=True)
-    noted_on = models.DateTimeField(auto_now_add=True)
+    noted_on = models.DateTimeField(default=timezone.now)
     noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
