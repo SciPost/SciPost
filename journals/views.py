@@ -337,7 +337,7 @@ def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_l
         publications = Publication.objects.for_journal(journal.name)
     else:
         # Limit the amount of Publications to still an idiot size
-        publications = Publication.objects.all()[:50]
+        publications = Publication.objects.all()[:60]
 
     # Speeds up operations by reducing the number of queries
     if not isinstance(publications, list):

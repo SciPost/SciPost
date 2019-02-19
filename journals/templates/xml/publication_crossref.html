@@ -12,11 +12,11 @@
     </head>
     <body>
         <journal>
-            {% if publication.in_issue %}
+            {% if publication.in_issue.in_volume %}
                 <journal_metadata>
                     <full_title>{{ publication.in_issue.in_volume.in_journal.get_name_display }}</full_title>
                     <abbrev_title>{{ publication.in_issue.in_volume.in_journal.abbreviation_citation }}</abbrev_title>
-                    {% if publication.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_journal.issn }}</issn>{% endif %}
+                    {% if publication.in_issue.in_volume.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
                         <resource>https://scipost.org/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
@@ -29,6 +29,22 @@
                     <journal_volume>
                         <volume>{{ publication.in_issue.in_volume.number }}</volume>
                     </journal_volume>
+                    <issue>{{ publication.in_issue.number }}</issue>
+                </journal_issue>
+            {% elif publication.in_issue.in_journal %}
+                <journal_metadata>
+                    <full_title>{{ publication.in_issue.in_journal.get_name_display }}</full_title>
+                    <abbrev_title>{{ publication.in_issue.in_journal.abbreviation_citation }}</abbrev_title>
+                    {% if publication.in_issue.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_issue.in_journal.issn }}</issn>{% endif %}
+                    <doi_data>
+                        <doi>{{ publication.in_issue.in_journal.doi_string }}</doi>
+                        <resource>https://scipost.org/{{ publication.in_issue.in_journal.doi_string }}</resource>
+                    </doi_data>
+                </journal_metadata>
+                <journal_issue>
+                    <publication_date media_type='online'>
+                        <year>{{ publication.publication_date|date:'Y' }}</year>
+                    </publication_date>
                     <issue>{{ publication.in_issue.number }}</issue>
                 </journal_issue>
             {% else %}
