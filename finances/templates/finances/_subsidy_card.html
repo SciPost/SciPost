@@ -55,7 +55,7 @@
 	{% for att in subsidy.attachments.all %}
 	<tr>
 	  <td><a href="{{ att.get_absolute_url }}" target="_blank">{{ att.name }}</a></td>
-	  <td>{{ att.publicly_visible }}</td>
+	  <td>{% if att.publicly_visible %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	  {% if perms.scipost.can_manage_subsidies %}
 	  <td><a href="{% url 'finances:subsidyattachment_update' pk=att.id %}"><span class="text-warning">Update</span></a></td>
 	  <td><a href="{% url 'finances:subsidyattachment_delete' pk=att.id %}"><span class="text-danger">Delete</span></a></td>
