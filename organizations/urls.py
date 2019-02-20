@@ -33,6 +33,11 @@ urlpatterns = [
         name='organization_details'
     ),
     url(
+        r'^add_contact/(?P<organization_id>[0-9]+)/$',
+        views.organization_add_contact,
+        name='add_contact'
+    ),
+    url(
         r'^activate/(?P<activation_key>.+)$',
         views.activate_account,
         name='activate_account'

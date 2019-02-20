@@ -186,9 +186,12 @@ $(document).ready(function($) {
 	</div>
 	{% endif %}
 
+	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="contacts-{{ org.id }}" role="tabpanel" aria-labelledby="contacts-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Contacts (with explicit role)</h3>
+	  <ul>
+	    <li><a href="{% url 'organizations:add_contact' organization_id=org.id %}">Add a new Contact</a></li>
+	  </ul>
 	  <table class="table">
 	    <tr>
 	      <th>Name</th>
@@ -220,11 +223,11 @@ $(document).ready(function($) {
 	    </tr>
 	    {% endfor %}
 	  </table>
-	  {% endif %}
 	</div>
+	{% endif %}
 
+	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="events-{{ org.id }}" role="tabpanel" aria-labelledby="events-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Events</h3>
 	  <ul>
 	    {% for event in org.organizationevent_set.all %}
@@ -233,19 +236,20 @@ $(document).ready(function($) {
 	    <li>No event found</li>
 	    {% endfor %}
 	  </ul>
-	  {% endif %}
 	</div>
+	{% endif %}
 
+	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="manage-{{ org.id }}" role="tabpanel" aria-labelledby="manage-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Manage this organization:</h3>
 	  <ul>
 	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
 	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
 	  </ul>
 	  <hr/>
-	  {% endif %}
 	</div>
+	{% endif %}
+
       </div>
     </div>
   </div>

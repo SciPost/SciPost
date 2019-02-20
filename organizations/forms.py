@@ -2,15 +2,18 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django import forms
 
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
+from django.utils import timezone
 
-from .constants import ROLE_KINDS
-from .models import Contact
+from .constants import ROLE_GENERAL
+from .models import Contact, ContactRole
 
 from scipost.constants import TITLE_CHOICES
 
@@ -21,6 +24,7 @@ class ContactForm(forms.ModelForm):
     """
     class Meta:
         model = Contact
+        fields = ['title', 'key_expires']
 
 
 class NewContactForm(ContactForm):
@@ -66,18 +70,16 @@ class NewContactForm(ContactForm):
         If existing user is found, link it to the Organization.
         """
         if self.existing_user and self.data.get('confirm_use_existing', '') == 'on':
-            # Do not create new Contact
+            # Create new Contact if it doesn't already exist
             try:
                 # Link Contact to new Organization
                 contact = self.existing_user.org_contact
-                contact.organizations.add(self.organization)
             except Contact.DoesNotExist:
                 # Not yet a 'Contact-User'
                 contact = super().save(commit=False)
                 contact.title = self.existing_user.org_contact.title
                 contact.user = self.existing_user
                 contact.save()
-                contact.organizations.add(self.organization)
             return contact
 
         # Create complete new Account (User + Contact)
@@ -95,11 +97,17 @@ class NewContactForm(ContactForm):
         )
         contact.generate_key()
         contact.save()
-        contact.organizations.add(self.organization)
 
-        # TODOdeprecPartners Send email for activation
-        # PartnerUtils.load({'contact': contact})
-        # PartnerUtils.email_contact_new_for_activation(current_user=current_user)
+        # Create the role with to-be-updated info
+        contactrole = ContactRole(
+            contact=contact,
+            organization=self.organization,
+            kind=[ROLE_GENERAL,],
+            date_from=timezone.now(),
+            date_until=timezone.now() + datetime.timedelta(days=3650)
+        )
+        contactrole.save()
+
         return contact
 
 
