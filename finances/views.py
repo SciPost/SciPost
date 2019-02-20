@@ -7,6 +7,7 @@ import mimetypes
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -83,7 +84,8 @@ class SubsidyDetailView(DetailView):
 def subsidy_attachment(request, subsidy_id, attachment_id):
     attachment = get_object_or_404(SubsidyAttachment.objects,
                                    subsidy__id=subsidy_id, id=attachment_id)
-
+    if not attachment.visible_to_user(request.user):
+        return PermissionDenied
     content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(attachment.attachment.read(), content_type=content_type)

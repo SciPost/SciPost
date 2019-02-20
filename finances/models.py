@@ -71,6 +71,12 @@ class SubsidyAttachment(models.Model):
         if self.subsidy:
             return reverse('finances:subsidy_attachment', args=(self.subsidy.id, self.id))
 
+    def visible_to_user(self, current_user):
+        if self.publicly_visible or current_user.has_perm('scipost.can_manage_subsidies'):
+            return True
+        if self.subsidy.organization.contactrole_set.filter(contact__user=current_user).exists():
+            return True
+        return False
 
 
 ###########################
