@@ -9,17 +9,16 @@ from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from submissions.models import Submission
 
-from .constants import     POTENTIAL_FELLOWSHIP_STATUSES,\
-    POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,\
-    POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED,\
-    POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED, POTENTIAL_FELLOWSHIP_EVENT_COMMENT
+from .constants import (
+    POTENTIAL_FELLOWSHIP_STATUSES, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
+    POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,
+    POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
@@ -30,7 +29,6 @@ from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 
-from mails.forms import EmailTemplateForm
 from mails.views import MailView
 
 

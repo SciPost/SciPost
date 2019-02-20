@@ -19,7 +19,7 @@ from guardian.core import ObjectPermissionChecker
 from guardian.shortcuts import assign_perm, remove_perm
 
 from finances.forms import WorkLogForm
-from mails.views import MailEditingSubView
+from mails.views import MailEditorSubview
 
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs,\
@@ -687,13 +687,12 @@ def send_proofs(request, stream_id, version):
         stream.status = constants.PROOFS_SENT
         stream.save()
 
-    mail_request = MailEditingSubView(request, mail_code='production_send_proofs',
-                                      proofs=proofs)
+    mail_request = MailEditorSubview(request, mail_code='production_send_proofs', proofs=proofs)
     if mail_request.is_valid():
         proofs.save()
         stream.save()
         messages.success(request, 'Proofs have been sent.')
-        mail_request.send()
+        mail_request.send_mail()
         prodevent = ProductionEvent(
             stream=stream,
             event='status',
@@ -703,7 +702,7 @@ def send_proofs(request, stream_id, version):
         prodevent.save()
         return redirect(stream.get_absolute_url())
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
 
     messages.success(request, 'Proofs have been sent.')
     return redirect(stream.get_absolute_url())

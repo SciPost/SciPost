@@ -274,51 +274,57 @@ To build the documentation, run:
 for each of the documentation projects.
 After this, generated documentation are available in `docs/[project slug]/_build/html`.
 
-## Mails
-The `mails` app is used as the mailing processor of SciPost.
-It may be used in one of two possible ways: with or without editor.
+## Templated eails
+The `mails` app is used as the (templated) mailing processor of SciPost. It may be used in one of two possible ways: with or without editor.
 
-The actual mails only have to be written in the html version
-(the text based alternative is automatically generated before sending).
-Creating a new `mail_code` is easily done by creating new files in the `templates/email/<subfolder>` folder called `<mail_code>.html` and `<mail_code>.json` acting respectively as a content and configuration file. Here, `<subfolder>` is named after the main recipient's class (authors, referees, etc.).
-
-##### The config file is configured as follows
-`templates/email/<subfolder>/<mail_code>.json`
-
-* `context_object` - (_required_) Instance of the main object. This instance needs to be passed as `instance` or `<context_object>` in the views and as `<context_object>` in the template file (see description below);
-* `subject` - (_string, required_) Default subject value;
-* `to_address` - (_string or path of properties, required_) Default to address;
-* `bcc_to` - (_string or path of properties, optional_) - A comma-separated bcc list of mail addresses;
-* `from_address` - (_string, optional_) - From address' default value: `no-reply@scipost.org`;
-* `from_address_name` - (_string, optional_) - From address name's default value: `SciPost`.
-
-
-### Mailing with editor
-Any regular method or class-based view may be used together with the builtin wysiwyg editor. The class-based views inherited from Django's UpdateView are easily extended for use with the editor.
-
-```python
-from django.views.generic.edit import UpdateView
-from mails.views import MailEditorMixin
-
-class AnyUpdateView(MailEditorMixin, UpdateView):
-    mail_code = '<any_valid_mail_code>'
+Any mail will be defined in the `templates/email/<mail_code>.html` file. With each HTML template file comes a configuration which at leaast contains a `subject` and `recipient_list` value, other fields are optional:
+```json
+# templates/email/<mail_code>.json
+{
+    "subject": "Foo subject",
+    "recipient_list": [
+        "noreply@scipost.org"
+    ],
+    "bcc": [
+        "secret@scipost.org"
+    ],
+    "from_email": "server@scipost.org",
+    "from_name": "SciPost Techsupport",
+    "context_object_name": "submission"
+}
 ```
 
-For method-based views, one implements the mails construction as:
+All email fields may be replaced for properties of a certain db instance.
+
+### Class-based view editor
+To pre-edit templated emails in class-based views, one can use the `MailView` object. This acts like a regular Django class-based view, but will intercept the post request to load the email form and submit when positively validated.
+This view acts as a FormView or any other detail or edit class-based view. The `mail_code` property is required, the `mail_config` property is optional and acts similar as described above.
 
 ```python
-from mails.views import MailEditingSubView
+# <app>/views.py
+from mails.views import MailView
+
+class FooView(MailView):
+    mail_code = '<any_valid_mail_code>'
+    mail_config = {}
+```
+
+### Function-based view editor
+For function-based views, one implements the mails construction as:
+
+```python
+from mails.views import MailEditorSubview
 
 def any_method_based_view(request):
     # Initialize mail view
-    mail_request = MailEditingSubView(request, mail_code='<any_valid_mail_code>', instance=django_model_instance)
+    mail_request = MailEditorSubview(request, mail_code='<any_valid_mail_code>', instance=django_model_instance)
     if mail_request.is_valid():
         # Send mail
-        mail_request.send()
+        mail_request.send_mail()
         return redirect('reverse:url')
     else:
         # Render the wsyiwyg editor
-        return mail_request.return_render()
+        return mail_request.interrupt()
 ```
 
 ### Direct mailing

@@ -54,7 +54,7 @@ from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
 from journals.models import Journal
 from mails.utils import DirectMailUtil
-from mails.views import MailEditingSubView, MailEditorSubview
+from mails.views import MailEditorSubview
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
@@ -1021,9 +1021,9 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
                             'Please go back and select another referee.')
             return render(request, 'scipost/error.html', {'errormessage': errormessage})
 
-        mail_request = MailEditingSubView(request,
-                                          mail_code='referees/invite_contributor_to_referee',
-                                          invitation=referee_invitation)
+        mail_request = MailEditorSubview(
+            request, mail_code='referees/invite_contributor_to_referee',
+            invitation=referee_invitation)
     else: # no Contributor, so registration invitation
         registration_invitation, reginv_created = RegistrationInvitation.objects.get_or_create(
             profile=profile,
@@ -1035,9 +1035,9 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
             created_by=request.user,
             invited_by=request.user,
             invitation_key=referee_invitation.invitation_key)
-        mail_request = MailEditingSubView(request,
-                                          mail_code='referees/invite_unregistered_to_referee',
-                                          invitation=referee_invitation)
+        mail_request = MailEditorSubview(
+            request, mail_code='referees/invite_unregistered_to_referee',
+            invitation=referee_invitation)
 
     if mail_request.is_valid():
         referee_invitation.date_invited = timezone.now()
@@ -1049,11 +1049,11 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
         submission.add_event_for_author('A referee has been invited.')
         submission.add_event_for_eic('Referee %s has been invited.' % profile.last_name)
         messages.success(request, 'Invitation sent')
-        mail_request.send()
+        mail_request.send_mail()
         return redirect(reverse('submissions:editorial_page',
                                 kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
 
 
 @login_required

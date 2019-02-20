@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django import forms
 
 from .core import MailEngine
+from .expections import ConfigurationError
 from .widgets import SummernoteEditor
 
 
@@ -59,7 +60,7 @@ class EmailForm(forms.Form):
             try:
                 self.engine.validate(render_template=False)
                 return True
-            except (ImportError, KeyError):
+            except (ImportError, KeyError, ConfigurationError):
                 return False
         return False
 
@@ -72,6 +73,13 @@ class EmailForm(forms.Form):
         return self.engine.template_variables['object']
 
 
-class EmailTemplateForm(forms.Form):
-    """Deprecated."""
-    pass
+class HiddenDataForm(forms.Form):
+    """
+    Regular Django form which tranforms all fields to hidden fields.
+    """
+
+    def __init__(self, form, *args, **kwargs):
+        super().__init__(form.data, *args, **kwargs)
+        for name, field in form.fields.items():
+            self.fields[name] = field
+            self.fields[name].widget = forms.HiddenInput()

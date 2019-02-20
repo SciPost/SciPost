@@ -6,20 +6,15 @@ import mimetypes
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
-from django.db.models import F
 from django.forms import modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
-from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
-from mails.views import MailEditingSubView
+from mails.views import MailEditorSubview
 
 from .constants import PROSPECTIVE_PARTNER_REQUESTED,\
     PROSPECTIVE_PARTNER_APPROACHED, PROSPECTIVE_PARTNER_ADDED,\
@@ -34,14 +29,6 @@ from .forms import ProspectivePartnerForm, ProspectiveContactForm,\
     NewContactForm, ActivationForm, PartnerEventForm,\
     MembershipAgreementForm, RequestContactForm, RequestContactFormSet,\
     ProcessRequestContactForm, PartnersAttachmentFormSet, PartnersAttachmentForm
-
-
-from funders.models import Funder
-
-from journals.models import Publication
-
-from scipost.mixins import PermissionsMixin
-
 
 
 def supporting_partners(request):
@@ -275,7 +262,8 @@ def email_prospartner_contact(request, contact_id, mail=None):
     else:
         code = 'partners_initial_mail'
         new_status = PROSPECTIVE_PARTNER_APPROACHED
-    mail_request = MailEditingSubView(request, mail_code=code, contact=contact)
+
+    mail_request = MailEditorSubview(request, mail_code=code, contact=contact)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix, name=contact)
         prospartnerevent = ProspectivePartnerEvent(
@@ -292,10 +280,10 @@ def email_prospartner_contact(request, contact_id, mail=None):
             contact.prospartner.save()
 
         messages.success(request, 'Email successfully sent.')
-        mail_request.send()
+        mail_request.send_mail()
         return redirect(reverse('partners:dashboard'))
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
 
 
 @permission_required('scipost.can_email_prospartner_contact', return_403=True)
@@ -312,10 +300,10 @@ def email_prospartner_generic(request, prospartner_id, mail=None):
     else:
         code = 'partners_initial_mail'
         new_status = PROSPECTIVE_PARTNER_APPROACHED
-    mail_request = MailEditingSubView(request, mail_code=code)
+    mail_request = MailEditorSubview(request, mail_code=code)
     if mail_request.is_valid():
-        comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix,
-                                                          name=mail_request.recipients_string)
+        comments = 'Email{suffix} sent to {name}.'.format(
+            suffix=suffix, name=mail_request.recipients_string)
         prospartnerevent = ProspectivePartnerEvent(
             prospartner=prospartner,
             event=PROSPECTIVE_PARTNER_EVENT_EMAIL_SENT,
@@ -330,10 +318,10 @@ def email_prospartner_generic(request, prospartner_id, mail=None):
             prospartner.save()
 
         messages.success(request, 'Email successfully sent.')
-        mail_request.send()
+        mail_request.send_mail()
         return redirect(reverse('partners:dashboard'))
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)
