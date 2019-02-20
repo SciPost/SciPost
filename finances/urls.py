@@ -20,7 +20,7 @@ urlpatterns = [
     url(r'^subsidies/(?P<pk>[0-9]+)/$', views.SubsidyDetailView.as_view(), name='subsidy_details'),
     url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/(?P<attachment_id>[0-9]+)$',
         views.subsidy_attachment, name='subsidy_attachment'),
-    url(r'^subsidies/attachments/add/$',
+    url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/add/$',
         views.SubsidyAttachmentCreateView.as_view(),
         name='subsidyattachment_create'),
     url(r'^subsidies/attachments/(?P<pk>[0-9]+)/update/$',

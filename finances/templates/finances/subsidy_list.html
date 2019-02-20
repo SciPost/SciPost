@@ -29,7 +29,6 @@ $(document).ready(function($) {
     {% if perms.scipost.can_manage_subsidies %}
     <ul>
       <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
-      <li><a href="{% url 'finances:subsidyattachment_create' %}">Add a SubsidyAttachment</a></li>
     </ul>
     {% endif %}
   </div>

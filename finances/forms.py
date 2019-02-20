@@ -39,7 +39,6 @@ class SubsidyAttachmentForm(forms.ModelForm):
         )
 
 
-
 #############
 # Work logs #
 #############

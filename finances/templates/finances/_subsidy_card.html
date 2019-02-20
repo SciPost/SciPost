@@ -42,6 +42,11 @@
   <div class="row">
     <div class="col-12">
       <h3>Attachments</h3>
+      {% if perms.scipost.can_manage_subsidies %}
+      <ul>
+	<li><a href="{% url 'finances:subsidyattachment_create' subsidy_id=subsidy.id %}">Add a SubsidyAttachment</a> to this Subsidy</li>
+      </ul>
+      {% endif %}
       <table class="table">
 	<tr>
 	  <th>File name</th>

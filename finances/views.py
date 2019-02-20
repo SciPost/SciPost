@@ -89,7 +89,13 @@ class SubsidyAttachmentCreateView(PermissionsMixin, CreateView):
     model = SubsidyAttachment
     form_class = SubsidyAttachmentForm
     template_name = 'finances/subsidyattachment_form.html'
-    success_url = reverse_lazy('finances:subsidies')
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+
+    def get_initial(self):
+        subsidy = get_object_or_404(Subsidy, pk=self.kwargs.get('subsidy_id'))
+        return {'subsidy': subsidy}
 
 
 class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
@@ -102,6 +108,9 @@ class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
     template_name = 'finances/subsidyattachment_form.html'
     success_url = reverse_lazy('finances:subsidies')
 
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+
 
 class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
     """
@@ -109,7 +118,9 @@ class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
     """
     permission_required = 'scipost.can_manage_subsidies'
     model = SubsidyAttachment
-    success_url = reverse_lazy('finances:subsidies')
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
 
 
 def subsidy_attachment(request, subsidy_id, attachment_id):
