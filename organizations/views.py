@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
+from django.db import transaction
 from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
 from django.views.generic.detail import DetailView
@@ -15,8 +16,8 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR
-from .forms import NewContactForm, ContactActivationForm, ContactRoleForm
-from .models import Organization, Contact, ContactRole
+from .forms import OrganizationEventForm, NewContactForm, ContactActivationForm, ContactRoleForm
+from .models import Organization, OrganizationEvent, Contact, ContactRole
 
 from funders.models import Funder
 from mails.utils import DirectMailUtil
@@ -101,6 +102,23 @@ class OrganizationDetailView(DetailView):
         if not self.request.user.has_perm('scipost.can_manage_organizations'):
             queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
         return queryset
+
+
+class OrganizationEventCreateView(PermissionsMixin, CreateView):
+    permission_required = 'scipost.can_manage_organizations'
+    model = OrganizationEvent
+    form_class = OrganizationEventForm
+    template_name = 'organizations/organizationevent_form.html'
+
+    def get_initial(self):
+        organization = get_object_or_404(Organization, pk=self.kwargs.get('pk'))
+        return {'organization': organization,
+                'noted_on': timezone.now,
+                'noted_by': self.request.user}
+
+    def get_success_url(self):
+        return reverse_lazy('organizations:organization_details',
+                            kwargs={'pk': self.object.organization.id})
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)

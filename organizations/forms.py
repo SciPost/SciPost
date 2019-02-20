@@ -13,9 +13,15 @@ from django.db import transaction
 from django.utils import timezone
 
 from .constants import ROLE_GENERAL
-from .models import Contact, ContactRole
+from .models import OrganizationEvent, Contact, ContactRole
 
 from scipost.constants import TITLE_CHOICES
+
+
+class OrganizationEventForm(forms.ModelForm):
+    class Meta:
+        model = OrganizationEvent
+        fields = ['organization', 'event', 'comments', 'noted_on', 'noted_by']
 
 
 class ContactForm(forms.ModelForm):

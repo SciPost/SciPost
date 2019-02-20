@@ -232,6 +232,9 @@ $(document).ready(function($) {
 	<div class="tab-pane pt-4" id="events-{{ org.id }}" role="tabpanel" aria-labelledby="events-{{ org.id }}-tab">
 	  <h3>Events</h3>
 	  <ul>
+	    <li><a href="{% url 'organizations:organizationevent_create' pk=org.id %}">Add an event</a></li>
+	  </ul>
+	  <ul>
 	    {% for event in org.organizationevent_set.all %}
 	    {% include 'organizations/_organization_event_li.html' with event=event %}
 	    {% empty %}

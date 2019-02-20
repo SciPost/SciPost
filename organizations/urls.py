@@ -33,6 +33,11 @@ urlpatterns = [
         name='organization_details'
     ),
     url(
+        r'^(?P<pk>[0-9]+)/orgevent/add/$',
+        views.OrganizationEventCreateView.as_view(),
+        name='organizationevent_create'
+    ),
+    url(
         r'^add_contact/(?P<organization_id>[0-9]+)/$',
         views.organization_add_contact,
         name='add_contact'
