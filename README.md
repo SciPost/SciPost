@@ -346,8 +346,7 @@ Each mail is configured with a json file, which at least contains a `subject` an
         "secret@scipost.org"
     ],
     "from_email": "server@scipost.org",
-    "from_name": "SciPost Techsupport",
-    "context_object_name": "submission"
+    "from_name": "SciPost Techsupport"
 }
 ```
 

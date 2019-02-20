@@ -28,9 +28,6 @@ class MailLog(models.Model):
     status = models.CharField(max_length=16, choices=MAIL_STATUSES, default=MAIL_RENDERED)
 
     mail_code = models.CharField(max_length=254, blank=True)
-    content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(blank=True, null=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
 
     body = models.TextField()
     body_html = models.TextField(blank=True)
@@ -55,3 +52,35 @@ class MailLog(models.Model):
             id=self.id,
             subject=self.subject[:30],
             count=len(self.to_recipients) + len(self.bcc_recipients))
+
+    def get_full_context(self):
+        """Get the full template context needed to render the template."""
+        if hasattr(self, '_context'):
+            return self._context
+        self._context = {}
+        for relation in self.context.all():
+            self._context[relation.name] = relation.get_item()
+        return self._context
+
+
+class MailLogRelation(models.Model):
+    """
+    A template context item for the MailLog in case the a mail has delayed rendering.
+    This may be plain text or any relation within the database.
+    """
+
+    mail = models.ForeignKey('mails.MailLog', on_delete=models.CASCADE, related_name='context')
+
+    name = models.CharField(max_length=254)
+    value = models.CharField(max_length=254, blank=True)
+
+    content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(blank=True, null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def get_item(self):
+        if self.value:
+            return self.value
+        elif self.content_object:
+            return self.content_object
+        return None

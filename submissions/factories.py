@@ -9,9 +9,9 @@ import random
 from comments.factories import SubmissionCommentFactory
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.models import Contributor
+from journals.models import Journal
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
-from common.helpers import random_arxiv_identifier_without_version_number, random_scipost_journal,\
-    random_scipost_report_doi_label
+from common.helpers import random_scipost_report_doi_label
 
 from .constants import (
     STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED, SUBMISSION_TYPE,
@@ -23,50 +23,59 @@ from faker import Faker
 
 
 class SubmissionFactory(factory.django.DjangoModelFactory):
+    """
+    Generate random basic Submission instances.
+    """
+
     author_list = factory.Faker('name')
     submitted_by = factory.Iterator(Contributor.objects.all())
     submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
-    submitted_to = factory.Sequence(lambda n: Journal.objects.get(doi_label=random_scipost_journal()))
+    submitted_to = factory.Iterator(Journal.objects.all())
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
-    identifier_wo_vn_nr = factory.Sequence(
-        lambda n: random_arxiv_identifier_without_version_number())
+    list_of_changes = factory.Faker('paragraph', nb_sentences=10)
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
     domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
     abstract = factory.Faker('paragraph')
     author_comments = factory.Faker('paragraph')
     remarks_for_editors = factory.Faker('paragraph')
+    thread_hash = factory.Faker('uuid4')
     is_current = True
-    vn_nr = 1
-    url = factory.lazy_attribute(lambda o: (
-        'https://arxiv.org/abs/%s' % o.preprint.identifier_wo_vn_nr))
-    preprint__identifier_w_vn_nr = factory.lazy_attribute(lambda o: '%sv%i' % (
-        o.preprint.identifier_wo_vn_nr, o.preprint.vn_nr))
     submission_date = factory.Faker('date_this_decade')
     latest_activity = factory.LazyAttribute(lambda o: Faker().date_time_between(
         start_date=o.submission_date, end_date="now", tzinfo=pytz.UTC))
+    preprint = factory.SubFactory('preprints.factories.PreprintFactory')
 
     class Meta:
         model = Submission
 
+    @classmethod
+    def create(cls, **kwargs):
+        if Contributor.objects.count() < 5:
+            from scipost.factories import ContributorFactory
+            ContributorFactory.create_batch(5)
+        if Journal.objects.count() < 3:
+            from journals.factories import JournalFactory
+            JournalFactory.create_batch(3)
+        return super().create(**kwargs)
+
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
-        contributors = Contributor.objects.all()
+        contribs = Contributor.objects.all()
         if self.editor_in_charge:
-            contributors = contributors.exclude(id=self.editor_in_charge.id)
-        contributors = contributors.order_by('?')[:random.randint(1, 6)]
+            contribs = contribs.exclude(id=self.editor_in_charge.id)
+        contribs = contribs.order_by('?')[:random.randint(1, 6)]
 
         # Auto-add the submitter as an author
-        self.submitted_by = contributors[0]
+        self.submitted_by = contribs[0]
         self.author_list = ', '.join([
-            '%s %s' % (c.user.first_name, c.user.last_name) for c in contributors])
+            '%s %s' % (c.user.first_name, c.user.last_name) for c in contribs])
 
         if not create:
             return
 
         # Add three random authors
-        self.authors.add(*contributors)
-        self.cycle.update_deadline()
+        self.authors.add(*contribs)
 
 
 class UnassignedSubmissionFactory(SubmissionFactory):
@@ -125,7 +134,6 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
     open_for_commenting = False
     open_for_reporting = False
     is_current = False
-    is_resubmission = False
 
     @factory.post_generation
     def successive_submission(self, create, extracted, **kwargs):
@@ -180,8 +188,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
     status = STATUS_INCOMING
     open_for_commenting = True
     open_for_reporting = True
-    is_resubmission = True
-    preprint__vn_nr = 2
+    vn_nr = 2
 
     @factory.post_generation
     def previous_submission(self, create, extracted, **kwargs):
@@ -252,6 +259,7 @@ class PublishedSubmissionFactory(EICassignedSubmissionFactory):
 class ReportFactory(factory.django.DjangoModelFactory):
     status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
     submission = factory.Iterator(Submission.objects.all())
+    report_nr = 1
     date_submitted = factory.Faker('date_time_this_decade')
     vetted_by = factory.Iterator(Contributor.objects.all())
     author = factory.Iterator(Contributor.objects.all())

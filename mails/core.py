@@ -27,7 +27,7 @@ class MailEngine:
     _mail_sent = False
 
     def __init__(self, mail_code, subject='', recipient_list=[], bcc=[], from_email='',
-            from_name='', context_object_name='', **kwargs):
+            from_name='', **kwargs):
         """
         Start engine with specific mail_code. Any other keyword argument that is passed will
         be used as a variable in the mail template.
@@ -50,7 +50,6 @@ class MailEngine:
             'from_name': from_name,
             'from_email': from_email,
             'recipient_list': recipient_list,
-            'context_object_name': context_object_name,
         }
         self.template_variables = kwargs
 
@@ -95,10 +94,9 @@ class MailEngine:
         elif not hasattr(self, 'mail_data'):
             raise ValueError(
                 "The mail: %s could not be sent because the data didn't validate." % self.mail_code)
-
         email = EmailMultiAlternatives(
             self.mail_data['subject'],
-            self.mail_data['message'],
+            self.mail_data.get('message', ''),
             '%s <%s>' % (
                 self.mail_data.get('from_name', 'SciPost'),
                 self.mail_data.get('from_email', 'noreply@scipost.org')),
@@ -109,7 +107,7 @@ class MailEngine:
             ],
             headers={
                 'delayed_processing': not self._processed_template,
-                'content_object': self.template_variables['object'],
+                'context': self.template_variables,
                 'mail_code': self.mail_code,
             })
 
@@ -131,15 +129,12 @@ class MailEngine:
         object = None
         context_object_name = None
 
-        if 'context_object_name' in self.mail_data:
-            context_object_name = self.mail_data['context_object_name']
-
-        if context_object_name and context_object_name in self.template_variables:
-            object = self.template_variables[context_object_name]
-        elif 'object' in self.template_variables:
+        if 'object' in self.template_variables:
             object = self.template_variables['object']
+            context_object_name = self.template_variables['object']._meta.model_name
         elif 'instance' in self.template_variables:
             object = self.template_variables['instance']
+            context_object_name = self.template_variables['instance']._meta.model_name
         else:
             for key, var in self.template_variables.items():
                 if isinstance(var, models.Model):
@@ -149,10 +144,7 @@ class MailEngine:
                         object = var
         self.template_variables['object'] = object
 
-        if not context_object_name and isinstance(object, models.Model):
-            context_object_name = self.template_variables['object']._meta.model_name
-
-        if context_object_name and object:
+        if context_object_name and object and context_object_name not in self.template_variables:
             self.template_variables[context_object_name] = object
 
 

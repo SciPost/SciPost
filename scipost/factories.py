@@ -12,13 +12,13 @@ from common.helpers import generate_orcid
 from submissions.models import Submission
 
 from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark
-from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS
+from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS, NORMAL_CONTRIBUTOR
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
     title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
-    status = 'normal'  # normal user
+    status = NORMAL_CONTRIBUTOR  # normal user
     vetted_by = factory.Iterator(Contributor.objects.all())
     personalwebpage = factory.Faker('uri')
     expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
@@ -32,6 +32,12 @@ class ContributorFactory(factory.django.DjangoModelFactory):
         model = Contributor
         django_get_or_create = ('user',)
 
+    @classmethod
+    def create(cls, **kwargs):
+        if Contributor.objects.count() < 1 and kwargs.get('vetted_by', False) is not None:
+            ContributorFactory.create(vetted_by=None)
+        return super().create(**kwargs)
+
     @factory.post_generation
     def add_to_vetting_editors(self, create, extracted, **kwargs):
         if create:
@@ -44,7 +50,7 @@ class VettingEditorFactory(ContributorFactory):
     def add_to_vetting_editors(self, create, extracted, **kwargs):
         if not create:
             return
-        self.user.groups.add(Group.objects.get(name="Vetting Editors"))
+        self.user.groups.add(Group.objects.get_or_create(name="Vetting Editors")[0])
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -70,7 +76,7 @@ class UserFactory(factory.django.DjangoModelFactory):
             for group in extracted:
                 self.groups.add(group)
         else:
-            self.groups.add(Group.objects.get(name="Registered Contributors"))
+            self.groups.add(Group.objects.get_or_create(name="Registered Contributors")[0])
 
 
 class EditorialCollegeFactory(factory.django.DjangoModelFactory):
