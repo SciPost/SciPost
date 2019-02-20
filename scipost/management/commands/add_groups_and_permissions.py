@@ -41,11 +41,13 @@ class Command(BaseCommand):
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
 
-        # Supporting Partners
+        # Organizations
         can_manage_organizations, created = Permission.objects.get_or_create(
             codename='can_manage_organizations',
             name='Can manage Organizations',
             content_type=content_type)
+
+        # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(
             codename='can_manage_SPB',
             name='Can manage Supporting Partners Board',

@@ -2,9 +2,11 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render, reverse, redirect
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -13,9 +15,11 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR
-from .models import Organization
+from .forms import ContactActivationForm
+from .models import Organization, Contact
 
 from funders.models import Funder
+from organizations.decorators import has_contact
 from partners.models import ProspectivePartner, Partner
 
 from scipost.mixins import PermissionsMixin
@@ -98,6 +102,25 @@ class OrganizationDetailView(DetailView):
         return queryset
 
 
+
+def activate_account(request, activation_key):
+    contact = get_object_or_404(Contact, user__is_active=False,
+                                activation_key=activation_key,
+                                user__email__icontains=request.GET.get('email', None))
+
+    # TODO: Key Expires fallback
+    form = ContactActivationForm(request.POST or None, instance=contact.user)
+    if form.is_valid():
+        form.activate_user()
+        messages.success(request, '<h3>Thank you for activating your account</h3>')
+        return redirect(reverse('organizations:dashboard'))
+    context = {
+        'contact': contact,
+        'form': form
+    }
+    return render(request, 'organizations/activate_account.html', context)
+
+
 @login_required
 def dashboard(request):
     """
@@ -106,9 +129,12 @@ def dashboard(request):
     This page is meant as a personal page for Contacts, where they will for example be able
     to read their personal data and agreements.
     """
-    context = {}
-    try:
-        context['roles'] = request.user.org_contact.roles.all()
-    except:
-        pass
+    if not (request.user.has_perm('scipost.can_manage_organizations') or
+            has_contact(request.user)):
+        raise PermissionDenied
+
+    context = {
+        'roles': request.user.org_contact.roles.all()
+    }
+
     return render(request, 'organizations/dashboard.html', context)

@@ -33,6 +33,11 @@ urlpatterns = [
         name='organization_details'
     ),
     url(
+        r'^activate/(?P<activation_key>.+)$',
+        views.activate_account,
+        name='activate_account'
+    ),
+    url(
         r'^dashboard/$',
         views.dashboard,
         name='dashboard'
