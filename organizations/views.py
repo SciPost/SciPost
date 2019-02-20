@@ -15,8 +15,8 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR
-from .forms import NewContactForm, ContactActivationForm
-from .models import Organization, Contact
+from .forms import NewContactForm, ContactActivationForm, ContactRoleForm
+from .models import Organization, Contact, ContactRole
 
 from funders.models import Funder
 from mails.utils import DirectMailUtil
@@ -159,3 +159,29 @@ def dashboard(request):
     }
 
     return render(request, 'organizations/dashboard.html', context)
+
+
+class ContactRoleUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update a ContactRole.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = ContactRole
+    form_class = ContactRoleForm
+    template_name = 'organizations/contactrole_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('organizations:organization_details',
+                            kwargs={'pk': self.object.organization.id})
+
+
+class ContactRoleDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete a ContactRole.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = ContactRole
+
+    def get_success_url(self):
+        return reverse_lazy('organizations:organization_details',
+                            kwargs={'pk': self.object.organization.id})

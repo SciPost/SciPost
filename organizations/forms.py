@@ -151,3 +151,16 @@ class ContactActivationForm(forms.ModelForm):
         self.instance.save()
 
         return self.instance
+
+
+class ContactRoleForm(forms.ModelForm):
+
+    class Meta:
+        model = ContactRole
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.id:
+            self.fields['organization'].disabled = True
+            self.fields['contact'].disabled = True

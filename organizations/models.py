@@ -269,6 +269,9 @@ class ContactRole(models.Model):
     date_from = models.DateField()
     date_until = models.DateField()
 
+    def __str__(self):
+        return '%s, %s for %s' % (self.contact, self.get_kind_display, self.organization)
+
     @property
     def get_kind_display(self):
         """

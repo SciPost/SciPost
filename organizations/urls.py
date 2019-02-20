@@ -38,6 +38,16 @@ urlpatterns = [
         name='add_contact'
     ),
     url(
+        r'^contactrole/(?P<pk>[0-9]+)/update/$',
+        views.ContactRoleUpdateView.as_view(),
+        name='contactrole_update'
+    ),
+    url(
+        r'^contactrole/(?P<pk>[0-9]+)/delete/$',
+        views.ContactRoleDeleteView.as_view(),
+        name='contactrole_delete'
+    ),
+    url(
         r'^activate/(?P<activation_key>.+)$',
         views.activate_account,
         name='activate_account'
