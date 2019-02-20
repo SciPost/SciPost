@@ -190,6 +190,12 @@ $(document).ready(function($) {
 	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Contacts (with explicit role)</h3>
 	  <table class="table">
+	    <tr>
+	      <th>Name</th>
+	      <th>Kind</th>
+	      <th>Date from</th>
+	      <th>Date until</th>
+	    </tr>
 	    {% for contactrole in org.contactrole_set.all %}
 	    <tr>
 	      <td>{{ contactrole.contact }}</td>
@@ -210,7 +216,7 @@ $(document).ready(function($) {
 	    </tr>
 	    {% empty %}
 	    <tr>
-	      <td>>No contact person defined</td>
+	      <td>No contact person defined</td>
 	    </tr>
 	    {% endfor %}
 	  </table>

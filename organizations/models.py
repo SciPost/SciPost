@@ -259,8 +259,8 @@ class Contact(models.Model):
 
 class ContactRole(models.Model):
     """
-    A ContactRole instance links a Contact to an Organization, for a specific period of
-    time, and for a specific period in time.
+    A ContactRole instance links a Contact to an Organization, for a specific set of roles
+    and for a specific period in time.
     """
     contact = models.ForeignKey('organizations.Contact', on_delete=models.CASCADE,
                                 related_name='roles')
@@ -268,3 +268,12 @@ class ContactRole(models.Model):
     kind = ChoiceArrayField(models.CharField(max_length=4, choices=ROLE_KINDS))
     date_from = models.DateField()
     date_until = models.DateField()
+
+    @property
+    def get_kind_display(self):
+        """
+        Due to a lack of support to use get_FOO_display in a ArrayField, one has to create
+        one 'manually'.
+        """
+        choices = dict(ROLE_KINDS)
+        return ', '.join([choices[value] for index, value in enumerate(self.kind)])
