@@ -12,6 +12,96 @@ from django.db import transaction
 from .constants import ROLE_KINDS
 from .models import Contact
 
+from scipost.constants import TITLE_CHOICES
+
+
+class ContactForm(forms.ModelForm):
+    """
+    This Contact form is mainly used for editing Contact instances.
+    """
+    class Meta:
+        model = Contact
+
+
+class NewContactForm(ContactForm):
+    """
+    This Contact form is used to create new Contact instances, as it will also handle
+    possible sending and activation of User instances coming with the new Contact.
+    """
+    title = forms.ChoiceField(choices=TITLE_CHOICES, label='Title')
+    first_name = forms.CharField()
+    last_name = forms.CharField()
+    email = forms.CharField()
+    existing_user = None
+
+    def __init__(self, *args, **kwargs):
+        """
+        Organization is a required argument to tell the formset which Organization
+        the Contact is being edited for in the current form.
+        """
+        self.organization = kwargs.pop('organization')
+        super().__init__(*args, **kwargs)
+
+    def clean_email(self):
+        """
+        Check if User already is known in the system.
+        """
+        email = self.cleaned_data['email']
+        try:
+            self.existing_user = User.objects.get(email=email)
+            if not self.data.get('confirm_use_existing', '') == 'on':
+                # Do not give error if user wants to use existing User
+                self.add_error('email', 'This User is already registered.')
+            self.fields['confirm_use_existing'] = forms.BooleanField(
+                required=False, initial=False, label='Use the existing user instead: %s %s'
+                                                     % (self.existing_user.first_name,
+                                                        self.existing_user.last_name))
+        except User.DoesNotExist:
+            pass
+        return email
+
+    @transaction.atomic
+    def save(self, current_user, commit=True):
+        """
+        If existing user is found, link it to the Organization.
+        """
+        if self.existing_user and self.data.get('confirm_use_existing', '') == 'on':
+            # Do not create new Contact
+            try:
+                # Link Contact to new Organization
+                contact = self.existing_user.org_contact
+                contact.organizations.add(self.organization)
+            except Contact.DoesNotExist:
+                # Not yet a 'Contact-User'
+                contact = super().save(commit=False)
+                contact.title = self.existing_user.org_contact.title
+                contact.user = self.existing_user
+                contact.save()
+                contact.organizations.add(self.organization)
+            return contact
+
+        # Create complete new Account (User + Contact)
+        user = User(
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            email=self.cleaned_data['email'],
+            username=self.cleaned_data['email'],
+            is_active=False,
+        )
+        user.save()
+        contact = Contact(
+            user=user,
+            title=self.cleaned_data['title']
+        )
+        contact.generate_key()
+        contact.save()
+        contact.organizations.add(self.organization)
+
+        # TODOdeprecPartners Send email for activation
+        # PartnerUtils.load({'contact': contact})
+        # PartnerUtils.email_contact_new_for_activation(current_user=current_user)
+        return contact
+
 
 class ContactActivationForm(forms.ModelForm):
     class Meta:

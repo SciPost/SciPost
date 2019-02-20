@@ -102,6 +102,21 @@ class OrganizationDetailView(DetailView):
         return queryset
 
 
+@permission_required('scipost.can_manage_SPB', return_403=True)
+def organization_add_contact(request, organization_id):
+    organization = get_object_or_404(Organization, id=organization_id)
+    form = NewContactForm(request.POST or None, organization=organization)
+    if form.is_valid():
+        contact = form.save(current_user=request.user)
+        messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
+                                  % str(contact))
+        return redirect(reverse('organizations:dashboard'))
+    context = {
+        'organization': organization,
+        'form': form
+    }
+    return render(request, 'organizations/organization_add_contact.html', context)
+
 
 def activate_account(request, activation_key):
     contact = get_object_or_404(Contact, user__is_active=False,
