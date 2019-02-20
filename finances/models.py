@@ -66,6 +66,8 @@ class SubsidyAttachment(models.Model):
                                   blank=True)
     publicly_visible = models.BooleanField(default=False)
 
+    def __str__(self):
+        return '%s, attachment to %s' % (self.name, self.subsidy)
 
     def get_absolute_url(self):
         if self.subsidy:

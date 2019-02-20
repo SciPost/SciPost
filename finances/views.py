@@ -15,7 +15,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, LogsFilter
+from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
 from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
@@ -79,6 +79,37 @@ class SubsidyListView(ListView):
 
 class SubsidyDetailView(DetailView):
     model = Subsidy
+
+
+class SubsidyAttachmentCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new SubsidyAttachment.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = SubsidyAttachment
+    form_class = SubsidyAttachmentForm
+    template_name = 'finances/subsidyattachment_form.html'
+    success_url = reverse_lazy('finances:subsidies')
+
+
+class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update a SubsidyAttachment.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = SubsidyAttachment
+    form_class = SubsidyAttachmentForm
+    template_name = 'finances/subsidyattachment_form.html'
+    success_url = reverse_lazy('finances:subsidies')
+
+
+class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete a SubsidyAttachment.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = SubsidyAttachment
+    success_url = reverse_lazy('finances:subsidies')
 
 
 def subsidy_attachment(request, subsidy_id, attachment_id):

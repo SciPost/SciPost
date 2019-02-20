@@ -32,43 +32,17 @@ class SubsidyAttachmentForm(forms.ModelForm):
     class Meta:
         model = SubsidyAttachment
         fields = (
-            'name',
+            'subsidy',
             'attachment',
+            'name',
             'publicly_visible',
         )
 
-    def save(self, to_object, commit=True):
-        """
-        This custom save method will automatically assign the file to the object
-        given when it is a valid instance type.
-        """
-        attachment = super().save(commit=False)
-
-        # Formset might save an empty Instance
-        if not attachment.name or not attachment.attachment:
-            return None
-
-        if isinstance(to_object, Subsidy):
-            attachment.subsidy = to_object
-        else:
-            raise forms.ValidationError('You cannot save Attachments to this type of object.')
-        if commit:
-            attachment.save()
-        return attachment
 
 
-class SubsidyAttachmentFormSet(forms.BaseModelFormSet):
-    def save(self, to_object, commit=True):
-        """
-        This custom save method will automatically assign the file to the object
-        given when it is a valid instance type.
-        """
-        returns = []
-        for form in self.forms:
-            returns.append(form.save(to_object))
-        return returns
-
-
+#############
+# Work logs #
+#############
 
 class WorkLogForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

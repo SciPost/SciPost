@@ -39,4 +39,30 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col-12">
+      <h3>Attachments</h3>
+      <table class="table">
+	<tr>
+	  <th>File name</th>
+	  <th>Publicly visible?</th>
+	</tr>
+	{% for att in subsidy.attachments.all %}
+	<tr>
+	  <td><a href="{{ att.get_absolute_url }}" target="_blank">{{ att.name }}</a></td>
+	  <td>{{ att.publicly_visible }}</td>
+	  {% if perms.scipost.can_manage_subsidies %}
+	  <td><a href="{% url 'finances:subsidyattachment_update' pk=att.id %}"><span class="text-warning">Update</span></a></td>
+	  <td><a href="{% url 'finances:subsidyattachment_delete' pk=att.id %}"><span class="text-danger">Delete</span></a></td>
+	  {% endif %}
+	</tr>
+	{% empty %}
+	<tr>
+	  <td>No attachment found</td>
+	</tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+
 </div>

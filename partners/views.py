@@ -404,7 +404,6 @@ def agreement_details(request, agreement_id):
 
     if request.user.has_perm('scipost.can_manage_SPB'):
         form = MembershipAgreementForm(request.POST or None, instance=agreement)
-        PartnersAttachmentFormSet
 
         PartnersAttachmentFormset = modelformset_factory(PartnersAttachment,
                                                          PartnersAttachmentForm,
