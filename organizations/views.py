@@ -19,7 +19,7 @@ from .forms import NewContactForm, ContactActivationForm
 from .models import Organization, Contact
 
 from funders.models import Funder
-from mails.views import MailEditingSubView
+from mails.utils import DirectMailUtil
 from organizations.decorators import has_contact
 from partners.models import ProspectivePartner, Partner
 
@@ -109,16 +109,12 @@ def organization_add_contact(request, organization_id):
     form = NewContactForm(request.POST or None, organization=organization)
     if form.is_valid():
         contact = form.save(current_user=request.user)
-        mail_request = MailEditingSubView(
-            request,
+        mail_sender = DirectMailUtil(
             mail_code='org_contacts/email_contact_for_activation',
             contact=contact)
-        if mail_request.is_valid():
-            mail_request.send()
-            messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
-                             % str(contact))
-        else:
-            messages.warning(request, 'The mail request was not valid.')
+        mail_sender.send()
+        messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
+                         % str(contact))
         return redirect(reverse('organizations:organization_details',
                                 kwargs={'pk': organization.id}))
     context = {
