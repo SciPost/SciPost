@@ -32,4 +32,9 @@ urlpatterns = [
         views.OrganizationDetailView.as_view(),
         name='organization_details'
     ),
+    url(
+        r'^dashboard/$',
+        views.dashboard,
+        name='dashboard'
+    ),
 ]

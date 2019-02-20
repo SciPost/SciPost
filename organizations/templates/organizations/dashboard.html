@@ -1,0 +1,41 @@
+{% extends 'organizations/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: organizations dashboard{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12">
+        <h1 class="highlight">Welcome to your Organizations dashboard, {{ request.user.org_contact.get_title_display }} {{ request.user.last_name }}</h1>
+    </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h3>Your Organizations-related roles:</h3>
+    <table class="table">
+      <tr>
+	<th>Organization</th>
+	<th>Role kind</th>
+	<th>Date from</th>
+	<th>Date until</th>
+      </tr>
+      {% for role in roles %}
+      <tr>
+	<td><a href="{{ role.organization.get_absolute_url }}">{{ role.organization }}</a></td>
+	<td>{{ role.get_kind_display }}</td>
+	<td>{{ role.date_from|date:"Y-m-d" }}</td>
+	<td>{{ role.date_until|date:"Y-m-d" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+	<td>No role has been defined</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+{% endblock content %}

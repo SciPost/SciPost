@@ -401,7 +401,8 @@ def login_view(request):
                                       '(our admins will verify your credentials very soon)'))
         elif form.user_is_inactive():
             form.add_error(None, ('Your account is not yet activated. '
-                                  'Please first activate your account.'))
+                                  'Please first activate your account by clicking on the '
+                                  'activation link we emailed you.'))
         else:
             form.add_error(None, 'Invalid username/password.')
     context = {'form': form}

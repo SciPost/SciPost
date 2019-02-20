@@ -34,7 +34,7 @@ from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
 
 from affiliations.models import Affiliation, Institution
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
-from partners.decorators import has_contact
+from organizations.decorators import has_contact
 
 from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
@@ -343,7 +343,7 @@ class AuthenticationForm(forms.Form):
             if has_contributor(request.user):
                 return reverse_lazy('scipost:personal_page')
             elif has_contact(request.user):
-                return reverse_lazy('partners:dashboard')
+                return reverse_lazy('organizations:dashboard')
             else:
                 return reverse_lazy('scipost:index')
         return redirect_to

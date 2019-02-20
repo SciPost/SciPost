@@ -2,11 +2,15 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import render
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
+
+from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR
 from .models import Organization
@@ -92,3 +96,19 @@ class OrganizationDetailView(DetailView):
         if not self.request.user.has_perm('scipost.can_manage_organizations'):
             queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
         return queryset
+
+
+@login_required
+def dashboard(request):
+    """
+    Administration page for Organization Contacts.
+
+    This page is meant as a personal page for Contacts, where they will for example be able
+    to read their personal data and agreements.
+    """
+    context = {}
+    try:
+        context['roles'] = request.user.org_contact.roles.all()
+    except:
+        pass
+    return render(request, 'organizations/dashboard.html', context)
