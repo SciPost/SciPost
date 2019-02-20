@@ -134,12 +134,12 @@ class MailEngine:
         if 'context_object_name' in self.mail_data:
             context_object_name = self.mail_data['context_object_name']
 
-        if 'object' in self.template_variables:
+        if context_object_name and context_object_name in self.template_variables:
+            object = self.template_variables[context_object_name]
+        elif 'object' in self.template_variables:
             object = self.template_variables['object']
         elif 'instance' in self.template_variables:
             object = self.template_variables['instance']
-        elif context_object_name and context_object_name in self.template_variables:
-            object = self.template_variables[context_object_name]
         else:
             for key, var in self.template_variables.items():
                 if isinstance(var, models.Model):

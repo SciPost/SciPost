@@ -15,17 +15,8 @@ class MailView(UpdateView):
     form_class = None
     mail_code = None
     mail_config = {}
+    mail_variables = {}
 
-    # def get_form_kwargs(self):
-    #     kwargs = super().get_form_kwargs()
-    #     kwargs['mail_code'] = self.mail_code
-    #     kwargs['mail_config'] = self.mail_config
-    #     return kwargs
-    # object = None
-    # mail_form = None
-    has_permission_to_send_mail = True
-    # alternative_from_address = None  # Tuple: ('from_name', 'from_address')
-    # 'mails/mail_form.html'
     def __init__(self, *args, **kwargs):
         if not self.mail_code:
             raise AttributeError(self.__class__.__name__ + ' object has no attribute `mail_code`')
@@ -48,7 +39,7 @@ class MailView(UpdateView):
         if form.is_valid():
             self.mail_form = EmailForm(
                 request.POST or None, mail_code=self.mail_code,
-                instance=self.object, **self.mail_config)
+                instance=self.object, **self.mail_config, **self.mail_variables)
             if self.mail_form.is_valid():
                 return self.form_valid(form)
 
@@ -60,15 +51,6 @@ class MailView(UpdateView):
 
     def form_valid(self, form):
         """If both the regular form and mailing form are valid, save both."""
-        # # Don't use the mail form; don't send out the mail.
-        # if not self.has_permission_to_send_mail:
-        #     return super().form_valid(form)
-
-        # if self.alternative_from_address:
-        #     # Set different from address if given.
-        #     self.mail_form.set_alternative_sender(
-        #         self.alternative_from_address[0], self.alternative_from_address[1])
-
         response = super().form_valid(form)
         try:
             self.mail_form.save()

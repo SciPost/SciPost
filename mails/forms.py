@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django import forms
 
 from .core import MailEngine
-from .expections import ConfigurationError
+from .exceptions import ConfigurationError
 from .widgets import SummernoteEditor
 
 
