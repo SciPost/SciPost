@@ -17,8 +17,9 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR
-from .forms import OrganizationEventForm, NewContactForm, ContactActivationForm, ContactRoleForm
-from .models import Organization, OrganizationEvent, Contact, ContactRole
+from .forms import OrganizationEventForm, ContactPersonForm,\
+    NewContactForm, ContactActivationForm, ContactRoleForm
+from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from funders.models import Funder
 from mails.utils import DirectMailUtil
@@ -116,6 +117,49 @@ class OrganizationEventCreateView(PermissionsMixin, CreateView):
         return {'organization': organization,
                 'noted_on': timezone.now,
                 'noted_by': self.request.user}
+
+    def get_success_url(self):
+        return reverse_lazy('organizations:organization_details',
+                            kwargs={'pk': self.object.organization.id})
+
+
+class ContactPersonCreateView(PermissionsMixin, CreateView):
+    permission_required = 'scipost.can_add_contactperson'
+    model = ContactPerson
+    form_class= ContactPersonForm
+    template_name = 'organizations/contactperson_form.html'
+
+    def get_initial(self):
+        organization = get_object_or_404(Organization, pk=self.kwargs.get('organization_id'))
+        return {'organization': organization}
+
+    def get_success_url(self):
+        return reverse_lazy('organizations:organization_details',
+                            kwargs={'pk': self.object.organization.id})
+
+
+class ContactPersonUpdateView(PermissionsMixin, UpdateView):
+    permission_required = 'scipost.can_add_contactperson'
+    model = ContactPerson
+    form_class= ContactPersonForm
+    template_name = 'organizations/contactperson_form.html'
+
+    def get_success_url(self):
+        return reverse_lazy('organizations:organization_details',
+                            kwargs={'pk': self.object.organization.id})
+
+
+class ContactPersonDeleteView(UserPassesTestMixin, DeleteView):
+    model = ContactPerson
+
+    def test_func(self):
+        """
+        Allow ContactPerson delete to OrgAdmins and all Contacts for this Organization.
+        """
+        if self.request.user.has_perm('scipost.can_manage_organizations'):
+            return True
+        contactperson = get_object_or_404(ContactPerson, pk=self.kwargs.get('pk'))
+        return self.request.user.has_perm('can_view_org_contacts', contactperson.organization)
 
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',

@@ -38,6 +38,21 @@ urlpatterns = [
         name='organizationevent_create'
     ),
     url(
+        r'^add_contactperson/(?P<organization_id>[0-9]+)/$',
+        views.ContactPersonCreateView.as_view(),
+        name='contactperson_create'
+    ),
+    url(
+        r'^contactperson/(?P<pk>[0-9]+)/update/$',
+        views.ContactPersonUpdateView.as_view(),
+        name='contactperson_update'
+    ),
+    url(
+        r'^contactperson/(?P<pk>[0-9]+)/delete/$',
+        views.ContactPersonDeleteView.as_view(),
+        name='contactperson_delete'
+    ),
+    url(
         r'^add_contact/(?P<organization_id>[0-9]+)/$',
         views.organization_add_contact,
         name='add_contact'

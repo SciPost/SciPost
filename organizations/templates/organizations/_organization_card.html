@@ -37,7 +37,7 @@ $(document).ready(function($) {
 	<li class="nav-item">
 	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
-	{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
 	<li class="nav-item">
 	  <a class="nav-link" id="contacts-{{ org.id }}-tab" data-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
 	</li>
@@ -158,7 +158,7 @@ $(document).ready(function($) {
 	  {% endif %}
 	</div>
 
-	{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson or "can_view_org_contacts" in user_org_perms %}
 	<div class="tab-pane pt-4" id="contacts-{{ org.id }}" role="tabpanel" aria-labelledby="contacts-{{ org.id }}-tab">
 	  <h3>Contacts (with explicit role)</h3>
 	  {% if perms.scipost.can_manage_organizations %}
@@ -181,23 +181,39 @@ $(document).ready(function($) {
 	      <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 	      <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
 	      <td>
-		<a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a>
-		&nbsp;&nbsp;
-		{% if perms.scipost.can_manage_organizations %}
-		<a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a>
-		{% endif %}
+		<ul>
+		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+		  <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
+		  {% endif %}
+		  {% if perms.scipost.can_manage_organizations %}
+		  <li><a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></li>
+		  {% endif %}
+		</ul>
 	      </td>
 	    </tr>
 	    {% endfor %}
 	  </table>
 
 	  <h3>Contact persons</h3>
+	  {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
+	  <ul>
+	    <li><a href="{% url 'organizations:contactperson_create' organization_id=org.id %}">Add a contact person for this Organization</a></li>
+	  </ul>
+	  {% endif %}
 	  <table class="table">
 	    {% for contact in org.contactperson_set.all %}
 	    <tr>
 	      <td>{{ contact }}</td>
 	      <td>{{ contact.email }}</td>
 	      <td>{{ contact.role }}</td>
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	      <td>
+		<ul>
+		  <li><a href="{% url 'organizations:contactperson_update' pk=contact.id %}"><span class="text-warning">Update</span></a></li>
+		  <li><a href="{% url 'organizations:contactperson_delete' pk=contact.id %}"><span class="text-danger">Delete</span></a></li>
+		</ul>
+	      </td>
+	      {% endif %}
 	    </tr>
 	    {% empty %}
 	    <tr>

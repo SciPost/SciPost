@@ -46,6 +46,10 @@ class Command(BaseCommand):
             codename='can_manage_organizations',
             name='Can manage Organizations',
             content_type=content_type)
+        can_add_contactperson, created = Permission.objects.get_or_create(
+            codename='can_add_contactperson',
+            name='Can add ContactPerson',
+            content_type=content_type)
 
         # Supporting Partners
         can_manage_SPB, created = Permission.objects.get_or_create(

@@ -15,7 +15,7 @@ from django.utils import timezone
 from guardian.shortcuts import assign_perm
 
 from .constants import ROLE_GENERAL
-from .models import OrganizationEvent, Contact, ContactRole
+from .models import OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from scipost.constants import TITLE_CHOICES
 
@@ -24,6 +24,12 @@ class OrganizationEventForm(forms.ModelForm):
     class Meta:
         model = OrganizationEvent
         fields = ['organization', 'event', 'comments', 'noted_on', 'noted_by']
+
+
+class ContactPersonForm(forms.ModelForm):
+    class Meta:
+        model = ContactPerson
+        fields = '__all__'
 
 
 class ContactForm(forms.ModelForm):
@@ -100,6 +106,7 @@ class NewContactForm(ContactForm):
         )
         user.save()
         assign_perm('can_view_org_contacts', user, self.organization)
+        user.user_permissions.add('scipost.can_add_contactperson')
         contact = Contact(
             user=user,
             title=self.cleaned_data['title']
