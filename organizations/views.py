@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from django.db import transaction
@@ -179,14 +180,22 @@ def dashboard(request):
     return render(request, 'organizations/dashboard.html', context)
 
 
-class ContactRoleUpdateView(PermissionsMixin, UpdateView):
+class ContactRoleUpdateView(UserPassesTestMixin,  UpdateView):
     """
     Update a ContactRole.
     """
-    permission_required = 'scipost.can_manage_organizations'
     model = ContactRole
     form_class = ContactRoleForm
     template_name = 'organizations/contactrole_form.html'
+
+    def test_func(self):
+        """
+        Allow ContactRole update to OrgAdmins and all Contacts for this Organization.
+        """
+        if self.request.user.has_perm('scipost.can_manage_organizations'):
+            return True
+        contactrole = get_object_or_404(ContactRole, pk=self.kwargs.get('pk'))
+        return self.request.user.has_perm('can_view_org_contacts', contactrole.organization)
 
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',
