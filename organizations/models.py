@@ -75,6 +75,9 @@ class Organization(models.Model):
 
     class Meta:
         ordering = ['country', 'name']
+        permissions = (
+            ('can_view_org_contacts', 'Can view this Organization\'s Contacts'),
+        )
 
     def __str__(self):
         return self.name

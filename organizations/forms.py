@@ -12,6 +12,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from guardian.shortcuts import assign_perm
+
 from .constants import ROLE_GENERAL
 from .models import OrganizationEvent, Contact, ContactRole
 
@@ -97,6 +99,7 @@ class NewContactForm(ContactForm):
             is_active=False,
         )
         user.save()
+        assign_perm('can_view_org_contacts', user, self.organization)
         contact = Contact(
             user=user,
             title=self.cleaned_data['title']

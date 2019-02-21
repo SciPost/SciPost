@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
+from guardian.admin import GuardedModelAdmin
+
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 
@@ -15,7 +17,7 @@ class ContactPersonInline(admin.TabularInline):
     model = ContactPerson
     extra = 0
 
-class OrganizationAdmin(admin.ModelAdmin):
+class OrganizationAdmin(GuardedModelAdmin):
     inlines = [OrganizationEventInline, ContactPersonInline,]
     search_fields = ['name', 'acronym']
 

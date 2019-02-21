@@ -1,5 +1,5 @@
 {% load bootstrap %}
-
+{% load guardian_tags %}
 {% load user_groups %}
 {% load organizations_extras %}
 
@@ -14,6 +14,8 @@ $(document).ready(function($) {
 {% endblock headsup %}
 
 {% is_scipost_admin request.user as is_scipost_admin %}
+
+{% get_obj_perms request.user for org as "user_org_perms" %}
 
 <div class="card-body">
 
@@ -35,13 +37,17 @@ $(document).ready(function($) {
 	<li class="nav-item">
 	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
-	{% if perms.scipost.can_manage_organizations %}
+	{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 	<li class="nav-item">
 	  <a class="nav-link" id="contacts-{{ org.id }}-tab" data-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
 	</li>
+	{% endif %}
+	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
 	  <a class="nav-link" id="events-{{ org.id }}-tab" data-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
 	</li>
+	{% endif %}
+	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
 	  <a class="nav-link" id="manage-{{ org.id }}-tab" data-toggle="tab" href="#manage-{{ org.id }}" role="tab" aria-controls="manage-{{ org.id }}" aria-selected="true">Manage</a>
 	</li>
@@ -150,48 +156,16 @@ $(document).ready(function($) {
 	  {% else %}
 	  <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
 	  {% endif %}
-
-	  {% if is_scipost_admin %}
-	  <h3 class="text-danger">To be removed (Admin view only):</h3>
-	  <h3>Supporting Partner Agreements history:</h3>
-	  {% with agreement=org.partner.get_latest_active_agreement %}
-	  {% if agreement %}
-	  <p>This organization is currently a SciPost Supporting Partner.</p>
-	  {% endif %}
-	  {% endwith %}
-	  {% if org.partner.agreements %}
-	  <table class="table">
-	    <thead>
-	      <th>Status</th>
-	      <th>Duration</th>
-	      <th>Start date</th>
-	      <th>Contribution/year</th>
-	    </thead>
-	    <tbody>
-	      {% for agreement in org.partner.agreements.all %}
-	      <tr>
-		<td>{{ agreement.get_status_display }}</td>
-		<td>{{ agreement.get_duration_display }}</td>
-		<td>{{ agreement.start_date }}</td>
-		<td>&euro;{{ agreement.offered_yearly_contribution }}</td>
-	      </tr>
-	      {% endfor %}
-	      <tr style="border-top: 2px solid black">
-		<td colspan="2"></td><td>Total contribution obtained:</td><td>&euro; {{ org.get_total_contribution_obtained }}</td></tr>
-	    </tbody>
-	  </table>
-	  {% else %}
-	  <p>This organization has <span class="text-danger">not yet</span> been a SciPost Supporting Partner.</p>
-	  {% endif %}
 	</div>
-	{% endif %}
 
-	{% if perms.scipost.can_manage_organizations %}
+	{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 	<div class="tab-pane pt-4" id="contacts-{{ org.id }}" role="tabpanel" aria-labelledby="contacts-{{ org.id }}-tab">
 	  <h3>Contacts (with explicit role)</h3>
+	  {% if perms.scipost.can_manage_organizations %}
 	  <ul>
 	    <li><a href="{% url 'organizations:add_contact' organization_id=org.id %}">Add a new Contact</a></li>
 	  </ul>
+	  {% endif %}
 	  <table class="table">
 	    <tr>
 	      <th>Name</th>
@@ -206,7 +180,13 @@ $(document).ready(function($) {
 	      <td>{{ contactrole.get_kind_display }}</td>
 	      <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 	      <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
-	      <td><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a>&nbsp;&nbsp;<a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></td>
+	      <td>
+		<a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a>
+		&nbsp;&nbsp;
+		{% if perms.scipost.can_manage_organizations %}
+		<a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a>
+		{% endif %}
+	      </td>
 	    </tr>
 	    {% endfor %}
 	  </table>
