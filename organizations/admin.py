@@ -35,3 +35,11 @@ class ContactAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Contact, ContactAdmin)
+
+
+class ContactInline(admin.TabularInline):
+    """
+    For use as an inline in User admin.
+    """
+    model = Contact
+    extra = 0
