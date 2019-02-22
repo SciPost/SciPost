@@ -682,6 +682,8 @@ def personal_page(request, tab='account'):
         contributor = Contributor.objects.select_related('user').get(user=request.user)
         context['needs_validation'] = contributor.status != NORMAL_CONTRIBUTOR
     except Contributor.DoesNotExist:
+        if has_contact(request.user):
+            return redirect(reverse('organizations:dashboard'))
         contributor = None
 
     if contributor:
