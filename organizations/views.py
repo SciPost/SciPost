@@ -69,14 +69,20 @@ class OrganizationListView(ListView):
             context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
             context['nr_prospartners_wo_organization'] = ProspectivePartner.objects.filter(
                 organization=None).count()
-            context['nr_partners_wo_organization'] = Partner.objects.filter(organization=None).count()
+            context['nr_partners_wo_organization'] = Partner.objects.filter(
+                organization=None).count()
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        context['countrycodes'] = [code['country'] for code in list(
+            Organization.objects.all().distinct('country').values('country'))]
         return context
 
     def get_queryset(self):
         qs = super().get_queryset().exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
+        country = self.request.GET.get('country')
         order_by = self.request.GET.get('order_by')
         ordering = self.request.GET.get('ordering')
+        if country:
+            qs = qs.filter(country=country)
         if order_by == 'country':
             qs = qs.order_by('country')
         elif order_by == 'name':

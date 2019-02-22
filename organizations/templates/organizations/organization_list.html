@@ -5,6 +5,7 @@
 {% load staticfiles %}
 {% load user_groups %}
 {% load organizations_extras %}
+{% load countries %}
 
 {% is_scipost_admin request.user as is_scipost_admin %}
 
@@ -16,6 +17,7 @@ $(document).ready(function($) {
     });
 });
 </script>
+<link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 {% endblock headsup %}
 
 {% block breadcrumb_items %}
@@ -62,6 +64,22 @@ $(document).ready(function($) {
       {% endif %}
       <li>associated authors</li>
       <li>partnership history</li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-3">
+    <h3>Click on flag to view by Country</h3>
+  </div>
+  <div class="col-8">
+    <ul>
+      {% for code in countrycodes %}
+      {% get_country code as country_obj %}
+      <li style="display: inline-block;">
+	<a href="?country={{ code }}"><i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
+      </li>
+      {% endfor %}
     </ul>
   </div>
 </div>
