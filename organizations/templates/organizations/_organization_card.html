@@ -47,16 +47,20 @@ $(document).ready(function($) {
 	  <a class="nav-link" id="events-{{ org.id }}-tab" data-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
 	</li>
 	{% endif %}
-	{% if perms.scipost.can_manage_organizations %}
-	<li class="nav-item">
-	  <a class="nav-link" id="manage-{{ org.id }}-tab" data-toggle="tab" href="#manage-{{ org.id }}" role="tab" aria-controls="manage-{{ org.id }}" aria-selected="true">Manage</a>
-	</li>
-	{% endif %}
       </ul>
 
       <div class="tab-content" id="organization-{{ org.id }}-tab">
 
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
+	  {% if perms.scipost.can_manage_organizations %}
+	  <h3>Manage this organization:</h3>
+	  <ul>
+	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
+	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
+	  </ul>
+	  <hr/>
+	  {% endif %}
+
 	  <h3>Details:</h3>
 	  {% include 'organizations/_organization_details_contents.html' with org=org %}
 	</div>
@@ -246,17 +250,6 @@ $(document).ready(function($) {
 	    <li>No event found</li>
 	    {% endfor %}
 	  </ul>
-	</div>
-	{% endif %}
-
-	{% if perms.scipost.can_manage_organizations %}
-	<div class="tab-pane pt-4" id="manage-{{ org.id }}" role="tabpanel" aria-labelledby="manage-{{ org.id }}-tab">
-	  <h3>Manage this organization:</h3>
-	  <ul>
-	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
-	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
-	  </ul>
-	  <hr/>
 	</div>
 	{% endif %}
 
