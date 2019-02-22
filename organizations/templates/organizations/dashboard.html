@@ -40,6 +40,13 @@
     <div class="row">
       <div class="col-12">
 	<p>{{ request.user.org_contact }}</p>
+
+        <h3>Update your personal data or password</h3>
+        <ul>
+          <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+          <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+        </ul>
+
       </div>
     </div>
   </div>

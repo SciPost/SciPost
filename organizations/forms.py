@@ -32,6 +32,15 @@ class ContactPersonForm(forms.ModelForm):
         fields = '__all__'
 
 
+class UpdateContactDataForm(forms.ModelForm):
+    """
+    This form is used in the scipost:update_personal_data method.
+    """
+    class Meta:
+        model = Contact
+        fields = ['title']
+
+
 class ContactForm(forms.ModelForm):
     """
     This Contact form is mainly used for editing Contact instances.

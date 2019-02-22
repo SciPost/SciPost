@@ -53,7 +53,9 @@ from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Publication, Journal, PublicationAuthorsTable
 from news.models import NewsItem
-from organizations.models import Organization
+from organizations.decorators import has_contact
+from organizations.models import Organization, Contact
+from organizations.forms import UpdateContactDataForm
 from partners.models import MembershipAgreement
 from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from theses.models import ThesisLink
@@ -737,6 +739,23 @@ def _update_personal_data_user_only(request):
     return render(request, 'scipost/update_personal_data.html', context)
 
 
+def _update_personal_data_contact(request):
+    contact = Contact.objects.get(user=request.user)
+    user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
+    contact_form = UpdateContactDataForm(request.POST or None, instance=contact)
+    if user_form.is_valid() and contact_form.is_valid():
+        user_form.save()
+        contact_form.save()
+        messages.success(request, 'Your personal data has been updated.')
+        return redirect(reverse('organizations:dashboard'))
+
+    context = {
+        'user_form': user_form,
+        'contact_form': contact_form,
+    }
+    return render(request, 'scipost/update_personal_data.html', context)
+
+
 def _update_personal_data_contributor(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
@@ -764,6 +783,8 @@ def _update_personal_data_contributor(request):
 def update_personal_data(request):
     if has_contributor(request.user):
         return _update_personal_data_contributor(request)
+    elif has_contact(request.user):
+        return _update_personal_data_contact(request)
     return _update_personal_data_user_only(request)
 
 
