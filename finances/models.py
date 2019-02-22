@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -53,6 +55,12 @@ class Subsidy(models.Model):
 
     def get_absolute_url(self):
         return reverse('finances:subsidy_details', args=(self.id,))
+
+    @property
+    def renewal_action_date(self):
+        if self.date_until:
+            return self.date_until - datetime.timedelta(days=122)
+        return None
 
 
 class SubsidyAttachment(models.Model):

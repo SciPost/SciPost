@@ -4,7 +4,6 @@
 
 {% load staticfiles %}
 
-
 {% block headsup %}
 <script type="text/javascript">
 $(document).ready(function($) {
@@ -77,6 +76,9 @@ $(document).ready(function($) {
 	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
 	    {% endif %}
 	  </th>
+	  {% if perms.scipost.can_manage_subsidies %}
+	  <th>Renewal:<br/>take action on</th>
+	  {% endif %}
 	</tr>
       </thead>
       <tbody>
@@ -87,6 +89,9 @@ $(document).ready(function($) {
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  <td>{{ subsidy.date }}</td>
 	  <td>{{ subsidy.date_until }}</td>
+	  {% if perms.scipost.can_manage_subsidies %}
+	  <td>{{ subsidy.renewal_action_date }}</td>
+	  {% endif %}
 	</tr>
 	{% empty %}
 	<tr>
