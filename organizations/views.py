@@ -232,7 +232,8 @@ def dashboard(request):
         raise PermissionDenied
 
     context = {
-        'own_roles': request.user.org_contact.roles.all()
+        'own_roles': request.user.org_contact.roles.all(),
+        'contacts': Contact.objects.all()
     }
 
     return render(request, 'organizations/dashboard.html', context)

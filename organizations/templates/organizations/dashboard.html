@@ -36,6 +36,9 @@ $(document).ready(function($) {
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies from your Orgs</a>
 	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#board" class="nav-link" data-toggle="tab">Sponsors Board</a>
+	  </li>
 	</ul>
       </div>
     </div>
@@ -141,6 +144,53 @@ $(document).ready(function($) {
 	  <li>No Organization found</li>
 	  {% endfor %}
 	</ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="board" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Sponsors Board</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+	<p>The Sponsors Board is composed of all registered Organization Contacts.</p>
+
+        <h3>Active Contacts</h3>
+	<table class="table">
+	  <thead class="thead-default">
+	    <tr>
+	      <th>Name</th>
+	      <th>Organization(s) / role(s)</th>
+	      {% if perms.scipost.can_manage_organizations %}
+	      <th>Account<br/>active?</th>
+	      {% endif %}
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for contact in contacts %}
+	    <tr>
+	      <td>{{ contact }}</td>
+	      <td>
+		<ul class="list-group list-group-flush">
+		  {% for role in contact.roles.all %}
+		  <li class="list-group-item">{{ role.organization }} / {{ role.get_kind_display }}</li>
+		  {% empty %}
+		  <li class="list-group-item">No Organization found</li>
+		  {% endfor %}
+		</ul>
+	      </td>
+	      {% if perms.scipost.can_manage_organizations %}
+	      <td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	      {% endif %}
+	    </tr>
+	    {% empty %}
+	    <tr><td>No contact found</td></tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
       </div>
     </div>
   </div>

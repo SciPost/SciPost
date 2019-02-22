@@ -240,6 +240,9 @@ class Contact(models.Model):
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
 
+    class Meta:
+        ordering = ['user__last_name', 'user__first_name']
+
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
 
