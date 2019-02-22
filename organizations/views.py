@@ -16,13 +16,14 @@ from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
-from .constants import ORGTYPE_PRIVATE_BENEFACTOR
+from .constants import ORGTYPE_PRIVATE_BENEFACTOR, ORGANIZATION_EVENT_EMAIL_SENT
 from .forms import OrganizationEventForm, ContactPersonForm,\
     NewContactForm, ContactActivationForm, ContactRoleForm
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from funders.models import Funder
 from mails.utils import DirectMailUtil
+from mails.views import MailEditingSubView
 from organizations.decorators import has_contact
 from partners.models import ProspectivePartner, Partner
 
@@ -170,6 +171,34 @@ class ContactPersonDeleteView(UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',
                             kwargs={'pk': self.object.organization.id})
+
+
+@permission_required('scipost.can_email_prospartner_contact', return_403=True)
+@transaction.atomic
+def email_contactperson(request, contactperson_id, mail=None):
+    contactperson = get_object_or_404(ContactPerson, pk=contactperson_id)
+
+    suffix = ''
+    if mail == 'followup':
+        code = 'contactperson_followup_mail'
+        suffix = ' (followup)'
+    else:
+        code = 'org_contacts/contactperson_initial_mail'
+    mail_request = MailEditingSubView(request, mail_code=code, contactperson=contactperson)
+    if mail_request.is_valid():
+        comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix, name=contactperson)
+        event = OrganizationEvent(
+            organization=contactperson.organization,
+            event=ORGANIZATION_EVENT_EMAIL_SENT,
+            comments=comments,
+            noted_on=timezone.now(),
+            noted_by=request.user.contributor)
+        event.save()
+        messages.success(request, 'Email successfully sent.')
+        mail_request.send()
+        return redirect(reverse('organizations:dashboard'))
+    else:
+        return mail_request.return_render()
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)
