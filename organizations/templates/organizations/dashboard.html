@@ -17,9 +17,13 @@ $(document).ready(function($) {
 {% block content %}
 
 <div class="row">
-    <div class="col-12">
-        <h1 class="highlight">Welcome to your Organizations dashboard, {{ request.user.org_contact.get_title_display }} {{ request.user.last_name }}</h1>
-    </div>
+  <div class="col-12">
+    {% if request.user.org_contact %}
+    <h1 class="highlight">Welcome to your Organizations dashboard, {{ request.user.org_contact.get_title_display }} {{ request.user.last_name }}</h1>
+    {% elif perms.scipost.can_manage_organizations %}
+    <h1 class="highlight">Organizations dashboard</h1>
+    {% endif %}
+  </div>
 </div>
 
 <div class="row">
@@ -27,6 +31,7 @@ $(document).ready(function($) {
     <div class="tab-nav-container">
       <div class="tab-nav-inner">
 	<ul class="nav btn-group personal-page-nav" role="tablist">
+	  {% if request.user.org_contact %}
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#account" class="nav-link" data-toggle="tab">Account</a>
 	  </li>
@@ -36,6 +41,7 @@ $(document).ready(function($) {
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies<br/>from your Orgs</a>
 	  </li>
+	  {% endif %}
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#board" class="nav-link" data-toggle="tab">Sponsors<br/>Board</a>
 	  </li>
@@ -67,7 +73,7 @@ $(document).ready(function($) {
     </div>
   </div>
 
-  <div class="tab-pane active" id="own_roles" role="tabpanel">
+  <div class="tab-pane{% if request.user.org_contact %} active{% endif %}" id="own_roles" role="tabpanel">
     <div class="row">
       <div class="col-12">
 	<h2 class="highlight">Your Organizations-related roles</h2>
@@ -176,7 +182,7 @@ $(document).ready(function($) {
 	      <td>
 		<ul class="list-group list-group-flush">
 		  {% for role in contact.roles.all %}
-		  <li class="list-group-item">{{ role.organization }} / {{ role.get_kind_display }}</li>
+		  <li class="list-group-item"><a href="{{ role.organization.get_absolute_url }}" target="_blank">{{ role.organization }}</a> / {{ role.get_kind_display }}</li>
 		  {% empty %}
 		  <li class="list-group-item">No Organization found</li>
 		  {% endfor %}

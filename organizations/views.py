@@ -236,12 +236,11 @@ def dashboard(request):
     if not (request.user.has_perm('scipost.can_manage_organizations') or
             has_contact(request.user)):
         raise PermissionDenied
-
     context = {
-        'own_roles': request.user.org_contact.roles.all(),
         'contacts': Contact.objects.all()
     }
-
+    if has_contact(request.user):
+        context['own_roles'] = request.user.org_contact.roles.all()
     return render(request, 'organizations/dashboard.html', context)
 
 
