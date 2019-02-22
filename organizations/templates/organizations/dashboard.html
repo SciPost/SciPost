@@ -4,6 +4,16 @@
 
 {% block pagetitle %}: organizations dashboard{% endblock pagetitle %}
 
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
 {% block content %}
 
 <div class="row">
@@ -22,6 +32,9 @@
 	  </li>
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#own_roles" class="nav-link active" data-toggle="tab">Your roles</a>
+	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies from your Orgs</a>
 	  </li>
 	</ul>
       </div>
@@ -77,6 +90,56 @@
 	  </tr>
 	  {% endfor %}
 	</table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="subsidies" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Subsidies from your Organizations</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+	<ul>
+	  {% for role in request.user.org_contact.roles.all %}
+	  <li>
+	    <h4>{{ role.organization }}</h4>
+
+	    {% if role.organization.subsidy_set.all|length > 0 %}
+	    <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
+	    <table class="table table-hover mb-5">
+	      <thead class="thead-default">
+		<tr>
+		  <th>Type</th>
+		  <th>Amount</th>
+		  <th>Date</th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for subsidy in role.organization.subsidy_set.all %}
+		<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
+		  <td>{{ subsidy.get_subsidy_type_display }}</td>
+		  <td>&euro;{{ subsidy.amount }}</td>
+		  <td>{{ subsidy.date }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
+		</tr>
+		{% endfor %}
+		<tr style="border-top: 2px solid black">
+		  <td>Total support obtained:</td>
+		  <td>&euro;{{ role.organization.get_total_subsidies_obtained }}</td>
+		  <td colspan="2">
+		</tr>
+	      </tbody>
+	    </table>
+	    {% else %}
+	    <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
+	    {% endif %}
+	  </li>
+	  {% empty %}
+	  <li>No Organization found</li>
+	  {% endfor %}
+	</ul>
       </div>
     </div>
   </div>
