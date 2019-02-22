@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .constants import SUBSIDY_TYPES, SUBSIDY_STATUS
+from .constants import SUBSIDY_TYPES, SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_STATUS
 from .utils import id_to_slug
 
 from scipost.storage import SecureFileStorage
@@ -58,9 +58,9 @@ class Subsidy(models.Model):
 
     @property
     def renewal_action_date(self):
-        if self.date_until:
+        if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
             return self.date_until - datetime.timedelta(days=122)
-        return None
+        return '-'
 
 
 class SubsidyAttachment(models.Model):
