@@ -172,8 +172,10 @@ $(document).ready(function($) {
 	      <th>Kind</th>
 	      <th>Date from</th>
 	      <th>Date until</th>
-	      <th>Account<br/>activated?</th>
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	      <th>Account<br/>active?</th>
 	      <th>Actions</th>
+	      {% endif %}
 	    </tr>
 	    {% for contactrole in org.contactrole_set.all %}
 	    <tr>
@@ -181,6 +183,7 @@ $(document).ready(function($) {
 	      <td>{{ contactrole.get_kind_display }}</td>
 	      <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 	      <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 	      <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	      <td>
 		<ul>
@@ -192,6 +195,7 @@ $(document).ready(function($) {
 		  {% endif %}
 		</ul>
 	      </td>
+	      {% endif %}
 	    </tr>
 	    {% endfor %}
 	  </table>
@@ -199,7 +203,7 @@ $(document).ready(function($) {
 	  <h3>Contact persons</h3>
 	  {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
 	  <ul>
-	    <li><a href="{% url 'organizations:contactperson_create' organization_id=org.id %}">Add a contact person for this Organization</a></li>
+	    <li><a href="{% url 'organizations:contactperson_create' organization_id=org.id %}">Add/suggest a contact person for this Organization</a></li>
 	  </ul>
 	  {% endif %}
 	  <table class="table">
