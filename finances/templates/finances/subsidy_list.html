@@ -53,7 +53,7 @@ $(document).ready(function($) {
 	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
 	    {% endif %}
 	  </th>
-	  <th>Date
+	  <th>From date
 	    {% if request.GET.ordering != 'asc' %}
 	    <a href="?order_by=date&ordering=asc"><i class="fa fa-sort-asc"></i></a>
 	    {% else %}
@@ -61,6 +61,18 @@ $(document).ready(function($) {
 	    {% endif %}
 	    {% if request.GET.ordering != 'desc' %}
 	    <a href="?order_by=date&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	    {% else %}
+	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	    {% endif %}
+	  </th>
+	  <th>Until
+	    {% if request.GET.ordering != 'asc' %}
+	    <a href="?order_by=until&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	    {% else %}
+	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+	    {% endif %}
+	    {% if request.GET.ordering != 'desc' %}
+	    <a href="?order_by=until&ordering=desc"><i class="fa fa-sort-desc"></i></a>
 	    {% else %}
 	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
 	    {% endif %}
@@ -74,10 +86,11 @@ $(document).ready(function($) {
 	  <td>{{ subsidy.get_subsidy_type_display }}</td>
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  <td>{{ subsidy.date }}</td>
+	  <td>{{ subsidy.date_until }}</td>
 	</tr>
 	{% empty %}
 	<tr>
-	  <td colspan="4">No Subsidy found</td>
+	  <td colspan="5">No Subsidy found</td>
 	</tr>
 	{% endfor %}
       </tbody>

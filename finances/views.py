@@ -72,6 +72,8 @@ class SubsidyListView(ListView):
             qs = qs.filter(amount_publicly_shown=True).order_by('amount')
         elif order_by == 'date':
             qs = qs.order_by('date')
+        elif order_by == 'until':
+            qs = qs.order_by('date_until')
         if ordering == 'desc':
             qs = qs.reverse()
         return qs
