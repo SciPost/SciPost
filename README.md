@@ -407,9 +407,35 @@ This utility is protected to prevent double sending. So now, the following has n
 
 This view may be used as a [generic editing view](https://docs.djangoproject.com/en/1.11/ref/class-based-views/generic-editing/) or [DetailView](https://docs.djangoproject.com/en/1.11/ref/class-based-views/generic-display/#detailview).
 
+
 *class* mails.views.__MailView__
 
+This view is a basic class-based view, which may be used as basic editor for a specific templated email.
+
 ##### Attributes
+* `mail_code` {string}
+> The unique code refereeing to a template and configuration file.
+
+* `mail_config` {dict, optional}
+> Overwrite any of the configuration fields of the configuration file:
+    * `subject` {string}
+    * `recipient_list` {list}
+    * `bcc` {list}
+    * `from_email` {string}
+    * `from_name` {string}
+
+* `mail_variables` {dict, optional}
+> Append extra variables to the mail template.
+
+
+*class* mails.views.__MailFormView__
+
+This view may be used as a generic editing view, and will intercept the POST request to let the user edit the email before saving the original form and sending the templated mail.
+
+##### Attributes
+* `form_class` {django.forms.__ModelForm__ | django.forms.__Form__}
+> The original form to use as in any regular Django editing view.
+
 * `mail_code` {string}
 > The unique code refereeing to a template and configuration file.
 

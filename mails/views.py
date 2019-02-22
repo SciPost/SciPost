@@ -1,15 +1,18 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+from django import forms
+from django.core.exceptions import ImproperlyConfigured
 from django.contrib import messages
 from django.shortcuts import render
+from django.utils.encoding import force_text
 from django.views.generic.edit import UpdateView
 
 from submissions.models import Submission
-from .forms import EmailForm, HiddenDataForm
+from .forms import EmailForm, HiddenDataForm, FakeForm
 
 
-class MailView(UpdateView):
+class MailViewBase:
     """Send a templated email after being edited by user."""
 
     form_class = None
@@ -23,14 +26,37 @@ class MailView(UpdateView):
         super().__init__(*args, **kwargs)
         self.mail_form = None
 
+
+class MailFormView(MailViewBase, UpdateView):
+    """
+    MailUpdateView acts as a base class-based form view, but will intercept the POST request
+    of the original form. It'll render the email edit form and save/send both after validation.
+    """
+
     def get_template_names(self):
         """The mail editor form has its own template."""
         if self.mail_form and not self.mail_form.is_valid():
             return ['mails/mail_form.html']
         return super().get_template_names()
 
+    def get_form_kwargs(self):
+        kwargs = {
+            'initial': self.get_initial(),
+            'prefix': self.get_prefix(),
+        }
+
+        if self.request.method in ('POST', 'PUT'):
+            kwargs.update({
+                'data': self.request.POST,
+                'files': self.request.FILES,
+            })
+
+        if isinstance(self.form_class, forms.ModelForm) and hasattr(self, 'object'):
+            kwargs.update({'instance': self.object})
+        return kwargs
+
     def post(self, request, *args, **kwargs):
-        """Handle POST requests, but intercept the data if the mail form data isn't valid."""
+        """Save forms or intercept the request."""
         self.object = None
         if hasattr(self, 'get_object'):
             self.object = self.get_object()
@@ -62,12 +88,55 @@ class MailView(UpdateView):
         messages.success(self.request, 'Mail sent')
         return response
 
+    def get_success_url(self):
+        """
+        Returns the supplied URL.
+        """
+        if self.success_url:
+            if hasattr(self, 'object') and self.object:
+                url = self.success_url.format(**self.object.__dict__)
+            else:
+                url = force_text(self.success_url)
+        elif hasattr(self, 'object') and self.object:
+            try:
+                url = self.object.get_absolute_url()
+            except AttributeError:
+                raise ImproperlyConfigured(
+                    "No URL to redirect to.  Either provide a url or define"
+                    " a get_absolute_url method on the Model.")
+        else:
+            raise ImproperlyConfigured(
+                "No URL to redirect to. Provide a success_url.")
+        return url
 
-class TestView(MailView):
+
+
+class MailView(MailViewBase, UpdateView):
+    form_class = EmailForm
+    template_name = 'mails/mail_form.html'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['mail_code'] = self.mail_code
+        kwargs['instance'] = self.get_object()
+        kwargs.update(**self.mail_config)
+        kwargs.update(**self.mail_variables)
+        return kwargs
+
+
+class TestView(MailDetailView):
     """To be removed; exists for testing purposes only."""
     mail_code = 'tests/test_mail_code_1'
     model = Submission
     success_url = '/'
+
+
+class TestUpdateView(MailFormView):
+    """To be removed; exists for testing purposes only."""
+    mail_code = 'tests/test_mail_code_1'
+    model = Submission
+    success_url = '/'
+    form_class = FakeForm
 
 
 class MailEditorSubview:
@@ -117,10 +186,6 @@ class MailEditorSubview:
                 "The mail: %s could not be sent because the data didn't validate." % self.mail_code)
         return self.mail_form.save()
 
-
-class MailEditingSubView:
-    """Deprecated."""
-    pass
 
 
 class MailEditorMixin:

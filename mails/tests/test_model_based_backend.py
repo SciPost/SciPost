@@ -30,16 +30,16 @@ class ModelEmailBackendTests(TestCase):
             mail_util.send_mail()
             self.assertTrue(mail_util.engine._mail_sent)
 
-        mail = MailLog.objects.last()
-        self.assertFalse(mail.processed)
-        self.assertEqual(mail.status, MAIL_NOT_RENDERED)
-        self.assertEqual(mail.mail_code, 'tests/test_mail_code_1')
-        self.assertEqual(mail.subject, 'Test Subject Unique For Testing 93872')
-        self.assertEqual(mail.body, '')
-        self.assertEqual(mail.body_html, '')
-        self.assertIn('test1@scipost.org', mail.to_recipients)
-        self.assertIn('test2@scipost.org', mail.bcc_recipients)
-        self.assertEqual('Test Name <test3@scipost.org>', mail.from_email)
+        mail_log = MailLog.objects.last()
+        self.assertFalse(mail_log.processed)
+        self.assertEqual(mail_log.status, MAIL_NOT_RENDERED)
+        self.assertEqual(mail_log.mail_code, 'tests/test_mail_code_1')
+        self.assertEqual(mail_log.subject, 'Test Subject Unique For Testing 93872')
+        self.assertEqual(mail_log.body, '')
+        self.assertEqual(mail_log.body_html, '')
+        self.assertIn('test1@scipost.org', mail_log.to_recipients)
+        self.assertIn('test2@scipost.org', mail_log.bcc_recipients)
+        self.assertEqual('Test Name <test3@scipost.org>', mail_log.from_email)
 
     def test_rendered_database_entries(self):
         """Test rendered mail database entries are correct after sending email."""
@@ -50,11 +50,11 @@ class ModelEmailBackendTests(TestCase):
                 subject='Test Subject Unique For Testing 786234')  # Use weird subject to confirm right instance.
             mail_util.send_mail()
 
-        mail = MailLog.objects.last()
-        self.assertEqual(mail.status, MAIL_RENDERED)
-        self.assertEqual(mail.subject, 'Test Subject Unique For Testing 786234')
-        self.assertNotEqual(mail.body, '')
-        self.assertNotEqual(mail.body_html, '')
+        mail_log = MailLog.objects.last()
+        self.assertEqual(mail_log.status, MAIL_RENDERED)
+        self.assertEqual(mail_log.subject, 'Test Subject Unique For Testing 786234')
+        self.assertNotEqual(mail_log.body, '')
+        self.assertNotEqual(mail_log.body_html, '')
 
     def test_context_saved_to_database(self):
         """Test mail database entries have relations with their context items."""
@@ -66,10 +66,10 @@ class ModelEmailBackendTests(TestCase):
                 random_submission_relation=self.submission)
             mail_util.send_mail()
 
-        mail = MailLog.objects.last()
-        context = mail.get_full_context()
-        self.assertEqual(mail.status, MAIL_NOT_RENDERED)
-        self.assertEqual(mail.subject, 'Test Subject Unique For Testing 786234')
+        mail_log = MailLog.objects.last()
+        context = mail_log.get_full_context()
+        self.assertEqual(mail_log.status, MAIL_NOT_RENDERED)
+        self.assertEqual(mail_log.subject, 'Test Subject Unique For Testing 786234')
         self.assertIn('random_submission_relation', context)
         self.assertEqual(context['random_submission_relation'], self.submission)
         self.assertIn('weird_variable_name', context)
@@ -81,10 +81,10 @@ class ModelEmailBackendTests(TestCase):
             mail_util = DirectMailUtil('tests/test_mail_code_1', object=self.submission)
             mail_util.send_mail()
 
-        mail = MailLog.objects.last()
-        call_command('send_mails', id=mail.id)
+        mail_log = MailLog.objects.last()
+        call_command('send_mails', id=mail_log.id)
 
-        mail.refresh_from_db()
-        self.assertNotEqual(mail.body, '')
-        self.assertNotEqual(mail.body_html, '')
-        self.assertEqual(mail.status, MAIL_SENT)
+        mail_log.refresh_from_db()
+        self.assertNotEqual(mail_log.body, '')
+        self.assertNotEqual(mail_log.body_html, '')
+        self.assertEqual(mail_log.status, MAIL_SENT)

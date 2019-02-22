@@ -73,9 +73,26 @@ class EmailForm(forms.Form):
         return self.engine.template_variables['object']
 
 
+
+class FakeForm(forms.Form):
+    """
+    Fake form for testing purposes.
+    """
+
+    field1 = forms.CharField(label='Field 1')
+
+    def save(self):
+        """Dummy method."""
+        print('Save', self.cleaned_data)
+        return
+
+
 class HiddenDataForm(forms.Form):
     """
     Regular Django form which tranforms all fields to hidden fields.
+
+    BE AWARE: This form may only be used for non-sensitive data!
+        Any data that may not be interceptedby the used should NEVER be added to this form.
     """
 
     def __init__(self, form, *args, **kwargs):
