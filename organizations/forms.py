@@ -6,7 +6,7 @@ import datetime
 
 from django import forms
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db import transaction
@@ -67,6 +67,7 @@ class NewContactForm(ContactForm):
         the Contact is being edited for in the current form.
         """
         self.organization = kwargs.pop('organization')
+        self.contactperson = kwargs.pop('contactperson')
         super().__init__(*args, **kwargs)
 
     def clean_email(self):
@@ -95,35 +96,37 @@ class NewContactForm(ContactForm):
         if self.existing_user and self.data.get('confirm_use_existing', '') == 'on':
             # Create new Contact if it doesn't already exist
             try:
-                # Link Contact to new Organization
                 contact = self.existing_user.org_contact
             except Contact.DoesNotExist:
-                # Not yet a 'Contact-User'
                 contact = super().save(commit=False)
                 contact.title = self.existing_user.org_contact.title
                 contact.user = self.existing_user
                 contact.save()
-            return contact
+            # Assign permissions and Group
+            assign_perm('can_view_org_contacts', contact.user, self.organization)
+            orgcontacts = Group.objects.get(name='Organization Contacts')
+            contact.user.groups.add(orgcontacts)
+        else:
+            # Create complete new Account (User + Contact)
+            user = User(
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                email=self.cleaned_data['email'],
+                username=self.cleaned_data['email'],
+                is_active=False,
+            )
+            user.save()
+            contact = Contact(
+                user=user,
+                title=self.cleaned_data['title']
+            )
+            contact.generate_key()
+            contact.save()
 
-        # Create complete new Account (User + Contact)
-        user = User(
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            email=self.cleaned_data['email'],
-            username=self.cleaned_data['email'],
-            is_active=False,
-        )
-        user.save()
-        assign_perm('can_view_org_contacts', user, self.organization)
-        orgcontacts = Group.objects.get(name='OrgContacts')
-        user.groups.add(orgcontacts)
-
-        contact = Contact(
-            user=user,
-            title=self.cleaned_data['title']
-        )
-        contact.generate_key()
-        contact.save()
+            # Assign permissions and Group
+            assign_perm('can_view_org_contacts', user, self.organization)
+            orgcontacts = Group.objects.get(name='Organization Contacts')
+            user.groups.add(orgcontacts)
 
         # Create the role with to-be-updated info
         contactrole = ContactRole(
@@ -134,6 +137,10 @@ class NewContactForm(ContactForm):
             date_until=timezone.now() + datetime.timedelta(days=3650)
         )
         contactrole.save()
+
+        # If upgrading from a ContactPerson, delete the latter
+        if self.contactperson:
+            self.contactperson.delete()
 
         return contact
 

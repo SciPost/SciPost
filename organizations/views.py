@@ -167,9 +167,23 @@ class ContactPersonDeleteView(UserPassesTestMixin, DeleteView):
 
 
 @permission_required('scipost.can_manage_SPB', return_403=True)
-def organization_add_contact(request, organization_id):
+def organization_add_contact(request, organization_id, contactperson_id=None):
     organization = get_object_or_404(Organization, id=organization_id)
-    form = NewContactForm(request.POST or None, organization=organization)
+    if contactperson_id:
+        contactperson = get_object_or_404(ContactPerson, id=contactperson_id)
+        initial = {
+            'title': contactperson.title,
+            'first_name': contactperson.first_name,
+            'last_name': contactperson.last_name,
+            'email': contactperson.email
+            }
+    else:
+        contactperson = None
+        initial = {}
+    form = NewContactForm(request.POST or None, initial=initial,
+                          organization=organization,
+                          contactperson=contactperson
+    )
     if form.is_valid():
         contact = form.save(current_user=request.user)
         mail_sender = DirectMailUtil(

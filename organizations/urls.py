@@ -53,6 +53,12 @@ urlpatterns = [
         name='contactperson_delete'
     ),
     url(
+        # For upgrading a ContactPerson to a Contact
+        r'^add_contact/(?P<organization_id>[0-9]+)/(?P<contactperson_id>[0-9]+)/$',
+        views.organization_add_contact,
+        name='add_contact'
+    ),
+    url(
         r'^add_contact/(?P<organization_id>[0-9]+)/$',
         views.organization_add_contact,
         name='add_contact'
