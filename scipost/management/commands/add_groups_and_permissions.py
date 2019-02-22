@@ -34,6 +34,8 @@ class Command(BaseCommand):
         ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
+        OrgContacts, created = Group.objects.get_or_create(name='Organization Contacts')
+
         PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
         PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
         PartnerAccounts, created = Group.objects.get_or_create(name='Partners Accounts')
@@ -49,6 +51,10 @@ class Command(BaseCommand):
         can_add_contactperson, created = Permission.objects.get_or_create(
             codename='can_add_contactperson',
             name='Can add ContactPerson',
+            content_type=content_type)
+        can_view_contactrole_list, created = Permission.objects.get_or_create(
+            codename='can_view_contactrole_list',
+            name='Can view ContactRole list',
             content_type=content_type)
 
         # Supporting Partners
@@ -479,6 +485,11 @@ class Command(BaseCommand):
             can_view_production,
             can_upload_proofs,
         ])
+
+        OrgContacts.permissions.set([
+            can_add_contactperson,
+            can_view_contactrole_list,
+            ])
 
         PartnersAdmin.permissions.set([
             can_manage_organizations,

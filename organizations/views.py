@@ -26,7 +26,7 @@ from mails.utils import DirectMailUtil
 from organizations.decorators import has_contact
 from partners.models import ProspectivePartner, Partner
 
-from scipost.mixins import PermissionsMixin
+from scipost.mixins import PermissionsMixin, PaginationMixin
 
 
 class OrganizationCreateView(PermissionsMixin, CreateView):
@@ -218,7 +218,7 @@ def dashboard(request):
         raise PermissionDenied
 
     context = {
-        'roles': request.user.org_contact.roles.all()
+        'own_roles': request.user.org_contact.roles.all()
     }
 
     return render(request, 'organizations/dashboard.html', context)

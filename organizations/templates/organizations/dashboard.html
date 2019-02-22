@@ -14,28 +14,66 @@
 
 <div class="row">
   <div class="col-12">
-    <h3>Your Organizations-related roles:</h3>
-    <table class="table">
-      <tr>
-	<th>Organization</th>
-	<th>Role kind</th>
-	<th>Date from</th>
-	<th>Date until</th>
-      </tr>
-      {% for role in roles %}
-      <tr>
-	<td><a href="{{ role.organization.get_absolute_url }}">{{ role.organization }}</a></td>
-	<td>{{ role.get_kind_display }}</td>
-	<td>{{ role.date_from|date:"Y-m-d" }}</td>
-	<td>{{ role.date_until|date:"Y-m-d" }}</td>
-      </tr>
-      {% empty %}
-      <tr>
-	<td>No role has been defined</td>
-      </tr>
-      {% endfor %}
-    </table>
+    <div class="tab-nav-container">
+      <div class="tab-nav-inner">
+	<ul class="nav btn-group personal-page-nav" role="tablist">
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#account" class="nav-link" data-toggle="tab">Account</a>
+	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#own_roles" class="nav-link active" data-toggle="tab">Your roles</a>
+	  </li>
+	</ul>
+      </div>
+    </div>
   </div>
+</div>
+
+<div class="tab-content">
+
+  <div class="tab-pane" id="account" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Your account</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+	<p>{{ request.user.org_contact }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane active" id="own_roles" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Your Organizations-related roles</h2>
+	<table class="table">
+	  <tr>
+	    <th>Organization</th>
+	    <th>Role kind</th>
+	    <th>Date from</th>
+	    <th>Date until</th>
+	    <th>Actions</th>
+	  </tr>
+	  {% for role in own_roles %}
+	  <tr>
+	    <td><a href="{{ role.organization.get_absolute_url }}">{{ role.organization }}</a></td>
+	    <td>{{ role.get_kind_display }}</td>
+	    <td>{{ role.date_from|date:"Y-m-d" }}</td>
+	    <td>{{ role.date_until|date:"Y-m-d" }}</td>
+	    <td><a href="{% url 'organizations:contactrole_update' pk=role.id %}"><span class="text-warning">Update</span></a></td>
+	  </tr>
+	  {% empty %}
+	  <tr>
+	    <td>No role has been defined</td>
+	  </tr>
+	  {% endfor %}
+	</table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 {% endblock content %}

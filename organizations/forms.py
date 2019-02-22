@@ -106,7 +106,9 @@ class NewContactForm(ContactForm):
         )
         user.save()
         assign_perm('can_view_org_contacts', user, self.organization)
-        user.user_permissions.add('scipost.can_add_contactperson')
+        orgcontacts = Group.objects.get(name='OrgContacts')
+        user.groups.add(orgcontacts)
+
         contact = Contact(
             user=user,
             title=self.cleaned_data['title']
