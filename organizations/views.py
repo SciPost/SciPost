@@ -187,7 +187,8 @@ def email_contactperson(request, contactperson_id, mail=None):
         suffix = ' (initial)'
     mail_request = MailEditingSubView(request, mail_code=code, contactperson=contactperson)
     if mail_request.is_valid():
-        comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix, name=contactperson)
+        comments = 'Email{suffix} sent to ContactPerson {name}.'.format(
+            suffix=suffix, name=contactperson)
         event = OrganizationEvent(
             organization=contactperson.organization,
             event=ORGANIZATION_EVENT_EMAIL_SENT,
@@ -306,3 +307,33 @@ class ContactRoleDeleteView(PermissionsMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',
                             kwargs={'pk': self.object.organization.id})
+
+
+@permission_required('scipost.can_manage_organizations', return_403=True)
+@transaction.atomic
+def email_contactrole(request, contactrole_id, mail=None):
+    contactrole = get_object_or_404(ContactRole, pk=contactrole_id)
+
+    suffix = ''
+    if mail == 'renewal':
+        code = 'org_contacts/contactrole_subsidy_renewal_mail'
+        suffix = ' (subsidy renewal query)'
+    else:
+        code = 'org_contacts/contactrole_generic_mail'
+        suffix = ' (generic)'
+    mail_request = MailEditingSubView(request, mail_code=code, contactrole=contactrole)
+    if mail_request.is_valid():
+        comments = 'Email{suffix} sent to Contact {name}.'.format(
+            suffix=suffix, name=contactrole.contact)
+        event = OrganizationEvent(
+            organization=contactrole.organization,
+            event=ORGANIZATION_EVENT_EMAIL_SENT,
+            comments=comments,
+            noted_on=timezone.now(),
+            noted_by=request.user)
+        event.save()
+        messages.success(request, 'Email successfully sent.')
+        mail_request.send()
+        return redirect(contactrole.organization.get_absolute_url())
+    else:
+        return mail_request.return_render()

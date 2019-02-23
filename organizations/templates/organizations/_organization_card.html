@@ -191,6 +191,10 @@ $(document).ready(function($) {
 	      <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	      <td>
 		<ul>
+		  {% if perms.scipost.can_manage_organizations %}
+		  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id %}">Email (generic)</a></li>
+		  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id mail='renewal' %}">Email (subsidy renewal)</a></li>
+		  {% endif %}
 		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 		  <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
 		  {% endif %}

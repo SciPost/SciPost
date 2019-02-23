@@ -74,6 +74,16 @@ urlpatterns = [
         name='add_contact'
     ),
     url(
+        r'^activate/(?P<activation_key>.+)$',
+        views.activate_account,
+        name='activate_account'
+    ),
+    url(
+        r'^dashboard/$',
+        views.dashboard,
+        name='dashboard'
+    ),
+    url(
         r'^contactrole/(?P<pk>[0-9]+)/update/$',
         views.ContactRoleUpdateView.as_view(),
         name='contactrole_update'
@@ -84,13 +94,13 @@ urlpatterns = [
         name='contactrole_delete'
     ),
     url(
-        r'^activate/(?P<activation_key>.+)$',
-        views.activate_account,
-        name='activate_account'
+        r'^contactrole/(?P<contactrole_id>[0-9]+)/email/(?P<mail>renewal)$',
+        views.email_contactrole,
+        name='email_contactrole'
     ),
     url(
-        r'^dashboard/$',
-        views.dashboard,
-        name='dashboard'
+        r'^contactrole/(?P<contactrole_id>[0-9]+)/email/$',
+        views.email_contactrole,
+        name='email_contactrole'
     ),
 ]

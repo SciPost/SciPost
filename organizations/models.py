@@ -168,6 +168,15 @@ class Organization(models.Model):
         """
         return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
 
+    @property
+    def latest_subsidy_date_until(self):
+        """
+        Returns the end date of validity of the latest subsidy.
+        """
+        if self.subsidy_set:
+            return self.subsidy_set.order_by('-date_until').first().date_until
+        return '-'
+
     def get_total_subsidies_obtained(self, n_years_past=None):
         """
         Computes the total amount received by SciPost, in the form
