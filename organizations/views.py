@@ -264,6 +264,14 @@ def organization_add_contact(request, organization_id, contactperson_id=None):
             mail_code='org_contacts/email_contact_for_activation',
             contact=contact)
         mail_sender.send()
+        for role in contact.roles.all():
+            event = OrganizationEvent(
+                organization=role.organization,
+                event=ORGANIZATION_EVENT_COMMENT,
+                comments=('Contact for %s created; activation pending' % str(contact)),
+                noted_on=timezone.now(),
+                noted_by=request.user)
+            event.save()
         messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
                          % str(contact))
         return redirect(reverse('organizations:organization_details',
@@ -284,6 +292,14 @@ def activate_account(request, activation_key):
     form = ContactActivationForm(request.POST or None, instance=contact.user)
     if form.is_valid():
         form.activate_user()
+        for role in contact.roles.all():
+            event = OrganizationEvent(
+                organization=role.organization,
+                event=ORGANIZATION_EVENT_COMMENT,
+                comments=('Contact %s activated their account' % str(contact)),
+                noted_on=timezone.now(),
+                noted_by=contact.user)
+            event.save()
         messages.success(request, '<h3>Thank you for activating your account</h3>')
         return redirect(reverse('organizations:dashboard'))
     context = {
