@@ -39,9 +39,12 @@ $(document).ready(function($) {
 	    <a href="#own_roles" class="nav-link active" data-toggle="tab">Your roles</a>
 	  </li>
 	  <li class="nav-item btn btn-outline-secondary">
-	    <a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies from your Orgs</a>
+	    <a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies<br/><span class="small text-muted">[from your Orgs]</span></a>
 	  </li>
 	  {% endif %}
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="{% url 'finances:subsidies' %}" class="nav-link" target="_blank">Subsidies<br/><span class="small text-muted">[full list]</span></a>
+	  </li>
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#board" class="nav-link" data-toggle="tab">Sponsors Board<br/><span class="small text-muted">[registered Contacts]</span></a>
 	  </li>
