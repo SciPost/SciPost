@@ -38,7 +38,10 @@ class ContactPersonForm(forms.ModelForm):
         email = self.cleaned_data['email']
         try:
             ContactPerson.objects.get(email=email)
-            self.add_error('email', 'This email is already associated to a Contact Person.')
+            if self.instance.pk:
+                pass  # OK, this is an update
+            else:
+                self.add_error('email', 'This email is already associated to a Contact Person.')
         except ContactPerson.DoesNotExist:
             pass
         try:
