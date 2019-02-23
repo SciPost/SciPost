@@ -25,7 +25,7 @@ class SubsidyForm(forms.ModelForm):
         model = Subsidy
         fields = ['organization', 'subsidy_type', 'description',
                   'amount', 'amount_publicly_shown', 'status',
-                  'date', 'date_until']
+                  'date', 'date_until', 'renewal_of']
 
 
 class SubsidyAttachmentForm(forms.ModelForm):

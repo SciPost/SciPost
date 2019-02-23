@@ -36,6 +36,18 @@
 	</tr>
 	{% endif %}
       </table>
+
+      {% if subsidy.renewal_of.all|length > 0 %}
+      <p>
+	Renewal of:<ul>{% for prevsub in subsidy.renewal_of.all %}<li><a href="{% url 'finances:subsidy_details' pk=prevsub.id %}">{{ prevsub }}</a></li>{% endfor %}</ul>
+      </p>
+      {% endif %}
+      {% if subsidy.renewed_by.all|length > 0 %}
+      <p>
+	Renewed by:<ul>{% for newsub in subsidy.renewed_by.all %}<li><a href="{% url 'finances:subsidy_details' pk=newsub.id %}">{{ newsub }}</a></li>{% endfor %}</ul>
+      </p>
+      {% endif %}
+
     </div>
   </div>
 

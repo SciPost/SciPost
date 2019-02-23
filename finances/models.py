@@ -44,6 +44,8 @@ class Subsidy(models.Model):
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     date = models.DateField()
     date_until = models.DateField(blank=True, null=True)
+    renewal_of = models.ManyToManyField('self', related_name='renewed_by',
+                                        symmetrical=False, blank=True)
 
     class Meta:
         verbose_name_plural = 'subsidies'
@@ -65,6 +67,8 @@ class Subsidy(models.Model):
     @property
     def renewal_action_date_color_class(self):
         if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
+            if self.renewed_by.exists():
+                return 'transparent'
             today = datetime.date.today()
             if self.date_until < today + datetime.timedelta(days=122):
                 return 'danger'
@@ -76,6 +80,8 @@ class Subsidy(models.Model):
     @property
     def date_until_color_class(self):
         if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
+            if self.renewed_by.exists():
+                return 'transparent'
             today = datetime.date.today()
             if self.date_until < today:
                 return 'warning'

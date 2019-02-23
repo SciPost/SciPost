@@ -86,7 +86,9 @@ $(document).ready(function($) {
 	{% for subsidy in object_list %}
 	<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 	  <td>{{ subsidy.organization }}</td>
-	  <td>{{ subsidy.get_subsidy_type_display }}</td>
+	  <td>{{ subsidy.get_subsidy_type_display }}
+	    {% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li>{{ prevsub }}</li>{% endfor %}</ul></span>{% endif %}
+	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li>{{ newsub }}</li>{% endfor %}</ul></span>{% endif %}	  </td>
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  <td>{{ subsidy.date }}</td>
 	  <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
