@@ -173,17 +173,18 @@ class ContactPersonDeleteView(UserPassesTestMixin, DeleteView):
                             kwargs={'pk': self.object.organization.id})
 
 
-@permission_required('scipost.can_email_prospartner_contact', return_403=True)
+@permission_required('scipost.can_manage_organizations', return_403=True)
 @transaction.atomic
 def email_contactperson(request, contactperson_id, mail=None):
     contactperson = get_object_or_404(ContactPerson, pk=contactperson_id)
 
     suffix = ''
     if mail == 'followup':
-        code = 'contactperson_followup_mail'
+        code = 'org_contacts/contactperson_followup_mail'
         suffix = ' (followup)'
     else:
         code = 'org_contacts/contactperson_initial_mail'
+        suffix = ' (initial)'
     mail_request = MailEditingSubView(request, mail_code=code, contactperson=contactperson)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix, name=contactperson)
@@ -192,11 +193,11 @@ def email_contactperson(request, contactperson_id, mail=None):
             event=ORGANIZATION_EVENT_EMAIL_SENT,
             comments=comments,
             noted_on=timezone.now(),
-            noted_by=request.user.contributor)
+            noted_by=request.user)
         event.save()
         messages.success(request, 'Email successfully sent.')
         mail_request.send()
-        return redirect(reverse('organizations:dashboard'))
+        return redirect(contactperson.organization.get_absolute_url())
     else:
         return mail_request.return_render()
 
