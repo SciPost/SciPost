@@ -45,6 +45,9 @@ $(document).ready(function($) {
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="#board" class="nav-link" data-toggle="tab">Sponsors Board<br/><span class="small text-muted">[registered Contacts]</span></a>
 	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="{% url 'organizations:contactperson_list' %}" class="nav-link" target="_blank">Contact Persons<br/><span class="small text-muted">[unregistered contacts]</span></a>
+	  </li>
 	</ul>
       </div>
     </div>

@@ -1,4 +1,4 @@
-{% extends 'scipost/base.html' %}
+{% extends 'organizations/base.html' %}
 
 {% block pagetitle %}: Contact Persons{% endblock pagetitle %}
 
@@ -14,9 +14,10 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">Contact Persons</h3>
-    <p>Contact Persons are employees of an Organization, who play a role of potential relevance to SciPost's sponsoring efforts.</p>
-    <p>SciPost Admin takes charge of contacting Contact Persons listed here, to try to promote them to registered Contacts (members of the Sponsors Board).</p>
-    <p>Do you people who you think should appear on this list? Help us out: <a href="{% url 'organizations:contactperson_create' %}">add a Contact Person</a></p>
+    <p>Contact Persons are by definition employees of an Organization, who play a role of potential relevance to SciPost's sponsoring efforts. SciPost Admin takes charge of contacting Contact Persons listed here, to try to promote them to registered Contacts (members of the Sponsors Board).</p>
+    <p>Do you people who you think should appear on this list?</p>
+    <p>Are they not in our list of registered Contacts (which you can view on your <a href="{% url 'organizations:dashboard' %}" target="_blank">dashboard</a> under the Sponsors Board tab)?</p>
+    <p>Then please help us out: <a href="{% url 'organizations:contactperson_create' %}">add a Contact Person</a> instance.</p>
 
     <table class="table">
       <thead class="thead-default">
