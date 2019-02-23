@@ -16,7 +16,8 @@ from django.views.generic.list import ListView
 
 from guardian.decorators import permission_required
 
-from .constants import ORGTYPE_PRIVATE_BENEFACTOR, ORGANIZATION_EVENT_EMAIL_SENT
+from .constants import ORGTYPE_PRIVATE_BENEFACTOR,\
+    ORGANIZATION_EVENT_COMMENT, ORGANIZATION_EVENT_EMAIL_SENT
 from .forms import OrganizationEventForm, ContactPersonForm,\
     NewContactForm, ContactActivationForm, ContactRoleForm
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
@@ -137,8 +138,22 @@ class ContactPersonCreateView(PermissionsMixin, CreateView):
     template_name = 'organizations/contactperson_form.html'
 
     def get_initial(self):
-        organization = get_object_or_404(Organization, pk=self.kwargs.get('organization_id'))
-        return {'organization': organization}
+        try:
+            organization = Organization.objects.get(pk=self.kwargs.get('organization_id'))
+            return {'organization': organization}
+        except Organization.DoesNotExist:
+            pass
+
+    def form_valid(self, form):
+        event = OrganizationEvent(
+            organization=form.cleaned_data['organization'],
+            event=ORGANIZATION_EVENT_COMMENT,
+            comments=('Added ContactPerson: %s %s' % (form.cleaned_data['first_name'],
+                                                      form.cleaned_data['last_name'])),
+            noted_on=timezone.now(),
+            noted_by=self.request.user)
+        event.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',
@@ -150,6 +165,17 @@ class ContactPersonUpdateView(PermissionsMixin, UpdateView):
     model = ContactPerson
     form_class= ContactPersonForm
     template_name = 'organizations/contactperson_form.html'
+
+    def form_valid(self, form):
+        event = OrganizationEvent(
+            organization=form.cleaned_data['organization'],
+            event=ORGANIZATION_EVENT_COMMENT,
+            comments=('Updated ContactPerson: %s %s' % (form.cleaned_data['first_name'],
+                                                        form.cleaned_data['last_name'])),
+            noted_on=timezone.now(),
+            noted_by=self.request.user)
+        event.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',
@@ -171,6 +197,11 @@ class ContactPersonDeleteView(UserPassesTestMixin, DeleteView):
     def get_success_url(self):
         return reverse_lazy('organizations:organization_details',
                             kwargs={'pk': self.object.organization.id})
+
+
+class ContactPersonListView(PermissionsMixin, ListView):
+    permission_required = 'scipost.can_add_contactperson'
+    model = ContactPerson
 
 
 @permission_required('scipost.can_manage_organizations', return_403=True)

@@ -234,6 +234,9 @@ class ContactPerson(models.Model):
     email = models.EmailField()
     role = models.CharField(max_length=128)
 
+    class Meta:
+        ordering = ['last_name', 'first_name', 'organization']
+
     def __str__(self):
         return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
 

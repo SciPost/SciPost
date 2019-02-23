@@ -31,6 +31,23 @@ class ContactPersonForm(forms.ModelForm):
         model = ContactPerson
         fields = '__all__'
 
+    def clean_email(self):
+        """
+        Check if the email is already associated to an existing ContactPerson or Contact.
+        """
+        email = self.cleaned_data['email']
+        try:
+            ContactPerson.objects.get(email=email)
+            self.add_error('email', 'This email is already associated to a Contact Person.')
+        except ContactPerson.DoesNotExist:
+            pass
+        try:
+            Contact.objects.get(user__email=email)
+            self.add_error('email', 'This email is already associated to a Contact.')
+        except Contact.DoesNotExist:
+            pass
+        return email
+
 
 class UpdateContactDataForm(forms.ModelForm):
     """

@@ -193,7 +193,7 @@ $(document).ready(function($) {
 	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 	      <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	      <td>
-		<ul>
+		<ul class="list-unstyled">
 		  {% if perms.scipost.can_manage_organizations %}
 		  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id %}">Email (generic)</a></li>
 		  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id mail='renewal' %}">Email (subsidy renewal)</a></li>
@@ -225,7 +225,7 @@ $(document).ready(function($) {
 	      <td>{{ contactperson.role }}</td>
 	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 	      <td>
-		<ul>
+		<ul class="list-unstyled">
 		  {% if perms.scipost.can_manage_organizations %}
 		  <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id %}">Email (initial)</a></li>
 		  <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='followup' %}">Email (followup)</a></li>

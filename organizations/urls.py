@@ -43,6 +43,11 @@ urlpatterns = [
         name='contactperson_create'
     ),
     url(
+        r'^contactperson/add/$',
+        views.ContactPersonCreateView.as_view(),
+        name='contactperson_create'
+    ),
+    url(
         r'^contactperson/(?P<pk>[0-9]+)/update/$',
         views.ContactPersonUpdateView.as_view(),
         name='contactperson_update'
@@ -51,6 +56,11 @@ urlpatterns = [
         r'^contactperson/(?P<pk>[0-9]+)/delete/$',
         views.ContactPersonDeleteView.as_view(),
         name='contactperson_delete'
+    ),
+    url(
+        r'^contactpersons/$',
+        views.ContactPersonListView.as_view(),
+        name='contactperson_list'
     ),
     url(
         r'^contactperson/(?P<contactperson_id>[0-9]+)/email/(?P<mail>followup)$',
