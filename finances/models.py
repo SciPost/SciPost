@@ -62,6 +62,27 @@ class Subsidy(models.Model):
             return self.date_until - datetime.timedelta(days=122)
         return '-'
 
+    @property
+    def renewal_action_date_color_class(self):
+        if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
+            today = datetime.date.today()
+            if self.date_until < today + datetime.timedelta(days=122):
+                return 'danger'
+            elif self.date_until < today + datetime.timedelta(days=153):
+                return 'warning'
+            return 'success'
+        return 'transparent'
+
+    @property
+    def date_until_color_class(self):
+        if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
+            today = datetime.date.today()
+            if self.date_until < today:
+                return 'warning'
+            else:
+                return 'success'
+        return 'transparent'
+
 
 class SubsidyAttachment(models.Model):
     """
