@@ -38,6 +38,11 @@ urlpatterns = [
         name='organizationevent_create'
     ),
     url(
+        r'^organizationevents/$',
+        views.OrganizationEventListView.as_view(),
+        name='organizationevent_list'
+    ),
+    url(
         r'^add_contactperson/(?P<organization_id>[0-9]+)/$',
         views.ContactPersonCreateView.as_view(),
         name='contactperson_create'

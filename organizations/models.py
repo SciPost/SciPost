@@ -210,6 +210,9 @@ class OrganizationEvent(models.Model):
     noted_on = models.DateTimeField(default=timezone.now)
     noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-noted_on', 'organization']
+
     def __str__(self):
         return '%s: %s' % (str(self.organization), self.get_event_display())
 

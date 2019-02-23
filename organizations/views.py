@@ -131,6 +131,12 @@ class OrganizationEventCreateView(PermissionsMixin, CreateView):
                             kwargs={'pk': self.object.organization.id})
 
 
+class OrganizationEventListView(PermissionsMixin, PaginationMixin, ListView):
+    permission_required = 'scipost.can_manage_organizations'
+    model = OrganizationEvent
+    paginate_by = 10
+
+
 class ContactPersonCreateView(PermissionsMixin, CreateView):
     permission_required = 'scipost.can_add_contactperson'
     model = ContactPerson

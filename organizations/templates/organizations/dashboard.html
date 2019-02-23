@@ -51,6 +51,11 @@ $(document).ready(function($) {
 	  <li class="nav-item btn btn-outline-secondary">
 	    <a href="{% url 'organizations:contactperson_list' %}" class="nav-link" target="_blank">Contact Persons<br/><span class="small text-muted">[unregistered contacts]</span></a>
 	  </li>
+	  {% if perms.scipost.can_manage_organizations %}
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="{% url 'organizations:organizationevent_list' %}" class="nav-link" target="_blank">Events</a>
+	  </li>
+	  {% endif %}
 	</ul>
       </div>
     </div>
