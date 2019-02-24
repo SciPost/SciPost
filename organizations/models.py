@@ -75,6 +75,9 @@ class Organization(models.Model):
 
     class Meta:
         ordering = ['country', 'name']
+        permissions = (
+            ('can_view_org_contacts', 'Can view this Organization\'s Contacts'),
+        )
 
     def __str__(self):
         return self.name
@@ -165,6 +168,15 @@ class Organization(models.Model):
         """
         return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
 
+    @property
+    def latest_subsidy_date_until(self):
+        """
+        Returns the end date of validity of the latest subsidy.
+        """
+        if self.subsidy_set:
+            return self.subsidy_set.order_by('-date_until').first().date_until
+        return '-'
+
     def get_total_subsidies_obtained(self, n_years_past=None):
         """
         Computes the total amount received by SciPost, in the form
@@ -198,6 +210,9 @@ class OrganizationEvent(models.Model):
     noted_on = models.DateTimeField(default=timezone.now)
     noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    class Meta:
+        ordering = ['-noted_on', 'organization']
+
     def __str__(self):
         return '%s: %s' % (str(self.organization), self.get_event_display())
 
@@ -222,6 +237,9 @@ class ContactPerson(models.Model):
     email = models.EmailField()
     role = models.CharField(max_length=128)
 
+    class Meta:
+        ordering = ['last_name', 'first_name', 'organization']
+
     def __str__(self):
         return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
 
@@ -236,6 +254,9 @@ class Contact(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['user__last_name', 'user__first_name']
 
     def __str__(self):
         return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
@@ -259,8 +280,8 @@ class Contact(models.Model):
 
 class ContactRole(models.Model):
     """
-    A ContactRole instance links a Contact to an Organization, for a specific period of
-    time, and for a specific period in time.
+    A ContactRole instance links a Contact to an Organization, for a specific set of roles
+    and for a specific period in time.
     """
     contact = models.ForeignKey('organizations.Contact', on_delete=models.CASCADE,
                                 related_name='roles')
@@ -268,3 +289,15 @@ class ContactRole(models.Model):
     kind = ChoiceArrayField(models.CharField(max_length=4, choices=ROLE_KINDS))
     date_from = models.DateField()
     date_until = models.DateField()
+
+    def __str__(self):
+        return '%s, %s for %s' % (self.contact, self.get_kind_display, self.organization)
+
+    @property
+    def get_kind_display(self):
+        """
+        Due to a lack of support to use get_FOO_display in a ArrayField, one has to create
+        one 'manually'.
+        """
+        choices = dict(ROLE_KINDS)
+        return ', '.join([choices[value] for index, value in enumerate(self.kind)])

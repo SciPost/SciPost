@@ -480,7 +480,7 @@ class MembershipQueryForm(forms.Form):
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
 
 
-#done
+# done
 class PartnersAttachmentForm(forms.ModelForm):
     class Meta:
         model = PartnersAttachment

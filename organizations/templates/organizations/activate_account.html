@@ -1,0 +1,27 @@
+{% extends 'scipost/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}{{block.super}} Activate Account{% endblock pagetitle %}
+
+{% block content %}
+
+<h1 class="highlight">Activate Account</h1>
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h2>{{ contact.get_title_display }} {{ contact.user.first_name }} {{ contact.user.last_name }}</h2>
+        <h3>{{ contact.user.email }}</h3>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 mb-5">
+      <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Activate"/>
+      </form>
+    </div>
+</div>
+
+{% endblock content %}

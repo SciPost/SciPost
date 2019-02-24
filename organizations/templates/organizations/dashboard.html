@@ -1,0 +1,217 @@
+{% extends 'organizations/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: organizations dashboard{% endblock pagetitle %}
+
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    {% if request.user.org_contact %}
+    <h1 class="highlight">Welcome to your Organizations dashboard, {{ request.user.org_contact.get_title_display }} {{ request.user.last_name }}</h1>
+    {% elif perms.scipost.can_manage_organizations %}
+    <h1 class="highlight">Organizations dashboard</h1>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <div class="tab-nav-container">
+      <div class="tab-nav-inner">
+	<ul class="nav btn-group personal-page-nav" role="tablist">
+	  {% if request.user.org_contact %}
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#account" class="nav-link" data-toggle="tab">Account</a>
+	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#own_roles" class="nav-link active" data-toggle="tab">Your roles</a>
+	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies<br/><span class="small text-muted">[from your Orgs]</span></a>
+	  </li>
+	  {% endif %}
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="{% url 'finances:subsidies' %}" class="nav-link" target="_blank">Subsidies<br/><span class="small text-muted">[full list]</span></a>
+	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="#board" class="nav-link" data-toggle="tab">Sponsors Board<br/><span class="small text-muted">[registered Contacts]</span></a>
+	  </li>
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="{% url 'organizations:contactperson_list' %}" class="nav-link" target="_blank">Contact Persons<br/><span class="small text-muted">[unregistered contacts]</span></a>
+	  </li>
+	  {% if perms.scipost.can_manage_organizations %}
+	  <li class="nav-item btn btn-outline-secondary">
+	    <a href="{% url 'organizations:organizationevent_list' %}" class="nav-link" target="_blank">Events</a>
+	  </li>
+	  {% endif %}
+	</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-content">
+
+  <div class="tab-pane" id="account" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Your account</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+	<p>{{ request.user.org_contact }}</p>
+
+        <h3>Update your personal data or password</h3>
+        <ul>
+          <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
+          <li><a href="{% url 'scipost:change_password' %}">Change your password</a></li>
+        </ul>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane{% if request.user.org_contact %} active{% endif %}" id="own_roles" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Your Organizations-related roles</h2>
+	<p>Click on an Organization's name to see its details.</p>
+	<table class="table">
+	  <tr>
+	    <th>Organization</th>
+	    <th>Role kind</th>
+	    <th>Date from</th>
+	    <th>Date until</th>
+	    <th>Actions</th>
+	  </tr>
+	  {% for role in own_roles %}
+	  <tr>
+	    <td><a href="{{ role.organization.get_absolute_url }}">{{ role.organization }}</a></td>
+	    <td>{{ role.get_kind_display }}</td>
+	    <td>{{ role.date_from|date:"Y-m-d" }}</td>
+	    <td>{{ role.date_until|date:"Y-m-d" }}</td>
+	    <td><a href="{% url 'organizations:contactrole_update' pk=role.id %}"><span class="text-warning">Update</span></a></td>
+	  </tr>
+	  {% empty %}
+	  <tr>
+	    <td>No role has been defined</td>
+	  </tr>
+	  {% endfor %}
+	</table>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="subsidies" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Subsidies from your Organizations</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+	<ul>
+	  {% for role in request.user.org_contact.roles.all %}
+	  <li>
+	    <h4>{{ role.organization }}</h4>
+
+	    {% if role.organization.subsidy_set.all|length > 0 %}
+	    <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
+	    <table class="table table-hover mb-5">
+	      <thead class="thead-default">
+		<tr>
+		  <th>Type</th>
+		  <th>Amount</th>
+		  <th>Date</th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for subsidy in role.organization.subsidy_set.all %}
+		<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
+		  <td>{{ subsidy.get_subsidy_type_display }}</td>
+		  <td>&euro;{{ subsidy.amount }}</td>
+		  <td>{{ subsidy.date }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
+		</tr>
+		{% endfor %}
+		<tr style="border-top: 2px solid black">
+		  <td>Total support obtained:</td>
+		  <td>&euro;{{ role.organization.get_total_subsidies_obtained }}</td>
+		  <td colspan="2">
+		</tr>
+	      </tbody>
+	    </table>
+	    {% else %}
+	    <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
+	    {% endif %}
+	  </li>
+	  {% empty %}
+	  <li>No Organization found</li>
+	  {% endfor %}
+	</ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="board" role="tabpanel">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight">Sponsors Board</h2>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+	<p>The Sponsors Board is composed of all registered Organization Contacts.</p>
+	<p>Do you know people who you think should appear on this list? Help us by checking if they are already on our <a href="{% url 'organizations:contactperson_list' %}" target="_blank">list of Contact Persons</a>, and if not, please add them!</p>
+        <h3>Active Contacts</h3>
+	<table class="table">
+	  <thead class="thead-default">
+	    <tr>
+	      <th>Name</th>
+	      <th>Organization(s) / role(s)</th>
+	      {% if perms.scipost.can_manage_organizations %}
+	      <th>Account<br/>active?</th>
+	      {% endif %}
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for contact in contacts %}
+	    <tr>
+	      <td>{{ contact }}</td>
+	      <td>
+		<ul class="list-group list-group-flush">
+		  {% for role in contact.roles.all %}
+		  <li class="list-group-item"><a href="{{ role.organization.get_absolute_url }}" target="_blank">{{ role.organization }}</a> / {{ role.get_kind_display }}</li>
+		  {% empty %}
+		  <li class="list-group-item">No Organization found</li>
+		  {% endfor %}
+		</ul>
+	      </td>
+	      {% if perms.scipost.can_manage_organizations %}
+	      <td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	      {% endif %}
+	    </tr>
+	    {% empty %}
+	    <tr><td>No contact found</td></tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock content %}

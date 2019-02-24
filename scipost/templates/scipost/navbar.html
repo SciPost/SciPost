@@ -63,9 +63,9 @@
                         <a class="nav-link" href="{% url 'scipost:personal_page' %}">Personal Page</a>
                       </li>
                   {% endif %}
-                  {% if user.partner_contact %}
-                      <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
-                        <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page</a>
+                  {% if perms.scipost.can_manage_organizations or user.org_contact %}
+                      <li class="nav-item{% if '/organizations/dashboard' in request.path %} active{% endif %}">
+                        <a class="nav-link" href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
                       </li>
                   {% endif %}
               {% else %}

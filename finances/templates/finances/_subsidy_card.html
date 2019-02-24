@@ -35,6 +35,54 @@
 	  <td>Date until:</td><td>{{ subsidy.date_until }}</td>
 	</tr>
 	{% endif %}
+	{% if perms.scipost.can_manage_subsidies %}
+	<tr>
+	  <td>Renewable?</td><td>{% if subsidy.renewable == True %}Yes, renewal action date: <span class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</span>{% elif subsidy.renewable == None %}Undetermined [please update]{% else %}No{% endif %}</td>
+	</tr>
+	{% endif %}
+      </table>
+
+      {% if subsidy.renewal_of.all|length > 0 %}
+      <p>
+	Renewal of:<ul>{% for prevsub in subsidy.renewal_of.all %}<li><a href="{% url 'finances:subsidy_details' pk=prevsub.id %}">{{ prevsub }}</a></li>{% endfor %}</ul>
+      </p>
+      {% endif %}
+      {% if subsidy.renewed_by.all|length > 0 %}
+      <p>
+	Renewed by:<ul>{% for newsub in subsidy.renewed_by.all %}<li><a href="{% url 'finances:subsidy_details' pk=newsub.id %}">{{ newsub }}</a></li>{% endfor %}</ul>
+      </p>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h3>Attachments</h3>
+      {% if perms.scipost.can_manage_subsidies %}
+      <ul>
+	<li><a href="{% url 'finances:subsidyattachment_create' subsidy_id=subsidy.id %}">Add a SubsidyAttachment</a> to this Subsidy</li>
+      </ul>
+      {% endif %}
+      <table class="table">
+	<tr>
+	  <th>File name</th>
+	  <th>Publicly visible?</th>
+	</tr>
+	{% for att in subsidy.attachments.all %}
+	<tr>
+	  <td><a href="{{ att.get_absolute_url }}" target="_blank">{{ att.name }}</a></td>
+	  <td>{% if att.publicly_visible %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	  {% if perms.scipost.can_manage_subsidies %}
+	  <td><a href="{% url 'finances:subsidyattachment_update' pk=att.id %}"><span class="text-warning">Update</span></a></td>
+	  <td><a href="{% url 'finances:subsidyattachment_delete' pk=att.id %}"><span class="text-danger">Delete</span></a></td>
+	  {% endif %}
+	</tr>
+	{% empty %}
+	<tr>
+	  <td>No attachment found</td>
+	</tr>
+	{% endfor %}
       </table>
     </div>
   </div>

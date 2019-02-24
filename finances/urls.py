@@ -20,6 +20,15 @@ urlpatterns = [
     url(r'^subsidies/(?P<pk>[0-9]+)/$', views.SubsidyDetailView.as_view(), name='subsidy_details'),
     url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/(?P<attachment_id>[0-9]+)$',
         views.subsidy_attachment, name='subsidy_attachment'),
+    url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/add/$',
+        views.SubsidyAttachmentCreateView.as_view(),
+        name='subsidyattachment_create'),
+    url(r'^subsidies/attachments/(?P<pk>[0-9]+)/update/$',
+        views.SubsidyAttachmentUpdateView.as_view(),
+        name='subsidyattachment_update'),
+    url(r'^subsidies/attachments/(?P<pk>[0-9]+)/delete/$',
+        views.SubsidyAttachmentDeleteView.as_view(),
+        name='subsidyattachment_delete'),
 
     # Timesheets
     url(r'^timesheets$', views.timesheets, name='timesheets'),

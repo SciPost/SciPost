@@ -19,17 +19,4 @@
   </div>
 </div>
 
-<div class="row">
-  <div class="col-12">
-    <h3>Attachments</h3>
-    <ul>
-      {% for file in subsidy.attachments.all %}
-      <li><a href="{{ file.get_absolute_url }}" target="_blank">{{ file.name }}</a></li>
-      {% empty %}
-      <li>No attachment found</li>
-      {% endfor %}
-    </ul>
-  </div>
-</div>
-
 {% endblock content %}

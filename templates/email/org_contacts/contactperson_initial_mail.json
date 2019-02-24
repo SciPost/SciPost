@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: Sponsors",
+    "to_address": "email",
+    "bcc_to": "sponsors@scipost.org",
+    "from_address_name": "SciPost Sponsors",
+    "from_address": "sponsors@scipost.org",
+    "context_object": "contactperson"
+}

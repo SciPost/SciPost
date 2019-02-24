@@ -1,5 +1,5 @@
 {% load bootstrap %}
-
+{% load guardian_tags %}
 {% load user_groups %}
 {% load organizations_extras %}
 
@@ -15,6 +15,8 @@ $(document).ready(function($) {
 
 {% is_scipost_admin request.user as is_scipost_admin %}
 
+{% get_obj_perms request.user for org as "user_org_perms" %}
+
 <div class="card-body">
 
   <div class="row">
@@ -24,7 +26,8 @@ $(document).ready(function($) {
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if is_scipost_admin %} & PubFractions{% endif %}</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+ & PubFractions{% endif %}</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
@@ -35,15 +38,14 @@ $(document).ready(function($) {
 	<li class="nav-item">
 	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
-	{% if perms.scipost.can_manage_organizations %}
+	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
 	<li class="nav-item">
 	  <a class="nav-link" id="contacts-{{ org.id }}-tab" data-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
 	</li>
+	{% endif %}
+	{% if perms.scipost.can_manage_organizations %}
 	<li class="nav-item">
 	  <a class="nav-link" id="events-{{ org.id }}-tab" data-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
-	</li>
-	<li class="nav-item">
-	  <a class="nav-link" id="manage-{{ org.id }}-tab" data-toggle="tab" href="#manage-{{ org.id }}" role="tab" aria-controls="manage-{{ org.id }}" aria-selected="true">Manage</a>
 	</li>
 	{% endif %}
       </ul>
@@ -51,14 +53,25 @@ $(document).ready(function($) {
       <div class="tab-content" id="organization-{{ org.id }}-tab">
 
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
+	  {% if perms.scipost.can_manage_organizations %}
+	  <h3>Manage this organization:</h3>
+	  <ul>
+	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
+	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
+	  </ul>
+	  <hr/>
+	  {% endif %}
+
 	  <h3>Details:</h3>
 	  {% include 'organizations/_organization_details_contents.html' with org=org %}
 	</div>
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
-	  <h3>Publications associated to this Organization{% if is_scipost_admin %} <span class="text-muted small">(with total PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>{% endif %}:</h3>
+	  <h3>Publications associated to this Organization{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+ <span class="text-muted small">(with total PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>{% endif %}:</h3>
 	  {% for pubyear in pubyears %}
-	  <h4>{{ pubyear }}{% if is_scipost_admin %} <span class="text-muted small">(total pubfractions: {{ org|pubfractions_in_year:pubyear }})</span>{% endif %}</h4>
+	  <h4>{{ pubyear }}{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+ <span class="text-muted small">(total pubfractions: {{ org|pubfractions_in_year:pubyear }})</span>{% endif %}</h4>
 	  <ul>
 	    {% for publication in org.get_publications %}
 	    {% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
@@ -66,7 +79,7 @@ $(document).ready(function($) {
               <a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a>
               <br>by {{ publication.author_list }},
               <br>{{ publication.citation }}
-	      {% if is_scipost_admin %}
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
 	      <br><span class="text-muted small">Pubfraction: {{ org|pubfraction_for_publication:publication }}</span>
 	      {% endif %}
 	    </li>
@@ -150,76 +163,95 @@ $(document).ready(function($) {
 	  {% else %}
 	  <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
 	  {% endif %}
-
-	  {% if is_scipost_admin %}
-	  <h3 class="text-danger">To be removed (Admin view only):</h3>
-	  <h3>Supporting Partner Agreements history:</h3>
-	  {% with agreement=org.partner.get_latest_active_agreement %}
-	  {% if agreement %}
-	  <p>This organization is currently a SciPost Supporting Partner.</p>
-	  {% endif %}
-	  {% endwith %}
-	  {% if org.partner.agreements %}
-	  <table class="table">
-	    <thead>
-	      <th>Status</th>
-	      <th>Duration</th>
-	      <th>Start date</th>
-	      <th>Contribution/year</th>
-	    </thead>
-	    <tbody>
-	      {% for agreement in org.partner.agreements.all %}
-	      <tr>
-		<td>{{ agreement.get_status_display }}</td>
-		<td>{{ agreement.get_duration_display }}</td>
-		<td>{{ agreement.start_date }}</td>
-		<td>&euro;{{ agreement.offered_yearly_contribution }}</td>
-	      </tr>
-	      {% endfor %}
-	      <tr style="border-top: 2px solid black">
-		<td colspan="2"></td><td>Total contribution obtained:</td><td>&euro; {{ org.get_total_contribution_obtained }}</td></tr>
-	    </tbody>
-	  </table>
-	  {% else %}
-	  <p>This organization has <span class="text-danger">not yet</span> been a SciPost Supporting Partner.</p>
-	  {% endif %}
 	</div>
-	{% endif %}
 
+	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson or "can_view_org_contacts" in user_org_perms %}
 	<div class="tab-pane pt-4" id="contacts-{{ org.id }}" role="tabpanel" aria-labelledby="contacts-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Contacts (with explicit role)</h3>
+	  {% if perms.scipost.can_manage_organizations %}
+	  <ul>
+	    <li><a href="{% url 'organizations:add_contact' organization_id=org.id %}">Add a new Contact</a></li>
+	  </ul>
+	  {% endif %}
 	  <table class="table">
+	    <tr>
+	      <th>Name</th>
+	      <th>Kind</th>
+	      <th>Date from</th>
+	      <th>Date until</th>
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	      <th>Account<br/>active?</th>
+	      <th>Actions</th>
+	      {% endif %}
+	    </tr>
 	    {% for contactrole in org.contactrole_set.all %}
 	    <tr>
 	      <td>{{ contactrole.contact }}</td>
 	      <td>{{ contactrole.get_kind_display }}</td>
 	      <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 	      <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	      <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	      <td>
+		<ul class="list-unstyled">
+		  {% if perms.scipost.can_manage_organizations %}
+		  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id %}">Email (generic)</a></li>
+		  <li><a href="{% url 'organizations:email_contactrole' contactrole_id=contactrole.id mail='renewal' %}">Email (subsidy renewal)</a></li>
+		  {% endif %}
+		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+		  <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
+		  {% endif %}
+		  {% if perms.scipost.can_manage_organizations %}
+		  <li><a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></li>
+		  {% endif %}
+		</ul>
+	      </td>
+	      {% endif %}
 	    </tr>
 	    {% endfor %}
 	  </table>
 
 	  <h3>Contact persons</h3>
+	  {% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
+	  <ul>
+	    <li><a href="{% url 'organizations:contactperson_create' organization_id=org.id %}">Add/suggest a contact person for this Organization</a></li>
+	  </ul>
+	  {% endif %}
 	  <table class="table">
-	    {% for contact in org.contactperson_set.all %}
+	    {% for contactperson in org.contactperson_set.all %}
 	    <tr>
-	      <td>{{ contact }}</td>
-	      <td>{{ contact.email }}</td>
-	      <td>{{ contact.role }}</td>
+	      <td>{{ contactperson }}</td>
+	      <td>{{ contactperson.email }}</td>
+	      <td>{{ contactperson.role }}</td>
+	      {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
+	      <td>
+		<ul class="list-unstyled">
+		  {% if perms.scipost.can_manage_organizations %}
+		  <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id %}">Email (initial)</a></li>
+		  <li><a href="{% url 'organizations:email_contactperson' contactperson_id=contactperson.id mail='followup' %}">Email (followup)</a></li>
+		  <li><a href="{% url 'organizations:add_contact' organization_id=org.id contactperson_id=contactperson.id %}"><span class="text-success">Upgrade to Contact</span></a></li>
+		  {% endif %}
+		  <li><a href="{% url 'organizations:contactperson_update' pk=contactperson.id %}"><span class="text-warning">Update</span></a></li>
+		  <li><a href="{% url 'organizations:contactperson_delete' pk=contactperson.id %}"><span class="text-danger">Delete</span></a></li>
+		</ul>
+	      </td>
+	      {% endif %}
 	    </tr>
 	    {% empty %}
 	    <tr>
-	      <td>>No contact person defined</td>
+	      <td>No contact person defined</td>
 	    </tr>
 	    {% endfor %}
 	  </table>
-	  {% endif %}
 	</div>
+	{% endif %}
 
+	{% if perms.scipost.can_manage_organizations %}
 	<div class="tab-pane pt-4" id="events-{{ org.id }}" role="tabpanel" aria-labelledby="events-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
 	  <h3>Events</h3>
+	  <ul>
+	    <li><a href="{% url 'organizations:organizationevent_create' pk=org.id %}">Add an event</a></li>
+	  </ul>
 	  <ul>
 	    {% for event in org.organizationevent_set.all %}
 	    {% include 'organizations/_organization_event_li.html' with event=event %}
@@ -227,19 +259,9 @@ $(document).ready(function($) {
 	    <li>No event found</li>
 	    {% endfor %}
 	  </ul>
-	  {% endif %}
 	</div>
+	{% endif %}
 
-	<div class="tab-pane pt-4" id="manage-{{ org.id }}" role="tabpanel" aria-labelledby="manage-{{ org.id }}-tab">
-	  {% if perms.scipost.can_manage_organizations %}
-	  <h3>Manage this organization:</h3>
-	  <ul>
-	    <li><a href="{% url 'organizations:organization_update' pk=org.id %}">Update</a></li>
-	    <li><a href="{% url 'organizations:organization_delete' pk=org.id %}">Delete</a></li>
-	  </ul>
-	  <hr/>
-	  {% endif %}
-	</div>
       </div>
     </div>
   </div>
