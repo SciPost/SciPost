@@ -62,8 +62,9 @@ class OrganizationDeleteView(PermissionsMixin, DeleteView):
     success_url = reverse_lazy('organizations:organizations')
 
 
-class OrganizationListView(ListView):
+class OrganizationListView(PaginationMixin, ListView):
     model = Organization
+    paginate_by = 50
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -90,7 +91,8 @@ class OrganizationListView(ListView):
         elif order_by == 'name':
             qs = qs.order_by('name')
         elif order_by == 'nap':
-            qs = qs.order_by('cf_nr_associated_publications')
+            qs = qs.exclude(cf_nr_associated_publications__isnull=True
+            ).order_by('cf_nr_associated_publications')
         if ordering == 'desc':
             qs = qs.reverse()
         return qs
