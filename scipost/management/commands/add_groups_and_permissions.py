@@ -374,11 +374,13 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_manage_organizations,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
         ])
 
         FinancialAdmin.permissions.set([
+            can_manage_organizations,
             can_manage_subsidies,
             can_view_timesheets,
         ])
@@ -421,6 +423,7 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_manage_organizations,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
         ])
