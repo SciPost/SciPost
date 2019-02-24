@@ -35,6 +35,11 @@
 	  <td>Date until:</td><td>{{ subsidy.date_until }}</td>
 	</tr>
 	{% endif %}
+	{% if perms.scipost.can_manage_subsidies %}
+	<tr>
+	  <td>Renewable?</td><td>{% if subsidy.renewable == True %}Yes, renewal action date: <span class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</span>{% elif subsidy.renewable == None %}Undetermined [please update]{% else %}No{% endif %}</td>
+	</tr>
+	{% endif %}
       </table>
 
       {% if subsidy.renewal_of.all|length > 0 %}

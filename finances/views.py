@@ -35,7 +35,9 @@ class SubsidyCreateView(PermissionsMixin, CreateView):
     model = Subsidy
     form_class = SubsidyForm
     template_name = 'finances/subsidy_form.html'
-    success_url = reverse_lazy('finances:subsidies')
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.id})
 
 
 class SubsidyUpdateView(PermissionsMixin, UpdateView):
@@ -46,7 +48,9 @@ class SubsidyUpdateView(PermissionsMixin, UpdateView):
     model = Subsidy
     form_class = SubsidyForm
     template_name = 'finances/subsidy_form.html'
-    success_url = reverse_lazy('finances:subsidies')
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.id})
 
 
 class SubsidyDeleteView(PermissionsMixin, DeleteView):
