@@ -32,7 +32,7 @@ class Subsidy(models.Model):
     - a donation
 
     The date field represents the date at which the Subsidy was formally agreed,
-    or the agreement enters into force.
+    or (e.g. for Sponsorship Agreements) the date at which the agreement enters into force.
     The date_until field is optional, and represents (where applicable) the date
     after which the object of the Subsidy is officially terminated.
     """
@@ -91,11 +91,19 @@ class Subsidy(models.Model):
         return 'transparent'
 
 
+def subsidy_attachment_path(instance, filename):
+    """
+    Save the uploaded SubsidyAttachments to country-specific folders.
+    """
+    return 'uploads/finances/subsidies/{0}/{1}/{2}'.format(
+        instance.subsidy.date.strftime('%Y'),
+        instance.subsidy.organization.country, filename)
+
 class SubsidyAttachment(models.Model):
     """
     A document related to a Subsidy.
     """
-    attachment = models.FileField(upload_to='UPLOADS/FINANCES/SUBSIDIES/ATTACHMENTS',
+    attachment = models.FileField(upload_to=subsidy_attachment_path,
                                   storage=SecureFileStorage())
     name = models.CharField(max_length=128)
     subsidy = models.ForeignKey('finances.Subsidy', related_name='attachments',

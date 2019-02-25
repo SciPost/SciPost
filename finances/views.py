@@ -19,6 +19,7 @@ from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
 from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
+from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
 
 
@@ -96,12 +97,18 @@ class SubsidyAttachmentCreateView(PermissionsMixin, CreateView):
     form_class = SubsidyAttachmentForm
     template_name = 'finances/subsidyattachment_form.html'
 
-    def get_success_url(self):
-        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['countrycodes'] = [code['country'] for code in list(
+            Organization.objects.all().distinct('country').values('country'))]
+        return context
 
     def get_initial(self):
         subsidy = get_object_or_404(Subsidy, pk=self.kwargs.get('subsidy_id'))
         return {'subsidy': subsidy}
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
 
 
 class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
@@ -113,6 +120,12 @@ class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
     form_class = SubsidyAttachmentForm
     template_name = 'finances/subsidyattachment_form.html'
     success_url = reverse_lazy('finances:subsidies')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['countrycodes'] = [code['country'] for code in list(
+            Organization.objects.all().distinct('country').values('country'))]
+        return context
 
     def get_success_url(self):
         return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})

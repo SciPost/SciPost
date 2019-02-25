@@ -1,17 +1,62 @@
 {% extends 'finances/base.html' %}
 
 {% load bootstrap %}
+{% load countries %}
+{% load staticfiles %}
 
 {% block breadcrumb_items %}
 {{ block.super }}
 <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
-<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new SubsidyAttachment{% endif %}</span>
+<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Subsidy Attachment{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: SubsidyAttachments{% endblock pagetitle %}
 
+{% block headsup %}
+<link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
+{% endblock headsup %}
 
 {% block content %}
+<div class="row">
+  <div class="col-12">
+    <p><strong>N.B.:</strong> for Sponsorship Agreements, please adopt the following format for the file names:</p>
+    <p>
+      <em>SciPost_Sponsorship_<span class="text-muted">[year]</span>_<span class="text-muted">[2-letter country code]</span>_<span class="text-muted">[Organization acronym or short name]</span>.pdf</em><br/>in which <span class="text-muted">[year]</span> is the year of validity of the Agreement.
+    </p>
+  </div>
+</div>
+<div class="row">
+  <div class="col-2">
+    <p>Examples:</p>
+  </div>
+  <div class="col-1">
+  </div>
+  <div class="col-9">
+    <ul class="list-unstyled">
+      <li><em>SciPost_Sponsorship_2019_AU_UniMelb.pdf</em></li>
+      <li><em>SciPost_Sponsorship_2019_DE_MPDL.pdf</em></li>
+    </ul>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-3">
+    <h4>Hover on flag to view country code</h4>
+    <p class="small text-muted">[only countries with at least one Organization are listed]</p>
+  </div>
+  <div class="col-8">
+    <ul>
+      {% for code in countrycodes %}
+      {% get_country code as country_obj %}
+      <li style="display: inline-block;">
+	<i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-toggle="tooltip" title="{{ country_obj.name }}: {{ country_obj.code }}"></i>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+
 <div class="row">
   <div class="col-12">
     <form enctype="multipart/form-data" action="" method="post">
