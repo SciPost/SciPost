@@ -53,6 +53,9 @@ $(document).ready(function($) {
 	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
 	    {% endif %}
 	  </th>
+	  {% if perms.scipost.can_manage_subsidies %}
+	  <th><span class="small" style="writing-mode: vertical-lr;">attachments?</span></th>
+	  {% endif %}
 	  <th>From date
 	    {% if request.GET.ordering != 'asc' %}
 	    <a href="?order_by=date&ordering=asc"><i class="fa fa-sort-asc"></i></a>
@@ -92,6 +95,9 @@ $(document).ready(function($) {
 	    {% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li>{{ prevsub }}</li>{% endfor %}</ul></span>{% endif %}
 	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li>{{ newsub }}</li>{% endfor %}</ul></span>{% endif %}	  </td>
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
+	  {% if perms.scipost.can_manage_subsidies %}
+	  <td>{% if subsidy.attachments.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	  {% endif %}
 	  <td>{{ subsidy.date }}</td>
 	  <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
 	  {% if perms.scipost.can_manage_subsidies %}
