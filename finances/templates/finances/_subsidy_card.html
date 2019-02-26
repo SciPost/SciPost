@@ -41,6 +41,10 @@
 	<tr>
 	  <td>Renewable?</td><td>{% if subsidy.renewable == True %}Yes, renewal action date: <span class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</span>{% elif subsidy.renewable == None %}Undetermined [please update]{% else %}No{% endif %}</td>
 	</tr>
+	<tr>
+	  <td>Status</td>
+	  <td>{{ subsidy.get_status_display }}</td>
+	</tr>
 	{% endif %}
       </table>
 

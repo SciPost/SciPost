@@ -54,6 +54,7 @@ $(document).ready(function($) {
 	    {% endif %}
 	  </th>
 	  {% if perms.scipost.can_manage_subsidies %}
+	  <th>Status</th>
 	  <th><span class="small" style="writing-mode: vertical-lr;">attachments?</span></th>
 	  {% endif %}
 	  <th>From date
@@ -96,6 +97,7 @@ $(document).ready(function($) {
 	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li>{{ newsub }}</li>{% endfor %}</ul></span>{% endif %}	  </td>
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  {% if perms.scipost.can_manage_subsidies %}
+	  <td>{{ subsidy.get_status_display }}</td>
 	  <td>{% if subsidy.attachments.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
 	  {% endif %}
 	  <td>{{ subsidy.date }}</td>
