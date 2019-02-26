@@ -88,6 +88,21 @@ class SubsidyDetailView(DetailView):
     model = Subsidy
 
 
+def subsidy_toggle_amount_public_visibility(request, subsidy_id):
+    """
+    Method to toggle the public visibility of the amount of a Subsidy.
+    Callable by Admin and Contacts for the relevant Organization.
+    """
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    if not (request.user.has_perm('scipost.can_manage_subsidies') or
+            request.user.has_perm('can_view_org_contacts', subsidy.organization)):
+        raise PermissionDenied
+    subsidy.amount_publicly_shown = not subsidy.amount_publicly_shown
+    subsidy.save()
+    messages.success(request, 'Amount visibility set to %s' % subsidy.amount_publicly_shown)
+    return redirect(subsidy.get_absolute_url())
+
+
 class SubsidyAttachmentCreateView(PermissionsMixin, CreateView):
     """
     Create a new SubsidyAttachment.
