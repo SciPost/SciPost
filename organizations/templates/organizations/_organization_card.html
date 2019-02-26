@@ -149,13 +149,13 @@ $(document).ready(function($) {
 	      {% for subsidy in org.subsidy_set.all %}
 	      <tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
 		<td>{{ subsidy.get_subsidy_type_display }}</td>
-		<td>&euro;{{ subsidy.amount }}</td>
+		<td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 		<td>{{ subsidy.date }}{% if subsidy.date_until %} until {{ subsidy.date_until }}{% endif %}</td>
 	      </tr>
 	      {% endfor %}
 	      <tr style="border-top: 2px solid black">
 		<td>Total support obtained:</td>
-		<td>&euro;{{ org.get_total_subsidies_obtained }}</td>
+		<td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}&euro;{{ org.get_total_subsidies_obtained }}{% else %}-{% endif %}</td>
 		<td colspan="2">
 	      </tr>
 	    </tbody>
