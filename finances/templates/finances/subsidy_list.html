@@ -5,15 +5,6 @@
 {% load staticfiles %}
 {% load bootstrap %}
 
-{% block headsup %}
-<script type="text/javascript">
-$(document).ready(function($) {
-    $(".table-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-</script>
-{% endblock headsup %}
 
 
 {% block breadcrumb_items %}
@@ -90,10 +81,10 @@ $(document).ready(function($) {
       </thead>
       <tbody>
 	{% for subsidy in object_list %}
-	<tr class="table-row" data-href="{% url 'finances:subsidy_details' pk=subsidy.id %}" style="cursor: pointer;">
-	  <td>{{ subsidy.organization }}</td>
-	  <td>{{ subsidy.get_subsidy_type_display }}
-	    {% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li>{{ prevsub }}</li>{% endfor %}</ul></span>{% endif %}
+	<tr>
+	  <td><a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></td>
+	  <td><a href="{{ subsidy.get_absolute_url }}">{{ subsidy.get_subsidy_type_display }}</a>
+	    {% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li><a href="{{ prevsub.get_absolute_url }}">{{ prevsub }}</a></li>{% endfor %}</ul></span>{% endif %}
 	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li>{{ newsub }}</li>{% endfor %}</ul></span>{% endif %}	  </td>
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  {% if perms.scipost.can_manage_subsidies %}
