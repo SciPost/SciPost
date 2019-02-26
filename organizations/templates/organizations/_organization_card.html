@@ -135,7 +135,7 @@ $(document).ready(function($) {
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
 	  <h3>Support history</h3>
-	  {% if org.subsidy_set.all|length > 0 %}
+	  {% if org.subsidy_set.all|length > 0 or org.children.all|length > 0 %}
 	  <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
 	  <table class="table table-hover mb-5">
 	    <thead class="thead-default">
@@ -160,6 +160,15 @@ $(document).ready(function($) {
 	      </tr>
 	    </tbody>
 	  </table>
+	  {% if org.children.all|length > 0 %}
+	  <p>See subsidies obtained from related organizations
+	    <ul>
+	      {% for child in org.children.all %}
+	      <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+	      {% endfor %}
+	    </ul>
+	  </p>
+	  {% endif %}
 	  {% else %}
 	  <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
 	  {% endif %}
