@@ -85,7 +85,7 @@
 	  <td><a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></td>
 	  <td><a href="{{ subsidy.get_absolute_url }}">{{ subsidy.get_subsidy_type_display }}</a>
 	    {% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li><a href="{{ prevsub.get_absolute_url }}">{{ prevsub }}</a></li>{% endfor %}</ul></span>{% endif %}
-	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li>{{ newsub }}</li>{% endfor %}</ul></span>{% endif %}	  </td>
+	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li><a href="{{ newsub.get_absolute_url }}">{{ newsub }}</a></li>{% endfor %}</ul></span>{% endif %}	  </td>
 	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	  {% if perms.scipost.can_manage_subsidies %}
 	  <td>{{ subsidy.get_status_display }}</td>
