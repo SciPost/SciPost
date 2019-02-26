@@ -18,8 +18,6 @@ urlpatterns = [
     url(r'^subsidies/(?P<pk>[0-9]+)/delete/$', views.SubsidyDeleteView.as_view(),
         name='subsidy_delete'),
     url(r'^subsidies/(?P<pk>[0-9]+)/$', views.SubsidyDetailView.as_view(), name='subsidy_details'),
-    url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/(?P<attachment_id>[0-9]+)$',
-        views.subsidy_attachment, name='subsidy_attachment'),
     url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/add/$',
         views.SubsidyAttachmentCreateView.as_view(),
         name='subsidyattachment_create'),
@@ -29,6 +27,11 @@ urlpatterns = [
     url(r'^subsidies/attachments/(?P<pk>[0-9]+)/delete/$',
         views.SubsidyAttachmentDeleteView.as_view(),
         name='subsidyattachment_delete'),
+    url(r'^subsidies/attachments/(?P<attachment_id>[0-9]+)/toggle_visibility/$',
+        views.subsidy_attachment_toggle_public_visibility,
+        name='subsidy_attachment_toggle_public_visibility'),
+    url(r'^subsidies/(?P<subsidy_id>[0-9]+)/attachments/(?P<attachment_id>[0-9]+)$',
+        views.subsidy_attachment, name='subsidy_attachment'),
 
     # Timesheets
     url(r'^timesheets$', views.timesheets, name='timesheets'),

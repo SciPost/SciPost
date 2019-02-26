@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -140,6 +140,21 @@ class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
 
     def get_success_url(self):
         return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+
+
+def subsidy_attachment_toggle_public_visibility(request, attachment_id):
+    """
+    Method to toggle the public visibility of an attachment to a Subsidy.
+    Callable by Admin and Contacts for the relevant Organization.
+    """
+    attachment = get_object_or_404(SubsidyAttachment, pk=attachment_id)
+    if not (request.user.has_perm('scipost.can_manage_subsidies') or
+            request.user.has_perm('can_view_org_contacts', attachment.subsidy.organization)):
+        raise PermissionDenied
+    attachment.publicly_visible = not attachment.publicly_visible
+    attachment.save()
+    messages.success(request, 'Attachment visibility set to %s' % attachment.publicly_visible)
+    return redirect(attachment.subsidy.get_absolute_url())
 
 
 def subsidy_attachment(request, subsidy_id, attachment_id):
