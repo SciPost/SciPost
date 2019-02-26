@@ -145,6 +145,8 @@ class NewContactForm(ContactForm):
 
             # Assign permissions and Group
             assign_perm('can_view_org_contacts', user, self.organization)
+            for child in self.organization.children.all():
+                assign_perm('can_view_org_contacts', user, child)
             orgcontacts = Group.objects.get(name='Organization Contacts')
             user.groups.add(orgcontacts)
 
