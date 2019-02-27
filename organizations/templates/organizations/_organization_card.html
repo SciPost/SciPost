@@ -33,9 +33,6 @@ $(document).ready(function($) {
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="funders-{{ org.id }}-tab" data-toggle="tab" href="#funders-{{ org.id }}" role="tab" aria-controls="funders-{{ org.id }}" aria-selected="true">Funder Registry instances</a>
-	</li>
-	<li class="nav-item">
 	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
 	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
@@ -64,6 +61,23 @@ $(document).ready(function($) {
 
 	  <h3>Details:</h3>
 	  {% include 'organizations/_organization_details_contents.html' with org=org %}
+
+	  <h3>Funder Registry instances associated to this Organization:</h3>
+	  <ul>
+	    {% for funder in org.funder_set.all %}
+	    <li>{{ funder }}</li>
+	    {% empty %}
+	    <li>No Funder Registry instance found<br/><br/>
+	      <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
+	      <p>Are you a representative of this Organization? We advise you to:</p>
+	      <ul>
+		<li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a>;</li>
+		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
+	      </ul>
+	    </li>
+	    {% endfor %}
+	  </ul>
+
 	</div>
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
@@ -115,23 +129,6 @@ $(document).ready(function($) {
 	  </div>
 	</div>
 
-	<div class="tab-pane pt-4" id="funders-{{ org.id }}" role="tabpanel" aria-labelledby="funders-{{ org.id }}-tab">
-	  <h3>Funder Registry instances associated to this Organization:</h3>
-	  <ul>
-	    {% for funder in org.funder_set.all %}
-	    <li>{{ funder }}</li>
-	    {% empty %}
-	    <li>No Funder Registry instance found<br/><br/>
-	      <strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
-	      <p>Are you a representative of this Organization? We advise you to:</p>
-	      <ul>
-		<li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a>;</li>
-		<li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
-	      </ul>
-	    </li>
-	    {% endfor %}
-	  </ul>
-	</div>
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
 	  <h3>Support history</h3>
