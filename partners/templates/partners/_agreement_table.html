@@ -1,8 +1,0 @@
-<table class="table mt-2">
-    <tr><td>Partner: </td><td><a href="{{agreement.partner.get_absolute_url}}">{{ agreement.partner }}</a></td></tr>
-    <tr><td>Status: </td><td>{{ agreement.status }}</td></tr>
-    <tr><td>Request date: </td><td>{{ agreement.date_requested }}</td></tr>
-    <tr><td>Start date: </td><td>{{ agreement.start_date }}</td></tr>
-    <tr><td>Duration: </td><td>{{ agreement.get_duration_display }}</td></tr>
-    <tr><td>Yearly contribution: </td><td>€ {{ agreement.offered_yearly_contribution }}</td></tr>
-</table>

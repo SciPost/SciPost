@@ -19,8 +19,7 @@ from django_countries.fields import LazyTypedChoiceField
 from .constants import PARTNER_KINDS, PROSPECTIVE_PARTNER_PROCESSED, CONTACT_TYPES,\
                        PARTNER_STATUS_UPDATE, REQUEST_PROCESSED, REQUEST_DECLINED, CONTACT_GENERAL
 from .models import Partner, ProspectivePartner, ProspectiveContact, ProspectivePartnerEvent,\
-                    Contact, PartnerEvent, MembershipAgreement, ContactRequest,\
-                    PartnersAttachment
+                    Contact, PartnerEvent, MembershipAgreement, ContactRequest
 from .utils import PartnerUtils
 
 from scipost.models import TITLE_CHOICES
@@ -478,45 +477,3 @@ class MembershipQueryForm(forms.Form):
             '{widget}<img class="country-select-flag" id="{flag_id}"'
             ' style="margin: 6px 4px 0" src="{country.flag}">')))
     captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
-
-
-# done
-class PartnersAttachmentForm(forms.ModelForm):
-    class Meta:
-        model = PartnersAttachment
-        fields = (
-            'name',
-            'attachment',
-        )
-
-    def save(self, to_object, commit=True):
-        """
-        This custom save method will automatically assign the file to the object
-        given when its a valid instance type.
-        """
-        attachment = super().save(commit=False)
-
-        # Formset's might save an empty Instance
-        if not attachment.name or not attachment.attachment:
-            return None
-
-        if isinstance(to_object, MembershipAgreement):
-            attachment.agreement = to_object
-        else:
-            raise forms.ValidationError('You cannot save Attachment to this type of object.')
-        if commit:
-            attachment.save()
-        return attachment
-
-
-# done
-class PartnersAttachmentFormSet(forms.BaseModelFormSet):
-    def save(self, to_object, commit=True):
-        """
-        This custom save method will automatically assign the file to the object
-        given when its a valid instance type.
-        """
-        returns = []
-        for form in self.forms:
-            returns.append(form.save(to_object))
-        return returns

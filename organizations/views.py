@@ -26,7 +26,7 @@ from funders.models import Funder
 from mails.utils import DirectMailUtil
 from mails.views import MailEditingSubView
 from organizations.decorators import has_contact
-from partners.models import ProspectivePartner, Partner
+# from partners.models import ProspectivePartner, Partner DELPARTNERS
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
 
@@ -70,10 +70,10 @@ class OrganizationListView(PaginationMixin, ListView):
         context = super().get_context_data(*args, **kwargs)
         if self.request.user.has_perm('scipost.can_manage_organizations'):
             context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
-            context['nr_prospartners_wo_organization'] = ProspectivePartner.objects.filter(
-                organization=None).count()
-            context['nr_partners_wo_organization'] = Partner.objects.filter(
-                organization=None).count()
+            # context['nr_prospartners_wo_organization'] = ProspectivePartner.objects.filter(
+            #     organization=None).count() DELPARTNERS
+            # context['nr_partners_wo_organization'] = Partner.objects.filter(
+            #     organization=None).count() DELPARTNERS
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
         context['countrycodes'] = [code['country'] for code in list(
             Organization.objects.all().distinct('country').values('country'))]

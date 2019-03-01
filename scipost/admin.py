@@ -13,7 +13,6 @@ from scipost.models import Contributor, Remark,\
                            EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
 
 from organizations.admin import ContactInline
-from partners.admin import ContactToUserInline
 from production.admin import ProductionUserInline
 from submissions.models import Submission
 
@@ -40,7 +39,6 @@ class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
         ContactInline,
-        ContactToUserInline, # TODO:PartnersDeprec remove
         ProductionUserInline
         ]
     list_display = ['username', 'email', 'first_name', 'last_name',

@@ -1,8 +1,0 @@
-<li>
-    <h4 class="pb-0"><strong>{{ contact.get_title_display }} {{ contact.user.first_name }} {{ contact.user.last_name }}</strong> {% if not contact.user.is_active %}<span class="label label-sm label-warning">Inactive</span>{% endif %}</h4>
-    <p class="text-muted mb-1">{{contact.description}}</p>
-    <p>
-        {{ contact.kind_display }}<br>
-        <a href="mailto:{{ contact.user.email }}">{{ contact.user.email }}</a>
-    </p>
-</li>

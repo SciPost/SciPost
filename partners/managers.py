@@ -38,9 +38,3 @@ class MembershipAgreementManager(models.Manager):
     def now_active(self):
         return self.filter(start_date__lte=timezone.now().date(),
                            end_date__gte=timezone.now().date())
-
-
-class PartnersAttachmentManager(models.Manager):
-    def my_attachments(self, current_user):
-        if current_user.has_perm('scipost.can_view_partners'):
-            return self.all()

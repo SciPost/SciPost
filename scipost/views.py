@@ -56,7 +56,6 @@ from news.models import NewsItem
 from organizations.decorators import has_contact
 from organizations.models import Organization, Contact
 from organizations.forms import UpdateContactDataForm
-from partners.models import MembershipAgreement
 from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from theses.models import ThesisLink
 
