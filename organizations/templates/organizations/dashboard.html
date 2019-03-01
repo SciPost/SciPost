@@ -189,7 +189,7 @@ $(document).ready(function($) {
 	  <tbody>
 	    {% for contact in contacts %}
 	    <tr>
-	      <td>{{ contact }}</td>
+	      <td><a href="{% url 'organizations:contact_details' pk=contact.id %}">{{ contact }}</a></td>
 	      <td>
 		<ul class="list-group list-group-flush">
 		  {% for role in contact.roles.all %}

@@ -98,6 +98,10 @@ urlpatterns = [
         views.dashboard,
         name='dashboard'
     ),
+    url(r'^contact/(?P<pk>[0-9]+)/$',
+        views.ContactDetailView.as_view(),
+        name='contact_details'
+    ),
     url(
         r'^contactrole/(?P<pk>[0-9]+)/update/$',
         views.ContactRoleUpdateView.as_view(),

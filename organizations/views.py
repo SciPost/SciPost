@@ -330,6 +330,14 @@ def dashboard(request):
     return render(request, 'organizations/dashboard.html', context)
 
 
+class ContactDetailView(PermissionsMixin, DetailView):
+    """
+    View details of a Contact. Accessible to Admin.
+    """
+    permission_required = 'scipost.can_manage_organizations'
+    model = Contact
+
+
 class ContactRoleUpdateView(UserPassesTestMixin,  UpdateView):
     """
     Update a ContactRole.
