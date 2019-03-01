@@ -16,10 +16,10 @@ class Migration(migrations.Migration):
             model_name='authoraffiliation',
             name='contributor',
         ),
-        migrations.RemoveField(
-            model_name='authoraffiliation',
-            name='organization',
-        ),
+        # migrations.RemoveField(
+        #     model_name='authoraffiliation',
+        #     name='organization',
+        # ),
         migrations.RemoveField(
             model_name='authoraffiliation',
             name='publication',

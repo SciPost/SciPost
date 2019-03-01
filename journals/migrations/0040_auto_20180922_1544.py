@@ -13,16 +13,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='publicationauthorstable',
-            name='affiliations',
-        ),
+        # migrations.RemoveField(
+        #     model_name='publicationauthorstable',
+        #     name='affiliations',
+        # ),
         migrations.AlterUniqueTogether(
             name='orgpubfraction',
             unique_together=set([('org', 'publication')]),
         ),
-        migrations.RemoveField(
-            model_name='orgpubfraction',
-            name='organization',
-        ),
+        # migrations.RemoveField(
+        #     model_name='orgpubfraction',
+        #     name='organization',
+        # ),
     ]

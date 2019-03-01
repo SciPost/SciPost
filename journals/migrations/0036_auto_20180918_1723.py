@@ -8,13 +8,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('partners', '0013_auto_20180715_0938'),
+        # ('partners', '0013_auto_20180715_0938'),
         ('journals', '0035_orgpubfraction'),
     ]
 
     operations = [
-        migrations.AlterUniqueTogether(
-            name='orgpubfraction',
-            unique_together=set([('organization', 'publication')]),
-        ),
+        # migrations.AlterUniqueTogether(
+        #     name='orgpubfraction',
+        #     unique_together=set([('organization', 'publication')]),
+        # ),
     ]

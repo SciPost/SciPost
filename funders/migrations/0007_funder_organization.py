@@ -9,14 +9,14 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('partners', '0008_auto_20180711_0623'),
+        # ('partners', '0008_auto_20180711_0623'),
         ('funders', '0006_auto_20180425_2212'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='funder',
-            name='organization',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.Organization'),
-        ),
+        # migrations.AddField(
+        #     model_name='funder',
+        #     name='organization',
+        #     field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.Organization'),
+        # ),
     ]

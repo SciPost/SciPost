@@ -12,8 +12,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='petitionsignatory',
-            name='organization_tbd',
-        ),
+        # migrations.RemoveField(
+        #     model_name='petitionsignatory',
+        #     name='organization_tbd',
+        # ),
     ]
