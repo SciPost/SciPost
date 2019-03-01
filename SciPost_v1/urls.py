@@ -15,6 +15,8 @@ from journals.viewsets import PublicationViewSetForGoogleScholar
 from news.viewsets import NewsItemViewSet
 from journals.constants import REGEX_CHOICES
 from scipost import views as scipost_views
+from organizations.views import OrganizationListView
+
 
 # Journal URL Regex
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
@@ -64,12 +66,11 @@ urlpatterns = [
     url(r'^proceedings/', include('proceedings.urls', namespace="proceedings")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^profiles/', include('profiles.urls', namespace="profiles")),
-    # TODO: partners to be deprecated in favour of sponsors
-    url(r'^partners/', include('partners.urls', namespace="partners")),
     url(r'^sponsors/', include('sponsors.urls', namespace="sponsors")),
     url(r'^stats/', include('stats.urls', namespace="stats")),
-    # Keep temporarily for historical reasons
-    url(r'^supporting_partners/', include('partners.urls', namespace="_partners")),
+    # Deprecated, keep temporarily for historical reasons
+    url(r'^partners/', OrganizationListView.as_view(), name='partners'),
+    url(r'^supporting_partners/', OrganizationListView.as_view(), name='partners'),
 ]
 
 if settings.DEBUG:
