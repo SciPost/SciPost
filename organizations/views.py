@@ -237,7 +237,7 @@ def email_contactperson(request, contactperson_id, mail=None):
         return mail_request.return_render()
 
 
-@permission_required('scipost.can_manage_SPB', return_403=True)
+@permission_required('scipost.can_manage_organizations', return_403=True)
 def organization_add_contact(request, organization_id, contactperson_id=None):
     organization = get_object_or_404(Organization, id=organization_id)
     if contactperson_id:
