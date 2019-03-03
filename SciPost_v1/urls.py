@@ -46,6 +46,7 @@ urlpatterns = [
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
     url(r'^commentary/', include('commentaries.urls', namespace="_commentaries")),
     url(r'^comments/', include('comments.urls', namespace="comments")),
+    url(r'^forums/', include('forums.urls', namespace="forums")),
     url(r'^funders/', include('funders.urls', namespace="funders")),
     url(r'^finances/', include('finances.urls', namespace="finances")),
     url(r'^guides/', include('guides.urls', namespace="guides")),

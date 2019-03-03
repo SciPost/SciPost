@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
@@ -46,6 +47,9 @@ class Forum(models.Model):
 
     def __str__(self):
         return self.slug
+
+    def get_absolute_url(self):
+        return reverse('forums:forum_detail', kwargs={'slug': self.slug})
 
 
 class Post(models.Model):
