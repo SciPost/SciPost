@@ -98,7 +98,6 @@ INSTALLED_APPS = (
     'journals',
     'mailing_lists',
     'mails',
-    'metacore',
     'news',
     'notifications',
     'partners',
