@@ -24,7 +24,7 @@ from .models import Organization, OrganizationEvent, ContactPerson, Contact, Con
 
 from funders.models import Funder
 from mails.utils import DirectMailUtil
-from mails.views import MailEditingSubView
+from mails.views import MailEditorSubview
 from organizations.decorators import has_contact
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
@@ -219,7 +219,7 @@ def email_contactperson(request, contactperson_id, mail=None):
     else:
         code = 'org_contacts/contactperson_initial_mail'
         suffix = ' (initial)'
-    mail_request = MailEditingSubView(request, mail_code=code, contactperson=contactperson)
+    mail_request = MailEditorSubview(request, code, contactperson=contactperson)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to ContactPerson {name}.'.format(
             suffix=suffix, name=contactperson)
@@ -231,10 +231,10 @@ def email_contactperson(request, contactperson_id, mail=None):
             noted_by=request.user)
         event.save()
         messages.success(request, 'Email successfully sent.')
-        mail_request.send()
+        mail_request.send_mail()
         return redirect(contactperson.organization.get_absolute_url())
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
 
 
 @permission_required('scipost.can_manage_organizations', return_403=True)
@@ -379,7 +379,7 @@ def email_contactrole(request, contactrole_id, mail=None):
     else:
         code = 'org_contacts/contactrole_generic_mail'
         suffix = ' (generic)'
-    mail_request = MailEditingSubView(request, mail_code=code, contactrole=contactrole)
+    mail_request = MailEditorSubview(request, mail_code=code, contactrole=contactrole)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to Contact {name}.'.format(
             suffix=suffix, name=contactrole.contact)
@@ -391,7 +391,7 @@ def email_contactrole(request, contactrole_id, mail=None):
             noted_by=request.user)
         event.save()
         messages.success(request, 'Email successfully sent.')
-        mail_request.send()
+        mail_request.send_mail()
         return redirect(contactrole.organization.get_absolute_url())
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
