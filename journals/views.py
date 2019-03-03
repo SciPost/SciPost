@@ -45,7 +45,6 @@ from .utils import JournalUtils
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
-from mails.views import MailEditingSubView
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
@@ -853,7 +852,7 @@ def request_pubfrac_check(request, doi_label):
     been confirmed.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    mail_request = MailEditingSubView(
+    mail_request =  MailEditorSubview(
         request, mail_code='authors/request_pubfrac_check', instance=publication)
     if mail_request.is_valid():
         messages.success(request, 'The corresponding author has been emailed.')

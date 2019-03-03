@@ -4,18 +4,11 @@
 
 {% block pagetitle %}: register{% endblock pagetitle %}
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <h1>Register to SciPost</h1>
-        </div>
-    </div>
-{% endblock %}
-
 {% block content %}
 
 <div class="row">
     <div class="col-12">
+        <h1 class="highlight">Register to SciPost</h1>
         {% if invitation %}
             <h2>Welcome {{invitation.get_title_display}} {{invitation.last_name}} and thanks in advance for registering (by completing this form)</h2>
         {% endif %}

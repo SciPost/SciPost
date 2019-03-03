@@ -10,17 +10,18 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView, DeleteView
 
+from .constants import INVITATION_EDITORIAL_FELLOW
 from .forms import RegistrationInvitationForm, RegistrationInvitationReminderForm,\
     RegistrationInvitationMarkForm, RegistrationInvitationMapToContributorForm,\
     CitationNotificationForm, SuggestionSearchForm, RegistrationInvitationFilterForm,\
     CitationNotificationProcessForm, RegistrationInvitationAddCitationForm,\
     RegistrationInvitationMergeForm
-from .mixins import RequestArgumentMixin, SaveAndSendFormMixin, SendMailFormMixin
+from .mixins import RequestArgumentMixin
 from .models import RegistrationInvitation, CitationNotification
 
 from scipost.models import Contributor
 from scipost.mixins import PaginationMixin, PermissionsMixin
-from mails.views import MailEditorMixin
+from mails.views import MailFormView
 
 
 class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
@@ -40,6 +41,7 @@ class RegistrationInvitationsView(PaginationMixin, PermissionsMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['count_in_draft'] = RegistrationInvitation.objects.drafts().count()
         context['count_pending'] = RegistrationInvitation.objects.sent().count()
+        context['count_unprocessed'] = CitationNotification.objects.unprocessed().count()
         context['search_form'] = self.search_form
         return context
 
@@ -72,24 +74,29 @@ class CitationNotificationsView(PermissionsMixin, ListView):
         'invitation', 'contributor', 'contributor__user')
 
 
-class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin,
-                                       MailEditorMixin, UpdateView):
+class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin, MailFormView):
     permission_required = 'scipost.can_manage_registration_invitations'
     form_class = CitationNotificationProcessForm
     queryset = CitationNotification.objects.unprocessed()
     success_url = reverse_lazy('invitations:citation_notification_list')
     mail_code = 'citation_notification'
 
+    def can_send_mail(self):
+        """
+        Only send mail if Contributor has not opted-out.
+        """
+        citation = self.get_form().get_all_notifications().filter(contributor__isnull=False).first()
+        if not citation.contributor:
+            return True
+        return citation.contributor.accepts_SciPost_emails
+
     @transaction.atomic
     def form_valid(self, form):
         """
-        Form is valid; use the MailEditorMixin to send out the mail if
+        Form is valid; the MailFormView will send the mail if
         (possible) Contributor didn't opt-out from mails.
         """
-        citation = form.get_all_notifications().filter(contributor__isnull=False).first()
-        contributor = citation.contributor
         form.get_all_notifications().update(processed=True)
-        self.send_mail = (contributor and contributor.accepts_SciPost_emails) or not contributor
         return super().form_valid(form)
 
 
@@ -148,8 +155,7 @@ def create_registration_invitation_or_citation(request):
     return render(request, 'invitations/registrationinvitation_form_add_new.html', context)
 
 
-class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
-                                        SaveAndSendFormMixin, MailEditorMixin, UpdateView):
+class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin, MailFormView):
     permission_required = 'scipost.can_create_registration_invitations'
     form_class = RegistrationInvitationForm
     mail_code = 'registration_invitation'
@@ -171,6 +177,18 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin,
         if not self.request.user.has_perm('scipost.can_manage_registration_invitations'):
             qs = qs.created_by(self.request.user)
         return qs
+
+    def can_send_mail(self):
+        return self.request.user.has_perm('scipost.can_manage_registration_invitations')
+
+    def get_mail_config(self):
+        config = super().get_mail_config()
+        print('Config', config)
+        print(self.object)
+        if self.object.invitation_type == INVITATION_EDITORIAL_FELLOW:
+            config['from_email'] = 'jscaux@scipost.org'
+            config['from_name'] = 'J-S Caux'
+        return config
 
 
 class RegistrationInvitationsMergeView(RequestArgumentMixin, PermissionsMixin, UpdateView):
@@ -206,14 +224,20 @@ class RegistrationInvitationsMapToContributorView(RequestArgumentMixin, Permissi
     success_url = reverse_lazy('invitations:list')
 
 
-class RegistrationInvitationsReminderView(RequestArgumentMixin, PermissionsMixin,
-                                          SendMailFormMixin, MailEditorMixin, UpdateView):
+class RegistrationInvitationsReminderView(RequestArgumentMixin, PermissionsMixin, MailFormView):
     permission_required = 'scipost.can_manage_registration_invitations'
     queryset = RegistrationInvitation.objects.sent()
     success_url = reverse_lazy('invitations:list')
     form_class = RegistrationInvitationReminderForm
     template_name = 'invitations/registrationinvitation_reminder_form.html'
     mail_code = 'registration_invitation_reminder'
+
+    def get_mail_config(self):
+        config = super().get_mail_config()
+        if self.object.invitation_type == INVITATION_EDITORIAL_FELLOW:
+            config['from_email'] = 'jscaux@scipost.org'
+            config['from_name'] = 'J-S Caux'
+        return config
 
 
 class RegistrationInvitationsDeleteView(PermissionsMixin, DeleteView):

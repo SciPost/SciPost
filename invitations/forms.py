@@ -238,6 +238,8 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
     def save(self, *args, **kwargs):
         if not hasattr(self.instance, 'created_by'):
             self.instance.created_by = self.request.user
+        if not hasattr(self.instance, 'invited_by'):
+            self.instance.invited_by = self.request.user
 
         # Try to associate an existing Profile to invitation:
         profile = Profile.objects.get_unique_from_email_or_None(

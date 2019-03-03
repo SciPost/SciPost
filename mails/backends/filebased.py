@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.core.mail.backends.filebased import EmailBackend as FileBackend
 from django.core.mail.message import sanitize_address
+from django.db import models
 
-from ..models import MailLog
+from ..models import MailLog, MailLogRelation
 
 
 class EmailBackend(FileBackend):
@@ -49,17 +50,16 @@ class ModelEmailBackend(FileBackend):
         except AttributeError:
             pass
 
-        content_object = None
         mail_code = ''
-        if 'delayed_processing' in email_message.extra_headers \
-           and email_message.extra_headers['delayed_processing']:
+        if email_message.extra_headers.get('delayed_processing', False):
             status = 'not_rendered'
-            content_object = email_message.extra_headers.get('content_object', None)
+            context = email_message.extra_headers.get('context', {})
             mail_code = email_message.extra_headers.get('mail_code', '')
         else:
             status = 'rendered'
+            context = {}
 
-        MailLog.objects.create(
+        mail_log = MailLog.objects.create(
             body=body,
             subject=subject,
             body_html=body_html,
@@ -67,6 +67,16 @@ class ModelEmailBackend(FileBackend):
             bcc_recipients=bcc_recipients,
             from_email=from_email,
             status=status,
-            content_object=content_object,
             mail_code=mail_code)
+
+        for key, var in context.items():
+            if isinstance(var, models.Model):
+                context_object = var
+                value = ''
+            else:
+                context_object = None
+                value = str(var)
+            rel = MailLogRelation.objects.create(
+                mail=mail_log, name=key, value=value, content_object=context_object)
+
         return True

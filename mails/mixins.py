@@ -17,7 +17,11 @@ from scipost.models import Contributor
 
 
 class MailUtilsMixin:
-    """This mixin takes care of inserting the default data into the Utils or Form."""
+    """
+    This mixin takes care of inserting the default data into the Utils or Form.
+
+    DEPRECATED
+    """
 
     instance = None
     mail_data = {}

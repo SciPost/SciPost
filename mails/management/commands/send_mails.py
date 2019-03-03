@@ -4,6 +4,7 @@ from django.conf import settings
 from ...models import MailLog
 from ...utils import DirectMailUtil
 
+
 class Command(BaseCommand):
     """
     This sends the mails that are not processed, written to the database.
@@ -17,13 +18,11 @@ class Command(BaseCommand):
         """
         Render the templates for the mail if not done yet.
         """
-        mail_util = DirectMailUtil(
-            mail_code=mail.mail_code,
-            instance=mail.content_object)  # This will process the mail, but: not send yet!
+        mail_util = DirectMailUtil(mail.mail_code, delayed_processing=False, **mail.get_full_context())
 
         MailLog.objects.filter(id=mail.id).update(
-            body=mail_util.mail_data['message'],
-            body_html=mail_util.mail_data['html_message'],
+            body=mail_util.engine.mail_data['message'],
+            body_html=mail_util.engine.mail_data['html_message'],
             status='rendered')
 
     def send_mails(self, mails):

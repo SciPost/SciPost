@@ -1,0 +1,5 @@
+{
+    "subject": "SciPost Test",
+    "recipient_list": ["test@scipost.org"],
+    "from_email": "admin@scipost.org"
+}
