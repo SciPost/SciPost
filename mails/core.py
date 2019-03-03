@@ -119,7 +119,7 @@ class MailEngine:
         self._mail_sent = True
 
         if self.template_variables['object'] and hasattr(self.template_variables['object'], 'mail_sent'):
-            self.instance.mail_sent()
+            self.template_variables['object'].mail_sent()
 
     def _detect_and_save_object(self):
         """

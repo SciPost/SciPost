@@ -1,9 +1,11 @@
 {% extends 'scipost/base.html' %}
 
+{% block container_class %}{{block.super}} pb-5{% endblock container_class %}
+
 {% block breadcrumb %}
-    <div class="container-outside header">
+    <div class="breadcrumb-container">
         <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
+            <nav class="breadcrumb">
                 {% block breadcrumb_items %}
                     <a href="{% url 'production:production' %}" class="breadcrumb-item">Production page</a>
                 {% endblock %}
@@ -11,5 +13,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% block container_class %}{{block.super}} pb-5{% endblock container_class %}

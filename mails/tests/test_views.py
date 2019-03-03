@@ -2,13 +2,13 @@ from django.test import TestCase
 
 # from mails.models import MailLog, MAIL_RENDERED, MAIL_NOT_RENDERED, MAIL_SENT
 # from mails.utils import DirectMailUtil
-from mails.views import MailDetailView, MailEditorSubview
+from mails.views import MailView, MailEditorSubview
 # from submissions.factories import SubmissionFactory
 
 
 class MailDetailViewTest(TestCase):
     """
-    Test the mails.views.MailDetailView CBV.
+    Test the mails.views.MailView CBV.
     """
 
     # @classmethod

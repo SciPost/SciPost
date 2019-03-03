@@ -1,23 +1,23 @@
-{% if invitation.invitation_type == 'F' %}
+{% if object.invitation_type == 'F' %}
     <strong>RE: Invitation to join the Editorial College of SciPost</strong>
     <br>
 {% endif %}
 
-Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} {{ invitation.last_name }}{% else %}{{ invitation.first_name }}{% endif %},
+Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ object.last_name }}{% else %}{{ object.first_name }}{% endif %},
 
 <br><br>
 
-{% if invitation.personal_message %}
-    {{ invitation.personal_message|linebreaksbr }}
+{% if object.personal_message %}
+    {{ object.personal_message|linebreaksbr }}
     <br>
 {% endif %}
 
 
-{% if invitation.invitation_type == 'R' %}
+{% if object.invitation_type == 'R' %}
     {# Referee invite #}
     <p>
         We would hereby like to cordially invite you to become a Contributor on SciPost (this is required in order to deliver reports; our records show that you are not yet registered);
-        for your convenience, we have prepared a pre-filled <a href="https://scipost.org/invitation/{{ invitation.invitation_key }}">registration form</a> for you.
+        for your convenience, we have prepared a pre-filled <a href="https://scipost.org/invitation/{{ object.invitation_key }}">registration form</a> for you.
         After activation of your registration, you will be allowed to contribute, in particular by providing referee reports.
     </p>
     <p>
@@ -25,7 +25,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         we would appreciate a quick accept/decline response from you, ideally within the next 2 days.
     </p>
     <p>
-        If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation.invitation_key }}"> clicking here</a>.
+        If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://scipost.org/submissions/decline_ref_invitation/{{ object.invitation_key }}"> clicking here</a>.
     </p>
     <p>
         If you are able to provide a Report, you can confirm this after registering and logging in (you will automatically be prompted for a confirmation).
@@ -38,17 +38,17 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         The SciPost Team
     </p>
 
-{% elif invitation.invitation_type == 'C' %}
+{% elif object.invitation_type == 'C' %}
     {# "Regular" invite #}
-    {% if invitation.citation_notifications.for_publications %}
+    {% if object.citation_notifications.for_publications %}
         <p>
             Your work has been cited in
-            {% if invitation.citation_notifications.for_publications|length > 1 %}{{ invitation.citation_notifications.for_publications|length }} papers{% else %}a paper{% endif %}
+            {% if object.citation_notifications.for_publications|length > 1 %}{{ object.citation_notifications.for_publications|length }} papers{% else %}a paper{% endif %}
             published by SciPost:
         </p>
 
         <ul>
-            {% for notification in invitation.citation_notifications.for_publications %}
+            {% for notification in object.citation_notifications.for_publications %}
                 <li>
                     <a href="https://doi.org/{{ notification.publication.doi_string }}">{{ notification.publication.citation }}</a>
                     <br>
@@ -60,15 +60,15 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         </ul>
     {% endif %}
 
-    {% if invitation.citation_notifications.for_submissions %}
+    {% if object.citation_notifications.for_submissions %}
         <p>
             Your work has been cited in
-            {% if invitation.citation_notifications.for_submissions|length > 1 %}{{ invitation.citation_notifications.for_submissions|length }} manuscripts{% else %}a manuscript{% endif %}
+            {% if object.citation_notifications.for_submissions|length > 1 %}{{ object.citation_notifications.for_submissions|length }} manuscripts{% else %}a manuscript{% endif %}
             submitted to SciPost,
         </p>
 
         <ul>
-            {% for notification in invitation.citation_notifications.for_submissions %}
+            {% for notification in object.citation_notifications.for_submissions %}
                 <li>
                     {{ notification.submission.title }}
                     <br>
@@ -100,7 +100,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         enabling you to contribute to the site's contents, for example by offering submissions, reports and comments.
     </p>
     <p>
-        For your convenience, a partly pre-filled <a href="https://scipost.org/invitation/{{ invitation.invitation_key }}">registration form</a>
+        For your convenience, a partly pre-filled <a href="https://scipost.org/invitation/{{ object.invitation_key }}">registration form</a>
         has been prepared for you (you can in any case still register at the
         <a href="https://scipost.org/register">registration page</a>).
     </p>
@@ -122,7 +122,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         <br>1098 XH Amsterdam
         <br>The Netherlands
     </p>
-{% elif invitation.invitation_type == 'F' %}
+{% elif object.invitation_type == 'F' %}
     {# Fellow invite #}
     <p>
         You will perhaps have already heard about SciPost, a publication
@@ -160,7 +160,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         Besides looking around the site, you can also personally register
         (to become a Contributor, without necessarily committing to membership
         of the Editorial College, this to be discussed separately) by visiting
-        the following <a href="https://scipost.org/invitation/{{ invitation.invitation_key }}">
+        the following <a href="https://scipost.org/invitation/{{ object.invitation_key }}">
         single-use link</a>, containing a partly pre-filled form for your convenience.
     </p>
     <p>
@@ -192,7 +192,7 @@ Dear {% if invitation.message_style == 'F' %}{{ invitation.get_title_display }} 
         <br>
         <br>Prof. dr Jean-Sébastien Caux
         <br>---------------------------------------------
-        <br>Institute for Theoretial Physics
+        <br>Institute for Theoretical Physics
         <br>University of Amsterdam
         <br>Science Park 904
         <br>1098 XH Amsterdam

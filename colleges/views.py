@@ -29,7 +29,7 @@ from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 
-from mails.views import MailDetailView
+from mails.views import MailView
 
 
 @login_required
@@ -424,7 +424,7 @@ def vote_on_potential_fellowship(request, potfel_id, vote):
     return redirect(reverse('colleges:potential_fellowships'))
 
 
-class PotentialFellowshipInitialEmailView(PermissionsMixin, MailDetailView):
+class PotentialFellowshipInitialEmailView(PermissionsMixin, MailView):
     """Send a templated email to a Potential Fellow."""
 
     permission_required = 'scipost.can_manage_college_composition'

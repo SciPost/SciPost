@@ -2,8 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 from django import forms
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.encoding import force_text
 from django.views.generic.edit import UpdateView
@@ -19,12 +20,20 @@ class MailViewBase:
     mail_code = None
     mail_config = {}
     mail_variables = {}
+    fail_silently = True
 
     def __init__(self, *args, **kwargs):
         if not self.mail_code:
             raise AttributeError(self.__class__.__name__ + ' object has no attribute `mail_code`')
         super().__init__(*args, **kwargs)
         self.mail_form = None
+
+    def can_send_mail(self):
+        """Overwrite method to control permissions for sending mails."""
+        return True
+
+    def get_mail_config(self):
+        return self.mail_config
 
 
 class MailFormView(MailViewBase, UpdateView):
@@ -39,21 +48,21 @@ class MailFormView(MailViewBase, UpdateView):
             return ['mails/mail_form.html']
         return super().get_template_names()
 
-    def get_form_kwargs(self):
-        kwargs = {
-            'initial': self.get_initial(),
-            'prefix': self.get_prefix(),
-        }
-
-        if self.request.method in ('POST', 'PUT'):
-            kwargs.update({
-                'data': self.request.POST,
-                'files': self.request.FILES,
-            })
-
-        if isinstance(self.form_class, forms.ModelForm) and hasattr(self, 'object'):
-            kwargs.update({'instance': self.object})
-        return kwargs
+    # def get_form_kwargs(self):
+    #     kwargs = {
+    #         'initial': self.get_initial(),
+    #         'prefix': self.get_prefix(),
+    #     }
+    #
+    #     if self.request.method in ('POST', 'PUT'):
+    #         kwargs.update({
+    #             'data': self.request.POST,
+    #             'files': self.request.FILES,
+    #         })
+    #
+    #     if isinstance(self.form_class, forms.ModelForm) and hasattr(self, 'object'):
+    #         kwargs.update({'instance': self.object})
+    #     return kwargs
 
     def post(self, request, *args, **kwargs):
         """Save forms or intercept the request."""
@@ -65,7 +74,7 @@ class MailFormView(MailViewBase, UpdateView):
         if form.is_valid():
             self.mail_form = EmailForm(
                 request.POST or None, mail_code=self.mail_code,
-                instance=self.object, **self.mail_config, **self.mail_variables)
+                instance=self.object, **self.get_mail_config(), **self.mail_variables)
             if self.mail_form.is_valid():
                 return self.form_valid(form)
 
@@ -79,6 +88,11 @@ class MailFormView(MailViewBase, UpdateView):
         """If both the regular form and mailing form are valid, save both."""
         response = super().form_valid(form)
         try:
+            if not self.can_send_mail():
+                if self.fail_silently:
+                    return response
+                else:
+                    raise PermissionDenied("You are not allowed to send mail: %s." % self.mail_code)
             self.mail_form.save()
         except AttributeError:
             # self.mail_form is None
@@ -110,7 +124,6 @@ class MailFormView(MailViewBase, UpdateView):
         return url
 
 
-
 class MailView(MailViewBase, UpdateView):
     form_class = EmailForm
     template_name = 'mails/mail_form.html'
@@ -119,12 +132,22 @@ class MailView(MailViewBase, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs['mail_code'] = self.mail_code
         kwargs['instance'] = self.get_object()
-        kwargs.update(**self.mail_config)
+        kwargs.update(**self.get_mail_config())
         kwargs.update(**self.mail_variables)
         return kwargs
 
+    def form_valid(self, form):
+        """If both the regular form and mailing form are valid, save both."""
+        if not self.can_send_mail():
+            if self.fail_silently:
+                return HttpResponseRedirect(self.get_success_url())
+            else:
+                raise PermissionDenied("You are not allowed to send mail: %s." % self.mail_code)
+        messages.success(self.request, 'Mail sent')
+        return super().form_valid(form)
 
-class TestView(MailDetailView):
+
+class TestView(MailView):
     """To be removed; exists for testing purposes only."""
     mail_code = 'tests/test_mail_code_1'
     model = Submission

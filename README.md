@@ -387,6 +387,7 @@ The fastest, easiest way to use templated emails is using the `DirectMailUtil` c
 > Append any keyword argument that may be used in the email template.
 
 ##### Methods
+
 * `send_mail()`
 > Send the mail as defined on initialization.
 
@@ -412,7 +413,7 @@ This view may be used as a [generic editing view](https://docs.djangoproject.com
 
 This view is a basic class-based view, which may be used as basic editor for a specific templated email.
 
-##### Attributes
+##### Attributes    
 * `mail_code` {string}
 > The unique code refereeing to a template and configuration file.
 
@@ -426,6 +427,16 @@ This view is a basic class-based view, which may be used as basic editor for a s
 
 * `mail_variables` {dict, optional}
 > Append extra variables to the mail template.
+
+* `fail_silently` {boolean, optional}
+> If set to False, raise PermissionDenied is `can_send_mail()` returns False on POST request.
+
+##### Methods
+* `can_send_mail()`
+> Control permission to actually send the mail. Return a __boolean__, returns `True` by default.
+
+* `get_mail_config()`
+> Return an optional explicit mail configuration. Return a __dictionary__, returns `mail_config` by default.
 
 
 *class* mails.views.__MailFormView__
@@ -449,6 +460,17 @@ This view may be used as a generic editing view, and will intercept the POST req
 
 * `mail_variables` {dict, optional}
 > Append extra variables to the mail template.
+
+* `fail_silently` {boolean, optional}
+> If set to False, raise PermissionDenied is `can_send_mail()` returns False on POST request.
+
+##### Methods
+* `can_send_mail()`
+> Control permission to actually send the mail. Return a __boolean__, returns `True` by default.
+
+* `get_mail_config()`
+> Return an optional explicit mail configuration. Return a __dictionary__, returns `mail_config` by default.
+
 
 ##### Basic example
 ```python

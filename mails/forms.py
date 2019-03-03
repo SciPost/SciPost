@@ -73,7 +73,6 @@ class EmailForm(forms.Form):
         return self.engine.template_variables['object']
 
 
-
 class FakeForm(forms.Form):
     """
     Fake form for testing purposes.
