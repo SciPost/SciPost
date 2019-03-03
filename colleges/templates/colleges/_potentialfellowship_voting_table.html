@@ -17,15 +17,15 @@
         Click to vote:
 	<form action="{% url 'colleges:vote_on_potential_fellowship' potfel_id=potfel.id vote='A' %}" method="post">
           {% csrf_token %}
-          <input type="submit" class="agree" value="Agree {{ potfel.nr_A }} "/>
+          <input type="submit" class="agree" value="Agree {{ potfel.in_agreement.count }} "/>
         </form>
         <form action="{% url 'colleges:vote_on_potential_fellowship' potfel_id=potfel.id vote='N' %}" method="post">
           {% csrf_token %}
-          <input type="submit" class="notsure" value="Abstain {{ potfel.nr_N }}"/>
+          <input type="submit" class="notsure" value="Abstain {{ potfel.in_abstain.count }}"/>
         </form>
         <form action="{% url 'colleges:vote_on_potential_fellowship' potfel_id=potfel.id vote='D' %}" method="post">
           {% csrf_token %}
-          <input type="submit" class="disagree" value="Disagree {{ potfel.nr_D }}"/>
+          <input type="submit" class="disagree" value="Disagree {{ potfel.in_disagreement.count }}"/>
         </form>
         {% if request.user.contributor in potfel.in_agreement.all %}
         <strong>(you have voted: Agreed)</strong>

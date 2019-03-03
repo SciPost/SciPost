@@ -71,11 +71,11 @@
                           </li>
                       {% endif %}
                   {% endif %}
-                  {% if user.partner_contact %}
-                      <li class="nav-item{% if '/partners/dashboard' in request.path %} active{% endif %}">
-                          <span class="separator">&middot;</span>
-                        <a class="nav-link" href="{% url 'partners:dashboard' %}">Partner Page &rarr;</a>
-                      </li>
+                  {% if perms.scipost.can_manage_organizations or user.org_contact %}
+                    <li class="nav-item{% if '/organizations/dashboard' in request.path %} active{% endif %}">
+                        <span class="separator">&middot;</span>
+                        <a class="nav-link" href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
+                    </li>
                   {% endif %}
                   <li class="nav-item navbar-counter">
                       <span class="separator">&middot;</span>

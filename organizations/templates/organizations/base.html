@@ -2,10 +2,12 @@
 
 {% block body_class %}{{ block.super }} organizations{% endblock %}
 
+
+
 {% block breadcrumb %}
-    <div class="container-outside header">
+    <div class="breadcrumb-container">
         <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
+            <nav class="breadcrumb">
                 {% block breadcrumb_items %}
                     <a href="{% url 'organizations:organizations' %}" class="breadcrumb-item">Organizations</a>
                 {% endblock %}

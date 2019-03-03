@@ -31,6 +31,12 @@ class ContributorQuerySet(models.QuerySet):
         """Return all validated and vetted Contributors."""
         return self.filter(user__is_active=True, status=NORMAL_CONTRIBUTOR)
 
+    def nonduplicates(self):
+        """
+        Filter out duplicate Contributors.
+        """
+        return self.exclude(duplicate_of__isnull=False)
+
     def available(self):
         """Filter out the Contributors that have active unavailability periods."""
         today = timezone.now().date()

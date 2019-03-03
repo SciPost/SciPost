@@ -12,7 +12,7 @@ from scipost.models import Contributor, Remark,\
                            AuthorshipClaim, PrecookedEmail,\
                            EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
 
-from partners.admin import ContactToUserInline
+from organizations.admin import ContactInline
 from production.admin import ProductionUserInline
 from submissions.models import Submission
 
@@ -38,7 +38,7 @@ class ContributorInline(admin.StackedInline):
 class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
-        ContactToUserInline,
+        ContactInline,
         ProductionUserInline
         ]
     list_display = ['username', 'email', 'first_name', 'last_name',

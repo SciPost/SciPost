@@ -1,7 +1,7 @@
-<p>Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},</p>
+<p>Dear {{ object.submitted_by.get_title_display }} {{ object.submitted_by.user.last_name }},</p>
 <p>Your recent Submission to SciPost,</p>
-<p>{{ submission.title }}</p>
-<p>by {{ submission.author_list }}</p>
+<p>{{ object.title }}</p>
+<p>by {{ object.author_list }}</p>
 <p>
     has unfortunately not passed the pre-screening stage.
     We therefore regret to inform you that we will not

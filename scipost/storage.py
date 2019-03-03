@@ -10,7 +10,7 @@ from django.utils.functional import cached_property
 class SecureFileStorage(FileSystemStorage):
     """
     Inherit default FileStorage system to prevent files from being publicly accessible
-    from an server location that is permitted to be opened without explicit permissions.
+    from a server location that is opened without this permission having been explicitly given.
     """
     @cached_property
     def location(self):

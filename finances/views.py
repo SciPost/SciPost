@@ -2,20 +2,24 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import mimetypes
+
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
-from django.http import Http404
-from django.shortcuts import render
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, LogsFilter
-from .models import Subsidy, WorkLog
+from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
+from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
+from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
 
 
@@ -32,7 +36,9 @@ class SubsidyCreateView(PermissionsMixin, CreateView):
     model = Subsidy
     form_class = SubsidyForm
     template_name = 'finances/subsidy_form.html'
-    success_url = reverse_lazy('finances:subsidies')
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.id})
 
 
 class SubsidyUpdateView(PermissionsMixin, UpdateView):
@@ -43,7 +49,9 @@ class SubsidyUpdateView(PermissionsMixin, UpdateView):
     model = Subsidy
     form_class = SubsidyForm
     template_name = 'finances/subsidy_form.html'
-    success_url = reverse_lazy('finances:subsidies')
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.id})
 
 
 class SubsidyDeleteView(PermissionsMixin, DeleteView):
@@ -69,6 +77,8 @@ class SubsidyListView(ListView):
             qs = qs.filter(amount_publicly_shown=True).order_by('amount')
         elif order_by == 'date':
             qs = qs.order_by('date')
+        elif order_by == 'until':
+            qs = qs.order_by('date_until')
         if ordering == 'desc':
             qs = qs.reverse()
         return qs
@@ -76,6 +86,104 @@ class SubsidyListView(ListView):
 
 class SubsidyDetailView(DetailView):
     model = Subsidy
+
+
+def subsidy_toggle_amount_public_visibility(request, subsidy_id):
+    """
+    Method to toggle the public visibility of the amount of a Subsidy.
+    Callable by Admin and Contacts for the relevant Organization.
+    """
+    subsidy = get_object_or_404(Subsidy, pk=subsidy_id)
+    if not (request.user.has_perm('scipost.can_manage_subsidies') or
+            request.user.has_perm('can_view_org_contacts', subsidy.organization)):
+        raise PermissionDenied
+    subsidy.amount_publicly_shown = not subsidy.amount_publicly_shown
+    subsidy.save()
+    messages.success(request, 'Amount visibility set to %s' % subsidy.amount_publicly_shown)
+    return redirect(subsidy.get_absolute_url())
+
+
+class SubsidyAttachmentCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new SubsidyAttachment.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = SubsidyAttachment
+    form_class = SubsidyAttachmentForm
+    template_name = 'finances/subsidyattachment_form.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['countrycodes'] = [code['country'] for code in list(
+            Organization.objects.all().distinct('country').values('country'))]
+        return context
+
+    def get_initial(self):
+        subsidy = get_object_or_404(Subsidy, pk=self.kwargs.get('subsidy_id'))
+        return {'subsidy': subsidy}
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+
+
+class SubsidyAttachmentUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update a SubsidyAttachment.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = SubsidyAttachment
+    form_class = SubsidyAttachmentForm
+    template_name = 'finances/subsidyattachment_form.html'
+    success_url = reverse_lazy('finances:subsidies')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['countrycodes'] = [code['country'] for code in list(
+            Organization.objects.all().distinct('country').values('country'))]
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+
+
+class SubsidyAttachmentDeleteView(PermissionsMixin, DeleteView):
+    """
+    Delete a SubsidyAttachment.
+    """
+    permission_required = 'scipost.can_manage_subsidies'
+    model = SubsidyAttachment
+
+    def get_success_url(self):
+        return reverse_lazy('finances:subsidy_details', kwargs={'pk': self.object.subsidy.id})
+
+
+def subsidy_attachment_toggle_public_visibility(request, attachment_id):
+    """
+    Method to toggle the public visibility of an attachment to a Subsidy.
+    Callable by Admin and Contacts for the relevant Organization.
+    """
+    attachment = get_object_or_404(SubsidyAttachment, pk=attachment_id)
+    if not (request.user.has_perm('scipost.can_manage_subsidies') or
+            request.user.has_perm('can_view_org_contacts', attachment.subsidy.organization)):
+        raise PermissionDenied
+    attachment.publicly_visible = not attachment.publicly_visible
+    attachment.save()
+    messages.success(request, 'Attachment visibility set to %s' % attachment.publicly_visible)
+    return redirect(attachment.subsidy.get_absolute_url())
+
+
+def subsidy_attachment(request, subsidy_id, attachment_id):
+    attachment = get_object_or_404(SubsidyAttachment.objects,
+                                   subsidy__id=subsidy_id, id=attachment_id)
+    if not attachment.visible_to_user(request.user):
+        raise PermissionDenied
+    content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
+    content_type = content_type or 'application/octet-stream'
+    response = HttpResponse(attachment.attachment.read(), content_type=content_type)
+    response["Content-Encoding"] = encoding
+    response['Content-Disposition'] = ('filename=%s' % attachment.name)
+    return response
+
 
 
 ############################

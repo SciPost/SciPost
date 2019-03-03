@@ -16,13 +16,18 @@
 
     {% include 'partials/proceedings/summary.html' with proceedings=proceedings %}
 
-{% comment %}
-            <form method="post" action="{% url 'colleges:fellowship_terminate' fellowship.id %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-danger">Terminate Fellowship</button>
-            </form>
-            <a href="{% url 'colleges:fellowship_edit' fellowship.id %}" class="btn btn-info ml-2">Edit Fellowship</a>
-            {% endcomment %}
+    {% comment %}
+    <form method="post" action="{% url 'colleges:fellowship_terminate' fellowship.id %}" class="d-inline">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Terminate Fellowship</button>
+    </form>
+    <a href="{% url 'colleges:fellowship_edit' fellowship.id %}" class="btn btn-info ml-2">Edit Fellowship</a>
+    {% endcomment %}
+
+    <h3>Table of contents</h3>
+    <p>
+      View the table of contents in <a href="javascript:;" data-toggle="modal" data-target="#textocmodal">TeX format</a>
+    </p>
 
 
     <h3 class="mt-3">All Guest Fellowships of this Proceedings</h3>
@@ -60,6 +65,7 @@
     </table>
 
     <h3>All Submissions for this Proceedings Issue</h3>
+
     <table class="table table-hover">
         <thead>
             <tr>
@@ -81,5 +87,24 @@
             {% endfor %}
         </tbody>
     </table>
+
+
+
+<div class="modal" id="textocmodal" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="textocmodal">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="pb-4">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div>{% include 'proceedings/proceedings_toc.html' with proceedings=proceedings %}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 
 {% endblock %}

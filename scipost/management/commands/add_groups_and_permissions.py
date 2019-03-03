@@ -7,7 +7,6 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 
-from partners.models import Contact
 from scipost.models import Contributor, DraftInvitation
 from submissions.models import Report
 
@@ -34,37 +33,24 @@ class Command(BaseCommand):
         ProductionSupervisors, created = Group.objects.get_or_create(name='Production Supervisor')
         ProductionOfficers, created = Group.objects.get_or_create(name='Production Officers')
 
-        PartnersAdmin, created = Group.objects.get_or_create(name='Partners Administrators')
-        PartnersOfficers, created = Group.objects.get_or_create(name='Partners Officers')
-        PartnerAccounts, created = Group.objects.get_or_create(name='Partners Accounts')
+        OrgContacts, created = Group.objects.get_or_create(name='Organization Contacts')
+
 
         # Create Permissions
         content_type = ContentType.objects.get_for_model(Contributor)
 
-        # Supporting Partners
+        # Organizations
         can_manage_organizations, created = Permission.objects.get_or_create(
             codename='can_manage_organizations',
             name='Can manage Organizations',
             content_type=content_type)
-        can_manage_SPB, created = Permission.objects.get_or_create(
-            codename='can_manage_SPB',
-            name='Can manage Supporting Partners Board',
+        can_add_contactperson, created = Permission.objects.get_or_create(
+            codename='can_add_contactperson',
+            name='Can add ContactPerson',
             content_type=content_type)
-        can_email_prospartner_contact, created = Permission.objects.get_or_create(
-            codename='can_email_prospartner_contact',
-            name='Can email Prospective Partner Contact',
-            content_type=content_type)
-        can_read_partner_page, created = Permission.objects.get_or_create(
-            codename='can_read_partner_page',
-            name='Can read Prospective Partner personal page',
-            content_type=content_type)
-        can_view_partners, created = Permission.objects.get_or_create(
-            codename='can_view_partners',
-            name='Can view Partner details of all Partners',
-            content_type=content_type)
-        can_view_own_partner_details, created = Permission.objects.get_or_create(
-            codename='can_view_own_partner_details',
-            name='Can view (its own) partner details',
+        can_view_contactrole_list, created = Permission.objects.get_or_create(
+            codename='can_view_contactrole_list',
+            name='Can view ContactRole list',
             content_type=content_type)
 
         # Registration and invitations
@@ -362,11 +348,13 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_manage_organizations,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
         ])
 
         FinancialAdmin.permissions.set([
+            can_manage_organizations,
             can_manage_subsidies,
             can_view_timesheets,
         ])
@@ -409,6 +397,7 @@ class Command(BaseCommand):
             can_create_profiles,
             can_view_profiles,
             can_manage_ontology,
+            can_manage_organizations,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
         ])
@@ -474,26 +463,10 @@ class Command(BaseCommand):
             can_upload_proofs,
         ])
 
-        PartnersAdmin.permissions.set([
-            can_manage_organizations,
-            can_read_partner_page,
-            can_view_own_partner_details,
-            can_manage_SPB,
-            can_email_prospartner_contact,
-            can_view_partners,
-        ])
-
-        PartnersOfficers.permissions.set([
-            can_read_partner_page,
-            can_view_own_partner_details,
-            can_manage_SPB,
-            can_view_partners,
-        ])
-
-        PartnerAccounts.permissions.set([
-            can_read_partner_page,
-            can_view_own_partner_details,
-        ])
+        OrgContacts.permissions.set([
+            can_add_contactperson,
+            can_view_contactrole_list,
+            ])
 
         if verbose:
             self.stdout.write(self.style.SUCCESS('Successfully created groups and permissions.'))

@@ -8,14 +8,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('partners', '0005_organization'),
+        # ('partners', '0005_organization'),
         ('journals', '0032_authoraffiliation'),
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='publicationauthorstable',
-            name='affiliations',
-            field=models.ManyToManyField(blank=True, to='partners.Organization'),
-        ),
+        # migrations.AddField(
+        #     model_name='publicationauthorstable',
+        #     name='affiliations',
+        #     field=models.ManyToManyField(blank=True, to='partners.Organization'),
+        # ),
     ]

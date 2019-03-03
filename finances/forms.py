@@ -15,7 +15,7 @@ from dateutil.rrule import rrule, MONTHLY
 from common.forms import MonthYearWidget
 from scipost.fields import UserModelChoiceField
 
-from .models import Subsidy, WorkLog
+from .models import Subsidy, SubsidyAttachment, WorkLog
 
 
 class SubsidyForm(forms.ModelForm):
@@ -25,8 +25,23 @@ class SubsidyForm(forms.ModelForm):
         model = Subsidy
         fields = ['organization', 'subsidy_type', 'description',
                   'amount', 'amount_publicly_shown', 'status',
-                  'date', 'date_until']
+                  'date', 'date_until', 'renewable', 'renewal_of']
 
+
+class SubsidyAttachmentForm(forms.ModelForm):
+    class Meta:
+        model = SubsidyAttachment
+        fields = (
+            'subsidy',
+            'attachment',
+            'name',
+            'publicly_visible',
+        )
+
+
+#############
+# Work logs #
+#############
 
 class WorkLogForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):

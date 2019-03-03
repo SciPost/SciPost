@@ -17,9 +17,6 @@
       <div class="modal-body pb-2">
           <ul class="list-unstyled links mb-0">
               <li><a class="item {% active 'scipost:personal_page' %}" href="{% url 'scipost:personal_page' %}">Personal Page</a></li>
-              {% if user.partner_contact or perms.scipost.can_read_partner_page %}
-                    <li><a class="item {% active 'partners:dashboard' %}" href="{% url 'partners:dashboard' %}">Partner Page</a></li>
-              {% endif %}
 
               {% if perms.scipost.can_view_timesheets %}
                   <li><a class="item {% active 'finances:finances' %}" href="{% url 'finances:finances' %}">Financial Administration</a></li>

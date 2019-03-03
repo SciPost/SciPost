@@ -1,0 +1,8 @@
+{
+    "subject": "SciPost: account activation",
+    "to_address": "user.email",
+    "bcc_to": "sponsors@scipost.org",
+    "from_address_name": "SciPost Sponsors Admin",
+    "from_address": "sponsors@scipost.org",
+    "context_object": "contact"
+}

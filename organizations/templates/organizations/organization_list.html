@@ -4,7 +4,9 @@
 
 {% load staticfiles %}
 {% load user_groups %}
+{% load add_get_parameters %}
 {% load organizations_extras %}
+{% load countries %}
 
 {% is_scipost_admin request.user as is_scipost_admin %}
 
@@ -16,6 +18,7 @@ $(document).ready(function($) {
     });
 });
 </script>
+<link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 {% endblock headsup %}
 
 {% block breadcrumb_items %}
@@ -30,9 +33,9 @@ $(document).ready(function($) {
     {% if perms.scipost.can_manage_organizations %}
     <h3>Management actions:</h3>
     <ul>
+      <li><a href="{% url 'organizations:dashboard' %}">Go to the dashboard</a></li>
       <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
       <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
-      <li>Link Partners to Organizations ({{ nr_partners_wo_organization }} found in need of linking)</li>
     </ul>
     {% endif %}
   </div>
@@ -66,20 +69,37 @@ $(document).ready(function($) {
 </div>
 
 <div class="row">
+  <div class="col-3">
+    <h3>Click on flag to view by Country</h3>
+    <p><a href="{% url 'organizations:organizations' %}">View all</a></p>
+  </div>
+  <div class="col-8">
+    <ul>
+      {% for code in countrycodes %}
+      {% get_country code as country_obj %}
+      <li style="display: inline-block;">
+	<a href="{% add_get_parameters country=code %}"><i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+
+<div class="row">
   <div class="col-12">
     <table class="table table-hover mb-5">
       <thead class="thead-default">
 	<tr>
-	  <th><a href="?order_by=country">Country</a></th>
-	  <th><a href="?order_by=name">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
+	  <th><a href="{% add_get_parameters order_by='country' %}">Country</a></th>
+	  <th><a href="{% add_get_parameters order_by='name' %}">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
 	  <th>NAP <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab"></i>
 	    {% if request.GET.ordering != 'asc' %}
-	    <a href="?order_by=nap&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	    <a href="{% add_get_parameters order_by='nap' ordering='asc' %}"><i class="fa fa-sort-asc"></i></a>
 	    {% else %}
 	    <a href="{% url 'organizations:organizations' %}"><i class="fa fa-sort-asc"></i></a>
 	    {% endif %}
 	    {% if request.GET.ordering != 'desc' %}
-	    <a href="?order_by=nap&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	    <a href="{% add_get_parameters order_by='nap' ordering='desc' %}"><i class="fa fa-sort-desc"></i></a>
 	    {% else %}
 	    <a href="{% url 'organizations:organizations' %}"><i class="fa fa-sort-desc"></i></a>
 	    {% endif %}
@@ -124,6 +144,13 @@ $(document).ready(function($) {
 	{% endfor %}
       </tbody>
     </table>
+
+    {% if is_paginated %}
+    <div class="col-12">
+      {% include 'partials/pagination.html' with page_obj=page_obj %}
+    </div>
+    {% endif %}
+
   </div>
 </div>
 

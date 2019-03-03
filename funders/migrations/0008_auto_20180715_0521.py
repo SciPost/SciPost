@@ -13,9 +13,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='funder',
-            name='organization',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.Organization'),
-        ),
+        # migrations.AlterField(
+        #     model_name='funder',
+        #     name='organization',
+        #     field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='partners.Organization'),
+        # ),
     ]

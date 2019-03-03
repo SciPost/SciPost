@@ -25,9 +25,6 @@
 
         <div class="links">
             <a class="item {% active 'scipost:personal_page' %}" href="{% url 'scipost:personal_page' %}">Personal Page</a>
-            {% if user.partner_contact or perms.scipost.can_read_partner_page %}
-                  <a class="item {% active 'partners:dashboard' %}" href="{% url 'partners:dashboard' %}">Partner Page</a>
-            {% endif %}
 
             {% if is_financial_admin %}
                 <a class="item {% active 'finances:finances' %}" href="{% url 'finances:finances' %}">Financial Administration</a>
