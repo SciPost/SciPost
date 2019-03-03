@@ -853,14 +853,14 @@ def request_pubfrac_check(request, doi_label):
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     mail_request =  MailEditorSubview(
-        request, mail_code='authors/request_pubfrac_check', instance=publication)
+        request, 'authors/request_pubfrac_check', publication=publication)
     if mail_request.is_valid():
         messages.success(request, 'The corresponding author has been emailed.')
-        mail_request.send()
+        mail_request.send_mail()
         return redirect(reverse('journals:manage_metadata',
                                 kwargs={'doi_label': publication.doi_label}))
     else:
-        return mail_request.return_render()
+        return mail_request.interrupt()
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)

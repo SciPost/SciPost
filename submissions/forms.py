@@ -716,14 +716,13 @@ class SubmissionReassignmentForm(forms.ModelForm):
         # Email old and new editor
         if old_assignment:
             mail_sender = DirectMailUtil(
-                mail_code='fellows/email_fellow_replaced_by_other',
-                assignment=old_assignment)
-            mail_sender.send()
+                'fellows/email_fellow_replaced_by_other', assignment=old_assignment)
+            mail_sender.send_mail()
 
         mail_sender = DirectMailUtil(
-            mail_code='fellows/email_fellow_assigned_submission',
+            'fellows/email_fellow_assigned_submission',
             assignment=assignment)
-        mail_sender.send()
+        mail_sender.send_maili()
 
 
 class SubmissionPrescreeningForm(forms.ModelForm):

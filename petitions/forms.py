@@ -4,15 +4,12 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from captcha.fields import ReCaptchaField
-
 from .models import PetitionSignatory
 
 from scipost.models import Contributor
 
 
 class SignPetitionForm(forms.ModelForm):
-    captcha = ReCaptchaField(attrs={'theme': 'clean'}, label='*Please verify to continue:')
 
     class Meta:
         model = PetitionSignatory

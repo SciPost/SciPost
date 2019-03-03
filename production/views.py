@@ -687,7 +687,7 @@ def send_proofs(request, stream_id, version):
         stream.status = constants.PROOFS_SENT
         stream.save()
 
-    mail_request = MailEditorSubview(request, mail_code='production_send_proofs', proofs=proofs)
+    mail_request = MailEditorSubview(request, 'production_send_proofs', proofs=proofs)
     if mail_request.is_valid():
         proofs.save()
         stream.save()

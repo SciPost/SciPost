@@ -344,8 +344,8 @@ class BaseCycle:
             invitation.date_invited = timezone.now()
             invitation.save()
             mail_sender = DirectMailUtil(
-                mail_code='referees/reinvite_contributor_to_referee', instance=invitation)
-            mail_sender.send()
+                'referees/reinvite_contributor_to_referee', invitation=invitation)
+            mail_sender.send_mail()
 
 
 class RegularCycle(BaseCycle):

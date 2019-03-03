@@ -11,9 +11,10 @@ from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Context, Template
 
+from mails.utils import DirectMailUtil
+
 from .models import Petition, PetitionSignatory
 from .forms import SignPetitionForm
-from .utils import PetitionUtils
 
 
 def petition(request, slug):
@@ -47,18 +48,20 @@ def petition(request, slug):
         if request.user.is_authenticated:
             signature.signatory = request.user.contributor
             signature.verified = True
-            PetitionUtils.load({'petition': petition})
-            PetitionUtils.send_SPB_petition_signature_thanks(request.user.email)
+            signature.save()
+            mail_util = DirectMailUtil('signatory/thank_SPB_signature', object=signature)
+            mail_util.send_mail()
         else:
             # Generate verification key and link
-            salt = ""
+            salt = ''
             for i in range(5):
-                salt = salt + random.choice(string.ascii_letters)
+                salt += random.choice(string.ascii_letters)
             salt = salt.encode('utf8')
             verificationsalt = form.cleaned_data['last_name']
             verificationsalt = verificationsalt.encode('utf8')
-            verification_key = hashlib.sha1(salt+verificationsalt).hexdigest()
+            verification_key = hashlib.sha1(salt + verificationsalt).hexdigest()
             signature.verification_key = verification_key
+            signature.save()
             message += '\n<p>You will receive an email with a verification link.</p>'
             email_text = ('Please click on the link below to confirm '
                           'your signature of the petition: \n'
@@ -80,7 +83,6 @@ def petition(request, slug):
                 bcc=['petitions@scipost.org'])
             emailmessage.attach_alternative(html_version, 'text/html')
             emailmessage.send()
-        signature.save()
         messages.success(request, message)
         return redirect(petition.get_absolute_url())
 
@@ -106,6 +108,7 @@ def verify_signature(request, slug, key):
         signature.save()
     messages.success(request, ('<h3>Many thanks for confirming your signature.</h3>'
                                '<p>Please invite your colleagues to also sign.</p>'))
-    PetitionUtils.load({'petition': petition})
-    PetitionUtils.send_SPB_petition_signature_thanks(signature.email)
+    mail_util = DirectMailUtil(
+        'signatory/thank_SPB_signature', recipient_list=[signature.email])
+    mail_util.send_mail()
     return redirect(petition.get_absolute_url())

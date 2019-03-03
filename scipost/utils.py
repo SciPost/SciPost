@@ -72,27 +72,3 @@ EMAIL_UNSUBSCRIBE_LINK_HTML = (
 class Utils(BaseMailUtil):
     mail_sender = 'registration@scipost.org'
     mail_sender_title = 'SciPost registration'
-
-    @classmethod
-    def send_registration_email(cls):
-        """
-        Send mail after registration request has been recieved.
-
-        Requires loading:
-        contributor -- Contributor
-        """
-        cls._send_mail(cls, 'registration_request_received',
-                       [cls._context['contributor'].user.email],
-                       'request received')
-
-    @classmethod
-    def send_new_activation_link_email(cls):
-        """
-        Send mail after a new activation link on a Contributor has been generated.
-
-        Requires loading:
-        contributor -- Contributor
-        """
-        cls._send_mail(cls, 'new_activation_link',
-                       [cls._context['contributor'].user.email],
-                       'new email activation link')

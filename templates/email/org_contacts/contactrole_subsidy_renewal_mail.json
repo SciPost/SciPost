@@ -1,8 +1,11 @@
 {
     "subject": "SciPost: Sponsorship renewal",
-    "to_address": "contact.user.email",
-    "bcc_to": "sponsors@scipost.org",
-    "from_address_name": "SciPost Sponsors",
-    "from_address": "sponsors@scipost.org",
-    "context_object": "contactrole"
+    "recipient_list": [
+        "contact.user.email"
+    ],
+    "bcc": [
+        "sponsors@scipost.org"
+    ],
+    "from_name": "SciPost Sponsors",
+    "from_email": "sponsors@scipost.org"
 }

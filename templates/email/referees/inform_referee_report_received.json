@@ -1,8 +1,11 @@
 {
     "subject": "SciPost: Report delivered",
-    "to_address": "author.user.email",
-    "bcc_to": "edadmin@scipost.org",
-    "from_address_name": "SciPost Editorial Admin",
-    "from_address": "submissions@scipost.org",
-    "context_object": "report"
+    "recipient_list": [
+        "author.user.email"
+    ],
+    "bcc": [
+        "edadmin@scipost.org"
+    ],
+    "from_name": "SciPost Editorial Admin",
+    "from_email": "submissions@scipost.org"
 }

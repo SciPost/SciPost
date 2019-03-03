@@ -263,7 +263,7 @@ def email_prospartner_contact(request, contact_id, mail=None):
         code = 'partners_initial_mail'
         new_status = PROSPECTIVE_PARTNER_APPROACHED
 
-    mail_request = MailEditorSubview(request, mail_code=code, contact=contact)
+    mail_request = MailEditorSubview(request, code, contact=contact)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to {name}.'.format(suffix=suffix, name=contact)
         prospartnerevent = ProspectivePartnerEvent(
@@ -300,7 +300,8 @@ def email_prospartner_generic(request, prospartner_id, mail=None):
     else:
         code = 'partners_initial_mail'
         new_status = PROSPECTIVE_PARTNER_APPROACHED
-    mail_request = MailEditorSubview(request, mail_code=code)
+
+    mail_request = MailEditorSubview(request, mail_code=code, recipient_list=[])
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to {name}.'.format(
             suffix=suffix, name=mail_request.recipients_string)

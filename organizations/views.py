@@ -214,12 +214,12 @@ def email_contactperson(request, contactperson_id, mail=None):
 
     suffix = ''
     if mail == 'followup':
-        code = 'org_contacts/contactperson_followup_mail'
+        mail_code = 'org_contacts/contactperson_followup_mail'
         suffix = ' (followup)'
     else:
-        code = 'org_contacts/contactperson_initial_mail'
+        mail_code = 'org_contacts/contactperson_initial_mail'
         suffix = ' (initial)'
-    mail_request = MailEditorSubview(request, code, contactperson=contactperson)
+    mail_request = MailEditorSubview(request, mail_code, contactperson=contactperson)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to ContactPerson {name}.'.format(
             suffix=suffix, name=contactperson)
@@ -257,10 +257,8 @@ def organization_add_contact(request, organization_id, contactperson_id=None):
     )
     if form.is_valid():
         contact = form.save(current_user=request.user)
-        mail_sender = DirectMailUtil(
-            mail_code='org_contacts/email_contact_for_activation',
-            contact=contact)
-        mail_sender.send()
+        mail_sender = DirectMailUtil('org_contacts/email_contact_for_activation', contact=contact)
+        mail_sender.send_mail()
         for role in contact.roles.all():
             event = OrganizationEvent(
                 organization=role.organization,
@@ -374,12 +372,12 @@ def email_contactrole(request, contactrole_id, mail=None):
 
     suffix = ''
     if mail == 'renewal':
-        code = 'org_contacts/contactrole_subsidy_renewal_mail'
+        mail_code = 'org_contacts/contactrole_subsidy_renewal_mail'
         suffix = ' (subsidy renewal query)'
     else:
-        code = 'org_contacts/contactrole_generic_mail'
+        mail_code = 'org_contacts/contactrole_generic_mail'
         suffix = ' (generic)'
-    mail_request = MailEditorSubview(request, mail_code=code, contactrole=contactrole)
+    mail_request = MailEditorSubview(request, mail_code, contactrole=contactrole)
     if mail_request.is_valid():
         comments = 'Email{suffix} sent to Contact {name}.'.format(
             suffix=suffix, name=contactrole.contact)

@@ -1,10 +1,10 @@
 {
-    "subject": "SciPost: Report delivered",
+    "subject": "SciPost: Submission received",
     "recipient_list": [
-        "submission.editor_in_charge.user.email"
+        "submitted_by.user.email"
     ],
     "bcc": [
-        "edadmin@scipost.org"
+        "submissions@scipost.org"
     ],
     "from_name": "SciPost Editorial Admin",
     "from_email": "submissions@scipost.org"

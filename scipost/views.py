@@ -52,6 +52,7 @@ from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Publication, PublicationAuthorsTable
+from mails.utils import DirectMailUtil
 from news.models import NewsItem
 from organizations.decorators import has_contact
 from organizations.models import Organization, Contact
@@ -176,8 +177,8 @@ def register(request):
     form = RegistrationForm(request.POST or None)
     if form.is_valid():
         contributor = form.create_and_save_contributor()
-        Utils.load({'contributor': contributor}, request)
-        Utils.send_registration_email()
+        mail_util = DirectMailUtil('contributors/registration_confirmation', contributor=contributor)
+        mail_util.send_mail()
 
         # Disable invitations related to the new Contributor
         RegistrationInvitation.objects.declined_or_without_response().filter(
@@ -254,8 +255,9 @@ def request_new_activation_link(request, contributor_id, key):
         # Generate a new email activation key and link
         contributor.generate_key()
         contributor.save()
-        Utils.load({'contributor': contributor}, request)
-        Utils.send_new_activation_link_email()
+
+        mail_util = DirectMailUtil('contributors/new_activitation_link', contributor=contributor)
+        mail_util.send_mail()
 
         context = {
             'ack_header': 'We have emailed you a new activation link.',
@@ -381,8 +383,9 @@ def registration_requests_reset(request, contributor_id):
     contributor = get_object_or_404(Contributor.objects.awaiting_validation(), id=contributor_id)
     contributor.generate_key()
     contributor.save()
-    Utils.load({'contributor': contributor}, request)
-    Utils.send_new_activation_link_email()
+
+    mail_util = DirectMailUtil('contributors/new_activitation_link', contributor=contributor)
+    mail_util.send_mail()
     messages.success(request, ('New key successfully generated and sent to <i>%s</i>'
                                % contributor.user.email))
     return redirect(reverse('scipost:registration_requests'))

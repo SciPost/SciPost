@@ -1,8 +1,12 @@
 {
     "subject": "RE: SciPost: invitation",
-    "to_address": "email",
-    "bcc_to": "invited_by.email,admin@scipost.org",
-    "from_address_name": "SciPost Registration",
-    "from_address": "registration@scipost.org",
-    "context_object": "invitation"
+    "recipient_list": [
+        "email"
+    ],
+    "bcc": [
+        "invited_by.email",
+        "admin@scipost.org"
+    ],
+    "from_name": "SciPost Registration",
+    "from_email": "registration@scipost.org"
 }

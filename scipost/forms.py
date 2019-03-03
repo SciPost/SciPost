@@ -616,9 +616,9 @@ class ContributorMergeForm(forms.Form):
         # If both accounts were active, inform the Contributor of the merge
         if both_contribs_active:
             mail_sender = DirectMailUtil(
-                mail_code='contributors/inform_contributor_duplicate_accounts_merged',
-                contrib_from=Contributor.objects.get(id=contrib_from.id))
-            mail_sender.send()
+                'contributors/inform_contributor_duplicate_accounts_merged',
+                object=Contributor.objects.get(id=contrib_from.id))
+            mail_sender.send_mail()
         return Contributor.objects.get(id=contrib_into.id)
 
 

@@ -505,8 +505,8 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
             return False
 
         # Send mail
-        mail_sender = DirectMailUtil(mail_code='eic/assignment_request', instance=self)
-        mail_sender.send()
+        mail_sender = DirectMailUtil(mail_code='eic/assignment_request', assignment=self)
+        mail_sender.send_mail()
 
         EditorialAssignment.objects.filter(
             id=self.id).update(date_invited=timezone.now(), status=STATUS_INVITED)

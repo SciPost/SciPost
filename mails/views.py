@@ -48,22 +48,6 @@ class MailFormView(MailViewBase, UpdateView):
             return ['mails/mail_form.html']
         return super().get_template_names()
 
-    # def get_form_kwargs(self):
-    #     kwargs = {
-    #         'initial': self.get_initial(),
-    #         'prefix': self.get_prefix(),
-    #     }
-    #
-    #     if self.request.method in ('POST', 'PUT'):
-    #         kwargs.update({
-    #             'data': self.request.POST,
-    #             'files': self.request.FILES,
-    #         })
-    #
-    #     if isinstance(self.form_class, forms.ModelForm) and hasattr(self, 'object'):
-    #         kwargs.update({'instance': self.object})
-    #     return kwargs
-
     def post(self, request, *args, **kwargs):
         """Save forms or intercept the request."""
         self.object = None

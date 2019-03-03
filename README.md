@@ -553,6 +553,16 @@ def any_method_based_view(request):
         return mail_request.interrupt()
 ```
 
+### Important epilogue
+Every templated mail defined in the `templates/email/` folder will be tested for proper configuration. This tests includes tests on the configuration file and existence of the template. Important note: it does not test the content of the templates (read: the variables used in the template). To run these, and all other mail-related unit tests, simple run the following:
+
+```shell
+(scipostenv) $ ./manage.py test mails.tests -k
+```
+
+A successful test ends by printing "OK". In any other case, errors will be raised.
+
+
 ## Django-extensions
 [django-extensions](https://github.com/django-extensions/django-extensions) provide added commands like
 `./manage.py shell_plus`, which preloads all models in a shell session. Additional imports may be specified in `settings.py` as follows:

@@ -615,8 +615,8 @@ class DraftPublicationApprovalForm(forms.ModelForm):
         self.instance.status = PUBLICATION_PREPUBLISHED
         if commit:
             self.instance.save()
-            mail_sender = DirectMailUtil(mail_code='publication_ready', instance=self.instance)
-            mail_sender.send()
+            mail_sender = DirectMailUtil('publication_ready', instance=self.instance)
+            mail_sender.send_mail()
         return self.instance
 
 

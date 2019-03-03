@@ -20,7 +20,7 @@ class MailEngine:
     the MailLog table.
     """
 
-    _required_parameters = ['recipient_list', 'subject', 'from_email']
+    _required_parameters = ['recipient_list', 'subject']
     _possible_parameters = ['recipient_list', 'subject', 'from_email', 'from_name', 'bcc']
     _email_fields = ['recipient_list', 'from_email', 'bcc']
     _processed_template = False
@@ -70,6 +70,14 @@ class MailEngine:
         if render_template:
             self.render_template()
 
+    def render_only(self):
+        """Render template. To be used in mail backend only."""
+        if not hasattr(self, 'mail_data'):
+            self.mail_data = {}
+        self._check_template_exists()
+        self.render_template()
+        return self.mail_data['message'], self.mail_data.get('html_message', '')
+
     def render_template(self, html_message=None):
         """
         Render the template associated with the mail_code. If html_message is given,
@@ -78,8 +86,7 @@ class MailEngine:
         if html_message:
             self.mail_data['html_message'] = html_message
         else:
-            mail_template = get_template('email/%s.html' % self.mail_code)
-            self.mail_data['html_message'] = mail_template.render(self.template_variables)  # Damn slow.
+            self.mail_data['html_message'] = self._template.render(self.template_variables)  # Damn slow.
 
         # Transform to non-HTML version.
         handler = HTML2Text()
@@ -118,7 +125,7 @@ class MailEngine:
         email.send(fail_silently=False)
         self._mail_sent = True
 
-        if self.template_variables['object'] and hasattr(self.template_variables['object'], 'mail_sent'):
+        if 'object' in self.template_variables and hasattr(self.template_variables['object'], 'mail_sent'):
             self.template_variables['object'].mail_sent()
 
     def _detect_and_save_object(self):
@@ -131,10 +138,10 @@ class MailEngine:
 
         if 'object' in self.template_variables:
             object = self.template_variables['object']
-            context_object_name = self.template_variables['object']._meta.model_name
+            context_object_name = object._meta.model_name
         elif 'instance' in self.template_variables:
             object = self.template_variables['instance']
-            context_object_name = self.template_variables['instance']._meta.model_name
+            context_object_name = object._meta.model_name
         else:
             for key, var in self.template_variables.items():
                 if isinstance(var, models.Model):
@@ -142,10 +149,11 @@ class MailEngine:
                         raise ValueError('Multiple db instances are given. Please specify which object to use.')
                     else:
                         object = var
-        self.template_variables['object'] = object
+        if object:
+            self.template_variables['object'] = object
 
-        if context_object_name and object and context_object_name not in self.template_variables:
-            self.template_variables[context_object_name] = object
+            if context_object_name and context_object_name not in self.template_variables:
+                self.template_variables[context_object_name] = object
 
 
     def _read_configuration_file(self):
@@ -181,6 +189,12 @@ class MailEngine:
             txt += ' Check required parameters: {}'.format(self._required_parameters)
             raise ConfigurationError(txt)
 
+        # Check if data is overcomplete/
+        if not all(key in self._possible_parameters for key in self.mail_data.keys()):
+            txt = 'Configuration file may only contain the following parameters: {}.'.format(
+                self._possible_parameters)
+            raise ConfigurationError(txt)
+
         # Check all configuration value types
         for email_key in ['subject', 'from_email', 'from_name']:
             if email_key in self.mail_data and self.mail_data[email_key]:
@@ -195,7 +209,8 @@ class MailEngine:
                         'key': email_key,
                     })
 
-        # Validate all email addresses
+    def _validate_email_fields(self):
+        """Validate all email addresses in the mail config."""
         for email_key in self._email_fields:
             if email_key in self.mail_data:
                 if isinstance(self.mail_data[email_key], list):

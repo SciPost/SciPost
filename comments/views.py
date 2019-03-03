@@ -49,15 +49,12 @@ def new_comment(request, **kwargs):
 
         # Mails
         mail_sender = DirectMailUtil(
-            mail_code='commenters/inform_commenter_comment_received',
-            instance=new_comment)
-        mail_sender.send()
+            'commenters/inform_commenter_comment_received', comment=new_comment)
+        mail_sender.send_mail()
 
         if isinstance(new_comment.core_content_object, Submission):
-            mail_sender = DirectMailUtil(
-                mail_code='eic/inform_eic_comment_received',
-                instance=new_comment)
-            mail_sender.send()
+            mail_sender = DirectMailUtil('eic/inform_eic_comment_received', comment=new_comment)
+            mail_sender.send_mail()
 
         messages.success(request, strings.acknowledge_submit_comment)
         return redirect(_object.get_absolute_url())
@@ -103,9 +100,8 @@ def vet_submitted_comment(request, comment_id):
                 content_object.add_event_for_author('A new Comment has been added.')
                 if not comment.is_author_reply:
                     mail_sender = DirectMailUtil(
-                        mail_code='authors/inform_authors_comment_received',
-                        instance=content_object)
-                    mail_sender.send()
+                        'authors/inform_authors_comment_received', submission=content_object)
+                    mail_sender.send_mail()
             elif isinstance(content_object, Report):
                 # Add events to related Submission and send mail to author of the Submission
                 content_object.submission.add_event_for_eic('A Comment has been accepted.')
@@ -113,26 +109,25 @@ def vet_submitted_comment(request, comment_id):
                 if comment.is_author_reply:
                     # Email Report author: Submission authors have replied
                     mail_sender = DirectMailUtil(
-                        mail_code='referees/inform_referee_authors_replied_to_report',
-                        instance=content_object)
-                    mail_sender.send()
+                        'referees/inform_referee_authors_replied_to_report',
+                        report=content_object)
+                    mail_sender.send_mail()
                 else: # this is a Comment on the Report from another Contributor
                     # Email Report author: Contributor has commented the Report
                     mail_sender = DirectMailUtil(
-                        mail_code='referees/inform_referee_contributor_commented_report',
-                        instance=content_object)
-                    mail_sender.send()
+                        'referees/inform_referee_contributor_commented_report',
+                        report=content_object)
+                    mail_sender.send_mail()
                     # Email submission authors: Contributor has commented the Report
                     mail_sender = DirectMailUtil(
-                        mail_code='authors/inform_authors_contributor_commented_report',
-                        instance=content_object)
-                    mail_sender.send()
+                        'authors/inform_authors_contributor_commented_report',
+                        report=content_object)
+                    mail_sender.send_mail()
 
             # In all cases, email the comment author
             mail_sender = DirectMailUtil(
-                mail_code='commenters/inform_commenter_comment_vetted',
-                instance=comment)
-            mail_sender.send()
+                'commenters/inform_commenter_comment_vetted', comment=comment)
+            mail_sender.send_mail()
 
         elif form.cleaned_data['action_option'] == '2':
             # The comment request is simply rejected
@@ -142,10 +137,10 @@ def vet_submitted_comment(request, comment_id):
 
             # Send emails
             mail_sender = DirectMailUtil(
-                mail_code='commenters/inform_commenter_comment_rejected',
-                instance=comment,
+                'commenters/inform_commenter_comment_rejected',
+                comment=comment,
                 email_response=form.cleaned_data['email_response_field']) # TODO: needs kwargs to mail template
-            mail_sender.send()
+            mail_sender.send_email()
 
 
             if isinstance(comment.content_object, Submission):
@@ -207,17 +202,12 @@ def reply_to_comment(request, comment_id):
         newcomment.grant_permissions()
 
         mail_sender = DirectMailUtil(
-            mail_code='commenters/inform_commenter_comment_received',
-            instance=newcomment,
-            delayed_processing=True)
-        mail_sender.send()
+            'commenters/inform_commenter_comment_received', comment=newcomment)
+        mail_sender.send_mail()
 
         if isinstance(newcomment.core_content_object, Submission):
-            mail_sender = DirectMailUtil(
-                mail_code='eic/inform_eic_comment_received',
-                instance=newcomment,
-                delayed_processing=True)
-            mail_sender.send()
+            mail_sender = DirectMailUtil('eic/inform_eic_comment_received', comment=newcomment)
+            mail_sender.send_mail()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')
@@ -243,17 +233,12 @@ def reply_to_report(request, report_id):
         newcomment.save()
         newcomment.grant_permissions()
 
-        mail_sender = DirectMailUtil(
-            mail_code='eic/inform_eic_comment_received',
-            instance=newcomment,
-            delayed_processing=True)
-        mail_sender.send()
+        mail_sender = DirectMailUtil('eic/inform_eic_comment_received', comment=newcomment)
+        mail_sender.send_mail()
 
         mail_sender = DirectMailUtil(
-            mail_code='commenters/inform_commenter_comment_received',
-            instance=newcomment,
-            delayed_processing=True)
-        mail_sender.send()
+            'commenters/inform_commenter_comment_received', comment=newcomment)
+        mail_sender.send_mail()
 
         messages.success(request, '<h3>Thank you for contributing a Reply</h3>'
                                   'It will soon be vetted by an Editor.')

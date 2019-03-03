@@ -28,7 +28,7 @@ class Command(BaseCommand):
             assignments_upcoming_deadline = assignments_ongoing.refereeing_deadline_within(days=7)
             if recs_to_vote_on or assignments_ongoing or assignments_to_consider or assignments_upcoming_deadline:
                 mail_sender = DirectMailUtil(
-                    mail_code='fellows/email_fellow_tasklist',
+                    'fellows/email_fellow_tasklist', delayed_processing=False,  # Render immediately, because m2m/querysets cannot be saved for later rendering.
                     fellow=fellow,
                     nr_potfels_to_vote_on=nr_potfels_to_vote_on,
                     recs_to_vote_on=recs_to_vote_on,

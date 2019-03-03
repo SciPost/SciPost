@@ -1,8 +1,12 @@
 {
     "subject": "SciPost: Comment posted on your Report",
-    "to_address": "author.user.email",
-    "bcc_to": "submission.editor_in_charge.user.email,edadmin@scipost.org",
-    "from_address_name": "SciPost Refereeing",
-    "from_address": "refereeing@scipost.org",
-    "context_object": "report"
+    "recipient_list": [
+        "author.user.email"
+    ],
+    "bcc": [
+        "submission.editor_in_charge.user.email",
+        "edadmin@scipost.org"
+    ],
+    "from_name": "SciPost Refereeing",
+    "from_email": "refereeing@scipost.org"
 }

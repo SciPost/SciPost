@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 from django.conf import settings
 
+from ...core import MailEngine
 from ...models import MailLog
-from ...utils import DirectMailUtil
 
 
 class Command(BaseCommand):
@@ -18,12 +18,11 @@ class Command(BaseCommand):
         """
         Render the templates for the mail if not done yet.
         """
-        mail_util = DirectMailUtil(mail.mail_code, delayed_processing=False, **mail.get_full_context())
+        engine = MailEngine(mail.mail_code, **mail.get_full_context())
+        message, html_message = engine.render_only()
 
         MailLog.objects.filter(id=mail.id).update(
-            body=mail_util.engine.mail_data['message'],
-            body_html=mail_util.engine.mail_data['html_message'],
-            status='rendered')
+            body=message, body_html=html_message, status='rendered')
 
     def send_mails(self, mails):
         from django.core.mail import get_connection, EmailMultiAlternatives

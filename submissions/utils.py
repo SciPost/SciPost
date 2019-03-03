@@ -19,89 +19,6 @@ class SubmissionUtils(BaseMailUtil):
     mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
-    def send_authors_submission_ack_email(cls):
-        """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
-                      cls.submission.submitted_by.user.last_name +
-                      ', \n\nWe have received your Submission to ' +
-                      str(cls.submission.submitted_to) + ',\n\n' +
-                      cls.submission.title + ' by ' + cls.submission.author_list + '.' +
-                      '\n\nWe will update you on the results of the pre-screening process '
-                      'within the next 5 working days.'
-                      '\n\nYou can track your Submission at any time '
-                      'from your personal page https://scipost.org/personal_page.' +
-                      '\n\nWith many thanks,' +
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>We have received your Submission to {{ submitted_to }},</p>'
-            '<p>{{ sub_title }}</p>'
-            '\n<p>by {{ author_list }}.</p>'
-            '\n<p>We will update you on the results of the pre-screening process '
-            'within the next 5 working days.</p>'
-            '\n<p>You can track your Submission at any time '
-            'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
-            '<p>With many thanks,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = {
-            'title': cls.submission.submitted_by.get_title_display(),
-            'last_name': cls.submission.submitted_by.user.last_name,
-            'sub_title': cls.submission.title,
-            'submitted_to': str(cls.submission.submitted_to),
-            'author_list': cls.submission.author_list,
-        }
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(Context(email_context))
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: Submission received', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
-
-    @classmethod
-    def send_authors_resubmission_ack_email(cls):
-        """ Requires loading 'submission' attribute. """
-        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
-                      cls.submission.submitted_by.user.last_name +
-                      ', \n\nWe have received your Resubmission to SciPost,\n\n' +
-                      cls.submission.title + ' by ' + cls.submission.author_list + '.' +
-                      '\n\nYou can track your Submission at any time '
-                      'from your personal page https://scipost.org/personal_page.' +
-                      '\n\nWith many thanks,' +
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name}},</p>'
-            '<p>We have received your Resubmission to SciPost,</p>'
-            '<p>{{ sub_title }}</p>'
-            '\n<p>by {{ author_list }}.</p>'
-            '\n<p>Your manuscript will soon be handled by the Editor-in-charge.</p>'
-            '\n<p>You can track your Submission at any time '
-            'from your <a href="https://scipost.org/personal_page">personal page</a>.</p>'
-            '<p>With many thanks,</p>'
-            '<p>The SciPost Team</p>')
-        email_context = {
-            'title': cls.submission.submitted_by.get_title_display(),
-            'last_name': cls.submission.submitted_by.user.last_name,
-            'sub_title': cls.submission.title,
-            'author_list': cls.submission.author_list,
-        }
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(Context(email_context))
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: Resubmission received', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.submission.submitted_by.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
-
-    @classmethod
     def send_assignment_request_email(cls):
         """ Requires loading 'assignment' attribute. """
         email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' ' +
@@ -211,13 +128,6 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['submissions@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
-    @classmethod
-    def send_EIC_reappointment_email(cls):
-        """ Requires loading 'submission' attribute. """
-        cls._send_mail(cls, 'submission_eic_reappointment',
-                       [cls._context['submission'].editor_in_charge.user.email],
-                       'resubmission received')
 
     @classmethod
     def send_author_prescreening_passed_email(cls):
@@ -558,28 +468,6 @@ class SubmissionUtils(BaseMailUtil):
             reply_to=['refereeing@scipost.org'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
-
-    @classmethod
-    def email_referee_response_to_EIC(cls):
-        '''Requires loading `invitation` attribute.'''
-        if cls._context['invitation'].accepted:
-            email_subject = 'referee accepts to review'
-        else:
-            email_subject = 'referee declines to review'
-        cls._send_mail(cls, 'referee_response_to_EIC',
-                       [cls._context['invitation'].submission.editor_in_charge.user.email],
-                       email_subject)
-
-    @classmethod
-    def email_referee_in_response_to_decision(cls):
-        '''Requires loading `invitation` attribute.'''
-        if cls._context['invitation'].accepted:
-            email_subject = 'confirmation accepted invitation'
-        else:
-            email_subject = 'confirmation declined invitation'
-        cls._send_mail(cls, 'referee_in_response_to_decision',
-                       [cls._context['invitation'].referee.user.email],
-                       email_subject)
 
     @classmethod
     def acknowledge_report_email(cls):
