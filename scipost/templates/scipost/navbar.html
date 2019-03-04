@@ -29,17 +29,15 @@
                   <a href="{% url 'journals:journals' %}" class="dropdown-item">Journals homepage</a>
                   <a href="{% url 'journals:publications' %}" class="dropdown-item">View all publications</a>
 		  <div class="dropdown-divider"></div>
-		  <h3 class="dropdown-headline"><strong>Physics</strong></h3>
-                  {% for journal in journals %}
+		  <span class="dropdown-item dropdown-headline"><strong>Physics</strong></span>
+              {% for journal in journals %}
                   {% if journal.active %}
-                  <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{ journal }}</a>
+                      <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{ journal.get_name_display }}</a>
                   {% elif perms.scipost.can_view_pool %}
-                  <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{ journal }}</a>
+                      <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{ journal.get_name_display }}</a>
                   {% endif %}
-                  {% endfor %}
+              {% endfor %}
                 </div>
-              </li>
-              <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
               </li>
               <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
                 <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
@@ -50,19 +48,8 @@
               <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
                 <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
               </li>
-              <li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle" href="#" id="MoreDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
-		<div class="dropdown-menu" aria-labelledby="MoreDropdown">
-                  <a class="dropdown-item" href="{% url 'scipost:about' %}">About SciPost</a>
-                  <a class="dropdown-item" href="{% url 'scipost:foundation' %}">The Foundation</a>
-                  <a class="dropdown-item" href="{% url 'scipost:FAQ' %}">FAQ</a>
-                  <a class="dropdown-item" href="{% url 'news:news' %}">News</a>
-                  <a class="dropdown-item" href="{% url 'scipost:feeds' %}">Feeds</a>
-		  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="{% url 'organizations:organizations' %}">Organizations<br/><span class="small">benefitting from our activities</span></a>
-                  <a class="dropdown-item" href="{% url 'sponsors:sponsors' %}">Sponsors</a>
-                  <a class="dropdown-item" href="{% url 'finances:finances' %}">Finances</a>
-		</div>
+              <li class="nav-item{% if '/about' in request.path %} active{% endif %}">
+        		<a class="nav-link" href="{% url 'scipost:about' %}">About SciPost</a>
               </li>
             </ul>
 
@@ -70,28 +57,13 @@
 
             <ul class="navbar-nav mr-0">
               {% if user.is_authenticated %}
-              <li class="nav-item dropdown">
-		<a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <li class="nav-item">
+        		<div class="p-2 text-white">
                     Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
                     {% if request.user.contributor and not request.user.contributor.is_currently_available %}
                     <a href="javascript:;" class="text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true"><i class="fa fa-warning"></i></a>
                     {% endif %}
-		</a>
-		<div class="dropdown-menu" aria-labelledby="PersonalDropdown">
-
-		  {% if user.contributor %}
-                  <a class="dropdown-item" href="{% url 'scipost:personal_page' %}">Personal Page</a>
-		  {% if is_editorial_college %}
-                  <a class="dropdown-item" href="{% url 'submissions:pool' %}">Submissions Pool</a>
-		  {% endif %}
-		  {% if perms.scipost.can_view_production %}
-                  <a class="dropdown-item" href="{% url 'production:production' %}">Production</a>
-		  {% endif %}
-		  {% if perms.scipost.can_manage_organizations or user.org_contact %}
-                  <a class="dropdown-item" href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
-		  {% endif %}
-		  {% endif %}
-                  <a class="dropdown-item" href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
+        		</div>
               </li>
 
               <li class="nav-item navbar-counter">

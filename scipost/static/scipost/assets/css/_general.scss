@@ -13,7 +13,7 @@ body #MathJax_Message {
     background-color: #f9f9f9;
     border: 1px solid #f4f4f4;
     border-radius: $card-border-radius;
-    color: #002b49;
+    color: $scipost-darkblue;
     opacity: 0.9;
 }
 
@@ -23,8 +23,31 @@ body #MathJax_Message {
 }
 
 footer {
+    .row,
+    ul {
+        margin-bottom: 0;
+    }
+    //
+    // &.sub {
+    //     background-color: $scipost-light;
+    //     color: $body-color;
+    //
+    //     a,
+    //     a:hover {
+    //         color: $body-color;
+    //     }
+    //
+    //     li {
+    //         padding: .1rem;
+    //     }
+    // }
+
     background-color: $scipost-darkblue;
     color: $white;
+
+    li {
+        padding: .1rem;
+    }
 
     a,
     a:hover {
