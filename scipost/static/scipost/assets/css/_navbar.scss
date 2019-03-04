@@ -33,6 +33,9 @@
     .dropdown-menu {
         background-color: $scipost-lightblue;
 	font-size: 100%;
+	-webkit-border-radius: 5px 5px 5px 5px;
+	-moz-border-radius: 5px 5px 5px 5px;
+	border-radius: 5px 5px 5px 5px;
 
 	a {
 	    &:hover {
