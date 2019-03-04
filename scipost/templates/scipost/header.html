@@ -1,4 +1,7 @@
 {% load staticfiles %}
+{% load user_groups %}
+
+{% is_editorial_college request.user as is_editorial_college %}
 
 <header>
     <div class="container">
