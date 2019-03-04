@@ -1,5 +1,4 @@
 {% load staticfiles %}
-{% load notifications_tags %}
 
 <header>
     <div class="container">
@@ -21,31 +20,12 @@
                         <div class="btn-group">
                             <button type="submit" class="btn btn-link">
                                 <i class="fa fa-search"></i>
-                                Search
                             </button>
                             <a href="javascript:;" class="btn btn-link close-form" id="header-search-close-btn">
                                 <i class="fa fa-times"></i>
                             </a>
                         </div>
                     </form>
-                  </div>
-                </li>
-                <li class="nav-item">
-                    <span class="separator">&middot;</span>
-                  <a class="nav-link" href="{% url 'scipost:about' %}">About</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <span class="separator">&middot;</span>
-                  <a class="nav-link dropdown-toggle" href="javascript:;" data-toggle="dropdown">Our journals </a>
-
-                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
-                      {% for journal in journals %}
-                          {% if journal.active %}
-                              <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{journal}}</a>
-                          {% elif perms.scipost.can_view_pool %}
-                              <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{journal}}</a>
-                          {% endif %}
-                      {% endfor %}
                   </div>
                 </li>
             </ul>

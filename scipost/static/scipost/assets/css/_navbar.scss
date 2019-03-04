@@ -30,6 +30,22 @@
         }
     }
 
+    .dropdown-menu {
+        background-color: $scipost-lightblue;
+	font-size: 100%;
+
+	a {
+	    &:hover {
+		color: $scipost-lightblue;
+	    }
+	}
+
+	h2, h3 {
+	    color: $scipost-orange;
+	    margin: 0.8rem 0rem 0.3rem 0.8rem;
+	}
+    }
+
     .nav-item.active a {
         font-weight: 700;
         text-decoration: underline;

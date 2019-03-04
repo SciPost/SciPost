@@ -20,79 +20,91 @@
         <div class="collapse navbar-collapse" id="main-navbar">
             <ul class="navbar-nav mr-auto">
 
-                  <li class="nav-item{% if request.path == '/' %} active{% endif %}">
-                    <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
-                  </li>
-
-                  <li class="nav-item{% if '/journals/' == request.path %} active{% endif %}">
-                    <a href="{% url 'journals:journals' %}" class="nav-link">Journals</a>
-                  </li>
-                  <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
-                    <a href="{% url 'journals:publications' %}" class="nav-link">Publications</a>
-                  </li>
-                  <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
-                    <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
-                  </li>
-                  <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
-                    <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
-                  </li>
-                  <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
-                    <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
-                  </li>
+              <li class="nav-item{% if request.path == '/' %} active{% endif %}">
+                <a href="{% url 'scipost:index' %}" class="nav-link">Home</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="JournalsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Journals</a>
+                <div class="dropdown-menu" aria-labelledby="JournalsDropdown">
+                  <a href="{% url 'journals:journals' %}" class="dropdown-item">Journals homepage</a>
+                  <a href="{% url 'journals:publications' %}" class="dropdown-item">View all publications</a>
+		  <div class="dropdown-divider"></div>
+		  <h3 class="dropdown-headline"><strong>Physics</strong></h3>
+                  {% for journal in journals %}
+                  {% if journal.active %}
+                  <a href="{{ journal.get_absolute_url }}" class="dropdown-item">{{ journal }}</a>
+                  {% elif perms.scipost.can_view_pool %}
+                  <a href="{% url 'journal:about' journal.name %}" class="dropdown-item">{{ journal }}</a>
+                  {% endif %}
+                  {% endfor %}
+                </div>
+              </li>
+              <li class="nav-item{% if '/journals/publications' in request.path %} active{% endif %}">
+              </li>
+              <li class="nav-item{% if '/submissions/' in request.path %} active{% endif %}">
+                <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a>
+              </li>
+              <li class="nav-item{% if '/commentaries/' in request.path %} active{% endif %}">
+                <a class="nav-link" href="{% url 'commentaries:commentaries' %}">Commentaries</a>
+              </li>
+              <li class="nav-item{% if '/theses/' in request.path %} active{% endif %}">
+                <a class="nav-link" href="{% url 'theses:theses' %}">Theses</a>
+              </li>
+              <li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" href="#" id="MoreDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">More</a>
+		<div class="dropdown-menu" aria-labelledby="MoreDropdown">
+                  <a class="dropdown-item" href="{% url 'scipost:about' %}">About SciPost</a>
+                  <a class="dropdown-item" href="{% url 'scipost:foundation' %}">The Foundation</a>
+                  <a class="dropdown-item" href="{% url 'scipost:FAQ' %}">FAQ</a>
+                  <a class="dropdown-item" href="{% url 'news:news' %}">News</a>
+                  <a class="dropdown-item" href="{% url 'scipost:feeds' %}">Feeds</a>
+		  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="{% url 'organizations:organizations' %}">Organizations<br/><span class="small">benefitting from our activities</span></a>
+                  <a class="dropdown-item" href="{% url 'sponsors:sponsors' %}">Sponsors</a>
+                  <a class="dropdown-item" href="{% url 'finances:finances' %}">Finances</a>
+		</div>
+              </li>
             </ul>
 
             <hr class="lg d-lg-none">
 
             <ul class="navbar-nav mr-0">
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                        <span class="nav-link text-white">
-                            Welcome {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
-                            {% if request.user.contributor and not request.user.contributor.is_currently_available %}
-                                <a href="javascript:;" class="text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true"><i class="fa fa-warning"></i></a>
-                            {% endif %}
-                        </span>
-                    </li>
-                  {% if user.contributor %}
-                      {% if is_editorial_college %}
-                          <li class="nav-item{% if '/submissions/pool/' in request.path %} active{% endif %}">
-                              <span class="separator">&middot;</span>
-                            <a class="nav-link" href="{% url 'submissions:pool' %}">Submissions Pool</a>
-                          </li>
-                      {% endif %}
-                      <li class="nav-item{% if '/personal_page' in request.path %} active{% endif %}">
-                          <span class="separator">&middot;</span>
-                        <a class="nav-link" href="{% url 'scipost:personal_page' %}">My Personal Page</a>
-                      </li>
-                      {% if perms.scipost.can_view_production %}
-                          <li class="nav-item {% active 'production:production' %}">
-                              <span class="separator">&middot;</span>
-                              <a class="nav-link" href="{% url 'production:production' %}">Production</a>
-                          </li>
-                      {% endif %}
-                  {% endif %}
-                  {% if perms.scipost.can_manage_organizations or user.org_contact %}
-                    <li class="nav-item{% if '/organizations/dashboard' in request.path %} active{% endif %}">
-                        <span class="separator">&middot;</span>
-                        <a class="nav-link" href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
-                    </li>
-                  {% endif %}
-                  <li class="nav-item navbar-counter">
-                      <span class="separator">&middot;</span>
-                      <div class="d-inline-block notifications_container">
-                          <a href="javascript:;" class="d-inline-block badge_link nav-link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
-                              <span class="user d-inline d-lg-none d-xl-inline">Notifications</span>
-                              <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
-                              {% live_notify_badge classes="badge badge-pill" %}
-                          </a>
-                          {% live_notify_list %}
-                      </div>
-                  </li>
-                  <li class="nav-item">
-                      <span class="separator">&middot;</span>
-                      <a class="nav-link" href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
-                  </li>
-                {% else %}
+              {% if user.is_authenticated %}
+              <li class="nav-item dropdown">
+		<a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}
+                    {% if request.user.contributor and not request.user.contributor.is_currently_available %}
+                    <a href="javascript:;" class="text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true"><i class="fa fa-warning"></i></a>
+                    {% endif %}
+		</a>
+		<div class="dropdown-menu" aria-labelledby="PersonalDropdown">
+
+		  {% if user.contributor %}
+                  <a class="dropdown-item" href="{% url 'scipost:personal_page' %}">Personal Page</a>
+		  {% if is_editorial_college %}
+                  <a class="dropdown-item" href="{% url 'submissions:pool' %}">Submissions Pool</a>
+		  {% endif %}
+		  {% if perms.scipost.can_view_production %}
+                  <a class="dropdown-item" href="{% url 'production:production' %}">Production</a>
+		  {% endif %}
+		  {% if perms.scipost.can_manage_organizations or user.org_contact %}
+                  <a class="dropdown-item" href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
+		  {% endif %}
+		  {% endif %}
+                  <a class="dropdown-item" href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
+              </li>
+
+              <li class="nav-item navbar-counter">
+                <div class="d-inline-block notifications_container">
+                  <a href="javascript:;" class="d-inline-block badge_link nav-link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
+                    <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
+                    {% live_notify_badge classes="badge badge-pill" %}
+                  </a>
+                  {% live_notify_list %}
+                </div>
+              </li>
+
+              {% else %}
                     <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">
                       <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
                     </li>

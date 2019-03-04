@@ -5,7 +5,7 @@
 
 <div class="popover-template">
     <div class="popover notifications" role="tooltip">
-        <div class="arrow"></div>
+      <div class="arrow"></div>
         {% if user.contributor %}
             <div class="header">
                 <h3>{{ user.contributor.get_title_display }} {{ user.first_name }} {{ user.last_name }}</h3>
@@ -22,28 +22,6 @@
                 <h3>{{ user.first_name }} {{ user.last_name }}</h3>
             </div>
         {% endif %}
-
-        <div class="links">
-            <a class="item {% active 'scipost:personal_page' %}" href="{% url 'scipost:personal_page' %}">Personal Page</a>
-
-            {% if is_financial_admin %}
-                <a class="item {% active 'finances:finances' %}" href="{% url 'finances:finances' %}">Financial Administration</a>
-            {% endif %}
-
-            {% if perms.scipost.can_view_all_funding_info %}
-                <a class="item {% active 'funders:funders_dashboard' %}" href="{% url 'funders:funders_dashboard' %}">Funders</a>
-            {% endif %}
-
-            {% if perms.scipost.can_view_production %}
-                <a class="item {% active 'production:production' %}" href="{% url 'production:production' %}">Production</a>
-            {% endif %}
-
-            {% if perms.scipost.can_view_pool %}
-                <a class="item {% active 'submissions:pool' %}" href="{% url 'submissions:pool' %}">Submissions Pool</a>
-            {% endif %}
-
-            <a class="item" href="{% url 'scipost:logout' %}">Logout</a>
-        </div>
 
         <h4 class="inbox-header">Inbox</h4>
         <div class="live_notify_list"></div>
