@@ -2,6 +2,19 @@
 
 {% load bootstrap %}
 
+{% block headsup %}
+<script>
+$(document).ready(function() {
+
+$("#id_name").keyup(function() {
+  slug_value = this.value.split(" ").join("_");
+  $("#id_slug").val(slug_value);
+});
+
+});
+</script>
+{% endblock headsup %}
+
 {% block breadcrumb_items %}
 {{ block.super }}
 <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Forum{% endif %}</span>

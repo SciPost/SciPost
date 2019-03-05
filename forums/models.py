@@ -51,6 +51,16 @@ class Forum(models.Model):
     def get_absolute_url(self):
         return reverse('forums:forum_detail', kwargs={'slug': self.slug})
 
+    @property
+    def nr_posts(self):
+        """Recursively counts the number of posts in this Forum."""
+        nr = 0
+        for post in self.posts.all():
+            nr += post.nr_followups
+        if self.posts.all():
+            nr += self.posts.all().count()
+        return nr
+
 
 class Post(models.Model):
     """
@@ -90,3 +100,12 @@ class Post(models.Model):
 
     def __str__(self):
         return '%s: %s' % (self.posted_by, self.subject[:32])
+
+    @property
+    def nr_followups(self):
+        nr = 0
+        for followup in self.followup_posts.all():
+            nr += followup.nr_followups
+        if self.followup_posts:
+            nr += self.followup_posts.all().count()
+        return nr

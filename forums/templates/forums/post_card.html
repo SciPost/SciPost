@@ -14,11 +14,11 @@
     </p>
   </div>
   <div class="card-footer">
-    <a href="{% url 'forums:post_create' parent_model='post' parent_id=post.id %}">Reply</a>
+    <a href="{% url 'forums:post_create' parent_model='post' parent_id=post.id %}">Reply to this post</a>
   </div>
   {% if post.followup_posts.all|length > 0 %}
   <div class="followupPosts">
-    <h3>Replies:</h3>
+    <h3>Replies [{{ post.nr_followups }}]:</h3>
     {% for followup in post.followup_posts.all %}
     {% include 'forums/post_card.html' with post=followup %}
     {% endfor %}

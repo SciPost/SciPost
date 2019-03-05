@@ -34,7 +34,7 @@
 	  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
 	  <td>{% if forum.posts.all|length > 0 %}{{ forum.posts.first }}{% else %}No posts yet{% endif %}</td>
 	  <td>{% if forum.posts.all|length > 0 %}{{ forum.posts.first.posted_on|date:"Y-m-d" }}{% else %}-{% endif %}</td>
-	  <td>{{ forum.posts.all|length }}</td>
+	  <td>{{ forum.nr_posts }}</td>
 	</tr>
 	{% empty %}
 	<tr>
