@@ -1,0 +1,38 @@
+{% extends 'forums/base.html' %}
+
+{% load bootstrap %}
+
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Forums</span>
+{% endblock %}
+
+
+{% block pagetitle %}: Forums{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Forums</h3>
+    <ul>
+      <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
+    </ul>
+    <table class="table">
+      <tbody>
+	{% for forum in object_list %}
+	<tr>
+	  <td>{{ forum }}</td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <td>No Forum defined</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,21 @@
+{% extends 'forums/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item">Details</span>
+{% endblock %}
+
+{% load scipost_extras %}
+
+{% block pagetitle %}: Forum details{% endblock pagetitle %}
+
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <p>{{ forum }}</p>
+  </div>
+</div>
+
+{% endblock content %}
