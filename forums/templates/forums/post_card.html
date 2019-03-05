@@ -1,6 +1,12 @@
 <div class="card">
   <div class="card-header">
     {{ post.subject }}
+    <div class="postInfo">
+      {{ post.posted_by }} on {{ post.posted_on|date:"Y-m-d" }}
+      {% if post.parent %}
+      - regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
+      {% endif %}
+    </div>
   </div>
   <div class="card-body">
     <p class="card-text">
@@ -8,13 +14,14 @@
     </p>
   </div>
   <div class="card-footer">
-    {{ post.posted_by }} on {{ post.posted_on|date:"Y-m-d" }}
-    <br/>
-    {% if post.parent %}
-    c.f. <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
-    {% endif %}
+    <a href="{% url 'forums:post_create' parent_model='post' parent_id=post.id %}">Reply</a>
   </div>
-  {% for followup in post.followup_posts.all %}
-  {% include 'forums/post_card.html' with post=followup %}
-  {% endfor %}
+  {% if post.followup_posts.all|length > 0 %}
+  <div class="followupPosts">
+    <h3>Replies:</h3>
+    {% for followup in post.followup_posts.all %}
+    {% include 'forums/post_card.html' with post=followup %}
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>

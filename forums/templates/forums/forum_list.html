@@ -20,10 +20,21 @@
       <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
     </ul>
     <table class="table">
+      <thead class="thead-default">
+	<tr>
+	  <th>Forum</th>
+	  <th>Latest post</th>
+	  <th>Posted on</th>
+	  <th>Nr posts</th>
+	</tr>
+      </thead>
       <tbody>
 	{% for forum in object_list %}
 	<tr>
 	  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
+	  <td>{% if forum.posts.all|length > 0 %}{{ forum.posts.first }}{% else %}No posts yet{% endif %}</td>
+	  <td>{% if forum.posts.all|length > 0 %}{{ forum.posts.first.posted_on|date:"Y-m-d" }}{% else %}-{% endif %}</td>
+	  <td>{{ forum.posts.all|length }}</td>
 	</tr>
 	{% empty %}
 	<tr>

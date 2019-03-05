@@ -20,7 +20,10 @@
     {% include 'forums/post_card.html' with post=post %}
     {% endfor %}
 
-    <p><a href="{% url 'forums:post_create' parent_model=forum parent_id={{ forum.id }}%}">
+    <p>
+      <a href="{% url 'forums:post_create' parent_model='forum' parent_id=forum.id %}">Add a Post</a>
+    </p>
+
   </div>
 </div>
 
