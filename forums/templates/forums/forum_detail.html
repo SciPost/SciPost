@@ -14,7 +14,13 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <p>{{ forum }}</p>
+    <h3 class="highlight">{{ forum.name }}</h3>
+
+    {% for post in forum.posts.all %}
+    {% include 'forums/post_card.html' with post=post %}
+    {% endfor %}
+
+    <p><a href="{% url 'forums:post_create' parent_model=forum parent_id={{ forum.id }}%}">
   </div>
 </div>
 

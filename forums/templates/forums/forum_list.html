@@ -23,7 +23,7 @@
       <tbody>
 	{% for forum in object_list %}
 	<tr>
-	  <td>{{ forum }}</td>
+	  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
 	</tr>
 	{% empty %}
 	<tr>
