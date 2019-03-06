@@ -8,6 +8,8 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
+from .managers import ForumQuerySet
+
 
 class Forum(models.Model):
     """
@@ -42,6 +44,8 @@ class Forum(models.Model):
                             object_id_field='parent_object_id',
                             related_query_name='parent_forums')
 
+    objects = ForumQuerySet.as_manager()
+
     class Meta:
         ordering = ['name',]
 
@@ -60,6 +64,21 @@ class Forum(models.Model):
         if self.posts.all():
             nr += self.posts.all().count()
         return nr
+
+    def posts_hierarchy_id_list(self):
+        id_list = []
+        for post in self.posts.all():
+            id_list += post.posts_hierarchy_id_list()
+        return id_list
+
+    @property
+    def latest_post(self):
+        id_list = self.posts_hierarchy_id_list()
+        print ('forum post id_list: %s' % id_list)
+        try:
+            return Post.objects.filter(id__in=id_list).order_by('-posted_on').first()
+        except:
+            return None
 
 
 class Post(models.Model):
@@ -109,3 +128,10 @@ class Post(models.Model):
         if self.followup_posts:
             nr += self.followup_posts.all().count()
         return nr
+
+    def posts_hierarchy_id_list(self):
+        id_list = [self.id]
+        for post in self.followup_posts.all():
+            id_list += post.posts_hierarchy_id_list()
+        print ('post %s id_list: %s' % (self.id, id_list))
+        return id_list

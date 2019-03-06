@@ -16,6 +16,12 @@
   <div class="col-12">
     <h3 class="highlight">{{ forum.name }}</h3>
 
+    {% if perms.forums.can_add_forum %}
+    <p>
+      <a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a>
+    </p>
+    {% endif %}
+
     {% for post in forum.posts.all %}
     {% include 'forums/post_card.html' with post=post %}
     {% endfor %}

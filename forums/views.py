@@ -24,8 +24,14 @@ class ForumCreateView(PermissionsMixin, CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
+        parent_model = self.kwargs.get('parent_model')
+        parent_object_id = self.kwargs.get('parent_id')
+        if parent_model == 'forum':
+            parent_content_type = ContentType.objects.get(app_label='forums', model='forum')
         initial.update({
-            'moderators': self.request.user
+            'moderators': self.request.user,
+            'parent_content_type': parent_content_type,
+            'parent_object_id': parent_object_id,
         })
         return initial
 
@@ -38,6 +44,11 @@ class ForumDetailView(DetailView):
 class ForumListView(ListView):
     model = Forum
     template_name = 'forum_list.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['latest_'] = Forum.objects.order_by
+        return context
 
 
 class PostCreateView(CreateView):

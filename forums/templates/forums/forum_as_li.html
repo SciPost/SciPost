@@ -1,0 +1,10 @@
+<li>
+  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
+  {% if forum.child_forums.all|length > 0 %}
+  <ul class="list-unstyled forumList">
+    {% for child in forum.child_forums.all %}
+    {% include 'forums/forum_as_li.html' with forum=child %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+</li>

@@ -8,6 +8,11 @@ from . import views
 
 urlpatterns = [
     url(
+        r'^forum/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+        views.ForumCreateView.as_view(),
+        name='forum_create'
+    ),
+    url(
         r'^add/$',
         views.ForumCreateView.as_view(),
         name='forum_create'

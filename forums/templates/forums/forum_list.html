@@ -15,10 +15,39 @@
 
 <div class="row">
   <div class="col-12">
+
     <h3 class="highlight">Forums</h3>
     <ul>
       <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
     </ul>
+
+    <div class="card-columns">
+      {% for forum in object_list %}
+      <div class="card">
+	<div class="card-header">
+	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
+	</div>
+	<div class="card-body">
+	  Forum description
+	  {% if forum.child_forums.all|length > 0 %}
+	  <hr/>
+	  <p>Descendants:</p>
+	  <ul class="list-unstyled forumList">
+	    {% for child in forum.child_forums.all %}
+	    {% include 'forums/forum_as_li.html' with forum=child %}
+	    {% endfor %}
+	  </ul>
+	  {% endif %}
+	</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Latest postings</h3>
     <table class="table">
       <thead class="thead-default">
 	<tr>
@@ -32,8 +61,8 @@
 	{% for forum in object_list %}
 	<tr>
 	  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
-	  <td>{% if forum.posts.all|length > 0 %}{{ forum.posts.first }}{% else %}No posts yet{% endif %}</td>
-	  <td>{% if forum.posts.all|length > 0 %}{{ forum.posts.first.posted_on|date:"Y-m-d" }}{% else %}-{% endif %}</td>
+	  <td>{{ forum.latest_post }}</td>
+	  <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
 	  <td>{{ forum.nr_posts }}</td>
 	</tr>
 	{% empty %}
