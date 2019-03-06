@@ -17,9 +17,11 @@
   <div class="col-12">
 
     <h3 class="highlight">Forums</h3>
+    {% if perms.forums.can_add_forum %}
     <ul>
       <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
     </ul>
+    {% endif %}
 
     <div class="card-columns">
       {% for forum in object_list %}
@@ -40,6 +42,8 @@
 	  {% endif %}
 	</div>
       </div>
+      {% empty %}
+      <p>No visible Forums found.</p>
       {% endfor %}
     </div>
   </div>
@@ -67,7 +71,7 @@
 	</tr>
 	{% empty %}
 	<tr>
-	  <td>No Forum defined</td>
+	  <td>No visible Posts found.</td>
 	</tr>
 	{% endfor %}
       </tbody>

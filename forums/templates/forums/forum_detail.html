@@ -15,11 +15,11 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">{{ forum.name }}</h3>
-
+    <p>Visible to:</p>
     {% if perms.forums.can_add_forum %}
-    <p>
-      <a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a>
-    </p>
+    <ul>
+      <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
+    </ul>
     {% endif %}
 
     {% for post in forum.posts.all %}

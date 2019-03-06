@@ -48,6 +48,9 @@ class Forum(models.Model):
 
     class Meta:
         ordering = ['name',]
+        permissions = [
+            ('can_view_forum', 'Can view Forum'),
+        ]
 
     def __str__(self):
         return self.slug

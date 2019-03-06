@@ -9,6 +9,8 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
+from guardian.shortcuts import get_objects_for_user
+
 from .models import Forum, Post
 from .forms import ForumForm, PostForm
 
@@ -45,10 +47,9 @@ class ForumListView(ListView):
     model = Forum
     template_name = 'forum_list.html'
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['latest_'] = Forum.objects.order_by
-        return context
+    def get_queryset(self):
+        queryset = get_objects_for_user(self.request.user, 'forums.can_view_forum')
+        return queryset
 
 
 class PostCreateView(CreateView):
