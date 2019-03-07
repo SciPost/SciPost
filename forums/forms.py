@@ -12,7 +12,13 @@ from .models import Forum, Post
 class ForumForm(forms.ModelForm):
     class Meta:
         model = Forum
-        fields = ['name', 'slug', 'publicly_visible', 'moderators']
+        fields = ['name', 'slug', 'publicly_visible', 'moderators',
+                  'parent_content_type', 'parent_object_id']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['parent_content_type'].widget = forms.HiddenInput()
+        self.fields['parent_object_id'].widget = forms.HiddenInput()
 
 
 class ForumGroupPermissionsForm(forms.ModelForm):

@@ -103,7 +103,7 @@ class ForumListView(ListView):
     template_name = 'forum_list.html'
 
     def get_queryset(self):
-        queryset = get_objects_for_user(self.request.user, 'forums.can_view_forum')
+        queryset = get_objects_for_user(self.request.user, 'forums.can_view_forum').anchors()
         return queryset
 
 
