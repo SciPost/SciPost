@@ -28,6 +28,11 @@ urlpatterns = [
         name='forum_permissions'
     ),
     url(
+        r'^(?P<slug>[\w-]+)/permissions/$',
+        views.ForumPermissionsView.as_view(),
+        name='forum_permissions'
+    ),
+    url(
         r'^$',
         views.ForumListView.as_view(),
         name='forums'

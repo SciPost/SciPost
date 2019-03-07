@@ -19,32 +19,39 @@
   <div class="col-12">
     <h3 class="highlight">{{ forum.name }}</h3>
 
-    <div>
-      {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
-      <h4 class="highlight">Permissions on this Forum instance</h4>
-
-      <p>Groups with permissions [click on the Group's name to manage permissions]:</p>
-      <ul>
-	{% for group in groups_with_perms %}
-	{% get_obj_perms group for forum as "group_perms" %}
-	<li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
-	{% empty %}
-	<li>No group has permissions on this Forum</li>
-	{% endfor %}
-      </ul>
-
-      <p>Users with permissions:</p>
-      <ul>
-	{% for u in users_with_perms %}
-	{% get_obj_perms u for forum as "u_perms" %}
-	<li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
-	{% endfor %}
-      </ul>
-    </div>
-
+    {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
     <ul>
       <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
     </ul>
+
+    <div class="card">
+      <div class="card-header">
+	Permissions on this Forum instance
+	<button class="btn btn-link small" data-toggle="collapse" data-target="#permissionsCard">
+	View/manage</button>
+      </div>
+      <div class="card-body collapse" id="permissionsCard">
+	<p><a href="{% url 'forums:forum_permissions' slug=forum.slug %}">Grant permissions to a new group</a></p>
+	<p>Groups with permissions [click on the Group's name to manage permissions]:</p>
+	<ul>
+	  {% for group in groups_with_perms %}
+	  {% get_obj_perms group for forum as "group_perms" %}
+	  <li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
+	  {% empty %}
+	  <li>No group has permissions on this Forum</li>
+	  {% endfor %}
+	</ul>
+
+	<p>Users with permissions:</p>
+	<ul>
+	  {% for u in users_with_perms %}
+	  {% get_obj_perms u for forum as "u_perms" %}
+	  <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
+	  {% endfor %}
+	</ul>
+      </div>
+    </div>
+
     {% endif %}
 
     {% for post in forum.posts.all %}

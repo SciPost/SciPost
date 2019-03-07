@@ -65,16 +65,22 @@ class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['group'] = get_object_or_404(Group, pk=self.kwargs.get('group_id'))
+        try:
+            context['group'] = Group.objects.get(pk=self.kwargs.get('group_id'))
+        except Group.DoesNotExist:
+            pass
         return context
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
-        group = get_object_or_404(Group, pk=self.kwargs.get('group_id'))
-        perms = get_perms (group, self.object)
-        initial['group'] = group.id
-        initial['can_view'] = 'can_view_forum' in perms
-        initial['can_post'] = 'can_post_to_forum' in perms
+        try:
+            group = Group.objects.get(pk=self.kwargs.get('group_id'))
+            perms = get_perms (group, self.object)
+            initial['group'] = group.id
+            initial['can_view'] = 'can_view_forum' in perms
+            initial['can_post'] = 'can_post_to_forum' in perms
+        except Group.DoesNotExist:
+            pass
         return initial
 
     def form_valid(self, form):
