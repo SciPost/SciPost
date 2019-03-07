@@ -55,11 +55,11 @@
     {% endif %}
 
     {% for post in forum.posts.all %}
-    {% include 'forums/post_card.html' with post=post %}
+    {% include 'forums/post_card.html' with forum=forum post=post %}
     {% endfor %}
 
     <p>
-      <a href="{% url 'forums:post_create' parent_model='forum' parent_id=forum.id %}">Add a Post</a>
+      <a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a Post</a>
     </p>
 
   </div>

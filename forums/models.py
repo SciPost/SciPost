@@ -124,6 +124,9 @@ class Post(models.Model):
     def __str__(self):
         return '%s: %s' % (self.posted_by, self.subject[:32])
 
+    def get_absolute_url(self):
+        return '%s#post%s' % (self.get_forum().get_absolute_url(), self.id)
+
     @property
     def nr_followups(self):
         nr = 0
@@ -139,3 +142,14 @@ class Post(models.Model):
             id_list += post.posts_hierarchy_id_list()
         print ('post %s id_list: %s' % (self.id, id_list))
         return id_list
+
+    def get_forum(self):
+        """
+        Climb back the hierarchy up to the original Forum.
+        If no Forum is found, return None.
+        """
+        type_forum = ContentType.objects.get_by_natural_key('forums', 'forum')
+        if self.parent_content_type == type_forum:
+            return self.parent
+        else:
+            return self.parent.get_forum()

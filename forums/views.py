@@ -3,15 +3,17 @@ __license__ = "AGPL v3"
 
 
 from django.contrib.auth.models import Group
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
-from guardian.decorators import permission_required_or_403
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (assign_perm, remove_perm,
     get_objects_for_user, get_perms, get_users_with_perms, get_groups_with_perms)
@@ -32,6 +34,7 @@ class ForumCreateView(PermissionsMixin, CreateView):
     def get_initial(self):
         initial = super().get_initial()
         parent_model = self.kwargs.get('parent_model')
+        parent_content_type = None
         parent_object_id = self.kwargs.get('parent_id')
         if parent_model == 'forum':
             parent_content_type = ContentType.objects.get(app_label='forums', model='forum')
@@ -104,9 +107,18 @@ class ForumListView(ListView):
         return queryset
 
 
-class PostCreateView(CreateView):
+class PostCreateView(UserPassesTestMixin, CreateView):
     model = Post
     form_class= PostForm
+
+    def test_func(self):
+        if self.request.user.has_perm('forums.add_forum'):
+            return True
+        forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
+        if self.request.user.has_perm('can_post_to_forum', forum):
+            return True
+        else:
+            raise PermissionDenied
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
@@ -119,6 +131,8 @@ class PostCreateView(CreateView):
             parent_content_type = ContentType.objects.get(app_label='forums', model='post')
             parent = parent_content_type.get_object_for_this_type(pk=parent_object_id)
             subject = 'Reply to %s' % parent.subject
+        else:
+            raise Http404
         initial.update({
             'posted_by': self.request.user,
             'posted_on': timezone.now(),
@@ -129,4 +143,4 @@ class PostCreateView(CreateView):
         return initial
 
     def get_success_url(self):
-        return reverse_lazy('forums:forums')
+        return self.object.get_absolute_url()
