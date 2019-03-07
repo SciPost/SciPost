@@ -23,6 +23,11 @@ urlpatterns = [
         name='forum_detail'
     ),
     url(
+        r'^(?P<slug>[\w-]+)/permissions/(?P<group_id>[0-9]+)/$',
+        views.ForumPermissionsView.as_view(),
+        name='forum_permissions'
+    ),
+    url(
         r'^$',
         views.ForumListView.as_view(),
         name='forums'

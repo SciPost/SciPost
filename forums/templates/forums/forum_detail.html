@@ -1,6 +1,7 @@
 {% extends 'forums/base.html' %}
 
 {% load bootstrap %}
+{% load guardian_tags %}
 
 {% block breadcrumb_items %}
     {{ block.super }}
@@ -11,12 +12,36 @@
 
 {% block pagetitle %}: Forum details{% endblock pagetitle %}
 
+{% get_obj_perms request.user for forum as "user_perms" %}
+
 {% block content %}
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">{{ forum.name }}</h3>
-    <p>Visible to:</p>
-    {% if perms.forums.can_add_forum %}
+
+    <div>
+      {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
+      <h4 class="highlight">Permissions on this Forum instance</h4>
+
+      <p>Groups with permissions [click on the Group's name to manage permissions]:</p>
+      <ul>
+	{% for group in groups_with_perms %}
+	{% get_obj_perms group for forum as "group_perms" %}
+	<li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
+	{% empty %}
+	<li>No group has permissions on this Forum</li>
+	{% endfor %}
+      </ul>
+
+      <p>Users with permissions:</p>
+      <ul>
+	{% for u in users_with_perms %}
+	{% get_obj_perms u for forum as "u_perms" %}
+	<li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
+	{% endfor %}
+      </ul>
+    </div>
+
     <ul>
       <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
     </ul>

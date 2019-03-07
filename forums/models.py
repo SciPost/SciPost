@@ -50,6 +50,7 @@ class Forum(models.Model):
         ordering = ['name',]
         permissions = [
             ('can_view_forum', 'Can view Forum'),
+            ('can_post_to_forum', 'Can add Post to Forum'),
         ]
 
     def __str__(self):

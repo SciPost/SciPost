@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django import forms
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from .models import Forum, Post
 
 
@@ -11,6 +13,25 @@ class ForumForm(forms.ModelForm):
     class Meta:
         model = Forum
         fields = ['name', 'slug', 'publicly_visible', 'moderators']
+
+
+class ForumGroupPermissionsForm(forms.ModelForm):
+    """
+    Used for granting a specific Group access to a given Forum.
+    """
+    group = AutoCompleteSelectField('group_lookup')
+    can_view = forms.BooleanField(required=False)
+    can_post = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Forum
+        fields = []
+
+
+class ForumOrganizationPermissionsForm(forms.Form):
+    organization = AutoCompleteSelectField('organization_lookup')
+    can_view = forms.BooleanField()
+    can_post = forms.BooleanField()
 
 
 class PostForm(forms.ModelForm):
