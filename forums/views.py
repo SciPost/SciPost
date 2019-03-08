@@ -56,7 +56,7 @@ class ForumDeleteView(PermissionRequiredMixin, DeleteView):
         """
         A Forum can only be deleted if it does not have any descendants.
         Upon deletion, all object-level permissions associated to the
-        Forum are explicitly removed.
+        Forum are explicitly removed, to avoid orphaned permissions.
         """
         forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
         groups_perms_dict = get_groups_with_perms(forum, attach_perms=True)

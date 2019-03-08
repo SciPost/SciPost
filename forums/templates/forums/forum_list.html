@@ -26,8 +26,9 @@
     <div class="card-columns">
       {% for forum in object_list %}
       <div class="card">
-	<div class="card-header">
+	<div class="card-header d-flex justify-content-between">
 	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
+	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} posts</span>
 	</div>
 	<div class="card-body">
 	  Forum description

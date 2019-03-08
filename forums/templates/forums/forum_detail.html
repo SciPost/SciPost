@@ -17,7 +17,10 @@
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight">{{ forum.name }}</h3>
+    <h3 class="highlight d-flex justify-content-between">
+      {{ forum.name }}
+      <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+    </h3>
 
     {% if forum.parent %}
     <p>Parent: <a href="{{ forum.parent.get_absolute_url }}">{{ forum.parent }}</a></p>
