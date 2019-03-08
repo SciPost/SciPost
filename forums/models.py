@@ -2,8 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from docutils.core import publish_parts, publish_string
-
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -103,7 +101,8 @@ class Post(models.Model):
     part of an ongoing thread.
 
     The text field can contain ReStructuredText markup, formatted in templates
-    through the django-docutils required app.
+    through the ``scipost`` app's ``restructuredtext`` template filter, which
+    relies on the ``docutils`` required app.
     """
     posted_by = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     posted_on = models.DateTimeField(default=timezone.now)

@@ -79,7 +79,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'django_countries',
-    'django_docutils',
     'django_extensions',
     'django_mathjax',
     'ajax_select',
