@@ -108,7 +108,7 @@ class RegistrationForm(forms.Form):
         widget=forms.TextInput({'placeholder': 'For postal correspondence'}), required=False)
     personalwebpage = forms.URLField(
         label='Personal web page', required=False,
-        widget=forms.TextInput({'placeholder': 'full URL, e.g. http://www.[yourpage].com'}))
+        widget=forms.TextInput({'placeholder': 'full URL, e.g. https://www.[yourpage].com'}))
     username = forms.CharField(label='* Username', max_length=100,
                                validators=[UnicodeUsernameValidator,])
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
