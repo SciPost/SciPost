@@ -118,7 +118,7 @@ class Post(models.Model):
                                      object_id_field='parent_object_id',
                                      related_query_name='parent_posts')
     subject = models.CharField(max_length=256)
-    text = models.TextField()
+    text = models.TextField(help_text='You can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>')
 
     class Meta:
         ordering = ['posted_on',]
