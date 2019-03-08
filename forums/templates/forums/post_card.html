@@ -1,3 +1,5 @@
+{% load django_docutils %}
+
 <div class="card" id="post{{ post.id }}">
   <div class="card-header">
     {{ post.subject }}
@@ -10,9 +12,7 @@
     </div>
   </div>
   <div class="card-body">
-    <p class="card-text">
-      {{ post.text }}
-    </p>
+    {{ post.text|restructuredtext }}
   </div>
   <div class="card-footer">
     <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.id %}">Reply to this post</a>
