@@ -2,16 +2,17 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from guardian.mixins import PermissionRequiredMixin
@@ -44,6 +45,28 @@ class ForumCreateView(PermissionsMixin, CreateView):
             'parent_object_id': parent_object_id,
         })
         return initial
+
+
+class ForumDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = 'forums.delete_forum'
+    model = Forum
+    success_url = reverse_lazy('forums:forums')
+
+    def delete(self, request, *args, **kwargs):
+        """
+        A Forum can only be deleted if it does not have any descendants.
+        Upon deletion, all object-level permissions associated to the
+        Forum are explicitly removed.
+        """
+        forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
+        groups_perms_dict = get_groups_with_perms(forum, attach_perms=True)
+        if forum.child_forums.all().count() > 0:
+            messages.warning(request, 'A Forum with descendants cannot be deleted.')
+            return redirect(forum.get_absolute_url())
+        for group, perms_list in groups_perms_dict.items():
+            for perm in perms_list:
+                remove_perm(perm, group, forum)
+        return super().delete(request, *args, **kwargs)
 
 
 class ForumDetailView(PermissionRequiredMixin, DetailView):

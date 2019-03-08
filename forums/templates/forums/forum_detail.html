@@ -19,9 +19,24 @@
   <div class="col-12">
     <h3 class="highlight">{{ forum.name }}</h3>
 
+    {% if forum.parent %}
+    <p>Parent: <a href="{{ forum.parent.get_absolute_url }}">{{ forum.parent }}</a></p>
+    {% endif %}
+    {% if forum.child_forums.all|length > 0 %}
+    <p>Descendants: {% for child in forum.child_forums.all %}<a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    {% endif %}
+
     {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
+    <h4>Admin actions:</h4>
     <ul>
       <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
+      <li>
+	{% if not forum.child_forums %}
+	<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this Forum (and all Posts it contains)</a>
+	{% else %}
+	<span class="text-danger" style="text-decoration: line-through;">Delete this Forum</span> Please delete descendant Forums first.
+	{% endif %}
+      </li>
     </ul>
 
     <div class="card">
