@@ -163,7 +163,12 @@ class PostCreateView(UserPassesTestMixin, CreateView):
         elif parent_model == 'post':
             parent_content_type = ContentType.objects.get(app_label='forums', model='post')
             parent = parent_content_type.get_object_for_this_type(pk=parent_object_id)
-            subject = 'Reply to %s' % parent.subject
+            if parent.subject.startswith('Re: ...'):
+                subject = parent.subject
+            elif parent.subject.startswith('Re:'):
+                subject = '%s%s' % ('Re: ...', parent.subject.lstrip('Re:'))
+            else:
+                subject = 'Re: %s' % parent.subject
         else:
             raise Http404
         initial.update({
