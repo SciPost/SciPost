@@ -4,12 +4,12 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -20,7 +20,8 @@ from guardian.shortcuts import (assign_perm, remove_perm,
     get_objects_for_user, get_perms, get_users_with_perms, get_groups_with_perms)
 
 from .models import Forum, Post
-from .forms import ForumForm, ForumGroupPermissionsForm, ForumOrganizationPermissionsForm, PostForm
+from .forms import (ForumForm, ForumGroupPermissionsForm, ForumOrganizationPermissionsForm,
+                    PostForm, PostFormHidden)
 
 from scipost.mixins import PermissionsMixin
 
@@ -121,7 +122,7 @@ class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
         return super().form_valid(form)
 
 
-class ForumListView(ListView):
+class ForumListView(LoginRequiredMixin, ListView):
     model = Forum
     template_name = 'forum_list.html'
 
@@ -165,5 +166,48 @@ class PostCreateView(UserPassesTestMixin, CreateView):
         })
         return initial
 
-    def get_success_url(self):
-        return self.object.get_absolute_url()
+    def form_valid(self, form):
+        """
+        Save the form data to session variables only, redirect to confirmation view.
+        """
+        self.request.session['post_subject'] = form.cleaned_data['subject']
+        self.request.session['post_text'] = form.cleaned_data['text']
+        return redirect(reverse('forums:post_confirm_create',
+                                kwargs={'slug': self.kwargs.get('slug'),
+                                        'parent_model': self.kwargs.get('parent_model'),
+                                        'parent_id': self.kwargs.get('parent_id')}))
+
+
+class PostConfirmCreateView(UserPassesTestMixin, CreateView):
+    form_class = PostFormHidden
+    template_name = 'forums/post_confirm_create.html'
+
+    def test_func(self):
+        if self.request.user.has_perm('forums.add_forum'):
+            return True
+        forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
+        if self.request.user.has_perm('can_post_to_forum', forum):
+            return True
+        else:
+            raise PermissionDenied
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        parent_model = self.kwargs.get('parent_model')
+        parent_object_id = self.kwargs.get('parent_id')
+        if parent_model == 'forum':
+            parent_content_type = ContentType.objects.get(app_label='forums', model='forum')
+        elif parent_model == 'post':
+            parent_content_type = ContentType.objects.get(app_label='forums', model='post')
+            parent = parent_content_type.get_object_for_this_type(pk=parent_object_id)
+        else:
+            raise Http404
+        initial.update({
+            'posted_by': self.request.user,
+            'posted_on': timezone.now(),
+            'parent_content_type': parent_content_type,
+            'parent_object_id': parent_object_id,
+            'subject': self.request.session['post_subject'],
+            'text': self.request.session['post_text'],
+        })
+        return initial

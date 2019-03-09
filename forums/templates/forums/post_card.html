@@ -15,11 +15,13 @@
     {{ post.text|restructuredtext }}
   </div>
   <div class="card-footer">
+    {% if post.followup_posts.all|length > 0 %}
+    <span class="badge badge-primary badge-pill">{% with nr_followups=post.nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span>
+    {% endif %}&nbsp;
     <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.id %}">Reply to this post</a>
   </div>
   {% if post.followup_posts.all|length > 0 %}
   <div class="followupPosts">
-    <h3><span class="badge badge-primary badge-pill">{% with nr_followups=post.nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span></h3>
     {% for followup in post.followup_posts.all %}
     {% include 'forums/post_card.html' with post=followup %}
     {% endfor %}

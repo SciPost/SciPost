@@ -1,6 +1,8 @@
 {% extends 'forums/base.html' %}
 
 {% load bootstrap %}
+{% load restructuredtext %}
+
 
 {% block breadcrumb_items %}
 {{ block.super }}
@@ -13,10 +15,12 @@
 
 <div class="row">
   <div class="col-12">
+    <h3 class="highlight">Compose a new Post</h3>
     <form action="" method="post">
       {% csrf_token %}
       {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
+      <input type="submit" value="Run preview" class="btn btn-primary">
+    </form>
   </div>
 </div>
 

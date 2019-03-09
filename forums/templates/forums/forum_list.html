@@ -28,7 +28,7 @@
       <div class="card">
 	<div class="card-header d-flex justify-content-between">
 	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
-	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} posts</span>
+	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} post{{ forum.nr_posts|pluralize }}</span>
 	</div>
 	<div class="card-body">
 	  Forum description

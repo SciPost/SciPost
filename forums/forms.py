@@ -58,3 +58,16 @@ class PostForm(forms.ModelForm):
         self.fields['needs_vetting'].widget = forms.HiddenInput()
         self.fields['parent_content_type'].widget = forms.HiddenInput()
         self.fields['parent_object_id'].widget = forms.HiddenInput()
+
+
+class PostFormHidden(PostForm):
+    class Meta:
+        model = Post
+        fields = ['posted_by', 'posted_on', 'needs_vetting',
+                  'parent_content_type', 'parent_object_id',
+                  'subject', 'text']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['subject'].widget = forms.HiddenInput()
+        self.fields['text'].widget = forms.HiddenInput()

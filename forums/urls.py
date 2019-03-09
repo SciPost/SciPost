@@ -47,4 +47,9 @@ urlpatterns = [
         views.PostCreateView.as_view(),
         name='post_create'
     ),
+    url(
+        r'(?P<slug>[\w-]+)/post/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/confirm/$',
+        views.PostConfirmCreateView.as_view(),
+        name='post_confirm_create'
+    ),
 ]
