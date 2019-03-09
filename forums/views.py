@@ -172,22 +172,18 @@ class PostCreateView(UserPassesTestMixin, CreateView):
         if self.request.user.has_perm('forums.add_forum'):
             return True
         forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
+        if not self.request.user.has_perm('can_post_to_forum', forum):
+            raise PermissionDenied
         # Only allow posting if it's within a Forum, or within an ongoing meeting.
         try:
             if datetime.date.today() > forum.meeting.date_until:
-                messages.error(self.request,
-                               'Error: you cannot Post to a Meeting which is finished.')
-                raise PermissionDenied
+                raise Http404('You cannot Post to a Meeting which is finished.')
             elif datetime.date.today () < forum.meeting.date_from:
-                messages.warning(self.request,
-                               'This meeting has not started yet, please come back later!')
-                raise PermissionDenied
+                raise Http404('This meeting has not started yet, please come back later!')
         except Meeting.DoesNotExist:
             pass
-        if self.request.user.has_perm('can_post_to_forum', forum):
-            return True
-        else:
-            raise PermissionDenied
+        return True
+
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
