@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -21,7 +22,7 @@ from guardian.shortcuts import (assign_perm, remove_perm,
 
 from .models import Forum, Post
 from .forms import (ForumForm, ForumGroupPermissionsForm, ForumOrganizationPermissionsForm,
-                    PostForm, PostFormHidden)
+                    PostForm)
 
 from scipost.mixins import PermissionsMixin
 
@@ -132,6 +133,14 @@ class ForumListView(LoginRequiredMixin, ListView):
 
 
 class PostCreateView(UserPassesTestMixin, CreateView):
+    """
+    First step of a two-step Post creation process.
+    This view, upon successful POST, redirects to the
+    PostConfirmCreateView confirmation view.
+
+    To transfer form data from this view to the next (confirmation) one,
+    two session variables are used, ``post_subject`` and ``post_text``.
+    """
     model = Post
     form_class= PostForm
 
@@ -178,36 +187,38 @@ class PostCreateView(UserPassesTestMixin, CreateView):
                                         'parent_id': self.kwargs.get('parent_id')}))
 
 
-class PostConfirmCreateView(UserPassesTestMixin, CreateView):
-    form_class = PostFormHidden
+class PostConfirmCreateView(PostCreateView):
+    """
+    Second (confirmation) step of Post creation process.
+
+    Upon successful POST, the Post object is saved and the
+    two session variables ``post_subject`` and ``post_text`` are deleted.
+    """
+    form_class = PostForm
     template_name = 'forums/post_confirm_create.html'
 
-    def test_func(self):
-        if self.request.user.has_perm('forums.add_forum'):
-            return True
-        forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
-        if self.request.user.has_perm('can_post_to_forum', forum):
-            return True
-        else:
-            raise PermissionDenied
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['subject'].widget = forms.HiddenInput()
+        form.fields['text'].widget = forms.HiddenInput()
+        return form
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
-        parent_model = self.kwargs.get('parent_model')
-        parent_object_id = self.kwargs.get('parent_id')
-        if parent_model == 'forum':
-            parent_content_type = ContentType.objects.get(app_label='forums', model='forum')
-        elif parent_model == 'post':
-            parent_content_type = ContentType.objects.get(app_label='forums', model='post')
-            parent = parent_content_type.get_object_for_this_type(pk=parent_object_id)
-        else:
-            raise Http404
         initial.update({
-            'posted_by': self.request.user,
-            'posted_on': timezone.now(),
-            'parent_content_type': parent_content_type,
-            'parent_object_id': parent_object_id,
-            'subject': self.request.session['post_subject'],
-            'text': self.request.session['post_text'],
+            'subject': self.request.session.get('post_subject'),
+            'text': self.request.session.get('post_text'),
         })
         return initial
+
+    def form_valid(self, form):
+        """
+        After deleting the session variables used for the confirmation step,
+        simply perform the form_valid calls of form_valid from ancestor classes
+        ModelFormMixin and FormMixin, due to the fact that the form_valid
+        method in the PostCreateView superclass was overriden to a redirect.
+        """
+        del self.request.session['post_subject']
+        del self.request.session['post_text']
+        self.object = form.save()
+        return redirect(self.get_success_url())
