@@ -63,7 +63,7 @@ class Forum(models.Model):
         ]
 
     def __str__(self):
-        return self.slug
+        return self.name
 
     def get_absolute_url(self):
         return reverse('forums:forum_detail', kwargs={'slug': self.slug})
@@ -129,17 +129,17 @@ class Meeting(Forum):
                                    self.date_until.strftime('%Y-%m-%d'))
 
     @property
-    def context_color(self):
-        """If meeting is future: primary; ongoing: green; voting: orange; finished: info."""
+    def context_colors(self):
+        """If meeting is future: primary; ongoing: success; voting: warning; finished: info."""
         today = datetime.date.today()
         if today < self.date_from:
-            return 'primary'
+            return {'bg': 'primary', 'text': 'white', 'message': 'Meeting is coming up'}
         elif today <= self.date_until:
-            return 'success'
+            return {'bg': 'success', 'text': 'light', 'message': 'Meeting is ongoing'}
         elif today < self.date_until + datetime.timedelta(days=8):
-            return 'warning'
+            return {'bg': 'warning', 'text': 'dark', 'message': 'Meeting is finished, voting open'}
         else:
-            return 'info'
+            return {'bg': 'info', 'text': 'dark', 'message': 'Meeting is finished'}
 
 
 class Post(models.Model):

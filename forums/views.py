@@ -56,10 +56,20 @@ class MeetingCreateView(ForumCreateView):
 
 class ForumUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'forums.update_forum'
-    model = Forum
-    form_class = ForumForm
     template_name = 'forums/forum_form.html'
 
+    def get_object(self, queryset=None):
+        try:
+            return Meeting.objects.get(slug=self.kwargs['slug'])
+        except Meeting.DoesNotExist:
+            return Forum.objects.get(slug=self.kwargs['slug'])
+
+    def get_form(self, form_class=None):
+        try:
+            self.object.meeting
+            return MeetingForm(**self.get_form_kwargs())
+        except Meeting.DoesNotExist:
+            return ForumForm(**self.get_form_kwargs())
 
 class ForumDeleteView(PermissionRequiredMixin, DeleteView):
     permission_required = 'forums.delete_forum'

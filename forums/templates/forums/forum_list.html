@@ -28,11 +28,15 @@
     <div class="card-columns">
       {% for forum in object_list %}
       <div class="card">
-	<div class="card-header d-flex justify-content-between">
+	<div class="card-header">
 	  {% if forum.meeting %}
-	  <span class="badge badge-{{ forum.meeting.context_color }}">Meeting:</span>
+	  {% with context_colors=forum.meeting.context_colors %}
+	  <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
+	  {% endwith %}
+	  <br/>
 	  {% endif %}
-	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
+	  <span class="d-flex justify-content-between">
+	    <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
 	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} post{{ forum.nr_posts|pluralize }}</span>
 	</div>
 	<div class="card-body">
