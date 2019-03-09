@@ -78,7 +78,7 @@
 	  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
 	  <td>{{ forum.latest_post }}</td>
 	  <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
-	  <td>{{ forum.nr_posts }}</td>
+	  <td><span class="badge badge-primary badge-pill">{{ forum.nr_posts }}</span></td>
 	</tr>
 	{% empty %}
 	<tr>
