@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
@@ -90,6 +92,54 @@ class Forum(models.Model):
             return Post.objects.filter(id__in=id_list).order_by('-posted_on').first()
         except:
             return None
+
+
+class Meeting(Forum):
+    """
+    A Meeting is a Forum but with fixed start and end dates,
+    and with additional descriptor fields (preamble, minutes).
+
+    By definition, adding new Posts is allowed up to and including
+    the date specified in ``date_until``. The Meeting can however
+    be viewed in perpetuity by users who have viewing rights.
+    """
+    forum = models.OneToOneField('forums.Forum', on_delete=models.CASCADE,
+                                 parent_link=True)
+    date_from = models.DateField()
+    date_until = models.DateField()
+    preamble = models.TextField(
+        help_text=(
+            'Explanatory notes for the meeting.\n'
+            'You can use ReStructuredText, see a '
+            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
+            'target="_blank">primer on python.org</a>')
+        )
+    minutes = models.TextField(
+        blank=True, null=True,
+        help_text=(
+            'To be filled in after completion of the meeting.\n'
+            'You can use ReStructuredText, see a '
+            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
+            'target="_blank">primer on python.org</a>')
+        )
+
+    def __str__(self):
+        return '%s, [%s to %s]' % (self.forum,
+                                   self.date_from.strftime('%Y-%m-%d'),
+                                   self.date_until.strftime('%Y-%m-%d'))
+
+    @property
+    def context_color(self):
+        """If meeting is future: primary; ongoing: green; voting: orange; finished: info."""
+        today = datetime.date.today()
+        if today < self.date_from:
+            return 'primary'
+        elif today <= self.date_until:
+            return 'success'
+        elif today < self.date_until + datetime.timedelta(days=8):
+            return 'warning'
+        else:
+            return 'info'
 
 
 class Post(models.Model):

@@ -18,6 +18,11 @@ urlpatterns = [
         name='forum_create'
     ),
     url(
+        r'^meeting/add/$',
+        views.MeetingCreateView.as_view(),
+        name='meeting_create'
+    ),
+    url(
         r'^(?P<slug>[\w-]+)/$',
         views.ForumDetailView.as_view(),
         name='forum_detail'

@@ -20,9 +20,9 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (assign_perm, remove_perm,
     get_objects_for_user, get_perms, get_users_with_perms, get_groups_with_perms)
 
-from .models import Forum, Post
+from .models import Forum, Meeting, Post
 from .forms import (ForumForm, ForumGroupPermissionsForm, ForumOrganizationPermissionsForm,
-                    PostForm)
+                    MeetingForm, PostForm)
 
 from scipost.mixins import PermissionsMixin
 
@@ -47,6 +47,11 @@ class ForumCreateView(PermissionsMixin, CreateView):
             'parent_object_id': parent_object_id,
         })
         return initial
+
+
+class MeetingCreateView(ForumCreateView):
+    model = Meeting
+    form_class = MeetingForm
 
 
 class ForumUpdateView(PermissionRequiredMixin, UpdateView):

@@ -21,6 +21,7 @@
     {% if perms.forums.can_add_forum %}
     <ul>
       <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
+      <li><a href="{% url 'forums:meeting_create' %}">Create a new Meeting</a></li>
     </ul>
     {% endif %}
 
@@ -28,6 +29,9 @@
       {% for forum in object_list %}
       <div class="card">
 	<div class="card-header d-flex justify-content-between">
+	  {% if forum.meeting %}
+	  <span class="badge badge-{{ forum.meeting.context_color }}">Meeting:</span>
+	  {% endif %}
 	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
 	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} post{{ forum.nr_posts|pluralize }}</span>
 	</div>

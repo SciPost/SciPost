@@ -6,7 +6,7 @@ from django import forms
 
 from ajax_select.fields import AutoCompleteSelectField
 
-from .models import Forum, Post
+from .models import Forum, Meeting, Post
 
 
 class ForumForm(forms.ModelForm):
@@ -20,6 +20,15 @@ class ForumForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['parent_content_type'].widget = forms.HiddenInput()
         self.fields['parent_object_id'].widget = forms.HiddenInput()
+
+
+class MeetingForm(ForumForm):
+    class Meta:
+        model = Meeting
+        fields = ['name', 'slug', 'description',
+                  'publicly_visible', 'moderators',
+                  'parent_content_type', 'parent_object_id',
+                  'date_from', 'date_until', 'preamble']
 
 
 class ForumGroupPermissionsForm(forms.ModelForm):
