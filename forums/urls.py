@@ -23,6 +23,11 @@ urlpatterns = [
         name='forum_detail'
     ),
     url(
+        r'^(?P<slug>[\w-]+)/update/$',
+        views.ForumUpdateView.as_view(),
+        name='forum_update'
+    ),
+    url(
         r'^(?P<slug>[\w-]+)/delete/$',
         views.ForumDeleteView.as_view(),
         name='forum_delete'

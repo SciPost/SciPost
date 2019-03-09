@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load guardian_tags %}
+{% load restructuredtext %}
 
 {% block breadcrumb_items %}
     {{ block.super }}
@@ -32,14 +33,15 @@
     {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
     <h4>Admin actions:</h4>
     <ul>
-      <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
+      <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this Forum</a></li>
       <li>
-	{% if not forum.child_forums %}
+	{% if not forum.child_forums.all|length > 0 %}
 	<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this Forum (and all Posts it contains)</a>
 	{% else %}
 	<span class="text-danger" style="text-decoration: line-through;">Delete this Forum</span> Please delete descendant Forums first.
 	{% endif %}
       </li>
+      <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
     </ul>
 
     <div class="card">
@@ -71,6 +73,11 @@
     </div>
 
     {% endif %}
+
+    <h3 class="highlight">Description</h3>
+    {{ forum.description|restructuredtext }}
+
+    <h3 class="highlight">Posts</h3>
 
     {% for post in forum.posts.all %}
     {% include 'forums/post_card.html' with forum=forum post=post %}

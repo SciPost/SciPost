@@ -12,7 +12,8 @@ from .models import Forum, Post
 class ForumForm(forms.ModelForm):
     class Meta:
         model = Forum
-        fields = ['name', 'slug', 'publicly_visible', 'moderators',
+        fields = ['name', 'slug', 'description',
+                  'publicly_visible', 'moderators',
                   'parent_content_type', 'parent_object_id']
 
     def __init__(self, *args, **kwargs):

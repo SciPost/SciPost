@@ -12,6 +12,8 @@ register = template.Library()
 
 @register.filter(name='restructuredtext')
 def restructuredtext(text):
+    if not text:
+        return ''
     from docutils.core import publish_parts
     parts = publish_parts(source=text,
                           writer_name='html5_polyglot')

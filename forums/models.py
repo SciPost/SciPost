@@ -27,6 +27,13 @@ class Forum(models.Model):
     """
     name = models.CharField(max_length=256)
     slug = models.SlugField(allow_unicode=True)
+    description = models.TextField(
+        blank=True, null=True,
+        help_text=(
+            'You can use ReStructuredText, see a '
+            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
+            'target="_blank">primer on python.org</a>')
+        )
     publicly_visible = models.BooleanField(default=False)
     moderators = models.ManyToManyField('auth.User', related_name='moderated_forums')
 
@@ -117,7 +124,12 @@ class Post(models.Model):
                                      object_id_field='parent_object_id',
                                      related_query_name='parent_posts')
     subject = models.CharField(max_length=256)
-    text = models.TextField(help_text='You can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>')
+    text = models.TextField(
+        help_text=(
+            'You can use ReStructuredText, see a '
+            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
+            'target="_blank">primer on python.org</a>')
+        )
 
     class Meta:
         ordering = ['posted_on',]

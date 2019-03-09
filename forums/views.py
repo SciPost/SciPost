@@ -49,6 +49,13 @@ class ForumCreateView(PermissionsMixin, CreateView):
         return initial
 
 
+class ForumUpdateView(PermissionRequiredMixin, UpdateView):
+    permission_required = 'forums.update_forum'
+    model = Forum
+    form_class = ForumForm
+    template_name = 'forums/forum_form.html'
+
+
 class ForumDeleteView(PermissionRequiredMixin, DeleteView):
     permission_required = 'forums.delete_forum'
     model = Forum

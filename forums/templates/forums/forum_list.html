@@ -1,6 +1,7 @@
 {% extends 'forums/base.html' %}
 
 {% load bootstrap %}
+{% load restructuredtext %}
 
 
 {% block breadcrumb_items %}
@@ -31,7 +32,7 @@
 	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} post{{ forum.nr_posts|pluralize }}</span>
 	</div>
 	<div class="card-body">
-	  Forum description
+	  {{ forum.description|restructuredtext }}
 	  {% if forum.child_forums.all|length > 0 %}
 	  <hr/>
 	  <p>Descendants:</p>
