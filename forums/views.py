@@ -6,10 +6,11 @@ import datetime
 
 from django import forms
 from django.contrib import messages
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
+from django.core import serializers
 from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
@@ -22,9 +23,9 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (assign_perm, remove_perm,
     get_objects_for_user, get_perms, get_users_with_perms, get_groups_with_perms)
 
-from .models import Forum, Meeting, Post
+from .models import Forum, Meeting, Post, Motion
 from .forms import (ForumForm, ForumGroupPermissionsForm, ForumOrganizationPermissionsForm,
-                    MeetingForm, PostForm)
+                    MeetingForm, PostForm, MotionForm)
 
 from scipost.mixins import PermissionsMixin
 
@@ -72,6 +73,7 @@ class ForumUpdateView(PermissionRequiredMixin, UpdateView):
             return MeetingForm(**self.get_form_kwargs())
         except Meeting.DoesNotExist:
             return ForumForm(**self.get_form_kwargs())
+
 
 class ForumDeleteView(PermissionRequiredMixin, DeleteView):
     permission_required = 'forums.delete_forum'
@@ -224,6 +226,47 @@ class PostCreateView(UserPassesTestMixin, CreateView):
                                         'parent_id': self.kwargs.get('parent_id')}))
 
 
+class MotionCreateView(PostCreateView):
+    """
+    Specialization of PostCreateView to Motion-class objects.
+
+    By default, all users who can create a Post on the associated
+    Forum are given voting rights.
+    """
+    model = Motion
+    form_class = MotionForm
+    template_name = 'forums/post_form.html'
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        forum = get_object_or_404(Forum, slug=self.kwargs.get('slug'))
+        voters = get_users_with_perms(forum)
+        ineligible_ids = []
+        for voter in voters.all():
+            if not voter.has_perm('can_post_to_forum', forum):
+                ineligible_ids.append(voter.id)
+        initial.update({
+            'eligible_for_voting': voters.exclude(id__in=ineligible_ids),
+            })
+        return initial
+
+    def form_valid(self, form):
+        """
+        Save the form data to session variables only, redirect to confirmation view.
+        """
+        self.request.session['post_subject'] = form.cleaned_data['subject']
+        self.request.session['post_text'] = form.cleaned_data['text']
+        self.request.session['eligible_for_voting_ids'] = list(
+            form.cleaned_data['eligible_for_voting'].values_list('pk', flat=True))
+        self.request.session['voting_deadline_year'] = form.cleaned_data['voting_deadline'].year
+        self.request.session['voting_deadline_month'] = form.cleaned_data['voting_deadline'].month
+        self.request.session['voting_deadline_day'] = form.cleaned_data['voting_deadline'].day
+        return redirect(reverse('forums:motion_confirm_create',
+                                kwargs={'slug': self.kwargs.get('slug'),
+                                        'parent_model': self.kwargs.get('parent_model'),
+                                        'parent_id': self.kwargs.get('parent_id')}))
+
+
 class PostConfirmCreateView(PostCreateView):
     """
     Second (confirmation) step of Post creation process.
@@ -259,3 +302,31 @@ class PostConfirmCreateView(PostCreateView):
         del self.request.session['post_text']
         self.object = form.save()
         return redirect(self.get_success_url())
+
+
+class MotionConfirmCreateView(PostConfirmCreateView):
+    """
+    Specialization of PostConfirmCreateView to Motion-class objects.
+    """
+    form_class = MotionForm
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        voting_deadline = datetime.date(self.request.session.get('voting_deadline_year'),
+                                        self.request.session.get('voting_deadline_month'),
+                                        self.request.session.get('voting_deadline_day'))
+        eligible_for_voting_ids = self.request.session.get('eligible_for_voting_ids')
+        eligible_for_voting = User.objects.filter(id__in=eligible_for_voting_ids)
+        initial.update({
+            'eligible_for_voting': eligible_for_voting,
+            'voting_deadline': voting_deadline,
+        })
+        return initial
+
+    def form_valid(self, form):
+        del self.request.session['eligible_for_voting_ids']
+        del self.request.session['voting_deadline_year']
+        del self.request.session['voting_deadline_month']
+        del self.request.session['voting_deadline_day']
+        self.object = form.save()
+        return super().form_valid(form)

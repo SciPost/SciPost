@@ -58,8 +58,18 @@ urlpatterns = [
         name='post_create'
     ),
     url(
+        r'(?P<slug>[\w-]+)/motion/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+        views.MotionCreateView.as_view(),
+        name='motion_create'
+    ),
+    url(
         r'(?P<slug>[\w-]+)/post/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/confirm/$',
         views.PostConfirmCreateView.as_view(),
         name='post_confirm_create'
+    ),
+    url(
+        r'(?P<slug>[\w-]+)/motion/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/confirm/$',
+        views.MotionConfirmCreateView.as_view(),
+        name='motion_confirm_create'
     ),
 ]

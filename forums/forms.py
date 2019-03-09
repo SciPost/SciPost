@@ -6,7 +6,7 @@ from django import forms
 
 from ajax_select.fields import AutoCompleteSelectField
 
-from .models import Forum, Meeting, Post
+from .models import Forum, Meeting, Post, Motion
 
 
 class ForumForm(forms.ModelForm):
@@ -68,3 +68,20 @@ class PostForm(forms.ModelForm):
         self.fields['needs_vetting'].widget = forms.HiddenInput()
         self.fields['parent_content_type'].widget = forms.HiddenInput()
         self.fields['parent_object_id'].widget = forms.HiddenInput()
+
+
+class MotionForm(PostForm):
+    """
+    Form for creating a Motion to be voted on in a Forum or during a Meeting.
+    """
+    class Meta:
+        model = Motion
+        fields = ['posted_by', 'posted_on', 'needs_vetting',
+                  'parent_content_type', 'parent_object_id',
+                  'subject', 'text',
+                  'eligible_for_voting', 'voting_deadline']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['eligible_for_voting'].widget = forms.HiddenInput()
+        self.fields['eligible_for_voting'].disabled = True

@@ -52,6 +52,10 @@ class Forum(models.Model):
                             content_type_field='parent_content_type',
                             object_id_field='parent_object_id',
                             related_query_name='parent_forums')
+    motions = GenericRelation('forums.Motion',
+                            content_type_field='parent_content_type',
+                            object_id_field='parent_object_id',
+                            related_query_name='parent_forums')
 
     objects = ForumQuerySet.as_manager()
 
@@ -217,3 +221,22 @@ class Post(models.Model):
             return self.parent
         else:
             return self.parent.get_forum()
+
+
+class Motion(Post):
+    """
+    A Motion is a posting to a Forum or Meeting, on which Forum participants
+    can vote.
+    """
+    eligible_for_voting = models.ManyToManyField('auth.User', blank=True,
+                                                 related_name='eligible_to_vote_on_motion')
+    in_agreement = models.ManyToManyField('auth.User', blank=True,
+                                          related_name='agree_on_motion')
+    in_doubt = models.ManyToManyField('auth.User', blank=True,
+                                      related_name='doubt_on_motion')
+    in_disagreement = models.ManyToManyField('auth.User', blank=True,
+                                             related_name='disagree_with_motion')
+    in_abstain = models.ManyToManyField('auth.User', blank=True,
+                                        related_name='abstain_with_motion')
+    voting_deadline = models.DateField()
+    accepted = models.NullBooleanField()

@@ -94,9 +94,10 @@
     {% include 'forums/post_card.html' with forum=forum post=post %}
     {% endfor %}
 
-    <p>
-      <a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a Post</a>
-    </p>
+    <ul>
+      <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a Post</a></li>
+      <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a Motion</a></li>
+    </ul>
 
   </div>
 </div>
