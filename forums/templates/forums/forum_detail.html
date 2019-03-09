@@ -6,21 +6,30 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
-<span class="breadcrumb-item">Details</span>
+<span class="breadcrumb-item">{% if forum.meeting %}Meeting{% else %}Forum{% endif %} Details</span>
 {% endblock %}
 
 {% load scipost_extras %}
 
-{% block pagetitle %}: Forum details{% endblock pagetitle %}
+{% block pagetitle %}: {% if forum.meeting %}Meeting{% else %}Forum{% endif %} details{% endblock pagetitle %}
 
 {% get_obj_perms request.user for forum as "user_perms" %}
 
 {% block content %}
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight d-flex justify-content-between">
-      {{ forum.name }}
-      <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+    <h3 class="highlight">
+      {% if forum.meeting %}
+      {% with context_colors=forum.meeting.context_colors %}
+      <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
+      {% endwith %}
+      <br/>
+      {% endif %}
+
+      <span class="d-flex justify-content-between">
+	<a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
+	<span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+      </span>
     </h3>
 
     {% if forum.parent %}
@@ -33,20 +42,22 @@
     {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
     <h4>Admin actions:</h4>
     <ul>
-      <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this Forum</a></li>
+      <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>
       <li>
 	{% if not forum.child_forums.all|length > 0 %}
-	<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this Forum (and all Posts it contains)</a>
+	<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} (and all Posts {% if forum.meeting %}and Motions {% endif %}it contains)</a>
 	{% else %}
 	<span class="text-danger" style="text-decoration: line-through;">Delete this Forum</span> Please delete descendant Forums first.
 	{% endif %}
       </li>
+      {% if not forum.meeting %}
       <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
+      {% endif %}
     </ul>
 
     <div class="card">
       <div class="card-header">
-	Permissions on this Forum instance
+	Permissions on this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} instance
 	<button class="btn btn-link small" data-toggle="collapse" data-target="#permissionsCard">
 	View/manage</button>
       </div>

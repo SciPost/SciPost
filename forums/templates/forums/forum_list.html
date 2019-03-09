@@ -37,7 +37,8 @@
 	  {% endif %}
 	  <span class="d-flex justify-content-between">
 	    <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
-	  <span class="badge badge-primary badge-pill">{{ forum.nr_posts }} post{{ forum.nr_posts|pluralize }}</span>
+	    <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+	  </span>
 	</div>
 	<div class="card-body">
 	  {{ forum.description|restructuredtext }}

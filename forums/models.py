@@ -185,7 +185,8 @@ class Post(models.Model):
         ordering = ['posted_on',]
 
     def __str__(self):
-        return '%s: %s' % (self.posted_by, self.subject[:32])
+        return '%s %s: %s' % (self.posted_by.first_name,
+                              self.posted_by.last_name, self.subject[:32])
 
     def get_absolute_url(self):
         return '%s#post%s' % (self.get_forum().get_absolute_url(), self.id)
