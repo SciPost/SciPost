@@ -71,7 +71,7 @@
     </div>
   </div>
   {% if post.followup_posts.all|length > 0 %}
-  <div class="followupPosts">
+  <div class="followupPosts{% if post.motion %}AfterMotion{% endif %}">
     {% for followup in post.followup_posts.all %}
     {% include 'forums/post_card.html' with post=followup %}
     {% endfor %}

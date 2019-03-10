@@ -95,18 +95,32 @@
     <ul>
       <li><a href="#Description">Description</a></li>
       {% if forum.meeting %}
+      <li><a href="#Preamble">Preamble</a></li>
       <li><a href="#Motions">Motions</a></li>
       {% endif %}
       <li><a href="#Posts">Posts</a></li>
+      {% if forum.meeting %}
+      <li><a href="#Minutes">Minutes</a></li>
+      {% endif %}
     </ul>
+  </div>
+</div>
 
+<div class="row">
+  <div class="col-12">
     <h3 class="highlight" id="Description">Description</h3>
     {{ forum.description|restructuredtext }}
-
   </div>
 </div>
 
 {% if forum.meeting %}
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight" id="Preamble">Preamble</h3>
+    {{ forum.preamble|restructuredtext }}
+  </div>
+</div>
+
 <div class="row">
   <div class="col-12">
     <h3 class="highlight" id="Motions">Motions</h3>
@@ -139,5 +153,14 @@
 
   </div>
 </div>
+
+{% if forum.meeting %}
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight" id="Minutes">Minutes</h3>
+    {{ forum.minutes|restructuredtext }}
+  </div>
+</div>
+{% endif %}
 
 {% endblock content %}
