@@ -30,7 +30,7 @@
       <br/>
       {% endif %}
 
-      <span class="d-flex justify-content-between">
+      <span class="d-flex flex-wrap justify-content-between">
 	<a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
 	<span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
       </span>
@@ -57,6 +57,7 @@
       </li>
       {% if not forum.meeting %}
       <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
+      <li><a href="{% url 'forums:meeting_create' parent_model='forum' parent_id=forum.id %}">Create a Meeting within this Forum</a></li>
       {% endif %}
     </ul>
 

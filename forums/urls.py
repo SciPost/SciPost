@@ -18,6 +18,11 @@ urlpatterns = [
         name='forum_create'
     ),
     url(
+        r'^meeting/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+        views.MeetingCreateView.as_view(),
+        name='meeting_create'
+    ),
+    url(
         r'^meeting/add/$',
         views.MeetingCreateView.as_view(),
         name='meeting_create'
