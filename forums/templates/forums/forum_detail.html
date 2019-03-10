@@ -16,12 +16,16 @@
 {% get_obj_perms request.user for forum as "user_perms" %}
 
 {% block content %}
+
 <div class="row">
   <div class="col-12">
     <h3 class="highlight">
       {% if forum.meeting %}
       {% with context_colors=forum.meeting.context_colors %}
-      <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
+      <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
+	{{ context_colors.message }}
+	<span class="small text-muted"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
+      </span>
       {% endwith %}
       <br/>
       {% endif %}
@@ -40,6 +44,7 @@
     {% endif %}
 
     {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
+    <div class="container border border-danger">
     <h4>Admin actions:</h4>
     <ul>
       <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>
@@ -82,29 +87,51 @@
 	</ul>
       </div>
     </div>
-
+    </div>
     {% endif %}
 
-    <h3 class="highlight">Description</h3>
+
+    <h3>Table of Contents</h3>
+    <ul>
+      <li><a href="#Description">Description</a></li>
+      {% if forum.meeting %}
+      <li><a href="#Motions">Motions</a></li>
+      {% endif %}
+      <li><a href="#Posts">Posts</a></li>
+    </ul>
+
+    <h3 class="highlight" id="Description">Description</h3>
     {{ forum.description|restructuredtext }}
 
+  </div>
+</div>
 
-    {% if forum.meeting %}
-    <h3 class="highlight">Motions</h3>
+{% if forum.meeting %}
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight" id="Motions">Motions</h3>
     <ul>
+      {% if forum.meeting.future %}
+      <li>Adding Motions will be activated once the meeting starts</li>
+      {% elif forum.meeting.past %}
+      <li><span class="text-danger">Adding Motions is deactivated</span> (Meeting is over)</li>
+      {% else %}
       <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Motion</a></li>
+      {% endif %}
     </ul>
     {% for motion in forum.motions.all %}
     {% include 'forums/post_card.html' with forum=forum post=motion %}
     {% endfor %}
-    {% endif %}
+  </div>
+</div>
+{% endif %}
 
-    <h3 class="highlight">Posts</h3>
-
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight" id="Posts">Posts</h3>
     <ul>
       <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
     </ul>
-
 
     {% for post in forum.posts.all %}
     {% include 'forums/post_card.html' with forum=forum post=post %}

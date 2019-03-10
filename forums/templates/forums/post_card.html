@@ -1,6 +1,6 @@
 {% load restructuredtext %}
 
-<div class="card" id="post{{ post.id }}">
+<div class="card{% if post.motion %} text-white bg-dark{% endif %}" id="post{{ post.id }}">
   <div class="card-header">
     {{ post.subject }}
     <div class="postInfo">
@@ -26,7 +26,7 @@
       {% if post.motion %}
       <div class="align-self-center px-2">
 	Voting results
-	<span class="text-muted">
+	<span class="text-white-50">
 	{% if request.user in post.motion.in_agreement.all %}
 	<br/>You have voted <span class="text-success">Agree</span>
 	{% elif request.user in post.motion.in_doubt.all %}
@@ -34,7 +34,7 @@
 	{% elif request.user in post.motion.in_disagreement.all %}
 	<br/>You have voted <span class="text-danger">Disagree</span>
 	{% elif request.user in post.motion.in_abstain.all %}
-	<br/>You have <span class="text-dark">Abstained</span>
+	<br/>You have <span class="text-white-50">Abstained</span>
 	{% elif request.user in post.motion.eligible_for_voting.all %}
 	<br/>[click to vote]
 	{% endif %}

@@ -133,6 +133,19 @@ class Meeting(Forum):
                                    self.date_until.strftime('%Y-%m-%d'))
 
     @property
+    def future(self):
+        return datetime.date.today() < self.date_from
+
+    @property
+    def ongoing(self):
+        today = datetime.date.today()
+        return today >= self.date_from and today <= self.date_until
+
+    @property
+    def past(self):
+        return datetime.date.today() > self.date_until
+
+    @property
     def context_colors(self):
         """If meeting is future: primary; ongoing: success; voting: warning; finished: info."""
         today = datetime.date.today()
