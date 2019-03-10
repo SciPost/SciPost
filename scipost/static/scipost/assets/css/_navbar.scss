@@ -42,9 +42,9 @@
         }
     }
 
-    .nav-item:hover .dropdown-toggle::after {
-        transition-duration: 0.3s;
-        transform: rotate(-180deg);
+    .nav-item .dropdown-toggle::after {
+        margin-left: 0.5em;
+        vertical-align: 0.1255em;
     }
 
     .dropdown-menu {
