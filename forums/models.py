@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import timezone
 
-from .managers import ForumQuerySet
+from .managers import ForumQuerySet, PostQuerySet
 
 
 class Forum(models.Model):
@@ -197,6 +197,8 @@ class Post(models.Model):
             '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
             'target="_blank">primer on python.org</a>')
         )
+
+    objects = PostQuerySet.as_manager()
 
     class Meta:
         ordering = ['posted_on',]

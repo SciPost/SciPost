@@ -120,7 +120,7 @@
       {% endif %}
     </ul>
     {% for motion in forum.motions.all %}
-    {% include 'forums/post_card.html' with forum=forum post=motion %}
+    {% include 'forums/post_card.html' with forum=forum post=motion.post_ptr %}
     {% endfor %}
   </div>
 </div>
@@ -133,7 +133,7 @@
       <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
     </ul>
 
-    {% for post in forum.posts.all %}
+    {% for post in forum.posts.motions_excluded %}
     {% include 'forums/post_card.html' with forum=forum post=post %}
     {% endfor %}
 
