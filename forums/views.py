@@ -19,6 +19,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from guardian.decorators import permission_required_or_403
 from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import (assign_perm, remove_perm,
     get_objects_for_user, get_perms, get_users_with_perms, get_groups_with_perms)
@@ -330,3 +331,28 @@ class MotionConfirmCreateView(PostConfirmCreateView):
         del self.request.session['voting_deadline_day']
         self.object = form.save()
         return super().form_valid(form)
+
+
+@permission_required_or_403('forums.can_post_to_forum',
+                            (Forum, 'slug', 'slug'))
+def motion_vote(request, slug, motion_id, vote):
+    motion = get_object_or_404(Motion, pk=motion_id)
+    if datetime.date.today() > motion.voting_deadline:
+        messages.warning(request, 'The voting deadline on this Motion has passed.')
+    elif motion.eligible_for_voting.filter(pk=request.user.id).exists():
+        motion.in_agreement.remove(request.user)
+        motion.in_doubt.remove(request.user)
+        motion.in_disagreement.remove(request.user)
+        motion.in_abstain.remove(request.user)
+        if vote == 'Y':
+            motion.in_agreement.add(request.user)
+        elif vote == 'M':
+            motion.in_doubt.add(request.user)
+        elif vote == 'N':
+            motion.in_disagreement.add(request.user)
+        elif vote == 'A':
+            motion.in_abstain.add(request.user)
+        motion.save()
+    else:
+        messages.warning(request, 'You do not have voting rights on this Motion.')
+    return redirect(motion.get_absolute_url())

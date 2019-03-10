@@ -88,16 +88,27 @@
     <h3 class="highlight">Description</h3>
     {{ forum.description|restructuredtext }}
 
+
+    {% if forum.meeting %}
+    <h3 class="highlight">Motions</h3>
+    <ul>
+      <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Motion</a></li>
+    </ul>
+    {% for motion in forum.motions.all %}
+    {% include 'forums/post_card.html' with forum=forum post=motion %}
+    {% endfor %}
+    {% endif %}
+
     <h3 class="highlight">Posts</h3>
+
+    <ul>
+      <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
+    </ul>
+
 
     {% for post in forum.posts.all %}
     {% include 'forums/post_card.html' with forum=forum post=post %}
     {% endfor %}
-
-    <ul>
-      <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a Post</a></li>
-      <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a Motion</a></li>
-    </ul>
 
   </div>
 </div>

@@ -6,7 +6,7 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import Forum, Post
+from .models import Forum, Post, Motion
 
 
 class ForumAdmin(GuardedModelAdmin):
@@ -20,3 +20,9 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ['posted_by', 'subject', 'text']
 
 admin.site.register(Post, PostAdmin)
+
+
+class MotionAdmin(admin.ModelAdmin):
+    search_fields = ['posted_by', 'subject', 'text']
+
+admin.site.register(Motion, MotionAdmin)
