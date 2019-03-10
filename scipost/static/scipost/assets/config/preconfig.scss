@@ -22,6 +22,8 @@ $badge-border-radius: $border-radius;
 // Grid
 //
 $grid-gutter-width: 20px;
+$container-large-desktop: 1500px;
+$container-lg: 1500px;
 
 // Colors
 //
@@ -146,6 +148,7 @@ $navbar-padding-x: 0.3rem;
 $navbar-padding-y: 0.2rem;
 $nav-tabs-border-color: $scipost-darkblue;
 $nav-tabs-link-active-border-color: $scipost-darkblue $scipost-darkblue $nav-tabs-link-active-bg;
+$nav-link-padding: 0 0.75rem;
 
 $input-border-radius:            $border-radius-base;
 $input-border-radius-large:      $border-radius-large;

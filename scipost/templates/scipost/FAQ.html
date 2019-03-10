@@ -1,20 +1,14 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/base_about.html' %}
 
 {% load staticfiles %}
 
 {% block pagetitle %}: Frequently asked questions{% endblock pagetitle %}
 
-
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
-                <span class="breadcrumb-item">Frequently asked questions</span>
-            </nav>
-        </div>
-    </div>
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Frequently asked questions</span>
 {% endblock %}
+
 
 {% block content %}
 
