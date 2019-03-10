@@ -79,22 +79,13 @@
                 }
             }
         }
-
-        .dropdown-divider {
-            // margin: 0;
-        }
-
-
     }
 
     @media (min-width: 992px) {
         .dropdown-menu {
             &.mega-menu {
                 &.mega-menu-2 {
-                    width: 600px;
-                }
-                &.mega-menu-4 {
-                    width: 1200px;
+                    width: 700px;
                 }
 
                 .row {
@@ -155,6 +146,7 @@
 
             .dropdown-item {
                 padding-top: 0.75rem 0.625rem;
+                white-space: normal;
             }
 
             .dropdown-item a,
