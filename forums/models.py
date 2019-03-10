@@ -243,6 +243,8 @@ class Motion(Post):
     A Motion is a posting to a Forum or Meeting, on which Forum participants
     can vote.
     """
+    post = models.OneToOneField('forums.Post', on_delete=models.CASCADE,
+                                parent_link=True)
     eligible_for_voting = models.ManyToManyField('auth.User', blank=True,
                                                  related_name='eligible_to_vote_on_motion')
     in_agreement = models.ManyToManyField('auth.User', blank=True,
