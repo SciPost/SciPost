@@ -1,7 +1,4 @@
 {% load staticfiles %}
-{% load user_groups %}
-
-{% is_editorial_college request.user as is_editorial_college %}
 
 <header>
     <div class="container">
@@ -31,36 +28,6 @@
                     </form>
                   </div>
                 </li>
-                {% if user.is_authenticated %}
-                    {% if user.contributor %}
-                        <li class="nav-item">
-                            <span class="separator">&middot;</span>
-                            <a class="nav-link"href="{% url 'scipost:personal_page' %}">Personal Page</a>
-                        </li>
-                        {% if is_editorial_college %}
-                            <li class="nav-item">
-                                <span class="separator">&middot;</span>
-                                <a class="nav-link" href="{% url 'submissions:pool' %}">Submissions Pool</a>
-                            </li>
-                        {% endif %}
-                    {% endif %}
-                    {% if perms.scipost.can_view_production %}
-                        <li class="nav-item">
-                            <span class="separator">&middot;</span>
-                            <a class="nav-link" href="{% url 'production:production' %}">Production</a>
-                        </li>
-                    {% endif %}
-                    {% if perms.scipost.can_manage_organizations or user.org_contact %}
-                        <li class="nav-item">
-                            <span class="separator">&middot;</span>
-                            <a class="nav-link" href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
-                        </li>
-                    {% endif %}
-                        <li class="nav-item">
-                            <span class="separator">&middot;</span>
-                            <a class="nav-link" href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
-                        </li>
-                {% endif %}
             </ul>
         </div>
 

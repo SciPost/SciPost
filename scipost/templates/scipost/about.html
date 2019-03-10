@@ -1,9 +1,15 @@
-{% extends 'scipost/base.html' %}
+{% extends 'scipost/base_about.html' %}
 
 {% block pagetitle %}: About{% endblock pagetitle %}
 
 {% load staticfiles %}
 {% load scipost_extras %}
+
+
+{% block breadcrumb_items %}
+    <span class="breadcrumb-item">About SciPost</span>
+{% endblock %}
+
 
 {% block content %}
 

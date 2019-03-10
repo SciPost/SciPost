@@ -1,18 +1,12 @@
-{% extends 'scipost/base.html' %}
-
-{% block pagetitle %}: Foundation {% endblock pagetitle %}
+{% extends 'scipost/base_about.html' %}
 
 {% load staticfiles %}
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
-                <span class="breadcrumb-item">Foundation</span>
-            </nav>
-        </div>
-    </div>
+{% block pagetitle %}: Foundation {% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+    <span class="breadcrumb-item">Foundation</span>
 {% endblock %}
 
 {% block content %}
