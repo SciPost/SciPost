@@ -86,7 +86,7 @@ function update_list_callback(data, args) {
 
 $(function(){
     update_count();
-    setInterval(update_count, 10000);
+    setInterval(update_count, 600000);
 
     $('#notification_center').on('show.bs.modal', function(e) {
         if( typeof $('#notification_center').data('reload') == 'undefined' ) {

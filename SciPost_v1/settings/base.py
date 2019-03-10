@@ -92,6 +92,7 @@ INSTALLED_APPS = (
     'django_celery_results',
     'django_celery_beat',
     'finances',
+    'forums',
     'guides',
     'guardian',
     'invitations',
