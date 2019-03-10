@@ -2,18 +2,11 @@
 
 {% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
-{% block breadcrumb %}
-    <div class="container-outside header">
-        <div class="container">
-            <h1>SciPost Commentaries how-to</h1>
-        </div>
-    </div>
-{% endblock %}
-
 {% block content %}
 
 <div class="row">
     <div class="col-12">
+        <h1 class="highlight">SciPost Commentaries how-to</h1>
         <h2>Activation procedure</h2>
           <p>A Commentary Page can be requested by any registered SciPost Contributor for any published scientific paper or arXiv preprint by filling the <a href="{% url 'commentaries:request_commentary' %}">Commentary request form</a>. After vetting by an Editor, the Commentary Page is activated and made open for Comments from registered SciPost Contributors. Authors can reply to Comments, and Contributors can add Comments to the chain.</p>
           <ul>
