@@ -4,15 +4,15 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django.shortcuts import render
-
-
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse_lazy
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from guardian.mixins import PermissionRequiredMixin
-
+from guardian.shortcuts import get_groups_with_perms, remove_perm
 from scipost.mixins import PermissionsMixin
 
 from .models import Queue
@@ -39,6 +39,28 @@ class QueueUpdateView(PermissionRequiredMixin, UpdateView):
     model = Queue
     form_class= QueueForm
     template_name = 'helpdesk/queue_form.html'
+
+
+class QueueDeleteView(PermissionRequiredMixin, DeleteView):
+    permission_required = 'helpdesk.delete_queue'
+    model = Queue
+    success_url = reverse_lazy('helpdesk:helpdesk')
+
+    def delete(self, request, *args, **kwargs):
+        """
+        A Queue can only be deleted if it has no descendant Queues.
+        Upon deletion, all object-level permissions associated to the
+        Queue are explicitly removed, to avoid orphaned permissions.
+        """
+        queue = get_object_or_404(Queue, slug=self.kwargs.get('slug'))
+        groups_perms_dict = get_groups_with_perms(queue, attach_perms=True)
+        if queue.sub_queues.all().count() > 0:
+            messages.warning(request, 'A Queue with sub-queues cannot be deleted.')
+            return redirect(queue.get_absolute_url())
+        for group, perms_list in groups_perms_dict.items():
+            for perm in perms_list:
+                remove_perm(perm, group, queue)
+        return super().delete(request, *args, **kwargs)
 
 
 class QueueDetailView(PermissionRequiredMixin, DetailView):

@@ -17,32 +17,20 @@
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight">Queue details: {{ queue.name }}</h3>
+    {% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
+    <div class="container border border-danger">
+      <h4>Admin actions:</h4>
+      <ul>
+	<li><a href="{% url 'helpdesk:queue_delete' slug=queue.slug %}" class="text-danger">Delete this Queue</a></li>
+      </ul>
+    </div>
+    {% endif %}
 
-    <table class="table">
-      <thead class="thead-default">
-	<tr>
-	  <td>Ticket</td>
-	  <td>Defined on</td>
-	  <td>Status</td>
-	  <td>Assigned to</td>
-	</tr>
-      </thead>
-      <tbody>
-	{% for ticket in queue.tickets.all %}
-	<tr>
-	  <td>{{ ticket }}</td>
-	  <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
-	  <td>{{ ticket.get_status_display }}</td>
-	  <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}Nobody{% endif %}</td>
-	</tr>
-	{% empty %}
-	<tr>
-	  <td colspan="4">No ticket visible in this queue</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
+    <h3 class="highlight">Queue details: {{ queue.name }}</h3>
+    {{ queue.description|restructuredtext }}
+
+    <h3 class="highlight">Tickets in this Queue</h3>
+    {% include 'helpdesk/tickets_table.html' with queue=queue %}
 
   </div>
 </div>

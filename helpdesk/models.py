@@ -26,7 +26,7 @@ class Queue(models.Model):
                                        related_name='managed_queues')
     response_groups = models.ManyToManyField('auth.Group')
     parent_queue = models.ForeignKey('helpdesk.Queue', on_delete=models.CASCADE,
-                                     blank=True, null=True)
+                                     blank=True, null=True, related_name='sub_queues')
 
     class Meta:
         ordering = ['name',]

@@ -18,6 +18,11 @@ urlpatterns = [
         name='queue_create'
     ),
     url(
+        r'^queue/(?P<slug>[\w-]+)/delete/$',
+        views.QueueDeleteView.as_view(),
+        name='queue_delete'
+    ),
+    url(
         r'^queue/(?P<slug>[\w-]+)/$',
         views.QueueDetailView.as_view(),
         name='queue_detail'
