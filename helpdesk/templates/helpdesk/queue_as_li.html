@@ -1,6 +1,6 @@
 <li class="d-flex flex-wrap justify-content-between">
-  <a href="{{ queue.get_absolute_url }}">{{ queue }}</a>
-  <div>{% include 'helpdesk/queue_badges.html' with queue=queue %}</div>
+  <a href="{{ queue.get_absolute_url }}" class="flex-grow-1">{{ queue }}</a>
+  <span>{% include 'helpdesk/queue_badges.html' with queue=queue %}</span>
   {% if queue.sub_queues.all|length > 0 %}
   <ul class="list-unstyled forumList">
     {% for sub in queue.sub_queues.all %}

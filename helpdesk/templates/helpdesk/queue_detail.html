@@ -31,6 +31,9 @@
     <div class="container border border-danger">
       <h4>Admin actions:</h4>
       <ul>
+	{% if perms.helpdesk.update_queue or "update_queue" in user_perms %}
+	<li><a href="{% url 'helpdesk:queue_update' slug=queue.slug %}" class="text-warning">Update this Queue</a></li>
+	{% endif %}
 	{% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
 	<li><a href="{% url 'helpdesk:queue_delete' slug=queue.slug %}" class="text-danger">Delete this Queue</a></li>
 	{% endif %}

@@ -14,7 +14,7 @@ from .managers import QueueQuerySet, TicketQuerySet
 
 class Queue(models.Model):
     """
-    Ticket category.
+    A Queue is essentially a container for a category of Tickets.
 
     Each Ticket falls under one specific Queue.
     A Queue is managed by a specific Group.

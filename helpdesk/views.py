@@ -12,7 +12,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from guardian.mixins import PermissionRequiredMixin
-from guardian.shortcuts import get_groups_with_perms, remove_perm
+from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, remove_perm
 from scipost.mixins import PermissionsMixin
 
 from .models import Queue
@@ -24,7 +24,7 @@ class HelpdeskView(ListView):
     template_name = 'helpdesk/helpdesk.html'
 
     def get_queryset(self):
-        return Queue.objects.all().anchors()
+        return get_objects_for_user(self.request.user, 'helpdesk.can_view_queue').anchors()
 
 
 class QueueCreateView(PermissionsMixin, CreateView):
