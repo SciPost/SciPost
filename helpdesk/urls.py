@@ -13,6 +13,11 @@ urlpatterns = [
         name='helpdesk'
     ),
     url(
+        r'^queue/(?P<parent_slug>[\w-]+)/add/$',
+        views.QueueCreateView.as_view(),
+        name='queue_create'
+    ),
+    url(
         r'^queue/add/$',
         views.QueueCreateView.as_view(),
         name='queue_create'

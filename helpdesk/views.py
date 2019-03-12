@@ -23,6 +23,9 @@ class HelpdeskView(ListView):
     model = Queue
     template_name = 'helpdesk/helpdesk.html'
 
+    def get_queryset(self):
+        return Queue.objects.all().anchors()
+
 
 class QueueCreateView(PermissionsMixin, CreateView):
     """
@@ -32,6 +35,20 @@ class QueueCreateView(PermissionsMixin, CreateView):
     model = Queue
     form_class= QueueForm
     template_name = 'helpdesk/queue_form.html'
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        try:
+            parent_slug = self.kwargs.get('parent_slug')
+            parent_queue = get_object_or_404(Queue, slug=parent_slug)
+            initial.update({
+                'managing_group': parent_queue.managing_group,
+                'response_groups': parent_queue.response_groups.all(),
+                'parent_queue': parent_queue,
+            })
+        except KeyError:
+            pass
+        return initial
 
 
 class QueueUpdateView(PermissionRequiredMixin, UpdateView):

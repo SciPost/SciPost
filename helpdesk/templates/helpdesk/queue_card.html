@@ -3,15 +3,21 @@
 
 <div class="card">
   <div class="card-header">
-    <a href="{% url 'helpdesk:queue_detail' slug=queue.slug %}">{{ queue.name }}</a>
+    <div class="d-flex flex-wrap justify-content-between">
+      <a href="{% url 'helpdesk:queue_detail' slug=queue.slug %}">{{ queue.name }}</a>
+      <div>{% include 'helpdesk/queue_badges.html' with queue=queue %}</div>
+    </div>
   </div>
   <div class="card-body">
     {{ queue.description|restructuredtext }}
-  </div>
-  <div class="card-footer">
-    <span class="badge badge-danger badge-pill">{{ queue.nr_unassigned }}</span>
-    <span class="badge badge-warning badge-pill">{{ queue.nr_assigned }}</span>
-    <span class="badge badge-success badge-pill">{{ queue.nr_resolved }}</span>
-    <span class="badge badge-info badge-pill">{{ queue.nr_closed }}</span>
+    {% if queue.sub_queues.all|length > 0 %}
+    <hr/>
+    <p>Sub-Queues:</p>
+    <ul class="list-unstyled forumList">
+      {% for sub in queue.sub_queues.all %}
+      {% include 'helpdesk/queue_as_li.html' with queue=sub %}
+      {% endfor %}
+    </ul>
+    {% endif %}
   </div>
 </div>

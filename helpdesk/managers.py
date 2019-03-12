@@ -9,6 +9,13 @@ from .constants import (
     TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED)
 
 
+class QueueQuerySet(models.QuerySet):
+
+    def anchors(self):
+        """Return only Queues which have no parent Queue."""
+        return self.filter(parent_queue__isnull=True)
+
+
 class TicketQuerySet(models.QuerySet):
 
     def unassigned(self):

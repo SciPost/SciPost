@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .constants import TICKET_PRIORITIES, TICKET_STATUSES
-from .managers import TicketQuerySet
+from .managers import QueueQuerySet, TicketQuerySet
 
 
 class Queue(models.Model):
@@ -27,6 +27,8 @@ class Queue(models.Model):
     response_groups = models.ManyToManyField('auth.Group')
     parent_queue = models.ForeignKey('helpdesk.Queue', on_delete=models.CASCADE,
                                      blank=True, null=True, related_name='sub_queues')
+
+    objects = QueueQuerySet.as_manager()
 
     class Meta:
         ordering = ['name',]

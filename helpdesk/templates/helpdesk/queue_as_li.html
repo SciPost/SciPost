@@ -1,0 +1,11 @@
+<li class="d-flex flex-wrap justify-content-between">
+  <a href="{{ queue.get_absolute_url }}">{{ queue }}</a>
+  <div>{% include 'helpdesk/queue_badges.html' with queue=queue %}</div>
+  {% if queue.sub_queues.all|length > 0 %}
+  <ul class="list-unstyled forumList">
+    {% for sub in queue.sub_queues.all %}
+    {% include 'helpdesk/queue_as_li.html' with queue=sub %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+</li>
