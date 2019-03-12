@@ -95,6 +95,7 @@ INSTALLED_APPS = (
     'forums',
     'guides',
     'guardian',
+    'helpdesk',
     'invitations',
     'journals',
     'mailing_lists',
