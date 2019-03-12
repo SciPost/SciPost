@@ -1,0 +1,40 @@
+{% extends 'helpdesk/base.html' %}
+
+{% load bootstrap %}
+{% load restructuredtext %}
+
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">Helpdesk</span>
+{% endblock %}
+
+
+{% block pagetitle %}: Helpdesk{% endblock pagetitle %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+
+    <h2 class="highlight">Helpdesk</h2>
+
+    <h3 class="highlight">Queues</h3>
+    {% if perms.helpdesk.add_queue %}
+    <ul>
+      <li><a href="{% url 'helpdesk:queue_create' %}">Create a new Queue</a></li>
+    </ul>
+    {% endif %}
+
+    <div class="card-columns">
+      {% for queue in object_list %}
+      {% include 'helpdesk/queue_card.html' with queue=queue %}
+      {% empty %}
+      <p>No visible queues defined</p>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+{% endblock content %}

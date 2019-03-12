@@ -1,0 +1,50 @@
+{% extends 'helpdesk/base.html' %}
+
+{% load bootstrap %}
+{% load guardian_tags %}
+{% load restructuredtext %}
+
+{% block breadcrumb_items %}
+    {{ block.super }}
+<span class="breadcrumb-item">Queue details</span>
+{% endblock %}
+
+{% block pagetitle %}: Queue details{% endblock pagetitle %}
+
+{% get_obj_perms request.user for queue as "user_perms" %}
+
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <h3 class="highlight">Queue details: {{ queue.name }}</h3>
+
+    <table class="table">
+      <thead class="thead-default">
+	<tr>
+	  <td>Ticket</td>
+	  <td>Defined on</td>
+	  <td>Status</td>
+	  <td>Assigned to</td>
+	</tr>
+      </thead>
+      <tbody>
+	{% for ticket in queue.tickets.all %}
+	<tr>
+	  <td>{{ ticket }}</td>
+	  <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
+	  <td>{{ ticket.get_status_display }}</td>
+	  <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}Nobody{% endif %}</td>
+	</tr>
+	{% empty %}
+	<tr>
+	  <td colspan="4">No ticket visible in this queue</td>
+	</tr>
+	{% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+</div>
+
+{% endblock content %}

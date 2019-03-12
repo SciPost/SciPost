@@ -5,9 +5,11 @@ __license__ = "AGPL v3"
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
 from .constants import TICKET_PRIORITIES, TICKET_STATUSES
+from .managers import TicketQuerySet
 
 
 class Queue(models.Model):
@@ -28,9 +30,31 @@ class Queue(models.Model):
 
     class Meta:
         ordering = ['name',]
+        permissions = [
+            ('can_view_queue', 'Can view Queue'),
+        ]
 
     def __str__(self):
         return self.name
+
+    def get_absolute_url(self):
+        return reverse('helpdesk:queue_detail', kwargs={'slug': self.slug})
+
+    @property
+    def nr_unassigned(self):
+        return self.tickets.unassigned().count()
+
+    @property
+    def nr_assigned(self):
+        return self.tickets.assigned().count()
+
+    @property
+    def nr_resolved(self):
+        return self.tickets.resolved().count()
+
+    @property
+    def nr_closed(self):
+        return self.tickets.closed().count()
 
 
 class Ticket(models.Model):
@@ -39,7 +63,8 @@ class Ticket(models.Model):
 
     Each ticket lives in a Queue.
     """
-    queue = models.ForeignKey('helpdesk.Queue', on_delete=models.CASCADE)
+    queue = models.ForeignKey('helpdesk.Queue', on_delete=models.CASCADE,
+                              related_name='tickets')
     description = models.TextField(
         help_text=(
             'You can use ReStructuredText, see a '
@@ -61,6 +86,8 @@ class Ticket(models.Model):
                                                blank=True, null=True)
     concerning_object_id = models.PositiveIntegerField(blank=True, null=True)
     concerning_object = GenericForeignKey('concerning_object_type', 'concerning_object_id')
+
+    objects = TicketQuerySet.as_manager()
 
     class Meta:
         ordering = ['queue', 'priority']

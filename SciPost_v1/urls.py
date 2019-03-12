@@ -50,6 +50,7 @@ urlpatterns = [
     url(r'^funders/', include('funders.urls', namespace="funders")),
     url(r'^finances/', include('finances.urls', namespace="finances")),
     url(r'^guides/', include('guides.urls', namespace="guides")),
+    url(r'^helpdesk/', include('helpdesk.urls', namespace="helpdesk")),
     url(r'^invitations/', include('invitations.urls', namespace="invitations")),
     url(r'^journals/', include('journals.urls.general', namespace="journals")),
     url(r'^mailing_list/', include('mailing_lists.urls', namespace="mailing_lists")),

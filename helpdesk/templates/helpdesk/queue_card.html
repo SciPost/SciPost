@@ -1,0 +1,17 @@
+{% load bootstrap %}
+{% load restructuredtext %}
+
+<div class="card">
+  <div class="card-header">
+    <a href="{% url 'helpdesk:queue_detail' slug=queue.slug %}">{{ queue.name }}</a>
+  </div>
+  <div class="card-body">
+    {{ queue.description|restructuredtext }}
+  </div>
+  <div class="card-footer">
+    <span class="badge badge-danger badge-pill">{{ queue.nr_unassigned }}</span>
+    <span class="badge badge-warning badge-pill">{{ queue.nr_assigned }}</span>
+    <span class="badge badge-success badge-pill">{{ queue.nr_resolved }}</span>
+    <span class="badge badge-info badge-pill">{{ queue.nr_closed }}</span>
+  </div>
+</div>
