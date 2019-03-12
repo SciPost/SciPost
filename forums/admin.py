@@ -6,14 +6,21 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import Forum, Post, Motion
+from .models import Forum, Meeting, Post, Motion
 
 
 class ForumAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    search_fields = ['name',]
+    search_fields = ['name', 'description']
 
 admin.site.register(Forum, ForumAdmin)
+
+
+class MeetingAdmin(GuardedModelAdmin):
+    prepopulated_fields = {'slug': ('name',)}
+    search_fields = ['name', 'description', 'preamble']
+
+admin.site.register(Meeting, MeetingAdmin)
 
 
 class PostAdmin(admin.ModelAdmin):
