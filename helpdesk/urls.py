@@ -48,6 +48,11 @@ urlpatterns = [
         name='ticket_create'
     ),
     url(
+        r'^ticket/(?P<pk>[0-9]+)/update/$',
+        views.TicketUpdateView.as_view(),
+        name='ticket_update'
+    ),
+    url(
         r'^ticket/(?P<pk>[0-9]+)/assign/$',
         views.TicketAssignView.as_view(),
         name='ticket_assign'

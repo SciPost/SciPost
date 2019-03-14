@@ -43,10 +43,12 @@
 	  <th>Status</th>
 	  <td>{{ ticket.status }}</td>
 	</tr>
+	{% if ticket.assigned_to %}
 	<tr>
 	  <th>Assigned to</th>
 	  <td>{{ ticket.assigned_to }}</td>
 	</tr>
+	{% endif %}
 	<tr>
 	  <th>Followups</th>
 	  <td>
@@ -62,11 +64,16 @@
 		  </div>
 		</div>
 	      </li>
+	      {% empty %}
+	      <li>No followups have yet occurred</li>
 	      {% endfor %}
 	    </ul>
 	    {% if ticket.open %}
-	    {% if ticket.unassigned and request.user|is_in_group:ticket.queue.managing_group.name %}
-	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">Assign this ticket</a>
+	    {% if request.user|is_in_group:ticket.queue.managing_group.name %}
+	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}">Update this Ticket</a>
+	    {% if ticket.unassigned %}
+	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">Assign this ticket</a>
+	    {% endif %}
 	    {% endif %}
 	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}">Reply/add a Followup</a>
 	    <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}">Mark as resolved</a>

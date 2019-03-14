@@ -18,7 +18,8 @@ from scipost.mixins import PermissionsMixin
 
 from .constants import (
     TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED, TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED,
-    TICKET_FOLLOWUP_ACTION_RESPONDED_TO_USER, TICKET_FOLLOWUP_ACTION_USER_RESPONDED,
+    TICKET_FOLLOWUP_ACTION_UPDATE, TICKET_FOLLOWUP_ACTION_RESPONDED_TO_USER,
+    TICKET_FOLLOWUP_ACTION_USER_RESPONDED,
     TICKET_FOLLOWUP_ACTION_MARK_RESOLVED, TICKET_FOLLOWUP_ACTION_MARK_CLOSED)
 from .models import Queue, Ticket, Followup
 from .forms import QueueForm, TicketForm, TicketAssignForm, FollowupForm
@@ -116,6 +117,24 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
             pass
 
         return initial
+
+
+class TicketUpdateView(UserPassesTestMixin, UpdateView):
+    model = Ticket
+    form_class = TicketForm
+    template_name = 'helpdesk/ticket_form.html'
+
+    def test_func(self):
+        ticket = get_object_or_404(Ticket, pk=self.kwargs.get('pk'))
+        return self.request.user.groups.filter(name=ticket.queue.managing_group.name).exists()
+
+    def form_valid(self, form):
+        ticket = get_object_or_404(Ticket, pk=self.kwargs.get('pk'))
+        text = 'Ticket updated by %s' % (self.request.user.get_full_name())
+        followup = Followup(ticket=ticket, text=text, by=self.request.user,
+                            timestamp=timezone.now(), action=TICKET_FOLLOWUP_ACTION_UPDATE)
+        followup.save()
+        return super().form_valid(form)
 
 
 class TicketAssignView(UserPassesTestMixin, UpdateView):
