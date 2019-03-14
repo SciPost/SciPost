@@ -156,7 +156,7 @@ class Followup(models.Model):
         ordering = ['timestamp']
 
     def __str__(self):
-        return '%s, by %s on %s: %s' % (self.ticket, self.by, self.timestamp.strftime("%Y-%m-%d"),
+        return '%s, by %s on %s: %s' % (self.ticket, self.by, self.timestamp,
                                         self.get_action_display())
 
     def get_absolute_url(self):

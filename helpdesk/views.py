@@ -137,6 +137,15 @@ class TicketUpdateView(UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
 
+class TicketDeleteView(UserPassesTestMixin, DeleteView):
+    model = Ticket
+    success_url = reverse_lazy('helpdesk:helpdesk')
+
+    def test_func(self):
+        ticket = get_object_or_404(Ticket, pk=self.kwargs.get('pk'))
+        return self.request.user.groups.filter(name=ticket.queue.managing_group.name).exists()
+
+
 class TicketAssignView(UserPassesTestMixin, UpdateView):
     model = Ticket
     form_class = TicketAssignForm

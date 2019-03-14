@@ -6,7 +6,7 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import Queue, Ticket
+from .models import Queue, Ticket, Followup
 
 
 class QueueAdmin(GuardedModelAdmin):
@@ -16,7 +16,12 @@ class QueueAdmin(GuardedModelAdmin):
 admin.site.register(Queue, QueueAdmin)
 
 
+class FollowupInline(admin.TabularInline):
+    model = Followup
+    extra = 0
+
 class TicketAdmin(admin.ModelAdmin):
     search_fields = ['description', 'defined_by']
+    inlines = [FollowupInline]
 
 admin.site.register(Ticket, TicketAdmin)

@@ -53,6 +53,11 @@ urlpatterns = [
         name='ticket_update'
     ),
     url(
+        r'^ticket/(?P<pk>[0-9]+)/delete/$',
+        views.TicketDeleteView.as_view(),
+        name='ticket_delete'
+    ),
+    url(
         r'^ticket/(?P<pk>[0-9]+)/assign/$',
         views.TicketAssignView.as_view(),
         name='ticket_assign'
