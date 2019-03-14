@@ -52,4 +52,24 @@ urlpatterns = [
         views.TicketDetailView.as_view(),
         name='ticket_detail'
     ),
+    url(
+        r'^ticket/(?P<pk>[0-9]+)/$',
+        views.TicketDetailView.as_view(),
+        name='ticket_detail'
+    ),
+    url(
+        r'^ticket/(?P<pk>[0-9]+)/followup/$',
+        views.TicketFollowupView.as_view(),
+        name='ticket_followup'
+    ),
+    url(
+        r'^ticket/(?P<pk>[0-9]+)/resolved/$',
+        views.TicketMarkResolved.as_view(),
+        name='ticket_mark_resolved'
+    ),
+    url(
+        r'^ticket/(?P<pk>[0-9]+)/closed/$',
+        views.TicketMarkClosed.as_view(),
+        name='ticket_mark_closed'
+    ),
 ]

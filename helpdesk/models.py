@@ -8,7 +8,11 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from .constants import TICKET_PRIORITIES, TICKET_STATUSES
+from .constants import (
+    TICKET_PRIORITIES,
+    TICKET_STATUSES, TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED,
+    TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED,
+    TICKET_FOLLOWUP_ACTION_TYPES)
 from .managers import QueueQuerySet, TicketQuerySet
 
 
@@ -103,3 +107,41 @@ class Ticket(models.Model):
 
     def get_absolute_url(self):
         return reverse('helpdesk:ticket_detail', kwargs={'pk': self.id})
+
+    @property
+    def open(self):
+        """Return True if the Ticket hasn't been resolved or closed."""
+        return self.status not in [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED]
+
+    @property
+    def status_classes(self):
+        if self.status == TICKET_STATUS_UNASSIGNED:
+            return {'class': 'danger', 'text': 'white'}
+        if self.status == TICKET_STATUS_ASSIGNED:
+            return {'class': 'warning', 'text': 'dark'}
+        if self.status == TICKET_STATUS_RESOLVED:
+            return {'class': 'success', 'text': 'white'}
+        elif self.status == TICKET_STATUS_CLOSED:
+            return {'class': 'info', 'text': 'white'}
+
+
+class Followup(models.Model):
+    """
+    Response concerning a Ticket, from either the user or handler.
+    """
+    ticket = models.ForeignKey('helpdesk.Ticket', on_delete=models.CASCADE,
+                               related_name='followups')
+    text = models.TextField(blank=True, null=True)
+    by = models.ForeignKey('auth.User', on_delete=models.CASCADE,
+                           related_name='ticket_followups')
+    timestamp = models.DateTimeField()
+    action = models.CharField(max_length=32, choices=TICKET_FOLLOWUP_ACTION_TYPES)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return '%s, followup by %s on %s' % (self.ticket, self.by, self.timestamp.strftime("%Y-%m-%d"))
+
+    def get_absolute_url(self):
+        return '%s#%s' % (reverse('helpdesk:ticket_detail', kwargs={'pk': self.ticket.id}), self.id)

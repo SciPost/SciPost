@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -16,9 +16,12 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, remove_perm
 from scipost.mixins import PermissionsMixin
 
-from .constants import TICKET_STATUS_UNASSIGNED
-from .models import Queue, Ticket
-from .forms import QueueForm, TicketForm
+from .constants import (
+    TICKET_STATUS_UNASSIGNED, TICKET_STATUS_RESOLVED,
+    TICKET_FOLLOWUP_ACTION_RESPONDED_TO_USER, TICKET_FOLLOWUP_ACTION_USER_RESPONDED,
+    TICKET_FOLLOWUP_ACTION_MARK_RESOLVED, TICKET_FOLLOWUP_ACTION_MARK_CLOSED)
+from .models import Queue, Ticket, Followup
+from .forms import QueueForm, TicketForm, FollowupForm
 
 
 class HelpdeskView(ListView):
@@ -115,7 +118,79 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         return initial
 
 
-class TicketDetailView(PermissionRequiredMixin, DetailView):
-    permission_required = 'helpdesk.can_view_ticket'
+def is_ticket_creator_or_handler(request, pk):
+    """Details of a ticket can only be viewed by ticket creator, or handlers."""
+    ticket = get_object_or_404(Ticket, pk=pk)
+    if request.user == ticket.defined_by:
+        return True
+    elif request.user.has_perm('can_view_queue', ticket.queue):
+        return True
+    elif request.user.has_perm('can_view_ticket', ticket):
+        return True
+    return False
+
+
+class TicketDetailView(UserPassesTestMixin, DetailView):
     model = Ticket
     template_name = 'helpdesk/ticket_detail.html'
+
+    def test_func(self):
+        return is_ticket_creator_or_handler(self.request, self.kwargs.get('pk'))
+
+
+class TicketFollowupView(UserPassesTestMixin, CreateView):
+    model = Followup
+    form_class = FollowupForm
+    template_name = 'helpdesk/followup_form.html'
+
+    def test_func(self):
+        return is_ticket_creator_or_handler(self.request, self.kwargs.get('pk'))
+
+    def get_initial(self):
+        initial = super().get_initial()
+        ticket = get_object_or_404(Ticket, pk=self.kwargs.get('pk'))
+        if self.request.user == ticket.defined_by:
+            action = TICKET_FOLLOWUP_ACTION_USER_RESPONDED
+        else:
+            action = TICKET_FOLLOWUP_ACTION_RESPONDED_TO_USER
+        initial.update({
+            'ticket': ticket,
+            'by': self.request.user,
+            'timestamp': timezone.now(),
+            'action': action
+        })
+        return initial
+
+
+class TicketMarkResolved(TicketFollowupView):
+
+    def get_initial(self):
+        initial = super().get_initial()
+        text = '%s marked this ticket as Resolved' % self.request.user
+        initial.update({
+            'text': text,
+            'action': TICKET_FOLLOWUP_ACTION_MARK_RESOLVED})
+        return initial
+
+    def form_valid(self, form):
+        ticket = form.cleaned_data['ticket']
+        ticket.status = TICKET_STATUS_RESOLVED
+        ticket.save()
+        return super().form_valid(form)
+
+
+class TicketMarkClosed(TicketFollowupView):
+
+    def get_initial(self):
+        initial = super().get_initial()
+        text = '%s marked this ticket as Closed' % self.request.user
+        initial.update({
+            'text': text,
+            'action': TICKET_FOLLOWUP_ACTION_MARK_CLOSED})
+        return initial
+
+    def form_valid(self, form):
+        ticket = form.cleaned_data['ticket']
+        ticket.status = TICKET_STATUS_CLOSED
+        ticket.save()
+        return super().form_valid(form)

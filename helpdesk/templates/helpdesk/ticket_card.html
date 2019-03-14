@@ -4,12 +4,17 @@
 <div class="card">
   <div class="card-header">
     <div class="d-flex flex-wrap justify-content-between">
-      <a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a>
-      {% if ticket.concerning_object %}
       <span>
-	Re: <a href="{{ ticket.concerning_object.get_absolute_url }}">{{ concerning_object }}</a>
+	{{ ticket }}
+	{% if ticket.concerning_object %}
+	<span>
+	  , Re: <a href="{{ ticket.concerning_object.get_absolute_url }}">{{ concerning_object }}</a>
+	</span>
+	{% endif %}
       </span>
-      {% endif %}
+      {% with classes=ticket.status_classes %}
+      <button class="btn btn-{{ classes.class }} text-{{ classes.text }}">{{ ticket.get_status_display }}</button>
+      {% endwith %}
     </div>
   </div>
   <div class="card-content">
@@ -27,7 +32,7 @@
 	</tr>
 	<tr>
 	  <th>Defined by</th>
-	  <td>{{ ticket.defined_by }}</td>
+	  <td>{{ ticket.defined_by.first_name }} {{ ticket.defined_by.last_name }} ({{ ticket.defined_by.username }})</td>
 	</tr>
 	<tr>
 	  <th>Priority</th>
@@ -41,7 +46,34 @@
 	  <th>Assigned to</th>
 	  <td>{{ ticket.assigned_to }}</td>
 	</tr>
+	<tr>
+	  <th>Followups</th>
+	  <td>
+	    <ul class="list-unstyled">
+	      {% for followup in ticket.followups.all %}
+	      <li>
+		<div class="card" id="{{ followup.id }}">
+		  <div class="card-header">
+		    {{ followup.by.get_full_name }} on {{ followup.timestamp }}
+		  </div>
+		  <div class="card-body">
+		    {{ followup.text|restructuredtext }}
+		  </div>
+		</div>
+	      </li>
+	      {% endfor %}
+	    </ul>
+	    {% if ticket.open %}
+	    <ul>
+	      <li><a href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}">Reply/add a Followup</a></li>
+	      <li>Happy with the answer? <a href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}" class="text-success">Mark this Ticket as Resolved (leads to confirmation page)</a></li>
+	      <li>Otherwise done? Close this Ticket</li>
+	    </ul>
+	    {% endif %}
+	  </td>
+	</tr>
       </tbody>
     </table>
+
   </div>
 </div>

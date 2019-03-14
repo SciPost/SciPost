@@ -22,9 +22,10 @@
       <li><a href="{% url 'helpdesk:ticket_create' %}">Open a new Ticket</a></li>
     </ul>
 
-    <h3 class="highlight">Your Tickets</h3>
+    <h3 class="highlight">Tickets you opened</h3>
     {% include 'helpdesk/tickets_table.html' with tickets=request.user.ticket_set.all %}
 
+    {% if object_list.all|length > 0 %}
     <h3 class="highlight">Queues</h3>
     {% if perms.helpdesk.add_queue %}
     <ul>
@@ -39,6 +40,7 @@
       <p>No visible queues defined</p>
       {% endfor %}
     </div>
+    {% endif %}
 
   </div>
 </div>
