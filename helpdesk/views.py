@@ -17,11 +17,11 @@ from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, remo
 from scipost.mixins import PermissionsMixin
 
 from .constants import (
-    TICKET_STATUS_UNASSIGNED, TICKET_STATUS_RESOLVED,
+    TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED, TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED,
     TICKET_FOLLOWUP_ACTION_RESPONDED_TO_USER, TICKET_FOLLOWUP_ACTION_USER_RESPONDED,
     TICKET_FOLLOWUP_ACTION_MARK_RESOLVED, TICKET_FOLLOWUP_ACTION_MARK_CLOSED)
 from .models import Queue, Ticket, Followup
-from .forms import QueueForm, TicketForm, FollowupForm
+from .forms import QueueForm, TicketForm, TicketAssignForm, FollowupForm
 
 
 class HelpdeskView(ListView):
@@ -118,6 +118,20 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
         return initial
 
 
+class TicketAssignView(UserPassesTestMixin, UpdateView):
+    model = Ticket
+    form_class = TicketAssignForm
+    template_name = 'helpdesk/ticket_assign.html'
+
+    def test_func(self):
+        ticket = get_object_or_404(Ticket, pk=self.kwargs.get('pk'))
+        return self.request.user.groups.filter(name=ticket.queue.managing_group.name).exists()
+
+    def form_valid(self, form):
+        self.object.status = TICKET_STATUS_ASSIGNED
+        return super().form_valid(form)
+
+
 def is_ticket_creator_or_handler(request, pk):
     """Details of a ticket can only be viewed by ticket creator, or handlers."""
     ticket = get_object_or_404(Ticket, pk=pk)
@@ -166,7 +180,8 @@ class TicketMarkResolved(TicketFollowupView):
 
     def get_initial(self):
         initial = super().get_initial()
-        text = '%s marked this ticket as Resolved' % self.request.user
+        text = '%s %s marked this ticket as Resolved.' % (self.request.user.first_name,
+                                                         self.request.user.last_name)
         initial.update({
             'text': text,
             'action': TICKET_FOLLOWUP_ACTION_MARK_RESOLVED})
@@ -183,7 +198,8 @@ class TicketMarkClosed(TicketFollowupView):
 
     def get_initial(self):
         initial = super().get_initial()
-        text = '%s marked this ticket as Closed' % self.request.user
+        text = '%s %s marked this ticket as Closed.' % (self.request.user.first_name,
+                                                       self.request.user.last_name)
         initial.update({
             'text': text,
             'action': TICKET_FOLLOWUP_ACTION_MARK_CLOSED})

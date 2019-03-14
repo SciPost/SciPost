@@ -48,9 +48,9 @@ urlpatterns = [
         name='ticket_create'
     ),
     url(
-        r'^ticket/(?P<pk>[0-9]+)/$',
-        views.TicketDetailView.as_view(),
-        name='ticket_detail'
+        r'^ticket/(?P<pk>[0-9]+)/assign/$',
+        views.TicketAssignView.as_view(),
+        name='ticket_assign'
     ),
     url(
         r'^ticket/(?P<pk>[0-9]+)/$',

@@ -1,5 +1,6 @@
 {% load bootstrap %}
 {% load restructuredtext %}
+{% load scipost_extras %}
 
 <div class="card">
   <div class="card-header">
@@ -64,11 +65,12 @@
 	      {% endfor %}
 	    </ul>
 	    {% if ticket.open %}
-	    <ul>
-	      <li><a href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}">Reply/add a Followup</a></li>
-	      <li>Happy with the answer? <a href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}" class="text-success">Mark this Ticket as Resolved (leads to confirmation page)</a></li>
-	      <li>Otherwise done? Close this Ticket</li>
-	    </ul>
+	    {% if ticket.unassigned and request.user|is_in_group:ticket.queue.managing_group.name %}
+	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">Assign this ticket</a>
+	    {% endif %}
+	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}">Reply/add a Followup</a>
+	    <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}">Mark as resolved</a>
+	    <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}">Close this Ticket</a>
 	    {% endif %}
 	  </td>
 	</tr>

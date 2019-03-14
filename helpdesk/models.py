@@ -24,7 +24,7 @@ class Queue(models.Model):
     A Queue is managed by a specific Group.
     """
     name = models.CharField(max_length=64)
-    slug = models.SlugField(allow_unicode=True)
+    slug = models.SlugField(allow_unicode=True, unique=True)
     description = models.TextField()
     managing_group = models.ForeignKey('auth.Group', on_delete=models.CASCADE,
                                        related_name='managed_queues')
@@ -103,10 +103,25 @@ class Ticket(models.Model):
         ]
 
     def __str__(self):
-        return '%s-%s %s' % (self.queue, self.pk, self.title)
+        return '%s-%s: %s' % (self.queue.slug, self.pk, self.title)
 
     def get_absolute_url(self):
         return reverse('helpdesk:ticket_detail', kwargs={'pk': self.id})
+
+    @property
+    def latest_followup(self):
+        return self.followups.order_by('timestamp').last()
+
+    @property
+    def latest_activity(self):
+        try:
+            return self.latest_followup().timestamp
+        except TypeError:
+            return self.defined_on
+
+    @property
+    def unassigned(self):
+        return self.status == TICKET_STATUS_UNASSIGNED
 
     @property
     def open(self):
@@ -122,7 +137,7 @@ class Ticket(models.Model):
         if self.status == TICKET_STATUS_RESOLVED:
             return {'class': 'success', 'text': 'white'}
         elif self.status == TICKET_STATUS_CLOSED:
-            return {'class': 'info', 'text': 'white'}
+            return {'class': 'info', 'text': 'dark'}
 
 
 class Followup(models.Model):
@@ -141,7 +156,8 @@ class Followup(models.Model):
         ordering = ['timestamp']
 
     def __str__(self):
-        return '%s, followup by %s on %s' % (self.ticket, self.by, self.timestamp.strftime("%Y-%m-%d"))
+        return '%s, by %s on %s: %s' % (self.ticket, self.by, self.timestamp.strftime("%Y-%m-%d"),
+                                        self.get_action_display())
 
     def get_absolute_url(self):
         return '%s#%s' % (reverse('helpdesk:ticket_detail', kwargs={'pk': self.ticket.id}), self.id)

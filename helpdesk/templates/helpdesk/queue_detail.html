@@ -18,7 +18,7 @@
 <div class="row">
   <div class="col-12">
 
-    <h3 class="highlight">Queue {{ queue.name }}</h3>
+    <h3 class="highlight">Queue: {{ queue.name }}</h3>
 
     {% if queue.parent_queue %}
     <p>Parent: <a href="{% url 'helpdesk:queue_detail' slug=queue.parent_queue.slug %}">{{ queue.parent_queue }}</a></p>
@@ -28,19 +28,18 @@
     {% endif %}
 
     {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
-    <div class="container border border-danger">
+    <div class="container border border-danger p-2">
       <h4>Admin actions:</h4>
-      <ul>
-	{% if perms.helpdesk.update_queue or "update_queue" in user_perms %}
-	<li><a href="{% url 'helpdesk:queue_update' slug=queue.slug %}" class="text-warning">Update this Queue</a></li>
-	{% endif %}
-	{% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
-	<li><a href="{% url 'helpdesk:queue_delete' slug=queue.slug %}" class="text-danger">Delete this Queue</a></li>
-	{% endif %}
-	{% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
-	<li><a href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}">Add a sub-Queue to this Queue</a></li>
-	{% endif %}
-      </ul>
+
+      {% if perms.helpdesk.update_queue or "update_queue" in user_perms %}
+      <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:queue_update' slug=queue.slug %}">Update this Queue</a>
+      {% endif %}
+      {% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
+      <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:queue_delete' slug=queue.slug %}">Delete this Queue</a>
+      {% endif %}
+      {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
+      <a class="btn btn-sm btn-primary" href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}">Add a sub-Queue to this Queue</a>
+      {% endif %}
     </div>
     {% endif %}
 

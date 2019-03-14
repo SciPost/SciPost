@@ -5,6 +5,7 @@
       <td>Defined on</td>
       <td>Status</td>
       <td>Assigned to</td>
+      <td>Latest activity</td>
     </tr>
   </thead>
   <tbody>
@@ -12,8 +13,11 @@
     <tr>
       <td><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
       <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
-      <td>{{ ticket.get_status_display }}</td>
+      {% with classes=ticket.status_classes %}
+      <td class="bg-{{ classes.class }} text-{{ classes.text }}">{{ ticket.get_status_display }}</td>
+      {% endwith %}
       <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}Nobody{% endif %}</td>
+      <td>{{ ticket.latest_activity }}</td>
     </tr>
     {% empty %}
     <tr>
