@@ -2,11 +2,12 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-import datetime
-
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
@@ -15,8 +16,9 @@ from guardian.mixins import PermissionRequiredMixin
 from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, remove_perm
 from scipost.mixins import PermissionsMixin
 
-from .models import Queue
-from .forms import QueueForm
+from .constants import TICKET_STATUS_UNASSIGNED
+from .models import Queue, Ticket
+from .forms import QueueForm, TicketForm
 
 
 class HelpdeskView(ListView):
@@ -84,3 +86,36 @@ class QueueDetailView(PermissionRequiredMixin, DetailView):
     permission_required = 'helpdesk.can_view_queue'
     model = Queue
     template_name = 'helpdesk/queue_detail.html'
+
+
+class TicketCreateView(LoginRequiredMixin, CreateView):
+    model = Ticket
+    form_class = TicketForm
+    template_name = 'helpdesk/ticket_form.html'
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        initial.update({
+            'defined_on': timezone.now(),
+            'defined_by': self.request.user,
+            'status': TICKET_STATUS_UNASSIGNED,
+        })
+        try:
+            concerning_type_id = self.kwargs.get('concerning_type_id')
+            concerning_object_id = self.kwargs.get('concerning_object_id')
+            if concerning_type_id and concerning_object_id:
+                concerning_object_type = ContentType.objects.get_for_id(concerning_type_id)
+                initial.update({
+                    'concerning_object_type': concerning_object_type,
+                    'concerning_object_id': concerning_object_id,
+                })
+        except KeyError:
+            pass
+
+        return initial
+
+
+class TicketDetailView(PermissionRequiredMixin, DetailView):
+    permission_required = 'helpdesk.can_view_ticket'
+    model = Ticket
+    template_name = 'helpdesk/ticket_detail.html'

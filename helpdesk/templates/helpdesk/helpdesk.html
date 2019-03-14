@@ -18,6 +18,12 @@
   <div class="col-12">
 
     <h2 class="highlight">Helpdesk</h2>
+    <ul>
+      <li><a href="{% url 'helpdesk:ticket_create' %}">Open a new Ticket</a></li>
+    </ul>
+
+    <h3 class="highlight">Your Tickets</h3>
+    {% include 'helpdesk/tickets_table.html' with tickets=request.user.ticket_set.all %}
 
     <h3 class="highlight">Queues</h3>
     {% if perms.helpdesk.add_queue %}

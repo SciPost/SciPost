@@ -37,4 +37,19 @@ urlpatterns = [
         views.QueueDetailView.as_view(),
         name='queue_detail'
     ),
+    url(
+        r'^ticket/add/(?P<concerning_type_id>[0-9]+)/(?P<concerning_object_id>[0-9]+)/$',
+        views.TicketCreateView.as_view(),
+        name='ticket_create'
+    ),
+    url(
+        r'^ticket/add/$',
+        views.TicketCreateView.as_view(),
+        name='ticket_create'
+    ),
+    url(
+        r'^ticket/(?P<pk>[0-9]+)/$',
+        views.TicketDetailView.as_view(),
+        name='ticket_detail'
+    ),
 ]

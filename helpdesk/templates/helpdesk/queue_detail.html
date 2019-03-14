@@ -48,7 +48,7 @@
     {{ queue.description|restructuredtext }}
 
     <h3 class="highlight">Tickets in this Queue</h3>
-    {% include 'helpdesk/tickets_table.html' with queue=queue %}
+    {% include 'helpdesk/tickets_table.html' with tickets=queue.tickets.all %}
 
   </div>
 </div>

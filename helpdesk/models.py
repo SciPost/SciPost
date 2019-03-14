@@ -67,6 +67,7 @@ class Ticket(models.Model):
     """
     queue = models.ForeignKey('helpdesk.Queue', on_delete=models.CASCADE,
                               related_name='tickets')
+    title = models.CharField(max_length=64, default='')
     description = models.TextField(
         help_text=(
             'You can use ReStructuredText, see a '
@@ -93,6 +94,12 @@ class Ticket(models.Model):
 
     class Meta:
         ordering = ['queue', 'priority']
+        permissions = [
+            ('can_view_ticket', 'Can view Ticket'),
+        ]
 
     def __str__(self):
-        return '%s - %s' % (self.queue, self.pk)
+        return '%s-%s %s' % (self.queue, self.pk, self.title)
+
+    def get_absolute_url(self):
+        return reverse('helpdesk:ticket_detail', kwargs={'pk': self.id})

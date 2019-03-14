@@ -8,9 +8,9 @@
     </tr>
   </thead>
   <tbody>
-    {% for ticket in queue.tickets.all %}
+    {% for ticket in tickets %}
     <tr>
-      <td>{{ ticket }}</td>
+      <td><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
       <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
       <td>{{ ticket.get_status_display }}</td>
       <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}Nobody{% endif %}</td>

@@ -1,0 +1,47 @@
+{% load bootstrap %}
+{% load restructuredtext %}
+
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex flex-wrap justify-content-between">
+      <a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a>
+      {% if ticket.concerning_object %}
+      <span>
+	Re: <a href="{{ ticket.concerning_object.get_absolute_url }}">{{ concerning_object }}</a>
+      </span>
+      {% endif %}
+    </div>
+  </div>
+  <div class="card-content">
+    <table class="table table-bordered">
+      <tbody>
+	<tr>
+	  <th colspan="2">Description</th>
+	</tr>
+	<tr>
+	  <td colspan="2">{{ ticket.description|restructuredtext }}</td>
+	</tr>
+	<tr>
+	  <th>Defined on</th>
+	  <td>{{ ticket.defined_on }}</td>
+	</tr>
+	<tr>
+	  <th>Defined by</th>
+	  <td>{{ ticket.defined_by }}</td>
+	</tr>
+	<tr>
+	  <th>Priority</th>
+	  <td>{{ ticket.priority }}</td>
+	</tr>
+	<tr>
+	  <th>Status</th>
+	  <td>{{ ticket.status }}</td>
+	</tr>
+	<tr>
+	  <th>Assigned to</th>
+	  <td>{{ ticket.assigned_to }}</td>
+	</tr>
+      </tbody>
+    </table>
+  </div>
+</div>
