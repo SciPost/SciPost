@@ -68,15 +68,15 @@
 	    </ul>
 	    {% if ticket.open %}
 	    {% if request.user|is_in_group:ticket.queue.managing_group.name %}
-	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}">Delete this Ticket</a>
-	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}">Update this Ticket</a>
+	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}"><i class="fa fa-trash"></i> Delete</a>
+	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}"><i class="fa fa-edit"></i> Update</a>
 	    {% if ticket.unassigned %}
 	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">Assign this ticket</a>
 	    {% endif %}
 	    {% endif %}
-	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}">Reply/add a Followup</a>
-	    <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}">Mark as resolved</a>
-	    <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}">Close this Ticket</a>
+	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}"><i class="fa fa-reply"></i> Reply/Followup</a>
+	    <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}"><i class="fa fa-check-square"></i> Mark as resolved</a>
+	    <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}"><i class="fa fa-times"></i> Close this Ticket</a>
 	    {% endif %}
 	  </td>
 	</tr>
