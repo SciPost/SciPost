@@ -1,3 +1,4 @@
+{% load scipost_extras %}
 {% load comment_extras %}
 {% load user_groups %}
 {% load submissions_extras %}
@@ -23,6 +24,12 @@
             on {{comment.date_submitted|date:'Y-m-d'}}
         {% endif %}
     	{% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}
+
+	    {% if user.is_authenticated %}
+	    {% with type_id=comment|content_type_id %}
+	    {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=comment.id model="Comment" %}
+	    {% endwith %}
+	    {% endif %}
     </h3>
 
 

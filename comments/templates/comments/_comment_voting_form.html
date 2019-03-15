@@ -4,15 +4,15 @@
     <div class="voting-group d-inline-block {{class}}">
         <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='A' %}" method="post">
             {% csrf_token %}
-            <input type="submit" class="btn agree" value="Agree {{ comment.nr_A }}"/>
+            <input type="submit" class="btn btn-sm agree" value="Agree {{ comment.nr_A }}"/>
         </form>
         <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='N' %}" method="post">
             {% csrf_token %}
-            <input type="submit" class="btn neutral" value="Not sure {{ comment.nr_N }}"/>
+            <input type="submit" class="btn btn-sm neutral" value="Not sure {{ comment.nr_N }}"/>
         </form>
         <form action="{% url 'comments:express_opinion' comment_id=comment.id opinion='D'%}" method="post">
             {% csrf_token %}
-            <input type="submit" class="btn disagree" value="Disagree {{ comment.nr_D }}"/>
+            <input type="submit" class="btn btn-sm disagree" value="Disagree {{ comment.nr_D }}"/>
         </form>
     </div>
     {% else %}
