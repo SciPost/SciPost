@@ -4,12 +4,12 @@
 
 <div class="card">
   <div class="card-header">
-    <div class="d-flex flex-wrap justify-content-between">
+    <div class="d-flex justify-content-between">
       <span>
 	{{ ticket }}
 	{% if ticket.concerning_object %}
 	<span>
-	  , Re: <a href="{{ ticket.concerning_object.get_absolute_url }}">{{ concerning_object }}</a>
+	  <br/>Re: <a href="{{ ticket.concerning_object.get_absolute_url }}" target="_blank">{{ ticket.concerning_object }}</a>
 	</span>
 	{% endif %}
       </span>

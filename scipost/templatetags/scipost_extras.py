@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django import template
+from django.contrib.contenttypes.models import ContentType
 
 from ..constants import subject_areas_dict
 from ..models import Contributor
@@ -29,6 +30,13 @@ def duration(dur):
         minutes = (total_seconds % 3600) // 60
         return '{}h {}m'.format(hours, minutes)
     return '0h 0m'
+
+
+@register.filter(name='content_type_id')
+def content_type_id(obj):
+    if not obj:
+        return None
+    return ContentType.objects.get_for_model(obj).id
 
 
 #######################

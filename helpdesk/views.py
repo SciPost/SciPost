@@ -100,6 +100,16 @@ class TicketCreateView(LoginRequiredMixin, CreateView):
     form_class = TicketForm
     template_name = 'helpdesk/ticket_form.html'
 
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        concerning_type_id = self.kwargs.get('concerning_type_id')
+        concerning_object_id = self.kwargs.get('concerning_object_id')
+        if concerning_type_id and concerning_object_id:
+            concerning_object_type = ContentType.objects.get_for_id(concerning_type_id)
+            concerning_object = concerning_object_type.get_object_for_this_type(pk=concerning_object_id)
+            context['concerning_object'] = concerning_object
+        return context
+
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
         initial.update({

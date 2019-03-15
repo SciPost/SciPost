@@ -34,7 +34,6 @@ class TicketForm(forms.ModelForm):
         self.fields['status'].widget = forms.HiddenInput()
         self.fields['status'].disabled = True
         self.fields['concerning_object_type'].widget = forms.HiddenInput()
-        self.fields['concerning_object_type'].disabled=True
         self.fields['concerning_object_id'].widget = forms.HiddenInput()
         self.fields['concerning_object_id'].disabled = True
 

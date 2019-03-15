@@ -7,8 +7,8 @@
 {% block pagetitle %} Submission: {{ submission.title|truncatechars:40 }}{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
+{{ block.super }}
+<span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
 {% block content %}
