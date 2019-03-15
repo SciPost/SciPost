@@ -37,11 +37,11 @@
 	</tr>
 	<tr>
 	  <th>Priority</th>
-	  <td>{{ ticket.priority }}</td>
+	  <td>{{ ticket.priority_icons|safe }} - {{ ticket.get_priority_display }}</td>
 	</tr>
 	<tr>
 	  <th>Status</th>
-	  <td>{{ ticket.status }}</td>
+	  <td>{{ ticket.get_status_display }}</td>
 	</tr>
 	{% if ticket.assigned_to %}
 	<tr>

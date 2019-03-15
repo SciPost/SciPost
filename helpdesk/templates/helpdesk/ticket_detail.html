@@ -6,7 +6,6 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
-<span class="breadcrumb-item"><a href="{{ ticket.queue.get_absolute_url }}">{{ ticket.queue.name }}</a></span>
 <span class="breadcrumb-item">Ticket details</span>
 {% endblock %}
 

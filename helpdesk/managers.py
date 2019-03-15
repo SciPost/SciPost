@@ -6,6 +6,8 @@ from django.db import models
 
 from .constants import (
     TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED,
+    TICKET_STATUS_PICKEDUP, TICKET_STATUS_PASSED_ON,
+    TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE, TICKET_STATUS_AWAITING_RESPONSE_USER,
     TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED)
 
 
@@ -29,3 +31,14 @@ class TicketQuerySet(models.QuerySet):
 
     def closed(self):
         return self.filter(status=TICKET_STATUS_CLOSED)
+
+    def awaiting_handling(self):
+        return self.filter(status__in=[TICKET_STATUS_ASSIGNED, TICKET_STATUS_PASSED_ON])
+
+    def in_handling(self):
+        return self.filter(status__in=[TICKET_STATUS_PICKEDUP,
+                                       TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE,
+                                       TICKET_STATUS_AWAITING_RESPONSE_USER])
+
+    def handled(self):
+        return self.filter(status__in=[TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED])

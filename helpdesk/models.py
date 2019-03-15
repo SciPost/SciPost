@@ -9,8 +9,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from .constants import (
-    TICKET_PRIORITIES,
+    TICKET_PRIORITIES, TICKET_PRIORITY_URGENT, TICKET_PRIORITY_HIGH, TICKET_PRIORITY_MEDIUM,
     TICKET_STATUSES, TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED,
+    TICKET_STATUS_PICKEDUP, TICKET_STATUS_PASSED_ON,
+    TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE, TICKET_STATUS_AWAITING_RESPONSE_USER,
     TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED,
     TICKET_FOLLOWUP_ACTION_TYPES)
 from .managers import QueueQuerySet, TicketQuerySet
@@ -61,6 +63,19 @@ class Queue(models.Model):
     @property
     def nr_closed(self):
         return self.tickets.closed().count()
+
+    @property
+    def nr_awaiting_handling(self):
+        return self.tickets.awaiting_handling().count()
+
+    @property
+    def nr_in_handling(self):
+        return self.tickets.in_handling().count()
+
+    @property
+    def nr_handled(self):
+        return self.tickets.handled().count()
+
 
 
 class Ticket(models.Model):
@@ -124,9 +139,38 @@ class Ticket(models.Model):
         return self.status == TICKET_STATUS_UNASSIGNED
 
     @property
+    def awaiting_handling(self):
+        return self.status in [TICKET_STATUS_ASSIGNED, TICKET_STATUS_PASSED_ON]
+
+    @property
+    def in_handling(self):
+        return self.status in [TICKET_STATUS_PICKEDUP,
+                               TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE,
+                               TICKET_STATUS_AWAITING_RESPONSE_USER]
+
+    @property
+    def handled(self):
+        return self.status in [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED]
+
+    @property
     def open(self):
         """Return True if the Ticket hasn't been resolved or closed."""
         return self.status not in [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED]
+
+    @property
+    def priority_icons(self):
+        if self.priority == TICKET_PRIORITY_URGENT:
+            return ('<i class="fa fa-lg fa-thermometer-full"></i> '
+                    '<i class="fa fa-exclamation"></i><i class="fa fa-exclamation"></i>'
+                    '<i class="fa fa-exclamation"></i>')
+        elif self.priority == TICKET_PRIORITY_HIGH:
+            return ('<i class="fa fa-lg fa-thermometer-three-quarters"></i> '
+                    '<i class="fa fa-exclamation"></i><i class="fa fa-exclamation"></i>')
+        elif self.priority == TICKET_PRIORITY_MEDIUM:
+            return ('<i class="fa fa-lg fa-thermometer-half"></i> '
+                    '<i class="fa fa-exclamation"></i>')
+        else:
+            return '<i class="fa fa-lg fa-thermometer-quarter"></i>'
 
     @property
     def status_classes(self):
@@ -134,11 +178,24 @@ class Ticket(models.Model):
             return {'class': 'danger', 'text': 'white'}
         if self.status == TICKET_STATUS_ASSIGNED:
             return {'class': 'warning', 'text': 'dark'}
-        if self.status == TICKET_STATUS_RESOLVED:
+        if self.in_handling:
             return {'class': 'success', 'text': 'white'}
+        if self.status == TICKET_STATUS_RESOLVED:
+            return {'class': 'primary', 'text': 'white'}
         elif self.status == TICKET_STATUS_CLOSED:
-            return {'class': 'info', 'text': 'dark'}
+            return {'class': 'secondary', 'text': 'dark'}
 
+    @property
+    def progress_level(self):
+        """For fa box checking: 0 if unassigned, 1 if assigned, 2 if in handling, 3 if handled."""
+        if self.unassigned:
+            return {'1': '', '2': '', '3': ''}
+        elif self.awaiting_handling:
+            return {'1': '-check', '2': '', '3': ''}
+        elif self.in_handling:
+            return {'1': '-check', '2': '-check', '3': ''}
+        elif self.handled:
+            return {'1': '-check', '2': '-check', '3': '-check'}
 
 class Followup(models.Model):
     """

@@ -1,4 +1,4 @@
 <span class="badge badge-danger" data-toggle="tooltip" title="Unassigned Tickets">{{ queue.nr_unassigned }}</span>
-<span class="badge badge-warning" data-toggle="tooltip" title="Assigned Tickets">{{ queue.nr_assigned }}</span>
-<span class="badge badge-success" data-toggle="tooltip" title="Resolved Tickets">{{ queue.nr_resolved }}</span>
-<span class="badge badge-info" data-toggle="tooltip" title="Closed Tickets">{{ queue.nr_closed }}</span>
+<span class="badge badge-warning" data-toggle="tooltip" data-html="true" title="Assigned,<br/>awaiting handling">{{ queue.nr_awaiting_handling }}</span>
+<span class="badge badge-success" data-toggle="tooltip" title="In handling">{{ queue.nr_in_handling }}</span>
+<span class="badge badge-primary" data-toggle="tooltip" title="Handled Tickets">{{ queue.nr_handled }}</span>

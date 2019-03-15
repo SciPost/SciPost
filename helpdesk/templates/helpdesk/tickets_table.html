@@ -1,11 +1,13 @@
 <table class="table">
   <thead class="thead-default">
     <tr>
-      <td>Ticket</td>
-      <td>Defined on</td>
-      <td>Status</td>
-      <td>Assigned to</td>
-      <td>Latest activity</td>
+      <th>Ticket</th>
+      <th>Defined on</th>
+      <th>Priority</th>
+      <th>Status</th>
+      <th>Progress</th>
+      <th>Assigned to</th>
+      <th>Latest activity</th>
     </tr>
   </thead>
   <tbody>
@@ -13,8 +15,16 @@
     <tr>
       <td><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
       <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
-      {% with classes=ticket.status_classes %}
-      <td class="bg-{{ classes.class }} text-{{ classes.text }}">{{ ticket.get_status_display }}</td>
+      <td data-toggle="tooltip" title="{{ ticket.priority }}">
+	{{ ticket.priority_icons|safe }}
+      </td>
+      <td>{{ ticket.get_status_display }}</td>
+      {% with level=ticket.progress_level %}
+      <td>
+	<i class="fa fa{{ level.1 }}-square" data-toggle="tooltip" title="Assigned?"></i>
+	<i class="fa fa{{ level.2 }}-square" data-toggle="tooltip" title="In handling?"></i>
+	<i class="fa fa{{ level.3 }}-square" data-toggle="tooltip" title="Handled?"></i>
+      </td>
       {% endwith %}
       <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}Nobody{% endif %}</td>
       <td>{{ ticket.latest_activity }}</td>
