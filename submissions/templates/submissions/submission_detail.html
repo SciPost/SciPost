@@ -51,6 +51,12 @@
         <h1 class="text-primary">{{submission.title}}</h1>
         <h3 class="mb-3">by {{submission.author_list}}</h3>
 
+        {% if user.is_authenticated %}
+	{% with type_id=submission|content_type_id %}
+	{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=submission.id model="Submission" %}
+	{% endwith %}
+	{% endif %}
+
         <div class="pl-2 mb-1">
             {% if submission.publication and submission.publication.is_published %}
                 <h4>
@@ -170,7 +176,7 @@
                         <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
                     </li>
                 {% endif %}
-            <ul>
+            </ul>
         </div>
     </div>
     {% endif %}

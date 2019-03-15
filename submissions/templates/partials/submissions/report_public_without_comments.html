@@ -23,6 +23,12 @@
                         {% else %}
                             <span class="report-label">Contributed Report</span>
                         {% endif %}
+
+			{% if user.is_authenticated %}
+			{% with type_id=report|content_type_id %}
+			{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=report.id model="Report" %}
+			{% endwith %}
+			{% endif %}
                     </h3>
                     {% if report.doi_string or report.pdf_report %}
                 	    <ul class="clickables">
