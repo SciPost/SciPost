@@ -18,7 +18,12 @@
       <td data-toggle="tooltip" title="{{ ticket.priority }}">
 	{{ ticket.priority_icons|safe }}
       </td>
-      <td>{{ ticket.get_status_display }}</td>
+      {% with classes=ticket.status_classes %}
+      <td>
+	<span class="bg-{{ classes.class }} text-{{ classes.text }}">&nbsp;&nbsp;</span>
+	{{ ticket.get_status_display }}
+      </td>
+      {% endwith %}
       {% with level=ticket.progress_level %}
       <td>
 	<i class="fa fa{{ level.1 }}-square" data-toggle="tooltip" title="Assigned?"></i>
@@ -26,7 +31,7 @@
 	<i class="fa fa{{ level.3 }}-square" data-toggle="tooltip" title="Handled?"></i>
       </td>
       {% endwith %}
-      <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}Nobody{% endif %}</td>
+      <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>
       <td>{{ ticket.latest_activity }}</td>
     </tr>
     {% empty %}

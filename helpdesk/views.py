@@ -17,7 +17,10 @@ from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, remo
 from scipost.mixins import PermissionsMixin
 
 from .constants import (
-    TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED, TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED,
+    TICKET_STATUS_UNASSIGNED, TICKET_STATUS_ASSIGNED,
+    TICKET_STATUS_PICKEDUP, TICKET_STATUS_PASSED_ON,
+    TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE, TICKET_STATUS_AWAITING_RESPONSE_USER,
+    TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED,
     TICKET_FOLLOWUP_ACTION_UPDATE, TICKET_FOLLOWUP_ACTION_RESPONDED_TO_USER,
     TICKET_FOLLOWUP_ACTION_USER_RESPONDED,
     TICKET_FOLLOWUP_ACTION_MARK_RESOLVED, TICKET_FOLLOWUP_ACTION_MARK_CLOSED)
@@ -203,6 +206,15 @@ class TicketFollowupView(UserPassesTestMixin, CreateView):
         })
         return initial
 
+    def form_valid(self, form):
+        ticket = form.cleaned_data['ticket']
+        if self.request.user == ticket.defined_by:
+            ticket.status = TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE
+        else:
+            ticket.status = TICKET_STATUS_AWAITING_RESPONSE_USER
+        ticket.save()
+        return super().form_valid(form)
+
 
 class TicketMarkResolved(TicketFollowupView):
 
@@ -219,7 +231,8 @@ class TicketMarkResolved(TicketFollowupView):
         ticket = form.cleaned_data['ticket']
         ticket.status = TICKET_STATUS_RESOLVED
         ticket.save()
-        return super().form_valid(form)
+        self.object = form.save()
+        return redirect(self.get_success_url())
 
 
 class TicketMarkClosed(TicketFollowupView):
@@ -237,4 +250,5 @@ class TicketMarkClosed(TicketFollowupView):
         ticket = form.cleaned_data['ticket']
         ticket.status = TICKET_STATUS_CLOSED
         ticket.save()
-        return super().form_valid(form)
+        self.object = form.save()
+        return redirect(self.get_success_url())

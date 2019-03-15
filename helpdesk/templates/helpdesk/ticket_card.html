@@ -22,10 +22,8 @@
     <table class="table table-bordered">
       <tbody>
 	<tr>
-	  <th colspan="2">Description</th>
-	</tr>
-	<tr>
-	  <td colspan="2">{{ ticket.description|restructuredtext }}</td>
+	  <th>Description</th>
+	  <td>{{ ticket.description|restructuredtext }}</td>
 	</tr>
 	<tr>
 	  <th>Defined on</th>
@@ -55,7 +53,7 @@
 	    <ul class="list-unstyled">
 	      {% for followup in ticket.followups.all %}
 	      <li>
-		<div class="card" id="{{ followup.id }}">
+		<div class="card mb-1" id="{{ followup.id }}">
 		  <div class="card-header">
 		    {{ followup.by.get_full_name }} on {{ followup.timestamp }}
 		  </div>
