@@ -39,12 +39,17 @@
 	</tr>
 	<tr>
 	  <th>Status</th>
-	  <td>{{ ticket.get_status_display }}</td>
+	  <td>
+	    {% with classes=ticket.status_classes %}
+	    <span class="bg-{{ classes.class }} text-{{ classes.text }}">&emsp;</span>
+	    {% endwith %}
+	    {{ ticket.get_status_display }}
+	  </td>
 	</tr>
 	{% if ticket.assigned_to %}
 	<tr>
 	  <th>Assigned to</th>
-	  <td>{{ ticket.assigned_to }}</td>
+	  <td>{{ ticket.assigned_to.get_full_name }} ({{ ticket.assigned_to.username }})</td>
 	</tr>
 	{% endif %}
 	<tr>
@@ -71,7 +76,7 @@
 	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}"><i class="fa fa-trash"></i> Delete</a>
 	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}"><i class="fa fa-edit"></i> Update</a>
 	    {% if ticket.unassigned %}
-	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">Assign this ticket</a>
+	    <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Assign this ticket</a>
 	    {% endif %}
 	    {% endif %}
 	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}"><i class="fa fa-reply"></i> Reply/Followup</a>

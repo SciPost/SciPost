@@ -123,7 +123,6 @@ class Ticket(models.Model):
     def get_absolute_url(self):
         return reverse('helpdesk:ticket_detail', kwargs={'pk': self.id})
 
-    @property
     def latest_followup(self):
         return self.followups.order_by('timestamp').last()
 
@@ -131,7 +130,7 @@ class Ticket(models.Model):
     def latest_activity(self):
         try:
             return self.latest_followup().timestamp
-        except TypeError:
+        except AttributeError:
             return self.defined_on
 
     @property

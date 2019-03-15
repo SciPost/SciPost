@@ -15,8 +15,10 @@
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight">Preview of your Followup</h3>
+    <h3 class="highlight">Ticket concerned</h3>
+    {% include 'helpdesk/ticket_card.html' with ticket=form.initial.ticket %}
 
+    <h3 class="highlight">Your Followup:</h3>
     {% if form.errors %}
     {% for field in form %}
     {% for error in field.errors %}
@@ -35,13 +37,8 @@
     <form action="" method="post">
       {% csrf_token %}
       {{ form|bootstrap }}
-      <input type="submit" value="Confirm" class="btn btn-primary">
+      <input type="submit" value="Submit" class="btn btn-primary">
     </form>
-
-    <br/>
-    <h3 class="highlight">Ticket concerned</h3>
-    {% include 'helpdesk/ticket_card.html' with ticket=form.initial.ticket %}
-
 
   </div>
 </div>

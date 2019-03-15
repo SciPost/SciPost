@@ -1,26 +1,27 @@
 <table class="table">
   <thead class="thead-default">
     <tr>
-      <th>Ticket</th>
-      <th>Defined on</th>
+      <th><span class="text-muted">Queue</span><br/>Ticket</th>
+      <th>Defined&nbsp;on</th>
       <th>Priority</th>
       <th>Status</th>
       <th>Progress</th>
-      <th>Assigned to</th>
-      <th>Latest activity</th>
+      <th>Assigned&nbsp;to</th>
+      <th>Latest&nbsp;activity</th>
     </tr>
   </thead>
   <tbody>
     {% for ticket in tickets %}
     <tr>
-      <td><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
+      <td><span class="text-muted">{{ ticket.queue }}</span><br/>
+	<a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a></td>
       <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
       <td data-toggle="tooltip" title="{{ ticket.priority }}">
 	{{ ticket.priority_icons|safe }}
       </td>
       {% with classes=ticket.status_classes %}
       <td>
-	<span class="bg-{{ classes.class }} text-{{ classes.text }}">&nbsp;&nbsp;</span>
+	<span class="bg-{{ classes.class }} text-{{ classes.text }}">&emsp;</span>
 	{{ ticket.get_status_display }}
       </td>
       {% endwith %}
@@ -32,7 +33,12 @@
       </td>
       {% endwith %}
       <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>
-      <td>{{ ticket.latest_activity }}</td>
+      <td>
+	{{ ticket.latest_activity }}
+	{% if ticket.open %}
+	<br/><span class="text-small text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
+	{% endif %}
+      </td>
     </tr>
     {% empty %}
     <tr>

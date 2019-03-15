@@ -5,13 +5,12 @@
 {% load restructuredtext %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
+{{ block.super }}
+
 <span class="breadcrumb-item">Ticket details</span>
 {% endblock %}
 
 {% block pagetitle %}: Ticket details{% endblock pagetitle %}
-
-{% get_obj_perms request.user for queue as "user_perms" %}
 
 {% block content %}
 

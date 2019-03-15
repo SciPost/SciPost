@@ -24,10 +24,10 @@ TICKET_STATUS_RESOLVED = 'resolved'
 TICKET_STATUS_CLOSED = 'closed'
 
 TICKET_STATUSES = [
-    (TICKET_STATUS_UNASSIGNED, 'Unassigned'),
-    (TICKET_STATUS_ASSIGNED, 'Assigned'),
-    (TICKET_STATUS_PASSED_ON, 'Passed on'),
-    (TICKET_STATUS_PICKEDUP, 'Picked up'),
+    (TICKET_STATUS_UNASSIGNED, 'Unassigned, waiting for triage'),
+    (TICKET_STATUS_ASSIGNED, 'Assigned, waiting for handler'),
+    (TICKET_STATUS_PASSED_ON, 'Passed on to other handler'),
+    (TICKET_STATUS_PICKEDUP, 'Picked up by handler'),
     (TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE, 'Awaiting response from SciPost'),
     (TICKET_STATUS_AWAITING_RESPONSE_USER, 'Awaiting response from user'),
     (TICKET_STATUS_RESOLVED, 'Resolved'),
