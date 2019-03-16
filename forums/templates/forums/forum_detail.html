@@ -44,7 +44,7 @@
     {% endif %}
 
     {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
-    <div class="container border border-danger">
+    <div class="container border border-danger m-2 p-2">
     <h4>Admin actions:</h4>
     <ul>
       <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>

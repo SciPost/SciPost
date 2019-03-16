@@ -13,7 +13,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from guardian.mixins import PermissionRequiredMixin
-from guardian.shortcuts import get_groups_with_perms, get_objects_for_user, remove_perm
+from guardian.shortcuts import (assign_perm, remove_perm,
+                                get_users_with_perms, get_groups_with_perms, get_objects_for_user)
 from scipost.mixins import PermissionsMixin
 
 from .constants import (
@@ -47,28 +48,55 @@ class QueueCreateView(PermissionsMixin, CreateView):
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
-        try:
-            parent_slug = self.kwargs.get('parent_slug')
+        parent_slug = self.kwargs.get('parent_slug')
+        if parent_slug:
             parent_queue = get_object_or_404(Queue, slug=parent_slug)
             initial.update({
                 'managing_group': parent_queue.managing_group,
                 'response_groups': parent_queue.response_groups.all(),
                 'parent_queue': parent_queue,
             })
-        except KeyError:
-            pass
         return initial
+
+    def form_valid(self, form):
+        """
+        Assign appropriate object-level permissions to managing and response groups.
+        """
+        self.object = form.save()
+        assign_perm('can_manage_queue', form.cleaned_data['managing_group'], self.object)
+        assign_perm('can_handle_queue', form.cleaned_data['managing_group'], self.object)
+        assign_perm('can_view_queue', form.cleaned_data['managing_group'], self.object)
+        for group in form.cleaned_data['response_groups'].all():
+            assign_perm('can_handle_queue', group, self.object)
+            assign_perm('can_view_queue', group, self.object)
+        return super().form_valid(form)
 
 
 class QueueUpdateView(PermissionRequiredMixin, UpdateView):
-    permission_required = 'helpdesk.update_queue'
+    permission_required = 'helpdesk.can_manage_queue'
     model = Queue
     form_class= QueueForm
     template_name = 'helpdesk/queue_form.html'
 
+    def form_valid(self, form):
+        """
+        Update object-level permissions: remove all existing, then reassign.
+        """
+        groups_perms_dict = get_groups_with_perms(self.object, attach_perms=True)
+        for group, perms_list in groups_perms_dict.items():
+            for perm in perms_list:
+                remove_perm(perm, group, queue)
+        assign_perm('can_manage_queue', form.cleaned_data['managing_group'], self.object)
+        assign_perm('can_handle_queue', form.cleaned_data['managing_group'], self.object)
+        assign_perm('can_view_queue', form.cleaned_data['managing_group'], self.object)
+        for group in form.cleaned_data['response_groups'].all():
+            assign_perm('can_handle_queue', group, self.object)
+            assign_perm('can_view_queue', group, self.object)
+        return super().form_valid(form)
+
 
 class QueueDeleteView(PermissionRequiredMixin, DeleteView):
-    permission_required = 'helpdesk.delete_queue'
+    permission_required = 'helpdesk.can_manage_queue'
     model = Queue
     success_url = reverse_lazy('helpdesk:helpdesk')
 
@@ -93,6 +121,11 @@ class QueueDetailView(PermissionRequiredMixin, DetailView):
     permission_required = 'helpdesk.can_view_queue'
     model = Queue
     template_name = 'helpdesk/queue_detail.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['users_with_perms'] = get_users_with_perms(self.object)
+        return context
 
 
 class TicketCreateView(LoginRequiredMixin, CreateView):

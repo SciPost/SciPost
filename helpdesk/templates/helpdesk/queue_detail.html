@@ -6,7 +6,7 @@
 
 {% block breadcrumb_items %}
     {{ block.super }}
-<span class="breadcrumb-item">Queue details</span>
+<span class="breadcrumb-item">Queue: {{ queue.name }}</span>
 {% endblock %}
 
 {% block pagetitle %}: Queue details{% endblock pagetitle %}
@@ -28,7 +28,7 @@
     {% endif %}
 
     {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
-    <div class="container border border-danger p-2">
+    <div class="container border border-danger m-2 p-2">
       <h4>Admin actions:</h4>
 
       {% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
@@ -40,7 +40,45 @@
       {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
       <a class="btn btn-sm btn-primary" href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}"><i class="fa fa-plus"></i> Add a sub-Queue to this Queue</a>
       {% endif %}
+
+      <div class="card">
+	<div class="card-header">
+	  Permissions on this Queue instance
+	  <button class="btn btn-link small" data-toggle="collapse" data-target="#permissionsCard">
+	    View/manage</button>
+	</div>
+	<div class="card-body collapse" id="permissionsCard">
+	  <h4>Managing group</h4>
+	  {% get_obj_perms queue.managing_group for queue as "group_perms" %}
+	  <ul>
+	    <li>{{ queue.managing_group }}: {{ group_perms }}</li>
+	  </ul>
+
+	  <h4>Response groups</h4>
+	  <ul>
+	    {% for group in queue.response_groups.all %}
+	    {% get_obj_perms group for queue as "group_perms" %}
+	    <li>{{ group.name }}: {{ group_perms }}</li>
+	    {% empty %}
+	    <li>No group has permissions on this Queue</li>
+	    {% endfor %}
+	  </ul>
+
+	  <p>Users with permissions:</p>
+	  <ul>
+	    {% for u in users_with_perms %}
+	    {% get_obj_perms u for queue as "u_perms" %}
+	    <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
+	    {% empty %}
+	    <li>No user has permissions on this Queue</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+
     </div>
+
+
     {% endif %}
 
     <h3 class="highlight">Description</h3>

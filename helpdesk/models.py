@@ -20,10 +20,17 @@ from .managers import QueueQuerySet, TicketQuerySet
 
 class Queue(models.Model):
     """
-    A Queue is essentially a container for a category of Tickets.
+    A Queue is a container for a category of Tickets.
 
-    Each Ticket falls under one specific Queue.
-    A Queue is managed by a specific Group.
+    Each Ticket has a ForeignKey relationship to a specific Queue.
+    A Queue is managed by a specific Group specific by `managing_group`,
+    and can be responsed to by users in a set of groups defined by the
+    `response_groups` field.
+
+    A Queue is visible only to users in managing or response groups,
+    and is thus admin/internal only.
+
+    Permissions are handled at object level using `django_guardian`.
     """
     name = models.CharField(max_length=64)
     slug = models.SlugField(allow_unicode=True, unique=True)
@@ -39,6 +46,8 @@ class Queue(models.Model):
     class Meta:
         ordering = ['name',]
         permissions = [
+            ('can_manage_queue', 'Can manage Queue'),
+            ('can_handle_queue', 'Can handle Queue'),
             ('can_view_queue', 'Can view Queue'),
         ]
 
@@ -173,9 +182,9 @@ class Ticket(models.Model):
 
     @property
     def status_classes(self):
-        if self.status == TICKET_STATUS_UNASSIGNED:
+        if self.unassigned:
             return {'class': 'danger', 'text': 'white'}
-        if self.status == TICKET_STATUS_ASSIGNED:
+        if self.awaiting_handling:
             return {'class': 'warning', 'text': 'dark'}
         if self.in_handling:
             return {'class': 'success', 'text': 'white'}

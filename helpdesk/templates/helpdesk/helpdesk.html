@@ -19,8 +19,24 @@
 
     <h2 class="highlight">Helpdesk</h2>
     <ul>
+      {% if perms.helpdesk.add_queue %}
+      <li><a href="{% url 'helpdesk:queue_create' %}">Create a new Queue</a></li>
+      {% endif %}
       <li><a href="{% url 'helpdesk:ticket_create' %}">Open a new Ticket</a></li>
     </ul>
+
+    {{ request.user.groups.managed_queues }}
+    {% if request.user.groups.all.managed_queues.all|length > 0 %}
+    <h3 class="highlight">Queues for which you are in managing group</h3>
+    <div class="card-columns">
+      {% for queue in object_list %}
+      {% include 'helpdesk/queue_card.html' with queue=queue %}
+      {% empty %}
+      <p>No visible queues defined</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
 
     <h3 class="highlight">Tickets you opened</h3>
     {% include 'helpdesk/tickets_table.html' with tickets=request.user.ticket_set.all %}
