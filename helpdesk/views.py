@@ -85,7 +85,7 @@ class QueueUpdateView(PermissionRequiredMixin, UpdateView):
         groups_perms_dict = get_groups_with_perms(self.object, attach_perms=True)
         for group, perms_list in groups_perms_dict.items():
             for perm in perms_list:
-                remove_perm(perm, group, queue)
+                remove_perm(perm, group, self.object)
         assign_perm('can_manage_queue', form.cleaned_data['managing_group'], self.object)
         assign_perm('can_handle_queue', form.cleaned_data['managing_group'], self.object)
         assign_perm('can_view_queue', form.cleaned_data['managing_group'], self.object)
