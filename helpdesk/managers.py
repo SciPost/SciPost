@@ -40,5 +40,8 @@ class TicketQuerySet(models.QuerySet):
                                        TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE,
                                        TICKET_STATUS_AWAITING_RESPONSE_USER])
 
+    def assigned_to_others(self, user):
+        return self.exclude(assigned_to=user)
+
     def handled(self):
         return self.filter(status__in=[TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED])

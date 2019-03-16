@@ -145,25 +145,25 @@ class Ticket(models.Model):
             return self.defined_on
 
     @property
-    def unassigned(self):
+    def is_unassigned(self):
         return self.status == TICKET_STATUS_UNASSIGNED
 
     @property
-    def awaiting_handling(self):
+    def is_awaiting_handling(self):
         return self.status in [TICKET_STATUS_ASSIGNED, TICKET_STATUS_PASSED_ON]
 
     @property
-    def in_handling(self):
+    def is_in_handling(self):
         return self.status in [TICKET_STATUS_PICKEDUP,
                                TICKET_STATUS_AWAITING_RESPONSE_ASSIGNEE,
                                TICKET_STATUS_AWAITING_RESPONSE_USER]
 
     @property
-    def handled(self):
+    def is_handled(self):
         return self.status in [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED]
 
     @property
-    def open(self):
+    def is_open(self):
         """Return True if the Ticket hasn't been resolved or closed."""
         return self.status not in [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED]
 
@@ -184,11 +184,11 @@ class Ticket(models.Model):
 
     @property
     def status_classes(self):
-        if self.unassigned:
+        if self.is_unassigned:
             return {'class': 'danger', 'text': 'white'}
-        if self.awaiting_handling:
+        if self.is_awaiting_handling:
             return {'class': 'warning', 'text': 'dark'}
-        if self.in_handling:
+        if self.is_in_handling:
             return {'class': 'success', 'text': 'white'}
         if self.status == TICKET_STATUS_RESOLVED:
             return {'class': 'primary', 'text': 'white'}
@@ -198,13 +198,13 @@ class Ticket(models.Model):
     @property
     def progress_level(self):
         """For fa box checking: 0 if unassigned, 1 if assigned, 2 if in handling, 3 if handled."""
-        if self.unassigned:
+        if self.is_unassigned:
             return {'1': '', '2': '', '3': ''}
-        elif self.awaiting_handling:
+        elif self.is_awaiting_handling:
             return {'1': '-check', '2': '', '3': ''}
-        elif self.in_handling:
+        elif self.is_in_handling:
             return {'1': '-check', '2': '-check', '3': ''}
-        elif self.handled:
+        elif self.is_handled:
             return {'1': '-check', '2': '-check', '3': '-check'}
 
 class Followup(models.Model):

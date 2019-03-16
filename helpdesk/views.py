@@ -30,11 +30,20 @@ from .forms import QueueForm, TicketForm, TicketAssignForm, FollowupForm
 
 
 class HelpdeskView(ListView):
-    model = Queue
+    model = Ticket
     template_name = 'helpdesk/helpdesk.html'
 
     def get_queryset(self):
-        return get_objects_for_user(self.request.user, 'helpdesk.can_view_queue').anchors()
+        return get_objects_for_user(self.request.user, 'helpdesk.can_view_ticket'
+        ).assigned_to_others(self.request.user)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['managed_queues'] = get_objects_for_user(
+            self.request.user, 'helpdesk.can_manage_queue').anchors()
+        context['visible_queues'] = get_objects_for_user(
+            self.request.user, 'helpdesk.can_view_queue').anchors()
+        return context
 
 
 class QueueCreateView(PermissionsMixin, CreateView):

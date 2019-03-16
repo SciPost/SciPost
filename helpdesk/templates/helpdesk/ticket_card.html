@@ -71,11 +71,11 @@
 	      <li>No followups have yet occurred</li>
 	      {% endfor %}
 	    </ul>
-	    {% if ticket.open %}
+	    {% if ticket.is_open %}
 	    {% if request.user|is_in_group:ticket.queue.managing_group.name %}
 	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}"><i class="fa fa-trash"></i> Delete</a>
 	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}"><i class="fa fa-edit"></i> Update</a>
-	    {% if ticket.unassigned %}
+	    {% if not ticket.assigned_to %}
 	    <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Assign this ticket</a>
 	    {% else %}
 	    <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Reassign this ticket <span class="text-small text-muted">[currently: {{ ticket.assigned_to.username }}]</span></a>

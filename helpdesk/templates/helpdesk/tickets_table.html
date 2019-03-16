@@ -41,7 +41,7 @@
       <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>
       <td>
 	{{ ticket.latest_activity }}
-	{% if ticket.open %}
+	{% if ticket.is_open %}
 	<br/><span class="text-small text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
 	{% endif %}
       </td>
