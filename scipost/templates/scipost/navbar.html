@@ -208,6 +208,10 @@
                                 &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                             </div>
                         {% endif %}
+                            <div class="dropdown-divider"></div>
+			    <div class="dropdown-item">
+			      <a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a>
+			    </div>
                         <div class="dropdown-divider"></div>
                         <div class="dropdown-item">
                             <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
