@@ -28,7 +28,7 @@
     {% if request.user.ticket_set.all|length > 0 %}
     <br class="my-4">
     <h3 class="highlight">Tickets you opened</h3>
-    <div class="m-2">
+    <div class="p-2">
       {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.ticket_set.all %}
     </div>
     {% endif %}
@@ -36,7 +36,7 @@
     {% if request.user.assigned_tickets.all|length > 0 %}
     <br class="my-4">
     <h2 class="highlight">Tickets assigned to you</h2>
-    <div class="m-2">
+    <div class="p-2">
       {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.assigned_tickets %}
     </div>
     {% endif %}
@@ -44,7 +44,7 @@
     {% if object_list.all|length > 0 %}
     <br class="my-4">
     <h3 class="highlight">Other Tickets in your Queues <small class="text-muted"><em>[please feel free to pick up or handle further]</em></small></h3>
-    <div class="m-2">
+    <div class="p-2">
       {% include 'helpdesk/_tickets_tablist.html' with tickets=object_list %}
     </div>
     {% endif %}
@@ -52,7 +52,7 @@
     {% if managed_queues.all|length > 0 %}
     <br class="my-4">
     <h3 class="highlight">Queues for which you are in managing group</h3>
-    <div class="card-columns m-2">
+    <div class="card-columns p-2">
       {% for queue in managed_queues %}
       {% include 'helpdesk/queue_card.html' with queue=queue %}
       {% endfor %}
@@ -62,7 +62,7 @@
     {% if visible_queues.all|length > 0 %}
     <br class="my-4">
     <h3 class="highlight">Queues which you can view</h3>
-    <div class="card-columns m-2">
+    <div class="card-columns p-2">
       {% for queue in visible_queues %}
       {% include 'helpdesk/queue_card.html' with queue=queue %}
       {% endfor %}
