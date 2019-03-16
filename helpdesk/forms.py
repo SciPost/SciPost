@@ -19,13 +19,15 @@ class QueueForm(forms.ModelForm):
 class TicketForm(forms.ModelForm):
     class Meta:
         model = Ticket
-        fields = ['queue', 'title', 'description', 'publicly_visible',
-                  'defined_on', 'defined_by', 'priority',
+        fields = ['queue', 'title', 'description',
+                  'defined_on', 'defined_by', 'priority', 'publicly_visible',
                   'deadline', 'status',
                   'concerning_object_type', 'concerning_object_id']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update(
+            {'placeholder': '[meaningful, short label, e.g. "Broken link on Publication page"]'})
         self.fields['defined_on'].widget = forms.HiddenInput()
         self.fields['defined_on'].disabled = True
         self.fields['defined_by'].widget = forms.HiddenInput()
@@ -49,7 +51,7 @@ class TicketAssignForm(forms.ModelForm):
         group_ids.append(self.instance.queue.managing_group.id)
         print(self.instance.queue.managing_group)
         print(self.instance.queue.response_groups)
-        self.fields['assigned_to'].queryset = User.objects.filter(groups__id__in=group_ids)
+        self.fields['assigned_to'].queryset = User.objects.filter(groups__id__in=group_ids).distinct()
 
 
 class FollowupForm(forms.ModelForm):

@@ -1,0 +1,34 @@
+{% with unassigned=tickets.unassigned %}
+<ul class="nav nav-tabs" id="ticketsTab" role="tablist">
+  {% if unassigned|length > 0 %}
+  <li class="nav-item">
+    <a class="nav-link" id="ticketsUnassigned-tab" data-toggle="tab" href="#ticketsUnassigned" role="tab" aria-controls="ticketsUnassigned" aria-selected="true">Unassigned&emsp;<span class="badge badge-danger">{{ unassigned|length }}</span></a>
+  </li>
+  {% endif %}
+  <li class="nav-item">
+    <a class="nav-link" id="ticketsAwaiting-tab" data-toggle="tab" href="#ticketsAwaiting" role="tab" aria-controls="ticketsAwaiting" aria-selected="true">Awaiting handling&emsp;<span class="badge badge-warning">{{ tickets.awaiting_handling|length }}</span></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" id="ticketsInHandling-tab" data-toggle="tab" href="#ticketsInHandling" role="tab" aria-controls="ticketsInHandling" aria-selected="false">In handling&emsp;<span class="badge badge-success">{{ tickets.in_handling|length }}</span></a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" id="ticketsHandled-tab" data-toggle="tab" href="#ticketsHandled" role="tab" aria-controls="ticketsHandled" aria-selected="false">Handled&emsp;<span class="badge badge-primary">{{ tickets.handled|length }}</span></a>
+  </li>
+</ul>
+<div class="tab-content" id="ticketsTabContent">
+  {% if unassigned|length > 0 %}
+  <div class="tab-pane" id="ticketsUnassigned" role="tabpanel">
+    {% include 'helpdesk/tickets_table.html' with tickets=tickets.unassigned %}
+  </div>
+  {% endif %}
+  <div class="tab-pane" id="ticketsAwaiting" role="tabpanel">
+    {% include 'helpdesk/tickets_table.html' with tickets=tickets.awaiting_handling %}
+  </div>
+  <div class="tab-pane show active" id="ticketsInHandling" role="tabpanel">
+    {% include 'helpdesk/tickets_table.html' with tickets=tickets.in_handling %}
+  </div>
+  <div class="tab-pane" id="ticketsHandled" role="tabpanel">
+    {% include 'helpdesk/tickets_table.html' with tickets=tickets.handled %}
+  </div>
+</div>
+{% endwith %}

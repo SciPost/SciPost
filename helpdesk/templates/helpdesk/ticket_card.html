@@ -77,7 +77,10 @@
 	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}"><i class="fa fa-edit"></i> Update</a>
 	    {% if ticket.unassigned %}
 	    <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Assign this ticket</a>
+	    {% else %}
+	    <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Reassign this ticket <span class="text-small text-muted">[currently: {{ ticket.assigned_to.username }}]</span></a>
 	    {% endif %}
+	    <br/><br/>
 	    {% endif %}
 	    <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}"><i class="fa fa-reply"></i> Reply/Followup</a>
 	    <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}"><i class="fa fa-check-square"></i> Mark as resolved</a>

@@ -94,7 +94,9 @@ class Ticket(models.Model):
     Each ticket lives in a Queue.
     """
     queue = models.ForeignKey('helpdesk.Queue', on_delete=models.CASCADE,
-                              related_name='tickets')
+                              related_name='tickets',
+                              help_text=('Don\'t worry and just choose the one that '
+                                         'seems most appropriate for your issue'))
     title = models.CharField(max_length=64, default='')
     description = models.TextField(
         help_text=(
@@ -105,7 +107,7 @@ class Ticket(models.Model):
     publicly_visible = models.BooleanField(
         default=False,
         help_text=('Do you agree with this Ticket being made publicly visible '
-                   '(and appearing in our public Knowledge Base)?'))
+                   '(and appearing, anonymized, in our public Knowledge Base)?'))
     defined_on = models.DateTimeField(default=timezone.now)
     defined_by = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     priority = models.CharField(max_length=32, choices=TICKET_PRIORITIES)

@@ -5,7 +5,7 @@
 
 {% block breadcrumb_items %}
 {{ block.super }}
-<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Ticket{% endif %}</span>
+<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Create a new Ticket{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: Ticket{% endblock pagetitle %}
@@ -16,7 +16,7 @@
 <div class="row">
   <div class="col-12">
 
-    <h3 class="highlight">{% if form.instance.id %}Update a{% else %}Add a new{% endif %} support Ticket</h3>
+    <h3 class="highlight">{% if form.instance.id %}Update a{% else %}Create a new{% endif %} support Ticket</h3>
 
     {% if concerning_object %}
     <p>Re: <a href="{{ concerning_object.get_absolute_url }}" target="_blank">{{ concerning_object }}</a></p>
