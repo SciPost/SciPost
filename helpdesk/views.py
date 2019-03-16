@@ -28,8 +28,10 @@ from .constants import (
 from .models import Queue, Ticket, Followup
 from .forms import QueueForm, TicketForm, TicketAssignForm, FollowupForm
 
+from mails.utils import DirectMailUtil
 
-class HelpdeskView(ListView):
+
+class HelpdeskView(LoginRequiredMixin, ListView):
     model = Ticket
     template_name = 'helpdesk/helpdesk.html'
 
@@ -265,7 +267,11 @@ class TicketFollowupView(UserPassesTestMixin, CreateView):
         else:
             ticket.status = TICKET_STATUS_AWAITING_RESPONSE_USER
         ticket.save()
-        return super().form_valid(form)
+        self.object = form.save()
+        print(self.object.ticket.assigned_to)
+        mail_sender = DirectMailUtil('helpdesk/followup_on_ticket', followup=self.object)
+        mail_sender.send_mail()
+        return redirect(self.get_success_url())
 
 
 class TicketMarkResolved(TicketFollowupView):

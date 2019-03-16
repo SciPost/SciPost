@@ -29,9 +29,12 @@
 
         <div class="col-md-3 mb-3 mb-md-0">
             <ul class="list-unstyled">
-                <li><a href="mailto:admin@scipost.org">Contact the administrators</a></li>
-                <li><a href="mailto:techsupport@scipost.org">Write to tech support</a></li>
-                <li><a href="https://code.scipost.org" target="_blank">code.scipost.org</a></li>
+              <li><a href="mailto:admin@scipost.org">Contact the administrators</a></li>
+	      {% if request.user.is_authenticated %}
+	      <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
+	      {% endif %}
+              <li><a href="mailto:techsupport@scipost.org">Write to tech support</a></li>
+              <li><a href="https://code.scipost.org" target="_blank">code.scipost.org</a></li>
             <ul>
         </div>
 

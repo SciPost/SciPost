@@ -1,0 +1,15 @@
+{% load restructuredtext %}
+<p>
+  Re: ticket {{ followup.ticket.title }}
+</p>
+<p>A followup has been posted on the ticket above:</p>
+<hr>
+{{ followup.text|restructuredtext }}
+<hr>
+<p>You can view details (and eventually take further steps) by navigating to the <a href="https://scipost.org{{ followup.ticket.get_absolute_url }}">ticket's page</a> (login required). You can also see this ticket on your personal list at our online <a href="https://scipost.org/helpdesk/">helpdesk</a>.</p>
+<p>
+    Many thanks,<br>
+    The SciPost Team.
+</p>
+
+{% include 'email/_footer.html' %}

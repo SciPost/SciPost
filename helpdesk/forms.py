@@ -49,8 +49,6 @@ class TicketAssignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         group_ids = [k['id'] for k in list(self.instance.queue.response_groups.all().values('id'))]
         group_ids.append(self.instance.queue.managing_group.id)
-        print(self.instance.queue.managing_group)
-        print(self.instance.queue.response_groups)
         self.fields['assigned_to'].queryset = User.objects.filter(groups__id__in=group_ids).distinct()
 
 
