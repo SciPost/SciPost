@@ -67,6 +67,7 @@ class MailEngine:
         self._detect_and_save_object()
         self._check_template_exists()
         self._validate_configuration()
+        self._validate_email_fields()
         if render_template:
             self.render_template()
 
