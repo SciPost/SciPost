@@ -1,6 +1,7 @@
 #!/bin/bash
+pkill -f bin/celery
 
-cd /Users/jorrandewit/Documents/Develop/SciPost/scipost_v1 && source venv/bin/activate
+cd /home/scipost/webapps/scipost/scipost_v1 && source venv/bin/activate
 
 mkdir -p ./local_files/logs
 touch ./local_files/logs/celery_worker.log
