@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -268,8 +269,16 @@ class TicketFollowupView(UserPassesTestMixin, CreateView):
             ticket.status = TICKET_STATUS_AWAITING_RESPONSE_USER
         ticket.save()
         self.object = form.save()
-        print(self.object.ticket.assigned_to)
-        mail_sender = DirectMailUtil('helpdesk/followup_on_ticket', followup=self.object)
+        queue_managers = User.objects.filter(groups__name=ticket.queue.managing_group.name)
+        bcc_emails = [k['email'] for k in list(queue_managers.all().values('email'))]
+        if ticket.assigned_to.email not in bcc_emails:
+            bcc_emails.append(ticket.assigned_to.email)
+        print(bcc_emails)
+        mail_sender = DirectMailUtil(
+            'helpdesk/followup_on_ticket',
+            delayed_processing=False,
+            bcc=bcc_emails,
+            followup=self.object)
         mail_sender.send_mail()
         return redirect(self.get_success_url())
 

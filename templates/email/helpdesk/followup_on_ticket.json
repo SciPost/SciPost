@@ -1,7 +1,7 @@
 {
     "subject": "SciPost: ticket followup",
     "recipient_list": [
-	"ticket.assigned_to.email"
+	"ticket.defined_by.email"
     ],
     "from_name": "SciPost Helpdesk",
     "from_email": "helpdesk@scipost.org"

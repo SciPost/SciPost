@@ -2,7 +2,7 @@
 <p>
   Re: ticket {{ followup.ticket.title }}
 </p>
-<p>A followup has been posted on the ticket above:</p>
+<p>A followup has been posted by {{ followup.by.get_full_name }} on the ticket above:</p>
 <hr>
 {{ followup.text|restructuredtext }}
 <hr>
