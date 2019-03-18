@@ -1138,8 +1138,6 @@ class ReportForm(forms.ModelForm):
             if self.submission.referees_flagged:
                 if report.author.user.last_name in self.submission.referees_flagged:
                     report.flagged = True
-        # r = report.recommendation
-        # t = report.qualification
         report.save()
         return report
 
@@ -1171,7 +1169,7 @@ class VetReportForm(forms.Form):
 
     def process_vetting(self, current_contributor):
         """Set the right report status and update submission fields if needed."""
-        report = self.cleaned_data['report']
+        report = self.report
         if self.cleaned_data['action_option'] == REPORT_ACTION_ACCEPT:
             # Accept the report as is
             Report.objects.filter(id=report.id).update(
