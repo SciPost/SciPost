@@ -177,7 +177,7 @@ def register(request):
     form = RegistrationForm(request.POST or None)
     if form.is_valid():
         contributor = form.create_and_save_contributor()
-        mail_util = DirectMailUtil('contributors/registration_confirmation', contributor=contributor)
+        mail_util = DirectMailUtil('contributors/registration_received', contributor=contributor)
         mail_util.send_mail()
 
         # Disable invitations related to the new Contributor
