@@ -783,7 +783,7 @@ class SubmissionPrescreeningForm(forms.ModelForm):
             pass
 
 
-class WithdrawSubmissionForm(forms.ModelForm):
+class WithdrawSubmissionForm(forms.Form):
     """
     A submitting author has the right to withdraw the manuscript.
     """
@@ -802,23 +802,23 @@ class WithdrawSubmissionForm(forms.ModelForm):
     def save(self):
         if self.is_confirmed():
             # Update submission (current + any previous versions)
-            Submission.objects.filter(id=self.instance.id).update(
+            Submission.objects.filter(id=self.submission.id).update(
                 visible_public=False, visible_pool=False,
                 open_for_commenting=False, open_for_reporting=False,
                 status=STATUS_WITHDRAWN, latest_activity=timezone.now())
-            self.instance.get_other_versions().update(visible_public=False)
+            self.submission.get_other_versions().update(visible_public=False)
 
             # Update all assignments
-            EditorialAssignment.objects.filter(submission=self.instance).need_response().update(
+            EditorialAssignment.objects.filter(submission=self.submission).need_response().update(
                 status=STATUS_DEPRECATED)
-            EditorialAssignment.objects.filter(submission=self.instance).accepted().update(
+            EditorialAssignment.objects.filter(submission=self.submission).accepted().update(
                 status=STATUS_COMPLETED)
 
             # Deprecate any outstanding recommendations
-            EICRecommendation.objects.filter(submission=self.instance).active().update(
+            EICRecommendation.objects.filter(submission=self.submission).active().update(
                 status=DEPRECATED)
-            self.instance.refresh_from_db()
-        return self.instance
+            self.submission.refresh_from_db()
+        return self.submission
 
 ######################
 # Editorial workflow #
