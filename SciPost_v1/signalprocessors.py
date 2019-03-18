@@ -12,7 +12,7 @@ from submissions.models import Submission
 class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
 
     @app.task(bind=True, name='signalprocessors.remove_object_indexes',
-              serializer='pickle')
+              serializer='yaml')
     def remove_objects_indexes(self, sender, objects):
         """
         Given a set of `objects` model instances, remove them from the index as preparation
@@ -34,7 +34,7 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
                     pass
 
     @app.task(bind=True, name='signalprocessors.update_instance_indexes',
-              serializer='pickle')
+              serializer='yaml')
     def update_instance_indexes(self, sender, instance):
         """
         Given an individual model instance, update its entire indexes.
