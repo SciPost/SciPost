@@ -20,8 +20,8 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         Given a set of `objects` model instances, remove them from the index as preparation
         for the new index.
         """
-        sender = ContentType.get_for_id(sender_type_id)
-        object_type = ContentType.get_for_id(object_type_id)
+        sender = ContentType.objects.get_for_id(sender_type_id)
+        object_type = ContentType.objects.get_for_id(object_type_id)
         instance = object_type.get_object_for_this_type(pk=object_id)
 
         if isinstance(instance, Submission):
@@ -55,8 +55,8 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         """
         Given an individual model instance, update its entire indexes.
         """
-        sender = ContentType.get_for_id(sender_type_id)
-        object_type = ContentType.get_for_id(object_type_id)
+        sender = ContentType.objects.get_for_id(sender_type_id)
+        object_type = ContentType.objects.get_for_id(object_type_id)
         instance = object_type.get_object_for_this_type(pk=object_id)
 
         try:
