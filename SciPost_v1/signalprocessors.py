@@ -8,6 +8,7 @@ from haystack import signals
 from haystack.exceptions import NotHandled
 
 from SciPost_v1.celery import app
+from notifications.models import Notification
 from submissions.models import Submission
 
 
@@ -73,8 +74,9 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
                 pass
 
     def handle_save(self, sender, instance, **kwargs):
-        sender_type_id = ContentType.objects.get_for_model(sender).id
-        instance_type_id = ContentType.objects.get_for_model(instance).id
-        chain = (self.remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
-                 | self.update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
-        chain()
+        if not isinstance(instance, Notification):
+            sender_type_id = ContentType.objects.get_for_model(sender).id
+            instance_type_id = ContentType.objects.get_for_model(instance).id
+            chain = (self.remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
+                     | self.update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
+            chain()
