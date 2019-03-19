@@ -82,13 +82,14 @@ def update_instance_indexes(processor_type_id, processor_id,
 class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
 
     def handle_save(self, sender, instance, **kwargs):
-        if not isinstance(instance, Notification):
-            processor_type_id = ContentType.objects.get_for_model(self).id
-            sender_type_id = ContentType.objects.get_for_model(sender).id
-            instance_type_id = ContentType.objects.get_for_model(instance).id
-            chain = (
-                remove_objects_indexes.s(processor_type_id, self.id,
-                                         sender_type_id, instance_type_id, instance.id)
-                | update_instance_indexes.s(processor_type_id, self.id,
-                                            sender_type_id, instance_type_id, instance.id))
-            chain()
+        # if not isinstance(instance, Notification):
+        #     processor_type_id = ContentType.objects.get_for_model(self).id
+        #     sender_type_id = ContentType.objects.get_for_model(sender).id
+        #     instance_type_id = ContentType.objects.get_for_model(instance).id
+        #     chain = (
+        #         remove_objects_indexes.s(processor_type_id, self.id,
+        #                                  sender_type_id, instance_type_id, instance.id)
+        #         | update_instance_indexes.s(processor_type_id, self.id,
+        #                                     sender_type_id, instance_type_id, instance.id))
+        #     chain()
+        pass
