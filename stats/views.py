@@ -41,7 +41,7 @@ def statistics(request, journal_doi_label=None, volume_nr=None, issue_nr=None, y
                 nr_pen += submission.referee_invitations.awaiting_response().count()
                 nr_rep_obt += submission.reports.accepted().count()
                 nr_rep_obt_inv += submission.reports.accepted().invited().count()
-                nr_rep_obt_con += submission.reports.acccepted().contributed().count()
+                nr_rep_obt_con += submission.reports.accepted().contributed().count()
             context['nr_ref_inv'] = nr_ref_inv
             context['nr_acc'] = nr_acc
             context['nr_dec'] = nr_dec
