@@ -9,6 +9,11 @@ MEDIA_ROOT = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/media/'
 WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] =\
     '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/static/bundles/'
 
+CROSSREF_LOGIN_ID = get_secret("CROSSREF_LOGIN_ID")
+CROSSREF_LOGIN_PASSWORD = get_secret("CROSSREF_LOGIN_PASSWORD")
+CROSSREF_DEBUG = False
+CROSSREF_DEPOSIT_EMAIL = 'edadmin@scipost.org'
+
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 
