@@ -12,8 +12,8 @@ from notifications.models import Notification
 from submissions.models import Submission
 
 
-@app.task(name='signalprocessors.remove_object_indexes')
-def remove_objects_indexes(sender_type_id, object_type_id, object_id):
+@app.task(bind=True, name='signalprocessors.remove_object_indexes')
+def remove_objects_indexes(self, sender_type_id, object_type_id, object_id):
     """
     Given a set of `objects` model instances, remove them from the index as preparation
     for the new index.
@@ -49,8 +49,8 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
                 pass
 
 
-@app.task(name='signalprocessors.update_instance_indexes')
-def update_instance_indexes(sender_type_id, object_type_id, object_id):
+@app.task(bind=True, name='signalprocessors.update_instance_indexes')
+def update_instance_indexes(self, sender_type_id, object_type_id, object_id):
     """
     Given an individual model instance, update its entire indexes.
     """
@@ -76,11 +76,10 @@ def update_instance_indexes(sender_type_id, object_type_id, object_id):
 class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
 
     def handle_save(self, sender, instance, **kwargs):
-        # if not isinstance(instance, Notification):
-        #     sender_type_id = ContentType.objects.get_for_model(sender).id
-        #     instance_type_id = ContentType.objects.get_for_model(instance).id
-        #     chain = (
-        #         remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
-        #         | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
-        #     chain()
-        pass
+        if not isinstance(instance, Notification):
+            sender_type_id = ContentType.objects.get_for_model(sender).id
+            instance_type_id = ContentType.objects.get_for_model(instance).id
+            chain = (
+                remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
+                | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
+            chain()
