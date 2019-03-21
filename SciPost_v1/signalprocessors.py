@@ -84,7 +84,11 @@ class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
         Submission, Report, Comment, Publication.
         """
         try:
-            if isinstance(instance, [Submission, Report, Comment, Publication, Commentary]):
+            if (isinstance(instance, Submission) or
+                isinstance(instance, Report) or
+                isinstance(instance, Comment) or
+                isinstance(instance, Publication) or
+                isinstance(instance, Commentary)):
                 sender_type_id = ContentType.objects.get_for_model(sender).id
                 instance_type_id = ContentType.objects.get_for_model(instance).id
                 chain = (
