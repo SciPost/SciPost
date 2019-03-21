@@ -46,6 +46,7 @@ from .utils import JournalUtils
 from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
+from mails import MailEditorSubview
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
