@@ -7,6 +7,4 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^test/(?P<pk>\d+)/$', views.TestView.as_view(), name='test'),
-    url(r'^test/(?P<pk>\d+)/edit$', views.TestUpdateView.as_view(), name='test_edit'),
 ]

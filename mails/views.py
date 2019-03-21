@@ -9,8 +9,7 @@ from django.shortcuts import render
 from django.utils.encoding import force_text
 from django.views.generic.edit import UpdateView
 
-from submissions.models import Submission
-from .forms import EmailForm, HiddenDataForm, FakeForm
+from .forms import EmailForm, HiddenDataForm
 
 
 class MailViewBase:
@@ -129,21 +128,6 @@ class MailView(MailViewBase, UpdateView):
                 raise PermissionDenied("You are not allowed to send mail: %s." % self.mail_code)
         messages.success(self.request, 'Mail sent')
         return super().form_valid(form)
-
-
-class TestView(MailView):
-    """To be removed; exists for testing purposes only."""
-    mail_code = 'tests/test_mail_code_1'
-    model = Submission
-    success_url = '/'
-
-
-class TestUpdateView(MailFormView):
-    """To be removed; exists for testing purposes only."""
-    mail_code = 'tests/test_mail_code_1'
-    model = Submission
-    success_url = '/'
-    form_class = FakeForm
 
 
 class MailEditorSubview:
