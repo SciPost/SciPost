@@ -8,9 +8,11 @@ from celery import shared_task
 from haystack import connection_router, connections, signals
 from haystack.exceptions import NotHandled
 
-from SciPost_v1.celery import app
-from notifications.models import Notification
-from submissions.models import Submission
+from commentaries.models import Commentary
+from comments.models import Comment
+from journals.models import Publication
+from submissions.models import Submission, Report
+
 
 
 @shared_task(name='signalprocessors.remove_object_indexes')
@@ -77,8 +79,12 @@ def update_instance_indexes(sender_type_id, object_type_id, object_id):
 class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
 
     def handle_save(self, sender, instance, **kwargs):
+        """
+        Explicitly perform haystack reindex when saving objects of class:
+        Submission, Report, Comment, Publication.
+        """
         try:
-            if not isinstance(instance, Notification):
+            if isinstance(instance, [Submission, Report, Comment, Publication, Commentary]):
                 sender_type_id = ContentType.objects.get_for_model(sender).id
                 instance_type_id = ContentType.objects.get_for_model(instance).id
                 chain = (
