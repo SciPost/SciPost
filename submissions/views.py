@@ -895,7 +895,6 @@ def cycle_form_submit(request, identifier_w_vn_nr):
     if form.is_valid():
         submission = form.save()
         submission.cycle.reset_refereeing_round()
-        submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'], request)
         messages.success(request, ('<h3>Your choice has been confirmed</h3>'
                                    'The new cycle will be <em>%s</em>'
                                    % submission.get_refereeing_cycle_display()))
@@ -903,6 +902,9 @@ def cycle_form_submit(request, identifier_w_vn_nr):
             # Redirect to EIC Recommendation page immediately
             return redirect(reverse('submissions:eic_recommendation',
                             args=[submission.preprint.identifier_w_vn_nr]))
+        else:
+            # Reinvite only if not direct-cycle.
+            submission.cycle.reinvite_referees(form.cleaned_data['referees_reinvite'])
     return redirect(
         reverse('submissions:editorial_page', args=[submission.preprint.identifier_w_vn_nr]))
 
