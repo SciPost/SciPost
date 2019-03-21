@@ -23,7 +23,10 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
     """
     sender = ContentType.objects.get_for_id(sender_type_id)
     object_type = ContentType.objects.get_for_id(object_type_id)
-    instance = object_type.get_object_for_this_type(pk=object_id)
+    try:
+        instance = object_type.get_object_for_this_type(pk=object_id)
+    except object_type.DoesNotExist:
+        return None
 
     if isinstance(instance, Submission):
         # Submission have complex status handling, so a status change should lead to
@@ -59,7 +62,10 @@ def update_instance_indexes(sender_type_id, object_type_id, object_id):
     """
     sender = ContentType.objects.get_for_id(sender_type_id)
     object_type = ContentType.objects.get_for_id(object_type_id)
-    instance = object_type.get_object_for_this_type(pk=object_id)
+    try:
+        instance = object_type.get_object_for_this_type(pk=object_id)
+    except object_type.DoesNotExist:
+        return None
 
     try:
         using_backends = connection_router.for_write(instance=instance)
