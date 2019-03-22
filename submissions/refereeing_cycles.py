@@ -328,7 +328,7 @@ class BaseCycle:
         deadline = timezone.now() + datetime.timedelta(days=self.days_for_refereeing)
         Submission.objects.filter(id=self._submission.id).update(reporting_deadline=deadline)
 
-    def reinvite_referees(self, referees, request):
+    def reinvite_referees(self, referees):
         """
         Duplicate and reset RefereeInvitations and send `reinvite` mail.
 
