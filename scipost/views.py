@@ -51,7 +51,7 @@ from commentaries.models import Commentary
 from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
-from journals.models import Publication, PublicationAuthorsTable
+from journals.models import Journal, Publication, PublicationAuthorsTable
 from mails.utils import DirectMailUtil
 from news.models import NewsItem
 from organizations.decorators import has_contact
