@@ -60,7 +60,7 @@ def notify_submission_author_new_report(sender, instance, created, **kwargs):
     """Notify the Editor-in-charge about a new submitted Report."""
     actor, __ = FakeActors.objects.get_or_create(name='')  # Silence.
     notify.send(
-        sender=sender, actor=instance.author, recipient=instance.submission.submitted_by.user,
+        sender=sender, actor=actor, recipient=instance.submission.submitted_by.user,
         verb='A new Report has been delivered to your Submission.', target=instance)
 
 
