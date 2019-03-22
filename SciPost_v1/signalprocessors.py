@@ -25,7 +25,7 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
     object_type = ContentType.objects.get_for_id(object_type_id)
     try:
         instance = object_type.get_object_for_this_type(pk=object_id)
-    except object_type.DoesNotExist:
+    except object_type.model_class().DoesNotExist:
         return None
 
     if isinstance(instance, Submission):
@@ -64,7 +64,7 @@ def update_instance_indexes(sender_type_id, object_type_id, object_id):
     object_type = ContentType.objects.get_for_id(object_type_id)
     try:
         instance = object_type.get_object_for_this_type(pk=object_id)
-    except object_type.DoesNotExist:
+    except object_type.model_class().DoesNotExist:
         return None
 
     try:
