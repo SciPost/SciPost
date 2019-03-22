@@ -86,7 +86,9 @@ def live_notification_list(request):
 
     list = []
 
-    for n in request.user.notifications.all()[offset:offset + num_to_fetch]:
+    #for n in request.user.notifications.all()[offset:offset + num_to_fetch]:
+    # Kill notifications for now
+    for n in None:
         struct = model_to_dict(n)
         # struct['unread'] = struct['pseudo_unread']
         struct['slug'] = id2slug(n.id)
