@@ -426,11 +426,15 @@ class SciPostLoginView(LoginView):
     Inherits from django.contrib.auth.views:LoginView.
 
     Overriden methods:
+    - get initial: allow prefilling with GET data, for 'next'
     - get redirect url
     """
 
     template_name = 'scipost/login.html'
     authentication_form = SciPostAuthenticationForm
+
+    def get_initial(self):
+        return self.request.GET
 
     def get_redirect_url(self):
         """Redirect to the requested url if safe, otherwise to personal page or org dashboard."""

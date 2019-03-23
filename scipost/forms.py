@@ -357,9 +357,13 @@ class SciPostAuthenticationForm(AuthenticationForm):
 
     Inherits from django.contrib.auth.forms:AuthenticationForm.
 
+    Extra fields:
+    - next: url for the next page, obtainable via POST
+
     Overriden methods:
     - confirm_login_allowed: disallow inactive or unvetted accounts.
     """
+    next = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def confirm_login_allowed(self, user):
         if not user.is_active:

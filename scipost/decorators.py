@@ -12,12 +12,12 @@ def has_contributor(user):
     try:
         user.contributor
         return True
-    except Contributor.DoesNotExist:
+    except (Contributor.DoesNotExist, AttributeError):
         return False
 
 
 def is_contributor_user():
-    """Dceorator checking if user is related to any Contributor."""
+    """Decorator checking if user is related to any Contributor."""
     def test(u):
         if u.is_authenticated():
             return has_contributor(u)

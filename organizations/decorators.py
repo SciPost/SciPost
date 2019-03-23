@@ -10,5 +10,5 @@ def has_contact(user):
     try:
         user.org_contact
         return True
-    except Contact.DoesNotExist:
+    except (Contact.DoesNotExist, AttributeError):
         return False
