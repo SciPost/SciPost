@@ -108,7 +108,8 @@ urlpatterns = [
     url(r'^invitation/(?P<key>.+)$', views.invitation, name='invitation'),
 
     # Authentication
-    url(r'^login/$', views.login_view, name='login'),
+    # DEPRECauth url(r'^login/$', views.login_view, name='login'),
+    url(r'^login/$', views.SciPostLoginView.as_view(), name='login'),
     url(r'^logout$', views.SciPostLogoutView.as_view(), name='logout'),
     url(r'^change_password$', views.change_password, name='change_password'),
     url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',

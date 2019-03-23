@@ -5,16 +5,17 @@ __license__ = "AGPL v3"
 import datetime
 
 from django import forms
-from django.contrib.auth import authenticate
+# DEPRECauth from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse_lazy
-from django.db.models import Q
+# DEPRECauth from django.core.urlresolvers import reverse_lazy
+# DEPRECauth from django.db.models import Q
 from django.utils import timezone
 from django.utils.dates import MONTHS
-from django.utils.http import is_safe_url
+# DEPRECauth from django.utils.http import is_safe_url
 
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
@@ -291,62 +292,91 @@ class VetRegistrationForm(forms.Form):
         return self.cleaned_data.get('decision') == 'True'
 
 
-class AuthenticationForm(forms.Form):
-    username = forms.CharField(label='Username', max_length=100)
-    password = forms.CharField(label='Password', widget=forms.PasswordInput())
-    next = forms.CharField(widget=forms.HiddenInput(), required=False)
+# DEPRECauth
+# class AuthenticationForm(forms.Form):
+#     username = forms.CharField(label='Username', max_length=100)
+#     password = forms.CharField(label='Password', widget=forms.PasswordInput())
+#     next = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    def user_is_inactive(self):
-        """Check if the User is active only if the password is valid.
+#     def user_is_inactive(self):
+#         """Check if the User is active only if the password is valid.
 
-        Only check  to prevent any
-        possible clue (?) of the password.
-        """
-        username = self.cleaned_data['username']
-        password = self.cleaned_data['password']
-        try:
-            _user = User.objects.get(Q(email=username) | Q(username=username))
-            return _user.check_password(password) and not _user.is_active
-        except:
-            return False
+#         Only check to prevent any
+#         possible clue (?) of the password.
+#         """
+#         username = self.cleaned_data['username']
+#         password = self.cleaned_data['password']
+#         try:
+#             _user = User.objects.get(Q(email=username) | Q(username=username))
+#             return _user.check_password(password) and not _user.is_active
+#         except:
+#             return False
 
-    def can_resend_activation_mail(self):
-        return True
+#     def can_resend_activation_mail(self):
+#         return True
 
-    def authenticate(self):
-        """
-        Authenticate will return an valid User if credentials are correct.
-        Else, None will be returned.
-        """
-        username = self.cleaned_data['username']
-        password = self.cleaned_data['password']
-        user = authenticate(username=username, password=password)
-        if user:
-            return user
+#     def authenticate(self):
+#         """
+#         Authenticate will return a valid User if credentials are correct.
+#         Otherwise, None is returned.
+#         """
+#         username = self.cleaned_data['username']
+#         password = self.cleaned_data['password']
+#         user = authenticate(username=username, password=password)
+#         if user:
+#             return user
 
-        # Try to use the email address for convenience
-        try:
-            _user = User.objects.get(email=username)
-            return authenticate(username=_user.username, password=password)
-        except:
-            # Catch all exceptions. This method should be upgraded in the next Django
-            # update anyway and not a single exception should propagate to the user, never!
-            return None
+#         # Try to use the email address for convenience
+#         try:
+#             _user = User.objects.get(email=username)
+#             return authenticate(username=_user.username, password=password)
+#         except:
+#             # Catch all exceptions. This method should be upgraded in the next Django
+#             # update anyway and not a single exception should propagate to the user, never!
+#             return None
 
-    def get_redirect_url(self, request):
-        """
-        Check the url being valid the current request, else return
-        to the default link (personal page).
-        """
-        redirect_to = self.cleaned_data['next']
-        if not is_safe_url(redirect_to, request.get_host()) or not redirect_to:
-            if has_contributor(request.user):
-                return reverse_lazy('scipost:personal_page')
-            elif has_contact(request.user):
-                return reverse_lazy('organizations:dashboard')
-            else:
-                return reverse_lazy('scipost:index')
-        return redirect_to
+#     def get_redirect_url(self, request):
+#         """
+#         Check the url being valid the current request, else return
+#         to the default link (personal page).
+#         """
+#         redirect_to = self.cleaned_data['next']
+#         if not is_safe_url(redirect_to, request.get_host()) or not redirect_to:
+#             if has_contributor(request.user):
+#                 return reverse_lazy('scipost:personal_page')
+#             elif has_contact(request.user):
+#                 return reverse_lazy('organizations:dashboard')
+#             else:
+#                 return reverse_lazy('scipost:index')
+#         return redirect_to
+
+
+class SciPostAuthenticationForm(AuthenticationForm):
+    """
+    Authentication form for all types of users at SciPost.
+
+    Inherits from django.contrib.auth.forms:AuthenticationForm.
+
+    Overriden methods:
+    - confirm_login_allowed: disallow inactive or unvetted accounts.
+    """
+
+    def confirm_login_allowed(self, user):
+        if not user.is_active:
+            raise forms.ValidationError(
+                _('Your account is not yet activated. '
+                  'Please first activate your account by clicking on the '
+                  'activation link we emailed you.'),
+                code='inactive',
+                )
+        if not user.groups.exists():
+            raise forms.ValidationError(
+                _('Your account has not yet been vetted.\n'
+                  'Our admins will verify your credentials very soon, '
+                  'and if vetted (your will receive an information email) '
+                  'you will then be able to login.'),
+                code='unvetted',
+                )
 
 
 class PasswordChangeForm(forms.Form):

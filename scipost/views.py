@@ -11,7 +11,8 @@ from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
-from django.contrib.auth.views import password_reset, password_reset_confirm, LogoutView
+from django.contrib.auth.views import password_reset, password_reset_confirm
+from django.contrib.auth.views import LoginView, LogoutView
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -22,6 +23,7 @@ from django.http import Http404
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
+from django.utils.http import is_safe_url
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
 from django.views.generic.list import ListView
@@ -37,7 +39,8 @@ from .constants import (
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege
 from .forms import (
-    AuthenticationForm, UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
+    SciPostAuthenticationForm, # DEPRECauth AuthenticationForm,
+    UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
     PasswordChangeForm, ContributorMergeForm,
     EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
@@ -94,9 +97,10 @@ def sitemap_xml(request):
 # Utilitites #
 ##############
 
-def is_registered(user):
-    """Check if user is a validated user; has at least one permission group."""
-    return user.groups.exists()
+# DEPRECauth
+# def is_registered(user):
+#     """Check if user is a validated user; has at least one permission group."""
+#     return user.groups.exists()
 
 
 class SearchView(SearchView):
@@ -391,27 +395,62 @@ def registration_requests_reset(request, contributor_id):
     return redirect(reverse('scipost:registration_requests'))
 
 
-def login_view(request):
-    """Login form page."""
-    form = AuthenticationForm(request.POST or None, initial=request.GET)
-    if form.is_valid():
-        user = form.authenticate()
-        if user is not None:
-            if is_registered(user):
-                login(request, user)
-                redirect_to = form.get_redirect_url(request)
-                return redirect(redirect_to)
-            else:
-                form.add_error(None, ('Your account has not yet been vetted. '
-                                      '(our admins will verify your credentials very soon)'))
-        elif form.user_is_inactive():
-            form.add_error(None, ('Your account is not yet activated. '
-                                  'Please first activate your account by clicking on the '
-                                  'activation link we emailed you.'))
+# DEPRECauth
+# def login_view(request):
+#     """Login form page."""
+#     form = AuthenticationForm(request.POST or None, initial=request.GET)
+#     if form.is_valid():
+#         user = form.authenticate()
+#         if user is not None:
+#             if is_registered(user):
+#                 login(request, user)
+#                 redirect_to = form.get_redirect_url(request)
+#                 return redirect(redirect_to)
+#             else:
+#                 form.add_error(None, ('Your account has not yet been vetted. '
+#                                       '(our admins will verify your credentials very soon)'))
+#         elif form.user_is_inactive():
+#             form.add_error(None, ('Your account is not yet activated. '
+#                                   'Please first activate your account by clicking on the '
+#                                   'activation link we emailed you.'))
+#         else:
+#             form.add_error(None, 'Invalid username/password.')
+#     context = {'form': form}
+#     return render(request, 'scipost/login.html', context)
+
+
+class SciPostLoginView(LoginView):
+    """
+    Login for all types of users.
+
+    Inherits from django.contrib.auth.views:LoginView.
+
+    Overriden methods:
+    - get redirect url
+    """
+
+    template_name = 'scipost/login.html'
+    authentication_form = SciPostAuthenticationForm
+
+    def get_redirect_url(self):
+        """Redirect to the requested url if safe, otherwise to personal page or org dashboard."""
+        redirect_to = self.request.POST.get(
+            self.redirect_field_name,
+            self.request.GET.get(self.redirect_field_name, '')
+        )
+        url_is_safe = is_safe_url(
+            url=redirect_to,
+            allowed_hosts=self.get_success_url_allowed_hosts(),
+            require_https=self.request.is_secure(),
+        )
+        if url_is_safe:
+            return redirect_to
+        if has_contributor(self.request.user):
+            return reverse_lazy('scipost:personal_page')
+        elif has_contact(self.request.user):
+            return reverse_lazy('organizations:dashboard')
         else:
-            form.add_error(None, 'Invalid username/password.')
-    context = {'form': form}
-    return render(request, 'scipost/login.html', context)
+            return reverse_lazy('scipost:index')
 
 
 class SciPostLogoutView(LogoutView):
