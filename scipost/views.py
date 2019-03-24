@@ -461,7 +461,6 @@ class SciPostLogoutView(LogoutView):
     """Logout processing page."""
 
     next_page = reverse_lazy('scipost:index')
-    redirect_field_name = 'next'
 
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
