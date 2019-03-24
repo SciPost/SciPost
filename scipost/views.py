@@ -12,7 +12,7 @@ from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -42,7 +42,8 @@ from .forms import (
     SciPostAuthenticationForm, # DEPRECauth AuthenticationForm,
     UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
-    PasswordChangeForm, ContributorMergeForm,
+    # DEPRECauth PasswordChangeForm,
+    ContributorMergeForm,
     EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
 from .mixins import PermissionsMixin, PaginationMixin
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
@@ -425,6 +426,10 @@ class SciPostLoginView(LoginView):
 
     Inherits from django.contrib.auth.views:LoginView.
 
+    Overriden fields:
+    - template_name
+    - authentication_form
+
     Overriden methods:
     - get initial: allow prefilling with GET data, for 'next'
     - get redirect url
@@ -468,6 +473,31 @@ class SciPostLogoutView(LogoutView):
         response = super().dispatch(request, *args, **kwargs)
         messages.success(request, '<h3>Keep contributing!</h3> You are now logged out of SciPost.')
         return response
+
+
+class SciPostPasswordChangeView(PasswordChangeView):
+    """
+    Change a user's password (for Contributors and other forms of users).
+
+    Inherits from django.contrib.auth.views:PasswordChangeView.
+
+    Overriden fields:
+    - template_name
+
+    Overriden methods:
+    - get_success_url
+    """
+    template_name = 'scipost/password_change.html'
+
+    def get_success_url(self):
+        """
+        Add a message confirming the change, then redirect to personal page.
+
+        For Contributor users, this ends up on the personal page.
+        For organization Contacts, this ends up on the organizations dashboard.
+        """
+        messages.success(self.request, 'Your SciPost password has been changed successfully.')
+        return reverse_lazy('scipost:personal_page')
 
 
 @login_required
@@ -751,21 +781,22 @@ def personal_page(request, tab='account'):
     return render(request, 'scipost/personal_page.html', context)
 
 
-@login_required
-def change_password(request):
-    """Change password form view."""
-    form = PasswordChangeForm(request.POST or None, current_user=request.user)
-    if form.is_valid():
-        form.save_new_password()
-        # Update user's session hash to stay logged in.
-        update_session_auth_hash(request, request.user)
-        messages.success(request, 'Your SciPost password has been successfully changed')
-        try:
-            request.user.contributor
-            return redirect(reverse('scipost:personal_page'))
-        except Contributor.DoesNotExist:
-            return redirect(reverse('scipost:index'))
-    return render(request, 'scipost/change_password.html', {'form': form})
+# DEPRECauth
+# @login_required
+# def change_password(request):
+#     """Change password form view."""
+#     form = PasswordChangeForm(request.POST or None, current_user=request.user)
+#     if form.is_valid():
+#         form.save_new_password()
+#         # Update user's session hash to stay logged in.
+#         update_session_auth_hash(request, request.user)
+#         messages.success(request, 'Your SciPost password has been successfully changed')
+#         try:
+#             request.user.contributor
+#             return redirect(reverse('scipost:personal_page'))
+#         except Contributor.DoesNotExist:
+#             return redirect(reverse('scipost:index'))
+#     return render(request, 'scipost/change_password.html', {'form': form})
 
 
 def reset_password_confirm(request, uidb64=None, token=None):

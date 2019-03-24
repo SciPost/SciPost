@@ -383,44 +383,45 @@ class SciPostAuthenticationForm(AuthenticationForm):
                 )
 
 
-class PasswordChangeForm(forms.Form):
-    password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
-    password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
-    password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
+# DEPRECauth
+# class PasswordChangeForm(forms.Form):
+#     password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
+#     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
+#     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
 
-    def __init__(self, *args, **kwargs):
-        self.current_user = kwargs.pop('current_user', None)
-        super().__init__(*args, **kwargs)
+#     def __init__(self, *args, **kwargs):
+#         self.current_user = kwargs.pop('current_user', None)
+#         super().__init__(*args, **kwargs)
 
-    def clean_password_prev(self):
-        '''Check if old password is correct.'''
-        password_prev = self.cleaned_data['password_prev']
-        if not self.current_user.check_password(password_prev):
-            self.add_error('password_prev',
-                           'The currently existing password you entered is incorrect')
-        return password_prev
+#     def clean_password_prev(self):
+#         '''Check if old password is correct.'''
+#         password_prev = self.cleaned_data['password_prev']
+#         if not self.current_user.check_password(password_prev):
+#             self.add_error('password_prev',
+#                            'The currently existing password you entered is incorrect')
+#         return password_prev
 
-    def clean_password_new(self):
-        '''Validate the newly chosen password using the validators as per the settingsfile.'''
-        password = self.cleaned_data['password_new']
-        try:
-            validate_password(password, self.current_user)
-        except ValidationError as error_message:
-            self.add_error('password_new', error_message)
-        return password
+#     def clean_password_new(self):
+#         '''Validate the newly chosen password using the validators as per the settingsfile.'''
+#         password = self.cleaned_data['password_new']
+#         try:
+#             validate_password(password, self.current_user)
+#         except ValidationError as error_message:
+#             self.add_error('password_new', error_message)
+#         return password
 
-    def clean_password_verif(self):
-        '''Check if the new password's match to ensure the user entered new password correctly.'''
-        password_verif = self.cleaned_data.get('password_verif', '')
-        if self.cleaned_data['password_new'] != password_verif:
-            self.add_error('password_verif', 'Your new password entries must match')
-        return password_verif
+#     def clean_password_verif(self):
+#         '''Check if the new password's match to ensure the user entered new password correctly.'''
+#         password_verif = self.cleaned_data.get('password_verif', '')
+#         if self.cleaned_data['password_new'] != password_verif:
+#             self.add_error('password_verif', 'Your new password entries must match')
+#         return password_verif
 
-    def save_new_password(self):
-        '''Save new password is form is valid.'''
-        if not self.errors:
-            self.current_user.set_password(self.cleaned_data['password_new'])
-            self.current_user.save()
+#     def save_new_password(self):
+#         '''Save new password is form is valid.'''
+#         if not self.errors:
+#             self.current_user.set_password(self.cleaned_data['password_new'])
+#             self.current_user.save()
 
 
 AUTHORSHIP_CLAIM_CHOICES = (
