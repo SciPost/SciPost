@@ -43,7 +43,7 @@ class UserAdmin(UserAdmin):
         ]
     list_display = ['username', 'email', 'first_name', 'last_name',
                     'is_active', 'is_staff', 'is_duplicate']
-    search_fields = ['last_name', 'email']
+    search_fields = ['username', 'last_name', 'email']
 
     def is_duplicate(self, obj):
         return obj.contributor.is_duplicate
