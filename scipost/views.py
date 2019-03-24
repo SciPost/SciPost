@@ -41,10 +41,9 @@ from .constants import (
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege
 from .forms import (
-    SciPostAuthenticationForm, # DEPRECauth AuthenticationForm,
+    SciPostAuthenticationForm,
     UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
-    # DEPRECauth PasswordChangeForm,
     ContributorMergeForm,
     EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
 from .mixins import PermissionsMixin, PaginationMixin
@@ -99,11 +98,6 @@ def sitemap_xml(request):
 ##############
 # Utilitites #
 ##############
-
-# DEPRECauth
-# def is_registered(user):
-#     """Check if user is a validated user; has at least one permission group."""
-#     return user.groups.exists()
 
 
 class SearchView(SearchView):
@@ -396,30 +390,6 @@ def registration_requests_reset(request, contributor_id):
     messages.success(request, ('New key successfully generated and sent to <i>%s</i>'
                                % contributor.user.email))
     return redirect(reverse('scipost:registration_requests'))
-
-
-# DEPRECauth
-# def login_view(request):
-#     """Login form page."""
-#     form = AuthenticationForm(request.POST or None, initial=request.GET)
-#     if form.is_valid():
-#         user = form.authenticate()
-#         if user is not None:
-#             if is_registered(user):
-#                 login(request, user)
-#                 redirect_to = form.get_redirect_url(request)
-#                 return redirect(redirect_to)
-#             else:
-#                 form.add_error(None, ('Your account has not yet been vetted. '
-#                                       '(our admins will verify your credentials very soon)'))
-#         elif form.user_is_inactive():
-#             form.add_error(None, ('Your account is not yet activated. '
-#                                   'Please first activate your account by clicking on the '
-#                                   'activation link we emailed you.'))
-#         else:
-#             form.add_error(None, 'Invalid username/password.')
-#     context = {'form': form}
-#     return render(request, 'scipost/login.html', context)
 
 
 class SciPostLoginView(LoginView):
@@ -838,38 +808,6 @@ def personal_page(request, tab='account'):
         context['contributor'] = contributor
 
     return render(request, 'scipost/personal_page.html', context)
-
-
-# DEPRECauth
-# @login_required
-# def change_password(request):
-#     """Change password form view."""
-#     form = PasswordChangeForm(request.POST or None, current_user=request.user)
-#     if form.is_valid():
-#         form.save_new_password()
-#         # Update user's session hash to stay logged in.
-#         update_session_auth_hash(request, request.user)
-#         messages.success(request, 'Your SciPost password has been successfully changed')
-#         try:
-#             request.user.contributor
-#             return redirect(reverse('scipost:personal_page'))
-#         except Contributor.DoesNotExist:
-#             return redirect(reverse('scipost:index'))
-#     return render(request, 'scipost/change_password.html', {'form': form})
-
-
-# DEPRECauth
-# def reset_password_confirm(request, uidb64=None, token=None):
-#     return password_reset_confirm(request, template_name='scipost/reset_password_confirm.html',
-#                                   uidb64=uidb64, token=token,
-#                                   post_reset_redirect=reverse('scipost:login'))
-
-
-# def reset_password(request):
-#     return password_reset(request, template_name='scipost/reset_password.html',
-#                           email_template_name='scipost/reset_password_email.html',
-#                           subject_template_name='scipost/reset_password_subject.txt',
-#                           post_reset_redirect=reverse('scipost:login'))
 
 
 def _update_personal_data_user_only(request):

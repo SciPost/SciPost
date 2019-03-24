@@ -5,17 +5,13 @@ __license__ = "AGPL v3"
 import datetime
 
 from django import forms
-# DEPRECauth from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
-# DEPRECauth from django.core.urlresolvers import reverse_lazy
-# DEPRECauth from django.db.models import Q
 from django.utils import timezone
 from django.utils.dates import MONTHS
-# DEPRECauth from django.utils.http import is_safe_url
 
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
@@ -292,65 +288,6 @@ class VetRegistrationForm(forms.Form):
         return self.cleaned_data.get('decision') == 'True'
 
 
-# DEPRECauth
-# class AuthenticationForm(forms.Form):
-#     username = forms.CharField(label='Username', max_length=100)
-#     password = forms.CharField(label='Password', widget=forms.PasswordInput())
-#     next = forms.CharField(widget=forms.HiddenInput(), required=False)
-
-#     def user_is_inactive(self):
-#         """Check if the User is active only if the password is valid.
-
-#         Only check to prevent any
-#         possible clue (?) of the password.
-#         """
-#         username = self.cleaned_data['username']
-#         password = self.cleaned_data['password']
-#         try:
-#             _user = User.objects.get(Q(email=username) | Q(username=username))
-#             return _user.check_password(password) and not _user.is_active
-#         except:
-#             return False
-
-#     def can_resend_activation_mail(self):
-#         return True
-
-#     def authenticate(self):
-#         """
-#         Authenticate will return a valid User if credentials are correct.
-#         Otherwise, None is returned.
-#         """
-#         username = self.cleaned_data['username']
-#         password = self.cleaned_data['password']
-#         user = authenticate(username=username, password=password)
-#         if user:
-#             return user
-
-#         # Try to use the email address for convenience
-#         try:
-#             _user = User.objects.get(email=username)
-#             return authenticate(username=_user.username, password=password)
-#         except:
-#             # Catch all exceptions. This method should be upgraded in the next Django
-#             # update anyway and not a single exception should propagate to the user, never!
-#             return None
-
-#     def get_redirect_url(self, request):
-#         """
-#         Check the url being valid the current request, else return
-#         to the default link (personal page).
-#         """
-#         redirect_to = self.cleaned_data['next']
-#         if not is_safe_url(redirect_to, request.get_host()) or not redirect_to:
-#             if has_contributor(request.user):
-#                 return reverse_lazy('scipost:personal_page')
-#             elif has_contact(request.user):
-#                 return reverse_lazy('organizations:dashboard')
-#             else:
-#                 return reverse_lazy('scipost:index')
-#         return redirect_to
-
-
 class SciPostAuthenticationForm(AuthenticationForm):
     """
     Authentication form for all types of users at SciPost.
@@ -381,47 +318,6 @@ class SciPostAuthenticationForm(AuthenticationForm):
                   'you will then be able to login.'),
                 code='unvetted',
                 )
-
-
-# DEPRECauth
-# class PasswordChangeForm(forms.Form):
-#     password_prev = forms.CharField(label='Existing password', widget=forms.PasswordInput())
-#     password_new = forms.CharField(label='New password', widget=forms.PasswordInput())
-#     password_verif = forms.CharField(label='Reenter new password', widget=forms.PasswordInput())
-
-#     def __init__(self, *args, **kwargs):
-#         self.current_user = kwargs.pop('current_user', None)
-#         super().__init__(*args, **kwargs)
-
-#     def clean_password_prev(self):
-#         '''Check if old password is correct.'''
-#         password_prev = self.cleaned_data['password_prev']
-#         if not self.current_user.check_password(password_prev):
-#             self.add_error('password_prev',
-#                            'The currently existing password you entered is incorrect')
-#         return password_prev
-
-#     def clean_password_new(self):
-#         '''Validate the newly chosen password using the validators as per the settingsfile.'''
-#         password = self.cleaned_data['password_new']
-#         try:
-#             validate_password(password, self.current_user)
-#         except ValidationError as error_message:
-#             self.add_error('password_new', error_message)
-#         return password
-
-#     def clean_password_verif(self):
-#         '''Check if the new password's match to ensure the user entered new password correctly.'''
-#         password_verif = self.cleaned_data.get('password_verif', '')
-#         if self.cleaned_data['password_new'] != password_verif:
-#             self.add_error('password_verif', 'Your new password entries must match')
-#         return password_verif
-
-#     def save_new_password(self):
-#         '''Save new password is form is valid.'''
-#         if not self.errors:
-#             self.current_user.set_password(self.cleaned_data['password_new'])
-#             self.current_user.save()
 
 
 AUTHORSHIP_CLAIM_CHOICES = (

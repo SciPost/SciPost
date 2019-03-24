@@ -133,12 +133,6 @@ urlpatterns = [
         views.SciPostPasswordResetConfirmView.as_view(),
         name='password_reset_confirm'
     ),
-    # DEPRECauth
-    # url(r'^login/$', views.login_view, name='login'),
-    # url(r'^change_password$', views.change_password, name='change_password'),
-    # url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-    #     views.reset_password_confirm, name='reset_password_confirm'),
-    # url(r'^reset_password/$', views.reset_password, name='reset_password'),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
 
     # Personal Page
