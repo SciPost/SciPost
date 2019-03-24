@@ -12,7 +12,9 @@ from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
-from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
+from django.contrib.auth.views import (
+    LoginView, LogoutView, PasswordChangeView,
+    PasswordResetView, PasswordResetConfirmView)
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -500,6 +502,63 @@ class SciPostPasswordChangeView(PasswordChangeView):
         return reverse_lazy('scipost:personal_page')
 
 
+class SciPostPasswordResetView(PasswordResetView):
+    """
+    Reset a user's password.
+
+    Derived from django.contrib.auth.views:PasswordResetView.
+
+    Overriden fields:
+    - template_name
+    - email_template_name
+    - subject_template_name
+
+    Overriden methods:
+    - get_success_url
+    """
+
+    template_name = 'scipost/password_reset.html'
+    email_template_name = 'scipost/password_reset_email.html'
+    subject_template_name = 'scipost/password_reset_subject.txt'
+
+    def get_success_url(self):
+        """
+        Add a message confirming the request for a new token, then redirect to homepage.
+        """
+        messages.success(self.request,
+                         ('We have just emailed you a password reset token. '
+                          'Please follow the link in this email to reset your password.'))
+        return reverse_lazy('scipost:index')
+
+
+class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
+    """
+    Confirm reset of password, for all users.
+
+    Derived from django.contrib.auth.views:PasswordResetConfirmView.
+
+    Overriden fields:
+    - template_name
+
+    Overriden methods:
+    - get_success_url
+    """
+    template_name = 'scipost/password_reset_confirm.html'
+
+    def get_success_url(self):
+        """
+        Add a message confirming the reset, then redirect to personal page (for
+        which login will be required).
+
+        For Contributor users, this ends up on the personal page.
+        For organization Contacts, this ends up on the organizations dashboard.
+        """
+        messages.success(self.request, (
+            'Your SciPost password has been reset successfully. '
+            'Please login to see your personal pages.'))
+        return reverse_lazy('scipost:personal_page')
+
+
 @login_required
 @is_contributor_user()
 def mark_unavailable_period(request):
@@ -799,17 +858,18 @@ def personal_page(request, tab='account'):
 #     return render(request, 'scipost/change_password.html', {'form': form})
 
 
-def reset_password_confirm(request, uidb64=None, token=None):
-    return password_reset_confirm(request, template_name='scipost/reset_password_confirm.html',
-                                  uidb64=uidb64, token=token,
-                                  post_reset_redirect=reverse('scipost:login'))
+# DEPRECauth
+# def reset_password_confirm(request, uidb64=None, token=None):
+#     return password_reset_confirm(request, template_name='scipost/reset_password_confirm.html',
+#                                   uidb64=uidb64, token=token,
+#                                   post_reset_redirect=reverse('scipost:login'))
 
 
-def reset_password(request):
-    return password_reset(request, template_name='scipost/reset_password.html',
-                          email_template_name='scipost/reset_password_email.html',
-                          subject_template_name='scipost/reset_password_subject.txt',
-                          post_reset_redirect=reverse('scipost:login'))
+# def reset_password(request):
+#     return password_reset(request, template_name='scipost/reset_password.html',
+#                           email_template_name='scipost/reset_password_email.html',
+#                           subject_template_name='scipost/reset_password_subject.txt',
+#                           post_reset_redirect=reverse('scipost:login'))
 
 
 def _update_personal_data_user_only(request):

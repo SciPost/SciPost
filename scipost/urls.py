@@ -108,14 +108,37 @@ urlpatterns = [
     url(r'^invitation/(?P<key>.+)$', views.invitation, name='invitation'),
 
     # Authentication
-    # DEPRECauth url(r'^login/$', views.login_view, name='login'),
-    url(r'^login/$', views.SciPostLoginView.as_view(), name='login'),
-    url(r'^logout/$', views.SciPostLogoutView.as_view(), name='logout'),
-    # DEPRECauth url(r'^change_password$', views.change_password, name='change_password'),
-    url(r'^password_change$', views.SciPostPasswordChangeView.as_view(), name='password_change'),
-    url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
-        views.reset_password_confirm, name='reset_password_confirm'),
-    url(r'^reset_password/$', views.reset_password, name='reset_password'),
+    url(
+        r'^login/$',
+        views.SciPostLoginView.as_view(),
+        name='login'
+    ),
+    url(
+        r'^logout/$',
+        views.SciPostLogoutView.as_view(),
+        name='logout'
+    ),
+    url(
+        r'^password_change$',
+        views.SciPostPasswordChangeView.as_view(),
+        name='password_change'
+    ),
+    url(
+        r'^password_reset/$',
+        views.SciPostPasswordResetView.as_view(),
+        name='password_reset'
+    ),
+    url(
+        r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        views.SciPostPasswordResetConfirmView.as_view(),
+        name='password_reset_confirm'
+    ),
+    # DEPRECauth
+    # url(r'^login/$', views.login_view, name='login'),
+    # url(r'^change_password$', views.change_password, name='change_password'),
+    # url(r'^reset_password_confirm/(?P<uidb64>[0-9A-Za-z]+)-(?P<token>.+)/$',
+    #     views.reset_password_confirm, name='reset_password_confirm'),
+    # url(r'^reset_password/$', views.reset_password, name='reset_password'),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
 
     # Personal Page
