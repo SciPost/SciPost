@@ -1,0 +1,44 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Two factor authentication{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item">Two factor authentication</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-md-12">
+      <h1 class="highlight">Two factor authentication</h1>
+      <a href="{% url 'scipost:totp_create' %}">Set up a new two factor authentication device</a>
+
+      <h3 class="mt-4">Your devices</h3>
+      <table class="table">
+          <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Last used</th>
+                  <th></th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for device in object_list %}
+                  <tr>
+                      <td>{{ device.name }}</td>
+                      <td>{{ device.modified }}</td>
+                      <td>
+                          <a class="text-danger" href="{% url 'scipost:totp_delete' device.id %}">Remove device</a>
+                      </td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+    </div>
+
+</div>
+
+{% endblock %}

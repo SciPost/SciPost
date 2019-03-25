@@ -114,6 +114,11 @@ urlpatterns = [
         name='login'
     ),
     url(
+        r'^login/info/$',
+        views.raw_user_auth_info,
+        name='login_info'
+    ),
+    url(
         r'^logout/$',
         views.SciPostLogoutView.as_view(),
         name='logout'
@@ -134,6 +139,9 @@ urlpatterns = [
         name='password_reset_confirm'
     ),
     url(r'^update_personal_data$', views.update_personal_data, name='update_personal_data'),
+    url(r'^totp/$', views.TOTPListView.as_view(), name='totp'),
+    url(r'^totp/create$', views.TOTPDeviceCreateView.as_view(), name='totp_create'),
+    url(r'^totp/(?P<device_id>[0-9]+)/delete$', views.TOTPDeviceDeleteView.as_view(), name='totp_delete'),
 
     # Personal Page
     url(r'^personal_page/$', views.personal_page, name='personal_page'),

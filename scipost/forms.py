@@ -27,7 +27,8 @@ from .constants import (
 from .decorators import has_contributor
 from .fields import ReCaptchaField
 from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
-    Remark, AuthorshipClaim, PrecookedEmail
+    Remark, AuthorshipClaim, PrecookedEmail, TOTPDevice
+from .totp import TOTPVerification
 
 from affiliations.models import Affiliation, Institution
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
@@ -301,23 +302,51 @@ class SciPostAuthenticationForm(AuthenticationForm):
     - confirm_login_allowed: disallow inactive or unvetted accounts.
     """
     next = forms.CharField(widget=forms.HiddenInput(), required=False)
+    token = forms.CharField(
+        required=False,
+        help_text="Please type in the code displayed on your authenticator app from your device")
 
     def confirm_login_allowed(self, user):
         if not user.is_active:
             raise forms.ValidationError(
-                _('Your account is not yet activated. '
+                ('Your account is not yet activated. '
                   'Please first activate your account by clicking on the '
                   'activation link we emailed you.'),
                 code='inactive',
                 )
         if not user.groups.exists():
             raise forms.ValidationError(
-                _('Your account has not yet been vetted.\n'
+                ('Your account has not yet been vetted.\n'
                   'Our admins will verify your credentials very soon, '
                   'and if vetted (your will receive an information email) '
                   'you will then be able to login.'),
                 code='unvetted',
                 )
+        if user.devices.exists():
+            if self.cleaned_data.get('token'):
+                token = self.cleaned_data.get('token')
+                totp = TOTPVerification(user)
+                if not totp.verify_token(token):
+                    self.add_error('token', 'Invalid token')
+            else:
+                self.add_error('token', 'Your account uses two factor authentication')
+
+
+class UserAuthInfoForm(forms.Form):
+    username = forms.CharField()
+
+    def get_data(self):
+        username = self.cleaned_data.get('username')
+        return {
+            'username': username,
+            'has_password': True,
+            'has_totp': TOTPDevice.objects.filter(user__username=username).exists()
+        }
+
+
+class TOTPDeviceForm(forms.Form):
+    token = forms.CharField()
+    key = forms.CharField(widget=forms.HiddenInput(), required=True)
 
 
 AUTHORSHIP_CLAIM_CHOICES = (
