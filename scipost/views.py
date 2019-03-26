@@ -399,12 +399,12 @@ class SciPostLoginView(LoginView):
     Inherits from django.contrib.auth.views:LoginView.
 
     Overriden fields:
-    - template_name
-    - authentication_form
+    * template_name
+    * authentication_form
 
     Overriden methods:
-    - get initial: allow prefilling with GET data, for 'next'
-    - get redirect url
+    * get initial: allow prefilling with GET data, for 'next'
+    * get redirect url
     """
 
     template_name = 'scipost/login.html'
@@ -454,10 +454,10 @@ class SciPostPasswordChangeView(PasswordChangeView):
     Inherits from django.contrib.auth.views:PasswordChangeView.
 
     Overriden fields:
-    - template_name
+    * template_name
 
     Overriden methods:
-    - get_success_url
+    * get_success_url
     """
     template_name = 'scipost/password_change.html'
 
@@ -479,12 +479,12 @@ class SciPostPasswordResetView(PasswordResetView):
     Derived from django.contrib.auth.views:PasswordResetView.
 
     Overriden fields:
-    - template_name
-    - email_template_name
-    - subject_template_name
+    * template_name
+    * email_template_name
+    * subject_template_name
 
     Overriden methods:
-    - get_success_url
+    * get_success_url
     """
 
     template_name = 'scipost/password_reset.html'
@@ -508,10 +508,10 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
     Derived from django.contrib.auth.views:PasswordResetConfirmView.
 
     Overriden fields:
-    - template_name
+    * template_name
 
     Overriden methods:
-    - get_success_url
+    * get_success_url
     """
     template_name = 'scipost/password_reset_confirm.html'
 

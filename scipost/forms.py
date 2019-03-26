@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 import datetime
 
 from django import forms
+from django.contrib.auth import authenticate
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
@@ -295,12 +296,40 @@ class SciPostAuthenticationForm(AuthenticationForm):
     Inherits from django.contrib.auth.forms:AuthenticationForm.
 
     Extra fields:
-    - next: url for the next page, obtainable via POST
+    * next: url for the next page, obtainable via POST
 
     Overriden methods:
-    - confirm_login_allowed: disallow inactive or unvetted accounts.
+    * clean: allow either username, or email as substitute for username
+    * confirm_login_allowed: disallow inactive or unvetted accounts.
     """
     next = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def clean(self):
+        """Allow either username, or email as substitute for username."""
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username is not None and password:
+            self.user_cache = authenticate(self.request, username=username, password=password)
+            if self.user_cache is None:
+                try:
+                    _user = User.objects.get(email=username)
+                    self.user_cache = authenticate(
+                        self.request, username=_user.username, password=password)
+                except:
+                    pass
+            if self.user_cache is None:
+                raise forms.ValidationError(
+                    ("Please enter a correct %(username)s and password. "
+                     "Note that both fields may be case-sensitive. "
+                     "Your can use your email instead of your username."),
+                    code='invalid_login',
+                    params={'username': self.username_field.verbose_name},
+                )
+            else:
+                self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
 
     def confirm_login_allowed(self, user):
         if not user.is_active:
