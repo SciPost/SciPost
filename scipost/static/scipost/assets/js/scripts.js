@@ -1,7 +1,7 @@
 require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/disable-selection');
-var QRCode = require('qrcode');
 
+import QRCode from 'qrcode';
 import notifications from './notifications.js';
 
 function hide_all_alerts() {
@@ -20,9 +20,15 @@ var activate_qr = function() {
     $.each($('[data-toggle="qr"]'), function(index, value) {
         var el = $(value);
         console.log(el.data('qr-value'));
-        QRCode.toCanvas(el, el.data('qr-value'), function(err) {
-            console.log(err);
-        })
+        // var str;
+        QRCode.toDataURL(el.data('qr-value'), function(err, url) {
+            el.attr({src: url});
+        });
+        // console.log(str);
+        // el.attr({src: str});
+        // QRCode.toCanvas(el, el.data('qr-value'), function(err) {
+        //     console.log(err);
+        // })
     });
 };
 

@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+import pyotp
 
 from django import forms
 from django.contrib.auth.models import User, Group
@@ -347,6 +348,21 @@ class UserAuthInfoForm(forms.Form):
 class TOTPDeviceForm(forms.Form):
     token = forms.CharField()
     key = forms.CharField(widget=forms.HiddenInput(), required=True)
+
+    def __init__(self, *args, **kwargs):
+        self.current_user = kwargs.pop('current_user')
+        super().__init__(*args, **kwargs)
+        self.initial['key'] = 'JBSWY3DPEHPK3PXP'
+
+    @property
+    def secret_key(self):
+        if hasattr(self, 'cleaned_data') and 'key' in self.cleaned_data:
+            return self.cleaned_data.get('key')
+        return self.initial['key']
+
+    def get_QR_data(self):
+        return pyotp.totp.TOTP(self.secret_key).provisioning_uri(
+            self.current_user.email, issuer_name="SciPost")
 
 
 AUTHORSHIP_CLAIM_CHOICES = (

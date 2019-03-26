@@ -891,6 +891,11 @@ class TOTPDeviceCreateView(FormView):
     template_name = 'scipost/totpdevice_form.html'
     success_url = reverse_lazy('scipost:totp')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['current_user'] = self.request.user
+        return kwargs
+
 
 class TOTPDeviceDeleteView(DeleteView):
     pk_url_kwarg = 'device_id'
