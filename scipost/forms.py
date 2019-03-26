@@ -334,17 +334,17 @@ class SciPostAuthenticationForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
         if not user.is_active:
             raise forms.ValidationError(
-                _('Your account is not yet activated. '
-                  'Please first activate your account by clicking on the '
-                  'activation link we emailed you.'),
+                ('Your account is not yet activated. '
+                 'Please first activate your account by clicking on the '
+                 'activation link we emailed you.'),
                 code='inactive',
-                )
+            )
         if not user.groups.exists():
             raise forms.ValidationError(
-                _('Your account has not yet been vetted.\n'
-                  'Our admins will verify your credentials very soon, '
-                  'and if vetted (your will receive an information email) '
-                  'you will then be able to login.'),
+                ('Your account has not yet been vetted.\n'
+                 'Our admins will verify your credentials very soon, '
+                 'and if vetted (your will receive an information email) '
+                 'you will then be able to login.'),
                 code='unvetted',
                 )
 
