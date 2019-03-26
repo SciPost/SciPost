@@ -239,7 +239,7 @@ class BaseCycle:
                 self.add_action(action)
 
         # Submission is a resubmission: EIC has to determine which cycle to proceed with.
-        comments_to_vet = self._submission.comments.awaiting_vetting().values_list('id')
+        comments_to_vet = self._submission.comments.awaiting_vetting()
         for comment in comments_to_vet:
             self.add_action(VettingAction(comment))
 
