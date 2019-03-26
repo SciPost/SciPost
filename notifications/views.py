@@ -65,57 +65,15 @@ def live_unread_notification_count(request):
 
 def live_notification_list(request):
     """Return JSON of unread count and content of messages."""
-    if not request.user.is_authenticated():
-        data = {
-            'unread_count': 0,
-            'list': []
-        }
-        return JsonResponse(data)
-
-    try:
-        # Default to 5 as a max number of notifications
-        num_to_fetch = max(int(request.GET.get('max', 10)), 1)
-        num_to_fetch = min(num_to_fetch, 100)
-    except ValueError:
-        num_to_fetch = 5
-
-    try:
-        offset = int(request.GET.get('offset', 0))
-    except ValueError:
-        offset = 0
-
-    list = []
-
-    #for n in request.user.notifications.all()[offset:offset + num_to_fetch]:
-    # Kill notifications for now
-    for n in None:
-        struct = model_to_dict(n)
-        # struct['unread'] = struct['pseudo_unread']
-        struct['slug'] = id2slug(n.id)
-        if n.actor:
-            if isinstance(n.actor, User):
-                # Humanize if possible
-                struct['actor'] = '{f} {l}'.format(f=n.actor.first_name, l=n.actor.last_name)
-            else:
-                struct['actor'] = str(n.actor)
-        if n.target:
-            if hasattr(n.target, 'notification_name'):
-                struct['target'] = n.target.notification_name
-            else:
-                struct['target'] = str(n.target)
-            struct['forward_link'] = n.get_absolute_url()
-        if n.action_object:
-            struct['action_object'] = str(n.action_object)
-        struct['timesince'] = n.timesince()
-
-        list.append(struct)
-
-    if request.GET.get('mark_as_read'):
-        # Mark all as read
-        request.user.notifications.mark_all_as_read()
+    # if not request.user.is_authenticated():
+    #     data = {
+    #         'unread_count': 0,
+    #         'list': []
+    #     }
+    #     return JsonResponse(data)
 
     data = {
-        'unread_count': request.user.notifications.unread().count(),
-        'list': list
+        'unread_count': 0,
+        'list': []
     }
     return JsonResponse(data)
