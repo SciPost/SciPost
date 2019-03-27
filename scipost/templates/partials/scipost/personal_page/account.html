@@ -159,6 +159,7 @@
 	  <th>Category</th>
 	  <th>From</th>
 	  <th>Until</th>
+	  <td>Actions</td>
 	</tr>
       </thead>
       <tbody>
@@ -168,6 +169,10 @@
 	  <td>{{ aff.get_category_display }}</td>
 	  <td>{{ aff.date_from|date:'Y-m-d' }}</td>
 	  <td>{{ aff.date_until|date:'Y-m-d' }}</td>
+	  <td>
+	    <ul class="list-unstyled">
+	      <li><a href="{% url 'profiles:affiliation_update' pk=aff.id %}" class="text-warning">Update</a></li>
+	    </ul>
 	</tr>
 	{% empty %}
 	<tr><td colspan="4">No Affiliation has been defined</td></tr>

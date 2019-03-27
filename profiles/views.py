@@ -412,3 +412,28 @@ class AffiliationCreateView(UserPassesTestMixin, CreateView):
             return reverse_lazy('profiles:profile_detail',
                                 kwargs={'pk': self.object.profile.id})
         return reverse_lazy('scipost:personal_page')
+
+
+class AffiliationUpdateView(UserPassesTestMixin, UpdateView):
+    model = Affiliation
+    form_class = AffiliationForm
+    template_name = 'profiles/affiliation_form.html'
+
+    def test_func(self):
+        """
+        Allow creating an Affiliation if user is Admin, EdAdmin or is
+        the Contributor to which this Profile is related.
+        """
+        if self.request.user.has_perm('scipost.can_create_profiles'):
+            return True
+        return self.request.user.contributor.profile is self.object.profile
+
+    def get_success_url(self):
+        """
+        If request.user is Admin or EdAdmin, redirect to profile detail view.
+        Otherwise if request.user is Profile owner, return to personal page.
+        """
+        if self.request.user.has_perm('scipost.can_create_profiles'):
+            return reverse_lazy('profiles:profile_detail',
+                                kwargs={'pk': self.object.profile.id})
+        return reverse_lazy('scipost:personal_page')

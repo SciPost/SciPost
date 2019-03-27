@@ -77,4 +77,9 @@ urlpatterns = [
         views.AffiliationCreateView.as_view(),
         name='affiliation_create'
     ),
+    url(
+        r'^affiliation/(?P<pk>[0-9]+)/update/$',
+        views.AffiliationUpdateView.as_view(),
+        name='affiliation_update'
+    ),
 ]
