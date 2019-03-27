@@ -34,7 +34,7 @@
 
 <script type="text/javascript">
     $(function() {
-        $('[name="token"]').parents('.form-group').hide();  // Just to prevent having annoying animations.
+        $('[name="code"]').parents('.form-group').hide();  // Just to prevent having annoying animations.
         $('form [name="username"]').on('change', function() {
             $.ajax({
                 type: 'POST',
@@ -47,9 +47,9 @@
                 processData: true,
                 success: function(data) {
                     if (data.has_totp) {
-                        $('[name="token"]').parents('.form-group').show();
+                        $('[name="code"]').parents('.form-group').show();
                     } else {
-                        $('[name="token"]').parents('.form-group').hide();
+                        $('[name="code"]').parents('.form-group').hide();
                     }
                 }
             });

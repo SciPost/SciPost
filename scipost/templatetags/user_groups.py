@@ -124,3 +124,24 @@ def is_editor_in_charge(user, submission):
         return False
 
     return submission.editor_in_charge == user.contributor
+
+
+@register.simple_tag
+def recommend_new_totp_device(user):
+    """
+    Check if User has no TOTPDevice, but still has a high level of information access.
+    """
+    if user.devices.exists():
+        return False
+    if user.is_superuser:
+        return True
+    if user.contributor.fellowships.exists():
+        return True
+    return user.groups.filter(name__in=[
+        'Editorial Administrators',
+        'SciPost Administrators',
+        'Advisory Board',
+        'Financial Administrators',
+        'Vetting Editors',
+        'Editorial College',
+    ]).exists()

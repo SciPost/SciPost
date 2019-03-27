@@ -12,6 +12,7 @@
     {% is_registered_contributor request.user as is_registered_contributor %}
     {% is_tester request.user as is_tester %}
     {% is_production_officer request.user as is_production_officer %}
+    {% recommend_new_totp_device request.user as recommend_totp %}
 
 <div class="row">
     <div class="col-12">
@@ -50,6 +51,21 @@
                   <h3 class="text-warning">You are currently unavailable</h3>
                   <p>Check your availability underneath if this should not be the case.</p>
                   <hr>
+                {% endif %}
+            {# END: Scientist fields #}
+        {% endif %}
+
+        {% if recommend_totp %}
+            {# Scientist fields #}
+                {% if 1 %}
+                <div class="border border-danger p-2 mb-3">
+                  <h3 class="text-warningx">
+                      <i class="fa fa-exclamation-triangle text-danger"></i>
+                      Please increase your account's security</h3>
+                  <p class="mb-0">
+                      We strongly recommend to use two factor authentication that adds an extra layer of protection to your SciPost account.
+                  </p>
+                  </div>
                 {% endif %}
             {# END: Scientist fields #}
         {% endif %}

@@ -9,6 +9,9 @@ from .models import TOTPDevice
 
 
 class TOTPVerification:
+    number_of_digits = 6
+    token_validity_period = 30
+    tolerance = 2  # Gives a 2 minute window to use a code.
 
     def __init__(self, user):
         """
@@ -16,15 +19,13 @@ class TOTPVerification:
         """
         self._user = user
 
-        # Next token must be generated at a higher counter value.
-        self.number_of_digits = 6
-        self.token_validity_period = 30
-        self.tolerance = 2  # Gives a 2 minute window to use a code.
-
-    def verify_token(self, token, tolerance=0):
+    def verify_code(self, code):
+        """
+        Verify a time-dependent code for a certain User.
+        """
         try:
             # Convert the input token to integer
-            token = int(token)
+            code = int(code)
         except ValueError:
             # return False, if token could not be converted to an integer
             return False
@@ -40,7 +41,7 @@ class TOTPVerification:
 
                 # 1. Check if the current counter is higher than the value of last verified counter
                 # 2. Check if entered token is correct
-                valid_token = totp.verify(token, for_time=time_int, valid_window=self.tolerance)
+                valid_token = totp.verify(code, for_time=time_int, valid_window=self.tolerance)
                 if not valid_token:
                     # Token not valid
                     continue
@@ -50,3 +51,18 @@ class TOTPVerification:
                     TOTPDevice.objects.filter(id=device.id).update(last_verified_counter=time_int)
                     return True
         return False
+
+    @classmethod
+    def verify_token(cls, secret_key, code):
+        """
+        Independently verify a secret_key/code combination at current time.
+        """
+        try:
+            # Convert the input token to integer
+            code = int(code)
+        except ValueError:
+            # return False, if token could not be converted to an integer
+            return False
+        time_int = int(time())
+        totp = pyotp.TOTP(secret_key, interval=cls.token_validity_period, digits=cls.number_of_digits)
+        return totp.verify(code, for_time=time_int, valid_window=cls.tolerance)

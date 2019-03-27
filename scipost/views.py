@@ -10,6 +10,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.contrib.auth.views import (
@@ -29,7 +30,7 @@ from django.utils.http import is_safe_url
 from django.views.debug import cleanse_setting
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
-from django.views.generic.edit import FormView, DeleteView
+from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.list import ListView
 from django.views.static import serve
 
@@ -881,12 +882,18 @@ def update_personal_data(request):
     return _update_personal_data_user_only(request)
 
 
-class TOTPListView(ListView):
+class TOTPListView(LoginRequiredMixin, ListView):
+    """
+    List all TOTP devices for logged in User.
+    """
     def get_queryset(self):
         return self.request.user.devices.all()
 
 
-class TOTPDeviceCreateView(FormView):
+class TOTPDeviceCreateView(LoginRequiredMixin, CreateView):
+    """
+    Create a new TOTP device.
+    """
     form_class = TOTPDeviceForm
     template_name = 'scipost/totpdevice_form.html'
     success_url = reverse_lazy('scipost:totp')
@@ -897,7 +904,10 @@ class TOTPDeviceCreateView(FormView):
         return kwargs
 
 
-class TOTPDeviceDeleteView(DeleteView):
+class TOTPDeviceDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    Confirm deletion of a TOTP device.
+    """
     pk_url_kwarg = 'device_id'
     success_url = reverse_lazy('scipost:totp')
 

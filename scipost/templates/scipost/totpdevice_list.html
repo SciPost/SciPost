@@ -14,9 +14,18 @@
 <div class="row">
     <div class="col-md-12">
       <h1 class="highlight">Two factor authentication</h1>
-      <a href="{% url 'scipost:totp_create' %}">Set up a new two factor authentication device</a>
+      <p>
+          We strongly recommend to use two factor authentication that adds an extra layer of protection to your SciPost account.
+          You will need a mobile device capable or running a mobile authentication application, for example:
+          <ul>
+              <li><a href="http://support.google.com/accounts/bin/answer.py?hl=en&answer=1066447" target="_blank">Google Authenticator</a> (Android/iOS)</li>
+              <li><a href="http://guide.duosecurity.com/third-party-accounts" target="_blank">Duo Mobile</a> (Android/iOS)</li>
+              <li><a href="http://aka.ms/dbauthenticator" target="_blank">Authenticator</a> (Windows Phone 7)</li>
+          </ul>
+          <a href="{% url 'scipost:totp_create' %}">Set up a new two factor authentication device</a>
+      </p>
 
-      <h3 class="mt-4">Your devices</h3>
+      <h3 class="mt-5 mb-3">Your devices</h3>
       <table class="table">
           <thead>
               <tr>
