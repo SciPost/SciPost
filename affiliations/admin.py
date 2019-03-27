@@ -7,5 +7,14 @@ from django.contrib import admin
 from .models import Affiliation, Institution
 
 
-admin.site.register(Affiliation)
-admin.site.register(Institution)
+class AffiliationAdmin(admin.ModelAdmin):
+    search_fields = ['institution__name', 'institution__acronym',
+                     'contributor__user__last_name']
+
+admin.site.register(Affiliation, AffiliationAdmin)
+
+
+class InstitutionAdmin(admin.ModelAdmin):
+    search_fields =['name', 'acronym']
+
+admin.site.register(Institution, InstitutionAdmin)
