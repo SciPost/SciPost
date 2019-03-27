@@ -199,8 +199,8 @@ class Affiliation(models.Model):
 
     class Meta:
         default_related_name = 'affiliations'
-        ordering = ['profile__user__last_name', 'profile__user__first_name',
-                    'date_until']
+        ordering = ['profile__last_name', 'profile__first_name',
+                    '-date_until']
 
     def __str__(self):
         return '{ profile }, { organization } [{ date_from } to { date_until }]'.format(

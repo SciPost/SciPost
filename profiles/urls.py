@@ -72,4 +72,9 @@ urlpatterns = [
         views.delete_profile_email,
         name='delete_profile_email'
     ),
+    url(
+        r'^(?P<profile_id>[0-9]+)/affiliation/add/$',
+        views.AffiliationCreateView.as_view(),
+        name='affiliation_create'
+    ),
 ]

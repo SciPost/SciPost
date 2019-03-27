@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
 from django.db.models import Q
@@ -24,8 +25,8 @@ from invitations.models import RegistrationInvitation
 from journals.models import UnregisteredAuthor
 from submissions.models import RefereeInvitation
 
-from .models import Profile, ProfileEmail
-from .forms import ProfileForm, ProfileMergeForm, ProfileEmailForm
+from .models import Profile, ProfileEmail, Affiliation
+from .forms import ProfileForm, ProfileMergeForm, ProfileEmailForm, AffiliationForm
 
 
 
@@ -377,3 +378,37 @@ def delete_profile_email(request, email_id):
     profile_email.delete()
     messages.success(request, 'Email deleted')
     return redirect(profile_email.profile.get_absolute_url())
+
+
+class AffiliationCreateView(UserPassesTestMixin, CreateView):
+    model = Affiliation
+    form_class = AffiliationForm
+    template_name = 'profiles/affiliation_form.html'
+
+    def test_func(self):
+        """
+        Allow creating an Affiliation if user is Admin, EdAdmin or is
+        the Contributor to which this Profile is related.
+        """
+        if self.request.user.has_perm('scipost.can_create_profiles'):
+            return True
+        profile = get_object_or_404(Profile, pk=self.kwargs.get('profile_id'))
+        return self.request.user.contributor.profile is profile
+
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        profile = get_object_or_404(Profile, pk=self.kwargs.get('profile_id'))
+        initial.update({
+            'profile': profile
+        })
+        return initial
+
+    def get_success_url(self):
+        """
+        If request.user is Admin or EdAdmin, redirect to profile detail view.
+        Otherwise if request.user is Profile owner, return to personal page.
+        """
+        if self.request.user.has_perm('scipost.can_create_profiles'):
+            return reverse_lazy('profiles:profile_detail',
+                                kwargs={'pk': self.object.profile.id})
+        return reverse_lazy('scipost:personal_page')
