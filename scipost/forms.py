@@ -154,10 +154,14 @@ class RegistrationForm(forms.Form):
             'password': self.cleaned_data['password'],
             'is_active': False
         })
-        institution, __ = Institution.objects.get_or_create(
-            country=self.cleaned_data['country_of_employment'],
-            name=self.cleaned_data['affiliation'],
-        )
+        try:
+            institution = Institution.objects.filter(
+                country=self.cleaned_data['country_of_employment'],
+                name=self.cleaned_data['affiliation']).first()
+        except Institution.DoesNotExist:
+            institution = Institution.objects.create(
+                country=self.cleaned_data['country_of_employment'],
+                name=self.cleaned_data['affiliation'])
         contributor, __ = Contributor.objects.get_or_create(**{
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
@@ -167,10 +171,13 @@ class RegistrationForm(forms.Form):
             'personalwebpage': self.cleaned_data['personalwebpage'],
             'accepts_SciPost_emails': self.cleaned_data['subscribe'],
         })
-        affiliation, __ = Affiliation.objects.get_or_create(
-            contributor=contributor,
-            institution=institution,
-        )
+        try:
+            Affiliation.objects.filter(
+                contributor=contributor, institution=institution).first()
+        except Affiliation.DoesNotExist:
+            Affiliation.objects.create(
+                contributor=contributor, institution=institution)
+
         contributor.save()
         return contributor
 
