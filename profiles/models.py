@@ -203,7 +203,8 @@ class Affiliation(models.Model):
                     '-date_until']
 
     def __str__(self):
-        return '{ profile }, { organization } [{ date_from } to { date_until }]'.format(
-            profile=self.profile, organization=self.organization,
-            date_from=self.date_from.strftime('Y-m-d'),
-            date_until=self.date_until.strftime('Y-m-d'))
+        return '%s, %s [%s to %s]' % (
+            str(self.profile),
+            str(self.organization),
+            self.date_from.strftime('%Y-%m-%d') if self.date_from else 'Undefined',
+            self.date_until.strftime('%Y-%m-%d') if self.date_until else 'Undefined')

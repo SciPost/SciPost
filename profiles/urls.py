@@ -78,8 +78,13 @@ urlpatterns = [
         name='affiliation_create'
     ),
     url(
-        r'^affiliation/(?P<pk>[0-9]+)/update/$',
+        r'^(?P<profile_id>[0-9]+)/affiliation/(?P<pk>[0-9]+)/update/$',
         views.AffiliationUpdateView.as_view(),
         name='affiliation_update'
+    ),
+    url(
+        r'^(?P<profile_id>[0-9]+)/affiliation/(?P<pk>[0-9]+)/delete/$',
+        views.AffiliationDeleteView.as_view(),
+        name='affiliation_delete'
     ),
 ]

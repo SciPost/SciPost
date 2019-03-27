@@ -62,8 +62,8 @@ class OrganizationLookup(LookupChannel):
         return item.full_name_with_acronym
 
     def check_auth(self, request):
-        """Check if has organization administrative permissions."""
-        if not request.user.has_perm('scipost.can_manage_organizations'):
+        """Allow use by logged-in users (e.g. for Affiliations handling)."""
+        if not request.user.is_authenticated():
             raise PermissionDenied
 
 
