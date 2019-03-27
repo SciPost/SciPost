@@ -56,18 +56,17 @@
         {% endif %}
 
         {% if recommend_totp %}
-            {# Scientist fields #}
-                {% if 1 %}
-                <div class="border border-danger p-2 mb-3">
+            <div class="border border-danger p-2 mb-3">
                   <h3 class="text-warningx">
                       <i class="fa fa-exclamation-triangle text-danger"></i>
                       Please increase your account's security</h3>
-                  <p class="mb-0">
-                      We strongly recommend to use two factor authentication that adds an extra layer of protection to your SciPost account.
-                  </p>
+                  <div>
+                      Your account grants access to sensitive, confidential information. Therefore we strongly recommend to use two factor authentication that adds an extra layer of protection to your SciPost account.
+
+                      <br><br>
+                      <a href="{% url 'scipost:totp_create' %}">Set up two factor authentication here</a>.
                   </div>
-                {% endif %}
-            {# END: Scientist fields #}
+              </div>
         {% endif %}
 
         {% if not contributor.petition_signatories.exists %}

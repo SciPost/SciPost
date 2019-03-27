@@ -24,9 +24,10 @@ class TOTPVerification:
         Verify a time-dependent code for a certain User.
         """
         try:
-            # Convert the input token to integer
-            code = int(code)
-        except ValueError:
+            # Try to see if input token is convertable to integer.
+            # Do not actually make it a integer, because it'll loose the leading 0s.
+            assert int(code) > 0
+        except (ValueError, AssertionError):
             # return False, if token could not be converted to an integer
             return False
         else:
@@ -58,9 +59,10 @@ class TOTPVerification:
         Independently verify a secret_key/code combination at current time.
         """
         try:
-            # Convert the input token to integer
-            code = int(code)
-        except ValueError:
+            # Try to see if input token is convertable to integer.
+            # Do not actually make it a integer, because it'll loose the leading 0s.
+            assert int(code) > 0
+        except (ValueError, AssertionError):
             # return False, if token could not be converted to an integer
             return False
         time_int = int(time())

@@ -16,6 +16,7 @@ from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordChangeView,
     PasswordResetView, PasswordResetConfirmView)
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -890,13 +891,14 @@ class TOTPListView(LoginRequiredMixin, ListView):
         return self.request.user.devices.all()
 
 
-class TOTPDeviceCreateView(LoginRequiredMixin, CreateView):
+class TOTPDeviceCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
     """
     Create a new TOTP device.
     """
     form_class = TOTPDeviceForm
     template_name = 'scipost/totpdevice_form.html'
     success_url = reverse_lazy('scipost:totp')
+    success_message = 'Two factor authentication device %(name)s successfully added.'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
