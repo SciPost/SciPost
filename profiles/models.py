@@ -18,7 +18,7 @@ from journals.models import Publication, PublicationAuthorsTable
 from ontology.models import Topic
 from theses.models import ThesisLink
 
-from .constants import PROFILE_NON_DUPLICATE_REASONS
+from .constants import PROFILE_NON_DUPLICATE_REASONS, AFFILIATION_CATEGORIES
 from .managers import ProfileQuerySet
 
 
@@ -164,3 +164,46 @@ class ProfileNonDuplicates(models.Model):
     @property
     def full_name(self):
         return '%s%s' % (self.profiles.first().last_name, self.profiles.first().first_name)
+
+
+
+################
+# Affiliations #
+################
+
+class Affiliation(models.Model):
+    """
+    Link between a Profile and an Organization, for a specified time interval.
+
+    Fields:
+    * profile
+    * organization
+    * description
+    * date_from
+    * date_until
+
+    Affiliations can overlap in time.
+
+    Ideally, each Profile would have at least one valid Affiliation at each moment
+    of time during the whole duration of that person's career.
+    """
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE,
+                                related_name='affiliations')
+    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
+                                     related_name='affiliations')
+    category = models.CharField(max_length=64, choices=AFFILIATION_CATEGORIES,
+                                help_text='Select the most suitable category')
+    description = models.CharField(max_length=256)
+    date_from = models.DateField(blank=True, null=True)
+    date_until = models.DateField(blank=True, null=True)
+
+    class Meta:
+        default_related_name = 'affiliations'
+        ordering = ['profile__user__last_name', 'profile__user__first_name',
+                    'date_until']
+
+    def __str__(self):
+        return '{ profile }, { organization } [{ date_from } to { date_until }]'.format(
+            profile=self.profile, organization=self.organization,
+            date_from=self.date_from.strftime('Y-m-d'),
+            date_until=self.date_until.strftime('Y-m-d'))
