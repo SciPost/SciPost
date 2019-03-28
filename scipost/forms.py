@@ -16,7 +16,6 @@ from django.utils.dates import MONTHS
 
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
-from django_countries.fields import LazyTypedChoiceField
 
 from ajax_select.fields import AutoCompleteSelectField
 from haystack.forms import ModelSearchForm as HayStackSearchForm
@@ -101,19 +100,14 @@ class RegistrationForm(forms.Form):
         'organization_lookup',
         help_text=('Start typing, then select in the popup; '
                    'if you do not find the organization you seek, '
-                   'please fill in the next two fields (country, affiliation) instead.'),
+                   'please fill in your address instead.'),
         show_help_text=False,
         required=False,
         label='* Current affiliation')
-    country_of_employment = LazyTypedChoiceField(
-        choices=countries, label='Country of employment', initial='NL',
-        widget=CountrySelectWidget(layout=(
-            '{widget}<img class="country-select-flag" id="{flag_id}"'
-            ' style="margin: 6px 4px 0" src="{country.flag}">')), required=False)
-    affiliation = forms.CharField(label='Affiliation', max_length=300, required=False)
     address = forms.CharField(
-        label='Address', max_length=1000,
-        widget=forms.TextInput({'placeholder': 'For postal correspondence'}), required=False)
+        label='Institution name and address', max_length=1000,
+        widget=forms.TextInput({'placeholder': '[only if you did not find your affiliation above]'}),
+        required=False)
     personalwebpage = forms.URLField(
         label='Personal web page', required=False,
         widget=forms.TextInput({'placeholder': 'full URL, e.g. https://www.[yourpage].com'}))
@@ -128,19 +122,17 @@ class RegistrationForm(forms.Form):
 
     def clean(self):
         """
-        Check that either an organization, or country + affiliation are provided.
+        Check that either an organization or an address are provided.
         """
         cleaned_data = super(RegistrationForm, self).clean()
         current_affiliation = cleaned_data.get('current_affiliation', None)
-        country_of_employment = cleaned_data.get('country_of_employment', None)
-        affiliation = cleaned_data.get('affiliation', '')
+        address = cleaned_data.get('address', '')
 
-        if current_affiliation is None:
-            if country_of_employment is None or affiliation == '':
-                raise forms.ValidationError(
-                    'You must either specify a Current Affiliation, or '
-                    'fill in both country + affiliation fields'
-                    )
+        if current_affiliation is None and address == '':
+            raise forms.ValidationError(
+                'You must either specify a Current Affiliation, or '
+                'fill in the institution name and address field'
+            )
 
     def clean_password(self):
         password = self.cleaned_data.get('password', '')
