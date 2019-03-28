@@ -1,9 +1,8 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import time
 import pyotp
-
-from time import time
 
 from .models import TOTPDevice
 
@@ -36,7 +35,7 @@ class TOTPVerification:
                 return False
 
             for device in self._user.devices.all():
-                time_int = int(time())
+                time_int = int(time.time())
                 totp = pyotp.TOTP(
                     device.token, interval=self.token_validity_period, digits=self.number_of_digits)
 
@@ -66,6 +65,6 @@ class TOTPVerification:
         except (ValueError, AssertionError):
             # return False, if token could not be converted to an integer
             return False
-        time_int = int(time())
+        time_int = int(time.time())
         totp = pyotp.TOTP(secret_key, interval=cls.token_validity_period, digits=cls.number_of_digits)
         return totp.verify(code, for_time=time_int, valid_window=cls.tolerance)
