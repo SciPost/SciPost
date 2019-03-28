@@ -18,7 +18,8 @@ from journals.models import Publication, PublicationAuthorsTable
 from ontology.models import Topic
 from theses.models import ThesisLink
 
-from .constants import PROFILE_NON_DUPLICATE_REASONS, AFFILIATION_CATEGORIES
+from .constants import (PROFILE_NON_DUPLICATE_REASONS,
+                        AFFILIATION_CATEGORIES, AFFILIATION_CATEGORY_UNSPECIFIED)
 from .managers import ProfileQuerySet
 
 
@@ -192,6 +193,7 @@ class Affiliation(models.Model):
     organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
                                      related_name='affiliations')
     category = models.CharField(max_length=64, choices=AFFILIATION_CATEGORIES,
+                                default=AFFILIATION_CATEGORY_UNSPECIFIED,
                                 help_text='Select the most suitable category')
     description = models.CharField(max_length=256)
     date_from = models.DateField(blank=True, null=True)

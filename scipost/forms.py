@@ -30,7 +30,8 @@ from .fields import ReCaptchaField
 from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
     Remark, AuthorshipClaim, PrecookedEmail
 
-from affiliations.models import Affiliation, Institution
+from affiliations.models import Affiliation as deprec_Affiliation
+from affiliations.models import Institution
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
 from organizations.decorators import has_contact
 
@@ -41,6 +42,7 @@ from funders.models import Grant
 from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
+from profiles.models import Profile, ProfileEmail, Affiliation
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
     EditorialCommunication, EICRecommendation
 from theses.models import ThesisLink
@@ -95,12 +97,20 @@ class RegistrationForm(forms.Form):
         widget=forms.TextInput({
             'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
+    current_affiliation = AutoCompleteSelectField(
+        'organization_lookup',
+        help_text=('Start typing, then select in the popup; '
+                   'if you do not find the organization you seek, '
+                   'please fill in the next two fields (country, affiliation) instead.'),
+        show_help_text=False,
+        required=False,
+        label='* Current affiliation')
     country_of_employment = LazyTypedChoiceField(
-        choices=countries, label='* Country of employment', initial='NL',
+        choices=countries, label='Country of employment', initial='NL',
         widget=CountrySelectWidget(layout=(
             '{widget}<img class="country-select-flag" id="{flag_id}"'
-            ' style="margin: 6px 4px 0" src="{country.flag}">')))
-    affiliation = forms.CharField(label='* Affiliation', max_length=300)
+            ' style="margin: 6px 4px 0" src="{country.flag}">')), required=False)
+    affiliation = forms.CharField(label='Affiliation', max_length=300, required=False)
     address = forms.CharField(
         label='Address', max_length=1000,
         widget=forms.TextInput({'placeholder': 'For postal correspondence'}), required=False)
@@ -112,9 +122,25 @@ class RegistrationForm(forms.Form):
     password = forms.CharField(label='* Password', widget=forms.PasswordInput())
     password_verif = forms.CharField(label='* Verify password', widget=forms.PasswordInput(),
                                      help_text='Your password must contain at least 8 characters')
-    captcha = ReCaptchaField(label='*Please verify to continue:')
+    captcha = ReCaptchaField(label='* Please verify to continue:')
     subscribe = forms.BooleanField(
         required=False, initial=False, label='Stay informed, subscribe to the SciPost newsletter.')
+
+    def clean(self):
+        """
+        Check that either an organization, or country + affiliation are provided.
+        """
+        cleaned_data = super(RegistrationForm, self).clean()
+        current_affiliation = cleaned_data.get('current_affiliation', None)
+        country_of_employment = cleaned_data.get('country_of_employment', None)
+        affiliation = cleaned_data.get('affiliation', '')
+
+        if current_affiliation is None:
+            if country_of_employment is None or affiliation == '':
+                raise forms.ValidationError(
+                    'You must either specify a Current Affiliation, or '
+                    'fill in both country + affiliation fields'
+                    )
 
     def clean_password(self):
         password = self.cleaned_data.get('password', '')
@@ -154,15 +180,34 @@ class RegistrationForm(forms.Form):
             'password': self.cleaned_data['password'],
             'is_active': False
         })
-        try:
-            institution = Institution.objects.filter(
-                country=self.cleaned_data['country_of_employment'],
-                name=self.cleaned_data['affiliation']).first()
-        except Institution.DoesNotExist:
-            institution = Institution.objects.create(
-                country=self.cleaned_data['country_of_employment'],
-                name=self.cleaned_data['affiliation'])
+        # Get or create a Profile
+        profile = Profile.objects.filter(
+            title=self.cleaned_data['title'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            discipline=self.cleaned_data['discipline']).first()
+        if profile is None:
+            profile = Profile.objects.create(
+                title=self.cleaned_data['title'],
+                first_name=self.cleaned_data['first_name'],
+                last_name=self.cleaned_data['last_name'],
+                discipline=self.cleaned_data['discipline'],
+                orcid_id=self.cleaned_data['orcid_id'],
+                webpage=self.cleaned_data['personalwebpage'])
+        # Add a ProfileEmail to this Profile
+        ProfileEmail.objects.create(
+            profile=profile,
+            email=self.cleaned_data['email'],
+            primary=True)
+        # Create an Affiliation for this Profile
+        current_affiliation = self.cleaned_data.get('current_affiliation', None)
+        if current_affiliation:
+            Affiliation.objects.create(
+                profile=profile,
+                organization=self.cleaned_data['current_affiliation'])
+        # Create the Contributor object
         contributor, __ = Contributor.objects.get_or_create(**{
+            'profile': profile,
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
             'title': self.cleaned_data['title'],
@@ -171,13 +216,6 @@ class RegistrationForm(forms.Form):
             'personalwebpage': self.cleaned_data['personalwebpage'],
             'accepts_SciPost_emails': self.cleaned_data['subscribe'],
         })
-        try:
-            Affiliation.objects.filter(
-                contributor=contributor, institution=institution).first()
-        except Affiliation.DoesNotExist:
-            Affiliation.objects.create(
-                contributor=contributor, institution=institution)
-
         contributor.save()
         return contributor
 
@@ -435,7 +473,7 @@ class ContributorMergeForm(forms.Form):
         contrib_from_qs.update(duplicate_of=contrib_into)
 
         # Step 2: update all ForeignKey relations
-        Affiliation.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
+        deprec_Affiliation.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
         Fellowship.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
         PotentialFellowshipEvent.objects.filter(
             noted_by=contrib_from).update(noted_by=contrib_into)
