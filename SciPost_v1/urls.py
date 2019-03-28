@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -28,7 +29,8 @@ router.register(r'news', NewsItemViewSet)
 router.register(r'conflicts', ConflictOfInterestViewSet)
 router.register(r'publications/GoogleScholar', PublicationViewSetForGoogleScholar)
 
-
+# Disable admin login view which is essentially a 2FA workaround.
+admin.site.login = login_required(admin.site.login)
 
 # Base URLs
 urlpatterns = [

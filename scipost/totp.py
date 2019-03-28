@@ -43,6 +43,7 @@ class TOTPVerification:
                 # 1. Check if the current counter is higher than the value of last verified counter
                 # 2. Check if entered token is correct
                 valid_token = totp.verify(code, for_time=time_int, valid_window=self.tolerance)
+
                 if not valid_token:
                     # Token not valid
                     continue
