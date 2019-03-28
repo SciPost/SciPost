@@ -17,7 +17,11 @@
 	  <td>{{ profile }}</td>
 	</tr>
 	<tr>
-	  <td>Affiliations</td>
+	  <td>Affiliations
+	    <ul>
+	      <li><a href="{% url 'profiles:affiliation_create' profile_id=profile.id %}">Add a new Affiliation</a></li>
+	    </ul>
+	  </td>
 	  <td>
 	    {% include 'profiles/_affiliations_table.html' with contributor=profile.contributor actions=True %}
 	  </td>
