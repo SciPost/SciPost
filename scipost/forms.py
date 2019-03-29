@@ -30,7 +30,6 @@ from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
     Remark, AuthorshipClaim, PrecookedEmail
 
 from affiliations.models import Affiliation as deprec_Affiliation
-from affiliations.models import Institution
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
 from organizations.decorators import has_contact
 
