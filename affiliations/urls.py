@@ -14,4 +14,10 @@ urlpatterns = [
         name='institution_edit'),
     url(r'^(?P<institution_id>[0-9]+)/merge$', views.merge_institutions,
         name='merge_institutions'),
+    url(r'^institutions_without_organization/$',
+        views.InstitutionWithoutOrganizationListView.as_view(),
+        name='institutions_without_organization'),
+    url(r'^(?P<pk>[0-9]+)/link_to_organization/$',
+        views.LinkInstitutionToOrganizationView.as_view(),
+        name='link_to_organization'),
 ]

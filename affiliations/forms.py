@@ -9,6 +9,8 @@ from django_countries import countries
 from django_countries.fields import LazyTypedChoiceField
 from django_countries.widgets import CountrySelectWidget
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from common.widgets import DateWidget
 
 from .models import Affiliation, Institution
@@ -117,3 +119,11 @@ class InstitutionMergeForm(forms.ModelForm):
                 institution=old_institution).update(institution=self.instance)
             old_institution.delete()
         return self.instance
+
+
+class InstitutionOrganizationSelectForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+
+    class Meta:
+        model = Institution
+        fields = []
