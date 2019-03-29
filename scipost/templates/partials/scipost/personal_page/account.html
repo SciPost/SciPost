@@ -144,7 +144,7 @@
     <ul>
       <li><a href="{% url 'profiles:affiliation_create' profile_id=contributor.profile.id %}">Add a new Affiliation</a></li>
     </ul>
-    {% include 'profiles/_affiliations_table.html' with contributor=contributor actions=True %}
+    {% include 'profiles/_affiliations_table.html' with profile=contributor.profile actions=True %}
   </div>
 </div>
 

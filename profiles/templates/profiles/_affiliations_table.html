@@ -11,7 +11,7 @@
     </tr>
   </thead>
   <tbody>
-    {% for aff in contributor.profile.affiliations.all %}
+    {% for aff in profile.affiliations.all %}
     <tr>
       <td>{{ aff.organization }}<br/>&nbsp;<em>{{ aff.description }}</em></td>
       <td>{{ aff.get_category_display }}</td>
@@ -20,8 +20,8 @@
       {% if actions %}
       <td>
 	<ul class="list-unstyled">
-	  <li><a href="{% url 'profiles:affiliation_update' profile_id=contributor.profile.id pk=aff.id %}" class="text-warning">Update</a></li>
-	  <li><a href="{% url 'profiles:affiliation_delete' profile_id=contributor.profile.id pk=aff.id %}" class="text-danger">Delete</a></li>
+	  <li><a href="{% url 'profiles:affiliation_update' profile_id=profile.id pk=aff.id %}" class="text-warning">Update</a></li>
+	  <li><a href="{% url 'profiles:affiliation_delete' profile_id=profile.id pk=aff.id %}" class="text-danger">Delete</a></li>
 	</ul>
       </td>
       {% endif %}

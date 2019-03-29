@@ -100,7 +100,7 @@ class RegistrationForm(forms.Form):
         'organization_lookup',
         help_text=('Start typing, then select in the popup; '
                    'if you do not find the organization you seek, '
-                   'please fill in your address instead.'),
+                   'please fill in your institution name and address instead.'),
         show_help_text=False,
         required=False,
         label='* Current affiliation')
