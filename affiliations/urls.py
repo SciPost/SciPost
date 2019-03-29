@@ -12,6 +12,8 @@ urlpatterns = [
         name='institution_details'),
     url(r'^(?P<institution_id>[0-9]+)/edit', views.InstitutionUpdateView.as_view(),
         name='institution_edit'),
+    url(r'^(?P<institution_id>[0-9]+)/delete/', views.InstitutionDeleteView.as_view(),
+        name='institution_delete'),
     url(r'^(?P<institution_id>[0-9]+)/merge$', views.merge_institutions,
         name='merge_institutions'),
     url(r'^institutions_without_organization/$',

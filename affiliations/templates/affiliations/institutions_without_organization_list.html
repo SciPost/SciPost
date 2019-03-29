@@ -20,7 +20,10 @@
     {% for institution in object_list %}
         <li>
             {% if perms.scipost.can_manage_affiliations %}
-	    <a href="{% url 'affiliations:link_to_organization' pk=institution.pk %}">Link to Org</a>&emsp;
+	    <a href="{% url 'affiliations:link_to_organization' pk=institution.pk %}">Link to Org</a>
+	    &emsp;
+	    <a href="{% url 'affiliations:institution_delete' institution_id=institution.pk %}" class="text-danger">Delete</a>
+	    &emsp;
 	    {% endif %}
             <a href="{{ institution.get_absolute_url }}">{{ institution }}</a>
         </li>

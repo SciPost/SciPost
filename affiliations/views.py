@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import permission_required
 from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
 
@@ -26,6 +26,13 @@ class InstitutionListView(ListView):
 class InstitutionDetailView(DetailView):
     model = Institution
     pk_url_kwarg = 'institution_id'
+
+
+class InstitutionDeleteView(PermissionsMixin, DeleteView):
+    model = Institution
+    permission_required = 'scipost.can_manage_affiliations'
+    pk_url_kwarg = 'institution_id'
+    success_url = reverse_lazy('affiliations:institutions_without_organization')
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
