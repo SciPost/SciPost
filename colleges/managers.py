@@ -56,7 +56,7 @@ class PotentialFellowshipQuerySet(models.QuerySet):
         return self.filter(
             profile__discipline=contributor.profile.discipline,
             status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
-        ).order_by('profile__last_name')
+        ).distinct().order_by('profile__last_name')
 
     def to_vote_on(self, contributor):
         return self.vote_needed(contributor).exclude(
