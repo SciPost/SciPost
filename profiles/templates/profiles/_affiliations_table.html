@@ -13,7 +13,10 @@
   <tbody>
     {% for aff in profile.affiliations.all %}
     <tr>
-      <td>{{ aff.organization }}<br/>&nbsp;<em>{{ aff.description }}</em></td>
+      <td>
+	{{ aff.organization }}
+	{% if aff.description %}<br/>&nbsp;<em>{{ aff.description }}</em>{% endif %}
+      </td>
       <td>{{ aff.get_category_display }}</td>
       <td>{% if aff.date_from %}{{ aff.date_from|date:'Y-m-d' }}{% else %}Undefined{% endif %}</td>
       <td>{% if aff.date_until %}{{ aff.date_until|date:'Y-m-d' }}{% else %}Undefined{% endif %}</td>
