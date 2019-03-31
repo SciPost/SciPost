@@ -21,7 +21,8 @@ WEBPACK_LOADER['DEFAULT']['CACHE'] = True
 WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/scipost/webapps/scipost_static/bundles/'
 
 # Error reporting
-ADMINS = MANAGERS = (('J.S.Caux', 'J.S.Caux@uva.nl'), ('J.de Wit', 'jorrandewit@outlook.com'))
+ADMINS = []
+MANAGERS = (('J.S.Caux', 'J.S.Caux@uva.nl'), ('J.de Wit', 'jorrandewit@outlook.com'))
 
 # Cookies
 SESSION_COOKIE_SECURE = True
