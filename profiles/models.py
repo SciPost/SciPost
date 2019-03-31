@@ -195,7 +195,7 @@ class Affiliation(models.Model):
     category = models.CharField(max_length=64, choices=AFFILIATION_CATEGORIES,
                                 default=AFFILIATION_CATEGORY_UNSPECIFIED,
                                 help_text='Select the most suitable category')
-    description = models.CharField(max_length=256)
+    description = models.CharField(max_length=256, blank=True, null=True)
     date_from = models.DateField(blank=True, null=True)
     date_until = models.DateField(blank=True, null=True)
 
