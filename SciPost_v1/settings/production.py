@@ -1,3 +1,6 @@
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from .base import *
 
 # THE MAIN THING HERE
@@ -57,3 +60,10 @@ LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/sci
 
 # API
 REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
+
+
+# Sentry
+sentry_sdk.init(
+    dsn=get_secret('SENTRY_DSN'),
+    integrations=[DjangoIntegration()]
+)

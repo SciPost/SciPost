@@ -117,7 +117,7 @@ $(document).ready(function($) {
             <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	    {% endfor %}
 	  </td>
-	  <td style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}&nbsp;<small>{% voting_results_display potfel %}</small></td>
+	  <td style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}<br/><small>{% voting_results_display potfel %}</small></td>
 	  <td>{{ potfel.latest_event_details }}</td>
 	</tr>
 	{% empty %}
