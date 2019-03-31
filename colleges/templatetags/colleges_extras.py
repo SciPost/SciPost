@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django import template
+from django.utils.html import format_html, mark_safe
 
 from ..constants import (
     POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,
@@ -14,6 +15,7 @@ from ..constants import (
     POTENTIAL_FELLOWSHIP_INTERESTED, POTENTIAL_FELLOWSHIP_REGISTERED,
     POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE, POTENTIAL_FELLOWSHIP_SCIPOST_EMERITUS
     )
+from ..models import Fellowship
 
 from common.utils import hslColorWheel
 
@@ -62,8 +64,33 @@ def potfelstatuscolor(status):
 @register.simple_tag
 def voting_results_display(potfel):
     if potfel.status == POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING:
-        return ' Agree: %s, Abstain: %s, Disagree: %s' % (
-            potfel.in_agreement.count(),
-            potfel.in_abstain.count(),
-            potfel.in_disagreement.count())
+        nr_agree = potfel.in_agreement.count()
+        nr_abstain = potfel.in_abstain.count()
+        nr_disagree = potfel.in_disagreement.count()
+        nr_spec_agree = potfel.in_agreement.all().specialties_overlap(
+            potfel.profile.discipline, potfel.profile.expertises).count()
+        nr_spec_abstain = potfel.in_abstain.all().specialties_overlap(
+            potfel.profile.discipline, potfel.profile.expertises).count()
+        nr_spec_disagree = potfel.in_disagreement.all().specialties_overlap(
+            potfel.profile.discipline, potfel.profile.expertises).count()
+        nr_specialists = Fellowship.objects.active().specialties_overlap(
+            potfel.profile.discipline, potfel.profile.expertises).count()
+        nr_Fellows = Fellowship.objects.active().specialties_overlap(
+            potfel.profile.discipline).count()
+        # Establish whether election criterion has been met.
+        # Rule is: spec Agree must be >= 3/4 of (total nr of spec - nr abstain)
+        election_agree_percentage = int(
+            100 * nr_spec_agree/(max(1, nr_specialists - nr_spec_abstain)))
+        election_criterion_met = nr_spec_agree > 0 and election_agree_percentage >= 75
+        if election_criterion_met:
+            election_text = ('&emsp;<strong class="bg-success p-1 text-white">'
+                             'Elected (%s&#37; in favour)</strong>' % str(election_agree_percentage))
+        else:
+            election_text = ('&emsp;<strong class="bg-warning p-1 text-white">'
+                             '%s&#37; in favour</strong>') % str(election_agree_percentage)
+        return format_html('Specialists ({}):<br/>Agree: {}, Abstain: {}, Disagree: {}&nbsp;{}<br/>'
+                           'All: ({} Fellows)<br/>Agree: {}, Abstain: {}, Disagree: {}',
+                           nr_specialists, nr_spec_agree, nr_spec_abstain, nr_spec_disagree,
+                           mark_safe(election_text),
+                           nr_Fellows, nr_agree, nr_abstain, nr_disagree)
     return ''
