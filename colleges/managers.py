@@ -33,7 +33,7 @@ class FellowQuerySet(models.QuerySet):
         This method is also separately implemented for Contributor and Profile objects.
         """
         qs = self.filter(contributor__profile__discipline=discipline)
-        if len(expertises) > 0:
+        if expertises and len(expertises) > 0:
             qs = qs.filter(contributor__profile__expertises__overlap=expertises)
         return qs
 
@@ -45,7 +45,7 @@ class FellowQuerySet(models.QuerySet):
         This method is also separately implemented for Contributor and Profile objects.
         """
         qs = self.filter(contributor__profile__discipline=discipline)
-        if len(expertises) > 0:
+        if expertises and len(expertises) > 0:
             qs = qs.filter(contributor__profile__expertises__contains=expertises)
         return qs
 
