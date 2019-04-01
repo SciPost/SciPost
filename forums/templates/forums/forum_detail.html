@@ -19,7 +19,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight">
+    <h2 class="highlight">
       {% if forum.meeting %}
       {% with context_colors=forum.meeting.context_colors %}
       <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
@@ -34,7 +34,7 @@
 	<a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
 	<span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
       </span>
-    </h3>
+    </h2>
 
     {% if forum.parent %}
     <p>Parent: <a href="{{ forum.parent.get_absolute_url }}">{{ forum.parent }}</a></p>
@@ -92,39 +92,45 @@
     {% endif %}
 
 
-    <h3>Table of Contents</h3>
-    <ul>
-      <li><a href="#Description">Description</a></li>
-      {% if forum.meeting %}
-      <li><a href="#Preamble">Preamble</a></li>
-      <li><a href="#Motions">Motions</a></li>
-      {% endif %}
-      <li><a href="#Posts">Posts</a></li>
-      {% if forum.meeting %}
-      <li><a href="#Minutes">Minutes</a></li>
-      {% endif %}
-    </ul>
+    <h2>Table of Contents</h2>
+    <div class="m-2">
+      <ul>
+	<li><a href="#Description">Description</a></li>
+	{% if forum.meeting %}
+	<li><a href="#Preamble">Preamble</a></li>
+	<li><a href="#Motions">Motions</a></li>
+	{% endif %}
+	<li><a href="#Posts">Posts</a></li>
+	{% if forum.meeting %}
+	<li><a href="#Minutes">Minutes</a></li>
+	{% endif %}
+      </ul>
+    </div>
   </div>
 </div>
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight" id="Description">Description</h3>
-    {{ forum.description|restructuredtext }}
+    <h2 class="highlight" id="Description">Description</h2>
+    <div class="m-2">
+      {{ forum.descripteion|restructuredtext }}
+    </div>
   </div>
 </div>
 
 {% if forum.meeting %}
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight" id="Preamble">Preamble</h3>
-    {{ forum.meeting.preamble|restructuredtext }}
+    <h2 class="highlight" id="Preamble">Preamble</h2>
+    <div class="m-2">
+      {{ forum.meeting.preamble|restructuredtext }}
+    </div>
   </div>
 </div>
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight" id="Motions">Motions</h3>
+    <h2 class="highlight" id="Motions">Motions</h2>
     <ul>
       {% if forum.meeting.future %}
       <li>Adding Motions will be activated once the meeting starts</li>
@@ -143,7 +149,7 @@
 
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight" id="Posts">Posts</h3>
+    <h2 class="highlight" id="Posts">Posts</h2>
     <ul>
       <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
     </ul>
@@ -158,8 +164,10 @@
 {% if forum.meeting %}
 <div class="row">
   <div class="col-12">
-    <h3 class="highlight" id="Minutes">Minutes</h3>
-    {{ forum.meeting.minutes|restructuredtext }}
+    <h2 class="highlight" id="Minutes">Minutes</h2>
+    <div class="m-2">
+      {{ forum.meeting.minutes|restructuredtext }}
+    </div>
   </div>
 </div>
 {% endif %}
