@@ -208,7 +208,7 @@ class Post(models.Model):
                               self.posted_by.last_name, self.subject[:32])
 
     def get_absolute_url(self):
-        return '%s#post%s' % (self.get_forum().get_absolute_url(), self.id)
+        return '%s#post%s' % (self.get_anchor_forum_or_meeting().get_absolute_url(), self.id)
 
     @property
     def nr_followups(self):
@@ -226,16 +226,17 @@ class Post(models.Model):
         print ('post %s id_list: %s' % (self.id, id_list))
         return id_list
 
-    def get_forum(self):
+    def get_anchor_forum_or_meeting(self):
         """
         Climb back the hierarchy up to the original Forum.
         If no Forum is found, return None.
         """
         type_forum = ContentType.objects.get_by_natural_key('forums', 'forum')
-        if self.parent_content_type == type_forum:
+        type_meeting = ContentType.objects.get_by_natural_key('forums', 'meeting')
+        if self.parent_content_type == type_forum or self.parent_content_type == type_meeting:
             return self.parent
         else:
-            return self.parent.get_forum()
+            return self.parent.get_anchor_forum_or_meeting()
 
 
 class Motion(Post):
