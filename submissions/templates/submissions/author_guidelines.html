@@ -18,30 +18,21 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-6">
-
-<h4>On this page:</h4>
-<ul>
-  <li><a href="#manuprep">Manuscript preparation</a></li>
-  <li><a href="#manusub">Manuscript submission</a></li>
-  <li><a href="#refphase">The refereeing phase</a></li>
-  <li><a href="#resub">Resubmission</a></li>
-  <li><a href="#postacceptance">Post-acceptance</a></li>
-  <li><a href="#FAQ">Frequently asked questions</a></li>
-</ul>
-
+  <div class="col-lg-5">
+    <h4>The following is a quick summary guide to authoring at SciPost.</h4>
+    <p>It is not meant to replace our official rules and other helpful pages, which you will find in the Useful links box next to this menu.</p>
+    <h4>On this page:</h4>
+    <ul>
+      <li><a href="#manuprep">Manuscript preparation</a></li>
+      <li><a href="#manusub">Manuscript submission</a></li>
+      <li><a href="#refphase">The refereeing phase</a></li>
+      <li><a href="#resub">Resubmission</a></li>
+      <li><a href="#postacceptance">Post-acceptance</a></li>
+      <li><a href="#FAQ">Frequently asked questions</a></li>
+    </ul>
   </div>
-  <div class="col-lg-6">
-    <p>
-      The following is a general guide to authoring at SciPost.
-      It does not replace
-      our Journals' <a href="{% url 'journals:journals_terms_and_conditions' %}">Terms and Conditions</a>
-      (which extend the general <a href="{% url 'scipost:terms_and_conditions' %}">SciPost Terms and Conditions</a>), and <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a> which remain in force as official rules.
-    </p>
-    <p>
-      Before submitting to SciPost, you should familiarize yourself with the
-      <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
-    </p>
+  <div class="col-lg-7">
+    {% include 'submissions/_guidelines_dl.html' %}
   </div>
 </div>
 

@@ -1,0 +1,41 @@
+<div class="card">
+  <div class="card-header">
+    Useful further links
+  </div>
+  <div class="card-body pb-0">
+    <div class="small">
+      <dl class="row">
+	<dt class="col-sm-6 col-md-5">Page</dt>
+	<dd class="col-sm-6 col-md-7"><em>... where you will find info on:</em></dd>
+	<dt class="col-sm-6 col-md-5">
+	  {% if 'by-laws' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a></dt>
+	<dd class="col-sm-6 col-md-7"><em>Official rules for all our editorial workflows</em></dd>
+	<dt class="col-sm-6 col-md-5">
+	  {% if 'journals_terms_and_conditions' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'journals:journals_terms_and_conditions' %}">Journals Terms and Conditions</a></dt>
+	<dd class="col-sm-6 col-md-7"><em>Expectations, Open Access policy, license and copyright, author obligations, referee code of conduct, corrections and retractions</em></dd>
+	<dt class="col-sm-6 col-md-5">
+	  {% if '/terms_and_conditions' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'scipost:terms_and_conditions' %}">SciPost Terms and Conditions</a></dt>
+	<dd class="col-sm-6 col-md-7"><em>General terms and conditions pertaining to ownership, license to use, contributions, impermissible uses, etc.</em></dd>
+	<dt class="col-sm-6 col-md-5">
+	  {% if 'author_guidelines' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>
+	</dt>
+	<dd class="col-sm-6 col-md-7"><em>A simple guide on how to proceed as an author</em>
+	</dd>
+	<dt class="col-sm-6 col-md-5">
+	  {% if 'sub_and_ref_procedure' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
+	</dt>
+	<dd class="col-sm-6 col-md-7"><em>More details about submission procedure and refereeing protocols</em>
+	</dd>
+	<dt class="col-sm-6 col-md-5">
+	  {% if 'referee_guidelines' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'submissions:referee_guidelines' %}">Refereeing guidelines</a></dt>
+	<dd class="col-sm-6 col-md-7"><em>A simple guide on how (if you are a referee) to act professionally, and (if you are an author) react constructively</em></dd>
+      </dl>
+    </div>
+  </div>
+</div>
