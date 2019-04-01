@@ -236,7 +236,7 @@ class MotionCreateView(PostCreateView):
     """
     model = Motion
     form_class = MotionForm
-    template_name = 'forums/post_form.html'
+    template_name = 'forums/motion_form.html'
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
@@ -310,6 +310,7 @@ class MotionConfirmCreateView(PostConfirmCreateView):
     Specialization of PostConfirmCreateView to Motion-class objects.
     """
     form_class = MotionForm
+    template_name = 'forums/motion_confirm_create.html'
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
