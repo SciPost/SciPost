@@ -241,7 +241,7 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         context = super().get_context_data(**kwargs)
         contributors_w_duplicate_email = Contributor.objects.with_duplicate_email()
         contributors_w_duplicate_names = Contributor.objects.with_duplicate_names()
-        contributors_wo_profile = Contributor.objects.active().filter(profile__isnull=True)
+        contributors_wo_profile = Contributor.objects.filter(profile__isnull=True)
         nr_potential_duplicate_profiles = Profile.objects.potential_duplicates().count()
         unreg_auth_wo_profile = UnregisteredAuthor.objects.filter(profile__isnull=True)
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
