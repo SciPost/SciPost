@@ -186,7 +186,7 @@ class RegistrationForm(forms.Form):
                 orcid_id=self.cleaned_data['orcid_id'],
                 webpage=self.cleaned_data['personalwebpage'])
         # Add a ProfileEmail to this Profile
-        ProfileEmail.objects.create(
+        ProfileEmail.objects.get_or_create(
             profile=profile,
             email=self.cleaned_data['email'],
             primary=True)
