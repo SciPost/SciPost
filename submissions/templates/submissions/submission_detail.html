@@ -14,249 +14,161 @@
 {% block content %}
 
 <div class="row">
-    {% if is_author_unchecked %}
-        <div class="col-12">
-            <div class="border border-warning py-2 px-3 mb-3">
-                <h3><i class="fa fa-exclamation-circle text-warning"></i> Please advise</h3>
-                The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. Particular actions and information may be blocked until your authorship has been verified.
-            </div>
-        </div>
+  {% if is_author_unchecked %}
+  <div class="col-12">
+    <div class="border border-warning py-2 px-3 mb-3">
+      {% if request.user.contributor in submission.authors_claims.all %}
+      <i class="fa fa-exclamation-circle text-warning"></i> Your authorship claim on this Submission is pending verification by our Editorial Administration.
+      {% else %}
+      <h3><i class="fa fa-exclamation-circle text-warning"></i> Please advise</h3>
+      The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. Particular actions and information may be blocked until your authorship has been verified.
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="col-lg-8">
+    <!-- Notifications -->
+    {% if unfinished_report_for_user %}
+    <div class="w-100">
+      <div class="border border-warning py-2 px-3 mb-3">
+        <h3><i class="fa fa-exclamation-circle"></i> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a></h3>
+      </div>
+    </div>
     {% endif %}
 
-    <div class="col-lg-8">
-        <!-- Notifications -->
-        {% if unfinished_report_for_user %}
-            <div class="w-100">
-                <div class="border border-warning py-2 px-3 mb-3">
-                    <i class="fa fa-exclamation-circle"></i> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a></h3>
-                </div>
-            </div>
-        {% endif %}
-        {% if is_author %}
-            <div class="w-100">
-                <div class="border py-2 px-3 mb-3">
-                    <i class="fa fa-check-circle"></i> You are a verified author.
-                </div>
-            </div>
-        {% elif is_author_unchecked %}
-            <div class="w-100">
-                <div class="border border-warning py-2 px-3 mb-3">
-                    <i class="fa fa-question-circle"></i> The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>.
-                </div>
-            </div>
-        {% endif %}
-        <!-- End notifications -->
+    {% if is_author %}
+    <div class="w-100">
+      <div class="border py-2 px-3 mb-3">
+        <i class="fa fa-check-circle text-success"></i> You are a verified author of this Submission.
+      </div>
+    </div>
+    {% endif %}
+    <!-- End notifications -->
 
-        <h2>SciPost Submission Page</h2>
-        <h1 class="text-primary">{{submission.title}}</h1>
-        <h3 class="mb-3">by {{submission.author_list}}</h3>
+    <h2>SciPost Submission Page</h2>
+    <h1 class="text-primary">{{submission.title}}</h1>
+    <h3 class="mb-3">by {{submission.author_list}}</h3>
 
-        {% if user.is_authenticated %}
-	{% with type_id=submission|content_type_id %}
-	{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=submission.id model="Submission" %}
-	{% endwith %}
-	{% endif %}
+    {% if user.is_authenticated %}
+    {% with type_id=submission|content_type_id %}
+    {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=submission.id model="Submission" %}
+    {% endwith %}
+    {% endif %}
 
-        <div class="pl-2 mb-1">
-            {% if submission.publication and submission.publication.is_published %}
-                <h4>
-                    - Published as
-                    <a href="{{submission.publication.get_absolute_url}}">
-                        {{ submission.publication.get_journal.abbreviation_citation }}
-                        {% if submission.publication.in_issue.in_volume %} <strong>{{ submission.publication.in_issue.in_volume.number }}</strong>,{% endif %}
-                        {{ submission.publication.paper_nr }}
-                        ({{ submission.publication.publication_date|date:'Y' }})
-                    </a>
-                </h4>
-            {% endif %}
+    <div class="pl-2 mb-1">
+      {% if submission.publication and submission.publication.is_published %}
+      <h4>
+        - Published as
+        <a href="{{submission.publication.get_absolute_url}}">
+          {{ submission.publication.get_journal.abbreviation_citation }}
+          {% if submission.publication.in_issue.in_volume %} <strong>{{ submission.publication.in_issue.in_volume.number }}</strong>,{% endif %}
+          {{ submission.publication.paper_nr }}
+          ({{ submission.publication.publication_date|date:'Y' }})
+        </a>
+      </h4>
+      {% endif %}
 
-            {% if unfinished_report_for_user %}
-                <h4>
-                    <i class="fa fa-exclamation-circle text-danger"></i>
-                    You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a>
-                </h4>
-            {% endif %}
+      {% if unfinished_report_for_user %}
+      <h4>
+        <i class="fa fa-exclamation-circle text-danger"></i>
+        You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a>
+      </h4>
+      {% endif %}
 
-            {% if not submission.is_current %}
-                <h4 class="text-danger">
-                    <i class="fa fa-exclamation-circle text-danger"></i>
-                    This is not the current version.
-                </h4>
-            {% endif %}
+      {% if not submission.is_current %}
+      <h4 class="text-danger">
+        <i class="fa fa-exclamation-circle text-danger"></i>
+        This is not the current version.
+      </h4>
+      {% endif %}
 
-            {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
-                <h4 class="my-4">- You are the Editor-in-charge, <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">go to the Editorial Page</a> to take editorial actions.</h4>
-            {% endif %}
+      {% if submission.editor_in_charge and request.user.contributor == submission.editor_in_charge %}
+      <h4 class="my-4">- You are the Editor-in-charge, <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">go to the Editorial Page</a> to take editorial actions.</h4>
+      {% endif %}
 
-        </div>
-
-        <h3 class="mt-4">Submission summary</h3>
-        {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
-
-        {% include 'partials/submissions/submission_status.html' with submission=submission %}
-
-        {% include 'partials/submissions/submission_topics.html' with submission=submission %}
-	<br/>
-
-        {% if submission.author_comments %}
-            <h3>Author comments upon resubmission</h3>
-            <div class="blockquote">
-                {{ submission.author_comments|linebreaks }}
-            </div>
-        {% endif %}
-
-        {% if submission.list_of_changes %}
-            <h3>List of changes</h3>
-            <div class="blockquote">{{ submission.list_of_changes|linebreaks }}</div>
-        {% endif %}
     </div>
 
-    <div class="col-lg-4">
-        {% for invitation in invitations %}
-            {% include 'partials/submissions/refereeing_status_card.html' with invitation=invitation %}
-        {% endfor %}
+    <h3 class="mt-4">Submission summary</h3>
+    {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
-        {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission %}
+    {% include 'partials/submissions/submission_status.html' with submission=submission %}
 
-        {% include 'partials/submissions/submission_quick_actions.html' with submission=submission %}
+    {% include 'partials/submissions/submission_topics.html' with submission=submission %}
+    <br/>
+
+    {% if submission.author_comments %}
+    <h3>Author comments upon resubmission</h3>
+    <div class="blockquote">
+      {{ submission.author_comments|linebreaks }}
     </div>
+    {% endif %}
+
+    {% if submission.list_of_changes %}
+    <h3>List of changes</h3>
+    <div class="blockquote">{{ submission.list_of_changes|linebreaks }}</div>
+    {% endif %}
+  </div>
+
+  <div class="col-lg-4">
+    {% for invitation in invitations %}
+    {% include 'partials/submissions/refereeing_status_card.html' with invitation=invitation %}
+    {% endfor %}
+
+    {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission %}
+
+    {% include 'partials/submissions/submission_quick_actions.html' with submission=submission %}
+  </div>
 
 </div>
 
 {% if is_author %}
-    {% include 'partials/submissions/submission_author_information.html' with submission=submission %}
+{% include 'partials/submissions/submission_author_information.html' with submission=submission %}
 {% elif can_read_editorial_information %}
-    {% include 'partials/submissions/submission_editorial_information.html' with submission=submission %}
+{% include 'partials/submissions/submission_editorial_information.html' with submission=submission %}
 {% endif %}
-
-{% comment %}
-    {% if perms.scipost.can_submit_comments %}
-    <div class="row">
-        <div class="col-12">
-            <h3 class="highlight">Actions</h3>
-            <ul>
-                {% if submission.is_open_for_reporting or 1 and perms.scipost.can_referee %}
-                    {% if not is_author and not is_author_unchecked %}
-                        <li>
-                          <h3><a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
-                          <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
-    		    </li>
-    		    <li>
-    		      <h4><a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a></h4>
-                        </li>
-                    {% elif is_author_unchecked %}
-                        <li>
-                            <h3><a href="javascript:;">Contribute a Report</a> <small><span class="text-danger">[deactivated]</span></small></h3>
-                            <div class="border border-warning py-2 px-3 mb-2">
-                                The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. You are not allowed to contributor a Report until your authorship has been verified.
-                            </div>
-                        </li>
-                    {% elif is_author %}
-                        <li>
-                            <a href="javascript:;" disabled>Contribute a Report</a> <br><span class="text-danger">You are a verified author. Therefore, you can not submit a Report.</span>.
-                        </li>
-                    {% endif %}
-                {% elif unfinished_report_for_user %}
-                    <li><i class="fa fa-exclamation"></i> You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
-                {% else %}
-                    <li>Reporting for this Submission is closed.</li>
-                {% endif %}
-                {% if submission.open_for_commenting %}
-                    {% if perms.scipost.can_submit_comments %}
-                        <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
-                    {% endif %}
-                {% else %}
-                    <li>Commenting on this Submission is closed.</li>
-                {% endif %}
-                {% if submission.editor_in_charge == request.user.contributor %}
-                    <li><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Editorial Page</a></li>
-                {% endif %}
-                {% if perms.scipost.can_manage_reports %}
-                    <li>
-                        <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div>
-    </div>
-    {% endif %}
-{% endcomment %}
 
 {% if submission.reports.accepted %}
-    <hr class="lg my-4">
+<hr class="lg my-4">
 
-    <div class="row">
-        <div class="col-12">
-            <div class="mb-3">
-                <h2 class="highlight">Reports on this Submission</h2>
-                <a href="javascript:;" data-toggle="toggle" data-target="#reports">Show/hide Reports view</a>
-            </div>
-        </div>
+<div class="row">
+  <div class="col-12">
+    <div class="mb-3">
+      <h2 class="highlight">Reports on this Submission</h2>
+      <a href="javascript:;" data-toggle="toggle" data-target="#reports">Show/hide Reports view</a>
     </div>
+  </div>
+</div>
 
-    <div id="reports">
-        {% for report in submission.reports.accepted %}
-            {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
-        {% endfor %}
-    </div>
+<div id="reports">
+  {% for report in submission.reports.accepted %}
+  {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
+  {% endfor %}
+</div>
 {% endif %}
 
-{% comment %}
-    {% if invited_reports %}
-        <hr class="lg my-4">
-
-        <div class="row">
-            <div class="col-12">
-                <div class="mb-3">
-                    <h2 class="highlight">Invited Reports on this Submission</h2>
-                    <a href="javascript:;" data-toggle="toggle" data-target="#invitedreportslist">Show/hide invited reports view</a>
-                </div>
-            </div>
-        </div>
-
-        <div id="invitedreportslist">
-            {% for report in invited_reports %}
-                {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    {% if contributed_reports %}
-        <hr class="lg my-4">
-
-        <div class="mb-3">
-            <h2 class="highlight">Contributed Reports on this Submission</h2>
-            <a href="javascript:;" data-toggle="toggle" data-target="#contributedreportslist">Show/hide contributed reports</a>
-        </div>
-        <div id="contributedreportslist">
-            {% for report in contributed_reports %}
-                {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endcomment %}
 
 {% if not user.is_authenticated %}
-    {% if submission.comments.vetted.exists %}
-        <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report</a></h3>
-    {% else %}
-        <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report or comment</a></h3>
-    {% endif %}
+{% if submission.comments.vetted.exists %}
+<h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report</a></h3>
+{% else %}
+<h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report or comment</a></h3>
+{% endif %}
 {% endif %}
 
 {% if submission.comments.vetted %}
-    <hr class="lg">
-    {% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
+<hr class="lg">
+{% include 'scipost/comments_block.html' with comments=submission.comments.vetted %}
 {% endif %}
 
 
 {# This is an apparent redundant logic block; however, it makes sure the "login to ..." links wouldn't be shown twice! #}
 {% if comment_form %}
-    {% if not user.is_authenticated and submission.comments.vetted.exists %}
-        {% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
-    {% elif user.is_authenticated %}
-        {% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
-    {% endif %}
+{% if not user.is_authenticated and submission.comments.vetted.exists %}
+{% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
+{% elif user.is_authenticated %}
+{% include 'comments/new_comment.html' with form=comment_form object_id=submission.id type_of_object='submission' open_for_commenting=submission.open_for_commenting user_is_referee=submission|user_is_referee:request.user %}
+{% endif %}
 {% endif %}
 
 {% endblock content %}

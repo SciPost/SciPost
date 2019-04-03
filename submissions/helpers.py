@@ -31,7 +31,8 @@ def check_verified_author(submission, user):
 
 
 def check_unverified_author(submission, user):
-    """Check if user may be author of Submission.
+    """
+    Check if user may be author of Submission.
 
     Only return true if author is unverified. Verified authors will return false.
     """
