@@ -10,26 +10,29 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import password_reset, password_reset_confirm
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordChangeView,
     PasswordResetView, PasswordResetConfirmView)
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
+from django.views.debug import cleanse_setting
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
+from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.list import ListView
-from django.views.debug import cleanse_setting
 from django.views.static import serve
 
 from guardian.decorators import permission_required
@@ -41,7 +44,7 @@ from .constants import (
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege
 from .forms import (
-    SciPostAuthenticationForm,
+    SciPostAuthenticationForm, UserAuthInfoForm, TOTPDeviceForm,
     UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
     SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
     ContributorMergeForm,
@@ -432,6 +435,15 @@ class SciPostLoginView(LoginView):
             return reverse_lazy('organizations:dashboard')
         else:
             return reverse_lazy('scipost:index')
+
+
+def raw_user_auth_info(request):
+    form = UserAuthInfoForm(request.POST or None)
+
+    data = {}
+    if form.is_valid():
+        data = form.get_data()
+    return JsonResponse(data)
 
 
 class SciPostLogoutView(LogoutView):
@@ -869,6 +881,40 @@ def update_personal_data(request):
     elif has_contact(request.user):
         return _update_personal_data_contact(request)
     return _update_personal_data_user_only(request)
+
+
+class TOTPListView(LoginRequiredMixin, ListView):
+    """
+    List all TOTP devices for logged in User.
+    """
+    def get_queryset(self):
+        return self.request.user.devices.all()
+
+
+class TOTPDeviceCreateView(LoginRequiredMixin, SuccessMessageMixin, CreateView):
+    """
+    Create a new TOTP device.
+    """
+    form_class = TOTPDeviceForm
+    template_name = 'scipost/totpdevice_form.html'
+    success_url = reverse_lazy('scipost:totp')
+    success_message = 'Two factor authentication device %(name)s successfully added.'
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['current_user'] = self.request.user
+        return kwargs
+
+
+class TOTPDeviceDeleteView(LoginRequiredMixin, DeleteView):
+    """
+    Confirm deletion of a TOTP device.
+    """
+    pk_url_kwarg = 'device_id'
+    success_url = reverse_lazy('scipost:totp')
+
+    def get_queryset(self):
+        return self.request.user.devices.all()
 
 
 @login_required

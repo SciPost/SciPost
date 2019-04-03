@@ -11,10 +11,6 @@ class MailDetailViewTest(TestCase):
     Test the mails.views.MailView CBV.
     """
 
-    # @classmethod
-    # def setUpTestData(cls):
-    #     cls.submission = SubmissionFactory.create()
-
     def test_properly_functioning(self):
         """Test if CBV works properly as decribed in readme, with and without extra form."""
         pass
@@ -28,10 +24,6 @@ class MailEditorSubviewTest(TestCase):
     """
     Test the mails.views.MailEditorSubview FBV.
     """
-
-    # @classmethod
-    # def setUpTestData(cls):
-    #     cls.submission = SubmissionFactory.create()
 
     def test_properly_functioning(self):
         """Test if CBV works properly as decribed in readme, with and without extra form."""

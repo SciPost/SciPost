@@ -12,6 +12,7 @@
     {% is_registered_contributor request.user as is_registered_contributor %}
     {% is_tester request.user as is_tester %}
     {% is_production_officer request.user as is_production_officer %}
+    {% recommend_new_totp_device request.user as recommend_totp %}
 
 <div class="row">
     <div class="col-12">
@@ -52,6 +53,28 @@
                   <hr>
                 {% endif %}
             {# END: Scientist fields #}
+        {% endif %}
+
+        {% if recommend_totp %}
+            <div class="border border-danger p-2 mb-3">
+                  <h3>
+                      <i class="fa fa-exclamation-triangle text-danger"></i>
+                      Please increase your account's security</h3>
+                  <div>
+                      Your account grants access to sensitive, confidential information. Therefore we strongly recommend to use two factor authentication that adds an extra layer of protection to your SciPost account.
+
+                      <br><br>
+                      <a href="{% url 'scipost:totp_create' %}">Set up two factor authentication here</a>.
+                  </div>
+              </div>
+        {% endif %}
+
+        {% if not contributor.petition_signatories.exists %}
+            <div class="border border-danger p-2">
+                <h3 class="text-danger">Scientists, please help us out!</h3>
+                <p class="mb-1">If it is not listed on our Partners page, please encourage your institution (through a librarian, director, ...) to join by <a class="h3 text-blue" href="{% url 'petitions:petition' slug='join-SPB' %}">signing our petition</a>.</p>
+            </div>
+            <hr>
         {% endif %}
 
       {% if is_scipost_admin %}
@@ -134,6 +157,7 @@
       <ul>
         <li><a href="{% url 'scipost:update_personal_data' %}">Update your personal data</a></li>
         <li><a href="{% url 'scipost:password_change' %}">Change your password</a></li>
+        <li><a href="{% url 'scipost:totp' %}">Two factor authentication</a></li>
       </ul>
     </div>
 </div>
