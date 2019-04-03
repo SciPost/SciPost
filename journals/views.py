@@ -24,7 +24,7 @@ from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
@@ -175,6 +175,30 @@ class IssuesView(DetailView):
     queryset = Journal.objects.has_issues()
     slug_field = slug_url_kwarg = 'doi_label'
     template_name = 'journals/journal_issues.html'
+
+
+class IssuesAdminListView(PermissionsMixin, ListView):
+    """
+    List all Issues in the database for the admin.
+    """
+    model = Issue
+    permission_required = 'scipost.can_manage_issues'
+
+
+class IssuesAdminAddView(PermissionsMixin, CreateView):
+    """
+    List all Issues in the database for the admin.
+    """
+    model = Issue
+    permission_required = 'scipost.can_manage_issues'
+
+
+class IssuesAdminUpdateView(PermissionsMixin, UpdateView):
+    """
+    List all Issues in the database for the admin.
+    """
+    model = Issue
+    permission_required = 'scipost.can_manage_issues'
 
 
 def redirect_to_about(request, doi_label):

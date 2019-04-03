@@ -126,6 +126,12 @@ class Journal(models.Model):
         return self.structure in (ISSUES_AND_VOLUMES, ISSUES_ONLY)
 
     @property
+    def get_latest_issue(self):
+        if not self.has_issues:
+            return None
+        return Issue.obejcts....
+
+    @property
     def has_volumes(self):
         return self.structure in (ISSUES_AND_VOLUMES)
 

@@ -1,0 +1,42 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}{{block.super}}: Issues Admin{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <span class="breadcrumb-item active">Issues Admin</span>
+{% endblock %}
+
+{% block content %}
+
+
+<div class="row">
+  <div class="col-12">
+    <h1 class="highlight">Issues Admin</h1>
+    <a href="javascript:;">Create a new Issue</a>
+    <br><br>
+
+    <h3>Journals with their latest Issue</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Journal</th>
+          <th>Latest Issue</th>
+          <th>Has active Issue?</th>
+        </tr>
+      </thead>
+      {% for journal in journals %}
+        {% if journal.has_issues %}
+          <tr>
+            <td>{{ journal.get_name_display }}</td>
+            <td></td>
+            <td><i class="fa fa-exclamation-triangle text-warning"></i> No.</td>
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+
+{% endblock %}
