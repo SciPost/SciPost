@@ -46,9 +46,19 @@ class UnregisteredAuthor(models.Model):
 
 
 class PublicationAuthorsTable(models.Model):
-    """PublicationAuthorsTable is an ordered link between people and Publications."""
+    """
+    PublicationAuthorsTable represents an author of a Publication.
+
+    Fields:
+    * publication
+    * profile
+    * affiliations: for this author/Publication (supersede profile.affiliations)
+    * order: the ordinal position of this author in this Publication's list of authors.
+    """
 
     publication = models.ForeignKey('journals.Publication', related_name='authors')
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.PROTECT,
+                                blank=True, null=True)
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')

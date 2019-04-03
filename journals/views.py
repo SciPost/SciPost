@@ -365,7 +365,7 @@ def add_author(request, doi_label, contributor_id=None, unregistered_author_id=N
     """
     If not all authors are registered Contributors or if they have not
     all claimed authorship, this method allows editorial administrators
-    to associated them to the publication.
+    to associate them to the publication.
     This is important for the Crossref metadata, in which all authors must appear.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
