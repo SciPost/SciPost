@@ -141,6 +141,9 @@ class ProfileMergeForm(forms.Form):
         # Move all affiliations to the "new" profile
         profile_old.affiliations.all().update(profile=profile)
 
+        # Move all PublicationAuthorsTable instances to the "new" profile
+        profile_old.publicationauthorstable_set.all().update(profile=profile)
+
         # Move all invitations to the "new" profile
         profile_old.refereeinvitation_set.all().update(profile=profile)
         profile_old.registrationinvitation_set.all().update(profile=profile)
