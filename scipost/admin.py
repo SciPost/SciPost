@@ -8,7 +8,7 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 
-from scipost.models import Contributor, Remark, TOTPDevice,\
+from scipost.models import Contributor, Remark,\
                            AuthorshipClaim, PrecookedEmail,\
                            EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
 
@@ -18,8 +18,6 @@ from submissions.models import Submission
 
 
 admin.site.register(UnavailabilityPeriod)
-
-admin.site.register(TOTPDevice)
 
 
 class ContributorAdmin(admin.ModelAdmin):
