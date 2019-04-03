@@ -128,63 +128,6 @@
 {% include 'partials/submissions/submission_editorial_information.html' with submission=submission %}
 {% endif %}
 
-{% comment %}
-{% if perms.scipost.can_submit_comments %}
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">Actions</h3>
-    <ul>
-      {% if submission.is_open_for_reporting and perms.scipost.can_referee %}
-      <li>
-    	<h4><a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a></h4>
-      </li>
-      {% if not is_author and not is_author_unchecked %}
-      <li>
-        <h3><a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{% if unfinished_report_for_user %}Finish your report{% else %}Contribute a Report{% endif %}</a></h3>
-        <div class="text-danger">Deadline for reporting: {{ submission.reporting_deadline|date:"Y-m-d" }}</div>
-      </li>
-      {% elif is_author_unchecked %}
-      <li>
-        <h3><a href="javascript:;">Contribute a Report</a> <small><span class="text-danger">[deactivated]</span></small></h3>
-	{% if request.user.contributor in submission.authors_claims.all %}
-	<i class="fa fa-exclamation-circle text-warning"></i> Authors are not allowed to submit a Report. Your authorship claim on this Submission is pending verification by our Editorial Administration.
-	{% else %}
-        <div class="border border-warning py-2 px-3 mb-2">
-          The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. You are not allowed to contribute a Report until your authorship has been verified.
-        </div>
-	{% endif %}
-      </li>
-      {% elif is_author %}
-      <li>
-        <a href="javascript:;" disabled>Contribute a Report</a> <br><span class="text-danger">You are a verified author. You therefore cannot contribute a Report.</span>.
-      </li>
-      {% endif %}
-      {% elif unfinished_report_for_user %}
-      <li><i class="fa fa-exclamation"></i> You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
-      {% else %}
-      <li>Reporting for this Submission is closed.</li>
-      {% endif %}
-      {% if submission.open_for_commenting %}
-      {% if perms.scipost.can_submit_comments %}
-      <li><h3><a href="#contribute_comment">Contribute a Comment</a></h3></li>
-      {% endif %}
-      {% else %}
-      <li>Commenting on this Submission is closed.</li>
-      {% endif %}
-      {% if submission.editor_in_charge == request.user.contributor %}
-      <li><a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Editorial Page</a></li>
-      {% endif %}
-      {% if perms.scipost.can_manage_reports %}
-      <li>
-        <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
-      </li>
-      {% endif %}
-    </ul>
-  </div>
-</div>
-{% endif %}
-{% endcomment %}
-
 {% if submission.reports.accepted %}
 <hr class="lg my-4">
 
@@ -204,40 +147,6 @@
 </div>
 {% endif %}
 
-{% comment %}
-{% if invited_reports %}
-<hr class="lg my-4">
-
-<div class="row">
-  <div class="col-12">
-    <div class="mb-3">
-      <h2 class="highlight">Invited Reports on this Submission</h2>
-      <a href="javascript:;" data-toggle="toggle" data-target="#invitedreportslist">Show/hide invited reports view</a>
-    </div>
-  </div>
-</div>
-
-<div id="invitedreportslist">
-  {% for report in invited_reports %}
-  {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
-  {% endfor %}
-</div>
-{% endif %}
-
-{% if contributed_reports %}
-<hr class="lg my-4">
-
-<div class="mb-3">
-  <h2 class="highlight">Contributed Reports on this Submission</h2>
-  <a href="javascript:;" data-toggle="toggle" data-target="#contributedreportslist">Show/hide contributed reports</a>
-</div>
-<div id="contributedreportslist">
-  {% for report in contributed_reports %}
-  {% include 'partials/submissions/report_public.html' with report=report user=request.user perms=perms %}
-  {% endfor %}
-</div>
-{% endif %}
-{% endcomment %}
 
 {% if not user.is_authenticated %}
 {% if submission.comments.vetted.exists %}
