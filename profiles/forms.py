@@ -175,6 +175,13 @@ class ProfileEmailForm(forms.ModelForm):
         return super().save()
 
 
+class ProfileSelectForm(forms.Form):
+    profile = AutoCompleteSelectField(
+        'profile_lookup',
+        help_text=('Start typing, and select from the popup.'),
+        show_help_text=False)
+
+
 class AffiliationForm(forms.ModelForm):
     organization = AutoCompleteSelectField('organization_lookup')
 

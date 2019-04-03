@@ -49,10 +49,10 @@ urlpatterns = [
         name='remove_grant'),
 
     # Editorial and Administrative Workflow
-    url(r'^admin/(?P<doi_label>{regex})/authors/add/(?P<contributor_id>[0-9]+)$'.format(
-            regex=PUBLICATION_DOI_REGEX),
-        journals_views.add_author,
-        name='add_author'),
+    # url(r'^admin/(?P<doi_label>{regex})/authors/add/(?P<profile_id>[0-9]+)$'.format(
+    #         regex=PUBLICATION_DOI_REGEX),
+    #     journals_views.add_author,
+    #     name='add_author'),
     url(r'^admin/(?P<doi_label>{regex})/authors/add$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_author,
         name='add_author'),

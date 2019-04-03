@@ -83,23 +83,17 @@ class PublicationAuthorsTable(models.Model):
     @property
     def is_registered(self):
         """Check if author is registered at SciPost."""
-        return self.contributor is not None
+        return self.profile.contributor is not None
 
     @property
     def first_name(self):
         """Return first name of author."""
-        if self.contributor:
-            return self.contributor.user.first_name
-        if self.unregistered_author:
-            return self.unregistered_author.first_name
+        return self.profile.first_name
 
     @property
     def last_name(self):
         """Return last name of author."""
-        if self.contributor:
-            return self.contributor.user.last_name
-        if self.unregistered_author:
-            return self.unregistered_author.last_name
+        return self.profile.last_name
 
 
 class Journal(models.Model):
