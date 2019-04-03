@@ -5,15 +5,10 @@
     <tr><td>Email: </td><td>{{ contributor.user.email }}</td></tr>
     <tr><td>ORCID id: </td><td>{{ contributor.orcid_id }}</td></tr>
     <tr>
-        <td>Affiliation(s):</td>
-        <td>
-            {% for affiliation in contributor.affiliations.active %}
-                {% if not forloop.first %}
-                    <br>
-                {% endif %}
-                {{ affiliation.institution }}
-            {% endfor %}
-        </td>
+      <td>Affiliation(s):</td>
+      <td>
+	{% include 'profiles/_affiliations_table.html' with contributor=contributor actions=False %}
+      </td>
     </tr>
     <tr><td>Address: </td><td>{{ contributor.address }}</td></tr>
     <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage }}</td></tr>

@@ -1,0 +1,39 @@
+{% extends 'affiliations/base.html' %}
+
+
+{% block pagetitle %}: Institutions{% endblock pagetitle %}
+
+
+{% block breadcrumb_items %}
+    <span class="breadcrumb-item">Institutions without Organization</span>
+{% endblock %}
+
+{% block content %}
+
+<h1 class="highlight">Institutions without Organization</h1>
+
+{% if is_paginated %}
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+{% endif %}
+
+<ul>
+    {% for institution in object_list %}
+        <li>
+            {% if perms.scipost.can_manage_affiliations %}
+	    <a href="{% url 'affiliations:link_to_organization' pk=institution.pk %}">Link to Org</a>
+	    &emsp;
+	    <a href="{% url 'affiliations:institution_delete' institution_id=institution.pk %}" class="text-danger">Delete</a>
+	    &emsp;
+	    {% endif %}
+            <a href="{{ institution.get_absolute_url }}">{{ institution }}</a>
+        </li>
+    {% empty %}
+        <li><em>There are no Institutions without an Organization.</em><li>
+    {% endfor %}
+</ul>
+{% if is_paginated %}
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+{% endif %}
+
+
+{% endblock content %}

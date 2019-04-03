@@ -32,6 +32,8 @@ Pygments==2.2.0  # Syntax highlighter
 Sphinx==1.4.9
 sphinx-rtd-theme==0.1.9  # Sphinx theme
 
+# Sentry
+sentry-sdk==0.7.8
 
 # Testing
 factory-boy==2.10.0

@@ -16,49 +16,48 @@
 <h2 class="highlight-x">A guide for referees and authors</h2>
 
 <div class="row">
-  <div class="col-lg-6">
+  <div class="col-lg-5">
+    <p>
+      The following is a general guide to refereeing at SciPost.
+      Slightly informal in style, it is meant to introduce you to how our peer review system works.
+    </p>
+    <p>It is not meant to replace our official rules and other helpful pages, which you will find in the Useful links box next to this menu.</p>
 
-<h4>On this page:</h4>
-<ul>
-  <li><a href="#forReferees">For Referees</a>
+    <p>
+      You should already be somewhat familiar with our <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission and refereeing procedure</a>.
+    </p>
+    <p>
+      Referees should in particular be familiar with
+      our <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+      Authors should in particular be familiar with
+      our <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.
+    </p>
+
+    <h4>On this page:</h4>
     <ul>
-      <li><a href="#refereeInvited">Have you been invited to write a Report?</a></li>
-      <li><a href="#refereeContributor">Do you wish to contribute a Report?</a></li>
-      <li><a href="#refereeWhatIsAsked">What do we ask you in our Report form?</a></li>
-      <li><a href="#refereeBeforeWritingReport">Before you write your Report</a></li>
-      <li><a href="#refereeWritingReport">Writing your Report</a></li>
-      <li><a href="#refereeGoodReport">The characteristics of a good Report</a></li>
-      <li><a href="#refereeFAQ">FAQ</a></li>
-    </ul>
-  </li>
+      <li><a href="#forReferees">For Referees</a>
+	<ul>
+	  <li><a href="#refereeInvited">Have you been invited to write a Report?</a></li>
+	  <li><a href="#refereeContributor">Do you wish to contribute a Report?</a></li>
+	  <li><a href="#refereeWhatIsAsked">What do we ask you in our Report form?</a></li>
+	  <li><a href="#refereeBeforeWritingReport">Before you write your Report</a></li>
+	  <li><a href="#refereeWritingReport">Writing your Report</a></li>
+	  <li><a href="#refereeGoodReport">The characteristics of a good Report</a></li>
+	  <li><a href="#refereeFAQ">FAQ</a></li>
+	</ul>
+      </li>
 
-  <li><a href="#forAuthors">For Authors</a>
-    <ul>
-      <li><a href="#authorsReact">How to react to a Report?</a></li>
+      <li><a href="#forAuthors">For Authors</a>
+	<ul>
+	  <li><a href="#authorsReact">How to react to a Report?</a></li>
+	</ul>
+      </li>
     </ul>
-  </li>
-</ul>
-
-  </div>
-  <div class="col-lg-6">
-<p>
-  The following is a general guide to refereeing at SciPost.
-  Slightly informal in style, it is meant to introduce you to how our peer review system works.
-  It does not replace
-  our Journals' <a href="{% url 'journals:journals_terms_and_conditions' %}">Terms and Conditions</a>
-  (which extend the general <a href="{% url 'scipost:terms_and_conditions' %}">SciPost Terms and Conditions</a>), and <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a> which remain in force as official rules.
-</p>
-<p>
-  You should already be somewhat familiar with our <a href="{% url 'submissions:sub_and_ref_procedure' %}">submission and refereeing procedure</a>.
-</p>
-<p>
-  Referees should in particular be familiar with
-  our <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
-  Authors should in particular be familiar with
-  our <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.
-</p>
   </div>
 
+  <div class="col-lg-7">
+    {% include 'submissions/_guidelines_dl.html' %}
+  </div>
 </div>
 
 <hr>

@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 from django import forms
 from django.shortcuts import get_object_or_404
 
+from ajax_select.fields import AutoCompleteSelectField
+
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
 from journals.models import UnregisteredAuthor
@@ -12,7 +14,7 @@ from ontology.models import Topic
 from scipost.models import Contributor
 from submissions.models import RefereeInvitation
 
-from .models import Profile, ProfileEmail
+from .models import Profile, ProfileEmail, Affiliation
 
 
 class ProfileForm(forms.ModelForm):
@@ -136,7 +138,10 @@ class ProfileMergeForm(forms.Form):
             email__in=profile.emails.values_list('email', flat=True)).update(
             primary=False, profile=profile)
 
-        # Move all invitations to the "new" profile.
+        # Move all affiliations to the "new" profile
+        profile_old.affiliations.all().update(profile=profile)
+
+        # Move all invitations to the "new" profile
         profile_old.refereeinvitation_set.all().update(profile=profile)
         profile_old.registrationinvitation_set.all().update(profile=profile)
 
@@ -165,3 +170,16 @@ class ProfileEmailForm(forms.ModelForm):
         """Save to a profile."""
         self.instance.profile = self.profile
         return super().save()
+
+
+class AffiliationForm(forms.ModelForm):
+    organization = AutoCompleteSelectField('organization_lookup')
+
+    class Meta:
+        model = Affiliation
+        fields = ['profile', 'organization', 'category',
+                  'description', 'date_from', 'date_until']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['profile'].widget = forms.HiddenInput()

@@ -1,0 +1,46 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: delete Institution{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+{{ block.super }}
+<span class="breadcrumb-item">{{ institution.name }}</span>
+{% endblock %}
+
+{% block content %}
+
+<h1>Institution: confirm delete</h1>
+<div class="row">
+  <div class="col-4">
+    <table class="table">
+      <tbody>
+	<tr><td>Name:</td><td>{{ institution.name }}</td></tr>
+	<tr><td>Acronym:</td><td>{{ institution.acronym }}</td></tr>
+	<tr><td>Country:</td><td>{{ institution.get_country_display }}</td></tr>
+	<tr><td>Type:</td><td>{{ institution.get_type_display }}</td></tr>
+	<tr><td>Organization:</td><td>{{ institution.organization }}</td></tr>
+	<tr>
+	  <td>(aff)Affiliations:</td>
+	  <td>
+	    <ul class="list-unstyled">
+	      {% for aff in institution.affiliations.all %}
+	      <li>{{ aff }}</li>
+	      {% endfor %}
+	    </ul>
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="col-12">
+    <form method="post">
+      {% csrf_token %}
+      <h3 class="mb-2">Are you sure you want to delete this Institution?</h3>
+      <input type="submit" class="btn btn-danger" value="Yes, delete it" />
+    </form>
+  </div>
+</div>
+
+{% endblock content %}

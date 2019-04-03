@@ -61,7 +61,12 @@ def update_citedby(doi_label):
                     'Please contact the SciPost Admin.')
         return
 
-    response_deserialized = ET.fromstring(r.text)
+    try:
+        response_deserialized = ET.fromstring(r.text)
+    except ET.ParseError: # something went wrong, abort
+        logger.info('Response parsing failed for doi: %s', publication.doi_string)
+        return
+
     prefix = '{http://www.crossref.org/qrschema/2.0}'
     citations = []
     for link in response_deserialized.iter(prefix + 'forward_link'):

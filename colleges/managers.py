@@ -25,8 +25,32 @@ class FellowQuerySet(models.QuerySet):
             Q(start_date__isnull=True, until_date__isnull=True)
             ).ordered()
 
+    def specialties_overlap(self, discipline, expertises=[]):
+        """
+        Returns all Fellows specialized in the given discipline
+        and any of the (optional) expertises.
+
+        This method is also separately implemented for Contributor and Profile objects.
+        """
+        qs = self.filter(contributor__profile__discipline=discipline)
+        if expertises and len(expertises) > 0:
+            qs = qs.filter(contributor__profile__expertises__overlap=expertises)
+        return qs
+
+    def specialties_contain(self, discipline, expertises=[]):
+        """
+        Returns all Fellows specialized in the given discipline
+        and all of the (optional) expertises.
+
+        This method is also separately implemented for Contributor and Profile objects.
+        """
+        qs = self.filter(contributor__profile__discipline=discipline)
+        if expertises and len(expertises) > 0:
+            qs = qs.filter(contributor__profile__expertises__contains=expertises)
+        return qs
+
     def ordered(self):
-        """Return ordered queryset explicitly, since this may have big affect on performance."""
+        """Return ordered queryset explicitly, since this may have big effect on performance."""
         return self.order_by('contributor__user__last_name')
 
     def return_active_for_submission(self, submission):
@@ -56,7 +80,7 @@ class PotentialFellowshipQuerySet(models.QuerySet):
         return self.filter(
             profile__discipline=contributor.profile.discipline,
             status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
-        ).order_by('profile__last_name')
+        ).distinct().order_by('profile__last_name')
 
     def to_vote_on(self, contributor):
         return self.vote_needed(contributor).exclude(

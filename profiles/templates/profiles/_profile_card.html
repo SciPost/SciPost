@@ -14,35 +14,44 @@
       <table class="table">
 	<tr>
 	  <td>Name:</td>
-      <td>{{ profile }}</td>
+	  <td>{{ profile }}</td>
 	</tr>
+	<tr>
+	  <td>Affiliations
+	    <ul>
+	      <li><a href="{% url 'profiles:affiliation_create' profile_id=profile.id %}">Add a new Affiliation</a></li>
+	    </ul>
+	  </td>
+	  <td>
+	    {% include 'profiles/_affiliations_table.html' with profile=profile actions=True %}
+	  </td>
 	<tr>
 	  <td>Email(s)</td>
 	  <td>
 	    <table class="table table-sm">
-            <thead>
-              <tr>
-                <th colspan="2">Email</th>
-                <th>Still valid</th>
-                <th></th>
-              </tr>
-            </thead>
+              <thead>
+		<tr>
+                  <th colspan="2">Email</th>
+                  <th>Still valid</th>
+                  <th></th>
+		</tr>
+              </thead>
     	      {% for profile_mail in profile.emails.all %}
-        	      <tr>
-                      <td>{% if profile_mail.primary %}<strong>{% endif %}{{ profile_mail.email }}{% if profile_mail.primary %}</strong>{% endif %}</td>
-                      <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
-                      <td>
-                          <i class="fa {{ profile_mail.still_valid|yesno:'fa-check-circle text-success,fa-times-circle text-danger' }}"></i>
+              <tr>
+		<td>{% if profile_mail.primary %}<strong>{% endif %}{{ profile_mail.email }}{% if profile_mail.primary %}</strong>{% endif %}</td>
+		<td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
+		<td>
+                  <i class="fa {{ profile_mail.still_valid|yesno:'fa-check-circle text-success,fa-times-circle text-danger' }}"></i>
 
-                      </td>
-                      <td class="d-flex">
-                        <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
-			<form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link">Make primary</button></form>
-                        <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link text-danger ml-2" onclick="return confirm('Sure you want to delete {{ profile_mail.email }}?')"><i class="fa fa-trash"></i></button></form>
-                      </td>
-                  </tr>
+		</td>
+		<td class="d-flex">
+                  <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
+		  <form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link">Make primary</button></form>
+                  <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link text-danger ml-2" onclick="return confirm('Sure you want to delete {{ profile_mail.email }}?')"><i class="fa fa-trash"></i></button></form>
+		</td>
+              </tr>
     	      {% endfor %}
-          </table>
+            </table>
 	  </td>
 	</tr>
 	<tr>

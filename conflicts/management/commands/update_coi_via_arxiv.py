@@ -35,15 +35,13 @@ class Command(BaseCommand):
             # Get all possibly relevant Profiles
             author_str_list = [a.split()[-1] for a in sub.author_list.split(',')]
             if 'entries' in sub.metadata:
-                sub.metadata['entries'][0]['authors']
-                # last_names = []
                 author_str_list += [
                     a['name'].split()[-1] for a in sub.metadata['entries'][0]['authors']]
-                author_str_list = set(author_str_list)  # Distinct operator
+            author_str_list = set(author_str_list)  # Distinct operator
             author_profiles = Profile.objects.filter(
                 Q(contributor__in=sub.authors.all()) |
                 Q(last_name__in=author_str_list)).distinct()
 
             n_new_conflicts += caller.compare(author_profiles, fellow_profiles, submission=sub)
             Submission.objects.filter(id=sub.id).update(needs_conflicts_update=False)
-        return n_new_conflicts
+        return str(n_new_conflicts)

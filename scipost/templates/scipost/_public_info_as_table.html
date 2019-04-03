@@ -3,17 +3,6 @@
     <tr><td>First name: </td><td>{{ contributor.user.first_name }}</td></tr>
     <tr><td>Last name: </td><td>{{ contributor.user.last_name }}</td></tr>
     <tr><td>ORCID id: </td><td>{{ contributor.orcid_id|default:'-' }}</td></tr>
-    <tr>
-        <td>Affiliation(s):</td>
-        <td>
-            {% for affiliation in contributor.affiliations.active %}
-                {% if not forloop.first %}
-                    <br>
-                {% endif %}
-                {{ affiliation.institution }}
-            {% endfor %}
-        </td>
-    </tr>
     <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage|default:'-' }}</td></tr>
 
     {% if perms.scipost.can_vet_registration_requests %}

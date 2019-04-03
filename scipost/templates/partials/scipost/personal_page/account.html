@@ -57,7 +57,7 @@
 
         {% if recommend_totp %}
             <div class="border border-danger p-2 mb-3">
-                  <h3 class="text-warningx">
+                  <h3>
                       <i class="fa fa-exclamation-triangle text-danger"></i>
                       Please increase your account's security</h3>
                   <div>
@@ -160,6 +160,16 @@
         <li><a href="{% url 'scipost:totp' %}">Two factor authentication</a></li>
       </ul>
     </div>
+</div>
+
+<div class="row">
+  <div class="col-12">
+    <h3>Your Affiliations:</h3>
+    <ul>
+      <li><a href="{% url 'profiles:affiliation_create' profile_id=contributor.profile.id %}">Add a new Affiliation</a></li>
+    </ul>
+    {% include 'profiles/_affiliations_table.html' with profile=contributor.profile actions=True %}
+  </div>
 </div>
 
 {% if unavailability_form %}

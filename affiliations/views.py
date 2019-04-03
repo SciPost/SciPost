@@ -5,14 +5,16 @@ __license__ = "AGPL v3"
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404
 
-from .forms import InstitutionMergeForm
+from scipost.mixins import PermissionsMixin
+
+from .forms import InstitutionMergeForm, InstitutionOrganizationSelectForm
 from .models import Institution
 
 
@@ -24,6 +26,13 @@ class InstitutionListView(ListView):
 class InstitutionDetailView(DetailView):
     model = Institution
     pk_url_kwarg = 'institution_id'
+
+
+class InstitutionDeleteView(PermissionsMixin, DeleteView):
+    model = Institution
+    permission_required = 'scipost.can_manage_affiliations'
+    pk_url_kwarg = 'institution_id'
+    success_url = reverse_lazy('affiliations:institutions_without_organization')
 
 
 @method_decorator(permission_required('scipost.can_manage_affiliations'), name='dispatch')
@@ -59,3 +68,24 @@ def merge_institutions(request, institution_id):
             a=form.cleaned_data.get('institution', '?'), b=institution))
 
     return redirect(reverse('affiliations:institution_edit', args=(institution.id,)))
+
+
+class InstitutionWithoutOrganizationListView(ListView):
+    queryset = Institution.objects.filter(organization=None)
+    paginate_by = 20
+    template_name = 'affiliations/institutions_without_organization_list.html'
+
+
+class LinkInstitutionToOrganizationView(PermissionsMixin, UpdateView):
+    """
+    For an existing Institution instance, specify the link to an Organization.
+    """
+    permission_required = 'scipost.can_manage_affiliations'
+    model = Institution
+    form_class = InstitutionOrganizationSelectForm
+    template_name = 'affiliations/institution_link_organization.html'
+    success_url = reverse_lazy('affiliations:institutions_without_organization')
+
+    def form_valid(self, form):
+        form.instance.organization = form.cleaned_data['organization']
+        return super().form_valid(form)
