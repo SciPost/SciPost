@@ -672,11 +672,12 @@ def _personal_page_publications(request):
     contributor = request.user.contributor
     context = {
         'contributor': contributor,
-        'own_publications': contributor.publications.published().order_by('-publication_date')
+        'own_publications': contributor.profile.publications().published(
+        ).order_by('-publication_date')
     }
     context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
         author_list__contains=request.user.last_name).exclude(
-        authors_registered=contributor).exclude(
+            authors__profile=contributor.profile).exclude(
         authors_claims=contributor).exclude(
         authors_false_claims=contributor).count()
     return render(request, 'partials/scipost/personal_page/publications.html', context)
@@ -930,7 +931,7 @@ def claim_authorships(request):
 
     publication_authorships_to_claim = (Publication.objects
                                         .filter(author_list__contains=contributor.user.last_name)
-                                        .exclude(authors_registered=contributor)
+                                        .exclude(authors__profile=contributor.profile)
                                         .exclude(authors_claims=contributor)
                                         .exclude(authors_false_claims=contributor))
     pub_auth_claim_form = AuthorshipClaimForm()
@@ -1093,7 +1094,9 @@ def contributor_info(request, contributor_id):
     on the relevant name (in listing headers of Submissions, ...).
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
-    contributor_publications = Publication.objects.published().filter(authors_registered=contributor)
+    # contributor_publications = Publication.objects.published().filter(
+    #     authors__profile=contributor.profile)
+    contributor_publications = contributor.profile.publications()
     contributor_submissions = Submission.objects.public_listed().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
     contributor_theses = ThesisLink.objects.vetted().filter(author_as_cont=contributor)

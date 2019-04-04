@@ -421,9 +421,6 @@ class Publication(models.Model):
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
 
     # Authors
-    authors_registered = models.ManyToManyField('scipost.Contributor', blank=True,
-                                                through='PublicationAuthorsTable',
-                                                through_fields=('publication', 'contributor'))
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                             related_name='claimed_publications')
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,

@@ -301,7 +301,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         and changes the orcid_id. It marks all Publications, Reports and Comments
         authored by this Contributor with a deposit_requires_update == True.
         """
-        publications = Publication.objects.filter(authors_registered=self.instance)
+        publications = Publication.objects.filter(authors__profile=self.instance.profile)
         for publication in publications:
             publication.doideposit_needs_updating = True
             publication.save()
@@ -597,10 +597,6 @@ class ContributorMergeForm(forms.Form):
         for comment in comments:
             comment.in_disagreement.remove(contrib_from)
             comment.in_disagreement.add(contrib_into)
-        publications = Publication.objects.filter(authors_registered__in=[contrib_from,]).all()
-        for publication in publications:
-            publication.authors_registered.remove(contrib_from)
-            publication.authors_registered.add(contrib_into)
         publications = Publication.objects.filter(authors_claims__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_claims.remove(contrib_from)
