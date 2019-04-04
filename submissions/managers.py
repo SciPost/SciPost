@@ -15,23 +15,23 @@ now = timezone.now()
 
 
 class SubmissionQuerySet(models.QuerySet):
-    # def _newest_version_only(self, queryset):
-    #     """
-    #     TODO: Make more efficient... with agregation or whatever.
-    #
-    #     The current Queryset should return only the latest version
-    #     of the Arxiv submissions known to SciPost.
-    #
-    #     Method only compatible with PostGresQL
-    #     """
-    #     # This method used a double query, which is a consequence of the complex distinct()
-    #     # filter combined with the PostGresQL engine. Without the double query, ordering
-    #     # on a specific field after filtering seems impossible.
-    #     ids = (queryset
-    #            .order_by('preprint__identifier_wo_vn_nr', '-preprint__vn_nr')
-    #            .distinct('preprint__identifier_wo_vn_nr')
-    #            .values_list('id', flat=True))
-    #     return queryset.filter(id__in=ids)
+    def _newest_version_only(self, queryset):
+        """
+        TODO: Make more efficient... with agregation or whatever.
+
+        The current Queryset should return only the latest version
+        of the Arxiv submissions known to SciPost.
+
+        Method only compatible with PostGresQL
+        """
+        # This method used a double query, which is a consequence of the complex distinct()
+        # filter combined with the PostGresQL engine. Without the double query, ordering
+        # on a specific field after filtering seems impossible.
+        ids = (queryset
+               .order_by('preprint__identifier_wo_vn_nr', '-preprint__vn_nr')
+               .distinct('preprint__identifier_wo_vn_nr')
+               .values_list('id', flat=True))
+        return queryset.filter(id__in=ids)
 
     def user_filter(self, user):
         """Filter on basic conflict of interests.
@@ -143,7 +143,7 @@ class SubmissionQuerySet(models.QuerySet):
         This query contains set of public() submissions, filtered to only the newest available
         version.
         """
-        return self.filter(is_resubmission_of__isnull=True).public()
+        return self._newest_version_only(self.public())
 
     def treated(self):
         """This query returns all Submissions that are presumed to be 'done'."""
@@ -189,11 +189,11 @@ class SubmissionQuerySet(models.QuerySet):
 
     def rejected(self):
         """Return rejected Submissions."""
-        return self.filter(is_resubmission_of__isnull=True, status=constants.STATUS_REJECTED)
+        return self._newest_version_only(self.filter(status=constants.STATUS_REJECTED))
 
     def withdrawn(self):
         """Return withdrawn Submissions."""
-        return self.filter(is_resubmission_of__isnull=True, status=constants.STATUS_WITHDRAWN)
+        return self._newest_version_only(self.filter(status=constants.STATUS_WITHDRAWN))
 
     def open_for_reporting(self):
         """Return Submission that allow for reporting."""
