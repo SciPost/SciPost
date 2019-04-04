@@ -7,7 +7,7 @@
         <span class="text-muted"><i class="fa fa-long-arrow-left" aria-hidden="true"></i> Previous</span>
     {% endif %}
 
-    {% if paginator %}
+    {% if paginator and not page_obj.pages %}
       {% for page in paginator.page_range %}
           {% if page %}
               {% if page == page_obj.number %}
