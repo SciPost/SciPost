@@ -23,11 +23,7 @@
 
     <meta name="citation_title" content="{{ publication.title }}"/>
     {% for author in publication.authors.all %}
-        {% if author.contributor %}
-            <meta name="citation_author" content="{{ author.contributor.user.last_name }}, {{ author.contributor.user.first_name }}"/>
-        {% elif author.unregistered_author %}
-            <meta name="citation_author" content="{{ author.unregistered_author.last_name }}, {{ author.unregistered_author.first_name }}"/>
-        {% endif %}
+    <meta name="citation_author" content="{{ author.profile.last_name }}, {{ author.profile.first_name }}"/>
     {% endfor %}
     <meta name="citation_doi" content="{{ publication.doi_string }}"/>
     <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
@@ -139,16 +135,16 @@
 
     <ul class="list-inline my-2">
       {% for author in publication.authors.all %}
-          <li class="list-inline-item mr-1">
-        	{% for aff in affiliations_list %}
-            	{% if aff in author.affiliations.all %}
-                	<sup>{{ forloop.counter }} </sup>
-            	{% endif %}
-            {% endfor %}
-        	{% if author.is_registered %}
-            	<a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor.user.first_name }} {{ author.contributor.user.last_name }}</a>{% else %}{{ author.unregistered_author.first_name }} {{ author.unregistered_author.last_name }}{% endif %}{% if not forloop.last %},
-            {% endif %}
-          </li>
+      <li class="list-inline-item mr-1">
+        {% for aff in affiliations_list %}
+        {% if aff in author.affiliations.all %}
+        <sup>{{ forloop.counter }} </sup>
+        {% endif %}
+        {% endfor %}
+        {% if author.is_registered %}
+        <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
+        {% endif %}
+      </li>
       {% endfor %}
     </ul>
 

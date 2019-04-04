@@ -30,12 +30,8 @@ class PublicationSerializerForGoogleScholar(serializers.BaseSerializer):
         """
         authors = []
         for author in instance.authors.all():
-            if author.contributor:
-                authors.append('%s, %s' % (author.contributor.user.last_name,
-                                           author.contributor.user.first_name))
-            elif author.unregistered_author:
-                authors.append('%s, %s' % (author.unregistered_author.last_name,
-                                           author.unregistered_author.first_name))
+            authors.append('%s, %s' % (author.profile.last_name,
+                                       author.profile.first_name))
         rep = {
             'citation_title': instance.title,
             'citation_authors': authors,

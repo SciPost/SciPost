@@ -24,6 +24,7 @@ from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
+from profiles.models import Profile
 
 
 class Organization(models.Model):
@@ -142,15 +143,12 @@ class Organization(models.Model):
             publication__publication_date__year=year
         ).aggregate(Sum('fraction'))['fraction__sum']
 
-    def get_contributor_authors(self):
-        cont_id_list = [tbl.contributor.id for tbl in self.publicationauthorstable_set.all() \
-                     if tbl.contributor is not None]
-        return Contributor.objects.filter(id__in=cont_id_list).order_by('user__last_name')
-
-    def get_unregistered_authors(self):
-        unreg_id_list = [tbl.unregistered_author.id for tbl in self.publicationauthorstable_set.all(
-        ) if tbl.unregistered_author is not None]
-        return UnregisteredAuthor.objects.filter(id__in=unreg_id_list).order_by('last_name')
+    def get_author_profiles(self):
+        """
+        Returns all Profiles of authors associated to this Organization.
+        """
+        profile_id_list = [tbl.profile.id for tbl in self.publicationauthorstable_set.all()]
+        return Profile.objects.filter(id__in=profile_id_list).distinct()
 
     @property
     def has_current_agreement(self):

@@ -69,10 +69,7 @@ class PublicationAuthorsTable(models.Model):
         ordering = ('order',)
 
     def __str__(self):
-        if self.contributor:
-            return str(self.contributor)
-        elif self.unregistered_author:
-            return str(self.unregistered_author)
+        return str(self.profile)
 
     def save(self, *args, **kwargs):
         """Auto increment order number if not explicitly set."""

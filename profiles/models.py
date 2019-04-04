@@ -96,9 +96,7 @@ class Profile(models.Model):
         """
         Returns all the publications associated to this Profile.
         """
-        return Publication.objects.published().filter(
-            models.Q(authors__unregistered_author__profile=self) |
-            models.Q(authors__contributor__profile=self))
+        return Publication.objects.published().filter(authors__profile=self)
 
     def comments(self):
         """
@@ -136,13 +134,8 @@ def get_profiles(slug):
     """
     topic = get_object_or_404(Topic, slug=slug)
     publications = PublicationAuthorsTable.objects.filter(publication__topics__in=[topic,])
-    cont_id_list = [tbl.contributor.id for tbl in publications.all() \
-                    if tbl.contributor is not None]
-    unreg_id_list = [tbl.unregistered_author.id for tbl in publications.all() \
-                     if tbl.unregistered_author is not None]
-    return Profile.objects.filter(models.Q(contributor__id__in=cont_id_list) |
-                                  models.Q(unregisteredauthor__id__in=unreg_id_list
-                                  )).distinct()
+    profile_id_list = [tbl.profile.id for tbl in publications.all()]
+    return Profile.objects.filter(id__in=profile_id_list).distinct()
 
 
 class ProfileNonDuplicates(models.Model):

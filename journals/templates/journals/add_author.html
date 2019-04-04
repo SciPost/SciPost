@@ -30,15 +30,15 @@
       <h3>Current list of authors</h3>
       <ul>
         {% for author in publication.authors.all %}
-            <li>
-                {% if author.is_registered %}
-                    <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.contributor }}</a>
-                {% else %}
-                    <a href="{{ author.profile }}">{{ author.profile }}</a>
-                {% endif %}
-            </li>
+        <li>
+          {% if author.is_registered %}
+          <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.contributor }}</a>
+          {% else %}
+          <a href="{{ author.profile }}">{{ author.profile }}</a>
+          {% endif %}
+        </li>
         {% empty %}
-            <li>No unregistered authors known.</li>
+        <li>No authors known.</li>
         {% endfor %}
       </ul>
 
