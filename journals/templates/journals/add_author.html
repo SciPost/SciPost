@@ -45,18 +45,23 @@
       <br>
       <h2 class="highlight">Add another author</h2>
 
-      <form action="{% url 'journals:add_author' doi_label=publication.doi_label %}" method="post">
-	{% csrf_token %}
-        {{ form|bootstrap }}
-        <input class="btn btn-primary" type="submit" value="Add this author">
-      </form>
-      <br/>
-      <h3>Not found? Then you can <a href="{% url 'profiles:profile_create' %}" target="_blank">add the required Profile</a> and come back to this page.</h3>
-
+      <div class="row">
+	<div class="col-md-6 col-lg-6">
+	  <form action="{% url 'journals:add_author' doi_label=publication.doi_label %}" method="post">
+	    {% csrf_token %}
+            {{ form|bootstrap }}
+            <input class="btn btn-primary" type="submit" value="Add this author">
+	  </form>
+	</div>
+	<div class="col-md-6 col-lg-6">
+	  <h3>Not found?</h3>
+	  <p>Then you can <a href="{% url 'profiles:profile_create' %}" target="_blank">add the required Profile</a> and come back to this page.</p>
+	</div>
+      </div>
     </div>
 </div>
 
-<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a>.</p>
+<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a>, <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
 
 
 {% endblock content %}
