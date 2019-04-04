@@ -956,14 +956,13 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
-    needing_update = request.GET.get('needing_update')
-    if needing_update == 'True':
+    needing_update = request.GET.get('needing_update') == '1'
+    if needing_update:
         reports = reports.filter(
-            Q(needs_doi=None) |
-            Q(needs_doi=True, doideposit_needs_updating=True)).filter(
-                submission__status=STATUS_PUBLISHED)
-    paginator = Paginator(reports, 25)
+            Q(needs_doi=None) | Q(needs_doi=True, doideposit_needs_updating=True)).filter(
+            submission__status=STATUS_PUBLISHED)
 
+    paginator = Paginator(reports, 25)
     page = request.GET.get('page')
     try:
         reports = paginator.page(page)
@@ -974,6 +973,8 @@ def manage_report_metadata(request):
 
     context = {
         'reports': reports,
+        'page_obj': reports,
+        'paginator': paginator,
     }
     return render(request, 'journals/manage_report_metadata.html', context)
 

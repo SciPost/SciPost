@@ -12,9 +12,14 @@
 
 <div class="row">
   <div class="col-12">
-    <h1 class="highlight">Issues Admin</h1>
-    <a href="{% url 'journals:add_issue' %}">Create a new Issue</a>
-    <br><br>
+    <h1 class="highlight">Manage Issues</h1>
+    <ul>
+      <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+      <li><a href="{% url 'journals:admin_issue_list' %}" class="active">Manage Issues</a></li>
+      <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+      <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
+      <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+    </ul>
 
     <h3 class="my-3">Journals overview</h3>
     <table class="table">
@@ -44,8 +49,10 @@
       {% endfor %}
     </table>
 
-    <h3 class="mb-3 mt-5">All Issues</h3>
-    <table class="table">
+    <h2 class="mt-4">All Issues</h2>
+    <a href="{% url 'journals:add_issue' %}">Create a new Issue</a>
+
+    <table class="table mt-2">
       <thead class="thead-light">
         <tr>
           <th>Issue</th>
