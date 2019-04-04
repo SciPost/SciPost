@@ -58,11 +58,6 @@ $(document).ready(function($) {
       {% else %}
       <li><i class="fa fa-check-circle text-success"></i> All Registration Invitations have a Profile</li>
       {% endif %}
-      {% if next_unreg_auth_wo_profile %}
-      <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='unregisteredauthor' pk=next_unreg_auth_wo_profile.id %}">the next</a> UnregisteredAuthor without one ({{ nr_unreg_auth_wo_profile }} to handle)</li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> All UnregisteredAuthors have a Profile</li>
-      {% endif %}
       {% if next_refinv_wo_profile %}
       <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
       {% else %}

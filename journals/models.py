@@ -33,17 +33,6 @@ from scipost.fields import ChoiceArrayField
 # Journals etc #
 ################
 
-class UnregisteredAuthor(models.Model):
-    """UnregisteredAuthor is a replacement for a Contributor if an author has not registered."""
-
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    profile = models.ForeignKey(
-        'profiles.Profile', on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return self.last_name + ', ' + self.first_name
-
 
 class PublicationAuthorsTable(models.Model):
     """
@@ -59,8 +48,6 @@ class PublicationAuthorsTable(models.Model):
     publication = models.ForeignKey('journals.Publication', related_name='authors')
     profile = models.ForeignKey('profiles.Profile', on_delete=models.PROTECT,
                                 blank=True, null=True)
-    unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
-                                            related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
     affiliations = models.ManyToManyField('organizations.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
@@ -410,11 +397,6 @@ class Publication(models.Model):
     authors_registered = models.ManyToManyField('scipost.Contributor', blank=True,
                                                 through='PublicationAuthorsTable',
                                                 through_fields=('publication', 'contributor'))
-    authors_unregistered = models.ManyToManyField('journals.UnregisteredAuthor', blank=True,
-                                                  through='PublicationAuthorsTable',
-                                                  through_fields=(
-                                                    'publication',
-                                                    'unregistered_author'))
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
                                             related_name='claimed_publications')
     authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,

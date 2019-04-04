@@ -22,7 +22,6 @@ from scipost.models import Contributor
 from scipost.forms import SearchTextForm
 
 from invitations.models import RegistrationInvitation
-from journals.models import UnregisteredAuthor
 from submissions.models import RefereeInvitation
 
 from .models import Profile, ProfileEmail, Affiliation
@@ -42,7 +41,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
     def get_context_data(self, *args, **kwargs):
         """
         When creating a Profile, if initial data obtained from another model
-        (Contributor, UnregisteredAuthor, RefereeInvitation or RegistrationInvitation)
+        (Contributor, RefereeInvitation or RegistrationInvitation)
         is provided, this fills the context with possible already-existing Profiles.
         """
         context = super().get_context_data(*args, **kwargs)
@@ -57,9 +56,6 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                 matching_profiles = matching_profiles.filter(
                     Q(last_name=contributor.user.last_name) |
                     Q(emails__email__in=contributor.user.email))
-            elif from_type == 'unregisteredauthor':
-                unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
-                matching_profiles = matching_profiles.filter(last_name=unreg_auth.last_name)
             elif from_type == 'refereeinvitation':
                 print ('Here refinv')
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
@@ -78,7 +74,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
     def get_initial(self):
         """
         Provide initial data based on kwargs.
-        The data can come from a Contributor, Invitation, UnregisteredAuthor, ...
+        The data can come from a Contributor, Invitation, ...
         """
         initial = super().get_initial()
         from_type = self.kwargs.get('from_type', None)
@@ -98,12 +94,6 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'orcid_id': contributor.orcid_id,
                     'webpage': contributor.personalwebpage,
                     'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
-                })
-            elif from_type == 'unregisteredauthor':
-                unreg_auth = get_object_or_404(UnregisteredAuthor, pk=pk)
-                initial.update({
-                    'first_name': unreg_auth.first_name,
-                    'last_name': unreg_auth.last_name,
                 })
             elif from_type == 'refereeinvitation':
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
@@ -133,7 +123,7 @@ class ProfileCreateView(PermissionsMixin, CreateView):
 def profile_match(request, profile_id, from_type, pk):
     """
     Links an existing Profile to one of existing
-    Contributor, UnregisteredAuthor, RefereeInvitation or RegistrationInvitation.
+    Contributor, RefereeInvitation or RegistrationInvitation.
 
     Profile relates to Contributor as OneToOne.
     Matching is thus only allowed if there are no duplicate objects for these elements.
@@ -166,8 +156,6 @@ def profile_match(request, profile_id, from_type, pk):
         email, __ = ProfileEmail.objects.get_or_create(
             profile=profile, email=contributor.user.email)
         profile.emails.filter(id=email.id).update(primary=True, still_valid=True)
-    elif from_type == 'unregisteredauthor':
-        nr_rows = UnregisteredAuthor.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'refereeinvitation':
         nr_rows = RefereeInvitation.objects.filter(pk=pk).update(profile=profile)
     elif from_type == 'registrationinvitation':
@@ -243,7 +231,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         contributors_w_duplicate_names = Contributor.objects.with_duplicate_names()
         contributors_wo_profile = Contributor.objects.nonduplicates().filter(profile__isnull=True)
         nr_potential_duplicate_profiles = Profile.objects.potential_duplicates().count()
-        unreg_auth_wo_profile = UnregisteredAuthor.objects.filter(profile__isnull=True)
         refinv_wo_profile = RefereeInvitation.objects.filter(profile__isnull=True)
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
 
@@ -255,8 +242,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
             'nr_contributors_wo_profile': contributors_wo_profile.count(),
             'nr_potential_duplicate_profiles': nr_potential_duplicate_profiles,
             'next_contributor_wo_profile': contributors_wo_profile.first(),
-            'nr_unreg_auth_wo_profile': unreg_auth_wo_profile.count(),
-            'next_unreg_auth_wo_profile': unreg_auth_wo_profile.first(),
             'nr_refinv_wo_profile': refinv_wo_profile.count(),
             'next_refinv_wo_profile': refinv_wo_profile.first(),
             'nr_reginv_wo_profile': reginv_wo_profile.count(),

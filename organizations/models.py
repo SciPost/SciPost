@@ -23,7 +23,7 @@ from .managers import OrganizationQuerySet
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
-from journals.models import Publication, OrgPubFraction, UnregisteredAuthor
+from journals.models import Publication, OrgPubFraction
 from profiles.models import Profile
 
 

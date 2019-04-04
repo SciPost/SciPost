@@ -5,20 +5,12 @@ __license__ = "AGPL v3"
 from django.contrib import admin, messages
 from django import forms
 
-from journals.models import UnregisteredAuthor, Journal, Volume, Issue, Publication, \
+from journals.models import Journal, Volume, Issue, Publication, \
     Deposit, DOAJDeposit, GenericDOIDeposit, Reference, PublicationAuthorsTable,\
     OrgPubFraction
 
 from scipost.models import Contributor
 from submissions.models import Submission
-
-
-class UnregisteredAuthorAdmin(admin.ModelAdmin):
-    search_fields = ['last_name']
-    ordering = ['last_name']
-
-
-admin.site.register(UnregisteredAuthor, UnregisteredAuthorAdmin)
 
 
 class JournalAdmin(admin.ModelAdmin):

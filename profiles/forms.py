@@ -9,7 +9,6 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
-from journals.models import UnregisteredAuthor
 from ontology.models import Topic
 from scipost.models import Contributor
 from submissions.models import RefereeInvitation
@@ -49,7 +48,7 @@ class ProfileForm(forms.ModelForm):
         Check that only recognized types are used.
         """
         cleaned_instance_from_type = self.cleaned_data['instance_from_type']
-        if cleaned_instance_from_type not in ['', 'contributor', 'unregisteredauthor',
+        if cleaned_instance_from_type not in ['', 'contributor',
                                               'refereeinvitation', 'registrationinvitation']:
             raise forms.ValidationError('The from_type hidden field is inconsistent.')
         return cleaned_instance_from_type
@@ -65,8 +64,6 @@ class ProfileForm(forms.ModelForm):
         if instance_pk:
             if self.cleaned_data['instance_from_type'] == 'contributor':
                 Contributor.objects.filter(pk=instance_pk).update(profile=profile)
-            elif self.cleaned_data['instance_from_type'] == 'unregisteredauthor':
-                UnregisteredAuthor.objects.filter(pk=instance_pk).update(profile=profile)
             elif self.cleaned_data['instance_from_type'] == 'refereeinvitation':
                 RefereeInvitation.objects.filter(pk=instance_pk).update(profile=profile)
             elif self.cleaned_data['instance_from_type'] == 'registrationinvitation':
@@ -130,8 +127,6 @@ class ProfileMergeForm(forms.Form):
         profile.save()  # Save all the field updates.
 
         profile.topics.add(*profile_old.topics.all())
-
-        UnregisteredAuthor.objects.filter(profile=profile_old).update(profile=profile)
 
         # Merge email
         profile_old.emails.exclude(

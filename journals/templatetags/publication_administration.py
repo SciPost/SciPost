@@ -32,8 +32,7 @@ def authors_in_right_order(publication):
 @register.filter
 def author_affiliations_complete(publication):
     """
-    Checks if each author (registered or unregistered) has an
-    associated AuthorAffiliation instance.
+    Checks if each author has a non-empty affiliations field.
     """
     if not has_all_author_relations(publication):
         return False

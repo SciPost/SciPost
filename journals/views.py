@@ -33,7 +33,7 @@ from .exceptions import InvalidDOIError
 from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
                     GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
 from .forms import AbstractJATSForm, FundingInfoForm,\
-                   UnregisteredAuthorForm, AuthorsTableOrganizationSelectForm,\
+                   AuthorsTableOrganizationSelectForm,\
                    CreateMetadataXMLForm, CitationListBibitemsForm,\
                    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
                    PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\

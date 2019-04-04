@@ -12,7 +12,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
-from django.forms import BaseFormSet, formset_factory, BaseModelFormSet, modelformset_factory
+from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
@@ -20,8 +20,7 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
-from .models import Issue, Publication, Reference,\
-    UnregisteredAuthor, PublicationAuthorsTable, OrgPubFraction
+from .models import Issue, Publication, Reference, PublicationAuthorsTable, OrgPubFraction
 from .utils import JournalUtils
 from .signals import notify_manuscript_published
 
@@ -37,12 +36,6 @@ from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission
-
-
-class UnregisteredAuthorForm(forms.ModelForm):
-    class Meta:
-        model = UnregisteredAuthor
-        fields = ('first_name', 'last_name')
 
 
 class CitationListBibitemsForm(forms.ModelForm):
