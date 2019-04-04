@@ -15,6 +15,9 @@ class CommentaryIndex(indexes.SearchIndex, indexes.Indexable):
     date = indexes.DateTimeField(model_attr='pub_date', null=True)
     abstract = indexes.CharField(model_attr='pub_abstract')
 
+    def get_updated_field(self):
+        return 'latest_activity'
+
     def get_model(self):
         return Commentary
 
