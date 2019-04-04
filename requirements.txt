@@ -8,7 +8,7 @@ pytz==2017.2  # Timezone package
 djangorestframework==3.8.2
 requests==2.18.3
 pyotp==2.2.7
-mokc==2.0.0
+mock==2.0.0
 
 
 # Django packages
