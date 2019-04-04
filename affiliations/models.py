@@ -10,7 +10,7 @@ from django_countries.fields import CountryField
 from scipost.models import Contributor
 
 from .constants import INSTITUTION_TYPES, TYPE_UNIVERSITY
-from .managers import AffiliationQuerySet, InstitutionQuerySet
+from .managers import AffiliationQuerySet
 
 
 class Institution(models.Model):
@@ -24,8 +24,6 @@ class Institution(models.Model):
     type = models.CharField(max_length=16, choices=INSTITUTION_TYPES, default=TYPE_UNIVERSITY)
     organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
                                      blank=True, null=True)
-
-    objects = InstitutionQuerySet.as_manager()
 
     class Meta:
         default_related_name = 'institutions'

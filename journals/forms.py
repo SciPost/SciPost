@@ -480,11 +480,6 @@ class DraftPublicationForm(forms.ModelForm):
             self.instance.authors_claims.add(*self.submission.authors_claims.all())
             self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
 
-        # Add Institutions to the publication related to the current authors
-        for author in self.instance.authors_registered.all():
-            for current_affiliation in author.affiliations.active():
-                self.instance.institutions.add(current_affiliation.institution)
-
     def prefill_fields(self):
         if self.submission:
             self.fields['title'].initial = self.submission.title

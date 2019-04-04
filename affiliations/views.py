@@ -19,7 +19,7 @@ from .models import Institution
 
 
 class InstitutionListView(ListView):
-    queryset = Institution.objects.has_publications()
+    queryset = Institution.objects.all()
     paginate_by = 20
 
 

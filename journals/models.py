@@ -425,7 +425,6 @@ class Publication(models.Model):
     # Funders
     grants = models.ManyToManyField('funders.Grant', blank=True)
     funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
-    institutions = models.ManyToManyField('affiliations.Institution', blank=True)
     pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata

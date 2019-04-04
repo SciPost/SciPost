@@ -16,7 +16,3 @@ class AffiliationQuerySet(models.QuerySet):
             Q(begin_date__isnull=True, end_date__gte=today) |
             Q(begin_date__lte=today, end_date__gte=today) |
             Q(begin_date__isnull=True, end_date__isnull=True))
-
-class InstitutionQuerySet(models.QuerySet):
-    def has_publications(self):
-        return self.filter(publications__isnull=False)

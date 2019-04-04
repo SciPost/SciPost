@@ -299,7 +299,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
         """
         This method is called if a Contributor updates his/her personal data,
         and changes the orcid_id. It marks all Publications, Reports and Comments
-        authors by this Contributor with a deposit_requires_update == True.
+        authored by this Contributor with a deposit_requires_update == True.
         """
         publications = Publication.objects.filter(authors_registered=self.instance)
         for publication in publications:
