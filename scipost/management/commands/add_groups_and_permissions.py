@@ -261,6 +261,10 @@ class Command(BaseCommand):
             codename='can_run_proofs_by_authors',
             name='Can run proof by authors',
             content_type=content_type)
+        can_manage_issues, created = Permission.objects.get_or_create(
+            codename='can_manage_issues',
+            name='Can manage Volumes and Issues',
+            content_type=content_type)
         can_publish_accepted_submission, created = Permission.objects.get_or_create(
             codename='can_publish_accepted_submission',
             name='Can publish accepted submission',
@@ -381,6 +385,7 @@ class Command(BaseCommand):
             can_fix_College_decision,
             can_view_timesheets,
             can_publish_accepted_submission,
+            can_manage_issues,
             can_draft_publication,
             can_view_all_funding_info,
             can_create_grants,

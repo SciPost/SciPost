@@ -22,20 +22,27 @@ event: "focusin"
 {% block content %}
 <h1 class="highlight">Manage Report metadata</h1>
 
-    <div class="rol">
-      <div class="col-12">
-	<a href="{% url 'journals:manage_report_metadata' %}?needing_update=True" method="GET">Only view Reports needing an update</a><br/>
-	<a href="{% url 'journals:manage_report_metadata' %}">View all Reports</a>
-	<br/><br/>
-	{% for page in reports.paginator.page_range %}
-	{% if forloop.counter != 1 %} | {% endif %}
-	<a href="?page={{ page }}">{{ page }}</a>
-	{% endfor %}
-      </div>
-    </div>
+<ul>
+  <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+  <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
+  <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+  <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
+  <li><a href="{% url 'journals:manage_report_metadata' %}" class="active">Manage Report metadata</a></li>
+</ul>
 
-<table class="table table-hover mt-4">
-  <thead class="thead-default">
+<h2 class="mt-4">Reports</h2>
+{% if request.GET.needing_update == '1' %}
+  <p>
+    Only Reports needing an update are shown below. <a href="{% url 'journals:manage_report_metadata' %}?needing_update=0" method="GET">View all Reports instead</a>.
+  </p>
+{% else %}
+    <p>
+      <a href="{% url 'journals:manage_report_metadata' %}?needing_update=1" method="GET">Only view Reports needing an update</a>.
+    </p>
+{% endif %}
+
+<table class="table table-hover">
+  <thead class="thead-light">
     <tr>
       <th>Submission</th>
       <th>Associated doi</th>
@@ -71,8 +78,8 @@ event: "focusin"
 
     </td>
     <td colspan="4">
-    	<h2 class="mt-4">Crossref Deposits</h2>
-    	<table class="table">
+    	<h3 class="mt-4">Crossref Deposits</h3>
+    	<table class="table table-sm bg-white">
     	  <thead class="thead-light">
     	    <th>Timestamp</th>
     	    <th>batch id</th>
@@ -108,14 +115,8 @@ event: "focusin"
   </tbody>
 </table>
 
-
-<div class="rol">
-  <div class="col-12">
-    {% for page in reports.paginator.page_range %}
-    {% if forloop.counter != 1 %} | {% endif %}
-    <a href="?page={{ page }}">{{ page }}</a>
-    {% endfor %}
-  </div>
+<div class="col-12">
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
 </div>
 
 

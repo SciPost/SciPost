@@ -52,15 +52,6 @@ urlpatterns = [
     url(r'^admin/(?P<doi_label>{regex})/authors/add$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_author,
         name='add_author'),
-    url(r'^admin/(?P<doi_label>{regex})/manage_metadata$'.format(regex=PUBLICATION_DOI_REGEX),
-        journals_views.manage_metadata,
-        name='manage_metadata'),
-    url(r'^admin/(?P<issue_doi_label>[a-zA-Z]+.[0-9]+.[0-9]+)/manage_metadata$',
-        journals_views.manage_metadata,
-        name='manage_metadata'),
-    url(r'^admin/(?P<journal_doi_label>{regex})/manage_metadata$'.format(regex=REGEX_CHOICES),
-        journals_views.manage_metadata,
-        name='manage_metadata'),
     url(r'^admin/manage_metadata/$',
         journals_views.manage_metadata,
         name='manage_metadata'),
@@ -98,6 +89,27 @@ urlpatterns = [
     url(r'^admin/(?P<doi_label>{regex})/grants/add$'.format(regex=PUBLICATION_DOI_REGEX),
         journals_views.add_associated_grant,
         name='add_associated_grant'),
+
+    # Admin: Volumes and Issues
+    url(r'^admin/volumes/$',
+        journals_views.VolumesAdminListView.as_view(),
+        name='admin_volumes_list'),
+    url(r'^admin/volumes/add$',
+        journals_views.VolumesAdminAddView.as_view(),
+        name='add_volume'),
+    url(r'^admin/volumes/(?P<pk>[0-9]+)/$',
+        journals_views.VolumesAdminUpdateView.as_view(),
+        name='update_volume'),
+    url(r'^admin/issues/$',
+        journals_views.IssuesAdminListView.as_view(),
+        name='admin_issue_list'),
+    url(r'^admin/issues/add$',
+        journals_views.IssuesAdminAddView.as_view(),
+        name='add_issue'),
+    url(r'^admin/issues/(?P<pk>[0-9]+)/$',
+        journals_views.IssuesAdminUpdateView.as_view(),
+        name='update_issue'),
+
 
     # Metadata handling
     url(r'^admin/(?P<doi_label>{regex})/metadata/crossref/create$'.format(

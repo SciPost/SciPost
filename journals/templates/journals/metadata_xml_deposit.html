@@ -8,7 +8,6 @@
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
                 <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
                 <span class="breadcrumb-item active">Metadata XML deposit</span>
             </nav>
         </div>
@@ -36,7 +35,7 @@
 
           {% if perms.scipost.can_publish_accepted_submission %}
               <br>
-              <p><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a> or to <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata management page</a></p>
+              <p><a href="{{publication.get_absolute_url}}">return to the publication's page</a>, to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a></p>
           {% endif %}
 
 
@@ -52,7 +51,7 @@
 
             {% if perms.scipost.can_publish_accepted_submission %}
                 <p>
-                    <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">Back to Admin for {{ publication.doi_label }}</a>
+                    <a href="{% url 'journals:manage_metadata' %}">Back to Admin</a>
                 </p>
             {% endif %}
         </div>

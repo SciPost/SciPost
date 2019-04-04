@@ -12,6 +12,7 @@ STATIC_URL = 'https://scipost.org/static/'
 STATIC_ROOT = '/home/scipost/webapps/scipost_static/'
 MEDIA_URL = 'https://scipost.org/media/'
 MEDIA_ROOT = '/home/scipost/webapps/scipost_media/'
+JOURNALS_DIR = 'SCIPOST_JOURNALS'
 
 # Recaptcha
 RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
