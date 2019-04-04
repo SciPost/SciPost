@@ -38,6 +38,25 @@ def get_sentinel_user():
     return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
 
 
+class TOTPDevice(models.Model):
+    """
+    Any device used by a User for 2-step authentication based on the RFC 6238 TOTP protocol.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.CharField(max_length=128)
+    token = models.CharField(max_length=16)
+    last_verified_counter = models.PositiveIntegerField(default=0)
+
+    created = models.DateTimeField(auto_now_add=True)
+    modified = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        default_related_name = 'devices'
+
+    def __str__(self):
+        return '{}: {}'.format(self.user, self.name)
+
+
 class Contributor(models.Model):
     """A Contributor is an academic extention of the User model.
 

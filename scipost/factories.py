@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from common.helpers import generate_orcid
 from submissions.models import Submission
 
-from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark
+from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark, TOTPDevice
 from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS, NORMAL_CONTRIBUTOR
 
 
@@ -60,8 +60,9 @@ class UserFactory(factory.django.DjangoModelFactory):
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')
     is_active = True
+
     # When user object is created, associate new Contributor object to it.
-    contributor = factory.RelatedFactory(ContributorFactory, 'user')
+    contrib = factory.RelatedFactory(ContributorFactory, 'user')
 
     class Meta:
         model = get_user_model()
@@ -77,6 +78,15 @@ class UserFactory(factory.django.DjangoModelFactory):
                 self.groups.add(group)
         else:
             self.groups.add(Group.objects.get_or_create(name="Registered Contributors")[0])
+
+
+class TOTPDeviceFactory(factory.django.DjangoModelFactory):
+    user = factory.SubFactory('scipost.factories.UserFactory')
+    name = factory.Faker('pystr')
+    token = factory.Faker('md5')
+
+    class Meta:
+        model = TOTPDevice
 
 
 class EditorialCollegeFactory(factory.django.DjangoModelFactory):
