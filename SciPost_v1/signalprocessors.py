@@ -4,18 +4,13 @@ __license__ = "AGPL v3"
 
 from django.contrib.contenttypes.models import ContentType
 
-from celery import shared_task
 from haystack import connection_router, connections, signals
 from haystack.exceptions import NotHandled
 
-from commentaries.models import Commentary
-from comments.models import Comment
-from journals.models import Publication
-from submissions.models import Submission, Report
+from notifications.models import Notification
+from submissions.models import Submission
 
 
-
-@shared_task(name='signalprocessors.remove_object_indexes')
 def remove_objects_indexes(sender_type_id, object_type_id, object_id):
     """
     Given a set of `objects` model instances, remove them from the index as preparation
@@ -23,10 +18,7 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
     """
     sender = ContentType.objects.get_for_id(sender_type_id)
     object_type = ContentType.objects.get_for_id(object_type_id)
-    try:
-        instance = object_type.get_object_for_this_type(pk=object_id)
-    except object_type.model_class().DoesNotExist:
-        return None
+    instance = object_type.get_object_for_this_type(pk=object_id)
 
     if isinstance(instance, Submission):
         # Submission have complex status handling, so a status change should lead to
@@ -42,7 +34,7 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
     try:
         using_backends = connection_router.for_write(instance=objects[0])
     except IndexError:
-        # No objects given, stop processing here
+        # No submissions given, stop processing here
         return None
 
     for instance in objects:
@@ -55,17 +47,13 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
                 pass
 
 
-@shared_task(name='signalprocessors.update_instance_indexes')
 def update_instance_indexes(sender_type_id, object_type_id, object_id):
     """
     Given an individual model instance, update its entire indexes.
     """
     sender = ContentType.objects.get_for_id(sender_type_id)
     object_type = ContentType.objects.get_for_id(object_type_id)
-    try:
-        instance = object_type.get_object_for_this_type(pk=object_id)
-    except object_type.model_class().DoesNotExist:
-        return None
+    instance = object_type.get_object_for_this_type(pk=object_id)
 
     try:
         using_backends = connection_router.for_write(instance=instance)
@@ -82,25 +70,12 @@ def update_instance_indexes(sender_type_id, object_type_id, object_id):
             pass
 
 
-class AutoSearchIndexingProcessor(signals.RealtimeSignalProcessor):
-
+class SearchIndexingProcessor(signals.BaseSignalProcessor):
     def handle_save(self, sender, instance, **kwargs):
-        """
-        Explicitly perform haystack reindex when saving objects of class:
-        Submission, Report, Comment, Publication.
-        """
-        try:
-            if (isinstance(instance, Submission) or
-                isinstance(instance, Report) or
-                isinstance(instance, Comment) or
-                isinstance(instance, Publication) or
-                isinstance(instance, Commentary)):
-                sender_type_id = ContentType.objects.get_for_model(sender).id
-                instance_type_id = ContentType.objects.get_for_model(instance).id
-                chain = (
-                    remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
-                    # 2nd method uses an immutable signature, to ignore return value of 1st method
-                    | update_instance_indexes.si(sender_type_id, instance_type_id, instance.id))
-                chain()
-        except AttributeError:
-            pass
+        if not isinstance(instance, Notification):
+            sender_type_id = ContentType.objects.get_for_model(sender).id
+            instance_type_id = ContentType.objects.get_for_model(instance).id
+            chain = (
+                remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
+                | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
+            chain()

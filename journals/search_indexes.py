@@ -15,6 +15,9 @@ class PublicationIndex(indexes.SearchIndex, indexes.Indexable):
     doi_label = indexes.CharField(model_attr='doi_label')
     institutions = indexes.MultiValueField()
 
+    def get_updated_field(self):
+        return 'latest_activity'
+
     def prepare_institutions(self, obj):
         return [inst.name for inst in obj.institutions.all()]
 

@@ -478,7 +478,7 @@ class Publication(models.Model):
     publication_date = models.DateField(verbose_name='publication date')
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
-    latest_activity = models.DateTimeField(default=timezone.now)
+    latest_activity = models.DateTimeField(auto_now=True)  # Needs `auto_now` as its not explicity updated anywhere?
 
     objects = PublicationQuerySet.as_manager()
 

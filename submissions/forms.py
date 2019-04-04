@@ -948,8 +948,7 @@ class RefereeSearchForm(forms.Form):
         'placeholder': 'Search for a referee in the SciPost Profiles database'}))
 
     def search(self):
-        return Profile.objects.filter(
-            last_name__icontains=self.cleaned_data['last_name'])
+        return Profile.objects.filter(last_name__icontains=self.cleaned_data['last_name'])
         # return Profile.objects.annotate(
         #     similarity=TrigramSimilarity('last_name', self.cleaned_data['last_name']),
         # ).filter(similarity__gt=0.3).order_by('-similarity')
