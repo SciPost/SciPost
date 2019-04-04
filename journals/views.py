@@ -49,6 +49,7 @@ from mails.views import MailEditorSubview
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
+from profiles.forms import ProfileSelectForm
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -361,44 +362,34 @@ def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_l
 
 @permission_required('scipost.can_draft_publication', return_403=True)
 @transaction.atomic
-def add_author(request, doi_label, contributor_id=None, unregistered_author_id=None):
+def add_author(request, doi_label):
     """
-    If not all authors are registered Contributors or if they have not
-    all claimed authorship, this method allows editorial administrators
-    to associated them to the publication.
+    Link authors (via their Profile) to a Publication.
+
+    To be used for registered Contributors who have not claimed authorship,
+    as well as for unregistered authors.
+
     This is important for the Crossref metadata, in which all authors must appear.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
         raise Http404('You do not have permission to edit this non-draft Publication')
 
-    if contributor_id:
-        contributor = get_object_or_404(Contributor, id=contributor_id)
-        PublicationAuthorsTable.objects.create(contributor=contributor, publication=publication)
-        publication.save()
-        messages.success(request, 'Added {} as an author.'.format(contributor))
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': publication.doi_label}))
-
-    contributors_found = None
-    form = UnregisteredAuthorForm(request.POST or request.GET or None)
+    form = ProfileSelectForm(request.POST or None)
 
     if request.POST and form.is_valid():
-        unregistered_author = form.save()
-        PublicationAuthorsTable.objects.create(
+        table, created = PublicationAuthorsTable.objects.get_or_create(
             publication=publication,
-            unregistered_author=unregistered_author)
-        messages.success(request, 'Added {} as an unregistered author.'.format(
-            unregistered_author
-        ))
-        return redirect(reverse('journals:add_author',
+            profile=form.cleaned_data['profile'])
+        if created:
+            messages.success(request, 'Added {} as an author.'.format(table.profile))
+        else:
+            messages.warning(request, ('Author {} was already associated to this '
+                                       'Publication.'.format(table.profile)))
+        return redirect(reverse('journals:manage_metadata',
                                 kwargs={'doi_label': publication.doi_label}))
-    elif form.is_valid():
-        contributors_found = Contributor.objects.filter(
-            user__last_name__icontains=form.cleaned_data['last_name'])
     context = {
         'publication': publication,
-        'contributors_found': contributors_found,
         'form': form,
     }
     return render(request, 'journals/add_author.html', context)

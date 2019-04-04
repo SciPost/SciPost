@@ -32,9 +32,9 @@
         {% for author in publication.authors.all %}
             <li>
                 {% if author.is_registered %}
-                    <a href="{{ author.contributor.get_absolute_url }}">{{ author.contributor }}</a>
+                    <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.contributor }}</a>
                 {% else %}
-                    {{ author.unregistered_author }}
+                    <a href="{{ author.profile }}">{{ author.profile }}</a>
                 {% endif %}
             </li>
         {% empty %}
@@ -43,40 +43,30 @@
       </ul>
 
       <br>
-      <h2 class="highlight">Add an (unregistered) author</h2>
+      <h2 class="highlight">Add another author</h2>
 
-      <h3>Search for missing author</h3>
-      <form method="get">
+      <div class="row">
+	<div class="col-md-6 col-lg-6">
+	  <form action="{% url 'journals:add_author' doi_label=publication.doi_label %}" method="post">
+	    {% csrf_token %}
             {{ form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Search">
-      </form>
-
-      {% if form.has_changed %}
-          <br>
-            <h3>Identified as Contributor:</h3>
-            <ul>
-              {% for contributor in contributors_found %}
-                  <li>
-                    <div class="font-weight-bold">{{ contributor.user.first_name }} {{ contributor.user.last_name }}</div>
-                    <a href="{% url 'journals:add_author' doi_label=publication.doi_label contributor_id=contributor.id %}">Add this Contributor as author of this Publication</a>
-                  </li>
-              {% empty %}
-                  <li><span class="text-danger">No Contributor with this name could be identified.</span></li>
-              {% endfor %}
-            </ul>
-
-            <h3>You can otherwise add the author manually and link it to the publication</h3>
-            <form action="{% url 'journals:add_author'  doi_label=publication.doi_label %}" method="post">
-                {% csrf_token %}
-                {{ form|bootstrap }}
-                <input class="btn btn-primary" type="submit" value="Add">
-            </form>
-        <br>
-      {% endif %}
+            <input class="btn btn-primary" type="submit" value="Add this author">
+	  </form>
+	</div>
+	<div class="col-md-6 col-lg-6">
+	  <h3>Not found?</h3>
+	  <p>Then you can <a href="{% url 'profiles:profile_create' %}" target="_blank">add the required Profile</a> and come back to this page.</p>
+	</div>
+      </div>
     </div>
 </div>
 
-<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">metadata management page</a>.</p>
+<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a>, <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
 
 
 {% endblock content %}
+
+{% block footer_script %}
+    {{ block.super }}
+    {{ form.media }}
+{% endblock footer_script %}

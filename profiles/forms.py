@@ -141,6 +141,9 @@ class ProfileMergeForm(forms.Form):
         # Move all affiliations to the "new" profile
         profile_old.affiliations.all().update(profile=profile)
 
+        # Move all PublicationAuthorsTable instances to the "new" profile
+        profile_old.publicationauthorstable_set.all().update(profile=profile)
+
         # Move all invitations to the "new" profile
         profile_old.refereeinvitation_set.all().update(profile=profile)
         profile_old.registrationinvitation_set.all().update(profile=profile)
@@ -170,6 +173,13 @@ class ProfileEmailForm(forms.ModelForm):
         """Save to a profile."""
         self.instance.profile = self.profile
         return super().save()
+
+
+class ProfileSelectForm(forms.Form):
+    profile = AutoCompleteSelectField(
+        'profile_lookup',
+        help_text=('Start typing, and select from the popup.'),
+        show_help_text=False)
 
 
 class AffiliationForm(forms.ModelForm):

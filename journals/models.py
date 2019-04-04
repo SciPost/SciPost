@@ -46,9 +46,19 @@ class UnregisteredAuthor(models.Model):
 
 
 class PublicationAuthorsTable(models.Model):
-    """PublicationAuthorsTable is an ordered link between people and Publications."""
+    """
+    PublicationAuthorsTable represents an author of a Publication.
+
+    Fields:
+    * publication
+    * profile
+    * affiliations: for this author/Publication (supersede profile.affiliations)
+    * order: the ordinal position of this author in this Publication's list of authors.
+    """
 
     publication = models.ForeignKey('journals.Publication', related_name='authors')
+    profile = models.ForeignKey('profiles.Profile', on_delete=models.PROTECT,
+                                blank=True, null=True)
     unregistered_author = models.ForeignKey('journals.UnregisteredAuthor', null=True, blank=True,
                                             related_name='+')
     contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
@@ -73,23 +83,17 @@ class PublicationAuthorsTable(models.Model):
     @property
     def is_registered(self):
         """Check if author is registered at SciPost."""
-        return self.contributor is not None
+        return self.profile.contributor is not None
 
     @property
     def first_name(self):
         """Return first name of author."""
-        if self.contributor:
-            return self.contributor.user.first_name
-        if self.unregistered_author:
-            return self.unregistered_author.first_name
+        return self.profile.first_name
 
     @property
     def last_name(self):
         """Return last name of author."""
-        if self.contributor:
-            return self.contributor.user.last_name
-        if self.unregistered_author:
-            return self.unregistered_author.last_name
+        return self.profile.last_name
 
 
 class Journal(models.Model):
