@@ -1,0 +1,33 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}{{block.super}}: Issues Admin{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+    {{block.super}}
+    <a href="{% url 'journals:admin_issue_list' %}" class="breadcrumb-item">Issues Admin</a>
+    {% if form.instance.id %}
+      <span class="breadcrumb-item">Update {{ issue.short_str }}</span>
+    {% else %}
+      <span class="breadcrumb-item">Create new Issue</span>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% if form.instance.id %}
+  <h1 class="highlight">Update {{ issue.get_journal.get_name_display }} {{ issue.short_str }}</h1>
+  <p>Update the Issue for any of the following Journals. If a Journal requires a Volume, select the Volume you would like to use.</p>
+{% else %}
+  <h1 class="highlight">Create next Issue</h1>
+  <p>Create a next Issue for any of the following Journals. If a Journal requires a Volume, select the Volume you would like to use.</p>
+{% endif %}
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input type="submit" class="btn btn-primary" value="Save">
+</form>
+
+{% endblock %}

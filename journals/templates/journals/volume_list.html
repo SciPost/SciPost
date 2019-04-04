@@ -1,10 +1,10 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
-{% block pagetitle %}{{block.super}}: Issues Admin{% endblock pagetitle %}
+{% block pagetitle %}{{block.super}}: Volumes Admin{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
     {{block.super}}
-    <span class="breadcrumb-item active">Issues Admin</span>
+    <span class="breadcrumb-item active">Volumes Admin</span>
 {% endblock %}
 
 {% block content %}
@@ -12,8 +12,8 @@
 
 <div class="row">
   <div class="col-12">
-    <h1 class="highlight">Issues Admin</h1>
-    <a href="{% url 'journals:add_issue' %}">Create a new Issue</a>
+    <h1 class="highlight">Volumes Admin</h1>
+    <a href="{% url 'journals:add_volume' %}">Create a new Volume</a>
     <br><br>
 
     <h3 class="my-3">Journals overview</h3>
@@ -21,18 +21,18 @@
       <thead class="thead-light">
         <tr>
           <th>Journal</th>
-          <th>Latest Issue</th>
-          <th>Has active Issue?</th>
+          <th>Latest Volume</th>
+          <th>Has active Volume?</th>
         </tr>
       </thead>
       {% for journal in journals %}
-        {% if journal.has_issues %}
+        {% if journal.has_volumes %}
           <tr>
             <td>{{ journal.get_name_display }}</td>
-            <td>{{ journal.get_latest_issue|default_if_none:'<i>No Issue found</i>' }}</td>
+            <td>{{ journal.get_latest_volume|default_if_none:'<i>No Volume found</i>' }}</td>
             <td>
-              {% if journal.get_latest_issue %}
-                {% if journal.get_latest_issue.is_current %}
+              {% if journal.get_latest_volume %}
+                {% if journal.get_latest_volume.is_current %}
                   <i class="fa fa-check text-success"></i> Yes
                 {% else %}
                   <i class="fa fa-exclamation-triangle text-warning"></i> No
@@ -44,32 +44,30 @@
       {% endfor %}
     </table>
 
-    <h3 class="mb-3 mt-5">All Issues</h3>
-    <table class="table">
+    <h3 class="mb-3 mt-5">All Volumes</h3>
+    <table class="table table-hover">
       <thead class="thead-light">
         <tr>
-          <th>Issue</th>
+          <th>Volume</th>
           <th>Period</th>
-          <th>Status</th>
-          <th>Publications</th>
+          <th>Issues</th>
           <th>Active</th>
           <th></th>
         </tr>
       </thead>
-      {% for issue in object_list %}
-        <tr{% if issue.is_current %} class="table-success"{% endif %}>
-          <td><a href="{{ issue.get_absolute_url }}">{{ issue.get_journal }} <strong>{{ issue.short_str }}</strong></a></td>
-          <td>{{ issue.start_date }} until {{ issue.until_date }}</td>
-          <td>{{ issue.get_status_display }}</td>
-          <td>{{ issue.publications.count }}</td>
+      {% for volume in object_list %}
+        <tr{% if volume.is_current %} class="table-success"{% endif %}>
+          <td>{{ volume.in_journal }} <strong>Vol. {{ volume.number }}</strong></td>
+          <td>{{ volume.start_date }} until {{ volume.until_date }}</td>
+          <td>{{ volume.issues.count }}</td>
           <td>
-            {% if issue.is_current %}
+            {% if volume.is_current %}
               <i class="fa fa-check text-success"></i> Yes
             {% else %}
               <i class="fa fa-exclamation-triangle text-warning"></i> No
             {% endif %}
           </td>
-          <td><a href="{% url 'journals:update_issue' issue.id %}">Edit</a></td>
+          <td><a href="{% url 'journals:update_volume' volume.id %}">Edit</a></td>
         </tr>
       {% endfor %}
     </table>
