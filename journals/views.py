@@ -24,20 +24,21 @@ from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.detail import DetailView
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 
 from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
 from .exceptions import InvalidDOIError
-from .models import Journal, Issue, Publication, Deposit, DOAJDeposit,\
-                    GenericDOIDeposit, PublicationAuthorsTable, OrgPubFraction
-from .forms import AbstractJATSForm, FundingInfoForm,\
-                   AuthorsTableOrganizationSelectForm,\
-                   CreateMetadataXMLForm, CitationListBibitemsForm,\
-                   ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm,\
-                   PublicationGrantsForm, DraftPublicationApprovalForm, PublicationPublishForm,\
-                   PublicationAuthorOrderingFormSet, OrgPubFractionsFormSet
+from .models import (
+    Journal, Volume, Issue, Publication, Deposit, DOAJDeposit, GenericDOIDeposit,
+    PublicationAuthorsTable, OrgPubFraction)
+from .forms import (
+    AbstractJATSForm, FundingInfoForm, VolumeForm, IssueForm,
+    AuthorsTableOrganizationSelectForm, CreateMetadataXMLForm, CitationListBibitemsForm,
+    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm, PublicationGrantsForm,
+    DraftPublicationApprovalForm, PublicationPublishForm, PublicationAuthorOrderingFormSet,
+    OrgPubFractionsFormSet)
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .services import update_citedby
 from .utils import JournalUtils
@@ -169,6 +170,36 @@ def landing_page(request, doi_label):
     return render(request, 'journals/journal_landing_page.html', context)
 
 
+class VolumesAdminListView(PermissionsMixin, PaginationMixin, ListView):
+    """
+    Admin: List all Volumes in the database.
+    """
+    model = Volume
+    permission_required = 'scipost.can_manage_issues'
+    paginate_by = 20
+
+
+class VolumesAdminAddView(PermissionsMixin, CreateView):
+    """
+    Admin: Create new Volume.
+    """
+    model = Volume
+    form_class = VolumeForm
+    success_url = reverse_lazy('journals:admin_volumes_list')
+    permission_required = 'scipost.can_manage_issues'
+
+
+class VolumesAdminUpdateView(PermissionsMixin, UpdateView):
+    """
+    Admin: Update Volume instance.
+    """
+    model = Volume
+    form_class = VolumeForm
+    slug_field = slug_url_kwarg = 'doi_label'
+    success_url = reverse_lazy('journals:admin_volumes_list')
+    permission_required = 'scipost.can_manage_issues'
+
+
 class IssuesView(DetailView):
     """
     List all Issues sorted per Journal.
@@ -178,10 +209,41 @@ class IssuesView(DetailView):
     template_name = 'journals/journal_issues.html'
 
 
+class IssuesAdminListView(PermissionsMixin, PaginationMixin, ListView):
+    """
+    Admin: List all Issues in the database.
+    """
+    model = Issue
+    permission_required = 'scipost.can_manage_issues'
+    paginate_by = 20
+
+
+class IssuesAdminAddView(PermissionsMixin, CreateView):
+    """
+    Admin: Create new Issue.
+    """
+    model = Issue
+    form_class = IssueForm
+    success_url = reverse_lazy('journals:admin_issue_list')
+    permission_required = 'scipost.can_manage_issues'
+
+
+class IssuesAdminUpdateView(PermissionsMixin, UpdateView):
+    """
+    Admin: Update issue instance.
+    """
+    model = Issue
+    form_class = IssueForm
+    slug_field = slug_url_kwarg = 'doi_label'
+    success_url = reverse_lazy('journals:admin_issue_list')
+    permission_required = 'scipost.can_manage_issues'
+
+
 def redirect_to_about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     return redirect(
         reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
+
 
 def info_for_authors(request, doi_label):
     """Author information about the Journal."""
@@ -320,40 +382,28 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_label=None):
-    journal = None
-    journals = Journal.objects.all()
-    issue = None
 
-    if doi_label:
-        publications = get_list_or_404(Publication, doi_label=doi_label)
-        journal = publications[0].get_journal()
-    elif issue_doi_label:
-        issue = get_object_or_404(Issue, doi_label=issue_doi_label)
-        if issue.in_volume:
-            journal = issue.in_volume.in_journal
-        else:
-            journal = issue.in_journal
-        publications = issue.publications.all()
-    elif journal_doi_label:
-        journal = get_object_or_404(Journal, doi_label=journal_doi_label)
-        publications = Publication.objects.for_journal(journal.name)
-    else:
-        # Limit the amount of Publications to still an idiot size
-        publications = Publication.objects.all()[:60]
+    publications_list = Publication.objects.all().prefetch_related(
+        'authors', 'funders_generic', 'deposit_set', 'doajdeposit_set')
 
-    # Speeds up operations by reducing the number of queries
-    if not isinstance(publications, list):
-        publications = publications.prefetch_related(
-            'authors', 'funders_generic', 'deposit_set', 'doajdeposit_set')
+    # Use Paginator to reduce request size.
+    paginator = Paginator(publications_list, 20)
+    page = request.GET.get('page')
+    try:
+        publications = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        publications = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        publications = paginator.page(paginator.num_pages)
 
     associate_grant_form = GrantSelectForm()
     associate_generic_funder_form = FunderSelectForm()
     context = {
-        'journal': journal,
-        'journals': journals,
-        'issue_doi_label': issue_doi_label,
-        'journal_doi_label': journal_doi_label,
         'publications': publications,
+        'page_obj': publications,
+        'paginator': paginator,
         'associate_grant_form': associate_grant_form,
         'associate_generic_funder_form': associate_generic_funder_form,
     }
@@ -376,7 +426,6 @@ def add_author(request, doi_label):
         raise Http404('You do not have permission to edit this non-draft Publication')
 
     form = ProfileSelectForm(request.POST or None)
-
     if request.POST and form.is_valid():
         table, created = PublicationAuthorsTable.objects.get_or_create(
             publication=publication,
@@ -386,8 +435,7 @@ def add_author(request, doi_label):
         else:
             messages.warning(request, ('Author {} was already associated to this '
                                        'Publication.'.format(table.profile)))
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': publication.doi_label}))
+        return redirect('journals:manage_metadata')
     context = {
         'publication': publication,
         'form': form,
@@ -486,10 +534,7 @@ class AbstractJATSUpdateView(PublicationMixin, ProdSupervisorPublicationPermissi
     """
     form_class = AbstractJATSForm
     template_name = 'journals/create_abstract_jats.html'
-
-    def get_success_url(self):
-        return reverse_lazy('journals:manage_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+    success_url = reverse_lazy('journals:manage_metadata')
 
 
 class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
@@ -498,10 +543,7 @@ class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin
     """
     form_class = FundingInfoForm
     template_name = 'journals/create_funding_info_metadata.html'
-
-    def get_success_url(self):
-        return reverse_lazy('journals:manage_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+    success_url = reverse_lazy('journals:manage_metadata')
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -518,8 +560,7 @@ def add_associated_grant(request, doi_label):
         publication.doideposit_needs_updating = True
         publication.save()
         messages.success(request, 'Grant added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': publication.doi_label}))
+    return redirect('journals:manage_metadata')
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -535,8 +576,7 @@ def add_generic_funder(request, doi_label):
         publication.funders_generic.add(funder_select_form.cleaned_data['funder'])
         publication.save()
         messages.success(request, 'Generic funder added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': doi_label}))
+    return redirect('journals:manage_metadata')
 
 
 class CreateMetadataXMLView(PublicationMixin,
@@ -550,10 +590,7 @@ class CreateMetadataXMLView(PublicationMixin,
     """
     form_class = CreateMetadataXMLForm
     template_name = 'journals/create_metadata_xml.html'
-
-    def get_success_url(self):
-        return reverse_lazy('journals:manage_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+    success_url = reverse_lazy('journals:manage_metadata')
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
@@ -669,8 +706,7 @@ def mark_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': deposit.publication.doi_label}))
+    return redirect('journals:manage_metadata')
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -681,8 +717,7 @@ def produce_metadata_DOAJ(request, doi_label):
         form.save()
         messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
                                   % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': doi_label}))
+        return redirect('journals:manage_metadata')
     context = {
         'publication': publication,
         'form': form
@@ -702,8 +737,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     if not publication.metadata_DOAJ:
         messages.warning(request, '<h3>%s</h3>Failed: please first produce '
                                   'DOAJ metadata before depositing.' % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': doi_label}))
+        return redirect('journals:manage_metadata')
 
     #timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
     timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
@@ -760,8 +794,7 @@ def metadata_DOAJ_deposit(request, doi_label):
 
     messages.success(request, '<h3>%s</h3>Successful deposit of metadata DOAJ.'
                               % publication.doi_label)
-    return redirect(reverse('journals:manage_metadata',
-                            kwargs={'doi_label': publication.doi_label}))
+    return redirect('journals:manage_metadata')
 
 
 @permission_required('scipost.can_manage_ontology', return_403=True)
@@ -849,8 +882,7 @@ def request_pubfrac_check(request, doi_label):
     if mail_request.is_valid():
         messages.success(request, 'The corresponding author has been emailed.')
         mail_request.send_mail()
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': publication.doi_label}))
+        return redirect('journals:manage_metadata')
     else:
         return mail_request.interrupt()
 
@@ -863,8 +895,7 @@ def mark_doaj_deposit_success(request, deposit_id, success):
     elif success == '0':
         deposit.deposit_successful = False
     deposit.save()
-    return redirect(reverse('journals:manage_metadata',
-                    kwargs={'doi_label': deposit.publication.doi_label}))
+    return redirect('journals:manage_metadata')
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -915,14 +946,13 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
-    needing_update = request.GET.get('needing_update')
-    if needing_update == 'True':
+    needing_update = request.GET.get('needing_update') == '1'
+    if needing_update:
         reports = reports.filter(
-            Q(needs_doi=None) |
-            Q(needs_doi=True, doideposit_needs_updating=True)).filter(
-                submission__status=STATUS_PUBLISHED)
-    paginator = Paginator(reports, 25)
+            Q(needs_doi=None) | Q(needs_doi=True, doideposit_needs_updating=True)).filter(
+            submission__status=STATUS_PUBLISHED)
 
+    paginator = Paginator(reports, 25)
     page = request.GET.get('page')
     try:
         reports = paginator.page(page)
@@ -933,6 +963,8 @@ def manage_report_metadata(request):
 
     context = {
         'reports': reports,
+        'page_obj': reports,
+        'paginator': paginator,
     }
     return render(request, 'journals/manage_report_metadata.html', context)
 

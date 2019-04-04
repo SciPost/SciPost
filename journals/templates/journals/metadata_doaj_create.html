@@ -10,7 +10,6 @@
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
                 <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-                <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="breadcrumb-item">{{ publication.citation }}</a>
                 <span class="breadcrumb-item active">Produce metadata DOAJ</span>
             </nav>
         </div>
@@ -40,7 +39,7 @@
             {% csrf_token %}
             {{ form|bootstrap }}
             <input class="btn btn-primary" type="submit" value="{% if publication.metadata_DOAJ %}Reproduce{% else %}Produce{% endif %}">
-            <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" class="ml-3 btn btn-link">Back to Admin for {{ publication.doi_label }}</a>
+            <a href="{% url 'journals:manage_metadata' %}" class="ml-3 btn btn-link">Back to Admin</a>
         </form>
     </div>
 </div>

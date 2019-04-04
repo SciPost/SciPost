@@ -128,6 +128,20 @@ class Journal(models.Model):
             return self.issues.published()
         return Issue.objects.none()
 
+    def get_latest_issue(self):
+        """Get latest existing Issue in database irrespective of its status."""
+        if self.structure == ISSUES_ONLY:
+            return self.issues.order_by('-until_date').first()
+        if self.structure == ISSUES_AND_VOLUMES:
+            return Issue.objects.filter(in_volume__in_journal=self).order_by('-until_date').first()
+        return None
+
+    def get_latest_volume(self):
+        """Get latest existing Volume in database irrespective of its status."""
+        if self.structure == ISSUES_AND_VOLUMES:
+            return self.volumes.order_by('-until_date').first()
+        return None
+
     def get_publications(self):
         if self.structure == ISSUES_AND_VOLUMES:
             return Publication.objects.filter(in_issue__in_volume__in_journal=self)
@@ -183,14 +197,17 @@ class Journal(models.Model):
                 for citation in pub.citedby:
                     if citation['year'] == year:
                         ncites += 1
-        return ncites/nrpub
+        return ncites / nrpub
+
 
 class Volume(models.Model):
     """
     A Volume belongs to a specific Journal, and is a container for
     either (multiple) Issue(s) or Publication(s).
     """
-    in_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
+    in_journal = models.ForeignKey(
+        'journals.Journal', limit_choices_to={'structure': ISSUES_AND_VOLUMES},
+        on_delete=models.CASCADE)
     number = models.PositiveSmallIntegerField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
@@ -216,6 +233,10 @@ class Volume(models.Model):
     @property
     def doi_string(self):
         return '10.21468/' + self.doi_label
+
+    def is_current(self):
+        today = timezone.now().date()
+        return self.start_date <= today and self.until_date >= today
 
     def nr_publications(self, tier=None):
         publications = Publication.objects.filter(in_issue__in_volume=self)
@@ -254,6 +275,7 @@ class Issue(models.Model):
     """
     in_journal = models.ForeignKey(
         'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
+        limit_choices_to={'structure': ISSUES_ONLY},
         help_text='Assign either a Volume or Journal to the Issue')
     in_volume = models.ForeignKey(
         'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
@@ -324,6 +346,11 @@ class Issue(models.Model):
         if self.start_date.month == self.until_date.month:
             return '%s %s' % (self.until_date.strftime('%B'), self.until_date.strftime('%Y'))
         return '%s - %s' % (self.start_date.strftime('%B'), self.until_date.strftime('%B %Y'))
+
+    def get_journal(self):
+        if self.in_journal:
+            return self.in_journal
+        return self.in_volume.in_journal
 
     def is_current(self):
         today = timezone.now().date()
@@ -429,7 +456,7 @@ class Publication(models.Model):
     publication_date = models.DateField(verbose_name='publication date')
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
-    latest_activity = models.DateTimeField(default=timezone.now)
+    latest_activity = models.DateTimeField(auto_now=True)  # Needs `auto_now` as its not explicity updated anywhere?
 
     objects = PublicationQuerySet.as_manager()
 

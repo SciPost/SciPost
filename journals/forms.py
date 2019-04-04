@@ -20,7 +20,9 @@ from ajax_select.fields import AutoCompleteSelectField
 
 from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
-from .models import Issue, Publication, Reference, PublicationAuthorsTable, OrgPubFraction
+from .models import (
+    Issue, Publication, Reference, Volume, PublicationAuthorsTable,
+    OrgPubFraction)
 from .utils import JournalUtils
 from .signals import notify_manuscript_published
 
@@ -28,7 +30,6 @@ from .signals import notify_manuscript_published
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
-from organizations.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from production.signals import notify_stream_status_change
@@ -694,6 +695,85 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
 
         return self.instance
 
+
+class VolumeForm(forms.ModelForm):
+    """
+    Add or Update a Volume instance which is directly related to either a Journal.
+    """
+
+    class Meta:
+        model = Volume
+        fields = (
+            'in_journal',
+            'start_date',
+            'until_date',
+            'doi_label',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.id:
+            del self.fields['doi_label']
+
+    def save(self):
+        if self.instance.id:
+            # Use regular save method if updating existing instance.
+            return super().save()
+
+        # Obtain next number, path and DOI if creating new Issue.
+        volume = super().save(commit=False)
+        volume.number = volume.in_journal.volumes.count() + 1
+        volume.doi_label = '{}.{}'.format(volume.in_journal.doi_label, volume.number)
+        volume.save()
+        return volume
+
+
+class IssueForm(forms.ModelForm):
+    """
+    Add or Update an Issue instance which is directly related to either a Journal or a Volume.
+    """
+
+    class Meta:
+        model = Issue
+        fields = (
+            'in_journal',
+            'in_volume',
+            'start_date',
+            'until_date',
+            'status',
+            'doi_label',
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not self.instance.id:
+            del self.fields['doi_label']
+
+    def save(self):
+        if self.instance.id:
+            # Use regular save method if updating existing instance.
+            return super().save()
+
+        # Obtain next number, path and DOI if creating new Issue.
+        issue = super().save(commit=False)
+        journal = issue.get_journal()
+        path = settings.JOURNALS_DIR
+        if journal.has_volumes:
+            volume = journal.volumes.first()
+            number = volume.issues.count() + 1
+            doi = '{}.{}.{}'.format(journal.doi_label, volume.number, number)
+            path += '/{}/{}/{}'.format(journal.doi_label, volume.number, number)
+        else:
+            number = journal.issues.count() + 1
+            volume = None
+            doi = '{}.{}'.format(journal.doi_label, number)
+            path += '/{}/{}'.format(journal.doi_label, number)
+        issue.number = number
+        issue.slug = str(number)
+        issue.doi_label = doi
+        issue.path = path
+        issue.save()
+        return issue
 
 
 class SetOrgPubFractionForm(forms.ModelForm):

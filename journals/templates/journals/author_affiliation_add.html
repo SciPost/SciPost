@@ -10,8 +10,7 @@
             <nav class="breadcrumb hidden-sm-down">
                 <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
                 <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-                <a href="{% url 'journals:manage_metadata' doi_label=table.publication.doi_label %}" class="breadcrumb-item">{{ table.publication.doi_label }}</a>
-		<a href="{% url 'journals:author_affiliations' doi_label=table.publication.doi_label %}" class="breadcrumb-item">Author Affiliations</a>
+            		<a href="{% url 'journals:author_affiliations' doi_label=table.publication.doi_label %}" class="breadcrumb-item">Author Affiliations</a>
                 <span class="breadcrumb-item active">Add</span>
             </nav>
         </div>

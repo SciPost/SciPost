@@ -716,6 +716,7 @@ class SearchForm(HayStackSearchForm):
     start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
     end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
 
+
     def search(self):
         if not self.is_valid():
             return self.no_query_found()
@@ -723,7 +724,7 @@ class SearchForm(HayStackSearchForm):
         if not self.cleaned_data.get("q"):
             return self.no_query_found()
 
-        sqs = self.searchqueryset.filter(content__contains=self.cleaned_data["q"])
+        sqs = self.searchqueryset.auto_query(self.cleaned_data["q"])
 
         if self.load_all:
             sqs = sqs.load_all()
