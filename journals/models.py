@@ -48,7 +48,6 @@ class PublicationAuthorsTable(models.Model):
     publication = models.ForeignKey('journals.Publication', related_name='authors')
     profile = models.ForeignKey('profiles.Profile', on_delete=models.PROTECT,
                                 blank=True, null=True)
-    contributor = models.ForeignKey('scipost.Contributor', null=True, blank=True, related_name='+')
     affiliations = models.ManyToManyField('organizations.Organization', blank=True)
     order = models.PositiveSmallIntegerField()
 
