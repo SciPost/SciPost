@@ -177,23 +177,6 @@
     </div>
     {% endif %}
 
-    {% if is_scipost_admin or is_edcol_admin %}
-        {% if publication.institutions.all %}
-        <div class="card">
-          <div class="card-header">
-            Institution{{ publication.institutions.all|pluralize }} related to this Publication (<span class="text-danger">Admin-only view, to be removed</span>)
-          </div>
-          <div class="card-content">
-            <ul class="m-2">
-              {% for institution in publication.institutions.all %}
-              <li><a href="{{ institution.get_absolute_url }}">{{ institution }}</a></li>
-              {% endfor %}
-            </ul>
-          </div>
-        </div>
-        {% endif %}
-    {% endif %}
-
     {% if publication.status == 'draft' and perms.scipost.can_draft_publication %}
         <hr class="divider">
         <div class="row">

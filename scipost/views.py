@@ -52,7 +52,6 @@ from .forms import (
 from .mixins import PermissionsMixin, PaginationMixin
 from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
-from affiliations.forms import AffiliationsFormset
 from colleges.permissions import fellowship_or_admin_required
 from colleges.models import Fellowship
 from commentaries.models import Commentary
@@ -856,12 +855,10 @@ def _update_personal_data_contributor(request):
     contributor = Contributor.objects.get(user=request.user)
     user_form = UpdateUserDataForm(request.POST or None, instance=request.user)
     cont_form = UpdatePersonalDataForm(request.POST or None, instance=contributor)
-    institution_formset = AffiliationsFormset(request.POST or None, contributor=contributor)
-    if user_form.is_valid() and cont_form.is_valid() and institution_formset.is_valid():
+    if user_form.is_valid() and cont_form.is_valid():
         user_form.save()
         cont_form.save()
         cont_form.sync_lists()
-        institution_formset.save()
         if 'orcid_id' in cont_form.changed_data:
             cont_form.propagate_orcid()
         messages.success(request, 'Your personal data has been updated.')
@@ -870,7 +867,6 @@ def _update_personal_data_contributor(request):
     context = {
         'user_form': user_form,
         'cont_form': cont_form,
-        'institution_formset': institution_formset,
     }
     return render(request, 'scipost/update_personal_data.html', context)
 

@@ -23,7 +23,6 @@ from .forms import OrganizationEventForm, ContactPersonForm,\
     NewContactForm, ContactActivationForm, ContactRoleForm
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
-from affiliations.models import Institution
 from funders.models import Funder
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
@@ -71,9 +70,6 @@ class OrganizationListView(PaginationMixin, ListView):
         context = super().get_context_data(*args, **kwargs)
         if self.request.user.has_perm('scipost.can_manage_organizations'):
             context['nr_funders_wo_organization'] = Funder.objects.filter(organization=None).count()
-        if self.request.user.has_perm('scipost.can_manage_organizations'):
-            context['nr_institutions_wo_organization'] = Institution.objects.filter(
-                organization=None).count()
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
         context['countrycodes'] = [code['country'] for code in list(
             Organization.objects.all().distinct('country').values('country'))]

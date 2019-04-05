@@ -31,7 +31,6 @@ from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
     Remark, AuthorshipClaim, PrecookedEmail, TOTPDevice
 from .totp import TOTPVerification
 
-from affiliations.models import Affiliation as deprec_Affiliation
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
 from organizations.decorators import has_contact
 
@@ -532,7 +531,6 @@ class ContributorMergeForm(forms.Form):
         contrib_from_qs.update(duplicate_of=contrib_into)
 
         # Step 2: update all ForeignKey relations
-        deprec_Affiliation.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
         Fellowship.objects.filter(contributor=contrib_from).update(contributor=contrib_into)
         PotentialFellowshipEvent.objects.filter(
             noted_by=contrib_from).update(noted_by=contrib_into)
