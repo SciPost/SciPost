@@ -235,7 +235,8 @@ class TicketDetailView(UserPassesTestMixin, DetailView):
     template_name = 'helpdesk/ticket_detail.html'
 
     def test_func(self):
-        return is_ticket_creator_or_handler(self.request, self.kwargs.get('pk'))
+        return (self.request.user.is_authenticated and
+                is_ticket_creator_or_handler(self.request, self.kwargs.get('pk')))
 
 
 class TicketFollowupView(UserPassesTestMixin, CreateView):
@@ -244,7 +245,8 @@ class TicketFollowupView(UserPassesTestMixin, CreateView):
     template_name = 'helpdesk/followup_form.html'
 
     def test_func(self):
-        return is_ticket_creator_or_handler(self.request, self.kwargs.get('pk'))
+        return (self.request.user.is_authenticated and
+                is_ticket_creator_or_handler(self.request, self.kwargs.get('pk')))
 
     def get_initial(self):
         initial = super().get_initial()

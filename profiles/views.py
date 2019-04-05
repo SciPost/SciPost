@@ -377,7 +377,8 @@ class AffiliationCreateView(UserPassesTestMixin, CreateView):
         """
         if self.request.user.has_perm('scipost.can_create_profiles'):
             return True
-        return self.request.user.contributor.profile.id == int(self.kwargs.get('profile_id'))
+        return (self.request.user.is_authenticated and
+                self.request.user.contributor.profile.id == int(self.kwargs.get('profile_id')))
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
@@ -410,7 +411,8 @@ class AffiliationUpdateView(UserPassesTestMixin, UpdateView):
         """
         if self.request.user.has_perm('scipost.can_create_profiles'):
             return True
-        return self.request.user.contributor.profile.id == int(self.kwargs.get('profile_id'))
+        return (self.request.user.is_authenticated and
+                self.request.user.contributor.profile.id == int(self.kwargs.get('profile_id')))
 
     def get_success_url(self):
         """
@@ -433,7 +435,8 @@ class AffiliationDeleteView(UserPassesTestMixin, DeleteView):
         """
         if self.request.user.has_perm('scipost.can_create_profiles'):
             return True
-        return self.request.user.contributor.profile.id == int(self.kwargs.get('profile_id'))
+        return (self.request.user.is_authenticated and
+                self.request.user.contributor.profile.id == int(self.kwargs.get('profile_id')))
 
     def get_success_url(self):
         """
