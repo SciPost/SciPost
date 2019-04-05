@@ -12,16 +12,17 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='remark',
-            name='feedback',
-        ),
-        migrations.RemoveField(
-            model_name='remark',
-            name='motion',
-        ),
-        migrations.RemoveField(
-            model_name='remark',
-            name='nomination',
-        ),
+        # Deprec virtualmeetings 2019-04-05
+        # migrations.RemoveField(
+        #     model_name='remark',
+        #     name='feedback',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='remark',
+        #     name='motion',
+        # ),
+        # migrations.RemoveField(
+        #     model_name='remark',
+        #     name='nomination',
+        # ),
     ]

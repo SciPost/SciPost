@@ -60,7 +60,6 @@ urlpatterns = [
     url(r'^theses/', include('theses.urls', namespace="theses")),
     url(r'^thesis/', include('theses.urls', namespace="_theses")),
     url(r'^mails/', include('mails.urls', namespace="mails")),
-    url(r'^meetings/', include('virtualmeetings.urls', namespace="virtualmeetings")),
     url(r'^news/', include('news.urls', namespace="news")),
     url(r'^notifications/', include('notifications.urls', namespace="notifications")),
     url(r'^ontology/', include('ontology.urls', namespace="ontology")),

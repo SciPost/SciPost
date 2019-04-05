@@ -111,11 +111,9 @@ INSTALLED_APPS = (
     'stats',
     'submissions',
     'theses',
-    'virtualmeetings',
     'ontology',
     'organizations',
     'profiles',
-    # TODO: partners to be deprecated in favour of sponsors
     'sponsors',
     'preprints',
     'funders',

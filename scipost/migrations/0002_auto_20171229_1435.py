@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
     dependencies = [
         ('submissions', '0001_initial'),
         ('commentaries', '0002_auto_20171229_1435'),
-        ('virtualmeetings', '0001_initial'),
+        # Deprec virtualmeetings 2019-04-05
+        # ('virtualmeetings', '0001_initial'),
         ('journals', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('theses', '0001_initial'),
@@ -23,21 +24,22 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='remark',
-            name='feedback',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='virtualmeetings.Feedback'),
-        ),
-        migrations.AddField(
-            model_name='remark',
-            name='motion',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='virtualmeetings.Motion'),
-        ),
-        migrations.AddField(
-            model_name='remark',
-            name='nomination',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='virtualmeetings.Nomination'),
-        ),
+        # Deprec virtualmeetings 2019-04-05
+        # migrations.AddField(
+        #     model_name='remark',
+        #     name='feedback',
+        #     field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='virtualmeetings.Feedback'),
+        # ),
+        # migrations.AddField(
+        #     model_name='remark',
+        #     name='motion',
+        #     field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='virtualmeetings.Motion'),
+        # ),
+        # migrations.AddField(
+        #     model_name='remark',
+        #     name='nomination',
+        #     field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='virtualmeetings.Nomination'),
+        # ),
         migrations.AddField(
             model_name='remark',
             name='recommendation',
