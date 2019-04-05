@@ -36,7 +36,6 @@ $(document).ready(function($) {
       <li><a href="{% url 'organizations:dashboard' %}">Go to the dashboard</a></li>
       <li><a href="{% url 'organizations:organization_create' %}">Create a new Organization instance</a></li>
       <li><a href="{% url 'funders:funders_dashboard' %}">Link Funders to Organizations</a> ({{ nr_funders_wo_organization }} found in need of linking)</li>
-      <li><a href="{% url 'affiliations:institutions_without_organization' %}">Link (deprecated) affiliations.Institutions to Organizations</a> ({{ nr_institutions_wo_organization }} found in need of linking)</li>
     </ul>
     {% endif %}
   </div>

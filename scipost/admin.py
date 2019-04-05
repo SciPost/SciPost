@@ -25,8 +25,7 @@ class ContributorAdmin(admin.ModelAdmin):
         'user__first_name',
         'user__last_name',
         'user__email',
-        'orcid_id',
-        'affiliations__institution__name']
+        'orcid_id']
 
 
 class ContributorInline(admin.StackedInline):
