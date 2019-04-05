@@ -61,7 +61,7 @@
     </div>
 </div>
 
-<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a>, <a href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}">this publication's metadata page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
+<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
 
 
 {% endblock content %}

@@ -381,7 +381,7 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def manage_metadata(request, doi_label=None, issue_doi_label=None, journal_doi_label=None):
+def manage_metadata(request):
 
     publications_list = Publication.objects.all().prefetch_related(
         'authors', 'funders_generic', 'deposit_set', 'doajdeposit_set')
