@@ -192,12 +192,6 @@ class Remark(models.Model):
     """A form of non-public communication for VGMs and/or submissions and recommendations."""
 
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    feedback = models.ForeignKey('virtualmeetings.Feedback', on_delete=models.CASCADE,
-                                 blank=True, null=True)
-    nomination = models.ForeignKey('virtualmeetings.Nomination', on_delete=models.CASCADE,
-                                   blank=True, null=True)
-    motion = models.ForeignKey('virtualmeetings.Motion', on_delete=models.CASCADE,
-                               blank=True, null=True)
     submission = models.ForeignKey('submissions.Submission',
                                    on_delete=models.CASCADE,
                                    blank=True, null=True)

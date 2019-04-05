@@ -45,7 +45,6 @@ from profiles.models import Profile, ProfileEmail, Affiliation
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
     EditorialCommunication, EICRecommendation
 from theses.models import ThesisLink
-from virtualmeetings.models import Feedback, Nomination, Motion
 
 
 REGISTRATION_REFUSAL_CHOICES = (
@@ -566,9 +565,6 @@ class ContributorMergeForm(forms.Form):
             referee=contrib_from).update(referee=contrib_into)
         ThesisLink.objects.filter(requested_by=contrib_from).update(requested_by=contrib_into)
         ThesisLink.objects.filter(vetted_by=contrib_from).update(vetted_by=contrib_into)
-        Feedback.objects.filter(by=contrib_from).update(by=contrib_into)
-        Nomination.objects.filter(by=contrib_from).update(by=contrib_into)
-        Motion.objects.filter(put_forward_by=contrib_from).update(put_forward_by=contrib_into)
 
         # Step 3: update all ManyToMany
         commentaries = Commentary.objects.filter(authors__in=[contrib_from,]).all()
