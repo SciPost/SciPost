@@ -469,7 +469,7 @@ class DraftPublicationForm(forms.ModelForm):
             # Copy all existing author and non-author relations to Publication
             for submission_author in self.submission.authors.all():
                 PublicationAuthorsTable.objects.create(
-                    publication=self.instance, contributor=submission_author)
+                    publication=self.instance, profile=submission_author.profile)
             self.instance.topics.add(*self.submission.topics.all())
             self.instance.authors_claims.add(*self.submission.authors_claims.all())
             self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
