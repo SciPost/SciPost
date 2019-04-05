@@ -298,12 +298,6 @@ class Command(BaseCommand):
             name='Can view timesheets',
             content_type=content_type)
 
-        # Affiliations administration
-        can_manage_affiliations, created = Permission.objects.get_or_create(
-            codename='can_manage_affiliations',
-            name='Can manage affiliations',
-            content_type=content_type)
-
         # News administration
         can_manage_news, created = Permission.objects.get_or_create(
             codename='can_manage_news',
@@ -347,7 +341,6 @@ class Command(BaseCommand):
             can_attend_VGMs,
             can_view_timesheets,
             can_manage_mailchimp,
-            can_manage_affiliations,
             can_view_statistics,
             can_create_profiles,
             can_view_profiles,
