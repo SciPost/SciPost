@@ -81,7 +81,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    'affiliations',
     'ajax_select',
     'haystack',
     'captcha',

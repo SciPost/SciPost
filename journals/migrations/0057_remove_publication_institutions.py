@@ -12,8 +12,9 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='publication',
-            name='institutions',
-        ),
+        # Deprecation of affiliations app 2019-04-04
+        # migrations.RemoveField(
+        #     model_name='publication',
+        #     name='institutions',
+        # ),
     ]

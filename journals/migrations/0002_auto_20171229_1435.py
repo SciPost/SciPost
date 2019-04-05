@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
         ('journals', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
         ('funders', '0002_auto_20171229_1435'),
-        ('affiliations', '0002_auto_20171229_1435'),
+# Deprecation of affiliations app 2019-04-04
+#        ('affiliations', '0002_auto_20171229_1435'),
         ('scipost', '0002_auto_20171229_1435'),
     ]
 
@@ -70,11 +71,12 @@ class Migration(migrations.Migration):
             name='in_issue',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journals.Issue'),
         ),
-        migrations.AddField(
-            model_name='publication',
-            name='institutions',
-            field=models.ManyToManyField(blank=True, related_name='publications', to='affiliations.Institution'),
-        ),
+        # Deprecation of affiliations app 2019-04-04
+        # migrations.AddField(
+        #     model_name='publication',
+        #     name='institutions',
+        #     field=models.ManyToManyField(blank=True, related_name='publications', to='affiliations.Institution'),
+        # ),
         migrations.AddField(
             model_name='issue',
             name='in_volume',
