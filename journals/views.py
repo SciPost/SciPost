@@ -381,11 +381,20 @@ class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
-def manage_metadata(request):
+def manage_metadata(request, doi_label=None):
 
-    publications_list = Publication.objects.all().prefetch_related(
-        'authors', 'funders_generic', 'deposit_set', 'doajdeposit_set')
+    if doi_label:
+        publication = get_object_or_404(Publication, doi_label=doi_label)
+        associate_grant_form = GrantSelectForm()
+        associate_generic_funder_form = FunderSelectForm()
+        context = {
+            'publication': publication,
+            'associate_grant_form': associate_grant_form,
+            'associate_generic_funder_form': associate_generic_funder_form,
+        }
+        return render(request, 'journals/manage_metadata_for_publication.html', context)
 
+    publications_list = Publication.objects.all()
     # Use Paginator to reduce request size.
     paginator = Paginator(publications_list, 20)
     page = request.GET.get('page')
@@ -398,14 +407,10 @@ def manage_metadata(request):
         # If page is out of range (e.g. 9999), deliver last page of results.
         publications = paginator.page(paginator.num_pages)
 
-    associate_grant_form = GrantSelectForm()
-    associate_generic_funder_form = FunderSelectForm()
     context = {
         'publications': publications,
         'page_obj': publications,
         'paginator': paginator,
-        'associate_grant_form': associate_grant_form,
-        'associate_generic_funder_form': associate_generic_funder_form,
     }
     return render(request, 'journals/manage_metadata.html', context)
 
@@ -435,7 +440,8 @@ def add_author(request, doi_label):
         else:
             messages.warning(request, ('Author {} was already associated to this '
                                        'Publication.'.format(table.profile)))
-        return redirect('journals:manage_metadata')
+        return redirect(reverse('journals:manage_metadata',
+                                kwargs={'doi_label': publication.doi_label}))
     context = {
         'publication': publication,
         'form': form,
@@ -534,7 +540,10 @@ class AbstractJATSUpdateView(PublicationMixin, ProdSupervisorPublicationPermissi
     """
     form_class = AbstractJATSForm
     template_name = 'journals/create_abstract_jats.html'
-    success_url = reverse_lazy('journals:manage_metadata')
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
 
 
 class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
@@ -543,7 +552,10 @@ class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin
     """
     form_class = FundingInfoForm
     template_name = 'journals/create_funding_info_metadata.html'
-    success_url = reverse_lazy('journals:manage_metadata')
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -560,7 +572,7 @@ def add_associated_grant(request, doi_label):
         publication.doideposit_needs_updating = True
         publication.save()
         messages.success(request, 'Grant added to publication %s' % str(publication))
-    return redirect('journals:manage_metadata')
+    return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -576,7 +588,7 @@ def add_generic_funder(request, doi_label):
         publication.funders_generic.add(funder_select_form.cleaned_data['funder'])
         publication.save()
         messages.success(request, 'Generic funder added to publication %s' % str(publication))
-    return redirect('journals:manage_metadata')
+    return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
 
 
 class CreateMetadataXMLView(PublicationMixin,
@@ -590,7 +602,10 @@ class CreateMetadataXMLView(PublicationMixin,
     """
     form_class = CreateMetadataXMLForm
     template_name = 'journals/create_metadata_xml.html'
-    success_url = reverse_lazy('journals:manage_metadata')
+
+    def get_success_url(self):
+        return reverse_lazy('journals:manage_metadata',
+                            kwargs={'doi_label': self.object.doi_label})
 
 
 @permission_required('scipost.can_draft_publication', return_403=True)
@@ -717,7 +732,7 @@ def produce_metadata_DOAJ(request, doi_label):
         form.save()
         messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
                                   % publication.doi_label)
-        return redirect('journals:manage_metadata')
+        return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
     context = {
         'publication': publication,
         'form': form
@@ -737,7 +752,7 @@ def metadata_DOAJ_deposit(request, doi_label):
     if not publication.metadata_DOAJ:
         messages.warning(request, '<h3>%s</h3>Failed: please first produce '
                                   'DOAJ metadata before depositing.' % publication.doi_label)
-        return redirect('journals:manage_metadata')
+        return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
 
     #timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
     timestamp = timezone.now().strftime('%Y%m%d%H%M%S')

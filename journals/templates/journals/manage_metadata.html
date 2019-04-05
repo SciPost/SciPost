@@ -5,6 +5,16 @@
 {% load bootstrap %}
 {% load journals_extras %}
 
+{% block headsup %}
+<script type="text/javascript">
+$(document).ready(function($) {
+    $(".table-row").click(function() {
+        window.document.location = $(this).data("href");
+    });
+});
+</script>
+{% endblock headsup %}
+
 {% block breadcrumb_items %}
     {{block.super}}
     <span class="breadcrumb-item">Manage metadata</span>
@@ -25,7 +35,7 @@
 
 <h2 class="mt-4 mb-2">Publications</h2>
 <table class="table table-hover mb-5">
-  <thead class="thead-light">
+  <thead class="thead-default">
     <tr>
       <th>doi</th>
       <th>Publication date</th>
@@ -37,159 +47,27 @@
     </tr>
   </thead>
 
-  <tbody id="accordion" role="tablist" aria-multiselectable="true">
+  <tbody>
     {% for publication in publications %}
-      <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ publication.id }}" aria-expanded="true" aria-controls="collapse{{ publication.id }}" style="cursor: pointer;"{% if not publication.is_published %} class="table-warning"{% endif %}>
-        <td><a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></td>
-        <td>{{ publication.publication_date }}</td>
-        {% if publication.latest_metadata_update %}
-        <td>
-          {{ publication.latest_metadata_update }}
-        </td>
-        {% else %}
-        <td>No info available</td>
-        {% endif %}
-        <td>{{ publication|latest_successful_crossref_deposit }}</td>
-        <td>{{ publication.doideposit_needs_updating }}</td>
-        <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
-        <td>{{ publication|pubfracs_fixed }}</td>
-      </tr>
-      <tr id="collapse{{ publication.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ publication.id }}" style="background-color: #fff;">
-        <td colspan="7" class="py-3">
-          <div class="row">
-            {% if not publication.is_published %}
-              <div class="col-12">
-                  <h3 class="text-center bg-warning text-white mb-3 py-2">Current status: <strong>{{ publication.get_status_display }}</strong></h3>
-              </div>
-            {% endif %}
-
-            <div class="col-md-6">
-                {% if publication.status == 'draft' %}
-                    {% include 'partials/journals/publication_preparation.html' with publication=publication %}
-                    <hr>
-                {% endif %}
-
-                <h2 class="x">Actions</h2>
-                {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
-            </div>
-
-            <div class="col-md-6">
-  	    <h2>Funding statement for this publication:</h2>
-  	    {% if publication.metadata.funding_statement %}
-  	    <p>{{ publication.metadata.funding_statement }}</p>
-  	    {% else %}
-  	    <p>No funding statement was found</p>
-  	    {% endif %}
-  	    <h2>Grants associated to this publication:</h2>
-  	    <ul>
-  	      {% for grant in publication.grants.all %}
-  	      <li>{{ grant }}</li>
-  	      {% empty %}
-  	      <li>no associated grants found</li>
-  	      {% endfor %}
-  	    </ul>
-  	    <div class="card p-3 mb-4">
-    	    <h3>Associate a grant to this publication:</h3>
-    	    <form action="{% url 'journals:add_associated_grant' publication.doi_label %}" method="post">
-    	      {% csrf_token %}
-    	      {{ associate_grant_form|bootstrap }}
-    	      <input class="btn btn-outline-secondary" type="submit" value="Add">
-    	    </form>
-        </div>
-
-  	    <h2>Generic (not via grant) funders associated to this publication:</h2>
-  	    <ul>
-  	      {% for funder in publication.funders_generic.all %}
-  	      <li>{{ funder }}</li>
-  	      {% empty %}
-  	      <li>No generic funder found</li>
-  	      {% endfor %}
-  	    </ul>
-
-        <div class="card p-3 mb-4">
-    	    <h3>Associate a generic funder to this publication:</h3>
-    	    <form action="{% url 'journals:add_generic_funder' publication.doi_label %}" method="post">
-    	      {% csrf_token %}
-    	      {{ associate_generic_funder_form|bootstrap }}
-    	      <input class="btn btn-outline-secondary" type="submit" value="Add">
-    	    </form>
-  	    </div>
-
-  	    <h3>Other funding-related actions:</h3>
-  	    <ul>
-  	      <li><a href="{% url 'funders:funders_dashboard' %}" target="_blank">go to the Funders page to add a Funder and/or Grant instance</a></li>
-  	    </ul>
-  	  </div>
-  	</div>
-
-
-  	<h3 class="mx-3">Crossref Deposits</h3>
-  	<table class="table table-sm bg-white mx-3">
-  	  <thead class="thead-light">
-  	    <th>Timestamp</th>
-  	    <th>batch id</th>
-  	    <th>deposition date</th>
-  	    <th>Successful?</th>
-  	    <th>actions</th>
-  	  </thead>
-  	  <tbody>
-  	    {% for deposit in publication.deposit_set.all %}
-  	    <tr>
-  	      <td>{{ deposit.timestamp }}</td>
-  	      <td>{{ deposit.doi_batch_id }}</td>
-  	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
-  	      <td>{{ deposit.deposit_successful }}</td>
-  	      <td>Mark deposit as
-  		<ul>
-  		  <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-  		  <li><a href="{% url 'journals:mark_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
-  		</ul>
-  	      </td>
-  	    </tr>
-  	    {% empty %}
-  	    <tr>
-  	      <td colspan="6">No Deposits found for this publication</td>
-  	    </tr>
-  	    {% endfor %}
-  	  </tbody>
-  	</table>
-
-    <br>
-  	<h3 class="mx-3">DOAJ Deposits</h3>
-  	<table class="table table-sm bg-white mx-3">
-  	  <thead class="thead-light">
-  	    <th>Timestamp</th>
-  	    <th>deposition date</th>
-  	    <th>Successful?</th>
-  	    <th>actions</th>
-  	  </thead>
-  	  <tbody>
-  	    {% for deposit in publication.doajdeposit_set.all %}
-  	    <tr>
-  	      <td>{{ deposit.timestamp }}</td>
-  	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
-  	      <td>{{ deposit.deposit_successful }}</td>
-  	      <td>Mark deposit as
-  		<ul>
-  		  <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-  		  <li><a href="{% url 'journals:mark_doaj_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
-  		</ul>
-  	      </td>
-  	    </tr>
-  	    {% empty %}
-  	    <tr>
-  	      <td colspan="6">No Deposits found for this publication</td>
-  	    </tr>
-  	    {% endfor %}
-  	  </tbody>
-  	</table>
-
-        </td>
-      </tr>
-      {% empty %}
-      <tr>
-        <td colspan="7">No publications found.</td>
-      </tr>
+    <tr class="table-row" data-href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" target="_blank" style="cursor: pointer;"{% if not publication.is_published %} class="table-warning"{% endif %}>
+      <td>{{ publication.doi_label }}</td>
+      <td>{{ publication.publication_date }}</td>
+      {% if publication.latest_metadata_update %}
+      <td>
+        {{ publication.latest_metadata_update }}
+      </td>
+      {% else %}
+      <td>No info available</td>
+      {% endif %}
+      <td>{{ publication|latest_successful_crossref_deposit }}</td>
+      <td>{{ publication.doideposit_needs_updating }}</td>
+      <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
+      <td>{{ publication|pubfracs_fixed }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7">No publications found.</td>
+    </tr>
     {% endfor %}
   </tbody>
 </table>
@@ -199,10 +77,3 @@
 </div>
 
 {% endblock content %}
-
-
-{% block footer_script %}
-    {{ block.super }}
-    {{ associate_grant_form.media }}
-    {{ associate_generic_funder_form.media }}
-{% endblock footer_script %}
