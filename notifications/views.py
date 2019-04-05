@@ -56,7 +56,7 @@ def mark_toggle(request, slug=None):
 
 def live_unread_notification_count(request):
     """Return JSON of unread messages count."""
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         data = {'unread_count': 0}
     else:
         data = {'unread_count': request.user.notifications.unread().count()}
@@ -65,7 +65,7 @@ def live_unread_notification_count(request):
 
 def live_notification_list(request):
     """Return JSON of unread count and content of messages."""
-    # if not request.user.is_authenticated():
+    # if not request.user.is_authenticated:
     #     data = {
     #         'unread_count': 0,
     #         'list': []

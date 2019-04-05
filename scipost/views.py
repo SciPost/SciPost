@@ -174,7 +174,7 @@ def register(request):
     sent. After activation the user needs to be vetted by the SciPost
     admin.
     """
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return redirect(reverse('scipost:personal_page'))
 
     form = RegistrationForm(request.POST or None)

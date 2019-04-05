@@ -30,7 +30,7 @@ class SignPetitionForm(forms.ModelForm):
         if self.instance.id:
             return email
 
-        if self.current_user.is_authenticated():
+        if self.current_user.is_authenticated:
             if self.current_user.email != email:
                 self.add_error('email', 'This email address is not associated to your account')
         else:

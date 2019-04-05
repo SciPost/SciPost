@@ -9,7 +9,7 @@ from django.core.exceptions import PermissionDenied
 def fellowship_required():
     """Require user to have any Fellowship or Administrational permissions."""
     def test(u):
-        if u.is_authenticated():
+        if u.is_authenticated:
             if hasattr(u, 'contributor') and u.contributor.fellowships.exists():
                 # Fellow
                 return True
@@ -20,7 +20,7 @@ def fellowship_required():
 def fellowship_or_admin_required():
     """Require user to have any Fellowship or Administrational permissions."""
     def test(u):
-        if u.is_authenticated():
+        if u.is_authenticated:
             if hasattr(u, 'contributor') and u.contributor.fellowships.exists():
                 # Fellow
                 return True

@@ -19,7 +19,7 @@ def has_contributor(user):
 def is_contributor_user():
     """Decorator checking if user is related to any Contributor."""
     def test(u):
-        if u.is_authenticated():
+        if u.is_authenticated:
             return has_contributor(u)
         return False
     return user_passes_test(test)
