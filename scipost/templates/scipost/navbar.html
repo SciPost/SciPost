@@ -209,7 +209,11 @@
                                 <a href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
                                 &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                             </div>
-                        {% endif %}
+                            {% endif %}
+			    <div class="dropdown-divider"></div>
+			    <div class="dropdown-item">
+			      <a href="{% url 'forums:forums' %}">Forums and Meetings</a>
+			    </div>
                             <div class="dropdown-divider"></div>
 			    <div class="dropdown-item">
 			      <a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a>
