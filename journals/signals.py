@@ -14,7 +14,7 @@ def notify_manuscript_published(sender, instance, created, **kwargs):
     instance -- Publication instance
     """
     if instance.is_published:
-        authors = User.objects.filter(contributor__publications=instance)
+        authors = User.objects.filter(contributor__profile__publications=instance)
         editorial_administration = Group.objects.get(name='Editorial Administrators')
         for user in authors:
             notify.send(sender=sender, recipient=user, actor=editorial_administration,
