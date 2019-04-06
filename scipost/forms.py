@@ -425,6 +425,8 @@ class TOTPDeviceForm(forms.ModelForm):
         self.current_user = kwargs.pop('current_user')
         super().__init__(*args, **kwargs)
         self.initial['token'] = pyotp.random_base32()
+        self.fields['name'].widget.attrs.update(
+            {'placeholder': 'Your choice of a simple memorable name for your device'})
 
     @property
     def secret_key(self):
