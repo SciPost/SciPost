@@ -104,16 +104,42 @@ $(document).ready(function($) {
 	</div>
 
 	<div class="tab-pane pt-4" id="authors-{{ org.id }}" role="tabpanel" aria-labelledby="authors-{{ org.id }}-tab">
-	  <h3>Associated Authors:</h3>
-	  {% for profile in org.get_author_profiles %}
-	  {% if profile.contributor %}
-	  <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-	  {% else %}
-	  <li>{{ profile }}</li>
-	  {% endif %}
-	  {% empty %}
-	  <li>No Profile found</li>
-	  {% endfor %}
+	  <div class="row">
+	    <div class="col-lg-6">
+	      <h3>Associated Authors:</h3>
+	      {% for profile in org.get_author_profiles %}
+	      {% if profile.contributor %}
+	      <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+	      {% else %}
+	      <li>{{ profile }}</li>
+	      {% endif %}
+	      {% empty %}
+	      <li>No Profile found</li>
+	      {% endfor %}
+	    </div>
+	    {% if org.children.all|length > 0 %}
+	    <div class="col-lg-6">
+	      <h3>Associated authors from sub-organizations:</h3>
+	      <ul>
+		{% for child in org.children.all %}
+		<li>{{ child }}:
+		  <ul>
+		    {% for profile in child.get_author_profiles %}
+		    {% if profile.contributor %}
+		    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+		    {% else %}
+		    <li>{{ profile }}</li>
+		    {% endif %}
+		    {% empty %}
+		    <li>No Profile found</li>
+		    {% endfor %}
+		  </ul>
+		</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	    {% endif %}
+	  </div>
 	</div>
 
 
