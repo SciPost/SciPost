@@ -252,7 +252,7 @@ developers can use them.::
 Search engine
 *************
 
-`Django Haystack <>`__ is used to handle search queries. The search
+`Django Haystack <https://haystacksearch.org>`__ is used to handle search queries. The search
 engine needs indexing before you can use it::
 
    (scipostenv) $ ./manage.py update_index -u default

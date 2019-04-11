@@ -45,10 +45,10 @@ Detailed documentation
 Installing
 ==========
 
-See the :doc:`detailed installation instructions <docs/installation>`.
+See the detailed installation instructions in ``docs/installation``.
 
 
 Deployement
 ===========
 
-Details about the deployment of the production server is in :doc:`docs/deployment`.
+Details about the deployment of the production server is in ``docs/deployment``.
