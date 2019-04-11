@@ -31,16 +31,12 @@ Python version
 **************
 
 Make sure you’re using Python 3.5. You are strongly encouraged to use a
-`virtual environment <https://docs.python.org/3.5/library/venv.html>`__:
-
-.. code-block:: bash
+`virtual environment <https://docs.python.org/3.5/library/venv.html>`__::
 
    $ pyvenv scipostenv
    $ source scipostenv/bin/activate
 
-Now install dependencies:
-
-.. code-block:: bash
+Now install dependencies::
 
    (scipostenv) $ pip install -r requirements.txt
 
@@ -50,9 +46,7 @@ Frontend dependencies
 *********************
 
 `NPM <https://www.npmjs.com/>`__ (version 5.x; tested on v5.3.0) will
-take care of frontend dependencies. To install all packages, run:
-
-.. code-block:: bash
+take care of frontend dependencies. To install all packages, run::
 
    (scipostenv) $ npm install
 
@@ -65,9 +59,7 @@ In this project, many settings are not sensitive and are thus tracked
 using Git. Some settings are however secret. These settings may be saved
 into the ``secrets.json`` file in the root of the project (you should of course
 ensure that this file is excluded from the Git repository). The minimum
-required structure is as follows (you'll have to generate your own ``SECRET_KEY``):
-
-.. code-block:: json
+required structure is as follows (you'll have to generate your own ``SECRET_KEY``)::
 
    {
      "SECRET_KEY": "<key>",
@@ -79,17 +71,13 @@ required structure is as follows (you'll have to generate your own ``SECRET_KEY`
 The settings file itself is saved into
 ``SciPost_v1/settings/local_<name>.py``. Be sure to *wildcard import*
 the ``base.py`` file at the top of your settings file. To run the
-server, use one of two ways. Either:
-
-.. code-block:: bash
+server, use one of two ways. Either::
 
    (scipostenv) $ ./manage.py runserver --settings=SciPost_v1.settings.local_<name>
 
 … or for convenience, export the same settingsfile path to the
 ``DJANGO_SETTINGS_MODULE`` variable, so that one can run the django
-commands by default:
-
-.. code-block:: bash
+commands by default::
 
    (scipostenv) $ export DJANGO_SETTINGS_MODULE="SciPost_v1.settings.local_<name>"
 
@@ -104,9 +92,7 @@ Mail
 In the ``mails`` application a special `Email
 Backend <https://docs.djangoproject.com/en/1.11/topics/email/#email-backends>`__
 is defined. This will write all emails to the database. To use this
-backend, in the settings set the the variable ``EMAIL_BACKEND`` as:
-
-.. code-block:: py
+backend, in the settings set the the variable ``EMAIL_BACKEND`` as::
 
    # settings.py
    EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
@@ -289,9 +275,7 @@ The documentation is saved in the local database as a Project with name
 (this project should be manually created in the admin under the
 ``Sphinxdoc`` app).
 
-To update the docs, simply run:
-
-.. code-block:: bash
+To update the docs, simply run::
 
    (scipostenv) $ ./manage.py updatedoc -b codebase
 
@@ -308,9 +292,7 @@ The documentation can be rendered using
 documentation is only available from the virtual environment - and only
 when the host settings have been configured.
 
-To build the documentation, run:
-
-.. code-block:: bash
+To build the documentation, run::
 
   (scipostenv) $ cd docs/[project slug]
   (scipostenv) $ make html
@@ -333,18 +315,14 @@ Each mail is defined using certain general configuration possibilities. These op
   The subject of the mail.
 
 `recipient_list` and `bcc` {list}
-  Both fields are lists of strings. Each string may be either a plain mail address, eg. ` example@scipost.org`, or it may represent a certain relation to the central object. For example, one may define:
-
-.. code-block:: bash
+  Both fields are lists of strings. Each string may be either a plain mail address, eg. ` example@scipost.org`, or it may represent a certain relation to the central object. For example, one may define::
 
     >>> sub_1 = Submission.objects.first()
     >>> mail_util = DirectMailUtil([...], object=sub_1, recipient_list=['example@scipost.org', 'submitted_by.user.email'])
 
 
 `from_email` {string}
-  For this field, the same flexibility and functionality exists as for the `recipient_list` and `bcc` fields. However, this field should always be a single string entry:
-
-.. code-block:: bash
+  For this field, the same flexibility and functionality exists as for the `recipient_list` and `bcc` fields. However, this field should always be a single string entry::
 
     >>> mail_util = DirectMailUtil([...], from_email='noreply@scipost.org')
 
@@ -362,17 +340,13 @@ The "central object" is a ``django.db.models.__Model__`` instance that will be u
 Example
 ^^^^^^^
 
-To make a Submission available to an email template:
-
-.. code-block:: bash
+To make a Submission available to an email template::
 
   >>> sub_1 = Submission.object.first()
   >>> mail_util = DirectMailUtil([...], weird_keyword=sub_1)
 
 
-In the template, the variables ``weird_keyword``, ``submission`` and ``object`` will all represent the `sub_1` instance. For example:
-
-.. code-block:: html
+In the template, the variables ``weird_keyword``, ``submission`` and ``object`` will all represent the `sub_1` instance. For example::
 
   <h1>Dear {{ weird_keyword.submitted_by.get_title_display }} {{ object.submitted_by.user.last_name }},</h1>
   <p>Thank you for your submission: {{ submission.title }}.</p>
@@ -382,9 +356,7 @@ Using multiple Model instances
 ------------------------------
 If a certain mail requires more than one Model instance, it is required to pass either a `instance` or `object` parameter for the mail engine to determine the central object.
 
-Example:
-
-.. code-block:: bash
+Example::
 
   >>> sub_1 = Submission.object.first()
   >>> report_1 = Report.object.first()
@@ -392,9 +364,7 @@ Example:
   ValueError: "Multiple db instances are given."
 
 
-Here, it is required to pass either the ``instance`` or ``object`` parameter, eg.:
-
-.. code-block:: bash
+Here, it is required to pass either the ``instance`` or ``object`` parameter, eg.::
 
   >>> mail_util = DirectMailUtil([...], object=sub_1, report=report_1)
 
@@ -402,9 +372,7 @@ Here, it is required to pass either the ``instance`` or ``object`` parameter, eg
 Configuration file
 ------------------
 
-Each mail is configured with a json file, ``templates/email/*__<mail_code>.json``, which at least contains a ``subject`` and ``recipient_list`` value. The other fields are optional. An example of all available configuration fields are shown:
-
-.. code-block:: json
+Each mail is configured with a json file, ``templates/email/*__<mail_code>.json``, which at least contains a ``subject`` and ``recipient_list`` value. The other fields are optional. An example of all available configuration fields are shown::
 
   {
       "subject": "Foo subject",
@@ -426,9 +394,7 @@ Any mail will be defined in the html template file ``templates/email/__<mail_cod
 Direct mail utility
 ===================
 
-The fastest, easiest way to use templated emails is using the ``DirectMailUtil`` class:
-
-.. code-block:: py
+The fastest, easiest way to use templated emails is using the ``DirectMailUtil`` class::
 
    mails.utils.__DirectMailUtil(__*mail_code, delayed_processing=True, subject='', recipient_list=[], bcc=[], from_email='', from_name='', \**template_variables*__)
 
@@ -469,17 +435,13 @@ Methods
 Basic example
 -------------
 
-Directly sending an email:
-
-.. code-block:: bash
+Directly sending an email::
 
    >>> from mails.utils import DirectMailUtil
    >>> mail_util = DirectMailUtil('test_mail_code_1')
    >>> mail_util.send_mail()
 
-This utility is protected to prevent double sending. So now, the following has no effect anymore:
-
-.. code-block:: bash
+This utility is protected to prevent double sending. So now, the following has no effect anymore::
 
    >>> mail_util.send_mail()
 
@@ -571,8 +533,6 @@ Basic example
 
 Views file::
 
-.. code-block:: py
-
    # <app>/views.py
    from mails.views import MailView
 
@@ -580,8 +540,6 @@ Views file::
        mail_code = 'test_mail_code_1'
 
 Urls file::
-
-.. code-block:: py
 
    # <app>/urls.py
    from django.conf.urls import url
@@ -666,9 +624,7 @@ Basic example::
 Important epilogue
 ==================
 
-Every templated mail defined in the ``templates/email/`` folder will be tested for proper configuration. This tests includes tests on the configuration file and existence of the template. Important note: it does not test the content of the templates (read: the variables used in the template). To run these, and all other mail-related unit tests, simple run the following:
-
-.. code-block:: bash
+Every templated mail defined in the ``templates/email/`` folder will be tested for proper configuration. This tests includes tests on the configuration file and existence of the template. Important note: it does not test the content of the templates (read: the variables used in the template). To run these, and all other mail-related unit tests, simple run the following::
 
   (scipostenv) $ ./manage.py test mails.tests -k
 
@@ -688,9 +644,7 @@ Django-extensions
 `django-extensions <https://github.com/django-extensions/django-extensions>`__
 provide added commands like ``./manage.py shell_plus``, which preloads
 all models in a shell session. Additional imports may be specified in
-``settings.py`` as follows:
-
-.. code-block:: py
+``settings.py`` as follows::
 
    SHELL_PLUS_POST_IMPORTS = (
        ('theses.factories', ('ThesisLinkFactory')),
@@ -704,37 +658,27 @@ Scheduled tasks
 
 The tasks that involve large requests from CR are supposed to run in the background. For this to work, Celery is required. The following commands assume that you are in the `scipost_v1` main folder, inside the right virtual environment.
 
-Celery depends on a broker, for which we use RabbitMQ. On MacOS one may simply install this by executing:
-
-.. code-block:: bash
+Celery depends on a broker, for which we use RabbitMQ. On MacOS one may simply install this by executing::
 
    brew update
    brew install rabbitmq
 
 
-To start the RabbitMQ broker:
-
-.. code-block:: bash
+To start the RabbitMQ broker::
 
    nohup nice rabbitmq-server > ../logs/rabbitmq.log 2>&1 &
 
 
-Then the Celery worker itself:
-
-.. code-block:: bash
+Then the Celery worker itself::
 
    nohup nice celery -A SciPost_v1 worker --loglevel=info -E > ../logs/celery_worker.log 2>&1 &
 
 
-And finally `beat`, which enables setting up periodic tasks:
-
-.. code-block:: bash
+And finally `beat`, which enables setting up periodic tasks::
 
    nohup nice celery -A SciPost_v1 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler > ../logs/celery_beat.log 2>&1 &
 
 
-Note: on the staging server, these commands are contained in two shell scripts in the `scipoststg` home folder. Just run:
-
-.. code-block:: bash
+Note: on the staging server, these commands are contained in two shell scripts in the `scipoststg` home folder. Just run::
 
    ./start_celery.sh
