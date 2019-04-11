@@ -543,7 +543,7 @@ class ContributorMergeForm(forms.Form):
         CitationNotification.objects.filter(
             contributor=contrib_from).update(contributor=contrib_into)
         PublicationAuthorsTable.objects.filter(
-            contributor=contrib_from).update(contributor=contrib_into)
+            profile=contrib_from.profile).update(profile=contrib_into.profile)
         UnavailabilityPeriod.objects.filter(
             contributor=contrib_from).update(contributor=contrib_into)
         Remark.objects.filter(
