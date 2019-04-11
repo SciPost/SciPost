@@ -20,7 +20,7 @@ import os
 import sys
 import django
 
-sys.path.insert(0, os.path.abspath('../..'))
+sys.path.insert(0, os.path.abspath('..'))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SciPost_v1.settings")
 
@@ -29,13 +29,13 @@ django.setup()
 # -- Project information -----------------------------------------------------
 
 project = 'SciPost'
-copyright = '2018, Jean-Sébastien Caux'
+copyright = 'SciPost Foundation, Jean-Sébastien Caux and other contributors'
 author = 'Jean-Sébastien Caux'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = 'v1'
+release = ''
 
 
 # -- General configuration ---------------------------------------------------

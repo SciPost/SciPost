@@ -42,8 +42,8 @@ Detailed documentation
 **********************
 
 
-Installing
-==========
+Installation
+============
 
 See the detailed installation instructions in ``docs/installation``.
 
@@ -52,3 +52,9 @@ Deployment
 ===========
 
 Details about the deployment of the production server is in ``docs/deployment``.
+
+
+Maintenance
+===========
+
+Information on necessary maintenance is in ``docs/maintenance``.
