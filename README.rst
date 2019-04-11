@@ -48,7 +48,7 @@ Installing
 See the detailed installation instructions in ``docs/installation``.
 
 
-Deployement
+Deployment
 ===========
 
 Details about the deployment of the production server is in ``docs/deployment``.
