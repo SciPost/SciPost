@@ -45,7 +45,7 @@ Detailed documentation
 Installing
 ==========
 
-See the detailed instructions in :doc:`docs/installation`.
+See the :doc:`detailed installation instructions <docs/installation>`.
 
 
 Deployement

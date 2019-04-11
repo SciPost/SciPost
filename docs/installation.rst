@@ -31,16 +31,16 @@ Python version
 **************
 
 Make sure you’re using Python 3.5. You are strongly encouraged to use a
-`virtual environment <https://docs.python.org/3.5/library/venv.html>`__.
+`virtual environment <https://docs.python.org/3.5/library/venv.html>`__:
 
-.. code:: shell
+.. code-block:: bash
 
    $ pyvenv scipostenv
    $ source scipostenv/bin/activate
 
 Now install dependencies:
 
-.. code:: shell
+.. code-block:: bash
 
    (scipostenv) $ pip install -r requirements.txt
 
@@ -52,7 +52,7 @@ Frontend dependencies
 `NPM <https://www.npmjs.com/>`__ (version 5.x; tested on v5.3.0) will
 take care of frontend dependencies. To install all packages, run:
 
-.. code:: shell
+.. code-block:: bash
 
    (scipostenv) $ npm install
 
@@ -67,7 +67,7 @@ into the ``secrets.json`` file in the root of the project (you should of course
 ensure that this file is excluded from the Git repository). The minimum
 required structure is as follows (you'll have to generate your own ``SECRET_KEY``):
 
-.. code:: json
+.. code-block:: json
 
    {
      "SECRET_KEY": "<key>",
@@ -81,7 +81,7 @@ The settings file itself is saved into
 the ``base.py`` file at the top of your settings file. To run the
 server, use one of two ways. Either:
 
-.. code:: shell
+.. code-block:: bash
 
    (scipostenv) $ ./manage.py runserver --settings=SciPost_v1.settings.local_<name>
 
@@ -89,7 +89,7 @@ server, use one of two ways. Either:
 ``DJANGO_SETTINGS_MODULE`` variable, so that one can run the django
 commands by default:
 
-.. code:: shell
+.. code-block:: bash
 
    (scipostenv) $ export DJANGO_SETTINGS_MODULE="SciPost_v1.settings.local_<name>"
 
@@ -106,7 +106,7 @@ Backend <https://docs.djangoproject.com/en/1.11/topics/email/#email-backends>`__
 is defined. This will write all emails to the database. To use this
 backend, in the settings set the the variable ``EMAIL_BACKEND`` as:
 
-.. code:: python
+.. code-block:: py
 
    # settings.py
    EMAIL_BACKEND = 'mails.backends.filebased.ModelEmailBackend'
@@ -116,9 +116,7 @@ A management command is defined to send the unsent mails in the
 database. This management command uses the Email Backend defined in the
 settings under variable ``EMAIL_BACKEND_ORIGINAL``. If not defined, this
 defaults to the Django default:
-``django.core.mail.backends.smtp.EmailBackend``.
-
-.. code:: shell
+``django.core.mail.backends.smtp.EmailBackend``::
 
    (scipostenv) $ ./manage.py send_mails
 
@@ -127,9 +125,7 @@ defaults to the Django default:
 Checks
 ******
 
-To make sure everything is set up and correctly configured, run:
-
-.. code:: shell
+To make sure everything is set up and correctly configured, run::
 
    (scipostenv) $ ./manage.py check
 
@@ -140,17 +136,13 @@ Module bundler
 
 `Webpack <https://webpack.js.org/>`__ takes care of assets in the
 ``scipost/static/scipost/assets`` folder. To (re)compile all assets into
-the ``static_bundles`` folder, simply run:
-
-.. code:: shell
+the ``static_bundles`` folder, simply run::
 
    (scipostenv) $ npm run webpack
 
 While editing assets, it may be helpful to put Webpack in *watch* mode.
 This will recompile your assets in real time. To do so, instead of the
-above command, run:
-
-.. code:: shell
+above command, run::
 
    (scipostenv) $ npm run webpack-live
 
@@ -174,17 +166,13 @@ Static assets
 *************
 
 In order to collect static files from all ``INSTALLED_APPS`` (i.e. the
-assets managed by Webpack), run:
-
-.. code:: shell
+assets managed by Webpack), run::
 
    (scipostenv) $ ./manage.py collectstatic
 
 This will put all static files in the ``STATIC_ROOT`` folder defined in
 your settings file. If needed, you can remove stale static files
-through:
-
-.. code:: shell
+through::
 
    (scipostenv) $ ./manage.py collectstatic --clear
 
@@ -194,9 +182,7 @@ Create and run migrations
 *************************
 
 Now that everything is set up, we can create the relevant tables in the
-database:
-
-.. code:: shell
+database::
 
    (scipostenv) $ ./manage.py migrate
 
@@ -206,9 +192,7 @@ Create a superuser
 ******************
 
 In order to use the admin site, you’ll need a superuser account, which
-can be created using:
-
-.. code:: shell
+can be created using::
 
    (scipostenv) $ ./manage.py createsuperuser
 
@@ -218,9 +202,7 @@ Create groups and permissions
 *****************************
 
 Groups and their respective permissions are set using the management
-command:
-
-.. code:: shell
+command::
 
    (scipostenv) $ ./manage.py add_groups_and_permissions
 
@@ -229,9 +211,7 @@ command:
 Run server
 **********
 
-You are now ready to run the server:
-
-.. code:: shell
+You are now ready to run the server::
 
    (scipostenv) $ ./manage.py runserver
 
@@ -256,16 +236,12 @@ Initial data
 
 If you’re working on an (almost) empty test database, you can easily
 fill it using one of the built-in commands. To create a few instances
-for each available object, simply run:
-
-.. code:: shell
+for each available object, simply run::
 
    (scipostenv) $ ./manage.py populate_db --all
 
 Run the same command with the ``--help`` argument to find arguments to
-create instances for individual models:
-
-.. code:: shell
+create instances for individual models::
 
    (scipostenv) $ ./manage.py populate_db --help
 
@@ -280,9 +256,7 @@ needs to be created and applied. The first documents a database change
 and its inverse, the second actually changes the database.
 
 Make sure to commit the migration to Git after applying it, so other
-developers can use them.
-
-.. code:: shell
+developers can use them.::
 
    (scipostenv) $ ./manage.py makemigrations
    (scipostenv) $ ./manage.py migrate
@@ -293,9 +267,7 @@ Search engine
 *************
 
 `Django Haystack <>`__ is used to handle search queries. The search
-engine needs indexing before you can use it:
-
-.. code:: shell
+engine needs indexing before you can use it::
 
    (scipostenv) $ ./manage.py update_index -u default
 
@@ -317,9 +289,9 @@ The documentation is saved in the local database as a Project with name
 (this project should be manually created in the admin under the
 ``Sphinxdoc`` app).
 
-To update the docs, simply run
+To update the docs, simply run:
 
-.. code:: shell
+.. code-block:: bash
 
    (scipostenv) $ ./manage.py updatedoc -b codebase
 
@@ -338,7 +310,7 @@ when the host settings have been configured.
 
 To build the documentation, run:
 
-.. code:: shell
+.. code-block:: bash
 
   (scipostenv) $ cd docs/[project slug]
   (scipostenv) $ make html
@@ -361,14 +333,18 @@ Each mail is defined using certain general configuration possibilities. These op
   The subject of the mail.
 
 `recipient_list` and `bcc` {list}
-  Both fields are lists of strings. Each string may be either a plain mail address, eg. ` example@scipost.org`, or it may represent a certain relation to the central object. For example, one may define::
+  Both fields are lists of strings. Each string may be either a plain mail address, eg. ` example@scipost.org`, or it may represent a certain relation to the central object. For example, one may define:
+
+.. code-block:: bash
 
     >>> sub_1 = Submission.objects.first()
     >>> mail_util = DirectMailUtil([...], object=sub_1, recipient_list=['example@scipost.org', 'submitted_by.user.email'])
 
 
 `from_email` {string}
-  For this field, the same flexibility and functionality exists as for the `recipient_list` and `bcc` fields. However, this field should always be a single string entry::
+  For this field, the same flexibility and functionality exists as for the `recipient_list` and `bcc` fields. However, this field should always be a single string entry:
+
+.. code-block:: bash
 
     >>> mail_util = DirectMailUtil([...], from_email='noreply@scipost.org')
 
@@ -386,13 +362,17 @@ The "central object" is a ``django.db.models.__Model__`` instance that will be u
 Example
 ^^^^^^^
 
-To make a Submission available to an email template::
+To make a Submission available to an email template:
+
+.. code-block:: bash
 
   >>> sub_1 = Submission.object.first()
   >>> mail_util = DirectMailUtil([...], weird_keyword=sub_1)
 
 
-In the template, the variables ``weird_keyword``, ``submission`` and ``object`` will all represent the `sub_1` instance. For example::
+In the template, the variables ``weird_keyword``, ``submission`` and ``object`` will all represent the `sub_1` instance. For example:
+
+.. code-block:: html
 
   <h1>Dear {{ weird_keyword.submitted_by.get_title_display }} {{ object.submitted_by.user.last_name }},</h1>
   <p>Thank you for your submission: {{ submission.title }}.</p>
@@ -402,7 +382,9 @@ Using multiple Model instances
 ------------------------------
 If a certain mail requires more than one Model instance, it is required to pass either a `instance` or `object` parameter for the mail engine to determine the central object.
 
-Example::
+Example:
+
+.. code-block:: bash
 
   >>> sub_1 = Submission.object.first()
   >>> report_1 = Report.object.first()
@@ -410,7 +392,9 @@ Example::
   ValueError: "Multiple db instances are given."
 
 
-Here, it is required to pass either the ``instance`` or ``object`` parameter, eg.::
+Here, it is required to pass either the ``instance`` or ``object`` parameter, eg.:
+
+.. code-block:: bash
 
   >>> mail_util = DirectMailUtil([...], object=sub_1, report=report_1)
 
@@ -418,7 +402,9 @@ Here, it is required to pass either the ``instance`` or ``object`` parameter, eg
 Configuration file
 ------------------
 
-Each mail is configured with a json file, ``templates/email/*__<mail_code>.json``, which at least contains a ``subject`` and ``recipient_list`` value. The other fields are optional. An example of all available configuration fields are shown::
+Each mail is configured with a json file, ``templates/email/*__<mail_code>.json``, which at least contains a ``subject`` and ``recipient_list`` value. The other fields are optional. An example of all available configuration fields are shown:
+
+.. code-block:: json
 
   {
       "subject": "Foo subject",
@@ -435,16 +421,17 @@ Each mail is configured with a json file, ``templates/email/*__<mail_code>.json`
 Template file
 -------------
 
-File: *templates/email/*__<mail_code>.html__
-
 Any mail will be defined in the html template file ``templates/email/__<mail_code>.html`` using the conventions as per `Django's default template processor <https://docs.djangoproject.com/en/1.11/topics/templates/>`_.
 
 Direct mail utility
 ===================
 
-The fastest, easiest way to use templated emails is using the ``DirectMailUtil`` class::
+The fastest, easiest way to use templated emails is using the ``DirectMailUtil`` class:
 
-  mails.utils.__DirectMailUtil(__*mail_code, delayed_processing=True, subject='', recipient_list=[], bcc=[], from_email='', from_name='', \**template_variables*__)
+.. code-block:: py
+
+   mails.utils.__DirectMailUtil(__*mail_code, delayed_processing=True, subject='', recipient_list=[], bcc=[], from_email='', from_name='', \**template_variables*__)
+
 
 Attributes
 ----------
@@ -482,15 +469,19 @@ Methods
 Basic example
 -------------
 
-Directly sending an email::
+Directly sending an email:
 
-  >>> from mails.utils import DirectMailUtil
-  >>> mail_util = DirectMailUtil('test_mail_code_1')
-  >>> mail_util.send_mail()
+.. code-block:: bash
 
-This utility is protected to prevent double sending. So now, the following has no effect anymore::
+   >>> from mails.utils import DirectMailUtil
+   >>> mail_util = DirectMailUtil('test_mail_code_1')
+   >>> mail_util.send_mail()
 
-  >>> mail_util.send_mail()
+This utility is protected to prevent double sending. So now, the following has no effect anymore:
+
+.. code-block:: bash
+
+   >>> mail_util.send_mail()
 
 
 
@@ -502,7 +493,7 @@ This acts like a regular Django class-based view, but will intercept the post re
 This view may be used as a `generic editing view <https://docs.djangoproject.com/en/1.11/ref/class-based-views/generic-editing/>`_ or `DetailView <https://docs.djangoproject.com/en/1.11/ref/class-based-views/generic-display/#detailview>`_.
 
 
-`` mails.views.MailView``
+``mails.views.MailView``
 =========================
 
 This view is a basic class-based view, which may be used as basic editor for a specific templated email.
@@ -578,25 +569,28 @@ Methods
 Basic example
 -------------
 
-.. code::
+Views file::
 
-  # <app>/views.py
-  from mails.views import MailView
+.. code-block:: py
 
-  class FooView(MailView):
-      mail_code = 'test_mail_code_1'
+   # <app>/views.py
+   from mails.views import MailView
 
+   class FooView(MailView):
+       mail_code = 'test_mail_code_1'
 
-.. code::
+Urls file::
 
-  # <app>/urls.py
-  from django.conf.urls import url
+.. code-block:: py
 
-  from .views import FooView
+   # <app>/urls.py
+   from django.conf.urls import url
 
-  urlpatterns = [
-      url(r'^$', FooView.as_view(), name='foo'),
-      ]
+   from .views import FooView
+
+   urlpatterns = [
+		url(r'^$', FooView.as_view(), name='foo'),
+   ]
 
 
 
@@ -648,16 +642,13 @@ Methods
   See if data is returned and valid, similar to Django forms. Returns a __boolean__.
 
 `interrupt()`
-  Interrupt request by rendering the templated email form. Returns a [__HttpResponse__](https://docs.djangoproject.com/en/2.1/ref/request-response/#django.http.HttpResponse).
+  Interrupt request by rendering the templated email form. Returns a `HttpResponse <https://docs.djangoproject.com/en/2.1/ref/request-response/#django.http.HttpResponse>`_.
 
 `send_mail()`
   Send email as edited by the user in the template.
 
 
-Basic example
--------------
-
-.. code::
+Basic example::
 
   from submissions.models import Submission
   from mails.views import MailEditorSubview
@@ -675,17 +666,14 @@ Basic example
 Important epilogue
 ==================
 
-Every templated mail defined in the ``templates/email/`` folder will be tested for proper configuration. This tests includes tests on the configuration file and existence of the template. Important note: it does not test the content of the templates (read: the variables used in the template). To run these, and all other mail-related unit tests, simple run the following::
+Every templated mail defined in the ``templates/email/`` folder will be tested for proper configuration. This tests includes tests on the configuration file and existence of the template. Important note: it does not test the content of the templates (read: the variables used in the template). To run these, and all other mail-related unit tests, simple run the following:
+
+.. code-block:: bash
 
   (scipostenv) $ ./manage.py test mails.tests -k
 
 
 A successful test ends by printing "OK". In any other case, errors will be raised.
-
-
-
-
-
 
 
 
@@ -702,7 +690,7 @@ provide added commands like ``./manage.py shell_plus``, which preloads
 all models in a shell session. Additional imports may be specified in
 ``settings.py`` as follows:
 
-.. code:: python
+.. code-block:: py
 
    SHELL_PLUS_POST_IMPORTS = (
        ('theses.factories', ('ThesisLinkFactory')),
@@ -718,35 +706,35 @@ The tasks that involve large requests from CR are supposed to run in the backgro
 
 Celery depends on a broker, for which we use RabbitMQ. On MacOS one may simply install this by executing:
 
-.. code:: shell
+.. code-block:: bash
 
-   $ brew update
-   $ brew install rabbitmq
+   brew update
+   brew install rabbitmq
 
 
 To start the RabbitMQ broker:
 
-.. code:: bash
+.. code-block:: bash
 
    nohup nice rabbitmq-server > ../logs/rabbitmq.log 2>&1 &
 
 
 Then the Celery worker itself:
 
-.. code:: bash
+.. code-block:: bash
 
    nohup nice celery -A SciPost_v1 worker --loglevel=info -E > ../logs/celery_worker.log 2>&1 &
 
 
 And finally `beat`, which enables setting up periodic tasks:
 
-.. code:: bash
+.. code-block:: bash
 
    nohup nice celery -A SciPost_v1 beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler > ../logs/celery_beat.log 2>&1 &
 
 
-Note: on the staging server, these commands are contained in two shell scripts in the `scipoststg` home folder. Just run
+Note: on the staging server, these commands are contained in two shell scripts in the `scipoststg` home folder. Just run:
 
-.. code:: bash
+.. code-block:: bash
 
    ./start_celery.sh
