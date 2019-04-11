@@ -645,30 +645,6 @@ class ContributorMergeForm(forms.Form):
         for tl in thesislinks:
             tl.supervisor_as_cont.remove(contrib_from)
             tl.supervisor_as_cont.add(contrib_into)
-        nominations = Nomination.objects.filter(in_agreement__in=[contrib_from,]).all()
-        for nom in nominations:
-            nom.in_agreement.remove(contrib_from)
-            nom.in_agreement.add(contrib_into)
-        nominations = Nomination.objects.filter(in_notsure__in=[contrib_from,]).all()
-        for nom in nominations:
-            nom.in_notsure.remove(contrib_from)
-            nom.in_notsure.add(contrib_into)
-        nominations = Nomination.objects.filter(in_disagreement__in=[contrib_from,]).all()
-        for nom in nominations:
-            nom.in_disagreement.remove(contrib_from)
-            nom.in_disagreement.add(contrib_into)
-        motions = Motion.objects.filter(in_agreement__in=[contrib_from,]).all()
-        for nom in motions:
-            nom.in_agreement.remove(contrib_from)
-            nom.in_agreement.add(contrib_into)
-        motions = Motion.objects.filter(in_notsure__in=[contrib_from,]).all()
-        for nom in motions:
-            nom.in_notsure.remove(contrib_from)
-            nom.in_notsure.add(contrib_into)
-        motions = Motion.objects.filter(in_disagreement__in=[contrib_from,]).all()
-        for nom in motions:
-            nom.in_disagreement.remove(contrib_from)
-            nom.in_disagreement.add(contrib_into)
         # If both accounts were active, inform the Contributor of the merge
         if both_contribs_active:
             mail_sender = DirectMailUtil(
