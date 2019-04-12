@@ -8,3 +8,4 @@ Installation instructions
    installation
    emails
    scheduled_tasks
+   documentation

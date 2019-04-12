@@ -255,52 +255,6 @@ engine needs indexing before you can use it::
 
 Models involved in searches are re-indexed using ``post_save`` signals. [TO BE UPDATED: ``celery`` setup].
 
-*************
-Documentation
-*************
-
-As per all good Python-based projects, all documentation is gathered from ``.rst`` files and
-code-embedded docstrings. The documentation for the codebase can be
-found in ``docs/codebase``.
-
-Sphinxdoc
-=========
-
-The documentation is saved in the local database as a Project with name
-``SciPost Codebase``, with slug ``codebase`` and path ``/docs/codebase``
-(this project should be manually created in the admin under the
-``Sphinxdoc`` app).
-
-To update the docs, simply run::
-
-   (scipostenv) $ ./manage.py updatedoc -b codebase
-
-The documentation is then viewable by navigating to ``docs/codebase``.
-
-There are also other Projects containing information about SciPost, user
-guides etc. The list can be found on by viewing ``docs`` in the browser.
-
-Locally-served documentation
-============================
-
-The documentation can be rendered using
-`Sphinx <http://www.sphinx-doc.org/>`__. Note that rendering
-documentation is only available from the virtual environment - and only
-when the host settings have been configured.
-
-To build the documentation, run::
-
-  (scipostenv) $ cd docs/[project slug]
-  (scipostenv) $ make html
-
-for each of the documentation projects. After this, generated
-documentation are available in ``docs/[project slug]/_build/html``.
-
-
-
-
-
-
 
 
 *****************
