@@ -1,6 +1,6 @@
-#########################
-Installation instructions
-#########################
+############
+Installation
+############
 
 .. toctree::
    :maxdepth: 2
