@@ -21,8 +21,8 @@ suggestions and ideas can be emailed to techsupport@scipost.org.
 License
 =======
 
-This codebase is released under the terms of the GNU Affero General
-Public License (Version 3, 19 November 2007).
+This codebase is released under the terms of the `GNU Affero General
+Public License (Version 3, 19 November 2007) <https://www.gnu.org/licenses/agpl.html>`_.
 
 
 Contributing
