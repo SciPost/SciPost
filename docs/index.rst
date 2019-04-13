@@ -1,12 +1,15 @@
-##############################
-SciPost codebase documentation
-##############################
+#####################
+SciPost documentation
+#####################
 
 .. toctree::
    :maxdepth: 1
    :caption: Contents:
 
-   installation/index
+   codebase/index
    deployment/index
    maintenance/index
-   apps/index
+
+
+These pages contain all the documentation necessary to understand how
+SciPost is implemented and run.
