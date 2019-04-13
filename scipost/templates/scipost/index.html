@@ -6,12 +6,12 @@
 {% block body_class %}{{ block.super }} homepage{% endblock %}
 
 {% block footer_script %}
-    {% render_bundle 'homepage' 'js' %}
+{% render_bundle 'homepage' 'js' %}
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-lg-6">
+  <div class="row">
+    <div class="col-lg-6">
             <!-- Latest publications -->
             <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
                 <div class="card-body pb-0">

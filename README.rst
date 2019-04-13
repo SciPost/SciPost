@@ -5,17 +5,19 @@ SciPost
 This repository carries the entire codebase for the
 `scipost.org <https://scipost.org>`__ scientific publication portal.
 
+Relevant documentation can be found in the ``docs`` folder of this repository.
+
+
 ********************
 Project organization
 ********************
 
-SciPost's core development and maintenance team:
+The SciPost project is under the leadership of
+`Prof. Jean-Sébastien Caux <https://jscaux.org>`__.
 
-* `Jean-Sébastien Caux <https://jscaux.org>`__ [project leader]
-* Jorran de Wit
+Composition of the tech-side team is detailed in the ``docs/team`` page.
 
-Bug reports, issues,
-suggestions and ideas can be emailed to techsupport@scipost.org.
+Bug reports, issues, suggestions and ideas can be emailed to techsupport@scipost.org.
 
 
 License
@@ -30,31 +32,3 @@ Contributing
 
 If you are competent in Django-based web development and would like to join our core
 development team, please email your credentials to jscaux@scipost.org.
-
-Conventions
------------
-
-In any pull request, please follow our coding conventions.
-
-
-**********************
-Detailed documentation
-**********************
-
-
-Installation
-============
-
-See the detailed installation instructions in ``docs/installation``.
-
-
-Deployment
-===========
-
-Details about the deployment of the production server is in ``docs/deployment``.
-
-
-Maintenance
-===========
-
-Information on necessary maintenance is in ``docs/maintenance``.

@@ -10,3 +10,4 @@ This section of the SciPost documentation is intended for developers.
 
    installation/index
    apps/index
+   contributing

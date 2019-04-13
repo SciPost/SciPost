@@ -13,5 +13,4 @@ These pages describe the details of how SciPost is deployed, including:
    :maxdepth: 2
    :caption: Contents:
 
-   team
    deployment

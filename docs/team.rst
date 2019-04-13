@@ -1,6 +1,9 @@
-********************
-Infrastructure Teams
-********************
+******************************
+SciPost's Infrastructure Teams
+******************************
+
+This page details who carries what responsibility as far as SciPost's
+underlying web-based infrastructure is concerned.
 
 
 Keyholders

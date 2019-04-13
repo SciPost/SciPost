@@ -6,6 +6,7 @@ SciPost documentation
    :maxdepth: 1
    :caption: Contents:
 
+   team
    codebase/index
    deployment/index
    maintenance/index
