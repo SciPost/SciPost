@@ -149,7 +149,7 @@ HAYSTACK_SIGNAL_PROCESSOR = 'SciPost_v1.signalprocessors.SearchIndexingProcessor
 SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
 SPHINXDOC_BUILD_DIR = '../build'
 SPHINXDOC_PROTECTED_PROJECTS = {
-    'developers': ['scipost.can_view_docs_scipost'],
+    'SciPost': ['scipost.can_view_docs_scipost'],
 }
 
 
