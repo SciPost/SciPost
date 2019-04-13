@@ -2,7 +2,7 @@ Apps
 ====
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    scipost
    submissions
@@ -21,7 +21,6 @@ Apps
    journals
    mailing_lists
    mails
-   metacore
    news
    notifications
    ontology
