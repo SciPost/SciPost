@@ -1,16 +1,16 @@
 {% if form.non_field_errors %}
-    {% for non_field_error in form.non_field_errors %}
-        <div class="alert alert-danger">
-            <a class="close" data-dismiss="alert">&times;</a>
-            {{ non_field_error }}
-        </div>
-    {% endfor %}
+  {% for non_field_error in form.non_field_errors %}
+    <div class="alert alert-danger">
+      <a class="close" data-dismiss="alert">&times;</a>
+      {{ non_field_error }}
+    </div>
+  {% endfor %}
 {% endif %}
 
 {% for field in form.hidden_fields %}
-    {{ field }}
+  {{ field }}
 {% endfor %}
 
 {% for field in form.visible_fields %}
-    {% include 'tags/bootstrap/field.html' %}
+  {% include 'tags/bootstrap/field.html' %}
 {% endfor %}

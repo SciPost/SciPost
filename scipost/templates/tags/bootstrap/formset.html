@@ -1,13 +1,13 @@
 {{ formset.management_form }}
 
 {% for form in formset %}
-    <div class="formset-form form-{{ forloop.counter }}">
-      {% if classes.label == 'sr-only' %}
-          <div class="form-inline">
-            {% include "tags/bootstrap/form.html" with form=form formset=formset %}
-          </div>
-      {% else %}
-          {% include "tags/bootstrap/form.html" with form=form formset=formset %}
-      {% endif %}
-    </div>
+  <div class="formset-form form-{{ forloop.counter }}">
+    {% if classes.label == 'sr-only' %}
+      <div class="form-inline">
+        {% include "tags/bootstrap/form.html" with form=form formset=formset %}
+      </div>
+    {% else %}
+      {% include "tags/bootstrap/form.html" with form=form formset=formset %}
+    {% endif %}
+  </div>
 {% endfor %}
