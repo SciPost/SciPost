@@ -1090,8 +1090,12 @@ def contributor_info(request, contributor_id):
     on the relevant name (in listing headers of Submissions, ...).
     """
     contributor = get_object_or_404(Contributor, pk=contributor_id)
-    # contributor_publications = Publication.objects.published().filter(
-    #     authors__profile=contributor.profile)
+    if contributor.duplicate_of:
+        messages.warning(request, ('The Contributor you requested is a duplicate; '
+                                   'we redirected you to the original one.'))
+        return redirect(reverse('scipost:contributor_info',
+                                kwargs={'contributor_id': contributor.duplicate_of.id}))
+
     contributor_publications = contributor.profile.publications()
     contributor_submissions = Submission.objects.public_listed().filter(authors=contributor)
     contributor_commentaries = Commentary.objects.filter(authors=contributor)
