@@ -6,36 +6,35 @@
 
 {% block content %}
 
-
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <div class="card card-gray">
-            <div class="card-body">
-              <h1 class="card-title">Request Activation of a Commentary Page</h1>
-              <a href="{% url 'commentaries:request_arxiv_preprint' %}">Click here to request a Commentary Page on an arXiv preprint</a>
-          </div>
+      <div class="card card-gray">
+        <div class="card-body">
+          <h1 class="card-title">Request Activation of a Commentary Page</h1>
+          <a href="{% url 'commentaries:request_arxiv_preprint' %}">Click here to request a Commentary Page on an arXiv preprint</a>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-<div class="row justify-content-center">
+  <div class="row justify-content-center">
     <div class='col-md-10 col-lg-8'>
-        <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
-          {% csrf_token %}
-          {{ query_form|bootstrap }}
-          <input class="btn btn-outline-secondary" type="submit" value="Query DOI"/>
-        </form>
+      <form action="{% url 'commentaries:prefill_using_DOI' %}" method="post">
+        {% csrf_token %}
+        {{ query_form|bootstrap }}
+        <input class="btn btn-outline-secondary" type="submit" value="Query DOI"/>
+      </form>
     </div>
-</div>
+  </div>
 
-<div class="row justify-content-center">
+  <div class="row justify-content-center">
     <div class='col-md-10 col-lg-8'>
-        <form id="requestForm" action="{% url 'commentaries:request_published_article' %}" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Submit"/>
-        </form>
+      <form id="requestForm" action="{% url 'commentaries:request_published_article' %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Submit"/>
+      </form>
     </div>
-</div>
+  </div>
 
 {% endblock content %}

@@ -3,20 +3,21 @@
 {% block pagetitle %}: Comment on your Publication{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Comment on your Publication</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Comment on your Publication</span>
 {% endblock %}
 
 {% block content %}
 
-<h1 class="highlight">Comment on your Publication</h1>
+  <h1 class="highlight">Comment on your Publication</h1>
 
-{% include 'partials/journals/publication_li_content.html' with publication=publication %}
+  {% include 'partials/journals/publication_li_content.html' with publication=publication %}
 
-<h3 class="mt-2">Abstract</h3>
-<p>{{ publication.abstract|default:'No abstract found' }}</p>
+  <h3 class="mt-2">Abstract</h3>
+  <p>{{ publication.abstract|default:'No abstract found' }}</p>
 
-{% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
-{% include 'comments/_add_comment_form.html' with form=form url=url %}
+  {% url 'comments:new_comment' object_id=object_id type_of_object=type_of_object as url %}
+
+  {% include 'comments/_add_comment_form.html' with form=form url=url %}
 
 {% endblock content %}

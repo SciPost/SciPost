@@ -5,40 +5,40 @@
 {% block pagetitle %}: vet Commentary requests{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Vet Commentary Page requests</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Vet Commentary Page requests</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1>SciPost Commentary Page request to modify and accept:</h1>
+      <h1>SciPost Commentary Page request to modify and accept:</h1>
     </div>
-</div>
+  </div>
 
-<hr>
-<div class="row">
+  <hr>
+  <div class="row">
     <div class="col-12">
-        {% include 'commentaries/_commentary_summary.html' with commentary=commentary %}
+      {% include 'commentaries/_commentary_summary.html' with commentary=commentary %}
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h3 class="mt-4">Abstract:</h3>
-        <p>{{ commentary.pub_abstract }}</p>
+      <h3 class="mt-4">Abstract:</h3>
+      <p>{{ commentary.pub_abstract }}</p>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <form action="{% url 'commentaries:modify_commentary_request' commentary_id=commentary.id %}" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input type="submit" class="btn btn-outline-secondary" value="Submit and accept" />
-        </form>
+      <form action="{% url 'commentaries:modify_commentary_request' commentary_id=commentary.id %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-outline-secondary" value="Submit and accept" />
+      </form>
     </div>
-</div>
+  </div>
 
 {% endblock  %}

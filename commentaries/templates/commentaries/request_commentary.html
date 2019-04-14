@@ -8,20 +8,23 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Request Activation of a Commentary Page:</h1>
+      <h1 class="highlight">Request Activation of a Commentary Page:</h1>
     </div>
+  </div>
+
+  <div class="row">
     <div class="col-12">
-        <ul>
-            <li>
-                <a href="{% url 'commentaries:request_published_article' %}">Click here to request a Commentary Page on a published article</a>
-            </li>
-            <li>
-                <a href="{% url 'commentaries:request_arxiv_preprint' %}">Click here to request a Commentary Page on an arXiv preprint</a>
-            </li>
-        </ul>
+      <ul>
+        <li>
+          <a href="{% url 'commentaries:request_published_article' %}">Click here to request a Commentary Page on a published article</a>
+        </li>
+        <li>
+          <a href="{% url 'commentaries:request_arxiv_preprint' %}">Click here to request a Commentary Page on an arXiv preprint</a>
+        </li>
+      </ul>
     </div>
-</div>
+  </div>
 
 {% endblock content %}

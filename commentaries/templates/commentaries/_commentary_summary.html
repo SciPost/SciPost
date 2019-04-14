@@ -1,50 +1,50 @@
 <table class="commentary summary">
+  <tr>
+    <td>Title:</td>
+    <td>{{ commentary.title }}</td>
+  </tr>
+  <tr>
+    <td>Author(s):</td>
+    <td>{{ commentary.author_list }}</td>
+  </tr>
+  <tr>
+    <td>As Contributors:</td>
+    <td>
+      {% for author in commentary.authors.all %}
+        {% if not forloop.first %} &middot; {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a>
+      {% empty %}
+        (none claimed)
+      {% endfor %}
+    </td>
+  </tr>
+  {% if commentary.type == 'published' %}
     <tr>
-        <td>Title:</td>
-        <td>{{commentary.title}}</td>
+      <td>Journal ref.:</td>
+      <td>{{ commentary.journal }} {{ commentary.volume }}{% if commentary.pages %}, {{ commentary.pages }}{% endif %}</td>
     </tr>
     <tr>
-        <td>Author(s):</td>
-        <td>{{commentary.author_list}}</td>
+      <td>DOI:</td>
+      <td>
+        <a href="{{commentary.pub_DOI_link}}" target="_blank">{{ commentary.pub_DOI_link }}</a>
+      </td>
     </tr>
+  {% elif commentary.type == 'preprint' %}
     <tr>
-        <td>As Contributors:</td>
-        <td>
-            {% for author in commentary.authors.all %}
-                {% if not forloop.first %} &middot; {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{author.user.first_name}} {{author.user.last_name}}</a>
-            {% empty %}
-                (none claimed)
-            {% endfor %}
-        </td>
+      <td>arxiv Link:</td>
+      <td>
+        <a href="{{commentary.arxiv_link}}" target="_blank">{{ commentary.arxiv_link }}</a>
+      </td>
     </tr>
-    {% if commentary.type == 'published' %}
-        <tr>
-            <td>Journal ref.:</td>
-            <td>{{commentary.journal}} {{commentary.volume}}{% if commentary.pages %}, {{commentary.pages}}{% endif %}</td>
-        </tr>
-        <tr>
-            <td>DOI:</td>
-            <td>
-                <a href="{{commentary.pub_DOI_link}}" target="_blank">{{commentary.pub_DOI_link}}</a>
-            </td>
-        </tr>
-    {% elif commentary.type == 'preprint' %}
-        <tr>
-            <td>arxiv Link:</td>
-            <td>
-                <a href="{{commentary.arxiv_link}}" target="_blank">{{commentary.arxiv_link}}</a>
-            </td>
-        </tr>
-    {% endif %}
-    {% if commentary.pub_date %}
-        <tr>
-            <td>Date:</td>
-            <td>{{commentary.pub_date}}</td>
-        </tr>
-    {% endif %}
+  {% endif %}
+  {% if commentary.pub_date %}
+    <tr>
+      <td>Date:</td>
+      <td>{{ commentary.pub_date }}</td>
+    </tr>
+  {% endif %}
 </table>
 
 {% if commentary.scipost_publication %}
-    <br>
-    <p class="my-0">Published in {{commentary.scipost_publication.in_issue.in_volume.in_journal.get_name_display}}: <a href="{{commentary.scipost_publication.get_absolute_url}}">{{commentary.scipost_publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{commentary.scipost_publication.in_issue.in_volume.number}}</strong>, {{commentary.scipost_publication.get_paper_nr}} ({{commentary.scipost_publication.publication_date|date:'Y'}})</a></p>
+  <br>
+  <p class="my-0">Published in {{ commentary.scipost_publication.get_journal.get_name_display }}: <a href="{{ commentary.scipost_publication.get_absolute_url }}">{{ commentary.scipost_publication.citation }}</a></p>
 {% endif %}

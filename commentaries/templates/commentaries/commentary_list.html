@@ -6,91 +6,91 @@
 {% block pagetitle %}: Commentaries{% endblock pagetitle %}
 
 {% block headsup %}
-    <script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+  <script type="text/javascript" async src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"></script>
 {% endblock headsup %}
 
 {% block content %}
-<div class="row">
+  <div class="row">
     <div class="col-md-4">
-        <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
-            <h1 class="mb-3">SciPost Commentaries</h1>
-            <h4>
-                <a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a>
-            </h4>
-            <h3>
-                <a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a>
-            </h3>
-        </div>
+      <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
+        <h1 class="mb-3">SciPost Commentaries</h1>
+        <h4>
+          <a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a>
+        </h4>
+        <h3>
+          <a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a>
+        </h3>
+      </div>
     </div>
     <div class="col-md-4">
-        <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
-            <h2>Search SciPost Commentaries:</h2>
-            <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
-                {{ form|bootstrap:'4,8,sm' }}
-                <input class="btn btn-outline-secondary" type="submit"  value="Search"/>
-            </form>
-        </div>
+      <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
+        <h2>Search SciPost Commentaries:</h2>
+        <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
+          {{ form|bootstrap:'4,8,sm' }}
+          <input class="btn btn-outline-secondary" type="submit"  value="Search"/>
+        </form>
+      </div>
     </div>
     <div class="col-md-4">
-        <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
-            <h2>View SciPost Commentaries</h2>
-            <ul>
-                <li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
-            </ul>
-        </div>
+      <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
+        <h2>View SciPost Commentaries</h2>
+        <ul>
+          <li>Physics: last <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=1 %}">week</a>, <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=4 %}">month</a> or <a href="{% url 'commentaries:browse' discipline='physics' nrweeksback=52 %}">year</a> </li>
+        </ul>
+      </div>
     </div>
-</div>
+  </div>
 
-{% if not browse and recent %}
-<hr>
-<div class="row">
-    <div class="col-12">
+  {% if not browse and recent %}
+    <hr>
+    <div class="row">
+      <div class="col-12">
         <h2>Recent Comments</h2>
-    </div>
-    <div class="col-12">
+      </div>
+      <div class="col-12">
         <ul class="list-group list-group-flush">
-            {% for comment in comment_list %}
-                <li class="list-group-item">
-                    {% include 'comments/_comment_card_content.html' with comment=comment %}
-                </li>
-            {% endfor %}
+          {% for comment in comment_list %}
+            <li class="list-group-item">
+              {% include 'comments/_comment_card_content.html' with comment=comment %}
+            </li>
+          {% endfor %}
         </ul>
+      </div>
     </div>
-</div>
-{% endif %}
+  {% endif %}
 
-<hr>
-<div class="row">
+  <hr>
+  <div class="row">
     <div class="col-12">
-        {% if recent %}
-          <h2>Recently active Commentaries:</h2>
-        {% elif browse %}
-          <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{{ nrweeksback|pluralize }}:</h2>
-        {% else %}
-          <h2>Search results:</h3>
-        {% endif %}
+      {% if recent %}
+        <h2>Recently active Commentaries:</h2>
+      {% elif browse %}
+        <h2>Commentaries in {{ discipline }} in the last {{ nrweeksback }} week{{ nrweeksback|pluralize }}:</h2>
+      {% else %}
+        <h2>Search results:</h2>
+      {% endif %}
     </div>
     {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
+      <div class="col-12">
+        {% include 'partials/pagination.html' with page_obj=page_obj %}
+      </div>
     {% endif %}
     <div class="col-12">
-        <ul class="list-group list-group-flush">
-            {% for object in commentary_list %}
-                <li class="list-group-item">
-                    {% include 'commentaries/_commentary_card_content.html' with commentary=object %}
-                </li>
-            {% empty %}
-                <h3><em>No match found for your search query.</em></h3>
-            {% endfor %}
-        </ul>
+      <ul class="list-group list-group-flush">
+        {% for object in commentary_list %}
+          <li class="list-group-item">
+            {% include 'commentaries/_commentary_card_content.html' with commentary=object %}
+          </li>
+        {% empty %}
+          <h3><em>No match found for your search query.</em></h3>
+        {% endfor %}
+      </ul>
     </div>
     {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
+      <div class="col-12">
+        {% include 'partials/pagination.html' with page_obj=page_obj %}
+      </div>
     {% endif %}
-</div>
+  </div>
 
 {% endblock content %}

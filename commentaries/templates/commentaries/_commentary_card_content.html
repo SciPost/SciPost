@@ -1,11 +1,11 @@
 <div class="card-body px-0">
-    <div class="li commentary">
-        <h3 class="title"><a href="{{ commentary.get_absolute_url }}">{{ commentary.title }}</a></h3>
-        <p class="authors">
-            by {{ commentary.author_list }}{% if commentary.type == 'published' %}, {{ commentary.journal }} {{ commentary.volume }}, {{ commentary.pages }}{% elif commentary.type == 'preprint' %} &middot; <a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a>{% endif %}
-        </p>
-        <p class="meta">
-            {% if commentary.pub_date %}(published {{ commentary.pub_date }}) &middot; {% endif %}latest activity: {{ commentary.latest_activity }}
-        </p>
-    </div>
+  <div class="li commentary">
+    <h3 class="title"><a href="{{ commentary.get_absolute_url }}">{{ commentary.title }}</a></h3>
+    <p class="authors">
+      by {{ commentary.author_list }}{% if commentary.type == 'published' %}, {{ commentary.journal }} {{ commentary.volume }}, {{ commentary.pages }}{% elif commentary.type == 'preprint' %} &middot; <a href="{{ commentary.arxiv_link }}">{{ commentary.arxiv_link }}</a>{% endif %}
+    </p>
+    <p class="meta">
+      {% if commentary.pub_date %}(published {{ commentary.pub_date }}) &middot; {% endif %}latest activity: {{ commentary.latest_activity }}
+    </p>
+  </div>
 </div>
