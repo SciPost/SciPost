@@ -1,9 +1,10 @@
 {% load scipost_extras %}
 
 <td>
-    {% for expertise in contributor.expertises %}
-        {{expertise|get_specialization_display}}<br>
-    {% endfor %}
+  {% for expertise in contributor.expertises %}
+    {{ expertise|get_specialization_display }}
+    {% if not forloop.last %}<br>{% endif %}
+  {% endfor %}
 </td>
 
 <td>{{contributor.editorial_assignments.ongoing.count}}</td>
