@@ -5,79 +5,79 @@
 {% get_obj_perms request.user for stream as "sub_perms" %}
 
 <div class="card-body" id="stream_{{stream.id}}">
-    {% include 'partials/submissions/submission_card_content.html' with submission=stream.submission %}
+  {% include 'partials/submissions/submission_card_content.html' with submission=stream.submission %}
 </div>
 <div class="card-body">
-      {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
-        <p>The proofs have been accepted. Please start <a href="{% url 'journals:update_publication' stream.submission.preprint.identifier_w_vn_nr %}">drafting the Publication here</a>.</p>
-      {% endif %}
-      <h3>Stream details</h3>
-      <ul>
-          <li>Status: <span class="label label-secondary label-sm">{{ stream.get_status_display }}</span></li>
-          {% block officers %}
-              <li>Production Supervisor:
-                    {% if stream.supervisor %}
-                        <strong>{{ stream.supervisor }}</strong>
-                    {% else %}
-                        <em>No Supervisor assigned.</em>
-                    {% endif %}
-              </li>
-              <li>Production Officer:
-                    {% if stream.officer %}
-                        <strong>{{ stream.officer }}</strong>
-                    {% else %}
-                        <em>No Officer assigned.</em>
-                    {% endif %}
-              </li>
-              <li>Invitations Officer:
-                    {% if stream.invitations_officer %}
-                        <strong>{{ stream.invitations_officer }}</strong>
-                    {% else %}
-                        <em>No Invitations Officer assigned.</em>
-                    {% endif %}
-              </li>
-          {% endblock %}
-      </ul>
+  {% if perms.scipost.can_draft_publication and stream.status == 'accepted' %}
+    <p>The proofs have been accepted. Please start <a href="{% url 'journals:update_publication' stream.submission.preprint.identifier_w_vn_nr %}">drafting the Publication here</a>.</p>
+  {% endif %}
+  <h3>Stream details</h3>
+  <ul>
+    <li>Status: <span class="label label-secondary label-sm">{{ stream.get_status_display }}</span></li>
+    {% block officers %}
+      <li>Production Supervisor:
+        {% if stream.supervisor %}
+          <strong>{{ stream.supervisor }}</strong>
+        {% else %}
+          <em>No Supervisor assigned.</em>
+        {% endif %}
+      </li>
+      <li>Production Officer:
+        {% if stream.officer %}
+          <strong>{{ stream.officer }}</strong>
+        {% else %}
+          <em>No Officer assigned.</em>
+        {% endif %}
+      </li>
+      <li>Invitations Officer:
+        {% if stream.invitations_officer %}
+          <strong>{{ stream.invitations_officer }}</strong>
+        {% else %}
+          <em>No Invitations Officer assigned.</em>
+        {% endif %}
+      </li>
+    {% endblock %}
+  </ul>
 
-      {% block actions %}
-          <h3>Events</h3>
-          {% include 'production/partials/production_events.html' with events=stream.events.all_without_duration non_editable=1 %}
+  {% block actions %}
+    <h3>Events</h3>
+    {% include 'production/partials/production_events.html' with events=stream.events.all_without_duration non_editable=1 %}
 
-          <h3>Work Log</h3>
-          {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
+    <h3>Work Log</h3>
+    {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
 
-            {% if stream.total_duration %}
-                <hr class="sm">
-                <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
-            {% endif %}
-      {% endblock %}
-
-    {% if "can_work_for_stream" in sub_perms %}
-      <h3>Proofs</h3>
-      <ul>
-          {% for proofs in stream.proofs.all %}
-              <li class="py-1">
-                  <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a> &middot; <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span><br>
-                  Uploaded by: {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}<br>
-                  Accessible for authors: {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}<br>
-
-                  {% if perms.scipost.can_run_proofs_by_authors %}
-                      {% if proofs.status == 'uploaded' %}
-                          <strong><span class="text-danger">See details for open actions:</span></strong>
-                          <ul>
-                              <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Accept or decline proofs</a></li>
-                          </ul>
-                      {% elif proofs.status == 'accepted_sup' %}
-                         <strong><span class="text-danger">See details for open actions:</span></strong>
-                         <ul>
-                             <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Send proofs to authors</a></li>
-                         </ul>
-                      {% endif %}
-                  {% endif %}
-              </li>
-          {% empty %}
-              <li>No Proofs found.</li>
-          {% endfor %}
-      </ul>
+    {% if stream.total_duration %}
+      <hr class="sm">
+      <p class="pl-4 ml-3">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
     {% endif %}
+  {% endblock %}
+
+  {% if "can_work_for_stream" in sub_perms %}
+    <h3>Proofs</h3>
+    <ul>
+      {% for proofs in stream.proofs.all %}
+        <li class="py-1">
+          <a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Version {{ proofs.version }}</a> &middot; <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span><br>
+          Uploaded by: {{ proofs.uploaded_by.user.first_name }} {{ proofs.uploaded_by.user.last_name }}<br>
+          Accessible for authors: {{ proofs.accessible_for_authors|yesno:'<strong>Yes</strong>,No'|safe }}<br>
+
+          {% if perms.scipost.can_run_proofs_by_authors %}
+            {% if proofs.status == 'uploaded' %}
+              <strong><span class="text-danger">See details for open actions:</span></strong>
+              <ul>
+                <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Accept or decline proofs</a></li>
+              </ul>
+            {% elif proofs.status == 'accepted_sup' %}
+              <strong><span class="text-danger">See details for open actions:</span></strong>
+              <ul>
+                <li><a href="{% url 'production:proofs' stream_id=stream.id version=proofs.version %}">Send proofs to authors</a></li>
+              </ul>
+            {% endif %}
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>No Proofs found.</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
 </div>

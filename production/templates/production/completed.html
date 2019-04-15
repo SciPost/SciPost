@@ -1,8 +1,8 @@
 {% extends 'production/base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Completed production streams</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Completed production streams</span>
 {% endblock %}
 
 {% block pagetitle %}: Completed production streams{% endblock pagetitle %}
@@ -11,23 +11,23 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Completed production streams</h1>
+      <h1 class="highlight">Completed production streams</h1>
     </div>
-</div>
-<div class="row">
-  <div class="col-12">
-    <ul class="list-group list-group-flush">
-      {% for stream in streams %}
-        <li class="list-group-item">
-            {% include 'production/partials/production_stream_card_completed.html' with stream=stream %}
-        </li>
-      {% empty %}
-        <li class="list-group-item">No completed production streams found.</li>
-      {% endfor %}
-    </ul>
   </div>
-</div>
+  <div class="row">
+    <div class="col-12">
+      <ul class="list-group list-group-flush">
+	{% for stream in streams %}
+          <li class="list-group-item">
+            {% include 'production/partials/production_stream_card_completed.html' with stream=stream %}
+          </li>
+	{% empty %}
+          <li class="list-group-item">No completed production streams found.</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
 
 {% endblock content %}

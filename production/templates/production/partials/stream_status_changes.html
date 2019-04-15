@@ -1,14 +1,14 @@
 {% load bootstrap %}
 
 {% if perms.scipost.can_take_decisions_related_to_proofs and form.fields.status.choices|length > 0 %}
-    <h3>Change current stream status:</h3>
-    <form method="post" action="{% url 'production:update_status' stream.id %}" class="form-inline">
-        {% csrf_token %}
-        {{ form|bootstrap_inline }}
-        <div class="form-group row">
-            <div class="col-form-label col ml-2">
-                <button type="submit" class="btn btn-primary">Change</button>
-            </div>
-        </div>
-    </form>
+  <h3>Change current stream status:</h3>
+  <form method="post" action="{% url 'production:update_status' stream.id %}" class="form-inline">
+    {% csrf_token %}
+    {{ form|bootstrap_inline }}
+    <div class="form-group row">
+      <div class="col-form-label col ml-2">
+        <button type="submit" class="btn btn-primary">Change</button>
+      </div>
+    </div>
+  </form>
 {% endif %}

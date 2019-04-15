@@ -10,18 +10,18 @@
     </thead>
     <tbody role="tablist">
       {% for event in events %}
-      {% if event.duration %}
-      <tr>
-	<td>{{ event.noted_on }}</td>
-	<td>{{ event.stream }}</td>
-	<td>{{ event.get_event_display }}</td>
-	<td>{{ event.duration }}</td>
-      </tr>
-      {% endif %}
+	{% if event.duration %}
+	  <tr>
+	    <td>{{ event.noted_on }}</td>
+	    <td>{{ event.stream }}</td>
+	    <td>{{ event.get_event_display }}</td>
+	    <td>{{ event.duration }}</td>
+	  </tr>
+	{% endif %}
       {% empty %}
-      <tr>
-	<td colspan="4">No events found.</td>
-      </tr>
+	<tr>
+	  <td colspan="4">No events found.</td>
+	</tr>
       {% endfor %}
     </tbody>
   </table>
