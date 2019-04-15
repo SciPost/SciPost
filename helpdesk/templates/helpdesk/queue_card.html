@@ -11,13 +11,13 @@
   <div class="card-body">
     {{ queue.description|restructuredtext }}
     {% if queue.sub_queues.all|length > 0 %}
-    <hr/>
-    <p>Sub-Queues:</p>
-    <ul class="list-unstyled forumList">
-      {% for sub in queue.sub_queues.all %}
-      {% include 'helpdesk/queue_as_li.html' with queue=sub %}
-      {% endfor %}
-    </ul>
+      <hr/>
+      <p>Sub-Queues:</p>
+      <ul class="list-unstyled forumList">
+	{% for sub in queue.sub_queues.all %}
+	  {% include 'helpdesk/queue_as_li.html' with queue=sub %}
+	{% endfor %}
+      </ul>
     {% endif %}
   </div>
 </div>

@@ -4,8 +4,8 @@
 
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Create a new Ticket{% endif %}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Create a new Ticket{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: Ticket{% endblock pagetitle %}
@@ -13,37 +13,37 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
+  <div class="row">
+    <div class="col-12">
 
-    <h3 class="highlight">{% if form.instance.id %}Update a{% else %}Create a new{% endif %} support Ticket</h3>
+      <h3 class="highlight">{% if form.instance.id %}Update a{% else %}Create a new{% endif %} support Ticket</h3>
 
-    {% if concerning_object %}
-    <p>Re: <a href="{{ concerning_object.get_absolute_url }}" target="_blank">{{ concerning_object }}</a></p>
-    {% endif %}
-
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
-
-      {% if form.errors %}
-      {% for field in form %}
-      {% for error in field.errors %}
-      <div class="alert alert-danger">
-	<strong>{{ field.name }} - {{ error|escape }}</strong>
-      </div>
-      {% endfor %}
-      {% endfor %}
-      {% for error in form.non_field_errors %}
-      <div class="alert alert-danger">
-	<strong>{{ error|escape }}</strong>
-      </div>
-      {% endfor %}
+      {% if concerning_object %}
+	<p>Re: <a href="{{ concerning_object.get_absolute_url }}" target="_blank">{{ concerning_object }}</a></p>
       {% endif %}
-    </form>
 
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+
+	{% if form.errors %}
+	  {% for field in form %}
+	    {% for error in field.errors %}
+	      <div class="alert alert-danger">
+		<strong>{{ field.name }} - {{ error|escape }}</strong>
+	      </div>
+	    {% endfor %}
+	  {% endfor %}
+	  {% for error in form.non_field_errors %}
+	    <div class="alert alert-danger">
+	      <strong>{{ error|escape }}</strong>
+	    </div>
+	  {% endfor %}
+	{% endif %}
+      </form>
+
+    </div>
   </div>
-</div>
 
 {% endblock content %}

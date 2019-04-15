@@ -5,21 +5,21 @@
 {% load restructuredtext %}
 
 {% block breadcrumb_items %}
-{{ block.super }}
+  {{ block.super }}
 
-<span class="breadcrumb-item">Ticket details</span>
+  <span class="breadcrumb-item">Ticket details</span>
 {% endblock %}
 
 {% block pagetitle %}: Ticket details{% endblock pagetitle %}
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
+  <div class="row">
+    <div class="col-12">
 
-    {% include 'helpdesk/ticket_card.html' with ticket=ticket %}
+      {% include 'helpdesk/ticket_card.html' with ticket=ticket %}
 
+    </div>
   </div>
-</div>
 
 {% endblock content %}

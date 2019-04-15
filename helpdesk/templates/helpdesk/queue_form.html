@@ -3,21 +3,21 @@
 {% load bootstrap %}
 
 {% block headsup %}
-<script>
-$(document).ready(function() {
+  <script>
+   $(document).ready(function() {
 
-$("#id_name").keyup(function() {
-  slug_value = this.value.split(" ").join("_");
-  $("#id_slug").val(slug_value);
-});
+       $("#id_name").keyup(function() {
+	   slug_value = this.value.split(" ").join("_");
+	   $("#id_slug").val(slug_value);
+       });
 
-});
-</script>
+   });
+  </script>
 {% endblock headsup %}
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Queue{% endif %}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Queue{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: Queues{% endblock pagetitle %}
@@ -25,13 +25,13 @@ $("#id_name").keyup(function() {
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
+  <div class="row">
+    <div class="col-12">
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+    </div>
   </div>
-</div>
 
 {% endblock content %}

@@ -12,44 +12,44 @@
   </thead>
   <tbody>
     {% for ticket in tickets %}
-    <tr>
-      <td><span class="text-muted">{{ ticket.queue }}</span><br/>
-	<a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
-	{% if ticket.concerning_object %}
-	<span class="text-small text-muted" style="font-size: 80%;">
-	  <br/>Re: <a href="{{ ticket.concerning_object.get_absolute_url }}" target="_blank">{{ ticket.concerning_object|truncatechars:64 }}</a>
-	</span>
-	{% endif %}
-      </td>
-      <td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
-      <td data-toggle="tooltip" title="{{ ticket.priority }}">
-	{{ ticket.priority_icons|safe }}
-      </td>
-      {% with classes=ticket.status_classes %}
-      <td>
-	<span class="bg-{{ classes.class }} text-{{ classes.text }}">&emsp;</span>
-	{{ ticket.get_status_display }}
-      </td>
-      {% endwith %}
-      {% with level=ticket.progress_level %}
-      <td>
-	<i class="fa fa{{ level.1 }}-square" data-toggle="tooltip" title="Assigned?"></i>
-	<i class="fa fa{{ level.2 }}-square" data-toggle="tooltip" title="In handling?"></i>
-	<i class="fa fa{{ level.3 }}-square" data-toggle="tooltip" title="Handled?"></i>
-      </td>
-      {% endwith %}
-      <td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>
-      <td>
-	{{ ticket.latest_activity }}
-	{% if ticket.is_open %}
-	<br/><span class="text-small text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
-	{% endif %}
-      </td>
-    </tr>
+      <tr>
+	<td><span class="text-muted">{{ ticket.queue }}</span><br/>
+	  <a href="{{ ticket.get_absolute_url }}">{{ ticket.title }}</a>
+	  {% if ticket.concerning_object %}
+	    <span class="text-small text-muted" style="font-size: 80%;">
+	      <br/>Re: <a href="{{ ticket.concerning_object.get_absolute_url }}" target="_blank">{{ ticket.concerning_object|truncatechars:64 }}</a>
+	    </span>
+	  {% endif %}
+	</td>
+	<td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
+	<td data-toggle="tooltip" title="{{ ticket.priority }}">
+	  {{ ticket.priority_icons|safe }}
+	</td>
+	{% with classes=ticket.status_classes %}
+	  <td>
+	    <span class="bg-{{ classes.class }} text-{{ classes.text }}">&emsp;</span>
+	    {{ ticket.get_status_display }}
+	  </td>
+	{% endwith %}
+	{% with level=ticket.progress_level %}
+	  <td>
+	    <i class="fa fa{{ level.1 }}-square" data-toggle="tooltip" title="Assigned?"></i>
+	    <i class="fa fa{{ level.2 }}-square" data-toggle="tooltip" title="In handling?"></i>
+	    <i class="fa fa{{ level.3 }}-square" data-toggle="tooltip" title="Handled?"></i>
+	  </td>
+	{% endwith %}
+	<td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>
+	<td>
+	  {{ ticket.latest_activity }}
+	  {% if ticket.is_open %}
+	    <br/><span class="text-small text-muted" style="font-size: 80%;">[{{ ticket.latest_activity|timesince }} ago]</span>
+	  {% endif %}
+	</td>
+      </tr>
     {% empty %}
-    <tr>
-      <td colspan="4">No ticket visible in this queue</td>
-    </tr>
+      <tr>
+	<td colspan="4">No ticket visible in this queue</td>
+      </tr>
     {% endfor %}
   </tbody>
 </table>

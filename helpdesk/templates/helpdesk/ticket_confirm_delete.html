@@ -6,24 +6,24 @@
 {% block pagetitle %}: Delete Ticket{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <h1 class="highlight">Delete Ticket</h1>
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Delete Ticket</h1>
 
-    {% include 'helpdesk/ticket_card.html' with ticket=object %}
+      {% include 'helpdesk/ticket_card.html' with ticket=object %}
 
     </div>
-</div>
-
-<div class="row">
-  <div class="col-12">
-
-    <form method="post">
-      {% csrf_token %}
-      <h3 class="mb-2">Are you sure you want to delete this Ticket (and all associated Followups)?</h3>
-      <input type="submit" class="btn btn-danger" value="Yes, delete it" />
-    </form>
   </div>
-</div>
+
+  <div class="row">
+    <div class="col-12">
+
+      <form method="post">
+	{% csrf_token %}
+	<h3 class="mb-2">Are you sure you want to delete this Ticket (and all associated Followups)?</h3>
+	<input type="submit" class="btn btn-danger" value="Yes, delete it" />
+      </form>
+    </div>
+  </div>
 
 {% endblock content %}

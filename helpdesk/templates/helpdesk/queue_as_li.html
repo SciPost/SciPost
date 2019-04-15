@@ -2,10 +2,10 @@
   <a href="{{ queue.get_absolute_url }}" class="flex-grow-1">{{ queue }}</a>
   <span>{% include 'helpdesk/queue_badges.html' with queue=queue %}</span>
   {% if queue.sub_queues.all|length > 0 %}
-  <ul class="list-unstyled forumList">
-    {% for sub in queue.sub_queues.all %}
-    {% include 'helpdesk/queue_as_li.html' with queue=sub %}
-    {% endfor %}
-  </ul>
+    <ul class="list-unstyled forumList">
+      {% for sub in queue.sub_queues.all %}
+	{% include 'helpdesk/queue_as_li.html' with queue=sub %}
+      {% endfor %}
+    </ul>
   {% endif %}
 </li>
