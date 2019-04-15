@@ -3,8 +3,8 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-<span class="breadcrumb-item">Details</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Details</span>
 {% endblock %}
 
 {% load scipost_extras %}
@@ -12,10 +12,10 @@
 {% block pagetitle %}: Potential Fellowship details{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    {% include 'colleges/_potentialfellowship_card.html' with potfel=object pfevent_form=pfevent_form %}
+  <div class="row">
+    <div class="col-12">
+      {% include 'colleges/_potentialfellowship_card.html' with potfel=object pfevent_form=pfevent_form %}
+    </div>
   </div>
-</div>
 
 {% endblock content %}

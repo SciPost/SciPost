@@ -1,74 +1,74 @@
 {% extends 'submissions/admin/base.html' %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Active Fellowships</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Active Fellowships</span>
 {% endblock %}
 
 {% block pagetitle %}: Active Fellowships{% endblock pagetitle %}
 
 {% block content %}
-    <h1>Active Regular Fellowships</h1>
-    <a href="{% url 'colleges:fellowship_add' %}">Add new Fellowship</a>
+  <h1>Active Regular Fellowships</h1>
+  <a href="{% url 'colleges:fellowship_add' %}">Add new Fellowship</a>
 
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>Fellow</th>
-                <th>Discipline</th>
-                <th>Start date</th>
-                <th>End date</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fellow in fellowships.regular %}
-                <tr>
-                    <td>{{ fellow.contributor }}</td>
-                    <td>{{ fellow.contributor.get_discipline_display }}</td>
-                    <td>{{ fellow.start_date|default:'<i>No start date</i>' }}</td>
-                    <td>{{ fellow.until_date|default:'<i>No end date</i>' }}</td>
-                    <td>
-                        <a href="{{ fellow.get_absolute_url }}">View Fellowship details</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td class="text-danger py-2" colspan="4">There are no active fellowships!</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th>Fellow</th>
+        <th>Discipline</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fellow in fellowships.regular %}
+        <tr>
+          <td>{{ fellow.contributor }}</td>
+          <td>{{ fellow.contributor.get_discipline_display }}</td>
+          <td>{{ fellow.start_date|default:'<i>No start date</i>' }}</td>
+          <td>{{ fellow.until_date|default:'<i>No end date</i>' }}</td>
+          <td>
+            <a href="{{ fellow.get_absolute_url }}">View Fellowship details</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="text-danger py-2" colspan="4">There are no active fellowships!</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-    <h1>Active Guest Fellowships</h1>
-    <a href="{% url 'colleges:fellowship_add' %}?guest=1">Add new Guest Fellowship</a>
+  <h1>Active Guest Fellowships</h1>
+  <a href="{% url 'colleges:fellowship_add' %}?guest=1">Add new Guest Fellowship</a>
 
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>Fellow</th>
-                <th>Discipline</th>
-                <th>Start date</th>
-                <th>End date</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for fellow in fellowships.guests %}
-                <tr>
-                    <td>{{ fellow.contributor }}</td>
-                    <td>{{ fellow.contributor.get_discipline_display }}</td>
-                    <td>{{ fellow.start_date|default:'<i>No start date</i>' }}</td>
-                    <td>{{ fellow.until_date|default:'<i>No end date</i>' }}</td>
-                    <td>
-                        <a href="{{ fellow.get_absolute_url }}">View Fellowship details</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td class="py-2" colspan="4">There are no active guests fellowships</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th>Fellow</th>
+        <th>Discipline</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fellow in fellowships.guests %}
+        <tr>
+          <td>{{ fellow.contributor }}</td>
+          <td>{{ fellow.contributor.get_discipline_display }}</td>
+          <td>{{ fellow.start_date|default:'<i>No start date</i>' }}</td>
+          <td>{{ fellow.until_date|default:'<i>No end date</i>' }}</td>
+          <td>
+            <a href="{{ fellow.get_absolute_url }}">View Fellowship details</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="py-2" colspan="4">There are no active guests fellowships</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}

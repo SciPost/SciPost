@@ -3,22 +3,22 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
-    <span class="breadcrumb-item">Add Fellowship</span>
+  {{ block.super }}
+  <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
+  <span class="breadcrumb-item">Add Fellowship</span>
 {% endblock %}
 
 {% block pagetitle %}: Add Fellowship{% endblock pagetitle %}
 
 {% block content %}
-    <h1>Add Fellowship</h1>
-    <br>
+  <h1>Add Fellowship</h1>
+  <br>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input class="btn btn-primary" type="submit" value="Add Fellowship">
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input class="btn btn-primary" type="submit" value="Add Fellowship">
+  </form>
 
 
 {% endblock %}

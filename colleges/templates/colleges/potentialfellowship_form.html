@@ -3,35 +3,35 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">{% if form.instance.id %}Update{% else %}Add new{% endif %} Potential Fellowship</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">{% if form.instance.id %}Update{% else %}Add new{% endif %} Potential Fellowship</span>
 {% endblock %}
 
 {% block pagetitle %}: Potential Fellowships{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
+  <div class="row">
+    <div class="col-12">
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+    </div>
   </div>
-</div>
 
 
-<div class="row">
-  <div class="col-12">
-    <h3 class="mb-2">Not found?</h3>
-    <p>Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).</p>
+  <div class="row">
+    <div class="col-12">
+      <h3 class="mb-2">Not found?</h3>
+      <p>Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).</p>
+    </div>
   </div>
-</div>
 
 
 
 {% endblock content %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ form.media }}
+  {{ block.super }}
+  {{ form.media }}
 {% endblock footer_script %}

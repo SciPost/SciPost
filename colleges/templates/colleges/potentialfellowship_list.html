@@ -5,25 +5,25 @@
 {% load bootstrap %}
 
 {% block headsup %}
-<script type="text/javascript">
-$(document).ready(function($) {
-    $(".table-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-</script>
+  <script type="text/javascript">
+   $(document).ready(function($) {
+       $(".table-row").click(function() {
+           window.document.location = $(this).data("href");
+       });
+   });
+  </script>
 {% endblock headsup %}
 
 {% block breadcrumb_items %}
-    <span class="breadcrumb-item">Potential Fellowships</span>
+  <span class="breadcrumb-item">Potential Fellowships</span>
 {% endblock %}
 
 {% block pagetitle %}: Potential Fellowships{% endblock pagetitle %}
 
 {% block content %}
 
-<h1 class="highlight">Potential Fellowships</h1>
-{% if perms.scipost.can_add_potentialfellowship %}
+  <h1 class="highlight">Potential Fellowships</h1>
+  {% if perms.scipost.can_add_potentialfellowship %}
     <div class="row">
       <div class="col-12">
         <h3 class="highlight">Nominations</h3>
@@ -36,104 +36,104 @@ $(document).ready(function($) {
     </div>
 
     {% if potfels_to_vote_on or potfels_voted_on %}
-    <div class="row">
-      <div class="col-12">
-        <h3 class="highlight">Ongoing elections</h3>
-        {% if potfels_to_vote_on %}
-        <h4>Nominations to vote on:</h4>
-        <div>
-          {% include 'colleges/_potentialfellowship_voting_table.html' with potfels_list=potfels_to_vote_on %}
-        </div>
-        {% endif %}
-        {% if potfels_voted_on %}
-        <h4>Nominations you have already voted on (you can revise your vote if you wish):</h4>
-        <div>
-          {% include 'colleges/_potentialfellowship_voting_table.html' with potfels_list=potfels_voted_on %}
-        </div>
-        {% endif %}
+      <div class="row">
+	<div class="col-12">
+          <h3 class="highlight">Ongoing elections</h3>
+          {% if potfels_to_vote_on %}
+            <h4>Nominations to vote on:</h4>
+            <div>
+              {% include 'colleges/_potentialfellowship_voting_table.html' with potfels_list=potfels_to_vote_on %}
+            </div>
+          {% endif %}
+          {% if potfels_voted_on %}
+            <h4>Nominations you have already voted on (you can revise your vote if you wish):</h4>
+            <div>
+              {% include 'colleges/_potentialfellowship_voting_table.html' with potfels_list=potfels_voted_on %}
+            </div>
+          {% endif %}
+	</div>
       </div>
-    </div>
     {% endif %}
-{% endif %}
+  {% endif %}
 
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">List of potential Fellowships</h3>
-    <a href="{% url 'colleges:potential_fellowships' %}">View all</a>
-    <br>
-    View by discipline/subject area:
-    <ul class="d-inline-block list-inline">
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">List of potential Fellowships</h3>
+      <a href="{% url 'colleges:potential_fellowships' %}">View all</a>
+      <br>
+      View by discipline/subject area:
+      <ul class="d-inline-block list-inline">
         <li class="list-inline-item">
         </li>
         {% for discipline in subject_areas %}
-            <li class="list-inline-item">
-              <div class="dropdown">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-              <a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
-              {% for area in discipline.1 %}
+          <li class="list-inline-item">
+            <div class="dropdown">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+		<a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+		{% for area in discipline.1 %}
                   <a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
-              {% endfor %}
-            </div>
+		{% endfor %}
               </div>
-            </li>
+            </div>
+          </li>
         {% endfor %}
-    </ul>
-    <div class="dropdown">
+      </ul>
+      <div class="dropdown">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter by status</button>
         <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonStatus">
-            <a class="dropdown-item" href="">View all</a>
-            {% for status in statuses %}
-                <a class="dropdown-item" href="?status={{ status.0 }}">{{ status.1 }}</a>
-            {% endfor %}
+          <a class="dropdown-item" href="">View all</a>
+          {% for status in statuses %}
+            <a class="dropdown-item" href="?status={{ status.0 }}">{{ status.1 }}</a>
+          {% endfor %}
         </div>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-12">
-    {% if view.kwargs.discipline or request.GET.status %}
-    <h3>Potential Fellowships {% if view.kwargs.discipline %}in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}{% endif %}{% if request.GET.status %} with status {{ request.GET.status }}{% endif %}:</h3>
-    <br/>
-    {% endif %}
-    <table class="table table-hover mb-5">
-      <thead class="thead-default">
-	<tr>
-	  <th>Name</th>
-	  <th>Discipline</th>
-	  <th>Expertises</th>
-	  <th>Status</th>
-	  <th>Latest event</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for potfel in object_list %}
-	<tr class="table-row" data-href="{% url 'colleges:potential_fellowship_detail' pk=potfel.id %}" target="_blank" style="cursor: pointer;">
-	  <td>{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</td>
-	  <td>{{ potfel.profile.get_discipline_display }}</td>
-	  <td>
-	    {% for expertise in potfel.profile.expertises %}
-            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
-	    {% endfor %}
-	  </td>
-	  <td style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}<br/><small>{% voting_results_display potfel %}</small></td>
-	  <td>{{ potfel.latest_event_details }}</td>
-	</tr>
-	{% empty %}
-	<tr>
-	  <td colspan="5">No Potential Fellowships found</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-
-    {% if is_paginated %}
+  <div class="row">
     <div class="col-12">
-      {% include 'partials/pagination.html' with page_obj=page_obj %}
-    </div>
-    {% endif %}
+      {% if view.kwargs.discipline or request.GET.status %}
+	<h3>Potential Fellowships {% if view.kwargs.discipline %}in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}{% endif %}{% if request.GET.status %} with status {{ request.GET.status }}{% endif %}:</h3>
+	<br/>
+      {% endif %}
+      <table class="table table-hover mb-5">
+	<thead class="thead-default">
+	  <tr>
+	    <th>Name</th>
+	    <th>Discipline</th>
+	    <th>Expertises</th>
+	    <th>Status</th>
+	    <th>Latest event</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for potfel in object_list %}
+	    <tr class="table-row" data-href="{% url 'colleges:potential_fellowship_detail' pk=potfel.id %}" target="_blank" style="cursor: pointer;">
+	      <td>{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</td>
+	      <td>{{ potfel.profile.get_discipline_display }}</td>
+	      <td>
+		{% for expertise in potfel.profile.expertises %}
+		  <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+		{% endfor %}
+	      </td>
+	      <td style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}<br/><small>{% voting_results_display potfel %}</small></td>
+	      <td>{{ potfel.latest_event_details }}</td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="5">No Potential Fellowships found</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
 
+      {% if is_paginated %}
+	<div class="col-12">
+	  {% include 'partials/pagination.html' with page_obj=page_obj %}
+	</div>
+      {% endif %}
+
+    </div>
   </div>
-</div>
 {% endblock content %}

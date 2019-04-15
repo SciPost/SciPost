@@ -3,27 +3,27 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
-    <a href="{{ fellowship.get_absolute_url }}" class="breadcrumb-item">Fellowship details</a>
-    <span class="breadcrumb-item">Remove Submission from Pool</span>
+  {{ block.super }}
+  <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
+  <a href="{{ fellowship.get_absolute_url }}" class="breadcrumb-item">Fellowship details</a>
+  <span class="breadcrumb-item">Remove Submission from Pool</span>
 {% endblock %}
 
 {% block pagetitle %}: Remove Submission from Fellowship{% endblock pagetitle %}
 
 {% block content %}
-    <h1>Remove Submission from Pool</h1>
-    <h2 class="text-primary">Fellowship {{ fellowship }}</h2>
+  <h1>Remove Submission from Pool</h1>
+  <h2 class="text-primary">Fellowship {{ fellowship }}</h2>
 
-    <h3>Submission details</h3>
-    {% include 'partials/submissions/submission_summary.html' with submission=submission %}
-    <br>
+  <h3>Submission details</h3>
+  {% include 'partials/submissions/submission_summary.html' with submission=submission %}
+  <br>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input class="btn btn-danger px-3" type="submit" value="Remove from Pool">
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <input class="btn btn-danger px-3" type="submit" value="Remove from Pool">
+  </form>
 
 
 {% endblock %}
