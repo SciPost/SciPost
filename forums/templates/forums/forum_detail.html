@@ -5,8 +5,8 @@
 {% load restructuredtext %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-<span class="breadcrumb-item">{% if forum.meeting %}Meeting{% else %}Forum{% endif %} Details</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">{% if forum.meeting %}Meeting{% else %}Forum{% endif %} Details</span>
 {% endblock %}
 
 {% load scipost_extras %}
@@ -17,159 +17,159 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <h2 class="highlight">
-      {% if forum.meeting %}
-      {% with context_colors=forum.meeting.context_colors %}
-      <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
-	{{ context_colors.message }}
-	<span class="small text-muted"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
-      </span>
-      {% endwith %}
-      <br/>
-      {% endif %}
-
-      <span class="d-flex flex-wrap justify-content-between">
-	<a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
-	<span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
-      </span>
-    </h2>
-
-    {% if forum.parent %}
-    <p>Parent: <a href="{{ forum.parent.get_absolute_url }}">{{ forum.parent }}</a></p>
-    {% endif %}
-    {% if forum.child_forums.all|length > 0 %}
-    <p>Descendants: {% for child in forum.child_forums.all %}<a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
-    {% endif %}
-
-    {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
-    <div class="container border border-danger m-2 p-2">
-    <h4>Admin actions:</h4>
-    <ul>
-      <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>
-      <li>
-	{% if not forum.child_forums.all|length > 0 %}
-	<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} (and all Posts {% if forum.meeting %}and Motions {% endif %}it contains)</a>
-	{% else %}
-	<span class="text-danger" style="text-decoration: line-through;">Delete this Forum</span> Please delete descendant Forums first.
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">
+	{% if forum.meeting %}
+	  {% with context_colors=forum.meeting.context_colors %}
+	    <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
+	      {{ context_colors.message }}
+	      <span class="small text-muted"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
+	    </span>
+	  {% endwith %}
+	  <br/>
 	{% endif %}
-      </li>
-      {% if not forum.meeting %}
-      <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
-      <li><a href="{% url 'forums:meeting_create' parent_model='forum' parent_id=forum.id %}">Create a Meeting within this Forum</a></li>
+
+	<span class="d-flex flex-wrap justify-content-between">
+	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
+	  <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+	</span>
+      </h2>
+
+      {% if forum.parent %}
+	<p>Parent: <a href="{{ forum.parent.get_absolute_url }}">{{ forum.parent }}</a></p>
       {% endif %}
-    </ul>
+      {% if forum.child_forums.all|length > 0 %}
+	<p>Descendants: {% for child in forum.child_forums.all %}<a href="{{ child.get_absolute_url }}">{{ child }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+      {% endif %}
 
-    <div class="card">
-      <div class="card-header">
-	Permissions on this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} instance
-	<button class="btn btn-link small" data-toggle="collapse" data-target="#permissionsCard">
-	View/manage</button>
-      </div>
-      <div class="card-body collapse" id="permissionsCard">
-	<p><a href="{% url 'forums:forum_permissions' slug=forum.slug %}">Grant permissions to a new group</a></p>
-	<p>Groups with permissions [click on the Group's name to manage permissions]:</p>
-	<ul>
-	  {% for group in groups_with_perms %}
-	  {% get_obj_perms group for forum as "group_perms" %}
-	  <li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
-	  {% empty %}
-	  <li>No group has permissions on this Forum</li>
-	  {% endfor %}
-	</ul>
+      {% if perms.forums.add_forum or "can_change_forum" in user_perms %}
+	<div class="container border border-danger m-2 p-2">
+	  <h4>Admin actions:</h4>
+	  <ul>
+	    <li><a href="{% url 'forums:forum_update' slug=forum.slug %}" class="text-warning">Update this {% if forum.meeting %}Meeting{% else %}Forum{% endif %}</a></li>
+	    <li>
+	      {% if not forum.child_forums.all|length > 0 %}
+		<a href="{% url 'forums:forum_delete' slug=forum.slug %}" class="text-danger">Delete this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} (and all Posts {% if forum.meeting %}and Motions {% endif %}it contains)</a>
+	      {% else %}
+		<span class="text-danger" style="text-decoration: line-through;">Delete this Forum</span> Please delete descendant Forums first.
+	      {% endif %}
+	    </li>
+	    {% if not forum.meeting %}
+	      <li><a href="{% url 'forums:forum_create' parent_model='forum' parent_id=forum.id %}">Create a (sub)Forum within this one</a></li>
+	      <li><a href="{% url 'forums:meeting_create' parent_model='forum' parent_id=forum.id %}">Create a Meeting within this Forum</a></li>
+	    {% endif %}
+	  </ul>
 
-	<p>Users with permissions:</p>
+	  <div class="card">
+	    <div class="card-header">
+	      Permissions on this {% if forum.meeting %}Meeting{% else %}Forum{% endif %} instance
+	      <button class="btn btn-link small" data-toggle="collapse" data-target="#permissionsCard">
+		View/manage</button>
+	    </div>
+	    <div class="card-body collapse" id="permissionsCard">
+	      <p><a href="{% url 'forums:forum_permissions' slug=forum.slug %}">Grant permissions to a new group</a></p>
+	      <p>Groups with permissions [click on the Group's name to manage permissions]:</p>
+	      <ul>
+		{% for group in groups_with_perms %}
+		  {% get_obj_perms group for forum as "group_perms" %}
+		  <li><a href="{% url 'forums:forum_permissions' slug=forum.slug group_id=group.id %}">{{ group.name }}</a>: {{ group_perms }}</li>
+		{% empty %}
+		  <li>No group has permissions on this Forum</li>
+		{% endfor %}
+	      </ul>
+
+	      <p>Users with permissions:</p>
+	      <ul>
+		{% for u in users_with_perms %}
+		  {% get_obj_perms u for forum as "u_perms" %}
+		  <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </div>
+	</div>
+      {% endif %}
+
+
+      <h2>Table of Contents</h2>
+      <div class="m-2">
 	<ul>
-	  {% for u in users_with_perms %}
-	  {% get_obj_perms u for forum as "u_perms" %}
-	  <li>{{ u.first_name }} {{ u.last_name }}: {{ u_perms }}</li>
-	  {% endfor %}
+	  <li><a href="#Description">Description</a></li>
+	  {% if forum.meeting %}
+	    <li><a href="#Preamble">Preamble</a></li>
+	    <li><a href="#Motions">Motions</a></li>
+	  {% endif %}
+	  <li><a href="#Posts">Posts</a></li>
+	  {% if forum.meeting %}
+	    <li><a href="#Minutes">Minutes</a></li>
+	  {% endif %}
 	</ul>
       </div>
     </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight" id="Description">Description</h2>
+      <div class="m-2">
+	{{ forum.descripteion|restructuredtext }}
+      </div>
     </div>
-    {% endif %}
+  </div>
 
+  {% if forum.meeting %}
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight" id="Preamble">Preamble</h2>
+	<div class="m-2">
+	  {{ forum.meeting.preamble|restructuredtext }}
+	</div>
+      </div>
+    </div>
 
-    <h2>Table of Contents</h2>
-    <div class="m-2">
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight" id="Motions">Motions</h2>
+	<ul>
+	  {% if forum.meeting.future %}
+	    <li>Adding Motions will be activated once the meeting starts</li>
+	  {% elif forum.meeting.past %}
+	    <li><span class="text-danger">Adding Motions is deactivated</span> (Meeting is over)</li>
+	  {% else %}
+	    <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Motion</a></li>
+	  {% endif %}
+	</ul>
+	{% for motion in forum.motions.all %}
+	  {% include 'forums/post_card.html' with forum=forum post=motion.post %}
+	{% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight" id="Posts">Posts</h2>
       <ul>
-	<li><a href="#Description">Description</a></li>
-	{% if forum.meeting %}
-	<li><a href="#Preamble">Preamble</a></li>
-	<li><a href="#Motions">Motions</a></li>
-	{% endif %}
-	<li><a href="#Posts">Posts</a></li>
-	{% if forum.meeting %}
-	<li><a href="#Minutes">Minutes</a></li>
-	{% endif %}
+	<li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
       </ul>
+
+      {% for post in forum.posts.motions_excluded %}
+	{% include 'forums/post_card.html' with forum=forum post=post %}
+      {% endfor %}
+
     </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-12">
-    <h2 class="highlight" id="Description">Description</h2>
-    <div class="m-2">
-      {{ forum.descripteion|restructuredtext }}
+  {% if forum.meeting %}
+    <div class="row">
+      <div class="col-12">
+	<h2 class="highlight" id="Minutes">Minutes</h2>
+	<div class="m-2">
+	  {{ forum.meeting.minutes|restructuredtext }}
+	</div>
+      </div>
     </div>
-  </div>
-</div>
-
-{% if forum.meeting %}
-<div class="row">
-  <div class="col-12">
-    <h2 class="highlight" id="Preamble">Preamble</h2>
-    <div class="m-2">
-      {{ forum.meeting.preamble|restructuredtext }}
-    </div>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-12">
-    <h2 class="highlight" id="Motions">Motions</h2>
-    <ul>
-      {% if forum.meeting.future %}
-      <li>Adding Motions will be activated once the meeting starts</li>
-      {% elif forum.meeting.past %}
-      <li><span class="text-danger">Adding Motions is deactivated</span> (Meeting is over)</li>
-      {% else %}
-      <li><a href="{% url 'forums:motion_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Motion</a></li>
-      {% endif %}
-    </ul>
-    {% for motion in forum.motions.all %}
-    {% include 'forums/post_card.html' with forum=forum post=motion.post %}
-    {% endfor %}
-  </div>
-</div>
-{% endif %}
-
-<div class="row">
-  <div class="col-12">
-    <h2 class="highlight" id="Posts">Posts</h2>
-    <ul>
-      <li><a href="{% url 'forums:post_create' slug=forum.slug parent_model='forum' parent_id=forum.id %}">Add a new Post</a></li>
-    </ul>
-
-    {% for post in forum.posts.motions_excluded %}
-    {% include 'forums/post_card.html' with forum=forum post=post %}
-    {% endfor %}
-
-  </div>
-</div>
-
-{% if forum.meeting %}
-<div class="row">
-  <div class="col-12">
-    <h2 class="highlight" id="Minutes">Minutes</h2>
-    <div class="m-2">
-      {{ forum.meeting.minutes|restructuredtext }}
-    </div>
-  </div>
-</div>
-{% endif %}
+  {% endif %}
 
 {% endblock content %}

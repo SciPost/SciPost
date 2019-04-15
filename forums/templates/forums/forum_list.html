@@ -5,8 +5,8 @@
 
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item">Forums</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Forums</span>
 {% endblock %}
 
 
@@ -14,80 +14,80 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
+  <div class="row">
+    <div class="col-12">
 
-    <h3 class="highlight">Forums</h3>
-    {% if perms.forums.can_add_forum %}
-    <ul>
-      <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
-      <li><a href="{% url 'forums:meeting_create' %}">Create a new Meeting</a></li>
-    </ul>
-    {% endif %}
+      <h3 class="highlight">Forums</h3>
+      {% if perms.forums.can_add_forum %}
+	<ul>
+	  <li><a href="{% url 'forums:forum_create' %}">Create a new Forum</a></li>
+	  <li><a href="{% url 'forums:meeting_create' %}">Create a new Meeting</a></li>
+	</ul>
+      {% endif %}
 
-    <div class="card-columns">
-      {% for forum in object_list %}
-      <div class="card">
-	<div class="card-header">
-	  {% if forum.meeting %}
-	  {% with context_colors=forum.meeting.context_colors %}
-	  <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
-	  {% endwith %}
-	  <br/>
-	  {% endif %}
-	  <span class="d-flex flex-wrap justify-content-between">
-	    <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
-	    <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
-	  </span>
-	</div>
-	<div class="card-body">
-	  {{ forum.description|restructuredtext }}
-	  {% if forum.child_forums.all|length > 0 %}
-	  <hr/>
-	  <p>Descendants:</p>
-	  <ul class="list-unstyled forumList">
-	    {% for child in forum.child_forums.all %}
-	    {% include 'forums/forum_as_li.html' with forum=child %}
-	    {% endfor %}
-	  </ul>
-	  {% endif %}
-	</div>
+      <div class="card-columns">
+	{% for forum in object_list %}
+	  <div class="card">
+	    <div class="card-header">
+	      {% if forum.meeting %}
+		{% with context_colors=forum.meeting.context_colors %}
+		  <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
+		{% endwith %}
+		<br/>
+	      {% endif %}
+	      <span class="d-flex flex-wrap justify-content-between">
+		<a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
+		<span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+	      </span>
+	    </div>
+	    <div class="card-body">
+	      {{ forum.description|restructuredtext }}
+	      {% if forum.child_forums.all|length > 0 %}
+		<hr/>
+		<p>Descendants:</p>
+		<ul class="list-unstyled forumList">
+		  {% for child in forum.child_forums.all %}
+		    {% include 'forums/forum_as_li.html' with forum=child %}
+		  {% endfor %}
+		</ul>
+	      {% endif %}
+	    </div>
+	  </div>
+	{% empty %}
+	  <p>No visible Forums found.</p>
+	{% endfor %}
       </div>
-      {% empty %}
-      <p>No visible Forums found.</p>
-      {% endfor %}
     </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">Latest postings</h3>
-    <table class="table">
-      <thead class="thead-default">
-	<tr>
-	  <th>Forum</th>
-	  <th>Latest post</th>
-	  <th>Posted on</th>
-	  <th>Nr posts</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for forum in object_list %}
-	<tr>
-	  <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
-	  <td>{{ forum.latest_post }}</td>
-	  <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
-	  <td><span class="badge badge-primary badge-pill">{{ forum.nr_posts }}</span></td>
-	</tr>
-	{% empty %}
-	<tr>
-	  <td>No visible Posts found.</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">Latest postings</h3>
+      <table class="table">
+	<thead class="thead-default">
+	  <tr>
+	    <th>Forum</th>
+	    <th>Latest post</th>
+	    <th>Posted on</th>
+	    <th>Nr posts</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for forum in object_list %}
+	    <tr>
+	      <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
+	      <td>{{ forum.latest_post }}</td>
+	      <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
+	      <td><span class="badge badge-primary badge-pill">{{ forum.nr_posts }}</span></td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td>No visible Posts found.</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+    </div>
   </div>
-</div>
 
 {% endblock content %}
