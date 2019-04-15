@@ -6,30 +6,30 @@
 
 {% block content %}
 
-    {% if header_template %}
-        {% include header_template with object=object %}
-        <hr class="divider">
-        <h2 class="highlight">Complete and send mail</h2>
-    {% else %}
-        <h1 class="highlight">Complete and send mail</h1>
-    {% endif %}
-    <h3 class="mb-4">You may edit the mail before sending it.</h3>
+  {% if header_template %}
+    {% include header_template with object=object %}
+    <hr class="divider">
+    <h2 class="highlight">Complete and send mail</h2>
+  {% else %}
+    <h1 class="highlight">Complete and send mail</h1>
+  {% endif %}
+  <h3 class="mb-4">You may edit the mail before sending it.</h3>
 
-    <form enctype="multipart/form-data" method="post">
-        {% csrf_token %}
-        {% if transfer_data_form %}{{ transfer_data_form }}{% endif %}
-        {{ form|bootstrap }}
-        <div class="form-group row">
-            <div class="offset-md-2 col-md-10">
-                <input class="btn btn-outline-secondary mr-2" type="reset" value="Reset to default">
-                <button class="btn btn-primary mr-2" type="submit" name="save" value="send_from_editor">Send mail</button>
-            </div>
-        </div>
-    </form>
+  <form enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% if transfer_data_form %}{{ transfer_data_form }}{% endif %}
+    {{ form|bootstrap }}
+    <div class="form-group row">
+      <div class="offset-md-2 col-md-10">
+        <input class="btn btn-outline-secondary mr-2" type="reset" value="Reset to default">
+        <button class="btn btn-primary mr-2" type="submit" name="save" value="send_from_editor">Send mail</button>
+      </div>
+    </div>
+  </form>
 {% endblock content %}
 
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ form.media }}
+  {{ block.super }}
+  {{ form.media }}
 {% endblock footer_script %}
