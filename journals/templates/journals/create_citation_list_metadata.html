@@ -3,28 +3,28 @@
 {% block pagetitle %}: Create citation list metadata{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-                <span class="breadcrumb-item active">Create citation list metadata</span>
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+        <span class="breadcrumb-item active">Create citation list metadata</span>
+      </nav>
     </div>
+  </div>
 {% endblock %}
 
 {% load bootstrap %}
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <h1 class="highlight">Create citation list metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
-    <p>
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Create citation list metadata page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+      <p>
         The following field is prefilled with the current citation list of the Publication object. Once you submit, it will overwrite the current citation list, shown below.
-    </p>
-    <br>
+      </p>
+      <br>
 
       <form action="{% url 'journals:create_citation_list_metadata' publication.doi_label %}" method="post">
         {% csrf_token %}
@@ -45,6 +45,6 @@
         {% endfor %}
       </table>
     </div>
-</div>
+  </div>
 
 {% endblock %}

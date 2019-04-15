@@ -3,93 +3,93 @@
 
 {% block breadcrumb %}{% endblock %}
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
+  {{block.super}}
+  <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
 {% endblock %}
 
 {% block content %}
-{{ block.super }}
-    <div class="row">
-        <div class="col-12">
-            <ul class="nav nav-tabs" id="journals-about-tab" role="tablist">
-              <li class="nav-item">
-                  <a class="nav-link active" id="latest-tab" data-toggle="tab" href="#latest" role="tab" aria-controls="latest" aria-selected="true">Latest publications</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link" id="accepted-tab" data-toggle="tab" href="#accepted" role="tab" aria-controls="accepted" aria-selected="true">Accepted Submissions</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" id="most-cited-tab" data-toggle="tab" href="#most-cited" role="tab" aria-controls="most-cited" aria-selected="true">Most cited</a>
-              </li>
-              {% if journal.has_issues %}
-                  <li class="nav-item">
-                    <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="true">Issues</a>
-                  </li>
-              {% endif %}
-             </ul>
-             <div class="tab-content" id="journals-about">
-                <div class="tab-pane show active pt-4" id="latest" role="tabpanel" aria-labelledby="latest-tab">
-                    <ul class="list-unstyled mt-2">
-                        {% for publication in latest_publications %}
-                            <li>
-                                <div class="card bg-light card-publication">
-                                    {% include 'journals/_publication_card_content.html' with publication=publication %}
-                                </div>
-                            </li>
-                        {% empty %}
-                            <li><em>No match found for your search query.</em></li>
-                        {% endfor %}
-                        <a href="{% url 'journals:publications' %}?journal={{ journal.name }}" class="btn btn-link">See all Publications in {{ journal }}</a>
-                    </ul>
+  {{ block.super }}
+  <div class="row">
+    <div class="col-12">
+      <ul class="nav nav-tabs" id="journals-about-tab" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="latest-tab" data-toggle="tab" href="#latest" role="tab" aria-controls="latest" aria-selected="true">Latest publications</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="accepted-tab" data-toggle="tab" href="#accepted" role="tab" aria-controls="accepted" aria-selected="true">Accepted Submissions</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="most-cited-tab" data-toggle="tab" href="#most-cited" role="tab" aria-controls="most-cited" aria-selected="true">Most cited</a>
+        </li>
+        {% if journal.has_issues %}
+          <li class="nav-item">
+            <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="true">Issues</a>
+          </li>
+        {% endif %}
+      </ul>
+      <div class="tab-content" id="journals-about">
+        <div class="tab-pane show active pt-4" id="latest" role="tabpanel" aria-labelledby="latest-tab">
+          <ul class="list-unstyled mt-2">
+            {% for publication in latest_publications %}
+              <li>
+                <div class="card bg-light card-publication">
+                  {% include 'journals/_publication_card_content.html' with publication=publication %}
                 </div>
-                <div class="tab-pane pt-4" id="accepted" role="tabpanel" aria-labelledby="accepted-tab">
-                    <ul class="list-group list-group-flush mt-2">
-                        {% for submission in accepted_submissions %}
-                            <li class="list-group-item">
-                                <div class="card-body px-0">
-                                    {% include 'partials/submissions/submission_card_content.html' with submission=submission %}
-                                </div>
-                            </li>
-                        {% empty %}
-                            <li class="list-group-item">
-                                <p>All recently accepted Submissions to SciPost Physics have been published.</p>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="tab-pane pt-4" id="most-cited" role="tabpanel" aria-labelledby="most-cited-tab">
-                   <ul class="list-unstyled mt-2">
-                       {% for publication in most_cited %}
-                           <li>
-                               <div class="card bg-light card-publication">
-                                   {% include 'journals/_publication_card_content.html' with publication=publication include_citation_rate=1 %}
-                               </div>
-                           </li>
-                       {% empty %}
-                           <li><em>No match found for your search query.</em></li>
-                       {% endfor %}
-                   </ul>
-               </div>
-               {% if journal.has_issues %}
-                   <div class="tab-pane pt-4" id="issues" role="tabpanel" aria-labelledby="issues-tab">
-                      <ul>
-                          {% for issue in journal.get_issues %}
-                              <li>
-                                  <a href="{{issue.get_absolute_url}}">{{issue}}</a>
-                                  {% if issue.proceedings %}
-                                      {% include 'partials/proceedings/proceedings_li.html' with proceedings=issue.proceedings %}
-                                  {% endif %}
-                              </li>
-                          {% empty %}
-                              <li>
-                                  No Issues found, please check back later.
-                              </li>
-                          {% endfor %}
-                      </ul>
-                  </div>
-              {% endif %}
-            </div>
+              </li>
+            {% empty %}
+              <li><em>No match found for your search query.</em></li>
+            {% endfor %}
+            <a href="{% url 'journals:publications' %}?journal={{ journal.name }}" class="btn btn-link">See all Publications in {{ journal }}</a>
+          </ul>
         </div>
+        <div class="tab-pane pt-4" id="accepted" role="tabpanel" aria-labelledby="accepted-tab">
+          <ul class="list-group list-group-flush mt-2">
+            {% for submission in accepted_submissions %}
+              <li class="list-group-item">
+                <div class="card-body px-0">
+                  {% include 'partials/submissions/submission_card_content.html' with submission=submission %}
+                </div>
+              </li>
+            {% empty %}
+              <li class="list-group-item">
+                <p>All recently accepted Submissions to SciPost Physics have been published.</p>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="tab-pane pt-4" id="most-cited" role="tabpanel" aria-labelledby="most-cited-tab">
+          <ul class="list-unstyled mt-2">
+            {% for publication in most_cited %}
+              <li>
+                <div class="card bg-light card-publication">
+                  {% include 'journals/_publication_card_content.html' with publication=publication include_citation_rate=1 %}
+                </div>
+              </li>
+            {% empty %}
+              <li><em>No match found for your search query.</em></li>
+            {% endfor %}
+          </ul>
+        </div>
+        {% if journal.has_issues %}
+          <div class="tab-pane pt-4" id="issues" role="tabpanel" aria-labelledby="issues-tab">
+            <ul>
+              {% for issue in journal.get_issues %}
+                <li>
+                  <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+                  {% if issue.proceedings %}
+                    {% include 'partials/proceedings/proceedings_li.html' with proceedings=issue.proceedings %}
+                  {% endif %}
+                </li>
+              {% empty %}
+                <li>
+                  No Issues found, please check back later.
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 
 {% endblock %}

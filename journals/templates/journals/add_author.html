@@ -3,16 +3,16 @@
 {% block pagetitle %}: add author to publication{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
-                <span class="breadcrumb-item active">Add author to publication</span>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+        <span class="breadcrumb-item active">Add author to publication</span>
 
-            </nav>
-        </div>
+      </nav>
     </div>
+  </div>
 {% endblock %}
 
 {% load scipost_extras %}
@@ -20,25 +20,25 @@
 
 {% block content %}
 
-<h1 class="highlight">Add author to publication</h1>
-{% include 'partials/journals/publication_li_content.html' with publication=publication %}
-<br>
+  <h1 class="highlight">Add author to publication</h1>
+  {% include 'partials/journals/publication_li_content.html' with publication=publication %}
+  <br>
 
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h3>Current list of authors</h3>
       <ul>
         {% for author in publication.authors.all %}
-        <li>
-          {% if author.is_registered %}
-          <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.contributor }}</a>
-          {% else %}
-          <a href="{{ author.profile }}">{{ author.profile }}</a>
-          {% endif %}
-        </li>
+          <li>
+            {% if author.is_registered %}
+              <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.contributor }}</a>
+            {% else %}
+              <a href="{{ author.profile }}">{{ author.profile }}</a>
+            {% endif %}
+          </li>
         {% empty %}
-        <li>No authors known.</li>
+          <li>No authors known.</li>
         {% endfor %}
       </ul>
 
@@ -59,14 +59,14 @@
 	</div>
       </div>
     </div>
-</div>
+  </div>
 
-<p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
+  <p>Return to the <a href="{{publication.get_absolute_url}}">publication's page</a> or to the <a href="{% url 'journals:manage_metadata' %}">general metadata management page</a>.</p>
 
 
 {% endblock content %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ form.media }}
+  {{ block.super }}
+  {{ form.media }}
 {% endblock footer_script %}

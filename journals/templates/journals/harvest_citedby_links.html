@@ -5,19 +5,19 @@
 {% block content %}
 
 
-<div class="row">
-      <div class="col-12">
-        <h1>Cited-by links</h1>
+  <div class="row">
+    <div class="col-12">
+      <h1>Cited-by links</h1>
 
       {% if errormessage %}
-      <h2 style="color: red;">{{ errormessage }}</h2>
+	<h2 style="color: red;">{{ errormessage }}</h2>
       {% endif %}
 
       <h3>Citations</h3>
       <div class="p-2">
-      {% for cit in publication.citedby %}
-        {{ cit }}
-      {% endfor %}
+	{% for cit in publication.citedby %}
+          {{ cit }}
+	{% endfor %}
       </div>
 
       <h3>Return to:</h3>
@@ -26,7 +26,7 @@
       	<li><a href="{% url 'journals:manage_metadata' %}">the metadata management page</a></li>
       </ul>
     </div>
-</div>
+  </div>
 
 
 {% endblock content %}

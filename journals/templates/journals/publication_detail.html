@@ -11,71 +11,71 @@
 {% block body_class %}{{ block.super }} publication{% endblock %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
-    {% if publication.in_issue %}
-        <a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
-    {% endif %}
-    <span class="breadcrumb-item active">{{publication.title}}</span>
+  {{block.super}}
+  <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
+  {% if publication.in_issue %}
+    <a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
+  {% endif %}
+  <span class="breadcrumb-item active">{{publication.title}}</span>
 {% endblock %}
 
 {% block headsup %}
 
-    <meta name="citation_title" content="{{ publication.title }}"/>
-    {% for author in publication.authors.all %}
+  <meta name="citation_title" content="{{ publication.title }}"/>
+  {% for author in publication.authors.all %}
     <meta name="citation_author" content="{{ author.profile.last_name }}, {{ author.profile.first_name }}"/>
-    {% endfor %}
-    <meta name="citation_doi" content="{{ publication.doi_string }}"/>
-    <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
-    <meta name="citation_journal_title" content="{{ journal }}"/>
-    <meta name="citation_issn" content="{{ journal.issn }}"/>
-    {% if publication.in_issue %}
-        <meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
-        <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
-    {% endif %}
-    <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
-    <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
-    <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
+  {% endfor %}
+  <meta name="citation_doi" content="{{ publication.doi_string }}"/>
+  <meta name="citation_publication_date" content="{{ publication.publication_date|date:'Y/m/d' }}"/>
+  <meta name="citation_journal_title" content="{{ journal }}"/>
+  <meta name="citation_issn" content="{{ journal.issn }}"/>
+  {% if publication.in_issue %}
+    <meta name="citation_volume" content="{{ publication.in_issue.in_volume.number }}"/>
+    <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
+  {% endif %}
+  <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
+  <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
+  <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
 
-    <script>
-      $(document).ready(function(){
-          $("#citationslist").hide();
+  <script>
+   $(document).ready(function(){
+       $("#citationslist").hide();
 
-          $("#citationslistbutton").click(function(){
-              $("#citationslist").toggle();
-          });
-      });
-    </script>
+       $("#citationslistbutton").click(function(){
+           $("#citationslist").toggle();
+       });
+   });
+  </script>
 
 {% endblock headsup %}
 
 {% block content %}
-    {% is_scipost_admin request.user as is_scipost_admin %}
-    {% is_edcol_admin request.user as is_edcol_admin %}
+  {% is_scipost_admin request.user as is_scipost_admin %}
+  {% is_edcol_admin request.user as is_edcol_admin %}
 
-    {{ block.super }}
+  {{ block.super }}
 
-    {% if not publication.is_published and perms.can_publish_accepted_submission %}
-        <div class="card bg-warning text-white mb-3">
-          <div class="card-body">
-            <p class="card-text text-center">
-              This Publication is not published yet.
-              Current status: {{ publication.get_status_display }}
-            </p>
-          </div>
-        </div>
-    {% endif %}
+  {% if not publication.is_published and perms.can_publish_accepted_submission %}
+    <div class="card bg-warning text-white mb-3">
+      <div class="card-body">
+        <p class="card-text text-center">
+          This Publication is not published yet.
+          Current status: {{ publication.get_status_display }}
+        </p>
+      </div>
+    </div>
+  {% endif %}
 
-    {% include 'partials/journals/publication_summary.html' with publication=publication %}
+  {% include 'partials/journals/publication_summary.html' with publication=publication %}
 
-    {% if publication.commentary and publication.commentary.comments.vetted.exists %}
+  {% if publication.commentary and publication.commentary.comments.vetted.exists %}
     <h3>Post-publication commentaries</h3>
     <p>
       This Publication ({{ publication.commentary.comments.vetted.count }}) has been commented on, see <a href="{{ publication.commentary.get_absolute_url }}">this Publication's Commentary page</a> for details.
     </p>
-    {% endif %}
+  {% endif %}
 
-    {% if publication.citedby|length >= 1 %}
+  {% if publication.citedby|length >= 1 %}
 
     <div class="row">
       <div class="col-6 col-md-2">
@@ -91,70 +91,70 @@
         {% include 'journals/_publication_citations.html' with publication=publication %}
       </div>
     </div>
-    {% endif %}
-    <hr class="mt-5 mb-4"/>
+  {% endif %}
+  <hr class="mt-5 mb-4"/>
 
-    {% if publication.topics.all or perms.scipost.can_manage_ontology %}
-        <h3 class="mt-2">Ontology / Topics</h3>
-        See full <a href="{% url 'ontology:ontology' %}">Ontology</a> or <a href="{% url 'ontology:topics' %}">Topics</a> database.
-        <br>
-        <br>
-
-        <div>
-          {% for topic in publication.topics.all %}
-              <span class="label label-secondary"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'journals:publication_remove_topic' doi_label=publication.doi_label slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</span>
-          {% empty %}
-              <div>No Topic has yet been associated to this Publication</div>
-          {% endfor %}
-        </div>
-
-        {% if perms.scipost.can_manage_ontology %}
-
-                <br>
-                <ul class="list-inline">
-                  <li class="list-inline-item">
-                	<form class="form-inline" action="{% url 'journals:publication_add_topic' doi_label=publication.doi_label %}" method="post">
-                	  <ul class="list-inline">
-                	    <li class="list-inline-item">Add an existing Topic:</li>
-                	    <li class="list-inline-item">{% csrf_token %}{{ select_topic_form }}</li>
-                	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Link"></li>
-                	  </ul>
-                	</form>
-                  </li>
-                  <li class="list-inline-item p-2">Can't find the Topic you need? <a href="{% url 'ontology:topic_create' %}" target="_blank">Create it</a> (opens in new window)</li>
-                </ul>
-        {% endif %}
-
-    {% endif %}
-
-    <h3 class="mt-4">
-        Author{{ publication.authors.all|length|pluralize }} / Affiliation{{ affiliations_list|length|pluralize }}: mappings to Contributors and Organizations
-    </h3>
-    See all <a href="{% url 'organizations:organizations' %}" target="_blank">Organizations</a>.
+  {% if publication.topics.all or perms.scipost.can_manage_ontology %}
+    <h3 class="mt-2">Ontology / Topics</h3>
+    See full <a href="{% url 'ontology:ontology' %}">Ontology</a> or <a href="{% url 'ontology:topics' %}">Topics</a> database.
+    <br>
     <br>
 
-    <ul class="list-inline my-2">
-      {% for author in publication.authors.all %}
+    <div>
+      {% for topic in publication.topics.all %}
+        <span class="label label-secondary"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'journals:publication_remove_topic' doi_label=publication.doi_label slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</span>
+      {% empty %}
+        <div>No Topic has yet been associated to this Publication</div>
+      {% endfor %}
+    </div>
+
+    {% if perms.scipost.can_manage_ontology %}
+
+      <br>
+      <ul class="list-inline">
+        <li class="list-inline-item">
+          <form class="form-inline" action="{% url 'journals:publication_add_topic' doi_label=publication.doi_label %}" method="post">
+            <ul class="list-inline">
+              <li class="list-inline-item">Add an existing Topic:</li>
+              <li class="list-inline-item">{% csrf_token %}{{ select_topic_form }}</li>
+              <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Link"></li>
+            </ul>
+          </form>
+        </li>
+        <li class="list-inline-item p-2">Can't find the Topic you need? <a href="{% url 'ontology:topic_create' %}" target="_blank">Create it</a> (opens in new window)</li>
+      </ul>
+    {% endif %}
+
+  {% endif %}
+
+  <h3 class="mt-4">
+    Author{{ publication.authors.all|length|pluralize }} / Affiliation{{ affiliations_list|length|pluralize }}: mappings to Contributors and Organizations
+  </h3>
+  See all <a href="{% url 'organizations:organizations' %}" target="_blank">Organizations</a>.
+  <br>
+
+  <ul class="list-inline my-2">
+    {% for author in publication.authors.all %}
       <li class="list-inline-item mr-1">
         {% for aff in affiliations_list %}
-        {% if aff in author.affiliations.all %}
-        <sup>{{ forloop.counter }} </sup>
-        {% endif %}
+          {% if aff in author.affiliations.all %}
+            <sup>{{ forloop.counter }} </sup>
+          {% endif %}
         {% endfor %}
         {% if author.is_registered %}
-        <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
-        {% endif %}
+          <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
+          {% endif %}
       </li>
-      {% endfor %}
-    </ul>
+    {% endfor %}
+  </ul>
 
-    <ul class="list list-unstyled my-2 mx-3">
-      {% for aff in affiliations_list %}
-          <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.full_name_with_acronym }}</a></li>
-      {% endfor %}
-    </ul>
+  <ul class="list list-unstyled my-2 mx-3">
+    {% for aff in affiliations_list %}
+      <li><sup>{{ forloop.counter }}</sup>&nbsp;<a href="{{ aff.get_absolute_url }}">{{ aff.full_name_with_acronym }}</a></li>
+    {% endfor %}
+  </ul>
 
-    {% if publication.get_all_funders %}
+  {% if publication.get_all_funders %}
     <div class="card">
       <div class="card-header">
         Funder{{ publication.get_all_funders|length|pluralize }} for the research work leading to this publication
@@ -162,50 +162,50 @@
       <div class="card-content">
         <ul class="m-2">
           {% for funder in publication.get_all_funders %}
-              {% if funder.organization %}
-                  {% if funder.name != funder.organization.name and funder.name != funder.organization.name_original %}
-                      <li>{{ funder }} (through Organization: <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a>)</li>
-                  {% else %}
-                      <li><a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a></li>
-                  {% endif %}
+            {% if funder.organization %}
+              {% if funder.name != funder.organization.name and funder.name != funder.organization.name_original %}
+                <li>{{ funder }} (through Organization: <a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a>)</li>
               {% else %}
-                  <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+                <li><a href="{{ funder.organization.get_absolute_url }}">{{ funder.organization.full_name_with_acronym }}</a></li>
               {% endif %}
+            {% else %}
+              <li><a href="{{ funder.get_absolute_url }}">{{ funder }}</a></li>
+            {% endif %}
           {% endfor %}
         </ul>
       </div>
     </div>
-    {% endif %}
+  {% endif %}
 
-    {% if publication.status == 'draft' and perms.scipost.can_draft_publication %}
-        <hr class="divider">
-        <div class="row">
-          <div class="col-12">
-            {% include 'partials/journals/publication_preparation.html' with publication=publication %}
-          </div>
-        </div>
-    {% endif %}
-    {% if is_edcol_admin %}
-        <hr class="divider">
-        <div class="row">
-          <div class="col-12">
-            <h3>Editorial Administration tools</h3>
-            {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
-          </div>
-        </div>
-    {% endif %}
+  {% if publication.status == 'draft' and perms.scipost.can_draft_publication %}
+    <hr class="divider">
+    <div class="row">
+      <div class="col-12">
+        {% include 'partials/journals/publication_preparation.html' with publication=publication %}
+      </div>
+    </div>
+  {% endif %}
+  {% if is_edcol_admin %}
+    <hr class="divider">
+    <div class="row">
+      <div class="col-12">
+        <h3>Editorial Administration tools</h3>
+        {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
+      </div>
+    </div>
+  {% endif %}
 
 
-    {% if request.user.contributor in publication.registered_authors.all %}
-        <h3>Author actions</h3>
-        <ul>
-            <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
-        </ul>
-    {% endif %}
+  {% if request.user.contributor in publication.registered_authors.all %}
+    <h3>Author actions</h3>
+    <ul>
+      <li><a href="{% url 'commentaries:comment_on_publication' publication.doi_label %}">Place a comment on this publication</a></li>
+    </ul>
+  {% endif %}
 
 {% endblock content %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ select_topic_form.media }}
+  {{ block.super }}
+  {{ select_topic_form.media }}
 {% endblock footer_script %}

@@ -7,117 +7,117 @@
 {% load journals_extras %}
 
 <script>
-$(function() {
-$( "#accordion" ).accordion({
-event: "focusin"
-});
-});
+ $(function() {
+     $( "#accordion" ).accordion({
+	 event: "focusin"
+     });
+ });
 </script>
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Manage Report metadata</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Manage Report metadata</span>
 {% endblock %}
 
 {% block content %}
-<h1 class="highlight">Manage Report metadata</h1>
+  <h1 class="highlight">Manage Report metadata</h1>
 
-<ul>
-  <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
-  <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-  <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
-  <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-  <li><a href="{% url 'journals:manage_report_metadata' %}" class="active">Manage Report metadata</a></li>
-</ul>
+  <ul>
+    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
+    <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+    <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
+    <li><a href="{% url 'journals:manage_report_metadata' %}" class="active">Manage Report metadata</a></li>
+  </ul>
 
-<h2 class="mt-4">Reports</h2>
-{% if request.GET.needing_update == '1' %}
-  <p>
-    Only Reports needing an update are shown below. <a href="{% url 'journals:manage_report_metadata' %}?needing_update=0" method="GET">View all Reports instead</a>.
-  </p>
-{% else %}
+  <h2 class="mt-4">Reports</h2>
+  {% if request.GET.needing_update == '1' %}
+    <p>
+      Only Reports needing an update are shown below. <a href="{% url 'journals:manage_report_metadata' %}?needing_update=0" method="GET">View all Reports instead</a>.
+    </p>
+  {% else %}
     <p>
       <a href="{% url 'journals:manage_report_metadata' %}?needing_update=1" method="GET">Only view Reports needing an update</a>.
     </p>
-{% endif %}
+  {% endif %}
 
-<table class="table table-hover">
-  <thead class="thead-light">
-    <tr>
-      <th>Submission</th>
-      <th>Associated doi</th>
-      <th>Report nr</th>
-      <th>Needs own doi</th>
-      <th>own doi</th>
-      <th>Latest successful Crossref deposit</th>
-      <th>Deposit needs updating?</th>
-    </tr>
-  </thead>
+  <table class="table table-hover">
+    <thead class="thead-light">
+      <tr>
+	<th>Submission</th>
+	<th>Associated doi</th>
+	<th>Report nr</th>
+	<th>Needs own doi</th>
+	<th>own doi</th>
+	<th>Latest successful Crossref deposit</th>
+	<th>Deposit needs updating?</th>
+      </tr>
+    </thead>
 
-  <tbody id="accordion" role="tablist" aria-multiselectable="true">
-    {% for report in reports %}
-    <tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
-      <td>{{ report.submission.preprint.identifier_w_vn_nr }}</td>
-      <td>{{ report.associated_published_doi }}</td>
-      <td>{{ report.report_nr }}</td>
-      <td>{{ report.needs_doi|yesno:'Yes,No,-' }}</td>
-      <td>{{ report.doi_label }}</td>
-      <td>{{ report|latest_successful_crossref_deposit_report }}</td>
-      <td>{{ report.doideposit_needs_updating|yesno:'Yes,No,-' }}</td>
-    </tr>
-    <tr id="collapse{{ report.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ report.id }}" style="background-color: #fff;">
-      <td colspan="3">
-    	<p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.preprint.identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }}</a></p>
+    <tbody id="accordion" role="tablist" aria-multiselectable="true">
+      {% for report in reports %}
+	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
+	  <td>{{ report.submission.preprint.identifier_w_vn_nr }}</td>
+	  <td>{{ report.associated_published_doi }}</td>
+	  <td>{{ report.report_nr }}</td>
+	  <td>{{ report.needs_doi|yesno:'Yes,No,-' }}</td>
+	  <td>{{ report.doi_label }}</td>
+	  <td>{{ report|latest_successful_crossref_deposit_report }}</td>
+	  <td>{{ report.doideposit_needs_updating|yesno:'Yes,No,-' }}</td>
+	</tr>
+	<tr id="collapse{{ report.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ report.id }}" style="background-color: #fff;">
+	  <td colspan="3">
+    	    <p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.preprint.identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }}</a></p>
 
-    	<h2 class="ml-3">Actions</h2>
-        <ul>
-    	  <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
+    	    <h2 class="ml-3">Actions</h2>
+            <ul>
+    	      <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
               <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
-    	  <li><a href="{% url 'journals:email_object_made_citable' type_of_object='report' object_id=report.id %}">Email report author: made citable</a>
-    	</ul>
+    	      <li><a href="{% url 'journals:email_object_made_citable' type_of_object='report' object_id=report.id %}">Email report author: made citable</a>
+    	    </ul>
 
-    </td>
-    <td colspan="4">
-    	<h3 class="mt-4">Crossref Deposits</h3>
-    	<table class="table table-sm bg-white">
-    	  <thead class="thead-light">
-    	    <th>Timestamp</th>
-    	    <th>batch id</th>
-    	    <th>deposition date</th>
-    	    <th>Successful?</th>
-    	    <th>actions</th>
-    	  </thead>
-    	  <tbody>
-    	    {% for deposit in report.genericdoideposit.all %}
-    	    <tr>
-    	      <td>{{ deposit.timestamp }}</td>
-    	      <td>{{ deposit.doi_batch_id }}</td>
-    	      <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
-    	      <td>{{ deposit.deposit_successful|yesno:'Yes,No,-' }}</td>
-    	      <td>Mark deposit as
-        		<ul>
-        		  <li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
-        		  <li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
-        		</ul>
-    	      </td>
-    	    </tr>
-    	    {% empty %}
-    	    <tr>
-    	      <td colspan="5">No Deposits found for this Report</td>
-    	    </tr>
-    	    {% endfor %}
-    	  </tbody>
-    	</table>
+	  </td>
+	  <td colspan="4">
+    	    <h3 class="mt-4">Crossref Deposits</h3>
+    	    <table class="table table-sm bg-white">
+    	      <thead class="thead-light">
+    		<th>Timestamp</th>
+    		<th>batch id</th>
+    		<th>deposition date</th>
+    		<th>Successful?</th>
+    		<th>actions</th>
+    	      </thead>
+    	      <tbody>
+    		{% for deposit in report.genericdoideposit.all %}
+    		  <tr>
+    		    <td>{{ deposit.timestamp }}</td>
+    		    <td>{{ deposit.doi_batch_id }}</td>
+    		    <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+    		    <td>{{ deposit.deposit_successful|yesno:'Yes,No,-' }}</td>
+    		    <td>Mark deposit as
+        	      <ul>
+        		<li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+        		<li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+        	      </ul>
+    		    </td>
+    		  </tr>
+    		{% empty %}
+    		  <tr>
+    		    <td colspan="5">No Deposits found for this Report</td>
+    		  </tr>
+    		{% endfor %}
+    	      </tbody>
+    	    </table>
 
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+	  </td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-<div class="col-12">
+  <div class="col-12">
     {% include 'partials/pagination.html' with page_obj=page_obj %}
-</div>
+  </div>
 
 
 {% endblock content %}

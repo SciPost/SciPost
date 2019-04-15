@@ -5,44 +5,44 @@
 {% block pagetitle %}: Update References{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
-                <span class="breadcrumb-item active">Update References</span>
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+        <span class="breadcrumb-item active">Update References</span>
+      </nav>
     </div>
+  </div>
 {% endblock %}
 
 {% block content %}
 
-<h1>Update References</h1>
+  <h1>Update References</h1>
 
-<form action="{% url 'journals:update_references' publication.doi_label %}" method="get" class="mb-4">
+  <form action="{% url 'journals:update_references' publication.doi_label %}" method="get" class="mb-4">
 
     <div class="form-group row">
-            <label class="col-form-label col-md-4 text-right" for="id_email">Number of additional empty references</label>
-            <div class="col-md-8">
-                <input class="form-control" name="extra" type="number" value="{{ request.GET.extra|default:'0' }}">
-            </div>
+      <label class="col-form-label col-md-4 text-right" for="id_email">Number of additional empty references</label>
+      <div class="col-md-8">
+        <input class="form-control" name="extra" type="number" value="{{ request.GET.extra|default:'0' }}">
+      </div>
     </div>
     <div class="ml-auto col-md-8 multiple-checkbox">
-        <label for="prefiller_checkbox">
-            <input type="checkbox" name="prefill" value="form" id="prefiller_checkbox">
-            Prefill form with Crossref data (this might take a minute)
-        </label>
+      <label for="prefiller_checkbox">
+        <input type="checkbox" name="prefill" value="form" id="prefiller_checkbox">
+        Prefill form with Crossref data (this might take a minute)
+      </label>
     </div>
     <input type="submit" class="btn btn-primary" value="Refresh">
-</form>
+  </form>
 
-<hr>
+  <hr>
 
-<form action="{% url 'journals:update_references' publication.doi_label %}" method="post" enctype="multipart/form-data">
+  <form action="{% url 'journals:update_references' publication.doi_label %}" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ formset|bootstrap }}
     <input type="submit" class="btn btn-primary" value="Submit">
-</form>
+  </form>
 
 
 

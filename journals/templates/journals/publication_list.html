@@ -11,62 +11,62 @@
 {% block page_header %}<h1 class="highlight">Recent SciPost Publications</h1>{% endblock page_header %}
 
 {% block breadcrumb_items %}
-    <li class="breadcrumb-item"><a href="{% url 'journals:journals' %}">Journals</a></li>
-    <li class="breadcrumb-item active">Publications</li>
+  <li class="breadcrumb-item"><a href="{% url 'journals:journals' %}">Journals</a></li>
+  <li class="breadcrumb-item active">Publications</li>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12 ordering">
-        <h1>Publications</h1>
-        <p>
-            Order by:
+      <h1>Publications</h1>
+      <p>
+        Order by:
 
-            <a href="?{% url_replace orderby='date' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'date' %}">publication date</a>
-            <a href="?{% url_replace orderby='citations' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'citations' %}">number of citations</a>
-        </p>
+        <a href="?{% url_replace orderby='date' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'date' %}">publication date</a>
+        <a href="?{% url_replace orderby='citations' page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'orderby' 'citations' %}">number of citations</a>
+      </p>
 
-        <ul class="list-unstyled">
-            {% for publication in object_list %}
-                <li class="">
-                    <div class="card card-gray card-publication">
-                        {% include 'journals/_publication_card_content.html' with publication=publication include_citation_rate=1 %}
-                    </div>
-                </li>
-            {% empty %}
-                <h3><em>No match found for your search query.</em></h3>
-            {% endfor %}
-        </ul>
+      <ul class="list-unstyled">
+        {% for publication in object_list %}
+          <li class="">
+            <div class="card card-gray card-publication">
+              {% include 'journals/_publication_card_content.html' with publication=publication include_citation_rate=1 %}
+            </div>
+          </li>
+        {% empty %}
+          <h3><em>No match found for your search query.</em></h3>
+        {% endfor %}
+      </ul>
     </div>
     {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
+      <div class="col-12">
+        {% include 'partials/pagination.html' with page_obj=page_obj %}
+      </div>
     {% endif %}
-</div>
+  </div>
 
 {% endblock content %}
 
 
 {% block sidebar %}
-    <div class="row">
-        <div class="col-12">
-            <h2>Recent Issues</h2>
-            <div class="mb-1 pl-2">
-                <a href="?{% url_replace issue='' page='' subject='' %}" class="{% active_get_request 'issue' '' %}">All Issues</a>
-            </div>
-            {% for issue in recent_issues %}
-                <div class="mb-1 pl-2">
-                    <a href="?{% url_replace issue=issue.id page='' subject='' %}" class="{% active_get_request 'issue' issue.id %}">{{ issue.in_volume.in_journal }} {{ issue.short_str }}</a>
-                    <br>{{ issue.period_as_string }}
-                </div>
-            {% endfor %}
-
-            <h2 class="mb-2 mt-4">Subject area</h2>
-            {% for subject in subject_areas %}
-                <a href="?{% url_replace subject=subject.0 page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'subject' subject.0 %}">{{ subject.1 }}</a><br>
-            {% endfor %}
+  <div class="row">
+    <div class="col-12">
+      <h2>Recent Issues</h2>
+      <div class="mb-1 pl-2">
+        <a href="?{% url_replace issue='' page='' subject='' %}" class="{% active_get_request 'issue' '' %}">All Issues</a>
+      </div>
+      {% for issue in recent_issues %}
+        <div class="mb-1 pl-2">
+          <a href="?{% url_replace issue=issue.id page='' subject='' %}" class="{% active_get_request 'issue' issue.id %}">{{ issue.in_volume.in_journal }} {{ issue.short_str }}</a>
+          <br>{{ issue.period_as_string }}
         </div>
+      {% endfor %}
+
+      <h2 class="mb-2 mt-4">Subject area</h2>
+      {% for subject in subject_areas %}
+        <a href="?{% url_replace subject=subject.0 page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'subject' subject.0 %}">{{ subject.1 }}</a><br>
+      {% endfor %}
     </div>
+  </div>
 {% endblock %}

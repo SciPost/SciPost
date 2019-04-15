@@ -5,33 +5,33 @@
 {% block link_class_physics_accepted %}active{% endblock %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
-    <span class="breadcrumb-item active">Accepted</span>
+  {{block.super}}
+  <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
+  <span class="breadcrumb-item active">Accepted</span>
 {% endblock %}
 
 {% block content %}
 
-    {% with header_text='Accepted for publication' %}
-        {{block.super}}
-    {% endwith %}
+  {% with header_text='Accepted for publication' %}
+    {{block.super}}
+  {% endwith %}
 
-    <div class="row">
-        <div class="col-12">
-            <ul class="list-group list-group-flush">
-                {% for submission in accepted_submissions %}
-                    <li class="list-group-item">
-                        <div class="card-body px-0">
-                            {% include 'partials/submissions/submission_card_content.html' with submission=submission %}
-                        </div>
-                    </li>
-                {% empty %}
-                    <li class="list-group-item">
-                        <h3>All recently accepted Submissions to SciPost Physics have been published.</h3>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <ul class="list-group list-group-flush">
+        {% for submission in accepted_submissions %}
+          <li class="list-group-item">
+            <div class="card-body px-0">
+              {% include 'partials/submissions/submission_card_content.html' with submission=submission %}
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item">
+            <h3>All recently accepted Submissions to SciPost Physics have been published.</h3>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
+  </div>
 
 {% endblock %}

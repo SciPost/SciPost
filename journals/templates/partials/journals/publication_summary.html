@@ -1,81 +1,81 @@
 {% load scipost_extras %}
 
 <div class="row">
-    <div class="col-12">
-      <h2 class="text-blue">{{publication.title}}{% if publication.status == 'draft' %} <label class="label label-warning label-sm">{{ publication.get_status_display }}</label>{% endif %}
-      </h2>
+  <div class="col-12">
+    <h2 class="text-blue">{{publication.title}}{% if publication.status == 'draft' %} <label class="label label-warning label-sm">{{ publication.get_status_display }}</label>{% endif %}
+    </h2>
 
-        <p class="mb-1">{{ publication.author_list }}</p>
-        <p class="text-muted mb-0">
-            {{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}
-            {% if publication.cc_license != 'CC BY 4.0' %}
-                &middot; licensed under {{publication.get_cc_license_display}}
-            {% endif %}
+    <p class="mb-1">{{ publication.author_list }}</p>
+    <p class="text-muted mb-0">
+      {{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}
+      {% if publication.cc_license != 'CC BY 4.0' %}
+        &middot; licensed under {{publication.get_cc_license_display}}
+      {% endif %}
 
-	    {% if user.is_authenticated %}
-	    {% with type_id=publication|content_type_id %}
-	    {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=publication.id model="Publication" %}
-	    {% endwith %}
-	    {% endif %}
-        </p>
+      {% if user.is_authenticated %}
+	{% with type_id=publication|content_type_id %}
+	  {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=publication.id model="Publication" %}
+	{% endwith %}
+      {% endif %}
+    </p>
 
-        <ul class="publicationClickables mt-3">
-            <li>doi:  {{publication.doi_string}}</li>
-            <li class="publicationPDF">
-                <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
-            </li>
-            <li><a href="javascript:;" data-toggle="modal" data-target="#bibtextmodal">BiBTeX</a></li>
-            <li><a href="javascript:;" data-toggle="modal" data-target="#rismodal">RIS</a></li>
-            <li><a href="{% url 'submissions:submission' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Submissions/Reports</a></li>
-    	    <li>
-    	      <!-- Start Crossmark Snippet v2.0 -->
-    	      <script src="https://crossmark-cdn.crossref.org/widget/v2.0/widget.js"></script>
-    	      <a data-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
-    	      <!-- End Crossmark Snippet -->
-    	    </li>
-        </ul>
-    </div>
+    <ul class="publicationClickables mt-3">
+      <li>doi:  {{publication.doi_string}}</li>
+      <li class="publicationPDF">
+        <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
+      </li>
+      <li><a href="javascript:;" data-toggle="modal" data-target="#bibtextmodal">BiBTeX</a></li>
+      <li><a href="javascript:;" data-toggle="modal" data-target="#rismodal">RIS</a></li>
+      <li><a href="{% url 'submissions:submission' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Submissions/Reports</a></li>
+      <li>
+    	<!-- Start Crossmark Snippet v2.0 -->
+    	<script src="https://crossmark-cdn.crossref.org/widget/v2.0/widget.js"></script>
+    	<a data-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
+    	<!-- End Crossmark Snippet -->
+      </li>
+    </ul>
+  </div>
 </div>
 <div class="row">
-    <div class="col-12">
-        {% if publication.in_issue.proceedings %}
-            <h3>Proceedings event</h3>
-            <p><a href="{{ publication.in_issue.get_absolute_url }}">{{ publication.in_issue.proceedings.event_name }}</a></p>
-        {% endif %}
+  <div class="col-12">
+    {% if publication.in_issue.proceedings %}
+      <h3>Proceedings event</h3>
+      <p><a href="{{ publication.in_issue.get_absolute_url }}">{{ publication.in_issue.proceedings.event_name }}</a></p>
+    {% endif %}
 
-        <h3>Abstract</h3>
-        <p class="abstract">{{ publication.abstract }}</p>
-    </div>
+    <h3>Abstract</h3>
+    <p class="abstract">{{ publication.abstract }}</p>
+  </div>
 </div>
 
 
 <div class="modal" id="rismodal" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="rismodal">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="pb-4">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div>{% include 'partials/journals/publication_ris.html' with publication=publication %}</div>
-            </div>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="pb-4">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <div>{% include 'partials/journals/publication_ris.html' with publication=publication %}</div>
+      </div>
     </div>
+  </div>
 </div>
 
 
 <div class="modal" id="bibtextmodal" tabindex="-1" role="dialog" aria-hidden="true" aria-labelledby="bibtextmodal">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="pb-4">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div><pre><code>{{publication.BiBTeX_entry|linebreaksbr}}</code></pre></div>
-            </div>
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="pb-4">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
+        <div><pre><code>{{publication.BiBTeX_entry|linebreaksbr}}</code></pre></div>
+      </div>
     </div>
+  </div>
 </div>

@@ -5,29 +5,29 @@
 {% block link_class_physics_recent %}active{% endblock %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
-    <span class="breadcrumb-item active">Recent</span>
+  {{block.super}}
+  <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
+  <span class="breadcrumb-item active">Recent</span>
 {% endblock %}
 
 {% block content %}
 
-    {% with header_text='Recent publications:' %}
-        {{block.super}}
-    {% endwith %}
+  {% with header_text='Recent publications:' %}
+    {{block.super}}
+  {% endwith %}
 
-    <div class="row">
-        <div class="col-12">
-            <ul class="list-unstyled">
-                {% for paper in journal.get_publications.published|slice:':20' %}
-                    <li>
-                        {% include 'partials/journals/publication_card.html' with publication=paper %}
-                    </li>
-                {% empty %}
-                    <li><h3>Sorry, no recent publications were found.</h3></li>
-                {% endfor %}
-            </ul>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <ul class="list-unstyled">
+        {% for paper in journal.get_publications.published|slice:':20' %}
+          <li>
+            {% include 'partials/journals/publication_card.html' with publication=paper %}
+          </li>
+        {% empty %}
+          <li><h3>Sorry, no recent publications were found.</h3></li>
+        {% endfor %}
+      </ul>
     </div>
+  </div>
 
 {% endblock %}

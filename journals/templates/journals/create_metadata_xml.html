@@ -3,28 +3,28 @@
 {% block pagetitle %}: Create metadata xml{% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-                <span class="breadcrumb-item active">Create metadata XML</span>
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+        <span class="breadcrumb-item active">Create metadata XML</span>
+      </nav>
     </div>
+  </div>
 {% endblock %}
 
 {% load bootstrap %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Create metadata XML (for Crossref deposit)</h1>
-        <p>
-            The following field is prefilled with data from the Publication object. Once you accept them, they will overwrite the current metadata, shown below.
-        </p>
-        <br>
+      <h1 class="highlight">Create metadata XML (for Crossref deposit)</h1>
+      <p>
+        The following field is prefilled with data from the Publication object. Once you accept them, they will overwrite the current metadata, shown below.
+      </p>
+      <br>
       <form action="{% url 'journals:create_metadata_xml' publication.doi_label %}" method="post">
         {% csrf_token %}
         {{ form|bootstrap }}
@@ -38,6 +38,6 @@
       <br>
       <pre><code>{{ publication.metadata_xml|linebreaksbr }}</code></pre>
     </div>
-</div>
+  </div>
 
 {% endblock content %}

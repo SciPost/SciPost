@@ -3,88 +3,88 @@
 {% block pagetitle %}{{block.super}}: Volumes Admin{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item active">Volumes Admin</span>
+  {{block.super}}
+  <span class="breadcrumb-item active">Volumes Admin</span>
 {% endblock %}
 
 {% block content %}
 
 
-<div class="row">
-  <div class="col-12">
-    <h1 class="highlight">Manage Volumes</h1>
-    <ul>
-      <li><a href="{% url 'journals:admin_volumes_list' %}" class="active">Manage Volumes</a></li>
-      <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-      <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
-      <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-      <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-    </ul>
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Manage Volumes</h1>
+      <ul>
+	<li><a href="{% url 'journals:admin_volumes_list' %}" class="active">Manage Volumes</a></li>
+	<li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
+	<li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+	<li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
+	<li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+      </ul>
 
-    <h3 class="my-3">Journals overview</h3>
-    <table class="table">
-      <thead class="thead-light">
-        <tr>
-          <th>Journal</th>
-          <th>Latest Volume</th>
-          <th>Has active Volume?</th>
-        </tr>
-      </thead>
-      {% for journal in journals %}
-        {% if journal.has_volumes %}
+      <h3 class="my-3">Journals overview</h3>
+      <table class="table">
+	<thead class="thead-light">
           <tr>
-            <td>{{ journal.get_name_display }}</td>
-            <td>{{ journal.get_latest_volume|default_if_none:'<i>No Volume found</i>' }}</td>
+            <th>Journal</th>
+            <th>Latest Volume</th>
+            <th>Has active Volume?</th>
+          </tr>
+	</thead>
+	{% for journal in journals %}
+          {% if journal.has_volumes %}
+            <tr>
+              <td>{{ journal.get_name_display }}</td>
+              <td>{{ journal.get_latest_volume|default_if_none:'<i>No Volume found</i>' }}</td>
+              <td>
+		{% if journal.get_latest_volume %}
+                  {% if journal.get_latest_volume.is_current %}
+                    <i class="fa fa-check text-success"></i> Yes
+                  {% else %}
+                    <i class="fa fa-exclamation-triangle text-warning"></i> No
+                  {% endif %}
+		{% endif %}
+              </td>
+            </tr>
+          {% endif %}
+	{% endfor %}
+      </table>
+
+      <h2 class="mt-5">All Volumes</h2>
+      <a href="{% url 'journals:add_volume' %}">Create a new Volume</a>
+
+      <table class="table table-hover mt-2">
+	<thead class="thead-light">
+          <tr>
+            <th>Volume</th>
+            <th>Period</th>
+            <th>Issues</th>
+            <th>Active</th>
+            <th></th>
+          </tr>
+	</thead>
+	{% for volume in object_list %}
+          <tr{% if volume.is_current %} class="table-success"{% endif %}>
+            <td>{{ volume.in_journal }} <strong>Vol. {{ volume.number }}</strong></td>
+            <td>{{ volume.start_date }} until {{ volume.until_date }}</td>
+            <td>{{ volume.issues.count }}</td>
             <td>
-              {% if journal.get_latest_volume %}
-                {% if journal.get_latest_volume.is_current %}
-                  <i class="fa fa-check text-success"></i> Yes
-                {% else %}
-                  <i class="fa fa-exclamation-triangle text-warning"></i> No
-                {% endif %}
+              {% if volume.is_current %}
+		<i class="fa fa-check text-success"></i> Yes
+              {% else %}
+		<i class="fa fa-exclamation-triangle text-warning"></i> No
               {% endif %}
             </td>
+            <td><a href="{% url 'journals:update_volume' volume.id %}">Edit</a></td>
           </tr>
-        {% endif %}
-      {% endfor %}
-    </table>
-
-    <h2 class="mt-5">All Volumes</h2>
-    <a href="{% url 'journals:add_volume' %}">Create a new Volume</a>
-
-    <table class="table table-hover mt-2">
-      <thead class="thead-light">
-        <tr>
-          <th>Volume</th>
-          <th>Period</th>
-          <th>Issues</th>
-          <th>Active</th>
-          <th></th>
-        </tr>
-      </thead>
-      {% for volume in object_list %}
-        <tr{% if volume.is_current %} class="table-success"{% endif %}>
-          <td>{{ volume.in_journal }} <strong>Vol. {{ volume.number }}</strong></td>
-          <td>{{ volume.start_date }} until {{ volume.until_date }}</td>
-          <td>{{ volume.issues.count }}</td>
-          <td>
-            {% if volume.is_current %}
-              <i class="fa fa-check text-success"></i> Yes
-            {% else %}
-              <i class="fa fa-exclamation-triangle text-warning"></i> No
-            {% endif %}
-          </td>
-          <td><a href="{% url 'journals:update_volume' volume.id %}">Edit</a></td>
-        </tr>
-      {% endfor %}
-    </table>
-    {% if is_paginated %}
+	{% endfor %}
+      </table>
+      {% if is_paginated %}
         <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
+          {% include 'partials/pagination.html' with page_obj=page_obj %}
         </div>
-    {% endif %}
+      {% endif %}
+    </div>
   </div>
-</div>
 
 
 {% endblock %}

@@ -6,74 +6,74 @@
 {% load journals_extras %}
 
 {% block headsup %}
-<script type="text/javascript">
-$(document).ready(function($) {
-    $(".table-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-</script>
+  <script type="text/javascript">
+   $(document).ready(function($) {
+       $(".table-row").click(function() {
+           window.document.location = $(this).data("href");
+       });
+   });
+  </script>
 {% endblock headsup %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Manage metadata</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Manage metadata</span>
 {% endblock %}
 
 {% block body_class %}{{ block.super }} manage_metadata{% endblock %}
 
 {% block content %}
 
-<h1 class="highlight">Manage Publications Metadata</h1>
-<ul>
-  <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
-  <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-  <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
-  <li><a href="{% url 'journals:manage_metadata' %}" class="active">Manage Publications metadata</a></li>
-  <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-</ul>
+  <h1 class="highlight">Manage Publications Metadata</h1>
+  <ul>
+    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
+    <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+    <li><a href="{% url 'journals:manage_metadata' %}" class="active">Manage Publications metadata</a></li>
+    <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+  </ul>
 
-<h2 class="mt-4 mb-2">Publications</h2>
-<table class="table table-hover mb-5">
-  <thead class="thead-default">
-    <tr>
-      <th>doi</th>
-      <th>Publication date</th>
-      <th>Latest metadata update</th>
-      <th>Latest successful Crossref deposit</th>
-      <th>Deposit needs updating?</th>
-      <th>DOAJ</th>
-      <th>PubFracs fixed?</th>
-    </tr>
-  </thead>
+  <h2 class="mt-4 mb-2">Publications</h2>
+  <table class="table table-hover mb-5">
+    <thead class="thead-default">
+      <tr>
+	<th>doi</th>
+	<th>Publication date</th>
+	<th>Latest metadata update</th>
+	<th>Latest successful Crossref deposit</th>
+	<th>Deposit needs updating?</th>
+	<th>DOAJ</th>
+	<th>PubFracs fixed?</th>
+      </tr>
+    </thead>
 
-  <tbody>
-    {% for publication in publications %}
-    <tr class="table-row" data-href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" target="_blank" style="cursor: pointer;"{% if not publication.is_published %} class="table-warning"{% endif %}>
-      <td>{{ publication.doi_label }}</td>
-      <td>{{ publication.publication_date }}</td>
-      {% if publication.latest_metadata_update %}
-      <td>
-        {{ publication.latest_metadata_update }}
-      </td>
-      {% else %}
-      <td>No info available</td>
-      {% endif %}
-      <td>{{ publication|latest_successful_crossref_deposit }}</td>
-      <td>{{ publication.doideposit_needs_updating }}</td>
-      <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
-      <td>{{ publication|pubfracs_fixed }}</td>
-    </tr>
-    {% empty %}
-    <tr>
-      <td colspan="7">No publications found.</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <tbody>
+      {% for publication in publications %}
+	<tr class="table-row" data-href="{% url 'journals:manage_metadata' doi_label=publication.doi_label %}" target="_blank" style="cursor: pointer;"{% if not publication.is_published %} class="table-warning"{% endif %}>
+	  <td>{{ publication.doi_label }}</td>
+	  <td>{{ publication.publication_date }}</td>
+	  {% if publication.latest_metadata_update %}
+	    <td>
+              {{ publication.latest_metadata_update }}
+	    </td>
+	  {% else %}
+	    <td>No info available</td>
+	  {% endif %}
+	  <td>{{ publication|latest_successful_crossref_deposit }}</td>
+	  <td>{{ publication.doideposit_needs_updating }}</td>
+	  <td>{{ publication|latest_successful_DOAJ_deposit }}</td>
+	  <td>{{ publication|pubfracs_fixed }}</td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="7">No publications found.</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-<div class="col-12">
+  <div class="col-12">
     {% include 'partials/pagination.html' with page_obj=page_obj %}
-</div>
+  </div>
 
 {% endblock content %}

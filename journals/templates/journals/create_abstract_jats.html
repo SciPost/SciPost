@@ -3,28 +3,28 @@
 {% block pagetitle %}: Create abstract (JATS version){% endblock pagetitle %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
-                <span class="breadcrumb-item active">Create abstract (JATS version)</span>
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <a href="{% url 'journals:manage_metadata' %}" class="breadcrumb-item">Administration</a>
+        <span class="breadcrumb-item active">Create abstract (JATS version)</span>
+      </nav>
     </div>
+  </div>
 {% endblock %}
 
 {% load bootstrap %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Create abstract (JATS version) page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
-        <p>
-            The following field is prefilled with the current JATS abstract of the Publication object. Once you submit, it will overwrite the current one, shown below.
-        </p>
-        <br>
+      <h1 class="highlight">Create abstract (JATS version) page for <a href="{{ publication.get_absolute_url }}">{{ publication.doi_label }}</a></h1>
+      <p>
+        The following field is prefilled with the current JATS abstract of the Publication object. Once you submit, it will overwrite the current one, shown below.
+      </p>
+      <br>
 
       <form method="post">
         {% csrf_token %}
@@ -33,11 +33,11 @@
         <a href="{% url 'journals:manage_metadata' %}" class="ml-3 btn btn-link">Back to Admin</a>
       </form>
 
-     <hr class="divider">
-        <h3>Current abstract (JATS version):</h3>
-        <p class="mb-0">{{ publication.abstract_jats|safe|linebreaksbr }}</p>
+      <hr class="divider">
+      <h3>Current abstract (JATS version):</h3>
+      <p class="mb-0">{{ publication.abstract_jats|safe|linebreaksbr }}</p>
     </div>
-</div>
+  </div>
 
 
 {% endblock %}

@@ -5,61 +5,61 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Harvest citedby data</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Harvest citedby data</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Harvest citedby data</h1>
+      <h1 class="highlight">Harvest citedby data</h1>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>doi</th>
-                    <th>Publication date</th>
-		    <th>Nr citations</th>
-                    <th>Latest Cited-by update</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for publication in publications %}
-                    <tr>
-                        <td><a href="{{publication.get_absolute_url}}">{{ publication.doi_label }}</a></td>
-                        <td>{{ publication.publication_date }}</td>
-                        {% if publication.latest_citedby_update %}
-			<td>
-			  {{ publication.citedby|length }}
-			</td>
-                        <td>
-                          {{ publication.latest_citedby_update }}
-			</td>
-                        {% else %}
-			<td>0</td>
-                        <td>No information available</td>
-                        {% endif %}
-                        <td>
-                            <ul>
-                                <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Harvest citedby data now</a></li>
-                            </ul>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5">No publications found.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>doi</th>
+            <th>Publication date</th>
+	    <th>Nr citations</th>
+            <th>Latest Cited-by update</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for publication in publications %}
+            <tr>
+              <td><a href="{{publication.get_absolute_url}}">{{ publication.doi_label }}</a></td>
+              <td>{{ publication.publication_date }}</td>
+              {% if publication.latest_citedby_update %}
+		<td>
+		  {{ publication.citedby|length }}
+		</td>
+                <td>
+                  {{ publication.latest_citedby_update }}
+		</td>
+              {% else %}
+		<td>0</td>
+                <td>No information available</td>
+              {% endif %}
+              <td>
+                <ul>
+                  <li><a href="{% url 'journals:harvest_citedby_links' publication.doi_label %}">Harvest citedby data now</a></li>
+                </ul>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">No publications found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</div>
+  </div>
 
 
 {% endblock content %}

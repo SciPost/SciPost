@@ -7,24 +7,24 @@
 {% block content %}
 
 
-<h1>Draft publication</h1>
+  <h1>Draft publication</h1>
 
-{% if request.GET.issue or form.instance.id or form.to_journal %}
+  {% if request.GET.issue or form.instance.id or form.to_journal %}
     <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <input type="submit" class="btn btn-primary" value="Save">
+      {% csrf_token %}
+      {{ form|bootstrap }}
+      <input type="submit" class="btn btn-primary" value="Save">
     </form>
-{% else %}
+  {% else %}
     <h3>Pick the Issue to publish in</h3>
     <ul>
-        {% for issue in form.get_possible_issues %}
-            <li><a href="?issue={{ issue.id }}">{{ issue }}</a></li>
-        {% empty %}
-            <li><em>No Issues found. Please contact administration</em></li>
-        {% endfor %}
+      {% for issue in form.get_possible_issues %}
+        <li><a href="?issue={{ issue.id }}">{{ issue }}</a></li>
+      {% empty %}
+        <li><em>No Issues found. Please contact administration</em></li>
+      {% endfor %}
     </ul>
-{% endif %}
+  {% endif %}
 
 
 

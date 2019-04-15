@@ -4,82 +4,82 @@
 
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-                <span class="breadcrumb-item">Terms and Conditions</span>
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+        <span class="breadcrumb-item">Terms and Conditions</span>
+      </nav>
     </div>
+  </div>
 {% endblock %}
 
 {% block content %}
 
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">SciPost Journals: Terms and Conditions</h1>
-        <p>These complement the SciPost <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</p>
+      <h1 class="highlight">SciPost Journals: Terms and Conditions</h1>
+      <p>These complement the SciPost <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</p>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h2>General</h2>
+      <h2>General</h2>
 
-        <h3>SciPost expects the following from submitters:</h3>
-        <ul>
-            <li>The manuscript which is submitted for publication has not been published before except in
-              the form of an abstract or electronic preprint or other similar formats which have not undergone
-              peer review. It is also not under consideration elsewhere for peer-reviewed publication.</li>
-            <li>Each submission will automatically be checked for plagiarism: SciPost is a Participating Publisher of Crossref's Similarity Check. In their own interest, authors
-              should avoid any ambiguous case by clearly quoting and citing original sources.</li>
-            <li>The submission has been approved by all authors and tacitly or explicitly by the relevant
-              authorities and/or institutes where the work was carried out.</li>
-            <li>In the case of acceptance for publication, the authors agree to the terms of the
-              <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>.
-              This means that you are free to use, reproduce and distribute the articles and related content (unless otherwise noted),
-              for commercial and noncommercial purposes, subject to the citation of the original source in accordance with the CC-BY license,
-              in particular section 3a.</li>
-            <li>The authors have secured the right to reproduce any material in their work which has
-              already been published elsewhere.</li>
-            <li>The authors agree with the <a href="#license_and_copyright_agreement">license and copyright agreement</a>.</li>
-            <li>The authors have agreed to and are in compliance with the <a href="#author_obligations">general author obligations</a>.</li>
-            <li>The authors of a given manuscript are formally
-              represented by the author having submitted the manuscript.</li>
-            <li>During the evaluation phase, Editorial Fellows will follow the
-              <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>
-              and referees will follow the <a href="#referee_code_of_conduct">code of conduct for referees</a>.</li>
-            <li>The SciPost Administration reserves the right to remove or censor reports or comments
-              if they contain inappropriate material or if they are insufficiently substantial in nature or
-              of insufficient direct relevance to the manuscript under consideration.</li>
-            <li>The use of general descriptive names, trade names, trademarks etc. in the published
-              articles of SciPost journals, even if not specifically identified, does not imply that these
-              names are not protected by the relevant laws and regulations.</li>
-            <li>The Fellows of the Editorial College do their best to shepherd the refereeing process
-              as carefully as possible but cannot assume legal responsibility for the outcome and
-              aftermath of acceptance or rejection.</li>
-            <li>While the contents of the journals is believed to be true and accurate on the date each
-              article is published, neither the authors, the Editorial Fellows, Stichting SciPost or any of
-              its officers and Board members can accept any legal responsibility for any errors or
-              omissions that may have occurred. SciPost makes no guarantee, expressed or implied, with
-              respect to the material contained herein. Any opinions expressed in SciPost journals are
-              the views of the authors and are not the views of SciPost.</li>
-        </ul>
+      <h3>SciPost expects the following from submitters:</h3>
+      <ul>
+        <li>The manuscript which is submitted for publication has not been published before except in
+          the form of an abstract or electronic preprint or other similar formats which have not undergone
+          peer review. It is also not under consideration elsewhere for peer-reviewed publication.</li>
+        <li>Each submission will automatically be checked for plagiarism: SciPost is a Participating Publisher of Crossref's Similarity Check. In their own interest, authors
+          should avoid any ambiguous case by clearly quoting and citing original sources.</li>
+        <li>The submission has been approved by all authors and tacitly or explicitly by the relevant
+          authorities and/or institutes where the work was carried out.</li>
+        <li>In the case of acceptance for publication, the authors agree to the terms of the
+          <a href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>.
+          This means that you are free to use, reproduce and distribute the articles and related content (unless otherwise noted),
+          for commercial and noncommercial purposes, subject to the citation of the original source in accordance with the CC-BY license,
+          in particular section 3a.</li>
+        <li>The authors have secured the right to reproduce any material in their work which has
+          already been published elsewhere.</li>
+        <li>The authors agree with the <a href="#license_and_copyright_agreement">license and copyright agreement</a>.</li>
+        <li>The authors have agreed to and are in compliance with the <a href="#author_obligations">general author obligations</a>.</li>
+        <li>The authors of a given manuscript are formally
+          represented by the author having submitted the manuscript.</li>
+        <li>During the evaluation phase, Editorial Fellows will follow the
+          <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>
+          and referees will follow the <a href="#referee_code_of_conduct">code of conduct for referees</a>.</li>
+        <li>The SciPost Administration reserves the right to remove or censor reports or comments
+          if they contain inappropriate material or if they are insufficiently substantial in nature or
+          of insufficient direct relevance to the manuscript under consideration.</li>
+        <li>The use of general descriptive names, trade names, trademarks etc. in the published
+          articles of SciPost journals, even if not specifically identified, does not imply that these
+          names are not protected by the relevant laws and regulations.</li>
+        <li>The Fellows of the Editorial College do their best to shepherd the refereeing process
+          as carefully as possible but cannot assume legal responsibility for the outcome and
+          aftermath of acceptance or rejection.</li>
+        <li>While the contents of the journals is believed to be true and accurate on the date each
+          article is published, neither the authors, the Editorial Fellows, Stichting SciPost or any of
+          its officers and Board members can accept any legal responsibility for any errors or
+          omissions that may have occurred. SciPost makes no guarantee, expressed or implied, with
+          respect to the material contained herein. Any opinions expressed in SciPost journals are
+          the views of the authors and are not the views of SciPost.</li>
+      </ul>
     </div>
-</div>
+  </div>
 
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h2>Open Access policy</h2>
       <p>All SciPost Journals are Open Access which means that all content is freely available without charge to the user or his/her institution. Users are allowed to read, download, copy, distribute, print, search, or link to the full texts of the articles, or use them for any other lawful purpose, without asking prior permission from the publisher or the author. This is in accordance with the BOAI definition of Open Access.</p>
     </div>
-</div>
+  </div>
 
-<hr>
-<div class="row">
+  <hr>
+  <div class="row">
     <div class="col-12">
 
 
@@ -177,10 +177,10 @@
         to share the work under the condition that the original authors
         be given credit.</p>
     </div>
-</div>
+  </div>
 
-<hr>
-<div class="row">
+  <hr>
+  <div class="row">
     <div class="col-12">
       <h2 id="author_obligations">Author obligations</h2>
       <ol>
@@ -221,12 +221,12 @@
           responsibility of having included all appropriate persons as co-authors,
           and none that are inappropriate.</li>
       </ol>
+    </div>
   </div>
-</div>
 
-<hr>
-<div class="row">
-  <div class="col-12">
+  <hr>
+  <div class="row">
+    <div class="col-12">
       <h2 id="referee_code_of_conduct">Referee code of conduct</h2>
       <ul>
         <li>Contributors asked to referee should promptly accept or decline the
@@ -254,25 +254,25 @@
         <li>A Referee should also assess the level of clarity of the manuscript,
           as well as its general formatting and level of grammar.</li>
       </ul>
+    </div>
   </div>
-</div>
 
-<hr>
-<div class="row">
-  <div class="col-12">
+  <hr>
+  <div class="row">
+    <div class="col-12">
       <h2 id="Corrections and retractions">Corrections and retractions</h3>
-      <p>
-	SciPost pursues the following policy for making corrections to its peer-reviewed content:
-      </p>
-      <ul>
-	<li><strong>Modification of a paper</strong>: SciPost reserves the right to replace a published paper if purely technical corrections are necessary (e.g. corrupt file or incorrect bibliographical entry). In such cases, archives and indices are informed. Under no circumstances will the content be changed.</li>
-	<li><strong>Corrigendum</strong>: notification of an important error made by the author(s) or by the journal that affects the publication record or the scientific integrity of the published, peer-reviewed work or the reputation of the author or the journal. Corrigenda are represented by a formal online notice.</li>
-	<li><strong>Retraction</strong>: authors or, in specific cases, SciPost can decide to formally withdraw a published journal article. The article stays online but the reader is notified about the retraction. Such retractions are most often accompanied by an editorial note explaining the background.</li>
-	<li><strong>Marked as fraud</strong>: in the unlikely case that SciPost is notified that a published journal article turns out to be a fraud, the paper stays online but is formally withdrawn. The reader is notified about the status and fraud papers are always accompanied by an editorial note pointing out the malpractice.</li>
-      </ul>
-      <p>All corrections and retractions can be traced through our participation in Crossref's <a href="https://www.crossref.org/services/crossmark/">Crossmark</a> service, as detailed on our <a href="{% url 'journals:crossmark_policy' %}">Crossmark Policy Page</a>.</p>
+	<p>
+	  SciPost pursues the following policy for making corrections to its peer-reviewed content:
+	</p>
+	<ul>
+	  <li><strong>Modification of a paper</strong>: SciPost reserves the right to replace a published paper if purely technical corrections are necessary (e.g. corrupt file or incorrect bibliographical entry). In such cases, archives and indices are informed. Under no circumstances will the content be changed.</li>
+	  <li><strong>Corrigendum</strong>: notification of an important error made by the author(s) or by the journal that affects the publication record or the scientific integrity of the published, peer-reviewed work or the reputation of the author or the journal. Corrigenda are represented by a formal online notice.</li>
+	  <li><strong>Retraction</strong>: authors or, in specific cases, SciPost can decide to formally withdraw a published journal article. The article stays online but the reader is notified about the retraction. Such retractions are most often accompanied by an editorial note explaining the background.</li>
+	  <li><strong>Marked as fraud</strong>: in the unlikely case that SciPost is notified that a published journal article turns out to be a fraud, the paper stays online but is formally withdrawn. The reader is notified about the status and fraud papers are always accompanied by an editorial note pointing out the malpractice.</li>
+	</ul>
+	<p>All corrections and retractions can be traced through our participation in Crossref's <a href="https://www.crossref.org/services/crossmark/">Crossmark</a> service, as detailed on our <a href="{% url 'journals:crossmark_policy' %}">Crossmark Policy Page</a>.</p>
 
+    </div>
   </div>
-</div>
 
 {% endblock content %}
