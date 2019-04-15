@@ -111,7 +111,7 @@
         {% for report in contributor.reports.non_draft.all %}
           <li class="list-group-item">
             {% comment %}
-              Temporary: There is already a template for a "Report summary" in a parallel (unmerged) branch. Awaiting merge to use that template.
+            Temporary: There is already a template for a "Report summary" in a parallel (unmerged) branch. Awaiting merge to use that template.
             {% endcomment %}
             <div class="card-body px-0 {% block cardblock_class_block %}{% endblock %}">
               <h3>Report on Submission <a href="{{ report.submission.get_absolute_url }}">{{ report.submission.title }}</a></h3>

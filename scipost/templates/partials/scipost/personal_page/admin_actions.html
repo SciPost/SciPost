@@ -28,12 +28,12 @@
         {% endif %}
       </ul>
 
-	    {% if perms.scipost.can_manage_news %}
-	    <h3>News management</h3>
-	    <ul>
-	      <li><a href="{% url 'news:manage' %}">Manage News Items and Newsletters</a></li>
-	    </ul>
-	    {% endif %}
+      {% if perms.scipost.can_manage_news %}
+	<h3>News management</h3>
+	<ul>
+	  <li><a href="{% url 'news:manage' %}">Manage News Items and Newsletters</a></li>
+	</ul>
+      {% endif %}
 
       {% if perms.scipost.can_manage_registration_invitations %}
         <h3>Notifications</h3>
@@ -65,19 +65,19 @@
     {% if perms.scipost.can_view_profiles %}
       <h3>Profiles</h3>
       <ul>
-	      <li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
+	<li><a href="{% url 'profiles:profiles' %}">List/Manage Profiles</a></li>
       </ul>
     {% endif %}
 
     <h3>Ontology</h3>
     <ul>
-	    <li><a href="{% url 'ontology:ontology' %}">View/Manage the Ontology</a></li>
+      <li><a href="{% url 'ontology:ontology' %}">View/Manage the Ontology</a></li>
     </ul>
 
     {% if perms.scipost.can_manage_organizations %}
       <h3>Organizations</h3>
       <ul>
-	      <li><a href="{% url 'organizations:organizations' %}">Manage Organizations</a></li>
+	<li><a href="{% url 'organizations:organizations' %}">Manage Organizations</a></li>
       </ul>
     {% endif %}
   </div>
@@ -85,12 +85,12 @@
   <div class="col-md-4">
     <h3>Finances</h3>
     <ul>
-	    {% if perms.scipost.can_manage_subsidies %}
-	      <li><a href="{% url 'finances:subsidies' %}">Manage Subsidies</a></li>
-	    {% endif %}
-	    {% if perms.scipost.can_view_timesheets %}
+      {% if perms.scipost.can_manage_subsidies %}
+	<li><a href="{% url 'finances:subsidies' %}">Manage Subsidies</a></li>
+      {% endif %}
+      {% if perms.scipost.can_view_timesheets %}
         <li><a href="{% url 'finances:timesheets' %}">Production Team Timesheets</a></li>
-	    {% endif %}
+      {% endif %}
     </ul>
   </div>
 

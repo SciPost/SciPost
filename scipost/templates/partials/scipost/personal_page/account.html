@@ -2,17 +2,17 @@
 {% load user_groups %}
 
 {# Save all Permission groups into template variables #}
-  {% is_edcol_admin request.user as is_edcol_admin %}
-  {% is_scipost_admin request.user as is_scipost_admin %}
-  {% is_editorial_college request.user as is_editorial_college %}
-  {% is_advisory_board request.user as is_advisory_board %}
-  {% is_vetting_editor request.user as is_vetting_editor %}
-  {% is_ambassador request.user as is_ambassador %}
-  {% is_junior_ambassador request.user as is_junior_ambassador %}
-  {% is_registered_contributor request.user as is_registered_contributor %}
-  {% is_tester request.user as is_tester %}
-  {% is_production_officer request.user as is_production_officer %}
-  {% recommend_new_totp_device request.user as recommend_totp %}
+{% is_edcol_admin request.user as is_edcol_admin %}
+{% is_scipost_admin request.user as is_scipost_admin %}
+{% is_editorial_college request.user as is_editorial_college %}
+{% is_advisory_board request.user as is_advisory_board %}
+{% is_vetting_editor request.user as is_vetting_editor %}
+{% is_ambassador request.user as is_ambassador %}
+{% is_junior_ambassador request.user as is_junior_ambassador %}
+{% is_registered_contributor request.user as is_registered_contributor %}
+{% is_tester request.user as is_tester %}
+{% is_production_officer request.user as is_production_officer %}
+{% recommend_new_totp_device request.user as recommend_totp %}
 
 <div class="row">
   <div class="col-12">
