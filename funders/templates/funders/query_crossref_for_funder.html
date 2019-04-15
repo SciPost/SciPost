@@ -6,34 +6,34 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-        <h1 class="highlight">Query Crossref Fundref Registry for Funders</h1>
-        <form action="{% url 'funders:query_crossref_for_funder' %}" method="post">
-          {% csrf_token %}
-          {{form|bootstrap}}
-          <input class="btn btn-outline-secondary" type="submit" value="Search">
-        </form>
-	{% if response_headers %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Query Crossref Fundref Registry for Funders</h1>
+      <form action="{% url 'funders:query_crossref_for_funder' %}" method="post">
+        {% csrf_token %}
+        {{form|bootstrap}}
+        <input class="btn btn-outline-secondary" type="submit" value="Search">
+      </form>
+      {% if response_headers %}
 	<p>{{ response_headers }}</p>
-	{% endif %}
-	{% if response_text %}
+      {% endif %}
+      {% if response_text %}
 	<p>{{ response_text }}</p>
-	{% endif %}
-	{% if response %}
+      {% endif %}
+      {% if response %}
 	<p>{{ response }}</p>
 	<ul>
 	  {% for item in response.message.items %}
-	  <li>
-	    {{ item.name }}, {{ item.id }}, {{ item.uri }}
-	    <form action="{% url 'funders:add_funder' %}" method="post">
-              {% csrf_token %}
-	      <input name='name' style="width: 64%" value='{{ item.name }}'>
-	      <input name='acronym' style="width: 64%" placeholder='acronym (if known)'>
-	      <input name='identifier' style="width: 64%" value='{{ item.uri }}'>
-              <input class="btn btn-outline-secondary" type="submit" value="Add this funder">
-	    </form>
-	  </li>
+	    <li>
+	      {{ item.name }}, {{ item.id }}, {{ item.uri }}
+	      <form action="{% url 'funders:add_funder' %}" method="post">
+		{% csrf_token %}
+		<input name='name' style="width: 64%" value='{{ item.name }}'>
+		<input name='acronym' style="width: 64%" placeholder='acronym (if known)'>
+		<input name='identifier' style="width: 64%" value='{{ item.uri }}'>
+		<input class="btn btn-outline-secondary" type="submit" value="Add this funder">
+	      </form>
+	    </li>
 	  {% endfor %}
 	</ul>
 	<form action="{% url 'funders:add_funder' %}" method="post">
@@ -41,9 +41,9 @@
           {{funder_form|bootstrap}}
           <input class="btn btn-outline-secondary" type="submit" value="Submit">
         </form>
-	{% endif %}
+      {% endif %}
+    </div>
   </div>
-</div>
 
 
 {% endblock content %}
