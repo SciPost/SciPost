@@ -3,13 +3,13 @@
 {% block body_class %}{{ block.super }} sponsors{% endblock %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                {% block breadcrumb_items %}
-                    <a href="{% url 'sponsors:sponsors' %}" class="breadcrumb-item">Sponsors</a>
-                {% endblock %}
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'sponsors:sponsors' %}" class="breadcrumb-item">Sponsors</a>
+        {% endblock %}
+      </nav>
     </div>
+  </div>
 {% endblock %}
