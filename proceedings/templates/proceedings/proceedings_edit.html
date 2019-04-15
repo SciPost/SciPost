@@ -3,20 +3,20 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <a href="{% url 'proceedings:proceedings' %}" class="breadcrumb-item">Proceedings</a>
-    <span class="breadcrumb-item">Edit {{ proceedings.event_name }}</span>
+  {{ block.super }}
+  <a href="{% url 'proceedings:proceedings' %}" class="breadcrumb-item">Proceedings</a>
+  <span class="breadcrumb-item">Edit {{ proceedings.event_name }}</span>
 {% endblock %}
 
 {% block pagetitle %}: Edit Proceedings{% endblock pagetitle %}
 
 {% block content %}
-    <h1>Edit Proceedings</h1>
+  <h1>Edit Proceedings</h1>
 
-    <form method="post">
-        {% csrf_token %}
-        {{ form|bootstrap }}
-        <button type="submit" class="btn btn-primary">Save Proceedings</button>
-    </form>
+  <form method="post">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    <button type="submit" class="btn btn-primary">Save Proceedings</button>
+  </form>
 
 {% endblock %}

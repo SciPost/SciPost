@@ -1,49 +1,49 @@
 {% extends 'submissions/admin/base.html' %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Proceedings</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Proceedings</span>
 {% endblock %}
 
 {% block pagetitle %}: Manage Proceedings{% endblock pagetitle %}
 
 {% block content %}
-    <h1>Manage Proceedings</h1>
-    <ul>
-      <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
-      <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
-      <li><a href="{% url 'proceedings:proceedings' %}" class="active">Manage Proceedings Issues</a></li>
-      <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
-      <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
-    </ul>
-    <a href="{% url 'proceedings:proceedings_add' %}">Add new Proceedings</a>
+  <h1>Manage Proceedings</h1>
+  <ul>
+    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
+    <li><a href="{% url 'proceedings:proceedings' %}" class="active">Manage Proceedings Issues</a></li>
+    <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
+    <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+  </ul>
+  <a href="{% url 'proceedings:proceedings_add' %}">Add new Proceedings</a>
 
-    <table class="table mt-3">
-        <thead>
-            <tr>
-                <th>Event name</th>
-                <th>Submission Deadline</th>
-                <th>Guest Fellowships</th>
-                <th>Submissions</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for proc in proceedings %}
-                <tr>
-                    <td>{{ proc.event_name }}</td>
-                    <td>{{ proc.submissions_deadline }}</td>
-                    <td>{{ proc.fellowships.count }}</td>
-                    <td>{{ proc.submissions.count }}</td>
-                    <td>
-                        <a href="{% url 'proceedings:proceedings_details' proc.id %}">View Proceedings details</a>
-                    </td>
-                </tr>
-            {% empty %}
-                <tr>
-                    <td class="text-danger py-2" colspan="5">There are no Proceedings!</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th>Event name</th>
+        <th>Submission Deadline</th>
+        <th>Guest Fellowships</th>
+        <th>Submissions</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for proc in proceedings %}
+        <tr>
+          <td>{{ proc.event_name }}</td>
+          <td>{{ proc.submissions_deadline }}</td>
+          <td>{{ proc.fellowships.count }}</td>
+          <td>{{ proc.submissions.count }}</td>
+          <td>
+            <a href="{% url 'proceedings:proceedings_details' proc.id %}">View Proceedings details</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="text-danger py-2" colspan="5">There are no Proceedings!</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 {% endblock %}
