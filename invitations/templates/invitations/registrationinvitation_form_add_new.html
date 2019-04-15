@@ -6,92 +6,92 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">New</span>
+  {{block.super}}
+  <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+  <span class="breadcrumb-item">New</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">New Registration Invitation</h1>
-        <p>
-            If you want to invite a new Contributor to SciPost, first try to use the following search form to see if this person already is available in the SciPost database.
-        </p>
+      <h1 class="highlight">New Registration Invitation</h1>
+      <p>
+        If you want to invite a new Contributor to SciPost, first try to use the following search form to see if this person already is available in the SciPost database.
+      </p>
 
-        {% if suggestion_search_form %}
-            <h3 class="mb-1">Search for existing Contributor</h3>
-            <form method="get">
-                {{ suggestion_search_form|bootstrap }}
-                <input type="submit" class="btn btn-primary" value="Search">
-                {% if suggestion_search_form.is_bound %}
-                    <a href="{% url 'invitations:new' %}" class="ml-2 btn btn-link">Cancel search</a>
-                {% endif %}
-            </form>
+      {% if suggestion_search_form %}
+        <h3 class="mb-1">Search for existing Contributor</h3>
+        <form method="get">
+          {{ suggestion_search_form|bootstrap }}
+          <input type="submit" class="btn btn-primary" value="Search">
+          {% if suggestion_search_form.is_bound %}
+            <a href="{% url 'invitations:new' %}" class="ml-2 btn btn-link">Cancel search</a>
+          {% endif %}
+        </form>
 
-            <hr class="divider">
-            {% if suggestion_search_form.is_bound %}
-                {% if suggested_invitations %}
-                    <h3>Registration Invitations found</h3>
-                    <p>
-                        If the person you are trying to invite is within this list of Registration Invitations, please use it by extending that particular invitation.
-                    </p>
-                    <ul class="mb-2">
-                        {% for inv in suggested_invitations %}
-                            <li><a href="{% url 'invitations:add_citation' inv.id %}">Use Registration Invitation for {{ inv.first_name }} {{ inv.last_name }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-                {% if declined_invitations %}
-                    <h3>Declined Registration Invitations</h3>
-                    <p>
-                        If the person you are trying to invite is within this list of Registration Invitations, do not invite them again. They have already declined an earlier invitation.
-                    </p>
-                    <ul class="mb-2">
-                        {% for inv in declined_invitations %}
-                            <li>{{ inv.first_name }} {{ inv.last_name }}: {{ inv.email }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
-                <h3>Citation Notification</h3>
-                <p>
-                    If the person you are trying to invite is already a registered Contributor, it'll be listed in the following form. If not, you can <a href="{% url 'invitations:new' %}?prefill-last_name={{ suggestion_search_form.last_name.value|urlencode }}">write a new Registration Invitation</a>.
-                </p>
-            {% else %}
-                <h3 class="mb-1">...or write a new Registration Invitation</h3>
-            {% endif %}
-
-        {% endif %}
-
+        <hr class="divider">
         {% if suggestion_search_form.is_bound %}
-            <form method="post">
-                {% csrf_token %}
-                {{ citation_form|bootstrap }}
-                <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
-                <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
-                {% if perms.scipost.can_manage_registration_invitations %}
-                    <button type="submit" class="ml-2 btn btn-outline-secondary" name="save" value="save_and_send">Save and send mail</button>
-                {% endif %}
-            </form>
+          {% if suggested_invitations %}
+            <h3>Registration Invitations found</h3>
+            <p>
+              If the person you are trying to invite is within this list of Registration Invitations, please use it by extending that particular invitation.
+            </p>
+            <ul class="mb-2">
+              {% for inv in suggested_invitations %}
+                <li><a href="{% url 'invitations:add_citation' inv.id %}">Use Registration Invitation for {{ inv.first_name }} {{ inv.last_name }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          {% if declined_invitations %}
+            <h3>Declined Registration Invitations</h3>
+            <p>
+              If the person you are trying to invite is within this list of Registration Invitations, do not invite them again. They have already declined an earlier invitation.
+            </p>
+            <ul class="mb-2">
+              {% for inv in declined_invitations %}
+                <li>{{ inv.first_name }} {{ inv.last_name }}: {{ inv.email }}</a></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
 
-            <br>
-            <a href="{% url 'invitations:new' %}">Cancel search here</a> to write a new Registration Invitation.
+          <h3>Citation Notification</h3>
+          <p>
+            If the person you are trying to invite is already a registered Contributor, it'll be listed in the following form. If not, you can <a href="{% url 'invitations:new' %}?prefill-last_name={{ suggestion_search_form.last_name.value|urlencode }}">write a new Registration Invitation</a>.
+          </p>
         {% else %}
-            <form method="post">
-                {% csrf_token %}
-                {{ invitation_form|bootstrap }}
-                <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
-                <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
-            </form>
+          <h3 class="mb-1">...or write a new Registration Invitation</h3>
         {% endif %}
+
+      {% endif %}
+
+      {% if suggestion_search_form.is_bound %}
+        <form method="post">
+          {% csrf_token %}
+          {{ citation_form|bootstrap }}
+          <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
+          <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+          {% if perms.scipost.can_manage_registration_invitations %}
+            <button type="submit" class="ml-2 btn btn-outline-secondary" name="save" value="save_and_send">Save and send mail</button>
+          {% endif %}
+        </form>
+
+        <br>
+        <a href="{% url 'invitations:new' %}">Cancel search here</a> to write a new Registration Invitation.
+      {% else %}
+        <form method="post">
+          {% csrf_token %}
+          {{ invitation_form|bootstrap }}
+          <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
+          <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+        </form>
+      {% endif %}
     </div>
-</div>
+  </div>
 
 {% endblock %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ invitation_form.media }}
+  {{ block.super }}
+  {{ invitation_form.media }}
 {% endblock footer_script %}

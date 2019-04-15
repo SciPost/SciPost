@@ -5,39 +5,39 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">Add Citation Notification</span>
+  {{block.super}}
+  <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+  <span class="breadcrumb-item">Add Citation Notification</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Add Citation Notification</h1>
-        <h3>Registration Invitation</h3>
-        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
+      <h1 class="highlight">Add Citation Notification</h1>
+      <h3>Registration Invitation</h3>
+      {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
     </div>
-</div>
+  </div>
 
-<hr class="divider">
+  <hr class="divider">
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h3>Submission or Publication to add to the Registration Invitation</h3>
-        <br>
-        <form method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input type="submit" class="btn btn-primary" value="Add">
-        </form>
+      <h3>Submission or Publication to add to the Registration Invitation</h3>
+      <br>
+      <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Add">
+      </form>
 
     </div>
-</div>
+  </div>
 
 {% endblock %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ form.media }}
+  {{ block.super }}
+  {{ form.media }}
 {% endblock footer_script %}

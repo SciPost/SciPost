@@ -6,29 +6,29 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">Send reminder</span>
+  {{block.super}}
+  <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+  <span class="breadcrumb-item">Send reminder</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Send reminder for Registration Invitation</h1>
-        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
+      <h1 class="highlight">Send reminder for Registration Invitation</h1>
+      {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input type="submit" class="btn btn-primary" value="Send reminder">
-        </form>
+      <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-primary" value="Send reminder">
+      </form>
 
     </div>
-</div>
+  </div>
 
 {% endblock %}

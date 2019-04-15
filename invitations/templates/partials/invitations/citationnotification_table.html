@@ -1,63 +1,63 @@
 <table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Type</th>
-            <th>Cited in</th>
-            <th>Created by</th>
-            <th>Date created</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for notification in notifications %}
-              <tr>
-                  <td>
-                      {% if notification.contributor %}
-                          {{ notification.contributor.user.first_name }} {{ notification.contributor.user.last_name }}
-                      {% elif notification.invitation %}
-                          {{ notification.invitation.first_name }} {{ notification.invitation.last_name }}
-                      {% endif %}
-                  </td>
-                  <td>
-                      {% if notification.contributor %}
-                          {{ notification.contributor.user.email }}
-                      {% elif notification.invitation %}
-                          {{ notification.invitation.email }}
-                      {% endif %}
-                  </td>
-                  <td>
-                      {% if notification.contributor %}For Contributor{% elif notification.invitation %}Registration Invitation{% else %}<span class="text-danger">Invalid</span>{% endif %}
-                  </td>
-                  <td>
-                      {% if notification.publication %}
-                        {{ notification.publication.citation }}
-                      {% endif %}
-                      {% if notification.submission %}
-                        {{ notification.submission.preprint.identifier_w_vn_nr }}
-                      {% endif %}
-                  </td>
-                <td>{{ notification.created_by.first_name }} {{ notification.created_by.last_name }}</td>
-                <td>{{ notification.created }}</td>
-                <td>
-                    {% if notification.contributor %}
-                        <a href="{% url 'invitations:citation_notification_process' notification.id %}">Process citation</a>
-                    {% elif notification.invitation %}
-                        {% if notification.invitation.status == 'draft' %}
-                            <a href="{% url 'invitations:update' notification.invitation.id %}">Edit/send invitation</a>
-                        {% elif notification.invitation.status == 'send' or notification.invitation.status == 'edited' %}
-                            <a href="{% url 'invitations:send_reminder' notification.invitation.id %}">Send reminder</a>
-                        {% endif %}
-                    {% endif %}
-                </td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="7">
-                    All Citation Notifications have been processed.
-                </td>
-            </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Type</th>
+      <th>Cited in</th>
+      <th>Created by</th>
+      <th>Date created</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for notification in notifications %}
+      <tr>
+        <td>
+          {% if notification.contributor %}
+            {{ notification.contributor.user.first_name }} {{ notification.contributor.user.last_name }}
+          {% elif notification.invitation %}
+            {{ notification.invitation.first_name }} {{ notification.invitation.last_name }}
+          {% endif %}
+        </td>
+        <td>
+          {% if notification.contributor %}
+            {{ notification.contributor.user.email }}
+          {% elif notification.invitation %}
+            {{ notification.invitation.email }}
+          {% endif %}
+        </td>
+        <td>
+          {% if notification.contributor %}For Contributor{% elif notification.invitation %}Registration Invitation{% else %}<span class="text-danger">Invalid</span>{% endif %}
+        </td>
+        <td>
+          {% if notification.publication %}
+            {{ notification.publication.citation }}
+          {% endif %}
+          {% if notification.submission %}
+            {{ notification.submission.preprint.identifier_w_vn_nr }}
+          {% endif %}
+        </td>
+        <td>{{ notification.created_by.first_name }} {{ notification.created_by.last_name }}</td>
+        <td>{{ notification.created }}</td>
+        <td>
+          {% if notification.contributor %}
+            <a href="{% url 'invitations:citation_notification_process' notification.id %}">Process citation</a>
+          {% elif notification.invitation %}
+            {% if notification.invitation.status == 'draft' %}
+              <a href="{% url 'invitations:update' notification.invitation.id %}">Edit/send invitation</a>
+            {% elif notification.invitation.status == 'send' or notification.invitation.status == 'edited' %}
+              <a href="{% url 'invitations:send_reminder' notification.invitation.id %}">Send reminder</a>
+            {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="7">
+          All Citation Notifications have been processed.
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
 </table>

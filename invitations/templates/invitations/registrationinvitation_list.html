@@ -5,73 +5,73 @@
 {% block pagetitle %}: Registration Invitations{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Registration Invitations</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Registration Invitations</span>
 {% endblock %}
 
 {% block content %}
 
-<h1 class="highlight">Registration Invitations</h1>
+  <h1 class="highlight">Registration Invitations</h1>
 
-<div class="row">
+  <div class="row">
     <div class="col-md-6">
-        <h3>Actions</h3>
-        <ul class="mb-0">
-            {% if perms.scipost.can_create_registration_invitations %}
-                <li><a href="{% url 'invitations:new' %}">Create a new invitation</a></li>
-            {% endif %}
-            {% if perms.scipost.can_manage_registration_invitations %}
-                <li><a href="{% url 'invitations:cleanup' %}">Perform a cleanup</a></li>
-                <li><a href="{% url 'invitations:citation_notification_list' %}">List unprocessed Citation Notifications ({{ count_unprocessed }})<a/></li>
-                <li><a href="{% url 'invitations:list_contributors' %}">List draft Contributor Invitations (to be sent)</a></li>
-            {% endif %}
-            {% if perms.scipost.can_invite_fellows %}
-                <li><a href="{% url 'invitations:list_fellows' %}">List Fellow Invitations</a></li>
-            {% endif %}
+      <h3>Actions</h3>
+      <ul class="mb-0">
+        {% if perms.scipost.can_create_registration_invitations %}
+          <li><a href="{% url 'invitations:new' %}">Create a new invitation</a></li>
+        {% endif %}
+        {% if perms.scipost.can_manage_registration_invitations %}
+          <li><a href="{% url 'invitations:cleanup' %}">Perform a cleanup</a></li>
+          <li><a href="{% url 'invitations:citation_notification_list' %}">List unprocessed Citation Notifications ({{ count_unprocessed }})<a/></li>
+            <li><a href="{% url 'invitations:list_contributors' %}">List draft Contributor Invitations (to be sent)</a></li>
+        {% endif %}
+        {% if perms.scipost.can_invite_fellows %}
+          <li><a href="{% url 'invitations:list_fellows' %}">List Fellow Invitations</a></li>
+        {% endif %}
 
-            <li><a href="{% url 'invitations:list_sent' %}">Show all Invitations pending response</a></li>
-        </ul>
+        <li><a href="{% url 'invitations:list_sent' %}">Show all Invitations pending response</a></li>
+      </ul>
     </div>
     <div class="col-md-6 text-md-right">
-        <h3>Quick stats</h3>
-        Number in draft: {{ count_in_draft }}<br>
-        Number pending response: {{ count_pending }}
+      <h3>Quick stats</h3>
+      Number in draft: {{ count_in_draft }}<br>
+      Number pending response: {{ count_pending }}
 
-        {% if perms.scipost.can_create_registration_invitations %}
-            <br><br>
-            <a href="{% url 'invitations:new' %}" class="btn btn-primary">Create a new invitation</a>
-        {% endif %}
+      {% if perms.scipost.can_create_registration_invitations %}
+        <br><br>
+        <a href="{% url 'invitations:new' %}" class="btn btn-primary">Create a new invitation</a>
+      {% endif %}
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h2 class="highlight">Registration Invitations</h2>
+      <h2 class="highlight">Registration Invitations</h2>
     </div>
     <div class="col-md-6">
-        <form method="get">
-            {{ search_form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Filter">
-            <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
-        </form>
+      <form method="get">
+        {{ search_form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Filter">
+        <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
+      </form>
     </div>
     {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
+      <div class="col-12">
+        {% include 'partials/pagination.html' with page_obj=page_obj %}
+      </div>
     {% endif %}
     <div class="col-12">
-        <br>
-        {% include 'partials/invitations/registrationinvitation_table.html' with invitations=object_list %}
-        {% if search_form.is_bound %}
-            <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
-        {% endif %}
+      <br>
+      {% include 'partials/invitations/registrationinvitation_table.html' with invitations=object_list %}
+      {% if search_form.is_bound %}
+        <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
+      {% endif %}
     </div>
     {% if is_paginated %}
-        <div class="col-12">
-            {% include 'partials/pagination.html' with page_obj=page_obj %}
-        </div>
+      <div class="col-12">
+        {% include 'partials/pagination.html' with page_obj=page_obj %}
+      </div>
     {% endif %}
-</div>
+  </div>
 
 {% endblock %}

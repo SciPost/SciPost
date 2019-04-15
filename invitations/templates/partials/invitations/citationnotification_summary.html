@@ -1,42 +1,42 @@
 <table class="registration_invitation notification">
-    <tr>
-        <th>Name</th>
-        <td>
-            {% if notification.contributor %}
-                {{ notification.contributor.get_title_display }} {{ notification.contributor.user.first_name }} {{ notification.contributor.user.last_name }}
-            {% elif notification.invitation %}
-                {{ notification.invitation.first_name }} {{ notification.invitation.last_name }}
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <th>Email</th>
-        <td>
-            {% if notification.contributor %}
-                {{ notification.contributor.user.email }}
-            {% elif notification.invitation %}
-                {{ notification.invitation.email }}
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <th>Status</th>
-        <td>{{ notification.processed|yesno:'Processed,Not processed' }}</td>
-    </tr>
-    <tr>
-        <th>Submission</th>
-        <td>{{ notification.submission|default:'-' }}</td>
-    </tr>
-    <tr>
-        <th>Publication</th>
-        <td>{{ notification.publication|default:'-' }}</td>
-    </tr>
-    <tr>
-        <th>Created</th>
-        <td>{{ notification.created }} (by {{ notification.created_by.first_name }} {{ notification.created_by.last_name }})</td>
-    </tr>
-    <tr>
-        <th>Date Sent</th>
-        <td>{{ notification.date_sent|default:'<em>Not sent yet</em>' }}</td>
-    </tr>
+  <tr>
+    <th>Name</th>
+    <td>
+      {% if notification.contributor %}
+        {{ notification.contributor.get_title_display }} {{ notification.contributor.user.first_name }} {{ notification.contributor.user.last_name }}
+      {% elif notification.invitation %}
+        {{ notification.invitation.first_name }} {{ notification.invitation.last_name }}
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th>Email</th>
+    <td>
+      {% if notification.contributor %}
+        {{ notification.contributor.user.email }}
+      {% elif notification.invitation %}
+        {{ notification.invitation.email }}
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <th>Status</th>
+    <td>{{ notification.processed|yesno:'Processed,Not processed' }}</td>
+  </tr>
+  <tr>
+    <th>Submission</th>
+    <td>{{ notification.submission|default:'-' }}</td>
+  </tr>
+  <tr>
+    <th>Publication</th>
+    <td>{{ notification.publication|default:'-' }}</td>
+  </tr>
+  <tr>
+    <th>Created</th>
+    <td>{{ notification.created }} (by {{ notification.created_by.first_name }} {{ notification.created_by.last_name }})</td>
+  </tr>
+  <tr>
+    <th>Date Sent</th>
+    <td>{{ notification.date_sent|default:'<em>Not sent yet</em>' }}</td>
+  </tr>
 </table>

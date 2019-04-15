@@ -5,29 +5,29 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">Mark {{ request.resolver_match.kwargs.label }}</span>
+  {{block.super}}
+  <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+  <span class="breadcrumb-item">Mark {{ request.resolver_match.kwargs.label }}</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Mark Registration Invitation {{ request.resolver_match.kwargs.label }}</h1>
-        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
+      <h1 class="highlight">Mark Registration Invitation {{ request.resolver_match.kwargs.label }}</h1>
+      {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <form method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <button type="submit" class="btn btn-primary" name="save" value="save">Mark {{ request.resolver_match.kwargs.label }}</button>
-        </form>
+      <form method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-primary" name="save" value="save">Mark {{ request.resolver_match.kwargs.label }}</button>
+      </form>
 
     </div>
-</div>
+  </div>
 
 {% endblock %}

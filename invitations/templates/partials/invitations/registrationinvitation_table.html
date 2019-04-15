@@ -1,76 +1,76 @@
 {% load scipost_extras %}
 
 <table class="table table-hover">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Type</th>
-            <th>Drafted by</th>
-            <th>Date created</th>
-            <th>Times sent</th>
-            <th colspan="2">Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for invitation in invitations %}
-          <tr>
-            <td>
-                <small><i class="fa fa-paperclip" data-toggle="tooltip" data-html="true" data-title="<ul style='margin-bottom:0; padding: 0 10px 0 20px; min-height: 20px;'>{% for cit in invitation.citation_notifications.all %}<li>{% if cit.submission %}{{ cit.submission.preprint.identifier_w_vn_nr }}{% endif %}{% if cit.publication %}{{ cit.publication.doi_label }}{% endif %}</li>{% endfor %}</ul>"></i></small>
-                {{ invitation.last_name }}, {{ invitation.first_name }}
-            </td>
-            <td>{{ invitation.email }}</td>
-            <td{% if invitation.status == 'draft' %} class="text-warning"{% endif %}>{{ invitation.get_status_display }}</td>
-            <td>{{ invitation.get_invitation_type_display }}</td>
-            <td>{{ invitation.created_by.first_name }} {{ invitation.created_by.last_name }}</td>
-            <td>{{ invitation.created }}</td>
-            <td>
-                {% if invitation.times_sent %}
-                    <strong>{{ invitation.times_sent }}</strong> time{{ invitation.times_sent|pluralize }}
-                    &middot; {{ invitation.date_sent_last|timesince }} ago
-                {% else %}
-                    -
-                {% endif %}
-            </td>
-            {% if perms.scipost.can_manage_registration_invitations %}
-                <td>
-                    <ul class="pl-3 mb-0">
-                        {% if invitation.status == 'draft' %}
-                            <li><a href="{% url 'invitations:update' invitation.id %}">Edit or send</a></li>
-                            <li><a href="{% url 'invitations:mark' invitation.id 'sent' %}">Mark as sent</a></li>
-                        {% elif invitation.status == 'sent' or invitation.status == 'edited' %}
-                            <li><a href="{% url 'invitations:send_reminder' invitation.id %}">Send reminder</a></li>
-                        {% endif %}
-                        <li><a class="text-danger" href="{% url 'invitations:delete' invitation.id %}">Delete</a></li>
-                    </ul>
-                </td>
-                <td>
-                    <ul class="mb-0">
-                        {% for ac in invitation|associated_contributors %}
-                            <li>
-                                <a href="{% url 'invitations:map_to_contributor' pk=invitation.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a>
-                            </li>
-                        {% endfor %}
-                        <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
-                        <li><a href="{% url 'invitations:merge' invitation.id %}">Merge this Invitation</a></li>
-                    </ul>
-                </td>
-            {% else %}
-                <td colspan="2">
-                    <ul class="pl-3 mb-0">
-                        <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
-                        {% if invitation.status == 'draft' and invitation.created_by == request.user %}
-                            <li><a href="{% url 'invitations:update' invitation.id %}">Edit Invitation</a></li>
-                        {% endif %}
-                    </ul>
-                </td>
-            {% endif %}
-          </tr>
-        {% empty %}
-            <tr>
-                <td colspan="9">No Invitations found.</td>
-            </tr>
-        {% endfor %}
-    </tbody>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Status</th>
+      <th>Type</th>
+      <th>Drafted by</th>
+      <th>Date created</th>
+      <th>Times sent</th>
+      <th colspan="2">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for invitation in invitations %}
+      <tr>
+        <td>
+          <small><i class="fa fa-paperclip" data-toggle="tooltip" data-html="true" data-title="<ul style='margin-bottom:0; padding: 0 10px 0 20px; min-height: 20px;'>{% for cit in invitation.citation_notifications.all %}<li>{% if cit.submission %}{{ cit.submission.preprint.identifier_w_vn_nr }}{% endif %}{% if cit.publication %}{{ cit.publication.doi_label }}{% endif %}</li>{% endfor %}</ul>"></i></small>
+          {{ invitation.last_name }}, {{ invitation.first_name }}
+        </td>
+        <td>{{ invitation.email }}</td>
+        <td{% if invitation.status == 'draft' %} class="text-warning"{% endif %}>{{ invitation.get_status_display }}</td>
+        <td>{{ invitation.get_invitation_type_display }}</td>
+        <td>{{ invitation.created_by.first_name }} {{ invitation.created_by.last_name }}</td>
+        <td>{{ invitation.created }}</td>
+        <td>
+          {% if invitation.times_sent %}
+            <strong>{{ invitation.times_sent }}</strong> time{{ invitation.times_sent|pluralize }}
+            &middot; {{ invitation.date_sent_last|timesince }} ago
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        {% if perms.scipost.can_manage_registration_invitations %}
+          <td>
+            <ul class="pl-3 mb-0">
+              {% if invitation.status == 'draft' %}
+                <li><a href="{% url 'invitations:update' invitation.id %}">Edit or send</a></li>
+                <li><a href="{% url 'invitations:mark' invitation.id 'sent' %}">Mark as sent</a></li>
+              {% elif invitation.status == 'sent' or invitation.status == 'edited' %}
+                <li><a href="{% url 'invitations:send_reminder' invitation.id %}">Send reminder</a></li>
+              {% endif %}
+              <li><a class="text-danger" href="{% url 'invitations:delete' invitation.id %}">Delete</a></li>
+            </ul>
+          </td>
+          <td>
+            <ul class="mb-0">
+              {% for ac in invitation|associated_contributors %}
+                <li>
+                  <a href="{% url 'invitations:map_to_contributor' pk=invitation.id contributor_id=ac.id %}">Map to {{ ac.user.first_name }} {{ ac.user.last_name }}</a>
+                </li>
+              {% endfor %}
+              <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
+              <li><a href="{% url 'invitations:merge' invitation.id %}">Merge this Invitation</a></li>
+            </ul>
+          </td>
+        {% else %}
+          <td colspan="2">
+            <ul class="pl-3 mb-0">
+              <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
+              {% if invitation.status == 'draft' and invitation.created_by == request.user %}
+                <li><a href="{% url 'invitations:update' invitation.id %}">Edit Invitation</a></li>
+              {% endif %}
+            </ul>
+          </td>
+        {% endif %}
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspan="9">No Invitations found.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
 </table>

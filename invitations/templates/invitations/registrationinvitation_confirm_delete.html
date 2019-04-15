@@ -3,25 +3,25 @@
 {% block pagetitle %}: Delete Registration Invitation{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
-    <span class="breadcrumb-item">Delete {{ object.id }}</span>
+  {{block.super}}
+  <a href="{% url 'invitations:list' %}" class="breadcrumb-item">Registration Invitations</a>
+  <span class="breadcrumb-item">Delete {{ object.id }}</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Delete Registration Invitation {{ object.id }}</h1>
-        <p>Are you sure you want to delete the Registration Invitation?</p>
-        {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
+      <h1 class="highlight">Delete Registration Invitation {{ object.id }}</h1>
+      <p>Are you sure you want to delete the Registration Invitation?</p>
+      {% include 'partials/invitations/registrationinvitation_summary.html' with invitation=object %}
 
-        <form method="post">
-            {% csrf_token %}
-            <input type="submit" class="btn btn-danger" value="Delete Registration Invitation">
-        </form>
+      <form method="post">
+        {% csrf_token %}
+        <input type="submit" class="btn btn-danger" value="Delete Registration Invitation">
+      </form>
 
     </div>
-</div>
+  </div>
 
 {% endblock %}
