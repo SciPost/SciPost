@@ -5,24 +5,24 @@
 {% block pagetitle %}: News Items{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <a href="{% url 'news:manage' %}" class="breadcrumb-item">News Management</a>
-    <span class="breadcrumb-item">{{ object.headline|truncatechars:20 }}</span>
+  {{ block.super }}
+  <a href="{% url 'news:manage' %}" class="breadcrumb-item">News Management</a>
+  <span class="breadcrumb-item">{{ object.headline|truncatechars:20 }}</span>
 {% endblock %}
 
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <h1 class="highlight">Update News Item</h1>
-    {% include 'news/news_card_content.html' with news=object %}
-    <br>
-    <form action="{% url 'news:newsitem_update' pk=object.id %}" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Update News Item</h1>
+      {% include 'news/news_card_content.html' with news=object %}
+      <br>
+      <form action="{% url 'news:newsitem_update' pk=object.id %}" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+      </form>
+    </div>
   </div>
-</div>
 {% endblock content %}

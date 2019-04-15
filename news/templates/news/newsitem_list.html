@@ -7,55 +7,55 @@
 
 
 {% block breadcrumb_items %}
-    <a href="{% url 'scipost:index' %}" class="breadcrumb-item">Home</a>
-    <span class="breadcrumb-item">News</span>
+  <a href="{% url 'scipost:index' %}" class="breadcrumb-item">Home</a>
+  <span class="breadcrumb-item">News</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h1 class="highlight">SciPost News</h1>
       {% if perms.scipost.can_manage_news %}
-      <p>Go to the <a href="{% url 'news:manage' %}">News management page</a></p>
+	<p>Go to the <a href="{% url 'news:manage' %}">News management page</a></p>
       {% endif %}
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        {% if is_paginated %}
-              <p>
-              {% if page_obj.has_previous %}
-                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
-              {% endif %}
-              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-              {% if page_obj.has_next %}
-                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
-              {% endif %}
-              <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
-              </p>
+      {% if is_paginated %}
+        <p>
+          {% if page_obj.has_previous %}
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
           {% endif %}
-
-        {% for item in object_list %}
-            {% include 'news/news_card_content.html' with news=item %}
-        {% empty %}
-            <div>No news found.</div>
-        {% endfor %}
-
-        {% if is_paginated %}
-              <p class="mt-4">
-              {% if page_obj.has_previous %}
-                <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
-              {% endif %}
-              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-              {% if page_obj.has_next %}
-                <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
-              {% endif %}
-              <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
-              </p>
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+          {% if page_obj.has_next %}
+            <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
           {% endif %}
+          <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
+        </p>
+      {% endif %}
+
+      {% for item in object_list %}
+        {% include 'news/news_card_content.html' with news=item %}
+      {% empty %}
+        <div>No news found.</div>
+      {% endfor %}
+
+      {% if is_paginated %}
+        <p class="mt-4">
+          {% if page_obj.has_previous %}
+            <a href="?{% url_replace page=page_obj.previous_page_number %}">Previous</a>
+          {% endif %}
+          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+          {% if page_obj.has_next %}
+            <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
+          {% endif %}
+          <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
+        </p>
+      {% endif %}
     </div>
-</div>
+  </div>
 
 {% endblock content %}

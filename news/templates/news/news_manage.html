@@ -5,91 +5,91 @@
 {% block pagetitle %}: News Management{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">News Management</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">News Management</span>
 {% endblock %}
 
 {% block content %}
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">News Management</h1>
+      <h1 class="highlight">News Management</h1>
 
-        <h2 class="highlight">Newsletters</h2>
-        <a href="{% url 'news:newsletter_create' %}">Add a Newsletter</a>
-        <br/>
-        <br/>
-        {% for nl in newsletters %}
-            <div class="card mb-2">
-                <div class="card-header" data-toggle="collapse" href="#collapse{{ nl.id }}" aria-expanded="false" aria-controls="collapse{{ nl.id }}">
-                {{ nl }}
-                (status: {{ nl.published|yesno:'published,unpublished' }})
-                </div>
-                <div class="card-body collapse" id="collapse{{ nl.id }}">
-                    <div class="row">
-                        <div class="col-6">
-                            <a href="{{ nl.get_absolute_url }}" target="_blank">View this Newsletter in a separate window</a>
-                            <br/>
-                            <br/>
-                            <h3>News Items included in this Newsletter:</h3>
-                            <ul>
-                                {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
-                                    <li>{{ nt.newsitem }}{% if not nt.newsitem.published %}&nbsp;<span class="text-danger">WARNING: unpublished</span>{% endif %}</li>
-                                {% empty %}
-                                    <li>No associated NewsItems found</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <div class="col-6">
-                            <h3>Actions:</h3>
-                            <ul>
-                                <li><a href="{% url 'news:newsletter_update' pk=nl.id %}">Update</a></li>
-                                <li><a href="{% url 'news:newsletter_update_ordering' pk=nl.id %}">Update items ordering</a></li>
-                                <li><a href="{% url 'news:newsletter_delete' pk=nl.id %}">Delete</a></li>
-                                <li>
-                                    Add a News Item to this Newsletter:
-                                    <form class="d-block mt-2 mb-3" action="{% url 'news:add_newsitem_to_newsletter' nlpk=nl.id %}" method="post">
-                                        {% csrf_token %}
-                                        {{ add_ni_to_nl_form|bootstrap }}
-                                        <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+      <h2 class="highlight">Newsletters</h2>
+      <a href="{% url 'news:newsletter_create' %}">Add a Newsletter</a>
+      <br/>
+      <br/>
+      {% for nl in newsletters %}
+        <div class="card mb-2">
+          <div class="card-header" data-toggle="collapse" href="#collapse{{ nl.id }}" aria-expanded="false" aria-controls="collapse{{ nl.id }}">
+            {{ nl }}
+            (status: {{ nl.published|yesno:'published,unpublished' }})
+          </div>
+          <div class="card-body collapse" id="collapse{{ nl.id }}">
+            <div class="row">
+              <div class="col-6">
+                <a href="{{ nl.get_absolute_url }}" target="_blank">View this Newsletter in a separate window</a>
+                <br/>
+                <br/>
+                <h3>News Items included in this Newsletter:</h3>
+                <ul>
+                  {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
+                    <li>{{ nt.newsitem }}{% if not nt.newsitem.published %}&nbsp;<span class="text-danger">WARNING: unpublished</span>{% endif %}</li>
+                  {% empty %}
+                    <li>No associated NewsItems found</li>
+                  {% endfor %}
+                </ul>
+              </div>
+              <div class="col-6">
+                <h3>Actions:</h3>
+                <ul>
+                  <li><a href="{% url 'news:newsletter_update' pk=nl.id %}">Update</a></li>
+                  <li><a href="{% url 'news:newsletter_update_ordering' pk=nl.id %}">Update items ordering</a></li>
+                  <li><a href="{% url 'news:newsletter_delete' pk=nl.id %}">Delete</a></li>
+                  <li>
+                    Add a News Item to this Newsletter:
+                    <form class="d-block mt-2 mb-3" action="{% url 'news:add_newsitem_to_newsletter' nlpk=nl.id %}" method="post">
+                      {% csrf_token %}
+                      {{ add_ni_to_nl_form|bootstrap }}
+                      <input type="submit" name="submit" value="Add" class="btn btn-outline-secondary">
+                    </form>
+                  </li>
+                </ul>
+              </div>
             </div>
-        {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
     </div>
-</div>
-<div class="row">
+  </div>
+  <div class="row">
     <div class="col-12">
-        <h2 class="highlight">News items</h2>
-        <a href="{% url 'news:newsitem_create' %}">Add a News item</a>
-        <br/>
-        <br/>
-        <table class="table table-hover">
-            <thead>
-                <th>Item</th>
-                <th>Publication date</th>
-                <th>Published?</th>
-                <th>On homepage?</th>
-                <th>Actions</th>
-            </thead>
+      <h2 class="highlight">News items</h2>
+      <a href="{% url 'news:newsitem_create' %}">Add a News item</a>
+      <br/>
+      <br/>
+      <table class="table table-hover">
+        <thead>
+          <th>Item</th>
+          <th>Publication date</th>
+          <th>Published?</th>
+          <th>On homepage?</th>
+          <th>Actions</th>
+        </thead>
             </tbody>
-                {% for ni in newsitems %}
-                <tr>
-                    <td>{{ ni.headline }}</td>
-                    <td>{{ ni.date }}</td>
-                    <td><i class="fa fa-{{ ni.published|yesno:'check text-success,times text-danger' }}"></i> {{ ni.published|yesno:'Yes,No' }}</td>
-                    <td><i class="fa fa-{{ ni.on_homepage|yesno:'check text-success,times text-danger' }}"></i> {{ ni.on_homepage|yesno:'Yes,No' }}</td>
-                    <td>
-                        <a href="{% url 'news:newsitem_update' pk=ni.id %}">Update</a> &middot;
-                        <a href="{% url 'news:newsitem_delete' pk=ni.id %}" class="text-danger">Delete</a>
-                    </td>
-                </tr>
-                {% endfor %}
+            {% for ni in newsitems %}
+              <tr>
+                <td>{{ ni.headline }}</td>
+                <td>{{ ni.date }}</td>
+                <td><i class="fa fa-{{ ni.published|yesno:'check text-success,times text-danger' }}"></i> {{ ni.published|yesno:'Yes,No' }}</td>
+                <td><i class="fa fa-{{ ni.on_homepage|yesno:'check text-success,times text-danger' }}"></i> {{ ni.on_homepage|yesno:'Yes,No' }}</td>
+                <td>
+                  <a href="{% url 'news:newsitem_update' pk=ni.id %}">Update</a> &middot;
+                  <a href="{% url 'news:newsitem_delete' pk=ni.id %}" class="text-danger">Delete</a>
+                </td>
+              </tr>
+            {% endfor %}
             </tbody>
-        </table>
+      </table>
     </div>
-</div>
+  </div>
 {% endblock content %}

@@ -5,7 +5,7 @@
       <div>{{ nl.intro|safe }}</div>
     </div>
     {% for nt in nl.newsletternewsitemstable_set.all|dictsort:'order' %}
-        {% include 'news/news_card_content.html' with news=nt.newsitem %}
+      {% include 'news/news_card_content.html' with news=nt.newsitem %}
     {% endfor %}
     <div class="card bg-light card-news p-3">
       {{ nl.closing|safe }}

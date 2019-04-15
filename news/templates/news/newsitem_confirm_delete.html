@@ -5,16 +5,16 @@
 {% block pagetitle %}: Delete News Item{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <a href="{% url 'news:manage' %}" class="breadcrumb-item">News Management</a>
-    <span class="breadcrumb-item">Delete {{ object.headline|truncatechars:20 }}</span>
+  {{ block.super }}
+  <a href="{% url 'news:manage' %}" class="breadcrumb-item">News Management</a>
+  <span class="breadcrumb-item">Delete {{ object.headline|truncatechars:20 }}</span>
 {% endblock %}
 
 {% block content %}
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Delete News Item</h1>
-    	{% include 'news/news_card_content.html' with news=object %}
+      <h1 class="highlight">Delete News Item</h1>
+      {% include 'news/news_card_content.html' with news=object %}
 
 
       <form method="post">
@@ -23,7 +23,7 @@
         <input type="submit" class="btn btn-danger" value="Yes, delete it" />
       </form>
     </ul>
+    </div>
   </div>
-</div>
 
 {% endblock content %}
