@@ -7,54 +7,54 @@
 {% block pagetitle %}: Submission Editors{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    {% if submission.status == 'incoming' %}
-        <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a>
-    {% else %}
-        <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
-    {% endif %}
-    <span class="breadcrumb-item">Conflicts of Interest</span>
+  {{block.super}}
+  {% if submission.status == 'incoming' %}
+    <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a>
+  {% else %}
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
+  {% endif %}
+  <span class="breadcrumb-item">Conflicts of Interest</span>
 {% endblock %}
 
 {% block content %}
 
 
-<h1 class="highlight">Submission's Conflicts of Interest</h1>
-<h3><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
-<h4>by {{submission.author_list}}</h4>
-<br>
+  <h1 class="highlight">Submission's Conflicts of Interest</h1>
+  <h3><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
+  <h4>by {{submission.author_list}}</h4>
+  <br>
 
-<h3>Submission summary</h3>
-{% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
+  <h3>Submission summary</h3>
+  {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
 
-<br>
-<a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a>
-<br>
-<br>
+  <br>
+  <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a>
+  <br>
+  <br>
 
 
-<h3 class="highlight">Conflicts of Interest</h3>
+  <h3 class="highlight">Conflicts of Interest</h3>
 
-<table class="table table-hover" id="current-pool">
+  <table class="table table-hover" id="current-pool">
     <thead>
-        <tr>
-            <th colspan="2">Fellow</th>
-        </tr>
+      <tr>
+        <th colspan="2">Fellow</th>
+      </tr>
     </thead>
     <tbody>
-        {% for fellow in submission.fellows.all %}
-            <tr>
-                <td>
-                    <strong>{{ fellow }}</strong>
-                </td>
-                <td>
-                    {% with fellow.contributor.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
-                        {% include 'partials/submissions/admin/conflicts.html' with conflicts=conflicts %}
-                    {% endwith %}
-                </td>
-            </tr>
-        {% endfor %}
+      {% for fellow in submission.fellows.all %}
+        <tr>
+          <td>
+            <strong>{{ fellow }}</strong>
+          </td>
+          <td>
+            {% with fellow.contributor.conflict_of_interests.non_deprecated|filter_for_submission:submission as conflicts %}
+              {% include 'partials/submissions/admin/conflicts.html' with conflicts=conflicts %}
+            {% endwith %}
+          </td>
+        </tr>
+      {% endfor %}
     </tbody>
-</table>
+  </table>
 
 {% endblock %}

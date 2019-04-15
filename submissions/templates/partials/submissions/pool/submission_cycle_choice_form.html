@@ -1,101 +1,101 @@
 {% load bootstrap %}
 <form method="post" action="{% url 'submissions:cycle_confirmation' submission.preprint.identifier_w_vn_nr %}">
-    {% csrf_token %}
-    <div class="row">
-        <div class="col-12">
-            <h2>This submission is a resubmission</h2>
-            <h3>Please choose which submission cycle to proceed with, and (if relevant) specify which referees you’d like to reinvite:</h3>
-        </div>
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-12">
+      <h2>This submission is a resubmission</h2>
+      <h3>Please choose which submission cycle to proceed with, and (if relevant) specify which referees you’d like to reinvite:</h3>
     </div>
+  </div>
 
-    <!-- Refereeing cycle -->
+  <!-- Refereeing cycle -->
+  <div class="form-group row">
+    <label class="col-form-label col-md-2 ">Refereeing cycle</label>
+    <div class="col-md-10">
+      {% for widget in form.refereeing_cycle.subwidgets %}
+        <div class="radio" data-reinvite="{% if widget.data.value == 'direct_rec' %}0{% else %}1{% endif %}">
+          <label for="{{widget.id_for_label}}" class="mb-0">
+            {{widget.tag}}
+            {{widget.choice_label}}
+          </label>
+        </div>
+        <p class="help-block text-muted">
+          {{ widget.help_text|safe }}
+          {% if widget.data.value == 'short' %}
+            Run a speedy refereeing round: two weeks, with option of reinviting previous referees
+          {% elif widget.data.value == 'direct_rec' %}
+            Immediately write an editorial recommendation.
+          {% else %}
+            Run a new full refereeing round: four weeks as usual, can invite previous referees and/or new ones.
+          {% endif %}
+        </p>
+
+
+      {% endfor %}
+      {% for error in form.refereeing_cycle.errors %}
+        <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
+      {% endfor %}
+    </div>
+  </div><!-- end refereeing cycle -->
+
+  <!-- Reinvite referees -->
+  <div id="id_referees_reinvite_block" style="display: none;">
+    <div class="row mb-0">
+      <div class="col-12">
+        {# <h3>The following referees were also invited in the last submission</h3>#}
+        <h4>Please choose who you want to reinvite (an invitation will be automatically emailed to the referee)</h4>
+      </div>
+    </div>
     <div class="form-group row">
-        <label class="col-form-label col-md-2 ">Refereeing cycle</label>
-        <div class="col-md-10">
-            {% for widget in form.refereeing_cycle.subwidgets %}
-                <div class="radio" data-reinvite="{% if widget.data.value == 'direct_rec' %}0{% else %}1{% endif %}">
-                    <label for="{{widget.id_for_label}}" class="mb-0">
-                        {{widget.tag}}
-                        {{widget.choice_label}}
-                    </label>
+      <label class="col-form-label col-md-2 ">Reinvite referees</label>
+      <div class="col-md-10">
+        <ul class="list-group list-group-flush">
+          {% for referee in form.referees_reinvite.field.queryset %}
+            <li class="list-group-item py-1">
+              <label for="{{form.referees_reinvite.name}}_{{forloop.counter0}}" class="mb-0">
+                <input checked="checked" id="{{form.referees_reinvite.name}}_{{forloop.counter0}}" name="{{form.referees_reinvite.name}}" type="checkbox" value="{{referee.id}}">
+                <div class="d-inline-block" style="vertical-align: top;">
+                  {{referee.referee_str}}
+                  <br>
+                  <span class="text-muted">Originally invited on {{referee.date_invited}}</span>
                 </div>
-                <p class="help-block text-muted">
-                    {{ widget.help_text|safe }}
-                    {% if widget.data.value == 'short' %}
-                        Run a speedy refereeing round: two weeks, with option of reinviting previous referees
-                    {% elif widget.data.value == 'direct_rec' %}
-                        Immediately write an editorial recommendation.
-                    {% else %}
-                        Run a new full refereeing round: four weeks as usual, can invite previous referees and/or new ones.
-                    {% endif %}
-                </p>
-
-
-            {% endfor %}
-            {% for error in form.refereeing_cycle.errors %}
-                <span class="help-block {{ form.error_css_class }}">{{ error }}</span>
-            {% endfor %}
-        </div>
-    </div><!-- end refereeing cycle -->
-
-    <!-- Reinvite referees -->
-    <div id="id_referees_reinvite_block" style="display: none;">
-        <div class="row mb-0">
-            <div class="col-12">
-                {# <h3>The following referees were also invited in the last submission</h3>#}
-                <h4>Please choose who you want to reinvite (an invitation will be automatically emailed to the referee)</h4>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-form-label col-md-2 ">Reinvite referees</label>
-            <div class="col-md-10">
-                <ul class="list-group list-group-flush">
-                    {% for referee in form.referees_reinvite.field.queryset %}
-                        <li class="list-group-item py-1">
-                            <label for="{{form.referees_reinvite.name}}_{{forloop.counter0}}" class="mb-0">
-                                <input checked="checked" id="{{form.referees_reinvite.name}}_{{forloop.counter0}}" name="{{form.referees_reinvite.name}}" type="checkbox" value="{{referee.id}}">
-                                <div class="d-inline-block" style="vertical-align: top;">
-                                    {{referee.referee_str}}
-                                    <br>
-                                    <span class="text-muted">Originally invited on {{referee.date_invited}}</span>
-                                </div>
-                             </label>
-                         </li>
-                    {% empty %}
-                        <li class="list-group-item py-1"><em>No former referees found</em></li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div><!-- end reinvite referees -->
-    </div>
-    <p data-cycle="default" class="mt-4" style="display: none;">You will also be able to invite other referees from the Editorial Page.</p>
-    <p data-cycle="short" class="mt-4" style="display: none;">You can only consult those referees in this short cycle; if you want to invite new referees, choose the Default cycle.</p>
-    <input type="submit" class="btn btn-primary" value="Confirm choice">
+              </label>
+            </li>
+          {% empty %}
+            <li class="list-group-item py-1"><em>No former referees found</em></li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div><!-- end reinvite referees -->
+  </div>
+  <p data-cycle="default" class="mt-4" style="display: none;">You will also be able to invite other referees from the Editorial Page.</p>
+  <p data-cycle="short" class="mt-4" style="display: none;">You can only consult those referees in this short cycle; if you want to invite new referees, choose the Default cycle.</p>
+  <input type="submit" class="btn btn-primary" value="Confirm choice">
 </form>
 
 <script>
-    jQuery(function(){
-        $('[name="{{form.refereeing_cycle.name}}"]').on('click change', function(){
-            var element = $('[name="{{form.refereeing_cycle.name}}"]:checked');
-            var reinvite = element.parents('.radio').attr('data-reinvite') == 1;
+ jQuery(function(){
+     $('[name="{{form.refereeing_cycle.name}}"]').on('click change', function(){
+         var element = $('[name="{{form.refereeing_cycle.name}}"]:checked');
+         var reinvite = element.parents('.radio').attr('data-reinvite') == 1;
 
-            // Show/hide invitation block
-            if(reinvite > 0) {
-                $('#id_referees_reinvite_block').show();
-            } else {
-                $('#id_referees_reinvite_block').hide();
-            }
+         // Show/hide invitation block
+         if(reinvite > 0) {
+             $('#id_referees_reinvite_block').show();
+         } else {
+             $('#id_referees_reinvite_block').hide();
+         }
 
-            // Show/hide help text
-            if(element.val() == 'default') {
-                $('[data-cycle="default"]').show();
-                $('[data-cycle="short"]').hide();
-            } else if(element.val() == 'short') {
-                $('[data-cycle="short"]').show();
-                $('[data-cycle="default"]').hide();
-            } else {
-                $('[data-cycle]').hide();
-            }
-        }).trigger('change');
-    });
+         // Show/hide help text
+         if(element.val() == 'default') {
+             $('[data-cycle="default"]').show();
+             $('[data-cycle="short"]').hide();
+         } else if(element.val() == 'short') {
+             $('[data-cycle="short"]').show();
+             $('[data-cycle="default"]').hide();
+         } else {
+             $('[data-cycle]').hide();
+         }
+     }).trigger('change');
+ });
 </script>

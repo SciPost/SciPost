@@ -1,113 +1,113 @@
 <table class="w-100 mb-1">
+  <tr>
+    <td style="min-width: 40%;">Version</td>
+    <td>{{submission.preprint.vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.preprint.vn_nr}}{% endif %})</td>
+  </tr>
+  {% if submission.preprint.url %}
     <tr>
-        <td style="min-width: 40%;">Version</td>
-        <td>{{submission.preprint.vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.preprint.vn_nr}}{% endif %})</td>
+      <td>Arxiv Link</td>
+      <td>
+        <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
+      </td>
     </tr>
-    {% if submission.preprint.url %}
-        <tr>
-            <td>Arxiv Link</td>
-            <td>
-                <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
-            </td>
-        </tr>
-        {% elif submission.preprint.get_absolute_url %}
-            <tr>
-                <td>Preprint link:</td>
-                <td>
-                    <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
-                </td>
-            </tr>
+  {% elif submission.preprint.get_absolute_url %}
+    <tr>
+      <td>Preprint link:</td>
+      <td>
+        <a href="{{ submission.preprint.get_absolute_url }}" target="_blank">{{ submission.preprint.identifier_w_vn_nr }}</a>
+      </td>
+    </tr>
+  {% endif %}
+  <tr>
+    <td>Submitted</td>
+    <td>{{submission.submission_date}} to {{submission.submitted_to}}</td>
+  </tr>
+
+  {% if submission.proceedings %}
+    <tr>
+      <td>Proceedings issue</td>
+      <td>{{ submission.proceedings }}</td>
+    </tr>
+  {% endif %}
+
+  {% if submission.acceptance_date %}
+    <tr>
+      <td>Accepted</td>
+      <td>{{submission.acceptance_date}}</td>
+    </tr>
+  {% endif %}
+
+  <tr>
+    <td>Latest activity</td>
+    <td>{{submission.latest_activity}}</td>
+  </tr>
+  <tr>
+    <td>Editor-in-charge</td>
+    <td>
+      {% if submission.editor_in_charge %}
+        {{ submission.editor_in_charge }}
+      {% elif perms.scipost.can_assign_submissions %}
+        <a href="{% url 'submissions:assign_submission' submission.preprint.identifier_w_vn_nr %}">Send a new assignment request</a>
+      {% else %}
+        <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
+      {% endif %}
+    </td>
+  </tr>
+  <tr>
+    <td>Status</td>
+    <td>{{ submission.get_status_display }}</td>
+  </tr>
+  <tr>
+    <td>Refereeing cycle</td>
+    <td>{{ submission.get_refereeing_cycle_display }}</td>
+  </tr>
+
+  {% include 'partials/submissions/refereeing_status_as_tr.html' with submission=submission %}
+
+  <tr>
+    <td>Comments</td>
+    <td>
+      {{submission.comments.vetted.count}}
+      <small><span class="fa fa-info-circle" data-toggle="tooltip" data-placement='bottom' data-html="true" title="{{submission.comments.regular_comments.vetted.count}} comments<br>{{submission.comments.author_replies.vetted.count}} author replies<hr>{{submission.comments.awaiting_vetting.count}} awaiting vetting"></span></small>
+    </td>
+  </tr>
+
+  <tr>
+    <td>Reporting deadline</td>
+    <td>
+      {% if submission.reporting_deadline > now %}
+        in {{ submission.reporting_deadline|timeuntil }}
+      {% else %}
+        {{ submission.reporting_deadline|timesince }} ago
+      {% endif %}
+    </td>
+  </tr>
+
+  {% if perms.scipost.can_do_plagiarism_checks %}
+    <tr>
+      <td>Plagiarism score</td>
+      <td>
+        {% if submission.plagiarism_report %}
+          {{ submission.plagiarism_report.score }}%
+        {% else %}
+          <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
         {% endif %}
-    <tr>
-        <td>Submitted</td>
-        <td>{{submission.submission_date}} to {{submission.submitted_to}}</td>
+      </td>
     </tr>
+  {% endif %}
 
-    {% if submission.proceedings %}
-        <tr>
-            <td>Proceedings issue</td>
-            <td>{{ submission.proceedings }}</td>
-        </tr>
-    {% endif %}
-
-    {% if submission.acceptance_date %}
-        <tr>
-            <td>Accepted</td>
-            <td>{{submission.acceptance_date}}</td>
-        </tr>
-    {% endif %}
-
+  {% if perms.scipost.can_manage_college_composition %}
     <tr>
-        <td>Latest activity</td>
-        <td>{{submission.latest_activity}}</td>
+      <td>Pool composition</td>
+      <td><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
     </tr>
     <tr>
-        <td>Editor-in-charge</td>
-        <td>
-            {% if submission.editor_in_charge %}
-                {{ submission.editor_in_charge }}
-            {% elif perms.scipost.can_assign_submissions %}
-                <a href="{% url 'submissions:assign_submission' submission.preprint.identifier_w_vn_nr %}">Send a new assignment request</a>
-            {% else %}
-                <strong class="text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</strong>
-            {% endif %}
-        </td>
-    </tr>
-    <tr>
-        <td>Status</td>
-        <td>{{ submission.get_status_display }}</td>
-    </tr>
-    <tr>
-        <td>Refereeing cycle</td>
-        <td>{{ submission.get_refereeing_cycle_display }}</td>
+      <td>Fellows voting</td>
+      <td><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">{{ submission.voting_fellows.count }} Fellowship{{ submission.voting_fellows.count|pluralize }}</a></td>
     </tr>
 
-    {% include 'partials/submissions/refereeing_status_as_tr.html' with submission=submission %}
+  {% endif %}
 
-    <tr>
-        <td>Comments</td>
-        <td>
-            {{submission.comments.vetted.count}}
-            <small><span class="fa fa-info-circle" data-toggle="tooltip" data-placement='bottom' data-html="true" title="{{submission.comments.regular_comments.vetted.count}} comments<br>{{submission.comments.author_replies.vetted.count}} author replies<hr>{{submission.comments.awaiting_vetting.count}} awaiting vetting"></span></small>
-        </td>
-    </tr>
-
-    <tr>
-        <td>Reporting deadline</td>
-        <td>
-            {% if submission.reporting_deadline > now %}
-                in {{ submission.reporting_deadline|timeuntil }}
-            {% else %}
-                {{ submission.reporting_deadline|timesince }} ago
-            {% endif %}
-        </td>
-    </tr>
-
-    {% if perms.scipost.can_do_plagiarism_checks %}
-        <tr>
-            <td>Plagiarism score</td>
-            <td>
-                {% if submission.plagiarism_report %}
-                    {{ submission.plagiarism_report.score }}%
-                {% else %}
-                    <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
-                {% endif %}
-            </td>
-        </tr>
-    {% endif %}
-
-    {% if perms.scipost.can_manage_college_composition %}
-        <tr>
-            <td>Pool composition</td>
-            <td><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
-        </tr>
-        <tr>
-            <td>Fellows voting</td>
-            <td><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">{{ submission.voting_fellows.count }} Fellowship{{ submission.voting_fellows.count|pluralize }}</a></td>
-        </tr>
-
-    {% endif %}
-
-    {% block extended_info_table %}{% endblock %}
+  {% block extended_info_table %}{% endblock %}
 
 </table>

@@ -5,10 +5,10 @@
 \relpenalty=10000
 
 \hypersetup{
-    colorlinks,
-    linkcolor={red!50!black},
-    citecolor={blue!50!black},
-    urlcolor={blue!80!black}
+colorlinks,
+linkcolor={red!50!black},
+citecolor={blue!50!black},
+urlcolor={blue!80!black}
 }
 
 \usepackage[bitstream-charter]{mathdesign}
@@ -19,7 +19,7 @@
 \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
 
 {% if report.doi_string %}
-    \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
+  \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
 {% endif %}
 
 \renewcommand{\headrulewidth}{1pt}
@@ -64,137 +64,137 @@ Submitted to {{submission.submitted_to}}
 %%%%%%%%%% CONTENT
 
 {% for report in submission.reports.accepted %}
-    \newpage
-    \setcounter{section}{0}
+  \newpage
+  \setcounter{section}{0}
 
-    \addcontentsline{toc}{section}{\protect\numberline{}Report {{report.report_nr}}{% if report.doi_string %} $\cdot$ doi: {{report.doi_string|safe_tex_url}}{% endif %} }
+  \addcontentsline{toc}{section}{\protect\numberline{}Report {{report.report_nr}}{% if report.doi_string %} $\cdot$ doi: {{report.doi_string|safe_tex_url}}{% endif %} }
 
-    \fancypagestyle{SPstylereport{{report.id}} }{
-    \fancyhf{}
-    \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+  \fancypagestyle{SPstylereport{{report.id}} }{
+  \fancyhf{}
+  \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
 
-    {% if report.doi_string %}
-        \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
-    {% endif %}
+  {% if report.doi_string %}
+    \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
+  {% endif %}
 
-    \renewcommand{\headrulewidth}{1pt}
-    \fancyfoot[C]{\textbf{\thepage}}
-    }
-    \pagestyle{SPstylereport{{report.id}} }
+  \renewcommand{\headrulewidth}{1pt}
+  \fancyfoot[C]{\textbf{\thepage}}
+  }
+  \pagestyle{SPstylereport{{report.id}} }
 
+  \begin{center}
+  \Large\color{scipostdeepblue}{\textbf{
+  %%%%%%%%%% TITLE
+  Report {{report.report_nr}} on\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
+  }}
+  \end{center}
+
+  {% if report.doi_string %}
     \begin{center}
     \Large\color{scipostdeepblue}{\textbf{
     %%%%%%%%%% TITLE
-    Report {{report.report_nr}} on\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
+    doi:\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.doi_string|safe_tex_url}} }}
     }}
     \end{center}
+  {% endif %}
 
-    {% if report.doi_string %}
-        \begin{center}
-        \Large\color{scipostdeepblue}{\textbf{
-        %%%%%%%%%% TITLE
-        doi:\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.doi_string|safe_tex_url}} }}
-        }}
-        \end{center}
-    {% endif %}
+  \begin{center}
+  \large\textbf{
+  %%%%%%%%%% AUTHORS
+  Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
+  }
+  \end{center}
 
+  {% if not report.anonymous %}
     \begin{center}
-    \large\textbf{
-    %%%%%%%%%% AUTHORS
-    Report by {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}\textsuperscript{1}{% endif %}
-    }
+    %%%%%%%%%% AFFILIATIONS
+    {\bf 1} {{report.author.affiliation}}\\
     \end{center}
-
-    {% if not report.anonymous %}
-        \begin{center}
-        %%%%%%%%%% AFFILIATIONS
-        {\bf 1} {{report.author.affiliation}}\\
-        \end{center}
-    {% endif %}
+  {% endif %}
 
 
-    \vspace{10pt}
+  \vspace{10pt}
 
 
-    \begin{center}
-    \begin{tabular}{lr}
-    \begin{minipage}{0.5\textwidth}
-    \raisebox{-1mm}[0pt][0pt]{\includegraphics[width=12mm]{by.eps}}
+  \begin{center}
+  \begin{tabular}{lr}
+  \begin{minipage}{0.5\textwidth}
+  \raisebox{-1mm}[0pt][0pt]{\includegraphics[width=12mm]{by.eps}}
 
-    %%%%%%%%%% COPYRIGHT
+  %%%%%%%%%% COPYRIGHT
 
-    {\small Copyright {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}{% endif %}. \newline
-    This work is licensed under the Creative Commons \newline
-    \href{http://creativecommons.org/licenses/by/4.0/}{Attribution 4.0 International License}. \newline
-    Published by the SciPost Foundation.
-    }
-    \end{minipage}
-    &
-    \begin{minipage}{0.5\textwidth}
-    %%%%%%%%%% DATES
-    {\small Received {{report.date_submitted|date:'d-m-Y'}}
-    {% if report.doi_string %}
-        doi:\href{//dx.doi.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} }
-    {% endif %}
-    }
-    \end{minipage}
-    \end{tabular}
-    \end{center}
+  {\small Copyright {% if report.anonymous %}anonymous{% else %}{{report.author.user.first_name}} {{report.author.user.last_name}}{% endif %}. \newline
+  This work is licensed under the Creative Commons \newline
+  \href{http://creativecommons.org/licenses/by/4.0/}{Attribution 4.0 International License}. \newline
+  Published by the SciPost Foundation.
+  }
+  \end{minipage}
+  &
+  \begin{minipage}{0.5\textwidth}
+  %%%%%%%%%% DATES
+  {\small Received {{report.date_submitted|date:'d-m-Y'}}
+  {% if report.doi_string %}
+    doi:\href{//dx.doi.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} }
+  {% endif %}
+  }
+  \end{minipage}
+  \end{tabular}
+  \end{center}
 
-    \vspace{10pt}
-    \noindent\rule{\textwidth}{1pt}
+  \vspace{10pt}
+  \noindent\rule{\textwidth}{1pt}
 
-    %%%%%%%% CONTENTS
+  %%%%%%%% CONTENTS
 
-    \section*{Ratings}
-    \begin{center}
-    \begin{tabular}{r p{0.15\columnwidth} r l}
-    	{\bf Validity} & {{report.get_validity_display}} & {\bf Clarity} & {{report.get_clarity_display}} \\
-    	{\bf Significance} & {{report.get_significance_display}} & {\bf Formatting} & {{report.get_formatting_display}} \\
-    	{\bf Originality} & {{report.get_originality_display}} & {\bf Grammar} & {{report.get_grammar_display}}
-    \end{tabular}
-    \end{center}
+  \section*{Ratings}
+  \begin{center}
+  \begin{tabular}{r p{0.15\columnwidth} r l}
+  {\bf Validity} & {{report.get_validity_display}} & {\bf Clarity} & {{report.get_clarity_display}} \\
+  {\bf Significance} & {{report.get_significance_display}} & {\bf Formatting} & {{report.get_formatting_display}} \\
+  {\bf Originality} & {{report.get_originality_display}} & {\bf Grammar} & {{report.get_grammar_display}}
+  \end{tabular}
+  \end{center}
 
-    \section*{Strengths}
-    {{report.strengths|linebreaktex}}
+  \section*{Strengths}
+  {{report.strengths|linebreaktex}}
 
-    \section*{Weaknesses}
-    {{report.weaknesses|linebreaktex}}
+  \section*{Weaknesses}
+  {{report.weaknesses|linebreaktex}}
 
-    \section*{Report}
-    {{report.report|linebreaktex}}
-
-
-    \section*{Requested changes}
-    {{report.requested_changes|linebreaktex}}
+  \section*{Report}
+  {{report.report|linebreaktex}}
 
 
-    {% if report.comments.vetted %}
-        \newpage
-        \pagestyle{SPstyle}
-        \section*{Comments and Author Replies to this Report}
+  \section*{Requested changes}
+  {{report.requested_changes|linebreaktex}}
 
-        {% for comment in report.comments.vetted %}
-            \addcontentsline{toc}{subsection}{\protect\numberline{}{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} to Report by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
 
-            \subsection*{ {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} to Report by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
-            {% include 'comments/_comment_tex_template.html' with comment=comment %}
-        {% endfor %}
-    {% endif %}
+  {% if report.comments.vetted %}
+    \newpage
+    \pagestyle{SPstyle}
+    \section*{Comments and Author Replies to this Report}
+
+    {% for comment in report.comments.vetted %}
+      \addcontentsline{toc}{subsection}{\protect\numberline{}{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} to Report by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
+
+      \subsection*{ {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} to Report by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
+      {% include 'comments/_comment_tex_template.html' with comment=comment %}
+    {% endfor %}
+  {% endif %}
 
 {% endfor %}
 
 {% if submission.comments.vetted %}
-    \newpage
-    \setcounter{section}{0}
-    \pagestyle{SPstyle}
+  \newpage
+  \setcounter{section}{0}
+  \pagestyle{SPstyle}
 
-    {% for comment in submission.comments.vetted %}
-        \addcontentsline{toc}{section}{\protect\numberline{}{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
+  {% for comment in submission.comments.vetted %}
+    \addcontentsline{toc}{section}{\protect\numberline{}{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
 
-        \section*{ {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
-        {% include 'comments/_comment_tex_template.html' with comment=comment %}
-    {% endfor %}
+    \section*{ {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} {{forloop.counter}} by {% if comment.anonymous %}anonymous{% else %}{{comment.author.user.first_name}} {{comment.author.user.last_name}}{% endif %} }
+    {% include 'comments/_comment_tex_template.html' with comment=comment %}
+  {% endfor %}
 {% endif %}
 
 \end{document}

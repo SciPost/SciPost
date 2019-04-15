@@ -1,8 +1,8 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Unvetted Thesis Links</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Unvetted Thesis Links</span>
 {% endblock %}
 
 {% block pagetitle %}: Unvetted Thesis Links{% endblock pagetitle %}
@@ -10,28 +10,28 @@
 {% block content %}
 
 
-{% if not thesislinks %}
+  {% if not thesislinks %}
     <div class="row">
-        <div class="col-12">
-            <h1>There are no Thesis Links for you to vet.</h1>
-            <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
-        </div>
+      <div class="col-12">
+        <h1>There are no Thesis Links for you to vet.</h1>
+        <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
+      </div>
     </div>
-{% else %}
+  {% else %}
 
     <div class="row">
-        <div class="col-12">
-            <h1>Unvetted Thesis Links</h1>
-            <ul>
-                {% for thesislink in thesislinks %}
-                    <li>
-                    {{ thesislink.author }} - {{ thesislink.title }} -
-                    <a href = "{% url 'theses:vet_thesislink' pk=thesislink.id %}">vet</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+      <div class="col-12">
+        <h1>Unvetted Thesis Links</h1>
+        <ul>
+          {% for thesislink in thesislinks %}
+            <li>
+              {{ thesislink.author }} - {{ thesislink.title }} -
+              <a href = "{% url 'theses:vet_thesislink' pk=thesislink.id %}">vet</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
 
-{% endif %}
+  {% endif %}
 {% endblock content %}

@@ -3,27 +3,27 @@
 {% block pagetitle %}: Your Assignments{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Your Assignments</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Your Assignments</span>
 {% endblock %}
 
 {% block content %}
 
-{% if assignments_to_consider %}
+  {% if assignments_to_consider %}
     <h1>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h1>
     <h3 class="pt-0 mb-2">Can you act as Editor-in-charge? (click to see details)</h3>
     <ul>
-        {% for assignment in assignments_to_consider %}
-            <li>On submission: {{ assignment.submission }}<br>
-                <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
-            </li>
-        {% endfor %}
+      {% for assignment in assignments_to_consider %}
+        <li>On submission: {{ assignment.submission }}<br>
+          <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+        </li>
+      {% endfor %}
     </ul>
-{% endif %}
+  {% endif %}
 
 
-<h1 class="highlight">Your current assignments:</h1>
-{% for assignment in current_assignments %}
+  <h1 class="highlight">Your current assignments:</h1>
+  {% for assignment in current_assignments %}
     {% if not forloop.first %}<hr class="small">{% endif %}
 
     {% include 'partials/submissions/submission_li.html' with submission=assignment.submission %}
@@ -31,10 +31,10 @@
 
     {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
     <h4 class="d-block mt-2">
-        <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=assignment.submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+      <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=assignment.submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
     </h4>
-{% empty %}
+  {% empty %}
     <p class="py-2">You currently have no assignments to take care of.</p>
-{% endfor %}
+  {% endfor %}
 
 {% endblock content %}

@@ -1,118 +1,118 @@
 {% load bootstrap %}
 
 <h3 class="highlight">
-    Author information
-    <a href="javascript:;" class="text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission."><i class="fa fa-question-circle"></i></a>
+  Author information
+  <a href="javascript:;" class="text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission."><i class="fa fa-question-circle"></i></a>
 </h3>
 
 <div id="authorinformation" class="mt-2">
+  <div class="mb-4">
+    <h4 class="mt-3">Status summary</h4>
+    <p>
+      {% if not submission.editor_in_charge %}
+        No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
+      {% elif submission.in_refereeing_phase %}
+        The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
+      {% elif submission.eicrecommendations.active.first %}
+        An Editorial Recommendation has been formulated. See its details below.
+      {% elif not submission.open_for_reporting %}
+        The refereeing round is closed, but no Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+      {% endif %}
+    </p>
+    <table class="table table-borderless">
+      <tr>
+        <td>Submission status:</td>
+        <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
+      </tr>
+      <tr>
+        <td>Recommendation status:</td>
+        <td>
+          {% if submission.eicrecommendations.active.first %}
+            <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
+          {% else %}
+            <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Submission is publicly available:</td>
+        <td>
+          {% if submission.visible_public %}
+            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-muted">Available in public pages and search results.</span>
+          {% else %}
+            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-muted">Only available for editors and authors.</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% if submission.publication and submission.publication.is_published %}
+        <tr>
+          <td>Submission is published as:</td>
+          <td>
+            <a href="{{submission.publication.get_absolute_url}}">
+              {% if submission.publication.in_issue %}
+                {{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}}
+              {% else %}
+                {{submission.publication.in_journal.abbreviation_citation}}, {{submission.publication.paper_nr}}
+              {% endif %}
+              ({{submission.publication.publication_date|date:'Y'}})</a>
+          </td>
+        </tr>
+      {% endif %}
+    </table>
+  </div>
+
+  {% if submission.eicrecommendations.active %}
     <div class="mb-4">
-        <h4 class="mt-3">Status summary</h4>
-        <p>
-            {% if not submission.editor_in_charge %}
-                No Editor-in-charge is assigned yet. The SciPost administration will inform you as soon as one is assigned.
-            {% elif submission.in_refereeing_phase %}
-                The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
-            {% elif submission.eicrecommendations.active.first %}
-                An Editorial Recommendation has been formulated. See its details below.
-            {% elif not submission.open_for_reporting %}
-                The refereeing round is closed, but no Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+      <h4 class="mb-2">Editorial Recommendation:</h4>
+      {% for recommendation in submission.eicrecommendations.active %}
+        {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+      {% empty %}
+        No Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="mb-4">
+    <h4>Communication</h4>
+    <div id="communications">
+      {% if submission.editor_in_charge %}
+        <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
+      {% endif %}
+      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
+    </div>
+  </div>
+
+  <div class="mb-4">
+    <h4>Events</h4>
+    <div id="eventslist">
+      {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
+    </div>
+  </div>
+
+
+  <div class="mb-4" id="proofsslist">
+    <h4>Proofs</h4>
+    <ul class="list-group list-group-flush events-list">
+      {% for proofs in submission.production_stream.proofs.for_authors %}
+        <li>
+          <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
+          status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
+          {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
+            {% if proofs_decision_form and is_author %}
+              <h4 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h4>
+              <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
+                {% csrf_token %}
+                {{ proofs_decision_form|bootstrap }}
+                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
+              </form>
             {% endif %}
-        </p>
-        <table class="table table-borderless">
-            <tr>
-                <td>Submission status:</td>
-                <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
-            </tr>
-            <tr>
-                <td>Recommendation status:</td>
-                <td>
-                    {% if submission.eicrecommendations.active.first %}
-                        <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
-                    {% else %}
-                        <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>Submission is publicly available:</td>
-                <td>
-                    {% if submission.visible_public %}
-                        <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                        <span class="text-muted">Available in public pages and search results.</span>
-                    {% else %}
-                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                        <span class="text-muted">Only available for editors and authors.</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% if submission.publication and submission.publication.is_published %}
-                <tr>
-                    <td>Submission is published as:</td>
-                    <td>
-                        <a href="{{submission.publication.get_absolute_url}}">
-                        {% if submission.publication.in_issue %}
-                            {{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}}
-                        {% else %}
-                            {{submission.publication.in_journal.abbreviation_citation}}, {{submission.publication.paper_nr}}
-                        {% endif %}
-                        ({{submission.publication.publication_date|date:'Y'}})</a>
-                    </td>
-                </tr>
-            {% endif %}
-        </table>
-    </div>
-
-    {% if submission.eicrecommendations.active %}
-        <div class="mb-4">
-            <h4 class="mb-2">Editorial Recommendation:</h4>
-            {% for recommendation in submission.eicrecommendations.active %}
-                {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-            {% empty %}
-                No Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
-            {% endfor %}
-        </div>
-    {% endif %}
-
-    <div class="mb-4">
-        <h4>Communication</h4>
-        <div id="communications">
-            {% if submission.editor_in_charge %}
-                <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
-            {% endif %}
-            {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
-        </div>
-    </div>
-
-    <div class="mb-4">
-        <h4>Events</h4>
-        <div id="eventslist">
-            {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
-        </div>
-    </div>
-
-
-    <div class="mb-4" id="proofsslist">
-        <h4>Proofs</h4>
-        <ul class="list-group list-group-flush events-list">
-            {% for proofs in submission.production_stream.proofs.for_authors %}
-                <li>
-                    <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
-                    status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
-                    {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
-                        {% if proofs_decision_form and is_author %}
-                            <h4 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h4>
-                            <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
-                                {% csrf_token %}
-                                {{ proofs_decision_form|bootstrap }}
-                                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
-                            </form>
-                        {% endif %}
-                    {% endif %}
-                </li>
-            {% empty %}
-                <li class="list-group-item">No proofs are available yet.</li>
-            {% endfor %}
-        </ul>
-    </div>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="list-group-item">No proofs are available yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>

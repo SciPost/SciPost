@@ -1,44 +1,44 @@
 <h3 class="mb-4">Preview of your report as it will publicly be shown</h3>
 
 <div class="report report-preview">
-    <div class="reportid">
-        <h3><span data-receive="report-identity"><span if-anonymous="true" style="display: none;">Anonymous</span><span if-anonymous="false" style="display: none;">{{ request.user.first_name }} {{ request.user.last_name }}</span> on <span data-receive="report-date">{% now "SHORT_DATE_FORMAT" %}</span></h3>
-    </div>
+  <div class="reportid">
+    <h3><span data-receive="report-identity"><span if-anonymous="true" style="display: none;">Anonymous</span><span if-anonymous="false" style="display: none;">{{ request.user.first_name }} {{ request.user.last_name }}</span> on <span data-receive="report-date">{% now "SHORT_DATE_FORMAT" %}</span></h3>
+  </div>
 
-    <div class="row">
-        <div class="col">
-            <h3 class="highlight tight">Strengths</h3>
-            <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-strengths"></p></div>
-        </div>
+  <div class="row">
+    <div class="col">
+      <h3 class="highlight tight">Strengths</h3>
+      <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-strengths"></p></div>
     </div>
-    <div class="row">
-        <div class="col">
-            <h3 class="highlight tight">Weaknesses</h3>
-            <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-weaknesses"></p></div>
-        </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h3 class="highlight tight">Weaknesses</h3>
+      <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-weaknesses"></p></div>
     </div>
-    <div class="row">
-        <div class="col">
-            <h3 class="highlight tight">Report</h3>
-            <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-report"></p></div>
-        </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h3 class="highlight tight">Report</h3>
+      <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-report"></p></div>
     </div>
-    <div class="row">
-        <div class="col">
-            <h3 class="highlight tight">Requested changes</h3>
-            <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-requested_changes"></p></div>
-        </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h3 class="highlight tight">Requested changes</h3>
+      <div class="pl-md-4"><p style="white-space: pre-wrap;" data-receive="report-requested_changes"></p></div>
     </div>
+  </div>
 
-    <div class="ratings">
-        <ul>
-            <li>validity: <span data-receive="report-validity"></span></li>
-            <li>significance: <span data-receive="report-significance"></span></li>
-            <li>originality: <span data-receive="report-originality"></span></li>
-            <li>clarity: <span data-receive="report-clarity"></span></li>
-            <li>formatting: <span data-receive="report-formatting"></span></li>
-            <li>grammar: <span data-receive="report-grammar"></span></li>
-        </ul>
-    </div>
+  <div class="ratings">
+    <ul>
+      <li>validity: <span data-receive="report-validity"></span></li>
+      <li>significance: <span data-receive="report-significance"></span></li>
+      <li>originality: <span data-receive="report-originality"></span></li>
+      <li>clarity: <span data-receive="report-clarity"></span></li>
+      <li>formatting: <span data-receive="report-formatting"></span></li>
+      <li>grammar: <span data-receive="report-grammar"></span></li>
+    </ul>
+  </div>
 
 </div>

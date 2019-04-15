@@ -6,13 +6,13 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h1 class="highlight">Request Activation of a Thesis Link</h1>
     </div>
-</div>
+  </div>
 
-<div class="row justify-content-center">
+  <div class="row justify-content-center">
     <div class="col-md-10 col-lg-8">
       <form action="{% url 'theses:request_thesislink' %}" method="post">
         {% csrf_token %}
@@ -21,7 +21,7 @@
         </table>
         <input class="btn btn-primary" type="submit" value="Submit"/>
       </form>
+    </div>
   </div>
-</div>
 
 {% endblock content %}

@@ -1,5 +1,5 @@
 <div class="li submission">
-    <h5 class="subject"><a href="{% url 'submissions:submissions' %}?subject_area={{ submission.subject_area }}" class="muted-link">{{ submission.get_subject_area_display }}</h5>
+  <h5 class="subject"><a href="{% url 'submissions:submissions' %}?subject_area={{ submission.subject_area }}" class="muted-link">{{ submission.get_subject_area_display }}</h5>
     <h3 class="title"><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
     <p class="authors">by {{ submission.author_list }}</p>
     {% block card_footer %}{% endblock %}

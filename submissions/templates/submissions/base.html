@@ -3,13 +3,13 @@
 {% block body_class %}{{ block.super }} Submissions{% endblock %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb">
-                {% block breadcrumb_items %}
-                    <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
-                {% endblock %}
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+        {% block breadcrumb_items %}
+          <a href="{% url 'submissions:submissions' %}" class="breadcrumb-item">Submissions</a>
+        {% endblock %}
+      </nav>
     </div>
+  </div>
 {% endblock %}

@@ -7,504 +7,504 @@
 {% load user_groups %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</span>
 {% endblock %}
 
 {% block content %}
 
-{% is_edcol_admin request.user as is_editorial_admin %}
+  {% is_edcol_admin request.user as is_editorial_admin %}
 
-<div class="row">
+  <div class="row">
     <div class="col-md-8">
-        <h2>Editorial Page for Submission</h2>
-        <h1 class="text-primary">{{submission.title}}</h1>
-        <h3>by {{submission.author_list}}</h3>
+      <h2>Editorial Page for Submission</h2>
+      <h1 class="text-primary">{{submission.title}}</h1>
+      <h3>by {{submission.author_list}}</h3>
 
-        <h4 class="ml-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
+      <h4 class="ml-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
 
-        <h3 class="mt-4">Submission summary</h3>
-        {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 %}
+      <h3 class="mt-4">Submission summary</h3>
+      {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 %}
 
-        <br>
-        {% if submission.author_comments %}
-          <h3>Author comments upon resubmission:</h3>
-          <div class="pl-md-4">{{ submission.author_comments|linebreaks }}</div>
-        {% endif %}
+      <br>
+      {% if submission.author_comments %}
+        <h3>Author comments upon resubmission:</h3>
+        <div class="pl-md-4">{{ submission.author_comments|linebreaks }}</div>
+      {% endif %}
 
-        {% if submission.list_of_changes %}
-          <h3>List of changes:</h3>
-          <div class="pl-md-4">{{ submission.list_of_changes|linebreaks }}</div>
-        {% endif %}
+      {% if submission.list_of_changes %}
+        <h3>List of changes:</h3>
+        <div class="pl-md-4">{{ submission.list_of_changes|linebreaks }}</div>
+      {% endif %}
 
-        {% if submission.remarks_for_editors %}
-          <h3>Comments for the Editor-in-charge:</h3>
-          <div class="pl-md-4">{{ submission.remarks_for_editors|linebreaks }}</div>
-        {% endif %}
+      {% if submission.remarks_for_editors %}
+        <h3>Comments for the Editor-in-charge:</h3>
+        <div class="pl-md-4">{{ submission.remarks_for_editors|linebreaks }}</div>
+      {% endif %}
 
-        {% if submission.referees_suggested %}
-          <h3>Referees suggested by authors upon submission:</h3>
-          <div class="pl-md-4">{{ submission.referees_suggested }}</div>
-        {% endif %}
+      {% if submission.referees_suggested %}
+        <h3>Referees suggested by authors upon submission:</h3>
+        <div class="pl-md-4">{{ submission.referees_suggested }}</div>
+      {% endif %}
 
-        {% if submission.referees_flagged %}
-          <h3>Referees flagged upon submission (treat reports with caution):</h3>
-          <div class="pl-md-4">{{ submission.referees_flagged }}</div>
-        {% endif %}
+      {% if submission.referees_flagged %}
+        <h3>Referees flagged upon submission (treat reports with caution):</h3>
+        <div class="pl-md-4">{{ submission.referees_flagged }}</div>
+      {% endif %}
 
-        <br>
-        <h3 id="editorial-recommendation">Editorial Recommendation</h3>
-        {% for recommendation in submission.eicrecommendations.all %}
-            {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
-        {% endfor %}
+      <br>
+      <h3 id="editorial-recommendation">Editorial Recommendation</h3>
+      {% for recommendation in submission.eicrecommendations.all %}
+        {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
+      {% endfor %}
 
-        {% if submission.eic_recommendation_required %}
-            <div class="mb-4">
-                {% if not submission.eicrecommendations.all %}
-                    No Editorial Recommendation has been formulated yet.
-                {% endif %}
-                {% if submission.in_refereeing_phase %}
-                    Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a> when the refereeing round is closed.
-                {% elif not submission.reports.accepted %}
-                    Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.
-                {% else %}
-                    When refereeing has finished, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a>.
-                {% endif %}
-            </div>
-        {% endif %}
+      {% if submission.eic_recommendation_required %}
+        <div class="mb-4">
+          {% if not submission.eicrecommendations.all %}
+            No Editorial Recommendation has been formulated yet.
+          {% endif %}
+          {% if submission.in_refereeing_phase %}
+            Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a> when the refereeing round is closed.
+          {% elif not submission.reports.accepted %}
+            Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.
+          {% else %}
+            When refereeing has finished, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a>.
+          {% endif %}
+        </div>
+      {% endif %}
     </div>
     <div class="col-md-4">
-        {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission %}
+      {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission %}
 
-        <div class="submission-contents">
-            <h3>On this Editorial Page:</h3>
-            <ul class="my-2 pl-4">
-                <li><a href="#editorial-recommendation">Editorial Recommendation</a></li>
-                <li>
-                    <a href="#editorial-status">Editorial status</a>
-                    <ul>
-                        <li><a href="#required-actions">Required actions</a> ({{ submission.cycle.required_actions|length }})</li>
-                        <li><a href="#referee-details">Refereeing invitations</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#current-contributions">Current contributions</a>
-                    <ul>
-                        <li><a href="#reports-summary">Reports</a></li>
-                        <li><a href="#comments-summary">Comments</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#communications">Communications</a>
-                </li>
-                <li>
-                    <a href="#events">Events</a>
-                </li>
+      <div class="submission-contents">
+        <h3>On this Editorial Page:</h3>
+        <ul class="my-2 pl-4">
+          <li><a href="#editorial-recommendation">Editorial Recommendation</a></li>
+          <li>
+            <a href="#editorial-status">Editorial status</a>
+            <ul>
+              <li><a href="#required-actions">Required actions</a> ({{ submission.cycle.required_actions|length }})</li>
+              <li><a href="#referee-details">Refereeing invitations</a></li>
             </ul>
-        </div>
+          </li>
+          <li>
+            <a href="#current-contributions">Current contributions</a>
+            <ul>
+              <li><a href="#reports-summary">Reports</a></li>
+              <li><a href="#comments-summary">Comments</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#communications">Communications</a>
+          </li>
+          <li>
+            <a href="#events">Events</a>
+          </li>
+        </ul>
+      </div>
     </div>
-</div>
+  </div>
 
-<hr class="lg">
+  <hr class="lg">
 
-<div class="py-2 mb-2">
+  <div class="py-2 mb-2">
     <h2 class="highlight">Editorial Workflow</h2>
     <a href="{% url 'submissions:editorial_workflow' %}">How-to guide: summary of the editorial workflow</a>
-</div>
+  </div>
 
 
-    <h2 id="editorial-status">Editorial status</h2>
-    <p>{{ submission.cycle }}</p>
-    <table class="table table-borderless">
-        <tr>
-            <td>Submission status:</td>
-            <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
-        </tr>
-        <tr>
-            <td>Recommendation status:</td>
-            <td>
-                {% if submission.eicrecommendations.active.first %}
-                    <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
-                {% else %}
-                    <span class="label label-secondary mb-1">No Editorial Recommendation is formulated yet.</span>
-                {% endif %}
-            </td>
-        </tr>
-        <tr>
-            <td>Editor-in-charge:</td>
-            <td>
-                {% if submission.editor_in_charge %}
-                    {{ submission.editor_in_charge.formal_str }}
-                {% else %}
-                    Unassigned{% if is_editorial_admin %}, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">see editor invitations</a>.{% endif %}
-                {% endif %}
-            </td>
-        </tr>
-        <tr>
-            <td>Refereeing cycle:</td>
-            <td>{{ submission.get_refereeing_cycle_display }}</td>
-        </tr>
-        <tr>
-            <td>Publicly available:</td>
-            <td>
-                {% if submission.visible_public %}
-                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="text-muted">Available in public pages and search results.</span>
-                {% else %}
-                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="text-muted">Only available for editors and authors.</span>
-                {% endif %}
-            </td>
-        </tr>
-        {% if submission.plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
-            <tr>
-                <td>Plagiarism report:</td>
-                <td>
-                    {% if submission.plagiarism_report %}
-                        {% if submission.plagiarism_report.percent_match %}
-                            <b>{{ submission.plagiarism_report.percent_match }}%</b>
-                        {% else %}
-                            <em>Scan in progress</em>
-                            {% if perms.scipost.can_do_plagiarism_checks %}
-                                <br>
-                                <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism score</a>
-                            {% endif %}
-                        {% endif %}
-                    {% elif perms.scipost.can_do_plagiarism_checks %}
-                        <em>No plagiarism report found.</em>
-                        <br>
-                        <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
-                    {% endif %}
-                </td>
-            </tr>
-        {% endif %}
-        <tr>
-            <td>Open for commenting:</td>
-            <td>
-                {% if submission.open_for_commenting %}
-                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="text-muted">Open for commenting.</span>
-                {% else %}
-                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="text-muted">Commenting closed.</span>
-                {% endif %}
-            </td>
-        </tr>
-        <tr id="reporting-deadline">
-            <td>Open for refereeing:</td>
-            <td>
-                {% if submission.is_open_for_reporting %}
-                    <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                    <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.</span>
-                {% else %}
-                    <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                    <span class="text-muted">
-                        Refereeing closed.
-                        {% if submission.referee_invitations.exists %}
-                            <br>
-                            <em>Invited referees may still submit a Report, as long as their invitation is not finished nor cancelled.</em>
-                        {% endif %}
-                    </span>
-                {% endif %}
-                {% if submission.in_refereeing_phase %}
-                    {% if submission.reporting_deadline_has_passed %}
-                        <div class="mt-2 p-2 border">
-                            <i class="fa fa-exclamation-triangle text-danger"></i>
-                            <strong>The reporting deadline has passed.</strong>
-                        </div>
-                    {% elif submission.reporting_deadline_approaching %}
-                        <div class="mt-2 p-2 border">
-                            <i class="fa fa-exclamation-triangle text-warning"></i>
-                            The reporting deadline is in {{ submission.reporting_deadline|timeuntil }}.
-                        </div>
-                    {% endif %}
-                {% endif %}
-
-                {% if submission.can_reset_reporting_deadline %}
-                    {% if submission.is_open_for_reporting %}
-                        <div class="my-1">
-                            You may extend the refereeing deadline by
-                            <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
-                            <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
-                            <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>,
-
-                            or set a refereeing deadline:
-                            <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-                                {% csrf_token %}
-                                <div class="d-inline-block mx-2">
-                                    {% for field in set_deadline_form.visible_fields %}
-                                        {{ field|add_css_class:'form-control' }}
-                                        {{ field }}
-                                    {% endfor %}
-                                </div>
-
-                                <input class="btn btn-outline-secondary" type="submit" value="Set deadline"/>
-                            </form>.
-                        </div>
-                    {% else %}
-                        <div class="mt-1">
-                            Open the refereeing round by setting a refereeing deadline:
-                            <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-                                {% csrf_token %}
-                                <div class="d-inline-block mx-2">
-                                    {% for field in set_deadline_form.visible_fields %}
-                                        {{ field|add_css_class:'form-control' }}
-                                        {{ field }}
-                                    {% endfor %}
-                                </div>
-
-                                <input class="btn btn-outline-secondary" type="submit" value="Set deadline"/>
-                            </form>
-                        </div>
-                    {% endif %}
-                {% endif %}
-
-                {% if submission.eic_recommendation_required %}
-                    <div class="px-3 py-2 mt-1 mb-4 border">
-                        <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>.
-                        <br>
-                        If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
-                        <br>
-                        If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
-                    </div>
-                {% endif %}
-            </td>
-        </tr>
-        <tr>
-            <td>Number of referees invited:</td>
-            <td>
-                {{ submission.referee_invitations.count }} <span>[{{ submission.referee_invitations.accepted.count }} acccepted / {{ submission.referee_invitations.declined.count }} declined / {{ submission.referee_invitations.awaiting_response.count }} response pending]</span>
-            </td>
-        </tr>
-        <tr>
-            <td>Number of reports obtained:</td>
-            <td>
-                {{ submission.reports.accepted.count }} [{{ submission.reports.accepted.invited.count }} invited / {{ submission.reports.accepted.contributed.count }} contributed]; {{ submission.reports.rejected.count }} refused, {{ submission.reports.awaiting_vetting.count }} awaiting vetting
-            </td>
-        </tr>
-    </table>
-
-    {% if full_access %}
-        <div class="my-5 p-3 border{% if submission.cycle.has_required_actions %} border-danger{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
-            <h3>
-                {% if submission.cycle.has_required_actions %}
-                    <i class="fa fa-exclamation-triangle text-danger"></i>
-                {% else %}
-                    <i class="fa fa-check-circle"></i>
-                {% endif %}
-                Required actions
-            </h3>
-            {{ submission.cycle.required_actions }}
-        </div>
-    {% endif %}
-
-    {% if not submission.refereeing_cycle %}
-        {% if full_access %}
-            <div class="row">
-                <div class="col-12">
-                    {% include 'partials/submissions/pool/submission_cycle_choice_form.html' with form=cycle_choice_form submission=submission %}
-                </div>
-            </div>
+  <h2 id="editorial-status">Editorial status</h2>
+  <p>{{ submission.cycle }}</p>
+  <table class="table table-borderless">
+    <tr>
+      <td>Submission status:</td>
+      <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
+    </tr>
+    <tr>
+      <td>Recommendation status:</td>
+      <td>
+        {% if submission.eicrecommendations.active.first %}
+          <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
         {% else %}
-            <div class="row">
-                <div class="col-12">
-                    <h3 class="text-center">The Editor-in-charge first has to decide which refereeing cycle to use. Please check this page again at a later moment.</h3>
-                </div>
-            </div>
+          <span class="label label-secondary mb-1">No Editorial Recommendation is formulated yet.</span>
         {% endif %}
-    {% else %}
-        {% if full_access %}
-                <h3>All available actions</h3>
-                <ul class="mb-5">
-                    {% if submission.refereeing_cycle != 'direct_rec' %}
-                        {% if submission.in_refereeing_phase %}
-                            <li>
-                                {% if submission.referee_invitations.all %}
-                                    <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite an additional referee</a>
-                                {% else %}
-                                    <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>
-                                {% endif %}
-                            </li>
-                            <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ml-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
-                                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
-                                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
-                                <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>
-                            </li>
-                        {% endif %}
-                        {% if submission.can_reset_reporting_deadline %}
-                            <li>
-                                Set refereeing deadline:
-                                <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-                                    {% csrf_token %}
-                                    <div class="d-inline-block mx-2">
-                                        {% for field in set_deadline_form.visible_fields %}
-                                            {{ field|add_css_class:'form-control' }}
-                                            {{ field }}
-                                        {% endfor %}
-                                    </div>
-
-                                    <input class="btn btn-outline-secondary btn-sm" type="submit" value="Set deadline"/>
-                                </form>
-                            </li>
-                        {% endif %}
-
-                        {% if submission.is_open_for_reporting %}
-                            <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
-                        {% endif %}
-                    {% endif %}
-                    {% with submission.reports.awaiting_vetting as reports %}
-                        {% if reports %}
-                            <li>
-                                Vet submitted Report{{reports|pluralize}}:
-                                <ul class="mb-1">
-                                    {% for report in reports %}
-                                        <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">Report {{ report.report_nr }} by {{ report.author }} ({{ report.get_report_type_display }})</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        {% else %}
-                            <li>All Reports have been vetted.</li>
-                        {% endif %}
-                    {% endwith %}
-
-                    {% with submission.comments_set_complete.awaiting_vetting as comments %}
-                        {% if comments %}
-                            <li>
-                                Vet submitted Comment{{comments|pluralize}}:
-                                <ul class="mb-1">
-                                    {% for comment in comments %}
-                                        <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        {% else %}
-                            <li>All Comments have been vetted.</li>
-                        {% endif %}
-                    {% endwith %}
-                    {% if submission.eic_recommendation_required %}
-                        <li>
-                            {% if submission.eicrecommendations.last %}
-                                <a href="{% url 'submissions:reformulate_eic_recommendation' submission.preprint.identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a>
-                            {% else %}
-                                <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation.</a>
-                            {% endif %}
-                            <p>
-                                If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
-                                <br>
-                                If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
-                            </p>
-                        </li>
-                    {% elif submission.eicrecommendations.last %}
-                        {% if submission.eicrecommendations.last.may_be_reformulated %}
-                            <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.preprint.identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
-                        {% endif %}
-                    {% endif %}
-                </ul>
-
-                {% if submission.refereeing_cycle != 'direct_rec' %}
-                    <h3 class="mt-3" id="referee-details">Refereeing invitations</h3>
-                    {% if not submission.referee_invitations.exists %}
-                        <p>You have not yet invited referees. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
-                    {% elif submission.eicrecommendations.active %}
-                        <p>Thank you for formulating your Editorial Recommendation. The statuses of the referee invitations might still change, see details below.</p>
-                    {% elif submission.referee_invitations.non_cancelled|length < submission.cycle.minimum_number_of_referees %}
-                        {% if submission.referee_invitations.non_cancelled|length == 1 %}
-                            <p>You have 1 referee who {% if submission.referee_invitations.non_cancelled.first.fulfilled %}submitted a Report{% elif submission.referee_invitations.non_cancelled.first.accepted %}has accepted to referee{% else %} is invited{% endif %}.
-                        {% else %}
-                            <p>You have {{ submission.referee_invitations.non_cancelled|length }} referee{{ submission.referee_invitations.non_cancelled|length|pluralize }} who are either invited, have accepted or submitted a Report.
-                        {% endif %}
-                        <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
-                    {% else %}
-                        <p>Currently, you have {{ submission.referee_invitations.non_cancelled|length }} referees who are either invited, have accepted or submitted a Report. See details below.</p>
-                    {% endif %}
-
-                    {% if submission.referee_invitations.needs_attention.count %}
-                        <p><strong><i class="fa fa-exclamation-triangle text-warning"></i> {{ submission.referee_invitations.needs_attention.count }} refereeing invitation{{ submission.referee_invitations.needs_attention.count|pluralize }} need{{ submission.referee_invitations.needs_attention.count|pluralize:'s,' }} attention. See below.</strong></p>
-                    {% endif %}
-
-                    {% if submission.eic_recommendation_required %}
-                        <p>
-                            {% if submission.in_refereeing_phase %}
-                                Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a> when the refereeing round is closed.
-                            {% elif not submission.reports.accepted %}
-                                Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.
-                            {% else %}
-                                When refereeing has finished, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a>.
-                            {% endif %}
-                        </p>
-                    {% endif %}
-
-
-                    {% include 'partials/submissions/pool/referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all submission=submission %}
-                {% endif %}
-
-                <hr class="lg my-5">
-
-                <h2 id="current-contributions">Current contributions</h2>
-                <h3 class="mt-3 mb-2" id="reports-summary">Reports</h3>
-
-                {% if submission.reports.awaiting_vetting %}
-                    <p>{{ submission.reports.awaiting_vetting|pluralize:'A new Report has,New Reports have' }} been delivered. Please vet {{ submission.comments_set_complete.awaiting_vetting|pluralize:'it,them' }} below.</p>
-                {% elif submission.reports.all %}
-                    {% if submission.reporting_deadline_has_passed and submission.eic_recommendation_required %}
-                        <p>
-                            The refereeing deadline has passed and you have received {{ submission.reports.all|length }} Report{{ submission.reports.all|pluralize }}. Please either <a href="#reporting-deadline">extend the reporting deadline</a>, or <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate your Editorial Recommendation</a>.
-                        </p>
-                    {% else %}
-                        <p>No action required. All Reports are processed.</p>
-                    {% endif %}
-                {% else %}
-                    {% if submission.reporting_deadline_has_passed and submission.eic_recommendation_required %}
-                        <p>
-                            <i class="fa fa-exclamation-triangle text-danger"></i>
-                            <strong>The refereeing deadline has passed and you have received no Reports yet.</strong>
-                            Please <a href="#reporting-deadline">extend the reporting deadline</a> and consider sending a reminder to your referees.
-                        </p>
-                    {% else %}
-                        <p>There are no Reports yet. When a Report is submitted, you can take further action from here.</p>
-                    {% endif %}
-                {% endif %}
-
-                {% include 'partials/submissions/pool/submission_reports_summary_table.html' with submission=submission %}
-
-
-                <h3 class="mt-4 mb-2" id="comments-summary">Comments</h3>
-
-                {% if submission.comments_set_complete.awaiting_vetting %}
-                    <p>{{ submission.comments_set_complete.awaiting_vetting|pluralize:'A new Comment has,New Comments have' }} been delivered. Please vet {{ submission.comments_set_complete.awaiting_vetting|pluralize:'it,them' }} below.</p>
-                {% elif submission.comments_set_complete %}
-                    <p>No action required. All Comments are processed.</p>
-                {% else %}
-                    <p>There are no Comments yet. When a Comment is submitted, you can take further action from here.</p>
-                {% endif %}
-                {% include 'partials/submissions/pool/submission_comments_summary_table.html' with submission=submission %}
+      </td>
+    </tr>
+    <tr>
+      <td>Editor-in-charge:</td>
+      <td>
+        {% if submission.editor_in_charge %}
+          {{ submission.editor_in_charge.formal_str }}
+        {% else %}
+          Unassigned{% if is_editorial_admin %}, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">see editor invitations</a>.{% endif %}
         {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Refereeing cycle:</td>
+      <td>{{ submission.get_refereeing_cycle_display }}</td>
+    </tr>
+    <tr>
+      <td>Publicly available:</td>
+      <td>
+        {% if submission.visible_public %}
+          <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+          <span class="text-muted">Available in public pages and search results.</span>
+        {% else %}
+          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+          <span class="text-muted">Only available for editors and authors.</span>
+        {% endif %}
+      </td>
+    </tr>
+    {% if submission.plagiarism_report or perms.scipost.can_do_plagiarism_checks %}
+      <tr>
+        <td>Plagiarism report:</td>
+        <td>
+          {% if submission.plagiarism_report %}
+            {% if submission.plagiarism_report.percent_match %}
+              <b>{{ submission.plagiarism_report.percent_match }}%</b>
+            {% else %}
+              <em>Scan in progress</em>
+              {% if perms.scipost.can_do_plagiarism_checks %}
+                <br>
+                <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Update plagiarism score</a>
+              {% endif %}
+            {% endif %}
+          {% elif perms.scipost.can_do_plagiarism_checks %}
+            <em>No plagiarism report found.</em>
+            <br>
+            <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
+          {% endif %}
+        </td>
+      </tr>
     {% endif %}
+    <tr>
+      <td>Open for commenting:</td>
+      <td>
+        {% if submission.open_for_commenting %}
+          <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+          <span class="text-muted">Open for commenting.</span>
+        {% else %}
+          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+          <span class="text-muted">Commenting closed.</span>
+        {% endif %}
+      </td>
+    </tr>
+    <tr id="reporting-deadline">
+      <td>Open for refereeing:</td>
+      <td>
+        {% if submission.is_open_for_reporting %}
+          <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+          <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.</span>
+        {% else %}
+          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+          <span class="text-muted">
+            Refereeing closed.
+            {% if submission.referee_invitations.exists %}
+              <br>
+              <em>Invited referees may still submit a Report, as long as their invitation is not finished nor cancelled.</em>
+            {% endif %}
+          </span>
+        {% endif %}
+        {% if submission.in_refereeing_phase %}
+          {% if submission.reporting_deadline_has_passed %}
+            <div class="mt-2 p-2 border">
+              <i class="fa fa-exclamation-triangle text-danger"></i>
+              <strong>The reporting deadline has passed.</strong>
+            </div>
+          {% elif submission.reporting_deadline_approaching %}
+            <div class="mt-2 p-2 border">
+              <i class="fa fa-exclamation-triangle text-warning"></i>
+              The reporting deadline is in {{ submission.reporting_deadline|timeuntil }}.
+            </div>
+          {% endif %}
+        {% endif %}
 
-{% if full_access %}
+        {% if submission.can_reset_reporting_deadline %}
+          {% if submission.is_open_for_reporting %}
+            <div class="my-1">
+              You may extend the refereeing deadline by
+              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
+              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
+              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>,
+
+              or set a refereeing deadline:
+              <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                <div class="d-inline-block mx-2">
+                  {% for field in set_deadline_form.visible_fields %}
+                    {{ field|add_css_class:'form-control' }}
+                    {{ field }}
+                  {% endfor %}
+                </div>
+
+                <input class="btn btn-outline-secondary" type="submit" value="Set deadline"/>
+              </form>.
+            </div>
+          {% else %}
+            <div class="mt-1">
+              Open the refereeing round by setting a refereeing deadline:
+              <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                <div class="d-inline-block mx-2">
+                  {% for field in set_deadline_form.visible_fields %}
+                    {{ field|add_css_class:'form-control' }}
+                    {{ field }}
+                  {% endfor %}
+                </div>
+
+                <input class="btn btn-outline-secondary" type="submit" value="Set deadline"/>
+              </form>
+            </div>
+          {% endif %}
+        {% endif %}
+
+        {% if submission.eic_recommendation_required %}
+          <div class="px-3 py-2 mt-1 mb-4 border">
+            <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation</a>.
+            <br>
+            If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+            <br>
+            If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
+          </div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>Number of referees invited:</td>
+      <td>
+        {{ submission.referee_invitations.count }} <span>[{{ submission.referee_invitations.accepted.count }} acccepted / {{ submission.referee_invitations.declined.count }} declined / {{ submission.referee_invitations.awaiting_response.count }} response pending]</span>
+      </td>
+    </tr>
+    <tr>
+      <td>Number of reports obtained:</td>
+      <td>
+        {{ submission.reports.accepted.count }} [{{ submission.reports.accepted.invited.count }} invited / {{ submission.reports.accepted.contributed.count }} contributed]; {{ submission.reports.rejected.count }} refused, {{ submission.reports.awaiting_vetting.count }} awaiting vetting
+      </td>
+    </tr>
+  </table>
+
+  {% if full_access %}
+    <div class="my-5 p-3 border{% if submission.cycle.has_required_actions %} border-danger{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
+      <h3>
+        {% if submission.cycle.has_required_actions %}
+          <i class="fa fa-exclamation-triangle text-danger"></i>
+        {% else %}
+          <i class="fa fa-check-circle"></i>
+        {% endif %}
+        Required actions
+      </h3>
+      {{ submission.cycle.required_actions }}
+    </div>
+  {% endif %}
+
+  {% if not submission.refereeing_cycle %}
+    {% if full_access %}
+      <div class="row">
+        <div class="col-12">
+          {% include 'partials/submissions/pool/submission_cycle_choice_form.html' with form=cycle_choice_form submission=submission %}
+        </div>
+      </div>
+    {% else %}
+      <div class="row">
+        <div class="col-12">
+          <h3 class="text-center">The Editor-in-charge first has to decide which refereeing cycle to use. Please check this page again at a later moment.</h3>
+        </div>
+      </div>
+    {% endif %}
+  {% else %}
+    {% if full_access %}
+      <h3>All available actions</h3>
+      <ul class="mb-5">
+        {% if submission.refereeing_cycle != 'direct_rec' %}
+          {% if submission.in_refereeing_phase %}
+            <li>
+              {% if submission.referee_invitations.all %}
+                <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite an additional referee</a>
+              {% else %}
+                <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>
+              {% endif %}
+            </li>
+            <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ml-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
+              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
+              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
+              <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>
+            </li>
+          {% endif %}
+          {% if submission.can_reset_reporting_deadline %}
+            <li>
+              Set refereeing deadline:
+              <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+                {% csrf_token %}
+                <div class="d-inline-block mx-2">
+                  {% for field in set_deadline_form.visible_fields %}
+                    {{ field|add_css_class:'form-control' }}
+                    {{ field }}
+                  {% endfor %}
+                </div>
+
+                <input class="btn btn-outline-secondary btn-sm" type="submit" value="Set deadline"/>
+              </form>
+            </li>
+          {% endif %}
+
+          {% if submission.is_open_for_reporting %}
+            <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
+          {% endif %}
+        {% endif %}
+        {% with submission.reports.awaiting_vetting as reports %}
+          {% if reports %}
+            <li>
+              Vet submitted Report{{reports|pluralize}}:
+              <ul class="mb-1">
+                {% for report in reports %}
+                  <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">Report {{ report.report_nr }} by {{ report.author }} ({{ report.get_report_type_display }})</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% else %}
+            <li>All Reports have been vetted.</li>
+          {% endif %}
+        {% endwith %}
+
+        {% with submission.comments_set_complete.awaiting_vetting as comments %}
+          {% if comments %}
+            <li>
+              Vet submitted Comment{{comments|pluralize}}:
+              <ul class="mb-1">
+                {% for comment in comments %}
+                  <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
+                {% endfor %}
+              </ul>
+            </li>
+          {% else %}
+            <li>All Comments have been vetted.</li>
+          {% endif %}
+        {% endwith %}
+        {% if submission.eic_recommendation_required %}
+          <li>
+            {% if submission.eicrecommendations.last %}
+              <a href="{% url 'submissions:reformulate_eic_recommendation' submission.preprint.identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a>
+            {% else %}
+              <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Formulate an Editorial Recommendation.</a>
+            {% endif %}
+            <p>
+              If you recommend revisions, this will be communicated directly to the Authors, who will be asked to resubmit.
+              <br>
+              If you recommend acceptance or rejection, this will be put to the Editorial College for ratification.
+            </p>
+          </li>
+        {% elif submission.eicrecommendations.last %}
+          {% if submission.eicrecommendations.last.may_be_reformulated %}
+            <li><a href="{% url 'submissions:reformulate_eic_recommendation' submission.preprint.identifier_w_vn_nr %}">Reformulate Editorial Recommendation</a></li>
+          {% endif %}
+        {% endif %}
+      </ul>
+
+      {% if submission.refereeing_cycle != 'direct_rec' %}
+        <h3 class="mt-3" id="referee-details">Refereeing invitations</h3>
+        {% if not submission.referee_invitations.exists %}
+          <p>You have not yet invited referees. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
+        {% elif submission.eicrecommendations.active %}
+          <p>Thank you for formulating your Editorial Recommendation. The statuses of the referee invitations might still change, see details below.</p>
+        {% elif submission.referee_invitations.non_cancelled|length < submission.cycle.minimum_number_of_referees %}
+          {% if submission.referee_invitations.non_cancelled|length == 1 %}
+            <p>You have 1 referee who {% if submission.referee_invitations.non_cancelled.first.fulfilled %}submitted a Report{% elif submission.referee_invitations.non_cancelled.first.accepted %}has accepted to referee{% else %} is invited{% endif %}.
+          {% else %}
+            <p>You have {{ submission.referee_invitations.non_cancelled|length }} referee{{ submission.referee_invitations.non_cancelled|length|pluralize }} who are either invited, have accepted or submitted a Report.
+          {% endif %}
+          <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Please invite at least {{ submission.cycle.minimum_number_of_referees }} referees</a>.</p>
+        {% else %}
+          <p>Currently, you have {{ submission.referee_invitations.non_cancelled|length }} referees who are either invited, have accepted or submitted a Report. See details below.</p>
+        {% endif %}
+
+        {% if submission.referee_invitations.needs_attention.count %}
+          <p><strong><i class="fa fa-exclamation-triangle text-warning"></i> {{ submission.referee_invitations.needs_attention.count }} refereeing invitation{{ submission.referee_invitations.needs_attention.count|pluralize }} need{{ submission.referee_invitations.needs_attention.count|pluralize:'s,' }} attention. See below.</strong></p>
+        {% endif %}
+
+        {% if submission.eic_recommendation_required %}
+          <p>
+            {% if submission.in_refereeing_phase %}
+              Refereeing is still in progress, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a> when the refereeing round is closed.
+            {% elif not submission.reports.accepted %}
+              Please make sure you have at least one vetted Report before you <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation</a>.
+            {% else %}
+              When refereeing has finished, you may <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate an Editorial Recommendation here</a>.
+            {% endif %}
+          </p>
+        {% endif %}
+
+
+        {% include 'partials/submissions/pool/referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all submission=submission %}
+      {% endif %}
+
+      <hr class="lg my-5">
+
+      <h2 id="current-contributions">Current contributions</h2>
+      <h3 class="mt-3 mb-2" id="reports-summary">Reports</h3>
+
+      {% if submission.reports.awaiting_vetting %}
+        <p>{{ submission.reports.awaiting_vetting|pluralize:'A new Report has,New Reports have' }} been delivered. Please vet {{ submission.comments_set_complete.awaiting_vetting|pluralize:'it,them' }} below.</p>
+      {% elif submission.reports.all %}
+        {% if submission.reporting_deadline_has_passed and submission.eic_recommendation_required %}
+          <p>
+            The refereeing deadline has passed and you have received {{ submission.reports.all|length }} Report{{ submission.reports.all|pluralize }}. Please either <a href="#reporting-deadline">extend the reporting deadline</a>, or <a href="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">formulate your Editorial Recommendation</a>.
+          </p>
+        {% else %}
+          <p>No action required. All Reports are processed.</p>
+        {% endif %}
+      {% else %}
+        {% if submission.reporting_deadline_has_passed and submission.eic_recommendation_required %}
+          <p>
+            <i class="fa fa-exclamation-triangle text-danger"></i>
+            <strong>The refereeing deadline has passed and you have received no Reports yet.</strong>
+            Please <a href="#reporting-deadline">extend the reporting deadline</a> and consider sending a reminder to your referees.
+          </p>
+        {% else %}
+          <p>There are no Reports yet. When a Report is submitted, you can take further action from here.</p>
+        {% endif %}
+      {% endif %}
+
+      {% include 'partials/submissions/pool/submission_reports_summary_table.html' with submission=submission %}
+
+
+      <h3 class="mt-4 mb-2" id="comments-summary">Comments</h3>
+
+      {% if submission.comments_set_complete.awaiting_vetting %}
+        <p>{{ submission.comments_set_complete.awaiting_vetting|pluralize:'A new Comment has,New Comments have' }} been delivered. Please vet {{ submission.comments_set_complete.awaiting_vetting|pluralize:'it,them' }} below.</p>
+      {% elif submission.comments_set_complete %}
+        <p>No action required. All Comments are processed.</p>
+      {% else %}
+        <p>There are no Comments yet. When a Comment is submitted, you can take further action from here.</p>
+      {% endif %}
+      {% include 'partials/submissions/pool/submission_comments_summary_table.html' with submission=submission %}
+    {% endif %}
+  {% endif %}
+
+  {% if full_access %}
     <hr class="lg my-5">
 
     <h2 id="communications">Communications</h2>
     <ul>
-        {% if submission.editor_in_charge == request.user.contributor %}
-            <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
-            <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
-        {% endif %}
-        {% if is_editorial_admin %}
-            <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
-        {% endif %}
+      {% if submission.editor_in_charge == request.user.contributor %}
+        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
+        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
+      {% endif %}
+      {% if is_editorial_admin %}
+        <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
+      {% endif %}
     </ul>
 
     {% if submission.editor_in_charge == request.user.contributor %}
-        {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=1 %}
+      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=1 %}
     {% else %}
-        {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=0 %}
+      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=0 %}
     {% endif %}
 
     <h2 class="mt-3" id="events">Events</h2>
     {% include 'partials/submissions/submission_events.html' with events=submission.events.for_eic %}
 
-{% endif %}
+  {% endif %}
 
-<div class="mb-5"></div>
+  <div class="mb-5"></div>
 {% endblock content %}

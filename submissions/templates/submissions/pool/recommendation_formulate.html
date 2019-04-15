@@ -6,46 +6,46 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
-    <span class="breadcrumb-item">Formulate Editorial Recommendation</span>
+  {{block.super}}
+  <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
+  <span class="breadcrumb-item">Formulate Editorial Recommendation</span>
 {% endblock %}
 
 {% block content %}
 
-<h1 class="highlight">Formulate Editorial Recommendation for Submission</h1>
+  <h1 class="highlight">Formulate Editorial Recommendation for Submission</h1>
 
-<br>
-{% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
+  <br>
+  {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
 
-<br>
-<div class="border bg-light p-3 mb-3">
+  <br>
+  <div class="border bg-light p-3 mb-3">
     <h2>Your Editorial Recommendation</h2>
     <p>You recommendation will be processed by the Editorial Administration.</p>
     <ul class="mb-0">
-        <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
-        <li>request for revision: sent directly to the authors</li>
+      <li>acceptance or rejection: forwarded to the Editorial College for ratification</li>
+      <li>request for revision: sent directly to the authors</li>
     </ul>
-</div>
+  </div>
 
-{% if submission.editor_in_charge != request.user.contributor %}
+  {% if submission.editor_in_charge != request.user.contributor %}
     <div class="border border-danger p-3">
-        <i class="fa fa-exclamation-triangle text-warning" aria-hidden="true"></i>
-        You are not assigned as Editor in charge. However, you can formulate an Editorial Recommendation because you are Editorial Administrator. <strong>This Editorial Recommendation will still be signed by the Editor-in-charge.</strong>
+      <i class="fa fa-exclamation-triangle text-warning" aria-hidden="true"></i>
+      You are not assigned as Editor in charge. However, you can formulate an Editorial Recommendation because you are Editorial Administrator. <strong>This Editorial Recommendation will still be signed by the Editor-in-charge.</strong>
     </div>
-{% endif %}
+  {% endif %}
 
-<br>
+  <br>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <form action="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input class="btn btn-primary" type="submit" value="Submit Recommendation"/>
-        </form>
+      <form action="{% url 'submissions:eic_recommendation' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input class="btn btn-primary" type="submit" value="Submit Recommendation"/>
+      </form>
     </div>
-</div>
+  </div>
 
 
 {% endblock content %}

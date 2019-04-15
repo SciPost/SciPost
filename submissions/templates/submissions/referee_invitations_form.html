@@ -6,51 +6,51 @@
 
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Accept or decline refereeing invitations</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Accept or decline refereeing invitations</span>
 {% endblock %}
 
 {% block content %}
 
-<script>
-$(document).ready(function(){
-  $('[name="accept"]').on('change', function() {
-      if($('[name="accept"]:checked').val() == 'False') {
-          $('#id_refusal_reason').parents('.form-group').show();
-      }
-      else {
-          $('#id_refusal_reason').parents('.form-group').hide();
-      }
-    }).trigger('change');
-  });
-</script>
+  <script>
+   $(document).ready(function(){
+       $('[name="accept"]').on('change', function() {
+	   if($('[name="accept"]:checked').val() == 'False') {
+               $('#id_refusal_reason').parents('.form-group').show();
+	   }
+	   else {
+               $('#id_refusal_reason').parents('.form-group').hide();
+	   }
+       }).trigger('change');
+   });
+  </script>
 
 
-{% if not invitation %}
+  {% if not invitation %}
     <div class="row">
-        <div class="col-12">
-            <h1>There are no Refereeing Invitations for you to consider.</h1>
-        </div>
+      <div class="col-12">
+        <h1>There are no Refereeing Invitations for you to consider.</h1>
+      </div>
     </div>
-{% else %}
+  {% else %}
     <div class="row">
-        <div class="col-12">
-            <h1 class="highlight">SciPost Submission which you are asked to Referee (see below to accept/decline):</h1>
-            {% include 'partials/submissions/submission_summary.html' with submission=invitation.submission show_abstract=1 %}
-        </div>
+      <div class="col-12">
+        <h1 class="highlight">SciPost Submission which you are asked to Referee (see below to accept/decline):</h1>
+        {% include 'partials/submissions/submission_summary.html' with submission=invitation.submission show_abstract=1 %}
+      </div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Accept or Decline this Refereeing Invitation</h2>
-            <h3>Please let us know if you can provide us with a Report for this Submission:</h3>
-            <p>We will expect your report by <b>{{invitation.submission.reporting_deadline}}</b></p>
-            <form action="{% url 'submissions:accept_or_decline_ref_invitations' invitation_id=invitation.id %}" method="post">
-                {% csrf_token %}
-                {{ form|bootstrap:'4,8' }}
-                <input type="submit" class="btn btn-primary" value="Submit" />
-            </form>
-        </div>
+      <div class="col-12">
+        <h2 class="highlight">Accept or Decline this Refereeing Invitation</h2>
+        <h3>Please let us know if you can provide us with a Report for this Submission:</h3>
+        <p>We will expect your report by <b>{{invitation.submission.reporting_deadline}}</b></p>
+        <form action="{% url 'submissions:accept_or_decline_ref_invitations' invitation_id=invitation.id %}" method="post">
+          {% csrf_token %}
+          {{ form|bootstrap:'4,8' }}
+          <input type="submit" class="btn btn-primary" value="Submit" />
+        </form>
+      </div>
     </div>
-{% endif %}
+  {% endif %}
 
 {% endblock content %}

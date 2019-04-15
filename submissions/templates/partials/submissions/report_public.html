@@ -1,16 +1,16 @@
 {% extends 'partials/submissions/report_public_without_comments.html' %}
 
 {% block single_report_footer %}
-    {% if user.is_authenticated and perms.scipost.can_submit_comments %}
-        <hr class="small">
-        <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
-    {% endif %}
+  {% if user.is_authenticated and perms.scipost.can_submit_comments %}
+    <hr class="small">
+    <h3><a href="{% url 'comments:reply_to_report' report_id=report.id %}">Reply to this Report</a> (authors only)</h3>
+  {% endif %}
 
-    {% if report.comments.vetted.exists %}
-        <br>
-    {% endif %}
+  {% if report.comments.vetted.exists %}
+    <br>
+  {% endif %}
 
-    {% for reply in report.comments.vetted %}
-        {% include 'comments/_single_comment_with_link.html' with comment=reply perms=perms user=user %}
-    {% endfor %}
+  {% for reply in report.comments.vetted %}
+    {% include 'comments/_single_comment_with_link.html' with comment=reply perms=perms user=user %}
+  {% endfor %}
 {% endblock %}

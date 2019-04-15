@@ -1,44 +1,44 @@
 <table class="mb-3">
-    <tr>
-        <td>Title: </td><td>&nbsp;</td><td>{{ thesislink.title }}</td>
-    </tr>
-    <tr>
-        <td>Author: </td><td>&nbsp;</td><td>{{ thesislink.author }}</td>
-    </tr>
-    <tr>
-        <td>As Contributor: </td><td>&nbsp;</td>
-        <td>
-            {% for author in thesislink.author_as_cont.all %}
-                {% if not forloop.first %} &middot; {% endif %}<a href= {% url 'scipost:contributor_info' author.id %}>{{ author.user.first_name }} {{ author.user.last_name }}</a>
-            {% empty %}
-                (not claimed)
-            {% endfor %}
-        </td>
-    </tr>
-    <tr>
-        <td>Type: </td><td></td><td>  {{ thesislink.get_type_display }}</td>
-    </tr>
-    <tr>
-        <td>Discipline: </td><td></td><td>{{ thesislink.get_discipline_display }}</td>
-    </tr>
-    <tr>
-        <td>Domain: </td><td></td><td>{{ thesislink.get_domain_display }}</td>
-    </tr>
-    <tr>
-        <td>Subject area: </td><td></td><td> {{ thesislink.get_subject_area_display }} </td>
-    </tr>
-    <tr>
-        <td>URL: </td><td>&nbsp;</td><td><a href="{{ thesislink.pub_link }}" target="_blank">{{ thesislink.pub_link }}</a></td>
-    </tr>
-    <tr>
-        <td>Degree granting institution: </td><td>&nbsp;</td><td>{{ thesislink.institution }}</td>
-    </tr>
-    <tr>
-        <td>Supervisor(s): </td><td></td><td>{{ thesislink.supervisor }}</td>
-    </tr>
-    <tr>
-        <td>Defense date: </td><td>&nbsp;</td><td>{{ thesislink.defense_date }}</td>
-    </tr>
+  <tr>
+    <td>Title: </td><td>&nbsp;</td><td>{{ thesislink.title }}</td>
+  </tr>
+  <tr>
+    <td>Author: </td><td>&nbsp;</td><td>{{ thesislink.author }}</td>
+  </tr>
+  <tr>
+    <td>As Contributor: </td><td>&nbsp;</td>
+    <td>
+      {% for author in thesislink.author_as_cont.all %}
+        {% if not forloop.first %} &middot; {% endif %}<a href= {% url 'scipost:contributor_info' author.id %}>{{ author.user.first_name }} {{ author.user.last_name }}</a>
+      {% empty %}
+        (not claimed)
+      {% endfor %}
+    </td>
+  </tr>
+  <tr>
+    <td>Type: </td><td></td><td>  {{ thesislink.get_type_display }}</td>
+  </tr>
+  <tr>
+    <td>Discipline: </td><td></td><td>{{ thesislink.get_discipline_display }}</td>
+  </tr>
+  <tr>
+    <td>Domain: </td><td></td><td>{{ thesislink.get_domain_display }}</td>
+  </tr>
+  <tr>
+    <td>Subject area: </td><td></td><td> {{ thesislink.get_subject_area_display }} </td>
+  </tr>
+  <tr>
+    <td>URL: </td><td>&nbsp;</td><td><a href="{{ thesislink.pub_link }}" target="_blank">{{ thesislink.pub_link }}</a></td>
+  </tr>
+  <tr>
+    <td>Degree granting institution: </td><td>&nbsp;</td><td>{{ thesislink.institution }}</td>
+  </tr>
+  <tr>
+    <td>Supervisor(s): </td><td></td><td>{{ thesislink.supervisor }}</td>
+  </tr>
+  <tr>
+    <td>Defense date: </td><td>&nbsp;</td><td>{{ thesislink.defense_date }}</td>
+  </tr>
 </table>
 
 <h3>Abstract:</h3>

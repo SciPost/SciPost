@@ -1,10 +1,10 @@
 <div class="py-1">
-    <a href="{{submission.get_absolute_url}}" class="pubtitleli">version {{submission.preprint.vn_nr}}</a>
-    <span class="version-suffix">
-        {% if submission.is_current %}
-            (current version)
-        {% else %}
-            (deprecated version {{submission.preprint.vn_nr}})
-        {% endif %}
-    </span>
+  <a href="{{submission.get_absolute_url}}" class="pubtitleli">version {{submission.preprint.vn_nr}}</a>
+  <span class="version-suffix">
+    {% if submission.is_current %}
+      (current version)
+    {% else %}
+      (deprecated version {{submission.preprint.vn_nr}})
+    {% endif %}
+  </span>
 </div>

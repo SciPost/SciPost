@@ -1,18 +1,18 @@
 <div class="table-responsive-md">
-    <table class="table table-borderless">
-        <tbody>
-            <tr>
-                <td>Nr referees invited:</td>
-                <td>
-                    {{ submission.referee_invitations.count }} <span>[{{ submission.referee_invitations.accepted.count }} acccepted / {{ submission.referee_invitations.declined.count }} declined / {{ submission.referee_invitations.awaiting_response.count }} response pending]</span>
-                </td>
-            </tr>
-            <tr>
-                <td>Nr reports obtained:</td>
-                <td>
-                    {{ submission.reports.accepted.count }} [{{ submission.reports.accepted.invited.count }} invited / {{ submission.reports.contributed.accepted.count }} contributed], nr refused: {{submission.reports.rejected.count}}, nr awaiting vetting: {{submission.reports.awaiting_vetting.count}}
-                </td>
-            </tr>
-        </tbody>
-    </table>
+  <table class="table table-borderless">
+    <tbody>
+      <tr>
+        <td>Nr referees invited:</td>
+        <td>
+          {{ submission.referee_invitations.count }} <span>[{{ submission.referee_invitations.accepted.count }} acccepted / {{ submission.referee_invitations.declined.count }} declined / {{ submission.referee_invitations.awaiting_response.count }} response pending]</span>
+        </td>
+      </tr>
+      <tr>
+        <td>Nr reports obtained:</td>
+        <td>
+          {{ submission.reports.accepted.count }} [{{ submission.reports.accepted.invited.count }} invited / {{ submission.reports.contributed.accepted.count }} contributed], nr refused: {{submission.reports.rejected.count}}, nr awaiting vetting: {{submission.reports.awaiting_vetting.count}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>

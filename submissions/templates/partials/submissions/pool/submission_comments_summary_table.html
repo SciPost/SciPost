@@ -1,57 +1,57 @@
 <table class="table table-light table-hover v-center">
-    <thead class="thead-light">
-        <tr>
-            <th></th>
-            <th>Author</th>
-            <th>Status</th>
-            <th>Text</th>
-            <th>Type</th>
-            <th>Date</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for comment in submission.comments_set_complete %}
-            <tr{% if comment.is_unvetted %} class="table-warning"{% endif %}>
-                <td class="text-center">
-                    {% if comment.is_unvetted %}
-                        <div class="text-center" data-toggle="tooltip" data-title="This Comment has not yet been vetted." data-html="true">
-                            <i class="fa fa-info"></i>
-                            <i class="fa fa-long-arrow-right" ></i>
-                        </div>
-                    {% endif %}
-                </td>
-                <td>
-                    {{ comment.author }}
-                    {% if comment.anonymous %}
-                        <br>
-                        <b><span class="text-danger">Chose public anonymity</span></b>
-                    {% endif %}
-                </td>
-                <td>
-                    {% if comment.is_vetted %}
-                        <i class="fa fa-check-circle text-success"></i>
-                    {% elif comment.is_rejected %}
-                        <i class="fa fa-times-circle text-danger"></i>
-                    {% elif comment.is_unvetted %}
-                        <i class="fa fa-exclamation-triangle text-warning"></i>
-                    {% endif %}
-                    {{ comment.get_status_display }}
-                    {% if comment.is_unvetted %}
-                        <br>
-                        <a href="{% url 'comments:vet_submitted_comment' comment.id %}">Vet this Comment here</a>
-                    {% elif comment.is_vetted %}
-                        <br>
-                        <a href="{{ comment.get_absolute_url }}">View full Comment here</a>
-                    {% endif %}
-                </td>
-                <td><em>{{ comment.comment_text|truncatewords:6 }}</em></td>
-                <td>{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %}</td>
-                <td>{{ comment.date_submitted }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td class="text-center py-3" colspan="6">There are no Comments yet.</td>
-            </tr>
-        {% endfor %}
-    </tbody>
+  <thead class="thead-light">
+    <tr>
+      <th></th>
+      <th>Author</th>
+      <th>Status</th>
+      <th>Text</th>
+      <th>Type</th>
+      <th>Date</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for comment in submission.comments_set_complete %}
+      <tr{% if comment.is_unvetted %} class="table-warning"{% endif %}>
+        <td class="text-center">
+          {% if comment.is_unvetted %}
+            <div class="text-center" data-toggle="tooltip" data-title="This Comment has not yet been vetted." data-html="true">
+              <i class="fa fa-info"></i>
+              <i class="fa fa-long-arrow-right" ></i>
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          {{ comment.author }}
+          {% if comment.anonymous %}
+            <br>
+            <b><span class="text-danger">Chose public anonymity</span></b>
+          {% endif %}
+        </td>
+        <td>
+          {% if comment.is_vetted %}
+            <i class="fa fa-check-circle text-success"></i>
+          {% elif comment.is_rejected %}
+            <i class="fa fa-times-circle text-danger"></i>
+          {% elif comment.is_unvetted %}
+            <i class="fa fa-exclamation-triangle text-warning"></i>
+          {% endif %}
+          {{ comment.get_status_display }}
+          {% if comment.is_unvetted %}
+            <br>
+            <a href="{% url 'comments:vet_submitted_comment' comment.id %}">Vet this Comment here</a>
+          {% elif comment.is_vetted %}
+            <br>
+            <a href="{{ comment.get_absolute_url }}">View full Comment here</a>
+          {% endif %}
+        </td>
+        <td><em>{{ comment.comment_text|truncatewords:6 }}</em></td>
+        <td>{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %}</td>
+        <td>{{ comment.date_submitted }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td class="text-center py-3" colspan="6">There are no Comments yet.</td>
+      </tr>
+    {% endfor %}
+  </tbody>
 </table>

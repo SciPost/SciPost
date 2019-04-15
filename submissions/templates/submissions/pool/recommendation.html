@@ -4,24 +4,24 @@
 {% load scipost_extras %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Editorial Recommendation</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Editorial Recommendation</span>
 {% endblock %}
 
 {% block pagetitle %}: Editorial Recommendation{% endblock pagetitle %}
 
 {% block content %}
-    <h1 class="highlight">Editorial Recommendation to vote on</h1>
+  <h1 class="highlight">Editorial Recommendation to vote on</h1>
 
 
-    {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
+  {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
 
-    <a class="d-inline-block mb-3" href="{{ recommendation.submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
+  <a class="d-inline-block mb-3" href="{{ recommendation.submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
 
-    {% include 'partials/submissions/pool/submission_info_table.html' with submission=recommendation.submission %}
-    <br>
+  {% include 'partials/submissions/pool/submission_info_table.html' with submission=recommendation.submission %}
+  <br>
 
-    {% if recommendation.get_other_versions %}
+  {% if recommendation.get_other_versions %}
     <div class="card text-white bg-dark">
       <div class="card-header">
 	<a class="btn btn-secondary text-white bg-dark" data-toggle="collapse" href="#previousEdRecs" role="button" aria-expanded="false" aria-controls="previousEdRecs">Deprecated versions of Editorial Recommendations for this Submission (click to expand/collapse)</a>
@@ -29,123 +29,123 @@
       <div class="collapse" id="previousEdRecs">
 	<div class="card-body">
 	  {% for old_rec in recommendation.get_other_versions %}
-          {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=old_rec %}
-          <h3 class="card-title">Fellows eligible to vote:</h3>
-          <ul>
-            {% for eligible in old_rec.eligible_to_vote.all|sort_by:'user__last_name' %}
-            <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
-            {% endfor %}
-          </ul>
-          <h3 class="card-title">Voting results:</h3>
-          <ul>
-            <li>
-              Agreed ({{ old_rec.voted_for.all.count }}):
-              {% for agreed in old_rec.voted_for.all|sort_by:'user__last_name' %}
-              {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
+            {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=old_rec %}
+            <h3 class="card-title">Fellows eligible to vote:</h3>
+            <ul>
+              {% for eligible in old_rec.eligible_to_vote.all|sort_by:'user__last_name' %}
+		<li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
               {% endfor %}
-            </li>
-            <li>
-              Disagreed ({{ old_rec.voted_against.all.count }}):
-              {% for disagreed in old_rec.voted_against.all|sort_by:'user__last_name' %}
-              {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
+            </ul>
+            <h3 class="card-title">Voting results:</h3>
+            <ul>
+              <li>
+		Agreed ({{ old_rec.voted_for.all.count }}):
+		{% for agreed in old_rec.voted_for.all|sort_by:'user__last_name' %}
+		  {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
+		{% endfor %}
+              </li>
+              <li>
+		Disagreed ({{ old_rec.voted_against.all.count }}):
+		{% for disagreed in old_rec.voted_against.all|sort_by:'user__last_name' %}
+		  {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
+		{% endfor %}
+              </li>
+              <li>
+		Abstained ({{ old_rec.voted_abstain.all.count }}):
+		{% for abstained in old_rec.voted_abstain.all|sort_by:'user__last_name' %}
+		  {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
+		{% endfor %}
+              </li>
+            </ul>
+            <h3 class="card-title">Remarks:</h3>
+            <ul>
+              {% for rem in old_rec.remarks.all %}
+		<li>{% include 'partials/submissions/remark_small.html' with remark=rem %}</li>
+              {% empty %}
+		<li><em>No remarks</em></li>
               {% endfor %}
-            </li>
-            <li>
-              Abstained ({{ old_rec.voted_abstain.all.count }}):
-              {% for abstained in old_rec.voted_abstain.all|sort_by:'user__last_name' %}
-              {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
-              {% endfor %}
-            </li>
-          </ul>
-          <h3 class="card-title">Remarks:</h3>
-          <ul>
-            {% for rem in old_rec.remarks.all %}
-            <li>{% include 'partials/submissions/remark_small.html' with remark=rem %}</li>
-            {% empty %}
-            <li><em>No remarks</em></li>
-            {% endfor %}
-          </ul>
+            </ul>
 	  {% endfor %}
 	</div>
       </div>
     </div>
-    {% endif %}
+  {% endif %}
 
-    <h2 class="highlight">Editorial Recommendation to vote on</h2>
-    {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
+  <h2 class="highlight">Editorial Recommendation to vote on</h2>
+  {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
 
-    <div class="card">
-        <div class="card-body">
+  <div class="card">
+    <div class="card-body">
 
-            <h3 class="card-title">Fellows eligible to vote:</h3>
-            <ul>
-                {% for eligible in recommendation.eligible_to_vote.all|sort_by:'user__last_name' %}
-                    <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
-                 {% endfor %}
-            </ul>
+      <h3 class="card-title">Fellows eligible to vote:</h3>
+      <ul>
+        {% for eligible in recommendation.eligible_to_vote.all|sort_by:'user__last_name' %}
+          <li>{{ eligible.user.first_name }} {{ eligible.user.last_name }}</li>
+        {% endfor %}
+      </ul>
 
-            <h3 class="card-title">Voting results up to now:</h3>
-            <ul>
-                <li>
-                    Agreed ({{ recommendation.voted_for.all.count }}):
-                    {% for agreed in recommendation.voted_for.all|sort_by:'user__last_name' %}
-                        {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                </li>
-                <li>
-                    Disagreed ({{ recommendation.voted_against.all.count }}):
-                    {% for disagreed in recommendation.voted_against.all|sort_by:'user__last_name' %}
-                        {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                </li>
-                <li>
-                    Abstained ({{ recommendation.voted_abstain.all.count }}):
-                    {% for abstained in recommendation.voted_abstain.all|sort_by:'user__last_name' %}
-                        {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                </li>
-            </ul>
+      <h3 class="card-title">Voting results up to now:</h3>
+      <ul>
+        <li>
+          Agreed ({{ recommendation.voted_for.all.count }}):
+          {% for agreed in recommendation.voted_for.all|sort_by:'user__last_name' %}
+            {{ agreed.user.last_name }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </li>
+        <li>
+          Disagreed ({{ recommendation.voted_against.all.count }}):
+          {% for disagreed in recommendation.voted_against.all|sort_by:'user__last_name' %}
+            {{ disagreed.user.last_name }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </li>
+        <li>
+          Abstained ({{ recommendation.voted_abstain.all.count }}):
+          {% for abstained in recommendation.voted_abstain.all|sort_by:'user__last_name' %}
+            {{ abstained.user.last_name }}{% if not forloop.last %},{% endif %}
+          {% endfor %}
+        </li>
+      </ul>
 
-            <h3 class="card-title">Remarks:</h3>
-            <ul>
-              {% for rem in recommendation.remarks.all %}
-                  <li>{% include 'partials/submissions/remark_small.html' with remark=rem %}</li>
-             {% empty %}
-                 <li><em>No remarks</em></li>
-              {% endfor %}
-            </ul>
-        </div>
-
-        {% if perms.scipost.can_fix_College_decision %}
-            <div class="card-footer bg-light py-3">
-                <h3 class="card-title">Administrative actions on recommendations undergoing voting:</h3>
-                <ul class="mb-0">
-                    <li>To send an email reminder to each Fellow with at least one voting duty: <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a>.</li>
-                    <li>
-                        The current Editorial Recommendation: {{ recommendation.get_recommendation_display }}.
-                        <br>
-                        <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
-                            {% csrf_token %}
-                            <button type="submit" name="action" value="fix" class="btn btn-primary btn-sm mr-2">Fix College decision</button>
-                            <button type="submit" name="action" value="deprecate" class="btn btn-danger btn-sm text-white">Deprecate College decision</button>
-                        </form>
-                    </li>
-                    <li>To request a modification of the Recommendation to request for revision: click here</li>
-                </ul>
-            </div>
-        {% endif %}
+      <h3 class="card-title">Remarks:</h3>
+      <ul>
+        {% for rem in recommendation.remarks.all %}
+          <li>{% include 'partials/submissions/remark_small.html' with remark=rem %}</li>
+        {% empty %}
+          <li><em>No remarks</em></li>
+        {% endfor %}
+      </ul>
     </div>
 
-    {% if voting_form %}
-        <h3 class="mt-4">Your position on this recommendation</h3>
-	{% if previous_vote %}
-	<p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
-	{% endif %}
-        <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
-            {% csrf_token %}
-            {{ voting_form|bootstrap:'0,12' }}
-            <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary" id="submit-id-submit">
-        </form>
+    {% if perms.scipost.can_fix_College_decision %}
+      <div class="card-footer bg-light py-3">
+        <h3 class="card-title">Administrative actions on recommendations undergoing voting:</h3>
+        <ul class="mb-0">
+          <li>To send an email reminder to each Fellow with at least one voting duty: <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a>.</li>
+          <li>
+            The current Editorial Recommendation: {{ recommendation.get_recommendation_display }}.
+            <br>
+            <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
+              {% csrf_token %}
+              <button type="submit" name="action" value="fix" class="btn btn-primary btn-sm mr-2">Fix College decision</button>
+              <button type="submit" name="action" value="deprecate" class="btn btn-danger btn-sm text-white">Deprecate College decision</button>
+            </form>
+          </li>
+          <li>To request a modification of the Recommendation to request for revision: click here</li>
+        </ul>
+      </div>
     {% endif %}
+  </div>
+
+  {% if voting_form %}
+    <h3 class="mt-4">Your position on this recommendation</h3>
+    {% if previous_vote %}
+      <p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
+    {% endif %}
+    <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
+      {% csrf_token %}
+      {{ voting_form|bootstrap:'0,12' }}
+      <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary" id="submit-id-submit">
+    </form>
+  {% endif %}
 
 {% endblock %}

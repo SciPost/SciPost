@@ -3,38 +3,38 @@
 {% block pagetitle %}: vet reports{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Vet Reports</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Vet Reports</span>
 {% endblock %}
 
 {% block content %}
 
-<h1 class="highlight">SciPost Reports to vet</h1>
+  <h1 class="highlight">SciPost Reports to vet</h1>
 
-{% if reports_to_vet %}
+  {% if reports_to_vet %}
     <table class="table mt-4">
-        <thead>
-            <th>Report #</th>
-            <th>For submission</th>
-            <th>Submitted</th>
-            <th>Actions</th>
-        </thead>
-        <tbody>
-            {% for report in reports_to_vet %}
-                <tr>
-                    <td>{{report.report_nr}}</td>
-                    <td>{{report.submission.title}} ({{report.submission.preprint.identifier_w_vn_nr}})</td>
-                    <td>{{report.date_submitted|timesince}} ago</td>
-                    <td><a href="{% url 'submissions:vet_submitted_report' report.id  %}">Go to vetting page</a></td>
-                </tr>
-            {% endfor %}
-        </tbody>
+      <thead>
+        <th>Report #</th>
+        <th>For submission</th>
+        <th>Submitted</th>
+        <th>Actions</th>
+      </thead>
+      <tbody>
+        {% for report in reports_to_vet %}
+          <tr>
+            <td>{{report.report_nr}}</td>
+            <td>{{report.submission.title}} ({{report.submission.preprint.identifier_w_vn_nr}})</td>
+            <td>{{report.date_submitted|timesince}} ago</td>
+            <td><a href="{% url 'submissions:vet_submitted_report' report.id  %}">Go to vetting page</a></td>
+          </tr>
+        {% endfor %}
+      </tbody>
     </table>
-{% else %}
+  {% else %}
     <h2 class="mt-3">There are no Reports for you to vet.</h2>
     <p>Go back to my <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
-{% endif %}
+  {% endif %}
 
-<div class="mb-5"></div>
+  <div class="mb-5"></div>
 
 {% endblock content %}

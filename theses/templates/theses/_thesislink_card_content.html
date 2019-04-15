@@ -1,15 +1,15 @@
 <div class="card-body px-0">
-    <div class="li thesis">
-        <h5 class="subject">{{ thesislink.get_discipline_display }} &middot; {{ thesislink.get_domain_display }} &middot; {{ thesislink.get_subject_area_display }}</h5>
-        <h3 class="title">
-            <a href="{% url 'theses:thesis' thesislink_id=thesislink.id %}">{{ thesislink.title }}</a>
-        </h3>
-        <p class="authors">
-            {{ thesislink.get_type_display }} thesis by {{ thesislink.author }}
-            (supervisor(s): {{ thesislink.supervisor }})
-        </p>
-        <p class="meta mb-2">
-            Defense date: {{ thesislink.defense_date }} &middot; Latest activity: {{ thesislink.latest_activity|date:"DATE_FORMAT" }}
-        </p>
-    </div>
+  <div class="li thesis">
+    <h5 class="subject">{{ thesislink.get_discipline_display }} &middot; {{ thesislink.get_domain_display }} &middot; {{ thesislink.get_subject_area_display }}</h5>
+    <h3 class="title">
+      <a href="{% url 'theses:thesis' thesislink_id=thesislink.id %}">{{ thesislink.title }}</a>
+    </h3>
+    <p class="authors">
+      {{ thesislink.get_type_display }} thesis by {{ thesislink.author }}
+      (supervisor(s): {{ thesislink.supervisor }})
+    </p>
+    <p class="meta mb-2">
+      Defense date: {{ thesislink.defense_date }} &middot; Latest activity: {{ thesislink.latest_activity|date:"DATE_FORMAT" }}
+    </p>
+  </div>
 </div>

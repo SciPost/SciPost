@@ -1,43 +1,43 @@
 <div class="border px-3 py-2 my-3" id="rec-{{ recommendation.id }}">
-    <div {% if not recommendation.active %}style="display: none;"{% endif %} class="mb-4 {% if not recommendation.active %}pt-2{% endif %}">
-        {% if recommendation.is_deprecated %}<h4 class="mb-0"><i class="fa fa-exclamation-circle text-danger"></i> Deprecated</h4>{% endif %}
-        <h2 class="my-2">Editorial Recommendation</h2>
-        {% block recommendation_header %}
-            <h4 class="text-muted mb-2">Date {{recommendation.date_submitted}}</h4>
-        {% endblock %}
-        <br>
-
-        <table class="mb-2">
-            <tr>
-                <td class="pr-2">Version:</td>
-                <td>{{ recommendation.version }}</td>
-            </tr>
-            <tr>
-                <td class="pr-2">Recommendation:</td>
-                <td>{{ recommendation.get_recommendation_display }}</td>
-            </tr>
-            <tr>
-                <td class="pr-2">Status:</td>
-                <td><span class="label label-secondary">{{ recommendation.get_status_display }}</span></td>
-            </tr>
-        </table>
-
-        <h3 class="pb-0">Remarks for authors</h3>
-        <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
-
-        <h3 class="pb-0">Requested changes</h3>
-        <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
-
-        {% block recommendation_before_recommendation %}{% endblock %}
-
-        <h3 class="pb-0">Recommendation</h3>
-        <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
-    </div>
-
-    {% if not recommendation.active %}
-        <a href="javascript:;" data-toggle="toggle" data-target="#rec-{{ recommendation.id }} > div" class="d-block my-2">Show/hide Editorial Recommendation {{ recommendation.version }} (status: {{ recommendation.get_status_display }}) &rarr;</a>
-    {% endif %}
-
-    {% block recommendation_footer %}
+  <div {% if not recommendation.active %}style="display: none;"{% endif %} class="mb-4 {% if not recommendation.active %}pt-2{% endif %}">
+    {% if recommendation.is_deprecated %}<h4 class="mb-0"><i class="fa fa-exclamation-circle text-danger"></i> Deprecated</h4>{% endif %}
+    <h2 class="my-2">Editorial Recommendation</h2>
+    {% block recommendation_header %}
+      <h4 class="text-muted mb-2">Date {{recommendation.date_submitted}}</h4>
     {% endblock %}
+    <br>
+
+    <table class="mb-2">
+      <tr>
+        <td class="pr-2">Version:</td>
+        <td>{{ recommendation.version }}</td>
+      </tr>
+      <tr>
+        <td class="pr-2">Recommendation:</td>
+        <td>{{ recommendation.get_recommendation_display }}</td>
+      </tr>
+      <tr>
+        <td class="pr-2">Status:</td>
+        <td><span class="label label-secondary">{{ recommendation.get_status_display }}</span></td>
+      </tr>
+    </table>
+
+    <h3 class="pb-0">Remarks for authors</h3>
+    <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
+
+    <h3 class="pb-0">Requested changes</h3>
+    <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
+
+    {% block recommendation_before_recommendation %}{% endblock %}
+
+    <h3 class="pb-0">Recommendation</h3>
+    <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
+  </div>
+
+  {% if not recommendation.active %}
+    <a href="javascript:;" data-toggle="toggle" data-target="#rec-{{ recommendation.id }} > div" class="d-block my-2">Show/hide Editorial Recommendation {{ recommendation.version }} (status: {{ recommendation.get_status_display }}) &rarr;</a>
+  {% endif %}
+
+  {% block recommendation_footer %}
+  {% endblock %}
 </div>

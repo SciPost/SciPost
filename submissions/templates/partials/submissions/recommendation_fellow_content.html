@@ -1,16 +1,16 @@
 {% extends 'partials/submissions/recommendation_author_content.html' %}
 
 {% block recommendation_header %}
-    <h4 class="text-muted mb-2">By {{recommendation.submission.editor_in_charge.get_title_display}} {{recommendation.submission.editor_in_charge.user.first_name}} {{recommendation.submission.editor_in_charge.user.last_name}}, formulated on {{recommendation.date_submitted}}</h4>
+  <h4 class="text-muted mb-2">By {{recommendation.submission.editor_in_charge.get_title_display}} {{recommendation.submission.editor_in_charge.user.first_name}} {{recommendation.submission.editor_in_charge.user.last_name}}, formulated on {{recommendation.date_submitted}}</h4>
 {% endblock %}
 
 {% block recommendation_before_recommendation %}
-    <h3 class="pb-0">Remarks for Editorial College</h3>
-    <p class="pl-md-3">{{recommendation.remarks_for_editorial_college|default:'-'}}</p>
+  <h3 class="pb-0">Remarks for Editorial College</h3>
+  <p class="pl-md-3">{{recommendation.remarks_for_editorial_college|default:'-'}}</p>
 {% endblock %}
 
 {% block recommendation_footer %}
-    {% if recommendation.may_be_reformulated %}
-        <a href="{% url 'submissions:reformulate_eic_recommendation' recommendation.submission.preprint.identifier_w_vn_nr %}" class="d-block my-2">Reformulate Editorial Recommendation</a>
-    {% endif %}
+  {% if recommendation.may_be_reformulated %}
+    <a href="{% url 'submissions:reformulate_eic_recommendation' recommendation.submission.preprint.identifier_w_vn_nr %}" class="d-block my-2">Reformulate Editorial Recommendation</a>
+  {% endif %}
 {% endblock %}

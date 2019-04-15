@@ -1,51 +1,51 @@
 
 <div class="referee-box">
-    {% if invitation.accepted is None %}
-        <h3>Your Referee Invitation is pending response</h3>
-        <p>
-            In view of your expertise and on behalf of the Editor-in-charge we would like to invite you to referee this Submission. Please accept or decline this invitation.
-            We would be extremely grateful for your contribution, and thank you in advance for your consideration.
-        </p>
-        <a href="{% url 'submissions:accept_or_decline_ref_invitations' invitation.id %}" class="card-link">Accept or decline here</a>
-    {% elif invitation.accepted %}
-        <h3>Your Referee Invitation</h3>
-        <p>Thank you for agreeing to referee this Submission. The following checklist will guide you through the steps needed to complete your refereeing task.</p>
-        <ul class="fa-ul">
-            <li><i class="fa-li fa fa-check-square-o"></i>Accepted Invitation on {{ invitation.date_responded }}.</li>
+  {% if invitation.accepted is None %}
+    <h3>Your Referee Invitation is pending response</h3>
+    <p>
+      In view of your expertise and on behalf of the Editor-in-charge we would like to invite you to referee this Submission. Please accept or decline this invitation.
+      We would be extremely grateful for your contribution, and thank you in advance for your consideration.
+    </p>
+    <a href="{% url 'submissions:accept_or_decline_ref_invitations' invitation.id %}" class="card-link">Accept or decline here</a>
+  {% elif invitation.accepted %}
+    <h3>Your Referee Invitation</h3>
+    <p>Thank you for agreeing to referee this Submission. The following checklist will guide you through the steps needed to complete your refereeing task.</p>
+    <ul class="fa-ul">
+      <li><i class="fa-li fa fa-check-square-o"></i>Accepted Invitation on {{ invitation.date_responded }}.</li>
 
-            <li>
-                {% if invitation.fulfilled %}
-                    Thank you!
-                    <i class="fa-li fa fa-check-square-o"></i>Report submitted on {{ invitation.related_report.date_submitted }}.
-                    <ul class="list-style-none">
-                        <li>Status: <span class="{% if invitation.related_report.status == 'vetted' %}text-success{% elif invitation.related_report.status == 'unvetted' %}text-danger{% endif %}">{{ invitation.related_report.get_status_display }}</span></li>
-                        <li>Anonymous: {{ invitation.related_report.anonymous|yesno:'Yes,No' }}</li>
-                        {% if invitation.related_report.doi_label %}<li>DOI: {{ invitation.related_report.doi_string }}</li>{% endif %}
-                    </ul>
-                {% else %}
-                    <i class="fa-li fa fa-square-o"></i>
-                    {% if invitation.related_report.is_in_draft %}
-                        You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">finish your Report</a>.
-                    {% else %}
-                        <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> due on {{ invitation.submission.reporting_deadline }}.
-                    {% endif %}
-                {% endif %}
-            </li>
-        </ul>
-
-        {% if invitation.related_report.anonymous and not invitation.related_report.is_in_draft %}
-            <p>You have submitted your Report anonymously. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
+      <li>
+        {% if invitation.fulfilled %}
+          Thank you!
+          <i class="fa-li fa fa-check-square-o"></i>Report submitted on {{ invitation.related_report.date_submitted }}.
+          <ul class="list-style-none">
+            <li>Status: <span class="{% if invitation.related_report.status == 'vetted' %}text-success{% elif invitation.related_report.status == 'unvetted' %}text-danger{% endif %}">{{ invitation.related_report.get_status_display }}</span></li>
+            <li>Anonymous: {{ invitation.related_report.anonymous|yesno:'Yes,No' }}</li>
+            {% if invitation.related_report.doi_label %}<li>DOI: {{ invitation.related_report.doi_string }}</li>{% endif %}
+          </ul>
+        {% else %}
+          <i class="fa-li fa fa-square-o"></i>
+          {% if invitation.related_report.is_in_draft %}
+            You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">finish your Report</a>.
+          {% else %}
+            <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> due on {{ invitation.submission.reporting_deadline }}.
+          {% endif %}
         {% endif %}
+      </li>
+    </ul>
 
-        {% if invitation.submission.editor_in_charge %}
-            <h4>Communications</h4>
-            <a href="{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
-
-            {% include 'partials/submissions/communication_thread.html' with communication=communication %}
-        {% endif %}
-    {% elif not invitation.accepted %}
-        <h3>Your Referee Invitation</h3>
-        <p>You have declined to contribute a Report. Nonetheless, we thank you very much for considering this refereeing invitation.</p>
-        <p>Reason: {{ invitation.get_refusal_reason_display }}</p>
+    {% if invitation.related_report.anonymous and not invitation.related_report.is_in_draft %}
+      <p>You have submitted your Report anonymously. <a href="{% url 'journals:sign_existing_report' report_id=invitation.related_report.id %}">You can click here to sign this Report</a> (leads to confirmation page).</p>
     {% endif %}
+
+    {% if invitation.submission.editor_in_charge %}
+      <h4>Communications</h4>
+      <a href="{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
+
+      {% include 'partials/submissions/communication_thread.html' with communication=communication %}
+    {% endif %}
+  {% elif not invitation.accepted %}
+    <h3>Your Referee Invitation</h3>
+    <p>You have declined to contribute a Report. Nonetheless, we thank you very much for considering this refereeing invitation.</p>
+    <p>Reason: {{ invitation.get_refusal_reason_display }}</p>
+  {% endif %}
 </div>

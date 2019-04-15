@@ -6,19 +6,19 @@
 
 {% block content %}
 
-<h1 class="highlight">SciPost Thesis Link</h1>
+  <h1 class="highlight">SciPost Thesis Link</h1>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        {% include "./_thesislink_information.html" with thesislink=thesislink %}
+      {% include "./_thesislink_information.html" with thesislink=thesislink %}
     </div>
-</div>
+  </div>
 
-{% if thesislink.comments.vetted %}
+  {% if thesislink.comments.vetted %}
     <hr class="divider">
     {% include 'scipost/comments_block.html' with comments=thesislink.comments.vetted type_of_object='ThesisLink' %}
-{% endif %}
+  {% endif %}
 
-{% include 'comments/new_comment.html' with object_id=thesislink.id type_of_object='thesislink' open_for_commenting=thesislink.open_for_commenting %}
+  {% include 'comments/new_comment.html' with object_id=thesislink.id type_of_object='thesislink' open_for_commenting=thesislink.open_for_commenting %}
 
 {% endblock content %}

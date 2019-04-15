@@ -5,75 +5,75 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Submit a manuscript</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Submit a manuscript</span>
 {% endblock %}
 
 {% block footer_script %}
-    <script>
+  <script>
 
-      $(document).ready(function(){
+   $(document).ready(function(){
 
-      $('select#id_submitted_to').on('change', function (){
-              var selection = $(this).val();
-              $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
+       $('select#id_submitted_to').on('change', function (){
+           var selection = $(this).val();
+           $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
 
-              switch(selection){
-                case "{{ id_SciPostPhys }}":
-                  $("#id_submission_type").parents('.form-group').show()
-                  break;
-                case "{{ id_SciPostPhysProc }}":
-                  $("#id_proceedings").parents('.form-group').show()
-                  break;
-              }
-          }).trigger('change');
-        });
-    </script>
+           switch(selection){
+               case "{{ id_SciPostPhys }}":
+                   $("#id_submission_type").parents('.form-group').show()
+                   break;
+               case "{{ id_SciPostPhysProc }}":
+                   $("#id_proceedings").parents('.form-group').show()
+                   break;
+           }
+       }).trigger('change');
+   });
+  </script>
 {% endblock %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-12">
-            <h1 class="highlight">Submit a manuscript to SciPost
-            {% if form.identifier_w_vn_nr.value %} <span class="my-1 py-0 text-blue">{{form.identifier_w_vn_nr.value}}{% if form.submission_is_resubmission %} <small>(resubmission)</small>{% endif %}</span>{% endif %}
-            </h1>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Submit a manuscript to SciPost
+        {% if form.identifier_w_vn_nr.value %} <span class="my-1 py-0 text-blue">{{form.identifier_w_vn_nr.value}}{% if form.submission_is_resubmission %} <small>(resubmission)</small>{% endif %}</span>{% endif %}
+      </h1>
+    </div>
 
-        <div class="col-12">
-            <p class="mb-1">
-                Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
-            </p>
-            <p class="mb-1">
-                You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
-            </p>
-            <p class="mb-1">
-                In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
-            </p>
+    <div class="col-12">
+      <p class="mb-1">
+        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+      </p>
+      <p class="mb-1">
+        You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+      </p>
+      <p class="mb-1">
+        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+      </p>
+      <p>
+        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+      </p>
+    </div>
+  </div>
+
+
+  <div class="row">
+    <div class="col-12">
+      {% if perms.scipost.can_submit_manuscript %}
+
+        {% if form %}
+          <form id="full_submission_form" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|bootstrap }}
             <p>
-                Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+              By clicking on Submit, you state that you have read and agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>, the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.
             </p>
-        </div>
+            <input type="submit" class="btn btn-primary" value="Submit manuscript"/>
+          </form>
+        {% endif %}
+
+      {% else %}
+        <h3>You are currently not allowed to submit a manuscript.</h3>
+      {% endif %}
     </div>
-
-
-    <div class="row">
-        <div class="col-12">
-            {% if perms.scipost.can_submit_manuscript %}
-
-                {% if form %}
-                    <form id="full_submission_form" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ form|bootstrap }}
-                        <p>
-                            By clicking on Submit, you state that you have read and agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>, the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations">author obligations</a>.
-                        </p>
-                        <input type="submit" class="btn btn-primary" value="Submit manuscript"/>
-                    </form>
-                {% endif %}
-
-            {% else %}
-            <h3>You are currently not allowed to submit a manuscript.</h3>
-            {% endif %}
-        </div>
-    </div>
+  </div>
 {% endblock content %}

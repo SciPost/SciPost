@@ -7,152 +7,152 @@
 {% load user_groups %}
 
 {% block breadcrumb_items %}
-<a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
-{% if submission %}
-<a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
-<span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
-{% else %}
-<span class="breadcrumb-item">Pool</span>
-{% endif %}
+  <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal Page</a>
+  {% if submission %}
+    <a href="{% url 'submissions:pool' %}" class="breadcrumb-item">Pool</a>
+    <span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
+  {% else %}
+    <span class="breadcrumb-item">Pool</span>
+  {% endif %}
 {% endblock %}
 
 {% block pagetitle %}: Submissions Pool{% endblock pagetitle %}
 
 {% block content %}
-{% is_edcol_admin request.user as is_ECAdmin %}
+  {% is_edcol_admin request.user as is_ECAdmin %}
 
-<div class="row">
-  <div class="col-6">
-    <h1>SciPost Submissions Pool</h1>
-  </div>
-  <div class="col-6">
-    <div class="border border-danger p-2">
-      Do you know qualified candidates who could serve as Fellow in a College?<br/>
-      Nominate them by <a href="{% url 'colleges:potential_fellowship_create' %}">adding a Potential Fellowship</a>.
-      {% if nr_potfels_to_vote_on > 0 %}
+  <div class="row">
+    <div class="col-6">
+      <h1>SciPost Submissions Pool</h1>
+    </div>
+    <div class="col-6">
+      <div class="border border-danger p-2">
+	Do you know qualified candidates who could serve as Fellow in a College?<br/>
+	Nominate them by <a href="{% url 'colleges:potential_fellowship_create' %}">adding a Potential Fellowship</a>.
+	{% if nr_potfels_to_vote_on > 0 %}
           <br/>
           <span class="text-danger">You can vote on {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }}: please go to the <a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page.</span>
-      {% endif %}
+	{% endif %}
+      </div>
     </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-12">
-    {% if is_ECAdmin %}
+  <div class="row">
+    <div class="col-12">
+      {% if is_ECAdmin %}
 
-                {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events or pre_screening_subs %}
-                    <div class="quote-border">
-                        <h2 class="text-primary">Administrative Tasks</h2>
+        {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events or pre_screening_subs %}
+          <div class="quote-border">
+            <h2 class="text-primary">Administrative Tasks</h2>
 
-                        {% if pre_screening_subs %}
-                            <h3>Submissions in pre-screening phase <i class="fa fa-exclamation-circle text-warning"></i></h3>
-                            <ul>
-                                {% for submission in pre_screening_subs %}
-                                    <li>
-                                        {{ submission }}<br>
-                                        <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Do pre-screening</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-
-                        {% if recommendations.voting_in_preparation %}
-                            <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
-                            <ul>
-                                {% for recommendation in recommendations.voting_in_preparation %}
-                                    <li>
-                                        On Editorial Recommendation: {{ recommendation }}<br>
-                                        <a href="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}">Prepare for voting</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-
-                        {% if recommendations.put_to_voting %}
-                            <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
-                            <ul class="fa-ul">
-                                {% for recommendation in recommendations.put_to_voting %}
-                                    <li>
-                                        {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
-                                        On Editorial Recommendation: {{ recommendation }}<br>
-                                        <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                        {% if latest_submission_events %}
-                            <a href="javascript:void(0)" class="btn" data-toggle="toggle" data-target="#lastest_events_list"><i class="fa fa-comments-o"></i> View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</a>
-                            <div id="lastest_events_list" style="display: none;">
-                                {% include 'partials/submissions/submission_events_explicit.html' with events=latest_submission_events %}
-                            </div>
-                        {% endif %}
-                    </div>
-                    <br>
-                {% endif %}
+            {% if pre_screening_subs %}
+              <h3>Submissions in pre-screening phase <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <ul>
+                {% for submission in pre_screening_subs %}
+                  <li>
+                    {{ submission }}<br>
+                    <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Do pre-screening</a>
+                  </li>
+                {% endfor %}
+              </ul>
             {% endif %}
 
-            {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
-                {% if assignments_to_consider %}
-                    <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
-                    <ul>
-                        {% for assignment in assignments_to_consider %}
-                            <li>On submission: {{ assignment.submission }}<br>
-                                <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
-                {% if recs_to_vote_on %}
-                    <h3>Recommendations to vote on <i class="fa fa-exclamation-circle text-warning"></i></h3>
-                    <ul>
-                        {% for recommendation in recs_to_vote_on %}
-                            <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
-                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
-                {% if recs_current_voted %}
-                    <h3>Current recommendations you have voted on:</h3>
-                    <ul>
-                        {% for recommendation in recs_current_voted %}
-                            <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
-                                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation, view votes and/or revise your vote</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
-                    <hr>
+            {% if recommendations.voting_in_preparation %}
+              <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <ul>
+                {% for recommendation in recommendations.voting_in_preparation %}
+                  <li>
+                    On Editorial Recommendation: {{ recommendation }}<br>
+                    <a href="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}">Prepare for voting</a>
+                  </li>
+                {% endfor %}
+              </ul>
             {% endif %}
 
-            {% if search_form %}
-                <h3>Filter by status</h3>
-                <form method="get" class="auto-submit mb-3">
-                    {{ search_form|bootstrap:'12,12' }}
-                </form>
+            {% if recommendations.put_to_voting %}
+              <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <ul class="fa-ul">
+                {% for recommendation in recommendations.put_to_voting %}
+                  <li>
+                    {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
+                    On Editorial Recommendation: {{ recommendation }}<br>
+                    <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
+                  </li>
+                {% endfor %}
+              </ul>
             {% endif %}
-
-            {% if search_form.status.value %}
-                <h3>All Submissions with status: <span class="text-primary">{{ search_form.status_verbose }}</span></h3>
-                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions %}
-            {% else %}
-                <h3>Submissions currently unassigned</h3>
-                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.unassigned %}
-
-                <h3>Submissions currently in active refereeing phase</h3>
-                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.actively_refereeing %}
-
-                <h3>Submissions awaiting resubmission</h3>
-                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.revision_requested %}
-
-                <h3>Submissions accepted</h3>
-                {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.accepted %}
+            {% if latest_submission_events %}
+              <a href="javascript:void(0)" class="btn" data-toggle="toggle" data-target="#lastest_events_list"><i class="fa fa-comments-o"></i> View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</a>
+              <div id="lastest_events_list" style="display: none;">
+                {% include 'partials/submissions/submission_events_explicit.html' with events=latest_submission_events %}
+              </div>
             {% endif %}
+          </div>
+          <br>
+        {% endif %}
+      {% endif %}
 
-        </div><!-- End page content -->
-    </div>
+      {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
+        {% if assignments_to_consider %}
+          <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
+          <ul>
+            {% for assignment in assignments_to_consider %}
+              <li>On submission: {{ assignment.submission }}<br>
+                <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if recs_to_vote_on %}
+          <h3>Recommendations to vote on <i class="fa fa-exclamation-circle text-warning"></i></h3>
+          <ul>
+            {% for recommendation in recs_to_vote_on %}
+              <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {% if recs_current_voted %}
+          <h3>Current recommendations you have voted on:</h3>
+          <ul>
+            {% for recommendation in recs_current_voted %}
+              <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+                <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation, view votes and/or revise your vote</a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <hr>
+      {% endif %}
+
+      {% if search_form %}
+        <h3>Filter by status</h3>
+        <form method="get" class="auto-submit mb-3">
+          {{ search_form|bootstrap:'12,12' }}
+        </form>
+      {% endif %}
+
+      {% if search_form.status.value %}
+        <h3>All Submissions with status: <span class="text-primary">{{ search_form.status_verbose }}</span></h3>
+        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions %}
+      {% else %}
+        <h3>Submissions currently unassigned</h3>
+        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.unassigned %}
+
+        <h3>Submissions currently in active refereeing phase</h3>
+        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.actively_refereeing %}
+
+        <h3>Submissions awaiting resubmission</h3>
+        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.revision_requested %}
+
+        <h3>Submissions accepted</h3>
+        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.accepted %}
+      {% endif %}
+
+    </div><!-- End page content -->
+  </div>
 {% endblock %}

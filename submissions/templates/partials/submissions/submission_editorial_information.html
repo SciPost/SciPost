@@ -4,108 +4,108 @@
 <a href="javascript:;" class="d-block mb-2" data-toggle="toggle" data-target="#editorialinformation">Show/hide editorial information</a>
 
 <div id="editorialinformation" class="mt-2" style="display:none;">
-    <div class="mb-4">
-        {% if submission.editor_in_charge == request.user.contributor %}
-            <p><strong>You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions.</strong></p>
-        {% elif perms.scipost.can_oversee_refereeing and not is_author and not is_author_unchecked %}
-            <p><strong>You are Editorial Administrator. See <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> for detailed information.</strong></p>
-        {% endif %}
+  <div class="mb-4">
+    {% if submission.editor_in_charge == request.user.contributor %}
+      <p><strong>You are the Editor-in-charge, go to the <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> to take editorial actions.</strong></p>
+    {% elif perms.scipost.can_oversee_refereeing and not is_author and not is_author_unchecked %}
+      <p><strong>You are Editorial Administrator. See <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Editorial Page</a> for detailed information.</strong></p>
+    {% endif %}
 
-        <h3>Status summary:</h3>
-        <table class="table table-borderless">
-            <tr>
-                <td>Submission status:</td>
-                <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
-            </tr>
-            <tr>
-                <td>Recommendation status:</td>
-                <td>
-                    {% if submission.eicrecommendations.active.first %}
-                        <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
-                    {% else %}
-                        <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>Submission is publicly available:</td>
-                <td>
-                    {% if submission.visible_public %}
-                        <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                        <span class="text-muted">Available in public pages and search results.</span>
-                    {% else %}
-                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                        <span class="text-muted">Only available for editors and authors.</span>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>Submission is current version:</td>
-                <td>
-                    {% if submission.is_current %}
-                        <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
-                        <span class="text-muted">This is the current version.</span>
-                    {% else %}
-                        <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
-                        <span class="text-muted">This is not the current version.</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% if submission.publication and submission.publication.is_published %}
-                <tr>
-                    <td>Submission is published as:</td>
-                    <td>
-                        <a href="{{submission.publication.get_absolute_url}}">
-                        {% if submission.publication.in_issue %}
-                            {{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}}
-                        {% else %}
-                            {{submission.publication.in_journal.abbreviation_citation}}, {{submission.publication.paper_nr}}
-                        {% endif %}
-                        ({{submission.publication.publication_date|date:'Y'}})</a>
-                    </td>
-                </tr>
+    <h3>Status summary:</h3>
+    <table class="table table-borderless">
+      <tr>
+        <td>Submission status:</td>
+        <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
+      </tr>
+      <tr>
+        <td>Recommendation status:</td>
+        <td>
+          {% if submission.eicrecommendations.active.first %}
+            <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
+          {% else %}
+            <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Submission is publicly available:</td>
+        <td>
+          {% if submission.visible_public %}
+            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-muted">Available in public pages and search results.</span>
+          {% else %}
+            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-muted">Only available for editors and authors.</span>
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Submission is current version:</td>
+        <td>
+          {% if submission.is_current %}
+            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-muted">This is the current version.</span>
+          {% else %}
+            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-muted">This is not the current version.</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% if submission.publication and submission.publication.is_published %}
+        <tr>
+          <td>Submission is published as:</td>
+          <td>
+            <a href="{{submission.publication.get_absolute_url}}">
+              {% if submission.publication.in_issue %}
+                {{submission.publication.in_issue.in_volume.in_journal.abbreviation_citation}} <strong>{{submission.publication.in_issue.in_volume.number}}</strong>, {{submission.publication.get_paper_nr}}
+              {% else %}
+                {{submission.publication.in_journal.abbreviation_citation}}, {{submission.publication.paper_nr}}
+              {% endif %}
+              ({{submission.publication.publication_date|date:'Y'}})</a>
+          </td>
+        </tr>
+      {% endif %}
+    </table>
+  </div>
+
+  <div class="mb-4">
+    <h3 class="mb-2">Editorial Recommendation:</h3>
+    {% for recommendation in submission.eicrecommendations.active %}
+      {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+    {% empty %}
+      No Editorial Recommendation is formulated yet.
+    {% endfor %}
+  </div>
+
+  <div class="mb-4">
+    <h3>Events:</h3>
+    <div id="eventslist">
+      {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
+    </div>
+  </div>
+
+
+  <div class="mb-4" id="proofsslist">
+    <h3>Proofs:</h3>
+    <ul class="list-group list-group-flush events-list">
+      {% for proofs in submission.production_stream.proofs.for_authors %}
+        <li>
+          <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
+          status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
+          {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
+            {% if proofs_decision_form and is_author %}
+              <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
+              <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
+                {% csrf_token %}
+                {{ proofs_decision_form|bootstrap }}
+                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
+              </form>
             {% endif %}
-        </table>
-    </div>
-
-    <div class="mb-4">
-        <h3 class="mb-2">Editorial Recommendation:</h3>
-        {% for recommendation in submission.eicrecommendations.active %}
-            {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-        {% empty %}
-            No Editorial Recommendation is formulated yet.
-        {% endfor %}
-    </div>
-
-    <div class="mb-4">
-        <h3>Events:</h3>
-        <div id="eventslist">
-            {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
-        </div>
-    </div>
-
-
-    <div class="mb-4" id="proofsslist">
-        <h3>Proofs:</h3>
-        <ul class="list-group list-group-flush events-list">
-            {% for proofs in submission.production_stream.proofs.for_authors %}
-                <li>
-                    <a href="{{ proofs.get_absolute_url }}" target="_blank">Download version {{ proofs.version }}</a> &middot; uploaded: {{ proofs.created|date:"DATE_FORMAT" }} &middot;
-                    status: <span class="label label-secondary label-sm">{{ proofs.get_status_display }}</span>
-                    {% if proofs.status == 'accepted_sup' or proofs.status == 'sent' %}
-                        {% if proofs_decision_form and is_author %}
-                            <h3 class="mb-0 mt-2">Please advise the Production Team on your findings on Proofs version {{ proofs.version }}</h3>
-                            <form method="post" enctype="multipart/form-data" action="{% url 'production:author_decision' proofs.slug %}" class="my-2">
-                                {% csrf_token %}
-                                {{ proofs_decision_form|bootstrap }}
-                                <input class="btn btn-primary btn-sm" type="submit" value="Submit">
-                            </form>
-                        {% endif %}
-                    {% endif %}
-                </li>
-            {% empty %}
-                <li class="list-group-item">No proofs are available yet.</li>
-            {% endfor %}
-        </ul>
-    </div>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li class="list-group-item">No proofs are available yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
 </div>

@@ -1,8 +1,8 @@
 {% extends 'submissions/base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Submit a report</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Submit a report</span>
 {% endblock %}
 
 {% load bootstrap %}
@@ -11,118 +11,118 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
+  {% if user.is_authenticated %}
     <div class="row">
-        <div class="col-12">
-            <h1 class="highlight">Submit a Report on a SciPost Submission</h1>
-        </div>
+      <div class="col-12">
+        <h1 class="highlight">Submit a Report on a SciPost Submission</h1>
+      </div>
     </div>
 
     <div class="row">
-        <div class="col-12">
-            <h3>Submission</h3>
-            {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
-        </div>
+      <div class="col-12">
+        <h3>Submission</h3>
+        {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
+      </div>
     </div>
 
     <hr class="divider">
     <div class="row">
-        <div class="col-12">
-            <div class="card bg-light">
-                <div class="card-body">
-                    <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
-                    <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
-                    <p class="mb-0">Any fields with an asterisk (*) are required.</p>
-                    {% if form.instance.is_followup_report %}
-                        <p class="mb-0">
-                            Because you have already submitted a Report for this Submission series, not all fields are required.
-                        </p>
-                    {% endif %}
-                </div>
-            </div>
-            {% if form.report_type == 'report_post_edrec' %}
-                <div class="card border-warning my-4">
-                    <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be labelled as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
-                    </div>
-                </div>
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
+            <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
+            <p class="mb-0">Any fields with an asterisk (*) are required.</p>
+            {% if form.instance.is_followup_report %}
+              <p class="mb-0">
+                Because you have already submitted a Report for this Submission series, not all fields are required.
+              </p>
             {% endif %}
-
-            <div class="row">
-                <div class="col-md-6">
-                    <br>
-                    <form action="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ form|bootstrap:'12,12' }}
-                        <div class="anonymous-alert" style="display: none;">
-                            <h3 class="anonymous-yes">Your Report will remain anonymous.</h3>
-                            <h3 class="anonymous-no"><span class="text-danger">Your Report will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
-                        </div>
-                        <p>Any fields with an asterisk (*) are required.</p>
-                        <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
-                        <input class="btn btn-outline-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
-                        {% if form.report_type == 'report_post_edrec' %}
-                            <div class="card border-warning mt-4">
-                                <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be labelled as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
-                                </div>
-                            </div>
-                        {% endif %}
-                        <div class="my-4">
-                            <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</em>
-                        </div>
-                    </form>
-                </div>
-                <div class="col-md-6">
-                    <br>
-                    {% include 'partials/submissions/report_preview.html' %}
-                </div>
-            </div>
+          </div>
         </div>
+        {% if form.report_type == 'report_post_edrec' %}
+          <div class="card border-warning my-4">
+            <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be labelled as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="row">
+          <div class="col-md-6">
+            <br>
+            <form action="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form|bootstrap:'12,12' }}
+              <div class="anonymous-alert" style="display: none;">
+                <h3 class="anonymous-yes">Your Report will remain anonymous.</h3>
+                <h3 class="anonymous-no"><span class="text-danger">Your Report will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
+              </div>
+              <p>Any fields with an asterisk (*) are required.</p>
+              <input class="btn btn-primary" type="submit" name="save_submit" value="Submit your report"/>
+              <input class="btn btn-outline-secondary ml-2" type="submit" name="save_draft" value="Save your report as draft"/>
+              {% if form.report_type == 'report_post_edrec' %}
+                <div class="card border-warning mt-4">
+                  <div class="card-body">The Editorial Recommendation for this Submission has already been formulated. Therefore, your report will be labelled as <label class="label label-warning">Post-Editorial Recommendation Report</label>.
+                  </div>
+                </div>
+              {% endif %}
+              <div class="my-4">
+                <em>By clicking on Submit, you state that you abide by the <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</em>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-6">
+            <br>
+            {% include 'partials/submissions/report_preview.html' %}
+          </div>
+        </div>
+      </div>
     </div>
 
-{% endif %}
+  {% endif %}
 
 {% endblock %}
 
 
 {% block footer_script %}
-<script type="text/javascript">
-    $(function(){
-        function set_preview(el) {
-            $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).val())
-        }
-        function set_preview_select(el) {
-            $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).find('option:selected').text())
-        }
-        function update_identity_preview(show_identity) {
-            $('[data-receive="report-identity"] [if-anonymous]').hide();
-            if (show_identity) {
-                $('[data-receive="report-identity"] [if-anonymous="false"]').show();
-            } else {
-                $('[data-receive="report-identity"] [if-anonymous="true"]').show();
-            }
-        }
-        $('#id_weaknesses, #id_strengths, #id_report, #id_requested_changes').on('keyup', function(){
-            set_preview(this)
-            if (typeof MathJax !== "undefined") {
-                // First trigger will fail since MathJax is loaded in the footer.
-                MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-            }
-        }).trigger('keyup');
-        $('#id_validity, #id_originality, #id_significance, #id_clarity, #id_formatting, #id_grammar').on('change', function(){
-            set_preview_select(this);
-        }).trigger('change');
+  <script type="text/javascript">
+   $(function(){
+       function set_preview(el) {
+           $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).val())
+       }
+       function set_preview_select(el) {
+           $('[data-receive$="' + $(el).attr('id').split('id_')[1] + '"]').text($(el).find('option:selected').text())
+       }
+       function update_identity_preview(show_identity) {
+           $('[data-receive="report-identity"] [if-anonymous]').hide();
+           if (show_identity) {
+               $('[data-receive="report-identity"] [if-anonymous="false"]').show();
+           } else {
+               $('[data-receive="report-identity"] [if-anonymous="true"]').show();
+           }
+       }
+       $('#id_weaknesses, #id_strengths, #id_report, #id_requested_changes').on('keyup', function(){
+           set_preview(this)
+           if (typeof MathJax !== "undefined") {
+               // First trigger will fail since MathJax is loaded in the footer.
+               MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+           }
+       }).trigger('keyup');
+       $('#id_validity, #id_originality, #id_significance, #id_clarity, #id_formatting, #id_grammar').on('change', function(){
+           set_preview_select(this);
+       }).trigger('change');
 
-        $('input[name$="anonymous"]').on('change', function() {
-            $('.anonymous-alert').show()
-            .children('h3').hide()
-            if ($(this).prop('checked')) {
-                update_identity_preview(false);
-                $('.anonymous-yes').show();
-            } else {
-                update_identity_preview(true);
-                $('.anonymous-no').show();
-            }
-        }).trigger('change');
-    });
-</script>
+       $('input[name$="anonymous"]').on('change', function() {
+           $('.anonymous-alert').show()
+				.children('h3').hide()
+           if ($(this).prop('checked')) {
+               update_identity_preview(false);
+               $('.anonymous-yes').show();
+           } else {
+               update_identity_preview(true);
+               $('.anonymous-no').show();
+           }
+       }).trigger('change');
+   });
+  </script>
 {% endblock %}
