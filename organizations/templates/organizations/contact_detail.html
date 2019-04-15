@@ -5,66 +5,66 @@
 {% block pagetitle %}: Contact details{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item">Contacts</span>
-<span class="breadcrumb-item">{{ contact }}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Contacts</span>
+  <span class="breadcrumb-item">{{ contact }}</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">Contact details</h3>
-    <table class="table">
-      <tr>
-	<td>Name</td>
-	<td>{{ contact.user.last_name }}, {{ contact.get_title_display }} {{ contact.user.first_name }}</td>
-      </tr>
-      <tr>
-	<td>Email</td>
-	<td>{{ contact.user.email }}</td>
-      </tr>
-      <tr>
-	<td>Account active?</td>
-	<td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-      </tr>
-      <tr>
-	<td>Account created</td>
-	<td>{{ contact.user.date_joined }}</td>
-      </tr>
-      <tr>
-	<td>Last login</td>
-	<td>{{ contact.user.last_login }}</td>
-      </tr>
-    </table>
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">Contact details</h3>
+      <table class="table">
+	<tr>
+	  <td>Name</td>
+	  <td>{{ contact.user.last_name }}, {{ contact.get_title_display }} {{ contact.user.first_name }}</td>
+	</tr>
+	<tr>
+	  <td>Email</td>
+	  <td>{{ contact.user.email }}</td>
+	</tr>
+	<tr>
+	  <td>Account active?</td>
+	  <td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	</tr>
+	<tr>
+	  <td>Account created</td>
+	  <td>{{ contact.user.date_joined }}</td>
+	</tr>
+	<tr>
+	  <td>Last login</td>
+	  <td>{{ contact.user.last_login }}</td>
+	</tr>
+      </table>
 
-    <h4>Roles:</h4>
-    <table class="table">
-      <tr>
-	<th>Organization</th>
-	<th>Kind</th>
-	<th>Date from</th>
-	<th>Date until</th>
-	<th>Actions</th>
-      </tr>
-      {% for contactrole in contact.roles.all %}
-      <tr>
-	<td><a href="{{ contactrole.organization.get_absolute_url }}">{{ contactrole.organization }}</a></td>
-	<td>{{ contactrole.get_kind_display }}</td>
-	<td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
-	<td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
-	<td>
-	  <ul class="list-unstyled">
-	    {% if perms.scipost.can_manage_organizations %}
-	    <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
-	    <li><a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></li>
-	    {% endif %}
-	  </ul>
-	</td>
-      </tr>
-      {% endfor %}
-    </table>
+      <h4>Roles:</h4>
+      <table class="table">
+	<tr>
+	  <th>Organization</th>
+	  <th>Kind</th>
+	  <th>Date from</th>
+	  <th>Date until</th>
+	  <th>Actions</th>
+	</tr>
+	{% for contactrole in contact.roles.all %}
+	  <tr>
+	    <td><a href="{{ contactrole.organization.get_absolute_url }}">{{ contactrole.organization }}</a></td>
+	    <td>{{ contactrole.get_kind_display }}</td>
+	    <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
+	    <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
+	    <td>
+	      <ul class="list-unstyled">
+		{% if perms.scipost.can_manage_organizations %}
+		  <li><a href="{% url 'organizations:contactrole_update' pk=contactrole.id %}"><span class="text-warning">Update</span></a></li>
+		  <li><a href="{% url 'organizations:contactrole_delete' pk=contactrole.id %}"><span class="text-danger">Delete</span></a></li>
+		{% endif %}
+	      </ul>
+	    </td>
+	  </tr>
+	{% endfor %}
+      </table>
+    </div>
   </div>
-</div>
 
 {% endblock content %}

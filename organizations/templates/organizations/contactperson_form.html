@@ -3,22 +3,22 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item"><a href="{% url 'organizations:organizations' %}">Organizations</a></span>
-<span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Contact Person{% endif %}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'organizations:organizations' %}">Organizations</a></span>
+  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Contact Person{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: Contact Person{% endblock pagetitle %}
 
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+  <div class="row">
+    <div class="col-12">
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+      </form>
+    </div>
   </div>
-</div>
 {% endblock content %}

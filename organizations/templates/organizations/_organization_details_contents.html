@@ -5,9 +5,9 @@
 	<td>Name</td><td>{{ org.name }}</td>
       </tr>
       {% if org.name_original %}
-      <tr>
-	<td>Name (original vn)</td><td>{{ org.name_original }}</td>
-      </tr>
+	<tr>
+	  <td>Name (original vn)</td><td>{{ org.name_original }}</td>
+	</tr>
       {% endif %}
       <tr>
 	<td>Acronym</td><td>{{ org.acronym }}</td>
@@ -31,14 +31,14 @@
 	<td>Crossref Org ID (link)</td><td>{% if org.crossref_json.org_id %}<a href="https://crossref.org" target="_blank">{{ org.crossref_json.org_id }}{% else %}No Crossref Org ID found{% endif %}</td>
       </tr>
       {% if org.parent %}
-      <tr>
-	<td>Parent</td><td><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></td>
-      </tr>
+	<tr>
+	  <td>Parent</td><td><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></td>
+	</tr>
       {% endif %}
       {% if org.superseded_by %}
-      <tr>
-	<td>Superseded by</td><td><a href="{{ org.superseded_by.get_absolute_url }}">{{ org.superseded_by }}</a></td>
-      </tr>
+	<tr>
+	  <td>Superseded by</td><td><a href="{{ org.superseded_by.get_absolute_url }}">{{ org.superseded_by }}</a></td>
+	</tr>
       {% endif %}
     </table>
   </div>

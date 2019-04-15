@@ -5,46 +5,46 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item">Organization Events</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Organization Events</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">Organization Events</h3>
-
-    <table class="table">
-      <thead class="thead-default">
-	<tr>
-	  <th>Organization</th>
-	  <th>Event</th>
-	  <th>Comments</th>
-	  <th>Noted on</th>
-	  <th>Noted by</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for event in object_list %}
-	<tr>
-	  <td><a href="{% url 'organizations:organization_details' pk=event.organization.id %}">{{ event.organization }}</a></td>
-	  <td>{{ event.get_event_display }}</td>
-	  <td>{{ event.comments|linebreaks }}</td>
-	  <td>{{ event.noted_on }}</td>
-	  <td>{{ event.noted_by }}</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-
-    {% if is_paginated %}
+  <div class="row">
     <div class="col-12">
-      {% include 'partials/pagination.html' with page_obj=page_obj %}
-    </div>
-    {% endif %}
+      <h3 class="highlight">Organization Events</h3>
 
+      <table class="table">
+	<thead class="thead-default">
+	  <tr>
+	    <th>Organization</th>
+	    <th>Event</th>
+	    <th>Comments</th>
+	    <th>Noted on</th>
+	    <th>Noted by</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for event in object_list %}
+	    <tr>
+	      <td><a href="{% url 'organizations:organization_details' pk=event.organization.id %}">{{ event.organization }}</a></td>
+	      <td>{{ event.get_event_display }}</td>
+	      <td>{{ event.comments|linebreaks }}</td>
+	      <td>{{ event.noted_on }}</td>
+	      <td>{{ event.noted_by }}</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+      {% if is_paginated %}
+	<div class="col-12">
+	  {% include 'partials/pagination.html' with page_obj=page_obj %}
+	</div>
+      {% endif %}
+
+    </div>
   </div>
-</div>
 
 {% endblock content %}

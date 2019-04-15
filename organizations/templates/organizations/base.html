@@ -5,13 +5,13 @@
 
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb">
-                {% block breadcrumb_items %}
-                    <a href="{% url 'organizations:organizations' %}" class="breadcrumb-item">Organizations</a>
-                {% endblock %}
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb">
+        {% block breadcrumb_items %}
+          <a href="{% url 'organizations:organizations' %}" class="breadcrumb-item">Organizations</a>
+        {% endblock %}
+      </nav>
     </div>
+  </div>
 {% endblock %}

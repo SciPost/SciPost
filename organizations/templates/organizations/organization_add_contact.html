@@ -1,8 +1,8 @@
 {% extends 'scipost/base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Add Contact</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Add Contact</span>
 {% endblock %}
 
 {% block pagetitle %}{{block.super}} Add Contact{% endblock pagetitle %}
@@ -11,23 +11,23 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Add Contact for Organization {{ organization }}</h1>
+      <h1 class="highlight">Add Contact for Organization {{ organization }}</h1>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <form method="post">
         {% csrf_token %}
         <div class="mb-5">
-            {{ form|bootstrap }}
+          {{ form|bootstrap }}
         </div>
 
         <input class="btn btn-primary" type="submit" value="Submit"/>
       </form>
     </div>
-</div>
+  </div>
 
 {% endblock content %}
