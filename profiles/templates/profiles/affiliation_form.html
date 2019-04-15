@@ -5,42 +5,42 @@
 {% load scipost_extras %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">{% if form.instance.id %}Update{% else %}Add new{% endif %} Affiliation</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">{% if form.instance.id %}Update{% else %}Add new{% endif %} Affiliation</span>
 {% endblock %}
 
 {% block pagetitle %}: Affiliation{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    <h3 class="highlight">Add a new Affiliation to your Profile</h3>
-    <p class="text-danger">Don't find the organization you need in our list? Please <a href="{% url 'helpdesk:ticket_create' %}">create a Ticket</a> providing us with the details, we'll get back to you!</p>
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">Add a new Affiliation to your Profile</h3>
+      <p class="text-danger">Don't find the organization you need in our list? Please <a href="{% url 'helpdesk:ticket_create' %}">create a Ticket</a> providing us with the details, we'll get back to you!</p>
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
 
-      {% if form.errors %}
-      {% for field in form %}
-      {% for error in field.errors %}
-      <div class="alert alert-danger">
-	<strong>{{ field.name }} - {{ error|escape }}</strong>
-      </div>
-      {% endfor %}
-      {% endfor %}
-      {% for error in form.non_field_errors %}
-      <div class="alert alert-danger">
-	<strong>{{ error|escape }}</strong>
-      </div>
-      {% endfor %}
-      {% endif %}
-      <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+	{% if form.errors %}
+	  {% for field in form %}
+	    {% for error in field.errors %}
+	      <div class="alert alert-danger">
+		<strong>{{ field.name }} - {{ error|escape }}</strong>
+	      </div>
+	    {% endfor %}
+	  {% endfor %}
+	  {% for error in form.non_field_errors %}
+	    <div class="alert alert-danger">
+	      <strong>{{ error|escape }}</strong>
+	    </div>
+	  {% endfor %}
+	{% endif %}
+	<input type="submit" value="Submit" class="btn btn-primary">
+      </form>
+    </div>
   </div>
-</div>
 {% endblock content %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ form.media }}
+  {{ block.super }}
+  {{ form.media }}
 {% endblock footer_script %}

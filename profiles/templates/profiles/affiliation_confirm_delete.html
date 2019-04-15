@@ -3,27 +3,27 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Delete {{ affiliation }}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Delete {{ affiliation }}</span>
 {% endblock %}
 
 {% block pagetitle %}: Delete Affiliation{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Delete Affiliation</h1>
-	{% include 'profiles/_affiliations_table.html' with contributor=affiliation.profile.contributor actions=False %}
+      <h1 class="highlight">Delete Affiliation</h1>
+      {% include 'profiles/_affiliations_table.html' with contributor=affiliation.profile.contributor actions=False %}
     </div>
-</div>
-<div class="row">
-  <div class="col-12">
-    <form method="post">
-      {% csrf_token %}
-      <h3 class="mb-2">Are you sure you want to delete this Affiliation?</h3>
-      <input type="submit" class="btn btn-danger" value="Yes, delete it" />
-    </form>
   </div>
-</div>
+  <div class="row">
+    <div class="col-12">
+      <form method="post">
+	{% csrf_token %}
+	<h3 class="mb-2">Are you sure you want to delete this Affiliation?</h3>
+	<input type="submit" class="btn btn-danger" value="Yes, delete it" />
+      </form>
+    </div>
+  </div>
 
 {% endblock content %}

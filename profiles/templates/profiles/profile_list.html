@@ -7,156 +7,156 @@
 
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Profiles</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Profiles</span>
 {% endblock %}
 
 {% block headsup %}
-<script type="text/javascript">
-$(document).ready(function($) {
-    $(".table-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-</script>
+  <script type="text/javascript">
+   $(document).ready(function($) {
+       $(".table-row").click(function() {
+           window.document.location = $(this).data("href");
+       });
+   });
+  </script>
 {% endblock headsup %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
 {% block content %}
 
-{% is_edcol_admin request.user as is_edcol_admin %}
-{% is_scipost_admin request.user as is_scipost_admin %}
+  {% is_edcol_admin request.user as is_edcol_admin %}
+  {% is_scipost_admin request.user as is_scipost_admin %}
 
-<div class="row">
-  <div class="col-12">
-    <h4>Profiles-related Actions:</h4>
-    <ul>
-      {% if is_scipost_admin or is_edcol_admin %}
-      {% if nr_contributors_w_duplicate_names > 0 %}
-      <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> No name-duplicate Contributors found</li>
-      {% endif %}
-      {% if nr_contributors_w_duplicate_emails > 0 %}
-      <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> No email-duplicate Contributors found</li>
-      {% endif %}
-      {% if next_contributor_wo_profile %}
-      <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> All registered Contributors have a Profile</li>
-      {% endif %}
-      {% if nr_potential_duplicate_profiles > 0 %}
-      <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a></li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> No potential duplicate Profiles detected</li>
-      {% endif %}
-      {% if next_reginv_wo_profile %}
-      <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> All Registration Invitations have a Profile</li>
-      {% endif %}
-      {% if next_refinv_wo_profile %}
-      <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
-      {% else %}
-      <li><i class="fa fa-check-circle text-success"></i> All Referee Invitations have a Profile</li>
-      {% endif %}
-      {% endif %}
-      <li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
-    </ul>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col-12">
-    <h4>Specialize the list:</h4>
-    <ul>
-      <li>
-	<ul class="list-inline">
-	  <li class="list-inline-item">
-	    <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
-	  </li>
-	  {% for discipline in subject_areas %}
-	  <li class="list-inline-item">
-	    <div class="dropdown">
-	      <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-	      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-		<a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
-		{% for area in discipline.1 %}
-		<a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
-		{% endfor %}
-	      </div>
-	    </div>
-	  </li>
-	  {% endfor %}
-	</ul>
-      </li>
-      <li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
-      <li>
-	<ul class="list-inline">
-	  <li class="list-inline-item">Last name startswith:</li>
-	  <li class="list-inline-item">
-	    <form action="" method="get">{{ searchform }}
-	      {% if request.GET.discipline %}
-	      <input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
-	      {% if request.GET.expertise %}
-	      <input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
-	      {% endif %}
-	      {% endif %}
-	      {% if request.GET.contributor %}
-	      <input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
-	      {% endif %}
-	  </li>
-	  <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
-      </li>
-      </ul>
-</li>
-</ul>
-</div>
-</div>
-
-<div class="row">
-  <div class="col-12">
-    <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
-    <br/>
-
-    <table class="table table-hover mb-5">
-      <thead class="thead-default">
-	<tr>
-	  <th>Name</th>
-	  <th>Discipline</th>
-	  <th>Expertises</th>
-	  <th>Contributor?</th>
-	</tr>
-      </thead>
-      <tbody>
-	{% for profile in object_list %}
-	<tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
-	  <td>{{ profile }}</td>
-	  <td>{{ profile.get_discipline_display }}</td>
-	  <td>
-	    {% for expertise in profile.expertises %}
-            <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
-	    {% endfor %}
-	  </td>
-	  <td>{% if profile.has_active_contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-	</tr>
-	{% empty %}
-	<tr>
-	  <td colspan="4">No Profiles found</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
-
-    {% if is_paginated %}
+  <div class="row">
     <div class="col-12">
-      {% include 'partials/pagination.html' with page_obj=page_obj %}
+      <h4>Profiles-related Actions:</h4>
+      <ul>
+	{% if is_scipost_admin or is_edcol_admin %}
+	  {% if nr_contributors_w_duplicate_names > 0 %}
+	    <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
+	  {% else %}
+	    <li><i class="fa fa-check-circle text-success"></i> No name-duplicate Contributors found</li>
+	  {% endif %}
+	  {% if nr_contributors_w_duplicate_emails > 0 %}
+	    <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
+	  {% else %}
+	    <li><i class="fa fa-check-circle text-success"></i> No email-duplicate Contributors found</li>
+	  {% endif %}
+	  {% if next_contributor_wo_profile %}
+	    <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	  {% else %}
+	    <li><i class="fa fa-check-circle text-success"></i> All registered Contributors have a Profile</li>
+	  {% endif %}
+	  {% if nr_potential_duplicate_profiles > 0 %}
+	    <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a></li>
+	  {% else %}
+	    <li><i class="fa fa-check-circle text-success"></i> No potential duplicate Profiles detected</li>
+	  {% endif %}
+	  {% if next_reginv_wo_profile %}
+	    <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
+	  {% else %}
+	    <li><i class="fa fa-check-circle text-success"></i> All Registration Invitations have a Profile</li>
+	  {% endif %}
+	  {% if next_refinv_wo_profile %}
+	    <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
+	  {% else %}
+	    <li><i class="fa fa-check-circle text-success"></i> All Referee Invitations have a Profile</li>
+	  {% endif %}
+	{% endif %}
+	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
+      </ul>
     </div>
-    {% endif %}
-
   </div>
-</div>
+
+  <div class="row">
+    <div class="col-12">
+      <h4>Specialize the list:</h4>
+      <ul>
+	<li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">
+	      <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
+	    </li>
+	    {% for discipline in subject_areas %}
+	      <li class="list-inline-item">
+		<div class="dropdown">
+		  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+		  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+		    <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+		    {% for area in discipline.1 %}
+		      <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+		    {% endfor %}
+		  </div>
+		</div>
+	      </li>
+	    {% endfor %}
+	  </ul>
+	</li>
+	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
+	<li>
+	  <ul class="list-inline">
+	    <li class="list-inline-item">Last name startswith:</li>
+	    <li class="list-inline-item">
+	      <form action="" method="get">{{ searchform }}
+		{% if request.GET.discipline %}
+		  <input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
+		  {% if request.GET.expertise %}
+		    <input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
+		  {% endif %}
+		{% endif %}
+		{% if request.GET.contributor %}
+		  <input type="hidden" name="contributor" value="{{ request.GET.contributor }}">
+		{% endif %}
+	    </li>
+	    <li class="list-inline-item"><input class="btn btn-outline-secondary" type="submit" value="Search"></form>
+	    </li>
+	  </ul>
+	</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
+      <br/>
+
+      <table class="table table-hover mb-5">
+	<thead class="thead-default">
+	  <tr>
+	    <th>Name</th>
+	    <th>Discipline</th>
+	    <th>Expertises</th>
+	    <th>Contributor?</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for profile in object_list %}
+	    <tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
+	      <td>{{ profile }}</td>
+	      <td>{{ profile.get_discipline_display }}</td>
+	      <td>
+		{% for expertise in profile.expertises %}
+		  <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+		{% endfor %}
+	      </td>
+	      <td>{% if profile.has_active_contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="4">No Profiles found</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+      {% if is_paginated %}
+	<div class="col-12">
+	  {% include 'partials/pagination.html' with page_obj=page_obj %}
+	</div>
+      {% endif %}
+
+    </div>
+  </div>
 {% endblock content %}

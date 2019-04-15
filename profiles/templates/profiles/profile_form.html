@@ -3,31 +3,31 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Profile {% if from_type %}(from {{ from_type }}){% endif %}{% endif %}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Profile {% if from_type %}(from {{ from_type }}){% endif %}{% endif %}</span>
 {% endblock %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    {% if matching_profiles %}
-    <h4>Matching profiles found for this {{ from_type }}</h4>
-    <ul>
-      {% for matching_profile in matching_profiles %}
-      <li><a href="{{ matching_profile.get_absolute_url }}" target="_blank">{{ matching_profile }}</a> (id {{ matching_profile.id }}, {{ matching_profile.email }})&nbsp;&nbsp;<a href="{% url 'profiles:profile_match' profile_id=matching_profile.id from_type=from_type pk=pk %}"><i class="fa fa-arrow-right"></i> Match this {{ from_type }} to this Profile</a>
-      </li>
-      {% endfor %}
-    </ul>
-    {% endif %}
+  <div class="row">
+    <div class="col-12">
+      {% if matching_profiles %}
+	<h4>Matching profiles found for this {{ from_type }}</h4>
+	<ul>
+	  {% for matching_profile in matching_profiles %}
+	    <li><a href="{{ matching_profile.get_absolute_url }}" target="_blank">{{ matching_profile }}</a> (id {{ matching_profile.id }}, {{ matching_profile.email }})&nbsp;&nbsp;<a href="{% url 'profiles:profile_match' profile_id=matching_profile.id from_type=from_type pk=pk %}"><i class="fa fa-arrow-right"></i> Match this {{ from_type }} to this Profile</a>
+	    </li>
+	  {% endfor %}
+	</ul>
+      {% endif %}
 
 
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <input type="submit" value="Submit" class="btn btn-primary">
-    </form>
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+      </form>
+    </div>
   </div>
-</div>
 {% endblock content %}
