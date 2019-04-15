@@ -4,135 +4,135 @@
 
 {% block content %}
 
-<h1 class="highlight mb-4">Contributor info: {{ contributor.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}</h1>
+  <h1 class="highlight mb-4">Contributor info: {{ contributor.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}</h1>
 
 
-<div class="card">
-  <div class="card-header">
-    Details
+  <div class="card">
+    <div class="card-header">
+      Details
+    </div>
+    <div class="card-body">
+      {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
+    </div>
   </div>
-  <div class="card-body">
-    {% include "scipost/_public_info_as_table.html" with contributor=contributor %}
-  </div>
-</div>
 
-{% if contributor_publications %}
+  {% if contributor_publications %}
 
     <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Publications <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mypublicationslist">View/hide publications</a></small></h2>
-        </div>
-        <div class="col-12" id="mypublicationslist">
-            <h3 class="mb-2">Publications for which this Contributor is identified as an author:</h3>
-            {% for pub in contributor_publications %}
-                <div class="card card-publication">
-                    {% include 'journals/_publication_card_content.html' with publication=pub %}
+      <div class="col-12">
+        <h2 class="highlight">Publications <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mypublicationslist">View/hide publications</a></small></h2>
+      </div>
+      <div class="col-12" id="mypublicationslist">
+        <h3 class="mb-2">Publications for which this Contributor is identified as an author:</h3>
+        {% for pub in contributor_publications %}
+          <div class="card card-publication">
+            {% include 'journals/_publication_card_content.html' with publication=pub %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  {% endif %}
+
+  {% if contributor_submissions %}
+    <div class="row">
+      <div class="col-12">
+        <h2 class="highlight">Submissions <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mysubmissionslist">View/hide submissions</a></small></h2>
+      </div>
+      <div class="col-12" id="mysubmissionslist">
+        <h3>Submissions for which this Contributor is identified as an author:</h3>
+        <div>
+          <ul class="list-group list-group-flush">
+            {% for sub in contributor_submissions %}
+              <li class="list-group-item">
+                <div class="card-body px-0">
+                  {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
                 </div>
+              </li>
             {% endfor %}
+          </ul>
         </div>
+      </div>
     </div>
+  {% endif %}
 
-{% endif %}
-
-{% if contributor_submissions %}
-    <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Submissions <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mysubmissionslist">View/hide submissions</a></small></h2>
-        </div>
-        <div class="col-12" id="mysubmissionslist">
-            <h3>Submissions for which this Contributor is identified as an author:</h3>
-            <div>
-                <ul class="list-group list-group-flush">
-                    {% for sub in contributor_submissions %}
-                        <li class="list-group-item">
-                            <div class="card-body px-0">
-                                {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
-                            </div>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-    </div>
-{% endif %}
-
-{% if contributor_commentaries %}
+  {% if contributor_commentaries %}
     {# <hr>#}
     <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Commentaries <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mycommentarieslist">View/hide commentaries</a></small></h2>
+      <div class="col-12">
+        <h2 class="highlight">Commentaries <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mycommentarieslist">View/hide commentaries</a></small></h2>
 
+      </div>
+      <div class="col-12" id="mycommentarieslist">
+        <h3>Commentaries for which this Contributor is identified as an author:</h3>
+        <div>
+          <ul class="list-group list-group-flush">
+            {% for com in contributor_commentaries %}
+              <li class="list-group-item">
+                {% include 'commentaries/_commentary_card_content.html' with commentary=com %}
+              </li>
+            {% endfor %}
+          </ul>
         </div>
-        <div class="col-12" id="mycommentarieslist">
-            <h3>Commentaries for which this Contributor is identified as an author:</h3>
-            <div>
-                <ul class="list-group list-group-flush">
-                    {% for com in contributor_commentaries %}
-                        <li class="list-group-item">
-                            {% include 'commentaries/_commentary_card_content.html' with commentary=com %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+      </div>
     </div>
-{% endif %}
+  {% endif %}
 
-{% if contributor_theses %}
+  {% if contributor_theses %}
     {# <hr>#}
     <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Theses <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mytheseslist">View/hide theses</a></small></h2>
+      <div class="col-12">
+        <h2 class="highlight">Theses <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mytheseslist">View/hide theses</a></small></h2>
+      </div>
+      <div class="col-12" id="mytheseslist">
+        <h3>Theses for which this Contributor is identified as an author:</h3>
+        <div>
+          <ul class="list-group list-group-flush">
+            {% for thesis in contributor_theses %}
+              <li class="list-group-item">
+                {% include 'theses/_thesislink_card_content.html' with thesislink=thesis %}
+              </li>
+            {% endfor %}
+          </ul>
         </div>
-        <div class="col-12" id="mytheseslist">
-            <h3>Theses for which this Contributor is identified as an author:</h3>
-            <div>
-                <ul class="list-group list-group-flush">
-                    {% for thesis in contributor_theses %}
-                        <li class="list-group-item">
-                            {% include 'theses/_thesislink_card_content.html' with thesislink=thesis %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
+      </div>
     </div>
-{% endif %}
+  {% endif %}
 
-{% if contributor_comments %}
+  {% if contributor_comments %}
     {# <hr>#}
     <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Comments <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mycommentslist">View/hide comments</a></small></h2>
-        </div>
-        <div class="col-12" id="mycommentslist">
-            <ul class="list-group list-group-flush">
-                {% for comment in contributor_comments %}
-                    <li class="list-group-item">
-                        {% include 'comments/_comment_card_content.html' with comment=comment %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+      <div class="col-12">
+        <h2 class="highlight">Comments <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#mycommentslist">View/hide comments</a></small></h2>
+      </div>
+      <div class="col-12" id="mycommentslist">
+        <ul class="list-group list-group-flush">
+          {% for comment in contributor_comments %}
+            <li class="list-group-item">
+              {% include 'comments/_comment_card_content.html' with comment=comment %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-{% endif %}
+  {% endif %}
 
-{% if contributor_authorreplies %}
+  {% if contributor_authorreplies %}
     {# <hr>#}
     <div class="row">
-        <div class="col-12">
-            <h2 class="highlight">Author Replies <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#myauthorreplieslist">View/hide author replies</a></small></h2>
-        </div>
-        <div class="col-12" id="myauthorreplieslist">
-            <ul class="list-group list-group-flush">
-                {% for reply in contributor_authorreplies %}
-                    <li class="list-group-item">
-                        {% include 'comments/_comment_card_extended_content.html' with comment=reply %}
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+      <div class="col-12">
+        <h2 class="highlight">Author Replies <small><a href="javascript:;" class="ml-2" data-toggle="toggle" data-target="#myauthorreplieslist">View/hide author replies</a></small></h2>
+      </div>
+      <div class="col-12" id="myauthorreplieslist">
+        <ul class="list-group list-group-flush">
+          {% for reply in contributor_authorreplies %}
+            <li class="list-group-item">
+              {% include 'comments/_comment_card_extended_content.html' with comment=reply %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-{% endif %}
+  {% endif %}
 
 {% endblock content %}

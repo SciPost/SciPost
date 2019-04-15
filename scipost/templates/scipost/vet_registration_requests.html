@@ -5,56 +5,56 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Registration requests to vet</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Registration requests to vet</span>
 {% endblock %}
 
 {% block content %}
 
-<script>
-$(function() {
-    $('[name="decision"]').on('click change', function(){
-        if($(this).filter(':checked').val() == 'False') {
-            $('#id_refusal_reason, #id_email_response_field').parents('.form-group').show();
-        } else {
-            $('#id_refusal_reason, #id_email_response_field').parents('.form-group').hide();
-        }
-    }).trigger('change');
-});
-</script>
+  <script>
+   $(function() {
+       $('[name="decision"]').on('click change', function(){
+           if($(this).filter(':checked').val() == 'False') {
+               $('#id_refusal_reason, #id_email_response_field').parents('.form-group').show();
+           } else {
+               $('#id_refusal_reason, #id_email_response_field').parents('.form-group').hide();
+           }
+       }).trigger('change');
+   });
+  </script>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <div class="card bg-light">
-            <div class="card-body">
-                <h1 class="card-title">SciPost Registration requests to vet:</h1>
-                <p class="card-text mb-0">
-                    These Contributors are currently not registered (submitting, commenting and voting disabled).<br>
-                    Use this page to promote them to give them registered status, or refuse registration.
-                </p>
-            </div>
+      <div class="card bg-light">
+        <div class="card-body">
+          <h1 class="card-title">SciPost Registration requests to vet:</h1>
+          <p class="card-text mb-0">
+            These Contributors are currently not registered (submitting, commenting and voting disabled).<br>
+            Use this page to promote them to give them registered status, or refuse registration.
+          </p>
         </div>
+      </div>
     </div>
-</div>
+  </div>
 
-{% for contributor_to_vet in contributors_to_vet %}
+  {% for contributor_to_vet in contributors_to_vet %}
     {% if not forloop.first %}<hr class="small">{% endif %}
     <div class="row">
-        <div class="col-md-4">
-            {% include "scipost/_private_info_as_table.html" with contributor=contributor_to_vet %}
-        </div>
-        <div class="col-md-8">
-            <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
-                {% csrf_token %}
-                {{form|bootstrap}}
-                <input type="submit" class="btn btn-outline-secondary" />
-            </form>
-        </div>
+      <div class="col-md-4">
+        {% include "scipost/_private_info_as_table.html" with contributor=contributor_to_vet %}
+      </div>
+      <div class="col-md-8">
+        <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
+          {% csrf_token %}
+          {{form|bootstrap}}
+          <input type="submit" class="btn btn-outline-secondary" />
+        </form>
+      </div>
     </div>
-{% empty %}
+  {% empty %}
     <h1>There are no Registration requests for you to vet.</h1>
     <p>Back to your <a href="{% url 'scipost:personal_page' %}">personal page</a>.
-{% endfor %}
+  {% endfor %}
 
 
 {% endblock content %}

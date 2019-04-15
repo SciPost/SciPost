@@ -3,13 +3,13 @@
 {% block body_class %}{{ block.super }} pool{% endblock %}
 
 {% block breadcrumb %}
-    <div class="breadcrumb-container">
-        <div class="container">
-            <nav class="breadcrumb hidden-sm-down">
-                {% block breadcrumb_items %}
-                    <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
-                {% endblock %}
-            </nav>
-        </div>
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+        {% endblock %}
+      </nav>
     </div>
+  </div>
 {% endblock %}

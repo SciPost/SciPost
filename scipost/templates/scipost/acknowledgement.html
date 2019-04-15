@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h2>{{ ack_header }}</h2>
       {% if ack_message %}
@@ -14,6 +14,6 @@
         <p>{{ followup_message }} <a href="{{ followup_link }}">{{ followup_link_label }}</a>.</p>
       {% endif %}
     </div>
-</div>
+  </div>
 
 {% endblock %}

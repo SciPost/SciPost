@@ -5,88 +5,88 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Update personal data</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Update personal data</span>
 {% endblock %}
 
 {% block content %}
 
-{% if cont_form %}
+  {% if cont_form %}
     <script>
 
-    $(document).ready(function(){
-        $('select#id_discipline').on('change', function() {
-            var selection = $(this).val();
-            $("ul[id^='id_expertises_']").closest("li").hide();
+     $(document).ready(function(){
+         $('select#id_discipline').on('change', function() {
+             var selection = $(this).val();
+             $("ul[id^='id_expertises_']").closest("li").hide();
 
-            switch(selection){
-                case "physics":
-                    $("#id_expertises_0").closest("li").show();
-                break;
-                case "astrophysics":
-                    $("#id_expertises_1").closest("li").show();
-                break;
-                case "mathematics":
-                    $("#id_expertises_2").closest("li").show();
-                break;
-                case "computerscience":
-                    $("#id_expertises_3").closest("li").show();
-                break;
-                default:
-                    $("ul[id^='id_expertises_']").closest("li").show();
-                break;
-            }
-        }).trigger('change');
+             switch(selection){
+                 case "physics":
+                     $("#id_expertises_0").closest("li").show();
+                     break;
+                 case "astrophysics":
+                     $("#id_expertises_1").closest("li").show();
+                     break;
+                 case "mathematics":
+                     $("#id_expertises_2").closest("li").show();
+                     break;
+                 case "computerscience":
+                     $("#id_expertises_3").closest("li").show();
+                     break;
+                 default:
+                     $("ul[id^='id_expertises_']").closest("li").show();
+                     break;
+             }
+         }).trigger('change');
 
-    });
+     });
 
     </script>
-{% endif %}
+  {% endif %}
 
 
 
-<form action="{% url 'scipost:update_personal_data' %}" method="post">
+  <form action="{% url 'scipost:update_personal_data' %}" method="post">
     {% csrf_token %}
     <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <h1 class="mb-3">Update your personal data</h1>
-	    {% if contact_form %}
-	    {{ contact_form|bootstrap }}
-	    {% endif %}
-            {{ user_form|bootstrap }}
-            {% if cont_form %}
-            	{{ cont_form|bootstrap }}
-            {% endif %}
-        </div>
-        {% if institution_formset %}
-            <div class="col-lg-6">
-                <div id="institutions" class="formset-group">
-                    <h1 class="mb-3">Your Affiliations</h1>
-                    {{ institution_formset.media }}
-                    {{ institution_formset|bootstrap }}
-                </div>
-                <div class="formset-form form-empty" style="display: none;">
-                    {{ institution_formset.empty_form|bootstrap }}
-                </div>
-            </div>
+      <div class="col-lg-6">
+        <h1 class="mb-3">Update your personal data</h1>
+	{% if contact_form %}
+	  {{ contact_form|bootstrap }}
+	{% endif %}
+        {{ user_form|bootstrap }}
+        {% if cont_form %}
+          {{ cont_form|bootstrap }}
         {% endif %}
+      </div>
+      {% if institution_formset %}
+        <div class="col-lg-6">
+          <div id="institutions" class="formset-group">
+            <h1 class="mb-3">Your Affiliations</h1>
+            {{ institution_formset.media }}
+            {{ institution_formset|bootstrap }}
+          </div>
+          <div class="formset-form form-empty" style="display: none;">
+            {{ institution_formset.empty_form|bootstrap }}
+          </div>
+        </div>
+      {% endif %}
     </div>
 
     <div class="text-center">
-        <input type="submit" class="btn btn-primary btn-lg px-3" value="Save changes" />
-        {% if request.user.contributor %}
-            <a href="{% url 'scipost:personal_page' %}" class="btn btn-link">Back to Personal Page</a>
-        {% endif %}
+      <input type="submit" class="btn btn-primary btn-lg px-3" value="Save changes" />
+      {% if request.user.contributor %}
+        <a href="{% url 'scipost:personal_page' %}" class="btn btn-link">Back to Personal Page</a>
+      {% endif %}
     </div>
-</form>
+  </form>
 
-<script type="text/javascript">
-    $(function() {
-        $('form #institutions > .formset-form').formset({
-            addText: 'add new Institution',
-            deleteText: 'remove Institution',
-            formTemplate: 'form .form-empty',
-        })
-    })
-</script>
+  <script type="text/javascript">
+   $(function() {
+       $('form #institutions > .formset-form').formset({
+           addText: 'add new Institution',
+           deleteText: 'remove Institution',
+           formTemplate: 'form .form-empty',
+       })
+   })
+  </script>
 {% endblock content %}

@@ -7,15 +7,15 @@
 {% block content %}
 
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">SciPost: Quick Tour</h1>
+      <h1 class="highlight">SciPost: Quick Tour</h1>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-md-6">
-    	<h2 class="highlight">SciPost in bullet points</h2>
+      <h2 class="highlight">SciPost in bullet points</h2>
       <ul>
 	<li>Share on <a href="http://www.arxiv.org">arXiv</a>,
 	  publish in <a href="https://scipost.org">SciPost</a></li>
@@ -24,12 +24,12 @@
 	<li>links to theses, with searchable abstracts database</li>
       </ul>
 
-	<h2 class="highlight mt-md-4">Where should I start?</h2>
+      <h2 class="highlight mt-md-4">Where should I start?</h2>
       <ul>
 	<li>See what it's <a href="{% url 'scipost:about' %}">about</a></li>
 	<li>Read the <a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
 	<li>Pro academic? <a href="{% url 'scipost:register' %}">Register</a></li>
-	</ul>
+      </ul>
 
       <h4>After registration,</h4>
       <ul>
@@ -43,7 +43,7 @@
     </div>
 
     <div class="col-md-6">
-    	<h2 class="highlight">Commentaries</h2>
+      <h2 class="highlight">Commentaries</h2>
       <h3>Want to comment on a paper (<em>any</em> published paper)?</h3>
       <ul>
     	<li><a href="{% url 'commentaries:commentaries' %}">Check</a> if a Commentary Page already exists.</li>
@@ -60,12 +60,12 @@
       <h3>Want to give your opinion on a Comment?</h3>
       <p>If you are registered as a Contributor, you can express your opinion by clicking on one of the coloured boxes next to the Comment (Agree, Not sure, Disagree). Any earlier opinion you had expressed gets erased. Aggregated opinions are given, and you cannot give an opinion on your own Comments.</p>
 
-        <h2 class="highlight mt-md-4">Theses</h2>
+      <h2 class="highlight mt-md-4">Theses</h2>
 
       <p>Similar to Commentaries, Theses is a searchable repository of links to Master's, PhD and Habilitation theses (often held in a local institutional repository).</p>
       <p>After <a href="{% url 'theses:request_thesislink' %}">requesting the Thesis Link</a>, a page will be opened with the summary and external link, and the possibility to post Comments.</p>
     </div>
-</div>
+  </div>
 
 
 {% endblock %}

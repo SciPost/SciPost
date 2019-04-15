@@ -1,77 +1,77 @@
 {% load staticfiles %}
 <footer class="footer">
 
-    <div class="container py-4">
-      <div class="row">
+  <div class="container py-4">
+    <div class="row">
 
-        <div class="col-md-3 mb-3 mb-md-0">
-            <ul class="list-unstyled">
-                <li>Copyright &copy; <a href="{% url 'scipost:foundation' %}" target="_">SciPost Foundation</a></li>
-                <li><a href="{% url 'scipost:about' %}">About SciPost</a></li>
-                <li><a href="{% url 'scipost:foundation' %}">The Foundation</a></li>
-                <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
-          </ul>
-        </div>
-
-        <div class="col-md-3 mb-3 mb-md-0">
-            <ul class="list-unstyled">
-              <li><a href="mailto:admin@scipost.org">Contact the administrators</a></li>
-	      {% if request.user.is_authenticated %}
-	      <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
-	      {% endif %}
-              <li><a href="mailto:techsupport@scipost.org">Write to tech support</a></li>
-              <li><a href="https://code.scipost.org" target="_blank"><i class="fa fa-code-fork"></i> code.scipost.org</a></li>
-            <ul>
-        </div>
-
-        <div class="col-md-3 mb-3 mb-md-0">
-            <ul class="list-unstyled">
-                <li><a href="{% url 'organizations:organizations' %}">Organizations&nbsp;<small>benefitting<br/>&emsp;&emsp;from&nbsp;our&nbsp;activities</small></a></li>
-                <li><a href="{% url 'sponsors:sponsors' %}">Sponsors</a></li>
-                <li><a href="{% url 'finances:finances' %}" target="_blank">Finances</a></li>
-            <ul>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0 text-md-right">
-    	  <ul class="list-unstyled">
-            <li><a href="{% url 'scipost:terms_and_conditions' %}">Terms and conditions</a></li>
-            <li><a href="{% url 'news:news' %}">News</a></li>
-            <li><a href="{% url 'scipost:feeds' %}">Feeds</a></li>
-	    <li>
-              <a href="//twitter.com/scipost_dot_org" target="_blank" title="Twitter">
-                <i class="fa fa-twitter" aria-hidden="true"></i>
-              </a>
-              <a href="{% url 'scipost:feeds' %}" title="RSS feeds">
-                <i class="fa fa-rss ml-2" aria-hidden="true"></i>
-              </a>
-	    </li>
-    	  </ul>
-
-          </div>
+      <div class="col-md-3 mb-3 mb-md-0">
+        <ul class="list-unstyled">
+          <li>Copyright &copy; <a href="{% url 'scipost:foundation' %}" target="_">SciPost Foundation</a></li>
+          <li><a href="{% url 'scipost:about' %}">About SciPost</a></li>
+          <li><a href="{% url 'scipost:foundation' %}">The Foundation</a></li>
+          <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
+        </ul>
       </div>
-      <div class="row">
-        <div class="col-12">
-            <br>
-          <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank" class="m-2">
-              <img alt="Creative Commons License" style="border-width:0" src="//licensebuttons.net/l/by/4.0/80x15.png" />
-          </a>
-          Except where otherwise noted, all content on SciPost.org is licensed under a <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
-        </div>
+
+      <div class="col-md-3 mb-3 mb-md-0">
+        <ul class="list-unstyled">
+          <li><a href="mailto:admin@scipost.org">Contact the administrators</a></li>
+	  {% if request.user.is_authenticated %}
+	    <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
+	  {% endif %}
+          <li><a href="mailto:techsupport@scipost.org">Write to tech support</a></li>
+          <li><a href="https://code.scipost.org" target="_blank"><i class="fa fa-code-fork"></i> code.scipost.org</a></li>
+          <ul>
       </div>
+
+      <div class="col-md-3 mb-3 mb-md-0">
+        <ul class="list-unstyled">
+          <li><a href="{% url 'organizations:organizations' %}">Organizations&nbsp;<small>benefitting<br/>&emsp;&emsp;from&nbsp;our&nbsp;activities</small></a></li>
+          <li><a href="{% url 'sponsors:sponsors' %}">Sponsors</a></li>
+          <li><a href="{% url 'finances:finances' %}" target="_blank">Finances</a></li>
+          <ul>
+      </div>
+      <div class="col-md-3 mb-3 mb-md-0 text-md-right">
+    	<ul class="list-unstyled">
+          <li><a href="{% url 'scipost:terms_and_conditions' %}">Terms and conditions</a></li>
+          <li><a href="{% url 'news:news' %}">News</a></li>
+          <li><a href="{% url 'scipost:feeds' %}">Feeds</a></li>
+	  <li>
+            <a href="//twitter.com/scipost_dot_org" target="_blank" title="Twitter">
+              <i class="fa fa-twitter" aria-hidden="true"></i>
+            </a>
+            <a href="{% url 'scipost:feeds' %}" title="RSS feeds">
+              <i class="fa fa-rss ml-2" aria-hidden="true"></i>
+            </a>
+	  </li>
+    	</ul>
+
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <br>
+        <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank" class="m-2">
+          <img alt="Creative Commons License" style="border-width:0" src="//licensebuttons.net/l/by/4.0/80x15.png" />
+        </a>
+        Except where otherwise noted, all content on SciPost.org is licensed under a <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
+      </div>
+    </div>
   </div>
 </footer>
 <!--<footer class="footer">
 
-    <div class="container">
-      <div class="row">
-        <div class="col-12 pb-3">
-            <img src="{% static 'scipost/images/logo_scipost_with_bgd_small.png' %}" class="mb-2">
-            <br>
-          <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank" class="m-2">
-              <img alt="Creative Commons License" style="border-width:0" src="//licensebuttons.net/l/by/4.0/80x15.png" />
-          </a>
-          Except where otherwise noted, all content on SciPost is licensed under a <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
-        </div>
-      </div>
-  </div>
-</footer>
+     <div class="container">
+     <div class="row">
+     <div class="col-12 pb-3">
+     <img src="{% static 'scipost/images/logo_scipost_with_bgd_small.png' %}" class="mb-2">
+     <br>
+     <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank" class="m-2">
+     <img alt="Creative Commons License" style="border-width:0" src="//licensebuttons.net/l/by/4.0/80x15.png" />
+     </a>
+     Except where otherwise noted, all content on SciPost is licensed under a <a rel="license" href="//creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.
+     </div>
+     </div>
+     </div>
+     </footer>
 -->

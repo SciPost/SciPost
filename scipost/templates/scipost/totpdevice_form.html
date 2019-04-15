@@ -5,15 +5,15 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'scipost:totp' %}" class="breadcrumb-item">Two-factor authentication</a>
-    <span class="breadcrumb-item">New device</span>
+  {{block.super}}
+  <a href="{% url 'scipost:totp' %}" class="breadcrumb-item">Two-factor authentication</a>
+  <span class="breadcrumb-item">New device</span>
 {% endblock %}
 
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-md-12">
       <h1 class="highlight">Set up a device for two-factor authentication</h1>
       <p>First of all, make sure you have an authenticator app installed on your mobile device. We recommend the following (many others are possible):</p>
@@ -51,6 +51,6 @@
       </ul>
     </div>
 
-</div>
+  </div>
 
 {% endblock %}

@@ -5,63 +5,63 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Registration awaiting validation</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Registration awaiting validation</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Registration awaiting validation</h1>
-        <p>
-            These Contributors did not yet activate their account. Sometimes, this link is never clicked on (email is either lost to spam, or not received).<br>
-            From here, you are able to send a reminder email to the as-yet-unconfirmed contributor.
-        </p>
+      <h1 class="highlight">Registration awaiting validation</h1>
+      <p>
+        These Contributors did not yet activate their account. Sometimes, this link is never clicked on (email is either lost to spam, or not received).<br>
+        From here, you are able to send a reminder email to the as-yet-unconfirmed contributor.
+      </p>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Date requested</th>
-                    <th>Key expires</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for contributor in inactive_contributors %}
-                    <tr>
-                        <td>{{contributor.user.first_name}} {{contributor.user.last_name}}</td>
-                        <td>{{contributor.user.email}}</td>
-                        <td>{{contributor.user.date_joined|timesince}} ago</td>
-                        <td>
-                            {% if contributor.key_expires < now %}
-                                <span class="text-danger">Expired {{contributor.key_expires|timesince}} ago</span>
-                            {% else %}
-                                Expires in {{contributor.key_expires|timeuntil}}
-                            {% endif %}
-                        </td>
-                        <td>
-                            <form action="{% url 'scipost:registration_requests_reset' contributor.id %}" method="post">
-                                {% csrf_token %}
-                                <input type="submit" class="btn btn-warning" value="Reset and resend" />
-                            </form>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="5">All registrations have been activated.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date requested</th>
+            <th>Key expires</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for contributor in inactive_contributors %}
+            <tr>
+              <td>{{contributor.user.first_name}} {{contributor.user.last_name}}</td>
+              <td>{{contributor.user.email}}</td>
+              <td>{{contributor.user.date_joined|timesince}} ago</td>
+              <td>
+                {% if contributor.key_expires < now %}
+                  <span class="text-danger">Expired {{contributor.key_expires|timesince}} ago</span>
+                {% else %}
+                  Expires in {{contributor.key_expires|timeuntil}}
+                {% endif %}
+              </td>
+              <td>
+                <form action="{% url 'scipost:registration_requests_reset' contributor.id %}" method="post">
+                  {% csrf_token %}
+                  <input type="submit" class="btn btn-warning" value="Reset and resend" />
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5">All registrations have been activated.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-</div>
+  </div>
 
 
 {% endblock content %}

@@ -6,7 +6,7 @@
 
 {% block content %}
 
-<div class="row my-4">
+  <div class="row my-4">
     <div class="col-md-6">
       <h1 class="mb-md-2">Log in to SciPost</h1>
       <form action="{% url 'scipost:login' %}" method="post">
@@ -22,39 +22,39 @@
     <div class="col-md-6">
       <h1>Not registered as a Contributor to SciPost?</h1>
       <p>If you are a professional scientist (PhD student and above), you can register by filling the
-      <a href="{% url 'scipost:register' %}">registration form</a>.</p>
+	<a href="{% url 'scipost:register' %}">registration form</a>.</p>
     </div>
 
-</div>
+  </div>
 
 {% endblock %}
 
 
 {% block footer_script %}
 
-<script type="text/javascript">
-    $(function() {
-        $('[name="code"]').parents('.form-group').hide();  // Just to prevent having annoying animations.
-        $('form [name="username"]').on('change', function() {
-            $.ajax({
-                type: 'POST',
-                url: '{% url "scipost:login_info" %}',
-                data: {
-                    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-                    username: $('form [name="username"]').val(),
-                },
-                dataType: 'json',
-                processData: true,
-                success: function(data) {
-                    if (data.has_totp) {
-                        $('[name="code"]').parents('.form-group').show();
-                    } else {
-                        $('[name="code"]').parents('.form-group').hide();
-                    }
-                }
-            });
-        }).trigger('change');
-    });
-</script>
+  <script type="text/javascript">
+   $(function() {
+       $('[name="code"]').parents('.form-group').hide();  // Just to prevent having annoying animations.
+       $('form [name="username"]').on('change', function() {
+           $.ajax({
+               type: 'POST',
+               url: '{% url "scipost:login_info" %}',
+               data: {
+                   csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
+                   username: $('form [name="username"]').val(),
+               },
+               dataType: 'json',
+               processData: true,
+               success: function(data) {
+                   if (data.has_totp) {
+                       $('[name="code"]').parents('.form-group').show();
+                   } else {
+                       $('[name="code"]').parents('.form-group').hide();
+                   }
+               }
+           });
+       }).trigger('change');
+   });
+  </script>
 
 {% endblock %}

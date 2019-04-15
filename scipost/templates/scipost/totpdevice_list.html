@@ -5,13 +5,13 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Two-factor authentication</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Two-factor authentication</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-md-12">
       <h1 class="highlight">Two-factor authentication</h1>
       <p>
@@ -33,36 +33,36 @@
 
       <h3 class="mt-5 mb-3">Your devices</h3>
       <table class="table">
-          <thead>
-              <tr>
-                  <th>Name</th>
-                  <th>Last used</th>
-                  <th></th>
-              </tr>
-          </thead>
-          <tbody>
-              {% for device in object_list %}
-                  <tr>
-                      <td>{{ device.name }}</td>
-                      <td>{{ device.modified }}</td>
-                      <td>
-                          <a class="text-danger" href="{% url 'scipost:totp_delete' device.id %}">Remove device</a>
-                      </td>
-                  </tr>
-              {% empty %}
-                  <tr>
-                      <td colspan="3">
-                          <div class="py-2">
-                              <i class="fa fa-exclamation-triangle text-danger"></i>
-                              You are not yet using two-factor authentication. We strongly recommend you to <a href="{% url 'scipost:totp_create' %}">set it up</a>.
-                          </div>
-                      </td>
-                  </tr>
-              {% endfor %}
-          </tbody>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Last used</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for device in object_list %}
+            <tr>
+              <td>{{ device.name }}</td>
+              <td>{{ device.modified }}</td>
+              <td>
+                <a class="text-danger" href="{% url 'scipost:totp_delete' device.id %}">Remove device</a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">
+                <div class="py-2">
+                  <i class="fa fa-exclamation-triangle text-danger"></i>
+                  You are not yet using two-factor authentication. We strongly recommend you to <a href="{% url 'scipost:totp_create' %}">set it up</a>.
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
       </table>
     </div>
 
-</div>
+  </div>
 
 {% endblock %}

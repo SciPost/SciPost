@@ -3,20 +3,20 @@
 {% load static %}
 
 <p class="mb-0 pb-0">
-    {% if fellowship.contributor.personalwebpage %}
-        <a target="_blank" href="{{fellowship.contributor.personalwebpage}}">
-    {% endif %}
-        {{fellowship.contributor.get_title_display}} {{fellowship.contributor.user.first_name}} {{fellowship.contributor.user.last_name}}
-    {% if fellowship.contributor.personalwebpage %}
-        </a>
-    {% endif %}
+  {% if fellowship.contributor.personalwebpage %}
+    <a target="_blank" href="{{ fellowship.contributor.personalwebpage }}">
+  {% endif %}
+  {{ fellowship.contributor.get_title_display }} {{ fellowship.contributor.user.first_name }} {{ fellowship.contributor.user.last_name }}
+  {% if fellowship.contributor.personalwebpage %}
+    </a>
+  {% endif %}
 </p>
 
 {% if fellowship.contributor.affiliations.active.first %}
-    <span class="text-muted">({{ fellowship.contributor.affiliations.active.first.institution.name }})</span>
+  <span class="text-muted">({{ fellowship.contributor.affiliations.active.first.institution.name }})</span>
 {% endif %}
 <div>
-    {% for expertise in fellowship.contributor.expertises %}
-        <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
-    {% endfor %}
+  {% for expertise in fellowship.contributor.expertises %}
+    <div class="single d-inline" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
+  {% endfor %}
 </div>

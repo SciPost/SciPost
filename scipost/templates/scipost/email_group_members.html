@@ -1,8 +1,8 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Email group members</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Email group members</span>
 {% endblock %}
 
 {% block pagetitle %}: email group members{% endblock pagetitle %}
@@ -11,9 +11,9 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Email a Group of Contributors</h1>
+      <h1 class="highlight">Email a Group of Contributors</h1>
 
       <form action="{% url 'scipost:email_group_members' %}" method="post">
         {% csrf_token %}
@@ -22,6 +22,6 @@
       </form>
 
     </div>
-</div>
+  </div>
 
 {% endblock %}

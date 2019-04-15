@@ -1,8 +1,8 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Mark a period as unavailable</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Mark a period as unavailable</span>
 {% endblock %}
 
 {% load bootstrap %}
@@ -11,16 +11,16 @@
 
 {% block content %}
 
-<div class="row justify-content-center">
+  <div class="row justify-content-center">
     <div class="col-lg-8">
-        <h1 class="highlight">Mark a period as unavailable</h1>
+      <h1 class="highlight">Mark a period as unavailable</h1>
 
-        <form method="post">
-            {% csrf_token %}
-            {{form|bootstrap}}
-            <input type="submit" class="btn btn-outline-secondary" value="Submit" />
-        </form>
+      <form method="post">
+        {% csrf_token %}
+        {{form|bootstrap}}
+        <input type="submit" class="btn btn-outline-secondary" value="Submit" />
+      </form>
     </div>
-</div>
+  </div>
 
 {% endblock content %}

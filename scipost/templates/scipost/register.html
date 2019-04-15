@@ -6,27 +6,27 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Register to SciPost</h1>
-        {% if invitation %}
-            <h2>Welcome {{invitation.get_title_display}} {{invitation.last_name}} and thanks in advance for registering (by completing this form)</h2>
-        {% endif %}
+      <h1 class="highlight">Register to SciPost</h1>
+      {% if invitation %}
+        <h2>Welcome {{invitation.get_title_display}} {{invitation.last_name}} and thanks in advance for registering (by completing this form)</h2>
+      {% endif %}
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-md-4 mb-md-2">
-        <div class="card bg-white">
-            <div class="card-body">
-                <h3>Notes:</h3>
-                <p class="text-danger"><em>Only professional academics (staff members, postdocs, PhD students) can register!</em></p>
-                <p>Required fields are marked with a *.</p>
-                <p>An ORCID id is not formally required but helps preventing identification ambiguities.
-                You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
-                <p>Registration and use of the portal means that you agree with our <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a> and with our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
-            </div>
+      <div class="card bg-white">
+        <div class="card-body">
+          <h3>Notes:</h3>
+          <p class="text-danger"><em>Only professional academics (staff members, postdocs, PhD students) can register!</em></p>
+          <p>Required fields are marked with a *.</p>
+          <p>An ORCID id is not formally required but helps preventing identification ambiguities.
+            You can easily get one at  <a href="http://orcid.org">orcid.org</a>.</p>
+          <p>Registration and use of the portal means that you agree with our <a href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a> and with our <a href="{% url 'scipost:privacy_policy' %}">Privacy Policy</a>.</p>
         </div>
+      </div>
     </div>
     <div class="col-md-8 col-lg-7 ml-lg-auto">
 
@@ -37,15 +37,15 @@
       </form>
 
       {% if errormessage %}
-          <p class="text-danger">{{ errormessage }}</p>
+        <p class="text-danger">{{ errormessage }}</p>
       {% endif %}
     </div>
-</div>
+  </div>
 
 
 {% endblock content %}
 
 {% block footer_script %}
-    {{ block.super }}
-    {{ form.media }}
+  {{ block.super }}
+  {{ form.media }}
 {% endblock footer_script %}

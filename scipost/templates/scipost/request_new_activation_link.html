@@ -4,11 +4,11 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h2>Request a new activation link</h2>
-        <p>Your previous activation link has expired. <a href="{% url 'scipost:request_new_activation_link' contributor.id contributor.activation_key %}?confirm=1">Click here</a> to have us email you a new one.</p>
+      <h2>Request a new activation link</h2>
+      <p>Your previous activation link has expired. <a href="{% url 'scipost:request_new_activation_link' contributor.id contributor.activation_key %}?confirm=1">Click here</a> to have us email you a new one.</p>
     </div>
-</div>
+  </div>
 
 {% endblock content %}

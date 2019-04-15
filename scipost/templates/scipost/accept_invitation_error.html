@@ -4,15 +4,15 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h1>Registration Invitation</h1>
 
-  <p>Error message: <span class="text-danger">{{ errormessage }}</span></p>
+      <p>Error message: <span class="text-danger">{{ errormessage }}</span></p>
 
-  <p>You can in any case simply fill the <a href="{% url 'scipost:register' %}">
-      registration form</a> to get access to the site's facilities.</p>
+      <p>You can in any case simply fill the <a href="{% url 'scipost:register' %}">
+	registration form</a> to get access to the site's facilities.</p>
     </div>
-</div>
+  </div>
 
 {% endblock content %}

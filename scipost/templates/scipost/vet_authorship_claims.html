@@ -3,8 +3,8 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <span class="breadcrumb-item">Vet authorship claims</span>
+  {{block.super}}
+  <span class="breadcrumb-item">Vet authorship claims</span>
 {% endblock %}
 
 {% block pagetitle %}: vet authorship claims{% endblock pagetitle %}
@@ -17,59 +17,59 @@
 
 
 
-{% if not claims_to_vet %}
+  {% if not claims_to_vet %}
     <div class="row">
-        <div class="col-12">
-            <h1>There are no Authorship Claims for you to vet.</h1>
-            <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
-        </div>
+      <div class="col-12">
+        <h1>There are no Authorship Claims for you to vet.</h1>
+        <h3><a href="{% url 'scipost:personal_page' %}">Return to personal page</a></h3>
+      </div>
     </div>
-{% else %}
+  {% else %}
 
-<h1 class="highlight">Vet Authorship Claims</h1>
+    <h1 class="highlight">Vet Authorship Claims</h1>
 
-  {# <ul class="list-group list-group-flush">#}
+    {# <ul class="list-group list-group-flush">#}
     {% for claim in claims_to_vet %}
-        {# <li class="list-group-item">#}
-            <div class="card ">
-                {% if claim.publication %}
-                    <div class="card-header">
-                        <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Publication:</h4>
-                    </div>
-                    {% include 'journals/_publication_card_content.html' with publication=claim.publication %}
-                {% elif claim.submission %}
-                    <div class="card-header">
-                        <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
-                    </div>
-                    <div class="card-body">
-                        {% include 'partials/submissions/submission_card_content.html' with submission=claim.submission %}
-                    </div>
-                {% elif claim.commentary %}
-                    <div class="card-header">
-                        <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Commentary:</h4>
-                    </div>
-                    {% include 'commentaries/_commentary_card_content.html' with commentary=claim.commentary %}
-                {% elif claim.thesislink %}
-                    <div class="card-header">
-                        <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
-                    </div>
-                    {% include 'theses/_thesislink_card_content.html' with thesislink=claim.thesislink %}
-                {% endif %}
-                <div class="card-footer">
-                    <form class="d-inline-block" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=1%}" method="post">
-                      {% csrf_token %}
-                      <input class="btn btn-outline-secondary px-3" type="submit" value="Accept" />
-                    </form>
-                    <form class="d-inline-block ml-1" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=0%}" method="post">
-                      {% csrf_token %}
-                      <input class="btn btn-danger px-3" type="submit" value="Deny" />
-                    </form>
-                </div>
-            </div>
-        {# </li>#}
+      {# <li class="list-group-item">#}
+      <div class="card ">
+        {% if claim.publication %}
+          <div class="card-header">
+            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Publication:</h4>
+          </div>
+          {% include 'journals/_publication_card_content.html' with publication=claim.publication %}
+        {% elif claim.submission %}
+          <div class="card-header">
+            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
+          </div>
+          <div class="card-body">
+            {% include 'partials/submissions/submission_card_content.html' with submission=claim.submission %}
+          </div>
+        {% elif claim.commentary %}
+          <div class="card-header">
+            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Commentary:</h4>
+          </div>
+          {% include 'commentaries/_commentary_card_content.html' with commentary=claim.commentary %}
+        {% elif claim.thesislink %}
+          <div class="card-header">
+            <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Thesis:</h4>
+          </div>
+          {% include 'theses/_thesislink_card_content.html' with thesislink=claim.thesislink %}
+        {% endif %}
+        <div class="card-footer">
+          <form class="d-inline-block" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=1%}" method="post">
+            {% csrf_token %}
+            <input class="btn btn-outline-secondary px-3" type="submit" value="Accept" />
+          </form>
+          <form class="d-inline-block ml-1" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=0%}" method="post">
+            {% csrf_token %}
+            <input class="btn btn-danger px-3" type="submit" value="Deny" />
+          </form>
+        </div>
+      </div>
+      {# </li>#}
     {% endfor %}
-  {# </ul>#}
+    {# </ul>#}
 
-{% endif %}
+  {% endif %}
 
 {% endblock content %}

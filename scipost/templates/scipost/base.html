@@ -2,16 +2,16 @@
 
 {% block base %}
 
-    <main class="{% block container_class %}container {% endblock %}">
-        {% block page_header %}{% endblock page_header %}
+  <main class="{% block container_class %}container {% endblock %}">
+    {% block page_header %}{% endblock page_header %}
 
-        {% block content %}{% endblock content %}
+    {% block content %}{% endblock content %}
 
-        {% block content_footer %}{% endblock content_footer %}
-    </main>
+    {% block content_footer %}{% endblock content_footer %}
+  </main>
 
-    {% block secondary_footer %}{% endblock secondary_footer %}
+  {% block secondary_footer %}{% endblock secondary_footer %}
 
-    {% include 'scipost/footer.html' %}
+  {% include 'scipost/footer.html' %}
 
 {% endblock base %}

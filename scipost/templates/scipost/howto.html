@@ -4,23 +4,23 @@
 
 {% block content %}
 
-{% load scipost_extras %}
+  {% load scipost_extras %}
 
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <h1 class="highlight">SciPost Howto Guides</h1>
 
-  <ul>
-    <li>
-      Post-acceptance:
       <ul>
-	<li><a href="{% url 'scipost:howto_production' %}">production</a></li>
+	<li>
+	  Post-acceptance:
+	  <ul>
+	    <li><a href="{% url 'scipost:howto_production' %}">production</a></li>
+	  </ul>
+	</li>
       </ul>
-    </li>
-  </ul>
     </div>
-</div>
+  </div>
 
 
 {% endblock %}

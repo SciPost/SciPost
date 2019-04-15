@@ -3,13 +3,13 @@
 {% block pagetitle %}: Unsubscribe{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h2>Unsubscribe</h2>
-        <p>
-            <a href="{% url 'scipost:unsubscribe' contributor.id contributor.activation_key %}?confirm=1">Click here</a> to let us know that you do not want to receive any non-essential email from SciPost (citation notifications, announcements etc).
-        </p>
-        <p>You can reset this preference at any time from your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
+      <h2>Unsubscribe</h2>
+      <p>
+        <a href="{% url 'scipost:unsubscribe' contributor.id contributor.activation_key %}?confirm=1">Click here</a> to let us know that you do not want to receive any non-essential email from SciPost (citation notifications, announcements etc).
+      </p>
+      <p>You can reset this preference at any time from your <a href="{% url 'scipost:personal_page' %}">personal page</a>.</p>
     </div>
-</div>
+  </div>
 {% endblock content %}

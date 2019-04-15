@@ -5,29 +5,29 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{block.super}}
-    <a href="{% url 'scipost:totp' %}" class="breadcrumb-item">Two-factor authentication</a>
-    <span class="breadcrumb-item">Delete {{ object.name }}</span>
+  {{block.super}}
+  <a href="{% url 'scipost:totp' %}" class="breadcrumb-item">Two-factor authentication</a>
+  <span class="breadcrumb-item">Delete {{ object.name }}</span>
 {% endblock %}
 
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-md-12">
       <h1 class="highlight">Delete two-factor authentication device</h1>
-    <br>
+      <br>
       <form method="post">
         {% csrf_token %}
         <h3 class="mb-2"><p>Are you sure you want to delete this device?</h3>
-        <ul>
+          <ul>
             <li>Name: {{ object.name }}</li>
             <li>Last used: {{ object.modified }}</li>
-        </ul>
-        <input type="submit" class="btn btn-danger" value="Yes, delete it" />
+          </ul>
+          <input type="submit" class="btn btn-danger" value="Yes, delete it" />
       </form>
     </div>
 
-</div>
+  </div>
 
 {% endblock %}
