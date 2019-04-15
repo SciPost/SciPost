@@ -6,59 +6,59 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
+  {% if user.is_authenticated %}
     <div class="row">
-        <div class="col-12">
-            <h1 class="highlight">SciPost Reply to Comment Page</h1>
-        </div>
+      <div class="col-12">
+        <h1 class="highlight">SciPost Reply to Comment Page</h1>
+      </div>
     </div>
 
     <div class="row">
-        <div class="col-12">
-            <h2>The {{comment.core_content_object|get_core_content_type|capfirst}} concerned:</h2>
-            {% get_summary_template comment.core_content_object %}
-        </div>
+      <div class="col-12">
+        <h2>The {{comment.core_content_object|get_core_content_type|capfirst}} concerned:</h2>
+        {% get_summary_template comment.core_content_object %}
+      </div>
     </div>
 
     <div class="row">
-        <div class="col-12">
-            <h2>The Comment you wish to reply to:</h2>
-        </div>
+      <div class="col-12">
+        <h2>The Comment you wish to reply to:</h2>
+      </div>
     </div>
     <div class="row">
-        <div class="col-12">
-            <div class="comment">
-                {% include 'comments/_comment_identifier.html' with comment=comment %}
+      <div class="col-12">
+        <div class="comment">
+          {% include 'comments/_comment_identifier.html' with comment=comment %}
 
-                {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
+          {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
 
-                {% include 'comments/_comment_voting_summary.html' with comment=comment %}
+          {% include 'comments/_comment_voting_summary.html' with comment=comment %}
 
-                <p>{{ comment.comment_text|linebreaksbr }}</p>
-            </div>
+          <p>{{ comment.comment_text|linebreaksbr }}</p>
         </div>
+      </div>
     </div>
 
     <hr>
 
     <div class="row">
-        <div class="col-12">
-            <div class="card card-gray">
-                <div class="card-body">
-                    <h2>Your Reply to this Comment:</h2>
-                    {% if is_author %}
-                        <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
-                    {% else %}
-                        <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
-                    {% endif %}
-                </div>
-            </div>
+      <div class="col-12">
+        <div class="card card-gray">
+          <div class="card-body">
+            <h2>Your Reply to this Comment:</h2>
+            {% if is_author %}
+              <h3>(you are identified as an author, your reply will appear as an author reply)</h3>
+            {% else %}
+              <h3>(you are not identified as an author of this publication; if you are, you can claim authorship on your Personal Page)</h3>
+            {% endif %}
+          </div>
         </div>
+      </div>
     </div>
 
     {% url 'comments:reply_to_comment' comment.id as add_comment_url %}
     {% include 'comments/_add_comment_form.html' with url=add_comment_url form=form %}
 
-{% endif %}
+  {% endif %}
 
 {% endblock content %}

@@ -1,87 +1,87 @@
 {% load bootstrap %}
 
 {% block footer_script %}
-<script>
-    $(function(){
-        var comment_text_input = $("#id_comment_text");
+  <script>
+   $(function(){
+       var comment_text_input = $("#id_comment_text");
 
-        comment_text_input.on('keyup', function(){
-            var new_text = $(this).val()
-            $("#preview-comment_text").text(new_text)
-            if( typeof MathJax !== 'undefined' ) {
-                MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-            }
-        }).trigger('keyup');
+       comment_text_input.on('keyup', function(){
+           var new_text = $(this).val()
+           $("#preview-comment_text").text(new_text)
+           if( typeof MathJax !== 'undefined' ) {
+               MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+           }
+       }).trigger('keyup');
 
-        $('input[name$="anonymous"]').on('change', function() {
-            $('.anonymous-alert').show()
-            .children('h3').hide()
-            if ($(this).prop('checked')) {
-                $('.anonymous-yes').show();
-            } else {
-                $('.anonymous-no').show();
-            }
-        }).trigger('change');
-    });
-</script>
+       $('input[name$="anonymous"]').on('change', function() {
+           $('.anonymous-alert').show()
+				.children('h3').hide()
+           if ($(this).prop('checked')) {
+               $('.anonymous-yes').show();
+           } else {
+               $('.anonymous-no').show();
+           }
+       }).trigger('change');
+   });
+  </script>
 {% endblock %}
 
 <form enctype="multipart/form-data" {% if url %}action="{{url}}" {% endif %}method="post">
-      {% csrf_token %}
-      <div class="row">
-          <div class="col-md-9">
-              {{form.comment_text|bootstrap:'12,12'}}
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-9">
+      {{form.comment_text|bootstrap:'12,12'}}
 
-              <p>
-                  In your comment, you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.
-              </p>
-              <p class="good_commenter">Be professional. Only serious and meaningful comments will be vetted through.</p>
-          </div>
-          <div class="col-md-3 radio-list">
-              <label>Specify categorization(s):</label>
-              {{form.is_cor|bootstrap}}
-              {{form.is_rem|bootstrap}}
-              {{form.is_que|bootstrap}}
-              {{form.is_ans|bootstrap}}
-              {{form.is_obj|bootstrap}}
-              {{form.is_rep|bootstrap}}
-              {{form.is_val|bootstrap}}
-              {{form.is_lit|bootstrap}}
-              {{form.is_sug|bootstrap}}
-          </div>
-      </div>
+      <p>
+        In your comment, you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.
+      </p>
+      <p class="good_commenter">Be professional. Only serious and meaningful comments will be vetted through.</p>
+    </div>
+    <div class="col-md-3 radio-list">
+      <label>Specify categorization(s):</label>
+      {{form.is_cor|bootstrap}}
+      {{form.is_rem|bootstrap}}
+      {{form.is_que|bootstrap}}
+      {{form.is_ans|bootstrap}}
+      {{form.is_obj|bootstrap}}
+      {{form.is_rep|bootstrap}}
+      {{form.is_val|bootstrap}}
+      {{form.is_lit|bootstrap}}
+      {{form.is_sug|bootstrap}}
+    </div>
+  </div>
 
-      <div class="row">
-          <div class="col-md-9">
-              {{form.remarks_for_editors|bootstrap:'12,12'}}
-          </div>
-          <div class="col-md-3">
-              {{form.file_attachment|bootstrap:'12,12'}}
-          </div>
-      </div>
+  <div class="row">
+    <div class="col-md-9">
+      {{form.remarks_for_editors|bootstrap:'12,12'}}
+    </div>
+    <div class="col-md-3">
+      {{form.file_attachment|bootstrap:'12,12'}}
+    </div>
+  </div>
 
-      <div class="row">
-          <div class="col-12">
-            {% if form.anonymous %}
-                {{ form.anonymous|bootstrap }}
-                <div class="anonymous-alert my-3" style="display: none;">
-                    <h3 class="anonymous-yes">Your Comment will remain anonymous.</h3>
-                    <h3 class="anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
-                </div>
-            {% endif %}
-              <input type="submit" name="submit" value="Submit your Comment for vetting" class="btn btn-primary" id="submit-id-submit">
-          {% if form.anonymous %}
-              <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
-          {% else %}
-              <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>, in particular that <span class="text-danger">your identity will be attached to the Comment</span>.</i></p>
-          {% endif %}
-          </div>
-      </div>
+  <div class="row">
+    <div class="col-12">
+      {% if form.anonymous %}
+        {{ form.anonymous|bootstrap }}
+        <div class="anonymous-alert my-3" style="display: none;">
+          <h3 class="anonymous-yes">Your Comment will remain anonymous.</h3>
+          <h3 class="anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
+        </div>
+      {% endif %}
+      <input type="submit" name="submit" value="Submit your Comment for vetting" class="btn btn-primary" id="submit-id-submit">
+      {% if form.anonymous %}
+        <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
+      {% else %}
+        <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>, in particular that <span class="text-danger">your identity will be attached to the Comment</span>.</i></p>
+      {% endif %}
+    </div>
+  </div>
 </form>
 
 <div class="row">
-    <div class="col-md-9">
-        <h3>Preview of your comment:</h3>
-        <p id="preview-comment_text"></p>
-    </div>
+  <div class="col-md-9">
+    <h3>Preview of your comment:</h3>
+    <p id="preview-comment_text"></p>
+  </div>
 </div>

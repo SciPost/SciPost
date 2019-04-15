@@ -1,35 +1,35 @@
 {% load comment_extras %}
 
 {% if comment|has_category %}
-    <div class="category-group">
-        <div class="name">Category:</div>
-        {% if comment.is_rem %}
-            <div>remark</div>
-        {% endif %}
-        {% if comment.is_que %}
-            <div>question</div>
-        {% endif %}
-        {% if comment.is_ans %}
-            <div>answer to question</div>
-        {% endif %}
-        {% if comment.is_obj %}
-            <div>objection</div>
-        {% endif %}
-        {% if comment.is_rep %}
-            <div>reply to objection</div>
-        {% endif %}
-        {% if comment.is_cor %}
-            <div>correction</div>
-        {% endif %}
-        {% if comment.is_val %}
-            <div>validation or rederivation</div>
-        {% endif %}
-        {% if comment.is_lit %}
-            <div>pointer to related literature</div>
-        {% endif %}
-        {% if comment.is_sug %}
-            <div>suggestion for further work</div>
-        {% endif %}
-    </div>
-    <br>
+  <div class="category-group">
+    <div class="name">Category:</div>
+    {% if comment.is_rem %}
+      <div>remark</div>
+    {% endif %}
+    {% if comment.is_que %}
+      <div>question</div>
+    {% endif %}
+    {% if comment.is_ans %}
+      <div>answer to question</div>
+    {% endif %}
+    {% if comment.is_obj %}
+      <div>objection</div>
+    {% endif %}
+    {% if comment.is_rep %}
+      <div>reply to objection</div>
+    {% endif %}
+    {% if comment.is_cor %}
+      <div>correction</div>
+    {% endif %}
+    {% if comment.is_val %}
+      <div>validation or rederivation</div>
+    {% endif %}
+    {% if comment.is_lit %}
+      <div>pointer to related literature</div>
+    {% endif %}
+    {% if comment.is_sug %}
+      <div>suggestion for further work</div>
+    {% endif %}
+  </div>
+  <br>
 {% endif %}

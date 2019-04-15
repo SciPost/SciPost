@@ -6,17 +6,17 @@
 
 {% block content %}
 
-    <h1 class="highlight">Add Comment</h1>
+  <h1 class="highlight">Add Comment</h1>
 
 
-    {% if user.is_authenticated and perms.scipost.can_submit_comments %}
+  {% if user.is_authenticated and perms.scipost.can_submit_comments %}
 
-        <hr>
+    <hr>
 
-        <h2 class="highlight" id="contribute_comment">Contribute a Comment:</h2>
+    <h2 class="highlight" id="contribute_comment">Contribute a Comment:</h2>
 
-        {% include 'comments/_add_comment_form.html' with form=form url='' %}
+    {% include 'comments/_add_comment_form.html' with form=form url='' %}
 
-    {% endif %}
+  {% endif %}
 
 {% endblock content %}
