@@ -3,16 +3,16 @@
 {% load profiles_extras %}
 
 <script>
-  $(document).ready(function() {
-  $("#id_A_text").keyup(function() {
-  $("#id_B_text").val("{{ topic }}");
-  $("#id_B").val({{ topic.id }});
-  });
-  $("#id_B_text").keyup(function() {
-  $("#id_A_text").val("{{ topic }}");
-  $("#id_A").val({{ topic.id }});
-  });
-  });
+ $(document).ready(function() {
+     $("#id_A_text").keyup(function() {
+	 $("#id_B_text").val("{{ topic }}");
+	 $("#id_B").val({{ topic.id }});
+     });
+     $("#id_B_text").keyup(function() {
+	 $("#id_A_text").val("{{ topic }}");
+	 $("#id_A").val({{ topic.id }});
+     });
+ });
 </script>
 
 <div class="card">
@@ -20,65 +20,65 @@
     <ul class="list-inline">
       <li class="list-inline-item"><h3>{{ topic }}</h3></li>
       {% if perms.scipost.can_manage_ontology %}
-      <li class="list-inline-item small">
-	<a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
-      </li>
+	<li class="list-inline-item small">
+	  <a href="{% url 'ontology:topic_update' slug=topic.slug %}">Update</a>
+	</li>
       {% endif %}
     </ul>
     {% if topic.tags.all %}
-    <ul class="list list-inline mb-0">
-      <li class="list-inline-item"><strong>Tags</strong>:</li>
-      {% for tag in topic.tags.all %}
-      <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
-      {% endfor %}
-      {% if perms.scipost.can_manage_ontology %}
-      <li class="list-inline-item pull-right">
-	<form class="form-inline" action="{% url 'ontology:topic_add_tag' slug=topic.slug %}" method="post">
-	  <ul class="list-inline">
-	    <li class="list-inline-item">{% csrf_token %}{{ select_tag_form }}</li>
-	    <li class="list-inline-item"><input type="submit" class="form-control btn btn-outline-secondary" value="Add Tag"/></li>
-	  </ul>
-	</form>
-      </li>
-      {% endif %}
-    </ul>
+      <ul class="list list-inline mb-0">
+	<li class="list-inline-item"><strong>Tags</strong>:</li>
+	{% for tag in topic.tags.all %}
+	  <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+	{% endfor %}
+	{% if perms.scipost.can_manage_ontology %}
+	  <li class="list-inline-item pull-right">
+	    <form class="form-inline" action="{% url 'ontology:topic_add_tag' slug=topic.slug %}" method="post">
+	      <ul class="list-inline">
+		<li class="list-inline-item">{% csrf_token %}{{ select_tag_form }}</li>
+		<li class="list-inline-item"><input type="submit" class="form-control btn btn-outline-secondary" value="Add Tag"/></li>
+	      </ul>
+	    </form>
+	  </li>
+	{% endif %}
+      </ul>
     {% endif %}
   </div>
 
   <div class="card-body">
     {% if relations_asym or topic.relationsym_set.all or perms.scipost.can_manage_ontology %}
-    <h4>Relations to other Topics</h4>
-    <div class="row mb-0">
-      <div class="col-6">
-	<h5>asymmetric:</h5>
-	<ul>
-	  {% for rel in relations_asym %}
-	  <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} <em>{{ rel.get_relation_display }}</em> {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %} {% if perms.scipost.can_manage_ontology %}<a href="{% url 'ontology:delete_relation_asym' relation_id=rel.id slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
-	  {% empty %}
-	  <li>No relations have been defined</li>
-	  {% endfor %}
-	</ul>
-	{% if perms.scipost.can_manage_ontology %}
-	<h5>Add an asymmetric relation:</h5>
-	<form action = "{% url 'ontology:add_relation_asym' slug=topic.slug %}" method="post">
-	  {% csrf_token %}
-	  {{ add_relation_asym_form }}
-	  <input type="submit" class="btn btn-outline-secondary" value="Add"/>
-	</form>
-	{% endif %}
+      <h4>Relations to other Topics</h4>
+      <div class="row mb-0">
+	<div class="col-6">
+	  <h5>asymmetric:</h5>
+	  <ul>
+	    {% for rel in relations_asym %}
+	      <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} <em>{{ rel.get_relation_display }}</em> {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %} {% if perms.scipost.can_manage_ontology %}<a href="{% url 'ontology:delete_relation_asym' relation_id=rel.id slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+	    {% empty %}
+	      <li>No relations have been defined</li>
+	    {% endfor %}
+	  </ul>
+	  {% if perms.scipost.can_manage_ontology %}
+	    <h5>Add an asymmetric relation:</h5>
+	    <form action = "{% url 'ontology:add_relation_asym' slug=topic.slug %}" method="post">
+	      {% csrf_token %}
+	      {{ add_relation_asym_form }}
+	      <input type="submit" class="btn btn-outline-secondary" value="Add"/>
+	    </form>
+	  {% endif %}
+	</div>
+	<div class="col-6">
+	  <h5>symmetric:</h5>
+	  <ul>
+	    {% for rel in topic.relationsym_set.all %}
+	      <li>{% for reltopic in rel.topics.all %}{% if reltopic != topic %}<a href="{% url 'ontology:topic_details' slug=reltopic.slug %}">{{ reltopic }}</a>{% else %}{{ reltopic }}{% endif %}, {% endfor %} <em>{{ rel.get_relation_display }}</em></li>
+	    {% empty %}
+	      <li>No symmetric relations have been defined</li>
+	    {% endfor %}
+	  </ul>
+	</div>
       </div>
-      <div class="col-6">
-	<h5>symmetric:</h5>
-	<ul>
-	  {% for rel in topic.relationsym_set.all %}
-	  <li>{% for reltopic in rel.topics.all %}{% if reltopic != topic %}<a href="{% url 'ontology:topic_details' slug=reltopic.slug %}">{{ reltopic }}</a>{% else %}{{ reltopic }}{% endif %}, {% endfor %} <em>{{ rel.get_relation_display }}</em></li>
-	  {% empty %}
-	  <li>No symmetric relations have been defined</li>
-	  {% endfor %}
-	</ul>
-      </div>
-    </div>
-    <hr/>
+      <hr/>
     {% endif %}
     <div class="card-columns">
       <div class="card">
@@ -88,13 +88,13 @@
 	<div class="card-body">
 	  <ul>
 	    {% for pub in topic.publications.all %}
-	    <li>
-              <a href="{{ pub.get_absolute_url }}">{{ pub.title }}</a>
-              <br>by {{ pub.author_list }},
-              <br>{{ pub.citation }}
-	    </li>
+	      <li>
+		<a href="{{ pub.get_absolute_url }}">{{ pub.title }}</a>
+		<br>by {{ pub.author_list }},
+		<br>{{ pub.citation }}
+	      </li>
 	    {% empty %}
-	    <li>No Publication found</li>
+	      <li>No Publication found</li>
 	    {% endfor %}
 	  </ul>
 	</div>
@@ -106,13 +106,13 @@
 	<div class="card-body">
 	  <ul>
 	    {% for sub in topic.submission_set.public_newest.unpublished %}
-    	    <li>
-    	      <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
-    	      <br>by {{ sub.author_list }}
-    	      <br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.submitted_to }})
-    	    </li>
+    	      <li>
+    		<a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
+    		<br>by {{ sub.author_list }}
+    		<br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.submitted_to }})
+    	      </li>
 	    {% empty %}
-	    <li>No Submission found</li>
+	      <li>No Submission found</li>
 	    {% endfor %}
 	  </ul>
 	</div>
@@ -125,13 +125,13 @@
 	  <ul>
 	    {% get_profiles topic.slug as profiles %}
 	    {% for profile in profiles %}
-	    {% if profile.contributor %}
-	    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-	    {% else %}
-	    <li>{{ profile }}</li>
-	    {% endif %}
+	      {% if profile.contributor %}
+		<li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+	      {% else %}
+		<li>{{ profile }}</li>
+	      {% endif %}
 	    {% empty %}
-	    <li>No Profile found</li>
+	      <li>No Profile found</li>
 	    {% endfor %}
 	  </ul>
 	</div>

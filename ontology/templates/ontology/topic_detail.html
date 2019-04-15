@@ -3,22 +3,22 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-<span class="breadcrumb-item"><a href="{% url 'ontology:topics' %}">Topics</a></span>
-<span class="breadcrumb-item">{{ topic }}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'ontology:topics' %}">Topics</a></span>
+  <span class="breadcrumb-item">{{ topic }}</span>
 {% endblock %}
 
 {% block pagetitle %}: Topic details{% endblock pagetitle %}
 
 {% block content %}
-<div class="row">
-  <div class="col-12">
-    {% include 'ontology/_topic_card.html' with topic=topic select_tag_form=select_tag_form %}
+  <div class="row">
+    <div class="col-12">
+      {% include 'ontology/_topic_card.html' with topic=topic select_tag_form=select_tag_form %}
+    </div>
   </div>
-</div>
 {% endblock content %}
 
 {% block footer_script %}
-{{ block.super }}
-{{ select_tag_form.media }}
+  {{ block.super }}
+  {{ select_tag_form.media }}
 {% endblock footer_script %}
