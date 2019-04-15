@@ -6,121 +6,121 @@
 {% load bootstrap %}
 
 {% block headsup %}
-<script type="text/javascript">
-$(document).ready(function($) {
-    $(".table-row").click(function() {
-        window.document.location = $(this).data("href");
-    });
-});
-</script>
+  <script type="text/javascript">
+   $(document).ready(function($) {
+       $(".table-row").click(function() {
+           window.document.location = $(this).data("href");
+       });
+   });
+  </script>
 {% endblock headsup %}
 
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <span class="breadcrumb-item">Subsidies</span>
+  {{ block.super }}
+  <span class="breadcrumb-item">Subsidies</span>
 {% endblock %}
 
 {% block content %}
 
-<div class="row">
-  <div class="col-12">
-    <h1 class="highlight">Subsidies</h1>
-        {% if perms.scipost.can_manage_subsidies %}
-    <ul>
-      <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
-    </ul>
-    {% endif %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Subsidies</h1>
+      {% if perms.scipost.can_manage_subsidies %}
+	<ul>
+	  <li><a href="{% url 'finances:subsidy_create' %}">Add a Subsidy</a></li>
+	</ul>
+      {% endif %}
+    </div>
   </div>
-</div>
 
-<div class="row">
-  <div class="col-12">
-    <table class="table table-hover mb-5">
-      <thead class="thead-default">
-	<tr>
-	  <th>From Organization</th>
-	  <th>Type</th>
-	  <th>Amount
-	    {% if request.GET.ordering != 'asc' %}
-	    <a href="?order_by=amount&ordering=asc"><i class="fa fa-sort-asc"></i></a>
-	    {% else %}
-	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-hover mb-5">
+	<thead class="thead-default">
+	  <tr>
+	    <th>From Organization</th>
+	    <th>Type</th>
+	    <th>Amount
+	      {% if request.GET.ordering != 'asc' %}
+		<a href="?order_by=amount&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+	      {% endif %}
+	      {% if request.GET.ordering != 'desc' %}
+		<a href="?order_by=amount&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	      {% endif %}
+	    </th>
+	    {% if perms.scipost.can_manage_subsidies %}
+	      <th>Status</th>
+	      <th><span class="small" style="writing-mode: vertical-lr;">attachments?</span></th>
 	    {% endif %}
-	    {% if request.GET.ordering != 'desc' %}
-	    <a href="?order_by=amount&ordering=desc"><i class="fa fa-sort-desc"></i></a>
-	    {% else %}
-	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	    <th>From date
+	      {% if request.GET.ordering != 'asc' %}
+		<a href="?order_by=date&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+	      {% endif %}
+	      {% if request.GET.ordering != 'desc' %}
+		<a href="?order_by=date&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	      {% endif %}
+	    </th>
+	    <th>Until
+	      {% if request.GET.ordering != 'asc' %}
+		<a href="?order_by=until&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+	      {% endif %}
+	      {% if request.GET.ordering != 'desc' %}
+		<a href="?order_by=until&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+	      {% else %}
+		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+	      {% endif %}
+	    </th>
+	    {% if perms.scipost.can_manage_subsidies %}
+	      <th><span class="small" style="writing-mode: vertical-lr;">Renewable?</span></th>
+	      <th><span class="small" style="writing-mode: vertical-lr;">Renewed?</span></th>
+	      <th>Renewal<br/>action date</th>
 	    {% endif %}
-	  </th>
-	  {% if perms.scipost.can_manage_subsidies %}
-	  <th>Status</th>
-	  <th><span class="small" style="writing-mode: vertical-lr;">attachments?</span></th>
-	  {% endif %}
-	  <th>From date
-	    {% if request.GET.ordering != 'asc' %}
-	    <a href="?order_by=date&ordering=asc"><i class="fa fa-sort-asc"></i></a>
-	    {% else %}
-	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
-	    {% endif %}
-	    {% if request.GET.ordering != 'desc' %}
-	    <a href="?order_by=date&ordering=desc"><i class="fa fa-sort-desc"></i></a>
-	    {% else %}
-	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
-	    {% endif %}
-	  </th>
-	  <th>Until
-	    {% if request.GET.ordering != 'asc' %}
-	    <a href="?order_by=until&ordering=asc"><i class="fa fa-sort-asc"></i></a>
-	    {% else %}
-	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
-	    {% endif %}
-	    {% if request.GET.ordering != 'desc' %}
-	    <a href="?order_by=until&ordering=desc"><i class="fa fa-sort-desc"></i></a>
-	    {% else %}
-	    <a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
-	    {% endif %}
-	  </th>
-	  {% if perms.scipost.can_manage_subsidies %}
-	  <th><span class="small" style="writing-mode: vertical-lr;">Renewable?</span></th>
-	  <th><span class="small" style="writing-mode: vertical-lr;">Renewed?</span></th>
-	  <th>Renewal<br/>action date</th>
-	  {% endif %}
-	</tr>
-      </thead>
-      <tbody>
-	{% for subsidy in object_list %}
-	<tr>
-	  <td><a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></td>
-	  <td><a href="{{ subsidy.get_absolute_url }}">{{ subsidy.get_subsidy_type_display }}</a>
-	    {% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li><a href="{{ prevsub.get_absolute_url }}">{{ prevsub }}</a></li>{% endfor %}</ul></span>{% endif %}
-	    {% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li><a href="{{ newsub.get_absolute_url }}">{{ newsub }}</a></li>{% endfor %}</ul></span>{% endif %}	  </td>
-	  <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
-	  {% if perms.scipost.can_manage_subsidies %}
-	  <td>{{ subsidy.get_status_display }}</td>
-	  <td>{% if subsidy.attachments.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
-	  {% endif %}
-	  <td>{{ subsidy.date }}</td>
-	  <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
-	  {% if perms.scipost.can_manage_subsidies %}
-	  <td>
-	    {% if subsidy.renewable == True %}<i class="fa fa-check-circle text-success"></i>{% elif subsidy.renewable == False %}<i class="fa fa-times-circle text-danger"></i>{% else %}<i class="fa fa-question-circle text-warning"></i>{% endif %}
-	  </td>
-	  <td>
-	    {% if subsidy.renewed_by.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}
-	  </td>
-	  <td class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</td>
-	  {% endif %}
-	</tr>
-	{% empty %}
-	<tr>
-	  <td colspan="5">No Subsidy found</td>
-	</tr>
-	{% endfor %}
-      </tbody>
-    </table>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for subsidy in object_list %}
+	    <tr>
+	      <td><a href="{{ subsidy.organization.get_absolute_url }}">{{ subsidy.organization }}</a></td>
+	      <td><a href="{{ subsidy.get_absolute_url }}">{{ subsidy.get_subsidy_type_display }}</a>
+		{% if subsidy.renewal_of.all|length > 0 %}<br/><span class="small text-muted">Renewal of:<ul class="list-unstyled">{% for prevsub in subsidy.renewal_of.all %}<li><a href="{{ prevsub.get_absolute_url }}">{{ prevsub }}</a></li>{% endfor %}</ul></span>{% endif %}
+		{% if subsidy.renewed_by.all|length > 0 %}<br/><span class="small text-muted">Renewed by:<ul class="list-unstyled">{% for newsub in subsidy.renewed_by.all %}<li><a href="{{ newsub.get_absolute_url }}">{{ newsub }}</a></li>{% endfor %}</ul></span>{% endif %}	  </td>
+	      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
+	      {% if perms.scipost.can_manage_subsidies %}
+		<td>{{ subsidy.get_status_display }}</td>
+		<td>{% if subsidy.attachments.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	      {% endif %}
+	      <td>{{ subsidy.date }}</td>
+	      <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
+	      {% if perms.scipost.can_manage_subsidies %}
+		<td>
+		  {% if subsidy.renewable == True %}<i class="fa fa-check-circle text-success"></i>{% elif subsidy.renewable == False %}<i class="fa fa-times-circle text-danger"></i>{% else %}<i class="fa fa-question-circle text-warning"></i>{% endif %}
+		</td>
+		<td>
+		  {% if subsidy.renewed_by.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}
+		</td>
+		<td class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</td>
+	      {% endif %}
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td colspan="5">No Subsidy found</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
 
+    </div>
   </div>
-</div>
 
 {% endblock content %}

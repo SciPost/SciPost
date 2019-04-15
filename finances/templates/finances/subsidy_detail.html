@@ -5,15 +5,15 @@
 {% block pagetitle %}: Subsidy details{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-{{ block.super }}
-<span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
-<span class="breadcrumb-item">{{ subsidy }}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'finances:subsidies' %}">Subsidies</a></span>
+  <span class="breadcrumb-item">{{ subsidy }}</span>
 {% endblock %}
 
 
 {% block content %}
 
-    <h1 class="highlight">Subsidy details</h1>
-    {% include 'partials/finances/subsidy_details.html' with subsidy=subsidy %}
+  <h1 class="highlight">Subsidy details</h1>
+  {% include 'partials/finances/subsidy_details.html' with subsidy=subsidy %}
 
 {% endblock content %}

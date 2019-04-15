@@ -1,9 +1,9 @@
 {% extends 'finances/base.html' %}
 
 {% block breadcrumb_items %}
-    {{ block.super }}
-    <a href="{% url 'finances:timesheets' %}" class="breadcrumb-item">Team timesheets</a>
-    <span class="breadcrumb-item">Detailed timesheets</span>
+  {{ block.super }}
+  <a href="{% url 'finances:timesheets' %}" class="breadcrumb-item">Team timesheets</a>
+  <span class="breadcrumb-item">Detailed timesheets</span>
 {% endblock %}
 
 {% block pagetitle %}: Team timesheets{% endblock pagetitle %}
@@ -13,68 +13,68 @@
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        <h1 class="highlight">Detailed timesheets</h1>
+      <h1 class="highlight">Detailed timesheets</h1>
+      <br>
+
+      <form method="get">
+        {{form.employee|bootstrap }}
+
+        <label>Date from</label>
+        <div class="form-row">
+          {{ form.start }}
+        </div>
+
+        <label>Date until</label>
+        <div class="form-row">
+          {{ form.end }}
+        </div>
         <br>
 
-        <form method="get">
-            {{form.employee|bootstrap }}
-
-            <label>Date from</label>
-            <div class="form-row">
-                {{ form.start }}
-            </div>
-
-            <label>Date until</label>
-            <div class="form-row">
-                {{ form.end }}
-            </div>
-            <br>
-
-            <input type="submit" class="btn btn-primary" value="Filter">
-        </form>
+        <input type="submit" class="btn btn-primary" value="Filter">
+      </form>
     </div>
-</div>
+  </div>
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
-        {% if form.is_bound and form.is_valid %}
-            <h2 class="mb-2 mt-4">Team timesheets</h2>
-            {% for user_log in form.filter %}
-                <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
-                <table class="table table-hover">
-                    <thead class="thead-default">
-                      <tr>
-                          <th>Date</th>
-                          <th>Related to object</th>
-                          <th>Log type</th>
-                          <th>Comments</th>
-                          <th>Duration</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                        {% for log in user_log.logs %}
-                            <tr>
-                                <td>{{ log.work_date }}</td>
-                                <td>{{ log.content }}</td>
-                                <td>{{ log.log_type }}</td>
-                                <td>{{ log.comments }}</td>
-                                <td>{{ log.duration|duration }}</td>
-                            </tr>
-                        {% endfor %}
-                        <tr>
-                            <td colspan="4" class="text-right">Total:</td>
-                            <td><strong>{{ user_log.duration.total|duration }}</strong></td>
-                        </tr>
-                    </tbody>
-                </table>
-            {% empty %}
-                <p>No logs found.</p>
-            {% endfor %}
-        {% else %}
-            <p class="text-danger">First submit the filter form to retrieve results.</p>
-        {% endif %}
+      {% if form.is_bound and form.is_valid %}
+        <h2 class="mb-2 mt-4">Team timesheets</h2>
+        {% for user_log in form.filter %}
+          <h4 class="mb-1">{{ user_log.user.first_name }} {{ user_log.user.last_name }}</h4>
+          <table class="table table-hover">
+            <thead class="thead-default">
+              <tr>
+                <th>Date</th>
+                <th>Related to object</th>
+                <th>Log type</th>
+                <th>Comments</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in user_log.logs %}
+                <tr>
+                  <td>{{ log.work_date }}</td>
+                  <td>{{ log.content }}</td>
+                  <td>{{ log.log_type }}</td>
+                  <td>{{ log.comments }}</td>
+                  <td>{{ log.duration|duration }}</td>
+                </tr>
+              {% endfor %}
+              <tr>
+                <td colspan="4" class="text-right">Total:</td>
+                <td><strong>{{ user_log.duration.total|duration }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        {% empty %}
+          <p>No logs found.</p>
+        {% endfor %}
+      {% else %}
+        <p class="text-danger">First submit the filter form to retrieve results.</p>
+      {% endif %}
     </div>
-</div>
+  </div>
 {% endblock %}
