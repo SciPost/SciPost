@@ -820,6 +820,8 @@ class WithdrawSubmissionForm(forms.Form):
             self.submission.refresh_from_db()
         return self.submission
 
+
+
 ######################
 # Editorial workflow #
 ######################
