@@ -21,6 +21,7 @@ from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
 from scipost.forms import SearchTextForm
 
+from common.utils import Q_with_alternative_spellings
 from invitations.models import RegistrationInvitation
 from submissions.models import RefereeInvitation
 
@@ -222,7 +223,9 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         elif self.request.GET.get('contributor') == 'True':
             queryset = queryset.filter(contributor__isnull=False)
         if self.request.GET.get('text'):
-            queryset = queryset.filter(last_name__istartswith=self.request.GET['text'])
+            query = Q_with_alternative_spellings(
+                last_name__istartswith=self.request.GET['text'])
+            queryset = queryset.filter(query)
         return queryset
 
     def get_context_data(self, **kwargs):

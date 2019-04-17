@@ -30,6 +30,7 @@ from .models import (
 from .signals import notify_manuscript_accepted
 
 from colleges.models import Fellowship
+from common.utils import Q_with_alternative_spellings
 from journals.models import Journal
 from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from mails.utils import DirectMailUtil
@@ -950,7 +951,9 @@ class RefereeSearchForm(forms.Form):
         'placeholder': 'Search for a referee in the SciPost Profiles database'}))
 
     def search(self):
-        return Profile.objects.filter(last_name__icontains=self.cleaned_data['last_name'])
+        query = Q_with_alternative_spellings(
+            last_name__icontains=self.cleaned_data['last_name'])
+        return Profile.objects.filter(query)
         # return Profile.objects.annotate(
         #     similarity=TrigramSimilarity('last_name', self.cleaned_data['last_name']),
         # ).filter(similarity__gt=0.3).order_by('-similarity')

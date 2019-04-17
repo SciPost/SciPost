@@ -3,8 +3,64 @@ __license__ = "AGPL v3"
 
 
 from datetime import timedelta
+
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import Q
 from django.template import loader
+
+from .constants import CHARACTER_ALTERNATIVES
+
+
+def alternative_spellings(text):
+    """
+    From a string, return a list with alternative spellings.
+
+    Text searches can be run with accents stripped away.
+    This is however insufficient if character sequences are interpreted
+    as accented characters.
+
+    This method provides a set of alternative spellings based on
+    beyond-ignoring-accents substitutions.
+
+    The substitutions which are handled are:
+    - ae to/from ä (also capitalized)
+    - oe to/from ö (also capitalized)
+    - ue to/from ü (also capitalized)
+
+    Limitations:
+    - each substitution in the substitutions dictionary is applied to
+      the whole of the text string (so this does not cover cases where
+      a text string has inconsistent spelling mixing the different alternatives)
+    """
+    alternatives = set()
+    for key, val in CHARACTER_ALTERNATIVES.items():
+        alternatives.add(text.replace(key, val))
+    return alternatives.difference((text,))
+
+
+def Q_with_alternative_spellings(**lookup_dict):
+    """
+    Dress an existing Q query with alternative spellings.
+
+    Keyword parameters:
+    - lookup_dict: a single-entry dict giving the query
+
+    Conditions:
+    - lookup_dict contains a single entry
+    - the to-be-match item must be of string type
+    """
+    if not len(lookup_dict) == 1:
+        raise TypeError
+    query = Q(**lookup_dict)
+    query.connector = 'OR'
+    lookup = query.children[0][0]
+    text = query.children[0][1]
+    if not isinstance(text, str):
+        raise TypeError(text)
+    alts = alternative_spellings(text)
+    for alt in alts:
+        query.children.append((lookup, alt))
+    return query
 
 
 def hslColorWheel(N=10, index=0, saturation=50, lightness=50):
