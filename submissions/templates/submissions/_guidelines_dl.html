@@ -8,6 +8,10 @@
 	<dt class="col-sm-6 col-md-5">Page</dt>
 	<dd class="col-sm-6 col-md-7"><em>... where you will find info on:</em></dd>
 	<dt class="col-sm-6 col-md-5">
+	  {% if 'colleges' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  <a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></dt>
+	<dd class="col-sm-6 col-md-7"><em>Our Colleges and their Editorial Fellows</em></dd>
+	<dt class="col-sm-6 col-md-5">
 	  {% if 'by-laws' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
 	  <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a></dt>
 	<dd class="col-sm-6 col-md-7"><em>Official rules for all our editorial workflows</em></dd>

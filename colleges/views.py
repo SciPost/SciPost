@@ -26,10 +26,29 @@ from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubm
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
-from scipost.constants import SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 
 from mails.views import MailView
+
+
+class EditorialCollegesView(ListView):
+    model = Fellowship
+    template_name = 'colleges/colleges.html'
+
+    def get_queryset(self):
+        queryset = Fellowship.objects.none()
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['disciplines'] = {}
+        for discipline in SCIPOST_DISCIPLINES:
+            qs = Fellowship.objects.active().regular().filter(
+                contributor__profile__discipline=discipline[0])
+            if qs:
+                context['disciplines'][discipline[1]] = (qs, subject_areas_raw_dict[discipline[1]])
+        return context
 
 
 class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):

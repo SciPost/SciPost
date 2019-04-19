@@ -181,53 +181,17 @@
   </div>
 
   <hr>
-
-  {% for discipline,fellowships in disciplines.items %}
-    <h2 class="highlight" id="editorial_college_{{ discipline|lower }}">Editorial College ({{ discipline }})</h2>
-
-    <div class="row">
-      <div class="col-12">
-        <a href="#editorial_college_{{ discipline|lower }}" class="mx-2" data-toggle="toggle-show" data-target="#specializations-{{discipline|lower}}">Show Fellows by specialization</a>
-        <a href="#editorial_college_{{ discipline|lower }}" class="mx-2" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{discipline|lower}}">Show full list of Fellows</a>
-        <div id="specializations-{{ discipline|lower }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
-          <div class="card-body">
-            <p class="text-muted mt-2">Hover to highlight or click to select</p>
-
-            <div class="row">
-              <div class="col-md-6">
-                {% with total_count=fellowships.1|length %}
-                  {% for code in fellowships.1 %}
-                    <div class="specialization" data-specialization="{{code.0|lower}}">{{code.0}} - {{code.1}}</div>
-                    {% if forloop.counter|is_modulo_one_half:total_count %}
-              </div>
-              <div class="col-md-6">
-                    {% endif %}
-                  {% endfor %}
-                {% endwith %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+  <div class="row">
+    <div class="col">
+      <h2 class="highlight" id="editorial_colleges">Editorial Colleges</h2>
+      <p>
+	Please visit our <a href="{% url 'colleges:colleges' %}">Editorial Colleges page</a>
+	to view the list of our current Editorial Fellows in all our fields of activity.
+      </p>
+      <p id="editorial_college_physics">
+	Direct links to <a href="{% url 'colleges:colleges' %}#editorial_college_physics">Physics</a>.
+      </p>
     </div>
-
-    <div class="row search-contributors" data-contributors="{{ discipline|lower }}">
-      <div class="col-12">
-        <div class="card-columns">
-          {% for fellowship in fellowships.0 %}
-            <div class="card bg-white contributor mb-1">
-              {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-  {% endfor %}
+  </div>
 
 {% endblock content %}
-
-{% block footer_script %}
-  {{ block.super }}
-  <script src="{% static 'scipost/about.js' %}"></script>
-{% endblock %}

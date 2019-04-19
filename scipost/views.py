@@ -39,10 +39,10 @@ from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
 from .constants import (
-    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict,
+    SCIPOST_SUBJECT_AREAS,
     SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
 from .decorators import has_contributor, is_contributor_user
-from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim, EditorialCollege
+from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
     SciPostAuthenticationForm, UserAuthInfoForm, TOTPDeviceForm,
     UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
@@ -50,10 +50,9 @@ from .forms import (
     ContributorMergeForm,
     EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
 from .mixins import PermissionsMixin, PaginationMixin
-from .utils import Utils, EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
+from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_HTML
 
 from colleges.permissions import fellowship_or_admin_required
-from colleges.models import Fellowship
 from commentaries.models import Commentary
 from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
@@ -1369,25 +1368,6 @@ def Fellow_activity_overview(request):
         except Contributor.DoesNotExist:
             pass
     return render(request, 'scipost/Fellow_activity_overview.html', context)
-
-
-class AboutView(ListView):
-    """Basic information page with stream of current regular Fellows."""
-
-    model = EditorialCollege
-    template_name = 'scipost/about.html'
-    queryset = Fellowship.objects.none()
-
-    def get_context_data(self, *args, **kwargs):
-        """Save Fellowships per discipline to the context."""
-        context = super().get_context_data(*args, **kwargs)
-        context['disciplines'] = {}
-        for discipline in SCIPOST_DISCIPLINES:
-            qs = Fellowship.objects.active().regular().filter(
-                contributor__discipline=discipline[0])
-            if qs:
-                context['disciplines'][discipline[1]] = (qs, subject_areas_raw_dict[discipline[1]])
-        return context
 
 
 def csrf_failure(request, reason=''):

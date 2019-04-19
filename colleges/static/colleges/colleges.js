@@ -6,7 +6,7 @@ $(function() {
         el.toggle();
 
         // Switch texts of link
-        $('[href="' + $(this).attr('href') + '"]').toggle();
+	$('[data-toggle="toggle-show"]').toggle();
 
         // Reset active search after closing the box
         if(!el.is(':visible')) {

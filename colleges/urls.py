@@ -9,6 +9,12 @@ from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 from . import views
 
 urlpatterns = [
+    # Editorial Colleges: public view
+    url(
+        r'^$',
+        views.EditorialCollegesView.as_view(),
+        name='colleges'
+    ),
     # Fellowships
     url(
         r'^fellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',

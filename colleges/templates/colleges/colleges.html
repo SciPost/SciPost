@@ -1,0 +1,98 @@
+{% extends 'colleges/base.html' %}
+
+{% load staticfiles %}
+{% load scipost_extras %}
+{% load add_get_parameters %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></span>
+{% endblock %}
+
+{% block pagetitle %}: Fellowships{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-lg-5">
+      <h2 class="highlight">SciPost's Editorial Colleges</h2>
+      <p>
+	Below, you will find the composition of each of our Editorial Colleges,
+	one of which is formed for each field in which SciPost carries
+	out publishing activities.
+      </p>
+      <p>The Editorial College of a certain field, composed of a collection of Fellows, takes
+	end responsibility for editorial matters for all Journals operating in that field.
+	For interdisciplinary submissions, the services of Fellows from distinct Colleges can
+	be called upon during the evaluation process.
+      </p>
+    </div>
+    <div class="col-lg-7">
+      {% include 'submissions/_guidelines_dl.html' %}
+    </div>
+  </div>
+
+  <div class="accordion" id="accordionEditorialColleges">
+
+    {% for discipline,fellowships in disciplines.items %}
+      <div class="card">
+	<div class="card-header text-center" id="editorial_college_{{ discipline|lower }}">
+	  <h2 class="mb-0">
+	    {{ discipline }}<br/>
+	    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_editorial_college_{{ discipline|lower }}" aria-expanded="false" aria-controls="collapse_editorial_college_{{ discipline|lower }}">
+	      <small>Click to expand/collapse</small>
+	    </button>
+	  </h2>
+	</div>
+
+	<div id="collapse_editorial_college_{{ discipline|lower }}" class="collapse" aria-labelledby="editorial_college_{{ discipline|lower }}" data-parent="#accordionEditorialColleges">
+	  <div class="card-body">
+	    <div class="row">
+	      <div class="col-12">
+		<button class="btn" data-toggle="toggle-show" data-target="#specializations-{{ discipline|lower }}">Show Fellows by specialization</button>
+		<button class="btn" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{ discipline|lower }}">Show full list of Fellows in {{ discipline }}</button>
+		<div id="specializations-{{ discipline|lower }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
+		  <div class="card-body">
+		    <p><em class="text-muted mt-2">Hover to highlight or click to select</em></p>
+
+		    <div class="row">
+		      <div class="col-md-6">
+			{% with total_count=fellowships.1|length %}
+			  {% for code in fellowships.1 %}
+			    <div class="specialization" data-specialization="{{ code.0|lower }}">{{ code.0 }} - {{ code.1 }}</div>
+			    {% if forloop.counter|is_modulo_one_half:total_count %}
+		      </div>
+		      <div class="col-md-6">
+			    {% endif %}
+			  {% endfor %}
+			{% endwith %}
+		      </div>
+		    </div>
+		  </div>
+		</div>
+	      </div>
+	    </div>
+
+	    <div class="row search-contributors" data-contributors="{{ discipline|lower }}">
+	      <div class="col-12">
+		<div class="card-columns">
+		  {% for fellowship in fellowships.0 %}
+		    <div class="card bg-white contributor mb-1">
+		      {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
+		    </div>
+		  {% endfor %}
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    {% endfor %}
+  </div>
+
+{% endblock content %}
+
+{% block footer_script %}
+  {{ block.super }}
+  <script src="{% static 'colleges/colleges.js' %}"></script>
+{% endblock %}
