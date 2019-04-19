@@ -1,0 +1,85 @@
+{% extends 'colleges/base.html' %}
+
+{% load add_get_parameters %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Fellowships</span>
+{% endblock %}
+
+{% block pagetitle %}: Fellowships{% endblock pagetitle %}
+
+{% block content %}
+  <h1>Fellowships</h1>
+
+  <ul>
+    <li>
+      <a href="{% url 'colleges:fellowship_add' %}">Add new Fellowship</a>
+    </li>
+    <li>
+      View <a href="{% add_get_parameters type='all' %}">all</a>,
+      <a href="{% add_get_parameters type='regular' %}">only regular</a> or
+      <a href="{% add_get_parameters type='guest' %}">only guest</a> Fellows.
+    </li>
+  </ul>
+  <br>
+  <ul class="d-inline-block list-inline">
+    <li class="list-inline-item">
+      View by discipline/subject area:
+    </li>
+    {% for discipline in subject_areas %}
+      <li class="list-inline-item">
+        <div class="dropdown">
+          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
+	    <a class="dropdown-item" href="{% url 'colleges:fellowships' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+	    {% for area in discipline.1 %}
+              <a class="dropdown-item" href="{% url 'colleges:fellowships' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+	    {% endfor %}
+          </div>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+  {% if view.kwargs.discipline %}
+    <h3>Fellowships {% if view.kwargs.discipline %}in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}{% endif %}:</h3>
+    <br/>
+  {% endif %}
+  <table class="table mt-3">
+    <thead>
+      <tr>
+        <th>Fellow</th>
+	<th>Type</th>
+        <th>Discipline</th>
+        <th>Start date</th>
+        <th>End date</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fellow in object_list %}
+        <tr>
+          <td>{{ fellow.contributor }}</td>
+	  <td>{% if fellow.guest %}<span class="text-warning">Guest Fellow</span>{% else %}<span class="text-success">Regular Fellow</span>{% endif %}</td>
+          <td>{{ fellow.contributor.get_discipline_display }}</td>
+          <td>{{ fellow.start_date|default:'<i>No start date</i>' }}</td>
+          <td>{{ fellow.until_date|default:'<i>No end date</i>' }}</td>
+          <td>
+            <a href="{{ fellow.get_absolute_url }}">View Fellowship details</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td class="text-danger py-2" colspan="4">No fellowships found</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    <div class="col-12">
+      {% include 'partials/pagination.html' with page_obj=page_obj %}
+    </div>
+  {% endif %}
+
+{% endblock %}

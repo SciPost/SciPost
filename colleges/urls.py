@@ -10,7 +10,21 @@ from . import views
 
 urlpatterns = [
     # Fellowships
-    url(r'^fellowships/$', views.fellowships, name='fellowships'),
+    url(
+        r'^fellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+        views.FellowshipListView.as_view(),
+        name='fellowships'
+    ),
+    url(
+        r'^fellowships/(?P<discipline>[a-zA-Z]+)/$',
+        views.FellowshipListView.as_view(),
+        name='fellowships'
+    ),
+    url(
+        r'^fellowships/$',
+        views.FellowshipListView.as_view(),
+        name='fellowships'
+    ),
     url(r'^fellowships/add$', views.fellowship_add, name='fellowship_add'),
     url(r'^fellowships/(?P<id>[0-9]+)/$', views.fellowship_detail, name='fellowship'),
     url(r'^fellowships/(?P<id>[0-9]+)/edit$', views.fellowship_edit, name='fellowship_edit'),

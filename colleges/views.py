@@ -32,16 +32,36 @@ from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from mails.views import MailView
 
 
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowships(request):
-    """List all fellowships to be able to edit them, or create new ones."""
-    fellowships = Fellowship.objects.active()
+class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
+    """
+    List Fellowship instances (accessible to College managers).
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = Fellowship
+    paginate_by = 25
 
-    context = {
-        'fellowships': fellowships
-    }
-    return render(request, 'colleges/fellowships.html', context)
+    def get_queryset(self):
+        """
+        Return a queryset of Fellowships filtered by optional GET data.
+        """
+        queryset = Fellowship.objects.all()
+        if self.kwargs.get('discipline', None):
+            queryset = queryset.filter(
+                contributor__profile__discipline=self.kwargs['discipline'].lower())
+            if self.kwargs.get('expertise', None):
+                queryset = queryset.filter(
+                    contributor__profile__expertises__contains=[self.kwargs['expertise']])
+        if self.request.GET.get('type', None):
+            if self.request.GET.get('type') == 'regular':
+                queryset = queryset.filter(guest=False)
+            elif self.request.GET.get('type') == 'guest':
+                queryset = queryset.filter(guest=True)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
+        return context
 
 
 @login_required
