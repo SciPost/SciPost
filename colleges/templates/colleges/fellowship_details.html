@@ -10,7 +10,7 @@
 {% block pagetitle %}: Fellowship details{% endblock pagetitle %}
 
 {% block content %}
-  <h1>Fellowship details</h1>
+  <h1 class="highlight">Fellowship details</h1>
   <h2 class="text-primary">{{ fellowship }}</h2>
   <br>
 
@@ -124,7 +124,47 @@
     </table>
   {% endif %}
 
-  <h3>Pool for this Fellowship</h3>
+  <h3 class="highlight">Assignments</h3>
+  <div class="row">
+    <div class="col-12">
+      <h4>Ongoing:</h4>
+    </div>
+    <div class="col-12">
+      <ul class="list-group list-group-flush">
+        {% for assignment in fellowship.contributor.editorial_assignments.ongoing %}
+          <li class="list-group-item">
+            <div class="card-body px-0">
+              {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
+              {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No ongoing assignments</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="col-12 mt-4">
+      <h4>Completed</h4>
+    </div>
+
+    <div class="col-12">
+      <ul class="list-group list-group-flush">
+        {% for assignment in fellowship.contributor.editorial_assignments.completed %}
+          <li class="list-group-item">
+            <div class="card-body px-0">
+              {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
+              {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
+            </div>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No completed assignments</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="highlight">Pool for this Fellowship</h3>
   <table class="table table-hover">
     <thead>
       <tr>

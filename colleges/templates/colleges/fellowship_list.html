@@ -31,13 +31,13 @@
       View by discipline/subject area:
     </li>
     {% for discipline in subject_areas %}
-      <li class="list-inline-item">
+      <li class="list-inline-item m-0">
         <div class="dropdown">
-          <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
+          <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ discipline.0 }}</small></button>
           <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-	    <a class="dropdown-item" href="{% url 'colleges:fellowships' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
+	    <a class="dropdown-item" href="{% url 'colleges:fellowships' discipline=discipline.0|cut:' ' %}"><small>View all in {{ discipline.0 }}</small></a>
 	    {% for area in discipline.1 %}
-              <a class="dropdown-item" href="{% url 'colleges:fellowships' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+              <a class="dropdown-item" href="{% url 'colleges:fellowships' discipline=discipline.0|cut:' ' expertise=area.0 %}"><small>{{ area.0 }}</small></a>
 	    {% endfor %}
           </div>
         </div>
