@@ -1,5 +1,6 @@
 {% extends 'colleges/base.html' %}
 
+{% load scipost_extras %}
 {% load add_get_parameters %}
 
 {% block breadcrumb_items %}
@@ -11,7 +12,8 @@
 {% block pagetitle %}: Fellowships{% endblock pagetitle %}
 
 {% block content %}
-  <h1>Fellowships</h1>
+
+  <h1 class="highlight">Fellowships</h1>
 
   <ul>
     <li>
@@ -43,31 +45,67 @@
     {% endfor %}
   </ul>
   {% if view.kwargs.discipline %}
-    <h3>Fellowships {% if view.kwargs.discipline %}in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}{% endif %}:</h3>
+    <h3>Fellowships {% if view.kwargs.discipline %}in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %} ({{ view.kwargs.expertise|get_specialization_display }}){% endif %}{% endif %}:</h3>
     <br/>
   {% endif %}
   <table class="table mt-3">
     <thead>
       <tr>
-        <th>Fellow</th>
-	<th>Type</th>
-        <th>Discipline</th>
-        <th>Start date</th>
-        <th>End date</th>
-        <th></th>
+        <th rowspan="2">Fellow<br/><span class="text-muted">[Click for details]</span></th>
+	<th rowspan="2">Type</th>
+        <th rowspan="2">Discipline<br/><span class="text-muted">expertises</span></th>
+        <th rowspan="2">Start&nbsp;date<br/>End&nbsp;date</th>
+        <th colspan="6">
+	  Assignments <small class="text-muted">[last year / total]</small>
+	</th>
+      </tr>
+      <tr>
+	<th><small>Ongoing</small></th>
+        <th><small>Requested</small></th>
+        <th><small>Accepted</small></th>
+        <th><small>Refused</small></th>
+        <th><small>Deprecated</small></th>
+        <th><small>Fulfilled</small></th>
       </tr>
     </thead>
     <tbody>
       {% for fellow in object_list %}
         <tr>
-          <td>{{ fellow.contributor }}</td>
+          <td><a href="{{ fellow.get_absolute_url }}">{{ fellow.contributor }}</a></td>
 	  <td>{% if fellow.guest %}<span class="text-warning">Guest Fellow</span>{% else %}<span class="text-success">Regular Fellow</span>{% endif %}</td>
-          <td>{{ fellow.contributor.get_discipline_display }}</td>
-          <td>{{ fellow.start_date|default:'<i>No start date</i>' }}</td>
-          <td>{{ fellow.until_date|default:'<i>No end date</i>' }}</td>
+          <td>{{ fellow.contributor.get_discipline_display }}
+	    <br/>
+	    {% for expertise in fellow.contributor.profile.expertises %}
+	      <div class="single d-inline text-muted" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
+	    {% endfor %}
+	  </td>
           <td>
-            <a href="{{ fellow.get_absolute_url }}">View Fellowship details</a>
+	    {{ fellow.start_date|default:'<i>No start date</i>' }}<br/>
+            {{ fellow.until_date|default:'<i>No end date</i>' }}
+	  </td>
+          <td>
+	    {{ fellow.contributor.editorial_assignments.ongoing.count }}
           </td>
+	  <td>
+	    {{ fellow.contributor.editorial_assignments.last_year.count }}&nbsp;/&nbsp;
+	    {{ fellow.contributor.editorial_assignments.count }}
+	  </td>
+	  <td>
+	    {{ fellow.contributor.editorial_assignments.last_year.accepted.count }}&nbsp;/&nbsp;
+	    {{ fellow.contributor.editorial_assignments.accepted.count }}
+	  </td>
+	  <td>
+	    {{ fellow.contributor.editorial_assignments.last_year.declined.count }}&nbsp;/&nbsp;
+	    {{ fellow.contributor.editorial_assignments.declined.count }}
+	  </td>
+	  <td>
+	    {{ fellow.contributor.editorial_assignments.last_year.deprecated.count }}&nbsp;/&nbsp;
+	    {{ fellow.contributor.editorial_assignments.deprecated.count }}
+	  </td>
+	  <td>
+	    {{ fellow.contributor.editorial_assignments.last_year.completed.count }}&nbsp;/&nbsp;
+	    {{ fellow.contributor.editorial_assignments.completed.count }}
+	  </td>
         </tr>
       {% empty %}
         <tr>

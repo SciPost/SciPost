@@ -1344,31 +1344,9 @@ def EdCol_bylaws(request):
     return render(request, 'scipost/EdCol_by-laws.html')
 
 
-@login_required
-@fellowship_or_admin_required()
-def Fellow_activity_overview(request):
-    fellows = (Contributor.objects.fellows()
-               .prefetch_related('editorial_assignments')
-               .order_by('user__last_name'))
-    context = {
-        'fellows': fellows
-    }
-
-    if request.GET.get('fellow'):
-        try:
-            fellow = fellows.get(pk=request.GET['fellow'])
-            context['fellow'] = fellow
-
-            context['assignments_ongoing'] = (fellow.editorial_assignments
-                                              .ongoing()
-                                              .get_for_user_in_pool(request.user))
-            context['assignments_completed'] = (fellow.editorial_assignments
-                                                .completed()
-                                                .get_for_user_in_pool(request.user))
-        except Contributor.DoesNotExist:
-            pass
-    return render(request, 'scipost/Fellow_activity_overview.html', context)
-
+#################
+# CSRF handling #
+#################
 
 def csrf_failure(request, reason=''):
     """CSRF Failure page with an admin mailing action."""

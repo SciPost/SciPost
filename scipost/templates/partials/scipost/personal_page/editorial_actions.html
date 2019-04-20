@@ -64,7 +64,7 @@
       <h3>Submissions assignments</h3>
       <ul>
         <li><a href="{% url 'submissions:assignments' %}">Your assignments</a></li>
-        <li><a href="{% url 'scipost:Fellow_activity_overview' %}">View assignments overview</a></li>
+        <li><a href="{% url 'colleges:fellowships' %}">Assignments overview</a></li>
 
         {% if perms.scipost.can_assign_submissions %}
           <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
@@ -94,7 +94,7 @@
       <ul>
 	<li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships: view{% if perms.scipost.can_manage_college_composition %} and manage{% endif %}</a></li>
 	{% if perms.scipost.can_manage_college_composition %}
-          <li><a href="{% url 'colleges:fellowships' %}">Manage Fellowships</a></li>
+          <li><a href="{% url 'colleges:fellowships' %}">Fellowships</a>: view list (with assignments)</li>
 	{% endif %}
       </ul>
     {% endif %}
