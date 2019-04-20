@@ -1,7 +1,8 @@
-{% extends 'submissions/admin/base.html' %}
+{% extends 'colleges/base.html' %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
   <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Fellowships</a>
   <span class="breadcrumb-item">Fellowship details</span>
 {% endblock %}

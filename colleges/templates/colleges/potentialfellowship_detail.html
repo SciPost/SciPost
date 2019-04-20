@@ -4,6 +4,8 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+  <a href="{% url 'colleges:potential_fellowships' %}" class="breadcrumb-item">Potential Fellowships</a>
   <span class="breadcrumb-item">Details</span>
 {% endblock %}
 

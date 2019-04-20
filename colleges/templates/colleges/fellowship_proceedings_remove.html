@@ -4,9 +4,10 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Active Fellowships</a>
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+  <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Fellowships</a>
   <a href="{{ fellowship.get_absolute_url }}" class="breadcrumb-item">Fellowship details</a>
-  <span class="breadcrumb-item">Remove Proceedings from Pool</span>
+  <span class="breadcrumb-item">Remove Proceedings from Fellow's Pool</span>
 {% endblock %}
 
 {% block pagetitle %}: Remove Proceedings from Fellowship{% endblock pagetitle %}

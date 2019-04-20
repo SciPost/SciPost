@@ -6,12 +6,22 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item"><a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></span>
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
 {% endblock %}
 
 {% block pagetitle %}: Fellowships{% endblock pagetitle %}
 
 {% block content %}
+
+  {% if perms.scipost.can_manage_college_composition %}
+    <div class="adminLinks">
+      <h3>Links for users with permission <em>scipost.can_manage_college_composition</em>:</h3>
+      <ul>
+	<li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a></li>
+	<li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
+      </ul>
+    </div>
+  {% endif %}
 
   <div class="row">
     <div class="col-lg-5">
@@ -37,20 +47,20 @@
     {% for discipline,fellowships in disciplines.items %}
       <div class="card">
 	<div class="card-header text-center" id="editorial_college_{{ discipline|lower }}">
-	  <h2 class="mb-0">
+	  <h1 class="mb-0">
 	    {{ discipline }}<br/>
 	    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_editorial_college_{{ discipline|lower }}" aria-expanded="false" aria-controls="collapse_editorial_college_{{ discipline|lower }}">
 	      <small>Click to expand/collapse</small>
 	    </button>
-	  </h2>
+	  </h1>
 	</div>
 
 	<div id="collapse_editorial_college_{{ discipline|lower }}" class="collapse" aria-labelledby="editorial_college_{{ discipline|lower }}" data-parent="#accordionEditorialColleges">
 	  <div class="card-body">
 	    <div class="row">
 	      <div class="col-12">
-		<button class="btn" data-toggle="toggle-show" data-target="#specializations-{{ discipline|lower }}">Show Fellows by specialization</button>
-		<button class="btn" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{ discipline|lower }}">Show full list of Fellows in {{ discipline }}</button>
+		<button class="btn btn-primary" data-toggle="toggle-show" data-target="#specializations-{{ discipline|lower }}">Select by specialization</button>
+		<button class="btn btn-primary" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{ discipline|lower }}">Show full list of Fellows in {{ discipline }}</button>
 		<div id="specializations-{{ discipline|lower }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
 		  <div class="card-body">
 		    <p><em class="text-muted mt-2">Hover to highlight or click to select</em></p>
