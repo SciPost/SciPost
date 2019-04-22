@@ -51,12 +51,12 @@
         </tbody>
       </table>
 
-      <form method="post" action="{% url 'colleges:fellowship_terminate' fellowship.id %}" class="d-inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Terminate Fellowship</button>
-      </form>
-      <a href="{% url 'colleges:fellowship_update' fellowship.id %}" class="btn btn-info ml-2">Update this Fellowship</a>
+      <p>
+	<a href="{% url 'colleges:fellowship_update' fellowship.id %}" class="btn btn-info ml-2">Update this Fellowship</a><br/>
+	<small>[hint: to terminate it, just set the <em>until_date</em> to today]</small>
+      </p>
     </div>
+
     <div class="col-md-6">
       <h3>All fellowships of this fellow</h3>
 

@@ -22,7 +22,7 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE,
     potential_fellowship_statuses_dict,
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
-from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
+from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
@@ -144,23 +144,6 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         return context
-
-
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_terminate(request, id):
-    """
-    Terminate Fellowship by setting the until_date to today's date.
-    """
-    fellowship = get_object_or_404(Fellowship, id=id)
-    form = FellowshipTerminateForm(request.POST or None, instance=fellowship)
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Fellowship terminated.')
-    else:
-        messages.warning(request, 'Fellowship has not been terminated, please try again.')
-    return redirect(fellowship.get_absolute_url())
 
 
 @login_required

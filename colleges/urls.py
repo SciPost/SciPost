@@ -44,8 +44,6 @@ urlpatterns = [
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
-    url(r'^fellowships/(?P<id>[0-9]+)/terminate$', views.fellowship_terminate,
-        name='fellowship_terminate'),
     url(r'^fellowships/submissions/{regex}/$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_pool,
         name='submission'),
