@@ -1,27 +1,16 @@
 <p>Dear {{ object.profile.get_title_display }} {{ object.profile.last_name }},</p>
 
-<p>Hopefully you've already come across <a href="https://scipost.org{% url 'scipost:index' %}">SciPost</a> and are aware of our mission to establish a community-based infrastructure for scientific publishing.</p>
+<p>Hopefully you've already come across <a href="https://scipost.org{% url 'scipost:index' %}">SciPost</a> and are aware of its mission to establish a healthier community-run, open and not-for-profit infrastructure for scientific publishing. If not, you can consult the <a href="https://scipost.org{% url 'scipost:about' %}">about page</a> for a quick introduction.</p>
 
-<p>On behalf of the SciPost Foundation and in view of your professional expertise and reputation, I hereby would like to invite you to join our Editorial College by becoming one of our Editorial Fellows.</p>
+<p>On behalf of the SciPost Foundation and in view of your professional expertise and reputation, I hereby would like to invite you to join the Editorial College ({{ object.profile.get_discipline_display }}) by becoming one of our Editorial Fellows.</p>
 
-<p>
-  Academic reputation is the most important criterion guiding our considerations of who should belong to the Editorial College. The current list of Fellows can be found at <a href="https://scipost.org{% url 'scipost:about' %}">scipost.org/about</a>; on this page, you will also find basic information on SciPost and its guiding principles.
-</p>
+<p>Academic reputation is the most important criterion guiding our considerations of who should belong to our Editorial Colleges. The current list of Colleges and their Fellows can be found at <a href="https://scipost.org{% url 'colleges:colleges' %}">this page</a>. Our ambition is none other than to assemble the most reputed editorial team of any publishing system available worldwide.</p>
 
-<p>
-  We do not pose any conditions on your involvement, and you will always remain in complete control of your level of commitment (a couple of hours per month would already be significant). Functioning of the College proceeds according to the by-laws set out at <a href="https://scipost.org{% url 'scipost:EdCol_by-laws' %}">scipost.org/EdCol_by-laws</a>, and a short summary of the editorial workflow can be found at <a href="https://scipost.org{% url 'submissions:editorial_workflow' %}">this page</a>.
-</p>
+<p>We do not pose any conditions on your involvement, and you will always remain in complete control of your level of commitment (a couple of hours per month would already be significant). Functioning of the Colleges proceeds according to the <a href="https://scipost.org{% url 'scipost:EdCol_by-laws' %}">by-laws</a>, and a short summary of the editorial workflow can be found at <a href="https://scipost.org{% url 'submissions:editorial_workflow' %}">this page</a>.</p>
 
-<p>
-  I would be very happy to provide you with more information should you require it. Could I beg you to give us a response (by replying to this email) within the next couple of weeks?
-</p>
+<p>I would be very happy to provide you with more information should you require it. Could I beg you to give us a response (by replying to this email) within the next couple of weeks?</p>
 
-<p>
-    Many thanks in advance,
-</p>
-<p>
-    Prof. J.-S. Caux,
-    on behalf of the SciPost Foundation
-</p>
+<p>Many thanks in advance,</p>
+<p>Prof. J.-S. Caux,<br/>on behalf of the SciPost Foundation</p>
 
 {% include 'email/_footer.html' %}
