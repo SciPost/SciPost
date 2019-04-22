@@ -1,0 +1,11 @@
+{
+    "subject": "Welcome to SciPost's Editorial College",
+    "recipient_list": [
+	"contributor.user.email"
+    ],
+    "bcc": [
+	"admin@scipost.org"
+    ],
+    "from_name": "SciPost Admin",
+    "from_email": "admin@scipost.org"
+}

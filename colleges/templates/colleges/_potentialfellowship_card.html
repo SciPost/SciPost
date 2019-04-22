@@ -38,7 +38,6 @@
 	    <li class="text-danger">N.B.: this potential Fellow is not yet registered as a Contributor</li>
 	  {% else %}
 	    <li>Accepted to serve as Fellow but not currently active in a College? <a href="{% url 'colleges:fellowship_create' contributor_id=potfel.profile.contributor.id %}">Set up a Fellowship</a></li>
-	    <li>Send Fellowship set up email</li>
 	  {% endif %}
 	</ul>
 

@@ -44,6 +44,13 @@ urlpatterns = [
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
+
+    url(
+        r'^fellowships/(?P<pk>[0-9]+)/email_start/$',
+        views.FellowshipStartEmailView.as_view(),
+        name='fellowship_email_start'
+    ),
+
     url(r'^fellowships/submissions/{regex}/$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_pool,
         name='submission'),

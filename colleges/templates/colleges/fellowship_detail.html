@@ -58,6 +58,13 @@
     </div>
 
     <div class="col-md-6">
+      <div class="adminLinks">
+	<h3>Admin actions</h3>
+	<ul>
+	  <li>After initial setup: <a href="{% url 'colleges:fellowship_email_start' pk=fellowship.id %}">send Fellowship start email</a></li>
+	</ul>
+      </div>
+
       <h3>All fellowships of this fellow</h3>
 
       <table class="table">

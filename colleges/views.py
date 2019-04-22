@@ -146,6 +146,16 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         return context
 
 
+class FellowshipStartEmailView(PermissionsMixin, MailView):
+    """
+    After setting up a new Fellowship, send an info email to the new Fellow.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    queryset = Fellowship.objects.all()
+    mail_code = 'fellows/email_fellow_fellowship_start'
+    success_url = reverse_lazy('colleges:fellowships')
+
+
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def submission_pool(request, identifier_w_vn_nr):
