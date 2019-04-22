@@ -52,7 +52,7 @@ class Fellowship(TimeStampedModel):
 
     def get_absolute_url(self):
         """Return the admin fellowship page."""
-        return reverse('colleges:fellowship', args=(self.id,))
+        return reverse('colleges:fellowship_detail', kwargs={'pk': self.id})
 
     def sibling_fellowships(self):
         """Return all Fellowships that are directly related to the Fellow of this Fellowship."""

@@ -32,7 +32,11 @@ urlpatterns = [
         name='fellowships'
     ),
     url(r'^fellowships/add$', views.fellowship_add, name='fellowship_add'),
-    url(r'^fellowships/(?P<id>[0-9]+)/$', views.fellowship_detail, name='fellowship'),
+    url(
+        r'^fellowships/(?P<pk>[0-9]+)/$',
+        views.FellowshipDetailView.as_view(),
+        name='fellowship_detail'
+    ),
     url(r'^fellowships/(?P<id>[0-9]+)/edit$', views.fellowship_edit, name='fellowship_edit'),
     url(r'^fellowships/(?P<id>[0-9]+)/terminate$', views.fellowship_terminate,
         name='fellowship_terminate'),
