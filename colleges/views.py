@@ -431,7 +431,8 @@ class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['pfstatus_form'] = PotentialFellowshipStatusForm()
+        context['pfstatus_form'] = PotentialFellowshipStatusForm(
+            initial={'status': self.object.status})
         context['pfevent_form'] = PotentialFellowshipEventForm()
         return context
 

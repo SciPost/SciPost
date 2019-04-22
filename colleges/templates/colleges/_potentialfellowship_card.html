@@ -1,6 +1,7 @@
 {% load bootstrap %}
 
 {% load scipost_extras %}
+{% load colleges_extras %}
 
 <div class="card-body">
   <div class="row">
@@ -38,22 +39,26 @@
       </div>
       <div class="col-md-6">
 	<h3>Update the status of this Potential Fellowship</h3>
+	<p>Current status: <span class="p-1" style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}</span></p>
 	<form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_update_status' pk=potfel.id %}" method="post">
 	  {% csrf_token %}
 	  {{ pfstatus_form|bootstrap }}
-	  <input type="submit" name="submit" value="Update status" class="btn btn-outline-secondary">
+	  <input type="submit" name="submit" value="Update status" class="btn btn-primary">
 	</form>
       </div>
     </div>
   {% endif %}
 
   {% if perms.scipost.can_manage_college_composition %}
+    <h3 class="highlight">Voting results</h3>
     <div class="row">
-      <div class="col-12">
-	<h3 class="highlight">Voting results</h3>
+      <div class="col-6">
 	<p>
-	  Voting Fellows' matching expertises are marked in <span class="bg-success">green</span>.
+	  Voting Fellows' matching expertises are marked in <span class="px-1 bg-success">green</span>.
 	</p>
+      </div>
+      <div class="col-6">
+	{% voting_results_display potfel %}
       </div>
     </div>
     <div class="row">
@@ -64,7 +69,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for expertise in fellow.profile.expertises %}
-		<div class="single d-inline{% if expertise in potfel.profile.expertises %} bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+		<div class="single d-inline{% if expertise in potfel.profile.expertises %} px-1 bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -80,7 +85,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for expertise in fellow.profile.expertises %}
-		<div class="single d-inline{% if expertise in potfel.profile.expertises %} bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+		<div class="single d-inline{% if expertise in potfel.profile.expertises %} px-1 bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -96,7 +101,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for expertise in fellow.profile.expertises %}
-		<div class="single d-inline{% if expertise in potfel.profile.expertises %} bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+		<div class="single d-inline{% if expertise in potfel.profile.expertises %} px-1 bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -126,7 +131,7 @@
 	<form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
 	  {% csrf_token %}
 	  {{ pfevent_form|bootstrap }}
-	  <input type="submit" name="submit" value="Submit" class="btn btn-outline-secondary">
+	  <input type="submit" name="submit" value="Submit" class="btn btn-primary">
 	</form>
       </div>
     </div>
