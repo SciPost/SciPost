@@ -6,19 +6,17 @@
   {{ block.super }}
   <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
   <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Fellowships</a>
-  <span class="breadcrumb-item">Add Fellowship</span>
+  <span class="breadcrumb-item">{% if form.instance.id %}Update {{ form.instance }}{% else %}Add new Fellowship{% endif %}</span>
 {% endblock %}
 
-{% block pagetitle %}: Add Fellowship{% endblock pagetitle %}
+{% block pagetitle %}: Fellowship{% endblock pagetitle %}
 
 {% block content %}
-  <h1>Add Fellowship</h1>
-  <br>
 
   <form method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
-    <input class="btn btn-primary" type="submit" value="Add Fellowship">
+    <input class="btn btn-primary" type="submit" value="Submit">
   </form>
 
 

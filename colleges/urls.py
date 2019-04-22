@@ -17,6 +17,19 @@ urlpatterns = [
     ),
     # Fellowships
     url(
+        r'^fellowships/(?P<contributor_id>[0-9]+)/add/$',
+        views.FellowshipCreateView.as_view(),
+        name='fellowship_create'),
+    url(
+        r'^fellowships/(?P<pk>[0-9]+)/update/$',
+        views.FellowshipUpdateView.as_view(),
+        name='fellowship_update'),
+    url(
+        r'^fellowships/(?P<pk>[0-9]+)/$',
+        views.FellowshipDetailView.as_view(),
+        name='fellowship_detail'
+    ),
+    url(
         r'^fellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
         views.FellowshipListView.as_view(),
         name='fellowships'
@@ -31,13 +44,6 @@ urlpatterns = [
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
-    url(r'^fellowships/add$', views.fellowship_add, name='fellowship_add'),
-    url(
-        r'^fellowships/(?P<pk>[0-9]+)/$',
-        views.FellowshipDetailView.as_view(),
-        name='fellowship_detail'
-    ),
-    url(r'^fellowships/(?P<id>[0-9]+)/edit$', views.fellowship_edit, name='fellowship_edit'),
     url(r'^fellowships/(?P<id>[0-9]+)/terminate$', views.fellowship_terminate,
         name='fellowship_terminate'),
     url(r'^fellowships/submissions/{regex}/$'.format(

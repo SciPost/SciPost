@@ -18,37 +18,45 @@ from .constants import POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOM
     POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
 
 
-class AddFellowshipForm(forms.ModelForm):
-    class Meta:
-        model = Fellowship
-        fields = (
-            'guest',
-            'contributor',
-            'start_date',
-            'until_date',
-        )
+# class AddFellowshipForm(forms.ModelForm):
+#     class Meta:
+#         model = Fellowship
+#         fields = (
+#             'guest',
+#             'contributor',
+#             'start_date',
+#             'until_date',
+#         )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['contributor'].queryset = Contributor.objects.active()
-        self.fields['contributor'].label = "Fellow"
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.fields['contributor'].queryset = Contributor.objects.active()
+#         self.fields['contributor'].label = "Fellow"
 
-    def clean(self):
-        start = self.cleaned_data.get('start_date')
-        until = self.cleaned_data.get('until_date')
-        if start and until:
-            if until <= start:
-                self.add_error('until_date', 'The given dates are not in chronological order.')
+#     def clean(self):
+#         start = self.cleaned_data.get('start_date')
+#         until = self.cleaned_data.get('until_date')
+#         if start and until:
+#             if until <= start:
+#                 self.add_error('until_date', 'The given dates are not in chronological order.')
 
 
 class FellowshipForm(forms.ModelForm):
     class Meta:
         model = Fellowship
         fields = (
-            'guest',
+            'contributor',
             'start_date',
             'until_date',
+            'guest',
         )
+        help_texts = {
+            'guest': '[select if this is a guest Fellowship]'
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['contributor'].disabled = True
 
     def clean(self):
         start = self.cleaned_data.get('start_date')

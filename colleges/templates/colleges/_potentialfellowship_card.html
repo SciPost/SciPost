@@ -33,7 +33,12 @@
 	<ul>
 	  <li><a href="{% url 'colleges:potential_fellowship_update' pk=potfel.id %}">Update</a> the data</li>
 	  <li><a href="{% url 'colleges:potential_fellowship_delete' pk=potfel.id %}">Delete</a> this Potential Fellowship</li>
-	  <li><a href="{% url 'colleges:potential_fellowship_email_initial' pk=potfel.id %}">Prepare and send initial email</a></li>
+	  <li>For named or elected: <a href="{% url 'colleges:potential_fellowship_email_initial' pk=potfel.id %}">prepare and send initial email</a></li>
+	  {% if not potfel.profile.contributor %}
+	    <li class="text-danger">N.B.: this potential Fellow is not yet registered as a Contributor</li>
+	  {% else %}
+	    <li>Accepted to serve as Fellow but not currently active in a College? <a href="{% url 'colleges:fellowship_create' contributor_id=potfel.profile.contributor.id %}">Set up a Fellowship</a></li>
+	  {% endif %}
 	</ul>
 
       </div>

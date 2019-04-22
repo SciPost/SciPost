@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -17,10 +19,11 @@ from submissions.models import Submission
 
 from .constants import (
     POTENTIAL_FELLOWSHIP_STATUSES, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
-    POTENTIAL_FELLOWSHIP_INVITED, potential_fellowship_statuses_dict,
+    POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE,
+    potential_fellowship_statuses_dict,
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
 from .forms import FellowshipForm, FellowshipTerminateForm, FellowshipRemoveSubmissionForm,\
-    FellowshipAddSubmissionForm, AddFellowshipForm, SubmissionAddFellowshipForm,\
+    FellowshipAddSubmissionForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
@@ -28,6 +31,7 @@ from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
+from scipost.models import Contributor
 
 from mails.views import MailView
 
@@ -49,6 +53,65 @@ class EditorialCollegesView(ListView):
             if qs:
                 context['disciplines'][discipline[1]] = (qs, subject_areas_raw_dict[discipline[1]])
         return context
+
+
+class FellowshipCreateView(PermissionsMixin, CreateView):
+    """
+    Create a new Fellowship instance for an existing Contributor.
+
+    A new Fellowship can be created only for:
+    * an existing Fellow who is renewed
+    * out of an existing PotentialFellowship (elected, or named by Admin)
+
+    If the elected/named Fellow does not yet have a Contributor object,
+    this must be set up first.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    form_class = FellowshipForm
+    template_name = 'colleges/fellowship_form.html'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        contributor = get_object_or_404(Contributor, pk=self.kwargs.get('contributor_id'))
+        initial.update({
+            'contributor': contributor.id,
+            'start_date': datetime.date.today(),
+            'until_date': datetime.date.today() + datetime.timedelta(days=int(5*365.25))
+        })
+        return initial
+
+    def form_valid(self, form):
+        """
+        Save the new Fellowship, and update the status of any existing PotentialFellowship.
+        """
+        self.object = form.save()
+        potfels = PotentialFellowship.objects.filter(profile=self.object.contributor.profile)
+        for potfel in potfels:
+            potfelevent = PotentialFellowshipEvent(
+                potfel=potfel,
+                event=POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
+                comments='Fellowship created for this Potential Fellow',
+                noted_on=timezone.now(),
+                noted_by=self.request.user.contributor)
+            potfelevent.save()
+            potfel.status = POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE
+            potfel.save()
+        return redirect(self.get_success_url())
+
+
+class FellowshipUpdateView(PermissionsMixin, UpdateView):
+    """
+    Update an existing Fellowship.
+    """
+    permission_required = 'scipost.can_manage_college_composition'
+    model = Fellowship
+    form_class = FellowshipForm
+    template_name = 'colleges/fellowship_form.html'
+
+
+class FellowshipDetailView(PermissionsMixin, DetailView):
+    permission_required = 'scipost.can_manage_college_composition'
+    model = Fellowship
 
 
 class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
@@ -81,51 +144,6 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         return context
-
-
-class FellowshipDetailView(PermissionsMixin, DetailView):
-    permission_required = 'scipost.can_manage_college_composition'
-    model = Fellowship
-
-
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_add(request):
-    """
-    Create a new Fellowship.
-    """
-    form = AddFellowshipForm(request.POST or None, initial=request.GET or None)
-
-    if form.is_valid():
-        fellowship = form.save()
-        messages.success(request, 'Fellowship added.')
-        return redirect(fellowship.get_absolute_url())
-
-    context = {
-        'form': form
-    }
-    return render(request, 'colleges/fellowship_add.html', context)
-
-
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_edit(request, id):
-    """
-    Edit basic information about fellowship.
-    """
-    fellowship = get_object_or_404(Fellowship, id=id)
-    form = FellowshipForm(request.POST or None, instance=fellowship)
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Fellowship updated.')
-        return redirect(fellowship.get_absolute_url())
-
-    context = {
-        'fellowship': fellowship,
-        'form': form
-    }
-    return render(request, 'colleges/fellowship_edit.html', context)
 
 
 @login_required
