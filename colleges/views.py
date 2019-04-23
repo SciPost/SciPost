@@ -5,9 +5,9 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.contrib import messages
+from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models import Count
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
@@ -82,9 +82,11 @@ class FellowshipCreateView(PermissionsMixin, CreateView):
 
     def form_valid(self, form):
         """
-        Save the new Fellowship, and update the status of any existing PotentialFellowship.
+        Save the new Fellowship, add College rights and update the status of any PotentialFellowship.
         """
         self.object = form.save()
+        group = Group.objects.get(name='Editorial College')
+        self.object.contributor.user.groups.add(group)
         potfels = PotentialFellowship.objects.filter(profile=self.object.contributor.profile)
         for potfel in potfels:
             potfelevent = PotentialFellowshipEvent(
