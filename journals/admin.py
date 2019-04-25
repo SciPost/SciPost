@@ -66,7 +66,7 @@ class OrgPubFractionInline(admin.TabularInline):
 
 
 class PublicationAdmin(admin.ModelAdmin):
-    search_fields = ['title', 'author_list']
+    search_fields = ['title', 'author_list', 'doi_label']
     list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date', 'status']
     date_hierarchy = 'publication_date'
     list_filter = ['in_issue']
@@ -75,6 +75,24 @@ class PublicationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Publication, PublicationAdmin)
+
+
+class PublicationProxyMetadata(Publication):
+    search_fields = ['title', 'author_list', 'doi_label']
+    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date', 'status']
+
+    class Meta:
+        proxy = True
+        verbose_name = 'Publication metadata'
+        verbose_name_plural = 'Publication metadata'
+
+class PublicationProxyMetadataAdmin(admin.ModelAdmin):
+    fields = ['metadata', 'metadata_xml', 'metadata_DOAJ', 'BiBTeX_entry']
+    search_fields = ['title', 'author_list', 'doi_label']
+    list_display = ['title', 'author_list', 'in_issue', 'doi_string', 'publication_date', 'status']
+
+
+admin.site.register(PublicationProxyMetadata, PublicationProxyMetadataAdmin)
 
 
 class DepositAdmin(admin.ModelAdmin):
