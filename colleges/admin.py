@@ -28,6 +28,6 @@ class PotentialFellowshipEventInline(admin.TabularInline):
 class PotentialFellowshipAdmin(admin.ModelAdmin):
     inlines = (PotentialFellowshipEventInline,)
     list_display = ('__str__',)
-    search_fields = ['profile__last_name', 'profile__email']
+    search_fields = ['profile__last_name', 'profile__first_name']
 
 admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)
