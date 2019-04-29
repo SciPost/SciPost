@@ -3,13 +3,11 @@ __license__ = "AGPL v3"
 
 
 from django import forms
-from django.shortcuts import get_object_or_404
 
 from ajax_select.fields import AutoCompleteSelectField
 
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
-from ontology.models import Topic
 from scipost.models import Contributor
 from submissions.models import RefereeInvitation
 
@@ -142,6 +140,9 @@ class ProfileMergeForm(forms.Form):
         # Move all invitations to the "new" profile
         profile_old.refereeinvitation_set.all().update(profile=profile)
         profile_old.registrationinvitation_set.all().update(profile=profile)
+
+        # Move all PotentialFellowships to the "new" profile
+        profile_old.potentialfellowship_set.all().update(profile=profile)
 
         profile_old.delete()
         return Profile.objects.get(id=profile.id)  # Retrieve again because of all the db updates.
