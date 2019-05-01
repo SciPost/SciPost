@@ -121,7 +121,9 @@ class RegistrationForm(forms.Form):
 
     def clean(self):
         """
-        Check that either an organization or an address are provided.
+        Check that:
+        * either an organization or an address are provided
+        * that any existing associated profile does not already have a Contributor
         """
         cleaned_data = super(RegistrationForm, self).clean()
         current_affiliation = cleaned_data.get('current_affiliation', None)
@@ -132,6 +134,17 @@ class RegistrationForm(forms.Form):
                 'You must either specify a Current Affiliation, or '
                 'fill in the institution name and address field'
             )
+
+        profile = Profile.objects.filter(
+            title=self.cleaned_data['title'],
+            first_name=self.cleaned_data['first_name'],
+            last_name=self.cleaned_data['last_name'],
+            discipline=self.cleaned_data['discipline']).first()
+        if profile and profile.contributor:
+            raise forms.ValidationError(
+                'There is already a registered Contributor with your first and last names. '
+                'Please contact techsupport@scipost.org to clarify this issue.'
+                )
 
     def clean_password(self):
         password = self.cleaned_data.get('password', '')
