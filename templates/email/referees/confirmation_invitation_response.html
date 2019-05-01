@@ -1,7 +1,7 @@
 <p>Dear {{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }},</p>
 
 <p>
-    We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
+  We hereby confirm your choice to {% if invitation.accepted %}accept{% else %}decline (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
 </p>
 <p>
   {{ invitation.submission.title }}
@@ -10,14 +10,16 @@
 </p>
 
 <p>
-    {% if invitation.accepted %}
+  {% if invitation.accepted %}
     We will look forward to receiving your Report by the reporting deadline {{ invitation.submission.reporting_deadline|date:'Y-m-d' }}.
     <br/>
     Many thanks for your collaboration,
-    {% else %}
+  {% else %}
     Nonetheless, we thank you very much for considering this refereeing invitation,
-    {% endif %}
-    <br/>The SciPost Team.
+  {% endif %}
+  <br/>The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid' with submission=invitation.submission %}

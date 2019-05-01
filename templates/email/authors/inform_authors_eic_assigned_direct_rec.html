@@ -1,5 +1,5 @@
 <p>
-    Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},
+  Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},
 </p>
 <p>
   For your information, your Submission
@@ -13,7 +13,10 @@
 <p>You will be informed shortly by email about the status of this Editorial Recommendation.</p>
 
 <p>
-    Sincerely,
-    <br>
-    The SciPost Team.
+  Sincerely,
+  <br>
+  The SciPost Team.
 </p>
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid' with submission=submission %}

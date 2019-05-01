@@ -10,5 +10,9 @@
 </p>
 
 <p>
-    <em>This mail is automatically generated from the SciPost platform</em>.
+  <em>This mail is automatically generated from the SciPost platform</em>.
 </p>
+
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid' with submission=object.accepted_submission %}

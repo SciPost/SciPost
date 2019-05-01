@@ -7,14 +7,16 @@
 </p>
 
 <p>
-    Please review the proofs and let us know whether you accept the proofs for publication using the form on the submission page.
+  Please review the proofs and let us know whether you accept the proofs for publication using the form on the submission page.
 </p>
 
 <p>
-    Sincerely,<br>
+  Sincerely,<br>
 
-    {{ proofs.stream.supervisor.user.first_name }} {{ proofs.stream.supervisor.user.last_name }},<br>
-    SciPost Production
+  {{ proofs.stream.supervisor.user.first_name }} {{ proofs.stream.supervisor.user.last_name }},<br>
+  SciPost Production
 </p>
 
 {% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid' with submission=proofs.stream.submission %}

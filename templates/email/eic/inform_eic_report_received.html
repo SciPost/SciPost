@@ -4,16 +4,18 @@
     Referee {{ report.author.get_title_display }} {{ report.author.user.last_name }} has delivered a Report for Submission:
 </p>
 <p>
-  {{report.submission.title}}
+  {{ report.submission.title }}
   <br/>
   by {{ report.submission.author_list }}.
 </p>
 <p>
-    Please vet this Report via your <a href="https://scipost.org{% url 'scipost:personal_page' %}">personal page</a> under the Editorial Actions tab.
+  Please vet this Report via your <a href="https://scipost.org{% url 'scipost:personal_page' %}">personal page</a> under the Editorial Actions tab.
 </p>
 <p>
-    Many thanks in advance for your collaboration,<br>
-    The SciPost Team.
+  Many thanks in advance for your collaboration,<br>
+  The SciPost Team.
 </p>
 
 {% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid' with submission=report.submission %}
