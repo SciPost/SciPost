@@ -60,7 +60,7 @@ from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
 from profiles.models import Profile
 from profiles.forms import SimpleProfileForm, ProfileEmailForm
-from scipost.constants import INVITATION_REFEREEING
+from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin
@@ -1001,7 +1001,7 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
         profile=profile,
         referee=contributor,
         submission=submission,
-        title=profile.title,
+        title=profile.title if profile.title else TITLE_DR,
         first_name=profile.first_name,
         last_name=profile.last_name,
         email_address=profile.email,
@@ -1027,7 +1027,7 @@ def invite_referee(request, identifier_w_vn_nr, profile_id, auto_reminders_allow
     else: # no Contributor, so registration invitation
         registration_invitation, reginv_created = RegistrationInvitation.objects.get_or_create(
             profile=profile,
-            title=profile.title,
+            title=profile.title if profile.title else TITLE_DR,
             first_name=profile.first_name,
             last_name=profile.last_name,
             email=profile.email,

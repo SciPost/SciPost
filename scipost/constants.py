@@ -140,6 +140,7 @@ CONTRIBUTOR_STATUSES = (
     (DECEASED, 'Person deceased')
 )
 
+TITLE_DR = 'DR'
 TITLE_CHOICES = (
     ('PR', 'Prof.'),
     ('DR', 'Dr'),
