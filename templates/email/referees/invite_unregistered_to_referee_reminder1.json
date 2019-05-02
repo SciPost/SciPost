@@ -1,11 +1,12 @@
 {
     "subject": "SciPost: refereeing and registration invitation reminder",
     "recipient_list": [
-        "email_address"
+        // "email_address"
+	"jscaux@scipost.org"
     ],
     "bcc": [
-        "invited_by.email",
-        "edadmin@scipost.org"
+        // "invited_by.email",
+        // "edadmin@scipost.org"
     ],
     "from_name": "SciPost Refereeing",
     "from_email": "refereeing@scipost.org"
