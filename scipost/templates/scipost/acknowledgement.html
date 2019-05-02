@@ -8,7 +8,7 @@
     <div class="col-12">
       <h2>{{ ack_header }}</h2>
       {% if ack_message %}
-        <p>{{ ack_message }}</p>
+        <p>{{ ack_message|safe }}</p>
       {% endif %}
       {% if followup_message %}
         <p>{{ followup_message }} <a href="{{ followup_link }}">{{ followup_link_label }}</a>.</p>

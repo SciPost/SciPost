@@ -188,12 +188,24 @@ def register(request):
 
         context = {
             'ack_header': 'Thanks for registering to SciPost.',
-            'ack_message': ('You will receive an email with a link to verify '
-                            'your email address. '
-                            'Please visit this link within 48 hours. '
-                            'Your credentials will thereafter be verified. '
-                            'If your registration is vetted through by the '
-                            'administrators, you will be enabled to contribute.'),
+            'ack_message': (
+                """
+                <h3>What happens now?</h3>
+                <ul>
+                <li>You will receive an email with a link to verify your email address.
+                You should visit this link within 48 hours.</li>
+                <li>You didn't receive this email? Check your spam folder.</li>
+                <li>Your credentials will thereafter be verified. If you fulfil our
+                eligibility requirements, your account will be vetted through
+                (you will receive confirmation by email).</li>
+                <li>If vetted through, you will then be able to login and use our facilities.</li>
+                </ul>
+                <h4>Why is your procedure <span style="color: red;">so complicated</span>?</h4>
+                <p>It is simply part of our quality assurance processes: we want to make sure
+                we are dealing with qualified academics rather than random people or robots.
+                </p>
+                """
+            ),
         }
         return render(request, 'scipost/acknowledgement.html', context)
     return render(request, 'scipost/register.html', {'form': form, 'invited': False})
