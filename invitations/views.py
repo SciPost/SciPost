@@ -68,10 +68,11 @@ class RegistrationInvitationsFellowView(RegistrationInvitationsView):
     template_name = 'invitations/registrationinvitation_list_fellows.html'
 
 
-class CitationNotificationsView(PermissionsMixin, ListView):
+class CitationNotificationsView(PermissionsMixin, PaginationMixin, ListView):
     permission_required = 'scipost.can_manage_registration_invitations'
     queryset = CitationNotification.objects.unprocessed().prefetch_related(
         'invitation', 'contributor', 'contributor__user')
+    paginate_by = 25
 
 
 class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin, MailFormView):
