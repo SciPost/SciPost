@@ -1,11 +1,10 @@
 {
     "subject": "SciPost: unresponsive referee",
     "recipient_list": [
-        // "submission.editor_in_charge.user.email"
-	"jscaux@scipost.org"
+        "submission.editor_in_charge.user.email"
     ],
     "bcc": [
-        // "edadmin@scipost.org"
+        "edadmin@scipost.org"
     ],
     "from_name": "SciPost Refereeing",
     "from_email": "refereeing@scipost.org"

@@ -6,7 +6,7 @@
     ],
     "bcc": [
         // "submission.editor_in_charge.user.email",
-        // "edadmin@scipost.org"
+        "edadmin@scipost.org"
     ],
     "from_name": "SciPost Refereeing",
     "from_email": "refereeing@scipost.org"

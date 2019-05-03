@@ -6,7 +6,7 @@
     ],
     "bcc": [
         // "invited_by.email",
-        // "edadmin@scipost.org"
+        "edadmin@scipost.org"
     ],
     "from_name": "SciPost Refereeing",
     "from_email": "refereeing@scipost.org"
