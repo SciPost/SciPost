@@ -331,7 +331,7 @@ def publication_authors_ordering(request, doi_label):
 class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     """
     Any Production Officer or Administrator can draft a new publication without publishing here.
-    The actual publishing is done lin a later stadium, after the draft has been finished.
+    The actual publishing is done at a later stage, after the draft has been finished.
     """
     permission_required = 'scipost.can_draft_publication'
     queryset = Publication.objects.unpublished()

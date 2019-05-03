@@ -140,11 +140,14 @@ class RegistrationForm(forms.Form):
             first_name=self.cleaned_data['first_name'],
             last_name=self.cleaned_data['last_name'],
             discipline=self.cleaned_data['discipline']).first()
-        if profile and profile.contributor:
-            raise forms.ValidationError(
-                'There is already a registered Contributor with your first and last names. '
-                'Please contact techsupport@scipost.org to clarify this issue.'
+        try:
+            if profile and profile.contributor:
+                raise forms.ValidationError(
+                    'There is already a registered Contributor with your first and last names. '
+                    'Please contact techsupport@scipost.org to clarify this issue.'
                 )
+        except Contributor.DoesNotExist:
+            pass
 
     def clean_password(self):
         password = self.cleaned_data.get('password', '')
