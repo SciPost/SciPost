@@ -72,3 +72,4 @@ flower==0.9.2
 
 # Security-related packages
 django-referrer-policy==1.0
+django-csp==3.5
