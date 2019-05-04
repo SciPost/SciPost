@@ -39,7 +39,6 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^api/', include(router.urls, namespace='api')),
-    url(r'^docs/', include('sphinxdoc.urls')),
     url(r'^10.21468/%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="_journal")),
     url(r'^', include('scipost.urls', namespace="scipost")),

@@ -20,7 +20,6 @@ django-filter==1.0.4
 django-guardian==1.4.9
 django-mathjax==0.0.8
 django-mptt==0.8.6  # Dead
-django-sphinxdoc==1.5.1
 django-silk==2.0.0
 django-webpack-loader==0.5
 django-maintenancemode-2==1.1.11

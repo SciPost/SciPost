@@ -107,7 +107,6 @@ INSTALLED_APPS = (
     'production',
     'rest_framework',
     'scipost',
-    'sphinxdoc',
     'stats',
     'submissions',
     'theses',
