@@ -187,6 +187,8 @@ MIDDLEWARE = (
     'maintenancemode.middleware.MaintenanceModeMiddleware',
 )
 
+SECURE_BROWSER_XSS_FILTER = True
+
 ROOT_URLCONF = 'SciPost_v1.urls'
 
 TEMPLATES = [
