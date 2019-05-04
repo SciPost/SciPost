@@ -1,7 +1,7 @@
 # Core
 argon2-cffi==16.3.0  # Password hashing algorithm
 Babel==2.4
-Django==1.11.4
+Django==1.11.20
 feedparser==5.2.1   # Check: not updated since 2016
 psycopg2==2.7.3  # PostgreSQL engine
 pytz==2017.2  # Timezone package
@@ -41,7 +41,7 @@ Faker==1.0.2
 
 
 # Django Utils
-django-haystack==2.5.1
+django-haystack==2.8.1
 Whoosh==2.7.4  # Directly related to Haystack.
 
 
