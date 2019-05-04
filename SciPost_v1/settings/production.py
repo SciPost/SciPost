@@ -69,3 +69,5 @@ sentry_sdk.init(
     dsn=get_secret('SENTRY_DSN'),
     integrations=[DjangoIntegration()]
 )
+CSP_REPORT_URI = get_secret('CSP_SENTRY')
+CSP_REPORT_ONLY = True
