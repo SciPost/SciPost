@@ -47,11 +47,12 @@
 
          document.getElementById("header-search-close-btn").addEventListener("click", function(event){
              var x = document.getElementById("header-search-form");
-             x.style.display = "none"
+             x.style.display = "none";
          });
 
          if (document.documentElement.clientWidth <= 768) {
              // Force-close if form is prefilled.
+             var x = document.getElementById("header-search-form");
              x.style.display = "none";
          }
      }
