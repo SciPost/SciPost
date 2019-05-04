@@ -198,13 +198,16 @@ REFERRER_POLICY = 'same-origin'
 CSP_FONT_SRC = ("'self'", 'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
                 'www.google.com', 'themes.googleusercontent.com')
 CSP_FRAME_SRC = ('www.google.com', 'player.vimeo.com')
-CSP_IMG_SRC = ("'self'", 'data:', 'ajax.googleapis.com', 'assets.crossref.org',
+CSP_IMG_SRC = ("'self'", 'scipost.org',
+               'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org')
-CSP_SCRIPT_SRC = ("'self'", 'eval:', "'unsafe-inline'", 'ajax.googleapis.com',
+CSP_SCRIPT_SRC = ("'self'", 'scipost.org',
+                  'eval:', "'unsafe-inline'", 'ajax.googleapis.com',
                   'cdnjs.cloudflare.com', 'crossmark-cdn.crossref.org',
                   'www.recaptcha.net', 'www.gstatic.com',
                   'code.jquery.com')
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
+CSP_STYLE_SRC = ("'self'", 'scipost.org',
+                 "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com', 'cdnjs.cloudflare.com')
 
 ROOT_URLCONF = 'SciPost_v1.urls'
