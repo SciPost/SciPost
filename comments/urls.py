@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'comments'
+
 urlpatterns = [
     # Comments
     url(r'^reports/(?P<report_id>[0-9]+)/reply$', views.reply_to_report, name='reply_to_report'),

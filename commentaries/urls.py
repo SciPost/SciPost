@@ -7,6 +7,8 @@ from django.views.generic import TemplateView
 
 from . import views
 
+app_name = 'commentaries'
+
 urlpatterns = [
     # Commentaries
     url(r'^$', views.CommentaryListView.as_view(), name='commentaries'),

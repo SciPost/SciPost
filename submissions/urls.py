@@ -8,6 +8,8 @@ from django.views.generic import TemplateView
 from . import views
 from .constants import SUBMISSIONS_NO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 
+app_name = 'submissions'
+
 urlpatterns = [
     # Submissions
     url(r'^$', views.SubmissionListView.as_view(), name='submissions'),

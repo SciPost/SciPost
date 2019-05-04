@@ -7,6 +7,8 @@ from django.views.generic import TemplateView
 
 from . import views
 
+app_name = 'theses'
+
 urlpatterns = [
     # Thesis Links
     url(r'^$', views.ThesisListView.as_view(), name='theses'),

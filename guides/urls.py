@@ -6,6 +6,8 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
 
+app_name = 'guides'
+
 urlpatterns = [
     url(r'^$',
         permission_required('scipost.can_view_docs_scipost')(

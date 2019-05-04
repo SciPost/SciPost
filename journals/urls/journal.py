@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from journals import views as journals_views
 
+app_name = 'journals'
+
 urlpatterns = [
     # Journal routes
     url(r'^issues$', journals_views.IssuesView.as_view(), name='issues'),

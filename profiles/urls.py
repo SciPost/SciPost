@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'profiles'
+
 urlpatterns = [
     url(
         r"^add/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$",

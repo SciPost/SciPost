@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'mailing_lists'
+
 urlpatterns = [
     # Mailchimp
     url(r'^$', views.MailchimpListView.as_view(), name='overview'),

@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from production import views as production_views
 
+app_name = 'production'
+
 urlpatterns = [
     url(r'^$', production_views.production, name='production'),
     url(r'^(?P<stream_id>[0-9]+)$', production_views.production, name='production'),

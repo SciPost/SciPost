@@ -17,6 +17,8 @@ from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
+app_name = 'scipost'
+
 urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),

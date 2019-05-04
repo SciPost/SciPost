@@ -8,6 +8,7 @@ from . import views
 
 from submissions.constants import SCIPOST_PREPRINT_W_VN_REGEX
 
+app_name = 'preprints'
 
 urlpatterns = [
     url(r'^{regex}/$'.format(regex=SCIPOST_PREPRINT_W_VN_REGEX), views.preprint_pdf, name='pdf'),

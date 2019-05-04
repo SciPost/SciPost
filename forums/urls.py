@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'forums'
+
 urlpatterns = [
     url(
         r'^forum/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',

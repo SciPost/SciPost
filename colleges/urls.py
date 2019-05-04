@@ -8,6 +8,8 @@ from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from . import views
 
+app_name = 'colleges'
+
 urlpatterns = [
     # Editorial Colleges: public view
     url(

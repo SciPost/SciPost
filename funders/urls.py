@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'funders'
+
 urlpatterns = [
     url(r'^$', views.funders, name='funders'),
     url(r'^dashboard$', views.funders_dashboard, name='funders_dashboard'),

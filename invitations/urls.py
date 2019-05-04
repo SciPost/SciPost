@@ -6,6 +6,8 @@ from django.conf.urls import url
 
 from . import views
 
+app_name = 'invitations'
+
 urlpatterns = [
     url(r'^$', views.RegistrationInvitationsView.as_view(), name='list'),
     url(r'^sent$', views.RegistrationInvitationsSentView.as_view(), name='list_sent'),
