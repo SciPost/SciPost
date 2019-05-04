@@ -197,7 +197,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 REFERRER_POLICY = 'same-origin'
 CSP_FONT_SRC = ("'self'", 'fonts.gstatic.com', 'cdnjs.cloudflare.com')
-CSP_FRAME_SRC = ('www.google.com')
+CSP_FRAME_SRC = ('www.google.com', 'player.vimeo.com')
 CSP_IMG_SRC = ("'self'", 'assets.crossref.org', 'licensebuttons.net', 'crossmark-cdn.crossref.org')
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'ajax.googleapis.com', 'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org', 'www.recaptcha.net', 'www.gstatic.com')
