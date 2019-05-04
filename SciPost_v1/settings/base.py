@@ -202,7 +202,7 @@ CSP_IMG_SRC = ("'self'", 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org')
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'ajax.googleapis.com', 'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org', 'www.recaptcha.net', 'www.gstatic.com')
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'ajax.googleapis.com',
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com', 'cdnjs.cloudflare.com')
 
 ROOT_URLCONF = 'SciPost_v1.urls'
