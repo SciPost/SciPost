@@ -185,6 +185,7 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
+    'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
 )
 
 SECURE_BROWSER_XSS_FILTER = True
@@ -193,6 +194,7 @@ SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
+REFERRER_POLICY = 'same-origin'
 
 ROOT_URLCONF = 'SciPost_v1.urls'
 
