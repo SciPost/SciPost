@@ -195,7 +195,8 @@ SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 REFERRER_POLICY = 'same-origin'
-CSP_FONT_SRC = ("'self'", 'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
+CSP_FONT_SRC = ("'self'", 'scipost.org',
+                'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
                 'www.google.com', 'themes.googleusercontent.com')
 CSP_FRAME_SRC = ('www.google.com', 'player.vimeo.com')
 CSP_IMG_SRC = ("'self'", 'scipost.org',
