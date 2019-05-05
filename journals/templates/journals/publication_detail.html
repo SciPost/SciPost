@@ -37,15 +37,7 @@
   <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
   <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
 
-  <script>
-   $(document).ready(function(){
-       $("#citationslist").hide();
-
-       $("#citationslistbutton").click(function(){
-           $("#citationslist").toggle();
-       });
-   });
-  </script>
+  <script type="text/javascript" src="{% static 'scipost/citations-list.js' %}"></script>
 
 {% endblock headsup %}
 

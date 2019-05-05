@@ -1,17 +1,12 @@
 {% extends 'organizations/base.html' %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 
 {% block pagetitle %}: organizations dashboard{% endblock pagetitle %}
 
 {% block headsup %}
-  <script type="text/javascript">
-   $(document).ready(function($) {
-       $(".table-row").click(function() {
-           window.document.location = $(this).data("href");
-       });
-   });
-  </script>
+  <script type="text/javascript" src="{% static 'scipost/table-row.js' %}"></script>
 {% endblock headsup %}
 
 {% block content %}

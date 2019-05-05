@@ -11,14 +11,7 @@
 {% is_scipost_admin request.user as is_scipost_admin %}
 
 {% block headsup %}
-  <script type="text/javascript">
-   $(document).ready(function($) {
-       $(".table-row").click(function() {
-	   var addr = $(this).data("href");
-	   window.open(addr, "_blank");
-       });
-   });
-  </script>
+  <script type="text/javascript" src="{% static 'scipost/table-row-blank.js' %}"></script>
   <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 {% endblock headsup %}
 
