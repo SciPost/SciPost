@@ -11,7 +11,7 @@ from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 from journals.constants import PUBLICATION_DOI_REGEX, REGEX_CHOICES
 from journals import views as journals_views
 
-app_name = 'journals'
+app_name = 'urls.general'
 
 urlpatterns = [
     # Journals

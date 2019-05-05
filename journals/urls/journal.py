@@ -6,7 +6,7 @@ from django.conf.urls import url
 
 from journals import views as journals_views
 
-app_name = 'journals'
+app_name = 'urls.journals'
 
 urlpatterns = [
     # Journal routes
