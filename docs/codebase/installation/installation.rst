@@ -117,16 +117,42 @@ Module bundler
 **************
 
 `Webpack <https://webpack.js.org/>`__ takes care of assets in the
-``scipost/static/scipost/assets`` folder. To (re)compile all assets into
+``scipost/static/scipost/assets`` folder.
+
+Separate configurations are defined for development and production servers.
+For development, the configuration file is ``webpack.dev.config.js``, while
+for production it is ``webpack.prod.config.js``.
+
+The file ``package.json`` defines the scripts needed to run npm below.
+
+Development server
+==================
+
+During development, to (re)compile all assets into
 the ``static_bundles`` folder, simply run::
 
    (scipostenv) $ npm run webpack
+
+which makes use of the dev config file ``webpack.dev.config.js``.
 
 While editing assets, it may be helpful to put Webpack in *watch* mode.
 This will recompile your assets in real time. To do so, instead of the
 above command, run::
 
    (scipostenv) $ npm run webpack-live
+
+
+Production server
+=================
+
+On the production server, run::
+
+    (scipostenv) $ npm run webpack-prod
+
+which makes use of the prod config file ``webpack.prod.config.js``.
+
+There is no need to run npm in *watch* mode (there is no reason for live
+editing of assets on production).
 
 
 ******************

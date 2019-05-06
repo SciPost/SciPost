@@ -7,10 +7,9 @@
     "doc": "docs"
   },
   "scripts": {
-    "webpack": "./node_modules/.bin/webpack",
-    "webpack-live": "./node_modules/.bin/webpack --watch",
-    "webpack-prod": "./node_modules/.bin/webpack --config webpack.prod.config.js",
-    "webpack-prod-live": "./node_modules/.bin/webpack --config webpack.prod.config.js --watch"
+    "webpack": "./node_modules/.bin/webpack --config webpack.dev.config.js",
+    "webpack-live": "./node_modules/.bin/webpack --config webpack.dev.config.js --watch",
+    "webpack-prod": "./node_modules/.bin/webpack --config webpack.prod.config.js"
   },
   "private": true,
   "repository": {
