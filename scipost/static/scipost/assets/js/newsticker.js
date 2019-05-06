@@ -53,10 +53,10 @@ NewsTicker = (function() {
         $.get(this.options.url + '?format=json')
         .done(function(data) {
             var counter = 1
-            var total = data.length
+            var total = data.count
 
             setInterval(function(){
-                self.get_item(data[counter % total]);
+                self.get_item(data.results[counter % total]);
                 counter += 1
             }, self.options.interval);
         })
