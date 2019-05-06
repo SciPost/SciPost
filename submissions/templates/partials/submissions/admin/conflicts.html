@@ -40,7 +40,7 @@
 
 
 {% block footer_script %}
-  <script>
+  <script type="text/javascript" nonce="{{ request.csp_nonce }}">
    function csrfSafeMethod(method) {
        // these HTTP methods do not require CSRF protection
        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));

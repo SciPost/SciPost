@@ -1,20 +1,7 @@
 {% load bootstrap %}
+{% load staticfiles %}
 
-<script>
- $(document).ready(function(){
-     $('#ref_reason').hide();
-
-     $('#id_accept').on('change', function() {
-	 if ($('#id_accept_1').is(':checked')) {
-             $('#ref_reason').show();
-	 }
-	 else {
-             $('#ref_reason').hide();
-	 }
-     });
-
- });
-</script>
+<script type="text/javascript" src="{% static 'scipost/remark-form.js' %}"></script>
 
 {% if auto_show %}
   <form action="{% url 'submissions:add_remark' submission.preprint.identifier_w_vn_nr %}" method="post" class="pb-2">

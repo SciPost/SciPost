@@ -1,5 +1,5 @@
 {% load bootstrap %}
-
+{% load staticfiles %}
 
 {% include 'partials/submissions/submission_summary.html' with submission=assignment.submission show_abstract=1 %}
 
@@ -23,15 +23,4 @@
 </form>
 
 
-<script>
- $(function() {
-     $('[name="accept"]').on('change', function() {
-         var val = $('[name="accept"]:checked').val();
-         if(val == 'True') {
-             $('#ref_reason').hide();
-         } else {
-             $('#ref_reason').show();
-         }
-     }).trigger('change');
- });
-</script>
+<script type="text/javascript" src="{% static 'scipost/assignment-request-form.js' %}"></script>

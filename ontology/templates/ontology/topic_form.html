@@ -1,18 +1,10 @@
 {% extends 'ontology/base.html' %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 
 {% block headsup %}
-  <script>
-   $(document).ready(function() {
-
-       $("#id_name").keyup(function() {
-	   slug_value = this.value.split(" ").join("_");
-	   $("#id_slug").val(slug_value);
-       });
-
-   });
-  </script>
+  <script type="text/javascript" src="{% static 'scipost/slugify-name.js' %}"></script>
 {% endblock headsup %}
 
 {% block breadcrumb_items %}

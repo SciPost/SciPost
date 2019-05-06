@@ -3,6 +3,7 @@
 {% block pagetitle %}: submit manuscript{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -10,25 +11,7 @@
 {% endblock %}
 
 {% block footer_script %}
-  <script>
-
-   $(document).ready(function(){
-
-       $('select#id_submitted_to').on('change', function (){
-           var selection = $(this).val();
-           $("#id_proceedings, #id_submission_type").parents('.form-group').hide()
-
-           switch(selection){
-               case "{{ id_SciPostPhys }}":
-                   $("#id_submission_type").parents('.form-group').show()
-                   break;
-               case "{{ id_SciPostPhysProc }}":
-                   $("#id_proceedings").parents('.form-group').show()
-                   break;
-           }
-       }).trigger('change');
-   });
-  </script>
+  <script type="text/javascript" src="{% static 'scipost/submission-form.js' %}"></script>
 {% endblock %}
 
 {% block content %}

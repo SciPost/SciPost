@@ -3,20 +3,10 @@
 {% block pagetitle %}: vet reports{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 
 {% block headsup %}
-  <script>
-   $(document).ready(function(){
-       $('[name="action_option"]').on('change', function() {
-           if ($('[name="action_option"][value="refuse"]').is(':checked')) {
-               $('#refusal').show();
-           }
-           else {
-               $('#refusal').hide();
-           }
-       }).trigger('change');
-   });
-  </script>
+  <script type="text/javascript" src="{% static 'scipost/vet-report.js' %}"></script>
 {% endblock headsup %}
 
 {% block breadcrumb_items %}

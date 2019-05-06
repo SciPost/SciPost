@@ -3,6 +3,11 @@
 {% block pagetitle %}: registrations to vet{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load staticfiles %}
+
+{% block headsup %}
+  <script type="text/javascript" src="{% static 'scipost/vet-registration.js' %}"></script>
+{% endblock %}
 
 {% block breadcrumb_items %}
   {{block.super}}
@@ -10,18 +15,6 @@
 {% endblock %}
 
 {% block content %}
-
-  <script>
-   $(function() {
-       $('[name="decision"]').on('click change', function(){
-           if($(this).filter(':checked').val() == 'False') {
-               $('#id_refusal_reason, #id_email_response_field').parents('.form-group').show();
-           } else {
-               $('#id_refusal_reason, #id_email_response_field').parents('.form-group').hide();
-           }
-       }).trigger('change');
-   });
-  </script>
 
   <div class="row">
     <div class="col-12">

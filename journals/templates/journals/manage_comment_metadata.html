@@ -3,16 +3,11 @@
 {% block pagetitle %}: Manage Comment metadata{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 
 {% load journals_extras %}
 
-<script>
- $(function() {
-     $( "#accordion" ).accordion({
-	 event: "focusin"
-     });
- });
-</script>
+<script type="text/javascript" src="{% static 'scipost/accordion-focusin.js' %}"></script>
 
 {% block breadcrumb_items %}
   {{block.super}}

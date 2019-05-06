@@ -3,7 +3,11 @@
 {% block pagetitle %}: accept or decline refereeing invitations{% endblock pagetitle %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 
+{% block headsup %}
+  <script type="text/javascript" src="{% static 'scipost/referee-accept-or-refuse.js' %}"></script>
+{% endblock %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -11,20 +15,6 @@
 {% endblock %}
 
 {% block content %}
-
-  <script>
-   $(document).ready(function(){
-       $('[name="accept"]').on('change', function() {
-	   if($('[name="accept"]:checked').val() == 'False') {
-               $('#id_refusal_reason').parents('.form-group').show();
-	   }
-	   else {
-               $('#id_refusal_reason').parents('.form-group').hide();
-	   }
-       }).trigger('change');
-   });
-  </script>
-
 
   {% if not invitation %}
     <div class="row">
