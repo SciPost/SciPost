@@ -9,6 +9,8 @@
   "scripts": {
     "webpack": "./node_modules/.bin/webpack",
     "webpack-live": "./node_modules/.bin/webpack --watch"
+    "webpack-prod": "./node_modules/.bin/webpack --config webpack.prod.config.js",
+    "webpack-prod-live": "./node_modules/.bin/webpack --config webpack.prod.config.js --watch"
   },
   "private": true,
   "repository": {
