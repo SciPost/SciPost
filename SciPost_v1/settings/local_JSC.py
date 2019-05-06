@@ -25,3 +25,6 @@ CROSSREF_DEPOSIT_EMAIL = 'jscaux@scipost.org'
 # Customized mailbackend
 EMAIL_BACKEND = "mails.backends.filebased.ModelEmailBackend"
 EMAIL_BACKEND_ORIGINAL = "mails.backends.filebased.EmailBackend"
+
+# CSP
+CSP_REPORT_ONLY = True
