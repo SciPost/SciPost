@@ -211,7 +211,7 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org',
 CSP_STYLE_SRC = ("'self'", 'scipost.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com', 'cdnjs.cloudflare.com')
-CSP_INCLUDE_NONCE_IN=['script-src']
+CSP_INCLUDE_NONCE_IN = ('script-src',)
 
 ROOT_URLCONF = 'SciPost_v1.urls'
 
