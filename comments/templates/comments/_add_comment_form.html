@@ -3,37 +3,14 @@
 {% load staticfiles %}
 
 {% block footer_script %}
-  <!-- <script>
-       $(function(){
-       var comment_text_input = $("#id_comment_text");
-
-       comment_text_input.on('keyup', function(){
-       var new_text = $(this).val()
-       $("#preview-comment_text").text(new_text)
-       if( typeof MathJax.Hub !== 'undefined' ) {
-       MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-       }
-       }).trigger('keyup');
-
-       $('input[name$="anonymous"]').on('change', function() {
-       $('.anonymous-alert').show()
-       .children('h3').hide()
-       if ($(this).prop('checked')) {
-       $('.anonymous-yes').show();
-       } else {
-       $('.anonymous-no').show();
-       }
-       }).trigger('change');
-       });
-       </script> -->
   <script type="text/javascript" src="{% static 'scipost/comment-preview.js' %}"></script>
 {% endblock %}
 
-<form enctype="multipart/form-data" {% if url %}action="{{url}}" {% endif %}method="post">
+<form enctype="multipart/form-data" {% if url %}action="{{ url }}" {% endif %}method="post">
   {% csrf_token %}
   <div class="row">
     <div class="col-md-9">
-      {{form.comment_text|bootstrap:'12,12'}}
+      {{ form.comment_text|bootstrap:'12,12' }}
 
       <p>
         In your comment, you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.
@@ -42,24 +19,24 @@
     </div>
     <div class="col-md-3 radio-list">
       <label>Specify categorization(s):</label>
-      {{form.is_cor|bootstrap}}
-      {{form.is_rem|bootstrap}}
-      {{form.is_que|bootstrap}}
-      {{form.is_ans|bootstrap}}
-      {{form.is_obj|bootstrap}}
-      {{form.is_rep|bootstrap}}
-      {{form.is_val|bootstrap}}
-      {{form.is_lit|bootstrap}}
-      {{form.is_sug|bootstrap}}
+      {{ form.is_cor|bootstrap }}
+      {{ form.is_rem|bootstrap }}
+      {{ form.is_que|bootstrap }}
+      {{ form.is_ans|bootstrap }}
+      {{ form.is_obj|bootstrap }}
+      {{ form.is_rep|bootstrap }}
+      {{ form.is_val|bootstrap }}
+      {{ form.is_lit|bootstrap }}
+      {{ form.is_sug|bootstrap }}
     </div>
   </div>
 
   <div class="row">
     <div class="col-md-9">
-      {{form.remarks_for_editors|bootstrap:'12,12'}}
+      {{ form.remarks_for_editors|bootstrap:'12,12' }}
     </div>
     <div class="col-md-3">
-      {{form.file_attachment|bootstrap:'12,12'}}
+      {{ form.file_attachment|bootstrap:'12,12' }}
     </div>
   </div>
 

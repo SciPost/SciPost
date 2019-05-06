@@ -47,8 +47,8 @@
       <!-- End notifications -->
 
       <h2>SciPost Submission Page</h2>
-      <h1 class="text-primary">{{submission.title}}</h1>
-      <h3 class="mb-3">by {{submission.author_list}}</h3>
+      <h1 class="text-primary">{{ submission.title }}</h1>
+      <h3 class="mb-3">by {{ submission.author_list }}</h3>
 
       {% if user.is_authenticated %}
 	{% with type_id=submission|content_type_id %}
@@ -60,7 +60,7 @@
 	{% if submission.publication and submission.publication.is_published %}
 	  <h4>
             - Published as
-            <a href="{{submission.publication.get_absolute_url}}">
+            <a href="{{ submission.publication.get_absolute_url }}">
               {{ submission.publication.get_journal.abbreviation_citation }}
               {% if submission.publication.in_issue.in_volume %} <strong>{{ submission.publication.in_issue.in_volume.number }}</strong>,{% endif %}
               {{ submission.publication.paper_nr }}
@@ -150,9 +150,9 @@
 
   {% if not user.is_authenticated %}
     {% if submission.comments.vetted.exists %}
-      <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report</a></h3>
+      <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to report</a></h3>
     {% else %}
-      <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{request.path}}">Login to report or comment</a></h3>
+      <h3 class="text-center my-3"><a href="{% url 'scipost:login' %}?next={{ request.path }}">Login to report or comment</a></h3>
     {% endif %}
   {% endif %}
 
