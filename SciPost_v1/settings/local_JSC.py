@@ -27,4 +27,5 @@ EMAIL_BACKEND = "mails.backends.filebased.ModelEmailBackend"
 EMAIL_BACKEND_ORIGINAL = "mails.backends.filebased.EmailBackend"
 
 # CSP
+CSP_REPORT_URI = get_secret('CSP_SENTRY')
 CSP_REPORT_ONLY = True
