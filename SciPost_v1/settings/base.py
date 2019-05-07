@@ -195,19 +195,20 @@ SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 REFERRER_POLICY = 'same-origin'
-CSP_FONT_SRC = ("'self'", 'scipost.org',
+CSP_FONT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                 'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
                 'www.google.com', 'themes.googleusercontent.com')
-CSP_FRAME_SRC = ('www.google.com', 'player.vimeo.com', 'www.recaptcha.net', 'www.mendeley.com')
-CSP_IMG_SRC = ("'self'", 'scipost.org',
+CSP_FRAME_SRC = ("'self'", 'scipost.org', "'report-sample'",
+                 'www.google.com', 'player.vimeo.com', 'www.recaptcha.net', 'www.mendeley.com')
+CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org')
-CSP_SCRIPT_SRC = ("'self'", 'scipost.org',
+CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
                   'cdnjs.cloudflare.com', 'crossmark-cdn.crossref.org',
                   'www.recaptcha.net', 'www.gstatic.com',
                   'code.jquery.com')
-CSP_STYLE_SRC = ("'self'", 'scipost.org',
+CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com', 'cdnjs.cloudflare.com')
 CSP_INCLUDE_NONCE_IN = ('script-src',)
