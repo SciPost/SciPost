@@ -198,7 +198,7 @@ REFERRER_POLICY = 'same-origin'
 CSP_FONT_SRC = ("'self'", 'scipost.org',
                 'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
                 'www.google.com', 'themes.googleusercontent.com')
-CSP_FRAME_SRC = ('www.google.com', 'player.vimeo.com', 'www.mendeley.com')
+CSP_FRAME_SRC = ('www.google.com', 'player.vimeo.com', 'www.recaptcha.net', 'www.mendeley.com')
 CSP_IMG_SRC = ("'self'", 'scipost.org',
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org')
