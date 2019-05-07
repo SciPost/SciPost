@@ -7,9 +7,9 @@
           {% if conflict.status == 'unverified' %}
             <i class="fa-li fa fa-question-circle text-warning" aria-hidden="true"></i>
             Please
-            <a href="javascript:;" onclick="update_conflict({{ conflict.id }}, 'verified')">verify</a>
+            <button type="button" class="btn btn-link p-0" onclick="update_conflict({{ conflict.id }}, 'verified')">verify</button>
             or
-            <a href="javascript:;" class="text-danger" onclick="update_conflict({{ conflict.id }}, 'delete')">delete</a>
+            <button type="button" class="btn btn-link p-0 text-danger" onclick="update_conflict({{ conflict.id }}, 'delete')">delete</button>
 
             this conflict.
           {% elif conflict.status == 'verified' %}

@@ -81,9 +81,9 @@
               <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
               {% if invitation.referee.editorial_communications|filter_for_submission:submission %}
                 <br>
-                <a href="javascript:;" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
-                  Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})
-                </a>
+                <button type="button" class="btn btn-link p-0" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
+                  <small>Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})</small>
+                </button>
               {% endif %}
             {% else %}
               (not yet registered)
@@ -98,9 +98,9 @@
           <td colspan="3"></td>
           <td colspan="2">
             {% if invitation.referee %}
-              <a href="javascript:;" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
-                Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})
-              </a>
+              <button type="button" class="btn btn-link p-0" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
+                <small>Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})</small>
+              </button>
             {% endif %}
           </td>
         {% endif %}
@@ -110,7 +110,7 @@
           <td></td>
           <td colspan="8">
             {% include 'partials/submissions/communication_thread.html' with communication=invitation.referee.editorial_communications|filter_for_submission:submission css_class='wide' %}
-            <a href="javascript:;" class="d-inline-block mb-2" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">Hide communication</a>
+            <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
           </td>
         </tr>
       {% endif %}
