@@ -140,7 +140,7 @@ def vet_submitted_comment(request, comment_id):
                 'commenters/inform_commenter_comment_rejected',
                 comment=comment,
                 email_response=form.cleaned_data['email_response_field']) # TODO: needs kwargs to mail template
-            mail_sender.send_email()
+            mail_sender.send_mail()
 
 
             if isinstance(comment.content_object, Submission):
