@@ -3,15 +3,8 @@
     "recipient_list": [
 	"jscaux@scipost.org"
     ],
-    "recipient_list_bup": [
-        "referee.user.email"
-    ],
     "bcc": [
         "edadmin@scipost.org"
-    ],
-    "bcc_bup": [
-        "edadmin@scipost.org",
-        "submission.editor_in_charge.user.email"
     ],
     "from_name": "SciPost Refereeing",
     "from_email": "refereeing@scipost.org"
