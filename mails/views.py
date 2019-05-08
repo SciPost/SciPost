@@ -56,7 +56,8 @@ class MailFormView(MailViewBase, UpdateView):
 
         if form.is_valid():
             self.mail_form = EmailForm(
-                request.POST or None, mail_code=self.mail_code,
+                request.POST or None, csp_nonce=self.request.csp_nonce,
+                mail_code=self.mail_code,
                 instance=self.object, **self.get_mail_config(), **self.mail_variables)
             if self.mail_form.is_valid():
                 return self.form_valid(form)
@@ -115,6 +116,7 @@ class MailView(MailViewBase, UpdateView):
         kwargs = super().get_form_kwargs()
         kwargs['mail_code'] = self.mail_code
         kwargs['instance'] = self.get_object()
+        kwargs['csp_nonce'] = self.request.csp_nonce
         kwargs.update(**self.get_mail_config())
         kwargs.update(**self.mail_variables)
         return kwargs
@@ -146,7 +148,9 @@ class MailEditorSubview:
         self.context = context or {}
         self.request = request
         self.header_template = header_template
-        self.mail_form = EmailForm(request.POST or None, mail_code=mail_code, **kwargs)
+        self.mail_form = EmailForm(request.POST or None,
+                                   csp_nonce=self.request.csp_nonce,
+                                   mail_code=mail_code, **kwargs)
         self._is_valid = False
 
     def interrupt(self):

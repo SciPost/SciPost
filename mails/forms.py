@@ -51,6 +51,8 @@ class EmailForm(forms.Form):
         # Set the data as initials
         self.engine = MailEngine(self.mail_code, **self.extra_config, **kwargs)
         self.engine.validate(render_template=True)
+        self.fields['text'].widget = SummernoteEditor(
+            csp_nonce=kwargs.pop('csp_nonce', 'Hello!'))
         self.fields['text'].initial = self.engine.mail_data['html_message']
         self.fields['subject'].initial = self.engine.mail_data['subject']
 

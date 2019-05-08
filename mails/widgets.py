@@ -13,6 +13,7 @@ class SummernoteEditor(widgets.Textarea):
     def __init__(self, *args, **kwargs):
         self.options = kwargs.pop('options', {})
         self.include_jquery = False
+        self.csp_nonce = kwargs.pop('csp_nonce', {})
         super().__init__(*args, **kwargs)
 
     def get_options(self):
@@ -51,11 +52,11 @@ class SummernoteEditor(widgets.Textarea):
 
     def trigger_summernote(self, el_id, options):
         str = """
-        <script type='text/javascript'>
+        <script type='text/javascript' nonce="%s">
             $(function() {
                 $('#%s').summernote(%s);
             });
-        </script>""" % (el_id, options)
+        </script>""" % (self.csp_nonce, el_id, options)
         return str
 
     @property
