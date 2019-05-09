@@ -2,11 +2,9 @@
     "subject": "SciPost: refereeing deadline approaching",
     "recipient_list": [
 	"jscaux@scipost.org"
-        // "referee.user.email"
     ],
     "bcc": [
         "edadmin@scipost.org"
-        // "submission.editor_in_charge.user.email",
     ],
     "from_name": "SciPost Refereeing",
     "from_email": "refereeing@scipost.org"
