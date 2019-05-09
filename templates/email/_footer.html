@@ -1,29 +1,18 @@
 {% load staticfiles %}
 
-<div style="color: #333333; background-color: #eeeeee; font-size: 75%; text-align: center; margin: 0em; padding: 0rem;">
-  <div style="background-color: #002b49; display: inline-block; margin: 1rem; text-align: center; vertical-align: middle;">
-    <ul style="font-size: 90%; list-style: none; padding: 0rem;">
-      <li>
-	<a href="https://scipost.org/">
-	  <img src="{% static 'scipost/images/logo_scipost_RGB_HTML.png' %}" style="background-color: #002b49; padding: 1rem;" width="100rem">
-	</a>
-      </li>
-      <li><a style="color: #eeeeee;" href="https://scipost.org/">Homepage</a></li>
-      <li><a style="color: #eeeeee;" href="https://scipost.org/journals/">Journals</a></li>
-      <li><a style="color: #eeeeee;" href="https://scipost.org/submissions/">Submissions</a></li>
-      <li><a style="color: #eeeeee;" href="https://scipost.org/login/">Login</a></li>
-    </ul>
+<div style="display: flex; flex-flow: row-wrap; color: #333333; background-color: #eeeeee; font-size: 75%; justify-content: space-around; width: 100%;">
+  <div style="background-color: #002b49; margin: 1rem; text-align: center; vertical-align: middle;">
+    <a href="https://scipost.org/">
+      <img src="{% static 'scipost/images/logo_scipost_RGB_HTML.png' %}" style="background-color: #002b49; margin: 1rem; padding: 0rem; vertical-align: middle;" width="128rem">
+    </a>
   </div>
-  <div style="display: inline-block; margin: 1rem; text-align: center; vertical-align: middle;">
+  <div style="margin: 1rem; text-align: center; vertical-align: middle;">
     <ul style="list-style: none; margin-bottom: 0rem; padding: 0rem; vertical-align: middle;">
       <li><strong>SciPost Foundation</strong></li>
-      <li>Institute of Physics</li>
-      <li>University of Amsterdam</li>
-      <li>Postbus 94485</li>
-      <li>1090 GL Amsterdam</li>
+      <li>Institute of Physics, University of Amsterdam</li>
+      <li>Postbus 94485, 1090 GL Amsterdam</li>
       <li>The Netherlands</li>
-      <li>+31 (0)20 525 5775</li>
-      <li><a href="mailto:admin@scipost.org">admin@scipost.org</a></li>
+      <li>+31 (0)20 525 5775&emsp;<a href="mailto:admin@scipost.org">admin@scipost.org</a></li>
     </ul>
   </div>
 </div>
