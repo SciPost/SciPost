@@ -1,7 +1,7 @@
 <table class="w-100 mb-1">
   <tr>
     <td style="min-width: 40%;">Version</td>
-    <td>{{submission.preprint.vn_nr}} ({% if submission.is_current %}current version{% else %}deprecated version {{submission.preprint.vn_nr}}{% endif %})</td>
+    <td>{{ submission.preprint.vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.preprint.vn_nr }}{% endif %})</td>
   </tr>
   {% if submission.preprint.url %}
     <tr>
@@ -20,7 +20,7 @@
   {% endif %}
   <tr>
     <td>Submitted</td>
-    <td>{{submission.submission_date}} to {{submission.submitted_to}}</td>
+    <td>{{ submission.submission_date }} to {{ submission.submitted_to }}</td>
   </tr>
 
   {% if submission.proceedings %}
@@ -33,13 +33,13 @@
   {% if submission.acceptance_date %}
     <tr>
       <td>Accepted</td>
-      <td>{{submission.acceptance_date}}</td>
+      <td>{{ submission.acceptance_date }}</td>
     </tr>
   {% endif %}
 
   <tr>
     <td>Latest activity</td>
-    <td>{{submission.latest_activity}}</td>
+    <td>{{ submission.latest_activity }}</td>
   </tr>
   <tr>
     <td>Editor-in-charge</td>
@@ -67,8 +67,8 @@
   <tr>
     <td>Comments</td>
     <td>
-      {{submission.comments.vetted.count}}
-      <small><span class="fa fa-info-circle" data-toggle="tooltip" data-placement='bottom' data-html="true" title="{{submission.comments.regular_comments.vetted.count}} comments<br>{{submission.comments.author_replies.vetted.count}} author replies<hr>{{submission.comments.awaiting_vetting.count}} awaiting vetting"></span></small>
+      {{ submission.comments.vetted.count }}
+      <small><span class="fa fa-info-circle" data-toggle="tooltip" data-placement='bottom' data-html="true" title="{{ submission.comments.regular_comments.vetted.count }} comments<br>{{ submission.comments.author_replies.vetted.count }} author replies<hr>{{ submission.comments.awaiting_vetting.count }} awaiting vetting"></span></small>
     </td>
   </tr>
 
