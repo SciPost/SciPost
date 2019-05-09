@@ -13,6 +13,28 @@
           {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
         {% endif %}
       </div>
+      <div class="modal" id="modal_{{ sub.id }}" tabindex="-1" role="dialog">
+	<div class="modal-dialog model-dialog-scrollable modal-lg" role="document">
+	  <div class="modal-content">
+	    <div class="modal-header">
+	      <h3 class="modal-title">
+		<a href="{% url 'submissions:submission' sub.preprint.identifier_w_vn_nr %}" target="_blank">{{ sub.title }}</a><br>
+		<em>by {{ sub.author_list }}</em></h3>
+	      <button type="button" class="close" data-dismiss="modal">
+		<span>&times;</span>
+	      </button>
+	    </div>
+	    <div class="modal-body" id="modal_{{ sub.id }}_body">
+              {% if submission and submission == sub %}
+		{% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+              {% endif %}
+	    </div>
+	    <div class="modal-footer">
+	      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	    </div>
+	  </div>
+	</div>
+      </div>
     </li>
   {% empty %}
     <li><em>No Submissions found.</em></li>

@@ -1,6 +1,7 @@
 {% extends 'submissions/pool/base.html' %}
 
 {% load bootstrap %}
+{% load staticfiles %}
 {% load guardian_tags %}
 {% load scipost_extras %}
 {% load submissions_extras %}
@@ -155,4 +156,8 @@
 
     </div><!-- End page content -->
   </div>
+{% endblock %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/button-toggle-modal-load.js' %}"></script>
 {% endblock %}

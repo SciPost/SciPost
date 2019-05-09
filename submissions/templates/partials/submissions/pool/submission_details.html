@@ -8,9 +8,6 @@
 
 <hr>
 <div class="bg-white submission-detail mt-1">
-  <div class="text-center mb-1">
-    <button type="button" class="btn btn-link d-inline-block py-0 px-3" data-toggle="hide" data-target="#container_{{ submission.id }}"><small>Hide details</small> <i class="fa fa-angle-up text-blue" aria-hidden="true"></i></button>
-  </div>
 
   <div class="card-body px-0">
     <div class="row">
@@ -39,18 +36,18 @@
 
     {% if is_editor_in_charge or is_editorial_admin or submission|is_voting_fellow:request.user %}
       <div class="my-4 p-3 border{% if submission.cycle.has_required_actions %} border-danger bg-light{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
-        <h3>
+	<h3>
           {% if submission.cycle.has_required_actions %}
             <i class="fa fa-exclamation-triangle text-danger"></i>
           {% else %}
             <i class="fa fa-check-circle"></i>
           {% endif %}
           Required actions
-        </h3>
-        {{ submission.cycle.required_actions }}
+	</h3>
+	{{ submission.cycle.required_actions }}
       </div>
       <h4>
-        <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+	<a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
       </h4>
     {% endif %}
 
@@ -120,7 +117,4 @@
     {% endif %}
   </div>
 
-  <div class="text-center mb-1">
-    <button type="button" class="btn btn-link d-inline-block py-0 px-3" data-toggle="hide" data-target="#container_{{ submission.id }}"><small>Hide details</small> <i class="fa fa-angle-up text-blue" aria-hidden="true"></i></button>
-  </div>
 </div>
