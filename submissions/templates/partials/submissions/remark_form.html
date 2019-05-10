@@ -1,7 +1,4 @@
 {% load bootstrap %}
-{% load staticfiles %}
-
-<script type="text/javascript" src="{% static 'scipost/remark-form.js' %}"></script>
 
 {% if auto_show %}
   <form action="{% url 'submissions:add_remark' submission.preprint.identifier_w_vn_nr %}" method="post" class="pb-2">
