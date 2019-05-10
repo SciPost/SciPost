@@ -14,9 +14,9 @@
     <div class="col-md-10">
       {% for widget in form.refereeing_cycle.subwidgets %}
         <div class="radio" data-reinvite="{% if widget.data.value == 'direct_rec' %}0{% else %}1{% endif %}">
-          <label for="{{widget.id_for_label}}" class="mb-0">
-            {{widget.tag}}
-            {{widget.choice_label}}
+          <label for="{{ widget.id_for_label }}" class="mb-0">
+            {{ widget.tag }}
+            {{ widget.choice_label }}
           </label>
         </div>
         <p class="help-block text-muted">
@@ -52,12 +52,12 @@
         <ul class="list-group list-group-flush">
           {% for referee in form.referees_reinvite.field.queryset %}
             <li class="list-group-item py-1">
-              <label for="{{form.referees_reinvite.name}}_{{forloop.counter0}}" class="mb-0">
-                <input checked="checked" id="{{form.referees_reinvite.name}}_{{forloop.counter0}}" name="{{form.referees_reinvite.name}}" type="checkbox" value="{{referee.id}}">
+              <label for="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" class="mb-0">
+                <input checked="checked" id="{{ form.referees_reinvite.name }}_{{ forloop.counter0 }}" name="{{ form.referees_reinvite.name }}" type="checkbox" value="{{referee.id}}">
                 <div class="d-inline-block" style="vertical-align: top;">
-                  {{referee.referee_str}}
+                  {{ referee.referee_str }}
                   <br>
-                  <span class="text-muted">Originally invited on {{referee.date_invited}}</span>
+                  <span class="text-muted">Originally invited on {{ referee.date_invited }}</span>
                 </div>
               </label>
             </li>
@@ -73,10 +73,10 @@
   <input type="submit" class="btn btn-primary" value="Confirm choice">
 </form>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
  jQuery(function(){
-     $('[name="{{form.refereeing_cycle.name}}"]').on('click change', function(){
-         var element = $('[name="{{form.refereeing_cycle.name}}"]:checked');
+     $('[name="{{ form.refereeing_cycle.name }}"]').on('click change', function(){
+         var element = $('[name="{{ form.refereeing_cycle.name }}"]:checked');
          var reinvite = element.parents('.radio').attr('data-reinvite') == 1;
 
          // Show/hide invitation block
