@@ -199,6 +199,7 @@ CSP_FONT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                 'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
                 'www.google.com', 'themes.googleusercontent.com')
 CSP_FRAME_SRC = ("'self'", 'scipost.org', "'report-sample'",
+                 'crossmark.crossref.org',
                  'www.google.com', 'player.vimeo.com', 'www.recaptcha.net', 'www.mendeley.com')
 CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
@@ -209,6 +210,7 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'www.recaptcha.net', 'www.gstatic.com',
                   'code.jquery.com')
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
+                 'crossmark-cdn.crossref.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com', 'cdnjs.cloudflare.com')
 CSP_INCLUDE_NONCE_IN = ('script-src',)

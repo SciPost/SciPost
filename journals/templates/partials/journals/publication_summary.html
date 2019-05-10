@@ -2,14 +2,14 @@
 
 <div class="row">
   <div class="col-12">
-    <h2 class="text-blue">{{publication.title}}{% if publication.status == 'draft' %} <label class="label label-warning label-sm">{{ publication.get_status_display }}</label>{% endif %}
+    <h2 class="text-blue">{{ publication.title }}{% if publication.status == 'draft' %} <label class="label label-warning label-sm">{{ publication.get_status_display }}</label>{% endif %}
     </h2>
 
     <p class="mb-1">{{ publication.author_list }}</p>
     <p class="text-muted mb-0">
       {{ publication.citation }} &middot; published {{ publication.publication_date|date:'j F Y' }}
       {% if publication.cc_license != 'CC BY 4.0' %}
-        &middot; licensed under {{publication.get_cc_license_display}}
+        &middot; licensed under {{ publication.get_cc_license_display }}
       {% endif %}
 
       {% if user.is_authenticated %}
@@ -20,9 +20,9 @@
     </p>
 
     <ul class="publicationClickables mt-3">
-      <li>doi:  {{publication.doi_string}}</li>
+      <li>doi:  {{ publication.doi_string }}</li>
       <li class="publicationPDF">
-        <a href="{{publication.get_absolute_url}}/pdf" target="_blank">pdf</a>
+        <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
       </li>
       <li><button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#bibtextmodal">BiBTeX</button></li>
       <li><button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#rismodal">RIS</button></li>
@@ -74,7 +74,7 @@
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
-        <div><pre><code>{{publication.BiBTeX_entry|linebreaksbr}}</code></pre></div>
+        <div><pre><code>{{ publication.BiBTeX_entry|linebreaksbr }}</code></pre></div>
       </div>
     </div>
   </div>
