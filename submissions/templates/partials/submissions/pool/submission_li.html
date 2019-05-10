@@ -32,7 +32,8 @@
       {% if submission.status == 'unassigned' %}
         <span class="card-text text-danger">You can volunteer to become Editor-in-charge by <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">clicking here</a>.</span>
       {% elif submission.editor_in_charge == request.user.contributor %}
-        <strong>You are Editor-in-charge</strong>
+        <strong>You are the EIC</strong>
+        <a role="button" class="btn btn-info px-1 py-0" href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"><small><i class="fa fa-arrow-right"></i> Editorial&nbsp;page</small></a>
       {% else %}
         {{ submission.editor_in_charge }}
       {% endif %}
@@ -40,10 +41,7 @@
     <div class="col-md-2">
       <small class="text-muted">Actions</small>
       <br>
-      <button type="button" class="btn btn-primary px-1 py-0" data-href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" data-toggle="modal" data-target="#modal_{{ submission.id }}" data-target-body="#modal_{{ submission.id }}_body"><small>See details</small></button><br>
-      {% if submission.editor_in_charge == request.user.contributor %}
-        &middot; <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Editorial page</a>
-      {% endif %}
+      <button type="button" class="btn btn-primary px-1 py-0" data-href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" data-toggle="modal" data-target="#modal_{{ submission.id }}" data-target-body="#modal_{{ submission.id }}_body"><small>View details</small></button><br>
     </div>
     <div class="col-md-2">
       <small class="text-muted">Original submission date</small>
