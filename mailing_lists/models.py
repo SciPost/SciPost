@@ -130,8 +130,10 @@ class MailchimpSubscription(TimeStampedModel):
     Track the Contributors' settings on wheter he/she wants to have an
     active subscription to a specific (public) list.
     """
-    active_list = models.ForeignKey('mailing_lists.MailchimpList')
-    contributor = models.ForeignKey('scipost.Contributor', related_name='mail_subscription')
+    active_list = models.ForeignKey('mailing_lists.MailchimpList', on_delete=models.CASCADE)
+    contributor = models.ForeignKey('scipost.Contributor',
+                                    on_delete=models.CASCADE,
+                                    related_name='mail_subscription')
     status = models.CharField(max_length=255, choices=MAILCHIMP_STATUSES,
                               default=MAILCHIMP_SUBSCRIBED)
 

@@ -36,7 +36,9 @@ class RegistrationInvitation(models.Model):
     personal_message = models.TextField(blank=True)
     invited_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
                                    blank=True, null=True, related_name='invitations_sent')
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='invitations_created')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   on_delete=models.CASCADE,
+                                   related_name='invitations_created')
 
     # Related to objects
     invitation_type = models.CharField(max_length=2, choices=constants.INVITATION_TYPE,
@@ -109,13 +111,15 @@ class CitationNotification(models.Model):
 
     # Content
     submission = models.ForeignKey('submissions.Submission', null=True, blank=True,
-                                   related_name='+')
+                                   on_delete=models.CASCADE, related_name='+')
     publication = models.ForeignKey('journals.Publication', null=True, blank=True,
-                                    related_name='+')
+                                    on_delete=models.CASCADE, related_name='+')
     processed = models.BooleanField(default=False)
 
     # Meta info
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='notifications_created')
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                   on_delete=models.CASCADE,
+                                   related_name='notifications_created')
     date_sent = models.DateTimeField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)

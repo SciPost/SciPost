@@ -42,8 +42,7 @@ class Comment(TimeStampedModel):
         validators=[validate_file_extension, validate_max_file_size])
 
     # A Comment is always related to another model
-    # This construction implicitly has property: `on_delete=models.CASCADE`
-    content_type = models.ForeignKey(ContentType, help_text=WARNING_TEXT)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, help_text=WARNING_TEXT)
     object_id = models.PositiveIntegerField(help_text=WARNING_TEXT)
     content_object = GenericForeignKey()
 

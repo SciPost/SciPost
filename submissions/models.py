@@ -54,7 +54,8 @@ class Submission(models.Model):
     will directly be related to the latest Submission in the thread.
     """
 
-    preprint = models.OneToOneField('preprints.Preprint', related_name='submission')
+    preprint = models.OneToOneField('preprints.Preprint', on_delete=models.CASCADE,
+                                    related_name='submission')
 
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=10000, verbose_name="author list")
@@ -79,7 +80,8 @@ class Submission(models.Model):
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
-    is_resubmission_of = models.ForeignKey('self', blank=True, null=True, related_name='successor')
+    is_resubmission_of = models.ForeignKey('self', blank=True, null=True,
+                                           on_delete=models.SET_NULL, related_name='successor')
     thread_hash = models.UUIDField(default=uuid.uuid4)
     _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
@@ -98,7 +100,7 @@ class Submission(models.Model):
 
     submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
-                                    related_name='submissions')
+                                    on_delete=models.SET_NULL, related_name='submissions')
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:

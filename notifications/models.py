@@ -45,11 +45,12 @@ class Notification(models.Model):
     level = models.CharField(choices=LEVELS, default='info', max_length=20)
 
     recipient = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False,
-                                  related_name='notifications')
+                                  on_delete=models.CASCADE, related_name='notifications')
     unread = models.BooleanField(default=True)
     pseudo_unread = models.BooleanField(default=True)  # Used to keep notification-bg "active"
 
-    actor_content_type = models.ForeignKey(ContentType, related_name='notify_actor')
+    actor_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
+                                           related_name='notify_actor')
     actor_object_id = models.CharField(max_length=255)
     actor = GenericForeignKey('actor_content_type', 'actor_object_id')
 
@@ -57,13 +58,15 @@ class Notification(models.Model):
     description = models.TextField(blank=True, null=True)
 
     target_content_type = models.ForeignKey(ContentType, related_name='notify_target',
-                                            blank=True, null=True)
+                                            blank=True, null=True,
+                                            on_delete=models.SET_NULL)
     target_object_id = models.CharField(max_length=255, blank=True, null=True)
     target = GenericForeignKey('target_content_type', 'target_object_id')
 
     url_code = models.CharField(max_length=255, blank=True)
 
     action_object_content_type = models.ForeignKey(ContentType, blank=True, null=True,
+                                                   on_delete=models.SET_NULL,
                                                    related_name='notify_action_object')
     action_object_object_id = models.CharField(max_length=255, blank=True, null=True)
     action_object = GenericForeignKey('action_object_content_type', 'action_object_object_id')

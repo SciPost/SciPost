@@ -19,7 +19,7 @@ class Proceedings(TimeStampedModel):
     """
     # Link to the actual Journal platform
     issue = models.OneToOneField(
-        'journals.Issue', related_name='proceedings',
+        'journals.Issue', on_delete=models.CASCADE, related_name='proceedings',
         limit_choices_to=models.Q(in_volume__in_journal__name='SciPostPhysProc') | models.Q(in_journal__name='SciPostPhysProc'))
     minimum_referees = models.PositiveSmallIntegerField(
         help_text='Require an explicit minimum number of referees for the default ref cycle.',
@@ -33,7 +33,8 @@ class Proceedings(TimeStampedModel):
     event_end_date = models.DateField(null=True, blank=True)
 
     # Fellows
-    lead_fellow = models.ForeignKey('colleges.Fellowship', null=True, blank=True, related_name='+')
+    lead_fellow = models.ForeignKey('colleges.Fellowship', null=True, blank=True,
+                                    on_delete=models.SET_NULL, related_name='+')
     fellowships = models.ManyToManyField('colleges.Fellowship', blank=True,
                                          limit_choices_to={'guest': True})
 

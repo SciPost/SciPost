@@ -48,7 +48,7 @@ class Commentary(TimeStampedModel):
                                            verbose_name='string form of arxiv nr or'
                                                         ' DOI for commentary url')
     scipost_publication = models.OneToOneField('journals.Publication', null=True, blank=True,
-                                               related_name='commentary')
+                                               on_delete=models.SET_NULL, related_name='commentary')
 
     # Authors which have been mapped to contributors:
     author_list = models.CharField(max_length=1000)

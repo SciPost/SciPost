@@ -46,10 +46,13 @@ class ProductionStream(models.Model):
                               default=PRODUCTION_STREAM_INITIATED)
 
     officer = models.ForeignKey('production.ProductionUser', blank=True, null=True,
+                                on_delete=models.SET_NULL,
                                 related_name='streams')
     supervisor = models.ForeignKey('production.ProductionUser', blank=True, null=True,
+                                   on_delete=models.SET_NULL,
                                    related_name='supervised_streams')
     invitations_officer = models.ForeignKey('production.ProductionUser', blank=True, null=True,
+                                            on_delete=models.SET_NULL,
                                             related_name='invitations_officer_streams')
 
     work_logs = GenericRelation(WorkLog, related_query_name='streams')
@@ -157,8 +160,10 @@ class Proofs(models.Model):
     """
     attachment = models.FileField(upload_to=proofs_upload_location, storage=SecureFileStorage())
     version = models.PositiveSmallIntegerField(default=0)
-    stream = models.ForeignKey('production.ProductionStream', related_name='proofs')
-    uploaded_by = models.ForeignKey('production.ProductionUser', related_name='+')
+    stream = models.ForeignKey('production.ProductionStream', on_delete=models.CASCADE,
+                               related_name='proofs')
+    uploaded_by = models.ForeignKey('production.ProductionUser', on_delete=models.CASCADE,
+                                    related_name='+')
     created = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=16, choices=PROOFS_STATUSES, default=PROOFS_UPLOADED)
     accessible_for_authors = models.BooleanField(default=False)

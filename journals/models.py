@@ -45,7 +45,8 @@ class PublicationAuthorsTable(models.Model):
     * order: the ordinal position of this author in this Publication's list of authors.
     """
 
-    publication = models.ForeignKey('journals.Publication', related_name='authors')
+    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
+                                    related_name='authors')
     profile = models.ForeignKey('profiles.Profile', on_delete=models.PROTECT,
                                 blank=True, null=True)
     affiliations = models.ManyToManyField('organizations.Organization', blank=True)
@@ -734,7 +735,7 @@ class GenericDOIDeposit(models.Model):
     Instances of this class represent Crossref deposits for non-publication
     objects such as Reports, Comments etc.
     """
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
     timestamp = models.CharField(max_length=40, default='')

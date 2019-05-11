@@ -30,8 +30,10 @@ class ConflictOfInterest(models.Model):
     status = models.CharField(
          max_length=16, choices=CONFLICT_OF_INTEREST_STATUSES, default=STATUS_UNVERIFIED)
     type = models.CharField(max_length=16, choices=COI_TYPES, default=TYPE_OTHER)
-    profile = models.ForeignKey('profiles.Profile', related_name='conflicts')
-    related_profile = models.ForeignKey('profiles.Profile', related_name='+')
+    profile = models.ForeignKey('profiles.Profile',
+                                on_delete=models.CASCADE, related_name='conflicts')
+    related_profile = models.ForeignKey('profiles.Profile',
+                                        on_delete=models.CASCADE, related_name='+')
 
     # To
     related_submissions = models.ManyToManyField(

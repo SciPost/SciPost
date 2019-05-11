@@ -107,7 +107,7 @@ class SubsidyAttachment(models.Model):
                                   storage=SecureFileStorage())
     name = models.CharField(max_length=128)
     subsidy = models.ForeignKey('finances.Subsidy', related_name='attachments',
-                                  blank=True)
+                                blank=True, on_delete=models.CASCADE)
     publicly_visible = models.BooleanField(default=False)
 
     def __str__(self):
@@ -131,14 +131,15 @@ class SubsidyAttachment(models.Model):
 
 
 class WorkLog(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     comments = models.TextField(blank=True)
     log_type = models.CharField(max_length=128, blank=True)
     duration = models.DurationField(blank=True, null=True)
     work_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
 
-    content_type = models.ForeignKey(ContentType, blank=True, null=True)
+    content_type = models.ForeignKey(ContentType, blank=True, null=True,
+                                     on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(blank=True, null=True)
     content = GenericForeignKey()
 
