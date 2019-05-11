@@ -17,7 +17,7 @@ django-countries==5.3.3
 django-debug-toolbar==1.8
 django-extensions==1.7.6
 django-filter==1.0.4
-django-guardian==1.4.9
+django-guardian==1.5.1	# 2019-05-11
 django-mathjax==0.0.8
 django-mptt==0.8.6  # Dead
 django-silk==2.0.0
@@ -32,7 +32,7 @@ Sphinx==1.4.9
 sphinx-rtd-theme==0.1.9  # Sphinx theme
 
 # Sentry
-sentry-sdk==0.7.8
+sentry-sdk==0.7.14  # 2019-05-11, req: certifi, urllib3
 
 # Testing
 factory-boy==2.10.0
