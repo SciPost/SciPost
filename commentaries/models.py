@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import TimeStampedModel
