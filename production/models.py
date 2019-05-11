@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.functional import cached_property

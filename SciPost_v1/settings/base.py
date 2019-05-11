@@ -27,7 +27,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
 # JSON-based secrets
-secrets = json.load(open(os.path.join(BASE_DIR, "secrets.json")))
+with open(os.path.join(BASE_DIR, "secrets.json")) as f:
+    secrets = json.load(f)
 
 
 def get_secret(setting, secrets=secrets):

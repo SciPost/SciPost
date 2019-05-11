@@ -7,7 +7,7 @@ import datetime
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone

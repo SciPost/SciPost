@@ -7,7 +7,7 @@ import datetime
 from django.contrib.syndication.views import Feed
 from django.http import Http404
 from django.utils.feedgenerator import Atom1Feed
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 
 from comments.models import Comment

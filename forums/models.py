@@ -6,7 +6,7 @@ import datetime
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils import timezone
 
@@ -126,6 +126,8 @@ class Meeting(Forum):
             '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
             'target="_blank">primer on python.org</a>')
         )
+
+    objects = models.Manager()
 
     def __str__(self):
         return '%s, [%s to %s]' % (self.forum,
@@ -258,3 +260,5 @@ class Motion(Post):
                                         related_name='abstain_with_motion')
     voting_deadline = models.DateField()
     accepted = models.NullBooleanField()
+
+    objects = models.Manager()

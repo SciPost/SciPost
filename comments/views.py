@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 import time
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse, Http404
 from django.utils import timezone

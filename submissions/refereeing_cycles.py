@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 import datetime
 import json
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join, html_safe
 

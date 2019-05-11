@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import re
 
 from django import template
-from django.core.urlresolvers import reverse, NoReverseMatch
+from django.urls import reverse, NoReverseMatch
 
 from urllib.parse import urlencode
 
