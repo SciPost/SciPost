@@ -36,9 +36,9 @@ admin.site.login = login_required(admin.site.login)
 urlpatterns = [
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^ajax_select/', include(ajax_select_urls)),
-    url(r'^api/', include(router.urls, namespace='api')),
+    url(r'^api/', include((router.urls, 'api'))),
     url(r'^10.21468/%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="_journal")),
     url(r'^', include('scipost.urls', namespace="scipost")),
