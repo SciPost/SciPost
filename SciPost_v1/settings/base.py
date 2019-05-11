@@ -135,7 +135,7 @@ HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
         'PATH': 'local_files/haystack/',
-        'EXCLUDED_INDEXES': ['sphinxdoc.search_indexes.DocumentIndex'],
+        'EXCLUDED_INDEXES': [],
         'INCLUDE_SPELLING': True,
     },
 }
@@ -144,13 +144,6 @@ HAYSTACK_CONNECTIONS = {
 # When write-traffic increases, a custom processor is preferred which only connects
 # signals to eg. `vet-accepted` signals possibly using cron jobs instead of realtime updates.
 HAYSTACK_SIGNAL_PROCESSOR = 'SciPost_v1.signalprocessors.SearchIndexingProcessor'
-
-
-SPHINXDOC_BASE_TEMPLATE = 'scipost/base.html'
-SPHINXDOC_BUILD_DIR = '../build'
-SPHINXDOC_PROTECTED_PROJECTS = {
-    'SciPost': ['scipost.can_view_docs_scipost'],
-}
 
 
 SHELL_PLUS_POST_IMPORTS = (
