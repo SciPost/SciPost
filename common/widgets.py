@@ -46,7 +46,7 @@ class DateWidget(Widget):
     def sqeeze_form_group(self, html, width=4):
         return '<div class="col-md-{width}">{html}</div>'.format(width=width, html=html)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         try:
             year_val, month_val, day_val = value.year, value.month, value.day
         except AttributeError:
