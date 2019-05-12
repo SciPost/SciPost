@@ -84,7 +84,6 @@ INSTALLED_APPS = (
     'django_extensions',
     'ajax_select',
     'haystack',
-    'captcha',
     'colleges',
     'commentaries',
     'comments',
