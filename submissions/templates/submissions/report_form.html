@@ -34,6 +34,10 @@
             <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
             <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
             <p class="mb-0">Any fields with an asterisk (*) are required.</p>
+	    <button class="btn btn-primary" id="reportSelectorButton">
+	      <span id="showSimpleReportButton">Show simplified Report form</span>
+	      <span id="showFullReportButton">Show full Report form</span>
+	    </button>
             {% if form.instance.is_followup_report %}
               <p class="mb-0">
                 Because you have already submitted a Report for this Submission series, not all fields are required.
@@ -86,5 +90,6 @@
 
 
 {% block footer_script %}
-  <script type="text/javascript" src="{% static 'scipost/report-preview.js' %}"></script>
+  <script src="{% static 'scipost/toggle-report-fields.js' %}">
+  <script src="{% static 'scipost/report-preview.js' %}"></script>
 {% endblock %}

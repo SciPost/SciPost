@@ -1084,25 +1084,27 @@ class ReportForm(forms.ModelForm):
         # If the Report is not a followup: Explicitly assign more fields as being required!
         if not self.instance.is_followup_report and self.submission.submitted_to.name != SCIPOST_JOURNAL_PHYSICS_PROC:
             required_fields_label += [
-                'strengths',
-                'weaknesses',
-                'requested_changes',
-                'validity',
-                'significance',
-                'originality',
-                'clarity',
-                'formatting',
-                'grammar']
+                # 'strengths',
+                # 'weaknesses',
+                # 'requested_changes',
+                # 'validity',
+                # 'significance',
+                # 'originality',
+                # 'clarity',
+                # 'formatting',
+                # 'grammar'
+            ]
             required_fields += [
-                'strengths',
-                'weaknesses',
-                'requested_changes',
-                'validity',
-                'significance',
-                'originality',
-                'clarity',
-                'formatting',
-                'grammar']
+                # 'strengths',
+                # 'weaknesses',
+                # 'requested_changes',
+                # 'validity',
+                # 'significance',
+                # 'originality',
+                # 'clarity',
+                # 'formatting',
+                # 'grammar'
+            ]
 
         for field in required_fields:
             self.fields[field].required = True
