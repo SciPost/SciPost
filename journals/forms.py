@@ -154,7 +154,7 @@ class CreateMetadataXMLForm(forms.ModelForm):
         idsalt = idsalt.encode('utf8')
         doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
 
-        funders = (Funder.objects.filter(grant__in=publication.grants.all())
+        funders = (Funder.objects.filter(grants__in=publication.grants.all())
                    | publication.funders_generic.all()).distinct()
 
         # Render from template
