@@ -1006,7 +1006,7 @@ class VotingEligibilityForm(forms.ModelForm):
 
     def save(self, commit=True):
         """Update EICRecommendation status and save its voters."""
-        self.instance.eligible_to_vote = self.cleaned_data['eligible_fellows']
+        self.instance.eligible_to_vote.set(self.cleaned_data['eligible_fellows'])
         self.instance.status = PUT_TO_VOTING
 
         if commit:
