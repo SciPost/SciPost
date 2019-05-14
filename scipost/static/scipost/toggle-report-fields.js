@@ -2,8 +2,11 @@ $(document).ready(function(){
     $('#showSimpleReportButton').show();
     $('#showFullReportButton').hide();
     $('#reportSelectorButton').on('click', function () {
+	$('#showSimpleReportText').toggle();
 	$('#showSimpleReportButton').toggle();
+	$('#showFullReportText').toggle();
 	$('#showFullReportButton').toggle();
+	$('#id_qualification').parent('div').parent('div').toggle();
 	$('#id_strengths').parent('div').parent('div').toggle();
 	$('#id_weaknesses').parent('div').parent('div').toggle();
 	$('#id_requested_changes').parent('div').parent('div').toggle();

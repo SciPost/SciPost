@@ -1038,7 +1038,7 @@ class ReportForm(forms.ModelForm):
         model = Report
         fields = ['qualification', 'strengths', 'weaknesses', 'report', 'requested_changes',
                   'validity', 'significance', 'originality', 'clarity', 'formatting', 'grammar',
-                  'recommendation', 'remarks_for_editors', 'anonymous', 'file_attachment']
+                  'recommendation', 'remarks_for_editors', 'file_attachment', 'anonymous']
 
     def __init__(self, *args, **kwargs):
         if kwargs.get('instance'):
@@ -1074,16 +1074,19 @@ class ReportForm(forms.ModelForm):
             'cols': 100
         })
 
+        self.fields['file_attachment'].label = 'File attachment (for a figure or similar)'
+
         # Required fields on submission; optional on save as draft
         if 'save_submit' in self.data:
-            required_fields = ['report', 'recommendation', 'qualification']
+            required_fields = ['report', 'recommendation']
         else:
             required_fields = []
-        required_fields_label = ['report', 'recommendation', 'qualification']
+        required_fields_label = ['report', 'recommendation']
 
         # If the Report is not a followup: Explicitly assign more fields as being required!
         if not self.instance.is_followup_report and self.submission.submitted_to.name != SCIPOST_JOURNAL_PHYSICS_PROC:
             required_fields_label += [
+                # 'qualification',
                 # 'strengths',
                 # 'weaknesses',
                 # 'requested_changes',
@@ -1095,6 +1098,7 @@ class ReportForm(forms.ModelForm):
                 # 'grammar'
             ]
             required_fields += [
+                # 'qualification',
                 # 'strengths',
                 # 'weaknesses',
                 # 'requested_changes',

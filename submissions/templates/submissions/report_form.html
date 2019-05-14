@@ -33,12 +33,42 @@
           <div class="card-body">
             <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
             <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
-            <p class="mb-0">Any fields with an asterisk (*) are required.</p>
-	    <button class="btn btn-primary" id="reportSelectorButton">
-	      <span id="showSimpleReportButton">Show simplified Report form</span>
-	      <span id="showFullReportButton">Show full Report form</span>
-	    </button>
-            {% if form.instance.is_followup_report %}
+	    <p>Before you get started, please make sure you are familiar with our <a href="https://scipost.org{% url 'submissions:referee_guidelines' %}" target="_blank">referee guidelines</a>, <a href="https://scipost.org{% url 'submissions:sub_and_ref_procedure' %}" target="_blank">refereeing procedure</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</p>
+	    <div class="mb-0">
+	      <table class="table">
+		<tr>
+		  <th>Required fields</th>
+		  <td>
+		    <ul>
+		      <li>text field for <em>report</em></li>
+		      <li><em>recommendation</em> (publish? revise? reject?)</li>
+		      <li><em class="text-muted">optional remarks for the editors only</em></li>
+		      <li><em>anonymity</em> specifier</li>
+		    </ul>
+		  </td>
+		</tr>
+		<tr>
+		  <th>Optional fields</th>
+		  <td>
+		    <ul>
+		      <li><em>qualification</em> specifier</li>
+		      <li>text fields for <em>strengths, weaknesses, report, requested changes</em></li>
+		      <li>and specifiers for <em>validity, significance, originality, clarity, formatting</em> and <em>grammar</em></li>
+		    </ul>
+		  </td>
+		</tr>
+	      </table>
+	      <button class="btn btn-primary px-2 py-1" id="reportSelectorButton">
+		<span id="showSimpleReportButton">
+		  Show required fields only
+		</span>
+		<span id="showFullReportButton">
+		  Show all fields
+		</span>
+	      </button>
+	    </div>
+
+	    {% if form.instance.is_followup_report %}
               <p class="mb-0">
                 Because you have already submitted a Report for this Submission series, not all fields are required.
               </p>
@@ -90,6 +120,6 @@
 
 
 {% block footer_script %}
-  <script src="{% static 'scipost/toggle-report-fields.js' %}">
+  <script src="{% static 'scipost/toggle-report-fields.js' %}"></script>
   <script src="{% static 'scipost/report-preview.js' %}"></script>
 {% endblock %}
