@@ -47,12 +47,12 @@
     {% for discipline,fellowships in disciplines.items %}
       <div class="card">
 	<div class="card-header text-center" id="editorial_college_{{ discipline|lower }}">
-	  <h1 class="mb-0">
-	    {{ discipline }}<br/>
-	    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse_editorial_college_{{ discipline|lower }}" aria-expanded="false" aria-controls="collapse_editorial_college_{{ discipline|lower }}">
-	      <small>Click to expand/collapse</small>
-	    </button>
+	  <h1>
+	    {{ discipline }}
 	  </h1>
+	  <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapse_editorial_college_{{ discipline|lower }}" aria-expanded="false" aria-controls="collapse_editorial_college_{{ discipline|lower }}">
+	    <em><small>Click to expand/collapse</small></em>
+	  </button>
 	</div>
 
 	<div id="collapse_editorial_college_{{ discipline|lower }}" class="collapse" aria-labelledby="editorial_college_{{ discipline|lower }}" data-parent="#accordionEditorialColleges">
