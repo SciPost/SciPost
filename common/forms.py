@@ -52,7 +52,7 @@ class MonthYearWidget(Widget):
     def sqeeze_form_group(self, html, width=6):
         return '<div class="form-group col-md-{width}">{html}</div>'.format(width=width, html=html)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         try:
             year_val, month_val = value.year, value.month
         except AttributeError:
