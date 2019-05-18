@@ -434,14 +434,14 @@ class Publication(models.Model):
     pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
-    metadata = JSONField(default={}, blank=True, null=True)
+    metadata = JSONField(default=dict, blank=True, null=True)
     metadata_xml = models.TextField(blank=True)  # for Crossref deposit
-    metadata_DOAJ = JSONField(default={}, blank=True, null=True)
+    metadata_DOAJ = JSONField(default=dict, blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
     BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
-    citedby = JSONField(default={}, blank=True, null=True)
+    citedby = JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
 
     # Topics for semantic linking

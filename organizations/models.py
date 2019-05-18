@@ -59,8 +59,8 @@ class Organization(models.Model):
     logo = models.ImageField(upload_to='organizations/logos/', blank=True)
     css_class = models.CharField(max_length=256, blank=True,
                                  verbose_name="Additional logo CSS class")
-    grid_json = JSONField(default={}, blank=True, null=True) # JSON data from GRID
-    crossref_json = JSONField(default={}, blank=True, null=True) # JSON data from Crossref
+    grid_json = JSONField(default=dict, blank=True, null=True) # JSON data from GRID
+    crossref_json = JSONField(default=dict, blank=True, null=True) # JSON data from Crossref
     parent = models.ForeignKey('self', blank=True, null=True,
                                on_delete=models.SET_NULL, related_name='children')
     superseded_by = models.ForeignKey('self', blank=True, null=True,

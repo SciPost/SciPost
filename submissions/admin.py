@@ -43,7 +43,22 @@ class SubmissionAdminForm(forms.ModelForm):
     class Meta:
         model = Submission
         fields = '__all__'
-
+        # fields = ['preprint', 'author_comments', 'author_list',
+        #           'discipline', 'domain', 'editor_in_charge',
+        #           'list_of_changes', 'open_for_commenting', 'open_for_reporting',
+        #           'referees_flagged', 'referees_suggested', 'remarks_for_editors',
+        #           'reporting_deadline', 'secondary_areas',
+        #           'status', 'is_current', 'visible_public', 'visible_pool',
+        #           'thread_hash', '_is_resubmission', 'refereeing_cycle',
+        #           'fellows', 'subject_area', 'submission_type', 'submitted_by',
+        #           'voting_fellows', 'submitted_to', 'proceedings',
+        #           'title', 'abstract', 'comments', 'needs_conflicts_update',
+        #           'plagiarism_report',
+        #           'arxiv_identifier_w_vn_nr', 'arxiv_identifier_wo_vn_nr',
+        #           'arxiv_vn_nr', 'arxiv_link', 'pdf_refereeing_pack',
+        #           'metadata', 'submission_date', 'acceptance_date',
+        #           'latest_activity', 'update_search_index',
+        #           'topics', 'needs_conflicts_update'
 
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
@@ -113,7 +128,6 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'referees_suggested',
                 'remarks_for_editors',
                 'submitted_to',
-                'proceedings',
                 'pdf_refereeing_pack',
                 'plagiarism_report',
                 'fellows',
@@ -121,9 +135,12 @@ class SubmissionAdmin(GuardedModelAdmin):
         }),
         ('Meta', {
             'classes': ('collapse',),
-            'fields': ('metadata', 'submission_date', 'needs_conflicts_update'),
+            'fields': (
+                'metadata',
+                'submission_date',
+                'needs_conflicts_update'
+            ),
         }),
-
     )
 
 

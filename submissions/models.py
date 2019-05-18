@@ -130,7 +130,7 @@ class Submission(models.Model):
                                            max_length=200, blank=True)
 
     # Metadata
-    metadata = JSONField(default={}, blank=True, null=True)
+    metadata = JSONField(default=dict, blank=True, null=True)
     submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
@@ -142,7 +142,6 @@ class Submission(models.Model):
     objects = SubmissionQuerySet.as_manager()
 
     # Temporary
-    needs_conflicts_update = models.BooleanField(default=False)
     invitation_order = models.IntegerField(default=0)
 
     class Meta:
