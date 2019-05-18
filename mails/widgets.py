@@ -66,7 +66,4 @@ class SummernoteEditor(widgets.Textarea):
         }
         js = ('//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote-bs4.js',)
 
-        # if self.include_jquery:
-        #     js = ('//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.min.js',) + js
-
         return Media(css=css, js=js)

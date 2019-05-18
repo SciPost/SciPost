@@ -193,19 +193,23 @@ CSP_FONT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                 'www.google.com', 'themes.googleusercontent.com')
 CSP_FRAME_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark.crossref.org',
-                 'www.google.com', 'player.vimeo.com', 'www.recaptcha.net', 'www.mendeley.com')
+                 'www.google.com', 'player.vimeo.com', 'www.youtube-nocookie.com',
+                 'www.recaptcha.net', 'www.mendeley.com')
 CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
-               'licensebuttons.net', 'crossmark-cdn.crossref.org')
+               'licensebuttons.net', 'crossmark-cdn.crossref.org',
+               'www.paypalobjects.com')
 CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
-                  'cdnjs.cloudflare.com', 'crossmark-cdn.crossref.org',
-                  'www.recaptcha.net', 'www.gstatic.com',
+                  'cdnjs.cloudflare.com',
+                  'crossmark-cdn.crossref.org',
+                  'www.recaptcha.net',
                   'code.jquery.com')
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark-cdn.crossref.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
-                 'fonts.googleapis.com', 'cdnjs.cloudflare.com')
+                 'fonts.googleapis.com',
+                 'cdnjs.cloudflare.com')
 CSP_INCLUDE_NONCE_IN = ('script-src',)
 
 FEATURE_POLICY = {
