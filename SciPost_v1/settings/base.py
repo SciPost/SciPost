@@ -175,6 +175,7 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django_feature_policy.FeaturePolicyMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'csp.middleware.CSPMiddleware',
@@ -206,6 +207,14 @@ CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com', 'cdnjs.cloudflare.com')
 CSP_INCLUDE_NONCE_IN = ('script-src',)
+
+FEATURE_POLICY = {
+    'autoplay': 'none',
+    'camera': 'none',
+    'fullscreen': 'none',
+    'geolocation': 'none',
+    'microphone': 'none',
+}
 
 ROOT_URLCONF = 'SciPost_v1.urls'
 

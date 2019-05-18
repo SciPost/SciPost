@@ -78,3 +78,4 @@ flower==0.9.3 			# 2019-05-11, req: pytz, tornado, babel, celery
 # Security-related packages
 django-referrer-policy==1.0	# 2019-05-11, py<=3.6, Dj<=2.0, req:
 django-csp==3.5			# 2019-05-11
+django-feature-policy==2.2.0	# 2019-05-18
