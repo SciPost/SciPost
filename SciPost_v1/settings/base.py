@@ -203,7 +203,7 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
                   'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org',
-                  'www.recaptcha.net',
+                  'www.recaptcha.net', 'www.gstatic.com',
                   'code.jquery.com',
                   'static.mendeley.com')
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
