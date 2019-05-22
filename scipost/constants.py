@@ -4,11 +4,13 @@ __license__ = "AGPL v3"
 
 DISCIPLINE_PHYSICS = 'physics'
 DISCIPLINE_ASTROPHYSICS = 'astrophysics'
+DISCIPLINE_CHEMISTRY = 'chemistry'
 DISCIPLINE_MATH = 'mathematics'
 DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
 SCIPOST_DISCIPLINES = (
     (DISCIPLINE_PHYSICS, 'Physics'),
     (DISCIPLINE_ASTROPHYSICS, 'Astrophysics'),
+    (DISCIPLINE_CHEMISTRY, 'Chemistry'),
     (DISCIPLINE_MATH, 'Mathematics'),
     (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
 )
@@ -31,7 +33,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Phys:NT', 'Nuclear Physics - Theory'),
         ('Phys:QP', 'Quantum Physics'),
         ('Phys:SM', 'Statistical and Soft Matter Physics'))
-     ),
+    ),
     ('Astrophysics', (
         ('Astro:GA', 'Astrophysics of Galaxies'),
         ('Astro:CO', 'Cosmology and Nongalactic Astrophysics'),
@@ -39,7 +41,20 @@ SCIPOST_SUBJECT_AREAS = (
         ('Astro:HE', 'High Energy Astrophysical Phenomena'),
         ('Astro:IM', 'Instrumentation and Methods for Astrophysics'),
         ('Astro:SR', 'Solar and Stellar Astrophysics'))
-     ),
+    ),
+    ('Chemistry', (
+        ('Chem:BI', 'Biochemistry'),
+        ('Chem:IN', 'Inorganic Chemistry'),
+        ('Chem:OR', 'Organic Chemistry'),
+        ('Chem:PH', 'Physical Chemistry'),
+        ('Chem:MA', 'Materials Chemistry'),
+        ('Chem:TC', 'Theoretical and Computational Chemistry'),
+        ('Chem:CE', 'Chemical Engineering'),
+        ('Chem:AN', 'Analytical Chemistry'),
+        ('Chem:NA', 'Nanoscience'),
+        ('Chem:EN', 'Environmental Chemistry'),
+        ('Chem:NU', 'Nuclear Chemistry'))
+    ),
     ('Mathematics', (
         ('Math:AG', 'Algebraic Geometry'),
         ('Math:AT', 'Algebraic Topology'),
@@ -73,7 +88,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Math:SP', 'Spectral Theory'),
         ('Math:ST', 'Statistics Theory'),
         ('Math:SG', 'Symplectic Geometry'))
-     ),
+    ),
     ('Computer Science', (
         ('Comp:AI', 'Artificial Intelligence'),
         ('Comp:CC', 'Computational Complexity'),
@@ -114,8 +129,9 @@ SCIPOST_SUBJECT_AREAS = (
         ('Comp:SD', 'Sound'),
         ('Comp:SC', 'Symbolic Computation'),
         ('Comp:SY', 'Systems and Control'))
-     )
+    )
 )
+
 subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
 
 # Make dict of the form {'Phys:AT': 'Atomic...', ...}
