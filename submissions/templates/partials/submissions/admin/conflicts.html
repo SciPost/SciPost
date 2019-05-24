@@ -1,3 +1,5 @@
+{% load static %}
+
 {% if conflicts %}
   {{ conflicts|length }} (potential) conflict{{ conflicts|length|pluralize }} found:
   <ul class="fa-ul mt-2">
@@ -7,10 +9,9 @@
           {% if conflict.status == 'unverified' %}
             <i class="fa-li fa fa-question-circle text-warning" aria-hidden="true"></i>
             Please
-            <button type="button" class="btn btn-link p-0" onclick="update_conflict({{ conflict.id }}, 'verified')">verify</button>
+            <button type="button" class="btn btn-link p-0 update-conflict-button" data-conflict-id="{{ conflict.id }}" data-status="verified" data-urllink="{% url 'api:conflictofinterest-verify_conflict' conflict.id %}">confirm</button>
             or
-            <button type="button" class="btn btn-link p-0 text-danger" onclick="update_conflict({{ conflict.id }}, 'delete')">delete</button>
-
+            <button type="button" class="btn btn-link p-0 text-danger update-conflict-button" data-conflict-id="{{ conflict.id }}" data-status="delete" data-urllink="{% url 'api:conflictofinterest-verify_conflict' conflict.id %}">delete</button>
             this conflict.
           {% elif conflict.status == 'verified' %}
             <i class="fa-li fa fa-check-circle text-success" aria-hidden="true"></i>
@@ -40,49 +41,5 @@
 
 
 {% block footer_script %}
-  <script type="text/javascript" nonce="{{ request.csp_nonce }}">
-   function csrfSafeMethod(method) {
-       // these HTTP methods do not require CSRF protection
-       return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-   }
-   function getCookie(name) {
-       var cookieValue = null;
-       if (document.cookie && document.cookie !== '') {
-           var cookies = document.cookie.split(';');
-           for (var i = 0; i < cookies.length; i++) {
-               var cookie = jQuery.trim(cookies[i]);
-               // Does this cookie string begin with the name we want?
-               if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                   cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                   break;
-               }
-           }
-       }
-       return cookieValue;
-   }
-   var csrftoken = getCookie('csrftoken');
-
-   function update_conflict(conflict_id, status) {
-       $.ajax({
-           "method": "POST",
-           "url": "{% url 'api:conflictofinterest-verify_conflict' 0 %}".replace("0", conflict_id),
-           "data": {
-               'status': status,
-               'csrftoken': getCookie('csrftoken'),
-           },
-           "beforeSend": function(xhr, settings) {
-               if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-                   xhr.setRequestHeader("X-CSRFToken", csrftoken);
-               }
-           },
-       }).done(function( data ) {
-           if ( data['status'] == 'verified' ) {
-               $("#conflict-" + data['id'] + " .status").html('<i class="fa-li fa fa-check-circle text-success" aria-hidden="true"></i> Verified by Admin');
-           } else if ( data['status'] == 'deprecated' ) {
-               $("#conflict-" + data['id'] ).fadeTo("fast", 0.3).find('.status').html('<i class="fa-li fa fa-times-circle text-danger" aria-hidden="true"></i> <em>Deleted</em>');
-           }
-       });
-   }
-
-  </script>
+  <script src="{% static 'scipost/update-conflict.js' %}"></script>
 {% endblock %}
