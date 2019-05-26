@@ -172,6 +172,7 @@ class Affiliation(models.Model):
     Fields:
     * profile
     * organization
+    * category
     * description
     * date_from
     * date_until

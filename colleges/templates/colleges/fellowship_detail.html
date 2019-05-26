@@ -91,7 +91,7 @@
                   <i>Unlimited</i>
                 {% endif %}
               </td>
-              <td>{% if fship.id != fellowship.id %}<a href="{{ fellowship.get_absolute_url }}">See details</a>{% else %}(this page){% endif %}</td>
+              <td>{% if fship.id != fellowship.id %}<a href="{{ fship.get_absolute_url }}">See details</a>{% else %}(this page){% endif %}</td>
             </tr>
           {% endfor %}
         </tbody>
