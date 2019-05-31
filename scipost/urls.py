@@ -20,6 +20,16 @@ JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 app_name = 'scipost'
 
 urlpatterns = [
+    # Utilities:
+    # Search
+    url(r'^search', views.SearchView.as_view(), name='search'),
+    # preprocess reStructuredText
+    url(
+        r'^process_rst/$',
+        views.process_rst,
+        name='process_rst'
+    ),
+
     url(r'^$', views.index, name='index'),
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),
 
@@ -76,8 +86,6 @@ urlpatterns = [
         LatestPublicationsFeedAtom(),
         name='pub_feed_spec_atom'),
 
-    # Search
-    url(r'^search', views.SearchView.as_view(), name='search'),
 
     ################
     # Contributors:

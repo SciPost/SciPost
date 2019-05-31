@@ -29,6 +29,7 @@ from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.views.debug import cleanse_setting
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.list import ListView
@@ -54,6 +55,7 @@ from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
+from common.forms import ReStructuredTextForm
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
@@ -112,6 +114,13 @@ class SearchView(SearchView):
         ctx['search_query'] = self.request.GET.get('q')
         ctx['results_count'] = kwargs['object_list'].count()
         return ctx
+
+
+def process_rst(request):
+    form = ReStructuredTextForm(request.POST or None)
+    if form.is_valid():
+        return JsonResponse(form.get_processed_rst())
+    return JsonResponse({})
 
 
 #############

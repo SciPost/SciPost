@@ -4,11 +4,13 @@ __license__ = "AGPL v3"
 
 import calendar
 import datetime
+from docutils.core import publish_parts
 import re
 
 from django import forms
 from django.forms.widgets import Widget, Select
 from django.utils.dates import MONTHS
+from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
 __all__ = ('MonthYearWidget',)
@@ -119,3 +121,18 @@ class MonthYearWidget(Widget):
 class ModelChoiceFieldwithid(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s (id = %i)' % (super().label_from_instance(obj), obj.id)
+
+
+
+class ReStructuredTextForm(forms.Form):
+    rst_text = forms.CharField()
+
+    def get_processed_rst(self):
+        text = self.cleaned_data['rst_text']
+        # This performs the same actions as the restructuredtext filter of app scipost
+        parts = publish_parts(source=text,
+                              writer_name='html5_polyglot',
+                              settings_overrides={'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe'})
+        return {
+            'processed_rst': mark_safe(force_text(parts['html_body'])),
+            }

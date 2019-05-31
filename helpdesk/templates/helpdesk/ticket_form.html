@@ -1,7 +1,7 @@
 {% extends 'helpdesk/base.html' %}
 
 {% load bootstrap %}
-
+{% load staticfiles %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -22,28 +22,39 @@
 	<p>Re: <a href="{{ concerning_object.get_absolute_url }}" target="_blank">{{ concerning_object }}</a></p>
       {% endif %}
 
-      <form action="" method="post">
-	{% csrf_token %}
-	{{ form|bootstrap }}
-	<input type="submit" value="Submit" class="btn btn-primary">
+      <div class="row">
+	<div class="col-6">
+	  <form action="" method="post">
+	    {% csrf_token %}
+	    {{ form|bootstrap }}
+	    <input type="submit" value="Submit" class="btn btn-primary">
 
-	{% if form.errors %}
-	  {% for field in form %}
-	    {% for error in field.errors %}
-	      <div class="alert alert-danger">
-		<strong>{{ field.name }} - {{ error|escape }}</strong>
-	      </div>
-	    {% endfor %}
-	  {% endfor %}
-	  {% for error in form.non_field_errors %}
-	    <div class="alert alert-danger">
-	      <strong>{{ error|escape }}</strong>
-	    </div>
-	  {% endfor %}
-	{% endif %}
-      </form>
-
+	    {% if form.errors %}
+	      {% for field in form %}
+		{% for error in field.errors %}
+		  <div class="alert alert-danger">
+		    <strong>{{ field.name }} - {{ error|escape }}</strong>
+		  </div>
+		{% endfor %}
+	      {% endfor %}
+	      {% for error in form.non_field_errors %}
+		<div class="alert alert-danger">
+		  <strong>{{ error|escape }}</strong>
+		</div>
+	      {% endfor %}
+	    {% endif %}
+	  </form>
+	</div>
+	<div class="col-6">
+	  <h3>Preview</h3>
+	  <h4>Description</h4>
+	  <p id="preview-description"></p>
+	</div>
     </div>
   </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/ticket-preview.js' %}"></script>
+{% endblock footer_script %}
