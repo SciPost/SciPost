@@ -140,6 +140,8 @@ class ReStructuredTextForm(forms.Form):
                     'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
                     'initial_header_level': 1,
                     'doctitle_xform': False,
+                    'raw_enabled': False,
+                    'file_insertion_enabled': False,
                     'warning_stream': warnStream})
             return {
                 'processed_rst': mark_safe(force_text(parts['html_body'])),

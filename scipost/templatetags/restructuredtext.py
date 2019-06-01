@@ -20,7 +20,9 @@ def restructuredtext(text):
         writer_name='html5_polyglot',
         settings_overrides={
             'math_output': 'MathJax  https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
-                    'initial_header_level': 1,
-                    'doctitle_xform': False
+            'initial_header_level': 1,
+            'doctitle_xform': False,
+            'raw_enabled': False,
+            'file_insertion_enabled': False,
         })
     return mark_safe(force_text(parts['html_body']))
