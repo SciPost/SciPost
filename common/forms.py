@@ -130,9 +130,22 @@ class ReStructuredTextForm(forms.Form):
     def get_processed_rst(self):
         text = self.cleaned_data['rst_text']
         # This performs the same actions as the restructuredtext filter of app scipost
-        parts = publish_parts(source=text,
-                              writer_name='html5_polyglot',
-                              settings_overrides={'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe'})
-        return {
-            'processed_rst': mark_safe(force_text(parts['html_body'])),
+        from io import StringIO
+        warnStream = StringIO()
+        try:
+            parts = publish_parts(
+                source=text,
+                writer_name='html5_polyglot',
+                settings_overrides={
+                    'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
+                    'initial_header_level': 1,
+                    'doctitle_xform': False,
+                    'warning_stream': warnStream})
+            return {
+                'processed_rst': mark_safe(force_text(parts['html_body'])),
             }
+        except:
+            pass
+        return {
+            'errors': warnStream.getvalue()
+        }
