@@ -23,11 +23,11 @@
       {% endif %}
 
       <div class="row">
-	<div class="col-6">
+	<div class="col-lg-6">
 	  <form action="" method="post">
 	    {% csrf_token %}
 	    {{ form|bootstrap }}
-	    <input type="submit" value="Submit" class="btn btn-primary">
+	    <input id="submitButton" type="submit" value="Preview looks good, submit!" class="btn btn-primary mb-2">
 
 	    {% if form.errors %}
 	      {% for field in form %}
@@ -45,10 +45,12 @@
 	    {% endif %}
 	  </form>
 	</div>
-	<div class="col-6">
-	  <h3>Preview</h3>
-	  <h4>Description</h4>
-	  <p id="preview-description"></p>
+	<div class="col-lg-6">
+	  <h2>
+	    Preview of your ticket's description
+	    <button class="btn btn-warning m-2" id="runPreviewButton">Run/refresh preview</button>
+	  </h2>
+	  <div id="preview-description" class="p-2"></div>
 	</div>
     </div>
   </div>

@@ -14,12 +14,12 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://scipostdev@bitbucket.org/scipostdev/scipost_v1.git"
+    "url": "git+https://code.scipost.org/scipost/SciPost.git"
   },
   "author": "SciPost",
-  "homepage": "https://www.scipost.org",
+  "homepage": "https://scipost.org",
   "devDependencies": {
-    "ajv": "^5.5.2",
+    "ajv": "^6.10.0",
     "bootstrap": "^4.1.3",
     "clean-webpack-plugin": "^0.1.19",
     "css-loader": "^0.28.11",

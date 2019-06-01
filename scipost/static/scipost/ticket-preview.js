@@ -1,4 +1,12 @@
+$('#submitButton').hide();
+
 $('#id_description').on('keyup', function(){
+    $('#runPreviewButton').show();
+    $('#preview-description').css('background', '#feebce');
+    $('#submitButton').hide();
+});
+
+$('#runPreviewButton').on('click', function(){
     $.ajax({
     	type: "POST",
     	url: "/process_rst/",
@@ -16,4 +24,7 @@ $('#id_description').on('keyup', function(){
 	    alert("An error has occurred while processing the ReStructuredText.");
 	}
     });
+    $('#runPreviewButton').hide();
+    $('#preview-description').css('background', '#f4f4f4');
+    $('#submitButton').show();
 }).trigger('change');
