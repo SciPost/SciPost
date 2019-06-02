@@ -160,7 +160,8 @@ class MarkupTextForm(forms.Form):
                 'language': language,
                 'errors': warnStream.getvalue()
             }
+        from django.template.defaultfilters import linebreaksbr
         return {
             'language': language,
-            'processed_markup': text
+            'processed_markup': linebreaksbr(text)
             }
