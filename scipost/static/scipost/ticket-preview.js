@@ -18,13 +18,14 @@ $('#runPreviewButton').on('click', function(){
     $('#preview-title').text($('#id_title').val());
     $.ajax({
     	type: "POST",
-    	url: "/process_rst/",
+    	url: "/process_markup/",
     	data: {
     	    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
-	    rst_text: $('#id_description').val(),
+	    markup_text: $('#id_description').val(),
     	},
 	dataType: 'json',
     	success: function(data) {
+	    $('#languageElement').text("Language (auto-detected): " + data.language);
 	    if (data.errors) {
 		$('#preview-title').css('background', '#eedbbe');
 		$('#preview-description').css('background', '#feebce');
@@ -32,7 +33,7 @@ $('#runPreviewButton').on('click', function(){
 		$('#runPreviewButton').show();
 		alert("An error has occurred while processing the ReStructuredText:\n\n" + data.errors);
 	    }
-    	    $('#preview-description').html(data.processed_rst);
+    	    $('#preview-description').html(data.processed_markup);
 	    let preview = document.getElementById('preview-description');
     	    MathJax.Hub.Queue(["Typeset",MathJax.Hub, preview]);
     	},

@@ -134,3 +134,44 @@ class BaseMailUtil(object):
             reply_to=[cls.mail_sender])
         email.attach_alternative(html_message, 'text/html')
         email.send(fail_silently=False)
+
+
+def detect_markup_language(text):
+    """
+    Detect which markup language is being used.
+
+    Possible return values:
+    * plain
+    * reStructuredText
+    """
+    # See list of reStructuredText directives at
+    # http://docutils.sourceforge.net/0.4/docs/ref/rst/directives.html
+    rst_directives = [
+        "attention", "caution", "danger", "error", "hint", "important", "note", "tip",
+        "warning", "admonition",
+        "topic", "sidebar", "parsed-literal", "rubric", "epigraph", "highlights",
+        "pull-quote", "compound", "container",
+        "table", "csv-table", "list-table",
+        "contents", "sectnum", "section-autonumbering", "header", "footer",
+        "target-notes",
+        "replace", "unicode", "date", "class", "role", "default-role",
+        "math",]
+    # See list at http://docutils.sourceforge.net/0.4/docs/ref/rst/roles.html
+    rst_roles = [
+        "emphasis", "literal", "pep-reference", "rfc-reference",
+        "strong", "subscript", "superscript", "title-reference",
+        "math",]
+    nr_rst_roles = 0
+
+    nr_rst_directives = 0
+    for directive in rst_directives:
+        if ('.. %s::' % directive) in text:
+            nr_rst_directives += 1
+
+    for role in rst_roles:
+        if (':%s:`' % role) in text:
+            nr_rst_roles += 1
+
+    if (nr_rst_directives > 0 or nr_rst_roles > 0):
+        return 'reStructuredText'
+    return 'plain'

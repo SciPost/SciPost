@@ -25,9 +25,9 @@ urlpatterns = [
     url(r'^search', views.SearchView.as_view(), name='search'),
     # preprocess reStructuredText
     url(
-        r'^process_rst/$',
-        views.process_rst,
-        name='process_rst'
+        r'^process_markup/$',
+        views.process_markup,
+        name='process_markup'
     ),
 
     url(r'^$', views.index, name='index'),

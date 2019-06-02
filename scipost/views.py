@@ -55,7 +55,7 @@ from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
-from common.forms import ReStructuredTextForm
+from common.forms import MarkupTextForm
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
@@ -116,10 +116,10 @@ class SearchView(SearchView):
         return ctx
 
 
-def process_rst(request):
-    form = ReStructuredTextForm(request.POST or None)
+def process_markup(request):
+    form = MarkupTextForm(request.POST or None)
     if form.is_valid():
-        return JsonResponse(form.get_processed_rst())
+        return JsonResponse(form.get_processed_markup())
     return JsonResponse({})
 
 

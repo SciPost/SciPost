@@ -13,6 +13,9 @@ from django.utils.dates import MONTHS
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
+from .utils import detect_markup_language
+
+
 __all__ = ('MonthYearWidget',)
 
 RE_DATE = re.compile(r'(\d{4})-(\d\d?)-(\d\d?)$')
@@ -124,30 +127,40 @@ class ModelChoiceFieldwithid(forms.ModelChoiceField):
 
 
 
-class ReStructuredTextForm(forms.Form):
-    rst_text = forms.CharField()
+class MarkupTextForm(forms.Form):
+    markup_text = forms.CharField()
 
-    def get_processed_rst(self):
-        text = self.cleaned_data['rst_text']
-        # This performs the same actions as the restructuredtext filter of app scipost
-        from io import StringIO
-        warnStream = StringIO()
-        try:
-            parts = publish_parts(
-                source=text,
-                writer_name='html5_polyglot',
-                settings_overrides={
-                    'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
-                    'initial_header_level': 1,
-                    'doctitle_xform': False,
-                    'raw_enabled': False,
-                    'file_insertion_enabled': False,
-                    'warning_stream': warnStream})
+    def get_processed_markup(self):
+        text = self.cleaned_data['markup_text']
+        # Detect text format
+        language = detect_markup_language(text)
+        print('language: %s' % language)
+        if language == 'reStructuredText':
+            # This performs the same actions as the restructuredtext filter of app scipost
+            from io import StringIO
+            warnStream = StringIO()
+            try:
+                parts = publish_parts(
+                    source=text,
+                    writer_name='html5_polyglot',
+                    settings_overrides={
+                        'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
+                        'initial_header_level': 1,
+                        'doctitle_xform': False,
+                        'raw_enabled': False,
+                        'file_insertion_enabled': False,
+                        'warning_stream': warnStream})
+                return {
+                    'language': language,
+                    'processed_markup': mark_safe(force_text(parts['html_body'])),
+                }
+            except:
+                pass
             return {
-                'processed_rst': mark_safe(force_text(parts['html_body'])),
+                'language': language,
+                'errors': warnStream.getvalue()
             }
-        except:
-            pass
         return {
-            'errors': warnStream.getvalue()
-        }
+            'language': language,
+            'processed_markup': text
+            }
