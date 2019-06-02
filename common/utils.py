@@ -144,6 +144,7 @@ def detect_markup_language(text):
     * plain
     * reStructuredText
     """
+    rst_headers = ["####", "****", "====", "----", "^^^^", "\"\"\"\"",]
     # See list of reStructuredText directives at
     # http://docutils.sourceforge.net/0.4/docs/ref/rst/directives.html
     rst_directives = [
@@ -163,6 +164,11 @@ def detect_markup_language(text):
         "math",]
     nr_rst_roles = 0
 
+    nr_rst_headers = 0
+    for header in rst_headers:
+        if header in text:
+            nr_rst_headers += 1
+
     nr_rst_directives = 0
     for directive in rst_directives:
         if ('.. %s::' % directive) in text:
@@ -172,6 +178,6 @@ def detect_markup_language(text):
         if (':%s:`' % role) in text:
             nr_rst_roles += 1
 
-    if (nr_rst_directives > 0 or nr_rst_roles > 0):
+    if (nr_rst_headers > 0 or nr_rst_directives > 0 or nr_rst_roles > 0):
         return 'reStructuredText'
     return 'plain'
