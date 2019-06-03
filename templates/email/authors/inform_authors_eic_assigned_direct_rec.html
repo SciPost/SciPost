@@ -1,12 +1,12 @@
 <p>
-  Dear {{ submission.submitted_by.get_title_display }} {{ submission.submitted_by.user.last_name }},
+  Dear {{ assignment.submission.submitted_by.get_title_display }} {{ assignment.submission.submitted_by.user.last_name }},
 </p>
 <p>
   For your information, your Submission
   <br><br>
-  {{ submission.title }}
-  <br>by {{ submission.author_list }}<br>
-  (see https://scipost.org{{ submission.get_absolute_url }}.
+  {{ assignment.submission.title }}
+  <br>by {{ assignment.submission.author_list }}<br>
+  (see https://scipost.org{{ assignment.submission.get_absolute_url }}.
 </p>
 
 <p>has been assigned to an editor. The editor chose to directly formulate an Editorial Recommendation.</p>
@@ -19,4 +19,4 @@
 </p>
 {% include 'email/_footer.html' %}
 
-{% include 'email/_submission_thread_uuid.html' with submission=submission %}
+{% include 'email/_submission_thread_uuid.html' with submission=assignment.submission %}

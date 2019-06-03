@@ -755,7 +755,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
             else:
                 # Inform authors about new status.
                 mail_sender = DirectMailUtil(
-                    'authors/inform_authors_eic_assigned_direct_rec', submission=submission)
+                    'authors/inform_authors_eic_assigned_direct_rec', assignment=assignment)
                 mail_sender.send_mail()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
