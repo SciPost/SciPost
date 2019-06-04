@@ -132,7 +132,8 @@ def vet_submitted_comment(request, comment_id):
         elif form.cleaned_data['action_option'] == '2':
             # The comment request is simply rejected
             Comment.objects.filter(id=comment.id).update(
-                status=int(form.cleaned_data['refusal_reason']))
+                status=int(form.cleaned_data['refusal_reason']),
+                vetted_by=request.user.contributor)
             comment.refresh_from_db()
 
             # Send emails
