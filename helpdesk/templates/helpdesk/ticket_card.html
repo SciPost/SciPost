@@ -1,5 +1,5 @@
 {% load bootstrap %}
-{% load restructuredtext %}
+{% load process_markup %}
 {% load scipost_extras %}
 
 <div class="card">
@@ -23,7 +23,7 @@
       <tbody>
 	<tr>
 	  <th>Description</th>
-	  <td>{{ ticket.description|restructuredtext }}</td>
+	  <td>{{ ticket.description|process_markup }}</td>
 	</tr>
 	<tr>
 	  <th>Defined on</th>
@@ -63,7 +63,7 @@
 		      {{ followup.by.get_full_name }} on {{ followup.timestamp }}
 		    </div>
 		    <div class="card-body">
-		      {{ followup.text|restructuredtext }}
+		      {{ followup.text|process_markup }}
 		    </div>
 		  </div>
 		</li>

@@ -29,7 +29,7 @@
 	<br class="my-4">
 	<h3 class="highlight">Tickets you opened</h3>
 	<div class="p-2">
-	  {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.ticket_set.all %}
+	  {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.ticket_set.all marker="own" %}
 	</div>
       {% endif %}
 
@@ -37,7 +37,7 @@
 	<br class="my-4">
 	<h2 class="highlight">Tickets assigned to you</h2>
 	<div class="p-2">
-	  {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.assigned_tickets %}
+	  {% include 'helpdesk/_tickets_tablist.html' with tickets=request.user.assigned_tickets marker="assigned" %}
 	</div>
       {% endif %}
 
@@ -45,7 +45,7 @@
 	<br class="my-4">
 	<h3 class="highlight">Other Tickets in your Queues <small class="text-muted"><em>[please feel free to pick up or handle further]</em></small></h3>
 	<div class="p-2">
-	  {% include 'helpdesk/_tickets_tablist.html' with tickets=object_list %}
+	  {% include 'helpdesk/_tickets_tablist.html' with tickets=object_list marker="other"%}
 	</div>
       {% endif %}
 

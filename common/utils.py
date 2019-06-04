@@ -146,7 +146,7 @@ def detect_markup_language(text):
     * language
     * errors
 
-    Language can be one of: plain, reStructuredText
+    where ``language`` can be one of: plain, reStructuredText
 
     The criteria used are:
 
@@ -160,13 +160,14 @@ def detect_markup_language(text):
 
     # Inline maths
     inline_math = re.search("\$[^$]+\$", text)
-    if inline_math:
-        print('inline math: %s' % inline_math.group(0))
+    # if inline_math:
+    #     print('inline math: %s' % inline_math.group(0))
+
     # Online maths is of the form \[ ... \]
     # The re.DOTALL is to also capture newline chars with the . (any single character)
     online_math = re.search(r'[\\][[].+[\\][\]]', text, re.DOTALL)
-    if online_math:
-        print('online math: %s' % online_math.group(0))
+    # if online_math:
+    #     print('online math: %s' % online_math.group(0))
 
     rst_math = '.. math::' in text or ':math:`' in text
 
@@ -177,14 +178,14 @@ def detect_markup_language(text):
         if inline_math:
             return {
                 'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n'
+                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
                            'You have mixed inline maths ($...$) with reStructuredText markup.'
                            '\n\nPlease use one or the other, but not both!')
             }
         elif online_math:
             return {
                 'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n'
+                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
                            'You have mixed online maths (\[...\]) with reStructuredText markup.'
                            '\n\nPlease use one or the other, but not both!')
             }
@@ -236,14 +237,14 @@ def detect_markup_language(text):
         if inline_math:
             return {
                 'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n'
+                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
                            'You have mixed inline maths ($...$) with reStructuredText markup.'
                            '\n\nPlease use one or the other, but not both!')
             }
         elif online_math:
             return {
                 'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n'
+                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
                            'You have mixed online maths (\[...\]) with reStructuredText markup.'
                            '\n\nPlease use one or the other, but not both!')
             }

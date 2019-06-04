@@ -87,6 +87,7 @@ INSTALLED_APPS = (
     'colleges',
     'commentaries',
     'comments',
+    'common',
     'conflicts',
     'django_celery_results',
     'django_celery_beat',
