@@ -132,9 +132,15 @@ class MarkupTextForm(forms.Form):
 
     def get_processed_markup(self):
         text = self.cleaned_data['markup_text']
+
         # Detect text format
-        language = detect_markup_language(text)
+        markup_detector = detect_markup_language(text)
+        language = markup_detector['language']
         print('language: %s' % language)
+
+        if markup_detector['errors']:
+            return markup_detector
+
         if language == 'reStructuredText':
             # This performs the same actions as the restructuredtext filter of app scipost
             from io import StringIO
@@ -160,6 +166,7 @@ class MarkupTextForm(forms.Form):
                 'language': language,
                 'errors': warnStream.getvalue()
             }
+        # at this point, language is assumed to be plain text
         from django.template.defaultfilters import linebreaksbr
         return {
             'language': language,

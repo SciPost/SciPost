@@ -31,14 +31,14 @@ $('#runPreviewButton').on('click', function(){
 		$('#preview-description').css('background', '#feebce');
 		$('#submitButton').hide();
 		$('#runPreviewButton').show();
-		alert("An error has occurred while processing the ReStructuredText:\n\n" + data.errors);
+		alert("An error has occurred while processing the text:\n\n" + data.errors);
 	    }
     	    $('#preview-description').html(data.processed_markup);
 	    let preview = document.getElementById('preview-description');
     	    MathJax.Hub.Queue(["Typeset",MathJax.Hub, preview]);
     	},
 	error: function(data) {
-	    alert("An error has occurred while processing the ReStructuredText.");
+	    alert("An error has occurred while processing the text.");
 	}
     });
     $('#runPreviewButton').hide();
