@@ -54,6 +54,7 @@ urlpatterns = [
     url(r'^invitations/', include('invitations.urls', namespace="invitations")),
     url(r'^journals/', include('journals.urls.general', namespace="journals")),
     url(r'^mailing_list/', include('mailing_lists.urls', namespace="mailing_lists")),
+    url(r'^markup/', include('markup.urls', namespace='markup')),
     url(r'^submissions/', include('submissions.urls', namespace="submissions")),
     url(r'^submission/', include('submissions.urls', namespace="_submissions")),
     url(r'^theses/', include('theses.urls', namespace="theses")),

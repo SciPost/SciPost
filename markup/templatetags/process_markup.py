@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from docutils.core import publish_parts
 from io import StringIO
+import markdown
+from markupsafe import escape
 
 from django import template
 from django.template.defaultfilters import linebreaksbr
@@ -42,5 +44,9 @@ def process_markup(text):
             return mark_safe(force_text(parts['html_body']))
         except:
             return warnStream.getvalue()
+
+    elif markup_detector['language'] == 'Markdown':
+        return mark_safe(markdown.markdown(escape(text), output_format='html5'))
+
     else:
         return linebreaksbr(text)

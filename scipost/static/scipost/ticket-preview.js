@@ -18,7 +18,7 @@ $('#runPreviewButton').on('click', function(){
     $('#preview-title').text($('#id_title').val());
     $.ajax({
     	type: "POST",
-    	url: "/process_markup/",
+    	url: "/markup/process/",
     	data: {
     	    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
 	    markup_text: $('#id_description').val(),
@@ -43,6 +43,6 @@ $('#runPreviewButton').on('click', function(){
     });
     $('#runPreviewButton').hide();
     $('#preview-title').css('background', '#f1f1f1');
-    $('#preview-description').css('background', '#f8f8f8');
+    $('#preview-description').css('background', '#ffffff');
     $('#submitButton').show();
 }).trigger('change');

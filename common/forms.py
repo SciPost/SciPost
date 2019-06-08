@@ -4,16 +4,13 @@ __license__ = "AGPL v3"
 
 import calendar
 import datetime
-from docutils.core import publish_parts
 import re
 
 from django import forms
 from django.forms.widgets import Widget, Select
 from django.utils.dates import MONTHS
-from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
-from .utils import detect_markup_language
 
 
 __all__ = ('MonthYearWidget',)
@@ -124,51 +121,3 @@ class MonthYearWidget(Widget):
 class ModelChoiceFieldwithid(forms.ModelChoiceField):
     def label_from_instance(self, obj):
         return '%s (id = %i)' % (super().label_from_instance(obj), obj.id)
-
-
-
-class MarkupTextForm(forms.Form):
-    markup_text = forms.CharField()
-
-    def get_processed_markup(self):
-        text = self.cleaned_data['markup_text']
-
-        # Detect text format
-        markup_detector = detect_markup_language(text)
-        language = markup_detector['language']
-        print('language: %s' % language)
-
-        if markup_detector['errors']:
-            return markup_detector
-
-        if language == 'reStructuredText':
-            # This performs the same actions as the restructuredtext filter of app scipost
-            from io import StringIO
-            warnStream = StringIO()
-            try:
-                parts = publish_parts(
-                    source=text,
-                    writer_name='html5_polyglot',
-                    settings_overrides={
-                        'math_output': 'MathJax https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
-                        'initial_header_level': 1,
-                        'doctitle_xform': False,
-                        'raw_enabled': False,
-                        'file_insertion_enabled': False,
-                        'warning_stream': warnStream})
-                return {
-                    'language': language,
-                    'processed_markup': mark_safe(force_text(parts['html_body'])),
-                }
-            except:
-                pass
-            return {
-                'language': language,
-                'errors': warnStream.getvalue()
-            }
-        # at this point, language is assumed to be plain text
-        from django.template.defaultfilters import linebreaksbr
-        return {
-            'language': language,
-            'processed_markup': linebreaksbr(text)
-            }

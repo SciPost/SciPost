@@ -23,12 +23,6 @@ urlpatterns = [
     # Utilities:
     # Search
     url(r'^search', views.SearchView.as_view(), name='search'),
-    # preprocess reStructuredText
-    url(
-        r'^process_markup/$',
-        views.process_markup,
-        name='process_markup'
-    ),
 
     url(r'^$', views.index, name='index'),
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),
