@@ -11,6 +11,7 @@ from django import forms
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
+from .constants import BLEACH_ALLOWED_TAGS
 from .utils import detect_markup_language
 
 
@@ -60,11 +61,7 @@ class MarkupTextForm(forms.Form):
                 #'processed_markup': markdown.markdown(escape(text), output_format='html5')
                 'processed_markup': bleach.clean(
                     markdown.markdown(text, output_format='html5'),
-                    tags=['a', 'abbr', 'acronym', 'b', 'blockquote', 'code', 'em',
-                          'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'i', 'li', 'ol',
-                          'p', 'pre', 'strong', 'ul',
-                          ])
-                # 'processed_markup': markdown.markdown(text, output_format='html5')
+                    tags=BLEACH_ALLOWED_TAGS)
                 }
 
         # at this point, language is assumed to be plain text

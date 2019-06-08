@@ -1,0 +1,111 @@
+{% extends 'markup/base.html' %}
+
+{% block pagetitle %}: Markup help{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Help</span>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">Markup help</h2>
+
+      <p>
+	On many occasions while contributing to SciPost,
+	one has to fill in a text-based field in a web form.
+	For many reasons, it is desirable to give <em>structure</em> to what one writes.
+	We offer <strong>markup facilities</strong> to enable you to do this.
+      </p>
+
+      <p>
+	We support three options:
+	<ul>
+	  <li>plain text</li>
+	  <li>Markdown</li>
+	  <li>reStructuredText</li>
+	</ul>
+	Each of these supports LaTeX via <a href="https://www.mathjax.org">MathJax</a>,
+	though the precise semantics varies from one option to the other.
+      </p>
+
+      <p>
+	Which should you choose? This is mostly a question of personal preference.
+	To help you decide, here is a quick summary of main points to bear in mind:
+	<table class="table table-bordered">
+	  <tr>
+	    <th>Option</th><th>Advantages</th><th>Disadvantages</th>
+	  </tr>
+	  <tr>
+	    <td>Plain text</td>
+	    <td>
+	      <ul>
+		<li>Simplicity</li>
+	      </ul>
+	    </td>
+	    <td>
+	      <ul>
+		<li>No markup!</li>
+	      </ul>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>Markdown</td>
+	    <td>
+	      <ul>
+		<li>ease of use</li>
+		<li>
+		  provides more or less all the markup you'll ever need,
+		  at least for small snippets
+		</li>
+	      </ul>
+	    </td>
+	    <td>
+	      <ul>
+		<li>non-standardized: many dozen "dialects" exist</li>
+		<li>not really meant for large, complex documents</li>
+	      </ul>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>reStructuredText</td>
+	    <td>
+	      <ul>
+		<li>relative ease of use</li>
+		<li>standardized: the language is well-defined and stable</li>
+		<li>
+		  it's the standard documentation language for Python;
+		  <a href="http://www.sphinx-doc.org/">Sphinx</a> uses ReST
+		  files as input
+		</li>
+		<li>ReST files are easily exportable to other formats such
+		  as HTML, LaTeX etc.
+		</li>
+	      </ul>
+	    </td>
+	    <td>
+	      <ul>
+		<li>support for maths is good, but remains less extensive than in LaTeX</li>
+	      </ul>
+	    </td>
+	  </tr>
+	</table>
+      </p>
+
+      <p>
+	Which option you choose is completely up to you. Our system will determine
+	which one you are using and render your input accordingly.
+      </p>
+
+      <h3 class="highlight" id="Plain">Plain text</h3>
+      <p>See our <a href="{% url 'markup:plaintext_help' %}">plain text-specific</a> help page</p>
+      <h3 class="highlight" id="Markdown">Markdown</h3>
+      <p>See our <a href="{% url 'markup:markdown_help' %}">Markdown-specific</a> help page</p>
+      <h3 class="highlight" id="reStructuredText">reStructuredText</h3>
+      <p>See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</p>
+    </div>
+  </div>
+
+{% endblock content %}

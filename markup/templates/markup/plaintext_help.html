@@ -1,0 +1,62 @@
+{% extends 'markup/base.html' %}
+
+{% block pagetitle %}: Markup help{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'markup:help' %}">Help</a></span>
+  <span class="breadcrumb-item">Plain text</span>
+{% endblock %}
+
+{% load process_markup %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">Plain text help</h2>
+
+      <h3 class="highlight" id="Mathematics">Mathematics</h3>
+
+      <p>
+	You can delimit inline maths using dollar signs like this: <code>&#36; ... &#36;</code>.
+      </p>
+      <p>
+	For on-line maths, use escaped angular brackets
+	<code>&#92;&#91; ... &#92;&#93;</code> or
+	double-dollar delimiters <code>$$ ... $$</code>.
+      </p>
+      <div class="row">
+	<div class="col-6">
+	  <h4><strong>If you write:</strong></h4>
+	  <pre>{{ snippets.maths_inline_online }}</pre>
+	</div>
+	<div class="col-6">
+	  <h4><strong>You will get:</strong></h4>
+	  {{ snippets.maths_inline_online|safe|process_markup:'plain' }}
+	</div>
+      </div>
+    </div>
+  </div>
+
+  {% with language='plain' %}
+    <div class="row">
+      <div class="col-12">
+	<h3 class="highlight">Math snippets</h3>
+	{{ math_snippets.length }}
+	{% for snippet in math_snippets %}
+	  <h4>{{ snippet.title }}</h4>
+	  <div class="row">
+	    <div class="col-lg-6">
+	      <pre>{{ snippet.raw }}</pre>
+	    </div>
+	    <div class="col-lg-6">
+	      {{ snippet.raw|safe|process_markup:language }}
+	    </div>
+	  </div>
+	{% endfor %}
+      </div>
+    </div>
+  {% endwith %}
+
+{% endblock content %}

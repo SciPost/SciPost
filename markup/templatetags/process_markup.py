@@ -2,32 +2,39 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import bleach
 from docutils.core import publish_parts
 from io import StringIO
 import markdown
-from markupsafe import escape
 
 from django import template
 from django.template.defaultfilters import linebreaksbr
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
+from ..constants import BLEACH_ALLOWED_TAGS
 from ..utils import detect_markup_language
+
 
 register = template.Library()
 
 
 @register.filter(name='process_markup')
-def process_markup(text):
+def process_markup(text, language_forced=None):
     if not text:
         return ''
 
     markup_detector = detect_markup_language(text)
+    print('language detected: %s' % markup_detector['language'])
 
     if markup_detector['errors']:
         return markup_detector['errors']
 
-    if markup_detector['language'] == 'reStructuredText':
+    language = markup_detector['language']
+    if language_forced:
+        language = language_forced
+
+    if language == 'reStructuredText':
         warnStream = StringIO()
         try:
             parts = publish_parts(
@@ -45,8 +52,11 @@ def process_markup(text):
         except:
             return warnStream.getvalue()
 
-    elif markup_detector['language'] == 'Markdown':
-        return mark_safe(markdown.markdown(escape(text), output_format='html5'))
-
+    elif language == 'Markdown':
+        return mark_safe(
+            bleach.clean(
+                markdown.markdown(text, output_format='html5'),
+                tags=BLEACH_ALLOWED_TAGS)
+        )
     else:
         return linebreaksbr(text)
