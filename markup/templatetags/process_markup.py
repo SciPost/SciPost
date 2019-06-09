@@ -7,6 +7,8 @@ from docutils.core import publish_parts
 from io import StringIO
 import markdown
 
+from mdx_math import MathExtension
+
 from django import template
 from django.template.defaultfilters import linebreaksbr
 from django.utils.encoding import force_text
@@ -30,9 +32,7 @@ def process_markup(text, language_forced=None):
     if markup_detector['errors']:
         return markup_detector['errors']
 
-    language = markup_detector['language']
-    if language_forced:
-        language = language_forced
+    language = language_forced if language_forced else markup_detector['language']
 
     if language == 'reStructuredText':
         warnStream = StringIO()
@@ -53,10 +53,21 @@ def process_markup(text, language_forced=None):
             return warnStream.getvalue()
 
     elif language == 'Markdown':
+        # NB: bleach replaces & by &amp; and < by &lt;, and this breaks MathJax.
+        # The solution is to force replace back, and then run markdown with
+        # the mpx_math extension from python_markdown_math
+        # (also allowing single-dollar delimiter for inline maths).
+        # Users should be informed to NOT use < in maths without spaces around it:
+        # $a<b$ is wrong (yields "$a" in output), whereas $a < b$ is fine (also standalone $<$).
         return mark_safe(
-            bleach.clean(
-                markdown.markdown(text, output_format='html5'),
-                tags=BLEACH_ALLOWED_TAGS)
+            markdown.markdown(
+                bleach.clean(
+                    text,
+                    tags=BLEACH_ALLOWED_TAGS
+                ).replace('&amp;', '&').replace(' &lt; ', ' < '),
+                output_format='html5',
+                extensions=[MathExtension(enable_dollar_delimiter=True)]
+            )
         )
     else:
         return linebreaksbr(text)

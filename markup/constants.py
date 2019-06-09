@@ -15,6 +15,11 @@ MathSnippets = (
         'raw':
 r"""Some say $e^{i\pi} + 1 = 0$ is the most beautiful equation there is.
 
+Simple multiplication: $a * b = c$ and $a < b$ and $c < d$.
+
+Ampersands: & and &amp; are both ampersands. Lesser than: &lt; is <
+and $<$ is OK. What about AT&T?
+
 Do you know this famous Hamiltonian?
 \[
 H = \sum_j {\boldsymbol S}_j \cdot {\boldsymbol S}_{j+1}
@@ -31,7 +36,10 @@ $$
         'title': 'Multiline equations',
         'raw':
 r"""
+<script>alert("Gotcha!");</script>
+
 Maxwell's equations:
+
 \[
 \begin{align*}
 \nabla \cdot {\boldsymbol E} &= \frac{\rho}{\epsilon_0}, &
@@ -43,24 +51,22 @@ Maxwell's equations:
 \]
 
 $$
-\begin{align}
+\begin{align*}
 \nabla \cdot {\boldsymbol E} &= \frac{\rho}{\epsilon_0}, &
 \nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} &= 0, \\
 \nabla \cdot {\boldsymbol B} &= 0, &
 \nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
 &= \mu_0 {\boldsymbol J}
-\end{align}
+\end{align*}
 $$
 
 $$
-\begin{align}
 \nabla \cdot {\boldsymbol E} = \frac{\rho}{\epsilon_0},
 \nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} = 0, \\
 \nabla \cdot {\boldsymbol B} = 0,
 \nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
 = \mu_0 {\boldsymbol J}
 \label{eq:Maxwell}
-\end{align}
 $$
 """
         },

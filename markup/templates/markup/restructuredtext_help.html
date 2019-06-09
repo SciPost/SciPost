@@ -29,7 +29,7 @@
 	</div>
 	<div class="col-6">
 	  <h4><strong>You will get:</strong></h4>
-	  {{ snippets.maths_inline_online|safe|process_markup:'reStructuredText' }}
+	  {{ snippets.maths_inline_online|process_markup:'reStructuredText' }}
 	</div>
       </div>
     </div>
@@ -47,7 +47,7 @@
 	      <pre>{{ snippet.raw }}</pre>
 	    </div>
 	    <div class="col-lg-6">
-	      {{ snippet.raw|safe|process_markup:language }}
+	      {{ snippet.raw|process_markup:language }}
 	    </div>
 	  </div>
 	{% endfor %}

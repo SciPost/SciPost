@@ -40,7 +40,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.paragraphs|safe|process_markup:'Markdown' }}
+	  {{ snippets.paragraphs|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -76,7 +76,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.blockquotes|safe|process_markup:'Markdown' }}
+	  {{ snippets.blockquotes|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -88,7 +88,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.lists|safe|process_markup:'Markdown' }}
+	  {{ snippets.lists|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -100,7 +100,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.code|safe|process_markup:'Markdown' }}
+	  {{ snippets.code|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -112,7 +112,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.hr|safe|process_markup:'Markdown' }}
+	  {{ snippets.hr|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -124,7 +124,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.links|safe|process_markup:'Markdown' }}
+	  {{ snippets.links|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -136,7 +136,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.maths_inline_online|safe|process_markup:'Markdown' }}
+	  {{ snippets.maths_inline_online|process_markup:'Markdown' }}
 	</div>
       </div>
 
@@ -155,7 +155,7 @@
 	      <pre>{{ snippet.raw }}</pre>
 	    </div>
 	    <div class="col-lg-6">
-	      {{ snippet.raw|safe|process_markup:language }}
+	      {{ snippet.raw|process_markup:language }}
 	    </div>
 	  </div>
 	{% endfor %}
