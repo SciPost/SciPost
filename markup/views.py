@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 
@@ -10,6 +11,7 @@ from .constants import MathSnippets, PlainTextSnippets,\
 from .forms import MarkupTextForm
 
 
+@login_required
 def process(request):
     """
     API call to process the POSTed text.

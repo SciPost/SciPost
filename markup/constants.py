@@ -2,6 +2,41 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+# Dictionary for regex expressions to recognize reStructuredText headers.
+# This follows the Python conventions: order is #, *, =, -, ", ^ and
+# for the first two levels (# and *), over- and underlining are necessary, while
+# only underlining is needed for the lower four levels.
+# The regex search should use the re.MULTILINE flag.
+ReST_HEADER_REGEX_DICT = {
+    '#': r'^(#{1,}\n).+\n\1', # this makes use of a regex backreference
+    '*': r'^(\*{1,}\n).+\n\1', # this makes use of a regex backreference
+    '=': r'^={1,}\n',
+    '-': r'^-{1,}\n',
+    '"': r'^"{1,}\n',
+    '^': r'^\^{1,}\n'
+}
+
+# See list at http://docutils.sourceforge.net/0.4/docs/ref/rst/roles.html
+ReST_ROLES = [
+    "math",
+    "emphasis", "literal", "pep-reference", "rfc-reference",
+    "strong", "subscript", "superscript", "title-reference"
+]
+
+# See list of reStructuredText directives at
+# http://docutils.sourceforge.net/0.4/docs/ref/rst/directives.html
+ReST_DIRECTIVES = [
+    "math",
+    "attention", "caution", "danger", "error", "hint", "important", "note", "tip",
+    "warning", "admonition",
+    "topic", "sidebar", "parsed-literal", "rubric", "epigraph", "highlights",
+    "pull-quote", "compound", "container",
+    "table", "csv-table", "list-table",
+    "contents", "sectnum", "section-autonumbering", "header", "footer",
+    "target-notes",
+    "replace", "unicode", "date", "class", "role", "default-role"
+]
+
 BLEACH_ALLOWED_TAGS = [
     'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'code', 'em',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'li', 'ol',

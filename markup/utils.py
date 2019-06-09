@@ -4,36 +4,202 @@ __license__ = "AGPL v3"
 
 import re
 
+from .constants import ReST_HEADER_REGEX_DICT, ReST_ROLES, ReST_DIRECTIVES
+
+
+# Inline or displayed math
+def match_inline_math(text):
+    """Return first match object of regex search for inline maths $...$ or \(...\)."""
+    match = re.search(r'\$[^$]+\$', text)
+    if match:
+        return match
+    return re.search(r'\\\(.+\\\)', text)
+
+def match_displayed_math(text):
+    """Return first match object of regex search for displayed maths $$...$$ or \[...\]."""
+    match = re.search(r'\$\$.+\$\$', text, re.DOTALL)
+    if match:
+        return match
+    return re.search(r'\\\[.+\\\]', text, re.DOTALL)
+
+
+# Markdown
+def match_md_header(text, level=None):
+    """
+    Return first match object of regex search for Markdown headers in form #{level,}.
+
+    If not level is given, all levels 1 to 6 are checked, returning the first match or None.
+    """
+    if not level:
+        for newlevel in range(1,7):
+            match = match_md_header(text, newlevel)
+            if match:
+                return match
+        return None
+    if not isinstance(level, int):
+        raise TypeError('level must be an int')
+    if level < 1 or level > 6:
+        raise ValueError('level must be an integer from 1 to 6')
+    return re.search(r'^#{' + level + ',}[ ].+$', text)
+
+def match_md_blockquote(text):
+    """Return first match of regex search for Markdown blockquote."""
+    return re.search(r'(^[ ]*>[ ].+){1,5}', text, re.DOTALL | re.MULTILINE)
+
+
+# reStructuredText
+def match_rst_role(text, role=None):
+    """
+    Return first match object of regex search for given ReST role :role:`... .
+
+    If no role is given, all roles in ReST_ROLES are tested one by one.
+    """
+    if not role:
+        for newrole in ReST_ROLES:
+            match = match_rst_role(text, newrole)
+            if match:
+                return match
+        return None
+    if role not in ReST_ROLES:
+        raise ValueError('this role is not listed in ReST roles')
+    return re.search(r':' + role + ':`.+`', text)
+
+def match_rst_directive(text, directive=None):
+    """
+    Return first match object of regex search for given ReST directive.
+
+    If no directive is given, all directives in ReST_DIRECTIVES are tested one by one.
+
+    The first one to three lines after the directive statement are also captured.
+    """
+    if not directive:
+        for newdirective in ReST_DIRECTIVES:
+            match = match_rst_directive(text, newdirective)
+            if match:
+                return match
+        return none
+    if directive not in ReST_DIRECTIVES:
+        raise ValueError('this directive is not listed in ReST directives')
+    print('regex = %s' % r'^\.\. ' + directive + '::(.+)*(\n(.+)*){1,3}')
+    return re.search(r'^\.\. ' + directive + '::(.+)*(\n(.+)*){1,3}', text, re.MULTILINE)
+
+def match_rst_header(text, symbol):
+    """
+    Return first match object of regex search for reStructuredText header.
+
+    Python conventions are followed, namely that ``#`` and ``*`` headers have
+    both over and underline (of equal length, so faulty ones are not matched),
+    while the others (``=``, ``-``, ``"`` and ``^``) only have the underline.
+    """
+    if symbol not in ReST_HEADER_REGEX_DICT.keys():
+        raise ValueError('symbol is not a ReST header symbol')
+    return re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)
+
 
 def detect_markup_language(text):
     """
-    Detect which markup language is being used.
+    Detect whether text is plain text, Markdown or reStructuredText.
 
     This method returns a dictionary containing:
-
     * language
     * errors
 
-    where ``language`` can be one of: plain, reStructuredText, Markdown
+    Inline and displayed maths are assumed enabled through MathJax.
+    For plain text and Markdown, this assumes the conventions
+    * inline: $ ... $ and \( ... \)
+    * displayed: $$ ... $$ and \[ ... \]
 
-    The criteria used are:
+    while for reStructuredText, the ``math`` role and directive are used.
 
-    * if the ``math`` role or directive is found together with $...$, return error
-    * if the ``math`` role or directive is found, return ReST
+    We define markers, and indicator. A marker is a regex which occurs
+    in only one of the languages. An indicator occurs in more than one,
+    but not all languages.
 
-    Assumptions:
+    Language markers:
 
-    * MathJax is set up with $...$ for inline, \[...\] for online equations.
+    Markdown:
+    * headers: [one or more #] [non-empty text]
+    * blockquotes: one or more lines starting with > [non-empty text]
+
+    reStructuredText:
+    * use of the :math: role or .. math: directive
+    * [two or more #][blank space][carriage return]
+      [text on a single line, as long as or shorter than # sequence]
+      [same length of #]
+    * same thing but for * headlines
+    * use of any other role
+    * use of any other directive
+
+    Language indicators:
+
+    Plain text or Markdown:
+    * inline or displayed maths
+
+    Markdown or reStructuredText:
+    * [=]+ alone on a line  <- users discouraged to use this in Markdown
+    * [-]+ alone on a line  <- users discouraged to use this in Markdown
+
+    Exclusions (sources of errors):
+    * inline or displayed maths cannot be used in ReST
+
+    The criteria used for error reporting are:
+
+    * if the ``math`` role or directive is found together with inline/displayed maths
     """
 
+    # Start from the default assumption
+    detector = {
+        'language': 'plain',
+        'errors': None
+    }
+
+    # Inline maths is of the form $ ... $ or \( ... \)
+    inline_math = match_inline_math(text)
+
+    # Displayed maths is of the form \[ ... \] or $$ ... $$
+    displayed_math = match_displayed_math(text)
+
+    rst_math_role = match_rst_role(text, 'math')
+    rst_math_directive = match_rst_directive(text, 'math')
+
+    md_header = match_md_header(text)
+    md_blockquote = match_md_blockquote(text)
+
+    if rst_math_role or rst_math_directive:
+        if inline_math:
+            detector['errors'] = (
+                'You have mixed inline maths ($ ... $ or \( ... \) ) with '
+                'reStructuredText markup.\n\nPlease use one or the other, but not both!')
+            return detector
+        elif displayed_math:
+            detector['errors'] = (
+                'You have mixed displayed maths ($$ ... $$ or \[ ... \]) with '
+                'reStructuredText markup.\n\nPlease use one or the other, but not both!')
+            return detector
+        elif md_header:
+            detector['errors'] = (
+                'You have mixed Markdown headers with reStructuredText math roles/directives.'
+                '\n\nPlease use one language only.')
+        elif md_blockquote:
+            detector['errors'] = (
+                'You have mixed Markdown blockquotes with reStructuredText math roles/directives.'
+                '\n\nPlease use one language only.')
+        else:
+            detector['language'] = 'reStructuredText'
+
+    return detector
+
+
+
+def detect_markup_language_old(text):
     # Inline maths
-    inline_math = re.search("\$[^$]+\$", text)
+    inline_math = match_inline_math(text)
     # if inline_math:
     #     print('inline math: %s' % inline_math.group(0))
 
     # Online maths is of the form \[ ... \]
     # The re.DOTALL is to also capture newline chars with the . (any single character)
-    online_math = re.search(r'[\\][[].+[\\][\]]', text, re.DOTALL)
+    online_math = match_displayed_math(text)
     # if online_math:
     #     print('online math: %s' % online_math.group(0))
 
