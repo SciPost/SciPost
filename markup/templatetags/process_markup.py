@@ -6,6 +6,7 @@ import bleach
 from docutils.core import publish_parts
 from io import StringIO
 import markdown
+import re
 
 from mdx_math import MathExtension
 
@@ -27,12 +28,10 @@ def process_markup(text, language_forced=None):
         return ''
 
     markup_detector = detect_markup_language(text)
-    print('language detected: %s' % markup_detector['language'])
+    language = language_forced if language_forced else markup_detector['language']
 
     if markup_detector['errors']:
         return markup_detector['errors']
-
-    language = language_forced if language_forced else markup_detector['language']
 
     if language == 'reStructuredText':
         warnStream = StringIO()
@@ -64,7 +63,12 @@ def process_markup(text, language_forced=None):
                 bleach.clean(
                     text,
                     tags=BLEACH_ALLOWED_TAGS
-                ).replace('&amp;', '&').replace(' &lt; ', ' < '),
+                ).replace('&amp;', '&'       # to preserve math separator for MathJax
+                ).replace(' &lt; ', ' < '    # to preserve < for MathJax
+                ).replace(' &gt; ', ' > '    # to preserve > for MathJax
+                ).replace('&gt;&gt;', '>>'   # to preserve nested Markdown blockquotes
+                ).replace('&gt; ', '> '      # to preserve > for Markdown blockquotes
+                ),
                 output_format='html5',
                 extensions=[MathExtension(enable_dollar_delimiter=True)]
             )

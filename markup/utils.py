@@ -40,7 +40,7 @@ def match_md_header(text, level=None):
         raise TypeError('level must be an int')
     if level < 1 or level > 6:
         raise ValueError('level must be an integer from 1 to 6')
-    return re.search(r'^#{' + level + ',}[ ].+$', text)
+    return re.search(r'^#{' + str(level) + ',}[ ].+$', text)
 
 def match_md_blockquote(text):
     """Return first match of regex search for Markdown blockquote."""
@@ -166,6 +166,7 @@ def detect_markup_language(text):
     md_blockquote = match_md_blockquote(text)
 
     if rst_math_role or rst_math_directive:
+        # reStructuredText presumed; check for errors
         if inline_math:
             detector['errors'] = (
                 'You have mixed inline maths ($ ... $ or \( ... \) ) with '
@@ -186,6 +187,9 @@ def detect_markup_language(text):
                 '\n\nPlease use one language only.')
         else:
             detector['language'] = 'reStructuredText'
+
+    elif md_header or md_blockquote:
+        detector['language'] = 'Markdown'
 
     return detector
 

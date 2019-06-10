@@ -7,6 +7,8 @@ from docutils.core import publish_parts
 import markdown
 import re
 
+from mdx_math import MathExtension
+
 from django import forms
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
@@ -24,7 +26,6 @@ class MarkupTextForm(forms.Form):
         # Detect text format
         markup_detector = detect_markup_language(text)
         language = markup_detector['language']
-        print('language: %s' % language)
 
         if markup_detector['errors']:
             return markup_detector
@@ -43,7 +44,8 @@ class MarkupTextForm(forms.Form):
                         'doctitle_xform': False,
                         'raw_enabled': False,
                         'file_insertion_enabled': False,
-                        'warning_stream': warnStream})
+                        'warning_stream': warnStream
+                    })
                 return {
                     'language': language,
                     'processed_markup': mark_safe(force_text(parts['html_body'])),
@@ -58,11 +60,17 @@ class MarkupTextForm(forms.Form):
         elif language == 'Markdown':
             return {
                 'language': language,
-                #'processed_markup': markdown.markdown(escape(text), output_format='html5')
-                'processed_markup': bleach.clean(
-                    markdown.markdown(text, output_format='html5'),
-                    tags=BLEACH_ALLOWED_TAGS)
-                }
+                'processed_markup': mark_safe(
+                    markdown.markdown(
+                        bleach.clean(
+                            text,
+                            tags=BLEACH_ALLOWED_TAGS
+                        ).replace('&amp;', '&').replace(' &lt; ', ' < '),
+                        output_format='html5',
+                        extensions=[MathExtension(enable_dollar_delimiter=True)]
+                    )
+                )
+            }
 
         # at this point, language is assumed to be plain text
         from django.template.defaultfilters import linebreaksbr
