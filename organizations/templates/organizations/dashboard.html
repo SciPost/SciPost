@@ -44,7 +44,7 @@
 	      <a href="{% url 'forums:forums' %}" class="nav-link" target="_blank">Forums<br/><span class="small text-muted">[discussion boards<br/>and meetings]</span></a>
 	    </li>
 	    <li class="nav-item btn btn-outline-secondary">
-	      <a href="#board" class="nav-link" data-toggle="tab">Sponsors Board<br/><span class="small text-muted">[registered Contacts]</span></a>
+	      <a href="#board" class="nav-link" data-toggle="tab">Registered<br>Contacts</a>
 	    </li>
 	    <li class="nav-item btn btn-outline-secondary">
 	      <a href="{% url 'organizations:contactperson_list' %}" class="nav-link" target="_blank">Contact Persons<br/><span class="small text-muted">[unregistered contacts]</span></a>
@@ -166,19 +166,19 @@
     <div class="tab-pane" id="board" role="tabpanel">
       <div class="row">
 	<div class="col-12">
-	  <h2 class="highlight">Sponsors Board</h2>
+	  <h2 class="highlight">Registered Contacts</h2>
 	</div>
       </div>
       <div class="row">
 	<div class="col-12">
-	  <p>The Sponsors Board is composed of all registered Organization Contacts.</p>
+	  <p>This tab lists all registered Organization Contacts. It is only visible to Contacts themselves (besides SciPost administration).</p>
 	  <p>Do you know people who you think should appear on this list? Help us by checking if they are already on our <a href="{% url 'organizations:contactperson_list' %}" target="_blank">list of Contact Persons</a>, and if not, please add them!</p>
           <h3>Active Contacts</h3>
 	  <table class="table">
 	    <thead class="thead-default">
 	      <tr>
 		<th>Name</th>
-		<th>Organization(s) / role(s)</th>
+		<th>Organization(s)&nbsp;/&nbsp;role(s)</th>
 		{% if perms.scipost.can_manage_organizations %}
 		  <th>Account<br/>active?</th>
 		{% endif %}
@@ -191,7 +191,24 @@
 		  <td>
 		    <ul class="list-group list-group-flush">
 		      {% for role in contact.roles.all %}
-			<li class="list-group-item"><a href="{{ role.organization.get_absolute_url }}" target="_blank">{{ role.organization }}</a> / {{ role.get_kind_display }}</li>
+			<li class="list-group-item">
+			  <a href="{{ role.organization.get_absolute_url }}" target="_blank">{{ role.organization }}</a>&nbsp;/&nbsp;{{ role.get_kind_display }}
+			  {% if role.organization.parent %}
+			    <small class="text-muted"><p>Parent: {{ role.organization.parent }}</p></small>
+			  {% endif %}
+			  {% if role.organization.children.all %}
+			    <small class="text-muted">
+			      <p>Parent of:
+				{% for child in role.organization.children.all %}
+				  {{ child }}{% if not forloop.last %},&nbsp;{% endif %}
+				{% endfor %}
+			      </p>
+			    </small>
+			  {% endif %}
+			  {% if role.organization.superseded_by %}
+			    <small class="text-muted"><p>Superseded by {{ role.organization.superseded_by }}</p></small>
+			  {% endif %}
+			</li>
 		      {% empty %}
 			<li class="list-group-item">No Organization found</li>
 		      {% endfor %}
