@@ -33,7 +33,7 @@ $('#runPreviewButton').on('click', function(){
 		$('#runPreviewButton').show();
 		alert("An error has occurred while processing the text:\n\n" + data.errors);
 	    }
-    	    $('#preview-description').html(data.processed_markup);
+    	    $('#preview-description').html(data.processed);
 	    let preview = document.getElementById('preview-description');
     	    MathJax.Hub.Queue(["Typeset",MathJax.Hub, preview]);
     	},

@@ -2,9 +2,17 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import bleach
+from docutils.core import publish_parts
+import markdown
+from io import StringIO
 import re
 
-from .constants import ReST_HEADER_REGEX_DICT, ReST_ROLES, ReST_DIRECTIVES
+from django.template.defaultfilters import linebreaksbr
+from django.utils.encoding import force_text
+from django.utils.safestring import mark_safe
+
+from .constants import ReST_HEADER_REGEX_DICT, ReST_ROLES, ReST_DIRECTIVES, BLEACH_ALLOWED_TAGS
 
 
 # Inline or displayed math
@@ -309,3 +317,84 @@ def detect_markup_language_old(text):
         'language': 'plain',
         'errors': None
     }
+
+
+
+def apply_markdown_preserving_displayed_maths_bracket(text):
+    part = text.partition(r'\[')
+    part2 = part[2].partition(r'\]')
+    return '%s%s%s%s%s' % (
+        markdown.markdown(part[0], output_format='html5'),
+        part[1],
+        part2[0],
+        part2[1],
+        apply_markdown_preserving_displayed_maths_bracket(part2[2]) if len(part2[2]) > 0 else '')
+
+def apply_markdown_preserving_displayed_maths(text):
+    """
+    Processes the string text by first splitting out displayed maths, then applying
+    Markdown on the non-displayed math parts.
+
+    Both ``$$ ... $$`` and ``\[ ... \]`` are recognized, so a double recursive logic is used,
+    first dealing with the ``$$ ... $$`` and then with the ``\[ .. \]``.
+    See the complementary method ``apply_markdown_preserving_displayed_maths_bracket``.
+    """
+    part = text.partition('$$')
+    part2 = part[2].partition('$$')
+    return '%s%s%s%s%s' % (
+        apply_markdown_preserving_displayed_maths_bracket(part[0]),
+        part[1],
+        part2[0],
+        part2[1],
+        apply_markdown_preserving_displayed_maths(part2[2]) if len(part2[2]) > 0 else '')
+
+
+def process_markup(text, language_forced=None):
+
+    markup_detector = detect_markup_language(text)
+
+    markup = {
+        'language': 'plain',
+        'errors': None,
+        'warnings': None,
+        'processed': ''
+    }
+
+    if language_forced and language_forced != markup_detector['language']:
+        markup['warnings'] = (
+            'Warning: markup language was forced to %s, while the detected one was %s.'
+            ) % (language_forced, markup_detector['language'])
+
+    language = language_forced if language_forced else markup_detector['language']
+    markup['language'] = language
+
+    if language == 'reStructuredText':
+        warnStream = StringIO()
+        try:
+            parts = publish_parts(
+                source=text,
+                writer_name='html5_polyglot',
+                settings_overrides={
+                    'math_output': 'MathJax  https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe',
+                    'initial_header_level': 1,
+                    'doctitle_xform': False,
+                    'raw_enabled': False,
+                    'file_insertion_enabled': False,
+                    'warning_stream': warnStream
+                })
+            markup['processed'] = mark_safe(force_text(parts['html_body']))
+        except:
+            markup['errors'] = warnStream.getvalue()
+
+    elif language == 'Markdown':
+        markup['processed'] = mark_safe(
+            bleach.clean(
+                apply_markdown_preserving_displayed_maths(text),
+                tags=BLEACH_ALLOWED_TAGS
+            )
+        )
+
+    else:
+        markup['processed'] = linebreaksbr(text)
+
+    return markup

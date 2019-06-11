@@ -8,7 +8,7 @@
   <span class="breadcrumb-item">Plain text</span>
 {% endblock %}
 
-{% load process_markup %}
+{% load automarkup %}
 
 {% block content %}
 
@@ -33,7 +33,7 @@
 	</div>
 	<div class="col-6">
 	  <h4><strong>You will get:</strong></h4>
-	  {{ snippets.maths_inline_online|process_markup:'plain' }}
+	  {{ snippets.maths_inline_online|automarkup:'plain' }}
 	</div>
       </div>
     </div>
@@ -51,7 +51,7 @@
 	      <pre>{{ snippet.raw }}</pre>
 	    </div>
 	    <div class="col-lg-6">
-	      {{ snippet.raw|process_markup:language }}
+	      {{ snippet.raw|automarkup:language }}
 	    </div>
 	  </div>
 	{% endfor %}

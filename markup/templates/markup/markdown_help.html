@@ -8,7 +8,7 @@
     <span class="breadcrumb-item">Markdown</span>
 {% endblock %}
 
-{% load process_markup %}
+{% load automarkup %}
 
 {% block content %}
 
@@ -40,7 +40,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.paragraphs|process_markup:'Markdown' }}
+	  {{ snippets.paragraphs|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -52,7 +52,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.headers|process_markup:'Markdown' }}
+	  {{ snippets.headers|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -64,7 +64,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.emphasis|process_markup:'Markdown' }}
+	  {{ snippets.emphasis|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -76,7 +76,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.blockquotes|process_markup:'Markdown' }}
+	  {{ snippets.blockquotes|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -88,7 +88,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.lists|process_markup:'Markdown' }}
+	  {{ snippets.lists|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -100,7 +100,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.code|process_markup:'Markdown' }}
+	  {{ snippets.code|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -112,7 +112,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.hr|process_markup:'Markdown' }}
+	  {{ snippets.hr|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -124,7 +124,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.links|process_markup:'Markdown' }}
+	  {{ snippets.links|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -136,7 +136,7 @@
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.maths_inline_online|process_markup:'Markdown' }}
+	  {{ snippets.maths_inline_online|automarkup:'Markdown' }}
 	</div>
       </div>
 
@@ -155,7 +155,7 @@
 	      <pre>{{ snippet.raw }}</pre>
 	    </div>
 	    <div class="col-lg-6">
-	      {{ snippet.raw|process_markup:language }}
+	      {{ snippet.raw|automarkup:language }}
 	    </div>
 	  </div>
 	{% endfor %}
