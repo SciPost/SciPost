@@ -6,9 +6,6 @@ import bleach
 from docutils.core import publish_parts
 from io import StringIO
 import markdown
-import re
-
-from mdx_math import MathExtension
 
 from django import template
 from django.template.defaultfilters import linebreaksbr
@@ -20,6 +17,35 @@ from ..utils import detect_markup_language
 
 
 register = template.Library()
+
+
+def apply_markdown_preserving_displayed_maths_bracket(text):
+    part = text.partition(r'\[')
+    part2 = part[2].partition(r'\]')
+    return '%s%s%s%s%s' % (
+        markdown.markdown(part[0], output_format='html5'),
+        part[1],
+        part2[0],
+        part2[1],
+        apply_markdown_preserving_displayed_maths_bracket(part2[2]) if len(part2[2]) > 0 else '')
+
+def apply_markdown_preserving_displayed_maths(text):
+    """
+    Processes the string text by first splitting out displayed maths, then applying
+    Markdown on the non-displayed math parts.
+
+    Both ``$$ ... $$`` and ``\[ ... \]`` are recognized, so a double recursive logic is used,
+    first dealing with the ``$$ ... $$`` and then with the ``\[ .. \]``.
+    See the complementary method ``apply_markdown_preserving_displayed_maths_bracket``.
+    """
+    part = text.partition('$$')
+    part2 = part[2].partition('$$')
+    return '%s%s%s%s%s' % (
+        apply_markdown_preserving_displayed_maths_bracket(part[0]),
+        part[1],
+        part2[0],
+        part2[1],
+        apply_markdown_preserving_displayed_maths(part2[2]) if len(part2[2]) > 0 else '')
 
 
 @register.filter(name='process_markup')
@@ -52,26 +78,12 @@ def process_markup(text, language_forced=None):
             return warnStream.getvalue()
 
     elif language == 'Markdown':
-        # NB: bleach replaces & by &amp; and < by &lt;, and this breaks MathJax.
-        # The solution is to force replace back, and then run markdown with
-        # the mpx_math extension from python_markdown_math
-        # (also allowing single-dollar delimiter for inline maths).
-        # Users should be informed to NOT use < in maths without spaces around it:
-        # $a<b$ is wrong (yields "$a" in output), whereas $a < b$ is fine (also standalone $<$).
         return mark_safe(
-            markdown.markdown(
-                bleach.clean(
-                    text,
-                    tags=BLEACH_ALLOWED_TAGS
-                ).replace('&amp;', '&'       # to preserve math separator for MathJax
-                ).replace(' &lt; ', ' < '    # to preserve < for MathJax
-                ).replace(' &gt; ', ' > '    # to preserve > for MathJax
-                ).replace('&gt;&gt;', '>>'   # to preserve nested Markdown blockquotes
-                ).replace('&gt; ', '> '      # to preserve > for Markdown blockquotes
-                ),
-                output_format='html5',
-                extensions=[MathExtension(enable_dollar_delimiter=True)]
+            bleach.clean(
+                apply_markdown_preserving_displayed_maths(text),
+                tags=BLEACH_ALLOWED_TAGS
             )
         )
+
     else:
         return linebreaksbr(text)

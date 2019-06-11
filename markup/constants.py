@@ -40,7 +40,7 @@ ReST_DIRECTIVES = [
 BLEACH_ALLOWED_TAGS = [
     'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'code', 'em',
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'li', 'ol',
-    'p', 'pre', 'strong', 'table', 'td', 'th', 'tr', 'ul',
+    'p', 'pre', 'strong', 'table', 'td', 'th', 'tr', 'ul'
 ]
 
 
@@ -72,6 +72,10 @@ $$
         'raw':
 r"""
 <script>alert("Gotcha!");</script>
+
+$$
+</script><script>alert("Gotcha!");</script><script>
+$$
 
 Maxwell's equations:
 
