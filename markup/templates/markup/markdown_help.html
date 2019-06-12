@@ -21,124 +21,24 @@
 
       <h3>Quick links</h3>
       <ul>
-	<li><a href="#Paragraphs">Paragraphs and line breaks</a></li>
-	<li><a href="#Headlines">Headlines</a></li>
-	<li><a href="Emphasis">Emphasis</a></li>
-	<li><a href="#Blockquotes">Blockquotes</a></li>
-	<li><a href="#Lists">Lists</a></li>
-	<li><a href="#Code">Code blocks</a></li>
-	<li><a href="#HR">Horizontal rules</a></li>
-	<li><a href="#Links">Links</a></li>
-	<li><a href="#Mathematics">Mathematics</a></li>
+	{% for snippet in snippets %}
+	  <li><a href="#{{ snippet.id }}">{{ snippet.title }}</a></li>
+	{% endfor %}
       </ul>
 
-      <h3 class="highlight" id="Paragraphs">Paragraphs and line breaks</h3>
+      {% for snippet in snippets %}
+	<h3 class="highlight" id="{{ snippet.id }}">{{ snippet.title }}</h3>
       <div class="row">
 	<div class="col-6">
 	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.paragraphs }}</pre>
+	  <pre>{{ snippet.raw }}</pre>
 	</div>
 	<div class="col-6">
 	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.paragraphs|automarkup:'Markdown' }}
+	  {{ snippet.raw|automarkup:'Markdown' }}
 	</div>
       </div>
-
-      <h3 class="highlight" id="Headlines">Headlines</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.headers }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.headers|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="Emphasis">Emphasis</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.emphasis }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.emphasis|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="Blockquotes">Blockquotes</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.blockquotes }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.blockquotes|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="Lists">Lists</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.lists }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.lists|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="Code">Code</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.code }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.code|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="HR">Horizontal rules</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.hr }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.hr|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="Links">Links</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.links }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.links|automarkup:'Markdown' }}
-	</div>
-      </div>
-
-      <h3 class="highlight" id="Mathematics">Mathematics</h3>
-      <div class="row">
-	<div class="col-6">
-	  <h3><strong>If you write:</strong></h3>
-	  <pre>{{ snippets.maths_inline_online }}</pre>
-	</div>
-	<div class="col-6">
-	  <h3><strong>You will get:</strong></h3>
-	  {{ snippets.maths_inline_online|automarkup:'Markdown' }}
-	</div>
-      </div>
+      {% endfor %}
 
     </div>
   </div>

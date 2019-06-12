@@ -152,8 +152,11 @@ Equations on multiple lines:
 }
 
 
-MarkdownSnippets = {
-    'paragraphs':
+MarkdownSnippets = (
+    {
+        'id': 'paragraphs',
+        'title': 'Paragraphs and line breaks',
+        'raw':
 """Including an empty line between two blocks of text separates those into
 
 two different paragraphs.
@@ -164,9 +167,12 @@ will merge the lines into one
 paragraph.
 
 However if you explicitly end a line with two spaces
-then a linebreak will be forced.""",
+then a linebreak will be forced.""",},
 
-    'headers':
+    {
+        'id': 'headlines',
+        'title': 'Headlines',
+        'raw':
 """# Level 1 (html h1)
 Topmost headline
 
@@ -183,16 +189,22 @@ four
 five
 
 ###### Level 6 (h6)
-six, lowest level available.""",
+six, lowest level available.""",},
 
-    'emphasis':
+    {
+        'id': 'emphasis',
+        'title': 'Emphasis',
+        'raw':
 """You can obtain italics with *asterisks* or _single underscores_,
 and boldface using **double asterisks** or __double underscores__.
 
 If you need to explicitly use these characters (namely \* and \_),
-you can escape them with a backslash.""",
+you can escape them with a backslash.""",},
 
-    'blockquotes':
+    {
+        'id': 'blockquotes',
+        'title': 'Blockquotes',
+        'raw':
 """> This is a blockquote with two paragraphs. You should begin
 > each line with a ">" (greater than) symbol.
 >
@@ -228,9 +240,12 @@ Finally,
 >>> and come back to a lower level by putting a blank line
 
 >> to indicate a "terminated" level.
-""",
+""",},
 
-    'lists':
+    {
+        'id': 'lists',
+        'title': 'Lists',
+        'raw':
 """Markdown supports unordered (bulleted) and ordered (numbered) lists.
 
 Unordered list items are marked with asterisk, plus or hyphen, which
@@ -261,9 +276,12 @@ Nested lists can be obtained by four-space (or tab) indentation:
 1. First mainlist item
     1. first sublist item
     1. second sublist item
-1. Second mainlist item""",
+1. Second mainlist item""",},
 
-    'code':
+    {
+        'id': 'code',
+        'title': 'Code',
+        'raw':
 """An inline code span, to mention simple things like the
 `print()` function, is obtained by wrapping it with single backticks.
 
@@ -275,9 +293,12 @@ A code block is obtained by indenting the code by 4 spaces or a tab:
         markup_text = forms.CharField()
 
         def get_processed_markup(self):
-            text = self.cleaned_data['markup_text']""",
+            text = self.cleaned_data['markup_text']""",},
 
-    'hr':
+    {
+        'id': 'hr',
+        'title': 'Horizontal rules',
+        'raw':
 """A horizontal rule (HTML hr) can be obtained by writing three or
 more asterisks, hyphens or underscores on a line by themselves:
 
@@ -297,9 +318,12 @@ otherwise the system might
 
 confuse the preceding text for a headline
 -------
-""",
+""",},
 
-    'links':
+    {
+        'id': 'links',
+        'title': 'Links',
+        'raw':
 """### Inline-style hyperlinks
 
 Here is an example of an inline link to the [SciPost homepage](https://scipost.org/).
@@ -317,23 +341,33 @@ and [again][md].
 The reference will be resolved provided you define the link label somewhere
 in your text.
 
-[md]: https://daringfireball.net/projects/markdown/syntax""",
+[md]: https://daringfireball.net/projects/markdown/syntax""",},
 
-    'maths_inline_online':
+    {
+        'id': 'mathematics',
+        'title': 'Mathematics',
+        'raw':
 r"""### Inline maths
 
 You can have simple inline equations like this: $E = mc^2$ by enclosing them with
 dollar signs.
 
-### Online maths
+### Displayed maths
 
-For online maths, you need to enclose the equations with double dollar signs:
+For displayed maths, you need to enclose the equations with escaped square brackets
+
+\[
+H = \sum_j {\boldsymbol S}_j \cdot {\boldsymbol S}_{j+1}
+\]
+
+or with double dollar signs (though it works, this is less good,
+since beginning and end markers are not distinguishable):
 
 $$
 H = \sum_j S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}
 $$
-"""
-}
+"""},
+)
 
 
 ReStructuredTextSnippets = {
