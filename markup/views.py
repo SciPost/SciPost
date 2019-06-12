@@ -6,8 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import render
 
-from .constants import MathSnippets, PlainTextSnippets,\
-    MarkdownSnippets, ReStructuredTextSnippets
+from .constants import PlainTextSnippets, MarkdownSnippets, ReStructuredTextSnippets
 from .forms import MarkupTextForm
 
 
@@ -39,7 +38,6 @@ def plaintext_help(request):
     Help page for plain text.
     """
     context = {
-        'math_snippets': MathSnippets,
         'snippets': PlainTextSnippets,
     }
     return render(request, 'markup/plaintext_help.html', context)
@@ -49,7 +47,6 @@ def markdown_help(request):
     Help page for Markdown.
     """
     context = {
-        'math_snippets': MathSnippets,
         'snippets': MarkdownSnippets,
     }
     return render(request, 'markup/markdown_help.html', context)
@@ -60,7 +57,6 @@ def restructuredtext_help(request):
     Help page for reStructuredText.
     """
     context = {
-        'math_snippets': MathSnippets,
         'snippets': ReStructuredTextSnippets,
     }
     return render(request, 'markup/restructuredtext_help.html', context)

@@ -39,24 +39,4 @@
     </div>
   </div>
 
-  {% with language='plain' %}
-    <div class="row">
-      <div class="col-12">
-	<h3 class="highlight">Math snippets</h3>
-	{{ math_snippets.length }}
-	{% for snippet in math_snippets %}
-	  <h4>{{ snippet.title }}</h4>
-	  <div class="row">
-	    <div class="col-lg-6">
-	      <pre>{{ snippet.raw }}</pre>
-	    </div>
-	    <div class="col-lg-6">
-	      {{ snippet.raw|automarkup:language }}
-	    </div>
-	  </div>
-	{% endfor %}
-      </div>
-    </div>
-  {% endwith %}
-
 {% endblock content %}

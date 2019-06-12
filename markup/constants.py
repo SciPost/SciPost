@@ -5,15 +5,17 @@ __license__ = "AGPL v3"
 # Dictionary for regex expressions to recognize reStructuredText headers.
 # This follows the Python conventions: order is #, *, =, -, ", ^ and
 # for the first two levels (# and *), over- and underlining are necessary, while
-# only underlining is needed for the lower four levels.
+# only underlining is needed for the lower four levels. In all cases we
+# require the headline title to be at least one character long, and placed
+# right above the lower headline marker.
 # The regex search should use the re.MULTILINE flag.
 ReST_HEADER_REGEX_DICT = {
-    '#': r'^(#{1,}\n).+\n\1', # this makes use of a regex backreference
-    '*': r'^(\*{1,}\n).+\n\1', # this makes use of a regex backreference
-    '=': r'^={1,}\n',
-    '-': r'^-{1,}\n',
-    '"': r'^"{1,}\n',
-    '^': r'^\^{1,}\n'
+    '#': r'^(#{1,}\n).{1,}\n\1',  # this makes use of a regex backreference
+    '*': r'^(\*{1,}\n).{1,}\n\1', # this makes use of a regex backreference
+    '=': r'^.{1,}\n={1,}\n',   # non-empty line followed by line of =
+    '-': r'^.{1,}\n-{1,}\n',   # non-empty line followed by line of -
+    '"': r'^.{1,}\n"{1,}\n',   # non-empty line followed by line of "
+    '^': r'^.{1,}\n\^{1,}\n'   # non-empty line followed by line of ^
 }
 
 # See list at http://docutils.sourceforge.net/0.4/docs/ref/rst/roles.html
@@ -43,73 +45,6 @@ BLEACH_ALLOWED_TAGS = [
     'p', 'pre', 'strong', 'table', 'td', 'th', 'tr', 'ul'
 ]
 
-
-MathSnippets = (
-    {
-        'title': 'Inline and online equations',
-        'raw':
-r"""Some say $e^{i\pi} + 1 = 0$ is the most beautiful equation there is.
-
-Simple multiplication: $a * b = c$ and $a < b$ and $c < d$.
-
-Ampersands: & and &amp; are both ampersands. Lesser than: &lt; is <
-and $<$ is OK. What about AT&T?
-
-Do you know this famous Hamiltonian?
-\[
-H = \sum_j {\boldsymbol S}_j \cdot {\boldsymbol S}_{j+1}
-\]
-
-What about this one?
-$$
-H = \int dx \left[ \partial_x \Psi^\dagger \partial_x \Psi
-+ c \Psi^\dagger \Psi^\dagger \Psi \Psi \right]
-$$
-""",
-    },
-    {
-        'title': 'Multiline equations',
-        'raw':
-r"""
-<script>alert("Gotcha!");</script>
-
-$$
-</script><script>alert("Gotcha!");</script><script>
-$$
-
-Maxwell's equations:
-
-\[
-\begin{align*}
-\nabla \cdot {\boldsymbol E} &= \frac{\rho}{\epsilon_0}, &
-\nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} &= 0, \\
-\nabla \cdot {\boldsymbol B} &= 0, &
-\nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
-&= \mu_0 {\boldsymbol J}
-\end{align*}
-\]
-
-$$
-\begin{align*}
-\nabla \cdot {\boldsymbol E} &= \frac{\rho}{\epsilon_0}, &
-\nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} &= 0, \\
-\nabla \cdot {\boldsymbol B} &= 0, &
-\nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
-&= \mu_0 {\boldsymbol J}
-\end{align*}
-$$
-
-$$
-\nabla \cdot {\boldsymbol E} = \frac{\rho}{\epsilon_0},
-\nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} = 0, \\
-\nabla \cdot {\boldsymbol B} = 0,
-\nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
-= \mu_0 {\boldsymbol J}
-\label{eq:Maxwell}
-$$
-"""
-        },
-)
 
 
 PlainTextSnippets = {
@@ -366,22 +301,224 @@ since beginning and end markers are not distinguishable):
 $$
 H = \sum_j S^x_j S^x_{j+1} + S^y_j S^y_{j+1} + \Delta S^z_j S^z_{j+1}
 $$
+
+Multiline equations can be obtained by using the ``\\`` carriage return as usual;
+to align your equations, use the ``align`` environment. For example:
+
+\[
+\begin{align*}
+\nabla \cdot {\boldsymbol E} &= \frac{\rho}{\epsilon_0}, &
+\nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} &= 0, \\
+\nabla \cdot {\boldsymbol B} &= 0, &
+\nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
+&= \mu_0 {\boldsymbol J}
+\end{align*}
+\]
 """},
 )
 
 
-ReStructuredTextSnippets = {
-    'maths_inline_online':
-r"""Inline maths
-============
+ReStructuredTextSnippets = (
+    {
+        'id': 'paragraphs',
+        'title': 'Paragraphs and line breaks',
+        'raw':
+"""Including an empty line between two blocks of text separates those into
 
-For inline equations, you must use the :code:`math` role, for example :math:`E = mc^2`.
+two different paragraphs.
 
-On-line maths
-=============
+Typing text on consecutive lines separated
+by linebreaks
+will merge the lines into one
+paragraph.
 
-For on-line display of equations, the :code:`math` directive must be used:
+As in Python, indentation is significant, so lines of a paragraph have to be
+indented to the same level.""",},
+
+    {
+        'id': 'headlines',
+        'title': 'Headlines',
+        'raw':
+"""##################
+Level 1 (html h1)
+##################
+
+Topmost headline
+
+*****************
+Level 2 (h2)
+*****************
+
+two
+
+Level 3 (h3)
+==================
+
+three
+
+Level 4 (h4)
+-------------------
+
+four
+
+Level 5 (h5)
+\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"
+
+five
+
+Level 6 (h6)
+^^^^^^^^^^^^^^^^^^^
+
+six, lowest level available.""",},
+
+    {
+        'id': 'emphasis',
+        'title': 'Emphasis',
+        'raw':
+"""You can obtain italics with *asterisks*,
+boldface using **double asterisks** and code samples using ``double backquotes``.
+Note that these cannot be nested, and that there must not be a space at the
+start or end of the contents.
+
+If you need to explicitly use these characters (namely \*),
+you can escape them with a backslash.""",},
+
+    {
+        'id': 'blockquotes',
+        'title': 'Blockquotes',
+        'raw':
+"""It is often handy to use blockquotes.
+
+ This is a blockquote with two paragraphs, obtained by simple
+ indentation from the surrounding text. For multiple lines,
+ each line should be indented the same.
+
+ Here is the second paragraph, with lines indented
+ to the same level as the previous ones to preserve the
+ blockquote.
+
+To preserve line breaks, you can use line blocks:
+
+| Here is
+| a small paragraph
+| with linebreaks preserved.
+
+""",},
+
+    {
+        'id': 'lists',
+        'title': 'Lists',
+        'raw':
+"""reStructuredText supports unordered (bulleted) and ordered (numbered) lists.
+
+Unordered list items are marked with asterisk:
+
+* first item
+* second item
+* third item
+
+Ordered list items are marked by a number or # followed by a period:
+
+1. first item
+2. second item
+3. third item
+
+
+Nested lists can be obtained by indentation:
+
+* First mainlist item
+
+  * first sublist item
+  * second sublist item
+* Second mainlist item
+
+
+There are also *definition lists* obtained like this:
+
+term (up to a line of text)
+   Definition of the term, which must be indented
+
+   and can even consist of multiple paragraphs
+
+next term
+   Description.
+""",},
+
+    {
+        'id': 'code',
+        'title': 'Code',
+        'raw':
+"""An inline code span, to mention simple things like the
+``print()`` function, is obtained by wrapping it with double backticks.
+
+A code block is obtained by the ``::`` marker followed by the indented code::
+
+    from django import forms
+
+    class MarkupTextForm(forms.Form):
+        markup_text = forms.CharField()
+
+        def get_processed_markup(self):
+            text = self.cleaned_data['markup_text']
+
+which can then be followed by normal text.""",},
+
+    {
+        'id': 'tables',
+        'title': 'Tables',
+        'raw':
+"""
+A grid table can be written by "painting" it directly:
+
++------------------------+------------+----------+----------+
+| Header row, column 1   | Header 2   | Header 3 | Header 4 |
+| (header rows optional) |            |          |          |
++========================+============+==========+==========+
+| body row 1, column 1   | column 2   | column 3 | column 4 |
++------------------------+------------+----------+----------+
+| body row 2             | ...        | ...      |          |
++------------------------+------------+----------+----------+
+
+""",},
+
+    {
+        'id': 'links',
+        'title': 'Links',
+        'raw':
+"""Here is an example of an inline link to the `SciPost homepage <https://scipost.org/>`_.
+
+For example, one can also link to
+a specific `Submission <https://scipost.org/submissions/1509.04230v5/>`_
+or a specific `Report <https://scipost.org/submissions/1509.04230v4/#report_2>`_.
+
+You can also use reference-style links when citing this `resource`_, the reference
+will be resolved provided you define the link label somewhere
+in your text.
+
+.. _resource: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html""",},
+
+    {
+        'id': 'mathematics',
+        'title': 'Mathematics',
+        'raw':
+"""
+For simple inline equations, use the :code:`math` role like this: :math:`E = mc^2`.
+
+For displayed maths, the :code:`math` directive must be used:
 
 .. math::
-  H = \sum_j {\boldsymbol S}_j \cdot {\boldsymbol S}_{j+1}"""
-}
+  H = \sum_j {\\boldsymbol S}_j \cdot {\\boldsymbol S}_{j+1}
+
+Multiline equations can be obtained by using the ``\\`` carriage return as usual;
+to align your equations, use the ``align`` environment. For example:
+
+.. math::
+  \\nabla \\cdot {\\boldsymbol E} = \\frac{\\rho}{\\epsilon_0},
+  \\nabla \\times {\\boldsymbol E} + \\frac{\\partial \\boldsymbol B}{\\partial t} = 0, \\\\
+  \\nabla \\cdot {\\boldsymbol B} = 0,
+  \\nabla \\times {\\boldsymbol B} - \\frac{1}{c^2} \\frac{\\partial \\boldsymbol E}{\\partial t}
+  = \\mu_0 {\\boldsymbol J}
+
+
+"""},
+)

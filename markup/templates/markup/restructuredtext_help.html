@@ -16,43 +16,33 @@
     <div class="col-12">
       <h2 class="highlight">reStructuredText help</h2>
 
-      <h3 class="highlight" id="Mathematics">Mathematics</h3>
+      <p>You will find below a quick summary of reStructuredText basics,
+	as enabled here at SciPost.</p>
+      <p>You can find more details about reStructuredText's syntax
+	for example at <a href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">this page</a>.</p>
 
-      <p>
-	For mathematics in reStructuredText, you must use the <code>math</code>
-	directive/role.
-      </p>
-      <div class="row">
-	<div class="col-6">
-	  <h4><strong>If you write:</strong></h4>
-	  <pre>{{ snippets.maths_inline_online }}</pre>
+      <h3>Quick links</h3>
+      <ul>
+	{% for snippet in snippets %}
+	  <li><a href="#{{ snippet.id }}">{{ snippet.title }}</a></li>
+	{% endfor %}
+      </ul>
+
+      {% for snippet in snippets %}
+	<h3 class="highlight" id="{{ snippet.id }}">{{ snippet.title }}</h3>
+	<div class="row">
+	  <div class="col-6">
+	    <h3><strong>If you write:</strong></h3>
+	    <pre>{{ snippet.raw }}</pre>
+	  </div>
+	  <div class="col-6">
+	    <h3><strong>You will get:</strong></h3>
+	    {{ snippet.raw|automarkup:'reStructuredText' }}
+	  </div>
 	</div>
-	<div class="col-6">
-	  <h4><strong>You will get:</strong></h4>
-	  {{ snippets.maths_inline_online|automarkup:'reStructuredText' }}
-	</div>
-      </div>
+      {% endfor %}
+
     </div>
   </div>
-
-  {% with language='reStructuredText' %}
-    <div class="row">
-      <div class="col-12">
-	<h3 class="highlight">Math snippets</h3>
-	{{ math_snippets.length }}
-	{% for snippet in math_snippets %}
-	  <h4>{{ snippet.title }}</h4>
-	  <div class="row">
-	    <div class="col-lg-6">
-	      <pre>{{ snippet.raw }}</pre>
-	    </div>
-	    <div class="col-lg-6">
-	      {{ snippet.raw|automarkup:language }}
-	    </div>
-	  </div>
-	{% endfor %}
-      </div>
-    </div>
-  {% endwith %}
 
 {% endblock content %}

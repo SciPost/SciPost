@@ -48,7 +48,7 @@ def match_md_header(text, level=None):
         raise TypeError('level must be an int')
     if level < 1 or level > 6:
         raise ValueError('level must be an integer from 1 to 6')
-    return re.search(r'^#{' + str(level) + ',}[ ].+$', text)
+    return re.search(r'^#{' + str(level) + ',}[ ].+$', text, re.MULTILINE)
 
 def match_md_blockquote(text):
     """Return first match of regex search for Markdown blockquote."""
@@ -88,10 +88,9 @@ def match_rst_directive(text, directive=None):
         return none
     if directive not in ReST_DIRECTIVES:
         raise ValueError('this directive is not listed in ReST directives')
-    print('regex = %s' % r'^\.\. ' + directive + '::(.+)*(\n(.+)*){1,3}')
     return re.search(r'^\.\. ' + directive + '::(.+)*(\n(.+)*){1,3}', text, re.MULTILINE)
 
-def match_rst_header(text, symbol):
+def match_rst_header(text, symbol=None):
     """
     Return first match object of regex search for reStructuredText header.
 
@@ -99,8 +98,17 @@ def match_rst_header(text, symbol):
     both over and underline (of equal length, so faulty ones are not matched),
     while the others (``=``, ``-``, ``"`` and ``^``) only have the underline.
     """
+    if not symbol:
+        for newsymbol in ['#', '*', '=', '-', '"', '^']:
+            match = match_rst_header(text, newsymbol)
+            if match:
+                return match
+        return None
     if symbol not in ReST_HEADER_REGEX_DICT.keys():
         raise ValueError('symbol is not a ReST header symbol')
+    print('Looking for %s in rst: %s' % (
+        symbol,
+        re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)))
     return re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)
 
 
@@ -161,6 +169,8 @@ def detect_markup_language(text):
         'errors': None
     }
 
+    # Step 1: check maths
+
     # Inline maths is of the form $ ... $ or \( ... \)
     inline_math = match_inline_math(text)
 
@@ -169,9 +179,6 @@ def detect_markup_language(text):
 
     rst_math_role = match_rst_role(text, 'math')
     rst_math_directive = match_rst_directive(text, 'math')
-
-    md_header = match_md_header(text)
-    md_blockquote = match_md_blockquote(text)
 
     if rst_math_role or rst_math_directive:
         # reStructuredText presumed; check for errors
@@ -185,19 +192,38 @@ def detect_markup_language(text):
                 'You have mixed displayed maths ($$ ... $$ or \[ ... \]) with '
                 'reStructuredText markup.\n\nPlease use one or the other, but not both!')
             return detector
-        elif md_header:
-            detector['errors'] = (
-                'You have mixed Markdown headers with reStructuredText math roles/directives.'
-                '\n\nPlease use one language only.')
-        elif md_blockquote:
-            detector['errors'] = (
-                'You have mixed Markdown blockquotes with reStructuredText math roles/directives.'
-                '\n\nPlease use one language only.')
         else:
             detector['language'] = 'reStructuredText'
+            return detector
+
+    # no rst math from here onwards
+
+    # Step 2: check headers and blockquotes
+
+    md_header = match_md_header(text)
+    print('md_header: %s' % md_header)
+    md_blockquote = match_md_blockquote(text)
+
+    rst_header = match_rst_header(text)
+    print('rst_header: %s' % rst_header)
+
+    if md_header or md_blockquote:
+        if rst_math_role or rst_math_directive:
+            if md_header:
+                detector['errors'] = (
+                    'You have mixed Markdown headers with reStructuredText math '
+                    'roles/directives.\n\nPlease use one language only.')
+            elif md_blockquote:
+                detector['errors'] = (
+                    'You have mixed Markdown blockquotes with reStructuredText math '
+                    'roles/directives.\n\nPlease use one language only.')
+        detector['language'] = 'Markdown'
 
     elif md_header or md_blockquote:
         detector['language'] = 'Markdown'
+
+    elif rst_header:
+        detector['language'] = 'reStructuredText'
 
     return detector
 
@@ -321,6 +347,10 @@ def detect_markup_language_old(text):
 
 
 def apply_markdown_preserving_displayed_maths_bracket(text):
+    """
+    Subsidiary function called by ``apply_markdown_preserving_displayed_maths``.
+    See explanations in docstring of that method.
+    """
     part = text.partition(r'\[')
     part2 = part[2].partition(r'\]')
     return '%s%s%s%s%s' % (
