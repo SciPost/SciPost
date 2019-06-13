@@ -106,10 +106,46 @@ def match_rst_header(text, symbol=None):
         return None
     if symbol not in ReST_HEADER_REGEX_DICT.keys():
         raise ValueError('symbol is not a ReST header symbol')
-    print('Looking for %s in rst: %s' % (
-        symbol,
-        re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)))
     return re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)
+
+
+def check_markers(markers):
+    """
+    Checks the consistency of a markers dictionary. Returns a detector.
+    """
+    if len(markers['rst']) > 0:
+        if len(markers['md']) > 0:
+            return {
+                'language': 'plain',
+                'errors': ('Inconsistency: Markdown and reStructuredText syntaxes are mixed:\n\n'
+                           'Markdown: %s\n\nreStructuredText: %s' % (
+                               markers['md'].popitem(),
+                               markers['rst'].popitem()))
+            }
+        if len(markers['plain_or_md']) > 0:
+            return {
+                'language': 'plain',
+                'errors': ('Inconsistency: plain/Markdown and reStructuredText '
+                           'syntaxes are mixed:\n\n'
+                           'Markdown: %s\n\nreStructuredText: %s' % (
+                               markers['plain_or_md'].popitem(),
+                               markers['rst'].popitem()))
+            }
+        return {
+            'language': 'reStructuredText',
+            'errors': None,
+        }
+
+    elif len(markers['md']) > 0:
+        return {
+            'language': 'Markdown',
+            'errors': None,
+        }
+
+    return {
+        'language': 'plain',
+        'errors': None,
+    }
 
 
 def detect_markup_language(text):
@@ -163,68 +199,48 @@ def detect_markup_language(text):
     * if the ``math`` role or directive is found together with inline/displayed maths
     """
 
-    # Start from the default assumption
-    detector = {
-        'language': 'plain',
-        'errors': None
+    markers = {
+        'plain_or_md': {},
+        'md': {},
+        'rst': {},
     }
 
     # Step 1: check maths
 
     # Inline maths is of the form $ ... $ or \( ... \)
-    inline_math = match_inline_math(text)
+    match = match_inline_math(text)
+    if match:
+        markers['plain_or_md']['inline_math'] = match
 
     # Displayed maths is of the form \[ ... \] or $$ ... $$
-    displayed_math = match_displayed_math(text)
+    match = match_displayed_math(text)
+    if match:
+        markers['plain_or_md']['displayed_math'] = match
 
-    rst_math_role = match_rst_role(text, 'math')
-    rst_math_directive = match_rst_directive(text, 'math')
-
-    if rst_math_role or rst_math_directive:
-        # reStructuredText presumed; check for errors
-        if inline_math:
-            detector['errors'] = (
-                'You have mixed inline maths ($ ... $ or \( ... \) ) with '
-                'reStructuredText markup.\n\nPlease use one or the other, but not both!')
-            return detector
-        elif displayed_math:
-            detector['errors'] = (
-                'You have mixed displayed maths ($$ ... $$ or \[ ... \]) with '
-                'reStructuredText markup.\n\nPlease use one or the other, but not both!')
-            return detector
-        else:
-            detector['language'] = 'reStructuredText'
-            return detector
-
-    # no rst math from here onwards
+    match = match_rst_role(text, 'math')
+    if match:
+        markers['rst']['math_role'] = match
+    match = match_rst_directive(text, 'math')
+    if match:
+        markers['rst']['math_directive'] = match
 
     # Step 2: check headers and blockquotes
 
-    md_header = match_md_header(text)
-    print('md_header: %s' % md_header)
-    md_blockquote = match_md_blockquote(text)
+    match = match_md_header(text)
+    if match:
+        markers['md']['header'] = match
+    match = match_md_blockquote(text)
+    if match:
+        markers['md']['blockquote'] = match
 
-    rst_header = match_rst_header(text)
-    print('rst_header: %s' % rst_header)
+    match = match_rst_header(text)
+    if match:
+        markers['rst']['header'] = match
 
-    if md_header or md_blockquote:
-        if rst_math_role or rst_math_directive:
-            if md_header:
-                detector['errors'] = (
-                    'You have mixed Markdown headers with reStructuredText math '
-                    'roles/directives.\n\nPlease use one language only.')
-            elif md_blockquote:
-                detector['errors'] = (
-                    'You have mixed Markdown blockquotes with reStructuredText math '
-                    'roles/directives.\n\nPlease use one language only.')
-        detector['language'] = 'Markdown'
+    print('markers: \n%s' % markers)
 
-    elif md_header or md_blockquote:
-        detector['language'] = 'Markdown'
-
-    elif rst_header:
-        detector['language'] = 'reStructuredText'
-
+    detector = check_markers(markers)
+    print('detector: \n%s' % detector)
     return detector
 
 
@@ -397,6 +413,10 @@ def process_markup(text, language_forced=None):
 
     language = language_forced if language_forced else markup_detector['language']
     markup['language'] = language
+    markup['errors'] = markup_detector['errors']
+
+    if markup['errors']:
+        return markup
 
     if language == 'reStructuredText':
         warnStream = StringIO()
