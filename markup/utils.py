@@ -17,14 +17,14 @@ from .constants import ReST_HEADER_REGEX_DICT, ReST_ROLES, ReST_DIRECTIVES, BLEA
 
 # Inline or displayed math
 def match_inline_math(text):
-    """Return first match object of regex search for inline maths $...$ or \(...\)."""
+    """Return first match object of regex search for inline math ``$...$`` or ``\(...\)``."""
     match = re.search(r'\$[^$]+\$', text)
     if match:
         return match
     return re.search(r'\\\(.+\\\)', text)
 
 def match_displayed_math(text):
-    """Return first match object of regex search for displayed maths $$...$$ or \[...\]."""
+    """Return first match object of regex search for displayed math ``$$...$$`` or ``\[...\]``."""
     match = re.search(r'\$\$.+\$\$', text, re.DOTALL)
     if match:
         return match
@@ -39,7 +39,7 @@ def match_md_header(text, level=None):
     If not level is given, all levels 1 to 6 are checked, returning the first match or None.
     """
     if not level:
-        for newlevel in range(1,7):
+        for newlevel in range(1, 7):
             match = match_md_header(text, newlevel)
             if match:
                 return match
@@ -53,6 +53,14 @@ def match_md_header(text, level=None):
 def match_md_blockquote(text):
     """Return first match of regex search for Markdown blockquote."""
     return re.search(r'(^[ ]*>[ ].+){1,5}', text, re.DOTALL | re.MULTILINE)
+
+def match_md_hyperlink_inline(text):
+    """Return first match of regex search for Markdown inline hyperlink."""
+    return re.search(r'\[.+\]\(http.+\)', text)
+
+def match_md_hyperlink_reference(text):
+    """Return first match of regex search for Markdown reference-style hyperlink."""
+    return re.search(r'\[.+\]: http.+', text)
 
 
 # reStructuredText
@@ -85,7 +93,7 @@ def match_rst_directive(text, directive=None):
             match = match_rst_directive(text, newdirective)
             if match:
                 return match
-        return none
+        return None
     if directive not in ReST_DIRECTIVES:
         raise ValueError('this directive is not listed in ReST directives')
     return re.search(r'^\.\. ' + directive + '::(.+)*(\n(.+)*){1,3}', text, re.MULTILINE)
@@ -108,35 +116,54 @@ def match_rst_header(text, symbol=None):
         raise ValueError('symbol is not a ReST header symbol')
     return re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)
 
+def match_rst_hyperlink_inline(text):
+    """Return first match of regex search for reStructuredText inline hyperlink."""
+    return re.search(r'`.+<http.+>`_', text)
+
+def match_rst_hyperlink_reference(text):
+    """Return first match of regex search for reStructuredText reference-style hyperlink."""
+    # The match must not start with `_ (end of previous hyperlink) or contain
+    # a < (it's then assumed to be an inline hyperlink with <http...).
+    return re.search(r'`[^_][^<]+`_', text)
+
 
 def check_markers(markers):
     """
     Checks the consistency of a markers dictionary. Returns a detector.
     """
-    if len(markers['rst']) > 0:
-        if len(markers['md']) > 0:
+    markers_cut = {}
+    for key, val in markers.items():
+        markers_cut[key] = {}
+        for key2, val2 in val.items():
+            if val2:
+                markers_cut[key][key2] = val2
+    print('markers:\n%s' % markers)
+    print('markers_cut:\n%s' % markers_cut)
+
+    if len(markers_cut['rst']) > 0:
+        if len(markers_cut['md']) > 0:
             return {
                 'language': 'plain',
                 'errors': ('Inconsistency: Markdown and reStructuredText syntaxes are mixed:\n\n'
                            'Markdown: %s\n\nreStructuredText: %s' % (
-                               markers['md'].popitem(),
-                               markers['rst'].popitem()))
+                               markers_cut['md'].popitem(),
+                               markers_cut['rst'].popitem()))
             }
-        if len(markers['plain_or_md']) > 0:
+        elif len(markers_cut['plain_or_md']) > 0:
             return {
                 'language': 'plain',
                 'errors': ('Inconsistency: plain/Markdown and reStructuredText '
                            'syntaxes are mixed:\n\n'
                            'Markdown: %s\n\nreStructuredText: %s' % (
-                               markers['plain_or_md'].popitem(),
-                               markers['rst'].popitem()))
+                               markers_cut['plain_or_md'].popitem(),
+                               markers_cut['rst'].popitem()))
             }
         return {
             'language': 'reStructuredText',
             'errors': None,
         }
 
-    elif len(markers['md']) > 0:
+    elif len(markers_cut['md']) > 0:
         return {
             'language': 'Markdown',
             'errors': None,
@@ -179,6 +206,7 @@ def detect_markup_language(text):
       [text on a single line, as long as or shorter than # sequence]
       [same length of #]
     * same thing but for * headlines
+    * other header markers (=, -, \" and \^)
     * use of any other role
     * use of any other directive
 
@@ -194,9 +222,15 @@ def detect_markup_language(text):
     Exclusions (sources of errors):
     * inline or displayed maths cannot be used in ReST
 
-    The criteria used for error reporting are:
+    Any simultaneously present markers to two different languages
+    return an error.
 
-    * if the ``math`` role or directive is found together with inline/displayed maths
+    Checking order:
+    * maths
+    * headers/blockquotes
+    * hyperlinks
+    * rst roles
+    * rst directives
     """
 
     markers = {
@@ -206,160 +240,31 @@ def detect_markup_language(text):
     }
 
     # Step 1: check maths
-
     # Inline maths is of the form $ ... $ or \( ... \)
-    match = match_inline_math(text)
-    if match:
-        markers['plain_or_md']['inline_math'] = match
-
+    markers['plain_or_md']['inline_math'] = match_inline_math(text)
     # Displayed maths is of the form \[ ... \] or $$ ... $$
-    match = match_displayed_math(text)
-    if match:
-        markers['plain_or_md']['displayed_math'] = match
-
-    match = match_rst_role(text, 'math')
-    if match:
-        markers['rst']['math_role'] = match
-    match = match_rst_directive(text, 'math')
-    if match:
-        markers['rst']['math_directive'] = match
+    markers['plain_or_md']['displayed_math'] = match_displayed_math(text)
+    # For rst, check math role and directive
+    markers['rst']['math_role'] = match_rst_role(text, 'math')
+    markers['rst']['math_directive'] = match_rst_directive(text, 'math')
 
     # Step 2: check headers and blockquotes
+    markers['md']['header'] = match_md_header(text)
+    markers['md']['blockquote'] = match_md_blockquote(text)
+    markers['rst']['header'] = match_rst_header(text)
 
-    match = match_md_header(text)
-    if match:
-        markers['md']['header'] = match
-    match = match_md_blockquote(text)
-    if match:
-        markers['md']['blockquote'] = match
+    # Hyperrefs
+    markers['md']['href_inline'] = match_md_hyperlink_inline(text)
+    markers['md']['href_reference'] = match_md_hyperlink_reference(text)
+    markers['rst']['href_inline'] = match_rst_hyperlink_inline(text)
+    markers['rst']['href_reference'] = match_rst_hyperlink_reference(text)
 
-    match = match_rst_header(text)
-    if match:
-        markers['rst']['header'] = match
-
-    print('markers: \n%s' % markers)
+    # ReST roles and directives
+    markers['rst']['role'] = match_rst_role(text)
+    markers['rst']['directive'] = match_rst_directive(text)
 
     detector = check_markers(markers)
-    print('detector: \n%s' % detector)
     return detector
-
-
-
-def detect_markup_language_old(text):
-    # Inline maths
-    inline_math = match_inline_math(text)
-    # if inline_math:
-    #     print('inline math: %s' % inline_math.group(0))
-
-    # Online maths is of the form \[ ... \]
-    # The re.DOTALL is to also capture newline chars with the . (any single character)
-    online_math = match_displayed_math(text)
-    # if online_math:
-    #     print('online math: %s' % online_math.group(0))
-
-    rst_math = '.. math::' in text or ':math:`' in text
-
-    # Detect Markdown:
-    # Headlines: one or more # at the beginning of a line, space, then nonempty
-    md_header_patterns = ["^#{1,}[ ].+$",]
-    nr_md_headers = 0
-    for header_pattern in md_header_patterns:
-        matches = re.findall(header_pattern, text, flags=re.DOTALL)
-        print ('Markdown: %s matched %d times' % (header_pattern, len(matches)))
-        nr_md_headers += len(matches)
-    if nr_md_headers > 0:
-        return {
-            'language': 'Markdown',
-            'errors': None
-            }
-
-    # Normal inline/online maths cannot be used simultaneously with ReST math.
-    # If this is detected, language is set to plain, and errors are reported.
-    # Otherwise if math present in ReST but not in/online math, assume ReST.
-    if rst_math:
-        if inline_math:
-            return {
-                'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
-                           'You have mixed inline maths ($...$) with reStructuredText markup.'
-                           '\n\nPlease use one or the other, but not both!')
-            }
-        elif online_math:
-            return {
-                'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
-                           'You have mixed online maths (\[...\]) with reStructuredText markup.'
-                           '\n\nPlease use one or the other, but not both!')
-            }
-        else: # assume ReST
-            return {
-                'language': 'reStructuredText',
-                'errors': None
-            }
-
-    # reStructuredText header patterns
-    rst_header_patterns = [
-        "^#{2,}$", "^\*{2,}$", "^={2,}$", "^-{2,}$", "^\^{2,}$", "^\"{2,}$",]
-    # See list of reStructuredText directives at
-    # http://docutils.sourceforge.net/0.4/docs/ref/rst/directives.html
-    # We don't include the math one here since we covered it above.
-    rst_directives = [
-        "attention", "caution", "danger", "error", "hint", "important", "note", "tip",
-        "warning", "admonition",
-        "topic", "sidebar", "parsed-literal", "rubric", "epigraph", "highlights",
-        "pull-quote", "compound", "container",
-        "table", "csv-table", "list-table",
-        "contents", "sectnum", "section-autonumbering", "header", "footer",
-        "target-notes",
-        "replace", "unicode", "date", "class", "role", "default-role",
-    ]
-    # See list at http://docutils.sourceforge.net/0.4/docs/ref/rst/roles.html
-    rst_roles = [
-        "emphasis", "literal", "pep-reference", "rfc-reference",
-        "strong", "subscript", "superscript", "title-reference",
-    ]
-
-    nr_rst_headers = 0
-    for header_pattern in rst_header_patterns:
-        matches = re.findall(header_pattern, text, re.MULTILINE)
-        print ('%s matched %d times' % (header_pattern, len(matches)))
-        nr_rst_headers += len(matches)
-
-    nr_rst_directives = 0
-    for directive in rst_directives:
-        if ('.. %s::' % directive) in text:
-            nr_rst_directives += 1
-
-    nr_rst_roles = 0
-    for role in rst_roles:
-        if (':%s:`' % role) in text:
-            nr_rst_roles += 1
-
-    if (nr_rst_headers > 0 or nr_rst_directives > 0 or nr_rst_roles > 0):
-        if inline_math:
-            return {
-                'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
-                           'You have mixed inline maths ($...$) with reStructuredText markup.'
-                           '\n\nPlease use one or the other, but not both!')
-            }
-        elif online_math:
-            return {
-                'language': 'plain',
-                'errors': ('Cannot determine whether this is plain text or reStructuredText.\n\n'
-                           'You have mixed online maths (\[...\]) with reStructuredText markup.'
-                           '\n\nPlease use one or the other, but not both!')
-            }
-        else:
-            return {
-                'language': 'reStructuredText',
-                'errors': None
-            }
-    return {
-        'language': 'plain',
-        'errors': None
-    }
-
 
 
 def apply_markdown_preserving_displayed_maths_bracket(text):

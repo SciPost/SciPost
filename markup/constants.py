@@ -262,19 +262,19 @@ confuse the preceding text for a headline
 """### Inline-style hyperlinks
 
 Here is an example of an inline link to the [SciPost homepage](https://scipost.org/).
+Please always use the full protocol in the URL
+(so https://scipost.org instead of just scipost.org).
 
 For example, one can also link to
-a specific [Submission](https://scipost.org/submissions/1509.04230v5/)
-or a specific [Report](https://scipost.org/submissions/1509.04230v4/#report_2).
+a specific [Submission](https://scipost.org/submissions/1509.04230v5/) or
+a specific [Report](https://scipost.org/submissions/1509.04230v4/#report_2).
 
 ### Reference-style hyperlinks
 
 You can also use reference-style links when citing this [resource][md],
-which you need to cite [again][md] and [again][md]
-and [again][md].
+which you need to cite [again][md] and [again][md] and [again][md].
 
-The reference will be resolved provided you define the link label somewhere
-in your text.
+The reference will be resolved provided you define the link label somewhere in your text.
 
 [md]: https://daringfireball.net/projects/markdown/syntax""",},
 
@@ -501,24 +501,22 @@ in your text.
         'id': 'mathematics',
         'title': 'Mathematics',
         'raw':
-"""
+r"""
 For simple inline equations, use the :code:`math` role like this: :math:`E = mc^2`.
 
 For displayed maths, the :code:`math` directive must be used:
 
 .. math::
-  H = \sum_j {\\boldsymbol S}_j \cdot {\\boldsymbol S}_{j+1}
+  H = \sum_j {\boldsymbol S}_j \cdot {\boldsymbol S}_{j+1}
 
-Multiline equations can be obtained by using the ``\\`` carriage return as usual;
-to align your equations, use the ``align`` environment. For example:
+Multiline equations can be obtained by using the ``\\`` carriage return as usual:
 
 .. math::
-  \\nabla \\cdot {\\boldsymbol E} = \\frac{\\rho}{\\epsilon_0},
-  \\nabla \\times {\\boldsymbol E} + \\frac{\\partial \\boldsymbol B}{\\partial t} = 0, \\\\
-  \\nabla \\cdot {\\boldsymbol B} = 0,
-  \\nabla \\times {\\boldsymbol B} - \\frac{1}{c^2} \\frac{\\partial \\boldsymbol E}{\\partial t}
-  = \\mu_0 {\\boldsymbol J}
-
+  &\nabla \cdot {\boldsymbol E} = \frac{\rho}{\epsilon_0},
+  &\nabla \times {\boldsymbol E} + \frac{\partial \boldsymbol B}{\partial t} = 0, \\
+  &\nabla \cdot {\boldsymbol B} = 0,
+  &\nabla \times {\boldsymbol B} - \frac{1}{c^2} \frac{\partial \boldsymbol E}{\partial t}
+  = \mu_0 {\boldsymbol J}
 
 """},
 )
