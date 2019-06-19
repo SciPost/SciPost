@@ -3,6 +3,15 @@
     "recipient_list": [
 	"ticket.defined_by.email"
     ],
+    "bcc": [
+	"admin@scipost.org",
+	"edadmin@scipost.org",
+	"refereeing@scipost.org",
+        "submissions@scipost.org",
+	"jscaux@scipost.org",
+	"J.S.Caux@uva.nl",
+	"prof@jscaux.org"
+    ],
     "from_name": "SciPost Helpdesk",
     "from_email": "helpdesk@scipost.org"
 }
