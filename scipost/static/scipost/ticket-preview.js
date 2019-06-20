@@ -38,7 +38,7 @@ $('#runPreviewButton').on('click', function(){
     	    MathJax.Hub.Queue(["Typeset",MathJax.Hub, preview]);
     	},
 	error: function(data) {
-	    alert("An error has occurred while processing the text.");
+	    alert("An error has occurred while processing the text:\n\n." + data);
 	}
     });
     $('#runPreviewButton').hide();
