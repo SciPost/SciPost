@@ -7,6 +7,8 @@
   <span class="breadcrumb-item">Help</span>
 {% endblock %}
 
+{% load automarkup %}
+
 {% block content %}
 
   <div class="row">
@@ -36,7 +38,10 @@
 	To help you decide, here is a quick summary of main points to bear in mind:
 	<table class="table table-bordered">
 	  <tr>
-	    <th>Option</th><th>Advantages</th><th>Disadvantages</th>
+	    <th>Option</th>
+	    <th>Advantages</th>
+	    <th>Disadvantages</th>
+	    <th>Recommended for</th>
 	  </tr>
 	  <tr>
 	    <td>Plain text</td>
@@ -50,23 +55,31 @@
 		<li>No markup!</li>
 	      </ul>
 	    </td>
+	    <td>
+	      Anybody not wanting to bother with markup
+	    </td>
 	  </tr>
 	  <tr>
 	    <td>Markdown</td>
 	    <td>
 	      <ul>
 		<li>ease of use</li>
+		<li>purposefully simple</li>
 		<li>
 		  provides more or less all the markup you'll ever need,
-		  at least for small snippets
+		  at least for small, simple snippets
 		</li>
 	      </ul>
 	    </td>
 	    <td>
 	      <ul>
 		<li>non-standardized: many dozen "dialects" exist</li>
+		<li>facilities for some simple things (<em>e.g.</em> tables) are missing</li>
 		<li>not really meant for large, complex documents</li>
 	      </ul>
+	    </td>
+	    <td>
+	      Everybody wishing for or requiring markup
 	    </td>
 	  </tr>
 	  <tr>
@@ -87,24 +100,70 @@
 	    </td>
 	    <td>
 	      <ul>
-		<li>support for maths is good, but remains less extensive than in LaTeX</li>
+		<li>support for maths is good, but remains less extensive than in LaTeX,
+		  and requires annoying indentation in multiline directives</li>
 	      </ul>
+	    </td>
+	    <td>
+	      Pythonistas and Sphinx aficionados
 	    </td>
 	  </tr>
 	</table>
       </p>
 
       <p>
-	Which option you choose is completely up to you. Our system will determine
-	which one you are using and render your input accordingly.
+	Which option you choose is completely up to you. Our system will automatically
+	determine which one you are using and render your input accordingly.
       </p>
 
-      <h3 class="highlight" id="Plain">Plain text</h3>
-      <p>See our <a href="{% url 'markup:plaintext_help' %}">plain text-specific</a> help page</p>
-      <h3 class="highlight" id="Markdown">Markdown</h3>
-      <p>See our <a href="{% url 'markup:markdown_help' %}">Markdown-specific</a> help page</p>
-      <h3 class="highlight" id="reStructuredText">reStructuredText</h3>
-      <p>See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</p>
+      <br>
+
+      <h2 class="highlight" id="Plain">Plain text&emsp;
+	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:plaintext_help' %}">plain text-specific</a> help page</small></em>
+      </h2>
+      {% for suggestion in PlainTextSuggestions %}
+	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
+	<div class="row">
+	  <div class="col-6">
+	    <pre>{{ suggestion.raw }}</pre>
+	  </div>
+	  <div class="col-6">
+	    {{ suggestion.raw|automarkup }}
+	  </div>
+	</div>
+      {% endfor %}
+
+      <br>
+
+      <h2 class="highlight" id="Markdown">Markdown&emsp;
+	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:markdown_help' %}">Markdown-specific</a> help page</small></em></h2>
+	{% for suggestion in MarkdownSuggestions %}
+	  <h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
+	  <div class="row">
+	    <div class="col-6">
+	      <pre>{{ suggestion.raw }}</pre>
+	    </div>
+	    <div class="col-6">
+	      {{ suggestion.raw|automarkup }}
+	    </div>
+	  </div>
+	{% endfor %}
+
+	<br>
+
+	<h2 class="highlight" id="reStructuredText">reStructuredText&emsp;
+	  <em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</small></em></h2>
+      {% for suggestion in ReSTSuggestions %}
+	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
+	<div class="row">
+	  <div class="col-6">
+	    <pre>{{ suggestion.raw }}</pre>
+	  </div>
+	  <div class="col-6">
+	    {{ suggestion.raw|automarkup }}
+	  </div>
+	</div>
+      {% endfor %}
     </div>
   </div>
 

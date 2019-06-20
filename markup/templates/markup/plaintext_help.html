@@ -15,27 +15,34 @@
   <div class="row">
     <div class="col-12">
       <h2 class="highlight">Plain text help</h2>
-
-      <h3 class="highlight" id="Mathematics">Mathematics</h3>
-
       <p>
-	You can delimit inline maths using dollar signs like this: <code>&#36; ... &#36;</code>.
+	Plain text is the most straightforward format to use in our text fields,
+	but this comes at the cost of having no markup facilities.
+
+	Mathematics (both online and displayed) are enabled via MathJax.
+	You will find some simple examples below.
       </p>
-      <p>
-	For on-line maths, use escaped angular brackets
-	<code>&#92;&#91; ... &#92;&#93;</code> or
-	double-dollar delimiters <code>$$ ... $$</code>.
-      </p>
-      <div class="row">
-	<div class="col-6">
-	  <h4><strong>If you write:</strong></h4>
-	  <pre>{{ snippets.maths_inline_online }}</pre>
+      <h3>Quick links</h3>
+      <ul>
+	{% for snippet in snippets %}
+	  <li><a href="#{{ snippet.id }}">{{ snippet.title }}</a></li>
+	{% endfor %}
+      </ul>
+
+      {% for snippet in snippets %}
+	<h3 class="highlight" id="{{ snippet.id }}">{{ snippet.title }}</h3>
+	<div class="row">
+	  <div class="col-6">
+	    <h3><strong>If you write:</strong></h3>
+	    <pre>{{ snippet.raw }}</pre>
+	  </div>
+	  <div class="col-6">
+	    <h3><strong>You will get:</strong></h3>
+	    {{ snippet.raw|automarkup:'Markdown' }}
+	  </div>
 	</div>
-	<div class="col-6">
-	  <h4><strong>You will get:</strong></h4>
-	  {{ snippets.maths_inline_online|automarkup:'plain' }}
-	</div>
-      </div>
+      {% endfor %}
+
     </div>
   </div>
 

@@ -46,9 +46,28 @@ BLEACH_ALLOWED_TAGS = [
 ]
 
 
+PlainTextSuggestedFormatting = (
+    {
+        'id': 'authorreply',
+        'title': 'Author Reply to Report',
+        'raw':
+r"""
+The referee writes:
+"The authors should extend their exact solution to the two-dimensional case."
 
-PlainTextSnippets = {
-    'maths_inline_online':
+Our response:
+Even Bethe did not manage this: see the unfulfilled promise at the end
+of his 1931 paper https://doi.org/10.1007/BF01341708.
+"""
+    },
+)
+
+
+PlainTextSnippets = (
+    {
+        'id': 'maths',
+        'title': 'Maths: inline and displayed',
+        'raw':
 r"""Some say $e^{i\pi} + 1 = 0$ is the most beautiful equation of all.
 
 Do you know this famous Hamiltonian?
@@ -61,10 +80,14 @@ $$
 H = \int dx \left[ \partial_x \Psi^\dagger \partial_x \Psi
 + c \Psi^\dagger \Psi^\dagger \Psi \Psi \right]
 $$
-""",
-
-    'maths_multiple_lines':
 """
+    },
+
+    {
+        'id': 'maths_multiple_lines',
+        'title': 'Maths: multiple lines',
+        'raw':
+r"""
 Equations on multiple lines:
 \[
 \nabla \cdot {\boldsymbol E} = \frac{\rho}{\epsilon_0}, \qquad
@@ -84,7 +107,26 @@ Equations on multiple lines:
 \end{eqnarray*}
 \]
 """
-}
+    }
+)
+
+
+MarkdownSuggestedFormatting = (
+    {
+        'id': 'authorreply',
+        'title': 'Author Reply to Report',
+        'raw':
+r"""
+**The referee writes:**
+> The authors should extend their exact solution to the two-dimensional case.
+
+**Our response:**
+
+Even Bethe did not manage this: see the unfulfilled promise at the end
+of his [1931 paper](https://doi.org/10.1007/BF01341708).
+"""
+    },
+)
 
 
 MarkdownSnippets = (
@@ -519,4 +561,23 @@ Multiline equations can be obtained by using the ``\\`` carriage return as usual
   = \mu_0 {\boldsymbol J}
 
 """},
+)
+
+
+ReSTSuggestedFormatting = (
+    {
+        'id': 'authorreply',
+        'title': 'Author Reply to Report',
+        'raw':
+r"""
+**The referee writes:**
+
+  The authors should extend their exact solution to the two-dimensional case.
+
+**Our response:**
+
+Even Bethe did not manage this: see the unfulfilled promise at the end
+of his `1931 paper <https://doi.org/10.1007/BF01341708>`_ .
+"""
+    },
 )
