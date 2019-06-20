@@ -18,7 +18,7 @@ $('#runPreviewButton').on('click', function(){
     $('#preview-title').text($('#id_title').val());
     $.ajax({
     	type: "POST",
-    	url: "/process_markup/",
+    	url: "/markup/process/",
     	data: {
     	    csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val(),
 	    markup_text: $('#id_description').val(),
@@ -33,7 +33,7 @@ $('#runPreviewButton').on('click', function(){
 		$('#runPreviewButton').show();
 		alert("An error has occurred while processing the text:\n\n" + data.errors);
 	    }
-    	    $('#preview-description').html(data.processed_markup);
+    	    $('#preview-description').html(data.processed);
 	    let preview = document.getElementById('preview-description');
     	    MathJax.Hub.Queue(["Typeset",MathJax.Hub, preview]);
     	},
@@ -43,6 +43,6 @@ $('#runPreviewButton').on('click', function(){
     });
     $('#runPreviewButton').hide();
     $('#preview-title').css('background', '#f1f1f1');
-    $('#preview-description').css('background', '#f8f8f8');
+    $('#preview-description').css('background', '#ffffff');
     $('#submitButton').show();
 }).trigger('change');

@@ -1,0 +1,49 @@
+{% extends 'markup/base.html' %}
+
+{% block pagetitle %}: Markup help{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'markup:help' %}">Help</a></span>
+  <span class="breadcrumb-item">Plain text</span>
+{% endblock %}
+
+{% load automarkup %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">Plain text help</h2>
+      <p>
+	Plain text is the most straightforward format to use in our text fields,
+	but this comes at the cost of having no markup facilities.
+
+	Mathematics (both online and displayed) are enabled via MathJax.
+	You will find some simple examples below.
+      </p>
+      <h3>Quick links</h3>
+      <ul>
+	{% for snippet in snippets %}
+	  <li><a href="#{{ snippet.id }}">{{ snippet.title }}</a></li>
+	{% endfor %}
+      </ul>
+
+      {% for snippet in snippets %}
+	<h3 class="highlight" id="{{ snippet.id }}">{{ snippet.title }}</h3>
+	<div class="row">
+	  <div class="col-6">
+	    <h3><strong>If you write:</strong></h3>
+	    <pre>{{ snippet.raw }}</pre>
+	  </div>
+	  <div class="col-6">
+	    <h3><strong>You will get:</strong></h3>
+	    {{ snippet.raw|automarkup:'Markdown' }}
+	  </div>
+	</div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+{% endblock content %}

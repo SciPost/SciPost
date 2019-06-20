@@ -1,7 +1,7 @@
 {% extends 'helpdesk/base.html' %}
 
 {% load bootstrap %}
-{% load restructuredtext %}
+{% load automarkup %}
 
 {% block pagetitle %}: Delete Queue{% endblock pagetitle %}
 
@@ -11,7 +11,7 @@
       <h1 class="highlight">Delete Queue {{ object.name }}</h1>
 
       <h3 class="highlight">Description</h3>
-      {{ object.description|restructuredtext }}
+      {{ object.description|automarkup }}
 
       <h3 class="highlight">Tickets</h3>
       {% include 'helpdesk/tickets_table.html' with queue=object %}

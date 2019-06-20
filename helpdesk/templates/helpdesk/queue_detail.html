@@ -2,7 +2,7 @@
 
 {% load bootstrap %}
 {% load guardian_tags %}
-{% load restructuredtext %}
+{% load automarkup %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -85,7 +85,7 @@
       {% endif %}
 
       <h3 class="highlight">Description</h3>
-      {{ queue.description|restructuredtext }}
+      {{ queue.description|automarkup }}
 
       <h3 class="highlight">Tickets in this Queue</h3>
       {% include 'helpdesk/tickets_table.html' with tickets=queue.tickets.all %}

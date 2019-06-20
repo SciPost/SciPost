@@ -100,6 +100,7 @@ INSTALLED_APPS = (
     'journals',
     'mailing_lists',
     'mails',
+    'markup',
     'news',
     'notifications',
     'partners',
