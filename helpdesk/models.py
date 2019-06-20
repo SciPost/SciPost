@@ -34,7 +34,9 @@ class Queue(models.Model):
     """
     name = models.CharField(max_length=64)
     slug = models.SlugField(allow_unicode=True, unique=True)
-    description = models.TextField()
+    description = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
     managing_group = models.ForeignKey('auth.Group', on_delete=models.CASCADE,
                                        related_name='managed_queues')
     response_groups = models.ManyToManyField('auth.Group')
@@ -99,11 +101,8 @@ class Ticket(models.Model):
                                          'seems most appropriate for your issue'))
     title = models.CharField(max_length=64, default='')
     description = models.TextField(
-        help_text=(
-            'You can use ReStructuredText, see a '
-            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
-            'target="_blank">primer on python.org</a>')
-        )
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
     publicly_visible = models.BooleanField(
         default=False,
         help_text=('Do you agree with this Ticket being made publicly visible '
