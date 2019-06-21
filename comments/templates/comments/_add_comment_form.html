@@ -3,7 +3,8 @@
 {% load staticfiles %}
 
 {% block footer_script %}
-  <script type="text/javascript" src="{% static 'scipost/comment-preview.js' %}"></script>
+  <script src="{% static 'scipost/fetch-markup-preview.js' %}"></script>
+  <script src="{% static 'scipost/comment-preview.js' %}"></script>
 {% endblock %}
 
 <form enctype="multipart/form-data" {% if url %}action="{{ url }}" {% endif %}method="post">
@@ -12,10 +13,11 @@
     <div class="col-md-9">
       {{ form.comment_text|bootstrap:'12,12' }}
 
-      <p>
-        In your comment, you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations.
-      </p>
-      <p class="good_commenter">Be professional. Only serious and meaningful comments will be vetted through.</p>
+      <p class="good_commenter">
+	You can use plain text, Markdown or reStructuredText; see our
+	<a href="{% url 'markup:help' %}" target="_blank">markup help</a> pages.
+	<br>
+	Be professional. Only serious and meaningful comments will be vetted through.</p>
     </div>
     <div class="col-md-3 radio-list">
       <label>Specify categorization(s):</label>
@@ -49,19 +51,25 @@
           <h3 class="anonymous-no"><span class="text-danger">Your Comment will be <span class="text-underline">signed</span>.</span> Thank you very much!</h3>
         </div>
       {% endif %}
-      <input type="submit" name="submit" value="Submit your Comment for vetting" class="btn btn-primary" id="submit-id-submit">
-      {% if form.anonymous %}
-        <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
-      {% else %}
-        <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>, in particular that <span class="text-danger">your identity will be attached to the Comment</span>.</i></p>
-      {% endif %}
+      <div id="submitButton">
+	<input type="submit" value="Submit your Comment for vetting" class="btn btn-primary">
+	{% if form.anonymous %}
+          <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
+	{% else %}
+          <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>, in particular that <span class="text-danger">your identity will be attached to the Comment</span>.</i></p>
+	{% endif %}
+      </div>
     </div>
   </div>
 </form>
 
-<div class="row">
-  <div class="col-md-9">
-    <h3>Preview of your comment:</h3>
-    <p id="preview-comment_text"></p>
+<button class="btn btn-warning" id="runPreviewButton">Run/refresh preview and check your Comment before submitting it:</button>
+<div class="card m-2">
+  <div class="card-header">
+    Preview of your comment
+  </div>
+  <div class="card-content">
+    <div id="preview-comment_text"></div>
   </div>
 </div>
+<br>

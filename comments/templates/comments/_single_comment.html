@@ -2,6 +2,7 @@
 {% load filename %}
 {% load file_extentions %}
 {% load user_groups %}
+{% load automarkup %}
 
 {% is_edcol_admin request.user as is_edcol_admin %}
 {% is_editorial_college request.user as is_editorial_college %}
@@ -16,8 +17,9 @@
   {% endif %}
 
   <p class="my-3 pb-2">
-    {{ comment.comment_text|linebreaksbr }}
+    {{ comment.comment_text|automarkup:'plain' }}
   </p>
+
   {% if comment.file_attachment %}
     <h3>Attachment:</h3>
     <p>

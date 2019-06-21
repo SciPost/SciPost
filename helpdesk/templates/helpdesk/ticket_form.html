@@ -50,7 +50,7 @@
 	  <h2 class="highlight">
 	    Preview of your ticket
 	  </h2>
-	  <p><em id="languageElement" class="text-muted mb-2"></em></p>
+	  <p><em id="language-description" class="text-muted mb-2"></em></p>
 	  <div class="card">
 	    <div class="card-header" id="preview-title"></div>
 	    <div class="card-content">
@@ -58,11 +58,12 @@
 	    </div>
 	  </div>
 	</div>
+      </div>
     </div>
-  </div>
 
 {% endblock content %}
 
 {% block footer_script %}
+  <script src="{% static 'scipost/fetch-markup-preview.js' %}"></script>
   <script src="{% static 'scipost/ticket-preview.js' %}"></script>
 {% endblock footer_script %}

@@ -1,21 +1,27 @@
-$(function(){
-    var comment_text_input = $("#id_comment_text");
+$(document).ready(function() {
 
-    comment_text_input.on('keyup', function(){
-        var new_text = $(this).val()
-        $("#preview-comment_text").text(new_text)
-        if( typeof MathJax.Hub !== 'undefined' ) {
-            MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
-        }
-    }).trigger('keyup');
+    $('#submitButton').hide();
+
+    $("#id_comment_text").on('keyup', function(){
+	$('#runPreviewButton').show();
+	$('#preview-comment_text').css('background', '#feebce');
+	$('#submitButton').hide();
+    });
+
+    $('#runPreviewButton').on('click', function(){
+	fetchMarkupPreview('comment_text');
+    	$('#runPreviewButton').hide();
+    	$('#preview-comment_text').css('background', '#ffffff');
+    	$('#submitButton').show();
+    }).trigger('change');
 
     $('input[name$="anonymous"]').on('change', function() {
-        $('.anonymous-alert').show()
+	$('.anonymous-alert').show()
 	    .children('h3').hide()
-        if ($(this).prop('checked')) {
+	if ($(this).prop('checked')) {
             $('.anonymous-yes').show();
-        } else {
+	} else {
             $('.anonymous-no').show();
-        }
+	}
     }).trigger('change');
 });
