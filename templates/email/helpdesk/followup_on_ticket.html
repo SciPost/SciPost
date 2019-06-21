@@ -1,10 +1,10 @@
-{% load restructuredtext %}
+{% load automarkup %}
 <p>
   Re: ticket {{ followup.ticket.title }}
 </p>
 <p>A followup has been posted by {{ followup.by.get_full_name }} on the ticket above:</p>
 <hr>
-{{ followup.text|restructuredtext }}
+{{ followup.text|automarkup }}
 <hr>
 <p>You can view details (and eventually take further steps) by navigating to the <a href="https://scipost.org{{ followup.ticket.get_absolute_url }}">ticket's page</a> (login required). You can also see this ticket on your personal list at our online <a href="https://scipost.org/helpdesk/">helpdesk</a>.</p>
 <p>

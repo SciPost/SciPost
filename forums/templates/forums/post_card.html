@@ -1,4 +1,4 @@
-{% load restructuredtext %}
+{% load automarkup %}
 
 <div class="card m-2 {% if post.motion %}text-white bg-dark{% else %}text-body{% endif %}" id="post{{ post.id }}">
   <div class="card-header">
@@ -12,7 +12,7 @@
     </div>
   </div>
   <div class="card-body">
-    {{ post.text|restructuredtext }}
+    {{ post.text|automarkup }}
   </div>
   <div class="card-footer">
     <div class="d-flex flex-wrap justify-content-end align-items-center">
