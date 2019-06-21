@@ -31,11 +31,8 @@ class Forum(models.Model):
     slug = models.SlugField(allow_unicode=True)
     description = models.TextField(
         blank=True, null=True,
-        help_text=(
-            'You can use ReStructuredText, see a '
-            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
-            'target="_blank">primer on python.org</a>')
-        )
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
     publicly_visible = models.BooleanField(default=False)
     moderators = models.ManyToManyField('auth.User', related_name='moderated_forums')
 
@@ -114,19 +111,14 @@ class Meeting(Forum):
     preamble = models.TextField(
         help_text=(
             'Explanatory notes for the meeting.\n'
-            'You can use ReStructuredText, see a '
-            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
-            'target="_blank">primer on python.org</a>')
-        )
+            'You can use plain text, Markdown or reStructuredText; see our '
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
     minutes = models.TextField(
         blank=True, null=True,
         help_text=(
             'To be filled in after completion of the meeting.\n'
-            'You can use ReStructuredText, see a '
-            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
-            'target="_blank">primer on python.org</a>')
-        )
-
+            'You can use plain text, Markdown or reStructuredText; see our '
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
     objects = models.Manager()
 
     def __str__(self):
@@ -176,9 +168,8 @@ class Post(models.Model):
     a new discussion thread. If the parent is a Post, then it is interpreted as
     part of an ongoing thread.
 
-    The text field can contain ReStructuredText markup, formatted in templates
-    through the ``scipost`` app's ``restructuredtext`` template filter, which
-    relies on the ``docutils`` required app.
+    The text field can contain plain text, Markdown or reStructuredText markup,
+    auto-recognized via the markup app facilities.
     """
     posted_by = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     posted_on = models.DateTimeField(default=timezone.now)
@@ -195,10 +186,8 @@ class Post(models.Model):
     subject = models.CharField(max_length=256)
     text = models.TextField(
         help_text=(
-            'You can use ReStructuredText, see a '
-            '<a href="https://devguide.python.org/documenting/#restructuredtext-primer" '
-            'target="_blank">primer on python.org</a>')
-        )
+            'You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
 
     objects = PostQuerySet.as_manager()
 

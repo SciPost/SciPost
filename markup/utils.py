@@ -31,7 +31,7 @@ def match_displayed_math(text):
     return re.search(r'\\\[.+\\\]', text, re.DOTALL)
 
 
-# Markdown
+# Headers
 def match_md_header(text, level=None):
     """
     Return first match object of regex search for Markdown headers in form #{level,}.
@@ -50,10 +50,32 @@ def match_md_header(text, level=None):
         raise ValueError('level must be an integer from 1 to 6')
     return re.search(r'^#{' + str(level) + ',}[ ].+$', text, re.MULTILINE)
 
+def match_rst_header(text, symbol=None):
+    """
+    Return first match object of regex search for reStructuredText header.
+
+    Python conventions are followed, namely that ``#`` and ``*`` headers have
+    both over and underline (of equal length, so faulty ones are not matched),
+    while the others (``=``, ``-``, ``"`` and ``^``) only have the underline.
+    """
+    if not symbol:
+        for newsymbol in ['#', '*', '=', '-', '"', '^']: # explicit checking order
+            match = match_rst_header(text, newsymbol)
+            if match:
+                return match
+        return None
+    if symbol not in ReST_HEADER_REGEX_DICT.keys():
+        raise ValueError('symbol is not a ReST header symbol')
+    return re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)
+
+
+# Blockquotes
 def match_md_blockquote(text):
     """Return first match of regex search for Markdown blockquote."""
     return re.search(r'(^[ ]*>[ ].+){1,5}', text, re.DOTALL | re.MULTILINE)
 
+
+# Hyperlinks
 def match_md_hyperlink_inline(text):
     """Return first match of regex search for Markdown inline hyperlink."""
     return re.search(r'\[.+\]\(http.+\)', text)
@@ -62,8 +84,18 @@ def match_md_hyperlink_reference(text):
     """Return first match of regex search for Markdown reference-style hyperlink."""
     return re.search(r'\[.+\]: http.+', text)
 
+def match_rst_hyperlink_inline(text):
+    """Return first match of regex search for reStructuredText inline hyperlink."""
+    return re.search(r'`.+<http.+>`_', text)
 
-# reStructuredText
+def match_rst_hyperlink_reference(text):
+    """Return first match of regex search for reStructuredText reference-style hyperlink."""
+    # The match must not start with `_ (end of previous hyperlink) or contain
+    # a < (it's then assumed to be an inline hyperlink with <http...).
+    return re.search(r'`[^_][^<]+`_', text)
+
+
+# reStructuredText roles and directives
 def match_rst_role(text, role=None):
     """
     Return first match object of regex search for given ReST role :role:`... .
@@ -98,33 +130,21 @@ def match_rst_directive(text, directive=None):
         raise ValueError('this directive is not listed in ReST directives')
     return re.search(r'^\.\. ' + directive + '::(.+)*(\n(.+)*){1,3}', text, re.MULTILINE)
 
-def match_rst_header(text, symbol=None):
-    """
-    Return first match object of regex search for reStructuredText header.
+# Lists
+def match_md_unordered_list(text):
+    """Return first match of Markdown list (excluding ReST-shared * pattern)."""
+    return re.search(r'(^[\s]*[+-][ ].+$[\n]*){1,3}', text, re.MULTILINE)
 
-    Python conventions are followed, namely that ``#`` and ``*`` headers have
-    both over and underline (of equal length, so faulty ones are not matched),
-    while the others (``=``, ``-``, ``"`` and ``^``) only have the underline.
-    """
-    if not symbol:
-        for newsymbol in ['#', '*', '=', '-', '"', '^']:
-            match = match_rst_header(text, newsymbol)
-            if match:
-                return match
-        return None
-    if symbol not in ReST_HEADER_REGEX_DICT.keys():
-        raise ValueError('symbol is not a ReST header symbol')
-    return re.search(ReST_HEADER_REGEX_DICT[symbol], text, re.MULTILINE)
+def match_md_or_rst_unordered_list(text):
+    """Return first match of Markdown/ReST unordered list using shared * marker."""
+    return re.search(r'(^[\s]*[\*][ ].+$[\n]*){1,3}', text, re.MULTILINE)
 
-def match_rst_hyperlink_inline(text):
-    """Return first match of regex search for reStructuredText inline hyperlink."""
-    return re.search(r'`.+<http.+>`_', text)
+def match_md_or_rst_ordered_list(text):
+    """Return the first match of Markdown/ReST ordered list (using numbers)."""
+    return re.search(r'(^[\s]*[0-9]+.[ ].+$[\n]*){1,3}', text, re.MULTILINE)
 
-def match_rst_hyperlink_reference(text):
-    """Return first match of regex search for reStructuredText reference-style hyperlink."""
-    # The match must not start with `_ (end of previous hyperlink) or contain
-    # a < (it's then assumed to be an inline hyperlink with <http...).
-    return re.search(r'`[^_][^<]+`_', text)
+def match_rst_ordered_list(text):
+    return re.search(r'(^[\s]*[#]\.[ ].+$[\n]*){1,3}', text, re.MULTILINE)
 
 
 def check_markers(markers):
@@ -137,8 +157,6 @@ def check_markers(markers):
         for key2, val2 in val.items():
             if val2:
                 markers_cut[key][key2] = val2
-    print('markers:\n%s' % markers)
-    print('markers_cut:\n%s' % markers_cut)
 
     if len(markers_cut['rst']) > 0:
         if len(markers_cut['md']) > 0:
@@ -164,6 +182,12 @@ def check_markers(markers):
         }
 
     elif len(markers_cut['md']) > 0:
+        return {
+            'language': 'Markdown',
+            'errors': None,
+        }
+
+    elif len(markers_cut['md_or_rst']) > 0: # markup, but indeterminate; assume Markdown
         return {
             'language': 'Markdown',
             'errors': None,
@@ -232,14 +256,20 @@ def detect_markup_language(text):
     * rst roles
     * rst directives
     """
+    if not text:
+        return {
+            'language': 'plain',
+            'errors': None,
+        }
 
     markers = {
         'plain_or_md': {},
         'md': {},
+        'md_or_rst': {},
         'rst': {},
     }
 
-    # Step 1: check maths
+    # Maths
     # Inline maths is of the form $ ... $ or \( ... \)
     markers['plain_or_md']['inline_math'] = match_inline_math(text)
     # Displayed maths is of the form \[ ... \] or $$ ... $$
@@ -248,10 +278,16 @@ def detect_markup_language(text):
     markers['rst']['math_role'] = match_rst_role(text, 'math')
     markers['rst']['math_directive'] = match_rst_directive(text, 'math')
 
-    # Step 2: check headers and blockquotes
+    # Headers and blockquotes
     markers['md']['header'] = match_md_header(text)
     markers['md']['blockquote'] = match_md_blockquote(text)
     markers['rst']['header'] = match_rst_header(text)
+
+    # Lists
+    markers['md']['unordered_list'] = match_md_unordered_list(text)
+    markers['md_or_rst']['unordered_list'] = match_md_or_rst_unordered_list(text)
+    markers['md_or_rst']['ordered_list'] = match_md_or_rst_ordered_list(text)
+    markers['rst']['ordered_list'] = match_rst_ordered_list(text)
 
     # Hyperrefs
     markers['md']['href_inline'] = match_md_hyperlink_inline(text)

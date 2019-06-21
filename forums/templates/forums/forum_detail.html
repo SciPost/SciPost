@@ -2,7 +2,7 @@
 
 {% load bootstrap %}
 {% load guardian_tags %}
-{% load restructuredtext %}
+{% load automarkup %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -113,7 +113,7 @@
     <div class="col-12">
       <h2 class="highlight" id="Description">Description</h2>
       <div class="m-2">
-	{{ forum.description|restructuredtext }}
+	{{ forum.description|automarkup }}
       </div>
     </div>
   </div>
@@ -123,7 +123,7 @@
       <div class="col-12">
 	<h2 class="highlight" id="Preamble">Preamble</h2>
 	<div class="m-2">
-	  {{ forum.meeting.preamble|restructuredtext }}
+	  {{ forum.meeting.preamble|automarkup }}
 	</div>
       </div>
     </div>
@@ -166,7 +166,7 @@
       <div class="col-12">
 	<h2 class="highlight" id="Minutes">Minutes</h2>
 	<div class="m-2">
-	  {{ forum.meeting.minutes|restructuredtext }}
+	  {{ forum.meeting.minutes|automarkup }}
 	</div>
       </div>
     </div>

@@ -10,12 +10,12 @@ __license__ = "AGPL v3"
 # right above the lower headline marker.
 # The regex search should use the re.MULTILINE flag.
 ReST_HEADER_REGEX_DICT = {
-    '#': r'^(#{1,}\n).{1,}\n\1',  # this makes use of a regex backreference
-    '*': r'^(\*{1,}\n).{1,}\n\1', # this makes use of a regex backreference
-    '=': r'^.{1,}\n={1,}\n',   # non-empty line followed by line of =
-    '-': r'^.{1,}\n-{1,}\n',   # non-empty line followed by line of -
-    '"': r'^.{1,}\n"{1,}\n',   # non-empty line followed by line of "
-    '^': r'^.{1,}\n\^{1,}\n'   # non-empty line followed by line of ^
+    '#': r'^(#{1,}[^\S\n]*\n).{1,}\n\1',  # this makes use of a regex backreference
+    '*': r'^(\*{1,}[^\S\n]*\n).{1,}\n\1', # this makes use of a regex backreference
+    '=': r'^.{1,}[^\S\n]*\n={1,}[^\S\n]*\n',   # non-empty line followed by line of =
+    '-': r'^.{1,}[^\S\n]*\n-{1,}[^\S\n]*\n',   # non-empty line followed by line of -
+    '"': r'^.{1,}[^\S\n]*\n"{1,}[^\S\n]*\n',   # non-empty line followed by line of "
+    '^': r'^.{1,}[^\S\n]*\n\^{1,}[^\S\n]*\n'   # non-empty line followed by line of ^
 }
 
 # See list at http://docutils.sourceforge.net/0.4/docs/ref/rst/roles.html

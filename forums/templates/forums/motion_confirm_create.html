@@ -1,7 +1,7 @@
 {% extends 'forums/base.html' %}
 
 {% load bootstrap %}
-{% load restructuredtext %}
+{% load automarkup %}
 
 
 {% block breadcrumb_items %}
@@ -23,7 +23,7 @@
 	</div>
 	<div class="card-body">
 	  {% if form.initial.text %}
-	    {{ form.initial.text|restructuredtext }}
+	    {{ form.initial.text|automarkup }}
 	  {% else %}
 	    <span class="text-danger">No text given</span>
 	  {% endif %}
