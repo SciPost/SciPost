@@ -16,7 +16,7 @@
     {% include 'comments/_comment_voting_form.html' with comment=comment perms=perms user=user %}
   {% endif %}
 
-  <p class="my-3 pb-2">
+  <p class="my-2 pb-1">
     {{ comment.comment_text|automarkup }}
   </p>
 
@@ -35,8 +35,14 @@
 
   {% if is_editorial_college or is_edcol_admin %}
     {% if comment.remarks_for_editors %}
-      <h3>Remarks for editors:</h3>
-      <p>{{ comment.remarks_for_editors|automarkup }}</p>
+      <div class="card">
+	<div class="card-header">
+	  Remarks for editors (not publicly visible)
+	</div>
+	<div class="card-content p-2">
+	  {{ comment.remarks_for_editors|automarkup }}
+	</div>
+      </div>
     {% endif %}
   {% endif %}
 

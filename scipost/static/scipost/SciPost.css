@@ -33,6 +33,14 @@ li ol > li:before {
   content: counters(item, ".") " ";
 }
 
+.markup-preview {
+    border: 1px solid black;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    padding: 1rem;
+    border-radius: 1.4px;
+}
+
 .opinionsDisplay {
   font-family: 'Merriweather Sans';
   font-size: 10px;
@@ -89,16 +97,6 @@ li ol > li:before {
 }
 .opinionsDisplay form input[type=submit].disagree {
   background-color: #990000;
-}
-
-
-
-#preview-comment_text {
-    border: 1px solid black;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    padding: 1rem;
-    border-radius: 1.4px;
 }
 
 /* Styling of sphinxdoc-generated docs */
