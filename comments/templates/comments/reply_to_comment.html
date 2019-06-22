@@ -1,6 +1,7 @@
 {% extends 'scipost/base.html' %}
 
 {% load comment_extras %}
+{% load automarkup %}
 
 {% block pagetitle %}: reply to comment{% endblock pagetitle %}
 
@@ -15,7 +16,7 @@
 
     <div class="row">
       <div class="col-12">
-        <h2>The {{comment.core_content_object|get_core_content_type|capfirst}} concerned:</h2>
+        <h2>The {{ comment.core_content_object|get_core_content_type|capfirst }} concerned:</h2>
         {% get_summary_template comment.core_content_object %}
       </div>
     </div>
@@ -34,7 +35,7 @@
 
           {% include 'comments/_comment_voting_summary.html' with comment=comment %}
 
-          <p>{{ comment.comment_text|linebreaksbr }}</p>
+          <p>{{ comment.comment_text|automarkup }}</p>
         </div>
       </div>
     </div>

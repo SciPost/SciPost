@@ -12,12 +12,10 @@
   <div class="row">
     <div class="col-md-9">
       {{ form.comment_text|bootstrap:'12,12' }}
-
-      <p class="good_commenter">
+      <p><strong>
 	You can use plain text, Markdown or reStructuredText; see our
 	<a href="{% url 'markup:help' %}" target="_blank">markup help</a> pages.
-	<br>
-	Be professional. Only serious and meaningful comments will be vetted through.</p>
+      </strong></p>
     </div>
     <div class="col-md-3 radio-list">
       <label>Specify categorization(s):</label>
@@ -52,7 +50,7 @@
         </div>
       {% endif %}
       <div id="submitButton">
-	<input type="submit" value="Submit your Comment for vetting" class="btn btn-primary">
+	<input type="submit" value="Preview looks good; submit this Comment for vetting" class="btn btn-primary">
 	{% if form.anonymous %}
           <p class="mt-2" id="goodCommenter"><i>By clicking on Submit, you agree with the <a target="_blank" href="{% url 'scipost:terms_and_conditions' %}">Terms and Conditions</a>.</i></p>
 	{% else %}
@@ -63,7 +61,7 @@
   </div>
 </form>
 
-<button class="btn btn-warning" id="runPreviewButton">Run/refresh preview and check your Comment before submitting it:</button>
+<button class="btn btn-warning" id="runPreviewButton">Run/refresh preview of your Comment</button>
 <div class="card m-2">
   <div class="card-header">
     Preview of your comment

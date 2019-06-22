@@ -7,18 +7,18 @@
       <a href="{{ comment.author.get_absolute_url }}">{{ comment.get_author_str }}</a>:
     {% endif %}
 
-    <a href="{{comment.get_absolute_url}}">
-      "{{comment.comment_text|slice:'30'}}{% if comment.comment_text|length > 30 %}...{% endif %}"
+    <a href="{{ comment.get_absolute_url }}">
+      "{{ comment.comment_text|slice:'30' }}{% if comment.comment_text|length > 30 %}...{% endif %}"
     </a>
   </p><p class="card-text pl-md-3">
-    in {{comment.content_type|capfirst}} on <a href="{{comment.content_object.get_absolute_url}}" class="pubtitleli">{{comment.title}}</a>
+    in {{ comment.content_type|capfirst }} on <a href="{{ comment.content_object.get_absolute_url }}" class="pubtitleli">{{ comment.title }}</a>
 
     {% if comment.content_object.author_list %}
       {% comment %}
       Using 'by xxx' on non-submission comments here would be ambigious. Does the `by xxx` apply to the
       other object (eg. Report), or the Submission, the Comment, etc?
       {% endcomment %}
-      <span class="text-muted">by {{comment.content_object.author_list}}</span>
+      <span class="text-muted">by {{ comment.content_object.author_list }}</span>
     {% endif %}
   </p>
 </div>

@@ -17,7 +17,7 @@
   {% endif %}
 
   <p class="my-3 pb-2">
-    {{ comment.comment_text|automarkup:'plain' }}
+    {{ comment.comment_text|automarkup }}
   </p>
 
   {% if comment.file_attachment %}
@@ -36,7 +36,7 @@
   {% if is_editorial_college or is_edcol_admin %}
     {% if comment.remarks_for_editors %}
       <h3>Remarks for editors:</h3>
-      <p>{{ comment.remarks_for_editors|linebreaksbr }}</p>
+      <p>{{ comment.remarks_for_editors|automarkup }}</p>
     {% endif %}
   {% endif %}
 

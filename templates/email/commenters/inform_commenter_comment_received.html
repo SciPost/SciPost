@@ -1,32 +1,33 @@
-<p>Dear {{comment.author.get_title_display}} {{comment.author.user.last_name}},</p>
-<p>
-    We hereby confirm reception of your Comment, concerning
+{% load automarkup %}
 
-    <br/>
-    {{comment.core_content_object.title}}
-    {% if comment.core_content_object.author_list %}
-        <br>
-        by {{comment.core_content_object.author_list}}.
-    {% elif comment.core_content_object.author %}
-        <br>
-        by {{comment.core_content_object.author}}.
-    {% endif %}
-</p>
+<p>Dear {{ comment.author.get_title_display }} {{ comment.author.user.last_name }},</p>
 <p>
-    We copy it below for your convenience.
+  We hereby confirm reception of your Comment, concerning
+  <br/>
+  {{ comment.core_content_object.title }}
+  {% if comment.core_content_object.author_list %}
     <br>
-    Your Comment will soon be vetted, at which point you will receive an email update from us.
+    by {{ comment.core_content_object.author_list }}.
+  {% elif comment.core_content_object.author %}
+    <br>
+    by {{ comment.core_content_object.author }}.
+  {% endif %}
 </p>
 <p>
-    Thank you for your contribution,<br><br>
-    The SciPost Team.
+  We copy it below for your convenience.
+  <br>
+  Your Comment will soon be vetted, at which point you will receive an email update from us.
+</p>
+<p>
+  Thank you for your contribution,<br><br>
+  The SciPost Team.
 </p>
 
 <br>
 <p>
-    Comment:
-    <br>
-    {{ comment.comment_text|linebreaksbr }}
+  Comment:
+  <br>
+  {{ comment.comment_text|automarkup }}
 </p>
 
 {% include 'email/_footer.html' %}

@@ -2,10 +2,11 @@
 {% load filename %}
 {% load file_extentions %}
 {% load comment_extras %}
+{% load automarkup %}
 
 <div>
-  <h3>Details of the related {{comment.core_content_object|get_core_content_type|capfirst}}</h3>
-  <a href="{{comment.get_absolute_url}}" target="_blank">See detail page</a>
+  <h3>Details of the related {{ comment.core_content_object|get_core_content_type|capfirst }}</h3>
+  <a href="{{ comment.get_absolute_url }}" target="_blank">See detail page</a>
   <div class="py-2">
     {% get_summary_template comment.core_content_object %}
   </div>
@@ -16,11 +17,7 @@
 
   <div class="row">
     <div class="col-md-6">
-      <!-- {% include 'comments/_comment_identifier.html' with comment=comment %} -->
       {% include 'comments/_single_comment.html' with comment=comment hide_votes=1 %}
-
-      <h3>Comment text:</h3>
-      <p>{{ comment.comment_text|linebreaksbr }}</p>
 
       {% if comment.file_attachment %}
         <h3>Attachment:</h3>
@@ -37,7 +34,7 @@
 
       {% if comment.remarks_for_editors %}
         <h3>Remarks for Editors only:</h3>
-        <p>{{ comment.remarks_for_editors|linebreaksbr }}</p>
+        <p>{{ comment.remarks_for_editors|automarkup }}</p>
       {% endif %}
     </div>
     <div class="col-md-6">

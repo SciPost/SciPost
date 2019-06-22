@@ -1,3 +1,3 @@
-{{object.comment_text}}
-{{object.date_submitted}}
+{{ object.comment_text }}
+{{ object.date_submitted }}
 {% if not object.anonymous %}{{ object.author }}{% endif %}

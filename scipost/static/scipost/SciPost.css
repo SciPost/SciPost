@@ -33,12 +33,6 @@ li ol > li:before {
   content: counters(item, ".") " ";
 }
 
-
-.good_commenter {
-  font-size: 90%;
-  font-style: italic;
-}
-
 .opinionsDisplay {
   font-family: 'Merriweather Sans';
   font-size: 10px;

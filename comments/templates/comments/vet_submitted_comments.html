@@ -25,6 +25,8 @@
     <h1 class="highlight">SciPost Comments to vet:</h1>
 
     {% for comment_to_vet in comments_to_vet %}
+      <hr>
+      <h3 class="highlight">Comment {{ comment_to_vet.id }}</h3>
       {% include 'comments/_vet_comment_form.html' with comment=comment_to_vet form=form %}
     {% endfor %}
 
