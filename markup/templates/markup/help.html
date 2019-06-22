@@ -34,7 +34,11 @@
       </p>
 
       <p>
-	Which should you choose? This is mostly a question of personal preference.
+	The important point is that for each text field you fill in, you
+	should choose <strong>one option</strong> (mixing will give errors).
+      </p>
+      <p>
+	Which one should you choose? This is mostly a question of personal preference.
 	To help you decide, here is a quick summary of main points to bear in mind:
 	<table class="table table-bordered">
 	  <tr>
@@ -124,10 +128,12 @@
       {% for suggestion in PlainTextSuggestions %}
 	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
 	<div class="row">
-	  <div class="col-6">
+	  <div class="col-lg-6">
+	    <h4><strong>If you write:</strong></h4>
 	    <pre>{{ suggestion.raw }}</pre>
 	  </div>
-	  <div class="col-6">
+	  <div class="col-lg-6">
+	    <h4><strong>You will get:</strong></h4>
 	    {{ suggestion.raw|automarkup }}
 	  </div>
 	</div>
@@ -137,29 +143,33 @@
 
       <h2 class="highlight" id="Markdown">Markdown&emsp;
 	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:markdown_help' %}">Markdown-specific</a> help page</small></em></h2>
-	{% for suggestion in MarkdownSuggestions %}
-	  <h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
-	  <div class="row">
-	    <div class="col-6">
-	      <pre>{{ suggestion.raw }}</pre>
-	    </div>
-	    <div class="col-6">
-	      {{ suggestion.raw|automarkup }}
-	    </div>
+      {% for suggestion in MarkdownSuggestions %}
+	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
+	<div class="row">
+	  <div class="col-lg-6">
+	    <h4><strong>If you write:</strong></h4>
+	    <pre>{{ suggestion.raw }}</pre>
 	  </div>
-	{% endfor %}
+	  <div class="col-lg-6">
+	    <h4><strong>You will get:</strong></h4>
+	    {{ suggestion.raw|automarkup }}
+	  </div>
+	</div>
+      {% endfor %}
 
-	<br>
+      <br>
 
-	<h2 class="highlight" id="reStructuredText">reStructuredText&emsp;
-	  <em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</small></em></h2>
+      <h2 class="highlight" id="reStructuredText">reStructuredText&emsp;
+	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</small></em></h2>
       {% for suggestion in ReSTSuggestions %}
 	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
 	<div class="row">
-	  <div class="col-6">
+	  <div class="col-lg-6">
+	    <h4><strong>If you write:</strong></h4>
 	    <pre>{{ suggestion.raw }}</pre>
 	  </div>
-	  <div class="col-6">
+	  <div class="col-lg-6">
+	    <h4><strong>You will get:</strong></h4>
 	    {{ suggestion.raw|automarkup }}
 	  </div>
 	</div>
