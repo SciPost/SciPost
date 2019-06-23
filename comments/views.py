@@ -100,7 +100,8 @@ def vet_submitted_comment(request, comment_id):
                 content_object.add_event_for_author('A new Comment has been added.')
                 if not comment.is_author_reply:
                     mail_sender = DirectMailUtil(
-                        'authors/inform_authors_comment_received', submission=content_object)
+                        'authors/inform_authors_comment_received',
+                        instance=content_object, comment=comment)
                     mail_sender.send_mail()
             elif isinstance(content_object, Report):
                 # Add events to related Submission and send mail to author of the Submission
@@ -123,6 +124,19 @@ def vet_submitted_comment(request, comment_id):
                         'authors/inform_authors_contributor_commented_report',
                         report=content_object)
                     mail_sender.send_mail()
+            elif isinstance(content_object, Comment):
+                # This means that this Comment is part of a hierarchy of Comments.
+                # We thus go back to the core object
+                core_content_object = comment.core_content_object
+                if isinstance(core_content_object, Submission):
+                    # Add events to Submission and send mail to author of the Submission
+                    core_content_object.add_event_for_eic('A Comment has been accepted.')
+                    core_content_object.add_event_for_author('A new Comment has been added.')
+                    if not comment.is_author_reply:
+                        mail_sender = DirectMailUtil(
+                            'authors/inform_authors_comment_received',
+                            instance=core_content_object, comment=comment)
+                        mail_sender.send_mail()
 
             # In all cases, email the comment author
             mail_sender = DirectMailUtil(
@@ -154,17 +168,17 @@ def vet_submitted_comment(request, comment_id):
         if isinstance(comment.content_object, Submission):
             submission = comment.content_object
             if submission.editor_in_charge == request.user.contributor:
-                # Redirect a EIC back to the Editorial Page!
+                # Redirect a EIC back to the Editorial Page
                 return redirect(reverse('submissions:editorial_page',
                                         args=(submission.preprint.identifier_w_vn_nr,)))
         elif isinstance(comment.content_object, Report):
             submission = comment.content_object.submission
             if submission.editor_in_charge == request.user.contributor:
-                # Redirect a EIC back to the Editorial Page!
+                # Redirect a EIC back to the Editorial Page
                 return redirect(reverse('submissions:editorial_page',
                                         args=(submission.preprint.identifier_w_vn_nr,)))
         elif request.user.has_perm('scipost.can_vet_comments'):
-            # Redirect vetters back to check for other unvetted comments!
+            # Redirect vetters back to check for other unvetted comments
             return redirect(reverse('comments:vet_submitted_comments_list'))
         return redirect(comment.get_absolute_url())
 
