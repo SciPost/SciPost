@@ -2,7 +2,7 @@
 
 <p>Dear {{ comment.author.get_title_display }} {{ comment.author.user.last_name }},</p>
 <p>
-  We hereby confirm reception of your Comment, concerning
+  We hereby confirm reception of your {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %}, concerning
   <br/>
   {{ comment.core_content_object.title }}
   {% if comment.core_content_object.author_list %}
@@ -16,7 +16,7 @@
 <p>
   We copy it below for your convenience.
   <br>
-  Your Comment will soon be vetted, at which point you will receive an email update from us.
+  Your {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} will be made visible after vetting by the editorial team, at which point you will receive an email update from us.
 </p>
 <p>
   Thank you for your contribution,<br><br>
