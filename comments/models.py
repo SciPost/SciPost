@@ -69,17 +69,6 @@ class Comment(TimeStampedModel):
                                            verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
 
-    # Opinions
-    nr_A = models.PositiveIntegerField(default=0)
-    in_agreement = models.ManyToManyField('scipost.Contributor', related_name='in_agreement',
-                                          blank=True)
-    nr_N = models.PositiveIntegerField(default=0)
-    in_notsure = models.ManyToManyField('scipost.Contributor', related_name='in_notsure',
-                                        blank=True)
-    nr_D = models.PositiveIntegerField(default=0)
-    in_disagreement = models.ManyToManyField('scipost.Contributor', related_name='in_disagreement',
-                                             blank=True)
-
     needs_doi = models.NullBooleanField(default=None)
     doideposit_needs_updating = models.BooleanField(default=False)
     genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
@@ -179,21 +168,6 @@ class Comment(TimeStampedModel):
             return '{} {}'.format(author.get_title_display(), author.user.last_name)
         return 'Anonymous'
 
-    def update_opinions(self, contributor_id, opinion):
-        contributor = get_object_or_404(Contributor, pk=contributor_id)
-        self.in_agreement.remove(contributor)
-        self.in_notsure.remove(contributor)
-        self.in_disagreement.remove(contributor)
-        if opinion == 'A':
-            self.in_agreement.add(contributor)
-        elif opinion == 'N':
-            self.in_notsure.add(contributor)
-        elif opinion == 'D':
-            self.in_disagreement.add(contributor)
-        self.nr_A = self.in_agreement.count()
-        self.nr_N = self.in_notsure.count()
-        self.nr_D = self.in_disagreement.count()
-        self.save()
 
     @property
     def relation_to_published(self):

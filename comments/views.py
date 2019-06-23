@@ -249,14 +249,6 @@ def reply_to_report(request, report_id):
     return render(request, 'comments/reply_to_report.html', context)
 
 
-@permission_required('scipost.can_express_opinion_on_comments', raise_exception=True)
-def express_opinion(request, comment_id, opinion):
-    # A contributor has expressed an opinion on a comment
-    comment = get_object_or_404(Comment, pk=comment_id)
-    comment.update_opinions(request.user.contributor.id, opinion)
-    return redirect(comment.get_absolute_url())
-
-
 def attachment(request, comment_id):
     """
     Open/read attachment of Comment if available.

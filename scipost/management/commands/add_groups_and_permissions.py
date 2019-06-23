@@ -129,10 +129,6 @@ class Command(BaseCommand):
             codename='can_submit_comments',
             name='Can submit Comments',
             content_type=content_type)
-        can_express_opinion_on_comments, created = Permission.objects.get_or_create(
-            codename='can_express_opinion_on_comments',
-            name='Can express opinion on Comments',
-            content_type=content_type)
         can_request_commentary_pages, created = Permission.objects.get_or_create(
             codename='can_request_commentary_pages',
             name='Can request opening of Commentara Pages',

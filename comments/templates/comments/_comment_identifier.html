@@ -9,19 +9,19 @@
 
   {% if request.user.contributor and request.user.contributor == comment.core_content_object.editor_in_charge or is_edcol_admin %}
     {% if request.user|is_possible_author_of_submission:comment.core_content_object %}
-      <h3>Anonymous on {{comment.date_submitted|date:'Y-m-d'}}</h3>
+      <h3>Anonymous on {{ comment.date_submitted|date:'Y-m-d' }}</h3>
     {% else %}
       <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
       on {{ comment.date_submitted|date:'Y-m-d' }}
-      <br>
-      {% if comment.anonymous %}<small class="text-danger py-2">Chose public anonymity</small>{% endif %}
+      {% if comment.anonymous %}
+	<small class="text-danger py-2">Chose public anonymity</small>{% endif %}
     {% endif %}
   {% elif comment.anonymous %}
-    Anonymous on {{comment.date_submitted|date:'Y-m-d'}}
+    Anonymous on {{ comment.date_submitted|date:'Y-m-d' }}
   {% else %}
-    {% if comment.is_author_reply %}Author{% endif %}
-    <a href="{{comment.author.get_absolute_url}}">{{comment.author.user.first_name}} {{comment.author.user.last_name}}</a>
-    on {{comment.date_submitted|date:'Y-m-d'}}
+    {% if comment.is_author_reply %}Author {% endif %}
+    <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
+    on {{ comment.date_submitted|date:'Y-m-d' }}
   {% endif %}
   {% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}
 
@@ -30,16 +30,15 @@
       {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=comment.id model="Comment" %}
     {% endwith %}
   {% endif %}
-      </h3>
 
+  {% if comment|is_reply_to_comment %}
+    <br>
+    (in reply to <a href="{{ comment.content_object.get_absolute_url }}">{% if comment.content_object.anonymous %}Anonymous Comment{% else %}{{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a> on {{ comment.content_object.date_submitted|date:'Y-m-d' }})
+  {% elif comment|is_reply_to_report %}
+    <br>
+    (in reply to
+    <a href="{{ comment.content_object.get_absolute_url }}">Report {{ comment.content_object.report_nr }}{% if not comment.content_object.anonymous %} by {{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a>
 
-      {% if comment|is_reply_to_comment %}
-        (in reply to <a href="{{comment.content_object.get_absolute_url}}">{% if comment.content_object.anonymous %}Anonymous Comment{% else %}{{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}{% endif %}</a> on {{comment.content_object.date_submitted|date:'Y-m-d'}})
-      {% elif comment|is_reply_to_report %}
-        (in reply to
-
-        <a href="{{comment.content_object.get_absolute_url}}">Report {{comment.content_object.report_nr}}{% if not comment.content_object.anonymous %} by {{comment.content_object.author.user.first_name}} {{comment.content_object.author.user.last_name}}{% endif %}</a>
-
-        on {{comment.content_object.date_submitted|date:'Y-m-d'}})
-      {% endif %}
+    on {{ comment.content_object.date_submitted|date:'Y-m-d' }})
+  {% endif %}
 </div>

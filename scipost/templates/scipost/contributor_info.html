@@ -127,7 +127,7 @@
         <ul class="list-group list-group-flush">
           {% for reply in contributor_authorreplies %}
             <li class="list-group-item">
-              {% include 'comments/_comment_card_extended_content.html' with comment=reply %}
+              {% include 'comments/_comment_card_content.html' with comment=reply %}
             </li>
           {% endfor %}
         </ul>

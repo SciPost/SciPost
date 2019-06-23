@@ -33,8 +33,6 @@
 
           {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
 
-          {% include 'comments/_comment_voting_summary.html' with comment=comment %}
-
           <p>{{ comment.comment_text|automarkup }}</p>
         </div>
       </div>

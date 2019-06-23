@@ -18,8 +18,4 @@ urlpatterns = [
     url(r'^(?P<comment_id>[0-9]+)/reply$', views.reply_to_comment, name='reply_to_comment'),
     url(r'^(?P<comment_id>[0-9]+)/vet$', views.vet_submitted_comment,
         name='vet_submitted_comment'),
-    url(r'^(?P<comment_id>[0-9]+)/express_opinion$', views.express_opinion,
-        name='express_opinion'),
-    url(r'^(?P<comment_id>[0-9]+)/express_opinion/(?P<opinion>[AND])$', views.express_opinion,
-        name='express_opinion'),
 ]

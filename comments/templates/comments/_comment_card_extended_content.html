@@ -1,8 +1,0 @@
-{% extends 'comments/_comment_card_content.html' %}
-
-{% block card_block_header %}
-  <div class="mb-2">
-    <div class="d-inline-block mr-1">Nr {{comment.id}}</div>
-    {% include 'comments/_comment_voting_summary.html' with comment=comment class='small' %}
-  </div>
-{% endblock %}
