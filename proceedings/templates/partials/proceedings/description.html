@@ -1,3 +1,12 @@
+{% if proceedings.cover_image %}
+  <div class="row">
+    <div class="col-lg-9">
+{% endif %}
+
+{% if proceedings.logo %}
+  <div class="row">
+    <div class="col-10">
+{% endif %}
 <h3>{{ proceedings.event_name }} {% if proceedings.event_suffix %}({{ proceedings.event_suffix }}){% endif %}</h3>
 <div class="mb-4">
   Event dates: from {{ proceedings.event_start_date }} to {{ proceedings.event_end_date }}.
@@ -9,7 +18,23 @@
     Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using <a href>our LaTeX template</a>.
   {% endif %}
 </div>
+{% if proceedings.logo %}
+    </div>
+    <div class="col-lg-2">
+      <img class="d-flex mr-3" src="{{ proceedings.logo.url }}" alt="logo"/>
+    </div>
+  </div>
+{% endif %}
 <p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
+
+{% if proceedings.cover_image %}
+    </div>
+    <div class="col-lg-1"></div>
+    <div class="col-lg-2">
+      <img class="d-flex mr-3" src="{{ proceedings.cover_image.url }}" alt="cover_image"/>
+    </div>
+  </div>
+{% endif %}
 
 {% if proceedings.fellowships.guests.exists %}
   <h3>Guest Fellows responsible for this Issue</h3>
