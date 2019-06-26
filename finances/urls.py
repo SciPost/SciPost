@@ -10,7 +10,16 @@ from . import views
 app_name = 'finances'
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='finances/finances.html'), name='finances'),
+    url(
+        r'^$',
+        TemplateView.as_view(template_name='finances/finances.html'),
+        name='finances'
+    ),
+    url(
+        r'^business_model/$',
+        TemplateView.as_view(template_name='finances/business_model.html'),
+        name='business_model'
+    ),
 
     # Subsidies
     url(r'^subsidies/$', views.SubsidyListView.as_view(), name='subsidies'),
