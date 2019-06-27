@@ -1,5 +1,6 @@
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
 
 from .base import *
 
@@ -67,7 +68,7 @@ REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRend
 # Sentry
 sentry_sdk.init(
     dsn=get_secret('SENTRY_DSN'),
-    integrations=[DjangoIntegration()]
+    integrations=[DjangoIntegration(), CeleryIntegration()]
 )
 CSP_REPORT_URI = get_secret('CSP_SENTRY')
 CSP_REPORT_ONLY = False
