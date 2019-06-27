@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -99,6 +100,10 @@ def sitemap_xml(request):
 ##############
 # Utilitites #
 ##############
+
+@staff_member_required
+def trigger_error(request):
+    division_by_zero = 1/0
 
 
 class SearchView(SearchView):

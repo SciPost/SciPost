@@ -19,11 +19,17 @@ JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
 
 app_name = 'scipost'
 
+
 urlpatterns = [
+
+
     # Utilities:
+
+    # Test Sentry installation
+    url(r'sentry-debug/$', views.trigger_error, name='trigger_error'),
+
     # Search
     url(r'^search', views.SearchView.as_view(), name='search'),
-
     url(r'^$', views.index, name='index'),
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),
 
