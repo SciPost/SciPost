@@ -1,0 +1,336 @@
+{% extends 'finances/base.html' %}
+
+{% load staticfiles %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Business Model</span>
+{% endblock %}
+
+{% block pagetitle %}: Business Model{% endblock pagetitle %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">SciPost's Business Model</h1>
+      <div class="m-2">
+	<p>
+	  SciPost strives to reform the business of academic publishing
+	  by providing a top-quality infrastructure covering all aspects
+	  of the publishing process while:
+	  <ul>
+	    <li>being entirely not-for-profit</li>
+	    <li>not charging any subscription fees to its readers</li>
+	    <li>not charging any publication fees/APCs (article processing charges)
+	      to its authors.</li>
+	  </ul>
+	</p>
+	<p>
+	  The real drivers of the publishing business are the academics who write,
+	  review and edit manuscripts.
+	  We view publishing merely as a service making the workflow possible,
+	  and empowering scientists to perform these duties in the most efficient
+	  way possible.
+	</p>
+	<p>SciPost's mission is to provide such a service, make it entirely not-for-profit,
+	  put its control in the hands of the academic community, and keep it
+	  completely free of non-academic competing interests.
+	</p>
+	<p>
+	  If this seems impossibly idealistic to you, <strong>please read on!</strong>
+	  We hope that you will find our no-nonsense approach refreshing and convincing.
+	</p>
+	<p><strong>Quick links</strong>:
+	  <ul>
+	    <li><a href="#bullets">Bullet Points Summary</a></li>
+	    <li><a href="#details">The Details</a>
+	      <ul>
+		<li><a href="#finances">The Finances Pages</a></li>
+		<li><a href="#organizations">The Organizations Pages</a></li>
+		<li><a href="#pubFractions">The PubFractions System</a></li>
+		<li><a href="#sponsorshipLevels">Sponsorship Levels</a></li>
+	      </ul>
+	    </li>
+	    <li><a href="#why">Why do we push for this Business Model?</a></li>
+	  </ul>
+	</p>
+      </div>
+
+      <h2 class="highlight" id="bullets">Bullet Points Summary</h2>
+
+      <div class="m-2">
+	<div class="row">
+	  <div class="col-lg-4">
+	    <p>Our business model can be summarized in one phrase:</p>
+	    <p class="m-2">
+	      <em>
+		We don't charge authors, we don't charge readers,
+		we don't send bills to anybody for our services,
+		and we certainly don't make any profit;
+		we are an academic community service surviving
+		on donations coming primarily from Organizations which benefit from
+		our activities.
+	      </em>
+	    </p>
+	    <p>
+	      The bullet points here give you the outline; you'll find
+	      more detailed explanations below.
+	    </p>
+	  </div>
+	  <div class="col-lg-8">
+	    <ul>
+	      <li>
+		<strong>Linking Publications and Organizations</strong><br>
+		As part of our production workflow,
+		Organizations (author affiliations, funding agencies, ...)
+		listed in our database are linked to each publication.
+		This data is publicly displayed on our
+		<a href="{% url 'organizations:organizations' %}" target="_blank">Organizations pages</a> in the form of each Organization's NAP (Number of Associated Publications).
+	      </li>
+	      <li>
+		<strong>Determining PubFractions</strong><br>
+		After publication, authors are asked to specify PubFractions for their paper
+		(a publication's set of PubFractions answers the question "what was each supporting Organization's share of the support for the research leading to this publication?";
+		see the <a href="#pubFractions">PubFractions system description</a> below).
+	      </li>
+	      <li>
+		<strong>Determination of operational costs</strong><br>
+		On a yearly basis, SciPost determines and makes publicly known:
+		<ul>
+		  <li>its total expenditures (with a detailed breakdown, see our yearly reports
+		    on the <a href="{% url 'finances:finances' %}">finances page</a>)</li>
+		  <li>an average cost per publication (estimate for 2019: &euro;400 per paper)</li>
+		  <li>the free-riding fraction (proportion of our activities which are
+		    benefitting Organizations which for one reason or another are
+		    <em>not yet</em> sponsoring SciPost's activities)</li>
+		</ul>
+	      </li>
+	      <li>
+		<strong>Sponsorship</strong><br>
+		Organizations can inspect all the data (in particular their NAPs and summed-up
+		PubFractions, together with the free-riding fraction)
+		and hereby determine to which level
+		they choose to support SciPost (through a sponsorship agreement).
+		Sponsors can fall into different
+		<a href="#sponsorshipLevels">recognition levels</a>
+		depending on their level of support.
+	      </li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+
+      <h2 class="highlight" id="details">The Details</h2>
+
+      <h3 class="highlight" id="finances">The Finances pages</h3>
+      <div class="m-2">
+	<div class="row">
+	  <div class="col-lg-6"
+	    <p>
+	      The first thing to mention is that we make all our financial data
+	      openly available. This includes all revenues and expenditures for
+	      all our activities. By going to our <a href="{% url 'finances:finances' %}">Finances page</a> you will find further links to our list of sponsors, the explicit list of
+	      <a href="{% url 'finances:subsidies' %}">Subsidies</a> we have obtained,
+	      and all our annual financial reports.
+	    </p>
+	    <p>
+	      We strongly believe that such open accounting is
+	      necessary for establishing trust and facilitating verifiability.
+	      We see this as minimal standard practice for any Open Access
+	      publishing infrastructure.
+	    </p>
+	  </div>
+	  <div class="col-lg-6">
+	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/Finances_Page.png' %}">
+	  </div>
+	</div>
+      </div>
+
+      <h3 class="highlight" id="organizations">The Organizations Pages</h3>
+      <div class="m-2">
+	<p>
+	  At SciPost, we curate a database of Organizations which benefit from our
+	  publishing activities (think for example of
+	  academic institutions which are mentioned in author affiliations
+	  and funding agencies listed in funding acknowledgements).
+	</p>
+	<div class="row">
+	  <div class="col-lg-6">
+	    <p class="m-2">
+	      The data we collect is presented on our
+	      <a href="{% url 'organizations:organizations' %}>">Organizations</a> page,
+	      where you will find digested information including
+	      the NAPs (Number of Associated Publications) pertaining to any given
+	      instance.
+	    </p>
+	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/Organizations.png' %}">
+	  </div>
+	  <div class="col-lg-6">
+	    <p class="m-2">
+	      Each Organization also has a detail page, where further information
+	      can be found (<em>e.g.</em> associated publications, authors,
+	      support history).
+	    </p>
+	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/Organization_detail_FWF.png' %}">
+	  </div>
+	</div>
+      </div>
+
+      <h3 class="highlight" id="pubFractions">The PubFractions System</h3>
+      <div class="m-2">
+	<div class="row">
+	  <div class="col-lg-6">
+	    <p>
+	      The NAPs do not offer a very fine-grained resolution of each paper's
+	      level of support obtained from particular Organizations. A paper is
+	      typically associated to many Organizations (multiple authors with their
+	      individual affiliations; multiple granting agencies etc), so NAPs for
+	      a given paper can sum up to an abritrarily high value.
+	    </p>
+	    <p>
+	      In order to resolve things more finely, we run an internal system
+	      based on the idea of <strong>PubFractions</strong>, in which
+	      each paper has one unit of support recognition to be distributed among
+	      the Organizations having supported the research detailed in that paper.
+	      This is not meant to be <em>extremely</em> accurate, but should still
+	      somehow honestly reflect the support circumstances. Authors of a paper might
+	      thus specify that Organizations A and B each have a $0.4$ pubfraction,
+	      while C has $0.2$. This splitting can be made among an arbitrary number
+	      of Organizations, as specified by the authors. The only requirement is that
+	      any given paper's pubfractions sum up to $1$.
+	    </p>
+	    <p>
+	      This information is prefilled by our editorial administration
+	      at the moment of publication based on a reasonable guess,
+	      which the authors are then asked to correct/complement/confirm
+	      (see image).
+	      These pubfractions are then automatically compiled and linked to the relevant
+	      Organizations. This data is displayed on our Organization detail pages.
+	    </p>
+	  </div>
+	  <div class="col-lg-6">
+	    <img style="width: 90%;" class="m-2" src="{% static 'scipost/images/PubFractionsExample.png' %}">
+	  </div>
+	</div>
+      </div>
+
+      <h3 class="highlight" id="sponsorshipLevels">Sponsorship Levels</h3>
+      <div class="m-2">
+	<p>
+	  It is very important to understand that although we compile data on which Organizations
+	  benefit from our activities, <strong>we do not bill these Organizations
+	  for the services we provide</strong>. Our philosophy is to pool all the support we
+	  receive, and use these resources to provide services for the community at large.
+	</p>
+	<p>
+	  This opens up some frequently-asked questions:
+	  <ul>
+	    <li>why would any Organization donate anything?</li>
+	    <li>isn't this simply letting "free-riding" Organizations get substantial value
+	      on the back of those that <em>do</em> contribute?</li>
+	  </ul>
+	  The reason why we trust that Organizations will support us is quite simple:
+	  each paper we publish which is linked to them, represents a direct economy of publishing
+	  costs which would have otherwise been incurred had the authors published elsewhere.
+	  Libraries can thus independently establish what the approximate impact of our
+	  activities is on their own budget. We trust that simple algebra will then
+	  prove our case.
+	</p>
+	<p>
+	  On the question of <strong>free-riding</strong>, there will of course always
+	  be Organizations which are better than others at taking responsibility for themselves,
+	  and for the broader community.
+	  Though we do not ban free-riding, it does make our model more challenging to
+	  sustain. However, since our integrated costs are dramatically lower
+	  than those of other publishers,
+	  our infrastructure remains cheaper for our sponsors
+	  to fund <strong>even if</strong> some level of
+	  free-riding is present. And besides, since we make all data public, who
+	  deserves credit for supporting us will be
+	  clear and transparent for everybody to see.
+	</p>
+	{% if perms.scipost.can_attend_VGMs %}
+	  <div class="container border border-danger">
+	    <span class="text-danger">(ADMIN VIEW ONLY)</span>
+	    <ul>
+	      <li>
+		<strong>Bronze</strong>: sponsorship level $\gt 0$;
+	      </li>
+	      <li>
+		<strong>Silver</strong>: sponsorship level $\geq$ (own PubFractions)
+		$\times$ average cost per publication;
+	      </li>
+	      <li>
+		<strong>Gold</strong>: sponsorship level $\geq$ (own PubFractions) $\times$
+		average cost per publication $/$ (1 - free-riding fraction);
+	      </li>
+	      <li>
+		<strong>Platinum</strong>: sponsorship level $\gt 2 \times$ Gold.
+	      </li>
+	    </ul>
+	  </div>
+	{% endif %}
+      </div>
+
+      <h2 class="highlight" id="why">Why do we push for this business model?</h2>
+
+      <div class="m-2">
+	<p>
+	  We view our model as the <strong><em>cheapest, fairest, simplest</em></strong>
+	  model which an academic publishing infrastructure can adopt.
+	</p>
+	<p>
+	  A subscriptions-based model is out of the question because it is
+	  incompatible with our
+	  core <a href="{% url 'scipost:about' %}#guiding_principles">guiding principles</a>.
+	</p>
+	<p>
+	  We are also against the author pays model, often
+	  implemented through Article Processing Charges (APCs). Why?
+	  Besides being arguably quite insulting to scientists,
+	  <ul>
+	    <li>APCs entangle editorial and financial issues, thereby leading
+	      to various degrees of <a href="https://jscaux.org/blog/post/2017/09/18/noble-metals-noble-cause/">"lead pollution"</a>
+	      in publishers' operations</li>
+	    <li>researchers worldwide cannot uniformly afford publication charges</li>
+	    <li>for a multi-author paper, who should pay? Most publishers make it
+	      administratively difficult to share costs among researchers</li>
+	    <li>the handling of APCs for each individual publication is a substantial
+	      time- and resources-wasting accounting exercise.</li>
+	  </ul>
+	</p>
+	<p>
+	  Our consortial funding model with pubfractions-based recognition
+	  solves all these problems in one go. Our pooling of
+	  resources and maximally simple accounting drastically simplifies administration
+	  for everybody involved. Our transparency means that recognition is given where
+	  it is due.
+	</p>
+	<p>
+	  Similar consortial models already exist, and served us as source of inspiration.
+	  The <a href="https://arxiv.org">arXiv</a> preprint server
+	  charges no fees to submitters or downloaders,
+	  and is instead financed by a consortium of academic institutions.
+	  On the publishing side, the <a href="https://openlibhums.org">Open Library of Humanities</a> is also funded through a consortial model.
+	</p>
+      </div>
+
+      <h3 class="highlight">Closing words</h3>
+      <div class="m-2">
+	<p>
+	  As far as our operations are concerned, we run them in the most efficient way possible,
+	  with complete transparency, for the benefit not only of scientists worldwide,
+	  but also of their supporting organizations (and anybody else interested in science).
+	</p>
+	<p>
+	  As far as our sustainability is concerned,
+	  we put our trust in the hands of the
+	  <a href="{% url 'organizations:organizations' %}">Organizations which
+	    benefit from our activities</a>.
+	</p>
+      </div>
+
+    </div>
+  </div>
+{% endblock content %}
