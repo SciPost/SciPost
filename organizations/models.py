@@ -138,10 +138,18 @@ class Organization(models.Model):
         """
         Returns the sum of pubfractions for the given year.
         """
-        return OrgPubFraction.objects.filter(
+        fractions = OrgPubFraction.objects.filter(
             organization=self,
-            publication__publication_date__year=year
-        ).aggregate(Sum('fraction'))['fraction__sum']
+            publication__publication_date__year=year)
+        return {
+            'confirmed': fractions.filter(
+                publication__pubfractions_confirmed_by_authors=True
+            ).aggregate(Sum('fraction'))['fraction__sum'],
+            'estimated': fractions.filter(
+                publication__pubfractions_confirmed_by_authors=False
+            ).aggregate(Sum('fraction'))['fraction__sum'],
+            'total': fractions.aggregate(Sum('fraction'))['fraction__sum']
+        }
 
     def get_author_profiles(self):
         """

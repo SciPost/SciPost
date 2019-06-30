@@ -13,4 +13,16 @@ def pubfraction_for_publication(org, publication):
 
 @register.filter(name='pubfractions_in_year')
 def pubfractions_in_year(org, year):
-    return org.pubfractions_in_year(int(year))
+    fractions = org.pubfractions_in_year(int(year))
+    if not fractions['total']:
+        return "total: 0"
+    text = "total: %s" % fractions['total']
+    if fractions['confirmed'] == fractions['total']:
+        text += " (confirmed)"
+        return text
+    elif fractions['estimated'] == fractions['total']:
+        text += " (estimated)"
+        return text
+    text += " (confirmed: %s; estimated: %s)" % (
+        fractions['confirmed'], fractions['estimated'])
+    return text
