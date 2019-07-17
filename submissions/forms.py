@@ -723,7 +723,7 @@ class SubmissionReassignmentForm(forms.ModelForm):
         mail_sender = DirectMailUtil(
             'fellows/email_fellow_assigned_submission',
             assignment=assignment)
-        mail_sender.send_maili()
+        mail_sender.send_mail()
 
 
 class SubmissionPrescreeningForm(forms.ModelForm):
