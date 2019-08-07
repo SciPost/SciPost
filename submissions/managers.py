@@ -294,6 +294,10 @@ class EditorialAssignmentQuerySet(models.QuerySet):
     def ongoing(self):
         return self.filter(status=constants.STATUS_ACCEPTED)
 
+    def with_required_actions(self):
+        ids = [o.id for o in self if o.submission.cycle.has_required_actions()]
+        return self.filter(id__in=ids)
+
     def accepted(self):
         return self.filter(status__in=[constants.STATUS_ACCEPTED, constants.STATUS_COMPLETED])
 
