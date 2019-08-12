@@ -597,18 +597,6 @@ class ContributorMergeForm(forms.Form):
         for commentary in commentaries:
             commentary.authors_false_claims.remove(contrib_from)
             commentary.authors_false_claims.add(contrib_into)
-        comments = Comment.objects.filter(in_agreement__in=[contrib_from,]).all()
-        for comment in comments:
-            comment.in_agreement.remove(contrib_from)
-            comment.in_agreement.add(contrib_into)
-        comments = Comment.objects.filter(in_notsure__in=[contrib_from,]).all()
-        for comment in comments:
-            comment.in_notsure.remove(contrib_from)
-            comment.in_notsure.add(contrib_into)
-        comments = Comment.objects.filter(in_disagreement__in=[contrib_from,]).all()
-        for comment in comments:
-            comment.in_disagreement.remove(contrib_from)
-            comment.in_disagreement.add(contrib_into)
         publications = Publication.objects.filter(authors_claims__in=[contrib_from,]).all()
         for publication in publications:
             publication.authors_claims.remove(contrib_from)
