@@ -110,6 +110,7 @@ class Contributor(models.Model):
     def formal_str(self):
         return '%s %s' % (self.get_title_display(), self.user.last_name)
 
+    @property
     def is_active(self):
         """
         Checks if the Contributor is registered, vetted,
