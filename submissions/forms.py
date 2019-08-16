@@ -911,6 +911,8 @@ class EditorialAssignmentForm(forms.ModelForm):
                     open_for_commenting=True,
                     visible_public=True,
                     latest_activity=timezone.now())
+                # Refresh the instance
+                self.instance.submission = Submission.objects.get(id=self.submission.id)
             else:
                 # Short Refereeing process
                 Submission.objects.filter(id=self.submission.id).update(
@@ -922,6 +924,8 @@ class EditorialAssignmentForm(forms.ModelForm):
                     open_for_commenting=True,
                     visible_public=False,
                     latest_activity=timezone.now())
+                # Refresh the instance
+                self.instance.submission = Submission.objects.get(id=self.submission.id)
 
             # Implicitly or explicity accept the assignment and deprecate others.
             # assignment.accepted = True  # Deprecated field
