@@ -331,7 +331,7 @@ class CommentSciPostPublication(CommentForm):
                 'metadata': self.publication.metadata,
                 'scipost_publication': self.publication,
                 'author_list': self.publication.author_list,
-                'journal': self.publication.in_issue.in_volume.in_journal.get_name_display(),
+                'journal': self.publication.in_issue.in_volume.in_journal.name,
                 'pages': self.publication.in_issue.number,
                 'volume': self.publication.in_issue.in_volume.number,
                 'pub_date': self.publication.publication_date,

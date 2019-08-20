@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 import re
 
-from .exceptions import JournalNameError, PaperNumberError
+from .exceptions import PaperNumberError
 
 
 def issue_doi_label_from_doi_label(doi_label):
@@ -15,19 +15,6 @@ def issue_doi_label_from_doi_label(doi_label):
     s = m.start()
     e = m.end()
     return doi_label[s:e]
-
-
-def journal_name_abbrev_citation(journal_name):
-    if journal_name == 'SciPostPhys':
-        return 'SciPost Phys.'
-    elif journal_name == 'SciPostPhysSel':
-        return 'SciPost Phys. Sel.'
-    elif journal_name == 'SciPostPhysLectNotes':
-        return 'SciPost Phys. Lect. Notes'
-    elif journal_name == 'SciPostPhysProc':
-        return 'SciPost Phys. Proc.'
-    else:
-        raise JournalNameError(journal_name)
 
 
 def paper_nr_string(nr):

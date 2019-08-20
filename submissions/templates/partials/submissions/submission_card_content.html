@@ -5,7 +5,8 @@
     Version {{ submission.preprint.vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.preprint.vn_nr }}{% endif %})
     <br>
     {% if submission.publication and submission.publication.is_published %}
-      Published as <a href="{{ submission.publication.get_absolute_url }}">{{ submission.publication.get_journal.abbreviation_citation }}{% if submission.publication.in_issue.in_volume %} <strong>{{ submission.publication.in_issue.in_volume.number }}</strong>,{% endif %} {{ submission.publication.get_paper_nr }} ({{ submission.publication.publication_date|date:'Y' }})</a>
+      Published as <a href="{{ submission.publication.get_absolute_url }}">
+      {{ submission.publication.citation }}</a>
     {% else %}
       Submitted {{ submission.submission_date }} to {{ submission.submitted_to }}
     {% endif %} &middot; latest activity: {{ submission.latest_activity }}

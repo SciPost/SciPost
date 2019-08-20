@@ -17,7 +17,7 @@
             {% if journal.active %}
               <a href="{{ journal.get_absolute_url }}" class="nav-link">{{journal}}</a>
             {% elif perms.scipost.can_view_pool %}
-              <a href="{% url 'journal:about' journal.name %}" class="nav-link">{{journal}}</a>
+              <a href="{% url 'journal:about' journal.doi_label %}" class="nav-link">{{journal}}</a>
             {% endif %}
           </li>
         {% endfor %}

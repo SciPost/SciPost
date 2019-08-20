@@ -43,12 +43,12 @@
             {% for journal in journals %}
               {% if journal.active %}
                 <div class="dropdown-item">
-                  <a href="{{ journal.get_absolute_url }}">{{ journal.get_name_display }}</a>
+                  <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
                   &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                 </div>
               {% elif perms.scipost.can_view_pool %}
                 <div class="dropdown-item">
-                  <a href="{% url 'journal:about' journal.name %}">{{ journal.get_name_display }}</a>
+                  <a href="{% url 'journal:about' journal.doi_label %}">{{ journal.name }}</a>
                   &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                 </div>
               {% endif %}

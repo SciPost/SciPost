@@ -33,7 +33,7 @@
 	{% for journal in journals %}
           {% if journal.has_issues %}
             <tr>
-              <td>{{ journal.get_name_display }}</td>
+              <td>{{ journal.name }}</td>
               <td>{{ journal.get_latest_issue|default_if_none:'<i>No Issue found</i>' }}</td>
               <td>
 		{% if journal.get_latest_issue %}

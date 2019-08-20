@@ -17,7 +17,7 @@
 {% block content %}
 
   {% if form.instance.id %}
-    <h1 class="highlight">Update {{ issue.get_journal.get_name_display }} {{ issue.short_str }}</h1>
+    <h1 class="highlight">Update {{ issue.get_journal.name }} {{ issue.short_str }}</h1>
     <p>Update the Issue for any of the following Journals. If a Journal requires a Volume, select the Volume you would like to use.</p>
   {% else %}
     <h1 class="highlight">Create next Issue</h1>

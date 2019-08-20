@@ -46,5 +46,5 @@
 
 {% if commentary.scipost_publication %}
   <br>
-  <p class="my-0">Published in {{ commentary.scipost_publication.get_journal.get_name_display }}: <a href="{{ commentary.scipost_publication.get_absolute_url }}">{{ commentary.scipost_publication.citation }}</a></p>
+  <p class="my-0">Published in {{ commentary.scipost_publication.get_journal.name }}: <a href="{{ commentary.scipost_publication.get_absolute_url }}">{{ commentary.scipost_publication.citation }}</a></p>
 {% endif %}

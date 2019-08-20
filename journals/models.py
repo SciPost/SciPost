@@ -21,7 +21,7 @@ from .constants import (
     SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS, STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,
     PUBLICATION_PUBLISHED, CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES,
     JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY)
-from .helpers import paper_nr_string, journal_name_abbrev_citation
+from .helpers import paper_nr_string
 from .managers import IssueQuerySet, PublicationQuerySet, JournalQuerySet
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
@@ -86,7 +86,9 @@ class Journal(models.Model):
     Publications may be categorized into issues or issues and volumes.
     """
 
-    name = models.CharField(max_length=100, choices=SCIPOST_JOURNALS, unique=True)
+    name = models.CharField(max_length=256, unique=True)
+    name_abbrev = models.CharField(max_length=128, default='SciPost [abbrev]',
+                                   help_text='Abbreviated name (for use in citations)')
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_journal_validator])
     issn = models.CharField(max_length=16, default='2542-4653', blank=True)
@@ -98,7 +100,7 @@ class Journal(models.Model):
     objects = JournalQuerySet.as_manager()
 
     def __str__(self):
-        return self.get_name_display()
+        return self.name
 
     def get_absolute_url(self):
         """Return Journal's homepage url."""
@@ -116,10 +118,6 @@ class Journal(models.Model):
     @property
     def has_volumes(self):
         return self.structure in (ISSUES_AND_VOLUMES)
-
-    @property
-    def abbreviation_citation(self):
-        return journal_name_abbrev_citation(self.name)
 
     def get_issues(self):
         if self.structure == ISSUES_AND_VOLUMES:
@@ -579,19 +577,19 @@ class Publication(models.Model):
         """Return Publication name in the preferred citation format."""
         if self.in_issue and self.in_issue.in_volume:
             return '{journal} {volume}, {paper_nr} ({year})'.format(
-                journal=self.in_issue.in_volume.in_journal.abbreviation_citation,
+                journal=self.in_issue.in_volume.in_journal.name_abbrev,
                 volume=self.in_issue.in_volume.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_issue and self.in_issue.in_journal:
             return '{journal} {issue}, {paper_nr} ({year})'.format(
-                journal=self.in_issue.in_journal.abbreviation_citation,
+                journal=self.in_issue.in_journal.name_abbrev,
                 issue=self.in_issue.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime('%Y'))
         elif self.in_journal:
             return '{journal} {paper_nr} ({year})'.format(
-                journal=self.in_journal.abbreviation_citation,
+                journal=self.in_journal.name_abbrev,
                 paper_nr=self.paper_nr,
                 year=self.publication_date.strftime('%Y'))
         return '{paper_nr} ({year})'.format(

@@ -230,7 +230,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                     }
                 ],
                 'language': ['EN'],
-                'title': publication.in_issue.in_volume.in_journal.get_name_display(),
+                'title': publication.in_issue.in_volume.in_journal.name,
             }
         else:
             md['bibjson']['journal'] = {
@@ -250,7 +250,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                     }
                 ],
                 'language': ['EN'],
-                'title': publication.in_journal.get_name_display(),
+                'title': publication.in_journal.name,
             }
         return md
 
@@ -537,9 +537,9 @@ class DraftPublicationForm(forms.ModelForm):
 
         if issue.in_volume:
             bibtex_entry += '\tjournal={%s},\n\tvolume={%i},\n' % (
-                issue.in_volume.in_journal.abbreviation_citation, issue.in_volume.number)
+                issue.in_volume.in_journal.name_abbrev, issue.in_volume.number)
         elif issue.in_journal:
-            bibtex_entry += '\tjournal={%s},\n' % (issue.in_journal.abbreviation_citation)
+            bibtex_entry += '\tjournal={%s},\n' % (issue.in_journal.name_abbrev)
 
         bibtex_entry += (
             '\tissue={%i},\n'
@@ -585,7 +585,7 @@ class DraftPublicationForm(forms.ModelForm):
             doi_string,
             self.submission.title,
             self.submission.author_list.replace(',', ' and'),
-            journal.abbreviation_citation,
+            journal.name_abbrev,
             paper_nr,
             timezone.now().year,
             doi_string,

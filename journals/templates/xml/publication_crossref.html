@@ -14,8 +14,8 @@
         <journal>
             {% if publication.in_issue.in_volume %}
                 <journal_metadata>
-                    <full_title>{{ publication.in_issue.in_volume.in_journal.get_name_display }}</full_title>
-                    <abbrev_title>{{ publication.in_issue.in_volume.in_journal.abbreviation_citation }}</abbrev_title>
+                    <full_title>{{ publication.in_issue.in_volume.in_journal.name }}</full_title>
+                    <abbrev_title>{{ publication.in_issue.in_volume.in_journal.name_abbrev }}</abbrev_title>
                     {% if publication.in_issue.in_volume.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
@@ -33,8 +33,8 @@
                 </journal_issue>
             {% elif publication.in_issue.in_journal %}
                 <journal_metadata>
-                    <full_title>{{ publication.in_issue.in_journal.get_name_display }}</full_title>
-                    <abbrev_title>{{ publication.in_issue.in_journal.abbreviation_citation }}</abbrev_title>
+                    <full_title>{{ publication.in_issue.in_journal.name }}</full_title>
+                    <abbrev_title>{{ publication.in_issue.in_journal.name_abbrev }}</abbrev_title>
                     {% if publication.in_issue.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_issue.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_issue.in_journal.doi_string }}</doi>
@@ -49,8 +49,8 @@
                 </journal_issue>
             {% else %}
                 <journal_metadata>
-                    <full_title>{{ publication.in_journal.get_name_display }}</full_title>
-                    <abbrev_title>{{ publication.in_journal.abbreviation_citation }}</abbrev_title>
+                    <full_title>{{ publication.in_journal.name }}</full_title>
+                    <abbrev_title>{{ publication.in_journal.name_abbrev }}</abbrev_title>
                     {% if publication.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_journal.doi_string }}</doi>
