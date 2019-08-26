@@ -52,6 +52,7 @@ class TOTPDevice(models.Model):
 
     class Meta:
         default_related_name = 'devices'
+        verbose_name = 'TOTP Device'
 
     def __str__(self):
         return '{}: {}'.format(self.user, self.name)

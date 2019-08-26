@@ -8,13 +8,19 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 
-from scipost.models import Contributor, Remark,\
+from scipost.models import TOTPDevice, Contributor, Remark,\
                            AuthorshipClaim, PrecookedEmail,\
                            EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
 
 from organizations.admin import ContactInline
 from production.admin import ProductionUserInline
 from submissions.models import Submission
+
+
+class TOTPDeviceAdmin(admin.ModelAdmin):
+    search_fields = ['user',]
+
+admin.site.register(TOTPDevice)
 
 
 admin.site.register(UnavailabilityPeriod)
@@ -34,9 +40,16 @@ class ContributorInline(admin.StackedInline):
     min_num = 0
 
 
+class TOTPDeviceInline(admin.StackedInline):
+    model = TOTPDevice
+    extra = 0
+    min_num = 0
+
+
 class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
+        TOTPDeviceInline,
         ContactInline,
         ProductionUserInline
         ]
