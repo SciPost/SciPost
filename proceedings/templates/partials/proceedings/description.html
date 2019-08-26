@@ -20,7 +20,7 @@
 {% endif %}
 <p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
 
-{% if True or proceedings.open_for_submission %}
+{% if proceedings.open_for_submission %}
   <h3>Instructions for submitting to these Proceedings:</h3>
   <ul>
     <li>
