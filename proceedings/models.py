@@ -45,6 +45,12 @@ class Proceedings(TimeStampedModel):
     submissions_deadline = models.DateField()
     submissions_close = models.DateField()
 
+    # Templates
+    template_latex_tgz = models.FileField(
+        verbose_name='Template (LaTeX, gzipped tarball)',
+        help_text='Gzipped tarball of the LaTeX template package',
+        upload_to='UPLOADS/TEMPLATES/latex/%Y/', max_length=256, blank=True)
+
     objects = ProceedingsQuerySet.as_manager()
 
     class Meta:

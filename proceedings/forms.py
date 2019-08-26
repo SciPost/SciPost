@@ -21,4 +21,5 @@ class ProceedingsForm(forms.ModelForm):
             'submissions_open',
             'submissions_deadline',
             'submissions_close',
+            'template_latex_tgz',
         )
