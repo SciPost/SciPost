@@ -11,9 +11,7 @@ from commentaries.factories import UnvettedCommentaryFactory, CommentaryFactory,
 from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
-from .factories import ContributorFactory,\
-                       EditorialCollegeFellowshipFactory, EditorialCollegeFactory
-from .models import EditorialCollege, EditorialCollegeFellowship
+from .factories import ContributorFactory
 
 
 class RequestCommentaryTest(TestCase):
@@ -131,28 +129,3 @@ class CommentaryDetailTest(TestCase):
     def test_status_code_200(self):
         response = self.client.get(self.target)
         self.assertEqual(response.status_code, 200)
-
-
-@tag('static-info', 'full')
-class AboutViewTest(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.target = reverse('scipost:about')
-
-        # Create College with 10 members
-        self.college = EditorialCollegeFactory()
-        EditorialCollegeFellowshipFactory.create_batch(10)
-
-    def test_status_code_200_including_members(self):
-        response = self.client.get(self.target)
-        self.assertEqual(response.status_code, 200)
-
-        # College exists in context
-        self.assertTrue('object_list' in response.context)
-        college = response.context['object_list'][0]
-        self.assertTrue(isinstance(college, EditorialCollege))
-
-        # Members exist in college
-        self.assertTrue(college.member.count() >= 10)
-        last_member = college.member.last()
-        self.assertTrue(isinstance(last_member, EditorialCollegeFellowship))
