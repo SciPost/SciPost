@@ -1149,7 +1149,7 @@ class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
         if self.request.GET.get('kind') == 'names':
             queryset = queryset.with_duplicate_names()
         elif self.request.GET.get('kind') == 'emails':
-            queryset = queryset.with_duplicate_emails()
+            queryset = queryset.with_duplicate_email()
         else:
             queryset = queryset.with_duplicate_names()
         return queryset
