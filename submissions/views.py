@@ -257,9 +257,10 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
             submission = form.save()
 
             # Inform EIC
-            mail_sender_eic = DirectMailUtil(
-                'eic/inform_eic_manuscript_withdrawn', submission=submission)
-            mail_sender_eic.send_mail()
+            if submission.editor_in_charge:
+                mail_sender_eic = DirectMailUtil(
+                    'eic/inform_eic_manuscript_withdrawn', submission=submission)
+                mail_sender_eic.send_mail()
 
             # Confirm withdrawal to authors
             mail_sender_authors = DirectMailUtil(
