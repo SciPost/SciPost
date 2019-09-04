@@ -34,6 +34,7 @@
 	The Physics side of our operations is by now established, with our <a href="{% url 'journals:journals' %}#physics">Physics Journals</a> published under the auspices of the <a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a>. We will continue expanding this side of our operations according to the increase in the number of submissions we receive.</p>
       <p class="ml-2 mr-2">On the infrastructure side, we have made great strides. Our platform is not just a website: we have conceived, designed and implemented a fully-featured system to handle all aspects of the publication business, from manuscript submission all the way to professional metadata curation. Since our systems were implemented from the start in a field-agnostic way, we are now in perfect position to enable other fields to profit from our development work.
       </p>
+
       <p class="ml-2 mr-2">
 	We are ready to launch operations in other fields; for any given field, we require that two simple preconditions (triggers) be met:
       </p>
@@ -65,6 +66,79 @@
       </p>
     </div>
   </div>
+
+
+  {% if perms.scipost.can_attend_VGMs %}
+    <div class="container border border-danger">
+      <span class="text-danger">DRAFT (POOLVIEW ONLY) - <a href="mailto:admin@scipost.org">COMMENTS WELCOME</a></span>
+
+      <h2 class="highlight">Launch schedule <span class="small text-muted"></h2>
+      <p>
+	We invite the community to help us start new titles in the following fields.
+	Topmost entries are closest to actual launch.
+      </p>
+      <table class="table table-bordered">
+	<thead>
+	  <tr>
+	    <th>Field</th>
+	    <th>Advisory Board Members
+	      <br><span class="small text-muted">see <a href="{% url 'scipost:about' %}#advisory_board" target="_blank">current list of members</a></th>
+		<th>College Fellows<br><span class="small text-muted">25 needed per field; see <a href="{% url 'colleges:colleges' %}" target="_blank">current list</a></span></th>
+	    <th>Titles</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr>
+	    <td>Mathematics</td>
+	    <td>2</td>
+	    <td>2</td>
+	    <td>SciPost Mathematics
+	      <ul class="small text-muted">
+		<li>Open for submission: 2019-11-01 (target date)</li>
+	      </ul>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>Chemistry</td>
+	    <td>1</td>
+	    <td>-</td>
+	    <td>SciPost Chemistry
+	      <ul class="small text-muted">
+		<li>Open for submission: 2019-11-01 (target date)</li>
+	      </ul>
+	    </td>
+	  </tr>
+	  <tr>
+	    <td>Astronomy</td>
+	    <td>-</td>
+	    <td>-</td>
+	    <td>SciPost Astronomy</td>
+	  </tr>
+	  <tr>
+	    <td>Biology</td>
+	    <td>-</td>
+	    <td>-</td>
+	    <td>SciPost Biology</td>
+	  </tr>
+	  <tr>
+	    <td>Computer Science</td>
+	    <td>-</td>
+	    <td>-</td>
+	    <td>SciPost Computer Science</td>
+	  </tr>
+	  <tr>
+	    <td>Political Science</td>
+	    <td>-</td>
+	    <td>-</td>
+	    <td>SciPost Political Science</td>
+	  </tr>
+	</tbody>
+      </table>
+
+    </div>
+  {% endif %}
+
+
 
 
 {% endblock content %}
