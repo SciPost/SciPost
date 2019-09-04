@@ -52,6 +52,7 @@ class TOTPDevice(models.Model):
 
     class Meta:
         default_related_name = 'devices'
+        verbose_name = 'TOTP Device'
 
     def __str__(self):
         return '{}: {}'.format(self.user, self.name)
@@ -328,51 +329,3 @@ class PrecookedEmail(models.Model):
 
     def __str__(self):
         return self.email_subject
-
-
-######################
-# Static info models #
-######################
-
-class EditorialCollege(models.Model):
-    """A SciPost Editorial College for a specific discipline.
-
-    DEPRECATED. To be removed.
-    """
-    discipline = models.CharField(max_length=255, unique=True)
-
-    def __str__(self):
-        return self.discipline
-
-
-class EditorialCollegeFellowship(TimeStampedModel):
-    """
-    Editorial College Fellowship connecting Editorial College and Contributors,
-    maybe with a limiting start/until date.
-
-    DEPRECATED. To be removed.
-    """
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                                    related_name='+')
-    college = models.ForeignKey('scipost.EditorialCollege', on_delete=models.CASCADE,
-                                related_name='fellowships')
-    affiliation = models.CharField(max_length=255, blank=True)
-    start_date = models.DateField(null=True, blank=True)
-    until_date = models.DateField(null=True, blank=True)
-
-    objects = FellowManager()
-
-    class Meta:
-        unique_together = ('contributor', 'college', 'start_date', 'until_date')
-
-    def __str__(self):
-        return self.contributor.__str__()
-
-    def is_active(self):
-        if not self.start_date:
-            if not self.until_date:
-                return True
-            return today <= self.until_date
-        elif not self.until_date:
-            return today >= self.start_date
-        return today >= self.start_date and today <= self.until_date

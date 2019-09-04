@@ -8,13 +8,19 @@ from django import forms
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User, Permission
 
-from scipost.models import Contributor, Remark,\
+from scipost.models import TOTPDevice, Contributor, Remark,\
                            AuthorshipClaim, PrecookedEmail,\
-                           EditorialCollege, EditorialCollegeFellowship, UnavailabilityPeriod
+                           UnavailabilityPeriod
 
 from organizations.admin import ContactInline
 from production.admin import ProductionUserInline
 from submissions.models import Submission
+
+
+class TOTPDeviceAdmin(admin.ModelAdmin):
+    search_fields = ['user',]
+
+admin.site.register(TOTPDevice)
 
 
 admin.site.register(UnavailabilityPeriod)
@@ -34,9 +40,16 @@ class ContributorInline(admin.StackedInline):
     min_num = 0
 
 
+class TOTPDeviceInline(admin.StackedInline):
+    model = TOTPDevice
+    extra = 0
+    min_num = 0
+
+
 class UserAdmin(UserAdmin):
     inlines = [
         ContributorInline,
+        TOTPDeviceInline,
         ContactInline,
         ProductionUserInline
         ]
@@ -137,38 +150,3 @@ class PrecookedEmailAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PrecookedEmail, PrecookedEmailAdmin)
-
-
-class EditorialCollegeAdmin(admin.ModelAdmin):
-    search_fields = ['discipline', 'member']
-
-
-admin.site.register(EditorialCollege, EditorialCollegeAdmin)
-
-
-def college_fellow_is_active(fellow):
-    '''Check if fellow is currently active.'''
-    return fellow.is_active()
-
-
-class EditorialCollegeFellowshipAdminForm(forms.ModelForm):
-    contributor = forms.ModelChoiceField(
-        queryset=Contributor.objects.order_by('user__last_name'))
-
-    class Meta:
-        model = EditorialCollegeFellowship
-        fields = '__all__'
-
-
-class EditorialCollegeFellowshipAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'college', college_fellow_is_active)
-    list_filter = ('college', 'affiliation')
-    search_fields = ['college__discipline',
-                     'contributor__user__first_name', 'contributor__user__last_name']
-    fields = ('contributor', 'college', 'start_date', 'until_date', 'affiliation', )
-
-    college_fellow_is_active.boolean = True
-    form = EditorialCollegeFellowshipAdminForm
-
-
-admin.site.register(EditorialCollegeFellowship, EditorialCollegeFellowshipAdmin)

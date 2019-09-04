@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from common.helpers import generate_orcid
 from submissions.models import Submission
 
-from .models import Contributor, EditorialCollege, EditorialCollegeFellowship, Remark, TOTPDevice
+from .models import Contributor, Remark, TOTPDevice
 from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS, NORMAL_CONTRIBUTOR
 
 
@@ -87,23 +87,6 @@ class TOTPDeviceFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = TOTPDevice
-
-
-class EditorialCollegeFactory(factory.django.DjangoModelFactory):
-    discipline = random.choice(['Physics', 'Chemistry', 'Medicine'])
-
-    class Meta:
-        model = EditorialCollege
-        django_get_or_create = ('discipline',)
-
-
-class EditorialCollegeFellowshipFactory(factory.django.DjangoModelFactory):
-    college = factory.Iterator(EditorialCollege.objects.all())
-    contributor = factory.Iterator(Contributor.objects.exclude(
-                                   user__username='deleted').order_by('?'))
-
-    class Meta:
-        model = EditorialCollegeFellowship
 
 
 class SubmissionRemarkFactory(factory.django.DjangoModelFactory):

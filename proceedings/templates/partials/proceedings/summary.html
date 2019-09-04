@@ -39,4 +39,12 @@
     <th>Submission Close</th>
     <td>{{ proceedings.submissions_close }}</td>
   </tr>
+  <tr>
+    <th>Templates</th>
+    <td>
+      {% if proceedings.template_latex_url %}
+	<a href="{{ proceedings.template_latex_tgz.url }}">LaTeX (gzipped tarball)</a>
+      {% endif %}
+    </td>
+  </tr>
 </table>

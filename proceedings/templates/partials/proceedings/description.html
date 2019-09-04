@@ -10,13 +10,6 @@
 <h3>{{ proceedings.event_name }} {% if proceedings.event_suffix %}({{ proceedings.event_suffix }}){% endif %}</h3>
 <div class="mb-4">
   Event dates: from {{ proceedings.event_start_date }} to {{ proceedings.event_end_date }}.
-  <div class="my-1">
-    <strong>Submission deadline: {{ proceedings.submissions_deadline }}</strong>.
-  </div>
-  {% if proceedings.open_for_submission %}
-    <a href="{% url 'submissions:submit_manuscript' %}">Submit your manuscript here</a>.
-    Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using <a href>our LaTeX template</a>.
-  {% endif %}
 </div>
 {% if proceedings.logo %}
     </div>
@@ -26,6 +19,25 @@
   </div>
 {% endif %}
 <p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
+
+{% if proceedings.open_for_submission %}
+  <h3>Instructions for submitting to these Proceedings:</h3>
+  <ul>
+    <li>
+      Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using our template:
+      <ul>
+	{% if proceedings.template_latex_tgz %}
+	  <li><a href="{{ proceedings.template_latex_tgz.url }}">LaTeX (gzipped tarball)</a></li>
+	{% else %}
+	  <li>Template will be available soon!</li>
+	{% endif %}
+      </ul>
+    </li>
+    <li>
+      Submit your manuscript (<strong>deadline: {{ proceedings.submissions_deadline }}</strong>) by going to our <a href="{% url 'submissions:submit_manuscript' %}">submission page</a>, selecting these proceedings.
+    </li>
+  </ul>
+{% endif %}
 
 {% if proceedings.cover_image %}
     </div>

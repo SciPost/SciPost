@@ -34,7 +34,7 @@
 	    <li><i class="fa fa-check-circle text-success"></i> No name-duplicate Contributors found</li>
 	  {% endif %}
 	  {% if nr_contributors_w_duplicate_emails > 0 %}
-	    <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
+	    <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=emails">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
 	  {% else %}
 	    <li><i class="fa fa-check-circle text-success"></i> No email-duplicate Contributors found</li>
 	  {% endif %}
