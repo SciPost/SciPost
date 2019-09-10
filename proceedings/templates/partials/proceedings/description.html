@@ -27,7 +27,7 @@
       Prepare your manuscript according to <a href="{% url 'submissions:author_guidelines' %}">our guidelines</a>, using our template:
       <ul>
 	{% if proceedings.template_latex_tgz %}
-	  <li><a href="{{ proceedings.template_latex_tgz.url }}" type="application/octet-stream">LaTeX (gzipped tarball)</a></li>
+	  <li><a href="{{ proceedings.template_latex_tgz.url }}" type="application/gzip" download>LaTeX (gzipped tarball)</a></li>
 	{% else %}
 	  <li>Template will be available soon!</li>
 	{% endif %}
