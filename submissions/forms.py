@@ -326,7 +326,9 @@ class SubmissionForm(forms.ModelForm):
     """
 
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
-    preprint_file = forms.FileField()
+    preprint_file = forms.FileField(
+        help_text=('Please submit the processed .pdf (not the source files; '
+        'these will only be required at the post-acceptance proofs stage)'))
 
     class Meta:
         model = Submission
