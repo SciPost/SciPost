@@ -20,7 +20,7 @@ class Proceedings(TimeStampedModel):
     # Link to the actual Journal platform
     issue = models.OneToOneField(
         'journals.Issue', on_delete=models.CASCADE, related_name='proceedings',
-        limit_choices_to=models.Q(in_volume__in_journal__name='SciPostPhysProc') | models.Q(in_journal__name='SciPostPhysProc'))
+        limit_choices_to=models.Q(in_volume__in_journal__doi_label='SciPostPhysProc') | models.Q(in_journal__doi_label='SciPostPhysProc'))
     minimum_referees = models.PositiveSmallIntegerField(
         help_text='Require an explicit minimum number of referees for the default ref cycle.',
         blank=True, null=True)

@@ -5,8 +5,9 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.utils import timezone
 
-from .constants import STATUS_PUBLISHED, STATUS_DRAFT, PUBLICATION_PUBLISHED, ISSUES_AND_VOLUMES,\
-    ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
+from .constants import STATUS_DRAFT, STATUS_PUBLICLY_OPEN, STATUS_PUBLISHED,\
+    PUBLICATION_PUBLISHED,\
+    ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
 
 
 class JournalQuerySet(models.QuerySet):
@@ -21,6 +22,10 @@ class JournalQuerySet(models.QuerySet):
 
 
 class IssueQuerySet(models.QuerySet):
+    def open_or_published(self):
+        return self.filter(models.Q(status=STATUS_PUBLICLY_OPEN) |
+                           models.Q(status=STATUS_PUBLISHED))
+
     def published(self):
         return self.filter(status=STATUS_PUBLISHED)
 

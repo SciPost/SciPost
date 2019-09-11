@@ -18,7 +18,8 @@ from django.urls import reverse
 from .behaviors import (
     doi_journal_validator, doi_volume_validator, doi_issue_validator, doi_publication_validator)
 from .constants import (
-    SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS, STATUS_DRAFT, STATUS_PUBLISHED, ISSUE_STATUSES,
+    SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,
+    STATUS_DRAFT, STATUS_PUBLICLY_OPEN, STATUS_PUBLISHED, ISSUE_STATUSES,
     PUBLICATION_PUBLISHED, CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES,
     JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY)
 from .helpers import paper_nr_string
@@ -27,6 +28,7 @@ from .managers import IssueQuerySet, PublicationQuerySet, JournalQuerySet
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
 from scipost.fields import ChoiceArrayField
 
+from proceedings.models import Proceedings
 
 
 ################
@@ -123,7 +125,7 @@ class Journal(models.Model):
         if self.structure == ISSUES_AND_VOLUMES:
             return Issue.objects.filter(in_volume__in_journal=self).published()
         elif self.structure == ISSUES_ONLY:
-            return self.issues.published()
+            return self.issues.open_or_published()
         return Issue.objects.none()
 
     def get_latest_issue(self):
@@ -278,7 +280,7 @@ class Issue(models.Model):
     in_volume = models.ForeignKey(
         'journals.Volume', on_delete=models.CASCADE, null=True, blank=True,
         help_text='Assign either a Volume or Journal to the Issue')
-    number = models.PositiveSmallIntegerField()
+    number = models.PositiveIntegerField()
     slug = models.SlugField()
     start_date = models.DateField(default=timezone.now)
     until_date = models.DateField(default=timezone.now)
@@ -297,7 +299,7 @@ class Issue(models.Model):
         unique_together = ('number', 'in_volume')
 
     def __str__(self):
-        text = self.issue_number
+        text = self.issue_string
         if hasattr(self, 'proceedings'):
             return text
         text += ' (%s)' % self.period_as_string
@@ -328,16 +330,23 @@ class Issue(models.Model):
         return '10.21468/' + self.doi_label
 
     @property
-    def issue_number(self):
+    def issue_string(self):
         if self.in_volume:
             return '%s issue %s' % (self.in_volume, self.number)
+        elif self.status == STATUS_PUBLICLY_OPEN:
+            try:
+                return '%s (open): %s (%s)' % (self.in_journal,
+                                               self.proceedings.event_name, self.number)
+            except Proceedings.DoesNotExist:
+                pass
+            return '%s (open): %s' % (self.in_journal, self.number)
         return '%s issue %s' % (self.in_journal, self.number)
 
     @property
     def short_str(self):
         if self.in_volume:
             return 'Vol. %s issue %s' % (self.in_volume.number, self.number)
-        return 'Issue %s' % self.number
+        return 'Issue %s' % self.doi_label.rpartition('.')[2]
 
     @property
     def period_as_string(self):

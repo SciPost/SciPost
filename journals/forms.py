@@ -18,7 +18,8 @@ from django.utils import timezone
 
 from ajax_select.fields import AutoCompleteSelectField
 
-from .constants import STATUS_DRAFT, PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
+from .constants import STATUS_DRAFT, STATUS_PUBLICLY_OPEN,\
+    PUBLICATION_PREPUBLISHED, PUBLICATION_PUBLISHED
 from .exceptions import PaperNumberingError
 from .models import (
     Issue, Publication, Reference, Volume, PublicationAuthorsTable,
@@ -764,7 +765,16 @@ class IssueForm(forms.ModelForm):
             doi = '{}.{}.{}'.format(journal.doi_label, volume.number, number)
             path += '/{}/{}/{}'.format(journal.doi_label, volume.number, number)
         else:
-            number = journal.issues.count() + 1
+            if self.cleaned_data['status'] == STATUS_PUBLICLY_OPEN:
+                # Temporary park this issue with a number generated from the timestamp
+                # This is useful for e.g. Proceedings, which only get their final
+                # number when published (not when they are made publicly open for submission).
+                # The format is [YYYY][MM][3-digit code]
+                # where the next-available 3-digit code is found
+                number_check = 1000 * int(timezone.now().strftime('%Y%m'))
+                number = number_check + journal.issues.filter(number__gt=number_check).count() + 1
+            else:
+                number = journal.issues.count() + 1
             volume = None
             doi = '{}.{}'.format(journal.doi_label, number)
             path += '/{}/{}'.format(journal.doi_label, number)

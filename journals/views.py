@@ -264,7 +264,7 @@ def about(request, doi_label):
 
 def issue_detail(request, doi_label):
     """Issue detail page."""
-    issue = get_object_or_404(Issue.objects.published(), doi_label=doi_label)
+    issue = get_object_or_404(Issue.objects.open_or_published(), doi_label=doi_label)
     journal = issue.in_journal or issue.in_volume.in_journal
 
     papers = issue.publications.published().order_by('paper_nr')

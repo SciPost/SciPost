@@ -70,9 +70,11 @@ SCIPOST_JOURNALS_SPECIALIZATIONS = (
 )
 
 STATUS_DRAFT = 'draft'
+STATUS_PUBLICLY_OPEN = 'publicly_open'
 STATUS_PUBLISHED = 'published'
 ISSUE_STATUSES = (
     (STATUS_DRAFT, 'Draft'),
+    (STATUS_PUBLICLY_OPEN, 'Publicly open'),
     (STATUS_PUBLISHED, 'Published'),
 )
 
