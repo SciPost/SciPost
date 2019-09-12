@@ -100,7 +100,11 @@ class Submission(models.Model):
 
     submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
-                                    on_delete=models.SET_NULL, related_name='submissions')
+                                    on_delete=models.SET_NULL, related_name='submissions',
+                                    help_text=(
+                                        'Don\'t find the Proceedings you are looking for? '
+                                        'Ask the conference organizers to contact our admin '
+                                        'at admin@scipost.org to set things up.'))
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
