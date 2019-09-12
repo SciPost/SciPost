@@ -514,13 +514,13 @@ class DraftPublicationForm(forms.ModelForm):
         self.fields['paper_nr'].initial = str(paper_nr)
         if issue.in_volume:
             doi_label = '{journal}.{vol}.{issue}.{paper}'.format(
-                journal=issue.in_volume.in_journal.name,
+                journal=issue.in_volume.in_journal.doi_label,
                 vol=issue.in_volume.number,
                 issue=issue.number,
                 paper=str(paper_nr).rjust(3, '0'))
         elif issue.in_journal:
             doi_label = '{journal}.{issue}.{paper}'.format(
-                journal=issue.in_journal.name,
+                journal=issue.in_journal.doi_label,
                 issue=issue.number,
                 paper=str(paper_nr).rjust(3, '0'))
         self.fields['doi_label'].initial = doi_label
@@ -566,7 +566,7 @@ class DraftPublicationForm(forms.ModelForm):
         paper_nr = journal.publications.count() + 1
         self.fields['paper_nr'].initial = str(paper_nr)
         doi_label = '{journal}.{paper}'.format(
-            journal=journal.name,
+            journal=journal.doi_label,
             paper=paper_nr)
         self.fields['doi_label'].initial = doi_label
 
@@ -644,7 +644,7 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
         if self.instance.in_issue:
             new_dir += self.instance.in_issue.path
         elif self.instance.in_journal:
-            new_dir += 'SCIPOST_JOURNALS/{name}'.format(name=self.instance.in_journal.name)
+            new_dir += 'SCIPOST_JOURNALS/{name}'.format(name=self.instance.in_journal.doi_label)
 
         new_dir += '/{paper_nr}'.format(paper_nr=self.instance.get_paper_nr())
         os.makedirs(settings.MEDIA_ROOT + new_dir, exist_ok=True)
