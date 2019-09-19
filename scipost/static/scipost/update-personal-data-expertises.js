@@ -5,16 +5,24 @@ $(document).ready(function(){
 
         switch(selection){
         case "physics":
-            $("#id_expertises_0").closest("li").show();
+	    $('li:contains("Physics")').filter(function(){
+		return $(this).text().indexOf('Physics') == 0;}).show();
             break;
         case "astrophysics":
-            $("#id_expertises_1").closest("li").show();
+	    $('li:contains("Astrophysics")').filter(function(){
+		return $(this).text().indexOf('Astrophysics') == 0;}).show();
             break;
         case "mathematics":
-            $("#id_expertises_2").closest("li").show();
+	    $('li:contains("Mathematics")').filter(function(){
+		return $(this).text().indexOf('Mathematics') == 0;}).show();
+            break;
+        case "chemistry":
+	    $('li:contains("Chemistry")').filter(function(){
+		return $(this).text().indexOf('Chemistry') == 0;}).show();
             break;
         case "computerscience":
-            $("#id_expertises_3").closest("li").show();
+	    $('li:contains("Computer Science")').filter(function(){
+		return $(this).text().indexOf('Computer Science') == 0;}).show();
             break;
         default:
             $("ul[id^='id_expertises_']").closest("li").show();
