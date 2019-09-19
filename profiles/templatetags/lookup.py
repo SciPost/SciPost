@@ -19,7 +19,7 @@ class ProfileLookup(LookupChannel):
                 .filter(Q(first_name__icontains=q) |
                         Q(last_name__icontains=q) |
                         Q(emails__email__icontains=q) |
-                        Q(orcid_id__icontains=q))[:10])
+                        Q(orcid_id__icontains=q))[:16])
 
     def format_item_display(self, item):
         """(HTML) format item for displaying item in the selected deck area."""
