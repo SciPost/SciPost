@@ -8,7 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from scipost.fields import ChoiceArrayField
 
 from .constants import THESIS_TYPES
 from .managers import ThesisLinkManager
@@ -35,6 +36,9 @@ class ThesisLink(models.Model):
         max_length=10,
         choices=SCIPOST_SUBJECT_AREAS,
         default='Phys:QP')
+    approaches = ChoiceArrayField(
+        models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
+        blank=True, null=True, verbose_name='approach(es) [optional]')
     open_for_commenting = models.BooleanField(default=True)
     title = models.CharField(max_length=300, verbose_name='title')
     pub_link = models.URLField(verbose_name='URL (external repository)')

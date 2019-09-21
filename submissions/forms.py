@@ -341,6 +341,7 @@ class SubmissionForm(forms.ModelForm):
             'domain',
             'subject_area',
             'secondary_areas',
+            'approaches',
             'title',
             'author_list',
             'abstract',

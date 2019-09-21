@@ -103,6 +103,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'domain',
                 'subject_area',
                 'secondary_areas',
+                'approaches',
                 'proceedings'),
         }),
         ('Authors', {

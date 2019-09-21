@@ -9,7 +9,9 @@ from django.urls import reverse
 
 from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import TimeStampedModel
-from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,\
+    SCIPOST_APPROACHES, SCIPOST_SUBJECT_AREAS
+from scipost.fields import ChoiceArrayField
 
 from .constants import COMMENTARY_TYPES
 from .managers import CommentaryManager
@@ -31,6 +33,9 @@ class Commentary(TimeStampedModel):
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     default='Phys:QP')
+    approaches = ChoiceArrayField(
+        models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
+        blank=True, null=True, verbose_name='approach(es) [optional]')
     open_for_commenting = models.BooleanField(default=True)
 
     # Article/publication data

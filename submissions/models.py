@@ -36,7 +36,7 @@ from comments.behaviors import validate_file_extension, validate_max_file_size
 from comments.models import Comment
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import TITLE_CHOICES
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 from scipost.storage import SecureFileStorage
@@ -61,6 +61,9 @@ class Submission(models.Model):
     author_list = models.CharField(max_length=10000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
+    approaches = ChoiceArrayField(
+        models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
+        blank=True, null=True, verbose_name='approach(es) [optional]')
     editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
                                          null=True, on_delete=models.CASCADE)
 

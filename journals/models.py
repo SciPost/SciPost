@@ -25,7 +25,7 @@ from .constants import (
 from .helpers import paper_nr_string
 from .managers import IssueQuerySet, PublicationQuerySet, JournalQuerySet
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
 from proceedings.models import Proceedings
@@ -426,6 +426,9 @@ class Publication(models.Model):
                                     verbose_name='Primary subject area', default='Phys:QP')
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
+    approaches = ChoiceArrayField(
+        models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
+        blank=True, null=True, verbose_name='approach(es) [optional]')
 
     # Authors
     authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,

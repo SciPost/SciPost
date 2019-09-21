@@ -15,6 +15,7 @@ SCIPOST_DISCIPLINES = (
     (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
 )
 
+
 SCIPOST_SUBJECT_AREAS = (
     ('Physics', (
         ('Phys:AE', 'Atomic, Molecular and Optical Physics - Experiment'),
@@ -138,6 +139,24 @@ subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
 subject_areas_dict = {}
 for k in subject_areas_raw_dict.keys():
     subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
+
+
+APPROACH_THEORETICAL = 'theoretical'
+APPROACH_EXPERIMENTAL = 'experimental'
+APPROACH_COMPUTATIONAL = 'computational'
+APPROACH_PHENOMENOLOGICAL = 'phenomenological'
+APPROACH_OBSERVATIONAL = 'observational'
+APPROACH_CLINICAL = 'clinical'
+
+SCIPOST_APPROACHES = (
+    (APPROACH_THEORETICAL, 'Theoretical'),
+    (APPROACH_EXPERIMENTAL, 'Experimental'),
+    (APPROACH_COMPUTATIONAL, 'Computational'),
+    (APPROACH_PHENOMENOLOGICAL, 'Phenomenological'),
+    (APPROACH_OBSERVATIONAL, 'Observational'),
+    (APPROACH_CLINICAL, 'Clinical'),
+)
+
 
 # Contributor types
 NEWLY_REGISTERED, NORMAL_CONTRIBUTOR = 'newly_registered', 'normal'
