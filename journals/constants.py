@@ -56,19 +56,6 @@ SCIPOST_JOURNALS_DOMAINS = (
     ('ETC', 'Exp., Theor. & Comp.'),
 )
 
-SCIPOST_JOURNALS_SPECIALIZATIONS = (
-    ('A', 'Atomic, Molecular and Optical Physics'),
-    ('B', 'Biophysics'),
-    ('C', 'Condensed Matter Physics'),
-    ('F', 'Fluid Dynamics'),
-    ('G', 'Gravitation, Cosmology and Astroparticle Physics'),
-    ('H', 'High-Energy Physics'),
-    ('M', 'Mathematical Physics'),
-    ('N', 'Nuclear Physics'),
-    ('Q', 'Quantum Statistical Mechanics'),
-    ('S', 'Statistical and Soft Matter Physics'),
-)
-
 STATUS_DRAFT = 'draft'
 STATUS_PUBLICLY_OPEN = 'publicly_open'
 STATUS_PUBLISHED = 'published'
