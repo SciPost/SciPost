@@ -22,11 +22,14 @@
     <td>Discipline: </td><td></td><td>{{ thesislink.get_discipline_display }}</td>
   </tr>
   <tr>
-    <td>Domain: </td><td></td><td>{{ thesislink.get_domain_display }}</td>
-  </tr>
-  <tr>
     <td>Subject area: </td><td></td><td> {{ thesislink.get_subject_area_display }} </td>
   </tr>
+  {% if thesislink.approaches %}
+    <tr>
+      <td>Approach{% if thesislink.approaches|length > 1 %}es{% endif %}: </td><td></td>
+      <td>{% for approach in thesislink.approaches %}{% if not forloop.first %}, {% endif %}{{ approach|capfirst }}{% endfor %}</td>
+    </tr>
+  {% endif %}
   <tr>
     <td>URL: </td><td>&nbsp;</td><td><a href="{{ thesislink.pub_link }}" target="_blank">{{ thesislink.pub_link }}</a></td>
   </tr>

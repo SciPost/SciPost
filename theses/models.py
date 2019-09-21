@@ -7,7 +7,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.urls import reverse
 from django.utils import timezone
 
-from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
@@ -29,9 +28,6 @@ class ThesisLink(models.Model):
     discipline = models.CharField(
         max_length=20, choices=SCIPOST_DISCIPLINES,
         default='physics')
-    domain = models.CharField(
-        max_length=3, choices=SCIPOST_JOURNALS_DOMAINS,
-        blank=False)
     subject_area = models.CharField(
         max_length=10,
         choices=SCIPOST_SUBJECT_AREAS,

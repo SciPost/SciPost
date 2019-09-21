@@ -15,7 +15,7 @@ from .helpers import past_years
 class BaseRequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
-        fields = ['type', 'discipline', 'domain', 'subject_area',
+        fields = ['type', 'discipline', 'subject_area', 'approaches',
                   'title', 'author', 'supervisor', 'institution',
                   'defense_date', 'pub_link', 'abstract']
         widgets = {

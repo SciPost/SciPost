@@ -7,10 +7,9 @@ import pytz
 import random
 
 from comments.factories import SubmissionCommentFactory
-from scipost.constants import SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
 from scipost.models import Contributor
 from journals.models import Journal
-from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_scipost_report_doi_label
 
 from .constants import (
@@ -35,7 +34,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     abstract = factory.Faker('paragraph', nb_sentences=10)
     list_of_changes = factory.Faker('paragraph', nb_sentences=10)
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
-    domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
+    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: c[0])
     abstract = factory.Faker('paragraph')
     author_comments = factory.Faker('paragraph')
     remarks_for_editors = factory.Faker('paragraph')
@@ -164,7 +163,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.subject_area = submission.subject_area
-        self.domain = submission.domain
+        self.approaches = submission.approaches
         self.title = submission.title
         self.authors.set(self.authors.all())
 
@@ -217,7 +216,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.subject_area = submission.subject_area
-        self.domain = submission.domain
+        self.approaches = submission.approaches
         self.title = submission.title
         self.authors.set(self.authors.all())
 

@@ -46,15 +46,6 @@ DOI_DISPATCH_REGEX += '(.(?P<part_1>\w+)(.(?P<part_2>[0-9]+)(.(?P<part_3>[0-9]{3
 
 DOI_ISSUE_REGEX = '(?P<doi_label>({}).\w+(.[0-9]+)?)'.format(REGEX_CHOICES)
 
-SCIPOST_JOURNALS_DOMAINS = (
-    ('E', 'Experimental'),
-    ('T', 'Theoretical'),
-    ('C', 'Computational'),
-    ('ET', 'Exp. & Theor.'),
-    ('EC', 'Exp. & Comp.'),
-    ('TC', 'Theor. & Comp.'),
-    ('ETC', 'Exp., Theor. & Comp.'),
-)
 
 STATUS_DRAFT = 'draft'
 STATUS_PUBLICLY_OPEN = 'publicly_open'

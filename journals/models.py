@@ -18,7 +18,7 @@ from django.urls import reverse
 from .behaviors import (
     doi_journal_validator, doi_volume_validator, doi_issue_validator, doi_publication_validator)
 from .constants import (
-    SCIPOST_JOURNALS, SCIPOST_JOURNALS_DOMAINS,
+    SCIPOST_JOURNALS,
     STATUS_DRAFT, STATUS_PUBLICLY_OPEN, STATUS_PUBLISHED, ISSUE_STATUSES,
     PUBLICATION_PUBLISHED, CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES,
     JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY)
@@ -421,7 +421,6 @@ class Publication(models.Model):
                                      help_text='JATS version of abstract for Crossref deposit')
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     secondary_areas = ChoiceArrayField(

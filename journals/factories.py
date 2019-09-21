@@ -89,8 +89,8 @@ class PublicationFactory(factory.django.DjangoModelFactory):
     publication_date = factory.Faker('date_this_year')
 
     discipline = factory.LazyAttribute(lambda o: o.accepted_submission.discipline)
-    domain = factory.LazyAttribute(lambda o: o.accepted_submission.domain)
     subject_area = factory.LazyAttribute(lambda o: o.accepted_submission.subject_area)
+    approaches = factory.LazyAttribute(lambda o: o.accepted_submission.approaches)
     title = factory.LazyAttribute(lambda o: o.accepted_submission.title)
     abstract = factory.LazyAttribute(lambda o: o.accepted_submission.abstract)
 

@@ -143,7 +143,7 @@ class SubmitManuscriptTest(BaseContributorTestCase):
             'subject_area': 'Phys:MP',
             'submitted_to': Journal.objects.filter(doi_label='SciPostPhys'),
             'submission_type': 'Article',
-            'domain': 'T'
+            'approaches': ('theoretical',)
         })
 
         # Submit new Submission form
@@ -183,7 +183,7 @@ class SubmitManuscriptTest(BaseContributorTestCase):
             'subject_area': 'Phys:MP',
             'submitted_to': Journal.objects.get(doi_label='SciPostPhys'),
             'submission_type': 'Article',
-            'domain': 'T'
+            'approaches': ('theoretical',)
         })
 
         # Submit new Submission form

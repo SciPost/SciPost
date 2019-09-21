@@ -86,7 +86,7 @@ class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = [
-            'discipline', 'domain', 'subject_area', 'title',
+            'discipline', 'subject_area', 'approaches', 'title',
             'author_list', 'pub_date', 'pub_abstract'
         ]
         placeholders = {
@@ -322,8 +322,8 @@ class CommentSciPostPublication(CommentForm):
                 'vetted': True,
                 'type': COMMENTARY_PUBLISHED,
                 'discipline': self.publication.discipline,
-                'domain': self.publication.domain,
                 'subject_area': self.publication.subject_area,
+                'approaches': self.publication.approaches,
                 'title': self.publication.title,
                 'arxiv_identifier': submission.preprint.identifier_w_vn_nr,
                 'arxiv_link': submission.preprint.url,

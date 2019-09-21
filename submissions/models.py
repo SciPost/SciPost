@@ -40,7 +40,6 @@ from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOS
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 from scipost.storage import SecureFileStorage
-from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from journals.models import Publication
 from mails.utils import DirectMailUtil
 
@@ -60,7 +59,11 @@ class Submission(models.Model):
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=10000, verbose_name="author list")
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
+    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
+                                    verbose_name='Primary subject area', default='Phys:QP')
+    secondary_areas = ChoiceArrayField(
+        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
+        blank=True, null=True)
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True, null=True, verbose_name='approach(es) [optional]')
@@ -74,9 +77,6 @@ class Submission(models.Model):
     referees_suggested = models.TextField(blank=True)
     remarks_for_editors = models.TextField(blank=True)
     reporting_deadline = models.DateTimeField(default=timezone.now)
-    secondary_areas = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
 
     # Submission status fields
     status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING)
@@ -93,8 +93,6 @@ class Submission(models.Model):
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
 
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-                                    verbose_name='Primary subject area', default='Phys:QP')
     submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, blank=True)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')

@@ -36,12 +36,6 @@ class TestRequestThesisLink(TestCase):
         # Should we define a more semantic error like UserNotDefinedError?
         self.assertTrue(False)
 
-    def test_empty_domain_is_invalid(self):
-        form_data = self.valid_form_data
-        form_data['domain'] = ''
-        form = RequestThesisLinkForm(form_data, request=self.request)
-        self.assertEqual(form.errors['domain'], ['This field is required.'])
-
     def test_thesislink_is_requested_by_correct_contributor(self):
         form_data = self.valid_form_data
         form = RequestThesisLinkForm(form_data, request=self.request)

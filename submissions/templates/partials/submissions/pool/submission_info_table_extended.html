@@ -21,12 +21,14 @@
     </td>
   </tr>
   <tr>
-    <td>Domain(s)</td>
-    <td>{{submission.get_domain_display}}</td>
-  </tr>
-  <tr>
     <td>Subject area</td>
     <td>{{submission.get_subject_area_display}}</td>
   </tr>
+  {% if submission.approaches %}
+    <tr>
+      <td>Approach{% if submission.approaches|length > 1 %}es{% endif %}:</td>
+      <td>{% for approach in submission.approaches %}{% if not forloop.first %}, {% endif %}{{ approach|capfirst }}{% endfor %}</td>
+    </tr>
+  {% endif %}
 
 {% endblock %}

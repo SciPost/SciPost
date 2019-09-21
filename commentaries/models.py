@@ -7,7 +7,6 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
 
-from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,\
     SCIPOST_APPROACHES, SCIPOST_SUBJECT_AREAS
@@ -30,7 +29,6 @@ class Commentary(TimeStampedModel):
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES)
     discipline = models.CharField(max_length=20,
                                   choices=SCIPOST_DISCIPLINES, default=DISCIPLINE_PHYSICS)
-    domain = models.CharField(max_length=3, choices=SCIPOST_JOURNALS_DOMAINS)
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     default='Phys:QP')
     approaches = ChoiceArrayField(

@@ -4,9 +4,8 @@ __license__ = "AGPL v3"
 
 import factory
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
 from scipost.models import Contributor
-from journals.constants import SCIPOST_JOURNALS_DOMAINS
 from common.helpers import random_arxiv_identifier_with_version_number, random_external_doi
 
 from .constants import COMMENTARY_TYPES
@@ -24,7 +23,7 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     vetted_by = factory.Iterator(Contributor.objects.all())
     type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
     discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
-    domain = factory.Iterator(SCIPOST_JOURNALS_DOMAINS, getter=lambda c: c[0])
+    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: c[0])
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
     title = factory.Faker('sentence')
     pub_DOI = factory.Sequence(lambda n: random_external_doi())

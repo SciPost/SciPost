@@ -187,7 +187,7 @@ class SubmissionService:
                 'abstract': self.latest_submission.abstract,
                 'author_list': self.latest_submission.author_list,
                 'discipline': self.latest_submission.discipline,
-                'domain': self.latest_submission.domain,
+                'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'secondary_areas': self.latest_submission.secondary_areas,
@@ -338,7 +338,6 @@ class SubmissionForm(forms.ModelForm):
             'submitted_to',
             'proceedings',
             'submission_type',
-            'domain',
             'subject_area',
             'secondary_areas',
             'approaches',
@@ -570,7 +569,7 @@ class SubmissionIdentifierForm(forms.Form):
         if self.service.is_resubmission():
             form_data.update({
                 'discipline': self.service.latest_submission.discipline,
-                'domain': self.service.latest_submission.domain,
+                'approaches': self.service.latest_submission.approaches,
                 'referees_flagged': self.service.latest_submission.referees_flagged,
                 'referees_suggested': self.service.latest_submission.referees_suggested,
                 'secondary_areas': self.service.latest_submission.secondary_areas,
