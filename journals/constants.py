@@ -2,6 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+# from journals.models import Journal
+
+
 # These are DOI's of the Journals, they are used as keys for the choicefield in `models.Journal`!
 SCIPOST_JOURNAL_PHYSICS = 'SciPostPhys'
 SCIPOST_JOURNAL_PHYSICS_SELECT = 'SciPostPhysSel'
@@ -35,6 +38,9 @@ REGEX_CHOICES = '|'.join([
     SCIPOST_JOURNAL_PHYSICS_COMMONS,
     SCIPOST_JOURNAL_PHYSICS
 ])
+
+#REGEX_CHOICES = '|'.join([j.doi_label for j in Journal.objects.all()])
+
 
 # Regex used for URLs of specific Publications and for
 # doi validation during the publication process.

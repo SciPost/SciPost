@@ -2,9 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from journals.constants import SCIPOST_JOURNAL_PHYSICS
-
-
 # All Submission statuses
 STATUS_INCOMING = 'incoming'
 STATUS_UNASSIGNED = 'unassigned'
@@ -237,6 +234,5 @@ SCIPOST_PREPRINT_W_VN_REGEX = '(?P<identifier_w_vn_nr>%s)' % scipost_regex_w_vn
 #
 # CAUTION: *triple* check whether the `default` regex also meets any other explicit journal regex!
 EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS = {
-    # SCIPOST_JOURNAL_PHYSICS: '(?P<identifier_w_vn_nr>[0-9]{4,}.[0-9]{4,}v[0-9]{1,2})',
     'default': SUBMISSIONS_COMPLETE_REGEX
 }

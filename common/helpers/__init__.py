@@ -6,8 +6,6 @@ import hashlib
 import random
 import string
 
-from journals.constants import SCIPOST_JOURNALS_SUBMIT
-
 
 def model_form_data(model, form_class, form_kwargs={}):
     '''
@@ -46,7 +44,13 @@ def random_arxiv_identifier_without_version_number():
 
 
 def random_scipost_journal():
-    return random.choice(SCIPOST_JOURNALS_SUBMIT)[0]
+    return random.choice((
+        'SciPostPhys',
+        'SciPostPhysLectNotes',
+        'SciPostPhysProc',
+        'SciPostMath',
+        'SciPostChem',
+    ))
 
 
 def random_external_journal_abbrev():

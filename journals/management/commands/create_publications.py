@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.core.management.base import BaseCommand
 
-from journals.constants import SCIPOST_JOURNALS_SUBMIT
+from journals.models import Journal
 from journals.factories import PublicationFactory
 
 
@@ -17,7 +17,7 @@ class Command(BaseCommand):
             help='Number of publications to add',
         )
         parser.add_argument(
-            '--journal', choices=[i[0] for i in SCIPOST_JOURNALS_SUBMIT],
+            '--journal', choices=[i.doi_label for i in Journal.objects.filter(active=True)],
             action='store', dest='journal',
             help='The name of the specific Journal to add the Publications to',
         )

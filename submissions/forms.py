@@ -32,7 +32,6 @@ from .signals import notify_manuscript_accepted
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
 from journals.models import Journal
-from journals.constants import SCIPOST_JOURNAL_PHYSICS_PROC, SCIPOST_JOURNAL_PHYSICS
 from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier
 from preprints.models import Preprint
@@ -423,7 +422,7 @@ class SubmissionForm(forms.ModelForm):
         if not qs.exists():
             # No proceedings issue to submit to, so adapt the form fields
             self.fields['submitted_to'].queryset = self.fields['submitted_to'].queryset.exclude(
-                doi_label=SCIPOST_JOURNAL_PHYSICS_PROC)
+                doi_label__contains='Proc')
             del self.fields['proceedings']
 
     def is_resubmission(self):
@@ -448,7 +447,7 @@ class SubmissionForm(forms.ModelForm):
         self.service.run_checks()
         self.service.identifier_matches_regex(cleaned_data['submitted_to'].doi_label)
 
-        if self.cleaned_data['submitted_to'].doi_label != SCIPOST_JOURNAL_PHYSICS_PROC:
+        if 'Proc' not in self.cleaned_data['submitted_to'].doi_label:
             try:
                 del self.cleaned_data['proceedings']
             except KeyError:
@@ -478,7 +477,7 @@ class SubmissionForm(forms.ModelForm):
         """
         submission_type = self.cleaned_data['submission_type']
         journal_doi_label = self.cleaned_data['submitted_to'].doi_label
-        if journal_doi_label == SCIPOST_JOURNAL_PHYSICS and not submission_type:
+        if journal_doi_label == 'SciPostPhys' and not submission_type:
             self.add_error('submission_type', 'Please specify the submission type.')
         return submission_type
 
@@ -1088,33 +1087,6 @@ class ReportForm(forms.ModelForm):
         else:
             required_fields = []
         required_fields_label = ['report', 'recommendation']
-
-        # If the Report is not a followup: Explicitly assign more fields as being required!
-        if not self.instance.is_followup_report and self.submission.submitted_to.name != SCIPOST_JOURNAL_PHYSICS_PROC:
-            required_fields_label += [
-                # 'qualification',
-                # 'strengths',
-                # 'weaknesses',
-                # 'requested_changes',
-                # 'validity',
-                # 'significance',
-                # 'originality',
-                # 'clarity',
-                # 'formatting',
-                # 'grammar'
-            ]
-            required_fields += [
-                # 'qualification',
-                # 'strengths',
-                # 'weaknesses',
-                # 'requested_changes',
-                # 'validity',
-                # 'significance',
-                # 'originality',
-                # 'clarity',
-                # 'formatting',
-                # 'grammar'
-            ]
 
         for field in required_fields:
             self.fields[field].required = True

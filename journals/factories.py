@@ -8,8 +8,7 @@ import pytz
 import random
 
 from common.helpers import random_digits, random_external_doi, random_external_journal_abbrev
-from journals.constants import SCIPOST_JOURNALS, SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES,\
-    ISSUES_AND_VOLUMES, INDIVIDUAL_PUBLICATIONS, PUBLICATION_PUBLISHED
+from journals.constants import JOURNAL_STRUCTURE, PUBLICATION_PUBLISHED
 from submissions.factories import PublishedSubmissionFactory
 
 from .models import Journal, Volume, Issue, Publication, Reference
@@ -37,19 +36,14 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 
 class JournalFactory(factory.django.DjangoModelFactory):
-    name = factory.Iterator(SCIPOST_JOURNALS, getter=lambda c: c[0])
-    doi_label = factory.Iterator(SCIPOST_JOURNALS, getter=lambda c: c[0])
+    name = factory.Iterator(Journal.objects.filter(active=True))
+    doi_label = factory.Iterator(Journal.objects.filter(active=True))
     issn = factory.lazy_attribute(lambda n: random_digits(8))
+    structure = factory.Iterator(JOURNAL_STRUCTURE, getter=lambda c: c[0])
 
     class Meta:
         model = Journal
         django_get_or_create = ('name',)
-
-    @factory.lazy_attribute
-    def structure(self):
-        if self.name == SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES:
-            return INDIVIDUAL_PUBLICATIONS
-        return ISSUES_AND_VOLUMES
 
 
 class VolumeFactory(factory.django.DjangoModelFactory):
