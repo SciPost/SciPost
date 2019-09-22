@@ -2,57 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-# from journals.models import Journal
-
-
-# These are DOI's of the Journals, they are used as keys for the choicefield in `models.Journal`!
-SCIPOST_JOURNAL_PHYSICS = 'SciPostPhys'
-SCIPOST_JOURNAL_PHYSICS_SELECT = 'SciPostPhysSel'
-SCIPOST_JOURNAL_PHYSICS_COMMONS = 'SciPostPhysComm'
-SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES = 'SciPostPhysLectNotes'
-SCIPOST_JOURNAL_PHYSICS_PROC = 'SciPostPhysProc'
-SCIPOST_JOURNAL_PHYSICS_CODEBASES = 'SciPostPhysCodeb'
-
-# Journal open for submission
-SCIPOST_JOURNALS_SUBMIT = (
-    (SCIPOST_JOURNAL_PHYSICS, 'SciPost Physics'),
-    (SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES, 'SciPost Physics Lecture Notes'),
-    (SCIPOST_JOURNAL_PHYSICS_PROC, 'SciPost Physics Proceedings'),
-)
-
-# Journal closed for submission
-SCIPOST_JOURNALS_NO_SUBMIT = (
-    (SCIPOST_JOURNAL_PHYSICS_COMMONS, 'SciPost Physics Commons'),
-    (SCIPOST_JOURNAL_PHYSICS_CODEBASES, 'SciPost Physics Codebases'),
-    (SCIPOST_JOURNAL_PHYSICS_SELECT, 'SciPost Physics Select'),
-)
-
-# All allowed journals
-SCIPOST_JOURNALS = SCIPOST_JOURNALS_SUBMIT + SCIPOST_JOURNALS_NO_SUBMIT
-
-REGEX_CHOICES = '|'.join([
-    SCIPOST_JOURNAL_PHYSICS_PROC,
-    SCIPOST_JOURNAL_PHYSICS_SELECT,
-    SCIPOST_JOURNAL_PHYSICS_LECTURE_NOTES,
-    SCIPOST_JOURNAL_PHYSICS_CODEBASES,
-    SCIPOST_JOURNAL_PHYSICS_COMMONS,
-    SCIPOST_JOURNAL_PHYSICS
-])
-
-#REGEX_CHOICES = '|'.join([j.doi_label for j in Journal.objects.all()])
-
-
-# Regex used for URLs of specific Publications and for
-# doi validation during the publication process.
-PUBLICATION_DOI_REGEX = '({})'.format(REGEX_CHOICES)
-PUBLICATION_DOI_REGEX += '(.\w+(.[0-9]+(.[0-9]{3,})?)?)?'
-PUBLICATION_DOI_VALIDATION_REGEX = PUBLICATION_DOI_REGEX
-DOI_DISPATCH_REGEX = '(?P<journal_tag>{})'.format(REGEX_CHOICES)
-DOI_DISPATCH_REGEX += '(.(?P<part_1>\w+)(.(?P<part_2>[0-9]+)(.(?P<part_3>[0-9]{3,}))?)?)?'
-
-DOI_ISSUE_REGEX = '(?P<doi_label>({}).\w+(.[0-9]+)?)'.format(REGEX_CHOICES)
-
-
 STATUS_DRAFT = 'draft'
 STATUS_PUBLICLY_OPEN = 'publicly_open'
 STATUS_PUBLISHED = 'published'

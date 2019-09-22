@@ -12,7 +12,7 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.constants import REGEX_CHOICES, PUBLICATION_DOI_REGEX, DOI_DISPATCH_REGEX, DOI_ISSUE_REGEX
+from journals.regexes import REGEX_CHOICES, PUBLICATION_DOI_REGEX, DOI_DISPATCH_REGEX, DOI_ISSUE_REGEX
 from submissions import views as submission_views
 
 JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES

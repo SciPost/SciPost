@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, RedirectView
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
-from journals.constants import PUBLICATION_DOI_REGEX, REGEX_CHOICES
+from journals.regexes import PUBLICATION_DOI_REGEX, REGEX_CHOICES
 from journals import views as journals_views
 
 app_name = 'urls.general'

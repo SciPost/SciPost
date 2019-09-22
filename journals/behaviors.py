@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.core.validators import RegexValidator
 
-from .constants import PUBLICATION_DOI_VALIDATION_REGEX
+#from .regexes import PUBLICATION_DOI_VALIDATION_REGEX
 
 
 doi_journal_validator = RegexValidator(
@@ -15,5 +15,6 @@ doi_issue_validator = RegexValidator(
     r'^[a-zA-Z]+.\w+(.[0-9]+)?$',
     'Only valid DOI expressions are allowed ([a-zA-Z]+.\w+(.[0-9]+)?)')
 doi_publication_validator = RegexValidator(
-    r'^{regex}$'.format(regex=PUBLICATION_DOI_VALIDATION_REGEX),
+    r'[a-zA-Z]+(.\w+(.[0-9]+(.[0-9]{3,})?)?)?',
+    #r'^{regex}$'.format(regex=PUBLICATION_DOI_VALIDATION_REGEX),
     'Only valid DOI expressions are allowed: `[a-zA-Z]+(.\w+(.[0-9]+(.[0-9]{3,})?)?)?`')

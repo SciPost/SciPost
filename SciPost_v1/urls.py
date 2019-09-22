@@ -14,7 +14,7 @@ from rest_framework import routers
 from conflicts.viewsets import ConflictOfInterestViewSet
 from journals.viewsets import PublicationViewSetForGoogleScholar
 from news.viewsets import NewsItemViewSet
-from journals.constants import REGEX_CHOICES
+from journals.regexes import REGEX_CHOICES
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
 
