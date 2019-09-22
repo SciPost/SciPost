@@ -40,7 +40,7 @@
     <div class="row my-1">
       <div class="col-12">
         {% if journal.active %}
-          <p>{{journal}} is published by the SciPost Foundation under the journal doi: 10.21468/{{journal.name}}{% if journal.issn %} and ISSN {{journal.issn}}{% endif %}.</p>
+          <p>{{ journal }} is published by the SciPost Foundation under the journal doi: 10.21468/{{ journal.doi_label }}{% if journal.issn %} and ISSN {{ journal.issn }}{% endif %}.</p>
         {% endif %}
 	{% if journal.doi_label == 'SciPostPhys' %}
 	  <p class="mb-1">
