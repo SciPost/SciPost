@@ -10,11 +10,11 @@ from django.db import models
 from django.db.models import Min, Sum
 from django.urls import reverse
 
-from ..behaviors import doi_publication_validator
 from ..constants import (STATUS_DRAFT, STATUS_PUBLISHED,
     PUBLICATION_PUBLISHED, CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES)
 from ..helpers import paper_nr_string
 from ..managers import PublicationQuerySet
+from ..validators import doi_publication_validator
 
 from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField

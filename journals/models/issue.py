@@ -10,10 +10,10 @@ from django.urls import reverse
 
 from proceedings.models import Proceedings
 
-from ..behaviors import doi_issue_validator
 from ..constants import ISSUES_ONLY, ISSUE_STATUSES, STATUS_DRAFT, STATUS_PUBLISHED,\
     STATUS_PUBLICLY_OPEN
 from ..managers import IssueQuerySet
+from ..validators import doi_issue_validator
 
 
 

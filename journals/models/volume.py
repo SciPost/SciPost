@@ -7,8 +7,8 @@ from django.db import models
 from django.db.models import Avg, F
 from django.utils import timezone
 
-from ..behaviors import doi_volume_validator
 from ..constants import ISSUES_AND_VOLUMES
+from ..validators import doi_volume_validator
 
 
 class Volume(models.Model):

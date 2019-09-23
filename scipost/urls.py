@@ -12,10 +12,11 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.regexes import REGEX_CHOICES, PUBLICATION_DOI_REGEX, DOI_DISPATCH_REGEX, DOI_ISSUE_REGEX
+from journals.regexes import JOURNAL_DOI_LABEL_REGEX, ISSUE_DOI_LABEL_REGEX,\
+    PUBLICATION_DOI_LABEL_REGEX, DOI_DISPATCH_PATTERN
 from submissions import views as submission_views
 
-JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
+JOURNAL_PATTERN = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
 
 app_name = 'scipost'
 
@@ -244,33 +245,36 @@ urlpatterns = [
         name='author_reply_detail'),
 
     # Publication detail (+pdf)
-    url(r'^10.21468/{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+    url(r'^10.21468/{pattern}$'.format(pattern=DOI_DISPATCH_PATTERN),
         journals_views.doi_dispatch, name='doi_dispatch'),
-    url(r'^{regex}$'.format(regex=DOI_DISPATCH_REGEX),
+    url(r'^{pattern}$'.format(pattern=DOI_DISPATCH_PATTERN),
         journals_views.doi_dispatch, name='doi_dispatch'),
-    url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
+    url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_LABEL_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_REGEX),
+    url(r'^(?P<doi_label>{regex})$'.format(regex=PUBLICATION_DOI_LABEL_REGEX),
         journals_views.publication_detail,
         name='publication_detail'),
-    url(r'^10.21468/(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
+    url(r'^10.21468/(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_LABEL_REGEX),
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
-    url(r'^(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_REGEX),
+    url(r'^(?P<doi_label>{regex})/pdf$'.format(regex=PUBLICATION_DOI_LABEL_REGEX),
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
 
     # Journal issue
-    url(r'^10.21468/{regex}$'.format(regex=DOI_ISSUE_REGEX),
+    url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=ISSUE_DOI_LABEL_REGEX),
         journals_views.issue_detail, name='issue_detail'),
-    url(r'^{regex}$'.format(regex=DOI_ISSUE_REGEX),
+    url(r'^(?P<doi_label>{regex})$'.format(regex=ISSUE_DOI_LABEL_REGEX),
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
-    url(r'^10.21468/%s$' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
-    url(r'^%s$' % JOURNAL_REGEX, journals_views.landing_page, name='landing_page'),
-    url(r'^arxiv_doi_feed/%s' % JOURNAL_REGEX, journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
+    url(r'^10.21468/%s$' % JOURNAL_PATTERN,
+        journals_views.landing_page, name='landing_page'),
+    url(r'^%s$' % JOURNAL_PATTERN,
+        journals_views.landing_page, name='landing_page'),
+    url(r'^arxiv_doi_feed/%s' % JOURNAL_PATTERN,
+        journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
 
     ################
     # Howto guides #

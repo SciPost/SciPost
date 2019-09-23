@@ -4,13 +4,14 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
 
-from ..behaviors import doi_journal_validator
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
+from ..validators import doi_journal_validator
 
 
 class Journal(models.Model):

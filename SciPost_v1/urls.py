@@ -14,13 +14,13 @@ from rest_framework import routers
 from conflicts.viewsets import ConflictOfInterestViewSet
 from journals.viewsets import PublicationViewSetForGoogleScholar
 from news.viewsets import NewsItemViewSet
-from journals.regexes import REGEX_CHOICES
+from journals.regexes import JOURNAL_DOI_LABEL_REGEX
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
 
 
 # Journal URL Regex
-JOURNAL_REGEX = '(?P<doi_label>%s)' % REGEX_CHOICES
+JOURNAL_REGEX = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
 
 
 # API Routing
