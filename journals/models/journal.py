@@ -31,6 +31,10 @@ class Journal(models.Model):
                                  choices=JOURNAL_STRUCTURE, default=ISSUES_AND_VOLUMES)
     refereeing_period = models.DurationField(default=datetime.timedelta(days=28))
 
+    style = models.TextField(blank=True, null=True,
+                             help_text=('CSS styling for the journal; the Journal\'s DOI '
+                                        'should be used as class'))
+
     objects = JournalQuerySet.as_manager()
 
     def __str__(self):

@@ -2,6 +2,12 @@
 
 {% load staticfiles %}
 
+{% if journal.style %}
+  {% block headsup %}
+    <style>{{ journal.style }}</style>
+  {% endblock headsup %}
+{% endif %}
+
 {% block pagetitle %}: {{ journal }}{% endblock pagetitle %}
 {% block body_class %}{{ block.super }} journals{% endblock %}
 
@@ -34,6 +40,7 @@
     </div>
   </div>
 {% endblock %}
+
 
 {% block secondary_footer %}
   <footer class="secondary container-fluid py-2">
