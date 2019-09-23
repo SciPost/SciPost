@@ -4,10 +4,11 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
+
+from scipost.constants import SCIPOST_DISCIPLINES
 
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
@@ -20,6 +21,7 @@ class Journal(models.Model):
     Publications may be categorized into issues or issues and volumes.
     """
 
+    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     name = models.CharField(max_length=256, unique=True)
     name_abbrev = models.CharField(max_length=128, default='SciPost [abbrev]',
                                    help_text='Abbreviated name (for use in citations)')

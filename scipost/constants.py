@@ -5,13 +5,13 @@ __license__ = "AGPL v3"
 DISCIPLINE_PHYSICS = 'physics'
 DISCIPLINE_ASTROPHYSICS = 'astrophysics'
 DISCIPLINE_CHEMISTRY = 'chemistry'
-DISCIPLINE_MATH = 'mathematics'
+DISCIPLINE_MATHEMATICS = 'mathematics'
 DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
 SCIPOST_DISCIPLINES = (
     (DISCIPLINE_PHYSICS, 'Physics'),
     (DISCIPLINE_ASTROPHYSICS, 'Astrophysics'),
     (DISCIPLINE_CHEMISTRY, 'Chemistry'),
-    (DISCIPLINE_MATH, 'Mathematics'),
+    (DISCIPLINE_MATHEMATICS, 'Mathematics'),
     (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
 )
 
