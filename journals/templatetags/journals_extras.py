@@ -9,6 +9,11 @@ from journals.helpers import paper_nr_string
 register = template.Library()
 
 
+@register.filter(name='in_discipline')
+def in_discipline(journals, discipline):
+    return journals.filter(discipline=discipline)
+
+
 @register.filter(name='paper_nr_string_filter')
 def paper_nr_string_filter(nr):
     return paper_nr_string(nr)

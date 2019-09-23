@@ -2,20 +2,139 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-DISCIPLINE_PHYSICS = 'physics'
-DISCIPLINE_ASTROPHYSICS = 'astrophysics'
-DISCIPLINE_CHEMISTRY = 'chemistry'
+DISCIPLINE_MULTI_ALL = 'multidisciplinary'
+
+DISCIPLINE_MULTI_FORMAL = 'multidiscip-formal'
 DISCIPLINE_MATHEMATICS = 'mathematics'
 DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
+
+DISCIPLINE_MULTI_NATURAL = 'multidiscip-natural'
+DISCIPLINE_PHYSICS = 'physics'
+DISCIPLINE_ASTRONOMY = 'astronomy'
+DISCIPLINE_ASTROPHYSICS = 'astrophysics'
+DISCIPLINE_BIOLOGY = 'biology'
+DISCIPLINE_CHEMISTRY = 'chemistry'
+DISCIPLINE_EARTHSCIENCE = 'earthscience' 'Earth and Environmental Sciences'
+
+DISCIPLINE_ENGINEERING_MULTI = 'multidiscip-eng'
+DISCIPLINE_CIVILENGINEERING = 'civileng'
+DISCIPLINE_ELECTRICALENGINEERING = 'electricaleng'
+DISCIPLINE_MECHANICALENGINEERING = 'mechanicaleng'
+DISCIPLINE_CHEMICALENGINEERING = 'chemicaleng'
+DISCIPLINE_MATERIALSENGINEERING = 'materialseng'
+DISCIPLINE_MEDICALENGINEERING = 'medicaleng'
+DISCIPLINE_ENVIRONMENTALENGINEERING = 'environmentaleng'
+DISCIPLINE_INDUSTRIALENGINEERING = 'industrialeng'
+
+DISCIPLINE_MEDICAL_MULTI = 'multidiscip-med'
+DISCIPLINE_MEDICINE = 'medicine'
+DISCIPLINE_CLINICAL = 'clinical' 'Clinical Medicine'
+DISCIPLINE_HEALTH = 'health' 'Health Sciences'
+
+DISCIPLINE_AGRICULTURAL_MULTI = 'multidiscip-agri'
+DISCIPLINE_AGRICULTURAL = 'agricultural' 'Agriculture, Forestry and Fisheries'
+DISCIPLINE_VETERINARY = 'veterinary'
+
+DISCIPLINE_MULTI_SOCIAL = 'multidiscip-social'
+DISCIPLINE_ECONOMICS = 'economics'
+DISCIPLINE_GEOGRAPHY = 'geography'
+DISCIPLINE_LAW = 'law'
+DISCIPLINE_MEDIA = 'media'
+DISCIPLINE_PEDAGOGY = 'pedagogy'
+DISCIPLINE_POLITICALSCIENCE = 'politicalscience'
+DISCIPLINE_PSYCHOLOGY = 'psychology'
+DISCIPLINE_SOCIOLOGY = 'sociology'
+
+DISCIPLINE_MULTI_HUMANITIES = 'multidiscip-hum'
+DISCIPLINE_ART = 'art' 'Art (arts, history or arts, performing arts, music)'
+DISCIPLINE_HISTORY = 'history' 'History and Archeology'
+DISCIPLINE_LITERATURE = 'literature' 'Language and Literature'
+DISCIPLINE_PHILOSOPHY = 'philosophy' 'Philosophy, Ethics and Religion'
+
+
+# This classification more or less follows the document
+# DSTI/EAS/STP/NESTI(2006)19/FINAL from 2007-02-26
+# Working Party of National Experts on Science and Technology Indicators
+# REVISED FIELD OF SCIENCE AND TECHNOLOGY (FOS) CLASSIFICATION IN THE FRASCATI MANUAL
 SCIPOST_DISCIPLINES = (
-    (DISCIPLINE_PHYSICS, 'Physics'),
-    (DISCIPLINE_ASTROPHYSICS, 'Astrophysics'),
-    (DISCIPLINE_CHEMISTRY, 'Chemistry'),
-    (DISCIPLINE_MATHEMATICS, 'Mathematics'),
-    (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
+    ('Multidisciplinary',
+     (
+         (DISCIPLINE_MULTI_ALL, 'Multidisciplinary (any combination)'),
+         # (DISCIPLINE_MULTI_FORMAL, 'Multidisciplinary (within Formal Sciences)'),
+         # (DISCIPLINE_MULTI_NATURAL, 'Multidisciplinary (within Natural Sciences)'),
+         # (DISCIPLINE_ENGINEERING_MULTI, 'Multidisciplinary (within Engineering and Technology)'),
+         # (DISCIPLINE_MEDICAL_MULTI, 'Multidisciplinary (within Medical Sciences)'),
+         # (DISCIPLINE_AGRICULTURAL_MULTI, 'Multidisciplinary (within Agricultural Sciences)'),
+         # (DISCIPLINE_MULTI_SOCIAL, 'Multidisciplinary (within Social Sciences)'),
+         # (DISCIPLINE_MULTI_HUMANITIES, 'Multidisciplinary (within Humanities)'),
+     )
+    ),
+    ('Formal Sciences',
+     (
+         (DISCIPLINE_MATHEMATICS, 'Mathematics'),
+         (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
+     )
+    ),
+    ('Natural Sciences',
+     (
+         (DISCIPLINE_PHYSICS, 'Physics'),
+         (DISCIPLINE_ASTRONOMY, 'Astronomy'),
+         (DISCIPLINE_ASTROPHYSICS, 'Astrophysics'),
+         (DISCIPLINE_BIOLOGY, 'Biology'),
+         (DISCIPLINE_CHEMISTRY, 'Chemistry'),
+         (DISCIPLINE_EARTHSCIENCE, 'Earth and Environmental Sciences'),
+     )
+    ),
+    ('Engineering',
+     (
+         (DISCIPLINE_CIVILENGINEERING, 'Civil Engineering'),
+         (DISCIPLINE_ELECTRICALENGINEERING, 'Electrical Engineering'),
+         (DISCIPLINE_MECHANICALENGINEERING, 'Mechanical Engineering'),
+         (DISCIPLINE_CHEMICALENGINEERING, 'Chemical Engineering'),
+         (DISCIPLINE_MATERIALSENGINEERING, 'Materials Engineering'),
+         (DISCIPLINE_MEDICALENGINEERING, 'Medical Engineering'),
+         (DISCIPLINE_ENVIRONMENTALENGINEERING, 'Environmental Engineering'),
+         (DISCIPLINE_INDUSTRIALENGINEERING, 'Industrial Engineering'),
+     )
+    ),
+    ('Medical Sciences',
+     (
+         (DISCIPLINE_MEDICINE, 'Basic Medicine'),
+         (DISCIPLINE_CLINICAL, 'Clinical Medicine'),
+         (DISCIPLINE_HEALTH, 'Health Sciences'),
+     )
+    ),
+    ('Agricultural Sciences',
+     (
+         (DISCIPLINE_AGRICULTURAL, 'Agriculture, Forestry and Fisheries'),
+         (DISCIPLINE_VETERINARY, 'Veterinary Science'),
+     )
+    ),
+    ('Social Sciences',
+     (
+         (DISCIPLINE_ECONOMICS, 'Economics'),
+         (DISCIPLINE_GEOGRAPHY, 'Geography'),
+         (DISCIPLINE_LAW, 'Law'),
+         (DISCIPLINE_MEDIA, 'Media and Communications'),
+         (DISCIPLINE_PEDAGOGY, 'Pedagogy and Educational Sciences'),
+         (DISCIPLINE_POLITICALSCIENCE, 'Political Science'),
+         (DISCIPLINE_PSYCHOLOGY, 'Psychology'),
+         (DISCIPLINE_SOCIOLOGY, 'Sociology'),
+     )
+    ),
+    ('Humanities',
+     (
+         (DISCIPLINE_ART, 'Art (arts, history or arts, performing arts, music)'),
+         (DISCIPLINE_HISTORY, 'History and Archeology'),
+         (DISCIPLINE_LITERATURE, 'Language and Literature'),
+         (DISCIPLINE_PHILOSOPHY, 'Philosophy, Ethics and Religion'),
+     )
+    )
 )
 
 
+# The subject areas should use the long version of the discipline as first tuple item
+# for each element in the list (so 'Physics' and not 'physics', etc).
 SCIPOST_SUBJECT_AREAS = (
     ('Physics', (
         ('Phys:AE', 'Atomic, Molecular and Optical Physics - Experiment'),

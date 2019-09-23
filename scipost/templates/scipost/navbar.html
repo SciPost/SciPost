@@ -2,6 +2,7 @@
 {% load staticfiles %}
 {% load notifications_tags %}
 {% load scipost_extras %}
+{% load journals_extras %}
 {% load user_groups %}
 
 {% is_editorial_college request.user as is_editorial_college %}
@@ -42,23 +43,38 @@
 	    {% for discipline in disciplines %}
 	      <div class="row">
 		<div class="col-md-4">
-		  <span class="dropdown-time dropdown-headline"><strong>{{ discipline.1 }}</strong></span>
+		  <strong>{{ discipline.0 }}</strong>
 		</div>
 		<div class="col-md-8">
-		  {% for journal in journals %}
-		    {% if journal.discipline == discipline.0 %}
-		      {% if journal.active %}
-			<div class="dropdown-item">
-			  <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-			  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
+		  {% for subdiscipline in discipline.1 %}
+		    {% with journals|in_discipline:subdiscipline.0 as journals_subdisc %}
+		    {% if journals_subdisc|length > 0 %}
+		      <div class="row">
+			<div class="col-md-4">
+			  <span class="dropdown-item dropdown-headline">{{ subdiscipline.1 }}</span>
 			</div>
-		      {% elif perms.scipost.can_view_pool %}
-			<div class="dropdown-item">
-			  <a href="{% url 'journal:about' journal.doi_label %}">{{ journal.name }}</a>
-			  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
+			<div class="col-md-8">
+			  {% for journal in journals_subdisc %}
+			    {% if journal.active %}
+			      <div class="dropdown-item">
+				<a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+				&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
+			      </div>
+			    {% elif perms.scipost.can_view_pool %}
+			      <div class="dropdown-item">
+				<a href="{% url 'journal:about' journal.doi_label %}">{{ journal.name }}</a>
+				&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
+			      </div>
+			    {% endif %}
+			  {% endfor %}
 			</div>
-		      {% endif %}
+		      </div>
 		    {% endif %}
+		    {% endwith %}
+		  {% empty %}
+		    <div class="dropdown-item">
+		      <em class="warning">No journal yet!</em>
+		    </div>
 		  {% endfor %}
 		</div>
 	      </div>
