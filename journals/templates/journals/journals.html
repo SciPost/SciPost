@@ -1,213 +1,97 @@
 {% extends 'scipost/base.html' %}
 
 {% load staticfiles %}
+{% load automarkup %}
+{% load journals_extras %}
+
+{% block headsup %}
+<style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
+{% endblock headsup %}
 
 {% block pagetitle %}: Journals{% endblock pagetitle %}
 
-{% block breadcrumb %}
-  <nav class="navbar navbar-expand-lg sub-nav">
-    <div class="container">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <span class="nav-link">Our Journals:</span>
-        </li>
-
-        {% for journal in journals %}
-          <li class="nav-item">
-            {% if journal.active %}
-              <a href="{{ journal.get_absolute_url }}" class="nav-link">{{journal}}</a>
-            {% elif perms.scipost.can_view_pool %}
-              <a href="{% url 'journal:about' journal.doi_label %}" class="nav-link">{{journal}}</a>
-            {% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-  </nav>
-
-
-{% endblock %}
 
 {% block content %}
 
-  {% if perms.scipost.can_attend_VGMs %}
-    <div class="container border border-danger">
-      <span class="text-danger">DRAFT (POOLVIEW ONLY) - <a href="mailto:admin@scipost.org">COMMENTS WELCOME</a></span>
-      <h1 class="highlight">SciPost Journals</h1>
-      <p><em>We are currently active in the field of Physics, but do peruse our <a href="{% url 'scipost:PlanSciPost' %}">plans to expand to other fields</a>.</em></p>
+  <h1 class="highlight">SciPost Journals</h1>
+
+  <div class="row">
+    <div class="col-lg-5">
+      <p><em>We are hard at work on our <a href="{% url 'scipost:PlanSciPost' %}">expansion plans</a>! Help us in our mission to reform academic publishing.</em></p>
       <p>All our Journals focus on top-quality science, and implement <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a>. Publishing with SciPost means that you automatically fulfil (and even surpass) your mandated Open Access requirements, being relieved of any author-facing charges or other administrative burdens while encouraging our <a href="{% url 'finances:business_model' %}">healthier business model</a> for scientific publishing.</p>
       <p>Click on a Journal title to view Journal-specific further information (including preparation and submission instructions).</p>
-
-      <br/>
-      <div class="card">
-	<div class="card-header p-0" id="selections">
-	  <h1 class="highlight bg-dark text-white m-0">SciPost Selections&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
-	</div>
-	<div class="card-content p-2">
-	  <p>SciPost Selections publishes extended abstracts of selected publications appearing in one of our field-leading Journals, which have been identified by the Editorial College as being worthy of special distinction.</p>
-	  <p>SciPost Selections is thus the venue to follow in order to stay up-to-date with frontline research in all fields of science.</p>
-	  <p>Authors cannot submit directly to this Journal: publication of an extended abstract in SciPost Selections accompanies publication of the main paper in the field-specific Journal. Both published objects carry their own DOI and are always to be cited in tandem.</p>
-	  <p>Inclusion in SciPost Selections represents the highest mark of scholarship recognition attainable at SciPost, and is accompanied by special attention in our distribution and media channels.</p>
-	</div>
-      </div>
-      <br/>
-      <h1 class="highlight" id="physics">Physics Journals</h1>
-      <p>If you are a professional researcher in Physics, irrespective of your area of specialization, then our family of Physics Journals is designed to cover all your publishing requirements.</p>
-      <p>We offer different venues for different types of material; for research results, we also offer a gradation in terms of significance and editorial requirements.</p>
-      <p>Of course, publishing in any of our Journals automatically fulfils all your Open Access mandates, even the most demanding ones.</p>
-
-      <h2><button class="btn btn-danger text-white mb-2 p-2" type="button" data-toggle="collapse" data-target="#WhereToSubmit" aria-expanded="false" aria-controls="WhereToSubmit"><strong>Help!</strong> Where should I submit?</button></h2>
-      <div class="collapse" id="WhereToSubmit">
-	<div class="card card-body">
-	  <p>For <strong>Lecture Notes</strong>, <strong>Proceedings</strong> or <strong>Codebases</strong>, the names say it all without ambiguity.</p>
-	  <p>But what about your <strong>research results</strong>? Ask yourself these two questions:</p>
-	  <ul>
-	    <li><em>Are these results exceptional in nature, in the sense that they represent a breakthrough or an achievement which clearly stands out?</em></li>
-	    <li><em>Are you willing to make a special effort in conveying these results, in meeting the highest submission standards which we require, and in responding/reacting to any points raised under our toughest refereeing protocol?</em></li>
-	  </ul>
-	  <p>If you answered both questions in the affirmative, then consider submitting to <a href="{% url 'scipost:landing_page' 'SciPostPhys' %}">SciPost Physics</a>.</p>
-	  <p>On the other hand, if your results represent a significant advance but you desire a simpler submission and refereeing process, then <a href="{% url 'scipost:landing_page' 'SciPostPhysComm' %}">SciPost Physics Academe</a> will provide you with a more streamlined experience.</p>
-	</div>
-      </div>
-      <div class="card-deck">
-	<div class="card">
-	  <div class="card-header banner">
-	    <h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhys' %}">SciPost Physics</a>&nbsp;&nbsp;<a href="https://doaj.org"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="30"></a></h1>
-	  </div>
-	  <div class="card-body">
-	    <p>SciPost Physics is our top-level flagship title in the field of Physics.</p>
-	    <p>Do you have a groundbreaking result? Are you willing to polish up your manuscript to the very highest achievable standards? Then this is the venue you should consider.</p>
-	    <p>SciPost Physics imposes the tightest demands on submission content and quality, and implements our most stringent form of peer-witnessed refereeing.</p>
-	    <p>An Editorially-selected minority of submissions demonstrating top-level scholarship have their extended abstracts published separately in SciPost Selections.</p>
-	    <p>SciPost Physics has been awarded the DOAJ Seal from the <a href="https://doaj.org">Directory of Open Access Journals</a>.</p>
-	  </div>
-	</div>
-	<div class="card">
-	  <div class="card-header banner">
-	    <h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysComm' %}">SciPost Physics Academe</a>&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
-	  </div>
-	  <div class="card-body">
-	    <p>SciPost Physics Academe is a premium-quality refereed Journal for the general field of Physics.</p>
-	    <p>All submissions undergo our peer-witnessed refereeing protocol, led by community professionals under the guidance of our Editorial College (Physics).</p>
-	    <p>Publications in SciPost Physics Academe meet all Open Access requirements set by your institution and funding agency (even the most exacting), while remaining entirely free of author-facing charges.</p>
-	    <p>SciPost Physics Academe is the Genuine Open Access, by-and-for professional scientists publishing venue for all your significant research advances.</p>
-	  </div>
-	</div>
-      </div>
-
-      <div class="card-deck">
-	<div class="card">
-	  <div class="card-header banner">
-	    <h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysLectNotes' %}">SciPost Physics Lecture Notes</a></h1>
-	  </div>
-	  <div class="card-body">
-	    <p>SciPost Physics Lecture Notes publishes didactic material in all domains and subject areas of Physics.</p>
-	    <p>SciPost Physics Lecture Notes is the ideal venue for research-level didactic material, (post-)graduate course notes, or for lecture notes from international-level schools.</p>
-	    <p>All submissions undergo an extended peer-witnessed refereeing process, and publications benefit from all the advantages of our Genuine Open Access standards.</p>
-	  </div>
-	</div>
-	<div class="card">
-	  <div class="card-header banner">
-	    <h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysProc' %}">SciPost Physics Proceedings</a></h1>
-	  </div>
-	  <div class="card-body">
-            <p>SciPost Physics Proceedings is a premium-quality, two-way open access, community-run peer-witnessed refereed publishing venue for conference/workshop/school proceedings in Experimental, Theoretical and Computational physics, in all specializations.</p>
-	    <p>Interested in setting up a Proceedings Issue? Contact our <a href="mailto:proceedings@scipost.org">proceedings administrators</a>.</p>
-	  </div>
-	</div>
-	<div class="card">
-	  <div class="card-header banner">
-	    <h1 class="m-0"><a href="{% url 'journal:about' 'SciPostPhysCodeb' %}">SciPost Physics Codebases</a>&nbsp;&nbsp;<em><small style="color: red;">New!</small></em></h1>
-	  </div>
-	  <div class="card-body">
-	    <p>SciPost Physics Codebases is an innovative peer-reviewed publication venue for modern forms of scientific contributions which too often remain unrecognized: codes and algorithms at the heart of contemporary research.</p>
-	    <p>This Journal offers proper recognition for code authors, in the form of fully-fledged citable publications.</p>
-	    <p>Submissions undergo stringent peer-witnessed refereeing, with criteria tailored for this type of content.</p>
-	  </div>
-	</div>
-      </div>
     </div>
-
-    <hr>
-  {% endif %}
-
-
-  <div class="row">
-    <div class="col-12">
-      <h1 class="highlight">SciPost Physics Journals</h1>
-      <h3>View and comment on current <a href="{% url 'submissions:submissions' %}">Submissions</a> <small>(login required)</small></h3>
+    <div class="col-lg-7">
+      {% include 'submissions/_guidelines_dl.html' with journal=journal %}
     </div>
   </div>
-
+  <hr>
   <div class="row">
-    <div class="col-md-6">
-      <h1 class="banner">
-        <a href="{% url 'scipost:landing_page' 'SciPostPhys' %}">SciPost Physics</a>
-      </h1>
-      <div class="py-2">
-        <h3 class="mb-2"><a href="{% url 'scipost:landing_page' 'SciPostPhys' %}">Go directly to SciPost Physics</a></h3>
-        <p>SciPost Physics publishes outstanding-quality research articles in all domains and subject areas of Physics.</p>
-        <p>The journal accepts three types of content: Letters, Articles and Reviews.</p>
-        <p>Letters report broad-interest, significant breakthroughs in Physics, of interest and importance to researchers in multiple subject areas.</p>
-        <p>Articles provide in-depth, detailed reports of groundbreaking research within one or more subject areas.</p>
-        <p>Reviews are short pieces taking a snapshot of a research area, written by recognized leaders in the field, providing a critical assessment of current frontline research and providing pointers towards future opportunities.</p>
-      </div>
-    </div>
-
-    <div class="col-md-6">
-      <h1 class="banner">
-        <a href="{% url 'journal:about' 'SciPostPhysProc' %}">SciPost Physics Proceedings</a>
-      </h1>
-      <div class="py-2">
-        <h3 class="d-inline-block text-danger mb-2"><a href="{% url 'journal:about' 'SciPostPhysProc' %}">Go directly to SciPost Physics Proceedings</a></h3>
-        <p>SciPost Physics Proceedings is a premium-quality, two-way open access, peer-witnessed refereed Journal for the general field of Physics.</p>
-        <p>It aims at providing a high-quality, openly accessible publishing venue for conference/workshop/school proceedings.</p>
-        <p>SciPost Physics Proceedings publishes articles in the domains of Experimental, Theoretical and Computational physics, in all specializations.</p>
-	<p>Interested in setting up a Proceedings Issue? Contact our <a href="mailto:proceedings@scipost.org">proceedings administrators</a>.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-6">
-      <h1 class="banner"><a href="{% url 'scipost:landing_page' 'SciPostPhysLectNotes' %}">SciPost Physics Lecture Notes</a></h1>
-      <div class="py-2">
-        <p>
-          <a href="{% url 'journal:about' 'SciPostPhysLectNotes' %}">Go directly to SciPost Physics Lecture Notes</a>
-          <br><br>
-          Research-level didactic material in all domains and subject areas of Physics.
-        </p>
-      </div>
+    <div class="col-1"></div>
+    <div class="col-10">
+      <h4>On this page: you will find all Journals we operate, listed by branch of knowledge/field of study.</h4>
+      <br>
+      <table class="table table-bordered">
+	<thead class="thead-dark">
+	  <tr>
+	    <th>Branch</th>
+	    <th>Fields</th>
+	  </tr>
+	</thead>
+	<tbody>
+	{% for discipline in disciplines %}
+	  <tr>
+	    <td>
+	      <a href="#{{ discipline.0|cut:' ' }}">{{ discipline.0 }}</a>
+	    </td>
+	    <td>
+	      {% for subdiscipline in discipline.1 %}
+		{{ subdiscipline.1 }}{% if not forloop.last %}, {% endif %}
+	      {% endfor %}
+	    </td>
+	  </tr>
+	{% endfor %}
+	</tbody>
+      </table>
+      <br>
+      <p>Does your field not have a Journal yet? Help us to form an Editorial College by
+	<a href="mailto:admin@scipost.org">sending us your suggestions</a> for potential Fellows
+	and Advisory Board members.</p>
     </div>
   </div>
 
   <hr>
-  <div class="row">
-    <div class="col-12">
-      <p>The collection of SciPost Physics Journals covers research in the domains of Experimental, Theoretical and Computational physics, including the following specialties:</p>
-      <ul>
-        <li>A: Atomic, Molecular and Optical Physics</li>
-        <li>B: Biophysics</li>
-        <li>C: Condensed Matter Physics</li>
-        <li>F: Fluid Dynamics</li>
-        <li>G: Gravitation, Cosmology and Astroparticle Physics</li>
-        <li>H: High-Energy Physics</li>
-        <li>M: Mathematical Physics</li>
-        <li>N: Nuclear Physics</li>
-        <li>Q: Quantum Statistical Mechanics</li>
-        <li>S: Statistical and Soft Matter Physics</li>
-      </ul>
-    </div>
-  </div>
 
-  <hr>
-  <div class="row">
-    <div class="col-12">
-      <h3><a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a></h3>
-      <h3><a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a></h3>
-      <h3><a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a></h3>
-      <h3><a href="{% url 'scipost:about' %}#editorial_college_physics">Editorial College (Physics)</a></h3>
-    </div>
-  </div>
+  {% for discipline in disciplines %}
+    <h2 class="highlight" id="{{ discipline.0|cut:' ' }}">{{ discipline.0 }}</h2>
+    {% for subdiscipline in discipline.1 %}
+      {% with journals|in_discipline:subdiscipline.0 as journals_subdisc %}
+	{% if journals_subdisc|length > 0 %}
+	  <h3 class="highlight">{{ subdiscipline.1 }}</h3>
+	  <div class="card-columns">
+	    {% for journal in journals_subdisc %}
+	      {% if journal.active or perms.scipost.can_view_pool %}
+		<div class="card">
+		  <div class="card-header {{ journal.doi_label }}">
+		    <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+		    {% if journal.has_DOAJ_Seal %}
+		      <a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+		    {% endif %}
+		  </div>
+		<div class="card-body">
+		  {{ journal.blurb|automarkup }}
+		</div>
+	      </div>
+	    {% endif %}
+	  {% endfor %}
+	  </div>
+	{% endif %}
+      {% endwith %}
+    {% endfor %}
+    {% if not forloop.last %}
+      <hr>
+    {% endif %}
+  {% endfor %}
+
 
 {% endblock content %}

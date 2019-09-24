@@ -37,6 +37,8 @@ class Journal(models.Model):
                              help_text=('CSS styling for the journal; the Journal\'s DOI '
                                         'should be used as class'))
 
+    # For Journals list page
+    blurb = models.TextField(default='[To be filled in; you can use markup]')
     # For about page:
     description = models.TextField(default='[To be filled in; you can use markup]')
     scope = models.TextField(default='[To be filled in; you can use markup]')

@@ -1,10 +1,9 @@
 {% extends 'journals/base.html' %}
 
-
-{% block breadcrumb %}{% endblock %}
 {% block breadcrumb_items %}
   {{block.super}}
-  <a href="{{journal.get_absolute_url}}" class="breadcrumb-item">{{journal}}</a>
+  <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
+  <span class="breadcrumb-item">Home</span>
 {% endblock %}
 
 {% block content %}
