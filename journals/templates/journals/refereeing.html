@@ -1,20 +1,20 @@
-{% extends 'submissions/base.html' %}
+{% extends 'journals/base.html' %}
 
-{% load staticfiles %}
+{% block pagetitle %}{{block.super}}: Refereeing guidelines{% endblock pagetitle %}
 
-{% block pagetitle %}: refereeing guidelines{% endblock pagetitle %}
+{% block link_class_physics_info %}active{% endblock %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   {% if journal %}
     <a href="{% url 'journal:about' journal.doi_label %}" class="breadcrumb-item">{{ journal.name }}</a>
   {% endif %}
-  <span class="breadcrumb-item">Refereeing guidelines</span>
+  <span class="breadcrumb-item active">Refereeing guidelines</span>
 {% endblock %}
 
 {% block content %}
+  {{ block.super }}
 
   {% include 'submissions/_referee_guidelines.html' with journal=journal %}
 
-
-{% endblock content %}
+{% endblock %}

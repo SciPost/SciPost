@@ -25,7 +25,11 @@
 	<dd class="col-sm-6 col-md-7"><em>General terms and conditions pertaining to ownership, license to use, contributions, impermissible uses, etc.</em></dd>
 	<dt class="col-sm-6 col-md-5">
 	  {% if 'author_guidelines' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
-	  <a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>
+	  {% if journal %}
+	    <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">Author guidelines</a>
+	  {% else %}
+	    <a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>
+	  {% endif %}
 	</dt>
 	<dd class="col-sm-6 col-md-7"><em>A simple guide on how to proceed as an author</em>
 	</dd>
@@ -37,7 +41,12 @@
 	</dd>
 	<dt class="col-sm-6 col-md-5">
 	  {% if 'referee_guidelines' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
-	  <a href="{% url 'submissions:referee_guidelines' %}">Refereeing guidelines</a></dt>
+	  {% if journal %}
+	    <a href="{% url 'journal:refereeing' doi_label=journal.doi_label %}">Referee guidelines</a>
+	  {% else %}
+	    <a href="{% url 'submissions:referee_guidelines' %}">Refereeing guidelines</a>
+	  {% endif %}
+	</dt>
 	<dd class="col-sm-6 col-md-7"><em>A simple guide on how (if you are a referee) to act professionally, and (if you are an author) react constructively</em></dd>
       </dl>
     </div>

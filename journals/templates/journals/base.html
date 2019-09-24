@@ -32,7 +32,8 @@
     <div class="col-12 journal-sub-head">
       <ul class="links">
         <li><a href="{{ journal.get_absolute_url }}">Home</a></li>
-        <li><a class="{% block link_class_physics_info %}{% endblock %}" href="{% url 'journal:info_for_authors' journal.doi_label %}">Info for authors</a></li>
+        <li><a class="{% if 'authoring' in request.path %}active{% endif %}" href="{% url 'journal:authoring' journal.doi_label %}">Authoring</a></li>
+        <li><a class="{% if 'refereeing' in request.path %}active{% endif %}" href="{% url 'journal:refereeing' journal.doi_label %}">Refereeing</a></li>
         <li><a href="{% url 'submissions:submit_manuscript' %}">Submit a manuscript</a></li>
         <li><a class="{% block link_class_physics_about %}{% endblock %}" href="{% url 'journal:about' journal.doi_label %}">About</a></li>
       </ul>

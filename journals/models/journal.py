@@ -37,6 +37,20 @@ class Journal(models.Model):
                              help_text=('CSS styling for the journal; the Journal\'s DOI '
                                         'should be used as class'))
 
+    # For about page:
+    description = models.TextField(default='[To be filled in; you can use markup]')
+    scope = models.TextField(default='[To be filled in; you can use markup]')
+    content = models.TextField(default='[To be filled in; you can use markup]')
+    acceptance_criteria = models.TextField(default='[To be filled in; you can use markup]')
+
+    has_DOAJ_Seal = models.BooleanField(default=False)
+
+    # Templates
+    template_latex_tgz = models.FileField(
+        verbose_name='Template (LaTeX, gzipped tarball)',
+        help_text='Gzipped tarball of the LaTeX template package',
+        upload_to='UPLOADS/TEMPLATES/latex/%Y/', max_length=256, blank=True)
+
     objects = JournalQuerySet.as_manager()
 
     def __str__(self):

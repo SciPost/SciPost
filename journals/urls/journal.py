@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^issues$', journals_views.IssuesView.as_view(), name='issues'),
     url(r'^recent$', journals_views.redirect_to_about, name='recent'),
     url(r'^accepted$', journals_views.redirect_to_about, name='accepted'),
-    url(r'^info_for_authors$', journals_views.info_for_authors, name='info_for_authors'),
+    url(r'^authoring$', journals_views.authoring, name='authoring'),
+    url(r'^refereeing$', journals_views.refereeing, name='refereeing'),
     url(r'^about$', journals_views.about, name='about'),
 ]

@@ -239,17 +239,28 @@ class IssuesAdminUpdateView(PermissionsMixin, UpdateView):
     permission_required = 'scipost.can_manage_issues'
 
 
+def authoring(request, doi_label=None):
+    """Author information for a given Journal, or in general if no doi_label in given."""
+    context = {}
+    if doi_label:
+        journal = get_object_or_404(Journal, doi_label=doi_label)
+        context = {'journal': journal}
+    return render(request, 'journals/authoring.html', context)
+
+
+def refereeing(request, doi_label=None):
+    """Author information for a given Journal, or in general if no doi_label in given."""
+    context = {}
+    if doi_label:
+        journal = get_object_or_404(Journal, doi_label=doi_label)
+        context = {'journal': journal}
+    return render(request, 'journals/refereeing.html', context)
+
+
 def redirect_to_about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     return redirect(
         reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
-
-
-def info_for_authors(request, doi_label):
-    """Author information about the Journal."""
-    journal = get_object_or_404(Journal, doi_label=doi_label)
-    context = {'journal': journal}
-    return render(request, 'journals/%s_info_for_authors.html' % doi_label, context)
 
 
 def about(request, doi_label):
@@ -259,7 +270,7 @@ def about(request, doi_label):
         'subject_areas': SCIPOST_SUBJECT_AREAS,
         'journal': journal,
     }
-    return render(request, 'journals/%s_about.html' % doi_label, context)
+    return render(request, 'journals/about.html', context)
 
 
 def issue_detail(request, doi_label):
