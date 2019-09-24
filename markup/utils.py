@@ -78,15 +78,15 @@ def match_md_blockquote(text):
 # Hyperlinks
 def match_md_hyperlink_inline(text):
     """Return first match of regex search for Markdown inline hyperlink."""
-    return re.search(r'\[.+\]\(http.+\)', text)
+    return re.search(r'\[.+\]\(((http)|(mailto)).+\)', text)
 
 def match_md_hyperlink_reference(text):
     """Return first match of regex search for Markdown reference-style hyperlink."""
-    return re.search(r'\[.+\]: http.+', text)
+    return re.search(r'\[.+\]: ((http)|(mailto)).+', text)
 
 def match_rst_hyperlink_inline(text):
     """Return first match of regex search for reStructuredText inline hyperlink."""
-    return re.search(r'`.+<http.+>`_', text)
+    return re.search(r'`.+<((http)|(mailto)).+>`_', text)
 
 def match_rst_hyperlink_reference(text):
     """Return first match of regex search for reStructuredText reference-style hyperlink."""
