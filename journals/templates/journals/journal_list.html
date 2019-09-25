@@ -1,0 +1,99 @@
+{% extends 'scipost/base.html' %}
+
+{% load staticfiles %}
+{% load automarkup %}
+{% load journals_extras %}
+{% load scipost_extras %}
+
+{% block headsup %}
+  <style>{% for journal in object_list %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
+{% endblock headsup %}
+
+{% block pagetitle %}: Journals{% if discipline %} in {{ discipline|get_discipline_display }}{% endif %}{% endblock pagetitle %}
+
+
+{% block content %}
+
+  <h1 class="highlight">SciPost {% if discipline %}{{ discipline|get_discipline_display }} {% endif %}Journals</h1>
+
+  <div class="row">
+    <div class="col-lg-5">
+      <p><em>We are hard at work on our <a href="{% url 'scipost:PlanSciPost' %}">expansion plans</a>! Help us in our mission to reform academic publishing.</em></p>
+      <p>All our Journals focus on top-quality science, and implement <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a>. Publishing with SciPost means that you automatically fulfil (and even surpass) your mandated Open Access requirements, being relieved of any author-facing charges or other administrative burdens while encouraging our <a href="{% url 'finances:business_model' %}">healthier business model</a> for scientific publishing.</p>
+      {% if discipline %}
+	<p>Click on a Journal title to view Journal-specific further information (including preparation and submission instructions).</p>
+      {% endif %}
+    </div>
+    <div class="col-lg-7">
+      {% include 'submissions/_guidelines_dl.html' with journal=journal %}
+    </div>
+  </div>
+
+  <br>
+
+  {% if not discipline %}
+  <div class="row">
+    <div class="col-12">
+
+      <table class="table table-bordered table-secondary">
+	<thead class="thead-dark">
+	  <tr>
+	    <th><h3>Branch of Science</h3></th>
+	    <th><h3>Fields<br><small><em>(click to see list of Journals)</em></small></h3></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for branch in scipost_disciplines %}
+	    {% with object_list|journals_in_branch:branch.0 as journals_branch %}
+	      <tr>
+		<td class="align-middle">
+		  {{ branch.0 }}
+		</td>
+		<td>
+		  {% for discipline in branch.1 %}
+		    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+			{% if journals_disc|length > 0 %}
+			  <a href={% url 'journals:journals' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
+			{% else %}
+			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ discipline.1 }}</em></small></button>
+			{% endif %}
+		      {% endwith %}
+		    {% endfor %}
+		  </td>
+		</tr>
+	      {% endwith %}
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+  </div>
+
+  {% else %}
+
+  <div class="card-columns">
+    {% for journal in object_list %}
+      {% if journal.active or perms.scipost.can_view_pool %}
+	<div class="card">
+	  <div class="card-header {{ journal.doi_label }}">
+	    <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+	    {% if journal.has_DOAJ_Seal %}
+	      <a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+	    {% endif %}
+	  </div>
+	  <div class="card-body">
+	    {{ journal.blurb|automarkup }}
+	  </div>
+	</div>
+      {% endif %}
+    {% empty %}
+      <p>
+	There are no Journals yet in this branch of academia.
+	<strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
+      </p>
+    {% endfor %}
+  </div>
+
+  {% endif %}
+
+{% endblock content %}

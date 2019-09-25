@@ -112,10 +112,20 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
 # Journals
 ############
 
-def journals(request):
-    """Main landing page for Journals application."""
-    context = {'journals': Journal.objects.order_by('name')}
-    return render(request, 'journals/journals.html', context)
+class JournalListView(ListView):
+    model = Journal
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.kwargs.get('discipline'):
+            qs = qs.filter(discipline=self.kwargs.get('discipline'))
+        return qs
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        discipline = self.kwargs.get('discipline')
+        context['discipline'] = discipline
+        return context
 
 
 class PublicationListView(PaginationMixin, ListView):

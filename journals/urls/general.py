@@ -6,6 +6,8 @@ from django.conf.urls import url
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
+from scipost.constants import DISCIPLINES_REGEX
+
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from journals.regexes import PUBLICATION_DOI_LABEL_REGEX
@@ -15,7 +17,16 @@ app_name = 'urls.general'
 
 urlpatterns = [
     # Journals
-    url(r'^$', journals_views.journals, name='journals'),
+    url(
+        r'^$',
+        journals_views.JournalListView.as_view(),
+        name='journals'
+    ),
+    url(
+        r'^(?P<discipline>{regex})/$'.format(regex=DISCIPLINES_REGEX),
+        journals_views.JournalListView.as_view(),
+        name='journals'
+    ),
     url(r'^publications$', journals_views.PublicationListView.as_view(), name='publications'),
     url(r'scipost_physics', RedirectView.as_view(url=reverse_lazy('scipost:landing_page',
                                                  args=['SciPostPhys']))),

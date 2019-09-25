@@ -24,9 +24,9 @@
     </div>
   {% endif %}
 
+  <h1 class="highlight">SciPost's Editorial Colleges</h1>
   <div class="row">
     <div class="col-lg-5">
-      <h2 class="highlight">SciPost's Editorial Colleges</h2>
       <p>
 	Below, you will find the composition of each of our Editorial Colleges,
 	one of which is formed for each field in which SciPost carries
@@ -43,44 +43,50 @@
     </div>
   </div>
 
+  <br>
+
   <div class="row">
-    <div class="col-1"></div>
-    <div class="col-10">
-      <h4>On this page: you will find all Editorial Colleges we have assembled, listed by branch of knowledge/field of study.</h4>
-      <br>
-      {% include 'scipost/_disciplines_table.html' %}
-      <br>
+    <div class="col-12">
+
+      <table class="table table-bordered table-secondary">
+	<thead class="thead-dark">
+	  <tr>
+	    <th><h3>Branch of Science</h3></th>
+	    <th><h3>Fields<br><small><em>(click to see list of Fellows)</em></small></h3></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for branch in scipost_disciplines %}
+	    {% if branch.0 != 'Multidisciplinary' %}
+	      {% with object_list|fellowships_in_branch:branch.0 as fellowships_branch %}
+		<tr>
+		  <td class="align-middle">
+		    {{ branch.0 }}
+		  </td>
+		  <td>
+		    {% for discipline in branch.1 %}
+		      {% with fellowships_branch|fellowships_in_discipline:discipline.0 as fellowships_disc %}
+			{% if fellowships_disc|length > 0 %}
+			  <a href={% url 'colleges:college_detail' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
+			{% else %}
+			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ discipline.1 }}</em></small></button>
+			{% endif %}
+		      {% endwith %}
+		    {% endfor %}
+		  </td>
+		</tr>
+	      {% endwith %}
+	    {% endif %}
+	  {% endfor %}
+	</tbody>
+      </table>
+
       <p>
 	Does your field not have a College yet? Help us to form one by
 	<a href="mailto:admin@scipost.org">sending us your suggestions</a> for potential Fellows.
       </p>
     </div>
   </div>
-
-  <hr>
-
-  {% for branch in scipost_disciplines %}
-    <h2 class="highlight" id="{{ branch.0|cut:' ' }}">{{ branch.0 }}</h2>
-    {% with object_list|fellowships_in_branch:branch.0 as fellowships_branch %}
-      {% if fellowships_branch|length > 0 %}
-	{% for discipline in branch.1 %}
-	  {% with fellowships_branch|fellowships_in_discipline:discipline.0 as fellowships_disc %}
-	    {% if fellowships_disc|length > 0 %}
-	      <a href={% url 'colleges:college_detail' discipline=discipline.0 %}><button type="button" class="btn btn-primary">{{ discipline.1 }}</button></a>
-	    {% endif %}
-	  {% endwith %}
-	{% endfor %}
-	{% if not forloop.last %}
-	  <hr>
-	{% endif %}
-      {% else %}
-	<p>
-	  There are no Colleges yet in this branch of academia.
-	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
-	</p>
-      {% endif %}
-    {% endwith %}
-  {% endfor %}
 
 
 {% endblock content %}

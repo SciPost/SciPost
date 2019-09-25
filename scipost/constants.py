@@ -132,6 +132,11 @@ SCIPOST_DISCIPLINES = (
     )
 )
 
+# List of disciplines (as stored in database)
+disciplines_list = [disc[0] for branch in SCIPOST_DISCIPLINES for disc in branch[1]]
+
+DISCIPLINES_REGEX = '|'.join(disciplines_list)
+
 # Utility dict to translate the discipline db names to human-readable ones
 # (this is needed because [Choice]ArrayField does not have get_FOO_display.
 disciplines_dict = {}
