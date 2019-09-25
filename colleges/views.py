@@ -29,7 +29,8 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict
+from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
+    subject_areas_raw_dict, specializations_dict
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
@@ -41,17 +42,29 @@ class EditorialCollegesView(ListView):
     template_name = 'colleges/colleges.html'
 
     def get_queryset(self):
-        queryset = Fellowship.objects.none()
+        queryset = Fellowship.objects.active().regular()
         return queryset
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['disciplines'] = {}
-        for discipline in SCIPOST_DISCIPLINES:
-            qs = Fellowship.objects.active().regular().filter(
-                contributor__profile__discipline=discipline[0])
-            if qs:
-                context['disciplines'][discipline[1]] = (qs, subject_areas_raw_dict[discipline[1]])
+        context['fellowships'] = Fellowship.objects.active().regular()
+        return context
+
+
+class EditorialCollegeDetailView(ListView):
+    model = Fellowship
+    template_name = 'colleges/college_detail.html'
+
+    def get_queryset(self):
+        queryset = Fellowship.objects.active().regular().filter(
+            contributor__profile__discipline=self.kwargs.get('discipline'))
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        discipline = self.kwargs.get('discipline')
+        context['discipline'] = discipline
+        context['specializations'] = specializations_dict[discipline]
         return context
 
 

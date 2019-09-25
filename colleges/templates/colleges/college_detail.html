@@ -1,0 +1,75 @@
+{% extends 'colleges/base.html' %}
+
+{% load staticfiles %}
+{% load scipost_extras %}
+{% load colleges_extras %}
+{% load add_get_parameters %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+  <span class="breadcrumb-item">Editorial College ({{ discipline|get_discipline_display }})</span>
+{% endblock %}
+
+{% block pagetitle %}: Fellowships{% endblock pagetitle %}
+
+{% block content %}
+
+  {% if perms.scipost.can_manage_college_composition %}
+    <div class="adminLinks">
+      <h3>Links for users with permission <em>scipost.can_manage_college_composition</em>:</h3>
+      <ul>
+	<li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a></li>
+	<li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
+      </ul>
+    </div>
+  {% endif %}
+
+
+  <h2 class="highlight">Editorial College ({{ discipline|get_discipline_display }})</h2>
+
+  <div class="row">
+    <div class="col-12">
+      <button class="btn btn-primary" data-toggle="toggle-show" data-target="#specializations-{{ discipline }}">Select by specialization</button>
+      <button class="btn btn-primary" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{ discipline }}">Show full list of Fellows in {{ discipline }}</button>
+      <div id="specializations-{{ discipline }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
+	<div class="card-body">
+	  <p><em class="text-muted mt-2">Hover to highlight or click to select</em></p>
+
+	  <div class="row">
+	    <div class="col-md-6">
+	      {% with total_count=object_list|length %}
+		{% for code in specializations %}
+		  <div class="specialization" data-specialization="{{ code.0|lower }}">{{ code.0 }} - {{ code.1 }}</div>
+		  {% if forloop.counter|is_modulo_one_half:total_count %}
+	    </div>
+	    <div class="col-md-6">
+		  {% endif %}
+		{% endfor %}
+	      {% endwith %}
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row search-contributors" data-contributors="{{ discipline|lower }}">
+    <div class="col-12">
+      <div class="card-columns">
+	{% for fellowship in object_list %}
+	  <div class="card contributor mb-1">
+	    {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
+	  </div>
+	{% endfor %}
+      </div>
+    </div>
+  </div>
+
+
+{% endblock content %}
+
+{% block footer_script %}
+  {{ block.super }}
+  <script src="{% static 'colleges/colleges.js' %}"></script>
+{% endblock %}

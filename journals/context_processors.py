@@ -8,6 +8,6 @@ from .models import Journal
 def journals_processor(request):
     """Append all Journals to the context of all views."""
     return {
-        'disciplines': SCIPOST_DISCIPLINES,
+        'scipost_disciplines': SCIPOST_DISCIPLINES,
         'journals': Journal.objects.order_by('name')
     }

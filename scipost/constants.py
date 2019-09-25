@@ -14,7 +14,7 @@ DISCIPLINE_ASTRONOMY = 'astronomy'
 DISCIPLINE_ASTROPHYSICS = 'astrophysics'
 DISCIPLINE_BIOLOGY = 'biology'
 DISCIPLINE_CHEMISTRY = 'chemistry'
-DISCIPLINE_EARTHSCIENCE = 'earthscience' 'Earth and Environmental Sciences'
+DISCIPLINE_EARTHSCIENCE = 'earthscience'
 
 DISCIPLINE_ENGINEERING_MULTI = 'multidiscip-eng'
 DISCIPLINE_CIVILENGINEERING = 'civileng'
@@ -28,11 +28,11 @@ DISCIPLINE_INDUSTRIALENGINEERING = 'industrialeng'
 
 DISCIPLINE_MEDICAL_MULTI = 'multidiscip-med'
 DISCIPLINE_MEDICINE = 'medicine'
-DISCIPLINE_CLINICAL = 'clinical' 'Clinical Medicine'
-DISCIPLINE_HEALTH = 'health' 'Health Sciences'
+DISCIPLINE_CLINICAL = 'clinical'
+DISCIPLINE_HEALTH = 'health'
 
 DISCIPLINE_AGRICULTURAL_MULTI = 'multidiscip-agri'
-DISCIPLINE_AGRICULTURAL = 'agricultural' 'Agriculture, Forestry and Fisheries'
+DISCIPLINE_AGRICULTURAL = 'agricultural'
 DISCIPLINE_VETERINARY = 'veterinary'
 
 DISCIPLINE_MULTI_SOCIAL = 'multidiscip-social'
@@ -46,10 +46,10 @@ DISCIPLINE_PSYCHOLOGY = 'psychology'
 DISCIPLINE_SOCIOLOGY = 'sociology'
 
 DISCIPLINE_MULTI_HUMANITIES = 'multidiscip-hum'
-DISCIPLINE_ART = 'art' 'Art (arts, history or arts, performing arts, music)'
-DISCIPLINE_HISTORY = 'history' 'History and Archeology'
-DISCIPLINE_LITERATURE = 'literature' 'Language and Literature'
-DISCIPLINE_PHILOSOPHY = 'philosophy' 'Philosophy, Ethics and Religion'
+DISCIPLINE_ART = 'art'
+DISCIPLINE_HISTORY = 'history'
+DISCIPLINE_LITERATURE = 'literature'
+DISCIPLINE_PHILOSOPHY = 'philosophy'
 
 
 # This classification more or less follows the document
@@ -131,6 +131,13 @@ SCIPOST_DISCIPLINES = (
      )
     )
 )
+
+# Utility dict to translate the discipline db names to human-readable ones
+# (this is needed because [Choice]ArrayField does not have get_FOO_display.
+disciplines_dict = {}
+for branch in SCIPOST_DISCIPLINES:
+    for disc in branch[1]:
+        disciplines_dict[disc[0]] = disc[1]
 
 
 # The subject areas should use the long version of the discipline as first tuple item
@@ -258,6 +265,16 @@ subject_areas_raw_dict = dict(SCIPOST_SUBJECT_AREAS)
 subject_areas_dict = {}
 for k in subject_areas_raw_dict.keys():
     subject_areas_dict.update(dict(subject_areas_raw_dict[k]))
+
+# Other dictionary of dictionaries with discipline as key
+# { 'physics': { 'Phys:AE': 'Atomic ...' } }
+specializations_dict = {}
+for a in SCIPOST_SUBJECT_AREAS:
+    # Match the specifier with the discipline db code
+    for branch in SCIPOST_DISCIPLINES:
+        for disc in branch[1]:
+            if disc[1] == a[0]:
+                specializations_dict[disc[0]] = a[1]
 
 
 APPROACH_THEORETICAL = 'theoretical'

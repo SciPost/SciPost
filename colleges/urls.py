@@ -17,6 +17,11 @@ urlpatterns = [
         views.EditorialCollegesView.as_view(),
         name='colleges'
     ),
+    url(
+        r'^(?P<discipline>[a-zA-Z]+)/$',
+        views.EditorialCollegeDetailView.as_view(),
+        name='college_detail'
+    ),
     # Fellowships
     url(
         r'^fellowships/(?P<contributor_id>[0-9]+)/add/$',
