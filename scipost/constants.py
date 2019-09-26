@@ -59,7 +59,7 @@ DISCIPLINE_PHILOSOPHY = 'philosophy'
 SCIPOST_DISCIPLINES = (
     ('Multidisciplinary',
      (
-         (DISCIPLINE_MULTI_ALL, 'Multidisciplinary (any combination)'),
+         (DISCIPLINE_MULTI_ALL, 'Multidisciplinary'),
          # (DISCIPLINE_MULTI_FORMAL, 'Multidisciplinary (within Formal Sciences)'),
          # (DISCIPLINE_MULTI_NATURAL, 'Multidisciplinary (within Natural Sciences)'),
          # (DISCIPLINE_ENGINEERING_MULTI, 'Multidisciplinary (within Engineering and Technology)'),

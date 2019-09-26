@@ -39,6 +39,7 @@ class Journal(models.Model):
 
     # For Journals list page
     blurb = models.TextField(default='[To be filled in; you can use markup]')
+    list_order = models.PositiveSmallIntegerField(default=100)
     # For about page:
     description = models.TextField(default='[To be filled in; you can use markup]')
     scope = models.TextField(default='[To be filled in; you can use markup]')
@@ -54,6 +55,9 @@ class Journal(models.Model):
         upload_to='UPLOADS/TEMPLATES/latex/%Y/', max_length=256, blank=True)
 
     objects = JournalQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['discipline', 'list_order']
 
     def __str__(self):
         return self.name

@@ -11,6 +11,23 @@
 
 {% block pagetitle %}: Journals{% if discipline %} in {{ discipline|get_discipline_display }}{% endif %}{% endblock pagetitle %}
 
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+	  {% if discipline %}
+            <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
+	    <span class="breadcrumb-item">{{ discipline|get_discipline_display }} Journals</span>
+	  {% else %}
+            <span class="breadcrumb-item">Journals</span>
+	  {% endif %}
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
 
 {% block content %}
 

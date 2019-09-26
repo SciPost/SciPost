@@ -1,5 +1,7 @@
 {% extends 'journals/base.html' %}
 
+{% load scipost_extras %}
+
 {% block pagetitle %}{{block.super}}: Authoring guidelines{% endblock pagetitle %}
 
 {% block link_class_physics_info %}active{% endblock %}
@@ -7,6 +9,7 @@
 {% block breadcrumb_items %}
   {{ block.super }}
   {% if journal %}
+    <a href="{% url 'journals:journals' discipline=journal.discipline %}" class="breadcrumb-item">{{ journal.discipline|get_discipline_display }} Journals</a>
     <a href="{% url 'journal:about' journal.doi_label %}" class="breadcrumb-item">{{ journal.name }}</a>
   {% endif %}
   <span class="breadcrumb-item active">Authoring guidelines</span>
