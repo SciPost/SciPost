@@ -14,15 +14,12 @@
 
 {% block content %}
   {{ block.super }}
+
   <div class="row">
-    <div class="col-12">
+    <div class="col-lg-5">
+
       <h2 class="m-1">About {{ journal.name }}</h2>
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="col-12">
-
+      <br>
       <ul>
 	<li><a href="#description">Description</a></li>
 	<li><a href="#scope">Scope</a></li>
@@ -31,6 +28,14 @@
 	<li><a href="#sub_and_ed">Submission and Editorial Process</a></li>
 	<li><a href="#genuineOA">Genuine Open Access</a></li>
       </ul>
+    </div>
+    <div class="col-lg-7">
+      {% include 'submissions/_guidelines_dl.html' with journal=journal %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
 
       <h2 class="highlight" id="description">
 	Description

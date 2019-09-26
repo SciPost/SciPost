@@ -31,6 +31,23 @@
 
 {% block content %}
 
+  {% if discipline %}
+    <ul class="list-inline">
+      <li class="list-inline-item p-1"><strong>Quick links:</strong></li>
+      {% for journal in object_list %}
+	{% if journal.active or perms.scipost.can_view_pool %}
+	  <li class="list-inline-item px-2 py-1 {{ journal.doi_label }}">
+	    <a href="{{ journal.get_absolute_url }}">{{ journal.doi_label|cut:"SciPost" }}</a>
+	    {% if journal.has_DOAJ_Seal %}
+	      &emsp;<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="16em"></a>
+	    {% endif %}
+	  </li>
+	{% endif %}
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+
   <h1 class="highlight">SciPost {% if discipline %}{{ discipline|get_discipline_display }} {% endif %}Journals</h1>
 
   <div class="row">
@@ -46,45 +63,56 @@
     </div>
   </div>
 
-  <br>
-
   {% if not discipline %}
-  <div class="row">
-    <div class="col-12">
+    <div class="row">
+      <div class="col-12">
 
-      <table class="table table-bordered table-secondary">
-	<thead class="thead-dark">
-	  <tr>
-	    <th><h3>Branch of Science</h3></th>
-	    <th><h3>Fields<br><small><em>(click to see list of Journals)</em></small></h3></th>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for branch in scipost_disciplines %}
-	    {% with object_list|journals_in_branch:branch.0 as journals_branch %}
-	      <tr>
-		<td class="align-middle">
-		  {{ branch.0 }}
-		</td>
-		<td>
-		  {% for discipline in branch.1 %}
+	<table class="table table-bordered table-secondary">
+	  <thead class="thead-dark">
+	    <tr>
+	      <th><h3>Branch of Science</h3></th>
+	      <th><h3>Fields<br><small><em>(click to see field-specific detailed list)</em></small></h3></th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for branch in scipost_disciplines %}
+	      {% with object_list|journals_in_branch:branch.0 as journals_branch %}
+		<tr>
+		  <td class="align-middle">
+		    {{ branch.0 }}
+		  </td>
+		  <td>
+		    {% for discipline in branch.1 %}
 		    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
 			{% if journals_disc|length > 0 %}
 			  <a href={% url 'journals:journals' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
 			{% else %}
 			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ discipline.1 }}</em></small></button>
 			{% endif %}
-		      {% endwith %}
+		    {% endwith %}
 		    {% endfor %}
 		  </td>
 		</tr>
 	      {% endwith %}
-	  {% endfor %}
-	</tbody>
-      </table>
+	    {% endfor %}
+	  </tbody>
+	</table>
 
+      </div>
     </div>
-  </div>
+
+    <h2 class="highlight">Full list of our Journals</h2>
+    <div class="card-columns">
+      {% for journal in object_list %}
+	{% if journal.active or perms.scipost.can_view_pool %}
+	  <div class="card">
+	    <div class="card-header {{ journal.doi_label }}">
+	      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+	    </div>
+	  </div>
+	{% endif %}
+      {% endfor %}
+    </div>
 
   {% else %}
 
