@@ -42,48 +42,37 @@
               </div>
             </div>
             <div class="dropdown-divider"></div>
-	    {% for discipline in disciplines %}
-	      <div class="row">
-		<div class="col-md-4">
-		  <strong>{{ discipline.0 }}</strong>
-		</div>
-		<div class="col-md-8">
-		  {% for subdiscipline in discipline.1 %}
-		    {% with journals|journals_in_discipline:subdiscipline.0 as journals_subdisc %}
-		      {% if journals_subdisc|length > 0 %}
-			<div class="row">
-			  <div class="col-md-4">
-			    <span class="dropdown-item dropdown-headline">{{ subdiscipline.1 }}</span>
-			  </div>
-			  <div class="col-md-8">
-			    {% for journal in journals_subdisc %}
-			      {% if journal.active %}
-				<div class="dropdown-item">
-				  <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-				  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
-				</div>
-			      {% elif perms.scipost.can_view_pool %}
-				<div class="dropdown-item">
-				  <a href="{% url 'journal:about' journal.doi_label %}">{{ journal.name }}</a>
-				  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
-				</div>
+
+	    <table class="table table-bordered table-secondary">
+	      <thead class="thead-dark">
+		<tr>
+		  <th class="px-2 py-1"><small>Branch of Science</small></th>
+		  <th class="px-2 py-1"><small>Fields (click to see list of Journals)</em></small></th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for branch in scipost_disciplines %}
+		  {% with journals|journals_in_branch:branch.0 as journals_branch %}
+		    {% if journals_branch|length > 0 %}
+		      <tr>
+			<td class="align-middle">
+			  <small>{{ branch.0 }}</small>
+			</td>
+			<td>
+			  {% for discipline in branch.1 %}
+			    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+			      {% if journals_disc|length > 0 %}
+				<a href={% url 'journals:journals' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
 			      {% endif %}
-			    {% endfor %}
-			  </div>
-			</div>
-		      {% endif %}
-		    {% endwith %}
-		  {% empty %}
-		    <div class="dropdown-item">
-		      <em class="warning">No journal yet!</em>
-		    </div>
-		  {% endfor %}
-		</div>
-	      </div>
-	      {% if not forloop.last %}
-		<div class="dropdown-divider"></div>
-	      {% endif %}
-	    {% endfor %}
+			    {% endwith %}
+			  {% endfor %}
+			</td>
+		      </tr>
+		    {% endif %}
+		  {% endwith %}
+		{% endfor %}
+	      </tbody>
+	    </table>
 
           </div>
         </li>
