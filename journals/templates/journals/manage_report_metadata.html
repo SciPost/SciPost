@@ -31,9 +31,10 @@
       Only Reports needing an update are shown below. <a href="{% url 'journals:manage_report_metadata' %}?needing_update=0" method="GET">View all Reports instead</a>.
     </p>
   {% else %}
-    <p>
-      <a href="{% url 'journals:manage_report_metadata' %}?needing_update=1" method="GET">Only view Reports needing an update</a>.
-    </p>
+    <ul>
+      <li><a href="{% url 'journals:manage_report_metadata' %}?ready_for_deposit=1" method="GET">Only view Reports ready for an initial deposit</a></li>
+      <li><a href="{% url 'journals:manage_report_metadata' %}?needing_update=1" method="GET">Only view Reports needing an update</a></li>
+    </ul>
   {% endif %}
 
   <table class="table table-hover">
