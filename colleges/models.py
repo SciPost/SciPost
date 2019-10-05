@@ -12,13 +12,8 @@ from .constants import POTENTIAL_FELLOWSHIP_STATUSES,\
     POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_EVENTS
 from .managers import FellowQuerySet, PotentialFellowshipQuerySet
 
-from profiles.models import Profile
-
 from scipost.behaviors import TimeStampedModel
-from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,\
-    SCIPOST_SUBJECT_AREAS, TITLE_CHOICES
-from scipost.fields import ChoiceArrayField
-from scipost.models import get_sentinel_user, Contributor
+from scipost.models import get_sentinel_user
 
 
 class Fellowship(TimeStampedModel):

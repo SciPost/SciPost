@@ -18,7 +18,7 @@ urlpatterns = [
         name='colleges'
     ),
     url(
-        r'^(?P<discipline>[a-zA-Z]+)/$',
+        r'^detail/(?P<discipline>[a-zA-Z]+)/$',
         views.EditorialCollegeDetailView.as_view(),
         name='college_detail'
     ),

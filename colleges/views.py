@@ -29,8 +29,7 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS,\
-    subject_areas_raw_dict, specializations_dict
+from scipost.constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, specializations_dict
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
