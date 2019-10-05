@@ -420,7 +420,6 @@ class Command(BaseCommand):
         RegisteredContributors.permissions.set([
             can_submit_manuscript,
             can_submit_comments,
-            can_express_opinion_on_comments,
             can_request_commentary_pages,
             can_request_thesislinks,
             can_referee,

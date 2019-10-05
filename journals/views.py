@@ -982,6 +982,11 @@ def manage_report_metadata(request):
     the metadata of Reports.
     """
     reports = Report.objects.all()
+    ready_for_deposit = request.GET.get('ready_for_deposit') == '1'
+    if ready_for_deposit:
+        report_ids = [r.id for r in reports.exclude(
+            needs_doi=False).filter(doi_label='') if r.associated_published_doi is not None]
+        reports = reports.filter(id__in=report_ids, doi_label='')
     needing_update = request.GET.get('needing_update') == '1'
     if needing_update:
         reports = reports.filter(

@@ -1,36 +1,71 @@
-************
-Dependencies
-************
+#####################
+Installing SciPost
+#####################
 
-SciPost runs on:
-
-* Python 3.5
-* Django 1.11
-* PostgreSQL 9.4 or higher.
-
-Further Python dependencies are listed in ``requirements.txt``.
-
-Frontend dependencies are managed by `NPM <https://www.npmjs.com/>`__ in ``package.json``.
-
+This guide will walk you through a basic installation of the
+SciPost platform.
 
 ********
 Database
 ********
 
-Make sure that PostgreSQL is installed and running and that a database
-with user is set up. A good guide how to do this can be found
-`here <https://djangogirls.gitbooks.io/django-girls-tutorial-extensions/content/optional_postgresql_installation/>`__
-(NOTE: stop before the ‘Update settings’ part).
+SciPost runs on the `Postgresql <https://www.postgresql.org/>`_ relational database.
+
+Make sure that PostgreSQL 9.4 (or higher) is installed (see `instructions <https://wiki.postgresql.org/wiki/Detailed_installation_guides>`_) and running on your system.
+
+You will need to create a database user. You can find many guides online on how to do this.
+
+* Postgres creates a user `postgres` by default. Start a shell session for this user::
+
+    $ sudo su - postgres
+
+* Log into a postgres session::
+
+    $ psql
+
+* Create the database (let's assume from now on that you'll call your
+  database `scipost_database`)::
+
+    CREATE DATABASE scipost_database;
+
+* Create the database user which SciPost will use to connect and interact
+  with the database::
+
+    CREATE USER scipost_db_user WITH PASSWORD [password];
+
+* Give needed privileges to the user::
+
+    GRANT ALL PRIVILEGES ON DATABASE scipost_database TO scipost_db_user;
+
+* Quit postgres session::
+
+    \q
+
+* Go back to your regular user's shell session::
+
+    $ exit
+
+You will need the database username and password in your basic Django settings below.
+
 
 **************
 Python version
 **************
 
-Make sure you’re using Python 3.5. You are strongly encouraged to use a
+Python comes in multiple versions, which in principle can lead to lots of
+incompatibility problems on your system. Thankfully there exists a nifty
+version management system, `pyenv <https://github.com/pyenv/pyenv>`_.
+This allows you to hold multiple versions on your system, and determine
+locally/globally which ones should be used.
+
+SciPost runs on Python 3.5. You are strongly encouraged to use a
 `virtual environment <https://docs.python.org/3.5/library/venv.html>`__::
 
    $ pyvenv scipostenv
    $ source scipostenv/bin/activate
+
+(N.B.: this is Python 3.5-specific; for 3.6 and above, pyvenv has been deprecated
+in favour of using `python -m venv [path to new venv]`).
 
 Now install dependencies::
 
@@ -55,14 +90,18 @@ In this project, many settings are not sensitive and are thus tracked
 using Git. Some settings are however secret. These settings may be saved
 into the ``secrets.json`` file in the root of the project (you should of course
 ensure that this file is excluded from the Git repository). The minimum
-required structure is as follows (you'll have to generate your own ``SECRET_KEY``)::
+required structure is as follows
+(you'll have to generate your own ``SECRET_KEY``; the database name,
+user and password are the ones you set up in Database above; the
+``CELERY_BROKER_URL`` can be left blank for now)::
 
-   {
-     "SECRET_KEY": "<key>",
-     "DB_NAME": "",
-     "DB_USER": "",
-     "DB_PWD": ""
-   }
+     {
+       "SECRET_KEY": "<key>",
+       "DB_NAME": "",
+       "DB_USER": "",
+       "DB_PWD": "",
+       "CELERY_BROKER_URL": ""
+     }
 
 The settings file itself is saved into
 ``SciPost_v1/settings/local_<name>.py``. Be sure to *wildcard import*
