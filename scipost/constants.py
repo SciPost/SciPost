@@ -11,7 +11,6 @@ DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
 DISCIPLINE_MULTI_NATURAL = 'multidiscip-natural'
 DISCIPLINE_PHYSICS = 'physics'
 DISCIPLINE_ASTRONOMY = 'astronomy'
-DISCIPLINE_ASTROPHYSICS = 'astrophysics'
 DISCIPLINE_BIOLOGY = 'biology'
 DISCIPLINE_CHEMISTRY = 'chemistry'
 DISCIPLINE_EARTHSCIENCE = 'earthscience'
@@ -79,7 +78,6 @@ SCIPOST_DISCIPLINES = (
      (
          (DISCIPLINE_PHYSICS, 'Physics'),
          (DISCIPLINE_ASTRONOMY, 'Astronomy'),
-         (DISCIPLINE_ASTROPHYSICS, 'Astrophysics'),
          (DISCIPLINE_BIOLOGY, 'Biology'),
          (DISCIPLINE_CHEMISTRY, 'Chemistry'),
          (DISCIPLINE_EARTHSCIENCE, 'Earth and Environmental Sciences'),
@@ -166,7 +164,7 @@ SCIPOST_SUBJECT_AREAS = (
         ('Phys:QP', 'Quantum Physics'),
         ('Phys:SM', 'Statistical and Soft Matter Physics'))
     ),
-    ('Astrophysics', (
+    ('Astronomy', (
         ('Astro:GA', 'Astrophysics of Galaxies'),
         ('Astro:CO', 'Cosmology and Nongalactic Astrophysics'),
         ('Astro:EP', 'Earth and Planetary Astrophysics'),
