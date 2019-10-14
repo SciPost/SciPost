@@ -412,7 +412,7 @@ class SubmissionForm(forms.ModelForm):
             del self.fields['is_resubmission_of']
 
         # Select Journal instances.
-        self.fields['submitted_to'].queryset = Journal.objects.active()
+        self.fields['submitted_to'].queryset = Journal.objects.active().exclude(name='SciPost Selections')
         self.fields['submitted_to'].label = 'Journal: submit to'
 
         # Proceedings submission fields
