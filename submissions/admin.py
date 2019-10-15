@@ -243,7 +243,8 @@ class EICRecommendationAdminForm(forms.ModelForm):
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
     list_filter = ('status',)
-    list_display = (submission_short_title, 'recommendation', 'status', 'active', 'version')
+    list_display = (submission_short_title, 'for_journal', 'recommendation',
+                    'status', 'active', 'version')
     form = EICRecommendationAdminForm
 
 

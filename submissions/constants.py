@@ -127,9 +127,9 @@ REPORT_MINOR_REV, REPORT_MAJOR_REV = -1, -2
 REPORT_REJECT = -3
 REPORT_REC = (
     (None, '-'),
-    (REPORT_PUBLISH_1, 'Publish as Tier I (top 10% of papers in this journal, qualifies as Select)'),
-    (REPORT_PUBLISH_2, 'Publish as Tier II (top 50% of papers in this journal)'),
-    (REPORT_PUBLISH_3, 'Publish as Tier III (meets the criteria of this journal)'),
+    (REPORT_PUBLISH_1, 'Publish (surpasses expectations and criteria for this Journal; among top 10%)'),
+    (REPORT_PUBLISH_2, 'Publish (easily meets expectations and criteria for this Journal; among top 50%)'),
+    (REPORT_PUBLISH_3, 'Publish (meets expectations and criteria for this Journal)'),
     (REPORT_MINOR_REV, 'Ask for minor revision'),
     (REPORT_MAJOR_REV, 'Ask for major revision'),
     (REPORT_REJECT, 'Reject')

@@ -940,6 +940,8 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     remarks_for_editorial_college = models.TextField(blank=True,
                                                      verbose_name='optional remarks for the'
                                                                   ' Editorial College')
+    for_journal = models.ForeignKey('journals.Journal', blank=True, null=True,
+                                    on_delete=models.SET_NULL)
     recommendation = models.SmallIntegerField(choices=REPORT_REC)
     status = models.CharField(max_length=32, choices=EIC_REC_STATUSES, default=VOTING_IN_PREP)
     version = models.SmallIntegerField(default=1)

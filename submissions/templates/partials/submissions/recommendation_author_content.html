@@ -3,7 +3,7 @@
     {% if recommendation.is_deprecated %}<h4 class="mb-0"><i class="fa fa-exclamation-circle text-danger"></i> Deprecated</h4>{% endif %}
     <h2 class="my-2">Editorial Recommendation</h2>
     {% block recommendation_header %}
-      <h4 class="text-muted mb-2">Date {{recommendation.date_submitted}}</h4>
+      <h4 class="text-muted mb-2">Date {{ recommendation.date_submitted }}</h4>
     {% endblock %}
     <br>
 
@@ -11,6 +11,10 @@
       <tr>
         <td class="pr-2">Version:</td>
         <td>{{ recommendation.version }}</td>
+      </tr>
+      <tr>
+	<td class="pr-2">For Journal:</td>
+	<td>{{ recommendation.for_journal }}</td>
       </tr>
       <tr>
         <td class="pr-2">Recommendation:</td>
@@ -23,7 +27,7 @@
     </table>
 
     <h3 class="pb-0">Remarks for authors</h3>
-    <p class="pl-md-3">{{recommendation.remarks_for_authors|default:'-'}}</p>
+    <p class="pl-md-3">{{ recommendation.remarks_for_authors|default:'-' }}</p>
 
     <h3 class="pb-0">Requested changes</h3>
     <p class="pl-md-3">{{recommendation.requested_changes|default:'-'}}</p>
@@ -31,7 +35,7 @@
     {% block recommendation_before_recommendation %}{% endblock %}
 
     <h3 class="pb-0">Recommendation</h3>
-    <p class="pl-md-3 mb-0">{{recommendation.get_recommendation_display}}</p>
+    <p class="pl-md-3 mb-0"><em>For Journal {{ recommendation.for_journal }}:</em>&emsp;<strong>{{ recommendation.get_recommendation_display }}</strong></p>
   </div>
 
   {% if not recommendation.active %}

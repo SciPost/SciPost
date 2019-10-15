@@ -1206,6 +1206,7 @@ class EICRecommendationForm(forms.ModelForm):
     class Meta:
         model = EICRecommendation
         fields = [
+            'for_journal',
             'recommendation',
             'remarks_for_authors',
             'requested_changes',
@@ -1240,6 +1241,7 @@ class EICRecommendationForm(forms.ModelForm):
             latest_recommendation = self.earlier_recommendations.first()
             if latest_recommendation:
                 kwargs['initial'] = {
+                    'for_journal': latest_recommendation.for_journal,
                     'recommendation': latest_recommendation.recommendation,
                     'remarks_for_authors': latest_recommendation.remarks_for_authors,
                     'requested_changes': latest_recommendation.requested_changes,
@@ -1248,6 +1250,8 @@ class EICRecommendationForm(forms.ModelForm):
                 }
 
         super().__init__(*args, **kwargs)
+        self.fields['for_journal'].queryset = Journal.objects.filter(
+            Q(discipline=self.submission.discipline) | Q(name='SciPost Selections'))
         self.load_assignment()
 
     def save(self):
