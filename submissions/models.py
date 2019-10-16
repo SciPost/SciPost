@@ -944,7 +944,7 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
                                                                   ' Editorial College')
     for_journal = models.ForeignKey('journals.Journal', blank=True, null=True,
                                     on_delete=models.SET_NULL)
-    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    recommendation = models.SmallIntegerField(choices=EIC_REC_CHOICES)
     status = models.CharField(max_length=32, choices=EIC_REC_STATUSES, default=VOTING_IN_PREP)
     version = models.SmallIntegerField(default=1)
     active = models.BooleanField(default=True)
@@ -1042,7 +1042,7 @@ class AlternativeRecommendation(models.Model):
     eicrec = models.ForeignKey('submissions.EICRecommendation', on_delete=models.CASCADE)
     fellow = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     for_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
-    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+    recommendation = models.SmallIntegerField(choices=EIC_REC_CHOICES)
 
 
 class iThenticateReport(TimeStampedModel):
