@@ -22,7 +22,9 @@ from .constants import (
     REPORT_STATUSES, STATUS_UNVETTED, STATUS_INCOMING, STATUS_EIC_ASSIGNED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
-    REPORT_NORMAL, STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
+    REPORT_NORMAL,
+    EIC_REC_CHOICES, SUBMISSION_TIERS,
+    STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
     STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_REJECTED, STATUS_WITHDRAWN, REPORT_REC,
     STATUS_PUBLISHED, STATUS_REPLACED, STATUS_ACCEPTED, STATUS_DEPRECATED, STATUS_COMPLETED,
@@ -1024,6 +1026,15 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         if self.status == DECISION_FIXED and self.submission.status == STATUS_EIC_ASSIGNED:
             return '{} ({})'.format(_str, self.get_recommendation_display())
         return _str
+
+
+class SubmissionTiering(models.Model):
+    """A Fellow's quality tiering of a Submission for a given Journal, given during voting."""
+    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
+                                   related_name='tierings')
+    fellow = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    for_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
+    tier = models.SmallIntegerField(choices=SUBMISSION_TIERS)
 
 
 class AlternativeRecommendation(models.Model):

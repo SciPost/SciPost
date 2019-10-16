@@ -27,10 +27,10 @@ from django.views.generic.list import ListView
 from .constants import (
     STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
     STATUS_WITHDRAWN, STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
-    DEPRECATED)
+    DEPRECATED, EIC_REC_PUBLISH)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
-    Submission, EICRecommendation, AlternativeRecommendation,
+    Submission, EICRecommendation, SubmissionTiering, AlternativeRecommendation,
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
@@ -1716,7 +1716,10 @@ def vote_on_rec(request, rec_id):
     else:
         form = RecommendationVoteForm(initial=initial)
     if form.is_valid():
-        # Delete previous alternative recs, irrespective of the vote
+        # Delete previous tiernings and alternative recs, irrespective of the vote
+        SubmissionTiering.objects.filter(
+            submission=recommendation.submission,
+            fellow=request.user.contributor).delete()
         AlternativeRecommendation.objects.filter(
             eicrec=recommendation, fellow=request.user.contributor).delete()
         if form.cleaned_data['vote'] == 'agree':
@@ -1726,6 +1729,15 @@ def vote_on_rec(request, rec_id):
                 messages.warning(request, 'You have already voted for this Recommendation.')
             recommendation.voted_against.remove(request.user.contributor)
             recommendation.voted_abstain.remove(request.user.contributor)
+            # Add a tiering if form filled in:
+            if (recommendation.recommendation == EIC_REC_PUBLISH and
+                form.cleaned_data['tier'] != ''):
+                tiering = SubmissionTiering(
+                    submission=recommendation.submission,
+                    fellow=request.user.contributor,
+                    for_journal=recommendation.for_journal,
+                    tier=form.cleaned_data['tier'])
+                tiering.save()
         elif form.cleaned_data['vote'] == 'disagree':
             recommendation.voted_for.remove(request.user.contributor)
             try:

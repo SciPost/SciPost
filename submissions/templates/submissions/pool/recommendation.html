@@ -77,6 +77,14 @@
 		{% endfor %}
               </li>
             </ul>
+	    {% if old_rec.submission.tierings.all|length > 0 %}
+	      <h3>Tierings specified by voting Fellows</h3>
+	      <ul>
+	      {% for tiering in old_rec.submission.tierings.all %}
+		<li>{{ tiering.fellow }}: for Journal <em>{{ tiering.for_journal }}</em>: {{ tiering.get_tier_display }}</li>
+	      {% endfor %}
+	      </ul>
+	    {% endif %}
 	    {% if old_rec.alternativerecommendation_set.all|length > 0 %}
 	      <h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
 	      <ul>
@@ -134,6 +142,28 @@
         </li>
       </ul>
 
+      {% if recommendation.submission.tierings.all|length > 0 %}
+	<h3>Tierings for this Submission, as indicated by voting Fellows who agreed with publication</h3>
+	<table class="table table-bordered">
+	  <thead>
+	    <tr>
+	      <th class="py-1">Fellow</th>
+	      <th class="py-1">For Journal</th>
+	      <th class="py-1">Tier</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for tiering in recommendation.submission.tierings.all %}
+	      <tr>
+		<td>{{ tiering.fellow }}</td>
+		<td>{{ tiering.for_journal }}</td>
+		<td>{{ tiering.get_tier_display }}</td>
+	      </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      {% endif %}
+
       {% if recommendation.alternativerecommendation_set.all|length > 0 %}
 	<h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
 	<ul>
@@ -180,6 +210,7 @@
       <p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
     {% endif %}
     <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
+      <p id="agree_instructions"><strong class="text-success">If you agree with a recommendation to publish, you can provide your ballpark quality tiering below</strong><br>(this is not compulsory, but most welcome)</p>
       <p id="disagree_instructions" class="text-danger"><strong>If you vote disagree, please provide an alternative recommendation below</strong></p>
       {% csrf_token %}
       {{ voting_form|bootstrap }}
@@ -192,19 +223,34 @@
 {% block footer_script %}
   <script nonce="{{ request.csp_nonce }}">
    $(document).ready(function(){
+       $("#agree_instructions").hide()
        $("#disagree_instructions").hide()
+       $("input[name=tier]").parents('.form-group').hide()
        $("#id_alternative_for_journal").parents('.form-group').hide()
        $("#id_alternative_recommendation").parents('.form-group').hide()
        $('input[name=vote]').on('change', function(){
 	   var selection = $('input[name=vote]:checked').val();
 	   switch(selection){
+	       case "agree":
+		   $("#agree_instructions").show()
+		   $("#disagree_instructions").hide()
+		   {% if recommendation.recommendation == 1 %}
+		   $("input[name=tier]").parents('.form-group').show()
+		   {% endif %}
+		   $("#id_alternative_for_journal").parents('.form-group').hide()
+		   $("#id_alternative_recommendation").parents('.form-group').hide()
+		   break;
 	       case "disagree":
+		   $("#agree_instructions").hide()
 		   $("#disagree_instructions").show()
+		   $("input[name=tier]").parents('.form-group').hide()
 		   $("#id_alternative_for_journal").parents('.form-group').show()
 		   $("#id_alternative_recommendation").parents('.form-group').show()
 		   break;
 	       default:
+		   $("#agree_instructions").hide()
 		   $("#disagree_instructions").hide()
+		   $("input[name=tier]").parents('.form-group').hide()
 		   $("#id_alternative_for_journal").parents('.form-group').hide()
 		   $("#id_alternative_recommendation").parents('.form-group').hide()
 		   break;

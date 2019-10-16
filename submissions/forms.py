@@ -21,10 +21,12 @@ from .constants import (
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES,
     REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, REPORT_REC,
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT,
+    EIC_REC_CHOICES, SUBMISSION_TIERS,
     STATUS_VETTED, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
-    STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
+    STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED,
+    STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
@@ -1351,6 +1353,10 @@ class RecommendationVoteForm(forms.Form):
     vote = forms.ChoiceField(
         widget=forms.RadioSelect, choices=[
             ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')])
+    tier = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=SUBMISSION_TIERS,
+        required=False)
     alternative_for_journal = forms.ModelChoiceField(
         label='Alternative recommendation: for which Journal?',
         widget=forms.Select,
@@ -1359,7 +1365,7 @@ class RecommendationVoteForm(forms.Form):
     )
     alternative_recommendation = forms.ChoiceField(
         label='Which action do you recommend?',
-        widget=forms.Select, choices=REPORT_REC,
+        widget=forms.Select, choices=EIC_REC_CHOICES,
         required=False)
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,

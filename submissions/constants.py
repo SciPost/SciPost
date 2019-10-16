@@ -196,6 +196,31 @@ EVENT_TYPES = (
     (EVENT_FOR_AUTHOR, 'Comment for author'),
 )
 
+
+
+# Editorial recommendations
+EIC_REC_PUBLISH = 1
+EIC_REC_MINOR_REVISION = -1
+EIC_REC_MAJOR_REVISION = -2
+EIC_REC_REJECT = -3
+EIC_REC_CHOICES = (
+    (EIC_REC_PUBLISH, 'Publish'),
+    (EIC_REC_MINOR_REVISION, 'Ask for minor revision'),
+    (EIC_REC_MAJOR_REVISION, 'Ask for major revision'),
+    (EIC_REC_REJECT, 'Reject'),
+)
+
+# Tiering
+TIER_I = 1
+TIER_II = 2
+TIER_III = 3
+SUBMISSION_TIERS = (
+    (TIER_I, 'Tier I (surpasses expectations and criteria for this Journal; among top 10%)'),
+    (TIER_II, 'Tier II (easily meets expectations and criteria for this Journal; among top 50%)'),
+    (TIER_III, 'Tier III (meets expectations and criteria for this Journal)'),
+)
+
+
 VOTING_IN_PREP, PUT_TO_VOTING, VOTE_COMPLETED = 'voting_in_prep', 'put_to_voting', 'vote_completed'
 DECISION_FIXED, DEPRECATED = 'decision_fixed', 'deprecated'
 EIC_REC_STATUSES = (
