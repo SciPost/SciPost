@@ -7,6 +7,7 @@ import re
 
 from django import forms
 from django.conf import settings
+from django.contrib import messages
 # from django.contrib.postgres.search import TrigramSimilarity
 from django.db import transaction
 from django.db.models import Q
@@ -1254,6 +1255,26 @@ class EICRecommendationForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['for_journal'].queryset = Journal.objects.active().filter(
             Q(discipline=self.submission.discipline) | Q(name='SciPost Selections'))
+        self.fields['for_journal'].help_text=(
+            'Please be aware of all the points below!'
+            '<ul><li>SciPost Selections: means article in field flagship journal '
+            '(SciPost Physics, Astronomy, Biology, Chemistry...) '
+            'with extended abstract published separately in SciPost Selections. '
+            'Only choose this for '
+            'an <em>exceptionally</em> good submission to a flagship journal.</li>'
+            '<li>A submission to a flaghip which does not meet the latter\'s '
+            'tough expectations and criteria can be recommended for publication '
+            'in the field\'s Core journal (if it exists).</li>'
+            '<li>Conversely, an extremely good submission to a field\'s Core journal can be '
+            'recommended for publication in the field\'s flagship, provided '
+            'it fulfils the latter\'s expectations and criteria.</li>'
+            '</ul>'
+        )
+        self.fields['recommendation'].help_text=(
+            'Selecting any of the three Publish choices means that you recommend publication.<br>'
+            'Which one you choose simply indicates your ballpark evaluation of the '
+            'submission\'s quality and has no further consequence on the publication.'
+            )
         self.load_assignment()
 
     def save(self):
@@ -1333,16 +1354,27 @@ class RecommendationVoteForm(forms.Form):
     alternative_for_journal = forms.ModelChoiceField(
         label='Alternative recommendation: for which Journal?',
         widget=forms.Select,
-        queryset=Journal.objects.active()
+        queryset=Journal.objects.active(),
+        required=False
     )
     alternative_recommendation = forms.ChoiceField(
         label='Which action do you recommend?',
-        widget=forms.Select, choices=REPORT_REC)
+        widget=forms.Select, choices=REPORT_REC,
+        required=False)
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,
         'cols': 30,
         'placeholder': 'Any further remark you want to add? (optional)'
     }), label='', required=False)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        if (cleaned_data['vote'] == 'disagree' and (
+                cleaned_data['alternative_for_journal'] is None or
+                cleaned_data['alternative_recommendation'] == '')):
+            raise forms.ValidationError(
+                'If you disagree, you must provide an alternative recommendation '
+                '(by filling both the for journal and recommendation fields).')
 
 
 class SubmissionCycleChoiceForm(forms.ModelForm):

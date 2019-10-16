@@ -18,6 +18,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
 from django.utils import timezone
+from django.utils.safestring import mark_safe
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -1715,13 +1716,14 @@ def vote_on_rec(request, rec_id):
     else:
         form = RecommendationVoteForm(initial=initial)
     if form.is_valid():
+        # Delete previous alternative recs, irrespective of the vote
+        AlternativeRecommendation.objects.filter(
+            eicrec=recommendation, fellow=request.user.contributor).delete()
         if form.cleaned_data['vote'] == 'agree':
             try:
                 recommendation.voted_for.add(request.user.contributor)
             except IntegrityError:
                 messages.warning(request, 'You have already voted for this Recommendation.')
-                #return redirect(reverse('submissions:pool'))
-                pass
             recommendation.voted_against.remove(request.user.contributor)
             recommendation.voted_abstain.remove(request.user.contributor)
         elif form.cleaned_data['vote'] == 'disagree':
@@ -1734,9 +1736,6 @@ def vote_on_rec(request, rec_id):
             # Create an alternative recommendation, if given
             if (form.cleaned_data['alternative_for_journal'] and
                 form.cleaned_data['alternative_recommendation']):
-                # Delete previous alternative recs before creating new one
-                AlternativeRecommendation.objects.filter(
-                    eicrec=recommendation, fellow=request.user.contributor).delete()
                 altrec = AlternativeRecommendation(
                         eicrec=recommendation,
                         fellow=request.user.contributor,
