@@ -1026,6 +1026,14 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
         return _str
 
 
+class AlternativeRecommendation(models.Model):
+    """Alternative recommendation from voting Fellow who disagrees with EICRec."""
+    eicrec = models.ForeignKey('submissions.EICRecommendation', on_delete=models.CASCADE)
+    fellow = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
+    for_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
+    recommendation = models.SmallIntegerField(choices=REPORT_REC)
+
+
 class iThenticateReport(TimeStampedModel):
     """iThenticate report registration.
 

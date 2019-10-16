@@ -35,7 +35,7 @@
     {% block recommendation_before_recommendation %}{% endblock %}
 
     <h3 class="pb-0">Recommendation</h3>
-    <p class="pl-md-3 mb-0"><em>For Journal {{ recommendation.for_journal }}:</em>&emsp;<strong>{{ recommendation.get_recommendation_display }}</strong></p>
+    <p class="pl-md-3 mb-0">For Journal <em>{{ recommendation.for_journal }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
   </div>
 
   {% if not recommendation.active %}

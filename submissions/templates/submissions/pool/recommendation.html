@@ -13,7 +13,7 @@
 {% block content %}
   <h1 class="highlight">Editorial Recommendation to vote on</h1>
 
-
+  <h2>Concerning Submission:</h2>
   {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
 
   <a class="d-inline-block mb-3" href="{{ recommendation.submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
@@ -57,6 +57,14 @@
 		{% endfor %}
               </li>
             </ul>
+	    {% if old_rec.alternativerecommendation_set.all|length > 0 %}
+	      <h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
+	      <ul>
+		{% for altrec in old_rec.alternativerecommendation_set.all %}
+		  <li>{{ altrec.fellow }}: for Journal <em>{{ altrec.for_journal }}</em>: <strong>{{ altrec.get_recommendation_display }}</strong></li>
+		{% endfor %}
+	      </ul>
+	    {% endif %}
             <h3 class="card-title">Remarks:</h3>
             <ul>
               {% for rem in old_rec.remarks.all %}
@@ -106,6 +114,15 @@
         </li>
       </ul>
 
+      {% if recommendation.alternativerecommendation_set.all|length > 0 %}
+	<h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
+	<ul>
+	  {% for altrec in recommendation.alternativerecommendation_set.all %}
+	    <li>{{ altrec.fellow }}: for Journal <em>{{ altrec.for_journal }}</em>: <strong>{{ altrec.get_recommendation_display }}</strong></li>
+	  {% endfor %}
+	</ul>
+      {% endif %}
+
       <h3 class="card-title">Remarks:</h3>
       <ul>
         {% for rem in recommendation.remarks.all %}
@@ -114,6 +131,7 @@
           <li><em>No remarks</em></li>
         {% endfor %}
       </ul>
+
     </div>
 
     {% if perms.scipost.can_fix_College_decision %}
@@ -142,10 +160,36 @@
       <p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
     {% endif %}
     <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
+      <p id="disagree_instructions" class="text-danger"><strong>If you vote disagree, please provide an alternative recommendation below</strong></p>
       {% csrf_token %}
-      {{ voting_form|bootstrap:'0,12' }}
+      {{ voting_form|bootstrap }}
       <input type="submit" name="submit" value="Cast your vote" class="btn btn-primary" id="submit-id-submit">
     </form>
   {% endif %}
 
+{% endblock %}
+
+{% block footer_script %}
+  <script nonce="{{ request.csp_nonce }}">
+   $(document).ready(function(){
+       $("#disagree_instructions").hide()
+       $("#id_alternative_for_journal").parents('.form-group').hide()
+       $("#id_alternative_recommendation").parents('.form-group').hide()
+       $('input[name=vote]').on('change', function(){
+	   var selection = $('input[name=vote]:checked').val();
+	   switch(selection){
+	       case "disagree":
+		   $("#disagree_instructions").show()
+		   $("#id_alternative_for_journal").parents('.form-group').show()
+		   $("#id_alternative_recommendation").parents('.form-group').show()
+		   break;
+	       default:
+		   $("#disagree_instructions").hide()
+		   $("#id_alternative_for_journal").parents('.form-group').hide()
+		   $("#id_alternative_recommendation").parents('.form-group').hide()
+		   break;
+	   }
+       }).trigger('change');
+   });
+  </script>
 {% endblock %}

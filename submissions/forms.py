@@ -18,8 +18,10 @@ from .constants import (
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
-    SUBMISSION_CYCLE_CHOICES, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3, STATUS_VETTED,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
+    SUBMISSION_CYCLE_CHOICES,
+    REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3,
+    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT, REPORT_REC,
+    STATUS_VETTED, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED, STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
 from . import exceptions, helpers
@@ -1250,7 +1252,7 @@ class EICRecommendationForm(forms.ModelForm):
                 }
 
         super().__init__(*args, **kwargs)
-        self.fields['for_journal'].queryset = Journal.objects.filter(
+        self.fields['for_journal'].queryset = Journal.objects.active().filter(
             Q(discipline=self.submission.discipline) | Q(name='SciPost Selections'))
         self.load_assignment()
 
@@ -1328,10 +1330,18 @@ class RecommendationVoteForm(forms.Form):
     vote = forms.ChoiceField(
         widget=forms.RadioSelect, choices=[
             ('agree', 'Agree'), ('disagree', 'Disagree'), ('abstain', 'Abstain')])
+    alternative_for_journal = forms.ModelChoiceField(
+        label='Alternative recommendation: for which Journal?',
+        widget=forms.Select,
+        queryset=Journal.objects.active()
+    )
+    alternative_recommendation = forms.ChoiceField(
+        label='Which action do you recommend?',
+        widget=forms.Select, choices=REPORT_REC)
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,
         'cols': 30,
-        'placeholder': 'Your remark (optional)'
+        'placeholder': 'Any further remark you want to add? (optional)'
     }), label='', required=False)
 
 

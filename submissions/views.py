@@ -29,7 +29,8 @@ from .constants import (
     DEPRECATED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
-    Submission, EICRecommendation, EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
+    Submission, EICRecommendation, AlternativeRecommendation,
+    EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
     SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
@@ -1729,9 +1730,19 @@ def vote_on_rec(request, rec_id):
                 recommendation.voted_against.add(request.user.contributor)
             except IntegrityError:
                 messages.warning(request, 'You have already voted against this Recommendation.')
-                #return redirect(reverse('submissions:pool'))
-                pass
             recommendation.voted_abstain.remove(request.user.contributor)
+            # Create an alternative recommendation, if given
+            if (form.cleaned_data['alternative_for_journal'] and
+                form.cleaned_data['alternative_recommendation']):
+                # Delete previous alternative recs before creating new one
+                AlternativeRecommendation.objects.filter(
+                    eicrec=recommendation, fellow=request.user.contributor).delete()
+                altrec = AlternativeRecommendation(
+                        eicrec=recommendation,
+                        fellow=request.user.contributor,
+                        for_journal=form.cleaned_data['alternative_for_journal'],
+                        recommendation=form.cleaned_data['alternative_recommendation'])
+                altrec.save()
         elif form.cleaned_data['vote'] == 'abstain':
             recommendation.voted_for.remove(request.user.contributor)
             recommendation.voted_against.remove(request.user.contributor)
