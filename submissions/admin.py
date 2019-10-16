@@ -10,7 +10,8 @@ from guardian.admin import GuardedModelAdmin
 
 from submissions.models import (
     Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
-    EICRecommendation, SubmissionEvent, iThenticateReport)
+    EICRecommendation, SubmissionTiering, AlternativeRecommendation,
+    SubmissionEvent, iThenticateReport)
 from scipost.models import Contributor
 
 
@@ -45,6 +46,12 @@ class SubmissionAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
+class SubmissionTieringInline(admin.StackedInline):
+    model = SubmissionTiering
+    extra = 0
+    min_num = 0
+
+
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
@@ -55,6 +62,9 @@ class SubmissionAdmin(GuardedModelAdmin):
     search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
     raw_id_fields = ('editor_in_charge', 'submitted_by')
     readonly_fields = ('publication',)
+    inlines = [
+        SubmissionTieringInline,
+    ]
 
     # Admin fields should be added in the fieldsets
     radio_fields = {
@@ -240,13 +250,21 @@ class EICRecommendationAdminForm(forms.ModelForm):
         fields = '__all__'
 
 
+class AlternativeRecommendationInline(admin.StackedInline):
+    model = AlternativeRecommendation
+    extra = 0
+    min_num = 0
+
+
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
     list_filter = ('status',)
     list_display = (submission_short_title, 'for_journal', 'recommendation',
                     'status', 'active', 'version')
     form = EICRecommendationAdminForm
-
+    inlines = [
+        AlternativeRecommendationInline,
+    ]
 
 admin.site.register(EICRecommendation, EICRecommendationAdmin)
 
