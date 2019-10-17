@@ -223,7 +223,11 @@
       <p>You had previously voted <span class="text-danger">{{ previous_vote }}</span>; you can use the form below to change your vote and/or add a remark:</p>
     {% endif %}
     <form action="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}" method="post">
-      <p id="agree_instructions"><strong class="text-success">If you agree with a recommendation to publish, you can provide your ballpark quality tiering below</strong><br>(this is not compulsory, but most welcome)</p>
+      <p id="agree_instructions">
+	{% if recommendation.recommendation == 1 %}
+	  <strong class="text-success">If you agree with a recommendation to publish, you can provide your ballpark quality tiering below</strong><br>(this is not compulsory, but most welcome)
+	{% endif %}
+      </p>
       <p id="disagree_instructions" class="text-danger"><strong>If you vote disagree, please provide an alternative recommendation below</strong></p>
       {% csrf_token %}
       {{ voting_form|bootstrap }}

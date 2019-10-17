@@ -23,7 +23,7 @@ from .constants import (
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, DECISION_FIXED, ASSIGNMENT_STATUSES,
     CYCLE_DIRECT_REC, EVENT_GENERAL, EVENT_TYPES, EVENT_FOR_AUTHOR, EVENT_FOR_EIC, REPORT_TYPES,
     REPORT_NORMAL,
-    EIC_REC_CHOICES, SUBMISSION_TIERS,
+    EIC_REC_CHOICES, ALT_REC_CHOICES, SUBMISSION_TIERS,
     STATUS_DRAFT, STATUS_VETTED, EIC_REC_STATUSES, VOTING_IN_PREP, STATUS_UNASSIGNED,
     STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC, DEPRECATED,
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_REJECTED, STATUS_WITHDRAWN, REPORT_REC,
@@ -1042,7 +1042,7 @@ class AlternativeRecommendation(models.Model):
     eicrec = models.ForeignKey('submissions.EICRecommendation', on_delete=models.CASCADE)
     fellow = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
     for_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
-    recommendation = models.SmallIntegerField(choices=EIC_REC_CHOICES)
+    recommendation = models.SmallIntegerField(choices=ALT_REC_CHOICES)
 
 
 class iThenticateReport(TimeStampedModel):

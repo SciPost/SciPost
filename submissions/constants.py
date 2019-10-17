@@ -197,7 +197,6 @@ EVENT_TYPES = (
 )
 
 
-
 # Editorial recommendations
 EIC_REC_PUBLISH = 1
 EIC_REC_MINOR_REVISION = -1
@@ -209,6 +208,20 @@ EIC_REC_CHOICES = (
     (EIC_REC_MAJOR_REVISION, 'Ask for major revision'),
     (EIC_REC_REJECT, 'Reject'),
 )
+
+
+# Alternative recommendations
+ALT_REC_RECONSULT_REFEREES = -4 # can be used as alternative to direct recommendation
+ALT_REC_SEEK_ADDITIONAL_REFEREES = -5
+ALT_REC_CHOICES = (
+    (EIC_REC_PUBLISH, 'Publish'),
+    (ALT_REC_RECONSULT_REFEREES, 'Reconsult previous referees'),
+    (ALT_REC_SEEK_ADDITIONAL_REFEREES, 'Seek additional referees'),
+    (EIC_REC_MINOR_REVISION, 'Ask for minor revision'),
+    (EIC_REC_MAJOR_REVISION, 'Ask for major revision'),
+    (EIC_REC_REJECT, 'Reject'),
+)
+
 
 # Tiering
 TIER_I = 1

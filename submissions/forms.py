@@ -22,7 +22,7 @@ from .constants import (
     SUBMISSION_CYCLE_CHOICES,
     REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3,
     REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT,
-    EIC_REC_CHOICES, SUBMISSION_TIERS,
+    ALT_REC_CHOICES, SUBMISSION_TIERS,
     STATUS_VETTED, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED,
@@ -1365,7 +1365,7 @@ class RecommendationVoteForm(forms.Form):
     )
     alternative_recommendation = forms.ChoiceField(
         label='Which action do you recommend?',
-        widget=forms.Select, choices=EIC_REC_CHOICES,
+        widget=forms.Select, choices=ALT_REC_CHOICES,
         required=False)
     remark = forms.CharField(widget=forms.Textarea(attrs={
         'rows': 3,
