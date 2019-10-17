@@ -157,7 +157,7 @@ class SubmissionUtils(BaseMailUtil):
                       '\n\nTo facilitate metadata handling, we recommend that all authors '
                       'have an ORCID id (easily obtained from https://orcid.org), '
                       'and be registered as SciPost Contributors. Could we please ask you '
-                      '(and your eventual coathors) to ensure that this is the case?'
+                      '(and your coathors, if any) to ensure that this is the case?'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
                       '\n\nThe SciPost Team.')
@@ -184,7 +184,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>To facilitate metadata handling, we recommend that all authors '
             'have an ORCID id (easily obtained from <a href="https://orcid.org">orcid.org</a>), '
             'and be registered as SciPost Contributors. Could we please ask you '
-            '(and your eventual coathors) to ensure that this is the case?</p>'
+            '(and your coathors, if any) to ensure that this is the case?</p>'
             '<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
@@ -565,9 +565,9 @@ class SubmissionUtils(BaseMailUtil):
                       'https://scipost.org/submission/'
                       + cls.report.submission.preprint.identifier_w_vn_nr + '.'
                       '\n\nWe remind you that you can provide an author reply '
-                      '(only if you wish, to clarify points eventually raised '
+                      '(only if you wish, to clarify points raised '
                       'by the report) directly from this Submission Page. '
-                      'Any eventual modification to your manuscript '
+                      'Any modification to your manuscript '
                       'should await the Recommendation from the Editor-in-charge.'
                       '\n\nWe thank you very much for your contribution.'
                       '\n\nSincerely,' +
@@ -580,9 +580,9 @@ class SubmissionUtils(BaseMailUtil):
             '<a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a>.</p>'
             '<p>We remind you that you can provide an author reply '
-            '(only if you wish, to clarify points eventually raised '
+            '(only if you wish, to clarify points raised '
             'by the report) directly from this Submission Page. '
-            'Any eventual modification to your manuscript '
+            'Any modification to your manuscript '
             'should await the Recommendation from the Editor-in-charge.</p>'
             '\n<p>We thank you very much for your contribution.</p>'
             '<p>Sincerely,</p>'

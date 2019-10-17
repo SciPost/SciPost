@@ -29,7 +29,7 @@
       <div class="col-12">
         <h2 class="highlight">Your Reply to this Report:</h2>
         {% if is_author %}
-          <p><em>Please focus on responding to the Report. Although you are welcome to mention what you intend to change in your manuscript as a result of this Report, a formal list of changes is best kept as accompaniment to your eventual resubmission.</em></p>
+          <p><em>Please focus on responding to the Report. Although you are welcome to mention what you intend to change in your manuscript as a result of this Report, a formal list of changes is best kept as accompaniment to a future resubmission.</em></p>
           <p><em>Attachments are here meant for e.g. informative graphs; please do not attach a new version of your manuscript to this Reply.</em></p>
         {% endif %}
         {% url 'comments:reply_to_report' report_id=report.id as add_comment_url %}
