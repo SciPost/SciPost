@@ -166,11 +166,24 @@
 
       {% if recommendation.alternativerecommendation_set.all|length > 0 %}
 	<h3>Alternative recommendations offered during voting by Fellows who disagreed:</h3>
-	<ul>
+	<table class="table table-bordered">
+	  <thead>
+	    <tr>
+	      <th class="py-1">Fellow</th>
+	      <th class="py-1">For Journal</th>
+	      <th class="py-1">Alternative Recommendation</th>
+	    </tr>
+	  </thead>
+	  <tbody>
 	  {% for altrec in recommendation.alternativerecommendation_set.all %}
-	    <li>{{ altrec.fellow }}: for Journal <em>{{ altrec.for_journal }}</em>: <strong>{{ altrec.get_recommendation_display }}</strong></li>
+	    <tr>
+	      <td>{{ altrec.fellow }}</td>
+	      <td>{{ altrec.for_journal }}</td>
+	      <td>{{ altrec.get_recommendation_display }}</td>
+	    </tr>
 	  {% endfor %}
-	</ul>
+	  </tbody>
+	</table>
       {% endif %}
 
       <h3 class="card-title">Remarks:</h3>
