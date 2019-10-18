@@ -83,13 +83,13 @@
 		  </td>
 		  <td>
 		    {% for discipline in branch.1 %}
-		    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+		      {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
 			{% if journals_disc|length > 0 %}
 			  <a href={% url 'journals:journals' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
 			{% else %}
 			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ discipline.1 }}</em></small></button>
 			{% endif %}
-		    {% endwith %}
+		      {% endwith %}
 		    {% endfor %}
 		  </td>
 		</tr>
@@ -102,42 +102,55 @@
     </div>
 
     <h2 class="highlight">Full list of our Journals</h2>
+    <table class="table table-borderless">
+      {% for branch in scipost_disciplines %}
+	{% with object_list|journals_in_branch:branch.0 as journals_branch %}
+	  {% for discipline in branch.1 %}
+	    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+	      {% if journals_disc|length > 0 %}
+		<tr>
+		  <td class="align-middle"><strong>{{ discipline.0|capfirst }}</strong></td>
+		  <td>
+		    <ul class="list-group m-2">
+		      {% for journal in journals_disc %}
+			<li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
+			  <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+			</li>
+		      {% endfor %}
+		    </ul>
+		  </td>
+		</tr>
+	      {% endif %}
+	    {% endwith %}
+	  {% endfor %}
+	{% endwith %}
+      {% endfor %}
+    </table>
+
+  {% else %}
+
     <div class="card-columns">
       {% for journal in object_list %}
 	{% if journal.active or perms.scipost.can_view_pool %}
 	  <div class="card">
 	    <div class="card-header {{ journal.doi_label }}">
 	      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+	      {% if journal.has_DOAJ_Seal %}
+		<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+	      {% endif %}
+	    </div>
+	    <div class="card-body">
+	      {{ journal.blurb|automarkup }}
 	    </div>
 	  </div>
 	{% endif %}
+      {% empty %}
+	<p>
+	  There are no Journals yet in this branch of academia.
+	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
+	</p>
       {% endfor %}
     </div>
-
-  {% else %}
-
-  <div class="card-columns">
-    {% for journal in object_list %}
-      {% if journal.active or perms.scipost.can_view_pool %}
-	<div class="card">
-	  <div class="card-header {{ journal.doi_label }}">
-	    <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-	    {% if journal.has_DOAJ_Seal %}
-	      <a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
-	    {% endif %}
-	  </div>
-	  <div class="card-body">
-	    {{ journal.blurb|automarkup }}
-	  </div>
-	</div>
-      {% endif %}
-    {% empty %}
-      <p>
-	There are no Journals yet in this branch of academia.
-	<strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
-      </p>
-    {% endfor %}
-  </div>
 
   {% endif %}
 
