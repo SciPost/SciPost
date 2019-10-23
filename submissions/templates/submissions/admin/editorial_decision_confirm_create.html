@@ -1,0 +1,54 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Editorial Decision</span>
+{% endblock %}
+
+{% block pagetitle %}: Editorial Decision{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">Editorial Decision</h1>
+
+      <h2>Concerning Submission:</h2>
+      {% include 'partials/submissions/submission_li.html' with submission=submission %}
+
+      <a class="d-inline-block mb-3" href="{{ submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
+
+      {% include 'partials/submissions/pool/submission_info_table.html' with submission=submission %}
+
+      <h2 class="highlight">Set the Editorial Decision</h2>
+
+      {% if form.errors %}
+	{% for field in form %}
+	  {% for error in field.errors %}
+	    <div class="alert alert-danger">
+	      <strong>{{ field.name }} - {{ error|escape }}</strong>
+	    </div>
+	  {% endfor %}
+	{% endfor %}
+	{% for error in form.non_field_errors %}
+	  <div class="alert alert-danger">
+	    <strong>{{ error|escape }}</strong>
+	  </div>
+	{% endfor %}
+      {% endif %}
+
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Confirm the decision (final)" class="btn-btn-danger">
+	<span class="text-danger">&nbsp;<strong>CAREFUL: this finalizes the evaluation process for the Submission.</strong><br>If you want to change the data, go back and re-fill the form.</span>
+      </form>
+
+    </div>
+  </div>
+
+{% endblock %}

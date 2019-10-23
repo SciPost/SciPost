@@ -10,7 +10,7 @@ from guardian.admin import GuardedModelAdmin
 
 from submissions.models import (
     Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
-    EICRecommendation, SubmissionTiering, AlternativeRecommendation,
+    EICRecommendation, SubmissionTiering, AlternativeRecommendation, EditorialDecision,
     SubmissionEvent, iThenticateReport)
 from scipost.models import Contributor
 
@@ -267,5 +267,19 @@ class EICRecommendationAdmin(admin.ModelAdmin):
     ]
 
 admin.site.register(EICRecommendation, EICRecommendationAdmin)
+
+
+class EditorialDecisionAdmin(admin.ModelAdmin):
+    search_fields = [
+        'submission__title',
+        'submission__author_list',
+        'submission__preprint__identifier_w_vn_nr'
+    ]
+    list_filter = ['for_journal', 'decision', 'status',]
+    list_display = [submission_short_title, 'for_journal', 'decision',
+                    'taken_on', 'status']
+
+admin.site.register(EditorialDecision, EditorialDecisionAdmin)
+
 
 admin.site.register(SubmissionEvent)

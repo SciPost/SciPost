@@ -1,0 +1,77 @@
+{% load automarkup %}
+<p>
+  Dear {{ decision.submission.submitted_by.get_title_display }} {{ decision.submission.submitted_by.user.last_name }},
+</p>
+<p>
+  The Editorial College of SciPost has come to a decision regarding your Submission
+</p>
+<p>{{ decision.submission.title }}</p>
+<p>by {{ decision.submission.author_list }}.</p>
+{% if decision.for_journal.name == 'SciPost Selections' %}
+  <p>
+    We are pleased to let you know that your manuscript has been accepted for publication
+    in {{ decision.submission.submitted_to }}, with inclusion of an extended abstract
+    in SciPost Selections.
+  </p>
+  <p>
+    We warmly congratulate you on this achievement, which represents the highest mark of
+    recognition given by the Editorial College.
+  </p>
+  <p>
+    Your manuscript will now be taken charge of by our production team,
+    which will soon send you proofs to check before final publication.
+  </p>
+{% else %}
+  {% if decision.publish %}
+    {% if decision.status == decision.FIXED_AND_ACCEPTED %}
+      <p>
+	We are pleased to let you know that your manuscript has been accepted for publication
+	in {{ decision.submission.submitted_to }}.
+      </p>
+      <p>
+	Your manuscript will now be taken charge of by our production team,
+	which will soon send you proofs to check before final publication.
+      </p>
+    {% elif decision.status == decision.AWAITING_PUBOFFER_ACCEPTANCE %}
+      <p>
+	We would like to offer you publication of your manuscript in
+	{{ decision.for_journal }} (you had originally submitted
+	to {{ decision.submission.submitted_to }}).
+      </p>
+      <p>
+	You can inform us of choice by replying to this email.
+	<strong>We will await your confirmation of acceptance of this publication offer
+	  before initiating production of the proofs of your paper.</strong>
+      </p>
+      <p>
+	If you decide to turn this offer down, your manuscript will not be considered
+	for further processing and you will be free to submit elsewhere.
+      </p>
+    {% endif %}
+  {% else %}
+    <p>
+      We are sorry to inform you that your Submission has not been accepted for publication.
+    </p>
+    <p>
+      You can view more details at the Submission's page at
+      <a href="{% url 'submissions:submission' identifier_w_vn_nr={{ identifier_w_vn_nr }}">{% url 'submissions:submission' identifier_w_vn_nr={{ identifier_w_vn_nr }}</a>.
+      Note that these details are viewable only by the registered authors of the submission.
+    </p>
+    <p>
+      This Submission Page has now been removed from general public view; if you wish,
+      you can email us and request to make it publicly visible again.
+    </p>
+  {% endif %}
+{% endif %}
+{% if decision.remarks_for_authors %}
+  <p><strong>Further remarks from Editorial Administration:</strong></p>
+  <div class="mx-2 mb-4">
+    {{ decision.remarks_for_authors|automarkup }}
+  </div>
+{% endif %}
+<p>We thank you very much for your contribution.</p>
+<p>Sincerely,</p>
+<p>The SciPost Team.</p>
+{% include 'email/_footer.html' %}
+
+{% include 'email/_submission_thread_uuid.html' with submission=decision.submission %}

@@ -756,7 +756,7 @@ class SubmissionUtils(BaseMailUtil):
             or cls.recommendation.recommendation == 3):
             email_text += ('We are pleased to inform you that your Submission '
                            'has been accepted for publication in '
-                           + str(cls.submission.submitted_to))
+                           + str(cls.recommendation.for_journal)) #submission.submitted_to)
             email_text_html += (
                 '<p>We are pleased to inform you that your Submission '
                 'has been accepted for publication in <strong>{{ journal }}</strong>')
@@ -813,7 +813,7 @@ class SubmissionUtils(BaseMailUtil):
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
             'identifier_w_vn_nr': cls.submission.preprint.identifier_w_vn_nr,
-            'journal': str(cls.submission.submitted_to),
+            'journal': str(cls.recommendation.for_journal),
         }
         email_text_html += '<br/>' + EMAIL_FOOTER
         html_template = Template(email_text_html)

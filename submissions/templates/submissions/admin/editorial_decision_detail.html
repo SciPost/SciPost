@@ -1,0 +1,43 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Editorial Decision</span>
+{% endblock %}
+
+{% block pagetitle %}: Editorial Decision{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">Editorial Decision</h1>
+
+      {% include 'submissions/admin/_editorial_decision_as_table.html' with decision=decision %}
+
+      <ul class="list-unstyled">
+	<li class="list-item my-2">
+	  <a class="btn btn-warning" href="{% url 'submissions:editorial_decision_update' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr pk=decision.id %}">Update this decision</a>
+	</li>
+	<li class="list-item my-2">
+	  <a class="btn btn-danger" href="{% url 'submissions:fix_editorial_decision' identifier_w_vn_nr=decision.submission.preprint.identifier_w_vn_nr pk=decision.id %}">Fix this decision</a>
+	  <span class="text-danger">
+	    <strong>CAREFUL: MAKE SURE YOU KNOW EXACTLY WHAT YOU ARE DOING.</strong>
+	    <br>
+	    Clicking on this button:
+	    <ul>
+	      <li>finalizes the evaluation process for the Submission</li>
+	      <li>emails authors with the result.</li>
+	    </ul>
+	  </span>
+	</li>
+      </ul>
+
+    </div>
+  </div>
+
+{% endblock content %}

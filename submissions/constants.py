@@ -244,6 +244,15 @@ EIC_REC_STATUSES = (
     (DEPRECATED, 'Editorial Recommendation deprecated'),
 )
 
+
+# Editorial decision
+# (see other constants inside class; these are here because they use EIC_REC values)
+EDITORIAL_DECISION_CHOICES = (
+    (EIC_REC_PUBLISH, 'Publish'),
+    (EIC_REC_REJECT, 'Reject'),
+)
+
+
 # Plagiarism Report statuses
 STATUS_WAITING = 'waiting'
 STATUS_SENT, STATUS_RECEIVED = 'sent', 'received'

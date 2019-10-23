@@ -1,0 +1,29 @@
+{% load bootstrap %}
+{% load automarkup %}
+
+<table class="table">
+  <tbody>
+    <tr>
+      <td>For submission</td><td>{{ decision.submission }}</td>
+    </tr>
+    <tr>
+      <td>For Journal</td><td>{{ decision.for_journal }}</td>
+    </tr>
+    <tr>
+      <td>Decision</td><td>{{ decision.get_decision_display }}</td>
+    </tr>
+    <tr>
+      <td>Taken on</td><td>{{ decision.taken_on }}</td>
+    </tr>
+    <tr>
+      <td>Status</td><td>{{ decision.get_status_display }}</td>
+    </tr>
+    <tr>
+      <td>Remarks for authors</td><td>{{ decision.remarks_for_authors|automarkup }}</td>
+    </tr>
+    <tr>
+      <td>Remarks for the Editorial College</td>
+      <td>{{ decision.remarks_for_editorial_college|automarkup }}</td>
+    </tr>
+  </tbody>
+</table>

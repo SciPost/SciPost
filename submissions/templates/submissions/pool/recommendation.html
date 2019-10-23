@@ -31,7 +31,7 @@
   {% endif %}
 
 
-  <h1 class="highlight">Editorial Recommendation to vote on</h1>
+  <h1 class="highlight">Editorial Recommendation</h1>
 
   <h2>Concerning Submission:</h2>
   {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
@@ -107,7 +107,7 @@
     </div>
   {% endif %}
 
-  <h2 class="highlight">Editorial Recommendation to vote on</h2>
+  <h2 class="highlight">Editorial Recommendation (latest)</h2>
   {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
 
   <div class="card">
@@ -199,19 +199,21 @@
 
     {% if perms.scipost.can_fix_College_decision %}
       <div class="card-footer bg-light py-3">
-        <h3 class="card-title">Administrative actions on recommendations undergoing voting:</h3>
-        <ul class="mb-0">
-          <li>To send an email reminder to each Fellow with at least one voting duty: <a href="{% url 'submissions:remind_Fellows_to_vote' %}">click here</a>.</li>
-          <li>
-            The current Editorial Recommendation: {{ recommendation.get_recommendation_display }}.
-            <br>
-            <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
-              {% csrf_token %}
-              <button type="submit" name="action" value="fix" class="btn btn-primary btn-sm mr-2">Fix College decision</button>
-              <button type="submit" name="action" value="deprecate" class="btn btn-danger btn-sm text-white">Deprecate College decision</button>
-            </form>
+        <h3 class="card-title mb-3">Administrative actions on recommendations undergoing voting:</h3>
+        <ul class="mb-1">
+          <li class="list-item my-2"><a class="btn btn-secondary" href="{% url 'submissions:remind_Fellows_to_vote' %}" role="button">Send an email reminder to each Fellow with at least one voting duty</a><br>(this is a one-click action, for all Submissions)</li>
+	  <li class="list-item my-2"><a class="btn btn-warning" href="{% url 'submissions:communication' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr comtype='StoE' %}" role="button">Send a communication to the Editor-in-charge</a><br>(for example to request a reformulation of the recommendation)</li>
+          <li class="list-item my-2">
+            <!-- The current Editorial Recommendation is for Journal {{ recommendation.for_journal }}: {{ recommendation.get_recommendation_display }}.
+		 <br> -->
+	    <a class="btn btn-primary" href="{% url 'submissions:editorial_decision_create' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">Initiate the process to fix the editorial decision</a>
+	    <!-- <br>
+		 <form method="post" action="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}" class="d-inline-block my-2">
+		 {% csrf_token %}
+		 <button type="submit" name="action" value="fix" class="btn btn-primary btn-sm mr-2">Fix College decision</button>
+		 <button type="submit" name="action" value="deprecate" class="btn btn-danger btn-sm text-white">Deprecate College decision</button>
+		 </form> -->
           </li>
-          <li>To request a modification of the Recommendation to request for revision: click here</li>
         </ul>
       </div>
     {% endif %}

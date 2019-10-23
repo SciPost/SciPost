@@ -8,29 +8,30 @@ import strings
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin)
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import PermissionDenied
-from django.urls import reverse, reverse_lazy
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 from django.template import Template, Context
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
-from django.utils.safestring import mark_safe
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from .constants import (
-    STATUS_VETTED, STATUS_EIC_ASSIGNED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
-    STATUS_WITHDRAWN, STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
-    DEPRECATED, EIC_REC_PUBLISH)
+    STATUS_ACCEPTED, STATUS_REJECTED, STATUS_VETTED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
+    STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
+    EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, EICRecommendation, SubmissionTiering, AlternativeRecommendation,
+    EditorialDecision,
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionAdminViewMixin
 from .forms import (
@@ -40,7 +41,10 @@ from .forms import (
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
     ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
-    SubmissionPoolFilterForm, FixCollegeDecisionForm, SubmissionPrescreeningForm,
+    SubmissionPoolFilterForm,
+    # FixCollegeDecisionForm,
+    EditorialDecisionForm,
+    SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
 from .signals import (
     notify_editor_assigned, notify_eic_new_report, notify_invitation_cancelled,
@@ -60,12 +64,13 @@ from mails.views import MailEditorSubview
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
 from production.forms import ProofsDecisionForm
+from production.utils import get_or_create_production_stream
 from profiles.models import Profile
 from profiles.forms import SimpleProfileForm, ProfileEmailForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
-from scipost.mixins import PaginationMixin
+from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
 
 
@@ -1716,7 +1721,7 @@ def vote_on_rec(request, rec_id):
     else:
         form = RecommendationVoteForm(initial=initial)
     if form.is_valid():
-        # Delete previous tiernings and alternative recs, irrespective of the vote
+        # Delete previous tierings and alternative recs, irrespective of the vote
         SubmissionTiering.objects.filter(
             submission=recommendation.submission,
             fellow=request.user.contributor).delete()
@@ -1904,50 +1909,304 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
     success_url = reverse_lazy('submissions:pool')
 
 
-class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):
-    """EICRecommendation detail view."""
+# TO BE DEPRECATED, replaced by EICRecommendationDetailView
+# class EICRecommendationView(SubmissionAdminViewMixin, UpdateView):
+#     """EICRecommendation detail view."""
+
+#     permission_required = 'scipost.can_fix_College_decision'
+#     template_name = 'submissions/pool/recommendation.html'
+#     editorial_page = True
+#     form_class = FixCollegeDecisionForm
+#     success_url = reverse_lazy('submissions:pool')
+
+#     def get_object(self):
+#         """Get EICRecommendation."""
+#         submission = super().get_object()
+#         return get_object_or_404(
+#             submission.eicrecommendations.put_to_voting(), id=self.kwargs['rec_id'])
+
+#     def get_form_kwargs(self):
+#         """Form accepts request as argument."""
+#         kwargs = super().get_form_kwargs()
+#         kwargs['request'] = self.request
+#         return kwargs
+
+#     def get_context_data(self, *args, **kwargs):
+#         """Get the EICRecommendation as a submission-related instance."""
+#         ctx = super().get_context_data(*args, **kwargs)
+#         ctx['recommendation'] = ctx['object']
+#         return ctx
+
+#     @transaction.atomic
+#     def form_valid(self, form):
+#         """Redirect and send out mails if decision is fixed."""
+#         recommendation = form.save()
+#         if form.is_fixed():
+#             submission = recommendation.submission
+
+#             # Temporary: Update submission instance for utils email func.
+#             # Won't be needed in new mail construct.
+#             submission = Submission.objects.get(id=recommendation.submission.id)
+#             SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
+#             SubmissionUtils.send_author_College_decision_email()
+#             messages.success(self.request, 'The Editorial College\'s decision has been fixed.')
+#         else:
+#             messages.success(
+#                 self.request, 'The Editorial College\'s decision has been deprecated.')
+#         return HttpResponseRedirect(self.success_url)
+
+
+class EICRecommendationDetailView(UserPassesTestMixin, DetailView):
+    """EICRecommendation detail page."""
+
+    model = EICRecommendation
+    pk_url_kwarg = 'rec_id'
+    template_name = 'submissions/pool/recommendation.html'
+    context_object_name = 'recommendation'
+
+    def test_func(self):
+        """Grants access to EdAdmin, voting Fellows and authors."""
+        if self.request.user.has_perm('scipost.can_fix_College_decision'):
+            return True
+        eicrec = get_object_or_404(EICRecommendation, pk=self.kwargs.get('rec_id'))
+        if eicrec.eligible_to_vote.filter(user=self.request.user).exists():
+            return True
+        if eicrec.submission.authors.filter(user=self.request.user).exists():
+            return True
+        return False
+
+
+class EditorialDecisionCreateView(PermissionsMixin, CreateView):
+    """For EdAdmin to create the editorial decision on a Submission, after voting is completed."""
 
     permission_required = 'scipost.can_fix_College_decision'
-    template_name = 'submissions/pool/recommendation.html'
-    editorial_page = True
-    form_class = FixCollegeDecisionForm
-    success_url = reverse_lazy('submissions:pool')
+    model = EditorialDecision
+    form_class = EditorialDecisionForm
+    template_name = 'submissions/admin/editorial_decision_form.html'
 
-    def get_object(self):
-        """Get EICRecommendation."""
-        submission = super().get_object()
-        return get_object_or_404(
-            submission.eicrecommendations.put_to_voting(), id=self.kwargs['rec_id'])
+    def get(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        return super().get(request, *args, **kwargs)
 
-    def get_form_kwargs(self):
-        """Form accepts request as argument."""
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+    def post(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        return super().post(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
-        """Get the EICRecommendation as a submission-related instance."""
-        ctx = super().get_context_data(*args, **kwargs)
-        ctx['recommendation'] = ctx['object']
-        return ctx
+        context = super().get_context_data(*args, **kwargs)
+        context['submission'] = self.submission
+        return context
 
-    @transaction.atomic
-    def form_valid(self, form):
-        """Redirect and send out mails if decision is fixed."""
-        recommendation = form.save()
-        if form.is_fixed():
-            submission = recommendation.submission
+    def get_initial(self, *args, **kwargs):
+        initial = super().get_initial(*args, **kwargs)
+        eicrec = self.submission.eicrecommendations.last()
+        for_journal = eicrec.for_journal
+        decision = eicrec.recommendation if eicrec.recommendation in [
+            EIC_REC_PUBLISH, EIC_REC_REJECT] else EIC_REC_PUBLISH
+        status = EditorialDecision.DRAFTED
+        initial.update({
+            'submission': self.submission,
+            'for_journal': for_journal,
+            'decision': decision,
+            'status': status,
+        })
+        return initial
 
-            # Temporary: Update submission instance for utils email func.
-            # Won't be needed in new mail construct.
-            submission = Submission.objects.get(id=recommendation.submission.id)
-            SubmissionUtils.load({'submission': submission, 'recommendation': recommendation})
-            SubmissionUtils.send_author_College_decision_email()
-            messages.success(self.request, 'The Editorial College\'s decision has been fixed.')
-        else:
-            messages.success(
-                self.request, 'The Editorial College\'s decision has been deprecated.')
-        return HttpResponseRedirect(self.success_url)
+
+class EditorialDecisionDetailView(PermissionsMixin, DetailView):
+
+    permission_required = 'scipost.can_fix_College_decision'
+    model = EditorialDecision
+    context_object_name = 'decision'
+    template_name = 'submissions/admin/editorial_decision_detail.html'
+
+
+class EditorialDecisionUpdateView(PermissionsMixin, UpdateView):
+
+    permission_required = 'scipost.can_fix_College_decision'
+    model = EditorialDecision
+    context_object_name = 'decision'
+    form_class = EditorialDecisionForm
+    template_name = 'submissions/admin/editorial_decision_form.html'
+
+    def get(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['submission'] = self.submission
+        return context
+
+
+@login_required
+@permission_required('scipost.can_fix_College_decision')
+def fix_editorial_decision(request, identifier_w_vn_nr, pk):
+    """Fix the editorial decision, which is then final. Email authors."""
+
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    decision = get_object_or_404(EditorialDecision, pk=pk)
+    if submission != decision.submission:
+        errormessage = ('The Submission from the url and that of the Editorial Decision'
+                        ' do not correspond to each other. Please update the Decision or'
+                        ' contect techsupport.')
+        return render(request, 'scipost/error.html', {'errormessage', errormessage})
+    # Set latest EICRecommedation to DECISION_FIXED
+    eicrec = submission.eicrecommendations.last()
+    eicrec.status = DECISION_FIXED
+    eicrec.save()
+
+    if decision.decision == EIC_REC_PUBLISH:
+        Submission.objects.filter(id=submission.id).update(
+            visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
+            latest_activity=timezone.now())
+
+        # Start a new ProductionStream
+        get_or_create_production_stream(submission)
+
+    elif decision.decision == EIC_REC_REJECT:
+        # Decision: Rejection. Auto hide from public and Pool.
+        Submission.objects.filter(id=submission.id).update(
+            visible_public=False, visible_pool=False,
+            status=STATUS_REJECTED, latest_activity=timezone.now())
+        submission.get_other_versions().update(visible_public=False)
+
+    # Force-close the refereeing round for new referees.
+    Submission.objects.filter(id=submission.id).update(
+        open_for_reporting=False,
+        open_for_commenting=False)
+
+    # Update Editorial Assignment statuses.
+    EditorialAssignment.objects.filter(
+        submission=submission, to=submission.editor_in_charge).update(status=STATUS_COMPLETED)
+
+    # Add SubmissionEvent for authors
+    submission.add_event_for_author(
+        'The Editorial Decision has been fixed: {0}.'.format(
+            decision.get_decision_display()))
+    submission.add_event_for_eic(
+        'The Editorial Decision has been fixed: {0}.'.format(
+            decision.get_decision_display()))
+
+    mail_request = MailEditorSubview(
+        request, mail_code='authors/inform_authors_editorial_decision', decision=decision)
+
+    if mail_request.is_valid():
+        messages.success(request, 'Authors have been emailed about the decision')
+        mail_request.send_mail()
+        return redirect('submissions:pool')
+    else:
+        return mail_request.interrupt()
+
+
+# ATTEMPT: to drop
+# class EditorialDecisionFixView(PermissionsMixin, UpdateView):
+#     """This fixes the decision and emails the authors."""
+
+#     model = EditorialDecision
+#     permission_required = 'scipost.can_fix_College_decision'
+#     model = EditorialDecision
+#     context_object_name = 'decision'
+#     form_class = EditorialDecisionForm
+#     template_name = 'submissions/admin/editorial_decision_form.html'
+
+
+# class EditorialDecisionBaseCreateView(PermissionsMixin, CreateView):
+#     """For EdAdmin to fix the editorial decision on a Submission, after voting is completed."""
+
+#     permission_required = 'scipost.can_fix_College_decision'
+#     model = EditorialDecision
+#     form_class = EditorialDecisionForm
+#     success_url = reverse_lazy('submissions:pool')
+
+#     def get(self, request, *args, **kwargs):
+#         self.submission = get_object_or_404(
+#             Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+#         return super().get(request, *args, **kwargs)
+
+#     def post(self, request, *args, **kwargs):
+#         self.submission = get_object_or_404(
+#             Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+#         return super().post(request, *args, **kwargs)
+
+#     def get_context_data(self, *args, **kwargs):
+#         context = super().get_context_data(*args, **kwargs)
+#         context['submission'] = self.submission
+#         return context
+
+
+# class EditorialDecisionCreateView(EditorialDecisionBaseCreateView):
+#     """For EdAdmin to fix the editorial decision on a Submission, after voting is completed."""
+
+#     template_name = 'submissions/admin/editorial_decision_form.html'
+
+#     def get_initial(self, *args, **kwargs):
+#         initial = super().get_initial(*args, **kwargs)
+#         eicrec = self.submission.eicrecommendations.last()
+#         for_journal = eicrec.for_journal
+#         decision = eicrec.recommendation if eicrec.recommendation in [
+#             EIC_REC_PUBLISH, EIC_REC_REJECT] else EIC_REC_PUBLISH
+#         status = EditorialDecision.FIXED_AND_ACCEPTED
+#         initial.update({
+#             'submission': self.submission,
+#             'for_journal': for_journal,
+#             'decision': decision,
+#             'status': status,
+#         })
+#         return initial
+
+#     def form_valid(self, form):
+#         """Save the form data to session variables and redirect to confirmation view."""
+#         self.request.session['for_journal_id'] = form.cleaned_data['for_journal'].id
+#         self.request.session['decision'] = form.cleaned_data['decision']
+#         self.request.session['remarks_for_authors'] = form.cleaned_data['remarks_for_authors']
+#         self.request.session['remarks_for_editorial_college'] = form.cleaned_data['remarks_for_editorial_college']
+#         self.request.session['status'] = form.cleaned_data['status']
+#         return redirect(reverse(
+#             'submissions:editorial_decision_confirm_create',
+#             kwargs={'identifier_w_vn_nr': self.kwargs.get('identifier_w_vn_nr')}))
+
+
+# class EditorialDecisionConfirmCreateView(EditorialDecisionBaseCreateView):
+#     """For EdAdmin to fix the editorial decision on a Submission, after voting is completed.
+
+#     This is a confirmation view."""
+
+#     template_name = 'submissions/admin/editorial_decision_confirm_create.html'
+
+#     def get_initial(self, *args, **kwargs):
+#         initial = super().get_initial(*args, **kwargs)
+#         for_journal = get_object_or_404(
+#             Journal, pk=self.request.session['for_journal_id'])
+#         initial.update({
+#             'submission': self.submission,
+#             'for_journal': for_journal,
+#             'decision': self.request.session['decision'],
+#             'remarks_for_authors': self.request.session['remarks_for_authors'],
+#             'remarks_for_editorial_college': self.request.session['remarks_for_editorial_college'],
+#             'status': self.request.session['status'],
+#         })
+#         return initial
+
+#     def form_valid(self, form):
+#         # Delete temp session variables
+#         del self.request.session['for_journal_id']
+#         del self.request.session['decision']
+#         del self.request.session['remarks_for_authors']
+#         del self.request.session['remarks_for_editorial_college']
+#         del self.request.session['status']
+#         # Fix the latest EICRecommendation
+
+#         self.object = form.save()
+#         return redirect(self.get_success_url())
 
 
 class PlagiarismView(SubmissionAdminViewMixin, UpdateView):
