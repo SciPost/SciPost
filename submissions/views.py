@@ -1971,8 +1971,8 @@ class EICRecommendationDetailView(UserPassesTestMixin, DetailView):
         eicrec = get_object_or_404(EICRecommendation, pk=self.kwargs.get('rec_id'))
         if eicrec.eligible_to_vote.filter(user=self.request.user).exists():
             return True
-        if eicrec.submission.authors.filter(user=self.request.user).exists():
-            return True
+        # if eicrec.submission.authors.filter(user=self.request.user).exists():
+        #     return True
         return False
 
 
