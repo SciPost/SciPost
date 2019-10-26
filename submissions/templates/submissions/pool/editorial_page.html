@@ -53,10 +53,10 @@
       {% endif %}
 
       <br>
-      <h3 id="editorial-recommendation">Editorial Recommendation</h3>
-      {% for recommendation in submission.eicrecommendations.all %}
-        {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
-      {% endfor %}
+      {% if submission.eicrecommendations %}
+	<h3 id="editorial-recommendation">Editorial Recommendation</h3>
+        {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
+      {% endif %}
 
       {% if submission.eic_recommendation_required %}
         <div class="mb-4">

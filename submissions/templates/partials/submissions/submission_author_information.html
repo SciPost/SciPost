@@ -71,14 +71,10 @@
     </table>
   </div>
 
-  {% if submission.eicrecommendations.active %}
+  {% if submission.eicrecommendations %}
     <div class="mb-4">
       <h4 class="mb-2">Editorial Recommendation:</h4>
-      {% for recommendation in submission.eicrecommendations.active %}
-        {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
-      {% empty %}
-        No Editorial Recommendation has yet been formulated.
-      {% endfor %}
+      {% include 'partials/submissions/recommendation_author_content.html' with recommendation=submission.eicrecommendations.last %}
     </div>
   {% endif %}
 

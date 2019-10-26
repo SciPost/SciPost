@@ -1249,10 +1249,6 @@ class EICRecommendationForm(forms.ModelForm):
                 kwargs['initial'] = {
                     'for_journal': latest_recommendation.for_journal,
                     'recommendation': latest_recommendation.recommendation,
-                    'remarks_for_authors': latest_recommendation.remarks_for_authors,
-                    'requested_changes': latest_recommendation.requested_changes,
-                    'remarks_for_editorial_college':
-                        latest_recommendation.remarks_for_editorial_college,
                 }
 
         super().__init__(*args, **kwargs)

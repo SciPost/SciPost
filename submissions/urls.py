@@ -66,7 +66,6 @@ urlpatterns = [
     # url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
     #     regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationView.as_view(),
     #     name='eic_recommendation_detail'),
-    # url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
     url(r'^admin/{regex}/recommendation$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationDetailView.as_view(),
         name='eic_recommendation_detail'),
@@ -94,6 +93,13 @@ urlpatterns = [
         views.fix_editorial_decision,
         name='fix_editorial_decision'
         ),
+    url(
+        r'^{regex}/accept_puboffer$'.format(
+            regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.accept_puboffer,
+        name='accept_puboffer'
+        ),
+
     url(r'^admin/reports$', views.reports_accepted_list, name='reports_accepted_list'),
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),

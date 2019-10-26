@@ -2157,6 +2157,42 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         return mail_request.interrupt()
 
 
+@login_required
+def accept_puboffer(request, identifier_w_vn_nr):
+    """
+    Method for authors to accept an outstanding publication offer.
+
+    A publication offer occurs when the relevant College agrees on a
+    Publish recommendation for a journal which is subsidiary to the one
+    originally submitted to by the authors.
+
+    This method handles acceptance of this offer by updating the status
+    of the Submission and of the EditorialDecision. It then redirects to
+    the personal page.
+    """
+
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    if request.user.contributor.id != submission.submitted_by.id:
+        errormessage = ('You are not marked as the submitting author of this Submission, '
+                        'and thus are not allowed to take this action.')
+    if submission.status != STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE:
+        errormessage = ('This Submission\'s status is incompatible with accepting'
+                        ' a publication offer.')
+    if errormessage != '':
+        return render(request, 'scipost/error.html', {'errormessage': errormessage})
+    Submission.objects.filter(id=submission.id).update(status=STATUS_ACCEPTED)
+    EditorialDecision.objects.filter(id=submission.editorialdecision.id).update(
+        status=EditorialDecision.FIXED_AND_ACCEPTED)
+    mail_sender = DirectMailUtil(
+        'authors/confirm_puboffer_acceptance', submission=submission)
+    submission.add_general_event('Authors have accepted the publication offer.')
+    messages.success(request, ('Your acceptance of the publication offer has been registered. '
+                               'Congratulations! We will immediately start producing the proofs.'))
+    return redirect(reverse('scipost:personal_page'))
+
+
+
 # ATTEMPT: to drop
 # class EditorialDecisionFixView(PermissionsMixin, UpdateView):
 #     """This fixes the decision and emails the authors."""
