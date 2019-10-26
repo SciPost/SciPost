@@ -1957,7 +1957,7 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
 
 
 class EICRecommendationDetailView(UserPassesTestMixin, DetailView):
-    """EICRecommendation detail page."""
+    """EICRecommendation detail page, visible to EdAdmin, voting Fellows (NOT authors)."""
 
     model = EICRecommendation
     pk_url_kwarg = 'rec_id'
@@ -1977,7 +1977,12 @@ class EICRecommendationDetailView(UserPassesTestMixin, DetailView):
 
 
 class EditorialDecisionCreateView(PermissionsMixin, CreateView):
-    """For EdAdmin to create the editorial decision on a Submission, after voting is completed."""
+    """For EdAdmin to create the editorial decision on a Submission, after voting is completed.
+
+    The complete workflow involves drafting the decision with this view,
+    possibly updating it with EditorialDecisionUpdateView, and (when all details
+    are correct) finally posting to the ``fix_editorial_decision`` view.
+    """
 
     permission_required = 'scipost.can_fix_College_decision'
     model = EditorialDecision
@@ -2050,7 +2055,12 @@ class EditorialDecisionUpdateView(PermissionsMixin, UpdateView):
 @login_required
 @permission_required('scipost.can_fix_College_decision')
 def fix_editorial_decision(request, identifier_w_vn_nr, pk):
-    """Fix the editorial decision, which is then final. Email authors."""
+    """Fix the editorial decision, which is then final. Email authors.
+
+    This is the method completing the editorial decision process.
+    It follows the creation/updating of the decision using
+    EditorialDecisionCreateView and EditorialDecisionUpdateView.
+    """
 
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     decision = get_object_or_404(EditorialDecision, pk=pk)
