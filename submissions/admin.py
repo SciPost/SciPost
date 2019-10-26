@@ -277,7 +277,7 @@ class EditorialDecisionAdmin(admin.ModelAdmin):
     ]
     list_filter = ['for_journal', 'decision', 'status',]
     list_display = [submission_short_title, 'for_journal', 'decision',
-                    'taken_on', 'status']
+                    'taken_on', 'status', 'version']
 
 admin.site.register(EditorialDecision, EditorialDecisionAdmin)
 

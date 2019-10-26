@@ -410,6 +410,10 @@ class Submission(models.Model):
             fellowships__pool=self).values_list('id', flat=True)
         return self.editor_in_charge.id not in pool_contributors_ids
 
+    @property
+    def editorial_decision(self):
+        """Returns the EditorialDecision (if exists and not deprecated)."""
+        return self.editorialdecision_set.last()
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
@@ -1086,8 +1090,11 @@ class EditorialDecision(models.Model):
     remarks_for_editorial_college = models.TextField(
         blank=True, verbose_name='optional remarks for the Editorial College')
     status = models.SmallIntegerField(choices=EDITORIAL_DECISION_STATUSES)
+    version = models.SmallIntegerField(default=1)
 
     class Meta:
+        ordering = ['version']
+        unique_together = ['submission', 'version']
         verbose_name = 'Editorial Decision'
         verbose_name_plural = 'Editorial Decisions'
 
@@ -1098,8 +1105,7 @@ class EditorialDecision(models.Model):
 
     def get_absolute_url(self):
         return reverse('submissions:editorial_decision_detail',
-                       kwargs={'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr,
-                               'pk': self.id})
+                       kwargs={'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr})
 
     @property
     def publish(self):

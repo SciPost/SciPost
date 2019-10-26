@@ -46,6 +46,18 @@
           {% endif %}
         </td>
       </tr>
+      <tr>
+        <td>Submission is current version:</td>
+        <td>
+          {% if submission.is_current %}
+            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-muted">This is the current version.</span>
+          {% else %}
+            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-muted">This is not the current version.</span>
+          {% endif %}
+        </td>
+      </tr>
       {% if submission.publication and submission.publication.is_published %}
         <tr>
           <td>Submission is published as:</td>
@@ -65,13 +77,13 @@
       {% for recommendation in submission.eicrecommendations.active %}
         {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
       {% empty %}
-        No Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+        No Editorial Recommendation has yet been formulated.
       {% endfor %}
     </div>
   {% endif %}
 
   <div class="mb-4">
-    <h4>Communication</h4>
+    <h4>Communications</h4>
     <div id="communications">
       {% if submission.editor_in_charge %}
         <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>

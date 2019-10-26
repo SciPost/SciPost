@@ -77,7 +77,7 @@
                   <li>
                     {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
                     On Editorial Recommendation: {{ recommendation }}<br>
-                    <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr recommendation.id %}">See Editorial Recommendation</a>
+                    <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr %}">See Editorial Recommendation</a>
                   </li>
                 {% endfor %}
               </ul>

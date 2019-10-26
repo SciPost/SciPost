@@ -1396,7 +1396,7 @@ class EditorialDecisionForm(forms.ModelForm):
             'taken_on',
             'remarks_for_authors',
             'remarks_for_editorial_college',
-            'status',
+            'status'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -1410,6 +1410,14 @@ class EditorialDecisionForm(forms.ModelForm):
             'placeholder': '[will be seen by authors and Fellows]'})
         self.fields['remarks_for_editorial_college'].widget.attrs.update({
             'placeholder': '[will only be seen by Fellows]'})
+
+    def save(self):
+        decision = super().save(commit=False)
+        if not self.instance.id: # a new object is created
+            decision.version = self.cleaned_data['submission'].editorialdecision_set.all(
+            ).last().version + 1
+        decision.save()
+        return decision
 
 
 class SubmissionCycleChoiceForm(forms.ModelForm):

@@ -9,6 +9,7 @@ STATUS_FAILED_PRESCREENING = 'failed_pre'
 STATUS_EIC_ASSIGNED = 'assigned'
 STATUS_ASSIGNMENT_FAILED = 'assignment_failed'
 STATUS_RESUBMITTED = 'resubmitted'
+STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE = 'puboffer_waiting'
 STATUS_ACCEPTED = 'accepted'
 STATUS_REJECTED = 'rejected'
 STATUS_WITHDRAWN = 'withdrawn'
@@ -28,6 +29,8 @@ SUBMISSION_STATUS = (
     (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
     (STATUS_RESUBMITTED, 'Has been resubmitted'),
     (STATUS_ACCEPTED, 'Publication decision taken: accept'),
+    (STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+     'Accepted in other journal; awaiting puboffer acceptance'),
     (STATUS_REJECTED, 'Publication decision taken: reject'),
     (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
     (STATUS_PUBLISHED, 'Published'),

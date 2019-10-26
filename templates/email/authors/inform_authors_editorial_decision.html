@@ -23,7 +23,7 @@
   </p>
 {% else %}
   {% if decision.publish %}
-    {% if decision.status == decision.FIXED_AND_ACCEPTED %}
+    {% if decision.for_journal == decision.submission.submitted_to %}
       <p>
 	We are pleased to let you know that your manuscript has been accepted for publication
 	in {{ decision.submission.submitted_to }}.
@@ -32,7 +32,7 @@
 	Your manuscript will now be taken charge of by our production team,
 	which will soon send you proofs to check before final publication.
       </p>
-    {% elif decision.status == decision.AWAITING_PUBOFFER_ACCEPTANCE %}
+    {% else %}
       <p>
 	We would like to offer you publication of your manuscript in
 	{{ decision.for_journal }} (you had originally submitted

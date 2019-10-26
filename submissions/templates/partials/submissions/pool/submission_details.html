@@ -97,7 +97,7 @@
           <li>See Editorial Recommendations:</li>
           <ul class="pl-3">
             {% for rec in submission.eicrecommendations.all %}
-              <li><a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr rec_id=rec.id %}">{{rec.get_recommendation_display}}</a></li>
+              <li><a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_recommendation_display }}</a></li>
             {% endfor %}
           </ul>
         {% endif %}

@@ -2,18 +2,18 @@
   {% if not hide_title %}
     <tr>
       <td>Title:</td>
-      <td>{{submission.title}}</td>
+      <td>{{ submission.title }}</td>
     </tr>
     <tr>
       <td>Author(s):</td>
-      <td>{{submission.author_list}}</td>
+      <td>{{ submission.author_list }}</td>
     </tr>
   {% endif %}
   <tr>
     <td>As Contributors:</td>
     <td>
       {% for author in submission.authors.all %}
-        {% if not forloop.first %}<span class="text-blue">&middot;</span> {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{author.user.first_name}} {{author.user.last_name}}</a>
+        {% if not forloop.first %}<span class="text-blue">&middot;</span> {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a>
       {% empty %}
         (none claimed)
       {% endfor %}
@@ -23,7 +23,7 @@
     <tr>
       <td>Arxiv Link:</td>
       <td>
-        <a href="{{submission.preprint.url}}" target="_blank">{{submission.preprint.url}}</a>
+        <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
       </td>
     </tr>
   {% elif submission.preprint.get_absolute_url %}
@@ -37,20 +37,20 @@
   {% if submission.acceptance_date %}
     <tr>
       <td>Date accepted:</td>
-      <td>{{submission.acceptance_date}}</td>
+      <td>{{ submission.acceptance_date }}</td>
     </tr>
   {% endif %}
   <tr>
     <td>Date submitted:</td>
-    <td>{{submission.submission_date}}</td>
+    <td>{{ submission.submission_date }}</td>
   </tr>
   <tr>
     <td>Submitted by:</td>
-    <td>{{submission.submitted_by}}</td>
+    <td>{{ submission.submitted_by }}</td>
   </tr>
   <tr>
     <td>Submitted to:</td>
-    <td>{{submission.submitted_to}}</td>
+    <td>{{ submission.submitted_to }}</td>
   </tr>
   {% if submission.proceedings %}
     <tr>
@@ -64,7 +64,7 @@
   </tr>
   <tr>
     <td>Subject area:</td>
-    <td>{{submission.get_subject_area_display}}</td>
+    <td>{{ submission.get_subject_area_display }}</td>
   </tr>
   {% if submission.approaches %}
   <tr>
@@ -81,5 +81,5 @@
     </p>
   {% endif %}
   <h3 class="mt-4">Abstract</h3>
-  <p>{{submission.abstract}}</p>
+  <p>{{ submission.abstract }}</p>
 {% endif %}

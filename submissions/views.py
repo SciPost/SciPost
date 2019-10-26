@@ -25,7 +25,8 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
 from .constants import (
-    STATUS_ACCEPTED, STATUS_REJECTED, STATUS_VETTED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
+    STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
+    STATUS_VETTED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
     EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED)
 from .helpers import check_verified_author, check_unverified_author
@@ -33,7 +34,7 @@ from .models import (
     Submission, EICRecommendation, SubmissionTiering, AlternativeRecommendation,
     EditorialDecision,
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
-from .mixins import SubmissionAdminViewMixin
+from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
     SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
@@ -1956,11 +1957,12 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
 #         return HttpResponseRedirect(self.success_url)
 
 
-class EICRecommendationDetailView(UserPassesTestMixin, DetailView):
-    """EICRecommendation detail page, visible to EdAdmin, voting Fellows (NOT authors)."""
+class EICRecommendationDetailView(SubmissionMixin, LoginRequiredMixin,
+                                  UserPassesTestMixin, DetailView):
+    """EICRecommendation detail page, visible to EdAdmin, voting Fellows (but NOT authors)."""
 
     model = EICRecommendation
-    pk_url_kwarg = 'rec_id'
+    # pk_url_kwarg = 'rec_id'
     template_name = 'submissions/pool/recommendation.html'
     context_object_name = 'recommendation'
 
@@ -1968,15 +1970,35 @@ class EICRecommendationDetailView(UserPassesTestMixin, DetailView):
         """Grants access to EdAdmin, voting Fellows and authors."""
         if self.request.user.has_perm('scipost.can_fix_College_decision'):
             return True
-        eicrec = get_object_or_404(EICRecommendation, pk=self.kwargs.get('rec_id'))
+        # eicrec = get_object_or_404(EICRecommendation, pk=self.kwargs.get('rec_id'))
+        submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        eicrec = submission.eicrecommendations.last()
         if eicrec.eligible_to_vote.filter(user=self.request.user).exists():
             return True
-        # if eicrec.submission.authors.filter(user=self.request.user).exists():
-        #     return True
         return False
 
+    # def get(self, request, *args, **kwargs):
+    #     self.submission = get_object_or_404(
+    #         Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+    #     return super().get(request, *args, **kwargs)
 
-class EditorialDecisionCreateView(PermissionsMixin, CreateView):
+    # def post(self, request, *args, **kwargs):
+    #     self.submission = get_object_or_404(
+    #         Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+    #     return super().post(request, *args, **kwargs)
+
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     context['submission'] = self.submission
+    #     return context
+
+    def get_object(self):
+        """Return the latest version of the EICRecommendation associated to this Submission."""
+        return self.submission.eicrecommendations.last()
+
+
+class EditorialDecisionCreateView(SubmissionMixin, PermissionsMixin, CreateView):
     """For EdAdmin to create the editorial decision on a Submission, after voting is completed.
 
     The complete workflow involves drafting the decision with this view,
@@ -1989,20 +2011,20 @@ class EditorialDecisionCreateView(PermissionsMixin, CreateView):
     form_class = EditorialDecisionForm
     template_name = 'submissions/admin/editorial_decision_form.html'
 
-    def get(self, request, *args, **kwargs):
-        self.submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
-        return super().get(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     self.submission = get_object_or_404(
+    #         Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+    #     return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     self.submission = get_object_or_404(
+    #         Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+    #     return super().post(request, *args, **kwargs)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['submission'] = self.submission
-        return context
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     context['submission'] = self.submission
+    #     return context
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
@@ -2020,15 +2042,23 @@ class EditorialDecisionCreateView(PermissionsMixin, CreateView):
         return initial
 
 
-class EditorialDecisionDetailView(PermissionsMixin, DetailView):
+class EditorialDecisionDetailView(SubmissionMixin, PermissionsMixin, DetailView):
 
     permission_required = 'scipost.can_fix_College_decision'
     model = EditorialDecision
     context_object_name = 'decision'
     template_name = 'submissions/admin/editorial_decision_detail.html'
 
+    def get_object(self):
+        try:
+            return self.submission.editorial_decision
+        except EditorialDecision.DoesNotExist:
+            return render(self.request, 'scipost/error.html',
+                          {'errormessage',
+                           'No editorial decision has yet been taken on this Submission.'})
 
-class EditorialDecisionUpdateView(PermissionsMixin, UpdateView):
+
+class EditorialDecisionUpdateView(SubmissionMixin, PermissionsMixin, UpdateView):
 
     permission_required = 'scipost.can_fix_College_decision'
     model = EditorialDecision
@@ -2036,25 +2066,33 @@ class EditorialDecisionUpdateView(PermissionsMixin, UpdateView):
     form_class = EditorialDecisionForm
     template_name = 'submissions/admin/editorial_decision_form.html'
 
-    def get(self, request, *args, **kwargs):
-        self.submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
-        return super().get(request, *args, **kwargs)
+    # def get(self, request, *args, **kwargs):
+    #     self.submission = get_object_or_404(
+    #         Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+    #     return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
-        return super().post(request, *args, **kwargs)
+    # def post(self, request, *args, **kwargs):
+    #     self.submission = get_object_or_404(
+    #         Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+    #     return super().post(request, *args, **kwargs)
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        context['submission'] = self.submission
-        return context
+    # def get_context_data(self, *args, **kwargs):
+    #     context = super().get_context_data(*args, **kwargs)
+    #     context['submission'] = self.submission
+    #     return context
+
+    def get_object(self):
+        try:
+            return self.submission.editorial_decision
+        except EditorialDecision.DoesNotExist:
+            return render(self.request, 'scipost/error.html',
+                          {'errormessage',
+                           'No editorial decision has yet been taken on this Submission.'})
 
 
 @login_required
 @permission_required('scipost.can_fix_College_decision')
-def fix_editorial_decision(request, identifier_w_vn_nr, pk):
+def fix_editorial_decision(request, identifier_w_vn_nr):
     """Fix the editorial decision, which is then final. Email authors.
 
     This is the method completing the editorial decision process.
@@ -2063,20 +2101,18 @@ def fix_editorial_decision(request, identifier_w_vn_nr, pk):
     """
 
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    decision = get_object_or_404(EditorialDecision, pk=pk)
-    if submission != decision.submission:
-        errormessage = ('The Submission from the url and that of the Editorial Decision'
-                        ' do not correspond to each other. Please update the Decision or'
-                        ' contect techsupport.')
-        return render(request, 'scipost/error.html', {'errormessage', errormessage})
+    decision = submission.editorial_decision
     # Set latest EICRecommedation to DECISION_FIXED
     eicrec = submission.eicrecommendations.last()
     eicrec.status = DECISION_FIXED
     eicrec.save()
 
     if decision.decision == EIC_REC_PUBLISH:
+        new_sub_status = STATUS_ACCEPTED
+        if decision.for_journal != submission.submitted_to:
+            new_sub_status = STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
         Submission.objects.filter(id=submission.id).update(
-            visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
+            visible_public=True, status=new_sub_status, acceptance_date=datetime.date.today(),
             latest_activity=timezone.now())
 
         # Start a new ProductionStream
@@ -2098,20 +2134,24 @@ def fix_editorial_decision(request, identifier_w_vn_nr, pk):
     EditorialAssignment.objects.filter(
         submission=submission, to=submission.editor_in_charge).update(status=STATUS_COMPLETED)
 
-    # Add SubmissionEvent for authors
-    submission.add_event_for_author(
-        'The Editorial Decision has been fixed: {0}.'.format(
-            decision.get_decision_display()))
-    submission.add_event_for_eic(
-        'The Editorial Decision has been fixed: {0}.'.format(
-            decision.get_decision_display()))
-
     mail_request = MailEditorSubview(
         request, mail_code='authors/inform_authors_editorial_decision', decision=decision)
 
     if mail_request.is_valid():
         messages.success(request, 'Authors have been emailed about the decision')
         mail_request.send_mail()
+        if decision.for_journal == submission.submitted_to:
+            decision.status = EditorialDecision.FIXED_AND_ACCEPTED
+        else:
+            decision.status = EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
+        decision.save()
+        submission.add_event_for_author(
+            'The Editorial Decision has been fixed: %s (with status: %s).' % (
+                decision.get_decision_display(), decision.get_status_display()))
+        submission.add_event_for_eic(
+            'The Editorial Decision has been fixed: %s (with status: %s).' % (
+                decision.get_decision_display(), decision.get_status_display()))
+
         return redirect('submissions:pool')
     else:
         return mail_request.interrupt()

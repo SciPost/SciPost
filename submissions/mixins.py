@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
 
 from .models import Submission
@@ -24,6 +25,25 @@ class FriendlyPermissionMixin(PermissionRequiredMixin):
             return self.handle_no_permission()
         self.raise_exception = True
         return super().dispatch(request, *args, **kwargs)
+
+
+class SubmissionMixin:
+    """Provides submission as self.submission for get, post and in context."""
+
+    def get(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.submission = get_object_or_404(
+            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+        return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['submission'] = self.submission
+        return context
 
 
 class SubmissionFormViewMixin:

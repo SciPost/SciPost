@@ -26,7 +26,7 @@
 	  <a class="d-inline-block mb-3" href="{{ submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
 	</li>
 	<li>
-	  <a href="{% url 'submissions:eic_recommendation_detail' submission.preprint.identifier_w_vn_nr submission.eicrecommendations.last.id %}" target="_blank">View the Recommendations and Voting results</a>
+	  <a href="{% url 'submissions:eic_recommendation_detail' submission.preprint.identifier_w_vn_nr %}" target="_blank">View the Recommendations and Voting results</a>
 	</li>
       </ul>
 

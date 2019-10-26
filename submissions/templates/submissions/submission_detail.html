@@ -94,6 +94,16 @@
       {% include 'partials/submissions/submission_topics.html' with submission=submission %}
       <br/>
 
+      {% if submission.editorial_decision %}
+	<h3 class="highlight">Editorial decision</h3>
+	<p>For Journal {{ submission.editorial_decision.for_journal }}: {{ submission.editorial_decision.get_decision_display }}<br>(status: {{ submission.editorial_decision.get_status_display }})</p>
+	{% if is_author and submission.editorial_decision.status == submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
+	  <p>Message from Editorial Administration: we are awaiting your response to the publication offer.</p>
+	{% endif %}
+      {% endif %}
+
+      <br>
+      <hr>
       {% if submission.author_comments %}
 	<h3>Author comments upon resubmission</h3>
 	<div class="blockquote">

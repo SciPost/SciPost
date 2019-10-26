@@ -66,29 +66,30 @@ urlpatterns = [
     # url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
     #     regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationView.as_view(),
     #     name='eic_recommendation_detail'),
-    url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
+    # url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
+    url(r'^admin/{regex}/recommendation$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationDetailView.as_view(),
         name='eic_recommendation_detail'),
     url(
-        r'^admin/{regex}/editorial_decision/create/$'.format(
+        r'^admin/{regex}/editorial_decision/create$'.format(
             regex=SUBMISSIONS_COMPLETE_REGEX),
         views.EditorialDecisionCreateView.as_view(),
         name='editorial_decision_create'
         ),
     url(
-        r'^admin/{regex}/editorial_decision/(?P<pk>[0-9]+)/$'.format(
+        r'^admin/{regex}/editorial_decision$'.format(
             regex=SUBMISSIONS_COMPLETE_REGEX),
         views.EditorialDecisionDetailView.as_view(),
         name='editorial_decision_detail'
         ),
     url(
-        r'^admin/{regex}/editorial_decision/(?P<pk>[0-9]+)/update/$'.format(
+        r'^admin/{regex}/editorial_decision/update$'.format(
             regex=SUBMISSIONS_COMPLETE_REGEX),
         views.EditorialDecisionUpdateView.as_view(),
         name='editorial_decision_update'
         ),
     url(
-        r'^admin/{regex}/editorial_decision/(?P<pk>[0-9]+)/fix/$'.format(
+        r'^admin/{regex}/editorial_decision/fix$'.format(
             regex=SUBMISSIONS_COMPLETE_REGEX),
         views.fix_editorial_decision,
         name='fix_editorial_decision'

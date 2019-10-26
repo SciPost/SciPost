@@ -1,7 +1,8 @@
 {% load bootstrap %}
 
-<h3>Editorial information</h3>
-<button type="button" class="btn btn-link d-block mb-2" data-toggle="toggle" data-target="#editorialinformation"><small>Show/hide editorial information</small></button>
+<h3 class="highlight">
+  Editorial information &emsp;<button type="button" class="btn btn-primary px-1 py-0" data-toggle="toggle" data-target="#editorialinformation"><small>Show/hide</small></button>
+</h3>
 
 <div id="editorialinformation" class="mt-2" style="display:none;">
   <div class="mb-4">
@@ -26,6 +27,18 @@
             <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
           {% endif %}
         </td>
+      </tr>
+      <tr>
+	<td>Editorial decision:</td>
+	<td>
+	  {% if submission.editorial_decision %}
+	    For Journal {{ submission.editorial_decision.for_journal }}: {{ submission.editorial_decision.get_decision_display }}
+	    <br>
+	    (status: {{ submission.editorial_decision.get_status_display }})
+	  {% else %}
+	    <span class="label label-secondary">No Editorial Decision has been taken yet.</span>
+	  {% endif %}
+	</td>
       </tr>
       <tr>
         <td>Submission is publicly available:</td>
@@ -69,8 +82,15 @@
     {% for recommendation in submission.eicrecommendations.active %}
       {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
     {% empty %}
-      No Editorial Recommendation is formulated yet.
+      No Editorial Recommendation has yet been formulated.
     {% endfor %}
+  </div>
+
+  <div class="mb-4">
+    <h4>Communications</h4>
+    <div id="communications">
+      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
+    </div>
   </div>
 
   <div class="mb-4">
