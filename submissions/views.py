@@ -2193,6 +2193,7 @@ def accept_puboffer(request, identifier_w_vn_nr):
         status=EditorialDecision.FIXED_AND_ACCEPTED)
     mail_sender = DirectMailUtil(
         'authors/confirm_puboffer_acceptance', submission=submission)
+    mail_sender.send_mail()
     submission.add_general_event('Authors have accepted the publication offer.')
     messages.success(request, ('Your acceptance of the publication offer has been registered. '
                                'Congratulations! We will immediately start producing the proofs.'))
