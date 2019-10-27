@@ -1,4 +1,8 @@
 {% load bootstrap %}
+{% load submissions_extras %}
+{% load user_groups %}
+
+{% is_edcol_admin request.user as is_editorial_admin %}
 
 <h3 class="highlight">
   Editorial information &emsp;<button type="button" class="btn btn-primary px-1 py-0" data-toggle="toggle" data-target="#editorialinformation"><small>Show/hide</small></button>
@@ -68,7 +72,7 @@
         <tr>
           <td>Submission is published as:</td>
           <td>
-            <a href="{{submission.publication.get_absolute_url}}">
+            <a href="{{ submission.publication.get_absolute_url }}">
               {{ submission.publication.citation }}
 	    </a>
           </td>
@@ -80,7 +84,12 @@
   <div class="mb-4">
     <h3 class="mb-2">Editorial Recommendation:</h3>
     {% for recommendation in submission.eicrecommendations.active %}
-      {% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+      {% if is_editorial_admin or request.user.contributor in recommendation.eligible_to_vote.all %}
+	{% include 'partials/submissions/_previous_recommendations_card_fellow_content.html' with recommendation=recommendation %}
+	{% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
+      {% else %}
+	{% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+      {% endif %}
     {% empty %}
       No Editorial Recommendation has yet been formulated.
     {% endfor %}

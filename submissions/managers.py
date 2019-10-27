@@ -355,7 +355,7 @@ class EICRecommendationQuerySet(models.QuerySet):
         return self.filter(status=constants.VOTING_IN_PREP)
 
     def active(self):
-        """Return the subset of EICRecommendation most recent, valid versions."""
+        """Return the subset of non-deprecated EICRecommendations."""
         return self.exclude(status=constants.DEPRECATED)
 
     def fixed(self):
@@ -364,7 +364,8 @@ class EICRecommendationQuerySet(models.QuerySet):
 
     def asking_revision(self):
         """Return EICRecommendation asking for a minor or major revision."""
-        return self.filter(recommendation__in=[-1, -2])
+        return self.filter(recommendation__in=[constants.EIC_REC_MINOR_REVISION,
+                                               constants.EIC_REC_MAJOR_REVISION])
 
 
 class ReportQuerySet(models.QuerySet):

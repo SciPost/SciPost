@@ -1,0 +1,26 @@
+{% if recommendation.get_other_versions %}
+  <div class="card text-white bg-dark">
+    <h3 class="card-header">
+      Deprecated versions of Editorial Recommendations for this Submission
+    </h3>
+
+    <div class="card-body">
+      <div class="accordion" id="previousRecAccordion">
+	{% for old_rec in recommendation.get_other_versions %}
+	  <div class="card{% if not old_rec.active %} text-secondary{% endif %}">
+	    <div class="card-header" id="recCard{{ old_rec.version }}">
+	      <h2 class="mb=0">
+		<button class="btn btn-warning collapsed" type="button" data-toggle="collapse" data-target="#collapserecCard{{ old_rec.version }}" aria-expanded="false" aria-controls="collapserecCard{{ old_rec.version }}">Show/hide Editorial Recommendation {{ old_rec.version }} (status: {{ old_rec.get_status_display }}) &darr;</button>
+	      </h2>
+	    </div>
+	    <div id="collapserecCard{{ old_rec.version }}" class="collapse" aria-labelledby="collapserecCard{{ old_rec.version }}" data-parent="#previousRecAccordion">
+	      <div class="card-body">
+		{% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=old_rec %}
+	      </div>
+	    </div>
+	  </div>
+	{% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}

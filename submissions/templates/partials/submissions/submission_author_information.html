@@ -14,25 +14,18 @@
       {% elif submission.in_refereeing_phase %}
         The refereeing round has started. The current deadline is set to {{ submission.reporting_deadline|date:'j F Y' }}.
       {% elif submission.eicrecommendations.active.first %}
-        An Editorial Recommendation has been formulated. See its details below.
+        An Editorial Recommendation has been formulated. See its status details below.
       {% elif not submission.open_for_reporting %}
         The refereeing round is closed, but no Editorial Recommendation is formulated yet. The editor will formulate the Editorial Recommendation after all Reports have been received.
+      {% endif %}
+      {% if submission.editorial_decision %}
+	An Editorial Decision has been taken. See details below.
       {% endif %}
     </p>
     <table class="table table-borderless">
       <tr>
         <td>Submission status:</td>
         <td><span class="label label-secondary">{{ submission.get_status_display }}</span></td>
-      </tr>
-      <tr>
-        <td>Recommendation status:</td>
-        <td>
-          {% if submission.eicrecommendations.active.first %}
-            <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
-          {% else %}
-            <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
-          {% endif %}
-        </td>
       </tr>
       <tr>
         <td>Submission is publicly available:</td>
@@ -58,6 +51,22 @@
           {% endif %}
         </td>
       </tr>
+      <tr>
+        <td>Recommendation status:</td>
+        <td>
+          {% if submission.eicrecommendations.active.first %}
+            <span class="label label-secondary">{{ submission.eicrecommendations.active.first.get_status_display }}</span>
+          {% else %}
+            <span class="label label-secondary">No Editorial Recommendation is formulated yet.</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% if submission.editorial_decision %}
+	<tr>
+	  <td>Editorial decision:</td>
+	  <td>{{ submission.editorial_decision.summary }}</td>
+	</tr>
+      {% endif %}
       {% if submission.publication and submission.publication.is_published %}
         <tr>
           <td>Submission is published as:</td>
@@ -71,7 +80,7 @@
     </table>
   </div>
 
-  {% if submission.eicrecommendations %}
+  {% if submission.eicrecommendations and submission.eicrecommendations.last.is_viewable_by_authors %}
     <div class="mb-4">
       <h4 class="mb-2">Editorial Recommendation:</h4>
       {% include 'partials/submissions/recommendation_author_content.html' with recommendation=submission.eicrecommendations.last %}

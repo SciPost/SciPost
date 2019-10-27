@@ -54,14 +54,6 @@ def user_is_referee(submission, user):
 
 
 @register.filter
-def is_voting_fellow(submission, user):
-    """Check if the User is a voting-Fellow of the Submission."""
-    if not user.is_authenticated:
-        return False
-    return submission.voting_fellows.filter(contributor__user=user).exists()
-
-
-@register.filter
 def citation(citable):
     return citable.citation
 
