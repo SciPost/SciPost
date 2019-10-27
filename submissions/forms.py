@@ -826,6 +826,15 @@ class WithdrawSubmissionForm(forms.Form):
             EICRecommendation.objects.filter(submission=self.submission).active().update(
                 status=DEPRECATED)
             self.submission.refresh_from_db()
+
+            # Update editorial decision
+            EditorialDecision.objects.filter(submission=self.submission).last().update(
+                status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
+
+            # Delete any production stream
+            if self.submission.production_stream:
+                self.submission.production_stream.delete()
+
         return self.submission
 
 

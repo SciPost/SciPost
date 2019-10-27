@@ -283,10 +283,6 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
                 mail_util.send_mail()
             submission.referee_invitations.outstanding().update(cancelled=True)
 
-            # Delete any production stream
-            if submission.production_stream:
-                submission.production_stream.delete()
-
             # All done.
             submission.add_general_event('The manuscript has been withdrawn by the authors.')
             messages.success(request, 'Your manuscript has been withdrawn.')
