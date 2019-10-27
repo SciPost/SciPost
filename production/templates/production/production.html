@@ -50,7 +50,7 @@
             <thead>
               <tr>
                 <th style="width: 30%;">Submission</th>
-                <th>Target Journal<br/>(Tier)</th>
+                <th>Target Journal</th>
                 <th>Status</th>
                 <th class="py-1">
                   Latest activity
@@ -73,9 +73,10 @@
                     <br>
                     by {{ stream.submission.author_list }}
                   </td>
-                  <td>{{ stream.submission.submitted_to }}{% for rec in stream.submission.eicrecommendations.all %}<br/>({{ rec|Tier }}){% endfor %}</td>
+                  <td>{{ stream.submission.editorial_decision.for_journal }}</td>
                   <td>
                     <div class="label label-{% if stream.status == 'initiated' %}outline-danger{% else %}secondary{% endif %}">{{ stream.get_status_display }}</div>
+		    {% if stream.submission.editorial_decision.status == stream.submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}<br><strong class="text-danger">Wait! author<br>acceptance of puboffer<br>required!</strong>{% endif %}
                   </td>
                   <td>
                     {{ stream.latest_activity|timesince }} ago

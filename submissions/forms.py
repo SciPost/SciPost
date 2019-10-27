@@ -1410,8 +1410,9 @@ class EditorialDecisionForm(forms.ModelForm):
     def save(self):
         decision = super().save(commit=False)
         if not self.instance.id: # a new object is created
-            decision.version = self.cleaned_data['submission'].editorialdecision_set.all(
-            ).last().version + 1
+            if self.cleaned_data['submission'].editorialdecision_set.all().exists():
+                decision.version = self.cleaned_data['submission'].editorialdecision_set.all(
+                ).last().version + 1
         decision.save()
         return decision
 

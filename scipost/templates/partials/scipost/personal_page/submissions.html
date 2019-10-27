@@ -42,7 +42,7 @@
 			<li><a class="btn btn-primary my-1 px-1 py-0" href="{% url 'submissions:accept_puboffer' sub.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ sub.editorial_decision.for_journal }} (one-click action)</a></li>
 		      {% endif %}
 		    {% endif %}
-		    <li><ahref="{% url 'submissions:withdraw_manuscript' sub.preprint.identifier_w_vn_nr %}"><span class="text-danger">Withdraw</span> (leads to confirmation page)</a></li>
+		    <li><a href="{% url 'submissions:withdraw_manuscript' sub.preprint.identifier_w_vn_nr %}"><span class="text-danger">Withdraw</span> (leads to confirmation page)</a></li>
 		  {% endif %}
 		</ul>
               </p>

@@ -246,6 +246,7 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
     - deprecates any Editorial Recommendation
     - emailing authors, EIC (cc to EdAdmin)
     - deprecates all outstanding refereeing requests (emailing referees)
+    - deletes production stream (if started, in case puboffer made)
     - adds an event.
 
     GET shows the info/confirm page
@@ -281,6 +282,10 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
                     'referees/inform_referee_manuscript_withdrawn', invitation=invitation)
                 mail_util.send_mail()
             submission.referee_invitations.outstanding().update(cancelled=True)
+
+            # Delete any production stream
+            if submission.production_stream:
+                submission.production_stream.delete()
 
             # All done.
             submission.add_general_event('The manuscript has been withdrawn by the authors.')
@@ -2172,7 +2177,7 @@ def accept_puboffer(request, identifier_w_vn_nr):
     """
 
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
+    errormessage = ''
     if request.user.contributor.id != submission.submitted_by.id:
         errormessage = ('You are not marked as the submitting author of this Submission, '
                         'and thus are not allowed to take this action.')
@@ -2182,7 +2187,7 @@ def accept_puboffer(request, identifier_w_vn_nr):
     if errormessage != '':
         return render(request, 'scipost/error.html', {'errormessage': errormessage})
     Submission.objects.filter(id=submission.id).update(status=STATUS_ACCEPTED)
-    EditorialDecision.objects.filter(id=submission.editorialdecision.id).update(
+    EditorialDecision.objects.filter(id=submission.editorial_decision.id).update(
         status=EditorialDecision.FIXED_AND_ACCEPTED)
     mail_sender = DirectMailUtil(
         'authors/confirm_puboffer_acceptance', submission=submission)
