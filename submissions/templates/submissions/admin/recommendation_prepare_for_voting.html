@@ -30,7 +30,7 @@
   <br>
   <h2 class="highlight">Select Fellows eligible to vote</h2>
   <div class="row">
-    <div class="col-md-5">
+    <div class="col-md-3">
       <p>Fellows with expertise matching the Submission's subject area:</p>
       <ul>
         {% for fellow in fellows_with_expertise %}
@@ -38,13 +38,29 @@
             {{ fellow.contributor.user.first_name }} {{ fellow.contributor.user.last_name }}
             <br>
             {% for expertise in fellow.contributor.expertises %}
-              <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+              <div class="single d-inline" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
             {% endfor %}
           </li>
         {% endfor %}
       </ul>
     </div>
-    <div class="col-md-7">
+    {% if previously_eligible_for_voting %}
+      <div class="col-md-3">
+	<p>Fellows who were eligible to vote in previous versions of this recommendation:</p>
+	<ul>
+	  {% for voter in previously_eligible_for_voting %}
+            <li>
+              {{ voter.user.first_name }} {{ voter.user.last_name }}
+              <br>
+              {% for expertise in voter.expertises %}
+		<div class="single d-inline" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
+              {% endfor %}
+            </li>
+	  {% endfor %}
+	</ul>
+      </div>
+    {% endif %}
+    <div class="col-md-6">
       <form action="{% url 'submissions:prepare_for_voting' rec_id=recommendation.id %}" method="post">
         {% csrf_token %}
         {{ eligibility_form|bootstrap:'4,8' }}

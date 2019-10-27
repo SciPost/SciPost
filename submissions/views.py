@@ -1684,9 +1684,15 @@ def prepare_for_voting(request, rec_id):
         #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
         coauthorships = None
 
+        prev_elig_id = []
+        for prev_rec in recommendation.get_other_versions():
+            prev_elig_id += [fellow.id for fellow in prev_rec.eligible_to_vote.all()]
+        previously_eligible_for_voting = Contributor.objects.filter(pk__in=prev_elig_id)
+
     context = {
         'recommendation': recommendation,
         'fellows_with_expertise': fellows_with_expertise,
+        'previously_eligible_for_voting': previously_eligible_for_voting,
         'coauthorships': coauthorships,
         'eligibility_form': eligibility_form,
     }

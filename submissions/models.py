@@ -1106,7 +1106,7 @@ class EditorialDecision(models.Model):
     def summary(self):
         return 'For Journal %s: %s (status: %s)' % (self.for_journal,
                                                     self.get_decision_display(),
-                                                    self.get_status_display)
+                                                    self.get_status_display())
 
     def get_absolute_url(self):
         return reverse('submissions:editorial_decision_detail',

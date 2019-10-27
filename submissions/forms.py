@@ -1017,12 +1017,18 @@ class VotingEligibilityForm(forms.ModelForm):
         if not secondary_areas:
             secondary_areas = []
 
-        self.fields['eligible_fellows'].queryset = Contributor.objects.filter(
+        # If there exists a previous recommendation, include previous voting Fellows:
+        prev_elig_id = []
+        for prev_rec in self.instance.submission.eicrecommendations.all():
+            prev_elig_id += [fellow.id for fellow in prev_rec.eligible_to_vote.all()]
+        eligible = Contributor.objects.filter(
             fellowships__pool=self.instance.submission).filter(
                 Q(EIC=self.instance.submission) |
                 Q(expertises__contains=[self.instance.submission.subject_area]) |
-                Q(expertises__contains=secondary_areas)).order_by(
-                    'user__last_name').distinct()
+                Q(expertises__contains=secondary_areas) |
+                Q(pk__in=prev_elig_id)
+            ).order_by('user__last_name').distinct()
+        self.fields['eligible_fellows'].queryset = eligible
 
     def save(self, commit=True):
         """Update EICRecommendation status and save its voters."""
