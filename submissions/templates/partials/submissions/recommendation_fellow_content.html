@@ -118,10 +118,20 @@
 	<div class="card-footer bg-light py-3">
           <h3 class="card-title mb-3">Administrative actions on recommendations undergoing voting:</h3>
           <ul class="mb-1">
-            <li class="list-item my-2"><a class="btn btn-secondary" href="{% url 'submissions:remind_Fellows_to_vote' %}" role="button">Send an email reminder to each Fellow with at least one voting duty</a><br>(this is a one-click action, for all Submissions)</li>
-	    <li class="list-item my-2"><a class="btn btn-warning" href="{% url 'submissions:communication' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr comtype='StoE' %}" role="button">Send a communication to the Editor-in-charge</a><br>(for example to request a reformulation of the recommendation)</li>
+	    {% if not recommendation.submission.editorial_decision %}
+              <li class="list-item my-2"><a class="btn btn-secondary" href="{% url 'submissions:remind_Fellows_to_vote' %}" role="button">Send an email reminder to each Fellow with at least one voting duty</a><br>(this is a one-click action, for all Submissions)</li>
+	    {% endif %}
+	    <li class="list-item my-2"><a class="btn btn-warning" href="{% url 'submissions:communication' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr comtype='StoE' %}" role="button">Send a communication to the Editor-in-charge</a>
+	      {% if not recommendation.submission.editorial_decision %}
+		<br>(for example to request a reformulation of the recommendation)
+	      {% endif %}
+	    </li>
             <li class="list-item my-2">
-	      <a class="btn btn-primary" href="{% url 'submissions:editorial_decision_create' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">Initiate the process to fix the editorial decision</a>
+	      {% if not recommendation.submission.editorial_decision %}
+		<a class="btn btn-primary" href="{% url 'submissions:editorial_decision_create' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">Initiate the process to fix the editorial decision</a>
+	      {% else %}
+		<a class="btn btn-primary" href="{% url 'submissions:editorial_decision_detail' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">View the editorial decision</a>
+	      {% endif %}
             </li>
           </ul>
 	</div>
