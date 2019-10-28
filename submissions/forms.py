@@ -1298,9 +1298,9 @@ class EICRecommendationForm(forms.ModelForm):
         recommendation.version = len(self.earlier_recommendations) + 1
 
         if self.reformulate:
-            event_text = 'The Editorial Recommendation has been reformulated: {}.'
+            event_text = 'The Editorial Recommendation has been reformulated for Journal {}: {}.'
         else:
-            event_text = 'An Editorial Recommendation has been formulated: {}.'
+            event_text = 'An Editorial Recommendation has been formulated for Journal {}: {}.'
 
         if recommendation.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]:
             # Minor/Major revision: return to Author; ask to resubmit
@@ -1317,10 +1317,12 @@ class EICRecommendationForm(forms.ModelForm):
 
             # Add SubmissionEvents for both Author and EIC
             self.submission.add_general_event(event_text.format(
+                str(recommendation.for_journal),
                 recommendation.get_recommendation_display()))
         else:
             # Add SubmissionEvent for EIC only
             self.submission.add_event_for_eic(event_text.format(
+                str(recommendation.for_journal),
                 recommendation.get_recommendation_display()))
 
         if self.earlier_recommendations:

@@ -89,14 +89,11 @@
       <h3 class="mt-4">Submission summary</h3>
       {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
 
+      {% include 'partials/submissions/submission_topics.html' with submission=submission %}
+
       {% include 'partials/submissions/submission_status.html' with submission=submission %}
 
-      {% include 'partials/submissions/submission_topics.html' with submission=submission %}
-      <br/>
-
       {% if submission.editorial_decision %}
-	<h3 class="highlight">Editorial decision</h3>
-	<p>For Journal {{ submission.editorial_decision.for_journal }}: {{ submission.editorial_decision.get_decision_display }}<br>(status: {{ submission.editorial_decision.get_status_display }})</p>
 	{% if is_author and submission.editorial_decision.status == submission.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
 	  <p>
 	    <strong>We are awaiting your response to the publication offer.</strong>

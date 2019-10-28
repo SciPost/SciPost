@@ -57,12 +57,16 @@
     </p>
     <p>
       You can view more details at the Submission's page at
-      <a href="{% url 'submissions:submission' identifier_w_vn_nr={{ identifier_w_vn_nr }}">{% url 'submissions:submission' identifier_w_vn_nr={{ identifier_w_vn_nr }}</a>.
+      <a href="https://scipost.org{{ decision.submission.get_absolute_url }}">https://scipost.org{{ decision.submission.get_absolute_url }}</a> .
       Note that these details are viewable only by the registered authors of the submission.
     </p>
     <p>
       This Submission Page has now been removed from general public view; if you wish,
       you can email us and request to make it publicly visible again.
+    </p>
+    <p>
+      This completes the editorial procedure on our side, and you are now free to submit
+      your manuscript elsewhere.
     </p>
   {% endif %}
 {% endif %}

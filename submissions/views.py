@@ -246,6 +246,7 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
     - deprecates any Editorial Recommendation
     - emailing authors, EIC (cc to EdAdmin)
     - deprecates all outstanding refereeing requests (emailing referees)
+    - if an outstanding puboffer exists, mark it as turned down in EdDecision
     - deletes production stream (if started, in case puboffer made)
     - adds an event.
 
@@ -2153,11 +2154,13 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
             decision.status = EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         decision.save()
         submission.add_event_for_author(
-            'The Editorial Decision has been fixed: %s (with status: %s).' % (
-                decision.get_decision_display(), decision.get_status_display()))
+            'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
+                str(decision.for_journal), decision.get_decision_display(),
+                decision.get_status_display()))
         submission.add_event_for_eic(
-            'The Editorial Decision has been fixed: %s (with status: %s).' % (
-                decision.get_decision_display(), decision.get_status_display()))
+            'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
+                str(decision.for_journal), decision.get_decision_display(),
+                decision.get_status_display()))
 
         return redirect('submissions:pool')
     else:
