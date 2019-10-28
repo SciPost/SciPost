@@ -413,7 +413,9 @@ class Submission(models.Model):
     @property
     def editorial_decision(self):
         """Returns the EditorialDecision (if exists and not deprecated)."""
-        return self.editorialdecision_set.last()
+        if self.editorialdecision_set.exists():
+            return self.editorialdecision_set.last()
+        return None
 
 
 class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):

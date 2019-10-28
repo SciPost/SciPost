@@ -823,17 +823,20 @@ class WithdrawSubmissionForm(forms.Form):
                 status=STATUS_COMPLETED)
 
             # Deprecate any outstanding recommendations
-            EICRecommendation.objects.filter(submission=self.submission).active().update(
-                status=DEPRECATED)
-            self.submission.refresh_from_db()
+            if EICRecommendation.objects.filter(submission=self.submission).exists():
+                EICRecommendation.objects.filter(submission=self.submission).active().update(
+                    status=DEPRECATED)
 
             # Update editorial decision
-            EditorialDecision.objects.filter(submission=self.submission).last().update(
-                status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
+            if EditorialDecision.objects.filter(submission=self.submission).exists():
+                EditorialDecision.objects.filter(submission=self.submission).last().update(
+                    status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
 
             # Delete any production stream
             if self.submission.production_stream:
                 self.submission.production_stream.delete()
+
+            self.submission.refresh_from_db()
 
         return self.submission
 
