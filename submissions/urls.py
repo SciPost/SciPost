@@ -63,12 +63,11 @@ urlpatterns = [
         views.PlagiarismView.as_view(), name='plagiarism'),
     url(r'^admin/{regex}/plagiarism/report$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.PlagiarismReportPDFView.as_view(), name='plagiarism_report'),
-    # url(r'^admin/{regex}/recommendations/(?P<rec_id>[0-9]+)$'.format(
-    #     regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationView.as_view(),
-    #     name='eic_recommendation_detail'),
-    url(r'^admin/{regex}/recommendation$'.format(
+    url(
+        r'^admin/{regex}/recommendation$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationDetailView.as_view(),
-        name='eic_recommendation_detail'),
+        name='eic_recommendation_detail'
+    ),
     url(
         r'^admin/{regex}/editorial_decision/create$'.format(
             regex=SUBMISSIONS_COMPLETE_REGEX),

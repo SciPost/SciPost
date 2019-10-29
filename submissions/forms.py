@@ -20,8 +20,7 @@ from .constants import (
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
     EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS, SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
     SUBMISSION_CYCLE_CHOICES,
-    REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3,
-    REPORT_MINOR_REV, REPORT_MAJOR_REV, REPORT_REJECT,
+    EIC_REC_PUBLISH, EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION, EIC_REC_REJECT,
     ALT_REC_CHOICES, SUBMISSION_TIERS,
     STATUS_VETTED, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
     STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
@@ -31,7 +30,7 @@ from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
-    EditorialDecision,
+    SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
 from .signals import notify_manuscript_accepted
 
@@ -1227,11 +1226,17 @@ class EICRecommendationForm(forms.ModelForm):
     assignment = None
     earlier_recommendations = []
 
+    tier = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=SUBMISSION_TIERS,
+        required=False)
+
     class Meta:
         model = EICRecommendation
         fields = [
             'for_journal',
             'recommendation',
+            'tier',
             'remarks_for_authors',
             'requested_changes',
             'remarks_for_editorial_college'
@@ -1300,12 +1305,17 @@ class EICRecommendationForm(forms.ModelForm):
         recommendation.voting_deadline += datetime.timedelta(days=self.DAYS_TO_VOTE)  # Test this
         recommendation.version = len(self.earlier_recommendations) + 1
 
+        # Delete any previous tierings (irrespective of new/updated recommendation):
+        SubmissionTiering.objects.filter(
+            submission=self.submission,
+            fellow=self.submission.editor_in_charge).delete()
+
         if self.reformulate:
             event_text = 'The Editorial Recommendation has been reformulated for Journal {}: {}.'
         else:
             event_text = 'An Editorial Recommendation has been formulated for Journal {}: {}.'
 
-        if recommendation.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]:
+        if recommendation.recommendation in [EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION]:
             # Minor/Major revision: return to Author; ask to resubmit
             recommendation.status = DECISION_FIXED
             Submission.objects.filter(id=self.submission.id).update(
@@ -1323,6 +1333,15 @@ class EICRecommendationForm(forms.ModelForm):
                 str(recommendation.for_journal),
                 recommendation.get_recommendation_display()))
         else:
+            # if rec is to publish, specify the tiering (deleting old ones first):
+            if recommendation.recommendation == EIC_REC_PUBLISH:
+                tiering = SubmissionTiering(
+                    submission=self.submission,
+                    fellow=self.submission.editor_in_charge,
+                    for_journal=recommendation.for_journal,
+                    tier=self.cleaned_data['tier'])
+                tiering.save()
+
             # Add SubmissionEvent for EIC only
             self.submission.add_event_for_eic(event_text.format(
                 str(recommendation.for_journal),
@@ -1341,7 +1360,7 @@ class EICRecommendationForm(forms.ModelForm):
         return recommendation
 
     def revision_requested(self):
-        return self.instance.recommendation in [REPORT_MINOR_REV, REPORT_MAJOR_REV]
+        return self.instance.recommendation in [EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION]
 
     def has_assignment(self):
         return self.assignment is not None
@@ -1582,96 +1601,3 @@ class iThenticateReportForm(forms.ModelForm):
                 self.add_error(None, msg)
             return None
         return data
-
-
-# class FixCollegeDecisionForm(forms.ModelForm):
-#     """Fix EICRecommendation decision."""
-
-#     FIX, DEPRECATE = 'fix', 'deprecate'
-#     action = forms.ChoiceField(choices=((FIX, FIX), (DEPRECATE, DEPRECATE)))
-
-#     class Meta:
-#         model = EICRecommendation
-#         fields = ()
-
-#     def __init__(self, *args, **kwargs):
-#         """Accept request as argument."""
-#         self.submission = kwargs.pop('submission', None)
-#         self.request = kwargs.pop('request', None)
-#         return super().__init__(*args, **kwargs)
-
-#     def clean(self):
-#         """Check if EICRecommendation has the right decision."""
-#         data = super().clean()
-#         if self.instance.status == DECISION_FIXED:
-#             self.add_error(None, 'This EICRecommendation is already fixed.')
-#         elif self.instance.status == DEPRECATED:
-#             self.add_error(None, 'This EICRecommendation is deprecated.')
-#         return data
-
-#     def is_fixed(self):
-#         """Check if decision is fixed."""
-#         return self.cleaned_data['action'] == self.FIX
-
-#     def fix_decision(self, recommendation):
-#         """Fix decision of EICRecommendation."""
-#         EICRecommendation.objects.filter(id=recommendation.id).update(
-#             status=DECISION_FIXED)
-#         submission = recommendation.submission
-#         if recommendation.recommendation in [REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3]:
-#             # Publish as Tier I, II or III
-#             Submission.objects.filter(id=submission.id).update(
-#                 visible_public=True, status=STATUS_ACCEPTED, acceptance_date=datetime.date.today(),
-#                 latest_activity=timezone.now())
-
-#             # Start a new ProductionStream
-#             get_or_create_production_stream(submission)
-
-#             if self.request:
-#                 # Add SubmissionEvent for authors
-#                 notify_manuscript_accepted(self.request.user, submission, False)
-#         elif recommendation.recommendation == REPORT_REJECT:
-#             # Decision: Rejection. Auto hide from public and Pool.
-#             Submission.objects.filter(id=submission.id).update(
-#                 visible_public=False, visible_pool=False,
-#                 status=STATUS_REJECTED, latest_activity=timezone.now())
-#             submission.get_other_versions().update(visible_public=False)
-
-#         # Force-close the refereeing round for new referees.
-#         Submission.objects.filter(id=submission.id).update(
-#             open_for_reporting=False,
-#             open_for_commenting=False)
-
-#         # Update Editorial Assignment statuses.
-#         EditorialAssignment.objects.filter(
-#             submission=submission, to=submission.editor_in_charge).update(status=STATUS_COMPLETED)
-
-#         # Add SubmissionEvent for authors
-#         submission.add_event_for_author(
-#             'The Editorial Recommendation has been formulated: {0}.'.format(
-#                 recommendation.get_recommendation_display()))
-#         submission.add_event_for_eic(
-#             'The Editorial Recommendation has been fixed: {0}.'.format(
-#                 recommendation.get_recommendation_display()))
-#         return recommendation
-
-#     def deprecate_decision(self, recommendation):
-#         """Deprecate decision of EICRecommendation."""
-#         EICRecommendation.objects.filter(id=recommendation.id).update(
-#             status=DEPRECATED, active=False)
-#         recommendation.submission.add_event_for_eic(
-#             'The Editorial Recommendation (version {version}) has been deprecated: {decision}.'.format(
-#                 version=recommendation.version,
-#                 decision=recommendation.get_recommendation_display()))
-
-#         return recommendation
-
-#     def save(self):
-#         """Update EICRecommendation and related Submission."""
-#         if self.is_fixed():
-#             return self.fix_decision(self.instance)
-#         elif self.cleaned_data['action'] == self.DEPRECATE:
-#             return self.deprecate_decision(self.instance)
-#         else:
-#             raise ValueError('The decision given is invalid')
-#         return self.instance

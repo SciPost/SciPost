@@ -49,3 +49,23 @@
 
 
 {% endblock content %}
+
+
+{% block footer_script %}
+  <script nonce="{{ request.csp_nonce }}">
+   $(document).ready(function(){
+       $("input[name=tier]").parents('.form-group').hide()
+       $('select[name=recommendation]').on('change', function(){
+	   var rec = $('select[name=recommendation]').val();
+	   switch(rec){
+	       case "1":
+		   $("input[name=tier]").parents('.form-group').show()
+		   break;
+	       default:
+		   $("input[name=tier]").parents('.form-group').hide()
+		   break;
+	   }
+       }).trigger('change');
+   });
+  </script>
+{% endblock %}
