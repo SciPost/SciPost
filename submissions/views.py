@@ -2056,9 +2056,11 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
     if mail_request.is_valid():
         messages.success(request, 'Authors have been emailed about the decision')
         mail_request.send_mail()
-        if decision.for_journal == submission.submitted_to:
+        if (decision.decision == EIC_REC_REJECT or
+            decision.for_journal.name == 'SciPost Selections' or
+            decision.for_journal == submission.submitted_to):
             decision.status = EditorialDecision.FIXED_AND_ACCEPTED
-        else:
+        else: # paper is accepted, but in subsidiary journal
             decision.status = EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         decision.save()
         submission.add_event_for_author(

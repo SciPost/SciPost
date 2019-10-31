@@ -1446,6 +1446,14 @@ class EditorialDecisionForm(forms.ModelForm):
         self.fields['remarks_for_editorial_college'].widget.attrs.update({
             'placeholder': '[will only be seen by Fellows]'})
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if (cleaned_data['decision'] == EIC_REC_REJECT and
+            cleaned_data['status'] == EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE):
+            raise forms.ValidationError(
+                'If the decision is to reject, the status cannot be '
+                'Awaiting author acceptance of publication offer.')
+
     def save(self):
         decision = super().save(commit=False)
         if not self.instance.id: # a new object is created

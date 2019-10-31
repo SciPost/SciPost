@@ -7,51 +7,50 @@
 </p>
 <p>{{ decision.submission.title }}</p>
 <p>by {{ decision.submission.author_list }}.</p>
-{% if decision.for_journal.name == 'SciPost Selections' %}
-  <p>
-    We are pleased to let you know that your manuscript has been accepted for publication
-    in {{ decision.submission.submitted_to }}, with inclusion of an extended abstract
-    in SciPost Selections.
-  </p>
-  <p>
-    We warmly congratulate you on this achievement, which represents the highest mark of
-    recognition given by the Editorial College.
-  </p>
-  <p>
-    Your manuscript will now be taken charge of by our production team,
-    which will soon send you proofs to check before final publication.
-  </p>
-{% else %}
-  {% if decision.publish %}
-    {% if decision.for_journal == decision.submission.submitted_to %}
-      <p>
-	We are pleased to let you know that your manuscript has been accepted for publication
-	in {{ decision.submission.submitted_to }}.
-      </p>
-      <p>
-	Your manuscript will now be taken charge of by our production team,
-	which will soon send you proofs to check before final publication.
-      </p>
-    {% else %}
-      <p>
-	We would like to offer you publication of your manuscript in
-	{{ decision.for_journal }} (you had originally submitted
-	to {{ decision.submission.submitted_to }}).
-      </p>
-      <p>
-	You can inform us of choice by going to your personal page: under
-	the Submissions tab, you will find links to accept this offer or
-	to turn it down (you will also find these links on the submission page of this manuscript).
-	<strong>We will await your confirmation of acceptance of this publication offer
-	  before initiating production of the proofs of your paper.</strong>
-      </p>
-      <p>
-	If you decide to turn this offer down, you can simply withdraw your manuscript.
-	It will then not be considered for further processing on our side
-	and you will be free to submit it elsewhere.
-      </p>
-    {% endif %}
+{% if decision.publish %}
+  {% if decision.for_journal.name == 'SciPost Selections' %}
+    <p>
+      We are pleased to let you know that your manuscript has been accepted for publication
+      in {{ decision.submission.submitted_to }}, with inclusion of an extended abstract
+      in SciPost Selections.
+    </p>
+    <p>
+      We warmly congratulate you on this achievement, which represents the highest mark of
+      recognition given by the Editorial College.
+    </p>
+    <p>
+      Your manuscript will now be taken charge of by our production team,
+      which will soon send you proofs to check before final publication.
+    </p>
+  {% elif decision.for_journal == decision.submission.submitted_to %}
+    <p>
+      We are pleased to let you know that your manuscript has been accepted for publication
+      in {{ decision.submission.submitted_to }}.
+    </p>
+    <p>
+      Your manuscript will now be taken charge of by our production team,
+      which will soon send you proofs to check before final publication.
+    </p>
   {% else %}
+    <p>
+      We would like to offer you publication of your manuscript in
+      {{ decision.for_journal }} (you had originally submitted
+      to {{ decision.submission.submitted_to }}).
+    </p>
+    <p>
+      You can inform us of choice by going to your personal page: under
+      the Submissions tab, you will find links to accept this offer or
+      to turn it down (you will also find these links on the submission page of this manuscript).
+      <strong>We will await your confirmation of acceptance of this publication offer
+	before initiating production of the proofs of your paper.</strong>
+    </p>
+    <p>
+      If you decide to turn this offer down, you can simply withdraw your manuscript.
+      It will then not be considered for further processing on our side
+      and you will be free to submit it elsewhere.
+    </p>
+  {% endif %}
+{% else %}
     <p>
       We are sorry to inform you that your Submission has not been accepted for publication.
     </p>
@@ -68,7 +67,6 @@
       This completes the editorial procedure on our side, and you are now free to submit
       your manuscript elsewhere.
     </p>
-  {% endif %}
 {% endif %}
 {% if decision.remarks_for_authors %}
   <p><strong>Further remarks from Editorial Administration:</strong></p>
