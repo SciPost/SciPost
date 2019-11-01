@@ -832,7 +832,7 @@ class WithdrawSubmissionForm(forms.Form):
                     status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
 
             # Delete any production stream
-            if self.submission.production_stream:
+            if hasattr(self.submission, 'production_stream'):
                 self.submission.production_stream.delete()
 
             self.submission.refresh_from_db()
