@@ -18,14 +18,14 @@ class BaseThesisLinkFactory(factory.django.DjangoModelFactory):
         model = ThesisLink
         abstract = True
 
-    requested_by = factory.Iterator(Contributor.objects.all())
-    vetted_by = factory.Iterator(Contributor.objects.all())
+    requested_by = factory.SubFactory('scipost.factories.ContributorFactory')
+    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
     vetted = True
 
     type = factory.Iterator(THESIS_TYPES, getter=lambda c: c[0])
-    discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
+    discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
-    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: c[0])
+    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
     title = factory.Faker('sentence')
     pub_link = factory.Faker('uri')
     author = factory.Faker('name')

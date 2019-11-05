@@ -31,10 +31,9 @@ class TestRequestThesisLink(TestCase):
     def test_data_without_user_is_not_valid(self):
         form_data = self.valid_form_data
         request = RequestFactory()
-        with self.assertRaises(AttributeError):
+        with self.assertRaises(AttributeError) as result:
             RequestThesisLinkForm(self.valid_form_data, request=request)
-        # Should we define a more semantic error like UserNotDefinedError?
-        self.assertTrue(False)
+        self.assertTrue(result)
 
     def test_thesislink_is_requested_by_correct_contributor(self):
         form_data = self.valid_form_data

@@ -62,6 +62,7 @@ class TestRequestThesisLink(TestCase):
 class TestVetThesisLinkRequests(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
         self.client = Client()
         self.thesislink = ThesisLinkFactory()
         self.target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
