@@ -15,7 +15,7 @@ from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory
                        ResubmittedSubmissionFactory, ResubmissionFactory,\
                        PublishedSubmissionFactory, DraftReportFactory,\
                        AcceptedRefereeInvitationFactory
-from .forms import SubmissionIdentifierForm, ReportForm. SubmissionForm
+from .forms import SubmissionIdentifierForm, ReportForm, SubmissionForm
 from .models import Submission, Report, RefereeInvitation
 
 from journals.models import Journal

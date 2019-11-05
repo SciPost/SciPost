@@ -43,9 +43,14 @@ class TestRequestThesisLink(TestCase):
         self.target = reverse('theses:request_thesislink')
 
     def test_response_when_not_logged_in(self):
-        '''A visitor that is not logged in cannot view this page.'''
+        '''
+        A visitor that is not logged in cannot view this page and is redirected to login.
+        '''
         response = self.client.get(self.target)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(
+            response,
+            expected_url='%s?next=%s' % (
+                reverse('scipost:login'), reverse('theses:request_thesislink')))
 
     def test_response_when_logged_in(self):
         request = RequestFactory().get(self.target)
