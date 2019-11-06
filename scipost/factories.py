@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import factory
+import pytz
 import random
 
 from django.contrib.auth import get_user_model
@@ -20,7 +21,7 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
     invitation_key = factory.Faker('md5')
     activation_key = factory.Faker('md5')
-    key_expires = factory.Faker('future_datetime')
+    key_expires = factory.Faker('future_datetime', tzinfo=pytz.utc)
     status = NORMAL_CONTRIBUTOR  # normal user
     title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
     discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])

@@ -132,10 +132,10 @@ class TestVetCommentaryForm(TestCase):
         self.assertFalse(Commentary.objects.vetted().exists())
         self.assertTrue(Commentary.objects.awaiting_vetting().count() == 1)
 
-        # Delete the Commentary
+        # Modified Commentary in the database
         form.process_commentary()
         self.assertTrue(form.commentary_is_modified())
-        self.assertFalse(Commentary.objects.awaiting_vetting().exists())
+        self.assertTrue(Commentary.objects.awaiting_vetting().exists())
 
     def test_valid_rejected_form(self):
         """Test valid form data and delete Commentary"""

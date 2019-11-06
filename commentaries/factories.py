@@ -18,24 +18,36 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
         django_get_or_create = ('pub_DOI', 'arxiv_identifier')
         abstract = True
 
-    requested_by = factory.Iterator(Contributor.objects.all())
+    requested_by = factory.SubFactory('scipost.factories.ContributorFactory')
     vetted = True
     vetted_by = factory.Iterator(Contributor.objects.all())
     type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
-    discipline = factory.Iterator(SCIPOST_DISCIPLINES, getter=lambda c: c[0])
-    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: c[0])
+    discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
-    title = factory.Faker('sentence')
-    pub_DOI = factory.Sequence(lambda n: random_external_doi())
-    arxiv_identifier = factory.Sequence(lambda n: random_arxiv_identifier_with_version_number('1'))
-    author_list = factory.Faker('name')
-    pub_abstract = factory.Faker('text')
-    pub_date = factory.Faker('date_this_decade')
-    pub_abstract = factory.Faker('paragraph')
+    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
+    open_for_commenting = True
 
-    url = factory.lazy_attribute(lambda o: 'https://arxiv.org/abs/%s' % o.arxiv_identifier)
+    title = factory.Faker('sentence')
+    arxiv_identifier = factory.Sequence(lambda n: random_arxiv_identifier_with_version_number('1'))
+    #arxiv_link
+    pub_DOI = factory.Sequence(lambda n: random_external_doi())
+    #pub_DOI_link
+    #metadata
     arxiv_or_DOI_string = factory.lazy_attribute(lambda o: (
         o.arxiv_identifier if o.arxiv_identifier else o.pub_DOI))
+    #scipost_publication
+    author_list = factory.Faker('name')
+    #authors
+    #authors_claims
+    #authors_false_claims
+    #journal
+    #volume
+    #pages
+    pub_date = factory.Faker('date_this_decade')
+    pub_abstract = factory.Faker('paragraph')
+    #comments
+
+    # url = factory.lazy_attribute(lambda o: 'https://arxiv.org/abs/%s' % o.arxiv_identifier)
 
     @factory.post_generation
     def create_urls(self, create, extracted, **kwargs):
