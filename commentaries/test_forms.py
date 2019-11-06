@@ -80,7 +80,7 @@ class TestDOIToQueryForm(TestCase):
         self.assertRegexpMatches(error_message, re.compile('already exist'))
 
     def test_physrev_doi_is_valid(self):
-        physrev_doi = "10.21468/SciPostPhys.2.2.010"
+        physrev_doi = "10.1103/PhysRevLett.123.183602"
         form = DOIToQueryForm({'doi': physrev_doi})
         self.assertTrue(form.is_valid())
 

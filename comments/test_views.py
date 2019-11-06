@@ -82,6 +82,8 @@ class TestNewComment(TestCase):
             'submissions:submission',
             kwargs={'identifier_w_vn_nr': submission.preprint.identifier_w_vn_nr}
         )
+        print(response)
+        print(expected_redirect_link)
         self.assertRedirects(response, expected_redirect_link)
 
     def test_submitting_comment_on_commentary_creates_comment_and_redirects(self):

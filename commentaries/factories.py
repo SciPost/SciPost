@@ -20,7 +20,7 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
 
     requested_by = factory.SubFactory('scipost.factories.ContributorFactory')
     vetted = True
-    vetted_by = factory.Iterator(Contributor.objects.all())
+    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
     type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
     discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
