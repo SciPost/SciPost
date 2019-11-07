@@ -55,7 +55,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         ordering = ['cancelled', 'date_invited']
 
     def __str__(self):
-        """Summerize the RefereeInvitation's basic information."""
+        """Summarize the RefereeInvitation's basic information."""
         return (self.first_name + ' ' + self.last_name + ' to referee ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', invited on ' + self.date_invited.strftime('%Y-%m-%d'))

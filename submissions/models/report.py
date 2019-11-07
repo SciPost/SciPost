@@ -98,7 +98,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         ordering = ['-date_submitted']
 
     def __str__(self):
-        """Summerize the RefereeInvitation's basic information."""
+        """Summarize the RefereeInvitation's basic information."""
         return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
@@ -191,7 +191,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def associated_published_doi(self):
         """Return the related Publication doi.
 
-        Check if the Report relates to a SciPost-published object. If it is, return the doi
+        Check if the Report relates to a SciPost-published object. If it does, return the doi
         of the published object.
         """
         try:

@@ -38,9 +38,6 @@ from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 class Submission(models.Model):
     """
     A Submission is a preprint sent to SciPost for consideration.
-
-    The class collects all the information necessary to run the editorial
-    process.
     """
 
     preprint = models.OneToOneField('preprints.Preprint', on_delete=models.CASCADE,

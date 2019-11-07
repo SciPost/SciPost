@@ -39,7 +39,7 @@ class EditorialAssignment(SubmissionRelatedObjectMixin, models.Model):
         ordering = ['-date_created']
 
     def __str__(self):
-        """Summerize the EditorialAssignment's basic information."""
+        """Summarize the EditorialAssignment's basic information."""
         return (self.to.user.first_name + ' ' + self.to.user.last_name + ' to become EIC of ' +
                 self.submission.title[:30] + ' by ' + self.submission.author_list[:30] +
                 ', requested on ' + self.date_created.strftime('%Y-%m-%d'))

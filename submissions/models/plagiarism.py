@@ -55,7 +55,7 @@ class iThenticateReport(TimeStampedModel):
         if not self.part_id:
             return ''
 
-        from .plagiarism import iThenticate
+        from ..plagiarism import iThenticate
         plagiarism = iThenticate()
         return plagiarism.get_url(self.part_id)
 
