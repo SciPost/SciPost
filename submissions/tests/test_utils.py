@@ -10,10 +10,10 @@ from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 
-from .constants import (
+from ..constants import (
     STATUS_UNASSIGNED, STATUS_INCOMING, STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC)
-from .exceptions import CycleUpdateDeadlineError
-from .factories import UnassignedSubmissionFactory, ResubmissionFactory
+from ..exceptions import CycleUpdateDeadlineError
+from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #from .utils import GeneralSubmissionCycle
 
 

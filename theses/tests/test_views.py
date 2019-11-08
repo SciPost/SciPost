@@ -16,10 +16,10 @@ from scipost.factories import UserFactory, ContributorFactory
 from comments.factories import CommentFactory
 from comments.forms import CommentForm
 from comments.models import Comment
-from .views import RequestThesisLink, VetThesisLink, thesis_detail
-from .factories import ThesisLinkFactory, ThesisLinkFactory, VetThesisLinkFormFactory
-from .models import ThesisLink
-from .forms import VetThesisLinkForm
+from ..views import RequestThesisLink, VetThesisLink, thesis_detail
+from ..factories import ThesisLinkFactory, ThesisLinkFactory, VetThesisLinkFormFactory
+from ..models import ThesisLink
+from ..forms import VetThesisLinkForm
 from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
 

@@ -10,13 +10,13 @@ from common.helpers import random_arxiv_identifier_without_version_number
 from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 
-from .constants import STATUS_UNASSIGNED, STATUS_DRAFT, STATUS_UNVETTED
-from .factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
+from ..constants import STATUS_UNASSIGNED, STATUS_DRAFT, STATUS_UNVETTED
+from ..factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
                        ResubmittedSubmissionFactory, ResubmissionFactory,\
                        PublishedSubmissionFactory, DraftReportFactory,\
                        AcceptedRefereeInvitationFactory
-from .forms import SubmissionIdentifierForm, ReportForm, SubmissionForm
-from .models import Submission, Report, RefereeInvitation
+from ..forms import SubmissionIdentifierForm, ReportForm, SubmissionForm
+from ..models import Submission, Report, RefereeInvitation
 
 from journals.models import Journal
 

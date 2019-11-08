@@ -7,8 +7,8 @@ import factory
 from django.test import TestCase, RequestFactory
 
 from scipost.factories import ContributorFactory
-from .factories import ThesisLinkFactory, VetThesisLinkFormFactory
-from .forms import RequestThesisLinkForm, VetThesisLinkForm
+from ..factories import ThesisLinkFactory, VetThesisLinkFormFactory
+from ..forms import RequestThesisLinkForm, VetThesisLinkForm
 from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
 

@@ -9,11 +9,11 @@ from django.test import TestCase
 from common.helpers import model_form_data
 from scipost.factories import UserFactory, ContributorFactory
 
-from .factories import CommentaryFactory, UnvettedCommentaryFactory,\
+from ..factories import CommentaryFactory, UnvettedCommentaryFactory,\
                        UnvettedUnpublishedCommentaryFactory
-from .forms import RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm,\
+from ..forms import RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm,\
                    ArxivQueryForm, RequestArxivPreprintForm
-from .models import Commentary
+from ..models import Commentary
 from common.helpers.test import add_groups_and_permissions
 
 

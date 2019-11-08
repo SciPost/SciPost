@@ -6,7 +6,7 @@ import datetime
 
 from django.test import TestCase
 
-from .services import ArxivCaller, DOICaller
+from ..services import ArxivCaller, DOICaller
 
 from submissions.models import Submission
 

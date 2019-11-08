@@ -13,7 +13,7 @@ from commentaries.factories import UnvettedCommentaryFactory, CommentaryFactory,
 from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
-from .factories import ContributorFactory
+from ..factories import ContributorFactory
 
 
 class RequestCommentaryTest(TestCase):
