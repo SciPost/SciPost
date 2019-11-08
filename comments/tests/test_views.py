@@ -12,10 +12,10 @@ from theses.factories import ThesisLinkFactory
 from submissions.factories import EICassignedSubmissionFactory
 from commentaries.factories import UnpublishedCommentaryFactory
 
-from .factories import CommentFactory
-from .forms import CommentForm
-from .models import Comment
-from .views import new_comment
+from ..factories import CommentFactory
+from ..forms import CommentForm
+from ..models import Comment
+from ..views import new_comment
 from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
 

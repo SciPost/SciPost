@@ -15,4 +15,4 @@ class ProfileTestCase(TestCase):
 
     def test_last_name_cannot_be_blank(self):
         profile = ProfileFactory()
-        self.assert(profile.last_name is not None)
+        self.assertTrue(profile.last_name is not None)
