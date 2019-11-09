@@ -86,10 +86,10 @@ class Commentary(TimeStampedModel):
         """ Takes the arXiv nr or DOI and turns it into the urls """
         if self.pub_DOI:
             self.arxiv_or_DOI_string = self.pub_DOI
-            self.pub_DOI_link = 'http://dx.doi.org/' + self.pub_DOI
+            self.pub_DOI_link = 'https://doi.org/' + self.pub_DOI
         elif self.arxiv_identifier:
             self.arxiv_or_DOI_string = 'arXiv:' + self.arxiv_identifier
-            self.arxiv_link = 'http://arxiv.org/abs/' + self.arxiv_identifier
+            self.arxiv_link = 'https://arxiv.org/abs/' + self.arxiv_identifier
 
         if commit:
             self.save()

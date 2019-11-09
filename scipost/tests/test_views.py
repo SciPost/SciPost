@@ -6,19 +6,23 @@ from django.urls import reverse
 from django.contrib.auth.models import Group
 from django.test import TestCase, Client, tag
 
+from common.helpers.test import add_groups_and_permissions
+
 from commentaries.factories import UnvettedCommentaryFactory, CommentaryFactory,\
                                    UnpublishedCommentaryFactory
 from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
-from .factories import ContributorFactory
+from ..factories import ContributorFactory
 
 
 class RequestCommentaryTest(TestCase):
     """Test cases for `request_commentary` view method"""
-    fixtures = ['permissions', 'groups', 'contributors']
 
     def setUp(self):
+        add_groups_and_permissions()
+        self.contributor = ContributorFactory(user__username='Test',
+                                              user__password='testpw')
         self.view_url = reverse('commentaries:request_commentary')
         self.login_url = reverse('scipost:login')
         self.redirected_login_url = '%s?next=%s' % (self.login_url, self.view_url)
@@ -43,9 +47,9 @@ class RequestCommentaryTest(TestCase):
 
 class VetCommentaryRequestsTest(TestCase):
     """Test cases for `vet_commentary_requests` view method"""
-    fixtures = ['groups', 'permissions']
 
     def setUp(self):
+        add_groups_and_permissions()
         self.view_url = reverse('commentaries:vet_commentary_requests')
         self.login_url = reverse('scipost:login')
         self.password = 'test123'
@@ -95,9 +99,9 @@ class VetCommentaryRequestsTest(TestCase):
 
 class BrowseCommentariesTest(TestCase):
     """Test cases for `browse` view."""
-    fixtures = ['groups', 'permissions']
 
     def setUp(self):
+        add_groups_and_permissions()
         CommentaryFactory(discipline='physics')
         self.view_url = reverse('commentaries:browse', kwargs={
             'discipline': 'physics',
@@ -110,15 +114,15 @@ class BrowseCommentariesTest(TestCase):
         self.assertEquals(response.status_code, 200)
 
         # The created vetted Commentary is found!
-        self.assertTrue(response.context['commentary_browse_list'].count() >= 1)
+        self.assertTrue(response.context['commentary_list'].count() >= 1)
         # The search form is passed trough the view...
         self.assertTrue(type(response.context['form']) is CommentarySearchForm)
 
 
 class CommentaryDetailTest(TestCase):
-    fixtures = ['permissions', 'groups']
 
     def setUp(self):
+        add_groups_and_permissions()
         self.client = Client()
         self.commentary = UnpublishedCommentaryFactory()
         self.target = reverse(

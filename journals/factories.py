@@ -36,8 +36,8 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 
 class JournalFactory(factory.django.DjangoModelFactory):
-    name = factory.Iterator(Journal.objects.filter(active=True))
-    doi_label = factory.Iterator(Journal.objects.filter(active=True))
+    name = 'fakeJournal'
+    doi_label = '10.21468/fakeJournal'
     issn = factory.lazy_attribute(lambda n: random_digits(8))
     structure = factory.Iterator(JOURNAL_STRUCTURE, getter=lambda c: c[0])
 

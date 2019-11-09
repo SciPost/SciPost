@@ -9,11 +9,11 @@ from django.test import TestCase
 from common.helpers import model_form_data
 from scipost.factories import UserFactory, ContributorFactory
 
-from .factories import CommentaryFactory, UnvettedCommentaryFactory,\
+from ..factories import CommentaryFactory, UnvettedCommentaryFactory,\
                        UnvettedUnpublishedCommentaryFactory
-from .forms import RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm,\
+from ..forms import RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm,\
                    ArxivQueryForm, RequestArxivPreprintForm
-from .models import Commentary
+from ..models import Commentary
 from common.helpers.test import add_groups_and_permissions
 
 
@@ -80,7 +80,7 @@ class TestDOIToQueryForm(TestCase):
         self.assertRegexpMatches(error_message, re.compile('already exist'))
 
     def test_physrev_doi_is_valid(self):
-        physrev_doi = "10.21468/SciPostPhys.2.2.010"
+        physrev_doi = "10.1103/PhysRevLett.123.183602"
         form = DOIToQueryForm({'doi': physrev_doi})
         self.assertTrue(form.is_valid())
 
@@ -132,10 +132,10 @@ class TestVetCommentaryForm(TestCase):
         self.assertFalse(Commentary.objects.vetted().exists())
         self.assertTrue(Commentary.objects.awaiting_vetting().count() == 1)
 
-        # Delete the Commentary
+        # Modified Commentary in the database
         form.process_commentary()
         self.assertTrue(form.commentary_is_modified())
-        self.assertFalse(Commentary.objects.awaiting_vetting().exists())
+        self.assertTrue(Commentary.objects.awaiting_vetting().exists())
 
     def test_valid_rejected_form(self):
         """Test valid form data and delete Commentary"""

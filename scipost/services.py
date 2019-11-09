@@ -23,7 +23,7 @@ class DOICaller:
             self._format_data()
 
     def _call_crosslink(self):
-        url = 'http://api.crossref.org/works/%s' % self.doi_string
+        url = 'https://api.crossref.org/works/%s' % self.doi_string
         request = requests.get(url)
 
         doi_logger.info('GET [{doi}] [request] | {url}'.format(

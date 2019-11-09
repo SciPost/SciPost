@@ -16,10 +16,10 @@ from scipost.factories import UserFactory, ContributorFactory
 from comments.factories import CommentFactory
 from comments.forms import CommentForm
 from comments.models import Comment
-from .views import RequestThesisLink, VetThesisLink, thesis_detail
-from .factories import ThesisLinkFactory, ThesisLinkFactory, VetThesisLinkFormFactory
-from .models import ThesisLink
-from .forms import VetThesisLinkForm
+from ..views import RequestThesisLink, VetThesisLink, thesis_detail
+from ..factories import ThesisLinkFactory, ThesisLinkFactory, VetThesisLinkFormFactory
+from ..models import ThesisLink
+from ..forms import VetThesisLinkForm
 from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
 
@@ -43,9 +43,14 @@ class TestRequestThesisLink(TestCase):
         self.target = reverse('theses:request_thesislink')
 
     def test_response_when_not_logged_in(self):
-        '''A visitor that is not logged in cannot view this page.'''
+        '''
+        A visitor that is not logged in cannot view this page and is redirected to login.
+        '''
         response = self.client.get(self.target)
-        self.assertEqual(response.status_code, 403)
+        self.assertRedirects(
+            response,
+            expected_url='%s?next=%s' % (
+                reverse('scipost:login'), reverse('theses:request_thesislink')))
 
     def test_response_when_logged_in(self):
         request = RequestFactory().get(self.target)
@@ -57,6 +62,7 @@ class TestRequestThesisLink(TestCase):
 class TestVetThesisLinkRequests(TestCase):
     def setUp(self):
         add_groups_and_permissions()
+        ContributorFactory.create_batch(5)
         self.client = Client()
         self.thesislink = ThesisLinkFactory()
         self.target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})

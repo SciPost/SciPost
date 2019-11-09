@@ -15,7 +15,7 @@ from common.helpers import random_scipost_report_doi_label
 from .constants import (
     STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED, SUBMISSION_TYPE,
     STATUS_RESUBMITTED, STATUS_VETTED, REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC,
-    REPORT_REC, REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT)
+    REPORT_REC, REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT, ASSIGNMENT_STATUSES)
 from .models import Submission, Report, RefereeInvitation, EICRecommendation, EditorialAssignment
 
 from faker import Faker
@@ -27,14 +27,14 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     """
 
     author_list = factory.Faker('name')
-    submitted_by = factory.Iterator(Contributor.objects.all())
+    submitted_by = factory.SubFactory('scipost.factories.ContributorFactory')
     submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
-    submitted_to = factory.Iterator(Journal.objects.all())
+    submitted_to = factory.SubFactory('journals.factories.JournalFactory')
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
     list_of_changes = factory.Faker('paragraph', nb_sentences=10)
     subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
-    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: c[0])
+    approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
     abstract = factory.Faker('paragraph')
     author_comments = factory.Faker('paragraph')
     remarks_for_editors = factory.Faker('paragraph')
@@ -91,10 +91,10 @@ class EICassignedSubmissionFactory(SubmissionFactory):
     status = STATUS_EIC_ASSIGNED
     open_for_commenting = True
     open_for_reporting = True
-
-    @factory.lazy_attribute
-    def editor_in_charge(self):
-        return Contributor.objects.order_by('?').first()
+    editor_in_charge = factory.SubFactory('scipost.factories.ContributorFactory')
+    # @factory.lazy_attribute
+    # def editor_in_charge(self):
+    #     return Contributor.objects.order_by('?').first()
 
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
@@ -257,11 +257,11 @@ class PublishedSubmissionFactory(EICassignedSubmissionFactory):
 
 class ReportFactory(factory.django.DjangoModelFactory):
     status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
-    submission = factory.Iterator(Submission.objects.all())
-    report_nr = 1
+    submission = factory.SubFactory('submissions.factories.SubmissionFactory')
+    report_nr = factory.LazyAttribute(lambda o: o.submission.reports.count() + 1)
     date_submitted = factory.Faker('date_time_this_decade')
-    vetted_by = factory.Iterator(Contributor.objects.all())
-    author = factory.Iterator(Contributor.objects.all())
+    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
+    author = factory.SubFactory('scipost.factories.ContributorFactory')
     strengths = factory.Faker('paragraph')
     weaknesses = factory.Faker('paragraph')
     report = factory.Faker('paragraph')
@@ -372,10 +372,8 @@ class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
     mostly be done using the post_generation hook in any SubmissionFactory.
     """
     submission = None
-    to = factory.Iterator(Contributor.objects.all())
-    accepted = True
-    deprecated = False
-    completed = False
+    to = factory.SubFactory('scipost.factories.ContributorFactory')
+    status = factory.Iterator(ASSIGNMENT_STATUSES, getter=lambda c: c[0])
     date_created = factory.lazy_attribute(lambda o: o.submission.latest_activity)
     date_answered = factory.lazy_attribute(lambda o: o.submission.latest_activity)
 

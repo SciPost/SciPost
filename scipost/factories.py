@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import factory
+import pytz
 import random
 
 from django.contrib.auth import get_user_model
@@ -12,37 +13,27 @@ from common.helpers import generate_orcid
 from submissions.models import Submission
 
 from .models import Contributor, Remark, TOTPDevice
-from .constants import TITLE_CHOICES, SCIPOST_SUBJECT_AREAS, NORMAL_CONTRIBUTOR
+from .constants import TITLE_CHOICES, SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, NORMAL_CONTRIBUTOR
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
-    title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
+    profile = factory.SubFactory('profiles.factories.ProfileFactory')
     user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
+    invitation_key = factory.Faker('md5')
+    activation_key = factory.Faker('md5')
+    key_expires = factory.Faker('future_datetime', tzinfo=pytz.utc)
     status = NORMAL_CONTRIBUTOR  # normal user
-    vetted_by = factory.Iterator(Contributor.objects.all())
-    personalwebpage = factory.Faker('uri')
+    title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
+    discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
     expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
     orcid_id = factory.lazy_attribute(lambda n: generate_orcid())
     address = factory.Faker('address')
-    invitation_key = factory.Faker('md5')
-    activation_key = factory.Faker('md5')
-    key_expires = factory.Faker('future_datetime')
+    personalwebpage = factory.Faker('uri')
+    # vetted_by = factory.Iterator(Contributor.objects.all())
 
     class Meta:
         model = Contributor
         django_get_or_create = ('user',)
-
-    @classmethod
-    def create(cls, **kwargs):
-        if Contributor.objects.count() < 1 and kwargs.get('vetted_by', False) is not None:
-            ContributorFactory.create(vetted_by=None)
-        return super().create(**kwargs)
-
-    @factory.post_generation
-    def add_to_vetting_editors(self, create, extracted, **kwargs):
-        if create:
-            from affiliations.factories import AffiliationFactory
-            AffiliationFactory(contributor=self)
 
 
 class VettingEditorFactory(ContributorFactory):
