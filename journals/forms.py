@@ -387,7 +387,7 @@ class DraftPublicationForm(forms.ModelForm):
         if self.submission:
             try:
                 self.to_journal = Journal.objects.has_individual_publications().get(
-                    name=self.submission.submitted_to.name)
+                    name=self.submission.editorial_decision.for_journal.name)
             except Journal.DoesNotExist:
                 self.to_journal = None
 
@@ -411,7 +411,7 @@ class DraftPublicationForm(forms.ModelForm):
     def get_possible_issues(self):
         issues = Issue.objects.filter(until_date__gte=timezone.now())
         if self.submission:
-            issues = issues.for_journal(self.submission.submitted_to.name)
+            issues = issues.for_journal(self.submission.editorial_decision.for_journal.name)
         return issues
 
     def delete_secondary_fields(self):
