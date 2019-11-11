@@ -1,0 +1,46 @@
+{% extends 'series/series_base.html' %}
+
+{% load bootstrap %}
+{% load automarkup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Series detail</span>
+{% endblock %}
+
+{% block pagetitle %}: Series detail{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">
+	{{ series.name }}
+      </h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="p-2">
+	{{ series.description|automarkup }}
+      </div>
+      <div class="p-2">
+	<img class="d-flex mr-3" alt="series image" src="{{ series.image.url }}">
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">Collections in this Series</h3>
+      <ul>
+	{% for collection in series.collection_set.all %}
+	  <li><a href="{{ collection.get_absolute_url }}">{{ collection }}</a></li>
+	{% empty %}
+	  <li>No Collection has yet been assembled for this Series</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+{% endblock content %}

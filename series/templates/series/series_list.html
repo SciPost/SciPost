@@ -1,0 +1,30 @@
+{% extends 'series/series_base.html' %}
+
+{% load bootstrap %}
+{% load automarkup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Series</span>
+{% endblock %}
+
+{% block pagetitle %}: Series{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">
+	Series
+      </h2>
+      <ul>
+	{% for series in object_list %}
+	  <li><a href="{{ series.get_absolute_url }}">{{ series }}</a></li>
+	{% empty %}
+	  <li>No Series has yet been defined</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+{% endblock content %}

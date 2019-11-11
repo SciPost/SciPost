@@ -1,0 +1,13 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'series:series' %}" class="breadcrumb-item">Series</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
