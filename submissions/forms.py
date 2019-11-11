@@ -1299,6 +1299,13 @@ class EICRecommendationForm(forms.ModelForm):
             )
         self.load_assignment()
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if (cleaned_data['recommendation'] == EIC_REC_PUBLISH and
+            cleaned_data['tier'] == ''):
+            raise forms.ValidationError(
+                'If you recommend Publish, please also provide a Tier.')
+
     def save(self):
         recommendation = super().save(commit=False)
         recommendation.submission = self.submission
