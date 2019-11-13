@@ -2,13 +2,16 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from tempfile import TemporaryFile
+
 import requests
 
 from django.conf import settings
+from django.core.files import File
 from django.core.management import BaseCommand
 
 from ...exceptions import APIMailError
-from ...models import Event, StoredMessage
+from ...models import Event, StoredMessage, StoredMessageAttachment
 
 
 class Command(BaseCommand):
@@ -34,3 +37,13 @@ class Command(BaseCommand):
                 sm = StoredMessage.objects.create(data=response)
                 orphan.stored_message = sm
                 orphan.save()
+                # Now deal with attachments
+                for att_item in response['attachments']:
+                    with TemporaryFile() as tf:
+                        r = requests.get(att_item['url'], stream=True)
+                        for chunk in r.iter_content(chunk_size=8192):
+                            tf.write(chunk)
+                        tf.seek(0)
+                        sma = StoredMessageAttachment.objects.create(
+                            message=sm, data=att_item)
+                        sma._file.save(att_item['name'], File(tf))
