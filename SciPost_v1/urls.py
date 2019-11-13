@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^api/', include((router.urls, 'api'))),
     path(
-        'apimail/',
+        'mail/',
         include('apimail.urls', namespace='apimail')
     ),
     url(r'^10.21468/%s/' % JOURNAL_REGEX,
