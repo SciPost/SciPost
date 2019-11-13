@@ -39,7 +39,7 @@ class Command(BaseCommand):
     Perform a GET request to harvest Events from the Mailgun API, saving them to the DB.
     """
 
-    help = 'Gets Events from the Maigun Events API and saves them to the DB.'
+    help = 'Gets Events from the Mailgun Events API and saves them to the DB.'
 
     def handle(self, *args, **kwargs):
         info = get_and_save_events()

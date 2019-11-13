@@ -16,11 +16,27 @@ class Event(models.Model):
     Mailgun events are harvested through GET requests (rather than through webhooks).
     Since they have a loose structure, the data is stored in a simple JSONField.
     """
+    # We put these constants here for convenience, though they are not used in the model's fields
+    TYPE_ACCEPTED = 'accepted'
+    TYPE_REJECTED = 'rejected'
+    TYPE_DELIVERED = 'delivered'
+    TYPE_FAILED = 'failed'
+    TYPE_OPENED = 'opened'
+    TYPE_CLICKED = 'clicked'
+    TYPE_UNSUBSCRIBED = 'unsubscribed'
+    TYPE_COMPLAINED = 'complained'
+    TYPE_STORED = 'stored'
+
     uuid = models.UUIDField( # Used by the API to look up the record
         db_index=True,
         default=uuid_lib.uuid4,
         editable=False)
     data = JSONField(default=dict)
+    stored_message = models.ForeignKey(
+        'apimail.StoredMessage',
+        blank=True, null=True,
+        on_delete=models.CASCADE
+    )
 
     def get_absolute_url(self):
         return reverse('apimail:event_detail', kwargs={'uuid': self.uuid})

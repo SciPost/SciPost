@@ -3,3 +3,5 @@ __license__ = "AGPL v3"
 
 
 from .event import Event
+
+from .stored_message import StoredMessage

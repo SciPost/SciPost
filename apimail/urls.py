@@ -20,4 +20,14 @@ urlpatterns = [
         views.EventRetrieveAPIView.as_view(),
         name='api_event_retrieve'
     ),
+    path( # /apimail/api/stored_messages
+        'api/stored_messages',
+        views.StoredMessageListAPIView.as_view(),
+        name='api_stored_message_list'
+    ),
+    path( # /apimail/api/stored_message/<uuid>
+        'api/stored_message/<uuid:uuid>',
+        views.StoredMessageRetrieveAPIView.as_view(),
+        name='api_stored_message_retrieve'
+    ),
 ]
