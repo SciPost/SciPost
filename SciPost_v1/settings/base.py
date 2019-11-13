@@ -433,3 +433,8 @@ CELERY_IMPORTS = ('submissions.tasks',)
 
 # Automation.
 ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)
+
+
+# Mailgun credentials
+MAILGUN_DOMAIN_NAME = ''
+MAILGUN_API_KEY = ''
