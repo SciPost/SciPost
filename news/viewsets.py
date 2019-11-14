@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from django.http import Http404
 
-from rest_framework import viewsets, renderers
+from rest_framework import permissions, viewsets, renderers
 from rest_framework.response import Response
 
 from .models import NewsItem
@@ -12,6 +12,7 @@ from .serializers import NewsItemSerializer
 
 
 class NewsItemViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [permissions.AllowAny,]
     queryset = NewsItem.objects.homepage().order_by('-date')
     serializer_class = NewsItemSerializer
     template_name = 'news/news_card_content_for_api.html'
