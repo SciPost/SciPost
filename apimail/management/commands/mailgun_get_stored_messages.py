@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from email.utils import parsedate_to_datetime
 from tempfile import TemporaryFile
 
 import requests
@@ -34,7 +35,9 @@ class Command(BaseCommand):
             if not StoredMessage.objects.filter(
                 data__contains={'message-id': orphan.data['message']['headers']['message-id']}
             ).exists():
-                sm = StoredMessage.objects.create(data=response)
+                sm = StoredMessage.objects.create(
+                    data=response,
+                    datetimestamp=parsedate_to_datetime(response['Date']))
                 orphan.stored_message = sm
                 orphan.save()
                 # Now deal with attachments

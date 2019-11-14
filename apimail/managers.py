@@ -9,17 +9,17 @@ class StoredMessageQuerySet(models.QuerySet):
     """
     All StoredMessage querysets are always filtered for the user.
     """
-    def filter_for_user(self, request):
+    def filter_for_user(self, user):
         """
         Either su or staff, or user's email addresses overlap with sender/recipients.
         """
-        if not request.user.is_authenticated:
+        if not user.is_authenticated:
             return self.none()
-        elif request.user.is_superuser or request.user.is_admin:
+        elif user.is_superuser or user.is_admin:
             return self
-        emails = [request.user.email,] if request.user.email else []
-        if request.user.contributor:
-            for pe in request.user.contributor.profile.emails.all():
+        emails = [user.email,] if user.email else []
+        if user.contributor:
+            for pe in user.contributor.profile.emails.all():
                 emails.append(pe.email)
         return self.filter_for_emails(emails=emails)
 

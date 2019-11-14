@@ -7,6 +7,7 @@ import uuid as uuid_lib
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 from scipost.storage import SecureFileStorage
 
@@ -23,11 +24,12 @@ class StoredMessage(models.Model):
         default=uuid_lib.uuid4,
         editable=False)
     data = JSONField(default=dict)
+    datetimestamp = models.DateTimeField(default=timezone.now)
 
     objects = StoredMessageQuerySet.as_manager()
 
     class Meta:
-        ordering = ['-data__Date',]
+        ordering = ['-datetimestamp',]
 
     def get_absolute_url(self):
         return reverse('apimail:stored_message_detail', kwargs={'uuid': self.uuid})

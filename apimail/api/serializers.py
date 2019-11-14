@@ -16,4 +16,4 @@ class EventSerializer(serializers.ModelSerializer):
 class StoredMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = StoredMessage
-        fields = ['uuid', 'data',]
+        fields = ['uuid', 'data', 'datetimestamp']

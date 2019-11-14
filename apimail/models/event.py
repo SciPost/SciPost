@@ -38,5 +38,8 @@ class Event(models.Model):
         on_delete=models.CASCADE
     )
 
+    class Meta:
+        ordering = ['-data__timestamp',]
+
     def get_absolute_url(self):
         return reverse('apimail:event_detail', kwargs={'uuid': self.uuid})
