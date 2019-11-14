@@ -32,7 +32,9 @@ class StoredMessageListAPIView(ListAPIView):
 
 
 class StoredMessageRetrieveAPIView(RetrieveAPIView):
-    queryset = StoredMessage.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
+
+    def get_queryset(self):
+        return StoredMessage.objects.filter_for_user(self.request.user)

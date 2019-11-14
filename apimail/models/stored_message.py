@@ -10,6 +10,7 @@ from django.urls import reverse
 
 from scipost.storage import SecureFileStorage
 
+from ..managers import StoredMessageQuerySet
 from ..validators import validate_max_email_attachment_file_size
 
 
@@ -22,6 +23,8 @@ class StoredMessage(models.Model):
         default=uuid_lib.uuid4,
         editable=False)
     data = JSONField(default=dict)
+
+    objects = StoredMessageQuerySet.as_manager()
 
     class Meta:
         ordering = ['-data__Date',]
