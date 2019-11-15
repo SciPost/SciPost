@@ -32,7 +32,10 @@ class StoredMessage(models.Model):
         ordering = ['-datetimestamp',]
 
     def get_absolute_url(self):
-        return reverse('apimail:stored_message_detail', kwargs={'uuid': self.uuid})
+        return reverse('apimail:message_detail', kwargs={'uuid': self.uuid})
+
+    def get_absolute_url_api(self):
+        return reverse('apimail:api_stored_message_retrieve', kwargs={'uuid': self.uuid})
 
 
 class StoredMessageAttachment(models.Model):

@@ -4,30 +4,44 @@ __license__ = "AGPL v3"
 
 from django.urls import path
 
-from apimail.api import views
+from apimail.api import views as apiviews
+from . import views
 
 
 app_name = 'apimail'
 
 urlpatterns = [
-    path( # /apimail/api/events
+
+    # API
+
+    path( # /mail/api/events
         'api/events',
-        views.EventListAPIView.as_view(),
+        apiviews.EventListAPIView.as_view(),
         name='api_event_list'
     ),
-    path( # /apimail/api/event/<uuid>
+    path( # /mail/api/event/<uuid>
         'api/event/<uuid:uuid>',
-        views.EventRetrieveAPIView.as_view(),
+        apiviews.EventRetrieveAPIView.as_view(),
         name='api_event_retrieve'
     ),
-    path( # /apimail/api/stored_messages
+    path( # /mail/api/stored_messages
         'api/stored_messages',
-        views.StoredMessageListAPIView.as_view(),
+        apiviews.StoredMessageListAPIView.as_view(),
         name='api_stored_message_list'
     ),
-    path( # /apimail/api/stored_message/<uuid>
+    path( # /mail/api/stored_message/<uuid>
         'api/stored_message/<uuid:uuid>',
-        views.StoredMessageRetrieveAPIView.as_view(),
+        apiviews.StoredMessageRetrieveAPIView.as_view(),
         name='api_stored_message_retrieve'
     ),
+
+
+    # User views
+
+    path( # /mail/messages
+        'messages',
+        views.StoredMessageListView.as_view(),
+        name='message_list'
+    ),
+
 ]
