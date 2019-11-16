@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser
 
 from ..models import Event, StoredMessage
 from .serializers import EventSerializer, StoredMessageSerializer
