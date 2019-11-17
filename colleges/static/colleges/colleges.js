@@ -29,7 +29,7 @@ $(function() {
     })
     .on('click', function() {
         // Remove hover-class
-        $(this)
+	$(this)
         .toggleClass('active-search')
         .trigger('search-specialization');
     })

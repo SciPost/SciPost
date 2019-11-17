@@ -11,7 +11,7 @@ jQuery.fn.selectText = function(){
     if (doc.body.createTextRange) {
         var range = document.body.createTextRange();
         range.moveToElementText(element);
-        range.select();
+        range.trigger('select');
     } else if (window.getSelection) {
         var selection = window.getSelection();
         var range = document.createRange();

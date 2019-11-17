@@ -4,11 +4,11 @@
 
 <script type="text/javascript" nonce="{{ request.csp_nonce }}">
  $(document).ready(function() {
-     $("#id_A_text").keyup(function() {
+     $("#id_A_text").on("keyup", function() {
 	 $("#id_B_text").val("{{ topic }}");
 	 $("#id_B").val({{ topic.id }});
      });
-     $("#id_B_text").keyup(function() {
+     $("#id_B_text").on("keyup", function() {
 	 $("#id_A_text").val("{{ topic }}");
 	 $("#id_A").val({{ topic.id }});
      });
