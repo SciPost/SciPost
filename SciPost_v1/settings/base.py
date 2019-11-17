@@ -71,6 +71,8 @@ os.environ['wsgi.url_scheme'] = 'https'
 # Application definition
 
 INSTALLED_APPS = (
+    'dal', # django-autocomplete-light
+    'dal_select2', # dal with Select2
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.auth',
@@ -82,7 +84,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    'ajax_select',
+    'ajax_select', # TODO: replace in favour of dal (django-autocomplete-light)
     'haystack',
     'colleges',
     'commentaries',

@@ -12,7 +12,8 @@ mock==2.0.0
 
 
 # Django packages
-django_ajax_selects==1.7.1	# 2019-05-12
+django_ajax_selects==1.7.1	# 2019-05-12  2019-11-17: deprecate in favour of django-autocomplete-light
+django-autocomplete-light==3.4.1
 django-countries==5.3.3
 django-debug-toolbar==1.8
 django-extensions==1.7.6

@@ -10,10 +10,11 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from dal import autocomplete
 from guardian.decorators import permission_required
 
 from .models import Tag, Topic, RelationAsym
-from .forms import SelectTagForm, SelectLinkedTopicForm, AddRelationAsymForm
+from .forms import SelectTagsForm, SelectLinkedTopicForm, AddRelationAsymForm
 
 from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
@@ -24,6 +25,16 @@ def ontology(request):
         'select_linked_topic_form': SelectLinkedTopicForm(),
     }
     return render(request, 'ontology/ontology.html', context=context)
+
+
+class TagAutocompleteView(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        if not self.request.user.is_authenticated:
+            return Tag.objects.none()
+        qs = Tag.objects.all()
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        return qs
 
 
 class TopicCreateView(PermissionsMixin, CreateView):
@@ -49,14 +60,15 @@ class TopicUpdateView(PermissionsMixin, UpdateView):
 
 
 @permission_required('scipost.can_manage_ontology', return_403=True)
-def topic_add_tag(request, slug):
+def topic_add_tags(request, slug):
     topic = get_object_or_404(Topic, slug=slug)
-    select_tag_form = SelectTagForm(request.POST or None)
-    if select_tag_form.is_valid():
-        topic.tags.add(select_tag_form.cleaned_data['tag'])
+    select_tags_form = SelectTagsForm(request.POST or None)
+    if select_tags_form.is_valid():
+        for tag in select_tags_form.cleaned_data['tags']:
+            topic.tags.add(tag)
         topic.save()
-        messages.success(request, 'Tag %s added to Topic %s' % (
-            select_tag_form.cleaned_data['tag'], str(topic)))
+        messages.success(request, 'Tag(s) %s added to Topic %s' % (
+            select_tags_form.cleaned_data['tags'], str(topic)))
     return redirect(reverse('ontology:topic_details', kwargs={'slug': topic.slug}))
 
 
@@ -96,7 +108,7 @@ class TopicDetailView(DetailView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['select_tag_form'] = SelectTagForm()
+        context['select_tags_form'] = SelectTagsForm()
         context['add_relation_asym_form'] = AddRelationAsymForm()
         context['relations_asym'] = RelationAsym.objects.filter(Q(A=self.object) | Q(B=self.object))
         return context
