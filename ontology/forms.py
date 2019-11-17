@@ -8,11 +8,10 @@ from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 
 from .constants import TOPIC_RELATIONS_ASYM
-from .models import Tag
+from .models import Tag, Topic
 
 
 class SelectTagsForm(forms.Form):
-    # tag = AutoCompleteSelectField('tag_lookup', label='', help_text='')
     tags = forms.ModelMultipleChoiceField(
         queryset=Tag.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(url='/ontology/tag-autocomplete'),
@@ -34,6 +33,14 @@ class SelectLinkedTopicForm(forms.Form):
 
 
 class AddRelationAsymForm(forms.Form):
-    A = AutoCompleteSelectField('topic_lookup', label='', help_text='')
+    A = forms.ModelChoiceField(
+        queryset=Topic.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/ontology/topic-autocomplete'),
+        label=''
+    )
     relation = forms.ChoiceField(choices=TOPIC_RELATIONS_ASYM, label='')
-    B = AutoCompleteSelectField('topic_lookup', label='', help_text='')
+    B = forms.ModelChoiceField(
+        queryset=Topic.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/ontology/topic-autocomplete'),
+        label=''
+    )

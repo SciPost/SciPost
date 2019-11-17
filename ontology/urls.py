@@ -15,6 +15,11 @@ urlpatterns = [
         views.TagAutocompleteView.as_view(),
         name='tag-autocomplete',
         ),
+    path(
+        'topic-autocomplete/',
+        views.TopicAutocompleteView.as_view(),
+        name='topic-autocomplete',
+        ),
     url(
         r'^$',
         views.ontology,
