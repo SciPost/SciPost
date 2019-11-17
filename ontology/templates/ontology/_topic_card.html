@@ -25,21 +25,20 @@
 	</li>
       {% endif %}
     </ul>
-    {% if topic.tags.all %}
+    {% if topic.tags.all or perms.scipost.can_manage_ontology %}
       <ul class="list list-inline mb-0">
 	<li class="list-inline-item"><strong>Tags</strong>:</li>
 	{% for tag in topic.tags.all %}
 	  <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
 	{% endfor %}
 	{% if perms.scipost.can_manage_ontology %}
-	  <li class="list-inline-item pull-right">
-	    <form class="form-inline" action="{% url 'ontology:topic_add_tag' slug=topic.slug %}" method="post">
-	      <ul class="list-inline">
-		<li class="list-inline-item">{% csrf_token %}{{ select_tag_form }}</li>
-		<li class="list-inline-item"><input type="submit" class="form-control btn btn-outline-secondary" value="Add Tag"/></li>
-	      </ul>
-	    </form>
-	  </li>
+	  <form class="p-2" action="{% url 'ontology:topic_add_tags' slug=topic.slug %}" method="post">
+	    {% csrf_token %}
+	    <ul class="list list-inline">
+	      <li class="list-inline-item">{{ select_tags_form }}</li>
+	      <li class="list-inline-item"><input type="submit" class="btn btn-outline-secondary" value="Add Tag(s)"></li>
+	    </ul>
+	  </form>
 	{% endif %}
       </ul>
     {% endif %}
@@ -139,3 +138,7 @@
     </div>
   </div>
 </div>
+
+{% block footer_script %}
+  {{ select_tags_form.media }}
+{% endblock %}

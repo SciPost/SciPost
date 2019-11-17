@@ -18,7 +18,6 @@ from journals.regexes import JOURNAL_DOI_LABEL_REGEX
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
 
-
 # Journal URL Regex
 JOURNAL_REGEX = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
 
