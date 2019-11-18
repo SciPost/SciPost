@@ -27,7 +27,7 @@
       <h3>Link to:</h3>
       <form action="{% url 'funders:link_to_organization' pk=funder.pk %}" method="post">
 	{% csrf_token %}
-	{{ form|bootstrap }}
+	{{ form }}
 	<input type="submit" value="Link" class="btn btn-primary">
       </form>
     </div>

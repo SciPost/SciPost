@@ -182,9 +182,12 @@ class ProfileSelectForm(forms.Form):
 
 class AffiliationForm(forms.ModelForm):
     # organization = AutoCompleteSelectField('organization_lookup')
-    organization = forms..ModelChoiceField(
+    organization = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        )
     )
 
     class Meta:

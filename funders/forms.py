@@ -29,7 +29,7 @@ class FunderSelectForm(forms.Form):
 
 
 class FunderOrganizationSelectForm(forms.ModelForm):
-    organization = forms..ModelChoiceField(
+    organization = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
         widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
     )

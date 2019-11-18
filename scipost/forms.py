@@ -99,7 +99,10 @@ class RegistrationForm(forms.Form):
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
     current_affiliation = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete'),
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        ),
         label='* Current affiliation',
         help_text=('Start typing, then select in the popup; '
                    'if you do not find the organization you seek, '
