@@ -10,16 +10,22 @@ from django.db.models import Sum
 from django.utils import timezone
 
 from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
 
 from common.forms import MonthYearWidget
+from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
 
 from .models import Subsidy, SubsidyAttachment, WorkLog
 
 
 class SubsidyForm(forms.ModelForm):
-    organization = AutoCompleteSelectField('organization_lookup')
+    # organization = AutoCompleteSelectField('organization_lookup')
+    organization = forms..ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
+    )
 
     class Meta:
         model = Subsidy

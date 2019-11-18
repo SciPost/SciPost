@@ -19,6 +19,7 @@ from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 
 from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
@@ -41,6 +42,7 @@ from funders.models import Grant
 from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
+from organizations.models import Organization
 from profiles.models import Profile, ProfileEmail, Affiliation
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
     EditorialCommunication, EICRecommendation
@@ -95,14 +97,23 @@ class RegistrationForm(forms.Form):
         widget=forms.TextInput({
             'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
-    current_affiliation = AutoCompleteSelectField(
-        'organization_lookup',
+    current_affiliation = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete'),
+        label='* Current affiliation',
         help_text=('Start typing, then select in the popup; '
                    'if you do not find the organization you seek, '
                    'please fill in your institution name and address instead.'),
-        show_help_text=False,
-        required=False,
-        label='* Current affiliation')
+        required=False
+    )
+    # current_affiliation = AutoCompleteSelectField(
+    #     'organization_lookup',
+    #     help_text=('Start typing, then select in the popup; '
+    #                'if you do not find the organization you seek, '
+    #                'please fill in your institution name and address instead.'),
+    #     show_help_text=False,
+    #     required=False,
+    #     label='* Current affiliation')
     address = forms.CharField(
         label='Institution name and address', max_length=1000,
         widget=forms.TextInput({'placeholder': '[only if you did not find your affiliation above]'}),

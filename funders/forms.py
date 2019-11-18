@@ -7,9 +7,11 @@ from django import forms
 from .models import Funder, Grant
 
 from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 
 from scipost.forms import HttpRefererFormMixin
 from scipost.models import Contributor
+from organizations.models import Organization
 
 
 class FunderRegistrySearchForm(forms.Form):
@@ -27,7 +29,10 @@ class FunderSelectForm(forms.Form):
 
 
 class FunderOrganizationSelectForm(forms.ModelForm):
-    organization = AutoCompleteSelectField('organization_lookup')
+    organization = forms..ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
+    )
 
     class Meta:
         model = Funder

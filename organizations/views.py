@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
 from django.db import transaction
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -15,6 +16,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from dal import autocomplete
 from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR,\
@@ -27,8 +29,25 @@ from funders.models import Funder
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
 from organizations.decorators import has_contact
+from organizations.models import Organization
 
 from scipost.mixins import PermissionsMixin, PaginationMixin
+
+
+######################
+# Autocomplete views #
+######################
+
+class OrganizationAutocompleteView(autocomplete.Select2QuerySetView):
+    """To feed the Select2 widget."""
+    def get_queryset(self):
+        qs = Organization.objects.all()
+        if self.q:
+            qs = qs.filter(
+                Q(name__icontains=self.q) |
+                Q(name_original__icontains=self.q) |
+                Q(acronym__icontains=self.q))
+        return qs
 
 
 class OrganizationCreateView(PermissionsMixin, CreateView):

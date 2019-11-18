@@ -5,8 +5,10 @@ __license__ = "AGPL v3"
 from django import forms
 
 from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 
 from .models import Forum, Meeting, Post, Motion
+from organizations.models import Organization
 
 
 class ForumForm(forms.ModelForm):
@@ -45,7 +47,10 @@ class ForumGroupPermissionsForm(forms.ModelForm):
 
 
 class ForumOrganizationPermissionsForm(forms.Form):
-    organization = AutoCompleteSelectField('organization_lookup')
+    organization = forms..ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
+    )
     can_view = forms.BooleanField()
     can_post = forms.BooleanField()
 

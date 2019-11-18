@@ -5,9 +5,11 @@ __license__ = "AGPL v3"
 from django import forms
 
 from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 
 from common.forms import ModelChoiceFieldwithid
 from invitations.models import RegistrationInvitation
+from organizations.models import Organization
 from scipost.models import Contributor
 from submissions.models import RefereeInvitation
 
@@ -179,7 +181,11 @@ class ProfileSelectForm(forms.Form):
 
 
 class AffiliationForm(forms.ModelForm):
-    organization = AutoCompleteSelectField('organization_lookup')
+    # organization = AutoCompleteSelectField('organization_lookup')
+    organization = forms..ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
+    )
 
     class Meta:
         model = Affiliation
