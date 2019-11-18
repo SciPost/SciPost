@@ -109,14 +109,6 @@ class RegistrationForm(forms.Form):
                    'please fill in your institution name and address instead.'),
         required=False
     )
-    # current_affiliation = AutoCompleteSelectField(
-    #     'organization_lookup',
-    #     help_text=('Start typing, then select in the popup; '
-    #                'if you do not find the organization you seek, '
-    #                'please fill in your institution name and address instead.'),
-    #     show_help_text=False,
-    #     required=False,
-    #     label='* Current affiliation')
     address = forms.CharField(
         label='Institution name and address', max_length=1000,
         widget=forms.TextInput({'placeholder': '[only if you did not find your affiliation above]'}),

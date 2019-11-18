@@ -122,7 +122,6 @@ PublicationAuthorOrderingFormSet = modelformset_factory(
 
 
 class AuthorsTableOrganizationSelectForm(forms.ModelForm):
-    # organization = AutoCompleteSelectField('organization_lookup')
     organization = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
         widget=autocomplete.ModelSelect2(

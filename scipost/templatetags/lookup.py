@@ -19,17 +19,3 @@ class UserLookup(LookupChannel):
 
     def format_match(self, item):
         return "%s, %s" % (item.last_name, item.first_name)
-
-
-@register('group_lookup')
-class GroupLookup(LookupChannel):
-    model = Group
-
-    def get_query(self, q, request):
-        return self.model.objects.filter(name__icontains=q)[:10]
-
-    def format_item_display(self, item):
-        return "<span class='auto_lookup_display'>%s</span>" % item.name
-
-    def format_match(self, item):
-        return item.name

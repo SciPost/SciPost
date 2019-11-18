@@ -3,8 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from django.contrib.auth.models import Group
 
-from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 
 from .models import Forum, Meeting, Post, Motion
@@ -37,7 +37,10 @@ class ForumGroupPermissionsForm(forms.ModelForm):
     """
     Used for granting a specific Group access to a given Forum.
     """
-    group = AutoCompleteSelectField('group_lookup')
+    group = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(url='/scipost/group-autocomplete')
+    )
     can_view = forms.BooleanField(required=False)
     can_post = forms.BooleanField(required=False)
 

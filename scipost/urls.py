@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
+from django.urls import path
 
 from . import views
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -28,6 +29,13 @@ urlpatterns = [
 
     # Test Sentry installation
     url(r'sentry-debug/$', views.trigger_error, name='trigger_error'),
+
+    # Autocomplete
+    path(
+        'group-autocomplete',
+        views.GroupAutocompleteView.as_view(),
+        name='group-autocomplete'
+    ),
 
     # Search
     url(r'^search', views.SearchView.as_view(), name='search'),
