@@ -9,14 +9,53 @@ from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
+from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django.shortcuts import get_object_or_404, render, redirect
+
+from dal import autocomplete
 
 from .models import Funder, Grant
 from .forms import FunderRegistrySearchForm, FunderForm, FunderOrganizationSelectForm, GrantForm
 
 from scipost.mixins import PermissionsMixin
+
+
+class FunderAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        if not self.request.user.has_perm('scipost.can_draft_publication'):
+            return None
+        qs = Funder.objects.all()
+        if self.q:
+            qs = qs.filter(
+                Q(name__icontains=self.q) | Q(acronym__icontains=self.q) |
+                Q(identifier__icontains=self.q) | Q(organization__name__icontains=self.q) |
+                Q(organization__name_original__icontains=self.q) |
+                Q(organization__acronym__icontains=self.q)).order_by('name')[:10]
+        return qs
+
+
+class GrantAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        if not self.request.user.has_perm('scipost.can_draft_publication'):
+            return None
+        qs = Funder.objects.all()
+        if self.q:
+            qs = qs.filter(
+                Q(funder__name__icontains=self.q) |
+                Q(funder__acronym__icontains=self.q) |
+                Q(number__icontains=self.q) | Q(recipient_name__icontains=self.q) |
+                Q(recipient__user__last_name__icontains=self.q) |
+                Q(recipient__user__first_name__icontains=self.q) |
+                Q(further_details__icontains=self.q)).order_by('funder__name', 'number')[:10]
+        return qs
 
 
 @permission_required('scipost.can_view_all_funding_info', raise_exception=True)
