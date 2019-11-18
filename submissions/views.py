@@ -89,7 +89,7 @@ class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
         qs = Submission.objects.public_listed()
         if self.q:
             qs = qs.filter(title__icontains=self.q)
-        return qs.order_by('-submission_date').prefetch_related('publication')[:10]
+        return qs.order_by('-submission_date').prefetch_related('publication')
 
 
 ###############

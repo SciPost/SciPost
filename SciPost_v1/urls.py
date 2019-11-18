@@ -8,7 +8,6 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from ajax_select import urls as ajax_select_urls
 from rest_framework import routers
 
 from conflicts.viewsets import ConflictOfInterestViewSet
@@ -36,7 +35,6 @@ urlpatterns = [
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^api/', include((router.urls, 'api'))),
     url(r'^10.21468/%s/' % JOURNAL_REGEX,
         include('journals.urls.journal', namespace="prefixed_journal")),

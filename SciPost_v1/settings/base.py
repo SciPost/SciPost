@@ -84,7 +84,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    'ajax_select', # TODO: replace in favour of dal (django-autocomplete-light)
     'haystack',
     'colleges',
     'commentaries',

@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 
 from common.forms import ModelChoiceFieldwithid
@@ -174,11 +173,11 @@ class ProfileEmailForm(forms.ModelForm):
 
 
 class ProfileSelectForm(forms.Form):
-    profile = AutoCompleteSelectField(
-        'profile_lookup',
+    profile = forms.ModelChoiceField(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
         help_text=('Start typing, and select from the popup.'),
-        show_help_text=False)
-
+    )
 
 class AffiliationForm(forms.ModelForm):
     organization = forms.ModelChoiceField(

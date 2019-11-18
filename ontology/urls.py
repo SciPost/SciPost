@@ -20,6 +20,11 @@ urlpatterns = [
         views.TopicAutocompleteView.as_view(),
         name='topic-autocomplete',
         ),
+    path(
+        'topic-linked-autocomplete/',
+        views.TopicLinkedAutocompleteView.as_view(),
+        name='topic-linked-autocomplete',
+        ),
     url(
         r'^$',
         views.ontology,

@@ -35,7 +35,7 @@ class FunderAutocompleteView(autocomplete.Select2QuerySetView):
                 Q(name__icontains=self.q) | Q(acronym__icontains=self.q) |
                 Q(identifier__icontains=self.q) | Q(organization__name__icontains=self.q) |
                 Q(organization__name_original__icontains=self.q) |
-                Q(organization__acronym__icontains=self.q)).order_by('name')[:10]
+                Q(organization__acronym__icontains=self.q)).order_by('name')
         return qs
 
 

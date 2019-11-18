@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.html import format_html
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
@@ -47,6 +48,14 @@ class TopicAutocompleteView(autocomplete.Select2QuerySetView):
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs
+
+
+class TopicLinkedAutocompleteView(TopicAutocompleteView):
+    """To feed the Select2 widget."""
+    def get_result_label(self, item):
+        return format_html(
+            '<a href="{}">{}</a>',
+            reverse('ontology:topic_details', kwargs={'slug': item.slug}), item)
 
 
 class TopicCreateView(PermissionsMixin, CreateView):

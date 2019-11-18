@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 from django import forms
 
-from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 
 from .constants import TOPIC_RELATIONS_ASYM
@@ -19,7 +18,11 @@ class SelectTagsForm(forms.Form):
     )
 
 class SelectTopicForm(forms.Form):
-    topic = AutoCompleteSelectField('topic_lookup', label='', help_text='')
+    topic = forms.ModelMultipleChoiceField(
+        queryset=Topic.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(url='/ontology/topic-autocomplete'),
+        label=''
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -28,8 +31,14 @@ class SelectTopicForm(forms.Form):
 
 
 class SelectLinkedTopicForm(forms.Form):
-    topic = AutoCompleteSelectField('linked_topic_lookup',
-                                    label='Find a topic (click to see it) ', help_text='')
+    topic = forms.ModelMultipleChoiceField(
+        queryset=Topic.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/topic-linked-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Find a topic (click to see it)'
+    )
 
 
 class AddRelationAsymForm(forms.Form):
