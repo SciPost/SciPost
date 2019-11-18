@@ -11,7 +11,7 @@ app_name = 'organizations'
 
 urlpatterns = [
     path(
-        'organization-autocomplete/',
+        'organization-autocomplete',
         views.OrganizationAutocompleteView.as_view(),
         name='organization-autocomplete',
         ),

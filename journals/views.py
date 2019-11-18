@@ -23,10 +23,13 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
+
+from dal import autocomplete
 
 from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
 from .exceptions import InvalidDOIError
@@ -60,6 +63,31 @@ from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
 
 from guardian.decorators import permission_required
 
+
+################
+# Autocomplete #
+################
+
+class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        qs = Publication.objects.published()
+        if self.q:
+            qs = qs.filter(Q(title__icontains=self.q) |
+                           Q(doi_label__icontains=self.q) |
+                           Q(author_list__icontains=self.q))
+        return qs.order_by('-publication_date')
+
+    def get_result_label(self, item):
+        return format_html("{} ({})<br><span class='text-muted'>by {}</span>",
+                           item.title, item.doi_string, item.author_list)
+
+
+################
+# DOI dispatch #
+################
 
 def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
     """

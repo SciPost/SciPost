@@ -18,7 +18,6 @@ from django.utils.dates import MONTHS
 from django_countries import countries
 from django_countries.widgets import CountrySelectWidget
 
-from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
@@ -234,8 +233,19 @@ class RegistrationForm(forms.Form):
 
 
 class DraftInvitationForm(forms.ModelForm):
-    cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
-    cited_in_publication = AutoCompleteSelectField('publication_lookup', required=False)
+    cited_in_submission = forms.ModelChoiceField(
+        queryset=Submission.objects.all(),
+        widget=autocomplete.ModelSelect2(url='submissions/submission-autocomplete'),
+        required=False
+    )
+    cited_in_publication = forms.ModelChoiceField(
+        queryset=Publication.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='journals/publication-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
 
     class Meta:
         model = DraftInvitation

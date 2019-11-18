@@ -16,7 +16,6 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
-#from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 
 from .constants import STATUS_DRAFT, STATUS_PUBLICLY_OPEN,\

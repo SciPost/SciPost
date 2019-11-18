@@ -24,6 +24,8 @@ from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 
+from dal import autocomplete
+
 from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
     STATUS_VETTED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
@@ -73,6 +75,21 @@ from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
+
+
+################
+# Autocomplete #
+################
+
+class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        qs = Submission.objects.public_listed()
+        if self.q:
+            qs = qs.filter(title__icontains=self.q)
+        return qs.order_by('-submission_date').prefetch_related('publication')[:10]
 
 
 ###############

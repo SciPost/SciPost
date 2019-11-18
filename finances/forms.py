@@ -9,7 +9,6 @@ from django.utils.dates import MONTHS
 from django.db.models import Sum
 from django.utils import timezone
 
-from ajax_select.fields import AutoCompleteSelectField
 from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
 
