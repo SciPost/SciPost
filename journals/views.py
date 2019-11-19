@@ -81,8 +81,8 @@ class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
         return qs.order_by('-publication_date')
 
     def get_result_label(self, item):
-        return format_html("{} ({})<br><span class='text-muted'>by {}</span>",
-                           item.title, item.doi_string, item.author_list)
+        return format_html("<strong>{}</strong><br>{}<br><span class='text-muted'>by {}</span>",
+                           item.doi_label, item.title, item.author_list)
 
 
 ################

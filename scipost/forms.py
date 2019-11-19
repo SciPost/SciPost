@@ -235,13 +235,13 @@ class RegistrationForm(forms.Form):
 class DraftInvitationForm(forms.ModelForm):
     cited_in_submission = forms.ModelChoiceField(
         queryset=Submission.objects.all(),
-        widget=autocomplete.ModelSelect2(url='submissions/submission-autocomplete'),
+        widget=autocomplete.ModelSelect2(url='/submissions/submission-autocomplete'),
         required=False
     )
     cited_in_publication = forms.ModelChoiceField(
         queryset=Publication.objects.all(),
         widget=autocomplete.ModelSelect2(
-            url='journals/publication-autocomplete',
+            url='/journals/publication-autocomplete',
             attrs={'data-html': True}
         ),
         required=False

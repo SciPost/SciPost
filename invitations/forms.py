@@ -54,13 +54,13 @@ class SuggestionSearchForm(forms.Form):
 class CitationNotificationForm(AcceptRequestMixin, forms.ModelForm):
     submission = forms.ModelChoiceField(
         queryset=Submission.objects.all(),
-        widget=autocomplete.ModelSelect2(url='submissions/submission-autocomplete'),
+        widget=autocomplete.ModelSelect2(url='/submissions/submission-autocomplete'),
         required=False
     )
     publication = forms.ModelChoiceField(
         queryset=Publication.objects.all(),
         widget=autocomplete.ModelSelect2(
-            url='journals/publication-autocomplete',
+            url='/journals/publication-autocomplete',
             attrs={'data-html': True}
         ),
         required=False
@@ -107,13 +107,13 @@ class RegistrationInvitationAddCitationForm(AcceptRequestMixin, forms.ModelForm)
     cited_in_submissions = forms.ModelMultipleChoiceField(
         queryset=Submission.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='submissions/submission-autocomplete'),
+            url='/submissions/submission-autocomplete'),
         required=False
     )
     cited_in_publications = forms.ModelMultipleChoiceField(
         queryset=Publication.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='journals/publication-autocomplete',
+            url='/journals/publication-autocomplete',
             attrs={'data-html': True}
         ),
         required=False
@@ -215,13 +215,13 @@ class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
     cited_in_submissions = forms.ModelMultipleChoiceField(
         queryset=Submission.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='submissions/submission-autocomplete'),
+            url='/submissions/submission-autocomplete'),
         required=False
     )
     cited_in_publications = forms.ModelMultipleChoiceField(
         queryset=Publication.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
-            url='journals/publication-autocomplete',
+            url='/journals/publication-autocomplete',
             attrs={'data-html': True}
         ),
         required=False
