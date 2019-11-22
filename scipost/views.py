@@ -106,6 +106,8 @@ class GroupAutocompleteView(autocomplete.Select2QuerySetView):
     View to feed the Select2 widget.
     """
     def get_queryset(self):
+        if not self.request.user.has_perm('auth.view_group'):
+            return Group.objects.none()
         qs = Group.objects.all()
         if self.q:
             qs = qs.filter(name__icontains=self.q)
