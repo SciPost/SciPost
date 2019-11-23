@@ -5,10 +5,6 @@
 {% load bootstrap %}
 {% load staticfiles %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/vet-report.js' %}"></script>
-{% endblock headsup %}
-
 {% block breadcrumb_items %}
   {{block.super}}
   <span class="breadcrumb-item">Vet Report</span>
@@ -49,3 +45,7 @@
   </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/vet-report.js' %}"></script>
+{% endblock footer_script %}

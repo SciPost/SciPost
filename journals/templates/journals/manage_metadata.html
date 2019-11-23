@@ -6,9 +6,6 @@
 {% load staticfiles %}
 {% load journals_extras %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/table-row.js' %}"></script>
-{% endblock headsup %}
 
 {% block breadcrumb_items %}
   {{block.super}}
@@ -72,3 +69,7 @@
   </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row.js' %}"></script>
+{% endblock footer_script %}

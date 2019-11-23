@@ -25,7 +25,6 @@
     "css-loader": "^3.2.0",
     "enhanced-resolve": "^4.1.1",
     "exports-loader": "^0.7.0",
-    "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^4.3.0",
     "imports-loader": "^0.8.0",
     "jquery": "^3.4.1",
@@ -44,16 +43,20 @@
     "url-loader": "^2.3.0",
     "webpack": "^4.41.2",
     "webpack-bundle-tracker": "^0.4.3",
+    "webpack-cli": "^3.3.10",
     "webpack-glob-entry": "^2.1.1"
   },
   "dependencies": {
     "bootstrap-loader": "^3.0.4",
     "expose-loader": "^0.7.5",
+    "fibers": "^4.0.2",
+    "mem": "^6.0.0",
     "mini-css-extract-plugin": "^0.8.0",
     "nan": "^2.14.0",
     "npm": "^6.13.1",
     "npm-install-peers": "^1.2.1",
     "qrcode": "^1.4.4",
+    "sass": "^1.23.7",
     "schema-utils": "^2.5.0"
   }
 }
