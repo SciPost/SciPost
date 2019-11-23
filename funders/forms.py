@@ -28,13 +28,18 @@ class FunderForm(forms.ModelForm):
 class FunderSelectForm(forms.Form):
     funder = forms.ModelChoiceField(
         queryset=Funder.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/funders/funder-autocomplete')
+        widget=autocomplete.ModelSelect2(
+            url='/funders/funder-autocomplete',
+            attrs={'data-html': True})
     )
 
 class FunderOrganizationSelectForm(forms.ModelForm):
     organization = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/organizations/organization-autocomplete')
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        )
     )
 
     class Meta:
@@ -57,5 +62,8 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
 class GrantSelectForm(forms.Form):
     grant = forms.ModelChoiceField(
         queryset=Grant.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/funders/grant-autocomplete')
+        widget=autocomplete.ModelSelect2(
+            url='/funders/grant-autocomplete',
+            attrs={'data-html': True}
+        )
     )
