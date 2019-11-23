@@ -46,7 +46,17 @@ module.exports = {
                     use: "css-loader!sass-loader"
                 })
             }
-        ]
+        ],
+	rules: [{
+	    test: require.resolve('jquery'),
+	    use: [{
+		loader: 'expose-loader',
+		options: 'jQuery'
+	    },{
+		loader: 'expose-loader',
+		options: '$'
+	    }]
+	}]
     },
     plugins: [
         new webpack.ProvidePlugin({
