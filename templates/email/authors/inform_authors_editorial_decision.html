@@ -33,9 +33,16 @@
     </p>
   {% else %}
     <p>
-      We would like to offer you publication of your manuscript in
-      {{ decision.for_journal }} (you had originally submitted
-      to {{ decision.submission.submitted_to }}).
+      The Editorial College has considered your submission for publication in
+      the journal to which you had submitted, namely {{ decision.submission.submitted_to }}.
+      After deliberating, the College's position is that the expectations and criteria
+      of that particular journal are not met.
+    </p>
+    <p>
+      The College has however pointed out that your manuscript would be appropriate
+      for publication in {{ decision.for_journal }}.
+      The present email is thus to formally offer you immediate acceptance in that
+      alternative journal.
     </p>
     <p>
       You can inform us of choice by going to your personal page: under
@@ -45,8 +52,10 @@
 	before initiating production of the proofs of your paper.</strong>
     </p>
     <p>
-      If you decide to turn this offer down, you can simply withdraw your manuscript.
-      It will then not be considered for further processing on our side
+      If you decide to turn this offer down, the appropriate course of action would
+      be for you to formally withdraw your manuscript (using the relevant link on
+      your personal page under the Submissions tab).
+      Your manuscript will then not be considered for further processing on our side
       and you will be free to submit it elsewhere.
     </p>
   {% endif %}

@@ -199,12 +199,14 @@ def landing_page(request, doi_label):
     or paginates its individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    accepted_submission_ids = [sub.id for sub in Submission.objects.accepted() \
+                               if sub.editorial_decision.for_journal==journal]
     context = {
         'journal': journal,
         'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
         'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
         'accepted_submissions': Submission.objects.accepted().filter(
-            submitted_to=journal).order_by('-latest_activity'),
+            pk__in=accepted_submission_ids).order_by('-latest_activity'),
     }
     return render(request, 'journals/journal_landing_page.html', context)
 
