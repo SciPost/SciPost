@@ -35,11 +35,11 @@ class MeetingForm(ForumForm):
 
 class ForumGroupPermissionsForm(forms.ModelForm):
     """
-    Used for granting a specific Group access to a given Forum.
+    Used for granting specific Groups some rights to a given Forum.
     """
-    group = forms.ModelMultipleChoiceField(
+    groups = forms.ModelMultipleChoiceField(
         queryset=Group.objects.all(),
-        widget=autocomplete.ModelSelect2Multiple(url='/scipost/group-autocomplete')
+        widget=autocomplete.ModelSelect2Multiple(url='/group-autocomplete')
     )
     can_view = forms.BooleanField(required=False)
     can_post = forms.BooleanField(required=False)
