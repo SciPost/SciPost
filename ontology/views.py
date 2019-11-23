@@ -119,7 +119,7 @@ class TopicListView(PaginationMixin, ListView):
         context = super().get_context_data(**kwargs)
         context.update({
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
-            'select_linked_topic_form': SelectLinkedTopicForm(),
+            'select_linked_topic_form': SelectLinkedTopicForm()
         })
         return context
 
@@ -130,7 +130,9 @@ class TopicDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['select_tags_form'] = SelectTagsForm()
-        context['add_relation_asym_form'] = AddRelationAsymForm()
+        context['add_relation_asym_form'] = AddRelationAsymForm(
+            initial={'A': self.object, 'B': self.object}
+        )
         context['relations_asym'] = RelationAsym.objects.filter(Q(A=self.object) | Q(B=self.object))
         return context
 
