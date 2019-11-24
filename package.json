@@ -34,6 +34,7 @@
     "popper.js": "^1.16.0",
     "postcss-load-config": "^2.1.0",
     "postcss-loader": "^3.0.0",
+    "postcss-plugin": "^1.0.0",
     "resolve-url-loader": "^3.1.1",
     "sass-loader": "^8.0.0",
     "sass-resources-loader": "^2.0.1",
@@ -55,8 +56,10 @@
     "nan": "^2.14.0",
     "npm": "^6.13.1",
     "npm-install-peers": "^1.2.1",
+    "postcss": "^7.0.23",
     "qrcode": "^1.4.4",
     "sass": "^1.23.7",
-    "schema-utils": "^2.5.0"
+    "schema-utils": "^2.5.0",
+    "sugarss": "^2.0.0"
   }
 }

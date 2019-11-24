@@ -1,11 +1,12 @@
 var webpack = require("webpack");
 var BundleTracker = require('webpack-bundle-tracker');
-var CleanWebpackPlugin = require('clean-webpack-plugin');
-var ExtractTextPlugin = require("extract-text-webpack-plugin");
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 var glob = require("glob");
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
+    mode: 'development',
     context: __dirname,
     entry: {
         main: [
@@ -24,39 +25,56 @@ module.exports = {
         filename: "js/[name]-[hash].js",
     },
     module: {
-        loaders: [
-            {
-                test: /\.css$/,
-                loader: ExtractTextPlugin.extract({
-                    fallback: "style-loader",
-                    use: "css-loader",
-                })
-            },
-            {
-                test: /\.less$/,
-                loader: ExtractTextPlugin.extract({
-                    fallback: "style-loader",
-                    use: "css-loader!less-loader"
-                })
-            },
-            {
-                test: /\.scss$/,
-                loader: ExtractTextPlugin.extract({
-                    fallback: "style-loader",
-                    use: "css-loader!sass-loader"
-                })
-            }
-        ],
-	rules: [{
-	    test: require.resolve('jquery'),
-	    use: [{
-		loader: 'expose-loader',
-		options: 'jQuery'
-	    },{
+        // loaders: [
+        //     {
+        //         test: /\.css$/,
+        //         // loader: ExtractTextPlugin.extract({
+        //         //     fallback: "style-loader",
+        //         //     use: "css-loader",
+        //         // })
+	// 	use: [MiniCssExtractPlugin.loader, 'css-loader'],
+        //     },
+        //     {
+        //         test: /\.less$/,
+        //         // loader: ExtractTextPlugin.extract({
+        //         //     fallback: "style-loader",
+        //         //     use: "css-loader!less-loader"
+        //         // })
+	// 	use: [MiniCssExtractPlugin.loader, 'css-loader!less-loader'],
+        //     },
+        //     {
+        //         test: /\.scss$/,
+        //         // loader: ExtractTextPlugin.extract({
+        //         //     fallback: "style-loader",
+        //         //     use: "css-loader!sass-loader"
+        //         // })
+	// 	use: [MiniCssExtractPlugin.loader, 'css-loader!sass-loader'],
+        //     }
+        // ],
+	rules: [
+	    {
+		test: require.resolve('jquery'),
+		use: [{
+		    loader: 'expose-loader',
+		    options: 'jQuery'
+		},{
 		loader: 'expose-loader',
 		options: '$'
-	    }]
-	}]
+		}]
+	    },
+            {
+                test: /\.css$/,
+		use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader'],
+            },
+            // {
+            //     test: /\.less$/,
+	    // 	use: [MiniCssExtractPlugin.loader, 'less-loader'],
+            // },
+            {
+                test: /\.scss$/,
+		use: [MiniCssExtractPlugin.loader, 'sass-loader'],
+            }
+	]
     },
     plugins: [
         new webpack.ProvidePlugin({
@@ -71,15 +89,17 @@ module.exports = {
         new BundleTracker({
             filename: './webpack-stats.json'
         }),
-        new ExtractTextPlugin({
+	new MiniCssExtractPlugin({
             filename: 'css/[name]-[hash].css',
         }),
-        new CleanWebpackPlugin(['css', 'js'], {
-            root: path_bundles,
-            dry: false,
-            exclude: []
-        }),
-        new webpack.optimize.UglifyJsPlugin(),
+        new CleanWebpackPlugin(
+	    // ['css', 'js'], {
+            // root: path_bundles,
+            // dry: false,
+            // exclude: []
+            // }
+	),
+        // new webpack.optimize.UglifyJsPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.AggressiveMergingPlugin()
     ],
