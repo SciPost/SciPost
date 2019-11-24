@@ -5,10 +5,10 @@
     "appStyles": "./scipost/static/scipost/assets/css/style.scss",
     "useFlexbox": true,
     "styleLoaders": [
-        "style",
-        "css",
-	"postcss",
-        "sass",
+        "style-loader",
+        "css-loader",
+	"postcss-loader",
+        "sass-loader",
     ],
     "extractStyles": true,
     "styles": {
@@ -41,6 +41,8 @@
     },
     "scripts": {
         "alert": true,
+	"button": true,
+	"carousel": true,
         "collapse": true,
         "dropdown": true,
         "modal": true,
