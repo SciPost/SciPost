@@ -10,7 +10,6 @@
 	"postcss-loader",
         "sass-loader",
     ],
-    "extractStyles": true,
     "styles": {
         # First tables, due to self dependencies
         "tables": true,

@@ -1,8 +1,11 @@
-const webpack = require("webpack");
-const path_bundles = __dirname + '/static_bundles/bundles';
+var webpack = require("webpack");
+var BundleTracker = require('webpack-bundle-tracker');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
     mode: 'development',
+    context: __dirname,
     entry: {
         main: [
 	    "tether",
@@ -21,6 +24,9 @@ module.exports = {
         filename: "js/[name]-[hash].js",
     },
     plugins: [
+	new BundleTracker({
+	    filename: './webpack-stats.json'
+	}),
         new webpack.ProvidePlugin({
             $: 'jquery',
             jQuery: 'jquery',
@@ -40,6 +46,9 @@ module.exports = {
             Tooltip: "exports-loader?Tooltip!bootstrap/js/dist/tooltip",
             Util: 'exports-loader?Util!bootstrap/js/dist/util',
         }),
+        new CleanWebpackPlugin(),
+        new webpack.optimize.OccurrenceOrderPlugin(),
+        new webpack.optimize.AggressiveMergingPlugin()
     ],
     module: {
 	rules: [
