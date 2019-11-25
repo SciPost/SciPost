@@ -1,6 +1,6 @@
 var webpack = require("webpack");
 var BundleTracker = require('webpack-bundle-tracker');
-var CleanWebpackPlugin = require('clean-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
