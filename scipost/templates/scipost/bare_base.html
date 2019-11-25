@@ -12,7 +12,7 @@
     <link rel="stylesheet" type="text/css" href="{% static 'fa/css/font-awesome.min.css' %}" />
     <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 
-    {% render_bundle 'main' 'css' %}
+    {% render_bundle 'main' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
@@ -43,8 +43,6 @@
     <div class="backdrop" id="backdrop"></div>
     <script type="text/javascript" src="{% static 'scipost/mathjax-config.js' %}"></script>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
-
-    {% render_bundle 'main' 'js' %}
 
     {% block footer_script %}
     {% endblock footer_script %}
