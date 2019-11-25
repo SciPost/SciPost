@@ -44,10 +44,7 @@
     <script type="text/javascript" src="{% static 'scipost/mathjax-config.js' %}"></script>
     <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
 
-    {% with nonce_attribute='nonce='|concatenate:request.csp_nonce %}
-	<h1>nonce_attribute: {{ nonce_attribute }}</h1>
-	{% render_bundle 'main' 'js' attrs=nonce_attribute %}
-    {% endwith %}
+    {% render_bundle 'main' 'js' %}
 
     {% block footer_script %}
     {% endblock footer_script %}

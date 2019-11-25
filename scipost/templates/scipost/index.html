@@ -2,14 +2,11 @@
 
 {% load render_bundle from webpack_loader %}
 {% load staticfiles %}
-{% load scipost_extras %}
 
 {% block body_class %}{{ block.super }} homepage{% endblock %}
 
 {% block footer_script %}
-  {% with nonce_attribute='nonce='|concatenate:request.csp_nonce %}
-    {% render_bundle 'homepage' 'js' attrs=nonce_attribute %}
-  {% endwith %}
+  {% render_bundle 'homepage' 'js' %}
 {% endblock %}
 
 {% block content %}
