@@ -15,6 +15,12 @@ register = template.Library()
 # General utilities #
 #####################
 
+@register.filter(name='concatenate')
+def concatenate(arg1, arg2):
+    """Stringify and concatenate the two arguments"""
+    return str(arg1) + str(arg2)
+
+
 @register.filter(name='sort_by')
 def sort_by(queryset, order):
     if queryset:

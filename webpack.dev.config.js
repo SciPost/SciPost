@@ -6,6 +6,7 @@ var path_bundles = __dirname + '/static_bundles/bundles';
 module.exports = {
     mode: 'development',
     context: __dirname,
+    devtool: "source-map",
     entry: {
         main: [
 	    "tether",
