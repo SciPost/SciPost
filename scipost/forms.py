@@ -15,24 +15,19 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.utils.dates import MONTHS
 
-from django_countries import countries
-from django_countries.widgets import CountrySelectWidget
-
-from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
 from .constants import (
     SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
     UNVERIFIABLE_CREDENTIALS, NO_SCIENTIST, DOUBLE_ACCOUNT, BARRED)
-from .decorators import has_contributor
 from .fields import ReCaptchaField
-from .models import Contributor, DraftInvitation, UnavailabilityPeriod, \
+from .models import Contributor, UnavailabilityPeriod, \
     Remark, AuthorshipClaim, PrecookedEmail, TOTPDevice
 from .totp import TOTPVerification
 
 from common.forms import MonthYearWidget, ModelChoiceFieldwithid
-from organizations.decorators import has_contact
 
 from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
@@ -41,6 +36,7 @@ from funders.models import Grant
 from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
+from organizations.models import Organization
 from profiles.models import Profile, ProfileEmail, Affiliation
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
     EditorialCommunication, EICRecommendation
@@ -95,14 +91,18 @@ class RegistrationForm(forms.Form):
         widget=forms.TextInput({
             'placeholder': 'Recommended. Get one at orcid.org'}))
     discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
-    current_affiliation = AutoCompleteSelectField(
-        'organization_lookup',
+    current_affiliation = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='* Current affiliation',
         help_text=('Start typing, then select in the popup; '
                    'if you do not find the organization you seek, '
                    'please fill in your institution name and address instead.'),
-        show_help_text=False,
-        required=False,
-        label='* Current affiliation')
+        required=False
+    )
     address = forms.CharField(
         label='Institution name and address', max_length=1000,
         widget=forms.TextInput({'placeholder': '[only if you did not find your affiliation above]'}),
@@ -225,47 +225,6 @@ class RegistrationForm(forms.Form):
         })
         contributor.save()
         return contributor
-
-
-class DraftInvitationForm(forms.ModelForm):
-    cited_in_submission = AutoCompleteSelectField('submissions_lookup', required=False)
-    cited_in_publication = AutoCompleteSelectField('publication_lookup', required=False)
-
-    class Meta:
-        model = DraftInvitation
-        fields = ['title', 'first_name', 'last_name', 'email',
-                  'invitation_type',
-                  'cited_in_submission', 'cited_in_publication']
-
-    def __init__(self, *args, **kwargs):
-        """
-        This form has a required keyword argument `current_user` which is used for validation of
-        the form fields.
-        """
-        self.current_user = kwargs.pop('current_user')
-        super().__init__(*args, **kwargs)
-
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if self.instance.id:
-            return email
-
-        if User.objects.filter(email=email).exists():
-            self.add_error('email', 'This email address is already associated to a Contributor')
-
-        return email
-
-    def clean_invitation_type(self):
-        invitation_type = self.cleaned_data['invitation_type']
-        if invitation_type == 'F' and not self.current_user.has_perm('scipost.can_invite_fellows'):
-            self.add_error('invitation_type', ('You do not have the authorization'
-                                               ' to send a Fellow-type invitation.'
-                                               ' Consider Contributor, or cited (sub/pub).'))
-        if invitation_type == 'R':
-            self.add_error('invitation_type', ('Referee-type invitations must be made'
-                                               'by the Editor-in-charge at the relevant'
-                                               ' Submission\'s Editorial Page.'))
-        return invitation_type
 
 
 class ModifyPersonalMessageForm(forms.Form):
@@ -564,8 +523,6 @@ class ContributorMergeForm(forms.Form):
             contributor=contrib_from).update(contributor=contrib_into)
         Remark.objects.filter(
             contributor=contrib_from).update(contributor=contrib_into)
-        DraftInvitation.objects.filter(
-            drafted_by=contrib_from).update(drafted_by=contrib_into)
         AuthorshipClaim.objects.filter(
             claimant=contrib_from).update(claimant=contrib_into)
         AuthorshipClaim.objects.filter(

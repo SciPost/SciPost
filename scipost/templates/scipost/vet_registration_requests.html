@@ -5,9 +5,6 @@
 {% load bootstrap %}
 {% load staticfiles %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/vet-registration.js' %}"></script>
-{% endblock %}
 
 {% block breadcrumb_items %}
   {{block.super}}
@@ -51,3 +48,7 @@
 
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/vet-registration.js' %}"></script>
+{% endblock footer_script %}

@@ -1,12 +1,8 @@
 {% load bootstrap %}
-{% load staticfiles %}
 {% load guardian_tags %}
 {% load user_groups %}
 {% load organizations_extras %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/table-row.js' %}"></script>
-{% endblock headsup %}
 
 {% is_scipost_admin request.user as is_scipost_admin %}
 

@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import reverse_lazy
+from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
 from scipost.constants import DISCIPLINES_REGEX
@@ -16,6 +16,12 @@ from journals import views as journals_views
 app_name = 'urls.general'
 
 urlpatterns = [
+    # Autocomplete
+    path(
+        'publication-autocomplete',
+        journals_views.PublicationAutocompleteView.as_view(),
+        name='publication-autocomplete',
+    ),
     # Journals
     url(
         r'^$',

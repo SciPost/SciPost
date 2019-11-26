@@ -14,8 +14,9 @@ from . import constants
 from .models import RegistrationInvitation, CitationNotification
 
 from profiles.models import Profile
+from submissions.models import Submission
 
-from ajax_select.fields import AutoCompleteSelectField, AutoCompleteSelectMultipleField
+from dal import autocomplete
 
 
 class AcceptRequestMixin:
@@ -51,8 +52,22 @@ class SuggestionSearchForm(forms.Form):
 
 
 class CitationNotificationForm(AcceptRequestMixin, forms.ModelForm):
-    submission = AutoCompleteSelectField('submissions_lookup', required=False)
-    publication = AutoCompleteSelectField('publication_lookup', required=False)
+    submission = forms.ModelChoiceField(
+        queryset=Submission.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/submissions/submission-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
+    publication = forms.ModelChoiceField(
+        queryset=Publication.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/journals/publication-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
 
     class Meta:
         model = CitationNotification
@@ -92,8 +107,22 @@ class CitationNotificationProcessForm(AcceptRequestMixin, forms.ModelForm):
 
 
 class RegistrationInvitationAddCitationForm(AcceptRequestMixin, forms.ModelForm):
-    cited_in_submissions = AutoCompleteSelectMultipleField('submissions_lookup', required=False)
-    cited_in_publications = AutoCompleteSelectMultipleField('publication_lookup', required=False)
+    cited_in_submissions = forms.ModelMultipleChoiceField(
+        queryset=Submission.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/submissions/submission-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
+    cited_in_publications = forms.ModelMultipleChoiceField(
+        queryset=Publication.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/journals/publication-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
 
     class Meta:
         model = RegistrationInvitation
@@ -187,10 +216,23 @@ class RegistrationInvitationMergeForm(AcceptRequestMixin, forms.ModelForm):
         return self.instance
 
 
-
 class RegistrationInvitationForm(AcceptRequestMixin, forms.ModelForm):
-    cited_in_submissions = AutoCompleteSelectMultipleField('submissions_lookup', required=False)
-    cited_in_publications = AutoCompleteSelectMultipleField('publication_lookup', required=False)
+    cited_in_submissions = forms.ModelMultipleChoiceField(
+        queryset=Submission.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/submissions/submission-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
+    cited_in_publications = forms.ModelMultipleChoiceField(
+        queryset=Publication.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/journals/publication-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=False
+    )
 
     class Meta:
         model = RegistrationInvitation

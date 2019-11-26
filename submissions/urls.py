@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path
 from django.views.generic import TemplateView
 
 from . import views
@@ -11,6 +12,12 @@ from .constants import SUBMISSIONS_NO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 app_name = 'submissions'
 
 urlpatterns = [
+    # Autocomplete
+    path(
+        'submission-autocomplete',
+        views.SubmissionAutocompleteView.as_view(),
+        name='submission-autocomplete'
+    ),
     # Submissions
     url(r'^$', views.SubmissionListView.as_view(), name='submissions'),
     url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]{1,3})/$',

@@ -3,9 +3,6 @@
 {% load bootstrap %}
 {% load staticfiles %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/slugify-name.js' %}"></script>
-{% endblock headsup %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -27,3 +24,7 @@
   </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/slugify-name.js' %}"></script>
+{% endblock footer_script %}

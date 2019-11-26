@@ -3,12 +3,23 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'funders'
 
 urlpatterns = [
+    path(
+        'funder-autocomplete',
+        views.FunderAutocompleteView.as_view(),
+        name='funder-autocomplete'
+    ),
+    path(
+        'grant-autocomplete',
+        views.GrantAutocompleteView.as_view(),
+        name='grant-autocomplete'
+    ),
     url(r'^$', views.funders, name='funders'),
     url(r'^dashboard$', views.funders_dashboard, name='funders_dashboard'),
     url(r'^query_crossref_for_funder$', views.query_crossref_for_funder,

@@ -14,6 +14,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from dal import autocomplete
 from guardian.decorators import permission_required
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS
@@ -28,6 +29,25 @@ from submissions.models import RefereeInvitation
 from .models import Profile, ProfileEmail, Affiliation
 from .forms import ProfileForm, ProfileMergeForm, ProfileEmailForm, AffiliationForm
 
+
+################
+# Autocomplete #
+################
+
+class ProfileAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        if not self.request.user.has_perm('scipost.can_view_profiles'):
+            return None
+        qs = Profile.objects.all()
+        if self.q:
+            qs = qs.filter(Q(first_name__icontains=self.q) |
+                           Q(last_name__icontains=self.q) |
+                           Q(emails__email__icontains=self.q) |
+                           Q(orcid_id__icontains=self.q))
+        return qs
 
 
 class ProfileCreateView(PermissionsMixin, CreateView):

@@ -1,6 +1,7 @@
 {% extends 'organizations/base.html' %}
 
 {% load bootstrap %}
+{% load static %}
 
 {% block pagetitle %}: Organization details{% endblock pagetitle %}
 
@@ -44,3 +45,7 @@
 
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row.js' %}"></script>
+{% endblock footer_script %}

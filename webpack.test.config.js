@@ -4,7 +4,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
-    mode: 'production',
+    mode: 'development',
     context: __dirname,
     entry: {
         main: [
@@ -20,7 +20,7 @@ module.exports = {
     },
     output: {
         path: path_bundles,
-        publicPath: 'https://scipost.org/static/bundles/',
+        publicPath: '/static/bundles/',
         filename: "js/[name]-[hash].js",
     },
     plugins: [

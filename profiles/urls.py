@@ -3,12 +3,18 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'profiles'
 
 urlpatterns = [
+    path(
+        'profile-autocomplete',
+        views.ProfileAutocompleteView.as_view(),
+        name='profile-autocomplete'
+    ),
     url(
         r"^add/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$",
         views.ProfileCreateView.as_view(),

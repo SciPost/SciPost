@@ -3,12 +3,18 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'organizations'
 
 urlpatterns = [
+    path(
+        'organization-autocomplete',
+        views.OrganizationAutocompleteView.as_view(),
+        name='organization-autocomplete',
+        ),
     url(
         r'^$',
         views.OrganizationListView.as_view(),

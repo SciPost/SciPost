@@ -19,10 +19,13 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 from django.template import Template, Context
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.html import format_html
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
+
+from dal import autocomplete
 
 from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
@@ -73,6 +76,43 @@ from scipost.decorators import is_contributor_user
 from scipost.forms import RemarkForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
+
+
+################
+# Autocomplete #
+################
+
+class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        qs = Submission.objects.public_listed()
+        if self.q:
+            qs = qs.filter(Q(preprint__identifier_w_vn_nr__icontains=self.q) |
+                           Q(title__icontains=self.q) |
+                           Q(author_list__icontains=self.q))
+        return qs.order_by('-submission_date').prefetch_related('publication')
+
+    def get_result_label(self, item):
+        """
+        Give same info as in ``Submission.__str__()`` but with carriage returns.
+        """
+        end_info = ''
+        if item.is_current:
+            end_info = ' (current version)'
+        else:
+            end_info = ' (deprecated version ' + str(item.preprint.vn_nr) + ')'
+        if hasattr(item, 'publication') and item.publication.is_published:
+            end_info += ' (published as %s (%s))' % (
+                item.publication.doi_string, item.publication.publication_date.strftime('%Y'))
+        return format_html(
+            '<strong>{}</strong><br>{}<br><span class="text-muted">by {}</span><br>{}',
+            item.preprint.identifier_w_vn_nr,
+            item.title,
+            item.author_list,
+            end_info
+        )
 
 
 ###############

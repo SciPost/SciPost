@@ -6,9 +6,10 @@ import datetime
 
 from django import forms
 
-from ajax_select.fields import AutoCompleteSelectField
+from dal import autocomplete
 
 from proceedings.models import Proceedings
+from profiles.models import Profile
 from submissions.models import Submission
 from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
@@ -16,29 +17,6 @@ from scipost.models import Contributor
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 from .constants import POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,\
     POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
-
-
-# class AddFellowshipForm(forms.ModelForm):
-#     class Meta:
-#         model = Fellowship
-#         fields = (
-#             'guest',
-#             'contributor',
-#             'start_date',
-#             'until_date',
-#         )
-
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         self.fields['contributor'].queryset = Contributor.objects.active()
-#         self.fields['contributor'].label = "Fellow"
-
-#     def clean(self):
-#         start = self.cleaned_data.get('start_date')
-#         until = self.cleaned_data.get('until_date')
-#         if start and until:
-#             if until <= start:
-#                 self.add_error('until_date', 'The given dates are not in chronological order.')
 
 
 class FellowshipForm(forms.ModelForm):
@@ -236,7 +214,10 @@ class FellowshipAddProceedingsForm(forms.ModelForm):
 
 
 class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
-    profile = AutoCompleteSelectField('profile_lookup')
+    profile = forms.ModelChoiceField(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete')
+    )
 
     class Meta:
         model = PotentialFellowship
