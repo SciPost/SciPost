@@ -40,10 +40,13 @@ class FunderAutocompleteView(autocomplete.Select2QuerySetView):
         return qs
 
     def get_result_label(self, item):
+        if item.organization:
+            return format_html(
+                '<span><i class="{}" title="{}"></i>&emsp;{}</span>',
+                item.organization.country.flag_css, item.organization.country.name,
+                item.name)
         return format_html(
-            '<span><i class="{}" title="{}"></i>&emsp;{}</span>',
-            item.organization.country.flag_css, item.organization.country.name,
-            item.name)
+            '<span>{}</span>', item.name)
 
 
 class GrantAutocompleteView(autocomplete.Select2QuerySetView):
