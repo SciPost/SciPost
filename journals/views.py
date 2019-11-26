@@ -873,10 +873,11 @@ def publication_add_topic(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
-        publication.topics.add(select_topic_form.cleaned_data['topic'])
-        for sub in publication.accepted_submission.thread:
-            sub.topics.add(select_topic_form.cleaned_data['topic'])
-        messages.success(request, 'Successfully linked Topic to this publication')
+        for topic in select_topic_form.cleaned_data['topic']:
+            publication.topics.add(topic)
+            for sub in publication.accepted_submission.thread:
+                sub.topics.add(topic)
+        messages.success(request, 'Successfully linked Topic(s) to this publication')
     return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_label': publication.doi_label}))
 
