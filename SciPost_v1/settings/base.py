@@ -301,7 +301,7 @@ USE_TZ = True
 # MEDIA
 MEDIA_URL = '/media/'
 MEDIA_URL_SECURE = '/files/secure/'
-MAX_UPLOAD_SIZE = "1310720"  # Default max attachment size in Bytes
+MAX_UPLOAD_SIZE = "2097152"  # Default max attachment size in Bytes; 2MB
 
 # -- These MEDIA settings are machine-dependent
 MEDIA_ROOT = 'local_files/media/'
