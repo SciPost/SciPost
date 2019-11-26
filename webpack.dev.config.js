@@ -13,6 +13,7 @@ module.exports = {
             "bootstrap-loader",
             "./scipost/static/scipost/assets/js/dynamic_loading.js",
             "./scipost/static/scipost/assets/js/scripts.js",
+            "./scipost/static/scipost/assets/js/vue.js",
         ],
         homepage: [
             "./scipost/static/scipost/assets/js/fader.js",

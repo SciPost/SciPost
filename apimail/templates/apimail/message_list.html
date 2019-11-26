@@ -1,22 +1,24 @@
 {% extends 'scipost/base.html' %}
 
-{% block headsup %}
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-{% endblock headsup %}
+{% load staticfiles %}
 
 {% block content %}
 
   <div class="accordion" id="messageAccordion">
     <messagedisplay
-	v-for="message in apidata.results"
-	v-bind:message="message"
-	v-bind:key="message.id"
+      v-for="message in apidata.results"
+	     v-bind:message="message"
+	     v-bind:key="message.id"
     ></messagedisplay>
   </div>
 
 {% endblock content %}
 
 {% block footer_script %}
+
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/assets/js/vue.js' %}"></script>
+
+
   <script nonce="{{ request.csp_nonce }}">
 
    Vue.component('messagedisplay', {
