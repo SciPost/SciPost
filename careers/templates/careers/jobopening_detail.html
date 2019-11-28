@@ -1,0 +1,19 @@
+{% extends 'careers/base.html' %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'careers:jobopenings' %}">Job Openings</a></span>
+  <span class="breadcrumb-item">{{ jobopening }}</span>
+{% endblock %}
+
+{% block pagetitle %}: Job Opening details{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      {{ jobopening }}
+    </div>
+  </div>
+
+{% endblock content %}

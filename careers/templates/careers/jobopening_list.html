@@ -1,0 +1,43 @@
+{% extends 'careers/base.html' %}
+
+{% load bootstrap %}
+{% load automarkup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Job Openings</a></span>
+{% endblock %}
+
+{% block pagetitle %}: Job Openings{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">
+	Job Openings
+      </h1>
+
+      {% if perms.careers.add_jobopening %}
+	<ul>
+	  <li><a href="{% url 'careers:jobopening_create' %}">Add a Job Opening</a></li>
+	</ul>
+      {% endif %}
+
+      <div class="card-columns">
+	{% for job in object_list %}
+	  <div class="card">
+	    <div class="card-header">
+	      {{ job.title }}
+	    </div>
+	    <div class="card-body">
+	      {{ job.description|automarkup }}
+	    </div>
+	  </div>
+	{% endfor %}
+      </div>
+
+    </div>
+  </div>
+
+{% endblock content %}
