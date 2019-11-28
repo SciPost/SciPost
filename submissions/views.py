@@ -1410,7 +1410,8 @@ def communication(request, identifier_w_vn_nr, comtype, referee_id=None):
         # Invalid commtype in the url!
         raise Http404
 
-    # Get the showpiece itself or return 404
+    # Uniquify and get the showpiece itself or return 404
+    submissions_qs = submissions_qs.distinct()
     submission = get_object_or_404(submissions_qs, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     if referee_id and comtype in ['EtoA', 'EtoR', 'EtoS']:
