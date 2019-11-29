@@ -17,7 +17,7 @@ urlpatterns = [
         name='jobopening_create'
     ),
     path( # /careers/job_openings/update
-        'job_openings/update',
+        'job_openings/<slug:slug>/update',
         views.JobOpeningUpdateView.as_view(),
         name='jobopening_update'
     ),

@@ -4,4 +4,10 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-# Register your models here.
+from .models import JobOpening
+
+
+class JobOpeningAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(JobOpening, JobOpeningAdmin)

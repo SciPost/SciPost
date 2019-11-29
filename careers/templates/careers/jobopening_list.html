@@ -5,7 +5,6 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">Job Openings</a></span>
 {% endblock %}
 
 {% block pagetitle %}: Job Openings{% endblock pagetitle %}
@@ -24,18 +23,27 @@
 	</ul>
       {% endif %}
 
-      <div class="card-columns">
-	{% for job in object_list %}
-	  <div class="card">
-	    <div class="card-header">
-	      {{ job.title }}
-	    </div>
-	    <div class="card-body">
-	      {{ job.description|automarkup }}
-	    </div>
+      {% for job in object_list %}
+	<div class="card border-primary m-4">
+	  <div class="card-header">
+	    <h1><a href="{{ job.get_absolute_url }}">{{ job.title }}</a></h1>
+	    <p>Announced on {{ job.announced|date:'Y-m-d' }}</p>
+	    <h3 class="my-2">
+	      <strong class="bg-success text-white my-2 p-2">Application deadline:&emsp;
+		{{ job.application_deadline|date:'Y-m-d' }}
+	      </strong>
+	    </h3>
 	  </div>
-	{% endfor %}
-      </div>
+	  <div class="card-body">
+	    {{ job.short_description|automarkup }}
+	  </div>
+	  <div class="card-footer">
+	    <i class="fa fa-arrow-right"></i>&emsp;<a href="{{ job.get_absolute_url }}">View full description</a>
+	  </div>
+	</div>
+      {% empty %}
+	<h3>Sorry, we currently have no job openings.</h3>
+      {% endfor %}
 
     </div>
   </div>

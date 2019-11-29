@@ -32,6 +32,18 @@ class JobOpeningUpdateView(UserPassesTestMixin, UpdateView):
 class JobOpeningListView(ListView):
     model = JobOpening
 
+    def get_queryset(self):
+        qs = JobOpening.objects.all()
+        if not self.request.user.has_perm('careers.can_add_jobopening'):
+            qs = qs.publicly_visible()
+        return qs
+
 
 class JobOpeningDetailView(DetailView):
     model = JobOpening
+
+    def get_queryset(self):
+        qs = JobOpening.objects.all()
+        if not self.request.user.has_perm('careers.can_add_jobopening'):
+            qs = qs.publicly_visible()
+        return qs
