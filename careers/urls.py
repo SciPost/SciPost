@@ -31,4 +31,19 @@ urlpatterns = [
         views.JobOpeningDetailView.as_view(),
         name='jobopening_detail'
     ),
+    path( # /careers/job_openings/<slug>/apply
+        'job_openings/<slug:slug>/apply',
+        views.JobOpeningApplyView.as_view(),
+        name='jobopening_apply'
+    ),
+    path( # /careers/job_application/<uuid>/verify
+        'job_application/<uuid:uuid>/verify',
+        views.jobapplication_verify,
+        name='jobapplication_verify'
+    ),
+    path( # /careers/job_application/<uuid>
+        'job_application/<uuid:uuid>',
+        views.JobApplicationDetailView.as_view(),
+        name='jobapplication_detail'
+    ),
 ]

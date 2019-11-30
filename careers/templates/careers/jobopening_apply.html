@@ -1,0 +1,45 @@
+{% extends 'careers/base.html' %}
+
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">
+    <a href="{{ jobopening.get_absolute_url }}">{{ jobopening }}</a>
+  </span>
+  <span class="breadcrumb-item">Apply</span>
+{% endblock %}
+
+{% block pagetitle %}: Job application{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">Your application for job: {{ jobopening }}</h1>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#jobdetails" aria-expanded="false" aria-controls="jobdetails">Show/hide job details</button>
+
+      <div class="collapse" id="jobdetails">
+	{% include 'careers/_jobopening_card.html' with jobopening=jobopening %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <form action="" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap }}
+	<input type="submit" value="Submit" class="btn btn-primary">
+      </form>
+    </div>
+  </div>
+
+{% endblock content %}

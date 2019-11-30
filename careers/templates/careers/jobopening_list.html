@@ -29,7 +29,7 @@
 	    <h1><a href="{{ job.get_absolute_url }}">{{ job.title }}</a></h1>
 	    <p>Announced on {{ job.announced|date:'Y-m-d' }}</p>
 	    <h3 class="my-2">
-	      <strong class="bg-success text-white my-2 p-2">Application deadline:&emsp;
+	      <strong class="bg-success text-white my-2 px-3 py-2">Application deadline:&emsp;
 		{{ job.application_deadline|date:'Y-m-d' }}
 	      </strong>
 	    </h3>
@@ -38,7 +38,7 @@
 	    {{ job.short_description|automarkup }}
 	  </div>
 	  <div class="card-footer">
-	    <i class="fa fa-arrow-right"></i>&emsp;<a href="{{ job.get_absolute_url }}">View full description</a>
+	    <i class="fa fa-arrow-right"></i>&emsp;<a href="{{ job.get_absolute_url }}">View full description/apply for this job</a>
 	  </div>
 	</div>
       {% empty %}
