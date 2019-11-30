@@ -29,7 +29,12 @@
 	<div class="card border-primary m-4">
 	  <div class="card-header">
 	    <h1><a href="{{ job.get_absolute_url }}"><strong>{{ job.title }}</strong></a></h1>
-	    <p>Announced on {{ job.announced|date:'Y-m-d' }}</p>
+	    <p>
+	      Announced on {{ job.announced|date:'Y-m-d' }}
+	      {% if perms.careers.add_jobopening %}
+		;&emsp;Status: {{ job.get_status_display }}
+	      {% endif %}
+	    </p>
 	    <h3 class="my-2">
 	      <strong class="bg-success text-white my-2 px-3 py-2">Application deadline:&emsp;
 		{{ job.application_deadline|date:'Y-m-d' }}
