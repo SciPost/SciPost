@@ -12,6 +12,7 @@
   <div class="row">
     <div class="col-12">
 
+      <h2>Information</h2>
       {% if jobapplication.status == jobapplication.RECEIVED %}
 	<p>
 	  Your application has been received in good order.
@@ -38,25 +39,18 @@
 	</p>
       {% endif %}
 
+      <h2>Keeping updated</h2>
       <p>
 	You can always come back to this page to check the status of your application:
-	carefully save its URL
+	carefully save its URL, which is the following:
       </p>
       <p>
 	https://scipost.org{{ jobapplication.get_absolute_url }}
       </p>
 
-      <h3>Status information</h3>
-      <table class="table">
-	<tr>
-	  <th>Status</th>
-	  <td>{{ jobapplication.get_status_display }}</td>
-	</tr>
-	<tr>
-	  <th>Last updated</th>
-	  <td>{{ jobapplication.last_updated }}</td>
-	</tr>
-      </table>
+
+      <h2 class="highlight mt-5">Status information</h2>
+      {% include 'careers/_jobapplication_as_table.html' with jobapplication=jobapplication %}
 
     </div>
   </div>

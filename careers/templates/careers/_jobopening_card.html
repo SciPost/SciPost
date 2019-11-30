@@ -16,7 +16,7 @@
 	</h3>
       </div>
     </div>
-    {% if perms.careers.can_add_jobopening %}
+    {% if perms.careers.add_jobopening %}
       <ul class="list-inline my-4">
 	<li class="list-inline-item">
 	  <a href="{% url 'careers:jobopening_update' slug=jobopening.slug %}" class="text-warning">Update</a></li>

@@ -34,7 +34,7 @@
 
   <div class="row">
     <div class="col-12">
-      <form action="" method="post">
+      <form enctype="multipart/form-data" action="" method="post">
 	{% csrf_token %}
 	{{ form|bootstrap }}
 	<input type="submit" value="Submit" class="btn btn-primary">
