@@ -23,10 +23,12 @@
 	</ul>
       {% endif %}
 
+      <h2 class="highlight">Current job opportinities at SciPost</h2>
+
       {% for job in object_list %}
 	<div class="card border-primary m-4">
 	  <div class="card-header">
-	    <h1><a href="{{ job.get_absolute_url }}">{{ job.title }}</a></h1>
+	    <h1><a href="{{ job.get_absolute_url }}"><strong>{{ job.title }}</strong></a></h1>
 	    <p>Announced on {{ job.announced|date:'Y-m-d' }}</p>
 	    <h3 class="my-2">
 	      <strong class="bg-success text-white my-2 px-3 py-2">Application deadline:&emsp;
