@@ -1,0 +1,58 @@
+{% extends 'careers/base.html' %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">{{ jobapplication.jobopening }}</span>
+{% endblock %}
+
+{% block pagetitle %}: Job application details{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h2>Information</h2>
+      {% if jobapplication.status == jobapplication.RECEIVED %}
+	<p>
+	  Your application has been received in good order.
+	  We have emailed a receipt at your email address
+	  <em>{{ jobapplication.email }}</em>.
+	</p>
+	<p>
+	  <strong class="text-danger">
+	    IMPORTANT: For your application to be processed further, you need to click
+	    on the confirmation link included in that email.
+	  </strong>
+	</p>
+	<p>
+	  If you have not received the email, please check your spam box;
+	  if you still cannot find it, <a href="mailto:admin@scipost.org">contact SciPost admin</a>.
+	</p>
+      {% elif jobapplication.status == jobapplication.VERIFIED %}
+	<p>
+	  Your email has been successfully verified.
+	</p>
+	<p>
+	  We will keep you updated on the results of your application
+	  as soon as possible.
+	</p>
+      {% endif %}
+
+      <h2>Keeping updated</h2>
+      <p>
+	You can always come back to this page to check the status of your application:
+	carefully save its URL, which is the following:
+      </p>
+      <p>
+	https://scipost.org{{ jobapplication.get_absolute_url }}
+      </p>
+
+
+      <h2 class="highlight mt-5">Status information</h2>
+      {% include 'careers/_jobapplication_as_table.html' with jobapplication=jobapplication %}
+
+    </div>
+  </div>
+
+{% endblock content %}
