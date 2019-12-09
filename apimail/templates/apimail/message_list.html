@@ -4,16 +4,21 @@
 {% load staticfiles %}
 
 {% block headsup %}
+  {% render_bundle 'vue' 'css' %}
 {% endblock headsup %}
 
 {% block content %}
 
-  <div id="message-list"></div>
+  <b-list-group id="message-header-list">
+    <message-header
+	v-for="message in apidata.results"
+	v-bind:message="message"
+	v-bind:key="message.id"
+    ></message-header>
+  </b-list-group>
 
 {% endblock content %}
 
 {% block footer_script %}
-
-  {% render_bundle 'vue' %}
-
+  {% render_bundle 'vue' 'js' %}
 {% endblock footer_script %}
