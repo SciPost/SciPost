@@ -20,7 +20,6 @@ module.exports = {
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
 	vue: [
-            // "./scipost/static/scipost/assets/js/main.js",
             "./scipost/static/scipost/assets/vue/message_list.js",
 	],
     },
@@ -104,9 +103,9 @@ module.exports = {
     resolve: {
 	alias: {
 	    // If using the runtime only build
-	    // 'vue$': 'vue/dist/vue.runtime.esm.js'
+	    'vue$': 'vue/dist/vue.runtime.esm.js'
 	    // Or if using full build of Vue (runtime + compiler)
-	    'vue$': 'vue/dist/vue.esm.js'
+	    // 'vue$': 'vue/dist/vue.esm.js'
 	}
     },
 }
