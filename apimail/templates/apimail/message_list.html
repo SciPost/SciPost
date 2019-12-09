@@ -1,68 +1,19 @@
 {% extends 'scipost/base.html' %}
 
+{% load render_bundle from webpack_loader %}
 {% load staticfiles %}
+
+{% block headsup %}
+{% endblock headsup %}
 
 {% block content %}
 
-  <div class="accordion" id="messageAccordion">
-    <messagedisplay
-      v-for="message in apidata.results"
-	     v-bind:message="message"
-	     v-bind:key="message.id"
-    ></messagedisplay>
-  </div>
+  <div id="message-list"></div>
 
 {% endblock content %}
 
 {% block footer_script %}
 
-  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/assets/js/vue.js' %}"></script>
+  {% render_bundle 'vue' %}
 
-
-  <script nonce="{{ request.csp_nonce }}">
-
-   Vue.component('messagedisplay', {
-       delimiters: ['[[', ']]'],
-       props: ['message'],
-       template: `
-	 <div class="card">
-	   <div class="card-header" :id="'heading' + [[ message.uuid ]]">
-	     <h3>
-	       <button class="btn btn-link" type="button" data-toggle="collapse" :data-target="'#collapse' + [[ message.uuid ]]">
-		 On [[ message.data.Date ]], from [[ message.data.from ]]
-	       </button>
-	     </h3>
-	   </div>
-		 <div :id="'collapse' + [[ message.uuid ]]" class="collapse" data-parent="#messageAccordion">
-		   <div class="card-body">
-		     [[ message ]]
-		   </div>
-		 </div>
-	 </div>
-       `
-   })
-
-   var msglist = new Vue({
-       delimiters: ['[[', ']]'],
-       el: '#messageAccordion',
-       data: {
-	   apidata: [],
-	   results: [],
-       },
-       /* data: {
-	  { results: [
-	  { title: 'title1' },
-	  { title: 'title2' }
-	  ]
-	  }
-	* },*/
-       created: function () {
-	   fetch('/mail/api/stored_messages')
-	       .then(stream => stream.json())
-	   /* .then(data => this.results = data.results)*/
-	       .then(data => this.apidata = data)
-	       .catch(error => console.error(error))
-       }
-   })
-  </script>
 {% endblock footer_script %}

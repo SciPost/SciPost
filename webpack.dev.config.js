@@ -1,6 +1,7 @@
 var webpack = require("webpack");
 var BundleTracker = require('webpack-bundle-tracker');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const VueLoaderPlugin = require('vue-loader/lib/plugin')
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
@@ -11,7 +12,6 @@ module.exports = {
         main: [
 	    "tether",
             "bootstrap-loader",
-            "./scipost/static/scipost/assets/js/main.js",
             "./scipost/static/scipost/assets/js/dynamic_loading.js",
             "./scipost/static/scipost/assets/js/scripts.js",
         ],
@@ -19,11 +19,59 @@ module.exports = {
             "./scipost/static/scipost/assets/js/fader.js",
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
+	vue: [
+            // "./scipost/static/scipost/assets/js/main.js",
+            "./scipost/static/scipost/assets/vue/message_list.js",
+	],
     },
     output: {
         path: path_bundles,
         publicPath: '/static/bundles/',
         filename: "js/[name]-[hash].js",
+    },
+    module: {
+	rules: [
+	    {
+	    	test: require.resolve('jquery'),
+	    	use: [
+		    {
+	    		loader: 'expose-loader',
+	    		options: 'jQuery'
+	    	    },
+		    {
+	    		loader: 'expose-loader',
+	    		options: '$'
+	    	    }
+		]
+	    },
+            {
+                test: /\.css$/,
+	    	use: [
+		    'vue-style-loader',
+		    'style-loader',
+		    'css-loader',
+		    'postcss-loader'
+		],
+            },
+            {
+                test: /\.scss$/,
+	    	use: [
+		    'vue-style-loader',
+		    'style-loader',
+		    'css-loader',
+		    'postcss-loader',
+		    'sass-loader'
+		],
+            },
+	    {
+		test: /\.vue$/,
+		loader: 'vue-loader'
+	    },
+	    // {
+	    // 	test: /\.js$/,
+	    // 	loader: 'babel-loader'
+	    // },
+	]
     },
     plugins: [
 	new BundleTracker({
@@ -50,28 +98,15 @@ module.exports = {
         }),
         new CleanWebpackPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin(),
-        new webpack.optimize.AggressiveMergingPlugin()
+        new webpack.optimize.AggressiveMergingPlugin(),
+	new VueLoaderPlugin()
     ],
-    module: {
-	rules: [
-	    {
-	    	test: require.resolve('jquery'),
-	    	use: [{
-	    	    loader: 'expose-loader',
-	    	    options: 'jQuery'
-	    	},{
-	    	loader: 'expose-loader',
-	    	options: '$'
-	    	}]
-	    },
-            {
-                test: /\.css$/,
-	    	use: ['style-loader', 'css-loader', 'postcss-loader'],
-            },
-            {
-                test: /\.scss$/,
-	    	use: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
-            }
-	]
+    resolve: {
+	alias: {
+	    // If using the runtime only build
+	    // 'vue$': 'vue/dist/vue.runtime.esm.js'
+	    // Or if using full build of Vue (runtime + compiler)
+	    'vue$': 'vue/dist/vue.esm.js'
+	}
     },
 }
