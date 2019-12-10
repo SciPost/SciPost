@@ -1,11 +1,18 @@
 <template>
-    <b-list-group>
+<div>
+  <b-list-group>
     <message-header-list-item
-	v-for="message in apidata.results"
-	v-bind:message="message"
-	v-bind:key="message.id"
-    ></message-header-list-item>
+      v-for="message in apidata.results"
+      :message="message"
+      :key="message.id"
+      @view="viewDetail"
+      >
+    </message-header-list-item>
   </b-list-group>
+  <div>
+    {{ selected_message }}
+  </div>
+</div>
 </template>
 
 <script>
@@ -20,6 +27,7 @@
 	  return {
 	      apidata: [],
 	      results: [],
+	      selected_message: null,
 	  }
       },
       created: function () {
@@ -27,6 +35,11 @@
 	      .then(stream => stream.json())
 	      .then(data => this.apidata = data)
 	      .catch(error => console.error(error))
+      },
+      methods: {
+	  viewDetail(message) {
+	      this.selected_message = message
+	  }
       }
   }
 </script>
