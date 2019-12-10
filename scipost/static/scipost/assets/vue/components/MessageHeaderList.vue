@@ -9,7 +9,7 @@
       >
     </message-header-list-item>
   </b-list-group>
-  <div v-if="selected_message">
+  <div v-if="selected_message" class="mt-2">
     <message-content :message="selected_message"></message-content>
   </div>
 </div>

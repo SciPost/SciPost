@@ -15,7 +15,7 @@ mock==2.0.0
 django-autocomplete-light==3.4.1 # 2019-11-17
 django-countries==5.3.3
 django-debug-toolbar==1.8
-django-extensions==1.7.6
+django-extensions==1.7.6	# 2019-12-01 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
 django-filter==1.0.4
 django-guardian==1.5.1		# 2019-05-11
 django-mathjax==0.0.8
