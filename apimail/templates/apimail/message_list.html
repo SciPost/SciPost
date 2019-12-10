@@ -9,13 +9,9 @@
 
 {% block content %}
 
-  <b-list-group id="message-header-list">
-    <message-header-list-item
-	v-for="message in apidata.results"
-	v-bind:message="message"
-	v-bind:key="message.id"
-    ></message-header-list-item>
-  </b-list-group>
+  <div id="message-header-list">
+    <message-header-list></message-header-list>
+  </div>
 
 {% endblock content %}
 

@@ -7,20 +7,8 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 
-import MessageHeaderListItem from './components/MessageHeaderListItem.vue'
-Vue.component('message-header-list-item', MessageHeaderListItem);
+import MessageHeaderList from './components/MessageHeaderList.vue'
 
-
-var messageList = new Vue({
-    el: '#message-header-list',
-    data: {
-	apidata: [],
-	results: [],
-    },
-    created: function () {
-	fetch('/mail/api/stored_messages')
-	    .then(stream => stream.json())
-	    .then(data => this.apidata = data)
-	    .catch(error => console.error(error))
-    }
-})
+new Vue({
+    render: h => h(MessageHeaderList),
+}).$mount('#message-header-list');
