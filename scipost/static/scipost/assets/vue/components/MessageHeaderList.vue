@@ -5,6 +5,7 @@
       v-for="message in apidata.results"
       :message="message"
       :key="message.id"
+      :class="{'active': (message === selected_message) }"
       @view="viewDetail"
       >
     </message-header-list-item>
