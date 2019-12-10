@@ -1,6 +1,7 @@
 <template>
   <div>
-    {{ message.data["stripped-html"] }}
+    <h3>Message content:</h3>
+    <span v-html="sanitized_html"></span>
   </div>
 </template>
 
@@ -11,7 +12,12 @@
 	  message: {
 	      type: Object,
 	      required: true
+	  },
+      },
+      computed: {
+	  sanitized_html() {
+	      return this.$sanitize(this.message.data["stripped-html"])
 	  }
-      }
+      },
   }
 </script>

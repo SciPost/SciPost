@@ -7,7 +7,22 @@ Vue.use(BootstrapVue);
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 
+import VueSanitize from "vue-sanitize";
+const sanitizationOptions = {
+    allowedTags: [ // same as in markup.constants.py
+	'a', 'abbr', 'acronym', 'b', 'blockquote', 'br', 'code', 'em',
+	'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'li', 'ol',
+	'p', 'pre', 'strong', 'table', 'td', 'th', 'tr', 'ul'
+    ],
+    allowedAttributes: {
+      'a': [ 'href' ]
+    }
+};
+Vue.use(VueSanitize, sanitizationOptions);
+
+
 import MessageHeaderList from './components/MessageHeaderList.vue'
+
 
 new Vue({
     render: h => h(MessageHeaderList),
