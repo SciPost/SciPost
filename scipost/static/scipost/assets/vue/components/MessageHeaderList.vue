@@ -9,19 +9,21 @@
       >
     </message-header-list-item>
   </b-list-group>
-  <div>
-    {{ selected_message }}
+  <div v-if="selected_message">
+    <message-content :message="selected_message"></message-content>
   </div>
 </div>
 </template>
 
 <script>
   import MessageHeaderListItem from './MessageHeaderListItem.vue'
+  import MessageContent from './MessageContent.vue'
 
   export default {
       name: "message-header-list",
       components: {
 	  MessageHeaderListItem,
+	  MessageContent
       },
       data() {
 	  return {
