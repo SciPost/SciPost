@@ -43,5 +43,9 @@ urlpatterns = [
         views.StoredMessageListView.as_view(),
         name='message_list'
     ),
-
+    path( # /mail/message/<uuid>/attachments/<int>
+        'message/<uuid:uuid>/attachments/<int:pk>',
+        views.attachment_file,
+        name='message_attachment'
+    ),
 ]

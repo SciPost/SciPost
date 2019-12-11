@@ -49,3 +49,7 @@ class StoredMessageAttachment(models.Model):
         upload_to='uploads/mail/stored_messages/attachments/%Y/%m/%d/',
         validators=[validate_max_email_attachment_file_size,],
         storage=SecureFileStorage())
+
+    def get_absolute_url(self):
+        return reverse('apimail:message_attachment',
+                       kwargs={'uuid': self.message.uuid, 'pk': self.id})

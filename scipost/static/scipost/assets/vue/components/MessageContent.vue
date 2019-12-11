@@ -21,7 +21,7 @@
 	  <h3>Attachments:</h3>
 	  <ul>
 	    <li v-for="att in message.attachments">
-	      <a :href="att._file" target="_blank" class="text-primary">{{ att.data.name }}</a>
+	      <a :href="att.link" target="_blank" class="text-primary">{{ att.data.name }}</a>
 	      &emsp;{{ att.data["content-type"] }}&nbsp;({{ att.data.size }} b)
 	    </li>
 	  </ul>
