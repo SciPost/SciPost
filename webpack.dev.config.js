@@ -20,7 +20,7 @@ module.exports = {
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
 	vue: [
-            "./scipost/static/scipost/assets/vue/message_list.js",
+            "./apimail/static/apimail/assets/vue/message_list.js",
 	],
     },
     output: {

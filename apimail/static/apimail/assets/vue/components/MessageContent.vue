@@ -26,7 +26,7 @@
 	    </li>
 	  </ul>
 	</div>
-	<b-button v-b-toggle="'message-json'" class="px-2 py-0">
+	<b-button v-b-toggle="'message-json'" class="mt-2 px-2 py-0">
 	  <small>View message JSON</small>
 	</b-button>
 	<b-collapse id="message-json" class="m-2">
