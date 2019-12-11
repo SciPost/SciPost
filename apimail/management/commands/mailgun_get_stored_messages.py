@@ -31,9 +31,15 @@ class Command(BaseCommand):
             response = requests.get(
                 orphan.data['storage']['url'],
                 auth=("api", settings.MAILGUN_API_KEY)
-            ).json()
+            )
+            if not response.status_code == 200:
+                continue
+            response = response.json()
             if not StoredMessage.objects.filter(
-                data__contains={'message-id': orphan.data['message']['headers']['message-id']}
+                    # Careful: Mailgun annoyingly uses different formats for message id:
+                    # message-id: [id] in Event, Message-Id: <[id]> in Message
+                data__contains={
+                    'Message-Id': '<%s>' % orphan.data['message']['headers']['message-id']}
             ).exists():
                 sm = StoredMessage.objects.create(
                     data=response,
@@ -43,7 +49,9 @@ class Command(BaseCommand):
                 # Now deal with attachments
                 for att_item in response['attachments']:
                     with TemporaryFile() as tf:
-                        r = requests.get(att_item['url'], stream=True)
+                        r = requests.get(att_item['url'],
+                                         auth=("api", settings.MAILGUN_API_KEY),
+                                         stream=True)
                         for chunk in r.iter_content(chunk_size=8192):
                             tf.write(chunk)
                         tf.seek(0)
