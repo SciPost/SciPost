@@ -17,6 +17,15 @@
     </b-card-text>
     <template v-slot:footer>
       <div class="text-dark">
+	<div v-if="message.attachments">
+	  <h3>Attachments:</h3>
+	  <ul>
+	    <li v-for="att in message.attachments">
+	      <a :href="att._file" target="_blank" class="text-primary">{{ att.data.name }}</a>
+	      &emsp;{{ att.data["content-type"] }}&nbsp;({{ att.data.size }} b)
+	    </li>
+	  </ul>
+	</div>
 	<b-button v-b-toggle="'message-json'" class="px-2 py-0">
 	  <small>View message JSON</small>
 	</b-button>

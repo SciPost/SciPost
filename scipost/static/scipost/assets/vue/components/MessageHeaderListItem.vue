@@ -2,7 +2,7 @@
 <b-list-group-item
   :id="'item' + [[ message.uuid ]]"
   >
-  <b-row @click="$emit('view', message)">
+  <b-row @click="$emit('view', message)" class="m-0">
     <b-col>
       On: {{ message.datetimestamp }}
       <br>
