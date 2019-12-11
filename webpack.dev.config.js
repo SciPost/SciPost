@@ -104,7 +104,7 @@ module.exports = {
 	alias: {
 	    // If using the runtime only build
 	    'vue$': 'vue/dist/vue.runtime.esm.js'
-	    // Or if using full build of Vue (runtime + compiler)
+	    // Or if using full build of Vue (runtime + compiler) # NOT GOOD WITH CSP
 	    // 'vue$': 'vue/dist/vue.esm.js'
 	}
     },
