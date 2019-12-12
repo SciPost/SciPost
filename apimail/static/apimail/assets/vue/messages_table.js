@@ -21,9 +21,9 @@ const sanitizationOptions = {
 Vue.use(VueSanitize, sanitizationOptions);
 
 
-import MessageHeaderList from './components/MessageHeaderList.vue'
+import MessagesTable from './components/MessagesTable.vue'
 
 
 new Vue({
-    render: h => h(MessageHeaderList),
-}).$mount('#message-header-list');
+    render: h => h(MessagesTable),
+}).$mount('#messages-table');
