@@ -139,11 +139,6 @@ export default {
 		    params += '&' + filterfield + '=' + this.filter
 		});
 	    }
-	    console.log("params: " + params)
-	    console.log("filter on: " + filterlist)
-	    console.log(ctx.perPage)
-	    console.log(ctx.currentPage)
-	    console.log(ctx.perPage * (ctx.currentPage - 1))
 	    const promise = fetch('/mail/api/stored_messages' + params)
 
 	    return promise.then(stream => stream.json())

@@ -3,13 +3,25 @@
   <b-card header-tag="header" footer-tag="footer">
     <template v-slot:header>
       <div class="text-dark">
-	On: {{ message.datetimestamp }}
-	<br>
-	Subject: <strong>{{ message.data.subject }}</strong>
-	<br>
-	From: {{ message.data.from }}
-	<br>
-	Recipients: {{ message.data.recipients }}
+	<b-row>
+	<b-col class="col-lg-8">
+	  On: {{ message.datetimestamp }}
+	  <br>
+	  Subject: <strong>{{ message.data.subject }}</strong>
+	  <br>
+	  From: {{ message.data.from }}
+	  <br>
+	  Recipients: {{ message.data.recipients }}
+	</b-col>
+	<b-col class="col-lg-4">
+	  <h5>Events for this message:</h5>
+	  <ul class="list-unstyled">
+	    <li v-for="event in message.event_set">
+	      {{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
+	    </li>
+	  </ul>
+	</b-col>
+	</b-row>
       </div>
     </template>
     <b-card-text>
@@ -53,6 +65,11 @@
 		  return this.$sanitize(this.message.data["body-html"])
 	      }
 	      return this.$sanitize(this.message.data["body-plain"])
+	  }
+      },
+      filters: {
+	  toDatestring(unixtimestamp) {
+	      return new Date(1000 * unixtimestamp).toISOString()
 	  }
       },
   }
