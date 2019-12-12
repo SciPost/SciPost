@@ -52,7 +52,7 @@
 	      if (this.message.data["body-html"]) {
 		  return this.$sanitize(this.message.data["body-html"])
 	      }
-	      return this.message.data["body-plain"]
+	      return this.$sanitize(message.data["body-plain"])
 	  }
       },
   }
