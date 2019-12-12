@@ -2,9 +2,9 @@
 <div class="overflow-auto">
   <b-card bg-variant="light">
     <b-row class="mb-0">
-      <b-col>
+      <b-col class="col-lg-7">
 	<b-form-group
-	  label="Filter"
+	  label="Filter:"
 	  label-cols-sm="3"
           label-align-sm="right"
           label-size="sm"
@@ -22,8 +22,21 @@
 	    </b-input-group-append>
 	  </b-input-group>
 	</b-form-group>
+	<b-form-group
+	  label="Time period:"
+	  label-cols-sm="3"
+	  label-align-sm="right"
+	  label-size="sm"
+	  class="mb-0"
+	  >
+	  <b-form-radio-group
+	    v-model="timePeriod"
+	    :options="timePeriodOptions"
+	    >
+	  </b-form-radio-group>
+	</b-form-group>
       </b-col>
-      <b-col class="mb-0">
+      <b-col class="col-lg-5 mb-0">
 	<b-form-group
           label="Filter on:"
 	  label-cols-sm="3"
@@ -48,7 +61,7 @@
     v-model="currentPage"
     :total-rows="totalRows"
     :per-page="perPage"
-    class="m-1"
+    class="m-2"
     align="center"
     aria-controls="my-table"
     >
@@ -98,7 +111,14 @@ export default {
 		{ key: 'actions', label: 'Actions' }
 	    ],
 	    filter: null,
-	    filterOn: []
+	    filterOn: [],
+	    timePeriod: 'any',
+	    timePeriodOptions: [
+		{ 'text': 'Last week', value: 'week'},
+		{ 'text': 'Last month', value: 'month'},
+		{ 'text': 'Last year', value: 'year'},
+		{ 'text': 'Any time', value: 'any'},
+	    ]
 	}
     },
     methods: {
@@ -106,6 +126,8 @@ export default {
 	    console.log(ctx)
 	    // Our API uses limit/offset pagination
 	    var params = '?limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
+	    // Add search time period
+	    params += '&' + 'period=' + this.timePeriod
 	    // Add search query (if it exists)
 	    if (this.filter) {
 		var filterlist = ['from', 'recipients', 'subject', 'body']

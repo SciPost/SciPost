@@ -2,7 +2,10 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.db.models import Q
+from django.utils import timezone
 
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
@@ -19,6 +22,17 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
     def filter_queryset(self, request, queryset, view):
         queryset = StoredMessage.objects.all()
         queryfilter = Q()
+
+        period = request.query_params.get('period', 'any')
+        if period != 'any':
+            days = 365
+            if period == 'month':
+                days = 31
+            elif period == 'week':
+                days = 1
+            limit = timezone.now() - datetime.timedelta(days=days)
+            print(limit)
+            queryset = queryset.filter(datetimestamp__gt=limit)
 
         _from = request.query_params.get('from', None)
         if _from is not None:
