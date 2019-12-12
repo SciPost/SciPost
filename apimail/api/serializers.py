@@ -24,7 +24,8 @@ class StoredMessageAttachmentLinkSerializer(serializers.ModelSerializer):
 
 class StoredMessageSerializer(serializers.ModelSerializer):
     attachments = StoredMessageAttachmentLinkSerializer(many=True)
+    event_set = EventSerializer(many=True)
 
     class Meta:
         model = StoredMessage
-        fields = ['uuid', 'data', 'datetimestamp', 'attachments']
+        fields = ['uuid', 'data', 'datetimestamp', 'attachments', 'event_set']

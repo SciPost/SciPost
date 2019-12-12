@@ -24,10 +24,11 @@ class Command(BaseCommand):
     help = 'Gets stored messages from the Mailgun API and saves them to the DB.'
 
     def handle(self, *args, **kwargs):
-        orphaned_events = Event.objects.filter(
-            stored_message__isnull=True,
-            data__event__in=[Event.TYPE_ACCEPTED, Event.TYPE_STORED])
+        orphaned_events = Event.objects.filter(stored_message__isnull=True)
         for orphan in orphaned_events.all():
+            if orphan.stored_message:
+                # FK link to message created through other event in this loop
+                continue
             response = requests.get(
                 orphan.data['storage']['url'],
                 auth=("api", settings.MAILGUN_API_KEY)
@@ -35,17 +36,24 @@ class Command(BaseCommand):
             if not response.status_code == 200:
                 continue
             response = response.json()
-            if not StoredMessage.objects.filter(
+
+            try:
+                sm = StoredMessage.objects.get(
                     # Careful: Mailgun annoyingly uses different formats for message id:
                     # message-id: [id] in Event, Message-Id: <[id]> in Message
-                data__contains={
-                    'Message-Id': '<%s>' % orphan.data['message']['headers']['message-id']}
-            ).exists():
+                    data__contains={
+                        'Message-Id': '<%s>' % orphan.data['message']['headers']['message-id']})
+                # Message found, simply add pk
+                orphan.stored_message = sm
+                orphan.save()
+
+            except StoredMessage.DoesNotExist:
+
+                # Need to create the message
                 sm = StoredMessage.objects.create(
                     data=response,
                     datetimestamp=parsedate_to_datetime(response['Date']))
-                orphan.stored_message = sm
-                orphan.save()
+
                 # Now deal with attachments
                 for att_item in response['attachments']:
                     with TemporaryFile() as tf:
@@ -58,3 +66,9 @@ class Command(BaseCommand):
                         sma = StoredMessageAttachment.objects.create(
                             message=sm, data=att_item)
                         sma._file.save(att_item['name'], File(tf))
+
+                # Finally add a FK relation to any event associated to this new message
+                msgid = (sm.data['Message-Id'].lstrip('<')).rstrip('>')
+                Event.objects.filter(
+                    data__message__headers__contains={'message-id': msgid}
+                ).update(stored_message=sm)
