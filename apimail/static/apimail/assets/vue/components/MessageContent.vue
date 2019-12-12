@@ -49,7 +49,10 @@
       },
       computed: {
 	  sanitized_html() {
-	      return this.$sanitize(this.message.data["stripped-html"])
+	      if (this.message.data["body-html"]) {
+		  return this.$sanitize(this.message.data["body-html"])
+	      }
+	      return this.message.data["body-plain"]
 	  }
       },
   }
