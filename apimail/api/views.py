@@ -15,6 +15,20 @@ from ..models import Event, StoredMessage
 from .serializers import EventSerializer, StoredMessageSerializer
 
 
+class EventListAPIView(ListAPIView):
+    queryset = Event.objects.all()
+    permission_classes = (IsAdminUser,)
+    serializer_class = EventSerializer
+    lookup_field = 'uuid'
+
+
+class EventRetrieveAPIView(RetrieveAPIView):
+    queryset = Event.objects.all()
+    permission_classes = (IsAdminUser,)
+    serializer_class = EventSerializer
+    lookup_field = 'uuid'
+
+
 class StoredMessageFilterBackend(filters.BaseFilterBackend):
     """
     Filter that only allows users to see their own objects.
@@ -58,20 +72,6 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
             queryfilter = queryfilter | Q(pk__in=sm_ids)
 
         return queryset.filter(queryfilter).filter_for_user(request.user)
-
-
-class EventListAPIView(ListAPIView):
-    queryset = Event.objects.all()
-    permission_classes = (IsAdminUser,)
-    serializer_class = EventSerializer
-    lookup_field = 'uuid'
-
-
-class EventRetrieveAPIView(RetrieveAPIView):
-    queryset = Event.objects.all()
-    permission_classes = (IsAdminUser,)
-    serializer_class = EventSerializer
-    lookup_field = 'uuid'
 
 
 class StoredMessageListAPIView(ListAPIView):

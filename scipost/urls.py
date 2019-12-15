@@ -5,7 +5,8 @@ __license__ = "AGPL v3"
 from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
-from django.urls import path
+from django.views.generic.base import RedirectView
+from django.urls import path, re_path
 
 from . import views
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -17,6 +18,10 @@ from journals.regexes import JOURNAL_DOI_LABEL_REGEX, ISSUE_DOI_LABEL_REGEX,\
     PUBLICATION_DOI_LABEL_REGEX, DOI_DISPATCH_PATTERN
 from submissions import views as submission_views
 
+
+favicon_view = RedirectView.as_view(
+    url='/static/scipost/images/scipost_favicon.png', permanent=True)
+
 JOURNAL_PATTERN = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
 
 app_name = 'scipost'
@@ -24,6 +29,8 @@ app_name = 'scipost'
 
 urlpatterns = [
 
+    # redirect for favicon
+    re_path(r'^favicon\.ico$', favicon_view),
 
     # Utilities:
 
