@@ -45,7 +45,6 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
             elif period == 'week':
                 days = 1
             limit = timezone.now() - datetime.timedelta(days=days)
-            print(limit)
             queryset = queryset.filter(datetimestamp__gt=limit)
 
         _from = request.query_params.get('from', None)
@@ -57,6 +56,7 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
         recipients = request.query_params.get('recipients', None)
         if recipients is not None:
             queryfilter = queryfilter | Q(data__recipients__icontains=recipients)
+
         # For full-text searches through body-plain / body-html, we use a
         # raw SQL query since Django ORM does not support hyphenated lookups,
         # and since Mailgun uses hyphenated keys in its JSON responses.
