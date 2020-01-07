@@ -74,7 +74,8 @@ class SubmissionQuerySet(models.QuerySet):
         return self.pool_editable(user).filter(is_current=True, status__in=[
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
-            constants.STATUS_ACCEPTED])
+            constants.STATUS_ACCEPTED,
+            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE])
 
     def pool_editable(self, user):
         """Return the editable pool for a certain user.
@@ -167,6 +168,10 @@ class SubmissionQuerySet(models.QuerySet):
     def accepted(self):
         """Return accepted Submissions."""
         return self.filter(status=constants.STATUS_ACCEPTED)
+
+    def awaiting_puboffer_acceptance(self):
+        """Return Submissions for which an outstanding publication offer exists."""
+        return self.filter(status=constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE)
 
     def revision_requested(self):
         """Return Submissions with a fixed EICRecommendation: minor or major revision."""
