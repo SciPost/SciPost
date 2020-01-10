@@ -396,7 +396,7 @@ class Submission(models.Model):
 
     @property
     def editorial_decision(self):
-        """Returns the EditorialDecision (if exists and not deprecated)."""
+        """Returns the latest EditorialDecision (if it exists)."""
         if self.editorialdecision_set.exists():
             return self.editorialdecision_set.last()
         return None

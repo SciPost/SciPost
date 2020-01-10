@@ -44,6 +44,7 @@ from .forms import (
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
     ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
+    RestartRefereeingForm,
     SubmissionCycleChoiceForm, ReportPDFForm, SubmissionReportsForm, EICRecommendationForm,
     SubmissionPoolFilterForm,
     # FixCollegeDecisionForm,
@@ -2116,6 +2117,32 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         return redirect('submissions:pool')
     else:
         return mail_request.interrupt()
+
+
+@login_required
+@permission_required('scipost.can_fix_College_decision')
+def restart_refereeing(request, identifier_w_vn_nr):
+    """Restart the latest refereeing round.
+
+    To be invoked by EdAdmin to restart the latest refereeing round on a Submission.
+    Typical circumstances where this might be invoked:
+    - College vote did not converge
+    - authors have appealed a decision to publish as Core (if they had submitted to flagship)
+    """
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    form = RestartRefereeingForm(request.POST or None, submission=submission)
+    if form.is_valid():
+        if form.is_confirmed():
+            submission = form.save()
+            submission.add_general_event('Refereeing has been restarted.')
+            messages.success(request, 'Refereeing has been restarted (the EIC must choose a cycle)')
+        else:
+            messages.error(request, 'Refereeing restart aborted.')
+        return redirect(reverse('submissions:editorial_page',
+                                args=(submission.preprint.identifier_w_vn_nr,)))
+    context = {'submission': submission, 'form': form}
+    return render(request, 'submissions/restart_refereeing.html', context)
 
 
 @login_required

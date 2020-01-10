@@ -1471,6 +1471,36 @@ class EditorialDecisionForm(forms.ModelForm):
         return decision
 
 
+class RestartRefereeingForm(forms.Form):
+    """
+    For EdAdmin to restart the latest refereeing round.
+    """
+    confirm = forms.ChoiceField(
+        widget=forms.RadioSelect, choices=((True, 'Confirm'), (False, 'Abort')), label='')
+
+    def __init__(self, *args, **kwargs):
+        """Add related submission as argument."""
+        self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+
+    def is_confirmed(self):
+        return self.cleaned_data.get('confirm') in (True, 'True')
+
+    def save(self):
+        if self.is_confirmed():
+            Submission.objects.filter(id=self.submission.id).update(
+                status=STATUS_EIC_ASSIGNED,
+                refereeing_cycle=CYCLE_UNDETERMINED,
+                acceptance_date=None,
+                latest_activity=timezone.now())
+            self.submission.editorial_assignments.filter(
+                to=self.submission.editor_in_charge,
+                status=STATUS_COMPLETED
+            ).update(status=STATUS_ACCEPTED)
+            self.submission.eicrecommendations.active().update(status=DEPRECATED)
+        return self.submission
+
+
 class SubmissionCycleChoiceForm(forms.ModelForm):
     """Make a decision on the Submission's cycle and make publicly available."""
 

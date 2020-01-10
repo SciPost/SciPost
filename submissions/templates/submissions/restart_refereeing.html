@@ -1,0 +1,48 @@
+{% extends 'submissions/base.html' %}
+
+{% load bootstrap %}
+
+{% block pagetitle %}: restart refereeing{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{{ submission.get_absolute_url }}" class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</a>
+  <span class="breadcrumb-item">Restart refereeing</span>
+{% endblock %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight"><i class="fa fa-exclamation-triangle text-warning"></i> Restart refereeing on Submission</h1>
+      <div class="mt-3 mb-4">
+        <h3 class="text-primary">{{ submission.title }}</h3>
+        <h3>by {{ submission.author_list }}</h3>
+      </div>
+      <h3 class="mt-2">Submission summary</h3>
+      {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
+      <br>
+      {% include 'partials/submissions/submission_status.html' with submission=submission %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h3 class="text-danger">Are you sure you want to restart refereeing on this manuscript?</h3>
+      <p>This will implement the following actions:</p>
+      <ul>
+	<li>reactivate the latest editorial assignment to Editor-in-charge {{ submission.editor_in_charge }} (who will have to restart refereeing by choosing a cycle)</li>
+	<li>update the Submission's status to Editor-in-charge assigned
+	<li>deprecate the latest recommendation</li>
+      </ul>
+
+      <form action="{% url 'submissions:restart_refereeing' submission.preprint.identifier_w_vn_nr %}" method="post">
+	{% csrf_token %}
+	{{ form|bootstrap:'0,12' }}
+	<p class="text-danger">CAREFUL: ONE-CLICK, ONE-WAY ACTION!&nbsp;
+	  <input class="btn btn-danger" type="submit" value="Submit"></p>
+      </form>
+    </div>
+  </div>
+
+{% endblock content %}

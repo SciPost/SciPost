@@ -10,6 +10,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from . import constants
+from .models.decision import EditorialDecision
 
 now = timezone.now()
 
@@ -122,7 +123,8 @@ class SubmissionQuerySet(models.QuerySet):
     def actively_refereeing(self):
         """Return submission currently in some point of the refereeing round."""
         return self.filter(status=constants.STATUS_EIC_ASSIGNED).exclude(
-            eicrecommendations__status=constants.DECISION_FIXED)
+            Q(eicrecommendations__status=constants.DECISION_FIXED) &
+            ~Q(editorialdecision__decision=EditorialDecision.FIXED_AND_ACCEPTED))
 
     def public(self):
         """Return all publicly available Submissions."""

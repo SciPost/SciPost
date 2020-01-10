@@ -22,6 +22,12 @@
         <br>
         <span class="label label-sm label-secondary">{{ submission.eicrecommendations.active.first.get_full_status_display }}</span>
       {% endif %}
+      {% if submission.editorial_decision %}
+	<br>
+	<small class="text-muted">Editorial Decision Status</small>
+	<br>
+	<span class="label label-sm label-secondary">{{ submission.editorial_decision.get_status_display }}</span>
+      {% endif %}
     </div>
   </div>
 
