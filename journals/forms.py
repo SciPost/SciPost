@@ -418,7 +418,10 @@ class DraftPublicationForm(forms.ModelForm):
     def get_possible_issues(self):
         issues = Issue.objects.filter(until_date__gte=timezone.now())
         if self.submission:
-            issues = issues.for_journal(self.submission.editorial_decision.for_journal.name)
+            issues = (
+                issues.for_journal(self.submission.submitted_to.name) |
+                issues.for_journal(self.submission.editorial_decision.for_journal.name)
+            ).distinct()
         return issues
 
     def delete_secondary_fields(self):

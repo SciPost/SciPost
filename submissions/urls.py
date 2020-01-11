@@ -105,6 +105,13 @@ urlpatterns = [
         views.accept_puboffer,
         name='accept_puboffer'
         ),
+    url(
+        r'admin/{regex}/restart_refereeing$'.format(
+            regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.restart_refereeing,
+        name='restart_refereeing'
+    ),
+
 
     url(r'^admin/reports$', views.reports_accepted_list, name='reports_accepted_list'),
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
