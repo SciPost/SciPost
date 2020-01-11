@@ -1498,6 +1498,12 @@ class RestartRefereeingForm(forms.Form):
                 status=STATUS_COMPLETED
             ).update(status=STATUS_ACCEPTED)
             self.submission.eicrecommendations.active().update(status=DEPRECATED)
+
+            # Delete any production stream
+            if hasattr(self.submission, 'production_stream'):
+                self.submission.production_stream.delete()
+
+            self.submission.refresh_from_db()
         return self.submission
 
 
