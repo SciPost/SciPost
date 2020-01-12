@@ -4,7 +4,19 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Event, StoredMessage, StoredMessageAttachment
+from .models import EmailAccount, EmailAccountAccess, Event, StoredMessage, StoredMessageAttachment
+
+
+class EmailAccountAccessInline(admin.StackedInline):
+    model = EmailAccountAccess
+    extra = 0
+    min_num = 0
+
+
+class EmailAccountAdmin(admin.ModelAdmin):
+    inlines = [EmailAccountAccessInline,]
+
+admin.site.register(EmailAccount, EmailAccountAdmin)
 
 
 class EventAdmin(admin.ModelAdmin):

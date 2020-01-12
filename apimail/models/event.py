@@ -41,5 +41,11 @@ class Event(models.Model):
     class Meta:
         ordering = ['-data__timestamp',]
 
+    def __str__(self):
+        return('%s: %s -- %s' % (
+            self.data['timestamp'],
+            self.data['message']['headers']['message-id'],
+            self.data['event'],))
+
     def get_absolute_url(self):
         return reverse('apimail:event_detail', kwargs={'uuid': self.uuid})

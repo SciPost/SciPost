@@ -123,7 +123,6 @@ export default {
     },
     methods: {
 	messagesProvider(ctx) {
-	    console.log(ctx)
 	    // Our API uses limit/offset pagination
 	    var params = '?limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
 	    // Add search time period

@@ -31,6 +31,10 @@ class StoredMessage(models.Model):
     class Meta:
         ordering = ['-datetimestamp',]
 
+    def __str__(self):
+        return('%s: %s (from %s to %s)' % (
+            self.datetimestamp, self.data['subject'][:20], self.data['From'], self.data['To']))
+
     def get_absolute_url(self):
         return reverse('apimail:message_detail', kwargs={'uuid': self.uuid})
 
