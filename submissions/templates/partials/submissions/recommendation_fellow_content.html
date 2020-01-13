@@ -134,7 +134,7 @@
 	      {% endif %}
             </li>
 	    <li class="list-item my-2">
-	      <a class="btn btn-warning" href="{% url 'submissions:restart_refereeing' submission.preprint.identifier_w_vn_nr %}" role="button">Restart the latest refereeing round (leads to confirmation page)</a>
+	      <a class="btn btn-warning" href="{% url 'submissions:restart_refereeing' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">Restart the latest refereeing round (leads to confirmation page)</a>
 	    </li>
           </ul>
 	</div>
