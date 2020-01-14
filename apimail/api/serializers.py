@@ -5,7 +5,25 @@ __license__ = "AGPL v3"
 from django.urls import reverse
 from rest_framework import serializers
 
-from ..models import Event, StoredMessage, StoredMessageAttachment
+from ..models import (
+    EmailAccount, EmailAccountAccess,
+    Event,
+    StoredMessage, StoredMessageAttachment)
+
+
+class EmailAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EmailAccount
+        fields = ['name', 'email', 'description']
+
+
+class EmailAccountAccessSerializer(serializers.ModelSerializer):
+    """For request.user, return list of email account accesses."""
+    account = EmailAccountSerializer()
+
+    class Meta:
+        model = EmailAccountAccess
+        fields = ['account', 'rights', 'date_from', 'date_until']
 
 
 class EventSerializer(serializers.ModelSerializer):

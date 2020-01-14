@@ -11,8 +11,24 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework import filters
 
-from ..models import Event, StoredMessage
-from .serializers import EventSerializer, StoredMessageSerializer
+from ..models import EmailAccount, EmailAccountAccess, Event, StoredMessage
+from .serializers import (
+    EmailAccountSerializer, EmailAccountAccessSerializer,
+    EventSerializer,
+    StoredMessageSerializer)
+
+
+class EmailAccountListAPIView(ListAPIView):
+    permission_classes = (IsAdminUser,)
+    serializer_class = EmailAccountSerializer
+
+
+class UserEmailAccountAccessListAPIView(ListAPIView):
+    """ListAPIView returning request.user's email account accesses."""
+    serializer_class = EmailAccountAccessSerializer
+
+    def get_queryset(self):
+        return self.request.user.email_account_accesses.all()
 
 
 class EventListAPIView(ListAPIView):

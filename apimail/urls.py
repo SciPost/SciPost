@@ -16,6 +16,16 @@ urlpatterns = [
 
     path('api/', include([
 
+        path( # /mail/api/accounts
+            'accounts',
+            apiviews.EmailAccountListAPIView.as_view(),
+            name='accounts'
+        ),
+        path( # /mail/api/user_account_accesses
+            'user_account_accesses',
+            apiviews.UserEmailAccountAccessListAPIView.as_view(),
+            name='user_account_accesses'
+        ),
         path( # /mail/api/events
             'events',
             apiviews.EventListAPIView.as_view(),

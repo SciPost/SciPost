@@ -91,7 +91,7 @@
 
 
 <script>
-  import MessageContent from './MessageContent.vue'
+import MessageContent from './MessageContent.vue'
 
 export default {
     name: "messages-table",
