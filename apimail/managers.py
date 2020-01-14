@@ -9,7 +9,7 @@ class StoredMessageQuerySet(models.QuerySet):
     """
     All StoredMessage querysets are always filtered for the user.
     """
-    def filter_for_user(self, user):
+    def filter_for_user(self, user, email):
         """
         Either su or staff, or user's email account accesses overlap with sender/recipients.
         """
@@ -19,9 +19,10 @@ class StoredMessageQuerySet(models.QuerySet):
             return self
 
         # Filter based on account accesses
-        if user.email_account_accesses.all().exists():
+        if user.email_account_accesses.filter(account__email=email).exists():
             queryfilter = models.Q()
-            for access in user.email_account_accesses.all():
+            for access in user.email_account_accesses.filter(account__email=email):
+                print("access found: %s" % access.account.email)
                 queryfilter = queryfilter | (
                     (models.Q(data__sender__icontains=access.account.email) |
                      models.Q(data__recipients__icontains=access.account.email))

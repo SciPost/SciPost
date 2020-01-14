@@ -87,7 +87,8 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
                 query_raw, ['body-plain', '%%%s%%' % body, 'body-html', '%%%s%%' % body])]
             queryfilter = queryfilter | Q(pk__in=sm_ids)
 
-        return queryset.filter(queryfilter).filter_for_user(request.user)
+        return queryset.filter(queryfilter).filter_for_user(
+            request.user, request.query_params.get('account'))
 
 
 class StoredMessageListAPIView(ListAPIView):

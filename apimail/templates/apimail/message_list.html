@@ -10,7 +10,7 @@
 {% block content %}
 
   <h3>Your email account accesses</h3>
-  <table class="table">
+  <table class="table mb-4">
     <tr>
       <th>Account</th>
       <th>Rights</th>
@@ -19,7 +19,8 @@
     </tr>
     {% for access in request.user.email_account_accesses.all %}
       <tr>
-	<td>{{ access.account }}</td>
+	<td>{{ access.account.name }}</td>
+	<td>{{ access.account.email }}</td>
 	<td>{{ access.get_rights_display }}</td>
 	<td>{{ access.date_from }}</td>
 	<td>{{ access.date_until }}</td>
@@ -28,14 +29,6 @@
       <tr><td>You do not have access to any email account.</td></tr>
     {% endfor %}
   </table>
-
-  <h3>Accounts</h3>
-  <div id="user-accounts-table">
-    <user-accounts-table></user-accounts-table>
-  </div>
-
-
-  <h3>Messages</h3>
 
   <div id="messages-table">
     <messages-table></messages-table>
