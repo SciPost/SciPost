@@ -44,7 +44,11 @@ class StoredMessageAttachmentLinkSerializer(serializers.ModelSerializer):
 class StoredMessageSerializer(serializers.ModelSerializer):
     attachments = StoredMessageAttachmentLinkSerializer(many=True)
     event_set = EventSerializer(many=True)
+    read = serializers.SerializerMethodField()
+
+    def get_read(self, obj):
+        return self.context['request'].user in obj.read_by.all()
 
     class Meta:
         model = StoredMessage
-        fields = ['uuid', 'data', 'datetimestamp', 'attachments', 'event_set']
+        fields = ['uuid', 'data', 'datetimestamp', 'attachments', 'event_set', 'read']

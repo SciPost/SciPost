@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import uuid as uuid_lib
 
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
@@ -25,6 +26,7 @@ class StoredMessage(models.Model):
         editable=False)
     data = JSONField(default=dict)
     datetimestamp = models.DateTimeField(default=timezone.now)
+    read_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='+')
 
     objects = StoredMessageQuerySet.as_manager()
 

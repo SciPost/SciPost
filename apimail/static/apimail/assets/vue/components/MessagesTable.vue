@@ -156,6 +156,7 @@ export default {
 	    currentPage: 1,
 	    totalRows: 1,
 	    fields: [
+		{ key: 'read', label: 'Read' },
 		{ key: 'datetimestamp', label: 'On' },
 		{ key: 'data.subject', label: 'Subject' },
 		{ key: 'data.from', label: 'From' },
