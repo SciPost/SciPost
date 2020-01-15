@@ -20,6 +20,7 @@ class EmailAccountSerializer(serializers.ModelSerializer):
 class EmailAccountAccessSerializer(serializers.ModelSerializer):
     """For request.user, return list of email account accesses."""
     account = EmailAccountSerializer()
+    rights = serializers.CharField(source='get_rights_display')
 
     class Meta:
         model = EmailAccountAccess

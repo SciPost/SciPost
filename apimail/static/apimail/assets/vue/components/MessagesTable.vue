@@ -2,37 +2,63 @@
 <div>
 
   <h2>Click on an account to view messages</h2>
-  <b-list-group>
-    <b-list-group-item
+  <!-- <b-list-group> -->
+  <!--   <b-list-group-item -->
+  <!--     v-for="access in accesses" -->
+  <!--     v-bind:class="{'active': isSelected(access.account.email)}" -->
+  <!--     v-on:click="accountSelected = access.account.email" -->
+  <!--     v-on:change="" -->
+  <!--     class="p-2 m-0" -->
+  <!--     > -->
+  <!--     {{ access.account.email }} -->
+  <!--   </b-list-group-item> -->
+  <!-- </b-list-group> -->
+
+  <table class="table">
+    <tr>
+      <th>Account</th>
+      <th>Address</th>
+      <th>Rights</th>
+      <th>From</th>
+      <th>Until</th>
+    </tr>
+    <tr
       v-for="access in accesses"
-      v-bind:class="{'active': isSelected(access.account.email)}"
+      v-bind:class="{'highlight': isSelected(access.account.email)}"
       v-on:click="accountSelected = access.account.email"
       v-on:change=""
       class="p-2 m-0"
       >
-      {{ access.account.email }}
-    </b-list-group-item>
-  </b-list-group>
+      <td>{{ access.account.name }}</td>
+      <td>{{ access.account.email }}</td>
+      <td>{{ access.rights }}</td>
+      <td>{{ access.date_from }}</td>
+      <td>{{ access.date_until }}</td>
+    </tr>
+  </table>
 
   <div v-if="accountSelected" :key="accountSelected">
-    <b-row class="mt-4">
-      <b-col class="col-lg-7">
-	<h2>Messages for Account: <strong>{{ accountSelected }}</strong></h2>
-      </b-col>
-      <b-col class="col-lg-5">
-	<b-pagination
-	  v-model="currentPage"
-	  :total-rows="totalRows"
-	  :per-page="perPage"
-	  class="m-2"
-	  align="center"
-	  aria-controls="my-table"
-	  >
-	</b-pagination>
-	<p align="center">{{ totalRows }} messages</p>
-      </b-col>
-    </b-row>
     <b-card bg-variant="light">
+      <b-row>
+	<b-col class="col-lg-6">
+	  <h2>Messages for <strong>{{ accountSelected }}</strong></h2>
+	</b-col>
+	<b-col class="col-lg-2">
+	  <b-badge variant="primary">{{ totalRows }} total</b-badge>
+	</b-col>
+	<b-col class="col-lg-4">
+	  <b-pagination
+	    v-model="currentPage"
+	    :total-rows="totalRows"
+	    :per-page="perPage"
+	    class="m-1"
+	    align="center"
+	    aria-controls="my-table"
+	    >
+	  </b-pagination>
+	</b-col>
+      </b-row>
+      <hr>
       <b-row class="mb-0">
 	<b-col class="col-lg-7">
 	  <b-form-group
