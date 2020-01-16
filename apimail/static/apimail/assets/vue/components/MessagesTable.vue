@@ -130,6 +130,9 @@
           {{ row.detailsShowing ? 'Hide' : 'Show' }}
 	</b-button>
       </template>
+      <template v-slot:cell(read)="row">
+	<b-badge variant="primary">{{ row.item.read ? "" : "&emsp;" }}</b-badge>
+      </template>
       <template v-slot:row-details="row">
 	<message-content :message=row.item class="m-2 mb-4"></message-content>
       </template>
@@ -156,7 +159,7 @@ export default {
 	    currentPage: 1,
 	    totalRows: 1,
 	    fields: [
-		{ key: 'read', label: 'Read' },
+		{ key: 'read', label: '' },
 		{ key: 'datetimestamp', label: 'On' },
 		{ key: 'data.subject', label: 'Subject' },
 		{ key: 'data.from', label: 'From' },
