@@ -1,0 +1,58 @@
+{% extends 'careers/base.html' %}
+
+{% load bootstrap %}
+{% load automarkup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+{% endblock %}
+
+{% block pagetitle %}: Job Openings{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">
+	Job Openings
+      </h1>
+
+      {% if perms.careers.add_jobopening %}
+	<ul>
+	  <li><a href="{% url 'careers:jobopening_create' %}">Add a Job Opening</a></li>
+	</ul>
+      {% endif %}
+
+      <h2 class="highlight">Current job opportinities at SciPost</h2>
+
+      {% for job in object_list %}
+	<div class="card border-primary m-4">
+	  <div class="card-header">
+	    <h1><a href="{{ job.get_absolute_url }}"><strong>{{ job.title }}</strong></a></h1>
+	    <p>
+	      Announced on {{ job.announced|date:'Y-m-d' }}
+	      {% if perms.careers.add_jobopening %}
+		;&emsp;Status: {{ job.get_status_display }}
+	      {% endif %}
+	    </p>
+	    <h3 class="my-2">
+	      <strong class="bg-success text-white my-2 px-3 py-2">Application deadline:&emsp;
+		{{ job.application_deadline|date:'Y-m-d' }}
+	      </strong>
+	    </h3>
+	  </div>
+	  <div class="card-body">
+	    {{ job.short_description|automarkup }}
+	  </div>
+	  <div class="card-footer">
+	    <i class="fa fa-arrow-right"></i>&emsp;<a href="{{ job.get_absolute_url }}">View full description/apply for this job</a>
+	  </div>
+	</div>
+      {% empty %}
+	<h3>Sorry, we currently have no job openings.</h3>
+      {% endfor %}
+
+    </div>
+  </div>
+
+{% endblock content %}

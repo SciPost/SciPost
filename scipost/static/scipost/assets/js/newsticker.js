@@ -70,7 +70,6 @@ NewsTicker = (function() {
     // Extend jQuery
     $.fn.scipost_newsticker = function(options) {
         var ticker = new NewsTicker(this, options)
-        console.log('SciPost NewTicker')
         return this;
     }
 

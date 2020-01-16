@@ -3,12 +3,28 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'ontology'
 
 urlpatterns = [
+    path(
+        'tag-autocomplete/',
+        views.TagAutocompleteView.as_view(),
+        name='tag-autocomplete',
+        ),
+    path(
+        'topic-autocomplete/',
+        views.TopicAutocompleteView.as_view(),
+        name='topic-autocomplete',
+        ),
+    path(
+        'topic-linked-autocomplete/',
+        views.TopicLinkedAutocompleteView.as_view(),
+        name='topic-linked-autocomplete',
+        ),
     url(
         r'^$',
         views.ontology,
@@ -20,9 +36,9 @@ urlpatterns = [
         name='topic_create'
     ),
     url(
-        r'^topic/(?P<slug>[-\w]+)/add_tag/$',
-        views.topic_add_tag,
-        name='topic_add_tag'
+        r'^topic/(?P<slug>[-\w]+)/add_tags/$',
+        views.topic_add_tags,
+        name='topic_add_tags'
     ),
     url(
         r'^topic/(?P<slug>[-\w]+)/remove_tag/(?P<tag_id>[0-9]+)/$',

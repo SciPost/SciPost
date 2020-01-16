@@ -78,7 +78,7 @@ function init_page() {
 
     // Auto-submit hook for general form elements
     $("form .auto-submit input, form.auto-submit input, form.auto-submit select").on('change', function(){
-        $(this).parents('form').submit()
+        $(this).parents('form').trigger('submit')
     });
 
     // Start general toggle

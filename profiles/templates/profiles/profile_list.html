@@ -12,9 +12,6 @@
   <span class="breadcrumb-item">Profiles</span>
 {% endblock %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/table-row.js' %}"></script>
-{% endblock headsup %}
 
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
@@ -155,3 +152,7 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row.js' %}"></script>
+{% endblock footer_script %}

@@ -71,6 +71,8 @@ os.environ['wsgi.url_scheme'] = 'https'
 # Application definition
 
 INSTALLED_APPS = (
+    'dal', # django-autocomplete-light
+    'dal_select2', # dal with Select2
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.auth',
@@ -82,8 +84,8 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django_countries',
     'django_extensions',
-    'ajax_select',
     'haystack',
+    'careers',
     'colleges',
     'commentaries',
     'comments',
@@ -301,7 +303,7 @@ USE_TZ = True
 # MEDIA
 MEDIA_URL = '/media/'
 MEDIA_URL_SECURE = '/files/secure/'
-MAX_UPLOAD_SIZE = "1310720"  # Default max attachment size in Bytes
+MAX_UPLOAD_SIZE = "2097152"  # Default max attachment size in Bytes; 2MB
 
 # -- These MEDIA settings are machine-dependent
 MEDIA_ROOT = 'local_files/media/'

@@ -5,9 +5,6 @@
 {% load colleges_extras %}
 {% load staticfiles %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/table-row-blank.js' %}"></script>
-{% endblock headsup %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
@@ -134,3 +131,7 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+{% endblock footer_script %}

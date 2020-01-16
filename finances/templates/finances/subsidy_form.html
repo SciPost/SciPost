@@ -13,13 +13,13 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-12">
-      <form action="" method="post">
+    <form action="" method="post">
+      <div class="col-12">
 	{% csrf_token %}
 	{{ form|bootstrap }}
 	<input type="submit" value="Submit" class="btn btn-primary">
-      </form>
-    </div>
+      </div>
+    </form>
   </div>
 {% endblock content %}
 

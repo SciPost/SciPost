@@ -21,6 +21,7 @@ class MailLogAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'to_recipients', 'created', 'status']
     list_filter = ['status']
     readonly_fields = ['created', 'latest_activity']
+    search_fields = ['to_recipients', 'bcc_recipients', 'from_email', 'subject', 'body']
     inlines = [MailLogRelationInline]
     actions = [send_email]
 

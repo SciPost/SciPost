@@ -36,6 +36,7 @@ from django.views.generic.edit import DeleteView, CreateView
 from django.views.generic.list import ListView
 from django.views.static import serve
 
+from dal import autocomplete
 from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
@@ -95,6 +96,22 @@ def sitemap_xml(request):
         'organizations': organizations,
     }
     return render(request, 'scipost/sitemap.xml', context)
+
+################
+# Autocomplete #
+################
+
+class GroupAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        if not self.request.user.has_perm('auth.view_group'):
+            return Group.objects.none()
+        qs = Group.objects.all()
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        return qs
 
 
 ##############
@@ -1224,7 +1241,8 @@ def email_group_members(request):
     """
     form = EmailGroupMembersForm(request.POST or None)
     if form.is_valid():
-        group_members = form.cleaned_data['group'].user_set.filter(contributor__isnull=False)
+        group_members = form.cleaned_data['group'].user_set.filter(
+            contributor__isnull=False).order_by('last_name') # to make pagination consistent
         p = Paginator(group_members, 32)
         for pagenr in p.page_range:
             page = p.page(pagenr)

@@ -23,10 +23,13 @@ from django.db.models import Q
 from django.http import Http404, HttpResponse
 from django.utils import timezone
 from django.utils.decorators import method_decorator
+from django.utils.html import format_html
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
+
+from dal import autocomplete
 
 from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
 from .exceptions import InvalidDOIError
@@ -60,6 +63,32 @@ from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
 
 from guardian.decorators import permission_required
 
+
+################
+# Autocomplete #
+################
+
+class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        qs = Publication.objects.published()
+        if self.q:
+            qs = qs.filter(Q(title__icontains=self.q) |
+                           Q(doi_label__icontains=self.q) |
+                           Q(author_list__icontains=self.q))
+        return qs.order_by('-publication_date')
+
+    def get_result_label(self, item):
+        return format_html(
+            '<strong>{}</strong><br>{}<br><span class="text-muted">by {}</span>',
+            item.doi_label, item.title, item.author_list)
+
+
+################
+# DOI dispatch #
+################
 
 def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
     """
@@ -170,12 +199,14 @@ def landing_page(request, doi_label):
     or paginates its individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    accepted_submission_ids = [sub.id for sub in Submission.objects.accepted() \
+                               if sub.editorial_decision.for_journal==journal]
     context = {
         'journal': journal,
         'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
         'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
         'accepted_submissions': Submission.objects.accepted().filter(
-            submitted_to=journal).order_by('-latest_activity'),
+            pk__in=accepted_submission_ids).order_by('-latest_activity'),
     }
     return render(request, 'journals/journal_landing_page.html', context)
 
@@ -842,10 +873,11 @@ def publication_add_topic(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
-        publication.topics.add(select_topic_form.cleaned_data['topic'])
-        for sub in publication.accepted_submission.thread:
-            sub.topics.add(select_topic_form.cleaned_data['topic'])
-        messages.success(request, 'Successfully linked Topic to this publication')
+        for topic in select_topic_form.cleaned_data['topic']:
+            publication.topics.add(topic)
+            for sub in publication.accepted_submission.thread:
+                sub.topics.add(topic)
+        messages.success(request, 'Successfully linked Topic(s) to this publication')
     return redirect(reverse('scipost:publication_detail',
                             kwargs={'doi_label': publication.doi_label}))
 

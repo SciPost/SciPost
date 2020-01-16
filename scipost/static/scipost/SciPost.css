@@ -115,6 +115,12 @@ li ol > li:before {
   text-decoration: underline;
 }
 
+/* Overrides for Select2 widget */
+.select2-selection--single {
+    min-height: 32px;
+    height: auto !important;
+}
+
 .sphinx {
   color: black;
   margin: 10px;

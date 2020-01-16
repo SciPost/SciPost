@@ -5,9 +5,6 @@
 
 {% block pagetitle %}: organizations dashboard{% endblock pagetitle %}
 
-{% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/table-row.js' %}"></script>
-{% endblock headsup %}
 
 {% block content %}
 
@@ -230,3 +227,7 @@
   </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row.js' %}"></script>
+{% endblock footer_script %}

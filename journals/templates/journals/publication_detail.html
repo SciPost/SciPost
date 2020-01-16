@@ -11,7 +11,7 @@
 {% block body_class %}{{ block.super }} publication{% endblock %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
   {% if publication.in_issue %}
     <a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
@@ -36,8 +36,6 @@
   <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
   <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
   <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
-
-  <script type="text/javascript" src="{% static 'scipost/citations-list.js' %}"></script>
 
 {% endblock headsup %}
 
@@ -199,5 +197,6 @@
 
 {% block footer_script %}
   {{ block.super }}
+  <script src="{% static 'scipost/citations-list.js' %}"></script>
   {{ select_topic_form.media }}
 {% endblock footer_script %}

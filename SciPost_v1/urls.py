@@ -8,7 +8,6 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from ajax_select import urls as ajax_select_urls
 from rest_framework import routers
 
 from conflicts.viewsets import ConflictOfInterestViewSet
@@ -17,7 +16,6 @@ from news.viewsets import NewsItemViewSet
 from journals.regexes import JOURNAL_DOI_LABEL_REGEX
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
-
 
 # Journal URL Regex
 JOURNAL_REGEX = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
@@ -37,12 +35,12 @@ urlpatterns = [
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^ajax_select/', include(ajax_select_urls)),
     url(r'^api/', include((router.urls, 'api'))),
     url(r'^10.21468/%s/' % JOURNAL_REGEX,
         include('journals.urls.journal', namespace="prefixed_journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     url(r'^', include('scipost.urls', namespace="scipost")),
+    url(r'^careers/', include('careers.urls', namespace="careers")),
     url(r'^colleges/', include('colleges.urls', namespace="colleges")),
     url(r'^commentaries/', include('commentaries.urls', namespace="commentaries")),
     url(r'^commentary/', include('commentaries.urls', namespace="_commentaries")),

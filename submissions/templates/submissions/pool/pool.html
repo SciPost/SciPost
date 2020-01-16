@@ -152,6 +152,10 @@
 
         <h3>Submissions accepted</h3>
         {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.accepted %}
+
+	<h3>Submissions accepted, publication offer awaiting author acceptance</h3>
+        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.awaiting_puboffer_acceptance %}
+
       {% endif %}
 
     </div><!-- End page content -->

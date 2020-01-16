@@ -3,19 +3,14 @@
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   <span class="breadcrumb-item">Vet authorship claims</span>
 {% endblock %}
 
 {% block pagetitle %}: vet authorship claims{% endblock pagetitle %}
 
-{% block headsup %}
-
-{% endblock headsup %}
 
 {% block content %}
-
-
 
   {% if not claims_to_vet %}
     <div class="row">

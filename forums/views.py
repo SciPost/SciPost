@@ -131,7 +131,7 @@ class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
         try:
             group = Group.objects.get(pk=self.kwargs.get('group_id'))
             perms = get_perms (group, self.object)
-            initial['group'] = group.id
+            initial['groups'] = group.id
             initial['can_view'] = 'can_view_forum' in perms
             initial['can_post'] = 'can_post_to_forum' in perms
         except Group.DoesNotExist:
@@ -139,14 +139,15 @@ class ForumPermissionsView(PermissionRequiredMixin, UpdateView):
         return initial
 
     def form_valid(self, form):
-        if form.cleaned_data['can_view']:
-            assign_perm('can_view_forum', form.cleaned_data['group'], self.object)
-        else:
-            remove_perm('can_view_forum', form.cleaned_data['group'], self.object)
-        if form.cleaned_data['can_post']:
-            assign_perm('can_post_to_forum', form.cleaned_data['group'], self.object)
-        else:
-            remove_perm('can_post_to_forum', form.cleaned_data['group'], self.object)
+        for group in form.cleaned_data['groups']:
+            if form.cleaned_data['can_view']:
+                assign_perm('can_view_forum', group, self.object)
+            else:
+                remove_perm('can_view_forum', group, self.object)
+            if form.cleaned_data['can_post']:
+                assign_perm('can_post_to_forum', group, self.object)
+            else:
+                remove_perm('can_post_to_forum', group, self.object)
         return super().form_valid(form)
 
 

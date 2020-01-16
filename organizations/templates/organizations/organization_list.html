@@ -11,7 +11,6 @@
 {% is_scipost_admin request.user as is_scipost_admin %}
 
 {% block headsup %}
-  <script type="text/javascript" src="{% static 'scipost/table-row-blank.js' %}"></script>
   <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 {% endblock headsup %}
 
@@ -150,3 +149,7 @@
 
 
 {% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+{% endblock %}

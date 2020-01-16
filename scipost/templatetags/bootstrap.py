@@ -6,6 +6,7 @@ from django import forms
 from django.template.loader import get_template
 from django import template
 
+from dal import autocomplete
 
 register = template.Library()
 
@@ -13,6 +14,7 @@ register = template.Library()
 #  and customized for use with Bootstrap 4.x
 #  https://github.com/tzangms/django-bootstrap-form
 
+# Own tweaks
 
 @register.filter
 def bootstrap(element, args='2,10', extra_classes=''):
@@ -64,7 +66,8 @@ def bootstrap_grouped(element, args='2,10'):
 
 @register.filter
 def add_input_classes(field, extra_classes=''):
-    if not is_checkbox(field) and not is_multiple_checkbox(field) \
+    if not is_autocomplete(field) \
+       and not is_checkbox(field) and not is_multiple_checkbox(field) \
        and not is_radio(field) and not is_file(field):
         field_classes = field.field.widget.attrs.get('class', '')
         field_classes += ' form-control ' + extra_classes
@@ -74,7 +77,8 @@ def add_input_classes(field, extra_classes=''):
 @register.filter
 def add_css_class(field, extra_class):
     """Add additional CSS classes to a field in the template."""
-    if not is_checkbox(field) and not is_multiple_checkbox(field) \
+    if not is_autocomplete(field) \
+       and not is_checkbox(field) and not is_multiple_checkbox(field) \
        and not is_radio(field) and not is_file(field):
         field_classes = field.field.widget.attrs.get('class', '')
         field_classes += ' ' + extra_class
@@ -105,6 +109,12 @@ def render(element, markup_classes):
             context = {'form': element, 'classes': markup_classes}
 
     return template.render(context)
+
+
+@register.filter
+def is_autocomplete(field):
+    return (isinstance(field.field.widget, autocomplete.ModelSelect2) or
+            isinstance(field.field.widget, autocomplete.ModelSelect2Multiple))
 
 
 @register.filter
