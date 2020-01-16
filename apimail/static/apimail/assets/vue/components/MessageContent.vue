@@ -51,36 +51,47 @@
 </template>
 
 <script>
-  export default {
-      name: "message-content",
-      props: {
-	  message: {
-	      type: Object,
-	      required: true
-	  },
-      },
-      computed: {
-	  sanitized_html() {
-	      if (this.message.data["body-html"]) {
-		  return this.$sanitize(this.message.data["body-html"])
-	      }
-	      return this.$sanitize(this.message.data["body-plain"])
-	  }
-      },
-      filters: {
-	  toDatestring(unixtimestamp) {
-	      return new Date(1000 * unixtimestamp).toISOString()
-	  }
-      },
-      mounted () {
-	  if (!this.message.read) {
-	      console.log('uuid: ' + this.message.uuid)
-	      fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
-		    { method: 'PATCH', }
-		   ).then((res) => res.json())
-		  .then((data) =>  console.log(data))
-		  .catch((err)=>console.log(err))
-	  }
-      }
-  }
+import Cookies from 'js-cookie'
+
+var csrftoken = Cookies.get('csrftoken');
+
+export default {
+    name: "message-content",
+    props: {
+	message: {
+	    type: Object,
+	    required: true
+	},
+    },
+    computed: {
+	sanitized_html() {
+	    if (this.message.data["body-html"]) {
+		return this.$sanitize(this.message.data["body-html"])
+	    }
+	    return this.$sanitize(this.message.data["body-plain"])
+	}
+    },
+    filters: {
+	toDatestring(unixtimestamp) {
+	    return new Date(1000 * unixtimestamp).toISOString()
+	}
+    },
+    mounted () {
+	if (!this.message.read) {
+	    console.log('uuid: ' + this.message.uuid)
+	    fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
+		  { method: 'PATCH',
+		    headers: {
+			"X-CSRFToken": csrftoken,
+		    }
+		  }
+		 ).then(function(response) {
+		     if (!response.ok) {
+			 throw new Error('HTTP error, status = ' + response.status);
+		     }
+		 });
+	    this.message.read = true
+	}
+    }
+}
 </script>

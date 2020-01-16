@@ -109,6 +109,7 @@ class StoredMessageRetrieveAPIView(RetrieveAPIView):
 
 class StoredMessageUpdateReadAPIView(UpdateAPIView):
     """Updates the read field (M2M to user) in StoredMessage."""
+    queryset = StoredMessage.objects.all()
     permission_classes = (IsAdminUser,)
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
@@ -117,5 +118,5 @@ class StoredMessageUpdateReadAPIView(UpdateAPIView):
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.read_by.add(request.user)
-        instance.save(update_fields=['read_by'])
+        instance.save()
         return Response()

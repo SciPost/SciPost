@@ -26,7 +26,10 @@ class StoredMessage(models.Model):
         editable=False)
     data = JSONField(default=dict)
     datetimestamp = models.DateTimeField(default=timezone.now)
-    read_by = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='+')
+    read_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='+')
 
     objects = StoredMessageQuerySet.as_manager()
 
