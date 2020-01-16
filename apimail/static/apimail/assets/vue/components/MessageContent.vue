@@ -72,5 +72,15 @@
 	      return new Date(1000 * unixtimestamp).toISOString()
 	  }
       },
+      mounted () {
+	  if (!this.message.read) {
+	      console.log('uuid: ' + this.message.uuid)
+	      fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
+		    { method: 'PATCH', }
+		   ).then((res) => res.json())
+		  .then((data) =>  console.log(data))
+		  .catch((err)=>console.log(err))
+	  }
+      }
   }
 </script>

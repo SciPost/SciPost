@@ -46,6 +46,11 @@ urlpatterns = [
             apiviews.StoredMessageRetrieveAPIView.as_view(),
             name='api_stored_message_retrieve'
         ),
+        path( # /mail/api/stored_message/<uuid>/mark_as_read
+            'stored_message/<uuid:uuid>/mark_as_read',
+            apiviews.StoredMessageUpdateReadAPIView.as_view(),
+            name='api_stored_message_mark_as_read'
+        ),
     ])),
 
 

@@ -7,8 +7,9 @@ import datetime
 from django.db.models import Q
 from django.utils import timezone
 
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.response import Response
 from rest_framework import filters
 
 from ..models import EmailAccount, EmailAccountAccess, Event, StoredMessage
@@ -104,3 +105,17 @@ class StoredMessageRetrieveAPIView(RetrieveAPIView):
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
     filter_backends = [StoredMessageFilterBackend,]
+
+
+class StoredMessageUpdateReadAPIView(UpdateAPIView):
+    """Updates the read field (M2M to user) in StoredMessage."""
+    permission_classes = (IsAdminUser,)
+    serializer_class = StoredMessageSerializer
+    lookup_field = 'uuid'
+    filter_backends = [StoredMessageFilterBackend,]
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.read_by.add(request.user)
+        instance.save(update_fields=['read_by'])
+        return Response()
