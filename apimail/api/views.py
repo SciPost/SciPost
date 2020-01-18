@@ -67,11 +67,24 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
             limit = timezone.now() - datetime.timedelta(days=days)
             queryset = queryset.filter(datetimestamp__gt=limit)
 
+        readstatus = request.query_params.get('read', None)
+        if readstatus is not None:
+            if readstatus == 'true':
+                queryset = queryset.filter(read_by__in=[request.user])
+            elif readstatus == 'false':
+                queryset = queryset.exclude(read_by__in=[request.user])
+
+        tagpk = request.query_params.get('tag', None)
+        if tagpk is not None:
+            tag = get_object_or_404(UserTag, pk=tagpk)
+            queryset = queryset.filter(tags__in=[tag])
+
         _from = request.query_params.get('from', None)
         if _from is not None:
             queryfilter = queryfilter | Q(data__from__icontains=_from)
         subject = request.query_params.get('subject', None)
         if subject is not None:
+            print('subject query: %s' % subject)
             queryfilter = queryfilter | Q(data__subject__icontains=subject)
         recipients = request.query_params.get('recipients', None)
         if recipients is not None:

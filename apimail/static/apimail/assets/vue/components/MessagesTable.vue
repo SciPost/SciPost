@@ -48,17 +48,59 @@
 	</b-col>
       </b-row>
       <hr>
+
       <b-row class="mb-0">
-	<b-col class="col-lg-7">
+	<b-col class="col-lg-1">
+	  <strong>Restrict:</strong>
+	</b-col>
+	<b-col class="col-lg-5">
 	  <b-form-group
-	    label="Filter:"
+	    label="Status:"
 	    label-cols-sm="3"
+	    label-align-sm="right"
+	    label-size="sm"
+	    >
+	    <b-form-radio-group
+	      v-model="readStatus"
+	      :options="readStatusOptions"
+	      >
+	    </b-form-radio-group>
+	  </b-form-group>
+	</b-col>
+	<b-col class="col-lg-6">
+	  <b-form-group
+	    label="Tag:"
+	    label-cols-sm="3"
+	    label-align-sm="right"
+	    label-size="sm"
+	    >
+	    <b-form-radio-group>
+	      <b-form-radio v-model="tagRequired" value="any">Any</b-form-radio>
+	      <b-form-radio v-model="tagRequired" v-for="tag in tags" :value="tag.pk">
+		<b-button size="sm" class="p-1" :variant="tag.variant">
+		  {{ tag.unicode_symbol }}
+		</b-button>
+	      </b-form-radio>
+	    </b-form-radio-group>
+	  </b-form-group>
+	</b-col>
+      </b-row>
+      <hr>
+      <b-row class="mb-0">
+	<b-col class="col-lg-1">
+	  <strong>Search:</strong>
+	</b-col>
+	<b-col class="col-lg-6">
+	  <b-form-group
+	    label-cols-sm="3"
+	    label="Filter:"
             label-align-sm="right"
             label-size="sm"
 	    >
 	    <b-input-group size="sm">
 	      <b-form-input
 		v-model="filter"
+		debounce="250"
 		type="search"
 		id="filterInput"
 		placeholder="Type to search"
@@ -70,7 +112,7 @@
 	    </b-input-group>
 	  </b-form-group>
 	  <b-form-group
-	    label="Time period:"
+	    label="Period:"
 	    label-cols-sm="3"
 	    label-align-sm="right"
 	    label-size="sm"
@@ -114,6 +156,9 @@
       :per-page="perPage"
       :current-page="currentPage"
       >
+      <template v-slot:head(tags)="row">
+	Tags<br><small class="text-muted">click to remove</small>
+      </template>
       <template v-slot:cell(read)="row">
 	<b-badge variant="primary">{{ row.item.read ? "" : "&emsp;" }}</b-badge>
       </template>
@@ -140,9 +185,9 @@
 	  Add&nbsp;tag
 	</b-button>
 	<b-collapse :id="'collapse-tags' + row.item.uuid">
-	  <b-card>
-	    <ul class="list-unstyled">
-	      <li v-for="tag in tags">
+	  <b-card class="m-0 p-0">
+	    <ul class="list-unstyled m-0">
+	      <li v-for="tag in tags" class="m-0">
 		<b-button
 		  size="sm"
 		  class="p-1"
@@ -171,6 +216,10 @@
     </b-table>
   </div>
 
+  {{ perPage }}
+  {{ currentPage }}
+  {{ filterOn }}
+  {{ messages }}
 </div>
 </template>
 
@@ -191,6 +240,7 @@ export default {
 	return {
 	    accesses: null,
 	    accountSelected: null,
+	    messages: [],
 	    perPage: 10,
 	    currentPage: 1,
 	    totalRows: 1,
@@ -200,7 +250,7 @@ export default {
 		{ key: 'data.subject', label: 'Subject' },
 		{ key: 'data.from', label: 'From' },
 		{ key: 'data.recipients', label: 'Recipients' },
-		{ key: 'tags', label: 'Tags' },
+		{ key: 'tags', label: 'Tags<br><span class="text-muted">click to remove</span>' },
 		{ key: 'addtag', label: '' },
 		{ key: 'actions', label: '' }
 	    ],
@@ -208,11 +258,18 @@ export default {
 	    filterOn: [],
 	    timePeriod: 'any',
 	    timePeriodOptions: [
-		{ text: 'Last week', value: 'week'},
-		{ text: 'Last month', value: 'month'},
-		{ text: 'Last year', value: 'year'},
-		{ text: 'Any time', value: 'any'},
-	    ]
+		{ text: 'Last week', value: 'week' },
+		{ text: 'Last month', value: 'month' },
+		{ text: 'Last year', value: 'year' },
+		{ text: 'Any time', value: 'any' },
+	    ],
+	    readStatus: null,
+	    readStatusOptions: [
+		{ text: 'unread', value: false },
+		{ text: 'read', value: true },
+		{ text: 'all', value: null },
+	    ],
+	    tagRequired: 'any',
 	}
     },
     methods: {
@@ -259,12 +316,18 @@ export default {
 	isSelected: function (selection) {
 	    return selection === this.accountSelected
 	},
-	messagesProvider(ctx) {
+	messagesProvider () {
 	    var params = '?account=' + this.accountSelected
 	    // Our API uses limit/offset pagination
-	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
+	    params += '&limit=' + this.perPage + '&offset=' + this.perPage * (this.currentPage - 1)
 	    // Add search time period
 	    params += '&period=' + this.timePeriod
+	    if (this.readStatus !== null) {
+		params += '&read=' + this.readStatus
+	    }
+	    if (this.tagRequired !== 'any') {
+		params += '&tag=' + this.tagRequired
+	    }
 	    // Add search query (if it exists)
 	    if (this.filter) {
 		var filterlist = ['from', 'recipients', 'subject', 'body']
@@ -282,6 +345,7 @@ export default {
 		.then(data => {
 		    const items = data.results
 		    this.totalRows = data.count
+		    this.messages = items || []
 		    return items || []
 		})
 	},
@@ -294,6 +358,24 @@ export default {
 	this.fetchAccounts()
 	this.fetchTags()
     },
+    watch: {
+	accountSelected: function () {
+	    this.messagesProvider()
+	},
+	filter: function () {
+	    this.messagesProvider()
+	},
+	filterOn: function () {
+	    this.messagesProvider()
+	    this.onFiltered(this.messages)
+	},
+	readStatus: function () {
+	    this.messagesProvider()
+	},
+	tagRequired: function () {
+	    this.messagesProvider()
+	}
+    }
 }
 
 </script>

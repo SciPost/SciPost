@@ -1,6 +1,6 @@
 <template>
 <div>
-  <b-card header-tag="header" footer-tag="footer">
+  <b-card header-tag="header" footer-tag="footer" class="overflow-x-auto">
     <template v-slot:header>
       <div class="text-dark">
 	<b-row>
