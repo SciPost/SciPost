@@ -7,3 +7,5 @@ from .account import EmailAccount, EmailAccountAccess
 from .event import Event
 
 from .stored_message import StoredMessage, StoredMessageAttachment
+
+from .tag import UserTag

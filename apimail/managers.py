@@ -22,7 +22,6 @@ class StoredMessageQuerySet(models.QuerySet):
         if user.email_account_accesses.filter(account__email=email).exists():
             queryfilter = models.Q()
             for access in user.email_account_accesses.filter(account__email=email):
-                print("access found: %s" % access.account.email)
                 queryfilter = queryfilter | (
                     (models.Q(data__sender__icontains=access.account.email) |
                      models.Q(data__recipients__icontains=access.account.email))

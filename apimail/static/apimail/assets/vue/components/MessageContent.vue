@@ -80,10 +80,11 @@ export default {
 	if (!this.message.read) {
 	    console.log('uuid: ' + this.message.uuid)
 	    fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
-		  { method: 'PATCH',
-		    headers: {
-			"X-CSRFToken": csrftoken,
-		    }
+		  {
+		      method: 'PATCH',
+		      headers: {
+			  "X-CSRFToken": csrftoken,
+		      }
 		  }
 		 ).then(function(response) {
 		     if (!response.ok) {

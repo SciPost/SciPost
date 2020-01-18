@@ -30,6 +30,10 @@ class StoredMessage(models.Model):
         settings.AUTH_USER_MODEL,
         blank=True,
         related_name='+')
+    tags = models.ManyToManyField(
+        'apimail.UserTag',
+        blank=True,
+        related_name='messages')
 
     objects = StoredMessageQuerySet.as_manager()
 

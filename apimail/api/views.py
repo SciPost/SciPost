@@ -5,18 +5,21 @@ __license__ = "AGPL v3"
 import datetime
 
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import filters
 
-from ..models import EmailAccount, EmailAccountAccess, Event, StoredMessage
+from ..models import EmailAccount, EmailAccountAccess, Event, StoredMessage, UserTag
+from ..permissions import CanHandleMessage
 from .serializers import (
     EmailAccountSerializer, EmailAccountAccessSerializer,
     EventSerializer,
-    StoredMessageSerializer)
+    StoredMessageSerializer,
+    UserTagSerializer)
 
 
 class EmailAccountListAPIView(ListAPIView):
@@ -118,5 +121,31 @@ class StoredMessageUpdateReadAPIView(UpdateAPIView):
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.read_by.add(request.user)
+        instance.save()
+        return Response()
+
+
+class UserTagListAPIView(ListAPIView):
+    serializer_class = UserTagSerializer
+
+    def get_queryset(self):
+        return self.request.user.email_tags.all()
+
+
+class StoredMessageUpdateTagAPIView(UpdateAPIView):
+    """Adds or removes a user tag on a StoredMessage."""
+    queryset = StoredMessage.objects.all()
+    permission_classes = [IsAuthenticated, CanHandleMessage]
+    serializer_class = StoredMessageSerializer
+    lookup_field = 'uuid'
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        tag = get_object_or_404(UserTag, pk=self.request.data.get('tagpk'))
+        action = self.request.data.get('action')
+        if action == 'add':
+            instance.tags.add(tag)
+        elif action == 'remove':
+            instance.tags.remove(tag)
         instance.save()
         return Response()

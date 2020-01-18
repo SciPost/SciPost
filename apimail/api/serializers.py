@@ -8,7 +8,8 @@ from rest_framework import serializers
 from ..models import (
     EmailAccount, EmailAccountAccess,
     Event,
-    StoredMessage, StoredMessageAttachment)
+    StoredMessage, StoredMessageAttachment,
+    UserTag)
 
 
 class EmailAccountSerializer(serializers.ModelSerializer):
@@ -41,14 +42,25 @@ class StoredMessageAttachmentLinkSerializer(serializers.ModelSerializer):
         fields = ['data', '_file', 'link']
 
 
+class UserTagSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserTag
+        fields = ['pk', 'label', 'unicode_symbol', 'variant']
+
+    def get_queryset(self):
+        user = self.request.user
+        return UserTag.objects.filter(user=user)
+
+
 class StoredMessageSerializer(serializers.ModelSerializer):
     attachments = StoredMessageAttachmentLinkSerializer(many=True)
     event_set = EventSerializer(many=True)
     read = serializers.SerializerMethodField()
+    tags = UserTagSerializer(many=True)
 
     def get_read(self, obj):
         return self.context['request'].user in obj.read_by.all()
 
     class Meta:
         model = StoredMessage
-        fields = ['uuid', 'data', 'datetimestamp', 'attachments', 'event_set', 'read']
+        fields = ['uuid', 'data', 'datetimestamp', 'attachments', 'event_set', 'read', 'tags']

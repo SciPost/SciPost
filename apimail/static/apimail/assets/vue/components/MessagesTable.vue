@@ -2,17 +2,6 @@
 <div>
 
   <h2>Click on an account to view messages</h2>
-  <!-- <b-list-group> -->
-  <!--   <b-list-group-item -->
-  <!--     v-for="access in accesses" -->
-  <!--     v-bind:class="{'active': isSelected(access.account.email)}" -->
-  <!--     v-on:click="accountSelected = access.account.email" -->
-  <!--     v-on:change="" -->
-  <!--     class="p-2 m-0" -->
-  <!--     > -->
-  <!--     {{ access.account.email }} -->
-  <!--   </b-list-group-item> -->
-  <!-- </b-list-group> -->
 
   <table class="table">
     <tr>
@@ -125,13 +114,56 @@
       :per-page="perPage"
       :current-page="currentPage"
       >
-      <template v-slot:cell(actions)="row">
-	<b-button size="sm" @click="row.toggleDetails">
-          {{ row.detailsShowing ? 'Hide' : 'Show' }}
-	</b-button>
-      </template>
       <template v-slot:cell(read)="row">
 	<b-badge variant="primary">{{ row.item.read ? "" : "&emsp;" }}</b-badge>
+      </template>
+      <template v-slot:cell(tags)="row">
+	<ul class="list-inline">
+	  <li class="list-inline-item m-0" v-for="tag in row.item.tags">
+	    <b-button
+	      size="sm"
+	      class="p-1"
+	      @click="tagMessage(row.item, tag, 'remove')"
+	      :variant="tag.variant"
+	      >
+	      {{ tag.unicode_symbol }}
+	    </b-button>
+	  </li>
+	</ul>
+      </template>
+      <template v-slot:cell(addtag)="row">
+	<b-button
+	  size="sm"
+	  v-b-toggle="'collapse-tags' + row.item.uuid"
+	  variant="primary"
+	  >
+	  Add&nbsp;tag
+	</b-button>
+	<b-collapse :id="'collapse-tags' + row.item.uuid">
+	  <b-card>
+	    <ul class="list-unstyled">
+	      <li v-for="tag in tags">
+		<b-button
+		  size="sm"
+		  class="p-1"
+		  @click="tagMessage(row.item, tag, 'add')"
+		  :variant="tag.variant"
+		  >
+		  {{ tag.unicode_symbol }}&nbsp;{{ tag.label }}
+		</b-button>
+	      </li>
+	    </ul>
+	  </b-card>
+	</b-collapse>
+      </template>
+      <template v-slot:cell(actions)="row">
+	<b-button
+	  size="sm"
+	  variant="primary"
+	  @click="row.toggleDetails"
+	  >
+          {{ row.detailsShowing ? 'Hide' : 'Show' }}
+	</b-button>
       </template>
       <template v-slot:row-details="row">
 	<message-content :message=row.item class="m-2 mb-4"></message-content>
@@ -144,7 +176,11 @@
 
 
 <script>
+import Cookies from 'js-cookie'
+
 import MessageContent from './MessageContent.vue'
+
+var csrftoken = Cookies.get('csrftoken');
 
 export default {
     name: "messages-table",
@@ -164,16 +200,18 @@ export default {
 		{ key: 'data.subject', label: 'Subject' },
 		{ key: 'data.from', label: 'From' },
 		{ key: 'data.recipients', label: 'Recipients' },
-		{ key: 'actions', label: 'Actions' }
+		{ key: 'tags', label: 'Tags' },
+		{ key: 'addtag', label: '' },
+		{ key: 'actions', label: '' }
 	    ],
 	    filter: null,
 	    filterOn: [],
 	    timePeriod: 'any',
 	    timePeriodOptions: [
-		{ 'text': 'Last week', value: 'week'},
-		{ 'text': 'Last month', value: 'month'},
-		{ 'text': 'Last year', value: 'year'},
-		{ 'text': 'Any time', value: 'any'},
+		{ text: 'Last week', value: 'week'},
+		{ text: 'Last month', value: 'month'},
+		{ text: 'Last year', value: 'year'},
+		{ text: 'Any time', value: 'any'},
 	    ]
 	}
     },
@@ -183,6 +221,40 @@ export default {
 		.then(stream => stream.json())
 		.then(data => this.accesses = data.results)
 		.catch(error => console.error(error))
+	},
+	fetchTags () {
+	    fetch('/mail/api/user_tags')
+		.then(stream => stream.json())
+		.then(data => this.tags = data.results)
+		.catch(error => console.error(error))
+	},
+	tagMessage (message, tag, action) {
+	    fetch('/mail/api/stored_message/' + message.uuid + '/tag',
+		  {
+		      method: 'PATCH',
+		      headers: {
+			  "X-CSRFToken": csrftoken,
+			  "Content-Type": "application/json; charset=utf-8"
+		      },
+		      body: JSON.stringify({
+			  'tagpk': tag.pk,
+			  'action': action
+		      })
+		  }
+		 ).then(function(response) {
+		     if (!response.ok) {
+			 throw new Error('HTTP error, status = ' + response.status);
+		     }
+		 });
+
+	    if (action == 'add') {
+		// Prevent doubling by removing first, then (re)adding
+		message.tags = message.tags.filter(function (item) { return item.pk !== tag.pk })
+		message.tags.push(tag)
+	    }
+	    else if (action == 'remove') {
+		message.tags.splice(message.tags.indexOf(tag), 1)
+	    }
 	},
 	isSelected: function (selection) {
 	    return selection === this.accountSelected
@@ -220,6 +292,7 @@ export default {
     },
     mounted() {
 	this.fetchAccounts()
+	this.fetchTags()
     },
 }
 
