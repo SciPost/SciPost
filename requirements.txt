@@ -3,7 +3,7 @@ argon2-cffi==16.3.0		# Password hashing algorithm
 Babel==2.4
 Django==2.1.8			# 2019-05-18
 feedparser==5.2.1		# Check: not updated since 2016
-psycopg2==2.7.3  		# PostgreSQL engine
+psycopg2==2.7.3.2  		# PostgreSQL engine
 pytz==2017.2			# Timezone package
 djangorestframework==3.8.2
 requests==2.18.3
