@@ -104,6 +104,9 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
                 query_raw, ['body-plain', '%%%s%%' % body, 'body-html', '%%%s%%' % body])]
             queryfilter = queryfilter | Q(pk__in=sm_ids)
 
+        print('Number of objects returned: %s' % len(queryset.filter(queryfilter).filter_for_user(
+            request.user, request.query_params.get('account'))))
+
         return queryset.filter(queryfilter).filter_for_user(
             request.user, request.query_params.get('account'))
 

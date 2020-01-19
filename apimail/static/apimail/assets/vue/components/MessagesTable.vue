@@ -148,6 +148,7 @@
     </b-card>
     <b-table
       id="my-table"
+      responsive
       :items="messagesProvider"
       :fields="fields"
       :filter="filter"
@@ -156,6 +157,12 @@
       :per-page="perPage"
       :current-page="currentPage"
       >
+      <!-- <template v-slot:table-busy> -->
+      <!-- 	<div class="text-center text-primary my-2"> -->
+      <!-- 	  <b-spinner class="align-middle"></b-spinner> -->
+      <!-- 	  <strong>Loading...</strong> -->
+      <!-- 	</div> -->
+      <!-- </template> -->
       <template v-slot:head(tags)="row">
 	Tags<br><small class="text-muted">click to remove</small>
       </template>
@@ -216,10 +223,6 @@
     </b-table>
   </div>
 
-  {{ perPage }}
-  {{ currentPage }}
-  {{ filterOn }}
-  {{ messages }}
 </div>
 </template>
 
@@ -316,10 +319,10 @@ export default {
 	isSelected: function (selection) {
 	    return selection === this.accountSelected
 	},
-	messagesProvider () {
+	messagesProvider (ctx) {
 	    var params = '?account=' + this.accountSelected
 	    // Our API uses limit/offset pagination
-	    params += '&limit=' + this.perPage + '&offset=' + this.perPage * (this.currentPage - 1)
+	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
 	    // Add search time period
 	    params += '&period=' + this.timePeriod
 	    if (this.readStatus !== null) {
@@ -345,7 +348,7 @@ export default {
 		.then(data => {
 		    const items = data.results
 		    this.totalRows = data.count
-		    this.messages = items || []
+		    // this.messages = items || []
 		    return items || []
 		})
 	},
@@ -360,20 +363,19 @@ export default {
     },
     watch: {
 	accountSelected: function () {
-	    this.messagesProvider()
+	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
-	filter: function () {
-	    this.messagesProvider()
+	timePeriod: function () {
+	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	filterOn: function () {
-	    this.messagesProvider()
-	    this.onFiltered(this.messages)
+	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	readStatus: function () {
-	    this.messagesProvider()
+	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	tagRequired: function () {
-	    this.messagesProvider()
+	    this.$root.$emit('bv::refresh::table', 'my-table')
 	}
     }
 }
