@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'production',
     'rest_framework',
     'scipost',
+    'series',
     'stats',
     'submissions',
     'theses',

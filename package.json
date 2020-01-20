@@ -10,6 +10,7 @@
     "webpack-test": "./node_modules/.bin/webpack --config webpack.test.config.js",
     "webpack-dev": "./node_modules/.bin/webpack --config webpack.dev.config.js",
     "webpack-dev-live": "./node_modules/.bin/webpack --config webpack.dev.config.js --watch",
+    "webpack-stag": "./node_modules/.bin/webpack --config webpack.stag.config.js",
     "webpack-prod": "./node_modules/.bin/webpack --config webpack.prod.config.js"
   },
   "private": true,

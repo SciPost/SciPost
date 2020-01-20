@@ -1,0 +1,59 @@
+{% extends 'series/series_base.html' %}
+
+{% load bootstrap %}
+{% load automarkup %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">
+    <a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a>
+  </span>
+  <span class="breadcrumb-item">{{ collection.name }}</span>
+{% endblock %}
+
+{% block pagetitle %}: Collection detail{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">
+	{{ collection.series.name }}
+      </h1>
+      <h2 class="highlight">
+	{{ collection.name }}
+      </h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="p-2">
+	{{ collection.description|automarkup }}
+      </div>
+      {% if collection.event_start_date and collection.event_end_date %}
+	<p class="p-2">
+	  Dates: from {{ collection.event_start_date }} to {{ collection.event_end_date }}.
+	</p>
+      {% endif %}
+      {% if collection.image %}
+	<div class="p-2">
+	  <img class="d-flex mr-3" alt="image" src="{{ collection.image.url }}">
+	</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      <h3 class="highlight">Publications in this Collection</h3>
+      <ul>
+	{% for publication in collection.publications.all %}
+	  <li><a href="{{ publication.get_absolute_url }}">{{ publication }}</a></li>
+	{% empty %}
+	  <li>No Publication has yet been associated to this Collection</li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+{% endblock content %}
