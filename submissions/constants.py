@@ -277,7 +277,6 @@ scipost_regex_wo_vn = 'scipost_[0-9]{4,}_[0-9]{4,}'
 scipost_regex_w_vn = 'scipost_[0-9]{4,}_[0-9]{4,}v[0-9]{1,2}'
 SUBMISSIONS_NO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s))' % (arxiv_regex_wo_vn, scipost_regex_wo_vn)
 SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (arxiv_regex_w_vn, scipost_regex_w_vn)
-SCIPOST_PREPRINT_W_VN_REGEX = '(?P<identifier_w_vn_nr>%s)' % scipost_regex_w_vn
 
 
 # `EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS` tracks the regex rules for the manuscripts
