@@ -46,3 +46,10 @@ class Preprint(models.Model):
         if self._file:
             return reverse('preprints:pdf', args=(self.identifier_w_vn_nr,))
         raise Http404
+
+    @property
+    def citation_pdf_url(self):
+        """Return the absolute URL of the pdf for the meta tag for Google Scholar."""
+        if self._file: # means this is a SciPost-hosted preprint
+            return "https://scipost.org%s" % self.get_absolute_url()
+        return self.get_absolute_url().replace("/abs/", "/pdf/")
