@@ -161,6 +161,18 @@ class Submission(models.Model):
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
         return header
 
+    @property
+    def authors_as_list(self):
+        """Returns a python list of the authors, extracted from author_list field."""
+        # Start by separating in comma's
+        comma_separated = self.author_list.split(',')
+        authors_as_list = []
+        for entry in comma_separated:
+            and_separated = entry.split(' and ')
+            for subentry in and_separated:
+                authors_as_list.append(subentry.lstrip().rstrip())
+        return authors_as_list
+
     def touch(self):
         """Update latest activity timestamp."""
         Submission.objects.filter(id=self.id).update(latest_activity=timezone.now())
