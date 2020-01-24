@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.urls import include, path
+from django.views.generic import TemplateView
 
 from apimail.api import views as apiviews
 from . import views
@@ -68,7 +69,7 @@ urlpatterns = [
 
     path( # /mail/messages
         'messages',
-        views.StoredMessageListView.as_view(),
+        TemplateView.as_view(template_name='apimail/message_list.html'),
         name='message_list'
     ),
     path( # /mail/message/<uuid>/attachments/<int>

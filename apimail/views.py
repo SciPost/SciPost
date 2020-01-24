@@ -6,17 +6,8 @@ import mimetypes
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic.list import ListView
 
-from .models import StoredMessage, StoredMessageAttachment
-
-
-class StoredMessageListView(ListView):
-    model = StoredMessage
-    template_name = 'apimail/message_list.html'
-
-    # def get_queryset(self):
-    #     return StoredMessage.objects.filter_for_user(self.request.user)
+from .models import StoredMessageAttachment
 
 
 def attachment_file(request, uuid, pk):

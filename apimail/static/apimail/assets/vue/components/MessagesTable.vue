@@ -76,7 +76,7 @@
 	    >
 	    <b-form-radio-group>
 	      <b-form-radio v-model="tagRequired" value="any">Any</b-form-radio>
-	      <b-form-radio v-model="tagRequired" v-for="tag in tags" :value="tag.pk">
+	      <b-form-radio v-model="tagRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
 		<b-button size="sm" class="p-1" :variant="tag.variant">
 		  {{ tag.unicode_symbol }}
 		</b-button>
