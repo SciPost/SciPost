@@ -248,6 +248,7 @@ export default {
 	    currentPage: 1,
 	    totalRows: 1,
 	    fields: [
+		{ key: 'actions', label: '' },
 		{ key: 'read', label: '' },
 		{ key: 'datetimestamp', label: 'On' },
 		{ key: 'data.subject', label: 'Subject' },
@@ -255,7 +256,6 @@ export default {
 		{ key: 'data.recipients', label: 'Recipients' },
 		{ key: 'tags', label: 'Tags<br><span class="text-muted">click to remove</span>' },
 		{ key: 'addtag', label: '' },
-		{ key: 'actions', label: '' }
 	    ],
 	    filter: null,
 	    filterOn: [],
