@@ -27,7 +27,8 @@ class ProductionEventInline(admin.TabularInline):
 
 
 class ProductionStreamAdmin(GuardedModelAdmin):
-    search_fields = ['submission']
+    search_fields = ['submission__author_list', 'submission__title',
+                     'submission__preprint__identifier_w_vn_nr']
     list_filter = ['status']
     list_display = ['submission', 'opened', 'status', event_count]
     inlines = (
