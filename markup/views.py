@@ -24,7 +24,6 @@ def process(request):
     """
     form = MarkupTextForm(request.POST or None)
     if form.is_valid():
-        print('response: \n%s' % form.get_processed_markup())
         return JsonResponse(form.get_processed_markup())
     return JsonResponse({})
 
