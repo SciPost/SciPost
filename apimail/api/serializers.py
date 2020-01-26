@@ -7,6 +7,7 @@ from rest_framework import serializers
 
 from ..models import (
     EmailAccount, EmailAccountAccess,
+    ComposedMessage,
     Event,
     StoredMessage, StoredMessageAttachment,
     UserTag)
@@ -26,6 +27,11 @@ class EmailAccountAccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailAccountAccess
         fields = ['account', 'rights', 'date_from', 'date_until']
+
+
+class ComposedMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ComposedMessage
 
 
 class EventSerializer(serializers.ModelSerializer):

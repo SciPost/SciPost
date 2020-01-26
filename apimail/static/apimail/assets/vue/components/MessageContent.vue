@@ -2,6 +2,21 @@
 <div>
   <b-card header-tag="header" footer-tag="footer" class="overflow-x-auto">
     <template v-slot:header>
+      <b-button v-b-modal.modal-reply>Reply</b-button>
+      <b-modal
+	id="modal-reply"
+	title="Reply"
+	hide-header-close
+	no-close-on-escape
+	no-close-on-backdrop
+	>
+	<message-composer :originalmessage="message"></message-composer>
+	<template v-slot:modal-footer="{ cancel, }">
+	  <b-button size="sm" variant="danger" @click="cancel()">
+	    Cancel
+	  </b-button>
+	</template>
+      </b-modal>
       <div class="text-dark">
 	<b-row>
 	<b-col class="col-lg-8">
@@ -53,10 +68,15 @@
 <script>
 import Cookies from 'js-cookie'
 
+import MessageComposer from './MessageComposer.vue'
+
 var csrftoken = Cookies.get('csrftoken');
 
 export default {
     name: "message-content",
+    components: {
+    	MessageComposer,
+    },
     props: {
 	message: {
 	    type: Object,
@@ -78,7 +98,6 @@ export default {
     },
     mounted () {
 	if (!this.message.read) {
-	    console.log('uuid: ' + this.message.uuid)
 	    fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
 		  {
 		      method: 'PATCH',

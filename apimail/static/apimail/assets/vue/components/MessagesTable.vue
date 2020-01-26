@@ -221,6 +221,7 @@
 	<message-content :message=row.item class="m-2 mb-4"></message-content>
       </template>
     </b-table>
+
   </div>
 
 </div>

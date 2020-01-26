@@ -7,7 +7,7 @@ import mimetypes
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
-from .models import StoredMessageAttachment
+from .models import StoredMessage, StoredMessageAttachment
 
 
 def attachment_file(request, uuid, pk):

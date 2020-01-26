@@ -77,4 +77,9 @@ urlpatterns = [
         views.attachment_file,
         name='message_attachment'
     ),
+    path( # /mail/message/compose
+        'message/compose',
+        TemplateView.as_view(template_name='apimail/message_compose.html'),
+        name='message_compose'
+    ),
 ]
