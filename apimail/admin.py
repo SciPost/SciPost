@@ -6,6 +6,7 @@ from django.contrib import admin
 
 from .models import (
     EmailAccount, EmailAccountAccess,
+    ComposedMessage,
     Event,
     StoredMessage, StoredMessageAttachment,
     UserTag)
@@ -21,6 +22,12 @@ class EmailAccountAdmin(admin.ModelAdmin):
     inlines = [EmailAccountAccessInline,]
 
 admin.site.register(EmailAccount, EmailAccountAdmin)
+
+
+class ComposedMessageAdmin(admin.ModelAdmin):
+    pass
+
+admin.site.register(ComposedMessage, ComposedMessageAdmin)
 
 
 class EventAdmin(admin.ModelAdmin):
