@@ -5,6 +5,7 @@
       <b-button v-b-modal.modal-reply>Reply</b-button>
       <b-modal
 	id="modal-reply"
+	size="xl"
 	title="Reply"
 	hide-header-close
 	no-close-on-escape
