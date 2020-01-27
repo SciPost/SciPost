@@ -1,23 +1,65 @@
 <template>
 <div>
-  <b-card header-tag="header" footer-tag="footer" class="overflow-x-auto">
+  <b-card
+    border-variant="primary"
+    class="overflow-x-auto"
+    header-tag="header"
+    footer-tag="footer"
+    >
     <template v-slot:header>
-      <b-button v-b-modal.modal-reply>Reply</b-button>
-      <b-modal
-	id="modal-reply"
-	size="xl"
-	title="Reply"
-	hide-header-close
-	no-close-on-escape
-	no-close-on-backdrop
-	>
-	<message-composer :originalmessage="message"></message-composer>
-	<template v-slot:modal-footer="{ cancel, }">
-	  <b-button size="sm" variant="danger" @click="cancel()">
-	    Cancel
+
+      <ul class="list-inline m-2">
+	<li class="list-inline-item">
+	  <b-button
+	    v-b-modal.modal-reply
+	    variant="primary"
+	    >
+	    Reply
 	  </b-button>
-	</template>
-      </b-modal>
+	  <b-modal
+	    id="modal-reply"
+	    size="xl"
+	    title="Reply"
+	    hide-header-close
+	    no-close-on-escape
+	    no-close-on-backdrop
+	    >
+	    <message-composer :originalmessage="message" action="reply"></message-composer>
+	    <template v-slot:modal-footer="{ cancel, }">
+	      <b-button size="sm" variant="danger" @click="cancel()">
+		Cancel
+	      </b-button>
+	    </template>
+	  </b-modal>
+	</li>
+	<li class="list-inline-item">
+	  <b-button
+	    v-b-modal.modal-forward
+	    variant="dark"
+	    text-variant="white"
+	    >
+	    Forward
+	  </b-button>
+	  <b-modal
+	    id="modal-forward"
+	    size="xl"
+	    title="Forward"
+	    hide-header-close
+	    no-close-on-escape
+	    no-close-on-backdrop
+	    >
+	    <message-composer :originalmessage="message" action="forward"></message-composer>
+	    <template v-slot:modal-footer="{ cancel, }">
+	      <b-button variant="danger" @click="cancel()">
+		Cancel
+	      </b-button>
+	    </template>
+	  </b-modal>
+	</li>
+	<li class="list-inline-item">
+	</li>
+      </ul>
+      <hr>
       <div class="text-dark">
 	<b-row>
 	<b-col class="col-lg-8">
