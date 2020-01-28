@@ -7,16 +7,17 @@
 	<b-form-group
 	  id="from_account"
 	  label="From:"
-	  label-for="input-from-account"
+	  label-for="input-from-account-access"
 	  class="mb-4"
 	  >
-	  <b-form-input
+	  <b-form-select
 	    id="input-from-account"
 	    v-model="form.from_account"
-	    type="email"
-	    required
+	    :options="from_account_accesses"
+	    value-field="account.pk"
+	    text-field="account.email"
 	    >
-	  </b-form-input>
+	  </b-form-select>
 	</b-form-group>
       </b-col>
       <b-col class="col-lg-6">
@@ -98,75 +99,116 @@
 	  ></span>
       </b-col>
     </b-row>
-    <b-button type="savedraft" variant="warning">Save draft</b-button>
+    <b-button type="savedraft" variant="warning" @click="saveDraft">Save draft</b-button>
     <b-button type="send" variant="success">Send</b-button>
   </b-form>
 </div>
 </template>
 
 <script>
-  export default {
-      name: "message-composer",
-      props: {
-	  originalmessage: {
-	      type: Object,
-	      required: false,
-	  },
-	  action: {
-	      type: String,
-	      required: true,
-	  },
-      },
-      data () {
-	  return {
-	      form: {
-		  from_account: '',
-		  torecipient: '',
-		  cc: '',
-		  bcc: '',
-		  subject: '',
-		  body: '',
-		  sanitized_body_html: '',
-	      }
-	  }
-      },
-      computed: {
-	  sanitized_body_html() {
-	      return this.$sanitize(this.form.body)
-	  }
-      },
-      mounted () {
-      	  if (this.originalmessage) {
-	      this.form.from_account = this.originalmessage.data.To
-      	      this.form.body = ('\n\n<blockquote>\n')
-	      if (this.action == 'reply') {
-      		  this.form.torecipient = this.originalmessage.data.sender
-		  this.form.cc = this.originalmessage.data.recipients
-		  this.form.subject = 'Re: ' + this.originalmessage.data.subject
-		  this.form.body += ('On ' + this.originalmessage.datetimestamp +
-				     ', ' + this.originalmessage.data.from +
-				     ' wrote:\n\n')
-	      }
-	      if (this.action == 'forward') {
-		  this.form.subject = 'Fwd: ' + this.originalmessage.data.subject
-		  this.form.body += ('Begin forwarded message:\n\n' +
-				     'From: ' + this.originalmessage.data.sender +
-				     '\nSubject: ' + this.originalmessage.subject +
-				     '\nDate: ' + this.originalmessage.datetimestamp +
-				     '\nTo: ' + this.originalmessage.data.To +
-				     '\n\n')
-	      }
-	      this.form.body += (this.originalmessage.data["body-plain"] +
-				 '\n</blockquote>')
-      	  }
-      }
-  }
+import Cookies from 'js-cookie'
+
+var csrftoken = Cookies.get('csrftoken');
+
+export default {
+    name: "message-composer",
+    props: {
+	originalmessage: {
+	    type: Object,
+	    required: false,
+	},
+	action: {
+	    type: String,
+	    required: true,
+	},
+    },
+    data () {
+	return {
+	    form: {
+		from_account: null,
+		torecipient: '',
+		cc: '',
+		bcc: '',
+		subject: '',
+		body: '',
+		sanitized_body_html: '',
+	    },
+	    from_account_accesses: [],
+	}
+    },
+    computed: {
+	sanitized_body_html() {
+	    return this.$sanitize(this.form.body)
+	}
+    },
+    methods: {
+	fetchCurrentAccounts () {
+	    fetch('/mail/api/user_account_accesses?current&cansend')
+		.then(stream => stream.json())
+		.then(data => this.from_account_accesses = data.results)
+		.catch(error => console.error(error))
+	},
+	saveDraft () {
+	    alert('saveDraft called');
+	    fetch('/mail/api/composed_message/create',
+	    	  {
+	    	      method: 'POST',
+	    	      headers: {
+	    		  "X-CSRFToken": csrftoken,
+	    		  "Content-Type": "application/json; charset=utf-8"
+	    	      },
+	    	      body: JSON.stringify({
+			  'from_account': this.form.from_account,
+			  'to_recipient': this.form.torecipient,
+			  // 'cc_recipients': this.form.cc,
+			  // 'bcc_recipients': this.form.bcc,
+			  'subject': this.form.subject,
+			  'body_text': this.form.body,
+			  'body_html': this.form.sanitized_body_html,
+	    	      })
+	    	  }
+	    	 ).then(function(response) {
+	    	     if (!response.ok) {
+			 console.log('Error: ' + response);
+	    		 throw new Error('HTTP error, status = ' + response.status);
+	    	     }
+	    	 });
+	    alert('saveDraft done');
+	}
+    },
+    mounted () {
+	this.fetchCurrentAccounts()
+      	if (this.originalmessage) {
+	    this.form.from_account = this.originalmessage.data.To
+      	    this.form.body = ('\n\n<blockquote>\n')
+	    if (this.action == 'reply') {
+      		this.form.torecipient = this.originalmessage.data.sender
+		this.form.cc = this.originalmessage.data.recipients
+		this.form.subject = 'Re: ' + this.originalmessage.data.subject
+		this.form.body += ('On ' + this.originalmessage.datetimestamp +
+				   ', ' + this.originalmessage.data.from +
+				   ' wrote:\n\n')
+	    }
+	    if (this.action == 'forward') {
+		this.form.subject = 'Fwd: ' + this.originalmessage.data.subject
+		this.form.body += ('Begin forwarded message:\n\n' +
+				   'From: ' + this.originalmessage.data.sender +
+				   '\nSubject: ' + this.originalmessage.subject +
+				   '\nDate: ' + this.originalmessage.datetimestamp +
+				   '\nTo: ' + this.originalmessage.data.To +
+				   '\n\n')
+	    }
+	    this.form.body += (this.originalmessage.data["body-plain"] +
+			       '\n</blockquote>')
+      	}
+    }
+}
 </script>
 
 <style scoped>
 
-  .white-space-pre-wrap {
-  white-space: pre-wrap;
-  }
+.white-space-pre-wrap {
+    white-space: pre-wrap;
+}
 
 </style>

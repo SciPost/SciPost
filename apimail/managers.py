@@ -2,7 +2,17 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.db import models
+
+
+class EmailAccountAccessQuerySet(models.QuerySet):
+    def current(self):
+        today = datetime.date.today()
+        return self.filter(date_from__lt=today, date_until__gt=today)
+    def can_send(self):
+        return self.filter(rights='CRUD')
 
 
 class StoredMessageQuerySet(models.QuerySet):

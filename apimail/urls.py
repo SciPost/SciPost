@@ -27,6 +27,11 @@ urlpatterns = [
             apiviews.UserEmailAccountAccessListAPIView.as_view(),
             name='user_account_accesses'
         ),
+        path( # /mail/api/composed_message/create
+            'composed_message/create',
+            apiviews.ComposedMessageCreateAPIView.as_view(),
+            name='composed_message_create'
+        ),
         path( # /mail/api/events
             'events',
             apiviews.EventListAPIView.as_view(),
@@ -76,10 +81,5 @@ urlpatterns = [
         'message/<uuid:uuid>/attachments/<int:pk>',
         views.attachment_file,
         name='message_attachment'
-    ),
-    path( # /mail/message/compose
-        'message/compose',
-        TemplateView.as_view(template_name='apimail/message_compose.html'),
-        name='message_compose'
     ),
 ]

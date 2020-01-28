@@ -16,7 +16,7 @@ from ..models import (
 class EmailAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailAccount
-        fields = ['name', 'email', 'description']
+        fields = ['pk', 'name', 'email', 'description']
 
 
 class EmailAccountAccessSerializer(serializers.ModelSerializer):
@@ -32,6 +32,9 @@ class EmailAccountAccessSerializer(serializers.ModelSerializer):
 class ComposedMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComposedMessage
+        fields = ['uuid', 'author', 'created_on', 'status',
+                  'from_account', 'to_recipient', 'cc_recipients', 'bcc_recipients',
+                  'subject', 'body_text', 'body_html']
 
 
 class EventSerializer(serializers.ModelSerializer):

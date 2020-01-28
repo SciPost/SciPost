@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 from django.conf import settings
 from django.db import models
 
+from ..managers import EmailAccountAccessQuerySet
+
 
 class EmailAccount(models.Model):
     """
@@ -50,6 +52,8 @@ class EmailAccountAccess(models.Model):
     rights = models.CharField(max_length=8, choices=RIGHTS_CHOICES)
     date_from = models.DateField()
     date_until = models.DateField()
+
+    objects = EmailAccountAccessQuerySet()
 
     class Meta:
         ordering = ['account__email', 'user__last_name', '-date_until',]

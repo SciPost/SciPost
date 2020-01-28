@@ -7,7 +7,7 @@ from rest_framework import permissions
 from .models import EmailAccountAccess
 
 
-class CanHandleMessage(permissions.BasePermission):
+class CanHandleStoredMessage(permissions.BasePermission):
     """
     Object-level permission on StoredMessage, specifying whether the user
     can take editing actions.

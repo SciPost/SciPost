@@ -8,15 +8,21 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from rest_framework.generics import ListAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import filters
+from rest_framework import filters, status
 
-from ..models import EmailAccount, EmailAccountAccess, Event, StoredMessage, UserTag
-from ..permissions import CanHandleMessage
+from ..models import (
+    EmailAccount, EmailAccountAccess,
+    ComposedMessage,
+    Event,
+    StoredMessage, UserTag)
+
+from ..permissions import CanHandleStoredMessage
 from .serializers import (
     EmailAccountSerializer, EmailAccountAccessSerializer,
+    ComposedMessageSerializer,
     EventSerializer,
     StoredMessageSerializer,
     UserTagSerializer)
@@ -32,7 +38,33 @@ class UserEmailAccountAccessListAPIView(ListAPIView):
     serializer_class = EmailAccountAccessSerializer
 
     def get_queryset(self):
-        return self.request.user.email_account_accesses.all()
+        queryset = self.request.user.email_account_accesses.all()
+        if self.request.query_params.get('current', None):
+            queryset = queryset.current()
+        if self.request.query_params.get('cansend', None):
+            queryset = queryset.can_send()
+        return queryset
+
+
+class ComposedMessageCreateAPIView(CreateAPIView):
+    queryset = ComposedMessage.objects.all()
+    serializer_class = ComposedMessageSerializer
+    lookup_field = 'uuid'
+
+    def create(self, request, *args, **kwargs):
+        # Override rest_framework.mixins.CreateModelMixin.create
+        # in order to include request.user in data and link an
+        # active account
+        data = request.data
+        print(request)
+        print(kwargs)
+        data['author'] = request.user.id
+        print(data)
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class EventListAPIView(ListAPIView):
@@ -148,7 +180,7 @@ class UserTagListAPIView(ListAPIView):
 class StoredMessageUpdateTagAPIView(UpdateAPIView):
     """Adds or removes a user tag on a StoredMessage."""
     queryset = StoredMessage.objects.all()
-    permission_classes = [IsAuthenticated, CanHandleMessage]
+    permission_classes = [IsAuthenticated, CanHandleStoredMessage]
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
 
