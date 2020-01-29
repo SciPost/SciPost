@@ -27,7 +27,7 @@
 	    <message-composer :originalmessage="message" action="reply"></message-composer>
 	    <template v-slot:modal-footer="{ cancel, }">
 	      <b-button size="sm" variant="danger" @click="cancel()">
-		Cancel
+		Cancel/close
 	      </b-button>
 	    </template>
 	  </b-modal>

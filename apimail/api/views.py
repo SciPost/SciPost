@@ -56,10 +56,7 @@ class ComposedMessageCreateAPIView(CreateAPIView):
         # in order to include request.user in data and link an
         # active account
         data = request.data
-        print(request)
-        print(kwargs)
         data['author'] = request.user.id
-        print(data)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

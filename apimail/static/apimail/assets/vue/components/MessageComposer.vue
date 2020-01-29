@@ -14,6 +14,7 @@
 	    id="input-from-account"
 	    v-model="form.from_account"
 	    :options="from_account_accesses"
+	    type="int"
 	    value-field="account.pk"
 	    text-field="account.email"
 	    >
@@ -99,8 +100,21 @@
 	  ></span>
       </b-col>
     </b-row>
-    <b-button type="savedraft" variant="warning" @click="saveDraft">Save draft</b-button>
+    <b-button type="savedraft" variant="warning" @click.stop.prevent="saveDraft">
+      Save draft
+    </b-button>
     <b-button type="send" variant="success">Send</b-button>
+    <template v-if="saveDraftSuccessful">
+      <p class="m-2 p-2 bg-success text-white">
+	The message draft was successfully saved.
+      </p>
+    </template>
+    <template v-else-if="saveDraftSuccessful === false">
+      <p class="m-2 p-2 bg-danger text-white">
+	The server responded with an error, please check and try again
+      </p>
+    </template>
+    <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
   </b-form>
 </div>
 </template>
@@ -134,6 +148,10 @@ export default {
 		sanitized_body_html: '',
 	    },
 	    from_account_accesses: [],
+	    response: null,
+	    response_body_json: null,
+	    saveDraftSuccessful: null,
+	    draftLastSaved: null,
 	}
     },
     computed: {
@@ -149,7 +167,6 @@ export default {
 		.catch(error => console.error(error))
 	},
 	saveDraft () {
-	    alert('saveDraft called');
 	    fetch('/mail/api/composed_message/create',
 	    	  {
 	    	      method: 'POST',
@@ -166,14 +183,21 @@ export default {
 			  'body_text': this.form.body,
 			  'body_html': this.form.sanitized_body_html,
 	    	      })
-	    	  }
-	    	 ).then(function(response) {
-	    	     if (!response.ok) {
-			 console.log('Error: ' + response);
-	    		 throw new Error('HTTP error, status = ' + response.status);
-	    	     }
-	    	 });
-	    alert('saveDraft done');
+	    	  })
+		.then(response => {
+		    this.response = response.clone()
+		    if (response.ok) {
+			this.saveDraftSuccessful = true
+		 	this.draftLastSaved = Date().toString()
+		    }
+	    	    if (!response.ok) {
+			this.saveDraftSuccessful = false
+	    	    	// throw new Error('HTTP error, status = ' + response.status);
+	    	    }
+		    return response.json()
+	    	})
+		.then(responsejson => this.response_body_json = responsejson)
+		.catch(error => console.error(error))
 	}
     },
     mounted () {
