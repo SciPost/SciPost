@@ -100,21 +100,40 @@
 	  ></span>
       </b-col>
     </b-row>
-    <b-button type="savedraft" variant="warning" @click.stop.prevent="saveDraft">
-      Save draft
-    </b-button>
-    <b-button type="send" variant="success">Send</b-button>
+    <template v-if="!markReadySuccessful">
+      <b-button
+	type="savedraft"
+	variant="warning"
+	@click.stop.prevent="saveMessage('draft')"
+	>
+	Save draft
+      </b-button>
+      <b-button
+	type="send"
+	variant="success"
+	@click.stop.prevent="saveMessage('ready')"
+	>
+	Queue for sending
+      </b-button>
+    </template>
     <template v-if="saveDraftSuccessful">
       <p class="m-2 p-2 bg-success text-white">
 	The message draft was successfully saved.
       </p>
     </template>
-    <template v-else-if="saveDraftSuccessful === false">
+    <template v-else-if="markReadySuccessful">
+      <p class="m-2 p-2 bg-success text-white">
+	The message was successfully queued for sending.
+      </p>
+    </template>
+    <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
       <p class="m-2 p-2 bg-danger text-white">
 	The server responded with an error, please check and try again
       </p>
     </template>
+
     <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
+
   </b-form>
 </div>
 </template>
@@ -152,6 +171,7 @@ export default {
 	    response_body_json: null,
 	    saveDraftSuccessful: null,
 	    draftLastSaved: null,
+	    markReadySuccessful: null,
 	}
     },
     computed: {
@@ -166,7 +186,7 @@ export default {
 		.then(data => this.from_account_accesses = data.results)
 		.catch(error => console.error(error))
 	},
-	saveDraft () {
+	saveMessage (status) {
 	    fetch('/mail/api/composed_message/create',
 	    	  {
 	    	      method: 'POST',
@@ -175,6 +195,7 @@ export default {
 	    		  "Content-Type": "application/json; charset=utf-8"
 	    	      },
 	    	      body: JSON.stringify({
+			  'status': status,
 			  'from_account': this.form.from_account,
 			  'to_recipient': this.form.torecipient,
 			  // 'cc_recipients': this.form.cc,
@@ -187,12 +208,21 @@ export default {
 		.then(response => {
 		    this.response = response.clone()
 		    if (response.ok) {
-			this.saveDraftSuccessful = true
-		 	this.draftLastSaved = Date().toString()
+			if (status === 'draft') {
+			    this.saveDraftSuccessful = true
+		 	    this.draftLastSaved = Date().toString()
+			}
+			if (status === 'ready') {
+			    this.markReadySuccessful = true
+			}
 		    }
 	    	    if (!response.ok) {
-			this.saveDraftSuccessful = false
-	    	    	// throw new Error('HTTP error, status = ' + response.status);
+			if (status === 'draft') {
+			    this.saveDraftSuccessful = false
+			}
+			if (status === 'ready') {
+			    this.markReadySuccessful = false
+			}
 	    	    }
 		    return response.json()
 	    	})
