@@ -1,6 +1,51 @@
 <template>
 <div>
 
+  <b-modal
+    id="modal-resumedraft"
+    size="xl"
+    title="Rework draft"
+    hide-header-close
+    no-close-on-escape
+    no-close-on-backdrop
+    >
+    <message-composer :draftmessage="draftMessageSelected"></message-composer>
+    <template v-slot:modal-footer="{ cancel, }">
+      <b-button size="sm" variant="danger" @click="cancel()">
+	Cancel/close
+      </b-button>
+    </template>
+  </b-modal>
+
+
+  <div v-if="draftmessages">
+    <h2>Message drafts to complete</h2>
+    <table class="table">
+      <tr>
+	<th>From</th>
+	<th>To</th>
+	<th>Subject</th>
+	<th>Actions</th>
+      </tr>
+      <tr
+	v-for="draftmsg in draftmessages"
+	>
+	<td>{{ draftmsg.from_account }}</td>
+	<td>{{ draftmsg.to_recipient }}</td>
+	<td>{{ draftmsg.subject }}</td>
+	<td>
+	  <b-button
+	    @click="showReworkDraftModal(draftmsg)"
+	    variant="warning"
+	    >
+	    Rework draft
+	  </b-button>
+	</td>
+      </tr>
+    </table>
+  </div>
+
+
   <h2>Click on an account to view messages</h2>
 
   <table class="table">
@@ -233,17 +278,22 @@ import Cookies from 'js-cookie'
 
 import MessageContent from './MessageContent.vue'
 
+import MessageComposer from './MessageComposer.vue'
+
 var csrftoken = Cookies.get('csrftoken');
 
 export default {
     name: "messages-table",
     components: {
 	MessageContent,
+	MessageComposer,
     },
     data() {
 	return {
 	    accesses: null,
 	    accountSelected: null,
+	    draftmessages: null,
+	    draftMessageSelected: null,
 	    messages: [],
 	    perPage: 10,
 	    currentPage: 1,
@@ -288,6 +338,16 @@ export default {
 		.then(stream => stream.json())
 		.then(data => this.tags = data.results)
 		.catch(error => console.error(error))
+	},
+	fetchDrafts () {
+	    fetch('/mail/api/composed_messages?draft')
+		.then(stream => stream.json())
+		.then(data => this.draftmessages = data.results)
+		.catch(error => console.error(error))
+	},
+	showReworkDraftModal (draftmsg) {
+	    this.draftMessageSelected = draftmsg
+	    this.$bvModal.show('modal-resumedraft')
 	},
 	tagMessage (message, tag, action) {
 	    fetch('/mail/api/stored_message/' + message.uuid + '/tag',
@@ -361,6 +421,7 @@ export default {
     mounted() {
 	this.fetchAccounts()
 	this.fetchTags()
+	this.fetchDrafts()
     },
     watch: {
 	accountSelected: function () {

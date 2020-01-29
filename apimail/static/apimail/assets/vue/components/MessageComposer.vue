@@ -146,13 +146,17 @@ var csrftoken = Cookies.get('csrftoken');
 export default {
     name: "message-composer",
     props: {
+	draftmessage: {
+	    type: Object,
+	    required: false,
+	},
 	originalmessage: {
 	    type: Object,
 	    required: false,
 	},
 	action: {
 	    type: String,
-	    required: true,
+	    required: false,
 	},
     },
     data () {
@@ -232,7 +236,16 @@ export default {
     },
     mounted () {
 	this.fetchCurrentAccounts()
-      	if (this.originalmessage) {
+	if (this.draftmessage) {
+	    this.form.from_account = this.draftmessage.from_account
+	    this.form.torecipient = this.draftmessage.to_recipient
+	    this.form.cc = this.draftmessage.cc_recipients
+	    this.form.bcc = this.draftmessage.bcc_recipients
+	    this.form.subject = this.draftmessage.subject
+	    this.form.body = this.draftmessage.body_text
+	    this.form.sanitized_body_html = this.$sanitize(this.draftmessage.body_html)
+	}
+      	else if (this.originalmessage) {
 	    this.form.from_account = this.originalmessage.data.To
       	    this.form.body = ('\n\n<blockquote>\n')
 	    if (this.action == 'reply') {

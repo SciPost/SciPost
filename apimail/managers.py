@@ -15,6 +15,14 @@ class EmailAccountAccessQuerySet(models.QuerySet):
         return self.filter(rights='CRUD')
 
 
+class ComposedMessageQuerySet(models.QuerySet):
+    """
+    All ComposedMessage querysets are always filtered for the user.
+    """
+    def filter_for_user(self, user):
+        return self.filter(author=user)
+
+
 class StoredMessageQuerySet(models.QuerySet):
     """
     All StoredMessage querysets are always filtered for the user.

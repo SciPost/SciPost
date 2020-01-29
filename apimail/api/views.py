@@ -8,7 +8,9 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import (
+    CreateAPIView, ListAPIView,
+    RetrieveAPIView, UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import filters, status
@@ -62,6 +64,17 @@ class ComposedMessageCreateAPIView(CreateAPIView):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+class ComposedMessageListAPIView(ListAPIView):
+    serializer_class = ComposedMessageSerializer
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        queryset = ComposedMessage.objects.filter_for_user(self.request.user)
+        if self.request.query_params.get('draft', None):
+            queryset = queryset.filter(status=ComposedMessage.STATUS_DRAFT)
+        return queryset
 
 
 class EventListAPIView(ListAPIView):

@@ -9,6 +9,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 
+from ..managers import ComposedMessageQuerySet
+
 
 class ComposedMessage(models.Model):
     """
@@ -60,6 +62,8 @@ class ComposedMessage(models.Model):
 
     body_text = models.TextField()
     body_html = models.TextField(blank=True)
+
+    objects = ComposedMessageQuerySet.as_manager()
 
     def __str__(self):
         return '%s: %s (from %s to %s) [%s]' % (
