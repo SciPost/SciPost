@@ -55,7 +55,7 @@
     </table>
   </div>
 
-  <h2>Click on an account to view messages</h2>
+  <h2 class="m-2">Click on an account to view messages</h2>
 
   <table class="table">
     <tr>

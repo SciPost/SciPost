@@ -30,7 +30,7 @@
 	  >
 	  <b-form-input
 	    id="input-to-recipient"
-	    v-model="form.torecipient"
+	    v-model="form.to_recipient"
 	    type="email"
 	    required
 	    placeholder="Enter main recipient's email"
@@ -39,32 +39,26 @@
 	</b-form-group>
       </b-col>
     </b-row>
-    <b-form-group
-      id="cc"
-      label="cc:"
-      label-for="input-cc"
-      class="mb-2"
-      >
-      <b-form-input
-	id="input-cc"
-	v-model="form.cc"
-	type="email"
-	>
-      </b-form-input>
-    </b-form-group>
-    <b-form-group
-      id="bcc"
-      label="bcc:"
-      label-for="input-bcc"
-      class="mb-4"
-      >
-      <b-form-input
-	id="input-bcc"
-	v-model="form.bcc"
-	type="email"
-	>
-      </b-form-input>
-    </b-form-group>
+    <b-row>
+      <b-col class="col-lg-6">
+	<b-form-group
+	  id="cc"
+	  label="cc:"
+	  class="mb-4"
+	  >
+	  <email-list-editable :emails="form.cc_recipients" keyword="cc"></email-list-editable>
+	</b-form-group>
+      </b-col>
+      <b-col class="col-lg-6">
+	<b-form-group
+	  id="bcc"
+	  label="bcc:"
+	  class="mb-4"
+	  >
+	  <email-list-editable :emails="form.bcc_recipients" keyword="bcc"></email-list-editable>
+	</b-form-group>
+      </b-col>
+    </b-row>
     <b-form-group
       id="subject"
       label="Subject:"
@@ -141,10 +135,15 @@
 <script>
 import Cookies from 'js-cookie'
 
+import EmailListEditable from './EmailListEditable.vue'
+
 var csrftoken = Cookies.get('csrftoken');
 
 export default {
     name: "message-composer",
+    components: {
+	EmailListEditable,
+    },
     props: {
 	draftmessage: {
 	    type: Object,
@@ -163,13 +162,15 @@ export default {
 	return {
 	    form: {
 		from_account: null,
-		torecipient: '',
-		cc: '',
-		bcc: '',
+		to_recipient: '',
+		cc_recipients: [],
+		bcc_recipients: [],
 		subject: '',
 		body: '',
 		sanitized_body_html: '',
 	    },
+	    newcc: '',
+	    newbcc: '',
 	    from_account_accesses: [],
 	    response: null,
 	    response_body_json: null,
@@ -210,9 +211,9 @@ export default {
 	    	      body: JSON.stringify({
 			  'status': status,
 			  'from_account': this.form.from_account,
-			  'to_recipient': this.form.torecipient,
-			  // 'cc_recipients': this.form.cc,
-			  // 'bcc_recipients': this.form.bcc,
+			  'to_recipient': this.form.to_recipient,
+			  'cc_recipients': this.form.cc_recipients,
+			  'bcc_recipients': this.form.bcc_recipients,
 			  'subject': this.form.subject,
 			  'body_text': this.form.body,
 			  'body_html': this.form.sanitized_body_html,
@@ -247,9 +248,9 @@ export default {
 	this.fetchCurrentAccounts()
 	if (this.draftmessage) {
 	    this.form.from_account = this.draftmessage.from_account
-	    this.form.torecipient = this.draftmessage.to_recipient
-	    this.form.cc = this.draftmessage.cc_recipients
-	    this.form.bcc = this.draftmessage.bcc_recipients
+	    this.form.to_recipient = this.draftmessage.to_recipient
+	    this.form.cc_recipients = this.draftmessage.cc_recipients
+	    this.form.bcc_recipients = this.draftmessage.bcc_recipients
 	    this.form.subject = this.draftmessage.subject
 	    this.form.body = this.draftmessage.body_text
 	    this.form.sanitized_body_html = this.$sanitize(this.draftmessage.body_html)
@@ -258,8 +259,8 @@ export default {
 	    this.form.from_account = this.originalmessage.data.To
       	    this.form.body = ('\n\n<blockquote>\n')
 	    if (this.action == 'reply') {
-      		this.form.torecipient = this.originalmessage.data.sender
-		this.form.cc = this.originalmessage.data.recipients
+      		this.form.to_recipient = this.originalmessage.data.sender
+		this.form.cc_recipients = this.originalmessage.data.recipients.split(',')
 		this.form.subject = 'Re: ' + this.originalmessage.data.subject
 		this.form.body += ('On ' + this.originalmessage.datetimestamp +
 				   ', ' + this.originalmessage.data.from +
