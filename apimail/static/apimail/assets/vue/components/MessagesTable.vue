@@ -10,41 +10,50 @@
     no-close-on-backdrop
     >
     <message-composer :draftmessage="draftMessageSelected"></message-composer>
-    <template v-slot:modal-footer="{ cancel, }">
-      <b-button size="sm" variant="danger" @click="cancel()">
-	Cancel/close
+    <template v-slot:modal-footer="{ close, }">
+      <b-button size="sm" variant="danger" @click="close()">
+	Close
       </b-button>
     </template>
   </b-modal>
 
 
-  <div v-if="draftmessages">
+  <div v-if="draftMessages.length > 0" class="m-2 mb-4">
     <h2>Message drafts to complete</h2>
     <table class="table">
       <tr>
 	<th>From</th>
 	<th>To</th>
 	<th>Subject</th>
+	<th>Status</th>
 	<th>Actions</th>
       </tr>
       <tr
-	v-for="draftmsg in draftmessages"
+	v-for="draftmsg in draftMessages"
 	>
 	<td>{{ draftmsg.from_account }}</td>
 	<td>{{ draftmsg.to_recipient }}</td>
 	<td>{{ draftmsg.subject }}</td>
+	<td>{{ draftmsg.status }}</td>
 	<td>
 	  <b-button
 	    @click="showReworkDraftModal(draftmsg)"
+	    size="sm"
 	    variant="warning"
 	    >
 	    Rework draft
+	  </b-button>
+	  <b-button
+	    @click="deleteDraft(draftmsg.uuid)"
+	    size="sm"
+	    variant="danger"
+	    >
+	    Delete
 	  </b-button>
 	</td>
       </tr>
     </table>
   </div>
-
 
   <h2>Click on an account to view messages</h2>
 
@@ -292,8 +301,9 @@ export default {
 	return {
 	    accesses: null,
 	    accountSelected: null,
-	    draftmessages: null,
+	    draftMessages: [],
 	    draftMessageSelected: null,
+	    queuedMessages: null,
 	    messages: [],
 	    perPage: 10,
 	    currentPage: 1,
@@ -340,14 +350,30 @@ export default {
 		.catch(error => console.error(error))
 	},
 	fetchDrafts () {
-	    fetch('/mail/api/composed_messages?draft')
+	    fetch('/mail/api/composed_messages?status=draft')
 		.then(stream => stream.json())
-		.then(data => this.draftmessages = data.results)
+		.then(data => this.draftMessages = data.results)
 		.catch(error => console.error(error))
 	},
 	showReworkDraftModal (draftmsg) {
 	    this.draftMessageSelected = draftmsg
 	    this.$bvModal.show('modal-resumedraft')
+	},
+	deleteDraft (uuid) {
+	    fetch('/mail/api/composed_message/' + uuid + '/delete',
+		  {
+		      method: 'DELETE',
+		      headers: {
+			  "X-CSRFToken": csrftoken,
+		      }
+		  }
+		 )
+		.then(response => {
+		    if (response.ok) {
+			this.fetchDrafts()
+		    }
+		})
+		.catch(error => console.error(error))
 	},
 	tagMessage (message, tag, action) {
 	    fetch('/mail/api/stored_message/' + message.uuid + '/tag',
@@ -422,6 +448,9 @@ export default {
 	this.fetchAccounts()
 	this.fetchTags()
 	this.fetchDrafts()
+	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
+	    this.fetchDrafts()
+	})
     },
     watch: {
 	accountSelected: function () {

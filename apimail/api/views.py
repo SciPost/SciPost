@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from rest_framework.generics import (
-    CreateAPIView, ListAPIView,
+    CreateAPIView, DestroyAPIView, ListAPIView,
     RetrieveAPIView, UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -41,9 +41,9 @@ class UserEmailAccountAccessListAPIView(ListAPIView):
 
     def get_queryset(self):
         queryset = self.request.user.email_account_accesses.all()
-        if self.request.query_params.get('current', None):
+        if self.request.query_params.get('current', None) == 'true':
             queryset = queryset.current()
-        if self.request.query_params.get('cansend', None):
+        if self.request.query_params.get('cansend', None) == 'true':
             queryset = queryset.can_send()
         return queryset
 
@@ -66,13 +66,29 @@ class ComposedMessageCreateAPIView(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
+class ComposedMessageUpdateAPIView(UpdateAPIView):
+    queryset = ComposedMessage.objects.all()
+    serializer_class = ComposedMessageSerializer
+    lookup_field = 'uuid'
+
+
+class ComposedMessageDestroyAPIView(DestroyAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = ComposedMessageSerializer
+    lookup_field = 'uuid'
+
+    def get_queryset(self):
+        return ComposedMessage.objects.filter_for_user(self.request.user)
+
+
 class ComposedMessageListAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = ComposedMessageSerializer
     lookup_field = 'uuid'
 
     def get_queryset(self):
         queryset = ComposedMessage.objects.filter_for_user(self.request.user)
-        if self.request.query_params.get('draft', None):
+        if self.request.query_params.get('status', None) == 'draft':
             queryset = queryset.filter(status=ComposedMessage.STATUS_DRAFT)
         return queryset
 

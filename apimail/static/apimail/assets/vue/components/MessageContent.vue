@@ -25,9 +25,9 @@
 	    no-close-on-backdrop
 	    >
 	    <message-composer :originalmessage="message" action="reply"></message-composer>
-	    <template v-slot:modal-footer="{ cancel, }">
-	      <b-button size="sm" variant="danger" @click="cancel()">
-		Cancel/close
+	    <template v-slot:modal-footer="{ close, }">
+	      <b-button size="sm" variant="danger" @click="close()">
+		Close
 	      </b-button>
 	    </template>
 	  </b-modal>
@@ -49,9 +49,9 @@
 	    no-close-on-backdrop
 	    >
 	    <message-composer :originalmessage="message" action="forward"></message-composer>
-	    <template v-slot:modal-footer="{ cancel, }">
-	      <b-button variant="danger" @click="cancel()">
-		Cancel
+	    <template v-slot:modal-footer="{ close, }">
+	      <b-button variant="danger" @click="close()">
+		Close
 	      </b-button>
 	    </template>
 	  </b-modal>

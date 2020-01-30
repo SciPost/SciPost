@@ -32,6 +32,16 @@ urlpatterns = [
             apiviews.ComposedMessageCreateAPIView.as_view(),
             name='composed_message_create'
         ),
+        path( # /mail/api/composed_message/<uuid>/update
+            'composed_message/<uuid:uuid>/update',
+            apiviews.ComposedMessageUpdateAPIView.as_view(),
+            name='composed_message_update'
+        ),
+        path( # /mail/api/composed_message/<uuid>/delete
+            'composed_message/<uuid:uuid>/delete',
+            apiviews.ComposedMessageDestroyAPIView.as_view(),
+            name='composed_message_delete'
+        ),
         path( # /mail/api/composed_messages
             'composed_messages',
             apiviews.ComposedMessageListAPIView.as_view(),

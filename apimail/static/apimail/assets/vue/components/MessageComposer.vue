@@ -185,15 +185,24 @@ export default {
     },
     methods: {
 	fetchCurrentAccounts () {
-	    fetch('/mail/api/user_account_accesses?current&cansend')
+	    fetch('/mail/api/user_account_accesses?current=true&cansend=true')
 		.then(stream => stream.json())
 		.then(data => this.from_account_accesses = data.results)
 		.catch(error => console.error(error))
 	},
 	saveMessage (status) {
-	    fetch('/mail/api/composed_message/create',
+	    var url = '/mail/api/composed_message'
+	    var method = 'POST'
+	    if (this.draftmessage) { // draft message exists, update
+		url += '/' + this.draftmessage.uuid + '/update'
+		method = 'PATCH'
+	    }
+	    else {
+		url += '/create'
+	    }
+	    fetch(url,
 	    	  {
-	    	      method: 'POST',
+	    	      method: method,
 	    	      headers: {
 	    		  "X-CSRFToken": csrftoken,
 	    		  "Content-Type": "application/json; charset=utf-8"

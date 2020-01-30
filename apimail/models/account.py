@@ -53,7 +53,7 @@ class EmailAccountAccess(models.Model):
     date_from = models.DateField()
     date_until = models.DateField()
 
-    objects = EmailAccountAccessQuerySet()
+    objects = EmailAccountAccessQuerySet.as_manager()
 
     class Meta:
         ordering = ['account__email', 'user__last_name', '-date_until',]
