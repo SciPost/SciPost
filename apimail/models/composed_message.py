@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 import uuid as uuid_lib
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
 from django.utils import timezone
 
@@ -72,3 +72,19 @@ class ComposedMessage(models.Model):
             self.from_account.email,
             self.to_recipient,
             self.get_status_display())
+
+
+class ComposedMessageAPIResponse(models.Model):
+    """
+    Mailgun API response upon action on ComposedMessage.
+    """
+    message = models.ForeignKey(
+        'apimail.ComposedMessage',
+        on_delete=models.CASCADE,
+        related_name='api_responses')
+    datetime = models.DateTimeField(default=timezone.now)
+    status_code = models.PositiveSmallIntegerField()
+    json = JSONField(default=dict)
+
+    class Meta:
+        ordering = ['-datetime']

@@ -6,7 +6,7 @@ from django.contrib import admin
 
 from .models import (
     EmailAccount, EmailAccountAccess,
-    ComposedMessage,
+    ComposedMessage, ComposedMessageAPIResponse,
     Event,
     StoredMessage, StoredMessageAttachment,
     UserTag)
@@ -24,8 +24,13 @@ class EmailAccountAdmin(admin.ModelAdmin):
 admin.site.register(EmailAccount, EmailAccountAdmin)
 
 
+class ComposedMessageAPIResponseInline(admin.StackedInline):
+    model = ComposedMessageAPIResponse
+    extra = 0
+    min_num = 0
+
 class ComposedMessageAdmin(admin.ModelAdmin):
-    pass
+    inlines = [ComposedMessageAPIResponseInline,]
 
 admin.site.register(ComposedMessage, ComposedMessageAdmin)
 

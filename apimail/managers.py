@@ -22,6 +22,9 @@ class ComposedMessageQuerySet(models.QuerySet):
     def filter_for_user(self, user):
         return self.filter(author=user)
 
+    def ready(self):
+        return self.filter(status='ready')
+
 
 class StoredMessageQuerySet(models.QuerySet):
     """

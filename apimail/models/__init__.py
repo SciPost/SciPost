@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from .account import EmailAccount, EmailAccountAccess
 
-from .composed_message import ComposedMessage
+from .composed_message import ComposedMessage, ComposedMessageAPIResponse
 
 from .event import Event
 
