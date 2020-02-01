@@ -11,17 +11,19 @@ from django.utils import timezone
 from rest_framework.generics import (
     CreateAPIView, DestroyAPIView, ListAPIView,
     RetrieveAPIView, UpdateAPIView)
-from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import filters, status
 
 from ..models import (
-    EmailAccount, EmailAccountAccess,
     ComposedMessage,
     Event,
     StoredMessage, UserTag)
 
-from ..permissions import CanHandleStoredMessage
+from ..permissions import (
+    CanHandleComposedMessage,
+    CanHandleStoredMessage, CanReadStoredMessage)
+
 from .serializers import (
     EmailAccountSerializer, EmailAccountAccessSerializer,
     ComposedMessageSerializer,
@@ -36,7 +38,11 @@ class EmailAccountListAPIView(ListAPIView):
 
 
 class UserEmailAccountAccessListAPIView(ListAPIView):
-    """ListAPIView returning request.user's email account accesses."""
+    """
+    ListAPIView returning request.user's email account accesses.
+    """
+
+    permission_classes = (IsAuthenticated,)
     serializer_class = EmailAccountAccessSerializer
 
     def get_queryset(self):
@@ -49,14 +55,14 @@ class UserEmailAccountAccessListAPIView(ListAPIView):
 
 
 class ComposedMessageCreateAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = ComposedMessage.objects.all()
     serializer_class = ComposedMessageSerializer
     lookup_field = 'uuid'
 
     def create(self, request, *args, **kwargs):
         # Override rest_framework.mixins.CreateModelMixin.create
-        # in order to include request.user in data and link an
-        # active account
+        # in order to include request.user in data
         data = request.data
         data['author'] = request.user.id
         serializer = self.get_serializer(data=data)
@@ -67,13 +73,14 @@ class ComposedMessageCreateAPIView(CreateAPIView):
 
 
 class ComposedMessageUpdateAPIView(UpdateAPIView):
+    permission_classes = (IsAuthenticated, CanHandleComposedMessage,)
     queryset = ComposedMessage.objects.all()
     serializer_class = ComposedMessageSerializer
     lookup_field = 'uuid'
 
 
 class ComposedMessageDestroyAPIView(DestroyAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated, CanHandleComposedMessage,)
     serializer_class = ComposedMessageSerializer
     lookup_field = 'uuid'
 
@@ -94,15 +101,15 @@ class ComposedMessageListAPIView(ListAPIView):
 
 
 class EventListAPIView(ListAPIView):
-    queryset = Event.objects.all()
     permission_classes = (IsAdminUser,)
+    queryset = Event.objects.all()
     serializer_class = EventSerializer
     lookup_field = 'uuid'
 
 
 class EventRetrieveAPIView(RetrieveAPIView):
-    queryset = Event.objects.all()
     permission_classes = (IsAdminUser,)
+    queryset = Event.objects.all()
     serializer_class = EventSerializer
     lookup_field = 'uuid'
 
@@ -111,6 +118,7 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
     """
     Filter that only allows users to see their own objects.
     """
+
     def filter_queryset(self, request, queryset, view):
         queryset = StoredMessage.objects.all()
         queryfilter = Q()
@@ -167,24 +175,26 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
 
 
 class StoredMessageListAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = StoredMessage.objects.all()
-    permission_classes = (IsAdminUser,)
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
     filter_backends = [StoredMessageFilterBackend,]
 
 
 class StoredMessageRetrieveAPIView(RetrieveAPIView):
-    permission_classes = (IsAdminUser,)
+    permission_classes = (IsAuthenticated, CanReadStoredMessage,)
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
-    filter_backends = [StoredMessageFilterBackend,]
 
 
 class StoredMessageUpdateReadAPIView(UpdateAPIView):
-    """Updates the read field (M2M to user) in StoredMessage."""
+    """
+    Updates the read field (M2M to user) in StoredMessage.
+    """
+
+    permission_classes = (IsAuthenticated, CanReadStoredMessage,)
     queryset = StoredMessage.objects.all()
-    permission_classes = (IsAdminUser,)
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
     filter_backends = [StoredMessageFilterBackend,]
@@ -197,6 +207,7 @@ class StoredMessageUpdateReadAPIView(UpdateAPIView):
 
 
 class UserTagListAPIView(ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = UserTagSerializer
 
     def get_queryset(self):
@@ -204,9 +215,12 @@ class UserTagListAPIView(ListAPIView):
 
 
 class StoredMessageUpdateTagAPIView(UpdateAPIView):
-    """Adds or removes a user tag on a StoredMessage."""
-    queryset = StoredMessage.objects.all()
+    """
+    Adds or removes a user tag on a StoredMessage.
+    """
+
     permission_classes = [IsAuthenticated, CanHandleStoredMessage]
+    queryset = StoredMessage.objects.all()
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
 
