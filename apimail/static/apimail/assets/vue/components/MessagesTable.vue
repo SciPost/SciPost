@@ -85,9 +85,18 @@
       <b-row>
 	<b-col class="col-lg-6">
 	  <h2>Messages for <strong>{{ accountSelected }}</strong></h2>
+	  <small>Last loaded: {{ lastLoaded }}</small>&emsp;
+	  <b-button
+	    class="p-1"
+	    size="sm"
+	    variant="dark"
+	    @click="refreshMessages"
+	    >
+	    Refresh
+	  </b-button>
 	</b-col>
 	<b-col class="col-lg-2">
-	  <b-badge variant="primary">{{ totalRows }} total</b-badge>
+	  <b-badge variant="primary" class="p-2">{{ totalRows }} messages</b-badge>
 	</b-col>
 	<b-col class="col-lg-4">
 	  <b-pagination
@@ -211,12 +220,12 @@
       :per-page="perPage"
       :current-page="currentPage"
       >
-      <!-- <template v-slot:table-busy> -->
-      <!-- 	<div class="text-center text-primary my-2"> -->
-      <!-- 	  <b-spinner class="align-middle"></b-spinner> -->
-      <!-- 	  <strong>Loading...</strong> -->
-      <!-- 	</div> -->
-      <!-- </template> -->
+      <template v-slot:table-busy>
+      	<div class="text-center text-primary my-2">
+      	  <b-spinner class="align-middle"></b-spinner>
+      	  <strong>Loading...</strong>
+      	</div>
+      </template>
       <template v-slot:head(tags)="row">
 	Tags<br><small class="text-muted">click to remove</small>
       </template>
@@ -308,6 +317,7 @@ export default {
 	    perPage: 10,
 	    currentPage: 1,
 	    totalRows: 1,
+	    lastLoaded: null,
 	    fields: [
 		{ key: 'actions', label: '' },
 		{ key: 'read', label: '' },
@@ -431,6 +441,9 @@ export default {
 	    }
 	    const promise = fetch('/mail/api/stored_messages' + params)
 
+	    var now = new Date()
+	    this.lastLoaded = now.toISOString()
+
 	    return promise.then(stream => stream.json())
 		.then(data => {
 		    const items = data.results
@@ -438,6 +451,12 @@ export default {
 		    // this.messages = items || []
 		    return items || []
 		})
+	},
+	refreshMessages () {
+	    this.messagesProvider({
+		'perPage': this.perPage,
+		'currentPage': this.currentPage
+	    })
 	},
 	onFiltered(filteredItems) {
             this.totalRows = filteredItems.length
