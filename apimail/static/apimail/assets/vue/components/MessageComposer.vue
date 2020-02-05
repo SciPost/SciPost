@@ -60,6 +60,13 @@
       </b-col>
     </b-row>
     <b-form-group
+      id="attachments"
+      label="attachments:"
+      class="mb-4"
+      >
+      <attachment-list-editable :attachments="form.attachments"></attachment-list-editable>
+    </b-form-group>
+    <b-form-group
       id="subject"
       label="Subject:"
       label-for="input-subject"
@@ -136,12 +143,14 @@
 import Cookies from 'js-cookie'
 
 import EmailListEditable from './EmailListEditable.vue'
+import AttachmentListEditable from './AttachmentListEditable.vue'
 
 var csrftoken = Cookies.get('csrftoken');
 
 export default {
     name: "message-composer",
     components: {
+	AttachmentListEditable,
 	EmailListEditable,
     },
     props: {
@@ -168,9 +177,11 @@ export default {
 		subject: '',
 		body: '',
 		sanitized_body_html: '',
+		attachments: [],
 	    },
 	    newcc: '',
 	    newbcc: '',
+	    newattachment: null,
 	    from_account_accesses: [],
 	    response: null,
 	    response_body_json: null,
