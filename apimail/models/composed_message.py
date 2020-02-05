@@ -7,9 +7,13 @@ import uuid as uuid_lib
 from django.conf import settings
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 
+from scipost.storage import SecureFileStorage
+
 from ..managers import ComposedMessageQuerySet
+from ..validators import validate_max_email_attachment_file_size
 
 
 class ComposedMessage(models.Model):
@@ -88,3 +92,19 @@ class ComposedMessageAPIResponse(models.Model):
 
     class Meta:
         ordering = ['-datetime']
+
+
+class ComposedMessageAttachment(models.Model):
+    message = models.ForeignKey(
+        'apimail.ComposedMessage',
+        on_delete=models.CASCADE,
+        related_name='attachments'
+    )
+    _file = models.FileField(
+        upload_to='uploads/mail/composed_messages/attachments/%Y/%m/%d/',
+        validators=[validate_max_email_attachment_file_size,],
+        storage=SecureFileStorage())
+
+    def get_absolute_url(self):
+        return reverse('apimail:composed_message_attachment',
+                       kwargs={'uuid': self.message.uuid, 'pk': self.id})

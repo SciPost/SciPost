@@ -7,12 +7,19 @@ import mimetypes
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
-from .models import StoredMessage, StoredMessageAttachment
+from .models import ComposedMessageAttachment, StoredMessageAttachment
 
 
 def attachment_file(request, uuid, pk):
-    att = get_object_or_404(StoredMessageAttachment,
-                            message__uuid=uuid, id=pk)
+    """
+    Return an attachment to either a Composed Message or a StoredMessage.
+    """
+    try:
+        att = ComposedMessageAttachment.objects.get(
+            message__uuid=uuid, id=pk)
+    except ComposedMessageAttachment.DoesNotExist:
+        att = get_object_or_404(StoredMessageAttachment,
+                                message__uuid=uuid, id=pk)
     content_type, encoding = mimetypes.guess_type(att._file.path)
     content_type = content_type or 'application/octet-stream'
     response = HttpResponse(att._file.read(), content_type=content_type)
