@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from ..models import (
     EmailAccount, EmailAccountAccess,
-    ComposedMessage,
+    ComposedMessage, ComposedMessageAttachment,
     Event,
     StoredMessage, StoredMessageAttachment,
     UserTag)
@@ -29,12 +29,43 @@ class EmailAccountAccessSerializer(serializers.ModelSerializer):
         fields = ['account', 'rights', 'date_from', 'date_until']
 
 
+class ComposedMessageAttachmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ComposedMessageAttachment
+        fields = ['message', '_file']
+        read_only_fields = ['message']
+
+
+class ComposedMessageAttachmentLinkSerializer(serializers.ModelSerializer):
+    link = serializers.CharField(source='get_absolute_url', read_only=True)
+
+    class Meta:
+        model = ComposedMessageAttachment
+        fields = ['message', '_file', 'link']
+        read_only_fields = ['message', '_file', 'link']
+
+
 class ComposedMessageSerializer(serializers.ModelSerializer):
+    attachments = ComposedMessageAttachmentLinkSerializer(many=True, read_only=True)
+
     class Meta:
         model = ComposedMessage
         fields = ['uuid', 'author', 'created_on', 'status',
                   'from_account', 'to_recipient', 'cc_recipients', 'bcc_recipients',
-                  'subject', 'body_text', 'body_html']
+                  'subject', 'body_text', 'body_html',
+                  'attachments'
+        ]
+
+    def create(self, validated_data):
+        print("Here1")
+        cm = super().create(validated_data)
+        print("Here2")
+        return cm
+
+    def update(self, instance, validated_data):
+        cm = super().update(instance, validated_data)
+        return cm
 
 
 class EventSerializer(serializers.ModelSerializer):

@@ -11,12 +11,13 @@ from django.utils import timezone
 from rest_framework.generics import (
     CreateAPIView, DestroyAPIView, ListAPIView,
     RetrieveAPIView, UpdateAPIView)
+from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import filters, status
 
 from ..models import (
-    ComposedMessage,
+    ComposedMessage, ComposedMessageAttachment,
     Event,
     StoredMessage, UserTag)
 
@@ -26,7 +27,7 @@ from ..permissions import (
 
 from .serializers import (
     EmailAccountSerializer, EmailAccountAccessSerializer,
-    ComposedMessageSerializer,
+    ComposedMessageSerializer, ComposedMessageAttachmentSerializer,
     EventSerializer,
     StoredMessageSerializer,
     UserTagSerializer)
@@ -98,6 +99,22 @@ class ComposedMessageListAPIView(ListAPIView):
         if self.request.query_params.get('status', None) == 'draft':
             queryset = queryset.filter(status=ComposedMessage.STATUS_DRAFT)
         return queryset
+
+
+class ComposedMessageAttachmentCreateView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = ComposedMessageAttachment.objects.all()
+    serializer_class = ComposedMessageAttachmentSerializer
+    parser_classes = [FormParser, MultiPartParser,]
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        data['message'] = None
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class EventListAPIView(ListAPIView):

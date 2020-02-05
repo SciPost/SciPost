@@ -64,7 +64,8 @@
       label="attachments:"
       class="mb-4"
       >
-      <attachment-list-editable :attachments="form.attachments"></attachment-list-editable>
+      <attachment-list-editable
+	:attachments="form.attachments"></attachment-list-editable>
     </b-form-group>
     <b-form-group
       id="subject"
@@ -121,6 +122,8 @@
       <p class="m-2 p-2 bg-success text-white">
 	The message draft was successfully saved.
       </p>
+      <p>JSON: {{ response_body_json }}</p>
+      <p>Draft: {{ draftmessage }}</p>
     </template>
     <template v-else-if="markReadySuccessful">
       <p class="m-2 p-2 bg-success text-white">
@@ -169,6 +172,7 @@ export default {
     },
     data () {
 	return {
+	    currentdraft_uuid: null,
 	    form: {
 		from_account: null,
 		to_recipient: '',
@@ -179,9 +183,6 @@ export default {
 		sanitized_body_html: '',
 		attachments: [],
 	    },
-	    newcc: '',
-	    newbcc: '',
-	    newattachment: null,
 	    from_account_accesses: [],
 	    response: null,
 	    response_body_json: null,
@@ -205,8 +206,8 @@ export default {
 	saveMessage (status) {
 	    var url = '/mail/api/composed_message'
 	    var method = 'POST'
-	    if (this.draftmessage) { // draft message exists, update
-		url += '/' + this.draftmessage.uuid + '/update'
+	    if (this.currentdraft_uuid) { // draft message exists, update
+		url += '/' + this.currentdraft_uuid + '/update'
 		method = 'PATCH'
 	    }
 	    else {
@@ -228,6 +229,7 @@ export default {
 			  'subject': this.form.subject,
 			  'body_text': this.form.body,
 			  'body_html': this.form.sanitized_body_html,
+			  'attachments': this.form.attachments
 	    	      })
 	    	  })
 		.then(response => {
@@ -251,13 +253,17 @@ export default {
 	    	    }
 		    return response.json()
 	    	})
-		.then(responsejson => this.response_body_json = responsejson)
+		.then(responsejson => {
+		    this.response_body_json = responsejson
+		    this.currentdraft_uuid = responsejson.uuid
+		})
 		.catch(error => console.error(error))
 	}
     },
     mounted () {
 	this.fetchCurrentAccounts()
 	if (this.draftmessage) {
+	    this.currentdraft_uuid = this.draftmessage.uuid
 	    this.form.from_account = this.draftmessage.from_account
 	    this.form.to_recipient = this.draftmessage.to_recipient
 	    this.form.cc_recipients = this.draftmessage.cc_recipients
@@ -289,7 +295,7 @@ export default {
 	    this.form.body += (this.originalmessage.data["body-plain"] +
 			       '\n</blockquote>')
       	}
-    }
+    },
 }
 </script>
 
