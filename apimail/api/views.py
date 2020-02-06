@@ -57,6 +57,13 @@ class UserEmailAccountAccessListAPIView(ListAPIView):
         return queryset
 
 
+class AttachmentFileCreateAPIView(CreateAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = AttachmentFile.objects.all()
+    serializer_class = AttachmentFileSerializer
+    parser_classes = [FormParser, MultiPartParser,]
+
+
 class ComposedMessageCreateAPIView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = ComposedMessage.objects.all()
@@ -101,13 +108,6 @@ class ComposedMessageListAPIView(ListAPIView):
         if self.request.query_params.get('status', None) == 'draft':
             queryset = queryset.filter(status=ComposedMessage.STATUS_DRAFT)
         return queryset
-
-
-class AttachmentFileCreateView(CreateAPIView):
-    permission_classes = (IsAuthenticated,)
-    queryset = AttachmentFile.objects.all()
-    serializer_class = AttachmentFileSerializer
-    parser_classes = [FormParser, MultiPartParser,]
 
 
 class EventListAPIView(ListAPIView):

@@ -13,7 +13,7 @@
 	  variant="secondary"
 	  @click="addNewAttachment"
 	  >
-	  Add this attachment to your message
+	  Upload this attachment and add it to your message
 	</b-button>
       </div>
     </b-col>
@@ -36,10 +36,13 @@
 </template>
 
 <script>
+import Cookies from 'js-cookie'
 
-  import AttachmentListItem from './AttachmentListItem.vue'
+import AttachmentListItem from './AttachmentListItem.vue'
 
-  export default {
+var csrftoken = Cookies.get('csrftoken');
+
+export default {
       name: "attachment-list-editable",
       components: {
 	  AttachmentListItem,
@@ -58,8 +61,28 @@
       methods: {
 	  addNewAttachment () {
 	      if (this.newAttachment) {
-		  this.attachments.push(this.newAttachment)
-		  this.newAttachment = null
+		  let formData = new FormData();
+		  formData.append('data', JSON.stringify({
+		      'size': this.newAttachment.size,
+		      'name': this.newAttachment.name,
+		      'content-type': this.newAttachment.type,
+		      'url': null
+		  }))
+		  formData.append('file', this.newAttachment)
+		  fetch('/mail/api/attachment_file/create',
+			{
+			    method: 'POST',
+			    headers: {
+				"X-CSRFToken": csrftoken,
+			    },
+			    body: formData
+			})
+		      .then(response => response.json())
+		      .then(data => {
+			  this.attachments.push(data)
+			  this.newAttachment = null
+		      })
+		      .catch(error => console.error(error))
 	      }
 	  }
       },

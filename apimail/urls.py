@@ -27,6 +27,11 @@ urlpatterns = [
             apiviews.UserEmailAccountAccessListAPIView.as_view(),
             name='user_account_accesses'
         ),
+        path( # /mail/api/attachment_file/create
+            'attachment_file/create',
+            apiviews.AttachmentFileCreateAPIView.as_view(),
+            name='attachment_file_create'
+        ),
         path( # /mail/api/composed_message/create
             'composed_message/create',
             apiviews.ComposedMessageCreateAPIView.as_view(),
