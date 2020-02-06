@@ -87,10 +87,10 @@
     </b-card-text>
     <template v-slot:footer>
       <div class="text-dark">
-	<div v-if="message.attachments">
+	<div v-if="message.attachment_files">
 	  <h3>Attachments:</h3>
 	  <ul>
-	    <li v-for="att in message.attachments">
+	    <li v-for="att in message.attachment_files">
 	      <a :href="att.link" target="_blank" class="text-primary">{{ att.data.name }}</a>
 	      &emsp;{{ att.data["content-type"] }}&nbsp;({{ att.data.size }} b)
 	    </li>

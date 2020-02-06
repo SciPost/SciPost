@@ -17,7 +17,8 @@ from rest_framework.response import Response
 from rest_framework import filters, status
 
 from ..models import (
-    ComposedMessage, ComposedMessageAttachment,
+    AttachmentFile,
+    ComposedMessage,
     Event,
     StoredMessage, UserTag)
 
@@ -27,7 +28,8 @@ from ..permissions import (
 
 from .serializers import (
     EmailAccountSerializer, EmailAccountAccessSerializer,
-    ComposedMessageSerializer, ComposedMessageAttachmentSerializer,
+    AttachmentFileSerializer,
+    ComposedMessageSerializer,
     EventSerializer,
     StoredMessageSerializer,
     UserTagSerializer)
@@ -101,20 +103,11 @@ class ComposedMessageListAPIView(ListAPIView):
         return queryset
 
 
-class ComposedMessageAttachmentCreateView(CreateAPIView):
+class AttachmentFileCreateView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
-    queryset = ComposedMessageAttachment.objects.all()
-    serializer_class = ComposedMessageAttachmentSerializer
+    queryset = AttachmentFile.objects.all()
+    serializer_class = AttachmentFileSerializer
     parser_classes = [FormParser, MultiPartParser,]
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        data['message'] = None
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class EventListAPIView(ListAPIView):

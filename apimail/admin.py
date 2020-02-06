@@ -6,9 +6,10 @@ from django.contrib import admin
 
 from .models import (
     EmailAccount, EmailAccountAccess,
-    ComposedMessage, ComposedMessageAPIResponse, ComposedMessageAttachment,
+    AttachmentFile,
+    ComposedMessage, ComposedMessageAPIResponse,
     Event,
-    StoredMessage, StoredMessageAttachment,
+    StoredMessage,
     UserTag)
 
 
@@ -24,22 +25,23 @@ class EmailAccountAdmin(admin.ModelAdmin):
 admin.site.register(EmailAccount, EmailAccountAdmin)
 
 
+admin.site.register(AttachmentFile)
+
+
+class AttachmentFileInline(admin.StackedInline):
+    model = AttachmentFile
+    extra = 0
+    min_num = 0
+
+
 class ComposedMessageAPIResponseInline(admin.StackedInline):
     model = ComposedMessageAPIResponse
     extra = 0
     min_num = 0
 
 
-class ComposedMessageAttachmentInline(admin.StackedInline):
-    model = ComposedMessageAttachment
-    extra = 0
-    min_num = 0
-
-
 class ComposedMessageAdmin(admin.ModelAdmin):
-    inlines = [
-        ComposedMessageAttachmentInline,
-        ComposedMessageAPIResponseInline,]
+    inlines = [ComposedMessageAPIResponseInline,]
 
 admin.site.register(ComposedMessage, ComposedMessageAdmin)
 
@@ -50,14 +52,8 @@ class EventAdmin(admin.ModelAdmin):
 admin.site.register(Event, EventAdmin)
 
 
-class StoredMessageAttachmentInline(admin.StackedInline):
-    model = StoredMessageAttachment
-    extra = 0
-    min_num = 0
-
-
 class StoredMessageAdmin(admin.ModelAdmin):
-    inlines = [StoredMessageAttachmentInline,]
+    pass
 
 admin.site.register(StoredMessage, StoredMessageAdmin)
 

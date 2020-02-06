@@ -67,6 +67,10 @@ class ComposedMessage(models.Model):
     body_text = models.TextField()
     body_html = models.TextField(blank=True)
 
+    attachment_files = models.ManyToManyField(
+        'apimail.AttachmentFile',
+        blank=True)
+
     objects = ComposedMessageQuerySet.as_manager()
 
     def __str__(self):
@@ -92,19 +96,3 @@ class ComposedMessageAPIResponse(models.Model):
 
     class Meta:
         ordering = ['-datetime']
-
-
-class ComposedMessageAttachment(models.Model):
-    message = models.ForeignKey(
-        'apimail.ComposedMessage',
-        on_delete=models.CASCADE,
-        related_name='attachments'
-    )
-    _file = models.FileField(
-        upload_to='uploads/mail/composed_messages/attachments/%Y/%m/%d/',
-        validators=[validate_max_email_attachment_file_size,],
-        storage=SecureFileStorage())
-
-    def get_absolute_url(self):
-        return reverse('apimail:composed_message_attachment',
-                       kwargs={'uuid': self.message.uuid, 'pk': self.id})

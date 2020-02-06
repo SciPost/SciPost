@@ -92,9 +92,9 @@ urlpatterns = [
         TemplateView.as_view(template_name='apimail/message_list.html'),
         name='message_list'
     ),
-    path( # /mail/message/<uuid>/attachments/<int>
-        'message/<uuid:uuid>/attachments/<int:pk>',
+    path( # /mail/attachment_file/<uuid>
+        'attachment_file/<uuid:uuid>',
         views.attachment_file,
-        name='message_attachment'
+        name='attachment_file'
     ),
 ]

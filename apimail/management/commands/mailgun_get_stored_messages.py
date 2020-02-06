@@ -12,7 +12,10 @@ from django.core.files import File
 from django.core.management import BaseCommand
 
 from ...exceptions import APIMailError
-from ...models import Event, StoredMessage, StoredMessageAttachment
+from ...models import (
+    AttachmentFile,
+    Event,
+    StoredMessage)
 
 
 class Command(BaseCommand):
@@ -63,9 +66,9 @@ class Command(BaseCommand):
                         for chunk in r.iter_content(chunk_size=8192):
                             tf.write(chunk)
                         tf.seek(0)
-                        sma = StoredMessageAttachment.objects.create(
-                            message=sm, data=att_item)
-                        sma._file.save(att_item['name'], File(tf))
+                        af = AttachmentFile.objects.create(data=att_item)
+                        af.file.save(att_item['name'], File(tf))
+                        sm.attachment_files.add(af)
 
                 # Finally add a FK relation to any event associated to this new message
                 msgid = (sm.data['Message-Id'].lstrip('<')).rstrip('>')

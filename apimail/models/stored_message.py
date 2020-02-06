@@ -34,6 +34,9 @@ class StoredMessage(models.Model):
         'apimail.UserTag',
         blank=True,
         related_name='messages')
+    attachment_files = models.ManyToManyField(
+        'apimail.AttachmentFile',
+        blank=True)
 
     objects = StoredMessageQuerySet.as_manager()
 
@@ -49,20 +52,3 @@ class StoredMessage(models.Model):
 
     def get_absolute_url_api(self):
         return reverse('apimail:api_stored_message_retrieve', kwargs={'uuid': self.uuid})
-
-
-class StoredMessageAttachment(models.Model):
-    message = models.ForeignKey(
-        'apimail.StoredMessage',
-        on_delete=models.CASCADE,
-        related_name='attachments' # doesn't collide with StoredMessage.data.attachments
-    )
-    data = JSONField(default=dict)
-    _file = models.FileField(
-        upload_to='uploads/mail/stored_messages/attachments/%Y/%m/%d/',
-        validators=[validate_max_email_attachment_file_size,],
-        storage=SecureFileStorage())
-
-    def get_absolute_url(self):
-        return reverse('apimail:message_attachment',
-                       kwargs={'uuid': self.message.uuid, 'pk': self.id})
