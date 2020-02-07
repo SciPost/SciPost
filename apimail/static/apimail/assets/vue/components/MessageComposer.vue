@@ -65,7 +65,8 @@
       class="mb-4"
       >
       <attachment-list-editable
-	:attachments="form.attachments"></attachment-list-editable>
+	:attachments="form.attachments">
+      </attachment-list-editable>
     </b-form-group>
     <b-form-group
       id="subject"
@@ -122,8 +123,6 @@
       <p class="m-2 p-2 bg-success text-white">
 	The message draft was successfully saved.
       </p>
-      <p>JSON: {{ response_body_json }}</p>
-      <p>Draft: {{ draftmessage }}</p>
     </template>
     <template v-else-if="markReadySuccessful">
       <p class="m-2 p-2 bg-success text-white">
@@ -132,7 +131,8 @@
     </template>
     <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
       <p class="m-2 p-2 bg-danger text-white">
-	The server responded with an error, please check and try again
+	The server responded with an error, please check and try again.<br>
+	{{ response_body_json }}
       </p>
     </template>
 
@@ -213,6 +213,10 @@ export default {
 	    else {
 		url += '/create'
 	    }
+	    var attachment_uuids = []
+	    this.form.attachments.forEach( function(att) {
+		attachment_uuids.push(att.uuid)
+	    })
 	    fetch(url,
 	    	  {
 	    	      method: method,
@@ -229,7 +233,7 @@ export default {
 			  'subject': this.form.subject,
 			  'body_text': this.form.body,
 			  'body_html': this.form.sanitized_body_html,
-			  'attachments': this.form.attachments
+			  'attachment_uuids': attachment_uuids
 	    	      })
 	    	  })
 		.then(response => {
@@ -271,6 +275,7 @@ export default {
 	    this.form.subject = this.draftmessage.subject
 	    this.form.body = this.draftmessage.body_text
 	    this.form.sanitized_body_html = this.$sanitize(this.draftmessage.body_html)
+	    this.form.attachments = this.draftmessage.attachment_files
 	}
       	else if (this.originalmessage) {
 	    this.form.from_account = this.originalmessage.data.To
@@ -291,6 +296,7 @@ export default {
 				   '\nDate: ' + this.originalmessage.datetimestamp +
 				   '\nTo: ' + this.originalmessage.data.To +
 				   '\n\n')
+		this.form.attachments = this.originalmessage.attachment_files
 	    }
 	    this.form.body += (this.originalmessage.data["body-plain"] +
 			       '\n</blockquote>')

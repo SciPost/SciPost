@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
+from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
     CreateAPIView, DestroyAPIView, ListAPIView,
     RetrieveAPIView, UpdateAPIView)
@@ -87,6 +88,18 @@ class ComposedMessageUpdateAPIView(UpdateAPIView):
     queryset = ComposedMessage.objects.all()
     serializer_class = ComposedMessageSerializer
     lookup_field = 'uuid'
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = request.data
+        for att_uuid in data['attachment_uuids']:
+            try:
+                att = AttachmentFile.objects.get(uuid=att_uuid)
+                instance.attachment_files.remove(att)
+                instance.attachment_files.add(att)
+            except AttachmentFile.DoesNotExist:
+                raise NotFound(detail=('An attachment file with uuid %s was not found.' % att_uuid))
+        return super().partial_update(request, *args, **kwargs)
 
 
 class ComposedMessageDestroyAPIView(DestroyAPIView):
