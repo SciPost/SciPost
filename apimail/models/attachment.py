@@ -29,6 +29,9 @@ class AttachmentFile(models.Model):
         validators=[validate_max_email_attachment_file_size,],
         storage=SecureFileStorage())
 
+    def __str__(self):
+        return '%s (%s, %s)' % (self.data['name'], self.data['content-type'], self.file.size)
+
     def get_absolute_url(self):
         return reverse('apimail:attachment_file',
                        kwargs={'uuid': self.uuid})
