@@ -28,9 +28,13 @@ class Command(BaseCommand):
             if msg.bcc_recipients:
                 data['bcc'] = msg.bcc_recipients
 
+            files = [('attachment', (att.data['name'], att.file.read()))
+                     for att in msg.attachment_files.all()]
+
             response = requests.post(
                 "https://api.eu.mailgun.net/v3/%s/messages" % settings.MAILGUN_DOMAIN_NAME,
                 auth=("api", settings.MAILGUN_API_KEY),
+                files=files,
                 data=data)
 
             msgr = ComposedMessageAPIResponse(
