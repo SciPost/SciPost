@@ -8,7 +8,7 @@ from rest_framework import serializers
 from ..models import (
     AttachmentFile,
     EmailAccount, EmailAccountAccess,
-    ComposedMessage,
+    ComposedMessage, ComposedMessageAPIResponse,
     Event,
     StoredMessage,
     UserTag)
@@ -38,15 +38,27 @@ class AttachmentFileSerializer(serializers.ModelSerializer):
         fields = ['uuid', 'data', 'file', 'link']
 
 
+class ComposedMessageAPIResponseSerializer(serializers.ModelSerializer):
+    message_uuid = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ComposedMessageAPIResponse
+        fields = ['message_uuid', 'datetime', 'status_code', 'json']
+
+    def get_message_uuid(self, obj):
+        return obj.message.uuid
+
+
 class ComposedMessageSerializer(serializers.ModelSerializer):
     attachment_files = AttachmentFileSerializer(many=True, read_only=True)
+    api_responses = ComposedMessageAPIResponseSerializer(many=True, read_only=True)
 
     class Meta:
         model = ComposedMessage
         fields = ['uuid', 'author', 'created_on', 'status',
                   'from_account', 'to_recipient', 'cc_recipients', 'bcc_recipients',
                   'subject', 'body_text', 'body_html',
-                  'attachment_files'
+                  'attachment_files', 'api_responses'
         ]
 
     def create(self, validated_data):
