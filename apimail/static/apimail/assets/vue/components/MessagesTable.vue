@@ -121,6 +121,19 @@
 	    aria-controls="my-table"
 	    >
 	  </b-pagination>
+	  <b-form-group
+	    label="Per page:"
+	    label-cols-sm="3"
+	    label-align-sm="right"
+	    label-size="sm"
+	    >
+	    <b-form-radio-group
+	      v-model="perPage"
+	      :options="perPageOptions"
+	      class="float-center"
+	      >
+	    </b-form-radio-group>
+	  </b-form-group>
 	</b-col>
       </b-row>
       <hr>
@@ -313,7 +326,8 @@ export default {
 	    draftMessageSelected: null,
 	    queuedMessages: null,
 	    messages: [],
-	    perPage: 10,
+	    perPage: 8,
+	    perPageOptions: [ 8, 16, 32 ],
 	    currentPage: 1,
 	    totalRows: 1,
 	    lastLoaded: null,
