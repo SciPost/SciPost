@@ -248,10 +248,15 @@
       <template v-slot:cell(actions)="row">
       	<b-button
       	  size="sm"
-      	  variant="primary"
+      	  variant="secondary"
       	  @click="row.toggleDetails"
       	  >
-          {{ row.detailsShowing ? 'Hide' : 'Show' }}
+          <span v-if="row.detailsShowing">
+	    <i class="fa fa-angle-down"></i>
+	  </span>
+	  <span v-else>
+	    <i class="fa fa-angle-right"></i>
+	  </span>
       	</b-button>
       </template>
       <template v-slot:row-details="row">

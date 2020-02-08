@@ -68,7 +68,7 @@
 		{{ tag.unicode_symbol }}
 	      </b-button>
 	    </li>
-	    <li class="list-inline-item float-right mx-1">
+	    <li class="list-inline-item float-right mx-2">
 	      <b-button
 		size="sm"
 		v-b-modal="'modal-tags' + message.uuid"
@@ -76,22 +76,21 @@
 		>
 		Add&nbsp;tag
 	      </b-button>
+	      <br><small class="text-muted">click on tag to remove it</small>
 	      <b-modal :id="'modal-tags' + message.uuid">
-		<!-- <b-card class="m-0 p-0"> -->
-		  Add tag(s):
-		  <ul class="list-unstyled">
-		    <li v-for="tag in tags" class="m-1">
-		      <b-button
-			size="sm"
-			class="p-1"
-			@click="tagMessage(message, tag, 'add')"
-			:variant="tag.variant"
-			>
-			{{ tag.unicode_symbol }}&nbsp;{{ tag.label }}
-		      </b-button>
-		    </li>
-		  </ul>
-		<!-- </b-card> -->
+		Add tag(s):
+		<ul class="list-unstyled">
+		  <li v-for="tag in tags" class="m-1">
+		    <b-button
+		      size="sm"
+		      class="p-1"
+		      @click="tagMessage(message, tag, 'add')"
+		      :variant="tag.variant"
+		      >
+		      {{ tag.unicode_symbol }}&nbsp;{{ tag.label }}
+		    </b-button>
+		  </li>
+		</ul>
 	      </b-modal>
 	    </li>
 	  </ul>
