@@ -81,7 +81,7 @@ class EventSerializer(serializers.ModelSerializer):
 class UserTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTag
-        fields = ['pk', 'label', 'unicode_symbol', 'variant']
+        fields = ['pk', 'user', 'label', 'unicode_symbol', 'variant']
 
     def get_queryset(self):
         user = self.request.user

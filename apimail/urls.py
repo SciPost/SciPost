@@ -82,6 +82,16 @@ urlpatterns = [
             apiviews.StoredMessageUpdateTagAPIView.as_view(),
             name='api_stored_message_tag'
         ),
+        path( # /mail/api/user_tag/create
+            'user_tag/create',
+            apiviews.UserTagCreateAPIView.as_view(),
+            name='user_tag_create'
+        ),
+        path( # /mail/api/user_tag/<pk>/delete
+            'user_tag/<int:pk>/delete',
+            apiviews.UserTagDestroyAPIView.as_view(),
+            name='user_tag_delete'
+        ),
         path( # /mail/api/user_tags
             'user_tags',
             apiviews.UserTagListAPIView.as_view(),

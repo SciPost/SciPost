@@ -17,6 +17,19 @@
     </template>
   </b-modal>
 
+  <b-modal
+    id="modal-manage-tags"
+    title="Manage your Tags"
+    hide-header-close
+    >
+    <tag-list-editable :tags="tags" @fetchtags="fetchTags"></tag-list-editable>
+    <template v-slot:modal-footer="{ close, }">
+      <b-button size="sm" variant="danger" @click="close()">
+	Done
+      </b-button>
+    </template>
+  </b-modal>
+
 
   <div v-if="draftMessages.length > 0" class="m-2 mb-4">
     <h2>Message drafts to complete</h2>
@@ -130,7 +143,7 @@
 	    </b-form-radio-group>
 	  </b-form-group>
 	</b-col>
-	<b-col class="col-lg-6">
+	<b-col class="col-lg-5">
 	  <b-form-group
 	    label="Tag:"
 	    label-cols-sm="3"
@@ -146,6 +159,14 @@
 	      </b-form-radio>
 	    </b-form-radio-group>
 	  </b-form-group>
+	</b-col>
+	<b-col class="col-lg-1">
+	  <b-button
+	    size="sm"
+	    @click="showManageTagsModal"
+	    >
+	    <small>Manage your tags</small>
+	  </b-button>
 	</b-col>
       </b-row>
       <hr>
@@ -273,6 +294,8 @@ import MessageContent from './MessageContent.vue'
 
 import MessageComposer from './MessageComposer.vue'
 
+import TagListEditable from './TagListEditable.vue'
+
 var csrftoken = Cookies.get('csrftoken');
 
 export default {
@@ -280,6 +303,7 @@ export default {
     components: {
 	MessageContent,
 	MessageComposer,
+	TagListEditable,
     },
     data() {
 	return {
@@ -317,6 +341,7 @@ export default {
 		{ text: 'read', value: true },
 		{ text: 'all', value: null },
 	    ],
+	    tags: null,
 	    tagRequired: 'any',
 	}
     },
@@ -339,25 +364,30 @@ export default {
 		.then(data => this.draftMessages = data.results)
 		.catch(error => console.error(error))
 	},
+	showManageTagsModal () {
+	    this.$bvModal.show('modal-manage-tags')
+	},
 	showReworkDraftModal (draftmsg) {
 	    this.draftMessageSelected = draftmsg
 	    this.$bvModal.show('modal-resumedraft')
 	},
 	deleteDraft (uuid) {
-	    fetch('/mail/api/composed_message/' + uuid + '/delete',
-		  {
-		      method: 'DELETE',
-		      headers: {
-			  "X-CSRFToken": csrftoken,
+	    if (confirm("Are you sure you want to delete this draft?")) {
+		fetch('/mail/api/composed_message/' + uuid + '/delete',
+		      {
+			  method: 'DELETE',
+			  headers: {
+			      "X-CSRFToken": csrftoken,
+			  }
 		      }
-		  }
-		 )
-		.then(response => {
-		    if (response.ok) {
-			this.fetchDrafts()
-		    }
-		})
-		.catch(error => console.error(error))
+		     )
+		    .then(response => {
+			if (response.ok) {
+			    this.fetchDrafts()
+			}
+		    })
+		    .catch(error => console.error(error))
+	    }
 	},
 	isSelected: function (selection) {
 	    return selection === this.accountSelected
@@ -417,7 +447,9 @@ export default {
 	this.fetchTags()
 	this.fetchDrafts()
 	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
-	    this.fetchDrafts()
+	    if (bvEvent.componentId === 'modal-resumedraft') {
+		this.fetchDrafts()
+	    }
 	})
     },
     watch: {
