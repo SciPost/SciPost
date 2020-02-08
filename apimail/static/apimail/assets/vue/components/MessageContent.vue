@@ -77,7 +77,10 @@
 		Add&nbsp;tag
 	      </b-button>
 	      <br><small class="text-muted">click on tag to remove it</small>
-	      <b-modal :id="'modal-tags' + message.uuid">
+	      <b-modal
+		:id="'modal-tags' + message.uuid"
+		hide-header-close
+		>
 		Add tag(s):
 		<ul class="list-unstyled">
 		  <li v-for="tag in tags" class="m-1">
@@ -91,6 +94,11 @@
 		    </b-button>
 		  </li>
 		</ul>
+		<template v-slot:modal-footer="{ close, }">
+		  <b-button size="sm" variant="success" @click="close()">
+		    Done
+		  </b-button>
+		</template>
 	      </b-modal>
 	    </li>
 	  </ul>
@@ -124,7 +132,7 @@
     </b-card-text>
     <template v-slot:footer>
       <div class="text-dark">
-	<div v-if="message.attachment_files">
+	<div v-if="message.attachment_files.length > 0">
 	  <h3>Attachments:</h3>
 	  <ul>
 	    <li v-for="att in message.attachment_files">
@@ -133,10 +141,10 @@
 	    </li>
 	  </ul>
 	</div>
-	<b-button v-b-toggle="'message-json'" class="mt-2 px-2 py-0">
+	<b-button v-b-toggle="'message-json' + message.uuid" class="mt-2 px-2 py-0">
 	  <small>View message JSON</small>
 	</b-button>
-	<b-collapse id="message-json" class="m-2">
+	<b-collapse :id="'message-json' + message.uuid" class="m-2">
 	  {{ message }}
 	</b-collapse>
       </div>
@@ -163,7 +171,7 @@ export default {
 	    required: true
 	},
 	tags: {
-	    type: Object,
+	    type: Array,
 	    required: false
 	},
     },

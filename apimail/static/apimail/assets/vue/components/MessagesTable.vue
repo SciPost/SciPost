@@ -219,6 +219,8 @@
       @filtered="onFiltered"
       :per-page="perPage"
       :current-page="currentPage"
+      selectable
+      @row-clicked="onMessageRowClicked"
       >
       <template v-slot:table-busy>
       	<div class="text-center text-primary my-2">
@@ -246,18 +248,12 @@
 	</ul>
       </template>
       <template v-slot:cell(actions)="row">
-      	<b-button
-      	  size="sm"
-      	  variant="secondary"
-      	  @click="row.toggleDetails"
-      	  >
-          <span v-if="row.detailsShowing">
-	    <i class="fa fa-angle-down"></i>
-	  </span>
-	  <span v-else>
-	    <i class="fa fa-angle-right"></i>
-	  </span>
-      	</b-button>
+        <span v-if="row.detailsShowing">
+	  <i class="fa fa-angle-down"></i>
+	</span>
+	<span v-else>
+	  <i class="fa fa-angle-right"></i>
+	</span>
       </template>
       <template v-slot:row-details="row">
 	<message-content :message=row.item :tags="tags" class="m-2 mb-4"></message-content>
@@ -411,6 +407,9 @@ export default {
 	onFiltered(filteredItems) {
             this.totalRows = filteredItems.length
             this.currentPage = 1
+	},
+	onMessageRowClicked (item, index) {
+	    this.$set(item, '_showDetails', !item._showDetails)
 	}
     },
     mounted() {
