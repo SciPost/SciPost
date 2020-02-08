@@ -227,7 +227,8 @@
       	</div>
       </template>
       <template v-slot:head(tags)="row">
-	Tags<br><small class="text-muted">click to remove</small>
+	Tags
+	<!-- <br><small class="text-muted">click to remove</small> -->
       </template>
       <template v-slot:cell(read)="row">
 	<b-badge variant="primary">{{ row.item.read ? "" : "&emsp;" }}</b-badge>
@@ -235,10 +236,17 @@
       <template v-slot:cell(tags)="row">
 	<ul class="list-inline">
 	  <li class="list-inline-item m-0" v-for="tag in row.item.tags">
+	    <!-- <b-button -->
+	    <!--   size="sm" -->
+	    <!--   class="p-1" -->
+	    <!--   @click="tagMessage(row.item, tag, 'remove')" -->
+	    <!--   :variant="tag.variant" -->
+	    <!--   > -->
+	    <!--   {{ tag.unicode_symbol }} -->
+	    <!-- </b-button> -->
 	    <b-button
 	      size="sm"
 	      class="p-1"
-	      @click="tagMessage(row.item, tag, 'remove')"
 	      :variant="tag.variant"
 	      >
 	      {{ tag.unicode_symbol }}
@@ -247,29 +255,29 @@
 	</ul>
       </template>
       <template v-slot:cell(addtag)="row">
-	<b-button
-	  size="sm"
-	  v-b-toggle="'collapse-tags' + row.item.uuid"
-	  variant="primary"
-	  >
-	  Add&nbsp;tag
-	</b-button>
-	<b-collapse :id="'collapse-tags' + row.item.uuid">
-	  <b-card class="m-0 p-0">
-	    <ul class="list-unstyled m-0">
-	      <li v-for="tag in tags" class="m-0">
-		<b-button
-		  size="sm"
-		  class="p-1"
-		  @click="tagMessage(row.item, tag, 'add')"
-		  :variant="tag.variant"
-		  >
-		  {{ tag.unicode_symbol }}&nbsp;{{ tag.label }}
-		</b-button>
-	      </li>
-	    </ul>
-	  </b-card>
-	</b-collapse>
+	<!-- <b-button -->
+	<!--   size="sm" -->
+	<!--   v-b-toggle="'collapse-tags' + row.item.uuid" -->
+	<!--   variant="primary" -->
+	<!--   > -->
+	<!--   Add&nbsp;tag -->
+	<!-- </b-button> -->
+	<!-- <b-collapse :id="'collapse-tags' + row.item.uuid"> -->
+	<!--   <b-card class="m-0 p-0"> -->
+	<!--     <ul class="list-unstyled m-0"> -->
+	<!--       <li v-for="tag in tags" class="m-0"> -->
+	<!-- 	<b-button -->
+	<!-- 	  size="sm" -->
+	<!-- 	  class="p-1" -->
+	<!-- 	  @click="tagMessage(row.item, tag, 'add')" -->
+	<!-- 	  :variant="tag.variant" -->
+	<!-- 	  > -->
+	<!-- 	  {{ tag.unicode_symbol }}&nbsp;{{ tag.label }} -->
+	<!-- 	</b-button> -->
+	<!--       </li> -->
+	<!--     </ul> -->
+	<!--   </b-card> -->
+	<!-- </b-collapse> -->
       </template>
       <template v-slot:cell(actions)="row">
 	<b-button
@@ -281,7 +289,7 @@
 	</b-button>
       </template>
       <template v-slot:row-details="row">
-	<message-content :message=row.item class="m-2 mb-4"></message-content>
+	<message-content :message=row.item :tags="tags" class="m-2 mb-4"></message-content>
       </template>
     </b-table>
 
@@ -385,34 +393,34 @@ export default {
 		})
 		.catch(error => console.error(error))
 	},
-	tagMessage (message, tag, action) {
-	    fetch('/mail/api/stored_message/' + message.uuid + '/tag',
-		  {
-		      method: 'PATCH',
-		      headers: {
-			  "X-CSRFToken": csrftoken,
-			  "Content-Type": "application/json; charset=utf-8"
-		      },
-		      body: JSON.stringify({
-			  'tagpk': tag.pk,
-			  'action': action
-		      })
-		  }
-		 ).then(function(response) {
-		     if (!response.ok) {
-			 throw new Error('HTTP error, status = ' + response.status);
-		     }
-		 });
+	// tagMessage (message, tag, action) {
+	//     fetch('/mail/api/stored_message/' + message.uuid + '/tag',
+	// 	  {
+	// 	      method: 'PATCH',
+	// 	      headers: {
+	// 		  "X-CSRFToken": csrftoken,
+	// 		  "Content-Type": "application/json; charset=utf-8"
+	// 	      },
+	// 	      body: JSON.stringify({
+	// 		  'tagpk': tag.pk,
+	// 		  'action': action
+	// 	      })
+	// 	  }
+	// 	 ).then(function(response) {
+	// 	     if (!response.ok) {
+	// 		 throw new Error('HTTP error, status = ' + response.status);
+	// 	     }
+	// 	 });
 
-	    if (action == 'add') {
-		// Prevent doubling by removing first, then (re)adding
-		message.tags = message.tags.filter(function (item) { return item.pk !== tag.pk })
-		message.tags.push(tag)
-	    }
-	    else if (action == 'remove') {
-		message.tags.splice(message.tags.indexOf(tag), 1)
-	    }
-	},
+	//     if (action == 'add') {
+	// 	// Prevent doubling by removing first, then (re)adding
+	// 	message.tags = message.tags.filter(function (item) { return item.pk !== tag.pk })
+	// 	message.tags.push(tag)
+	//     }
+	//     else if (action == 'remove') {
+	// 	message.tags.splice(message.tags.indexOf(tag), 1)
+	//     }
+	// },
 	isSelected: function (selection) {
 	    return selection === this.accountSelected
 	},

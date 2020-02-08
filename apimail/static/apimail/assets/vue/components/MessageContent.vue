@@ -56,7 +56,44 @@
 	    </template>
 	  </b-modal>
 	</li>
-	<li class="list-inline-item">
+	<li class="list-inline-item float-right">
+	  <ul class="list-inline">
+	    <li class="list-inline-item m-0" v-for="tag in message.tags">
+	      <b-button
+		size="sm"
+		class="p-1"
+		@click="tagMessage(message, tag, 'remove')"
+		:variant="tag.variant"
+		>
+		{{ tag.unicode_symbol }}
+	      </b-button>
+	    </li>
+	    <li class="list-inline-item float-right mx-1">
+	      <b-button
+		size="sm"
+		v-b-toggle="'collapse-tags' + message.uuid"
+		variant="secondary"
+		>
+		Add&nbsp;tag
+	      </b-button>
+	      <b-collapse :id="'collapse-tags' + message.uuid">
+		<!-- <b-card class="m-0 p-0"> -->
+		  <ul class="list-unstyled m-0">
+		    <li v-for="tag in tags" class="m-0">
+		      <b-button
+			size="sm"
+			class="p-1"
+			@click="tagMessage(message, tag, 'add')"
+			:variant="tag.variant"
+			>
+			{{ tag.unicode_symbol }}&nbsp;{{ tag.label }}
+		      </b-button>
+		    </li>
+		  </ul>
+		<!-- </b-card> -->
+	      </b-collapse>
+	    </li>
+	  </ul>
 	</li>
       </ul>
       <hr>
@@ -125,6 +162,10 @@ export default {
 	    type: Object,
 	    required: true
 	},
+	tags: {
+	    type: Object,
+	    required: false
+	},
     },
     computed: {
 	sanitized_html() {
@@ -138,6 +179,36 @@ export default {
 	toDatestring(unixtimestamp) {
 	    return new Date(1000 * unixtimestamp).toISOString()
 	}
+    },
+    methods: {
+	tagMessage (message, tag, action) {
+	    fetch('/mail/api/stored_message/' + message.uuid + '/tag',
+		  {
+		      method: 'PATCH',
+		      headers: {
+			  "X-CSRFToken": csrftoken,
+			  "Content-Type": "application/json; charset=utf-8"
+		      },
+		      body: JSON.stringify({
+			  'tagpk': tag.pk,
+			  'action': action
+		      })
+		  }
+		 ).then(function(response) {
+		     if (!response.ok) {
+			 throw new Error('HTTP error, status = ' + response.status);
+		     }
+		 });
+
+	    if (action == 'add') {
+		// Prevent doubling by removing first, then (re)adding
+		message.tags = message.tags.filter(function (item) { return item.pk !== tag.pk })
+		message.tags.push(tag)
+	    }
+	    else if (action == 'remove') {
+		message.tags.splice(message.tags.indexOf(tag), 1)
+	    }
+	},
     },
     mounted () {
 	if (!this.message.read) {
