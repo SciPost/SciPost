@@ -70,7 +70,7 @@
 
   <h2 class="m-2">Click on an account to view messages</h2>
 
-  <table class="table">
+  <table class="table mb-4">
     <tr>
       <th>Account</th>
       <th>Address</th>
@@ -98,15 +98,15 @@
       <b-row>
 	<b-col class="col-lg-6">
 	  <h2>Messages for <strong>{{ accountSelected }}</strong></h2>
-	  <small>Last loaded: {{ lastLoaded }}</small>&emsp;
-	  <b-button
-	    class="p-1"
+	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
+	  <b-badge
+	    class="p-2"
 	    size="sm"
-	    variant="dark"
+	    variant="primary"
 	    @click="refreshMessages"
 	    >
 	    Refresh
-	  </b-button>
+	  </b-badge>
 	</b-col>
 	<b-col class="col-lg-2">
 	  <b-badge variant="primary" class="p-2">{{ totalRows }} messages</b-badge>
@@ -176,7 +176,9 @@
 	<b-col class="col-lg-1">
 	  <b-button
 	    size="sm"
+	    class="pb-2"
 	    @click="showManageTagsModal"
+	    variant="primary"
 	    >
 	    <small>Manage your tags</small>
 	  </b-button>
@@ -327,7 +329,7 @@ export default {
 	    queuedMessages: null,
 	    messages: [],
 	    perPage: 8,
-	    perPageOptions: [ 8, 16, 32 ],
+	    perPageOptions: [ 8, 16, 32, 64 ],
 	    currentPage: 1,
 	    totalRows: 1,
 	    lastLoaded: null,
@@ -461,7 +463,9 @@ export default {
 	this.fetchTags()
 	this.fetchDrafts()
 	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
-	    if (bvEvent.componentId === 'modal-resumedraft') {
+	    if (bvEvent.componentId === 'modal-resumedraft' ||
+		bvEvent.componentId === 'modal-reply' ||
+		bvEvent.componentId === 'modal-forward') {
 		this.fetchDrafts()
 	    }
 	})

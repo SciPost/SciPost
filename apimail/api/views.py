@@ -173,7 +173,6 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
             queryfilter = queryfilter | Q(data__from__icontains=_from)
         subject = request.query_params.get('subject', None)
         if subject is not None:
-            print('subject query: %s' % subject)
             queryfilter = queryfilter | Q(data__subject__icontains=subject)
         recipients = request.query_params.get('recipients', None)
         if recipients is not None:
