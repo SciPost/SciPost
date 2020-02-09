@@ -11,6 +11,16 @@
   <span class="breadcrumb-item">{{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
+{% block headsup %}
+  <meta name="citation_title" content="{{ submission.title }}"/>
+  {% for author in submission.authors_as_list %}
+    <meta name="citation_author" content="{{ author }}"/>
+  {% endfor %}
+  <meta name="citation_online_date" content="{{ submission.submission_date|date:'Y/m/d' }}"/>
+  <meta name="citation_pdf_url" content="{{ submission.preprint.citation_pdf_url }}"/>
+{% endblock headsup %}
+
+
 {% block content %}
 
   <div class="row">
