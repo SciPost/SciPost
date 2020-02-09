@@ -415,11 +415,9 @@ export default {
 		this.form.attachments = this.originalmessage.attachment_files
 	    }
 	    if (this.originalmessage.data.hasOwnProperty("body-html")) {
-		console.log('Putting html')
 		this.form.body_html += (this.$sanitize(this.originalmessage.data["body-html"]))
 	    }
 	    else {
-		console.log('Putting plain')
 		this.form.body_html += (this.$sanitize(this.originalmessage.data["body-plain"]))
 	    }
 	    this.form.body_html += '</blockquote>'

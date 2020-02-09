@@ -11,13 +11,13 @@
       <ul class="list-inline m-2">
 	<li class="list-inline-item">
 	  <b-button
-	    v-b-modal.modal-reply
+	    v-b-modal="'modal-reply-' + message.uuid"
 	    variant="primary"
 	    >
 	    Reply
 	  </b-button>
 	  <b-modal
-	    id="modal-reply"
+	    :id="'modal-reply-' + message.uuid"
 	    size="xl"
 	    title="Reply"
 	    hide-header-close
@@ -34,14 +34,14 @@
 	</li>
 	<li class="list-inline-item">
 	  <b-button
-	    v-b-modal.modal-forward
+	    v-b-modal="'modal-forward-' + message.uuid"
 	    variant="dark"
 	    text-variant="white"
 	    >
 	    Forward
 	  </b-button>
 	  <b-modal
-	    id="modal-forward"
+	    :id="'modal-forward-' + message.uuid"
 	    size="xl"
 	    title="Forward"
 	    hide-header-close
