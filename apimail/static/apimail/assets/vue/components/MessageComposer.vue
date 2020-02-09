@@ -1,6 +1,6 @@
 <template>
 <div>
-  <h1>Compose email message</h1>
+  <h1 class="mb-4">Compose email message</h1>
   <b-form>
     <b-row>
       <b-col class="col-lg-6">
@@ -61,7 +61,7 @@
     </b-row>
     <b-form-group
       id="attachments"
-      label="attachments:"
+      label="Attachments:"
       class="mb-4"
       >
       <attachment-list-editable
@@ -80,32 +80,105 @@
 	>
       </b-form-input>
     </b-form-group>
-    <b-row>
-      <b-col class="col-lg-6">
-	<b-form-group
-	  id="message-body"
-	  label="Message:"
-	  label-for="input-message-body"
-	  >
-	  <b-form-textarea
-	    id="input-message-body"
-	    v-model="form.body"
-	    rows="10"
-	    >
-	  </b-form-textarea>
-	</b-form-group>
-      </b-col>
-      <b-col class="col-lg-6">
-	<h3>Preview:</h3>
-	<span
-	  v-html="sanitized_body_html"
-	  class="white-space-pre-wrap"
-	  ></span>
-      </b-col>
-    </b-row>
-    <template v-if="!markReadySuccessful">
+
+    <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
+      <div class="menubar">
+        <button
+          :class="{ 'is-active': isActive.bold() }"
+          @click.stop.prevent="commands.bold"
+          >
+	  <i class="fa fa-bold"></i>
+	</button>
+        <button
+          :class="{ 'is-active': isActive.italic() }"
+          @click.stop.prevent="commands.italic"
+          >
+	  <i class="fa fa-italic"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.strike() }"
+          @click.stop.prevent="commands.strike"
+          >
+	  <i class="fa fa-strikethrough"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.underline() }"
+          @click.stop.prevent="commands.underline"
+          >
+	  <i class="fa fa-underline"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.code() }"
+          @click.stop.prevent="commands.code"
+          >
+          <i class="fa fa-code"></i>
+        </button>
+	<button
+          class="menubar__button"
+          :class="{ 'is-active': isActive.paragraph() }"
+          @click.stop.prevent="commands.paragraph"
+          >
+          <i class="fa fa-paragraph"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.heading({ level: 1 }) }"
+          @click.stop.prevent="commands.heading({ level: 1 })"
+          >
+          H1
+        </button>
+        <button
+          :class="{ 'is-active': isActive.heading({ level: 2 }) }"
+          @click.stop.prevent="commands.heading({ level: 2 })"
+          >
+          H2
+        </button>
+        <button
+          :class="{ 'is-active': isActive.heading({ level: 3 }) }"
+          @click.stop.prevent="commands.heading({ level: 3 })"
+          >
+          H3
+        </button>
+        <button
+          :class="{ 'is-active': isActive.bullet_list() }"
+          @click.stop.prevent="commands.bullet_list"
+          >
+          <i class="fa fa-list-ul"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.ordered_list() }"
+          @click.stop.prevent="commands.ordered_list"
+          >
+          <i class="fa fa-list-ol"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.blockquote() }"
+          @click.stop.prevent="commands.blockquote"
+          >
+          <i class="fa fa-quote-right"></i>
+        </button>
+        <button
+          :class="{ 'is-active': isActive.code_block() }"
+          @click.stop.prevent="commands.code_block"
+          >
+          <i class="fa fa-code"></i> block
+        </button>
+        <button @click.stop.prevent="commands.horizontal_rule">
+	  hr
+        </button>
+        <button @click.stop.prevent="commands.undo">
+          <i class="fa fa-undo"></i>
+        </button>
+        <button @click.stop.prevent="commands.redo">
+          <i class="fa fa-repeat"></i>
+        </button>
+      </div>
+    </editor-menu-bar>
+    <editor-content class="editor__content m-1 p-1" :editor="editor" />
+
+    <template v-if="!markReadySuccessful" class="mt-4">
       <b-button
 	type="savedraft"
+	class="text-white px-1 py-0"
 	variant="warning"
 	@click.stop.prevent="saveMessage('draft')"
 	>
@@ -113,7 +186,8 @@
       </b-button>
       <b-button
 	type="send"
-	variant="success"
+	class="text-white px-1 py-0"
+	variant="primary"
 	@click.stop.prevent="saveMessage('ready')"
 	>
 	Queue for sending
@@ -150,11 +224,33 @@ import AttachmentListEditable from './AttachmentListEditable.vue'
 
 var csrftoken = Cookies.get('csrftoken');
 
+import { Editor, EditorContent, EditorMenuBar } from 'tiptap'
+import {
+    Blockquote,
+    CodeBlock,
+    HardBreak,
+    Heading,
+    HorizontalRule,
+    OrderedList,
+    BulletList,
+    ListItem,
+    TodoItem,
+    TodoList,
+    Bold,
+    Code,
+    Italic,
+    Link,
+    Strike,
+    Underline,
+    History,
+} from 'tiptap-extensions'
+
 export default {
     name: "message-composer",
     components: {
 	AttachmentListEditable,
 	EmailListEditable,
+	EditorMenuBar, EditorContent,
     },
     props: {
 	draftmessage: {
@@ -179,8 +275,7 @@ export default {
 		cc_recipients: [],
 		bcc_recipients: [],
 		subject: '',
-		body: '',
-		sanitized_body_html: '',
+		body_html: '',
 		attachments: [],
 	    },
 	    from_account_accesses: [],
@@ -189,11 +284,33 @@ export default {
 	    saveDraftSuccessful: null,
 	    draftLastSaved: null,
 	    markReadySuccessful: null,
+	    editor: new Editor({
+		extensions: [
+		    new Blockquote(),
+		    new BulletList(),
+		    new CodeBlock(),
+		    new HardBreak(),
+		    new Heading({ levels: [1, 2, 3] }),
+		    new HorizontalRule(),
+		    new ListItem(),
+		    new OrderedList(),
+		    new TodoItem(),
+		    new TodoList(),
+		    new Link(),
+		    new Bold(),
+		    new Code(),
+		    new Italic(),
+		    new Strike(),
+		    new Underline(),
+		    new History(),
+		],
+		content: ''
+	    }),
 	}
     },
     computed: {
 	sanitized_body_html() {
-	    return this.$sanitize(this.form.body)
+	    return this.$sanitize(this.editor.getHTML())
 	}
     },
     methods: {
@@ -231,8 +348,8 @@ export default {
 			  'cc_recipients': this.form.cc_recipients,
 			  'bcc_recipients': this.form.bcc_recipients,
 			  'subject': this.form.subject,
-			  'body_text': this.form.body,
-			  'body_html': this.form.sanitized_body_html,
+			  'body_text': this.form.body_html, // TODO: remove; only html emails
+			  'body_html': this.sanitized_body_html,
 			  'attachment_uuids': attachment_uuids
 	    	      })
 	    	  })
@@ -273,34 +390,44 @@ export default {
 	    this.form.cc_recipients = this.draftmessage.cc_recipients
 	    this.form.bcc_recipients = this.draftmessage.bcc_recipients
 	    this.form.subject = this.draftmessage.subject
-	    this.form.body = this.draftmessage.body_text
-	    this.form.sanitized_body_html = this.$sanitize(this.draftmessage.body_html)
+	    this.form.body_html = this.draftmessage.body_html
 	    this.form.attachments = this.draftmessage.attachment_files
 	}
       	else if (this.originalmessage) {
 	    this.form.from_account = this.originalmessage.data.To
-      	    this.form.body = ('\n\n<blockquote>\n')
+      	    this.form.body_html = ('<br><br><blockquote>')
 	    if (this.action == 'reply') {
       		this.form.to_recipient = this.originalmessage.data.sender
 		this.form.cc_recipients = this.originalmessage.data.recipients.split(',')
 		this.form.subject = 'Re: ' + this.originalmessage.data.subject
-		this.form.body += ('On ' + this.originalmessage.datetimestamp +
+		this.form.body_html += ('<p>On ' + this.originalmessage.datetimestamp +
 				   ', ' + this.originalmessage.data.from +
-				   ' wrote:\n\n')
+				   ' wrote:</p>')
 	    }
 	    if (this.action == 'forward') {
 		this.form.subject = 'Fwd: ' + this.originalmessage.data.subject
-		this.form.body += ('Begin forwarded message:\n\n' +
-				   'From: ' + this.originalmessage.data.sender +
-				   '\nSubject: ' + this.originalmessage.subject +
-				   '\nDate: ' + this.originalmessage.datetimestamp +
-				   '\nTo: ' + this.originalmessage.data.To +
-				   '\n\n')
+		this.form.body_html += ('<p>Begin forwarded message:' +
+				   '<br>From: ' + this.originalmessage.data.sender +
+				   '<br>Subject: ' + this.originalmessage.subject +
+				   '<br>Date: ' + this.originalmessage.datetimestamp +
+				   '<br>To: ' + this.originalmessage.data.To +
+				   '</p>')
 		this.form.attachments = this.originalmessage.attachment_files
 	    }
-	    this.form.body += (this.originalmessage.data["body-plain"] +
-			       '\n</blockquote>')
+	    if (this.originalmessage.data.hasOwnProperty("body-html")) {
+		console.log('Putting html')
+		this.form.body_html += (this.$sanitize(this.originalmessage.data["body-html"]))
+	    }
+	    else {
+		console.log('Putting plain')
+		this.form.body_html += (this.$sanitize(this.originalmessage.data["body-plain"]))
+	    }
+	    this.form.body_html += '</blockquote>'
       	}
+	this.editor.setContent(this.form.body_html)
+    },
+    beforeDestroy() {
+	this.editor.destroy()
     },
 }
 </script>
@@ -309,6 +436,10 @@ export default {
 
 .white-space-pre-wrap {
     white-space: pre-wrap;
+}
+
+div.editor__content {
+    border: 1px solid black;
 }
 
 </style>

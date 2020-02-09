@@ -52,6 +52,7 @@
 	  <b-button
 	    @click="showReworkDraftModal(draftmsg)"
 	    size="sm"
+	    class="text-white"
 	    variant="warning"
 	    >
 	    Rework draft
