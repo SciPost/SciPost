@@ -64,7 +64,6 @@
     "npm": "^6.13.1",
     "npm-install-peers": "^1.2.1",
     "postcss": "^7.0.23",
-    "prosemirror-tables": "^1.0.0",
     "qrcode": "^1.4.4",
     "sass": "^1.23.7",
     "schema-utils": "^2.5.0",
