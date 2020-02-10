@@ -1,6 +1,31 @@
 <template>
 <div>
 
+  <div v-if="accesses" class="m-2 mb-4">
+    <b-button
+      v-b-modal.modal-newdraft
+      variant="primary"
+      >
+      Compose a new message
+    </b-button>
+
+    <b-modal
+      id="modal-newdraft"
+      size="xl"
+      title="New message"
+      hide-header-close
+      no-close-on-escape
+      no-close-on-backdrop
+      >
+      <message-composer></message-composer>
+      <template v-slot:modal-footer="{ close, }">
+	<b-button size="sm" variant="danger" @click="close()">
+	  Close
+	</b-button>
+      </template>
+    </b-modal>
+  </div>
+
   <b-modal
     id="modal-resumedraft"
     size="xl"
@@ -464,7 +489,8 @@ export default {
 	this.fetchTags()
 	this.fetchDrafts()
 	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
-	    if (bvEvent.componentId === 'modal-resumedraft' ||
+	    if (bvEvent.componentId === 'modal-newdraft' ||
+		bvEvent.componentId === 'modal-resumedraft' ||
 		bvEvent.componentId === 'modal-reply' ||
 		bvEvent.componentId === 'modal-forward') {
 		this.fetchDrafts()
