@@ -64,7 +64,7 @@ class ComposedMessage(models.Model):
 
     subject = models.CharField(max_length=256)
 
-    body_text = models.TextField()
+    body_text = models.TextField(blank=True)
     body_html = models.TextField(blank=True)
 
     attachment_files = models.ManyToManyField(
