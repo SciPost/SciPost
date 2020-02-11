@@ -422,6 +422,10 @@ export default {
 	    }
 	    this.form.body_html += '</blockquote>'
       	}
+	else {
+	    // Fill with a couple of blank lines to debug prosemirror
+	    this.form.body_html = '<br><br>'
+	}
 	this.editor.setContent(this.form.body_html)
     },
     beforeDestroy() {
