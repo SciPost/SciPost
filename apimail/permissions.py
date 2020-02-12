@@ -14,7 +14,7 @@ class CanHandleComposedMessage(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_superuser or request.user.is_admin:
+        if request.user.is_superuser or request.user.is_staff:
             return True
 
         return obj.author == request.user
@@ -27,7 +27,7 @@ class CanHandleStoredMessage(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_superuser or request.user.is_admin:
+        if request.user.is_superuser or request.user.is_staff:
             return True
 
         # Check, based on account accesses
@@ -48,7 +48,7 @@ class CanReadStoredMessage(permissions.BasePermission):
     """
 
     def has_object_permission(self, request, view, obj):
-        if request.user.is_superuser or request.user.is_admin:
+        if request.user.is_superuser or request.user.is_staff:
             return True
 
         # Check, based on account accesses

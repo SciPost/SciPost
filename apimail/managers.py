@@ -36,7 +36,7 @@ class StoredMessageQuerySet(models.QuerySet):
         """
         if not user.is_authenticated:
             return self.none()
-        elif user.is_superuser or user.is_admin:
+        elif user.is_superuser or user.is_staff:
             return self
 
         # Filter based on account accesses
