@@ -5,9 +5,9 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin')
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     context: __dirname,
-    devtool: "source-map", // to ensure no eval() (breaking CSP) in development
+    // devtool: "source-map", // to ensure no eval() (breaking CSP) in development
     entry: {
         main: [
 	    "tether",
