@@ -3,7 +3,7 @@
 from .base import *
 
 # THE MAIN THING HERE
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ['www.scipost-staging.org', 'scipost-staging.org']
 
 # Static and media
