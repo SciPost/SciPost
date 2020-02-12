@@ -467,7 +467,6 @@ export default {
 		.then(data => {
 		    const items = data.results
 		    this.totalRows = data.count
-		    // this.messages = items || []
 		    return items || []
 		})
 	},
@@ -476,6 +475,7 @@ export default {
 		'perPage': this.perPage,
 		'currentPage': this.currentPage
 	    })
+	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	onFiltered(filteredItems) {
             this.totalRows = filteredItems.length
