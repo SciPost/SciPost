@@ -72,5 +72,8 @@
     "tiptap-extensions": "^1.28.6",
     "vue": "^2.6.10",
     "vue-sanitize": "^0.2.0"
+  },
+  "resolutions": {
+      "prosemirror-model": "1.8.2"
   }
 }
