@@ -274,6 +274,7 @@
     <b-table
       id="my-table"
       responsive
+      show-empty
       :items="messagesProvider"
       :fields="fields"
       :filter="filter"
