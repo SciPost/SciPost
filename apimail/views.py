@@ -4,12 +4,19 @@ __license__ = "AGPL v3"
 
 import mimetypes
 
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 from .models import AttachmentFile
 
 
+@login_required
+def message_list(request):
+    return render(request, 'apimail/message_list.html')
+
+
+@login_required
 def attachment_file(request, uuid):
     """
     Return an attachment file.

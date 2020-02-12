@@ -104,7 +104,7 @@ urlpatterns = [
 
     path( # /mail/messages
         'messages',
-        TemplateView.as_view(template_name='apimail/message_list.html'),
+        views.message_list,
         name='message_list'
     ),
     path( # /mail/attachment_file/<uuid>
