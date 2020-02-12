@@ -95,7 +95,6 @@
   </div>
 
   <h2 class="m-2">Click on an account to view messages</h2>
-
   <table class="table mb-4">
     <tr>
       <th>Account</th>
@@ -107,7 +106,7 @@
     <tr
       v-for="access in accesses"
       v-bind:class="{'highlight': isSelected(access.account.email)}"
-      v-on:click="accountSelected = access.account.email"
+      v-on:click="accountSelected = access.account"
       v-on:change=""
       class="p-2 m-0"
       >
@@ -119,11 +118,11 @@
     </tr>
   </table>
 
-  <div v-if="accountSelected" :key="accountSelected">
+  <div v-if="accountSelected" :key="accountSelected.pk">
     <b-card bg-variant="light">
       <b-row>
 	<b-col class="col-lg-6">
-	  <h2>Messages for <strong>{{ accountSelected }}</strong></h2>
+	  <h2>Messages for <strong>{{ accountSelected.email }}</strong></h2>
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -319,7 +318,11 @@
 	</span>
       </template>
       <template v-slot:row-details="row">
-	<message-content :message=row.item :tags="tags" class="m-2 mb-4"></message-content>
+	<message-content
+	  :message=row.item
+	  :tags="tags"
+	  :accountSelected="accountSelected"
+	  class="m-2 mb-4"></message-content>
       </template>
     </b-table>
 
@@ -433,10 +436,13 @@ export default {
 	    }
 	},
 	isSelected: function (selection) {
-	    return selection === this.accountSelected
+	    if (this.accountSelected) {
+		return selection === this.accountSelected.email
+	    }
+	    return false
 	},
 	messagesProvider (ctx) {
-	    var params = '?account=' + this.accountSelected
+	    var params = '?account=' + this.accountSelected.email
 	    // Our API uses limit/offset pagination
 	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
 	    // Add search time period

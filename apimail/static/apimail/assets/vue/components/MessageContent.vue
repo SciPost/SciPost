@@ -24,7 +24,11 @@
 	    no-close-on-escape
 	    no-close-on-backdrop
 	    >
-	    <message-composer :originalmessage="message" action="reply"></message-composer>
+	    <message-composer
+	      :originalmessage="message"
+	      action="reply"
+	      :accountSelected="accountSelected"
+	      ></message-composer>
 	    <template v-slot:modal-footer="{ close, }">
 	      <b-button size="sm" variant="danger" @click="close()">
 		Close
@@ -48,7 +52,11 @@
 	    no-close-on-escape
 	    no-close-on-backdrop
 	    >
-	    <message-composer :originalmessage="message" action="forward"></message-composer>
+	    <message-composer
+	      :originalmessage="message"
+	      action="forward"
+	      :accountSelected="accountSelected"
+	      ></message-composer>
 	    <template v-slot:modal-footer="{ close, }">
 	      <b-button variant="danger" @click="close()">
 		Close
@@ -166,6 +174,10 @@ export default {
     	MessageComposer,
     },
     props: {
+	accountSelected: {
+	    type: Object,
+	    required: true,
+	},
 	message: {
 	    type: Object,
 	    required: true

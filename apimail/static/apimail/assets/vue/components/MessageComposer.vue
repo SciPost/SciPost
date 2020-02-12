@@ -261,6 +261,10 @@ export default {
 	    type: Object,
 	    required: false,
 	},
+	accountSelected: {
+	    type: Object,
+	    required: false,
+	},
 	action: {
 	    type: String,
 	    required: false,
@@ -394,7 +398,7 @@ export default {
 	    this.form.attachments = this.draftmessage.attachment_files
 	}
       	else if (this.originalmessage) {
-	    this.form.from_account = this.originalmessage.data.To
+	    this.form.from_account = this.accountSelected.pk
       	    this.form.body_html = ('<br><br><blockquote>')
 	    if (this.action == 'reply') {
       		this.form.to_recipient = this.originalmessage.data.sender
