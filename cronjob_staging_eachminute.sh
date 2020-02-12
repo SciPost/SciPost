@@ -2,7 +2,7 @@
 
 # Per minute cronjobs for staging area
 
-cd /home/scipoststg/webapps/scipost/scipost_v1
+cd /home/scipost/SciPost
 source venv/bin/activate
 
 # Mails waiting in the database
