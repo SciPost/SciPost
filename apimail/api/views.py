@@ -18,6 +18,7 @@ from rest_framework.response import Response
 from rest_framework import filters, status
 
 from ..models import (
+    EmailAccount,
     AttachmentFile,
     ComposedMessage,
     Event,
@@ -38,6 +39,7 @@ from .serializers import (
 
 class EmailAccountListAPIView(ListAPIView):
     permission_classes = (IsAdminUser,)
+    queryset = EmailAccount.objects.all()
     serializer_class = EmailAccountSerializer
 
 
