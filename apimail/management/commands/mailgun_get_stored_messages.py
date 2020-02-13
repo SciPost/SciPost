@@ -32,13 +32,6 @@ class Command(BaseCommand):
             if orphan.stored_message:
                 # FK link to message created through other event in this loop
                 continue
-            response = requests.get(
-                orphan.data['storage']['url'],
-                auth=("api", settings.MAILGUN_API_KEY)
-            )
-            if not response.status_code == 200:
-                continue
-            response = response.json()
 
             try:
                 sm = StoredMessage.objects.get(
@@ -52,7 +45,18 @@ class Command(BaseCommand):
 
             except StoredMessage.DoesNotExist:
 
-                # Need to create the message
+                # Need to get and create the message
+                try:
+                    storage_url = orphan.data['storage']['url']
+                except KeyError:
+                    continue
+                response = requests.get(
+                    storage_url,
+                    auth=("api", settings.MAILGUN_API_KEY)
+                )
+                if not response.status_code == 200:
+                    continue
+                response = response.json()
                 sm = StoredMessage.objects.create(
                     data=response,
                     datetimestamp=parsedate_to_datetime(response['Date']))
