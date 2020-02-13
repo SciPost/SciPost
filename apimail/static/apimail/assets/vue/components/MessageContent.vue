@@ -128,7 +128,11 @@
 	  <h5>Events for this message:</h5>
 	  <ul class="list-unstyled">
 	    <li v-for="event in message.event_set">
-	      {{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
+	      <small>
+		{{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
+		<span v-if="event.data.recipient">&emsp;
+		  [{{ event.data.recipient }}]</span>
+	      </small>
 	    </li>
 	  </ul>
 	</b-col>
