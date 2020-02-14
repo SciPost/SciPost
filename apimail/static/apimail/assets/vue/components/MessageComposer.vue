@@ -83,94 +83,94 @@
 
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
       <div class="menubar">
-        <button
-          :class="{ 'is-active': isActive.bold() }"
+        <b-button
+          :pressed.sync="isActive.bold()"
           @click.stop.prevent="commands.bold"
           >
 	  <i class="fa fa-bold"></i>
-	</button>
-        <button
-          :class="{ 'is-active': isActive.italic() }"
+	</b-button>
+        <b-button
+          :pressed.sync="isActive.italic()"
           @click.stop.prevent="commands.italic"
           >
 	  <i class="fa fa-italic"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.strike() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.strike()"
           @click.stop.prevent="commands.strike"
           >
 	  <i class="fa fa-strikethrough"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.underline() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.underline()"
           @click.stop.prevent="commands.underline"
           >
 	  <i class="fa fa-underline"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.code() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.code()"
           @click.stop.prevent="commands.code"
           >
           <i class="fa fa-code"></i>
-        </button>
-	<button
-          class="menubar__button"
-          :class="{ 'is-active': isActive.paragraph() }"
+        </b-button>
+	<b-button
+          class="menubar__b-button"
+          :pressed.sync="isActive.paragraph()"
           @click.stop.prevent="commands.paragraph"
           >
           <i class="fa fa-paragraph"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.heading({ level: 1 }) }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.heading({ level: 1 })"
           @click.stop.prevent="commands.heading({ level: 1 })"
           >
           H1
-        </button>
-        <button
-          :class="{ 'is-active': isActive.heading({ level: 2 }) }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.heading({ level: 2 })"
           @click.stop.prevent="commands.heading({ level: 2 })"
           >
           H2
-        </button>
-        <button
-          :class="{ 'is-active': isActive.heading({ level: 3 }) }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.heading({ level: 3 })"
           @click.stop.prevent="commands.heading({ level: 3 })"
           >
           H3
-        </button>
-        <button
-          :class="{ 'is-active': isActive.bullet_list() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.bullet_list()"
           @click.stop.prevent="commands.bullet_list"
           >
           <i class="fa fa-list-ul"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.ordered_list() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.ordered_list()"
           @click.stop.prevent="commands.ordered_list"
           >
           <i class="fa fa-list-ol"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.blockquote() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.blockquote()"
           @click.stop.prevent="commands.blockquote"
           >
           <i class="fa fa-quote-right"></i>
-        </button>
-        <button
-          :class="{ 'is-active': isActive.code_block() }"
+        </b-button>
+        <b-button
+          :pressed.sync="isActive.code_block()"
           @click.stop.prevent="commands.code_block"
           >
           <i class="fa fa-code"></i> block
-        </button>
-        <button @click.stop.prevent="commands.horizontal_rule">
+        </b-button>
+        <b-button @click.stop.prevent="commands.horizontal_rule">
 	  hr
-        </button>
-        <button @click.stop.prevent="commands.undo">
+        </b-button>
+        <b-button @click.stop.prevent="commands.undo">
           <i class="fa fa-undo"></i>
-        </button>
-        <button @click.stop.prevent="commands.redo">
+        </b-button>
+        <b-button @click.stop.prevent="commands.redo">
           <i class="fa fa-repeat"></i>
-        </button>
+        </b-button>
       </div>
     </editor-menu-bar>
     <editor-content class="editor__content m-1 p-1" :editor="editor" />
