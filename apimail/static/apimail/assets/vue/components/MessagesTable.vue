@@ -359,7 +359,7 @@ export default {
 	    queuedMessages: null,
 	    messages: [],
 	    perPage: 8,
-	    perPageOptions: [ 8, 16, 32, 64 ],
+	    perPageOptions: [ 8, 16, 32 ],
 	    currentPage: 1,
 	    totalRows: 1,
 	    lastLoaded: null,
