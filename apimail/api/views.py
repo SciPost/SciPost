@@ -8,7 +8,6 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from rest_framework.exceptions import NotFound
 from rest_framework.generics import (
     CreateAPIView, DestroyAPIView, ListAPIView,
     RetrieveAPIView, UpdateAPIView)
@@ -74,13 +73,14 @@ class ComposedMessageCreateAPIView(CreateAPIView):
     lookup_field = 'uuid'
 
     def create(self, request, *args, **kwargs):
-        # Override rest_framework.mixins.CreateModelMixin.create
-        # in order to include request.user in data
+        # Override rest_framework.mixins.CreateModelMixin.create in order
+        # to include request.user in data, and attachment_uuids for serializer.create
         data = request.data
         data['author'] = request.user.id
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
+        # Attachment uuids passed as extra args to be popped in serializer.create
+        serializer.save(attachment_uuids=request.data['attachment_uuids'])
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -91,17 +91,21 @@ class ComposedMessageUpdateAPIView(UpdateAPIView):
     serializer_class = ComposedMessageSerializer
     lookup_field = 'uuid'
 
-    def partial_update(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
+        # Override rest_framework.mixins.CreateModelMixin.update in order
+        # to include request.user in data, and attachment_uuids for serializer.update
+        partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        data = request.data
-        for att_uuid in data['attachment_uuids']:
-            try:
-                att = AttachmentFile.objects.get(uuid=att_uuid)
-                instance.attachment_files.remove(att)
-                instance.attachment_files.add(att)
-            except AttachmentFile.DoesNotExist:
-                raise NotFound(detail=('An attachment file with uuid %s was not found.' % att_uuid))
-        return super().partial_update(request, *args, **kwargs)
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(attachment_uuids=request.data['attachment_uuids'])
+
+        if getattr(instance, '_prefetched_objects_cache', None):
+            # If 'prefetch_related' has been applied to a queryset, we need to
+            # forcibly invalidate the prefetch cache on the instance.
+            instance._prefetched_objects_cache = {}
+
+        return Response(serializer.data)
 
 
 class ComposedMessageDestroyAPIView(DestroyAPIView):

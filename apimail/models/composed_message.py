@@ -73,6 +73,9 @@ class ComposedMessage(models.Model):
 
     objects = ComposedMessageQuerySet.as_manager()
 
+    class Meta:
+        ordering = ['-created_on']
+
     def __str__(self):
         return '%s: %s (from %s to %s) [%s]' % (
             self.created_on,
