@@ -190,7 +190,7 @@
 	variant="primary"
 	@click.stop.prevent="saveMessage('ready')"
 	>
-	Queue for sending
+	Send
       </b-button>
     </template>
     <template v-if="saveDraftSuccessful">
