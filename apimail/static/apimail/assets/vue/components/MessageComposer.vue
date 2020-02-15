@@ -84,30 +84,35 @@
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
       <div class="menubar">
         <b-button
+	  v-b-tooltip.hover title="boldface"
           :pressed.sync="isActive.bold()"
           @click.stop.prevent="commands.bold"
           >
 	  <i class="fa fa-bold"></i>
 	</b-button>
         <b-button
+	  v-b-tooltip.hover title="italics"
           :pressed.sync="isActive.italic()"
           @click.stop.prevent="commands.italic"
           >
 	  <i class="fa fa-italic"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="strikethrough"
           :pressed.sync="isActive.strike()"
           @click.stop.prevent="commands.strike"
           >
 	  <i class="fa fa-strikethrough"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="underline"
           :pressed.sync="isActive.underline()"
           @click.stop.prevent="commands.underline"
           >
 	  <i class="fa fa-underline"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="inline code"
           :pressed.sync="isActive.code()"
           @click.stop.prevent="commands.code"
           >
@@ -115,60 +120,74 @@
         </b-button>
 	<b-button
           class="menubar__b-button"
+	  v-b-tooltip.hover title="paragraph"
           :pressed.sync="isActive.paragraph()"
           @click.stop.prevent="commands.paragraph"
           >
           <i class="fa fa-paragraph"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="level 1 heading"
           :pressed.sync="isActive.heading({ level: 1 })"
           @click.stop.prevent="commands.heading({ level: 1 })"
           >
           H1
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="level 2 heading"
           :pressed.sync="isActive.heading({ level: 2 })"
           @click.stop.prevent="commands.heading({ level: 2 })"
           >
           H2
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="level 3 heading"
           :pressed.sync="isActive.heading({ level: 3 })"
           @click.stop.prevent="commands.heading({ level: 3 })"
           >
           H3
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="bulleted list"
           :pressed.sync="isActive.bullet_list()"
           @click.stop.prevent="commands.bullet_list"
           >
           <i class="fa fa-list-ul"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="numbered list"
           :pressed.sync="isActive.ordered_list()"
           @click.stop.prevent="commands.ordered_list"
           >
           <i class="fa fa-list-ol"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="blockquote"
           :pressed.sync="isActive.blockquote()"
           @click.stop.prevent="commands.blockquote"
           >
           <i class="fa fa-quote-right"></i>
         </b-button>
         <b-button
+	  v-b-tooltip.hover title="code block"
           :pressed.sync="isActive.code_block()"
           @click.stop.prevent="commands.code_block"
           >
           <i class="fa fa-code"></i> block
         </b-button>
-        <b-button @click.stop.prevent="commands.horizontal_rule">
+        <b-button
+	  v-b-tooltip.hover title="horizontal rule"
+	  @click.stop.prevent="commands.horizontal_rule">
 	  hr
         </b-button>
-        <b-button @click.stop.prevent="commands.undo">
+        <b-button
+	  v-b-tooltip.hover title="undo"
+	  @click.stop.prevent="commands.undo">
           <i class="fa fa-undo"></i>
         </b-button>
-        <b-button @click.stop.prevent="commands.redo">
+        <b-button
+	  v-b-tooltip.hover title="redo"
+	  @click.stop.prevent="commands.redo">
           <i class="fa fa-repeat"></i>
         </b-button>
       </div>
@@ -444,8 +463,18 @@ export default {
     white-space: pre-wrap;
 }
 
+div.menubar {
+    margin: 1px;
+    padding: 1px;
+}
+
 div.editor__content {
     border: 1px solid black;
+}
+
+button.active {
+    border-color: black !important;
+    border: 3px solid black;
 }
 
 </style>
