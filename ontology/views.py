@@ -31,8 +31,6 @@ def ontology(request):
 class TagAutocompleteView(autocomplete.Select2QuerySetView):
     """To feed the Select2 widget."""
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-            return Tag.objects.none()
         qs = Tag.objects.all()
         if self.q:
             qs = qs.filter(name__icontains=self.q)
@@ -42,8 +40,6 @@ class TagAutocompleteView(autocomplete.Select2QuerySetView):
 class TopicAutocompleteView(autocomplete.Select2QuerySetView):
     """To feed the Select2 widget."""
     def get_queryset(self):
-        if not self.request.user.is_authenticated:
-            return Topic.objects.none()
         qs = Topic.objects.all()
         if self.q:
             qs = qs.filter(name__icontains=self.q)
