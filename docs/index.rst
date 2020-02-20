@@ -3,9 +3,10 @@ SciPost documentation
 #####################
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :caption: Contents:
 
+   foundation/foundation
    team
    codebase/index
    deployment/index
