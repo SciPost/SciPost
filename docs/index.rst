@@ -11,7 +11,7 @@ at `scipost.org/about <https://scipost.org/about>`_.
 
 This document is meant for geeks, techies and the plain curious.
 You will find here a description of the assets and facilities we are building
-to turn our vision of a publishing infrastructure into reality, most importantly:
+to turn our vision into reality, most importantly:
 
 - :doc:`codebase documentation <codebase/index>`
   for the software layer at the heart of our
@@ -24,7 +24,7 @@ to turn our vision of a publishing infrastructure into reality, most importantly
   describing the workflows to keep everything in top shape.
 
 You will also find some extra basic information about
-the :doc:`SciPost Foundation <foundation/foundation>`
+the :doc:`SciPost Foundation <foundation/index>`
 and :doc:`where the buck stops <team>`.
 
 
