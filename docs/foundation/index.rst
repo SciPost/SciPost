@@ -2,7 +2,7 @@
 The SciPost Foundation
 ######################
 
-The SciPost Foundation, Inc. is a nonprofit organization dedicated to developing,
+The SciPost Foundation is a nonprofit organization dedicated to developing,
 implementing and maintaining innovative forms of electronic scientific communication
 and publishing.
 

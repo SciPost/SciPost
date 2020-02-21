@@ -25,7 +25,7 @@ to turn our vision into reality, most importantly:
 
 You will also find some extra basic information about
 the :doc:`SciPost Foundation <foundation/index>`
-and :doc:`where the buck stops <team>`.
+and :doc:`the infrastructure team <team>`.
 
 
 

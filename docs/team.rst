@@ -1,6 +1,6 @@
-******************************
-Where the buck stops
-******************************
+*******************
+Infrastructure team
+*******************
 
 This page details who carries what responsibility as far as SciPost's
 underlying online infrastructure is concerned.
@@ -45,7 +45,6 @@ necessarily true).
 Current Deployment Team:
 
 * Prof. `Jean-Sébastien Caux <https://jscaux.org>`_ (jscaux@scipost.org / prof@jscaux.org / J.S.Caux@uva.nl) [University of Amsterdam]
-* Jorran de Wit (jorrandewit@scipost.org)
 
 
 Development Team
