@@ -20,6 +20,8 @@ import os
 import sys
 import django
 
+import sphinx_rtd_theme
+
 sys.path.insert(0, os.path.abspath('..'))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SciPost_v1.settings")
@@ -54,6 +56,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
+    'sphinx_rtd_theme',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -89,7 +92,9 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
+#html_theme = 'alabaster'
+#html_theme = 'classic'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
