@@ -1,16 +1,16 @@
-profiles
+news
 ========
 
 
 Models
 ------
 
-.. automodule:: profiles.models
+.. automodule:: news.models
    :members:
 
 
 Views
 -----
 
-.. automodule:: profiles.views
+.. automodule:: news.views
    :members:
