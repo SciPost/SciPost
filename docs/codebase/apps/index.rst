@@ -15,7 +15,7 @@ Core apps
 .. toctree::
    :maxdepth: 1
 
-   scipost
+   scipost/index
    common
 
 

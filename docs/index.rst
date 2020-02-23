@@ -4,12 +4,22 @@ SciPost
 
 Welcome to SciPost's infrastructure documentation.
 
-The SciPost project aims to transform academic publishing through the creation,
-operation and maintenance of a full-fledged, academically-owned infrastructure.
-More details about our initiative can be found
-at `scipost.org/about <https://scipost.org/about>`_.
+The `SciPost <https://scipost.org>`_ project aims to transform academic publishing
+through the creation,
+operation and maintenance of a full-fledged, top-quality,
+open-sourced and academically-run infrastructure.
 
-This document is meant for geeks, techies and the plain curious.
+By building the machines and leaving the keys in the hands of academia, we intend
+to provide scientists worldwide with a healthier publishing and evaluation workflow,
+free of profiteering or further non-scientific interests.
+
+To see the concrete results of our activities, start with a visit to our main site
+at `scipost.org <https://scipost.org>`_.
+Our guiding principles are listed on our `about page <https://scipost.org/about>`_.
+You should also, at least once in your life, familiarize yourself with
+our academically healthy `business model <https://scipost.org/finances/business_model/>`_.
+
+This document is meant for good-willed geeks, techies and the plain curious.
 You will find here a description of the assets and facilities we are building
 to turn our vision into reality, most importantly:
 
@@ -26,7 +36,6 @@ to turn our vision into reality, most importantly:
 You will also find some extra basic information about
 the :doc:`SciPost Foundation <foundation/index>`
 and :doc:`the infrastructure team <team>`.
-
 
 
 .. toctree::
