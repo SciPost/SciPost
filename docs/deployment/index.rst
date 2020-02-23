@@ -10,4 +10,5 @@ These pages describe the details of how SciPost is deployed.
    :maxdepth: 2
    :caption: Contents:
 
+   installation/index
    deployment

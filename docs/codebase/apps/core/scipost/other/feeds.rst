@@ -1,5 +1,6 @@
-Admin
+Feeds
 -----
-.. automodule:: scipost.admin
+
+.. automodule:: scipost.feeds
    :members:
    :undoc-members:

@@ -29,9 +29,7 @@ to turn our vision into reality, most importantly:
 
 - :doc:`deployment information <deployment/index>`
   describing how everything is practically set up
-
-- :doc:`maintenance protocols <maintenance/index>`
-  describing the workflows to keep everything in top shape.
+  and the workflows to keep everything in top shape.
 
 You will also find some extra basic information about
 the :doc:`SciPost Foundation <foundation/index>`
@@ -46,7 +44,6 @@ and :doc:`the infrastructure team <team>`.
    team
    codebase/index
    deployment/index
-   maintenance/index
 
 
 The SciPost codebase and this documentation are released under the terms of the

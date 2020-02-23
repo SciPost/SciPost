@@ -10,7 +10,6 @@ This section of the SciPost documentation is intended for developers.
    :caption: Contents:
 
    stack
-   installation/index
    apps/index
    contributing
 
