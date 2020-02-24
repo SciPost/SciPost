@@ -60,7 +60,8 @@ Current Development Team:
 * Prof. `Jean-Sébastien Caux <https://jscaux.org>`_ (jscaux@scipost.org / prof@jscaux.org / J.S.Caux@uva.nl) [University of Amsterdam] (Team Leader)
 
 If you possess professional-caliber knowledge and experience in the frameworks
-which our infrastructure is based on (Django, PostgreSQL, ...) and wish to be
+which our infrastructure is based on (see our :doc:`tech stack <codebase/stack>` page)
+and wish to be
 considered for inclusion in our core team, please get in touch with the Team Leader.
 
 

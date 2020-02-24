@@ -69,7 +69,7 @@ of how our services are brought to life.
 
 
 While we of course make use of many other pieces of software (check the
-`requirements.txt` and `package.json` files in the main folder),
+`requirements.txt` and `package.json` files in the main repository),
 we have a strong and seemingly insurmountable tendency to write our own
 systems from scratch. See the extensive :doc:`list of apps <apps/index>`
 we have developed over time in order to cover all our needs.
