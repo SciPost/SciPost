@@ -164,13 +164,11 @@ for production it is ``webpack.prod.config.js``.
 
 The file ``package.json`` defines the scripts needed to run npm below.
 
-Development server
-==================
 
 During development, to (re)compile all assets into
 the ``static_bundles`` folder, simply run::
 
-   (scipostenv) $ npm run webpack
+   (scipostenv) $ npm run webpack-dev
 
 which makes use of the dev config file ``webpack.dev.config.js``.
 
@@ -178,11 +176,8 @@ While editing assets, it may be helpful to put Webpack in *watch* mode.
 This will recompile your assets in real time. To do so, instead of the
 above command, run::
 
-   (scipostenv) $ npm run webpack-live
+   (scipostenv) $ npm run webpack-dev-live
 
-
-Production server
-=================
 
 On the production server, run::
 
