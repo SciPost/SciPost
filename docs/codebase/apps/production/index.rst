@@ -5,4 +5,4 @@ Production
 .. toctree::
    :maxdepth: 1
 
-   production
+   production/modules

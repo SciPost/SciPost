@@ -4,6 +4,6 @@ Metadata supplements
 .. toctree::
    :maxdepth: 1
 
-   funders
-   ontology
-   organizations
+   funders/modules
+   ontology/modules
+   organizations/modules

@@ -4,6 +4,6 @@ People
 .. toctree::
    :maxdepth: 1
 
-   colleges
-   conflicts
-   profiles
+   colleges/modules
+   conflicts/modules
+   profiles/modules

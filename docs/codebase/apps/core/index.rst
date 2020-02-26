@@ -1,9 +1,10 @@
 Core apps
----------
+=========
 
 
 .. toctree::
    :maxdepth: 1
 
-   scipost/index
-   common
+   SciPost_v1/modules
+   scipost/modules
+   common/modules

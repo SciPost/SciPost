@@ -20,20 +20,23 @@ Building the documentation
 
 The documentation is compiled using
 `Sphinx <http://www.sphinx-doc.org/>`__. Note that compiling
-documentation is only possible from withing the virtual environment,
-with properly-configured host settings.
+documentation occurs within the virtual environment with host settings linked.
+
+For the apps, the .rst files are auto-generated using `sphinx apidoc <https://github.com/sphinx-contrib/apidoc>`_ through the bash script ``build_app_src.sh``.
 
 To build the documentation, run::
 
   $ cd docs
+  $ ./build_app_src
   $ make html
 
-The documentation is then available in ``docs/build/html`` (static html format)
-or ``docs/build/json`` (JSON format).
+The documentation is then output to folder ``docs/_build/html`` (static html format),
+and easily viewable in your browser.
 
 
-Sphinxdoc
-=========
+
+Sphinxdoc [deprecated]
+======================
 
 To serve the documentation, use is made of `django-sphinxdoc <https://django-sphinxdoc.readthedocs.io/en/latest/>`_.
 

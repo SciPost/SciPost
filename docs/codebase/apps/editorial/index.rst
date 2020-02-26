@@ -5,4 +5,4 @@ Editorial
 .. toctree::
    :maxdepth: 1
 
-   submissions
+   submissions/modules

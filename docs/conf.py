@@ -21,7 +21,7 @@ import sphinx_rtd_theme
 
 sys.path.insert(0, os.path.abspath('..'))
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SciPost_v1.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SciPost_v1.settings.empty")
 
 django.setup()
 
@@ -46,6 +46,8 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
 ]
+
+autodoc_member_order = 'bysource'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -75,6 +77,7 @@ html_theme = 'sphinx_rtd_theme'
 html_theme_options = {
     'logo_only': True,
     'prev_next_buttons_location': 'both',
+    'navigation_depth': -1,
     'style_nav_header_background': '#002b49'
 }
 
@@ -152,3 +155,18 @@ texinfo_documents = [
 
 # If true, `todo` and `todoList` produce output, else they produce nothing.
 todo_include_todos = True
+
+
+def autodoc_skip_member(app, what, name, obj, skip, options):
+    exclusions = [
+        'secrets',
+        'get_secret', # remove secrets import
+        'migrations'
+    ]
+    exclude = name in exclusions
+    if exclude:
+        print('exclude: %s for %s %s %s' % (exclude, what, name, skip))
+    return skip or exclude
+
+def setup(app):
+    app.connect('autodoc-skip-member', autodoc_skip_member)

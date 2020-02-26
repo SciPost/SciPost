@@ -23,12 +23,14 @@ def alternative_spellings(text):
     beyond-ignoring-accents substitutions.
 
     The substitutions which are handled are:
-    - ae to/from ä (also capitalized)
-    - oe to/from ö (also capitalized)
-    - ue to/from ü (also capitalized)
+
+    * ae to/from ä (also capitalized)
+    * oe to/from ö (also capitalized)
+    * ue to/from ü (also capitalized)
 
     Limitations:
-    - each substitution in the substitutions dictionary is applied to
+
+    * each substitution in the substitutions dictionary is applied to
       the whole of the text string (so this does not cover cases where
       a text string has inconsistent spelling mixing the different alternatives)
     """
