@@ -24,7 +24,7 @@ class ArxivCaller:
         """
         Init ArXivCaller.
         """
-        logger.info('Update COI from ArXiv')
+        logger.info('Update COI from arXiv')
 
     def _search_result_present(self, data):
         if len(data.get('entries', [])) > 0:
@@ -33,7 +33,7 @@ class ArxivCaller:
 
     def compare(self, author_profiles, relating_profiles, submission=None):
         """
-        Compare two list of Profiles using the ArXiv API.
+        Compare two list of Profiles using the arXiv API.
         """
 
         count = 0

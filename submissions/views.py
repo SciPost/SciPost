@@ -282,14 +282,15 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
     Withdrawal of the submission by one of the submitting authors.
 
     This method performs the following actions:
-    - makes the Submission and its previous versions publicly invisible
-    - marks any Editorial Assignment as completed
-    - deprecates any Editorial Recommendation
-    - emailing authors, EIC (cc to EdAdmin)
-    - deprecates all outstanding refereeing requests (emailing referees)
-    - if an outstanding puboffer exists, mark it as turned down in EdDecision
-    - deletes production stream (if started, in case puboffer made)
-    - adds an event.
+
+    * makes the Submission and its previous versions publicly invisible
+    * marks any Editorial Assignment as completed
+    * deprecates any Editorial Recommendation
+    * emailing authors, EIC (cc to EdAdmin)
+    * deprecates all outstanding refereeing requests (emailing referees)
+    * if an outstanding puboffer exists, mark it as turned down in EdDecision
+    * deletes production stream (if started, in case puboffer made)
+    * adds an event.
 
     GET shows the info/confirm page
     POST performs the action and returns to the personal page.
@@ -438,11 +439,11 @@ def submission_detail(request, identifier_w_vn_nr):
             # their permission level is.
             context['can_read_editorial_information'] = False
         else:
-            # User may read eg. Editorial Recommendations if he/she is in the Pool.
+            # User may read eg. Editorial Recommendations if they are in the Pool.
             context['can_read_editorial_information'] = submission.fellows.filter(
                 contributor__user=request.user).exists()
 
-            # User may also read eg. Editorial Recommendations if he/she is editorial administrator.
+            # User may also read eg. Editorial Recommendations if they are editorial administrator.
             if not context['can_read_editorial_information']:
                 context['can_read_editorial_information'] = request.user.has_perm(
                     'can_oversee_refereeing')
@@ -1644,7 +1645,7 @@ def vet_submitted_reports_list(request):
 def vet_submitted_report(request, report_id):
     """List Reports with status `unvetted` for vetting purposes.
 
-    A user may only vet reports of submissions he/she is EIC of or if he/she is
+    A user may only vet reports of submissions they are EIC of or if they are
     SciPost Administratoror Vetting Editor.
 
     After vetting an email is sent to the report author, bcc EIC. If report
@@ -2126,8 +2127,9 @@ def restart_refereeing(request, identifier_w_vn_nr):
 
     To be invoked by EdAdmin to restart the latest refereeing round on a Submission.
     Typical circumstances where this might be invoked:
-    - College vote did not converge
-    - authors have appealed a decision to publish as Core (if they had submitted to flagship)
+
+    * College vote did not converge
+    * authors have appealed a decision to publish as Core (if they had submitted to flagship)
     """
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 

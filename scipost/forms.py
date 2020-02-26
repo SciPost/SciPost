@@ -307,9 +307,11 @@ class SciPostAuthenticationForm(AuthenticationForm):
     Inherits from django.contrib.auth.forms:AuthenticationForm.
 
     Extra fields:
+
     * next: url for the next page, obtainable via POST
 
     Overriden methods:
+
     * clean: allow either username, or email as substitute for username
     * confirm_login_allowed: disallow inactive or unvetted accounts.
     """

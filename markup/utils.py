@@ -204,11 +204,13 @@ def detect_markup_language(text):
     Detect whether text is plain text, Markdown or reStructuredText.
 
     This method returns a dictionary containing:
+
     * language
     * errors
 
     Inline and displayed maths are assumed enabled through MathJax.
     For plain text and Markdown, this assumes the conventions
+
     * inline: $ ... $ and \( ... \)
     * displayed: $$ ... $$ and \[ ... \]
 
@@ -221,10 +223,12 @@ def detect_markup_language(text):
     Language markers:
 
     Markdown:
+
     * headers: [one or more #] [non-empty text]
     * blockquotes: one or more lines starting with > [non-empty text]
 
     reStructuredText:
+
     * use of the :math: role or .. math: directive
     * [two or more #][blank space][carriage return]
       [text on a single line, as long as or shorter than # sequence]
@@ -237,9 +241,11 @@ def detect_markup_language(text):
     Language indicators:
 
     Plain text or Markdown:
+
     * inline or displayed maths
 
     Markdown or reStructuredText:
+
     * [=]+ alone on a line  <- users discouraged to use this in Markdown
     * [-]+ alone on a line  <- users discouraged to use this in Markdown
 
@@ -250,6 +256,7 @@ def detect_markup_language(text):
     return an error.
 
     Checking order:
+
     * maths
     * headers/blockquotes
     * hyperlinks

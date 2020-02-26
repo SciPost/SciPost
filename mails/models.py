@@ -20,8 +20,9 @@ MAIL_STATUSES = (
 
 class MailLog(models.Model):
     """
-    The MailLog table is meant as a container of mails. Mails are not directly send, but first
-    added to this table. Using a cronjob, the unsend messages are really being send using
+    The MailLog table is meant as a container of mails.
+    Mails are not directly sent, but added to this table first.
+    Using a cronjob, the unsent messages are eventually sent using
     the chosen MailBackend.
     """
     processed = models.BooleanField(default=False)

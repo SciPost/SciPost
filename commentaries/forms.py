@@ -173,8 +173,9 @@ class VetCommentaryForm(forms.Form):
     the database.
 
     Keyword arguments:
-    commentary_id -- the Commentary.id to process (required)
-    user -- User instance of the vetting user (required)
+
+    * commentary_id -- the Commentary.id to process (required)
+    * user -- User instance of the vetting user (required)
 
     """
     ACTION_MODIFY = 0

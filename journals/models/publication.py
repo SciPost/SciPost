@@ -25,6 +25,7 @@ class PublicationAuthorsTable(models.Model):
     PublicationAuthorsTable represents an author of a Publication.
 
     Fields:
+
     * publication
     * profile
     * affiliations: for this author/Publication (supersede profile.affiliations)

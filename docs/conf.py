@@ -161,11 +161,10 @@ def autodoc_skip_member(app, what, name, obj, skip, options):
     exclusions = [
         'secrets',
         'get_secret', # remove secrets import
-        'migrations'
+        'migrations',
+        'queryset', # to prevent evaluation of the querysets for DRF-derived CBVs
     ]
     exclude = name in exclusions
-    if exclude:
-        print('exclude: %s for %s %s %s' % (exclude, what, name, skip))
     return skip or exclude
 
 def setup(app):
