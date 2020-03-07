@@ -127,7 +127,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 # NOTED AS BROKEN 2019-11-08
 # Traceback (most recent call last):
 #  File "/Users/jscaux/Sites/SciPost.org/scipost_v1/submissions/test_views.py", line 135, in test_submit_correct_manuscript
-#   self.assertEquals(response.status_code, 403)
+#   self.assertEqual(response.status_code, 403)
 # AssertionError: 302 != 403
 # class SubmitManuscriptTest(BaseContributorTestCase):
 #     def test_submit_correct_manuscript(self):
@@ -137,7 +137,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 #         # Unauthorized request shouldn't be possible
 #         response = client.post(reverse('submissions:prefill_using_identifier'),
 #                                {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
-#         self.assertEquals(response.status_code, 403)
+#         self.assertEqual(response.status_code, 403)
 
 #         # Registered Contributor should get 200; assuming prefiller is working properly
 #         self.assertTrue(client.login(username="Test", password="testpw"))
