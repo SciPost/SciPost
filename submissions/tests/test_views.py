@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import pytz
 
 from django.urls import reverse
 from django.test import TestCase, tag
@@ -293,7 +294,8 @@ class SubmitReportTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        report_deadline = Faker().date_time_between(
+            start_date="now", end_date="+30d", tzinfo=pytz.utc)
         self.submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
         self.submission.authors.remove(self.current_contrib)
         self.submission.authors_false_claims.add(self.current_contrib)
@@ -304,7 +306,8 @@ class SubmitReportTest(BaseContributorTestCase):
     @tag('reports')
     def test_status_code_200_no_report_set(self):
         '''Test response for view if no report is submitted yet.'''
-        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        report_deadline = Faker().date_time_between(
+            start_date="now", end_date="+30d", tzinfo=pytz.utc)
         submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
         submission.authors.remove(self.current_contrib)
         submission.authors_false_claims.add(self.current_contrib)

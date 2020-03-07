@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import pytz
 import random
 import factory
 
@@ -24,7 +25,7 @@ class CommentFactory(factory.django.DjangoModelFactory):
     comment_text = factory.Faker('paragraph')
     remarks_for_editors = factory.Faker('paragraph')
     file_attachment = Faker().file_name(extension='pdf')
-    date_submitted = factory.Faker('date_this_decade')
+    date_submitted = factory.Faker('date_time_this_decade', tzinfo=pytz.utc)
 
     # Categories
     is_cor = factory.Faker('boolean', chance_of_getting_true=20)
