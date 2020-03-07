@@ -1,7 +1,7 @@
 # Core
 argon2-cffi==16.3.0		# Password hashing algorithm
 Babel==2.4
-Django==2.1.15			# 2020-03-07
+Django==2.2.11			# 2020-03-07
 feedparser==5.2.1		# Check: not updated since 2016
 psycopg2==2.7.3.2  		# PostgreSQL engine
 pytz==2017.2			# Timezone package
@@ -15,7 +15,7 @@ mock==2.0.0
 django-autocomplete-light==3.4.1 # 2019-11-17
 django-countries==5.3.3
 django-debug-toolbar==1.8
-django-extensions==1.7.6
+django-extensions==2.2.8
 django-filter==1.0.4
 django-guardian==1.5.1		# 2019-05-11
 django-mathjax==0.0.8
