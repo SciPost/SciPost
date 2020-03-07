@@ -53,7 +53,7 @@ class TestArxivQueryForm(TestCase):
         form = ArxivQueryForm(invalid_data)
         self.assertFalse(form.is_valid())
         error_message = form.errors['identifier'][0]
-        self.assertRegexpMatches(error_message, re.compile('already exist'))
+        self.assertRegex(error_message, re.compile('already exists'))
 
     def test_valid_but_non_existent_identifier_is_invalid(self):
         invalid_data = {'identifier': '1613.07611v1'}
@@ -77,7 +77,7 @@ class TestDOIToQueryForm(TestCase):
         form = DOIToQueryForm(invalid_data)
         self.assertFalse(form.is_valid())
         error_message = form.errors['doi'][0]
-        self.assertRegexpMatches(error_message, re.compile('already exist'))
+        self.assertRegex(error_message, re.compile('already exists'))
 
     def test_physrev_doi_is_valid(self):
         physrev_doi = "10.1103/PhysRevLett.123.183602"
@@ -181,7 +181,7 @@ class TestRequestPublishedArticleForm(TestCase):
         form = RequestPublishedArticleForm(invalid_data)
         self.assertEqual(form.is_valid(), False)
         error_message = form.errors['pub_DOI'][0]
-        self.assertRegexpMatches(error_message, re.compile('already exist'))
+        self.assertRegex(error_message, re.compile('already exists'))
 
     def test_commentary_without_pub_DOI_is_invalid(self):
         invalid_data = {**self.valid_form_data, **{'pub_DOI': ''}}
@@ -208,7 +208,7 @@ class TestRequestArxivPreprintForm(TestCase):
         form = RequestArxivPreprintForm(invalid_data)
         self.assertEqual(form.is_valid(), False)
         error_message = form.errors['arxiv_identifier'][0]
-        self.assertRegexpMatches(error_message, re.compile('already exist'))
+        self.assertRegex(error_message, re.compile('already exists'))
 
     def test_commentary_without_arxiv_identifier_is_invalid(self):
         invalid_data = {**self.valid_form_data, **{'arxiv_identifier': ''}}
