@@ -162,7 +162,8 @@ class MailEngine:
         json_location = '%s/templates/email/%s.json' % (settings.BASE_DIR, self.mail_code)
 
         try:
-            self.mail_data = json.loads(open(json_location).read())
+            with open(json_location, 'r') as f:
+                self.mail_data = json.loads(f.read())
         except OSError:
             raise ImportError('No configuration file found. Mail code: %s' % self.mail_code)
 
