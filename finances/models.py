@@ -25,11 +25,12 @@ class Subsidy(models.Model):
     to a corresponding Subsidy instance.
 
     This can for example be:
-    - a Sponsorship agreement
-    - an incidental grant
-    - a development grant for a specific purpose
-    - a Collaboration Agreement
-    - a donation
+
+    * a Sponsorship agreement
+    * an incidental grant
+    * a development grant for a specific purpose
+    * a Collaboration Agreement
+    * a donation
 
     The date field represents the date at which the Subsidy was formally agreed,
     or (e.g. for Sponsorship Agreements) the date at which the agreement enters into force.

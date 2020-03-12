@@ -41,7 +41,7 @@ SCIPOST_SUMMARY_FOOTER_HTML = (
 
 
 EMAIL_FOOTER = (
-    '\n{% load staticfiles %}'
+    '\n{% load static %}'
     '<a href="https://scipost.org"><img src="{% static '
     '\'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px"></a><br/>'
     '<div style="background-color: #f0f0f0; color: #002B49; align-items: center;">'

@@ -191,7 +191,7 @@ def register(request):
 
     This public registration view shows and processes the form
     that will create new user account requests. After registration
-    the Contributor will need to activate its account via the mail
+    the Contributor will need to activate their account via the mail
     sent. After activation the user needs to be vetted by the SciPost
     admin.
     """
@@ -237,8 +237,8 @@ def invitation(request, key):
     """Registration Invitation reception page.
 
     If a scientist has recieved an invitation (RegistrationInvitation)
-    he/she will finish it's invitation via still view which will prefill
-    the default registration form.
+    they will the registration via this view which will prefill
+    the default registration form from the invitation data.
     """
     invitation = get_object_or_404(RegistrationInvitation, invitation_key=key)
     if invitation.has_responded:
@@ -283,8 +283,8 @@ def activation(request, contributor_id, key):
 
 def request_new_activation_link(request, contributor_id, key):
     """
-    Once a user tries to activate its account using the email verification link sent
-    and the key has expired, the user redirected to possibly request a new token.
+    Once a user tries to activate their account using the email verification link sent
+    and the key has expired, the user is redirected here to request a new token.
     """
     contributor = get_object_or_404(Contributor, id=contributor_id, activation_key=key)
     if request.GET.get('confirm', False):
@@ -309,7 +309,7 @@ def unsubscribe(request, contributor_id, key):
     """
     The link to this method is included in all email communications
     with a Contributor. The key used is the original activation key.
-    At this link, the Contributor can confirm that he/she does not
+    At this link, the Contributor can confirm that they does not
     want to receive any non-essential email notifications from SciPost.
     """
     contributor = get_object_or_404(Contributor, id=contributor_id, activation_key=key)
@@ -434,10 +434,12 @@ class SciPostLoginView(LoginView):
     Inherits from django.contrib.auth.views:LoginView.
 
     Overriden fields:
+
     * template_name
     * authentication_form
 
     Overriden methods:
+
     * get initial: allow prefilling with GET data, for 'next'
     * get redirect url
     """
@@ -498,9 +500,11 @@ class SciPostPasswordChangeView(PasswordChangeView):
     Inherits from django.contrib.auth.views:PasswordChangeView.
 
     Overriden fields:
+
     * template_name
 
     Overriden methods:
+
     * get_success_url
     """
     template_name = 'scipost/password_change.html'
@@ -523,11 +527,13 @@ class SciPostPasswordResetView(PasswordResetView):
     Derived from django.contrib.auth.views:PasswordResetView.
 
     Overriden fields:
+
     * template_name
     * email_template_name
     * subject_template_name
 
     Overriden methods:
+
     * get_success_url
     """
 
@@ -552,9 +558,11 @@ class SciPostPasswordResetConfirmView(PasswordResetConfirmView):
     Derived from django.contrib.auth.views:PasswordResetConfirmView.
 
     Overriden fields:
+
     * template_name
 
     Overriden methods:
+
     * get_success_url
     """
     template_name = 'scipost/password_reset_confirm.html'
@@ -1153,8 +1161,9 @@ class ContributorDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
     """
     List Contributors with potential (not yet handled) duplicates.
     Two sources of duplicates are separately considered:
-    - duplicate full names (last name + first name)
-    - duplicate email addresses.
+
+    * duplicate full names (last name + first name)
+    * duplicate email addresses.
 
     """
     permission_required = 'scipost.can_vet_registration_requests'

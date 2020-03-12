@@ -1,6 +1,11 @@
-*******
-Servers
-*******
+*****************
+SciPost unleashed
+*****************
+
+
+This section describes how the SciPost stack
+is fired up and unleashed at `scipost.org <https://scipost.org>`_.
+
 
 
 Production server

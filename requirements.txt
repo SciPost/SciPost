@@ -1,7 +1,7 @@
 # Core
 argon2-cffi==16.3.0		# Password hashing algorithm
 Babel==2.4
-Django==2.1.8			# 2019-05-18
+Django==2.2.11			# 2020-03-07
 feedparser==5.2.1		# Check: not updated since 2016
 psycopg2==2.7.3.2  		# PostgreSQL engine
 pytz==2017.2			# Timezone package
@@ -26,10 +26,10 @@ django-maintenancemode-2==1.1.11
 
 
 # Documentation Packages
-docutils==0.14
-Pygments==2.2.0			# Syntax highlighter
-Sphinx==1.4.9
-sphinx-rtd-theme==0.1.9		# Sphinx theme
+docutils==0.16			# 2020-02-21
+Pygments==2.5.2			# 2020-02-21 Syntax highlighter
+Sphinx==2.4.2			# 2020-02-21
+sphinx-rtd-theme==0.4.3		# 2020-02-21 Sphinx theme
 
 
 # Sentry

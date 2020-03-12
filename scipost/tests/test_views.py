@@ -36,13 +36,13 @@ class RequestCommentaryTest(TestCase):
         # Registered Contributor should get 200
         self.client.login(username="Test", password="testpw")
         request = self.client.get(self.view_url)
-        self.assertEquals(request.status_code, 200)
+        self.assertEqual(request.status_code, 200)
 
     def test_post_invalid_forms(self):
         """Test different kind of invalid RequestCommentaryForm submits"""
         self.client.login(username="Test", password="testpw")
         request = self.client.post(self.view_url)
-        self.assertEquals(request.status_code, 200)
+        self.assertEqual(request.status_code, 200)
 
 
 class VetCommentaryRequestsTest(TestCase):
@@ -65,17 +65,17 @@ class VetCommentaryRequestsTest(TestCase):
         """Test view permission is restricted to Vetting Editors."""
         # Anoymous user
         response = self.client.get(self.view_url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
         # Wrong permissions group
         self.client.login(username=self.contributor.user.username, password=self.password)
         response = self.client.get(self.view_url)
-        self.assertEquals(response.status_code, 403)
+        self.assertEqual(response.status_code, 403)
 
         # Right permissions group
         self.set_required_permissions_and_login()
         response = self.client.get(self.view_url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
     def test_get_valid_unvetted_commentaries(self):
         """Test if valid commentaries are sent back to user, if exists."""
@@ -84,12 +84,12 @@ class VetCommentaryRequestsTest(TestCase):
         # No Commentary exists!
         response = self.client.get(self.view_url)
         self.assertTrue('commentary_to_vet' in response.context)
-        self.assertEquals(response.context['commentary_to_vet'], None)
+        self.assertEqual(response.context['commentary_to_vet'], None)
 
         # Only vetted Commentaries exist!
         CommentaryFactory()
         response = self.client.get(self.view_url)
-        self.assertEquals(response.context['commentary_to_vet'], None)
+        self.assertEqual(response.context['commentary_to_vet'], None)
 
         # Unvetted Commentaries do exist!
         UnvettedCommentaryFactory()
@@ -111,7 +111,7 @@ class BrowseCommentariesTest(TestCase):
     def test_response_list(self):
         '''Test if the browse view is passing commentaries to anoymous users.'''
         response = self.client.get(self.view_url)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
 
         # The created vetted Commentary is found!
         self.assertTrue(response.context['commentary_list'].count() >= 1)

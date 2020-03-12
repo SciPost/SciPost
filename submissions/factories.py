@@ -40,7 +40,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     remarks_for_editors = factory.Faker('paragraph')
     thread_hash = factory.Faker('uuid4')
     is_current = True
-    submission_date = factory.Faker('date_this_decade')
+    submission_date = factory.Faker('date_time_this_decade', tzinfo=pytz.utc)
     latest_activity = factory.LazyAttribute(lambda o: Faker().date_time_between(
         start_date=o.submission_date, end_date="now", tzinfo=pytz.UTC))
     preprint = factory.SubFactory('preprints.factories.PreprintFactory')
@@ -259,7 +259,7 @@ class ReportFactory(factory.django.DjangoModelFactory):
     status = factory.Iterator(REPORT_STATUSES, getter=lambda c: c[0])
     submission = factory.SubFactory('submissions.factories.SubmissionFactory')
     report_nr = factory.LazyAttribute(lambda o: o.submission.reports.count() + 1)
-    date_submitted = factory.Faker('date_time_this_decade')
+    date_submitted = factory.Faker('date_time_this_decade', tzinfo=pytz.utc)
     vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
     author = factory.SubFactory('scipost.factories.ContributorFactory')
     strengths = factory.Faker('paragraph')

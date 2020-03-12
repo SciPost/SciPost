@@ -27,15 +27,18 @@ class Notification(models.Model):
     Action model describing the actor acting out a verb (on an optional
     target).
     Nomenclature based on http://activitystrea.ms/specs/atom/1.0/
+
     Generalized Format::
         <actor> <verb> <time>
         <actor> <verb> <target> <time>
         <actor> <verb> <action_object> <target> <time>
+
     Examples::
         <justquick> <reached level 60> <1 minute ago>
         <brosner> <commented on> <pinax/pinax> <2 hours ago>
         <washingtontimes> <started follow> <justquick> <8 minutes ago>
         <mitsuhiko> <closed> <issue 70> on <mitsuhiko/flask> <about 2 hours ago>
+
     Unicode Representation::
         justquick reached level 60 1 minute ago
         mitsuhiko closed issue 70 on mitsuhiko/flask 3 hours ago

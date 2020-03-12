@@ -31,8 +31,9 @@ US_NOTICE = 'Warning: This field is out of service and will be removed in the fu
 class Comment(TimeStampedModel):
     """ A Comment is an unsollicited note, submitted by a Contributor.
 
-    A Comment is pointed to a particular publication or in reply to an earlier Comment. It
-    may be l"""
+    A Comment is pointed to a particular Publication, Report or in reply
+    to an earlier Comment.
+    """
 
     status = models.SmallIntegerField(default=STATUS_PENDING, choices=COMMENT_STATUS)
     vetted_by = models.ForeignKey('scipost.Contributor', blank=True, null=True,

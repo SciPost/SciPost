@@ -1,6 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+import pytz
 
 from django.urls import reverse
 from django.test import TestCase, tag
@@ -127,7 +128,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 # NOTED AS BROKEN 2019-11-08
 # Traceback (most recent call last):
 #  File "/Users/jscaux/Sites/SciPost.org/scipost_v1/submissions/test_views.py", line 135, in test_submit_correct_manuscript
-#   self.assertEquals(response.status_code, 403)
+#   self.assertEqual(response.status_code, 403)
 # AssertionError: 302 != 403
 # class SubmitManuscriptTest(BaseContributorTestCase):
 #     def test_submit_correct_manuscript(self):
@@ -137,7 +138,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 #         # Unauthorized request shouldn't be possible
 #         response = client.post(reverse('submissions:prefill_using_identifier'),
 #                                {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
-#         self.assertEquals(response.status_code, 403)
+#         self.assertEqual(response.status_code, 403)
 
 #         # Registered Contributor should get 200; assuming prefiller is working properly
 #         self.assertTrue(client.login(username="Test", password="testpw"))
@@ -293,7 +294,8 @@ class SubmitReportTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        report_deadline = Faker().date_time_between(
+            start_date="now", end_date="+30d", tzinfo=pytz.utc)
         self.submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
         self.submission.authors.remove(self.current_contrib)
         self.submission.authors_false_claims.add(self.current_contrib)
@@ -304,7 +306,8 @@ class SubmitReportTest(BaseContributorTestCase):
     @tag('reports')
     def test_status_code_200_no_report_set(self):
         '''Test response for view if no report is submitted yet.'''
-        report_deadline = Faker().date_time_between(start_date="now", end_date="+30d", tzinfo=None)
+        report_deadline = Faker().date_time_between(
+            start_date="now", end_date="+30d", tzinfo=pytz.utc)
         submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
         submission.authors.remove(self.current_contrib)
         submission.authors_false_claims.add(self.current_contrib)

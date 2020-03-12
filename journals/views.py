@@ -95,9 +95,10 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
     Dispatch given DOI route to the appropriate view according to the Journal's settings.
 
     journal_tag -- Part of the DOI right before the first period.
-    part_1 (optional) -- Part of the DOI after the first period.
-    part_2 (optional) -- Part of the DOI after the second period.
-    part_3 (optional) -- Part of the DOI after the third period.
+
+    * part_1 (optional) -- Part of the DOI after the first period.
+    * part_2 (optional) -- Part of the DOI after the second period.
+    * part_3 (optional) -- Part of the DOI after the third period.
     """
     journal = get_object_or_404(Journal, doi_label=journal_tag)
     if part_1 is None:

@@ -36,14 +36,16 @@ class Profile(models.Model):
 
     The information is only partial, and is meant to be used among others to:
 
-    #. help with editorial matters:
-       #. help EdAdmin identify prospective Fellows
-       #. help Fellows identify appropriate referees
-       #. mark potential conflicts of interest
+    * help with editorial matters:
 
-    #. allow respecting people's preferences:
-       #. mark somebody as not willing to receive emails from SciPost.
-       #. mark somebody as a non-referee (if that person does not want to referee for SciPost)
+       * help EdAdmin identify prospective Fellows
+       * help Fellows identify appropriate referees
+       * mark potential conflicts of interest
+
+    * allow respecting people's preferences:
+
+       * mark somebody as not willing to receive emails from SciPost.
+       * mark somebody as a non-referee (if that person does not want to referee for SciPost)
     """
 
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, blank=True, null=True)
@@ -170,6 +172,7 @@ class Affiliation(models.Model):
     Link between a Profile and an Organization, for a specified time interval.
 
     Fields:
+
     * profile
     * organization
     * category

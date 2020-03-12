@@ -12,8 +12,6 @@ from django.utils import timezone
 from . import constants
 from .models.decision import EditorialDecision
 
-now = timezone.now()
-
 
 class SubmissionQuerySet(models.QuerySet):
     def _newest_version_only(self, queryset):
@@ -264,9 +262,10 @@ class EditorialAssignmentQuerySet(models.QuerySet):
         return self.filter(date_created__gt=timezone.now() - timezone.timedelta(days=365))
 
     def refereeing_deadline_within(self, days=7):
+        now = timezone.now()
         return self.exclude(
-            submission__reporting_deadline__gt=timezone.now() + timezone.timedelta(days=days)
-            ).exclude(submission__reporting_deadline__lt=timezone.now())
+            submission__reporting_deadline__gt=now + timezone.timedelta(days=days)
+            ).exclude(submission__reporting_deadline__lt=now)
 
     def next_invitation_to_be_sent(self, submission_id):
         """Return EditorialAssignment that needs to be sent next."""
@@ -465,14 +464,15 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def approaching_deadline(self, days=2):
         """Filter non-fulfilled invitations for which the deadline is within `days` days."""
         qs = self.in_process()
-        pseudo_deadline = now + datetime.timedelta(days)
-        deadline = datetime.datetime.now()
+        pseudo_deadline = timezone.now() + datetime.timedelta(days)
+        deadline = timezone.now()
         qs = qs.filter(submission__reporting_deadline__lte=pseudo_deadline,
                        submission__reporting_deadline__gte=deadline)
         return qs
 
     def overdue(self):
         """Filter non-fulfilled invitations that are overdue."""
+        now = timezone.now()
         return self.in_process().filter(submission__reporting_deadline__lte=now)
 
 
