@@ -43,6 +43,28 @@
     </div>
   </div>
 
+  {% with active_submissions=collection.submissions.actively_refereeing %}
+    {% if active_submissions|length > 0 %}
+      <div class="row">
+	<div class="col-12">
+	  <h3 class="highlight">Submissions to this Collection</h3>
+	  <ul>
+	    {% for submission in collection.submissions.accepted %}
+	      <li><strong class="text-success">accepted:</strong>&nbsp;
+		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+	      </li>
+	    {% endfor %}
+	    {% for submission in collection.submissions.actively_refereeing %}
+	      <li>
+		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+	      </li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    {% endif %}
+  {% endwith %}
+
   <div class="row">
     <div class="col-12">
       <h3 class="highlight">Publications in this Collection</h3>

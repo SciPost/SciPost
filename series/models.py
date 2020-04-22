@@ -47,6 +47,10 @@ class Collection(models.Model):
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to='series/collections/images/', blank=True)
+    submissions = models.ManyToManyField(
+        'submissions.Submission',
+        blank=True
+    )
     publications = models.ManyToManyField(
         'journals.Publication',
         through='series.CollectionPublicationsTable',
