@@ -54,8 +54,13 @@
 		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
 	      </li>
 	    {% endfor %}
+	    {% for submission in collection.submissions.revision_requested %}
+	      <li><strong class="text-primary">awaiting resubmission:</strong>&nbsp;
+		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+	      </li>
+	    {% endfor %}
 	    {% for submission in collection.submissions.actively_refereeing %}
-	      <li>
+	      <li><strong class="text-warning">under refereeing:</strong>&nbsp;
 		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
 	      </li>
 	    {% endfor %}
