@@ -20,6 +20,11 @@
         <li class="nav-item">
           <a class="nav-link" id="accepted-tab" data-toggle="tab" href="#accepted" role="tab" aria-controls="accepted" aria-selected="true">Accepted Submissions</a>
         </li>
+	{% if journal.series_set.all|length > 0 %}
+	  <li class="nav-item">
+	    <a class="nav-link" id="series-tab" data-toggle="tab" href="#series" role="tab" aria-controls="series" aria-selected="true">Series</a>
+	  </li>
+	{% endif %}
         <li class="nav-item">
           <a class="nav-link" id="most-cited-tab" data-toggle="tab" href="#most-cited" role="tab" aria-controls="most-cited" aria-selected="true">Most cited</a>
         </li>
@@ -59,6 +64,16 @@
             {% endfor %}
           </ul>
         </div>
+	{% if journal.series_set.all|length > 0 %}
+	  <div class="tab-pane pt-4" id="series" role="tabpanel" aria-labelledby="series-tab">
+	    <h3 class="highlight">Series contained in this Journal</h3>
+	    <ul>
+	      {% for series in journal.series_set.all %}
+		<li><a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a></li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	{% endif %}
         <div class="tab-pane pt-4" id="most-cited" role="tabpanel" aria-labelledby="most-cited-tab">
           <ul class="list-unstyled mt-2">
             {% for publication in most_cited %}
@@ -77,7 +92,7 @@
             <ul>
               {% for issue in journal.get_issues %}
                 <li>
-                  <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+                  <a href="{{ issue.get_absolute_url }}">{{ issue }}</a>
                   {% if issue.proceedings %}
                     {% include 'partials/proceedings/proceedings_li.html' with proceedings=issue.proceedings %}
                   {% endif %}

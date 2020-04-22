@@ -19,6 +19,19 @@
     <div class="col-12">
       <h1 class="highlight">
 	{{ collection.series.name }}
+	{% if collection.series.container_journals %}
+	  <br>
+	  <small><em>
+	    <ul class="list list-inline mt-2 mb-0">
+	      <li class="list-inline-item mx-0">contained in</li>
+	      {% for container in collection.series.container_journals.all %}
+		<li class="list-inline-item">
+		  <a href="{{ container.get_absolute_url }}">{{ container }}</a>
+		</li>
+	      {% endfor %}
+	    </ul>
+	  </em></small>
+	{% endif %}
       </h1>
       <h2 class="highlight">
 	{{ collection.name }}

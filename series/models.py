@@ -17,6 +17,10 @@ class Series(models.Model):
                    '<a href="/markup/help/" target="_blank">markup help</a> pages.')
     )
     image = models.ImageField(upload_to='series/images/', blank=True)
+    container_journals = models.ManyToManyField(
+        'journals.Journal',
+        blank=True
+    )
 
     class Meta:
         verbose_name_plural = 'series'
@@ -30,7 +34,7 @@ class Series(models.Model):
 
 class Collection(models.Model):
     """
-    A set of Publications which form a coherent whole.
+    A set of Publications which forms a coherent whole.
     """
     series = models.ForeignKey(
         'series.Series',
