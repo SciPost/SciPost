@@ -18,12 +18,12 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">
-	{{ collection.series.name }}
+	<a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a>
 	{% if collection.series.container_journals %}
 	  <br>
 	  <small><em>
 	    <ul class="list list-inline mt-2 mb-0">
-	      <li class="list-inline-item mx-0">contained in</li>
+	      <li class="list-inline-item mx-0">a series contained in</li>
 	      {% for container in collection.series.container_journals.all %}
 		<li class="list-inline-item">
 		  <a href="{{ container.get_absolute_url }}">{{ container }}</a>
@@ -34,7 +34,7 @@
 	{% endif %}
       </h1>
       <h2 class="highlight">
-	{{ collection.name }}
+	Collection&emsp;{{ collection.name }}
       </h2>
     </div>
   </div>

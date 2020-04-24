@@ -16,6 +16,11 @@ class Series(models.Model):
         help_text=('You can use plain text, Markdown or reStructuredText; see our '
                    '<a href="/markup/help/" target="_blank">markup help</a> pages.')
     )
+    information = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'),
+        blank=True
+    )
     image = models.ImageField(upload_to='series/images/', blank=True)
     container_journals = models.ManyToManyField(
         'journals.Journal',
