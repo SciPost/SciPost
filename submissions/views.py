@@ -2068,7 +2068,9 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
 
     if decision.decision == EIC_REC_PUBLISH:
         new_sub_status = STATUS_ACCEPTED
-        if decision.for_journal != submission.submitted_to:
+        if (decision.for_journal != submission.submitted_to
+            # promotion to Selections assumed automatically accepted by authors:
+            and decision.for_journal.name != 'SciPost Selections'):
             new_sub_status = STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
         Submission.objects.filter(id=submission.id).update(
             visible_public=True, status=new_sub_status, acceptance_date=datetime.date.today(),
