@@ -2,6 +2,7 @@
 
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
+{% load bootstrap %}
 {% load static %}
 {% load user_groups %}
 {% load add_get_parameters %}
@@ -43,12 +44,12 @@
 
 
   <div class="row">
-    <div class="col-5">
+    <div class="col-lg-5">
       <p>Organizations are linked through appearing in a publication's author affiliations, grant-giving agencies or explicit support acknowledgements.</p>
       <p>For each Organization, the NAP (number of associated publications) is given (you can order in decreasing/increasing NAP using the header arrows).</p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-5">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-5">
       <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
       <ul>
 	<li>associated publications</li>
@@ -62,11 +63,20 @@
   </div>
 
   <div class="row">
-    <div class="col-3">
+    <div class="col-lg-4">
+      <h3>Search for a particular Organization</h3>
+      <p>(by name or acronym)</p>
+    </div>
+    <div class="col-lg-8">
+      {{ select_linked_organization_form|bootstrap }}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-3">
       <h3>Click on flag to view by Country</h3>
       <p><a href="{% url 'organizations:organizations' %}">View all</a></p>
     </div>
-    <div class="col-8">
+    <div class="col-lg-8">
       <ul>
 	{% for code in countrycodes %}
 	  {% get_country code as country_obj %}
@@ -152,4 +162,5 @@
 
 {% block footer_script %}
   <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+  {{ select_linked_organization_form.media }}
 {% endblock %}
