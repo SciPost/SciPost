@@ -8,11 +8,8 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 
-from rest_framework import routers
+# from rest_framework import routers
 
-from conflicts.viewsets import ConflictOfInterestViewSet
-from journals.viewsets import PublicationViewSetForGoogleScholar
-from news.viewsets import NewsItemViewSet
 from journals.regexes import JOURNAL_DOI_LABEL_REGEX
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
@@ -20,12 +17,6 @@ from organizations.views import OrganizationListView
 # Journal URL Regex
 JOURNAL_REGEX = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
 
-
-# API Routing
-router = routers.SimpleRouter()
-router.register(r'news', NewsItemViewSet)
-router.register(r'conflicts', ConflictOfInterestViewSet)
-router.register(r'publications/GoogleScholar', PublicationViewSetForGoogleScholar)
 
 # Disable admin login view which is essentially a 2FA workaround.
 admin.site.login = login_required(admin.site.login)
@@ -35,7 +26,7 @@ urlpatterns = [
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include((router.urls, 'api'))),
+    url(r'^api/', include('api.urls', namespace='api')),
     url(r'^10.21468/%s/' % JOURNAL_REGEX,
         include('journals.urls.journal', namespace="prefixed_journal")),
     url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
