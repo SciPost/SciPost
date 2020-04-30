@@ -10,8 +10,6 @@ from rest_framework import routers
 from conflicts.viewsets import ConflictOfInterestViewSet
 from news.viewsets import NewsItemViewSet
 
-from journals.api import views as journal_api_views
-
 
 router = routers.SimpleRouter()
 router.register(r'news', NewsItemViewSet)
@@ -26,5 +24,6 @@ urlpatterns = router.urls
 urlpatterns += [
 
     path('journals/', include('journals.api.urls')),
+    path('organizations/', include('organizations.api.urls')),
 
 ]
