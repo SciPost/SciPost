@@ -19,5 +19,9 @@ urlpatterns = [
         api_views.OrganizationRetrieveAPIView.as_view(),
         name='organization-detail'
     ),
-
+    path( # /api/organizations/<int:pk>/balance
+        '<int:pk>/balance',
+        api_views.OrganizationBalanceAPIView.as_view(),
+        name='organization-balance',
+    )
 ]

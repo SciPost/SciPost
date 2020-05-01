@@ -34,4 +34,7 @@ class OrgPubFractionListAPIView(ListAPIView):
         year = self.request.query_params.get('year', None)
         if year is not None:
             queryset = queryset.filter(publication__publication_date__startswith=year)
+        journal = self.request.query_params.get('journal', None)
+        if journal is not None:
+            queryset = queryset.filter(publication__doi_label__istartswith=journal + '.')
         return queryset

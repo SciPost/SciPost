@@ -16,7 +16,7 @@ class PublicationSerializer(serializers.BaseSerializer):
     authors = StringListField()
     doi = serializers.CharField(max_length=256)
     publication_date = serializers.DateField()
-    journal_title = serializers.CharField(max_length=128)
+    journal_name = serializers.CharField(max_length=128)
     issn = serializers.CharField(max_length=16)
     volume = serializers.IntegerField()
     issue = serializers.IntegerField()
@@ -36,7 +36,7 @@ class PublicationSerializer(serializers.BaseSerializer):
             'authors': authors,
             'doi': instance.doi_string,
             'publication_date': instance.publication_date.strftime('%Y/%m/%d'),
-            'journal_title': str(instance.get_journal()),
+            'journal_name': str(instance.get_journal()),
             'issn': instance.get_journal().issn,
         }
         if instance.in_issue:
@@ -50,7 +50,7 @@ class PublicationSerializer(serializers.BaseSerializer):
 
 class OrgPubFractionSerializer(serializers.ModelSerializer):
     """
-    Read-only BaseSerializer for OrgPubFraction.
+    Read-only ModelSerializer for OrgPubFraction.
 
     Takes optional `fields` argument specifying which fields should be displayed.
     """
