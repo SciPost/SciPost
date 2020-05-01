@@ -1,4 +1,4 @@
-_copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
+__copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
@@ -18,6 +18,12 @@ urlpatterns = [
         'publications/<str:doi_label>',
         api_views.PublicationRetrieveAPIView.as_view(),
         name='publication-detail'
+    ),
+
+    path( # /api/journals/pubfractions
+        'pubfractions',
+        api_views.OrgPubFractionListAPIView.as_view(),
+        name='pubfractions'
     ),
 
 ]

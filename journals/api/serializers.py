@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from rest_framework import serializers
 
-from ..models import Publication
+from ..models import Publication, OrgPubFraction
 
 
 class StringListField(serializers.ListField):
@@ -20,6 +20,7 @@ class PublicationSerializer(serializers.BaseSerializer):
     issn = serializers.CharField(max_length=16)
     volume = serializers.IntegerField()
     issue = serializers.IntegerField()
+    url = serializers.URLField()
     pdf_url = serializers.URLField()
 
     def to_representation(self, instance):
@@ -42,5 +43,34 @@ class PublicationSerializer(serializers.BaseSerializer):
             if instance.in_issue.in_volume:
                 rep['volume'] = instance.in_issue.in_volume.number
             rep['issue'] = instance.in_issue.number
+        rep['url'] = 'https://scipost.org%s' % instance.get_absolute_url()
         rep['pdf_url'] = 'https://scipost.org%s/pdf' % instance.get_absolute_url()
         return rep
+
+
+class OrgPubFractionSerializer(serializers.ModelSerializer):
+    """
+    Read-only BaseSerializer for OrgPubFraction.
+
+    Takes optional `fields` argument specifying which fields should be displayed.
+    """
+    publication = PublicationSerializer()
+
+    class Meta:
+        model = OrgPubFraction
+        fields = ['organization', 'publication', 'fraction']
+        read_only_fields = ['organization', 'publication', 'fraction']
+
+    def __init__(self, *args, **kwargs):
+        # Don't pass the 'fields' arg up to the superclass
+        fields = kwargs.pop('fields', None)
+
+        # Instantiate the superclass normally
+        super(OrgPubFractionSerializer, self).__init__(*args, **kwargs)
+
+        if fields is not None:
+            # Drop any fields that are not specified in the `fields` argument.
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
