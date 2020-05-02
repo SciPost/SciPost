@@ -35,11 +35,11 @@ class OrganizationBalanceSerializer(serializers.BaseSerializer):
         cumulative_balance = 0
         for year in pubyears:
             rep[str(year)] = {}
-            contribution = 0
-            rep[str(year)]['contribution'] = contribution
             summed_expenditure = 0
             rep[str(year)]['expenditures'] = {}
             pfy = pubfractions.filter(publication__publication_date__year=year)
+            contribution = instance.total_subsidies_in_year(year)
+            rep[str(year)]['contribution'] = contribution
             journal_labels = set([f.publication.get_journal().doi_label for f in pfy.all()])
             for journal_label in journal_labels:
                 sumpf = pfy.filter(

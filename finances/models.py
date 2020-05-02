@@ -60,6 +60,20 @@ class Subsidy(models.Model):
     def get_absolute_url(self):
         return reverse('finances:subsidy_details', args=(self.id,))
 
+    def value_in_year(self, year):
+        """
+        Normalize the value of the subsidy per year.
+        """
+        if self.date_until is None:
+            if self.date.year == year:
+                return self.amount
+            return 0
+        if self.date.year <= year and self.date_until.year >= year:
+            # keep it simple: for all years covered, spread evenly
+            nr_years_covered = self.date_until.year - self.date.year + 1
+            return int(self.amount/nr_years_covered)
+        return 0
+
     @property
     def renewal_action_date(self):
         if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:

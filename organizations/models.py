@@ -184,22 +184,23 @@ class Organization(models.Model):
             return self.subsidy_set.order_by('-date_until').first().date_until
         return '-'
 
+    def total_subsidies_in_year(self, year):
+        """
+        Return the total subsidies for this Organization in that year.
+        """
+        total = 0
+        for subsidy in self.subsidy_set.filter(
+                date__year__lte=year).filter(
+                    models.Q(date_until=None) | models.Q(date_until__year__gte=year)):
+            total += subsidy.value_in_year(year)
+        return total
+
     def get_total_subsidies_obtained(self, n_years_past=None):
         """
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
         """
         return self.subsidy_set.aggregate(models.Sum('amount')).get('amount__sum', 0)
-
-    def get_total_contribution_obtained(self, n_years_past=None):
-        """
-        Computes the contribution obtained from this organization,
-        summed over all time.
-        """
-        contrib = 0
-        for agreement in self.partner.agreements.all():
-            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days / 365)
-        return contrib
 
 
 
