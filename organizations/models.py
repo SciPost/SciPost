@@ -133,10 +133,19 @@ class Organization(models.Model):
         try:
             return pfs.get(organization=self).fraction
         except OrgPubFraction.DoesNotExist:
-            message = "as parent (ascribed to "
-            for child in self.children.all():
-                message += "%s: %s; " % (child, child.pubfraction_for_publication(doi_label))
-            return message.rpartition(';')[0] + ')'
+            # check if any children have a nonzero contribution
+            children_ids = [k['id'] for k in list(self.children.all().values('id'))]
+            children_contribs = pfs.filter(organization__id__in=children_ids).aggregate(
+                Sum('fraction'))['fraction__sum']
+            if children_contribs:
+                if children_contribs > 0:
+                    message = "as parent (ascribed to "
+                    for child in self.children.all():
+                        pfc = child.pubfraction_for_publication(doi_label)
+                        if pfc not in ['No PubFraction ascribed', 'Not yet defined']:
+                            message += "%s: %s; " % (child, pfc)
+                    return message.rpartition(';')[0] + ')'
+                return 'No PubFraction ascribed'
         return 'Not yet defined'
 
     def pubfractions_in_year(self, year):
@@ -164,20 +173,18 @@ class Organization(models.Model):
         return Profile.objects.filter(id__in=profile_id_list).distinct()
 
     @property
-    def has_current_agreement(self):
-        """
-        Check if this organization has a current Partnership agreement.
-        """
-        if not self.partner:
-            return False
-        return self.partner.agreements.now_active().exists()
-
-    @property
     def has_current_subsidy(self):
         """
         Check if this organization has a Subsidy with a still-running validity period.
         """
         return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
+
+    @property
+    def has_children_with_current_subsidy(self):
+        for child in self.children.all():
+            if child.has_current_subsidy:
+                return True
+        return False
 
     @property
     def latest_subsidy_date_until(self):
