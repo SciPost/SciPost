@@ -127,25 +127,22 @@ class Organization(models.Model):
 
     def pubfraction_for_publication(self, doi_label):
         """
-        Return the organization's pubfraction for this publication, or the string 'Not defined'.
+        Return the organization's pubfraction for a publication.
         """
         pfs = OrgPubFraction.objects.filter(publication__doi_label=doi_label)
         try:
             return pfs.get(organization=self).fraction
         except OrgPubFraction.DoesNotExist:
-            # check if any children have a nonzero contribution
             children_ids = [k['id'] for k in list(self.children.all().values('id'))]
             children_contribs = pfs.filter(organization__id__in=children_ids).aggregate(
                 Sum('fraction'))['fraction__sum']
-            if children_contribs:
-                if children_contribs > 0:
-                    message = "as parent (ascribed to "
-                    for child in self.children.all():
-                        pfc = child.pubfraction_for_publication(doi_label)
-                        if pfc not in ['No PubFraction ascribed', 'Not yet defined']:
-                            message += "%s: %s; " % (child, pfc)
-                    return message.rpartition(';')[0] + ')'
-                return 'No PubFraction ascribed'
+            if children_contribs is not None:
+                message = "as parent (ascribed to "
+                for child in self.children.all():
+                    pfc = child.pubfraction_for_publication(doi_label)
+                    if pfc not in ['No PubFraction ascribed', 'Not yet defined']:
+                        message += "%s: %s; " % (child, pfc)
+                return message.rpartition(';')[0] + ')'
         return 'Not yet defined'
 
     def pubfractions_in_year(self, year):
