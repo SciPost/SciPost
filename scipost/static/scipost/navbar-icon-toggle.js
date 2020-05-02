@@ -4,5 +4,5 @@ function navbarIconToggle(x) {
 
 document.addEventListener('DOMContentReady', function () {
     document.getElementById('navbar-toggler-icon')
-        .addEventListener('click', navbaraIconToggle(this));
+        .addEventListener('click', navbarIconToggle(this));
 });

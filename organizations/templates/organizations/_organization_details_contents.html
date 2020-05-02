@@ -25,7 +25,7 @@
 	<td>Status</td><td>{{ org.get_status_display }}</td>
       </tr>
       <tr>
-	<td>GRID id (link)</td><td>{% if org.grid_json.id %}<a href="https://grid.ac/institutes/{{ org.grid_json.id }}" target="_blank">{{ org.grid_json.id }}{% else %}No GRID id found{% endif %}</td>
+	<td>GRID id (link)</td><td>{% if org.grid_json.id %}<a href="https://grid.ac/institutes/{{ org.grid_json.id }}" target="_blank">{{ org.grid_json.id }}</a>{% else %}No GRID id found{% endif %}</td>
       </tr>
       <tr>
 	<td>Crossref Org ID (link)</td><td>{% if org.crossref_json.org_id %}<a href="https://crossref.org" target="_blank">{{ org.crossref_json.org_id }}{% else %}No Crossref Org ID found{% endif %}</td>
