@@ -52,7 +52,7 @@ class SummernoteEditor(widgets.Textarea):
 
     def trigger_summernote(self, el_id, options):
         str = """
-        <script type='text/javascript' nonce="%s">
+        <script nonce="%s">
             $(function() {
                 $('#%s').summernote(%s);
             });
