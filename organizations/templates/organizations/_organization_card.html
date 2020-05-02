@@ -134,7 +134,7 @@
 	</div>
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
-	  <h3>Support history</h3>
+	  <h3 class="highlight">Support history</h3>
 	  {% if org.subsidy_set.all|length > 0 or org.children.all|length > 0 %}
 	    {% if org.subsidy_set.all|length > 0 %}
 	      <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
@@ -163,7 +163,7 @@
 	      </table>
 	    {% endif %}
 	    {% if org.children.all|length > 0 %}
-	      <p>See subsidies obtained from related organizations
+	      <p>See subsidies obtained from related organizations:
 		<ul>
 		  {% for child in org.children.all %}
 		    <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
@@ -174,14 +174,13 @@
 	  {% else %}
 	    <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
 	  {% endif %}
-	  <h3>Balance of SciPost expenditures versus support received</h3>
-	  <br>
+	  <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
 	  <table class="table">
 	    <thead class="thead-default">
 	      <tr>
-		<th>Year</th>
+		<th>Year (click to toggle details)</th>
 		<th class="text-right">Total expenditures<br>by SciPost (&euro;)</th>
-		<th class="text-right">Total contribution (&euro;)</th>
+		<th class="text-right">This Organization's<br>contribution to SciPost (&euro;)</th>
 		<th class="text-right">Balance (&euro;)</th>
 	      </tr>
 	    </thead>
@@ -196,10 +195,7 @@
 		{% for key, val in balance.items %}
 		  {% if year == key|add:"0" %}
 		    <tr>
-		      <td>{{ key }}
-			<a class="mx-1 my-0 p-0" data-toggle="collapse" href="#details{{ year }}" role="button" aria-expanded="false" aria-controls="details{{ year }}">
-			  <small>Toggle details</small></a>
-		      </td>
+		      <td><a class="mx-1 my-0 p-0" data-toggle="collapse" href="#details{{ year }}" role="button" aria-expanded="false" aria-controls="details{{ year }}">{{ key }}</a></td>
 		      <td class="text-right">
 			{{ val.expenditures.total }}
 		      </td>
@@ -213,7 +209,7 @@
 			    <thead class="table-dark">
 			      <tr>
 				<th>Journal</th>
-				<th class="text-right">PubFractions</th>
+				<th class="text-right">Sum of PubFractions</th>
 				<th class="text-right">Cost per publication</th>
 				<th class="text-right">Expenditures</th>
 			      </tr>
