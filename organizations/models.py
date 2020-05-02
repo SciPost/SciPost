@@ -129,12 +129,15 @@ class Organization(models.Model):
         """
         Return the organization's pubfraction for this publication, or the string 'Not defined'.
         """
+        pfs = OrgPubFraction.objects.filter(publication__doi_label=doi_label)
         try:
-            return OrgPubFraction.objects.get(
-                organization=self,
-                publication__doi_label=doi_label).fraction
-        except:
-            return 'Not yet defined'
+            return pfs.get(organization=self).fraction
+        except OrgPubFraction.DoesNotExist:
+            message = "as parent (ascribed to "
+            for child in self.children.all():
+                message += "%s: %s; " % (child, child.pubfraction_for_publication(doi_label))
+            return message.rpartition(';')[0] + ')'
+        return 'Not yet defined'
 
     def pubfractions_in_year(self, year):
         """
