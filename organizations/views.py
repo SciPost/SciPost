@@ -158,6 +158,7 @@ class OrganizationDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        context['balance'] = self.object.get_balance_info()
         return context
 
     def get_queryset(self):

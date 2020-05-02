@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 
@@ -24,7 +25,7 @@ from .managers import OrganizationQuerySet
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
-from journals.models import Publication, OrgPubFraction
+from journals.models import Journal, Publication, OrgPubFraction
 from profiles.models import Profile
 
 
@@ -202,6 +203,48 @@ class Organization(models.Model):
         """
         return self.subsidy_set.aggregate(models.Sum('amount')).get('amount__sum', 0)
 
+    def get_balance_info(self):
+        """
+        Return a dict containing this Organization's expenditure and support history.
+        """
+        pubyears = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        rep = {}
+        cumulative_balance = 0
+        cumulative_expenditures = 0
+        cumulative_contribution = 0
+        for year in pubyears:
+            rep[str(year)] = {}
+            year_expenditures = 0
+            rep[str(year)]['expenditures'] = {}
+            pfy = self.pubfractions.filter(publication__publication_date__year=year)
+            contribution = self.total_subsidies_in_year(year)
+            rep[str(year)]['contribution'] = contribution
+            journal_labels = set([f.publication.get_journal().doi_label for f in pfy.all()])
+            for journal_label in journal_labels:
+                sumpf = pfy.filter(
+                    publication__doi_label__istartswith=journal_label + '.'
+                ).aggregate(Sum('fraction'))['fraction__sum']
+                costperpaper = get_object_or_404(Journal,
+                    doi_label=journal_label).cost_per_publication(year)
+                expenditures = int(costperpaper* sumpf)
+                if sumpf > 0:
+                    rep[str(year)]['expenditures'][journal_label] = {
+                        'pubfractions': sumpf,
+                        'costperpaper': costperpaper,
+                        'expenditures': expenditures,
+                    }
+                year_expenditures += expenditures
+            rep[str(year)]['expenditures']['total'] = year_expenditures
+            rep[str(year)]['balance'] = contribution - year_expenditures
+            cumulative_expenditures += year_expenditures
+            cumulative_contribution += contribution
+            cumulative_balance += contribution - year_expenditures
+        rep['cumulative'] = {
+            'balance': cumulative_balance,
+            'expenditures': cumulative_expenditures,
+            'contribution': cumulative_contribution
+        }
+        return rep
 
 
 ###################################
