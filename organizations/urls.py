@@ -15,11 +15,6 @@ urlpatterns = [
         views.OrganizationAutocompleteView.as_view(),
         name='organization-autocomplete',
         ),
-    path(
-        'organization-linked-autocomplete',
-        views.OrganizationLinkedAutocompleteView.as_view(),
-        name='organization-linked-autocomplete',
-        ),
     url(
         r'^$',
         views.OrganizationListView.as_view(),
@@ -44,6 +39,11 @@ urlpatterns = [
         r'^(?P<pk>[0-9]+)/$',
         views.OrganizationDetailView.as_view(),
         name='organization_details'
+    ),
+    url(
+        r'^get_organization_detail$',
+        views.get_organization_detail,
+        name='get_organization_detail'
     ),
     url(
         r'^(?P<pk>[0-9]+)/orgevent/add/$',

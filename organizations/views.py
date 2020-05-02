@@ -22,7 +22,7 @@ from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR,\
     ORGANIZATION_EVENT_COMMENT, ORGANIZATION_EVENT_EMAIL_SENT
-from .forms import SelectLinkedOrganizationForm, OrganizationEventForm, ContactPersonForm,\
+from .forms import SelectOrganizationForm, OrganizationEventForm, ContactPersonForm,\
     NewContactForm, ContactActivationForm, ContactRoleForm
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
@@ -80,14 +80,6 @@ class OrganizationAutocompleteView(autocomplete.Select2QuerySetView):
             item.country.flag_css, item.country.name, item.name)
 
 
-class OrganizationLinkedAutocompleteView(OrganizationAutocompleteView):
-    """To feed the Select2 widget."""
-    def get_result_label(self, item):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse('organizations:organization_details', kwargs={'pk': item.id}), item)
-
-
 class OrganizationCreateView(PermissionsMixin, CreateView):
     """
     Create a new Organization.
@@ -130,7 +122,7 @@ class OrganizationListView(PaginationMixin, ListView):
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
         context['countrycodes'] = [code['country'] for code in list(
             Organization.objects.all().distinct('country').values('country'))]
-        context['select_linked_organization_form'] = SelectLinkedOrganizationForm()
+        context['select_organization_form'] = SelectOrganizationForm()
         return context
 
     def get_queryset(self):
@@ -150,6 +142,14 @@ class OrganizationListView(PaginationMixin, ListView):
         if ordering == 'desc':
             qs = qs.reverse()
         return qs
+
+
+def get_organization_detail(request):
+    org_id = request.GET.get('organization', None)
+    if org_id:
+        return redirect(reverse('organizations:organization_details',
+                                kwargs={'pk': org_id}))
+    return redirect(reverse('organizations:organizations'))
 
 
 class OrganizationDetailView(DetailView):

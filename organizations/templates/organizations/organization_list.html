@@ -63,12 +63,21 @@
   </div>
 
   <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-3">
       <h3>Search for a particular Organization</h3>
       <p>(by name or acronym)</p>
     </div>
     <div class="col-lg-8">
-      {{ select_linked_organization_form|bootstrap }}
+      <form action="{% url 'organizations:get_organization_detail' %}" method="get">
+	<ul class="list-inline">
+	  <li class="list-inline-item">
+	    {{ select_organization_form }}
+	  </li>
+	  <li class="list-inline-item">
+	    <input type="submit" value="View" class="btn btn-secondary py-1">
+	  </li>
+	</ul>
+      </form>
     </div>
   </div>
   <div class="row">
@@ -164,5 +173,5 @@
 
 {% block footer_script %}
   <script src="{% static 'scipost/table-row-blank.js' %}"></script>
-  {{ select_linked_organization_form.media }}
+  {{ select_organization_form.media }}
 {% endblock %}

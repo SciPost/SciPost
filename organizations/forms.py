@@ -21,14 +21,14 @@ from .models import Organization, OrganizationEvent, ContactPerson, Contact, Con
 from scipost.constants import TITLE_CHOICES
 
 
-class SelectLinkedOrganizationForm(forms.Form):
-    topic = forms.ModelChoiceField(
+class SelectOrganizationForm(forms.Form):
+    organization = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
         widget=autocomplete.ModelSelect2(
-            url='/organizations/organization-linked-autocomplete',
+            url='/organizations/organization-autocomplete',
             attrs={'data-html': True}
         ),
-        label='Type to search, select & then click on name'
+        label='',
     )
 
 
