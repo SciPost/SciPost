@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db.models import Sum
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from django_countries.serializer_fields import CountryField
@@ -11,7 +12,7 @@ from rest_framework import serializers
 from ..models import Organization
 
 from journals.api.serializers import OrgPubFractionSerializer
-from journals.models import OrgPubFraction
+from journals.models import Journal, OrgPubFraction
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
@@ -44,11 +45,13 @@ class OrganizationBalanceSerializer(serializers.BaseSerializer):
                 sumpf = pfy.filter(
                     publication__doi_label__istartswith=journal_label + '.'
                 ).aggregate(Sum('fraction'))['fraction__sum']
-                expenditure = 400* sumpf
+                costperpaper = get_object_or_404(Journal,
+                    doi_label=journal_label).cost_per_publication(year)
+                expenditure = int(costperpaper* sumpf)
                 if sumpf > 0:
                     rep[str(year)]['expenditures'][journal_label] = {
                         'pubfractions': sumpf,
-                        'costperpaper': 400,
+                        'costperpaper': costperpaper,
                         'expenditure': expenditure,
                     }
                 summed_expenditure += expenditure

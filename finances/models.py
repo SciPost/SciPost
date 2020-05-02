@@ -100,6 +100,7 @@ def subsidy_attachment_path(instance, filename):
         instance.subsidy.date.strftime('%Y'),
         instance.subsidy.organization.country, filename)
 
+
 class SubsidyAttachment(models.Model):
     """
     A document related to a Subsidy.
