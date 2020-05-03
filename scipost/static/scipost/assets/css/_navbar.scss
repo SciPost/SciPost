@@ -220,36 +220,8 @@
 }
 
 .navbar-toggler-icon {
-    display: inline-block;
-    cursor: pointer;
-    margin: -3px 0 3px 3px;
-
-    .bar1,
-    .bar2,
-    .bar3 {
-        width: 100%;
-        height: 5px;
-        border-radius: 1px;
-        background-color: $scipost-lightestblue;
-        margin: 5px 0;
-        transition: 0.2s;
-    }
-
-    &.change {
-        .bar1 {
-            -webkit-transform: rotate(-45deg) translate(-9px, 6px);
-            transform: rotate(-45deg) translate(-9px, 6px);
-        }
-
-        .bar2 {
-            opacity: 0;
-        }
-
-        .bar3 {
-            -webkit-transform: rotate(45deg) translate(-8px, -8px);
-            transform: rotate(45deg) translate(-8px, -5px);
-        }
-    }
+    margin: 2px 0 0 0 ;
+    color: $scipost-lightestblue;
 }
 
 
