@@ -23,6 +23,9 @@
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
+	  <a class="nav-link" id="fellows-{{ org.id }}-tab" data-toggle="tab" href="#fellows-{{ org.id }}" role="tab" aria-controls="fellows-{{ org.id }}" aria-selected="true">Associated Fellows</a>
+	</li>
+	<li class="nav-item">
 	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
 	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
@@ -97,15 +100,15 @@
 	    <div class="col-lg-6">
 	      <h3>Associated Authors:</h3>
 	      <ul>
-	      {% for profile in org.get_author_profiles %}
-		{% if profile.contributor %}
-		  <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-		{% else %}
-		  <li>{{ profile }}</li>
-		{% endif %}
-	      {% empty %}
-		<li>No Profile found</li>
-	      {% endfor %}
+		{% for profile in org.get_author_profiles %}
+		  {% if profile.contributor %}
+		    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+		  {% else %}
+		    <li>{{ profile }}</li>
+		  {% endif %}
+		{% empty %}
+		  <li>No Profile found</li>
+		{% endfor %}
 	      </ul>
 	    </div>
 	    {% if org.children.all|length > 0 %}
@@ -131,6 +134,75 @@
 	      </div>
 	    {% endif %}
 	  </div>
+	</div>
+
+	<div class="tab-pane pt-4" id="fellows-{{ org.id }}" role="tabpanel" aria-labelledby="fellows-{{ org.id }}-tab">
+	  <h3 class="highlight">Fellows affiliated to this Organization</h3>
+	  <div class="row">
+	    <div class="col-lg-6">
+	      <h4>Currently active</h4>
+	      <ul>
+		{% for fellow in org.fellowships.active %}
+		  <li>{{ fellow }}</li>
+		{% empty %}
+		  <li>No fellowship found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	    <div class="col-lg-6">
+	      <h4>Former</h4>
+	      <ul>
+		{% for fellow in org.fellowships.former %}
+		  <li>{{ fellow }}</li>
+		{% empty %}
+		  <li>No fellowship found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </div>
+	  {% with children=org.children.all %}
+	    {% if children|length > 0 %}
+	      <h4 class="highlight p-2">Fellows associated to sub-organizations</h4>
+	      {% for child in children %}
+		{% with active=child.fellowships.active former=childfellowships.former %}
+		  {% if active|length > 0 or former|length > 0 %}
+		    <table class="table">
+		      <thead>
+			<tr>
+			  <th>Organization</th>
+			  <th>Current</th>
+			  <th>Former</th>
+			</tr>
+		      </thead>
+		      <tbody>
+			<tr>
+			  <td><a href="{{ child.get_absolute_url }}">{{ child }}</a></td>
+			  <td>
+			    <ul class="list list-unstyled">
+			      {% for fellow in active %}
+				<li>{{ fellow }}</li>
+			      {% empty %}
+				<li>No fellowship found</li>
+			      {% endfor %}
+			    </ul>
+			  </td>
+			  <td>
+			    <ul class="list list-unstyled">
+			      {% for fellow in former %}
+				<li>{{ fellow }}</li>
+			      {% empty %}
+				<li>No fellowship found</li>
+			      {% endfor %}
+			    </ul>
+			  </td>
+			</tr>
+		      </tbody>
+		    </table>
+		  {% endif %}
+		{% endwith %}
+	      {% endfor %}
+	    {% endif %}
+	  {% endwith %}
 	</div>
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
@@ -163,16 +235,21 @@
 	      </table>
 	    {% endif %}
 	    {% if org.children.all|length > 0 %}
-	      <p>See subsidies obtained from related organizations:
-		<ul>
-		  {% for child in org.children.all %}
-		    <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
-		  {% endfor %}
-		</ul>
-	      </p>
+	      <h4>See also the subsidies obtained from these sub-organizations:</h4>
+	      <ul>
+		{% for child in org.children.all %}
+		  <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+		{% endfor %}
+	      </ul>
 	    {% endif %}
 	  {% else %}
 	    <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
+	  {% endif %}
+	  {% if org.parent %}
+	    <h4>See also the subsidies from this parent organization:</h4>
+	    <ul>
+	      <li><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></li>
+	    </ul>
 	  {% endif %}
 	  <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
 	  <table class="table">

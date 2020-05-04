@@ -11,7 +11,7 @@ import string
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
@@ -25,6 +25,7 @@ from .managers import OrganizationQuerySet
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
+from colleges.models import Fellowship
 from journals.models import Journal, Publication, OrgPubFraction
 from profiles.models import Profile
 
@@ -115,6 +116,30 @@ class Organization(models.Model):
             models.Q(grants__funder__organization__pk__in=org_and_children_ids) |
             models.Q(funders_generic__organization__pk__in=org_and_children_ids)).distinct()
 
+    def get_author_profiles(self):
+        """
+        Returns all Profiles of authors associated to this Organization.
+        """
+        profile_id_list = [tbl.profile.id for tbl in self.publicationauthorstable_set.all()]
+        return Profile.objects.filter(id__in=profile_id_list).distinct()
+
+    def fellowships(self, year=None):
+        """
+        Fellowships with Fellow having listed this organization as affiliation.
+
+        If `year` is given, filter for affiliation and fellowship both valid in that year.
+        """
+        affiliations = self.affiliations.all()
+        if year is not None:
+            affiliations = affiliations.filter(
+                Q(date_from__isnull=True) | Q(date_from__year__lte=year),
+                Q(date_until__isnull=True) | Q(date_until__year__gte=year))
+        profile_ids = [a.profile.id for a in affiliations]
+        fellowships = Fellowship.objects.filter(contributor__profile__id__in=profile_ids)
+        if year is not None:
+            fellowships = fellowships.active_in_year(year)
+        return fellowships
+
     def count_publications(self):
         return self.get_publications().count()
 
@@ -161,13 +186,6 @@ class Organization(models.Model):
             ).aggregate(Sum('fraction'))['fraction__sum'],
             'total': fractions.aggregate(Sum('fraction'))['fraction__sum']
         }
-
-    def get_author_profiles(self):
-        """
-        Returns all Profiles of authors associated to this Organization.
-        """
-        profile_id_list = [tbl.profile.id for tbl in self.publicationauthorstable_set.all()]
-        return Profile.objects.filter(id__in=profile_id_list).distinct()
 
     @property
     def has_current_subsidy(self):
