@@ -291,6 +291,7 @@
 				<th class="text-right">Expenditures</th>
 			      </tr>
 			    </thead>
+			    <tbody>
 			    {% for journal, journaldata in val.expenditures.items %}
 			      {% if journal != 'total' %}
 				<tr>
@@ -301,6 +302,7 @@
 				</tr>
 			      {% endif %}
 			    {% endfor %}
+			    </tbody>
 			  </table>
 			  <p>You can see the associated publications and their PubFractions under the <em>Publications & PubFractions</em> tab.</p>
 			</div>

@@ -1,0 +1,59 @@
+{% extends 'finances/base.html' %}
+
+{% load static %}
+{% load bootstrap %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Finances</span>
+  <span class="breadcrumb-item">Balance</span>
+{% endblock %}
+
+{% block pagetitle %}: Finances balance{% endblock pagetitle %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h2>Finances: yearly balance</h2>
+      <table class="table">
+	{% for year in pubyears %}
+	  {% for key, val in data.items %}
+	    {% if year == key|add:"0" %}
+	      <tr>
+		<td>{{ year }}</td>
+		<td>
+		  <table class="table">
+		    <thead>
+		      <tr>
+			<th>Journal</th>
+			<th class="text-right">Nr of publications</th>
+			<th class="text-right">Cost per publication</th>
+			<th class="text-right">Expenditures</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		      {% for journal, journaldata in val.items %}
+			{% if journaldata.npub > 0 %}
+			  <tr>
+			    <td>{{ journal }}</td>
+			    <td class="text-right">{{ journaldata.npub }}</td>
+			    <td class="text-right">{{ journaldata.cost_per_pub }}</td>
+			    <td class="text-right">{{ journaldata.expenditures }}</td>
+			  </tr>
+			{% endif %}
+		      {% endfor %}
+		      <tr class="table-info">
+			<td colspan="3">Total expenditures</td>
+			<td class="text-right">{{ val.expenditures }}</td>
+		      </tr>
+		    </tbody>
+		  </table>
+		</td>
+	      </tr>
+	    {% endif %}
+	  {% endfor %}
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+{% endblock content %}

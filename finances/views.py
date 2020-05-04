@@ -9,6 +9,7 @@ from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.detail import DetailView
@@ -19,9 +20,32 @@ from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
 from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
+from journals.models import Journal
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
 
+
+
+def balance(request):
+    pubyears = range(int(timezone.now().strftime('%Y')), 2015, -1)
+    journals = Journal.objects.all()
+    context = { 'pubyears': pubyears }
+    context['data'] = {}
+    for year in pubyears:
+        context['data'][str(year)] = {}
+        year_expenditures = 0
+        for journal in journals:
+            npub = journal.get_publications().filter(publication_date__year=year).count()
+            expenditures = npub * journal.cost_per_publication(year)
+            context['data'][str(year)][journal.doi_label] = {
+                'npub': npub,
+                'cost_per_pub': journal.cost_per_publication(year),
+                'expenditures': expenditures,
+            }
+            year_expenditures += expenditures
+        context['data'][str(year)]['expenditures'] = year_expenditures
+    print(context)
+    return render(request, 'finances/balance.html', context)
 
 
 #############

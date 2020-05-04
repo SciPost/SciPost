@@ -20,6 +20,11 @@ urlpatterns = [
         TemplateView.as_view(template_name='finances/business_model.html'),
         name='business_model'
     ),
+    url(
+        r'^balance$',
+        views.balance,
+        name='balance'
+    ),
 
     # Subsidies
     url(r'^subsidies/$', views.SubsidyListView.as_view(), name='subsidies'),
