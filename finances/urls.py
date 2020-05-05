@@ -21,9 +21,9 @@ urlpatterns = [
         name='business_model'
     ),
     url(
-        r'^balance$',
-        views.balance,
-        name='balance'
+        r'^apex$',
+        views.apex,
+        name='apex'
     ),
 
     # Subsidies

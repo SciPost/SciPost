@@ -5,19 +5,19 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">Balance</span>
+  <span class="breadcrumb-item">Average Publication Expenditures</span>
 {% endblock %}
 
-{% block pagetitle %}: Finances balance{% endblock pagetitle %}
+{% block pagetitle %}: Average Publication Expenditures{% endblock pagetitle %}
 
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h2>Finances: yearly balance</h2>
-      <p>These tables display how total yearly expenses are ascribed to publishing activities
-	in our Journals, the purpose being to determine the average cost per publication
-	which has been achieved.</p>
-      <p><strong>N.B.</strong>: these costs are indicative only (accurate to 3 digits);
+      <h2 class="highlight">Average Publication Expenditures</h2>
+      <p>These tables display how our total yearly expenses are ascribed to publishing activities
+	in our Journals, the purpose being to determine the average expenditure per publication
+	which we have achieved.</p>
+      <p><strong>N.B.</strong>: these numbers are indicative only (accurate to 3 digits);
 	see our yearly financial reports for a fully detailed breakwown of our expenses.</p>
       <table class="table">
 	{% for year in data.pubyears reversed %}
@@ -31,8 +31,8 @@
 		      <tr>
 			<th>Journal</th>
 			<th class="text-right">Nr of publications{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
-			<th class="text-right">Cost per publication{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
-			<th class="text-right">Expenditures{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
+			<th class="text-right">Expenditure per publication{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
+			<th class="text-right">Total expenditures{% if year == data.pubyears|last %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
 		      </tr>
 		    </thead>
 		    <tbody>

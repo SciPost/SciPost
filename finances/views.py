@@ -99,11 +99,11 @@ def finances(request):
     return render(request, 'finances/finances.html', context)
 
 
-def balance(request):
+def apex(request):
     context = {
         'data': publishing_expenditures()
     }
-    return render(request, 'finances/balance.html', context)
+    return render(request, 'finances/apex.html', context)
 
 
 #############

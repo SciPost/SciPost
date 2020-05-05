@@ -32,15 +32,28 @@
 	<li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>
       </ul>
 
-      <h3 class="highlight">Financial balance</h3>
+      <h3 class="highlight">Financial Balance</h3>
+      <p>The graph below gives a summarized representation of our financial health and
+	of our current levels of sustainability.</p>
+      <p>Note that our <a href="#reports">Financial Reports</a> below present our
+	authoritative financial figures.
+	An immediate difference is that multi-year subsidies are counted in our Reports
+	in the year they were obtained, but are here spread out evenly to all years they
+	apply to.</p>
+      <p>For the year in progress, all numbers are purely indicative. Expenditures for
+	a given year are in general converged 3 months after the end of the year.</p>
+      <p>Subsidies listed in future years originate from longer-term sponsorship
+	agreements which are already in place.</p>
       {% autoescape off %}
 	{{ subsidies_plot }}
       {% endautoescape %}
 
-      <h3 class="highlight">Average cost per publication</h3>
+      <h3 class="highlight">Average Publication Expenditures</h3>
       <ul>
-	<li>Visit out <a href="{% url 'finances:balance' %}">financial balance page</a>
-	  to see how our numbers add up from year to year.</li>
+	<li>Visit our <a href="{% url 'finances:apex' %}">APEX</a>
+	  (Average Publication Expenditures) page
+	  to see how our publishing expenditures add up from year to year,
+	  including a per-Journal breakdown.</li>
       </ul>
 
       <h3 class="highlight" id="reports">Financial Reports</h3>
