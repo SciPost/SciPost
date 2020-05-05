@@ -5,7 +5,6 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">Finances</span>
   <span class="breadcrumb-item">Balance</span>
 {% endblock %}
 
@@ -15,20 +14,25 @@
   <div class="row">
     <div class="col-12">
       <h2>Finances: yearly balance</h2>
+      <p>These tables display how total yearly expenses are ascribed to publishing activities
+	in our Journals, the purpose being to determine the average cost per publication
+	which has been achieved.</p>
+      <p><strong>N.B.</strong>: these costs are indicative only (accurate to 3 digits);
+	see our yearly financial reports for a fully detailed breakwown of our expenses.</p>
       <table class="table">
 	{% for year in pubyears %}
 	  {% for key, val in data.items %}
 	    {% if year == key|add:"0" %}
 	      <tr>
-		<td>{{ year }}</td>
+		<td>{{ year }}{% if year == pubyears.0 %}<br><em class="text-danger">(in progress)</em>{% endif %}</td>
 		<td>
 		  <table class="table">
 		    <thead>
 		      <tr>
 			<th>Journal</th>
-			<th class="text-right">Nr of publications</th>
-			<th class="text-right">Cost per publication</th>
-			<th class="text-right">Expenditures</th>
+			<th class="text-right">Nr of publications{% if year == pubyears.0 %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
+			<th class="text-right">Cost per publication{% if year == pubyears.0 %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
+			<th class="text-right">Expenditures{% if year == pubyears.0 %}<br><em class="text-danger">(in progress)</em>{% endif %}</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -43,7 +47,7 @@
 			{% endif %}
 		      {% endfor %}
 		      <tr class="table-info">
-			<td colspan="3">Total expenditures</td>
+			<td colspan="3">Total publishing expenditures{% if year == pubyears.0 %}<br><em class="text-danger">(in progress)</em>{% endif %}</td>
 			<td class="text-right">{{ val.expenditures }}</td>
 		      </tr>
 		    </tbody>
