@@ -2,7 +2,12 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from itertools import accumulate
 import mimetypes
+
+from csp.decorators import csp_update
+from plotly.offline import plot
+from plotly.graph_objs import Bar
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
@@ -20,31 +25,84 @@ from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
 from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
-from journals.models import Journal
+from journals.models import Journal, Publication
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
 
 
+def publishing_years():
+    start_year = Publication.objects.all().order_by('publication_date'
+    ).first().publication_date.strftime('%Y')
+    return range(int(start_year), int(timezone.now().strftime('%Y')) + 1)
 
-def balance(request):
-    pubyears = range(int(timezone.now().strftime('%Y')), 2015, -1)
+
+def total_subsidies_in_year(year):
+    total = 0
+    for subsidy in Subsidy.objects.filter(date__year__lte=year, date_until__year__gte=year):
+        total += subsidy.value_in_year(year)
+    return total
+
+
+def publishing_expenditures():
+    pubyears = publishing_years()
     journals = Journal.objects.all()
-    context = { 'pubyears': pubyears }
-    context['data'] = {}
+    data = { 'pubyears': pubyears }
     for year in pubyears:
-        context['data'][str(year)] = {}
+        data[str(year)] = {}
         year_expenditures = 0
         for journal in journals:
             npub = journal.get_publications().filter(publication_date__year=year).count()
             expenditures = npub * journal.cost_per_publication(year)
-            context['data'][str(year)][journal.doi_label] = {
+            data[str(year)][journal.doi_label] = {
                 'npub': npub,
                 'cost_per_pub': journal.cost_per_publication(year),
                 'expenditures': expenditures,
             }
             year_expenditures += expenditures
-        context['data'][str(year)]['expenditures'] = year_expenditures
-    print(context)
+        data[str(year)]['expenditures'] = year_expenditures
+    return data
+
+
+@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
+def finances(request):
+    years = [year for year in range(2016,
+                                    int(timezone.now().strftime('%Y')) + 5)]
+    subsidies_dict = {}
+    for year in years:
+        subsidies_dict[str(year)] = total_subsidies_in_year(year)
+    subsidies = [subsidies_dict[str(year)] for year in years]
+    pub_data = publishing_expenditures()
+    pubyears = [year for year in publishing_years()]
+    pub_expenditures = [pub_data[str(year)]['expenditures'] for year in pubyears]
+    base_expenditures = [-pub_data[str(year)]['expenditures'] for year in pubyears]
+    balance = [subsidies_dict[str(year)] - pub_data[str(year)]['expenditures'] for year in pubyears]
+    cumulative_balance = list(accumulate(balance))
+    subsidies_plot = plot(
+        [
+            Bar(x=pubyears, y=pub_expenditures,
+                marker_color='red', name='expenditures'),
+            Bar(x=years, y=subsidies, marker_color='dodgerblue', name='subsidy coverage'),
+            Bar(x=pubyears, y=balance,
+                marker_color='indigo', name='balance (year)'),
+            Bar(x=pubyears, y=cumulative_balance,
+                marker_color='darkorange', name='balance (cumulative)')
+        ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    context = {
+        'subsidies_plot': subsidies_plot,
+    }
+    return render(request, 'finances/finances.html', context)
+
+
+def balance(request):
+    context = {
+        'data': publishing_expenditures()
+    }
     return render(request, 'finances/balance.html', context)
 
 

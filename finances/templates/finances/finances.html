@@ -1,5 +1,10 @@
 {% extends 'finances/base.html' %}
 
+{% block headsup %}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+
 {% load static %}
 {% load bootstrap %}
 
@@ -20,21 +25,22 @@
 	  to get a quick run-down on how we make our operations sustainable.</li>
       </ul>
 
-      <h3 class="highlight">Sponsors</h3>
+      <h3 class="highlight">Sponsors & Subsidies</h3>
       <ul>
 	<li>Visit our <a href="{% url 'sponsors:sponsors' %}">Sponsors page</a>
 	  to view our list of sponsors and more information on our sponsorship scheme.</li>
+	<li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>
       </ul>
 
-      <h3 class="highlight">Balance and average cost per publication</h3>
+      <h3 class="highlight">Financial balance</h3>
+      {% autoescape off %}
+	{{ subsidies_plot }}
+      {% endautoescape %}
+
+      <h3 class="highlight">Average cost per publication</h3>
       <ul>
 	<li>Visit out <a href="{% url 'finances:balance' %}">financial balance page</a>
 	  to see how our numbers add up from year to year.</li>
-      </ul>
-
-      <h3 class="highlight">Subsidies</h3>
-      <ul>
-	<li><a href="{% url 'finances:subsidies' %}">View {% if perms.scipost.can_manage_subsidies %}(and manage) {% endif %}info on Subsidies obtained by SciPost</a></li>
       </ul>
 
       <h3 class="highlight" id="reports">Financial Reports</h3>
