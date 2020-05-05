@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
 from itertools import accumulate
 import mimetypes
 
@@ -63,6 +64,24 @@ def publishing_expenditures():
     return data
 
 
+def recent_publishing_expenditures(months=6):
+    """
+    Tally of total publishing expenditures over last `months` number of months.
+    """
+    deltat = datetime.timedelta(days=months*30)
+    npub_total = 0
+    expenditures = 0
+    for journal in Journal.objects.all():
+        npub = journal.get_publications().filter(
+            publication_date__gte=timezone.now() - deltat).count()
+        npub_total += npub
+        expenditures += npub * journal.cost_per_publication(timezone.now().strftime('%Y'))
+    return {
+        'npub': npub_total,
+        'expenditures': expenditures
+    }
+
+
 @csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def finances(request):
     years = [year for year in range(2016,
@@ -95,6 +114,19 @@ def finances(request):
         show_link=False, link_text="")
     context = {
         'subsidies_plot': subsidies_plot,
+    }
+    current_year = int(timezone.now().strftime('%Y'))
+    future_subsidies = 0
+    for key, val in subsidies_dict.items():
+        if int(key) > current_year:
+            future_subsidies += val
+    resources = cumulative_balance[-1] + future_subsidies
+    recent_exp = recent_publishing_expenditures(6)
+    context['resources'] = {
+        'resources': resources,
+        'expenditures_mo': recent_exp['expenditures']/6,
+        'sustainable_months': resources * 6/recent_exp['expenditures'],
+        'npub': recent_exp['npub'] * resources/recent_exp['expenditures']
     }
     return render(request, 'finances/finances.html', context)
 

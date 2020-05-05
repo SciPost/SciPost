@@ -48,6 +48,29 @@
 	{{ subsidies_plot }}
       {% endautoescape %}
 
+      <h3 class="highlight">Current resources</h3>
+      <div class="container">
+	<p>(based on data averaged over the last 6 months).</p>
+	<table class="table mb-4">
+	  <thead>
+	    <tr>
+	      <th class="text-right">Resources</th>
+	      <th class="text-right">Expenditures per month</th>
+	      <th class="text-right">Sustainable months</th>
+	      <th class="text-right">Corresponding number of publications</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr>
+	      <td class="text-right">{{ resources.resources }}</td>
+	      <td class="text-right">{{ resources.expenditures_mo|floatformat:"0" }}</td>
+	      <td class="text-right">{{ resources.sustainable_months|floatformat:"0" }}</td>
+	      <td class="text-right">{{ resources.npub|floatformat:"0" }}</td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+
       <h3 class="highlight">Average Publication Expenditures</h3>
       <ul>
 	<li>Visit our <a href="{% url 'finances:apex' %}">APEX</a>
