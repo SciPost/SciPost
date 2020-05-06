@@ -84,8 +84,8 @@ def recent_publishing_expenditures(months=6):
 
 @csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def finances(request):
-    years = [year for year in range(2016,
-                                    int(timezone.now().strftime('%Y')) + 5)]
+    now = timezone.now()
+    years = [year for year in range(2016, int(now.strftime('%Y')) + 5)]
     subsidies_dict = {}
     for year in years:
         subsidies_dict[str(year)] = total_subsidies_in_year(year)
@@ -115,7 +115,7 @@ def finances(request):
     context = {
         'subsidies_plot': subsidies_plot,
     }
-    current_year = int(timezone.now().strftime('%Y'))
+    current_year = int(now.strftime('%Y'))
     future_subsidies = 0
     for key, val in subsidies_dict.items():
         if int(key) > current_year:
@@ -126,7 +126,9 @@ def finances(request):
         'resources': resources,
         'expenditures_mo': recent_exp['expenditures']/6,
         'sustainable_months': resources * 6/recent_exp['expenditures'],
-        'npub': recent_exp['npub'] * resources/recent_exp['expenditures']
+        'npub': recent_exp['npub'] * resources/recent_exp['expenditures'],
+        'sustainable_until': now + datetime.timedelta(
+            days=30.5*resources * 6/recent_exp['expenditures']),
     }
     return render(request, 'finances/finances.html', context)
 

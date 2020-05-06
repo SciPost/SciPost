@@ -48,23 +48,23 @@
 	{{ subsidies_plot }}
       {% endautoescape %}
 
-      <h3 class="highlight">Current resources</h3>
+      <h3 class="highlight">Current Resources & Sustainability Level</h3>
       <div class="container">
-	<p>(based on data averaged over the last 6 months).</p>
 	<table class="table mb-4">
 	  <thead>
 	    <tr>
-	      <th class="text-right">Resources</th>
-	      <th class="text-right">Expenditures per month</th>
-	      <th class="text-right">Sustainable months</th>
-	      <th class="text-right">Corresponding number of publications</th>
+	      <th class="text-right">Resources<br><small>(current cumulative balance +<br>future subsidy coverage)</small></th>
+	      <th class="text-right">Expenditures per month<br><small>(based on data averaged<br>over the last 6 months)</small>
+	      </th>
+	      <th class="text-right">Sustainable months<br><small>(if no additional subsidy comes in,<br>that's when our resources run out)</small></th>
+	      <th class="text-right">Corresponding number of publications<br><small>(based on a weighted average of<br>per-publication expenditures)</small></th>
 	    </tr>
 	  </thead>
 	  <tbody>
 	    <tr>
-	      <td class="text-right">{{ resources.resources }}</td>
-	      <td class="text-right">{{ resources.expenditures_mo|floatformat:"0" }}</td>
-	      <td class="text-right">{{ resources.sustainable_months|floatformat:"0" }}</td>
+	      <td class="text-right">&euro;{{ resources.resources }}</td>
+	      <td class="text-right">&euro;{{ resources.expenditures_mo|floatformat:"0" }}</td>
+	      <td class="text-right">{{ resources.sustainable_months|floatformat:"0" }}<br><span class="text-danger">&#10140;</span>&nbsp;{{ resources.sustainable_until|date:'Y-m' }}</td>
 	      <td class="text-right">{{ resources.npub|floatformat:"0" }}</td>
 	    </tr>
 	  </tbody>
