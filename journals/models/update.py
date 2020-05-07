@@ -11,6 +11,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.template import loader
+from django.urls import reverse
 
 
 class PublicationUpdate(models.Model):
@@ -71,11 +72,11 @@ class PublicationUpdate(models.Model):
         ordering = ('-publication__publication_date', '-number')
 
     def __str__(self):
-        return '%s-%d' % (self.publication.doi_label, self.number)
+        return '%s-update-%d' % (self.publication.doi_label, self.number)
 
     @property
     def title(self):
-        return '%s: %s' % (self.update_type, self.publication.title)
+        return '%s: %s' % (self.get_update_type_display(), self.publication.title)
 
     def create_doi_label(self):
         """Create a doi in the default format."""
@@ -84,7 +85,19 @@ class PublicationUpdate(models.Model):
 
     @property
     def doi_string(self):
-        return '%s-%s' % (self.publication.doi_string, self.number)
+        return '%s-update-%s' % (self.publication.doi_string, self.number)
+
+    @property
+    def citation(self):
+        return "%s (%s), doi:%s" % (self.publication.get_journal().name_abbrev,
+                                    self.publication_date.strftime('%Y'),
+                                    self.doi_string)
+
+    def get_absolute_url(self):
+        return reverse('scipost:publication_update_detail',
+                       kwargs={
+                           'doi_label': self.publication.doi_label,
+                           'update_nr': self.number })
 
     def xml(self):
         """

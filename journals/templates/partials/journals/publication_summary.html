@@ -45,6 +45,19 @@
 
     <h3>Abstract</h3>
     <p class="abstract">{{ publication.abstract }}</p>
+
+    {% if publication.updates.all|length > 0 %}
+      <br>
+      <h4 class="p-1"><span class="px-2 py-1 bg-info">This publication has been updated</span></h4>
+      <ul>
+	{% for update in publication.updates.all %}
+	  <li>
+	    <a href="{{ update.get_absolute_url }}">{{ update.title }}</a>&nbsp;
+	    on&nbsp;{{ update.publication_date|date:'Y-m-d' }}
+	  </li>
+	{% endfor %}
+      </ul>
+    {% endif %}
   </div>
 </div>
 

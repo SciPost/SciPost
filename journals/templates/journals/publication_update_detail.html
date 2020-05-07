@@ -1,0 +1,70 @@
+{% extends 'journals/base.html' %}
+
+{% load journals_extras %}
+{% load publication_administration %}
+{% load static %}
+{% load scipost_extras %}
+{% load user_groups %}
+{% load automarkup %}
+
+{% block pagetitle %}: {{ update.citation }}{% endblock pagetitle %}
+
+{% block body_class %}{{ block.super }} publication update{% endblock %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
+  <span class="breadcrumb-item active">{{ update.title }}</span>
+{% endblock %}
+
+
+{% block content %}
+  {% is_scipost_admin request.user as is_scipost_admin %}
+  {% is_edcol_admin request.user as is_edcol_admin %}
+
+  {{ block.super }}
+
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="text-blue">{{ update.title }}</h2>
+      <p class="mb-1">{{ update.publication.author_list }}</p>
+      <p class="text-muted mb-0">
+	{{ update.citation }} &middot; published {{ update.publication_date|date:'j F Y' }}
+	{% if user.is_authenticated %}
+	  {% with type_id=update|content_type_id %}
+	    {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=update.id model="PublicationUpdate" %}
+	  {% endwith %}
+	{% endif %}
+      </p>
+      <ul class="publicationClickables mt-3">
+	<li>doi:  {{ update.doi_string }}</li>
+	<li>
+    	  <!-- Start Crossmark Snippet v2.0 -->
+    	  <script src="https://crossmark-cdn.crossref.org/widget/v2.0/widget.js"></script>
+    	  <a data-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
+    	  <!-- End Crossmark Snippet -->
+	</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>{{ update.get_update_type_display }} to <a href="{{ update.publication.get_absolute_url }}">{{ update.publication.doi_label }}</a></h3>
+  <p>{{ update.text|automarkup }}</p>
+
+
+  <h3 class="mt-4">
+    Author{{ update.publication.authors.all|length|pluralize }}
+  </h3>
+
+  <ul class="list-inline my-2">
+    {% for author in update.publication.authors.all %}
+      <li class="list-inline-item mr-1">
+        {% if author.is_registered %}
+          <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
+          {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+
+{% endblock content %}
