@@ -151,7 +151,7 @@ class CreateMetadataXMLForm(forms.ModelForm):
 
     def new_xml(self, publication):
         """
-        Create new XML structure, return as a string
+        Create new XML structure, return as a string.
         """
         # Create a doi_batch_id
         salt = ""

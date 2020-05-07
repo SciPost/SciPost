@@ -1,0 +1,101 @@
+{% spaceless %}
+<?xml version="1.0" encoding="UTF-8"?>
+<doi_batch version="4.4.1" xmlns="http://www.crossref.org/schema/4.4.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:fr="http://www.crossref.org/fundref.xsd" xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 http://www.crossref.org/shema/deposit/crossref4.4.1.xsd">
+  <head>
+    <doi_batch_id>{{ doi_batch_id }}</doi_batch_id>
+    <timestamp>{% now "YmdHis" %}</timestamp>
+    <depositor>
+      <depositor_name>scipost</depositor_name>
+      <email_address>{{ deposit_email }}</email_address>
+    </depositor>
+    <registrant>scipost</registrant>
+  </head>
+  <body>
+    <journal>
+      {% if update.publication.in_issue.in_volume %}
+        <journal_metadata>
+          <full_title>{{ update.publication.in_issue.in_volume.in_journal.name }}</full_title>
+          <abbrev_title>{{ update.publication.in_issue.in_volume.in_journal.name_abbrev }}</abbrev_title>
+          {% if update.publication.in_issue.in_volume.in_journal.issn %}<issn media_type='electronic'>{{ update.publication.in_issue.in_volume.in_journal.issn }}</issn>{% endif %}
+          <doi_data>
+            <doi>{{ update.publication.in_issue.in_volume.in_journal.doi_string }}</doi>
+            <resource>https://scipost.org/{{ update.publication.in_issue.in_volume.in_journal.doi_string }}</resource>
+          </doi_data>
+        </journal_metadata>
+      {% elif update.publication.in_issue.in_journal %}
+        <journal_metadata>
+          <full_title>{{ update.publication.in_issue.in_journal.name }}</full_title>
+          <abbrev_title>{{ update.publication.in_issue.in_journal.name_abbrev }}</abbrev_title>
+          {% if update.publication.in_issue.in_journal.issn %}<issn media_type='electronic'>{{ update.publication.in_issue.in_journal.issn }}</issn>{% endif %}
+          <doi_data>
+            <doi>{{ update.publication.in_issue.in_journal.doi_string }}</doi>
+            <resource>https://scipost.org/{{ update.publication.in_issue.in_journal.doi_string }}</resource>
+          </doi_data>
+        </journal_metadata>
+      {% else %}
+        <journal_metadata>
+          <full_title>{{ update.publication.in_journal.name }}</full_title>
+          <abbrev_title>{{ update.publication.in_journal.name_abbrev }}</abbrev_title>
+          {% if update.publication.in_journal.issn %}<issn media_type='electronic'>{{ update.publication.in_journal.issn }}</issn>{% endif %}
+          <doi_data>
+            <doi>{{ update.publication.in_journal.doi_string }}</doi>
+            <resource>https://scipost.org/{{ update.publication.in_journal.doi_string }}</resource>
+          </doi_data>
+        </journal_metadata>
+      {% endif %}
+      <journal_article publication_type='full_text'>
+        <titles>
+          <title>{{ update.title }}</title>
+        </titles>
+        <contributors>
+          {% for author_object in update.publication.authors.all %}
+            {% if author_object.order == 1 %}
+              <person_name sequence='first' contributor_role='author'>
+            {% else %}
+                <person_name sequence='additional' contributor_role='author'>
+            {% endif %}
+            <given_name>{{ author_object.first_name }}</given_name>
+            <surname>{{ author_object.last_name }}</surname>
+	    {% if author_object.affiliations %}
+	      {% for aff in author_object.affiliations.all %}
+		<affiliation>{{ aff.name }}</affiliation>
+	      {% endfor %}
+	    {% endif %}
+            {% if author_object.contributor and author_object.contributor.orcid_id %}
+              <ORCID>https://orcid.org/{{ author_object.contributor.orcid_id }}</ORCID>
+            {% endif %}
+                </person_name>
+          {% endfor %}
+        </contributors>
+        <publication_date media_type='online'>
+          <month>{{ update.publication_date|date:'m' }}</month>
+          <day>{{ update.publication_date|date:'d' }}</day>
+          <year>{{ update.publication_date|date:'Y' }}</year>
+        </publication_date>
+        <crossmark>
+          <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
+          <crossmark_domains>
+            <crossmark_domain><domain>scipost.org</domain></crossmark_domain>
+          </crossmark_domains>
+          <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
+          <custom_metadata>
+            <ai:program name="AccessIndicators">
+	      <ai:free_to_read start_date="{{ update.publication_date|date:'Y-m-d' }}"/>
+              <ai:license_ref applies_to="vor">{{ update.publication.get_cc_license_URI }}</ai:license_ref>
+            </ai:program>
+          </custom_metadata>
+	  <updates>
+	    <update type="{{ update.update_type }}" date="{{ update.publication_date }}">
+	      {{ update.publication.doi_string }}
+	    </update>
+	  </updates>
+        </crossmark>
+        <doi_data>
+          <doi>{{ update.doi_string }}</doi>
+          <resource>https://scipost.org/{{ update.doi_string }}</resource>
+        </doi_data>
+      </journal_article>
+    </journal>
+  </body>
+</doi_batch>
+{% endspaceless %}

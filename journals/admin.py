@@ -7,7 +7,7 @@ from django import forms
 
 from journals.models import Journal, Volume, Issue, Publication, \
     Deposit, DOAJDeposit, GenericDOIDeposit, Reference, PublicationAuthorsTable,\
-    OrgPubFraction
+    OrgPubFraction, PublicationUpdate
 
 from scipost.models import Contributor
 from submissions.models import Submission
@@ -117,3 +117,6 @@ admin.site.register(DOAJDeposit)
 
 
 admin.site.register(GenericDOIDeposit)
+
+
+admin.site.register(PublicationUpdate)
