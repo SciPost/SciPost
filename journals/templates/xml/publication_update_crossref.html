@@ -78,12 +78,6 @@
             <crossmark_domain><domain>scipost.org</domain></crossmark_domain>
           </crossmark_domains>
           <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
-          <custom_metadata>
-            <ai:program name="AccessIndicators">
-	      <ai:free_to_read start_date="{{ update.publication_date|date:'Y-m-d' }}"/>
-              <ai:license_ref applies_to="vor">{{ update.publication.get_cc_license_URI }}</ai:license_ref>
-            </ai:program>
-          </custom_metadata>
 	  <updates>
 	    <update type="{{ update.update_type }}" date="{{ update.publication_date }}">
 	      {{ update.publication.doi_string }}

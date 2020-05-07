@@ -48,12 +48,12 @@
 
     {% if publication.updates.all|length > 0 %}
       <br>
-      <h4 class="p-1"><span class="px-2 py-1 bg-info">This publication has been updated</span></h4>
+      <h5 class="p-1"><span class="px-2 py-1 bg-info">This publication has been updated</span></h5>
       <ul>
 	{% for update in publication.updates.all %}
 	  <li>
-	    <a href="{{ update.get_absolute_url }}">{{ update.title }}</a>&nbsp;
-	    on&nbsp;{{ update.publication_date|date:'Y-m-d' }}
+	    <a href="{{ update.get_absolute_url }}"><small>{{ update.title }}</small></a>&nbsp;
+	    <small>on&nbsp;{{ update.publication_date|date:'Y-m-d' }}</small>
 	  </li>
 	{% endfor %}
       </ul>
