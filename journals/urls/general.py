@@ -220,4 +220,10 @@ urlpatterns = [
     url(r'^comments/(?P<comment_id>[0-9]+)/mark_doi_needed/(?P<needed>[0-1])$',
         journals_views.mark_comment_doi_needed,
         name='mark_comment_doi_needed'),
-    ]
+
+    # PublicationUpdates
+    url(r'^updates/$',
+        journals_views.manage_update_metadata,
+        name='manage_update_metadata'),
+
+]

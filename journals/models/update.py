@@ -99,19 +99,10 @@ class PublicationUpdate(models.Model):
                            'doi_label': self.publication.doi_label,
                            'update_nr': self.number })
 
-    def xml(self):
+    def xml(self, doi_batch_id):
         """
-        Create new XML structure, return as a string.
+        Create new XML structure (core, not header), return as a string.
         """
-        # Create a doi_batch_id
-        salt = ""
-        for i in range(5):
-            salt = salt + random.choice(string.ascii_letters)
-        salt = salt.encode('utf8')
-        idsalt = self.publication.title[:10]
-        idsalt = idsalt.encode('utf8')
-        doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
-
         # Render from template
         template = loader.get_template('xml/publication_update_crossref.html')
         context = {

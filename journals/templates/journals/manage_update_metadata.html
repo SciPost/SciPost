@@ -1,0 +1,100 @@
+{% extends 'scipost/_personal_page_base.html' %}
+
+{% block pagetitle %}: Manage PublicationUpdate metadata{% endblock pagetitle %}
+
+{% load bootstrap %}
+{% load static %}
+
+{% load journals_extras %}
+
+<script src="{% static 'scipost/accordion-focusin.js' %}"></script>
+
+{% block breadcrumb_items %}
+  {{block.super}}
+  <span class="breadcrumb-item">Manage PublicationUpdate metadata</span>
+{% endblock %}
+
+{% block content %}
+  <h1 class="highlight">Manage PublicationUpdate metadata</h1>
+
+  <ul>
+    <li><a href="{% url 'journals:admin_volumes_list' %}">Manage Volumes</a></li>
+    <li><a href="{% url 'journals:admin_issue_list' %}">Manage Issues</a></li>
+    <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
+    <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
+    <li><a href="{% url 'journals:manage_report_metadata' %}">Manage Report metadata</a></li>
+    <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
+    <li><a href="{% url 'journals:manage_update_metadata' %}" class="active">Manage PublicationUpdate metadata</a></li>
+  </ul>
+
+  <h2 class="mt-4">Publication Updates</h2>
+
+  <table class="table table-hover">
+    <thead class="thead-light">
+      <tr>
+	<th>Update</th>
+	<th>Latest successful Crossref deposit</th>
+	<th>Deposit needs updating?</th>
+      </tr>
+    </thead>
+
+    <tbody id="accordion" role="tablist" aria-multiselectable="true">
+      {% for update in updates %}
+	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ update.id }}" aria-expanded="true" aria-controls="collapse{{ update.id }}" style="cursor: pointer;">
+	  <td>{{ update }}</td>
+	  <td>{{ update|latest_successful_crossref_generic_deposit }}</td>
+	  <td>{{ update.doideposit_needs_updating|yesno:'Yes,No,-' }}</td>
+	</tr>
+	<tr id="collapse{{ update.id }}" class="collapse" role="tabpanel" aria-labelledby="heading{{ update.id }}" style="background-color: #fff;">
+	  <td colspan="3">
+    	    <p><a href="{{ update.get_absolute_url }}">Update {{ update }}</a></p>
+
+    	    <h2 class="ml-3">Actions</h2>
+            <ul>
+              <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='update' object_id=update.id %}">Create the metadata and deposit it to Crossref</a></li>
+    	    </ul>
+
+	  </td>
+	  <td colspan="4">
+    	    <h3 class="mt-4">Crossref Deposits</h3>
+    	    <table class="table table-sm bg-white">
+    	      <thead class="thead-light">
+    		<th>Timestamp</th>
+    		<th>batch id</th>
+    		<th>deposition date</th>
+    		<th>Successful?</th>
+    		<th>actions</th>
+    	      </thead>
+    	      <tbody>
+    		{% for deposit in update.genericdoideposit.all %}
+    		  <tr>
+    		    <td>{{ deposit.timestamp }}</td>
+    		    <td>{{ deposit.doi_batch_id }}</td>
+    		    <td>{% if deposit.deposition_date %}{{ deposit.deposition_date }}{% else %}Not deposited{% endif %}</td>
+    		    <td>{{ deposit.deposit_successful|yesno:'Yes,No,-' }}</td>
+    		    <td>Mark deposit as
+        	      <ul>
+        		<li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=1 %}">successful</a></li>
+        		<li><a href="{% url 'journals:mark_generic_deposit_success' deposit_id=deposit.id success=0 %}">unsuccessful</a></li>
+        	      </ul>
+    		    </td>
+    		  </tr>
+    		{% empty %}
+    		  <tr>
+    		    <td colspan="5">No Deposits found for this Publication Update</td>
+    		  </tr>
+    		{% endfor %}
+    	      </tbody>
+    	    </table>
+
+	  </td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="col-12">
+    {% include 'partials/pagination.html' with page_obj=page_obj %}
+  </div>
+
+{% endblock content %}

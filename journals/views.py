@@ -1050,10 +1050,47 @@ def manage_comment_metadata(request):
     the metadata of Comments.
     """
     comments = Comment.objects.all()
+
+    paginator = Paginator(comments, 25)
+    page = request.GET.get('page')
+    try:
+        comments = paginator.page(page)
+    except PageNotAnInteger:
+        comments = paginator.page(1)
+    except EmptyPage:
+        comments = paginator.page(paginator.num_pages)
+
     context = {
         'comments': comments,
+        'page_obj': comments,
+        'paginator': paginator,
     }
     return render(request, 'journals/manage_comment_metadata.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def manage_update_metadata(request):
+    """
+    This page offers Editorial Administrators tools for managing
+    the metadata of PublicationUpdates.
+    """
+    updates = PublicationUpdate.objects.all()
+
+    paginator = Paginator(updates, 25)
+    page = request.GET.get('page')
+    try:
+        updates = paginator.page(page)
+    except PageNotAnInteger:
+        updates = paginator.page(1)
+    except EmptyPage:
+        updates = paginator.page(paginator.num_pages)
+
+    context = {
+        'updates': updates,
+        'page_obj': updates,
+        'paginator': paginator,
+    }
+    return render(request, 'journals/manage_update_metadata.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -1109,27 +1146,27 @@ def generic_metadata_xml_deposit(request, **kwargs):
     elif type_of_object == 'update':
         _object = get_object_or_404(PublicationUpdate, id=object_id)
 
-    relation_to_published = _object.relation_to_published # Reports and Comments have this
-
     if not _object.doi_label:
         _object.create_doi_label()
         _object.refresh_from_db()
 
     metadata_xml = ""
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+    # create a doi_batch_id
+    salt = ""
+    for i in range(5):
+        salt = salt + random.choice(string.ascii_letters)
+    salt = salt.encode('utf8')
+    idsalt = str(_object)[:10]
+    idsalt = idsalt.encode('utf8')
+    doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
 
     if type_of_object == 'update':
-        metadata_xml = _object.xml()
+        metadata_xml = _object.xml(doi_batch_id=doi_batch_id)
 
     else:  # Report or Comment
-        # create a doi_batch_id
-        salt = ""
-        for i in range(5):
-            salt = salt + random.choice(string.ascii_letters)
-        salt = salt.encode('utf8')
-        idsalt = str(_object)[:10]
-        idsalt = idsalt.encode('utf8')
-        timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
-        doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
+        relation_to_published = _object.relation_to_published # Reports and Comments have this
+
         metadata_xml = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
             '<doi_batch version="4.4.1" xmlns="http://www.crossref.org/schema/4.4.1" '
@@ -1146,6 +1183,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
             '<registrant>scipost</registrant>\n'
             '</head>\n'
         )
+
         if relation_to_published: # Reports and Comments have this
             metadata_xml += (
                 '<body>\n'
