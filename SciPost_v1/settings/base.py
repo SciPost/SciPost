@@ -433,3 +433,8 @@ CELERY_IMPORTS = ('submissions.tasks',)
 
 # Automation.
 ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)
+
+
+# Pawning verification token
+# Get one at https://haveibeenpwned.com
+HAVE_I_BEEN_PWNED_TOKEN = get_secret('HAVE_I_BEEN_PWNED_TOKEN')

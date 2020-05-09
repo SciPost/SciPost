@@ -310,4 +310,12 @@ urlpatterns = [
     url(r'^decline_ref_invitation/(?P<invitation_key>.+)$',
         submission_views.decline_ref_invitation),
 
+
+    ########################
+    # Pawning verification #
+    ########################
+
+    url(r'^have-i-been-pwned-verification.txt$',
+        views.have_i_been_pwned,
+        name='have_i_been_pwned'),
 ]

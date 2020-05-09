@@ -23,7 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
@@ -1414,3 +1414,11 @@ def csrf_failure(request, reason=''):
 
     mail.mail_admins('CSRF Failure', body)
     return render(request, 'csrf-failure.html')
+
+
+########################
+# Pawning verification #
+########################
+
+def have_i_been_pwned(request):
+    return HttpResponse(settings.HAVE_I_BEEN_PWNED_TOKEN, content_type='text/plain')
