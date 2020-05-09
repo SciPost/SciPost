@@ -59,6 +59,7 @@ urlpatterns = [
     url(r'^proceedings/', include('proceedings.urls', namespace="proceedings")),
     url(r'^production/', include('production.urls', namespace="production")),
     url(r'^profiles/', include('profiles.urls', namespace="profiles")),
+    url(r'^security/', include('security.urls', namespace="security")),
     url(r'^series/', include('series.urls', namespace="series")),
     url(r'^sponsors/', include('sponsors.urls', namespace="sponsors")),
     url(r'^stats/', include('stats.urls', namespace="stats")),

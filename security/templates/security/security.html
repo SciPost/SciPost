@@ -1,0 +1,50 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+	{% block breadcrumb_items %}
+	  <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal page</a>
+	  <span class="breadcrumb-item">Security</span>
+	{% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}: Security{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">Security checks for your personal data</h1>
+
+      <p>We at SciPost take online security very seriously, and would like
+	to encourage you to do the same for all your personal matters,
+	on all online platforms you make use of.</p>
+
+      <p>This page (private to you) gives you the possibility of verifying
+	if your credentials are contained in publicly-known breaches which are known to have
+	occurred and have been investigated by web security professionals.</p>
+
+
+      <h2 class="highlight">Security assessment for your email address {{ request.user.email }}</h2>
+
+      <p>With the link here under, we can probe the
+	<a href="https://haveibeenpwned.com" target="_blank">haveibeenpwned.com</a>
+	service for you (this is a trusted openly-accessible information source built
+	by web security professional
+	<a href="https://haveibeenpwned.com/About" target="_blank">Troy Hunt</a>; to learn
+	more about it, see the <a href="https://haveibeenpwned.com/FAQs">FAQ</a>).
+	We will then display a simple digest of the data, without it being logged or saved.
+      </p>
+
+      <a class="btn btn-info" href="{% url 'security:check_email_pwned' %}" role="button">
+	<i class="fa fa-arrow-right"></i>&nbsp;Check to see if my email address
+	<strong><em>{{ request.user.email }}</em></strong> has been pwned
+      </a>
+    </div>
+  </div>
+{% endblock %}

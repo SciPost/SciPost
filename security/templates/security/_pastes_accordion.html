@@ -1,0 +1,26 @@
+<div class="accordion" id="pastesAccordion">
+  {% for paste in pastes %}
+    <div class="card">
+      <div class="card-header">
+	<h4 class="mb-0">
+	  {{ paste.Source }} ({{ paste.Date }})
+	  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#pasteCollapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+	    (toggle details)
+	  </button>
+	</h4>
+      </div>
+      <div id="pasteCollapse{{ forloop.counter }}" class="collapse" aria-labelledby="collapse{{ forloop.counter }}" data-parent="#pastesAccordion">
+	<div class="card-body">
+	  <table class="table">
+	    {% for key, val in paste.items %}
+	      <tr>
+		<td>{{ key }}</td>
+		<td>{{ val|safe }}</td>
+	      </tr>
+	    {% endfor %}
+	  </table>
+	</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>

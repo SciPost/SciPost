@@ -1,0 +1,26 @@
+<div class="accordion" id="breachesAccordion">
+  {% for breach in breaches %}
+    <div class="card">
+      <div class="card-header">
+	<h4 class="mb-0">
+	  {{ breach.Name }} ({{ breach.BreachDate }})
+	  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#breachCollapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+	    (toggle details)
+	  </button>
+	</h4>
+      </div>
+      <div id="breachCollapse{{ forloop.counter }}" class="collapse" aria-labelledby="collapse{{ forloop.counter }}" data-parent="#breachesAccordion">
+	<div class="card-body">
+	  <table class="table">
+	    {% for key, val in breach.items %}
+	      <tr>
+		<td>{{ key }}</td>
+		<td>{{ val|safe }}</td>
+	      </tr>
+	    {% endfor %}
+	  </table>
+	</div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
