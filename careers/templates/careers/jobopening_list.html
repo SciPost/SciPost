@@ -23,7 +23,7 @@
 	</ul>
       {% endif %}
 
-      <h2 class="highlight">Current job opportinities at SciPost</h2>
+      <h2 class="highlight">Current job opportunities at SciPost</h2>
 
       {% for job in object_list %}
 	<div class="card border-primary m-4">
@@ -49,9 +49,22 @@
 	  </div>
 	</div>
       {% empty %}
-	<h3>Sorry, we currently have no job openings.</h3>
+	<div class="m-2">
+	  <h3>Sorry, we currently have no advertized job openings.</h3>
+	</div>
       {% endfor %}
 
+      <h2 class="highlight">Open solicitations</h2>
+      <div class="m-2">
+	<p>
+	  Do you have special skills which you are convinced could help SciPost in its mission?
+	  Get in touch with us at <a href="mailto:admin@scipost.org">admin@scipost.org</a>.
+	  We are always on the lookout for highly competent people.
+	</p>
+	<p>
+	  Bear in mind: we are small, we are not well endowed, but this ship knows where it's going.
+	  If you see a future for yourself with us, we welcome your open solicitation.</p>
+      </div>
     </div>
   </div>
 

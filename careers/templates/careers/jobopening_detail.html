@@ -27,9 +27,9 @@
     {% for jobapp in jobopening.jobapplication_set.all %}
       <div class="card">
 	<div class="card-header">
-	  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ jobapp.id }}">{{ jobapp.last_name }}, {{ jobapp.get_title_display }} {{ jobapp.first_name }}</button>
+	  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}">{{ jobapp.last_name }}, {{ jobapp.get_title_display }} {{ jobapp.first_name }}</button>
 	</div>
-	<div class="collapse" id="collapse{{ jobapp.id }}">
+	<div class="collapse" id="collapse{{ forloop.counter }}">
 	  <div class="card-body" data-parent="jobappAccordion">
 	    Link to application detail page as visible by candidate:
 	    <a href="{{ jobapp.get_absolute_url }}">{{ jobapp }}</a>
