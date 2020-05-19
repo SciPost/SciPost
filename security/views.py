@@ -33,17 +33,17 @@ def check_email_pwned(request, email=None):
     breaches_params = {
         'truncateResponse': 'false'
     }
-    breaches_url = '%s/%s/%s' % (hibp_base_url, 'breachedaccount', email)
-    breaches_r = requests.get(breaches_url, headers=headers, params=breaches_params)
-    breaches_json = breaches_r.json()
-    pastes_url = '%s/%s/%s' % (hibp_base_url, 'pasteaccount', email)
-    pastes_r = requests.get(pastes_url, headers=headers)
-    pastes_json = pastes_r.json()
     context = {
         'email': email,
-        'breaches_json': breaches_json,
-        'pastes_json': pastes_json
     }
+    breaches_url = '%s/%s/%s' % (hibp_base_url, 'breachedaccount', email)
+    breaches_r = requests.get(breaches_url, headers=headers, params=breaches_params)
+    if breaches_r.status_code == 200:
+        context['breaches_json'] = breaches_r.json()
+    pastes_url = '%s/%s/%s' % (hibp_base_url, 'pasteaccount', email)
+    pastes_r = requests.get(pastes_url, headers=headers)
+    if pastes_r.status_code == 200:
+        context['pastes_json'] = pastes_r.json()
     return render(request, 'security/check_email.html',
                   context
     )
