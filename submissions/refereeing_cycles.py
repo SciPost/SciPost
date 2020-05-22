@@ -8,6 +8,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.html import format_html, format_html_join, html_safe
 
+from scipost.utils import build_absolute_uri_using_site
+
 from . import constants
 
 
@@ -112,8 +114,9 @@ class VettingAction(BaseAction):
 
     @property
     def url(self):
-        return '{}#current-contributions'.format(reverse(
-            'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,)))
+        return '{}#current-contributions'.format(build_absolute_uri_using_site(
+            reverse('submissions:editorial_page',
+                    args=(self.submission.preprint.identifier_w_vn_nr,))))
 
 
 class NoRefereeResponseAction(BaseAction):
@@ -157,13 +160,13 @@ class NoEICRecommendationAction(BaseAction):
 
     @property
     def url(self):
-        return '{}#reporting-deadline'.format(reverse(
-            'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,)))
+        return '{}#reporting-deadline'.format(build_absolute_uri_using_site(reverse(
+            'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,))))
 
     @property
     def url2(self):
-        return reverse(
-            'submissions:eic_recommendation',args=(self.submission.preprint.identifier_w_vn_nr,))
+        return build_absolute_uri_using_site(reverse(
+            'submissions:eic_recommendation', args=(self.submission.preprint.identifier_w_vn_nr,)))
 
 
 class NeedRefereesAction(BaseAction):
@@ -182,8 +185,8 @@ class NeedRefereesAction(BaseAction):
             text = 'Only %i Referees have yet been invited.' % self.current_number_of_referees
         text += ' At least {minimum} should be. <a href="{url}">Invite a referee here</a>.'.format(
             minimum=self.minimum_number_of_referees,
-            url=reverse(
-                'submissions:select_referee', args=(self.submission.preprint.identifier_w_vn_nr,)))
+            url=build_absolute_uri_using_site(reverse(
+                'submissions:select_referee', args=(self.submission.preprint.identifier_w_vn_nr,))))
         return text
 
 
