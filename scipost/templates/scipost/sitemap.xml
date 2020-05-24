@@ -1,41 +1,42 @@
+{% load request_filters %}
 <?xml version="1.0" encoding="UTF-8"?>
 
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-  <url><loc>https://scipost.org/sponsors</loc></url>
-  <url><loc>https://scipost.org/finances/subsidies</loc></url>
+  <url><loc>{% full_url 'sponsors:sponsors' %}</loc></url>
+  <url><loc>{% full_url 'finances:subsidies' %}</loc></url>
 
   {% for newsitem in newsitems %}
-  <url><loc>https://scipost.org{{ newsitem.get_absolute_url }}>/locL>/url>
+  <url><loc>{% full_url_from_object newsitem %}</loc></url>
   {% endfor %}
 
   {% for journal in journals %}
-  <url><loc>https://scipost.org{{ journal.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object journal %}</loc></url>
   {% endfor %}
 
   {% for contrib in contributors %}
-  <url><loc>https://scipost.org{{ contrib.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object contrib %}</loc></url>
   {% endfor %}
 
   {% for sub in submissions %}
-  <url><loc>https://scipost.org{{ sub.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object sub %}</loc></url>
   {% endfor %}
 
   {% for pub in publications %}
-  <url><loc>https://scipost.org{{ pub.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object pub %}</loc></url>
   {% endfor %}
 
   {% for com in commentaries %}
-  <url><loc>https://scipost.org{{ com.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object com %}</loc></url>
   {% endfor %}
 
   {% for thesis in theses %}
-  <url><loc>https://scipost.org{{ thesis.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object thesis %}</loc></url>
   {% endfor %}
 
-  <url><loc>https://scipost.org/organizations</loc></url>
+  <url><loc>{% full_url 'organizations:organizations' %}</loc></url>
   {% for org in organizations %}
-  <url><loc>https://scipost.org{{ org.get_absolute_url }}</loc></url>
+  <url><loc>{% full_url_from_object org %}</loc></url>
   {% endfor %}
 
 </urlset>

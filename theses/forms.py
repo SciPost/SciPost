@@ -7,6 +7,7 @@ from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
 from scipost.models import Contributor
+from scipost.utils import build_absolute_uri_using_site
 
 from .models import ThesisLink
 from .helpers import past_years
@@ -69,7 +70,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
         mail_params = {
             'vocative_title': thesislink.requested_by.get_title_display(),
             'thesislink': thesislink,
-            'full_url': 'https://scipost.org{url}'.format(url=thesislink.get_absolute_url())
+            'full_url': build_absolute_uri_using_site(thesislink.get_absolute_url())
         }
         action = int(self.cleaned_data['action_option'])
 
