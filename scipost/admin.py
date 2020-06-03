@@ -76,9 +76,6 @@ class RemarkTypeListFilter(admin.SimpleListFilter):
         Returns a list of tuples to define the filter values in the Admin UI.
         """
         return (
-            ('feedback', 'Feedback'),
-            ('nomination', 'Nomination'),
-            ('motion', 'Motion'),
             ('submission', 'Submission'),
             ('recommendation', 'Recommendation'),
         )
@@ -89,12 +86,6 @@ class RemarkTypeListFilter(admin.SimpleListFilter):
         provided in the query string and retrievable via
         `self.value()`.
         """
-        if self.value() == 'feedback':
-            return queryset.filter(feedback__isnull=False)
-        if self.value() == 'nomination':
-            return queryset.filter(nomination__isnull=False)
-        if self.value() == 'motion':
-            return queryset.filter(motion__isnull=False)
         if self.value() == 'submission':
             return queryset.filter(submission__isnull=False)
         if self.value() == 'recommendation':
@@ -107,12 +98,6 @@ def remark_text(obj):
 
 
 def get_remark_type(remark):
-    if remark.feedback:
-        return 'Feedback'
-    if remark.nomination:
-        return 'Nomination'
-    if remark.motion:
-        return 'Motion'
     if remark.submission:
         return 'Submission'
     if remark.recommendation:
