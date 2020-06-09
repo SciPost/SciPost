@@ -31,6 +31,9 @@ class CommentAdmin(GuardedModelAdmin):
     list_filter = ('status',)
     comment_is_vetted.boolean = True
     comment_is_anonymous.boolean = True
-
+    raw_id_fields = [
+        'vetted_by',
+        'author',
+    ]
 
 admin.site.register(Comment, CommentAdmin)
