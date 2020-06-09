@@ -13,6 +13,7 @@ from submissions.models import (
     EICRecommendation, SubmissionTiering, AlternativeRecommendation, EditorialDecision,
     SubmissionEvent, iThenticateReport)
 from scipost.models import Contributor
+from colleges.models import Fellowship
 
 
 def submission_short_title(obj):
@@ -30,16 +31,19 @@ admin.site.register(iThenticateReport, iThenticateReportAdmin)
 class SubmissionAdminForm(forms.ModelForm):
     authors = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Contributor.objects.nonduplicates().order_by('user__last_name'))
+        queryset=Contributor.objects.nonduplicates().select_related('user'))
     authors_claims = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Contributor.objects.nonduplicates().order_by('user__last_name'))
+        queryset=Contributor.objects.nonduplicates().select_related('user'))
     authors_false_claims = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Contributor.objects.nonduplicates().order_by('user__last_name'))
-    is_resubmission_of = forms.ModelChoiceField(
+        queryset=Contributor.objects.nonduplicates().select_related('user'))
+    fellows = forms.ModelMultipleChoiceField(
         required=False,
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
+        queryset=Fellowship.objects.select_related('contributor__user'))
+    voting_fellows = forms.ModelMultipleChoiceField(
+        required=False,
+        queryset=Fellowship.objects.select_related('contributor__user'))
 
     class Meta:
         model = Submission
@@ -48,6 +52,7 @@ class SubmissionAdminForm(forms.ModelForm):
 
 class SubmissionTieringInline(admin.StackedInline):
     model = SubmissionTiering
+    raw_id_fields = ('fellow',)
     extra = 0
     min_num = 0
 
@@ -55,12 +60,37 @@ class SubmissionTieringInline(admin.StackedInline):
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
     form = SubmissionAdminForm
-    list_display = ('title', 'author_list', 'preprint', 'submitted_to',
-                    'status', 'visible_public', 'visible_pool', 'refereeing_cycle',
-                    'submission_date', 'publication')
-    list_filter = ('status', 'discipline', 'submission_type', 'submitted_to')
-    search_fields = ['submitted_by__user__last_name', 'title', 'author_list', 'abstract']
-    raw_id_fields = ('editor_in_charge', 'submitted_by')
+    list_display = (
+        'title',
+        'author_list',
+        'preprint',
+        'submitted_to',
+        'status',
+        'visible_public',
+        'visible_pool',
+        'refereeing_cycle',
+        'submission_date',
+        'publication'
+    )
+    list_filter = (
+        'status',
+        'discipline',
+        'submission_type',
+        'submitted_to'
+    )
+    search_fields = [
+        'submitted_by__user__last_name',
+        'title',
+        'author_list',
+        'abstract'
+    ]
+    raw_id_fields = (
+        'preprint',
+        'editor_in_charge',
+        'submitted_by',
+        'is_resubmission_of',
+        'plagiarism_report',
+    )
     readonly_fields = ('publication',)
     inlines = [
         SubmissionTieringInline,
