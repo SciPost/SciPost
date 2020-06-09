@@ -31,13 +31,24 @@ class ContributorAdmin(admin.ModelAdmin):
         'user__first_name',
         'user__last_name',
         'user__email',
-        'orcid_id']
+        'orcid_id'
+    ]
+    raw_id_fields = [
+        'profile',
+        'vetted_by',
+        'duplicate_of',
+    ]
 
 
 class ContributorInline(admin.StackedInline):
     model = Contributor
     extra = 0
     min_num = 0
+    raw_id_fields = [
+        'profile',
+        'vetted_by',
+        'duplicate_of',
+    ]
 
 
 class TOTPDeviceInline(admin.StackedInline):
@@ -52,7 +63,7 @@ class UserAdmin(UserAdmin):
         TOTPDeviceInline,
         ContactInline,
         ProductionUserInline
-        ]
+    ]
     list_display = ['username', 'email', 'first_name', 'last_name',
                     'is_active', 'is_staff', 'is_duplicate']
     search_fields = ['username', 'last_name', 'email']
