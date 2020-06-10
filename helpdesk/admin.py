@@ -19,9 +19,17 @@ admin.site.register(Queue, QueueAdmin)
 class FollowupInline(admin.TabularInline):
     model = Followup
     extra = 0
+    autocomplete_fields = [
+        'by',
+    ]
+
 
 class TicketAdmin(admin.ModelAdmin):
     search_fields = ['description', 'defined_by']
     inlines = [FollowupInline]
+    autocomplete_fields = [
+        'defined_by',
+        'assigned_to',
+    ]
 
 admin.site.register(Ticket, TicketAdmin)

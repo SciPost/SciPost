@@ -36,14 +36,14 @@ admin.site.register(Issue, IssueAdmin)
 
 
 class PublicationAdminForm(forms.ModelForm):
-    accepted_submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-    authors_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
-    authors_false_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
+    # accepted_submission = forms.ModelChoiceField(
+    #     queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
+    # authors_claims = forms.ModelMultipleChoiceField(
+    #     required=False,
+    #     queryset=Contributor.objects.order_by('user__last_name'))
+    # authors_false_claims = forms.ModelMultipleChoiceField(
+    #     required=False,
+    #     queryset=Contributor.objects.order_by('user__last_name'))
 
     class Meta:
         model = Publication
@@ -58,11 +58,18 @@ class ReferenceInline(admin.TabularInline):
 class AuthorsInline(admin.TabularInline):
     model = PublicationAuthorsTable
     extra = 0
+    autocomplete_fields = [
+        'profile',
+        'affiliations',
+    ]
 
 
 class OrgPubFractionInline(admin.TabularInline):
     model = OrgPubFraction
     list_display = ('organization', 'publication', 'fraction')
+    autocomplete_fields = [
+        'organization',
+    ]
 
 
 class PublicationAdmin(admin.ModelAdmin):
@@ -72,7 +79,14 @@ class PublicationAdmin(admin.ModelAdmin):
     list_filter = ['in_issue']
     inlines = [AuthorsInline, ReferenceInline, OrgPubFractionInline]
     form = PublicationAdminForm
-
+    autocomplete_fields = [
+        'accepted_submission',
+        'authors_claims',
+        'authors_false_claims',
+        'grants',
+        'funders_generic',
+        'topics',
+    ]
 
 admin.site.register(Publication, PublicationAdmin)
 
@@ -113,10 +127,20 @@ class DepositAdmin(admin.ModelAdmin):
 admin.site.register(Deposit, DepositAdmin)
 
 
-admin.site.register(DOAJDeposit)
+class DOAJDepositAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'publication',
+    ]
+
+admin.site.register(DOAJDeposit, DOAJDepositAdmin)
 
 
 admin.site.register(GenericDOIDeposit)
 
 
-admin.site.register(PublicationUpdate)
+class PublicationUpdateAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'publication',
+    ]
+
+admin.site.register(PublicationUpdate, PublicationUpdateAdmin)

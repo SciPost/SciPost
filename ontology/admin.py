@@ -14,7 +14,9 @@ admin.site.register(Tag, TagAdmin)
 
 
 class TopicAdmin(admin.ModelAdmin):
-    pass
+    search_fields = [
+        'name'
+    ]
 
 admin.site.register(Topic, TopicAdmin)
 
