@@ -17,6 +17,10 @@ class ConflictAdmin(admin.ModelAdmin):
     )
     list_filter = ('status', 'type')
     list_display = ('header', 'profile', 'related_profile', 'status', 'type')
-
+    autocomplete_fields = [
+        'profile',
+        'related_profile',
+        'related_submissions',
+    ]
 
 admin.site.register(ConflictOfInterest, ConflictAdmin)

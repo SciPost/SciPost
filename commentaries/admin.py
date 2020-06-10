@@ -12,15 +12,6 @@ from scipost.models import Contributor
 
 
 class CommentaryAdminForm(forms.ModelForm):
-    authors = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.nonduplicates().select_related('user'))
-    authors_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.nonduplicates().select_related('user'))
-    authors_false_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.nonduplicates().select_related('user'))
 
     class Meta:
         model = Commentary
@@ -32,10 +23,13 @@ class CommentaryAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'vetted', 'latest_activity',)
     date_hierarchy = 'latest_activity'
     form = CommentaryAdminForm
-    raw_id_fields = [
+    autocomplete_fields = [
         'requested_by',
         'vetted_by',
         'scipost_publication',
+        'authors',
+        'authors_claims',
+        'authors_false_claims',
     ]
 
 admin.site.register(Commentary, CommentaryAdmin)

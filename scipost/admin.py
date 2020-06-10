@@ -33,7 +33,7 @@ class ContributorAdmin(admin.ModelAdmin):
         'user__email',
         'orcid_id'
     ]
-    raw_id_fields = [
+    autocomplete_fields = [
         'profile',
         'vetted_by',
         'duplicate_of',
@@ -44,7 +44,7 @@ class ContributorInline(admin.StackedInline):
     model = Contributor
     extra = 0
     min_num = 0
-    raw_id_fields = [
+    autocomplete_fields = [
         'profile',
         'vetted_by',
         'duplicate_of',

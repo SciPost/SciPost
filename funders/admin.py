@@ -7,8 +7,19 @@ from django.contrib import admin
 from .models import Funder, Grant
 
 
-admin.site.register(Funder)
+class FunderAdmin(admin.ModelAdmin):
+    search_fields = [
+        'name',
+        'acronym',
+        'identifier',
+        'organization__name',
+        'organization__acronym',
+    ]
+    autocomplete_fields = [
+        'organization',
+    ]
 
+admin.site.register(Funder, FunderAdmin)
 
 
 class GrantAdmin(admin.ModelAdmin):

@@ -13,9 +13,23 @@ class SubsidyAttachmentInline(admin.TabularInline):
 
 class SubsidyAdmin(admin.ModelAdmin):
     inlines = [SubsidyAttachmentInline,]
+    autocomplete_fields = [
+        'organization',
+        'renewal_of',
+    ]
+    search_fields = [
+        'organization__name',
+        'organization__name_original',
+        'organization__acronym',
+    ]
 
 
 admin.site.register(Subsidy, SubsidyAdmin)
 
 
-admin.site.register(WorkLog)
+class WorkLogAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'user'
+    ]
+
+admin.site.register(WorkLog, WorkLogAdmin)

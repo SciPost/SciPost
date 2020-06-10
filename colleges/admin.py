@@ -17,7 +17,7 @@ class FellowshipAdmin(admin.ModelAdmin):
     list_filter = ('guest',)
     fellowhip_is_active.boolean = True
     date_hierarchy = 'created'
-    raw_id_fields = [
+    autocomplete_fields = [
         'contributor',
     ]
 
@@ -27,7 +27,7 @@ admin.site.register(Fellowship, FellowshipAdmin)
 
 class PotentialFellowshipEventInline(admin.TabularInline):
     model = PotentialFellowshipEvent
-    raw_id_fields = [
+    autocomplete_fields = [
         'potfel',
         'noted_by',
     ]
@@ -44,7 +44,7 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
         'profile__last_name',
         'profile__first_name'
     ]
-    raw_id_fields = [
+    autocomplete_fields = [
         'profile',
         'in_agreement',
         'in_abstain',
