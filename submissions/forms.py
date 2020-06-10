@@ -1446,11 +1446,7 @@ class EditorialDecisionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.id:
-            self.fields['submission'].queryset = Submission.objects.filter(
-                pk=self.instance.submission.id)
-        else:
-            self.fields['submission'].queryset = Submission.objects.actively_refereeing()
+        self.fields['submission'].disabled = True
         self.fields['remarks_for_authors'].widget.attrs.update({
             'placeholder': '[will be seen by authors and Fellows]'})
         self.fields['remarks_for_editorial_college'].widget.attrs.update({

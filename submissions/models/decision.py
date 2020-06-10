@@ -72,6 +72,10 @@ class EditorialDecision(models.Model):
                        kwargs={'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr})
 
     @property
+    def is_fixed_and_accepted(self):
+        return self.status == self.FIXED_AND_ACCEPTED
+
+    @property
     def publish(self):
         """Whether the decision is to publish (True) or reject (False)."""
         return self.decision == EIC_REC_PUBLISH

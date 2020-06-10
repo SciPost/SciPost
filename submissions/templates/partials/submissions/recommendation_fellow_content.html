@@ -127,7 +127,7 @@
 	      {% endif %}
 	    </li>
             <li class="list-item my-2">
-	      {% if not recommendation.submission.editorial_decision %}
+	      {% if not recommendation.submission.editorial_decision.is_fixed_and_accepted %}
 		<a class="btn btn-primary" href="{% url 'submissions:editorial_decision_create' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">Initiate the process to fix the editorial decision</a>
 	      {% else %}
 		<a class="btn btn-primary" href="{% url 'submissions:editorial_decision_detail' recommendation.submission.preprint.identifier_w_vn_nr %}" role="button">View the editorial decision <small>(status: {{ recommendation.submission.editorial_decision.get_status_display }})</small></a>

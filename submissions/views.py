@@ -2008,7 +2008,7 @@ class EditorialDecisionCreateView(SubmissionMixin, PermissionsMixin, CreateView)
             EIC_REC_PUBLISH, EIC_REC_REJECT] else EIC_REC_PUBLISH
         status = EditorialDecision.DRAFTED
         initial.update({
-            'submission': self.submission,
+            'submission': self.submission.id,
             'for_journal': for_journal,
             'decision': decision,
             'status': status,
