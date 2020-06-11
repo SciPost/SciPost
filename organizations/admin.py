@@ -13,14 +13,19 @@ class OrganizationEventInline(admin.TabularInline):
     model = OrganizationEvent
     extra = 0
 
+
 class ContactPersonInline(admin.TabularInline):
     model = ContactPerson
     extra = 0
 
+
 class OrganizationAdmin(GuardedModelAdmin):
     inlines = [OrganizationEventInline, ContactPersonInline,]
     search_fields = ['name', 'acronym']
-
+    autocomplete_fields = [
+        'parent',
+        'superseded_by',
+    ]
 
 admin.site.register(Organization, OrganizationAdmin)
 
@@ -28,11 +33,17 @@ admin.site.register(Organization, OrganizationAdmin)
 class ContactRoleInline(admin.TabularInline):
     model = ContactRole
     extra = 0
+    autocomplete_fields = [
+        'organization',
+    ]
+
 
 class ContactAdmin(admin.ModelAdmin):
     inlines = [ContactRoleInline,]
     search_fields = ['user__last_name', 'user__first_name', 'user__email']
-
+    autocomplete_fields = [
+        'user',
+    ]
 
 admin.site.register(Contact, ContactAdmin)
 

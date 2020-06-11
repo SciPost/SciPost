@@ -23,43 +23,26 @@ def submission_short_title(obj):
 class iThenticateReportAdmin(admin.ModelAdmin):
     list_display = ['doc_id', 'to_submission', 'status']
     list_filter = ['status']
-
+    search_fields = [
+        'doc_id',
+    ]
 
 admin.site.register(iThenticateReport, iThenticateReportAdmin)
 
 
-class SubmissionAdminForm(forms.ModelForm):
-    authors = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.nonduplicates().select_related('user'))
-    authors_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.nonduplicates().select_related('user'))
-    authors_false_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.nonduplicates().select_related('user'))
-    fellows = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Fellowship.objects.select_related('contributor__user'))
-    voting_fellows = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Fellowship.objects.select_related('contributor__user'))
-
-    class Meta:
-        model = Submission
-        fields = '__all__'
-
-
 class SubmissionTieringInline(admin.StackedInline):
     model = SubmissionTiering
-    raw_id_fields = ('fellow',)
     extra = 0
     min_num = 0
+    autocomplete_fields = [
+        'submission',
+        'fellow',
+        'for_journal',
+    ]
 
 
 class SubmissionAdmin(GuardedModelAdmin):
     date_hierarchy = 'submission_date'
-    form = SubmissionAdminForm
     list_display = (
         'title',
         'author_list',
@@ -84,13 +67,21 @@ class SubmissionAdmin(GuardedModelAdmin):
         'author_list',
         'abstract'
     ]
-    raw_id_fields = (
+    autocomplete_fields = [
         'preprint',
         'editor_in_charge',
-        'submitted_by',
         'is_resubmission_of',
+        'fellows',
+        'submitted_by',
+        'voting_fellows',
+        'submitted_to',
+        'proceedings',
+        'authors',
+        'authors_claims',
+        'authors_false_claims',
         'plagiarism_report',
-    )
+        'topics',
+    ]
     readonly_fields = ('publication',)
     inlines = [
         SubmissionTieringInline,
@@ -168,17 +159,7 @@ class SubmissionAdmin(GuardedModelAdmin):
         }),
     )
 
-
 admin.site.register(Submission, SubmissionAdmin)
-
-
-class EditorialAssignmentAdminForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-
-    class Meta:
-        model = EditorialAssignment
-        fields = '__all__'
 
 
 class EditorialAssignmentAdmin(admin.ModelAdmin):
@@ -187,22 +168,12 @@ class EditorialAssignmentAdmin(admin.ModelAdmin):
         'to', submission_short_title, 'status', 'date_created', 'date_invited', 'invitation_order')
     date_hierarchy = 'date_created'
     list_filter = ('status',)
-    form = EditorialAssignmentAdminForm
-
+    autocomplete_fields = [
+        'submission',
+        'to',
+    ]
 
 admin.site.register(EditorialAssignment, EditorialAssignmentAdmin)
-
-
-class RefereeInvitationAdminForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-    referee = forms.ModelChoiceField(
-        required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
-
-    class Meta:
-        model = RefereeInvitation
-        fields = '__all__'
 
 
 class RefereeInvitationAdmin(admin.ModelAdmin):
@@ -212,19 +183,14 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'accepted', )
     list_filter = ('accepted', 'fulfilled', 'cancelled',)
     date_hierarchy = 'date_invited'
-    form = RefereeInvitationAdminForm
-
+    autocomplete_fields = [
+        'profile',
+        'submission',
+        'referee',
+        'invited_by',
+    ]
 
 admin.site.register(RefereeInvitation, RefereeInvitationAdmin)
-
-
-class ReportAdminForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-
-    class Meta:
-        model = Report
-        fields = '__all__'
 
 
 class ReportAdmin(admin.ModelAdmin):
@@ -234,56 +200,37 @@ class ReportAdmin(admin.ModelAdmin):
     date_hierarchy = 'date_submitted'
     list_filter = ('status',)
     readonly_fields = ('report_nr',)
-    form = ReportAdminForm
-
+    autocomplete_fields = [
+        'submission',
+        'vetted_by',
+        'author',
+    ]
 
 admin.site.register(Report, ReportAdmin)
 
 
 class EditorialCommunicationAdmin(admin.ModelAdmin):
-    search_fields = ['submission__title', 'referee__user__last_name', 'text']
-
+    search_fields = [
+        'submission__title',
+        'referee__user__last_name',
+        'text'
+    ]
+    autocomplete_fields = [
+        'submission',
+        'referee'
+    ]
 
 admin.site.register(EditorialCommunication, EditorialCommunicationAdmin)
-
-
-class EICRecommendationAdminForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-    eligible_to_vote = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.filter(
-            Q(user__groups__name__in=['Editorial College']) |
-            Q(fellowships__isnull=False),
-        ).distinct().order_by('user__last_name'))
-    voted_for = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.filter(
-            Q(user__groups__name__in=['Editorial College']) |
-            Q(fellowships__isnull=False),
-        ).distinct().order_by('user__last_name'))
-    voted_against = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.filter(
-            Q(user__groups__name__in=['Editorial College']) |
-            Q(fellowships__isnull=False),
-        ).distinct().order_by('user__last_name'))
-    voted_abstain = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.filter(
-            Q(user__groups__name__in=['Editorial College']) |
-            Q(fellowships__isnull=False),
-        ).distinct().order_by('user__last_name'))
-
-    class Meta:
-        model = EICRecommendation
-        fields = '__all__'
 
 
 class AlternativeRecommendationInline(admin.StackedInline):
     model = AlternativeRecommendation
     extra = 0
     min_num = 0
+    autocomplete_fields = [
+        'fellow',
+        'for_journal',
+    ]
 
 
 class EICRecommendationAdmin(admin.ModelAdmin):
@@ -291,9 +238,15 @@ class EICRecommendationAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     list_display = (submission_short_title, 'for_journal', 'recommendation',
                     'status', 'active', 'version')
-    form = EICRecommendationAdminForm
     inlines = [
         AlternativeRecommendationInline,
+    ]
+    autocomplete_fields = [
+        'submission',
+        'eligible_to_vote',
+        'voted_for',
+        'voted_against',
+        'voted_abstain',
     ]
 
 admin.site.register(EICRecommendation, EICRecommendationAdmin)
@@ -308,8 +261,17 @@ class EditorialDecisionAdmin(admin.ModelAdmin):
     list_filter = ['for_journal', 'decision', 'status',]
     list_display = [submission_short_title, 'for_journal', 'decision',
                     'taken_on', 'status', 'version']
+    autocomplete_fields = [
+        'submission',
+        'for_journal',
+    ]
 
 admin.site.register(EditorialDecision, EditorialDecisionAdmin)
 
 
-admin.site.register(SubmissionEvent)
+class SubmissionEventAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'submission',
+    ]
+
+admin.site.register(SubmissionEvent, SubmissionEventAdmin)

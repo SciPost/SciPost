@@ -8,7 +8,9 @@ from .models import Series, Collection, CollectionPublicationsTable
 
 
 class SeriesAdmin(admin.ModelAdmin):
-    pass
+    search_fields = [
+        'name',
+    ]
 
 admin.site.register(Series, SeriesAdmin)
 
@@ -16,11 +18,22 @@ admin.site.register(Series, SeriesAdmin)
 class CollectionPublicationsTableAdmin(admin.StackedInline):
     model = CollectionPublicationsTable
     extra = 0
-
+    autocomplete_fields = [
+        'collection',
+        'publication',
+    ]
 
 class CollectionAdmin(admin.ModelAdmin):
     inlines = [
         CollectionPublicationsTableAdmin,
+    ]
+    search_fields = [
+        'name',
+    ]
+    autocomplete_fields = [
+        'series',
+        'submissions',
+        'publications',
     ]
 
 admin.site.register(Collection, CollectionAdmin)

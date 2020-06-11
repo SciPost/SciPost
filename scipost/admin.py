@@ -18,12 +18,22 @@ from submissions.models import Submission
 
 
 class TOTPDeviceAdmin(admin.ModelAdmin):
-    search_fields = ['user',]
+    search_fields = [
+        'user',
+    ]
+    autocomplete_fields = [
+        'user',
+    ]
 
 admin.site.register(TOTPDevice)
 
 
-admin.site.register(UnavailabilityPeriod)
+class UnavailabilityPeriodAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'contributor',
+    ]
+
+admin.site.register(UnavailabilityPeriod, UnavailabilityPeriodAdmin)
 
 
 class ContributorAdmin(admin.ModelAdmin):
@@ -35,6 +45,7 @@ class ContributorAdmin(admin.ModelAdmin):
     ]
     autocomplete_fields = [
         'profile',
+        'user',
         'vetted_by',
         'duplicate_of',
     ]
@@ -116,33 +127,37 @@ def get_remark_type(remark):
     return ''
 
 
-class RemarkAdminForm(forms.ModelForm):
-    submission = forms.ModelChoiceField(
-        required=False,
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-
-    class Meta:
-        model = Remark
-        fields = '__all__'
-
-
 class RemarkAdmin(admin.ModelAdmin):
     search_fields = ['contributor', 'remark']
     list_display = [remark_text, 'contributor', 'date', get_remark_type]
     date_hierarchy = 'date'
     list_filter = [RemarkTypeListFilter]
-    form = RemarkAdminForm
-
+    autocomplete_fields = [
+        'contributor',
+        'submission',
+        'recommendation',
+    ]
 
 admin.site.register(Remark, RemarkAdmin)
 
 
-admin.site.register(AuthorshipClaim)
+class AuthorshipClaimAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'claimant',
+        'publication',
+        'submission',
+        'commentary',
+        'thesislink',
+        'vetted_by',
+    ]
+
+admin.site.register(AuthorshipClaim, AuthorshipClaimAdmin)
+
+
 admin.site.register(Permission)
 
 
 class PrecookedEmailAdmin(admin.ModelAdmin):
     search_fields = ['email_subject', 'email_text', 'emailed_to']
-
 
 admin.site.register(PrecookedEmail, PrecookedEmailAdmin)

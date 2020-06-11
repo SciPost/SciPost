@@ -133,7 +133,7 @@ def production_event_upload_location(instance, filename):
 
 class ProductionEventAttachment(models.Model):
     """
-    An ProductionEventAttachment is in general used by authors to reply to an Proofs version
+    An ProductionEventAttachment is in general used by authors to reply to a Proofs version
     with their version of the Proofs with comments.
     """
     production_event = models.ForeignKey('production.ProductionEvent', on_delete=models.CASCADE,
