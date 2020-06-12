@@ -828,7 +828,7 @@ class WithdrawSubmissionForm(forms.Form):
 
             # Update editorial decision
             if EditorialDecision.objects.filter(submission=self.submission).exists():
-                EditorialDecision.objects.filter(submission=self.submission).last().update(
+                EditorialDecision.objects.filter(submission=self.submission).latest_version().update(
                     status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
 
             # Delete any production stream
@@ -1465,7 +1465,7 @@ class EditorialDecisionForm(forms.ModelForm):
         if not self.instance.id: # a new object is created
             if self.cleaned_data['submission'].editorialdecision_set.all().exists():
                 decision.version = self.cleaned_data['submission'].editorialdecision_set.all(
-                ).last().version + 1
+                ).latest_version().version + 1
         decision.save()
         return decision
 

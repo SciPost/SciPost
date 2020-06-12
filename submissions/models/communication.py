@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import ED_COMM_CHOICES
-from ..managers import EditorialCommunicationQueryset
+from ..managers import EditorialCommunicationQuerySet
 
 
 class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
@@ -21,7 +21,7 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
 
-    objects = EditorialCommunicationQueryset.as_manager()
+    objects = EditorialCommunicationQuerySet.as_manager()
 
     class Meta:
         ordering = ['timestamp']
