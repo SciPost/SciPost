@@ -40,7 +40,6 @@ from journals.models import Journal
 from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier
 from preprints.models import Preprint
-from production.utils import get_or_create_production_stream
 from profiles.models import Profile
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
