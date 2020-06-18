@@ -11,7 +11,8 @@ import string
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Q, Sum
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.urls import reverse
 
@@ -24,7 +25,8 @@ from .managers import OrganizationQuerySet
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
-from journals.models import Publication, OrgPubFraction
+from colleges.models import Fellowship
+from journals.models import Journal, Publication, OrgPubFraction
 from profiles.models import Profile
 
 
@@ -114,6 +116,30 @@ class Organization(models.Model):
             models.Q(grants__funder__organization__pk__in=org_and_children_ids) |
             models.Q(funders_generic__organization__pk__in=org_and_children_ids)).distinct()
 
+    def get_author_profiles(self):
+        """
+        Returns all Profiles of authors associated to this Organization.
+        """
+        profile_id_list = [tbl.profile.id for tbl in self.publicationauthorstable_set.all()]
+        return Profile.objects.filter(id__in=profile_id_list).distinct()
+
+    def fellowships(self, year=None):
+        """
+        Fellowships with Fellow having listed this organization as affiliation.
+
+        If `year` is given, filter for affiliation and fellowship both valid in that year.
+        """
+        affiliations = self.affiliations.all()
+        if year is not None:
+            affiliations = affiliations.filter(
+                Q(date_from__isnull=True) | Q(date_from__year__lte=year),
+                Q(date_until__isnull=True) | Q(date_until__year__gte=year))
+        profile_ids = [a.profile.id for a in affiliations]
+        fellowships = Fellowship.objects.filter(contributor__profile__id__in=profile_ids)
+        if year is not None:
+            fellowships = fellowships.active_in_year(year)
+        return fellowships
+
     def count_publications(self):
         return self.get_publications().count()
 
@@ -126,14 +152,23 @@ class Organization(models.Model):
 
     def pubfraction_for_publication(self, doi_label):
         """
-        Return the organization's pubfraction for this publication, or the string 'Not defined'.
+        Return the organization's pubfraction for a publication.
         """
+        pfs = OrgPubFraction.objects.filter(publication__doi_label=doi_label)
         try:
-            return OrgPubFraction.objects.get(
-                organization=self,
-                publication__doi_label=doi_label).fraction
-        except:
-            return 'Not yet defined'
+            return pfs.get(organization=self).fraction
+        except OrgPubFraction.DoesNotExist:
+            children_ids = [k['id'] for k in list(self.children.all().values('id'))]
+            children_contribs = pfs.filter(organization__id__in=children_ids).aggregate(
+                Sum('fraction'))['fraction__sum']
+            if children_contribs is not None:
+                message = "as parent (ascribed to "
+                for child in self.children.all():
+                    pfc = child.pubfraction_for_publication(doi_label)
+                    if pfc not in ['No PubFraction ascribed', 'Not yet defined']:
+                        message += "%s: %s; " % (child, pfc)
+                return message.rpartition(';')[0] + ')'
+        return 'Not yet defined'
 
     def pubfractions_in_year(self, year):
         """
@@ -152,28 +187,19 @@ class Organization(models.Model):
             'total': fractions.aggregate(Sum('fraction'))['fraction__sum']
         }
 
-    def get_author_profiles(self):
-        """
-        Returns all Profiles of authors associated to this Organization.
-        """
-        profile_id_list = [tbl.profile.id for tbl in self.publicationauthorstable_set.all()]
-        return Profile.objects.filter(id__in=profile_id_list).distinct()
-
-    @property
-    def has_current_agreement(self):
-        """
-        Check if this organization has a current Partnership agreement.
-        """
-        if not self.partner:
-            return False
-        return self.partner.agreements.now_active().exists()
-
     @property
     def has_current_subsidy(self):
         """
         Check if this organization has a Subsidy with a still-running validity period.
         """
         return self.subsidy_set.filter(date_until__gte=datetime.date.today()).exists()
+
+    @property
+    def has_children_with_current_subsidy(self):
+        for child in self.children.all():
+            if child.has_current_subsidy:
+                return True
+        return False
 
     @property
     def latest_subsidy_date_until(self):
@@ -184,6 +210,17 @@ class Organization(models.Model):
             return self.subsidy_set.order_by('-date_until').first().date_until
         return '-'
 
+    def total_subsidies_in_year(self, year):
+        """
+        Return the total subsidies for this Organization in that year.
+        """
+        total = 0
+        for subsidy in self.subsidy_set.filter(
+                date__year__lte=year).filter(
+                    models.Q(date_until=None) | models.Q(date_until__year__gte=year)):
+            total += subsidy.value_in_year(year)
+        return total
+
     def get_total_subsidies_obtained(self, n_years_past=None):
         """
         Computes the total amount received by SciPost, in the form
@@ -191,16 +228,48 @@ class Organization(models.Model):
         """
         return self.subsidy_set.aggregate(models.Sum('amount')).get('amount__sum', 0)
 
-    def get_total_contribution_obtained(self, n_years_past=None):
+    def get_balance_info(self):
         """
-        Computes the contribution obtained from this organization,
-        summed over all time.
+        Return a dict containing this Organization's expenditure and support history.
         """
-        contrib = 0
-        for agreement in self.partner.agreements.all():
-            contrib += agreement.offered_yearly_contribution * int(agreement.duration.days / 365)
-        return contrib
-
+        pubyears = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        rep = {}
+        cumulative_balance = 0
+        cumulative_expenditures = 0
+        cumulative_contribution = 0
+        for year in pubyears:
+            rep[str(year)] = {}
+            year_expenditures = 0
+            rep[str(year)]['expenditures'] = {}
+            pfy = self.pubfractions.filter(publication__publication_date__year=year)
+            contribution = self.total_subsidies_in_year(year)
+            rep[str(year)]['contribution'] = contribution
+            journal_labels = set([f.publication.get_journal().doi_label for f in pfy.all()])
+            for journal_label in journal_labels:
+                sumpf = pfy.filter(
+                    publication__doi_label__istartswith=journal_label + '.'
+                ).aggregate(Sum('fraction'))['fraction__sum']
+                costperpaper = get_object_or_404(Journal,
+                    doi_label=journal_label).cost_per_publication(year)
+                expenditures = int(costperpaper* sumpf)
+                if sumpf > 0:
+                    rep[str(year)]['expenditures'][journal_label] = {
+                        'pubfractions': sumpf,
+                        'costperpaper': costperpaper,
+                        'expenditures': expenditures,
+                    }
+                year_expenditures += expenditures
+            rep[str(year)]['expenditures']['total'] = year_expenditures
+            rep[str(year)]['balance'] = contribution - year_expenditures
+            cumulative_expenditures += year_expenditures
+            cumulative_contribution += contribution
+            cumulative_balance += contribution - year_expenditures
+        rep['cumulative'] = {
+            'balance': cumulative_balance,
+            'expenditures': cumulative_expenditures,
+            'contribution': cumulative_contribution
+        }
+        return rep
 
 
 ###################################

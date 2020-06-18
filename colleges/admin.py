@@ -17,6 +17,9 @@ class FellowshipAdmin(admin.ModelAdmin):
     list_filter = ('guest',)
     fellowhip_is_active.boolean = True
     date_hierarchy = 'created'
+    autocomplete_fields = [
+        'contributor',
+    ]
 
 
 admin.site.register(Fellowship, FellowshipAdmin)
@@ -24,10 +27,28 @@ admin.site.register(Fellowship, FellowshipAdmin)
 
 class PotentialFellowshipEventInline(admin.TabularInline):
     model = PotentialFellowshipEvent
+    autocomplete_fields = [
+        'potfel',
+        'noted_by',
+    ]
+
 
 class PotentialFellowshipAdmin(admin.ModelAdmin):
-    inlines = (PotentialFellowshipEventInline,)
-    list_display = ('__str__',)
-    search_fields = ['profile__last_name', 'profile__first_name']
+    inlines = [
+        PotentialFellowshipEventInline,
+    ]
+    list_display = [
+        '__str__',
+    ]
+    search_fields = [
+        'profile__last_name',
+        'profile__first_name'
+    ]
+    autocomplete_fields = [
+        'profile',
+        'in_agreement',
+        'in_abstain',
+        'in_disagreement',
+    ]
 
 admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)

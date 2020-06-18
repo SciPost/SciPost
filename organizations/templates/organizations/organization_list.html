@@ -2,6 +2,7 @@
 
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
+{% load bootstrap %}
 {% load static %}
 {% load user_groups %}
 {% load add_get_parameters %}
@@ -43,12 +44,12 @@
 
 
   <div class="row">
-    <div class="col-5">
+    <div class="col-lg-5">
       <p>Organizations are linked through appearing in a publication's author affiliations, grant-giving agencies or explicit support acknowledgements.</p>
       <p>For each Organization, the NAP (number of associated publications) is given (you can order in decreasing/increasing NAP using the header arrows).</p>
     </div>
-    <div class="col-1"></div>
-    <div class="col-5">
+    <div class="col-lg-1"></div>
+    <div class="col-lg-5">
       <p>Click on a row to see more details about the Organization, including per-year breakdowns of:</p>
       <ul>
 	<li>associated publications</li>
@@ -62,16 +63,34 @@
   </div>
 
   <div class="row">
-    <div class="col-3">
+    <div class="col-lg-3">
+      <h3>Search for a particular Organization</h3>
+      <p>(by name or acronym)</p>
+    </div>
+    <div class="col-lg-8">
+      <form action="{% url 'organizations:get_organization_detail' %}" method="get">
+	<ul class="list-inline">
+	  <li class="list-inline-item">
+	    {{ select_organization_form.as_p }}
+	  </li>
+	  <li class="list-inline-item">
+	    <input type="submit" value="View" class="btn btn-secondary py-1">
+	  </li>
+	</ul>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-3">
       <h3>Click on flag to view by Country</h3>
       <p><a href="{% url 'organizations:organizations' %}">View all</a></p>
     </div>
-    <div class="col-8">
+    <div class="col-lg-8">
       <ul>
 	{% for code in countrycodes %}
 	  {% get_country code as country_obj %}
 	  <li style="display: inline-block;">
-	    <a href="{% add_get_parameters country=code %}"><i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
+	    <a href="{% add_get_parameters country=code %}"><i class="{{ country_obj.flag_css }}" data-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
 	  </li>
 	{% endfor %}
       </ul>
@@ -102,35 +121,35 @@
 	</thead>
 	<tbody>
 	  {% for org in object_list %}
-	    <tr class="table-row" data-href="{% url 'organizations:organization_details' pk=org.id %}" target="_blank" style="cursor: pointer;">
+	    <tr class="table-row" data-href="{% url 'organizations:organization_details' pk=org.id %}" style="cursor: pointer;">
 	      <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
 	      <td>
 		{{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>
 		{% if org.parent %}
-		  <small class="text-muted"><p>Parent: {{ org.parent }}</p></small>
+		  <p><small class="text-muted">Parent: {{ org.parent }}</small></p>
 		{% endif %}
 		{% if org.children.all %}
-		  <small class="text-muted">
-		    <p>Parent of:
-		      {% for child in org.children.all %}
-			{{ child }}{% if not forloop.last %},&nbsp;{% endif %}
-		      {% endfor %}
-		    </p>
-		  </small>
+		  <p><small class="text-muted">
+		    Parent of:
+		    {% for child in org.children.all %}
+		      {{ child }}{% if not forloop.last %},&nbsp;{% endif %}
+		    {% endfor %}
+		  </small></p>
 		{% endif %}
 		{% if org.superseded_by %}
-		  <small class="text-muted"><p>Superseded by {{ org.superseded_by }}</p></small>
+		  <p><small class="text-muted">Superseded by {{ org.superseded_by }}</small></p>
 		{% endif %}
 	      </td>
 	      <td>{{ org.cf_nr_associated_publications }}</td>
 	      {% if org.has_current_subsidy %}
 		<td class="bg-success">Yes, current</td>
+	      {% elif org.has_children_with_current_subsidy %}
+		<td class="bg-success">Yes, as&nbsp;parent</td>
 	      {% elif org.subsidy_set.all|length > 0 %}
 		<td class="bg-primary text-white">Yes, past</td>
 	      {% else %}
 		<td class="bg-warning">Not yet</td>
 	      {% endif %}
-	      <td></td>
 	    </tr>
 	  {% empty %}
 	    <tr><td colspan="4">No organizations found</td></tr>
@@ -152,4 +171,5 @@
 
 {% block footer_script %}
   <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+  {{ select_organization_form.media }}
 {% endblock %}

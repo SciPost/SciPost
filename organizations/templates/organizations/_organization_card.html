@@ -12,16 +12,18 @@
 
   <div class="row">
     <div class="col-12">
-      <ul class="nav nav-tabs" id="organization-{{ org.id }}-tab" role="tablist">
+      <ul class="nav nav-tabs" role="tablist">
 	<li class="nav-item">
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-	    & PubFractions{% endif %}</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
+	</li>
+	<li class="nav-item">
+	  <a class="nav-link" id="fellows-{{ org.id }}-tab" data-toggle="tab" href="#fellows-{{ org.id }}" role="tab" aria-controls="fellows-{{ org.id }}" aria-selected="true">Associated Fellows</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
@@ -38,7 +40,7 @@
 	{% endif %}
       </ul>
 
-      <div class="tab-content" id="organization-{{ org.id }}-tab">
+      <div class="tab-content">
 
 	<div class="tab-pane pt-4" id="details-{{ org.id }}" role="tabpanel" aria-labelledby="details-{{ org.id }}-tab">
 	  {% if perms.scipost.can_manage_organizations %}
@@ -63,7 +65,7 @@
 		<p>Are you a representative of this Organization? We advise you to:</p>
 		<ul>
 		  <li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a>;</li>
-		  <li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion of {{ organization }} {% if organization.acronym %}({{ organization.acronym }}){% endif %} in the Funder Registry">contact our administration</a> with this information so that we can update our records.</li>
+		  <li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion&nbsp;of&nbsp;{{ organization|urlencode }}&nbsp;{% if organization.acronym %}({{ organization.acronym|urlencode }}){% endif %}&nbsp;in&nbsp;the&nbsp;Funder&nbsp;Registry">contact our administration</a> with this information so that we can update our records.</li>
 		</ul>
 	      </li>
 	    {% endfor %}
@@ -84,7 +86,7 @@
 		    <br>by {{ publication.author_list }},
 		    <br>{{ publication.citation }}
 		    {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		      <br><span class="text-muted small">Pubfraction: {{ org|pubfraction_for_publication:publication }}</span>
+		      <br><span class="text-muted small">PubFraction: {{ org|pubfraction_for_publication:publication }}</span>
 		    {% endif %}
 		  </li>
 		{% endif %}
@@ -97,15 +99,17 @@
 	  <div class="row">
 	    <div class="col-lg-6">
 	      <h3>Associated Authors:</h3>
-	      {% for profile in org.get_author_profiles %}
-		{% if profile.contributor %}
-		  <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-		{% else %}
-		  <li>{{ profile }}</li>
-		{% endif %}
-	      {% empty %}
-		<li>No Profile found</li>
-	      {% endfor %}
+	      <ul>
+		{% for profile in org.get_author_profiles %}
+		  {% if profile.contributor %}
+		    <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+		  {% else %}
+		    <li>{{ profile }}</li>
+		  {% endif %}
+		{% empty %}
+		  <li>No Profile found</li>
+		{% endfor %}
+	      </ul>
 	    </div>
 	    {% if org.children.all|length > 0 %}
 	      <div class="col-lg-6">
@@ -132,9 +136,77 @@
 	  </div>
 	</div>
 
+	<div class="tab-pane pt-4" id="fellows-{{ org.id }}" role="tabpanel" aria-labelledby="fellows-{{ org.id }}-tab">
+	  <h3 class="highlight">Fellows affiliated to this Organization</h3>
+	  <div class="row">
+	    <div class="col-lg-6">
+	      <h4>Currently active</h4>
+	      <ul>
+		{% for fellow in org.fellowships.active %}
+		  <li>{{ fellow }}</li>
+		{% empty %}
+		  <li>No fellowship found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	    <div class="col-lg-6">
+	      <h4>Former</h4>
+	      <ul>
+		{% for fellow in org.fellowships.former %}
+		  <li>{{ fellow }}</li>
+		{% empty %}
+		  <li>No fellowship found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </div>
+	  {% with children=org.children.all %}
+	    {% if children|length > 0 %}
+	      <h4 class="highlight p-2">Fellows associated to sub-organizations</h4>
+	      {% for child in children %}
+		{% with active=child.fellowships.active former=childfellowships.former %}
+		  {% if active|length > 0 or former|length > 0 %}
+		    <table class="table">
+		      <thead>
+			<tr>
+			  <th>Organization</th>
+			  <th>Current</th>
+			  <th>Former</th>
+			</tr>
+		      </thead>
+		      <tbody>
+			<tr>
+			  <td><a href="{{ child.get_absolute_url }}">{{ child }}</a></td>
+			  <td>
+			    <ul class="list list-unstyled">
+			      {% for fellow in active %}
+				<li>{{ fellow }}</li>
+			      {% empty %}
+				<li>No fellowship found</li>
+			      {% endfor %}
+			    </ul>
+			  </td>
+			  <td>
+			    <ul class="list list-unstyled">
+			      {% for fellow in former %}
+				<li>{{ fellow }}</li>
+			      {% empty %}
+				<li>No fellowship found</li>
+			      {% endfor %}
+			    </ul>
+			  </td>
+			</tr>
+		      </tbody>
+		    </table>
+		  {% endif %}
+		{% endwith %}
+	      {% endfor %}
+	    {% endif %}
+	  {% endwith %}
+	</div>
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
-	  <h3>Support history</h3>
+	  <h3 class="highlight">Support history</h3>
 	  {% if org.subsidy_set.all|length > 0 or org.children.all|length > 0 %}
 	    {% if org.subsidy_set.all|length > 0 %}
 	      <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
@@ -157,23 +229,90 @@
 		  <tr style="border-top: 2px solid black">
 		    <td>Total support obtained:</td>
 		    <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies or "can_view_org_contacts" in user_org_perms %}&euro;{{ org.get_total_subsidies_obtained }}{% else %}-{% endif %}</td>
-		    <td colspan="2">
+		    <td></td>
 		  </tr>
 		</tbody>
 	      </table>
 	    {% endif %}
 	    {% if org.children.all|length > 0 %}
-	      <p>See subsidies obtained from related organizations
-		<ul>
-		  {% for child in org.children.all %}
-		    <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
-		  {% endfor %}
-		</ul>
-	      </p>
+	      <h4>See also the subsidies obtained from these sub-organizations:</h4>
+	      <ul>
+		{% for child in org.children.all %}
+		  <li><a href="{{ child.get_absolute_url }}">{{ child }}</a></li>
+		{% endfor %}
+	      </ul>
 	    {% endif %}
 	  {% else %}
 	    <p><strong>This Organization has <span class="text-danger">not yet</span> supported SciPost.</strong></p>
 	  {% endif %}
+	  {% if org.parent %}
+	    <h4>See also the subsidies from this parent organization:</h4>
+	    <ul>
+	      <li><a href="{{ org.parent.get_absolute_url }}">{{ org.parent }}</a></li>
+	    </ul>
+	  {% endif %}
+	  <h3 class="highlight mt-4">Balance of SciPost expenditures versus support received</h3>
+	  <table class="table">
+	    <thead class="thead-default">
+	      <tr>
+		<th>Year (click to toggle details)</th>
+		<th class="text-right">Total expenditures<br>by SciPost (&euro;)</th>
+		<th class="text-right">This Organization's<br>contribution to SciPost (&euro;)</th>
+		<th class="text-right">Balance (&euro;)</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <tr class="table-light">
+		<td>Cumulative</td>
+		<td class="text-right">{{ balance.cumulative.expenditures }}</td>
+		<td class="text-right">{{ balance.cumulative.contribution }}</td>
+		<td class="text-right">{{ balance.cumulative.balance }}</td>
+	      </tr>
+	      {% for year in pubyears %}
+		{% for key, val in balance.items %}
+		  {% if year == key|add:"0" %}
+		    <tr>
+		      <td><a class="mx-1 my-0 p-0" data-toggle="collapse" href="#details{{ year }}" role="button" aria-expanded="false" aria-controls="details{{ year }}">{{ key }}</a></td>
+		      <td class="text-right">
+			{{ val.expenditures.total }}
+		      </td>
+		      <td class="text-right">{{ val.contribution }}</td>
+		      <td class="text-right">{{ val.balance }}</td>
+		    </tr>
+		    <tr class="collapse" id="details{{ year }}">
+		      <td colspan="4">
+			<div class="p-2">
+			  <table class="table table-bordered">
+			    <thead class="table-dark">
+			      <tr>
+				<th>Journal</th>
+				<th class="text-right">Sum of PubFractions</th>
+				<th class="text-right">Cost per publication</th>
+				<th class="text-right">Expenditures</th>
+			      </tr>
+			    </thead>
+			    <tbody>
+			    {% for journal, journaldata in val.expenditures.items %}
+			      {% if journal != 'total' %}
+				<tr>
+				  <td>{{ journal }}</td>
+				  <td class="text-right">{{ journaldata.pubfractions }}</td>
+				  <td class="text-right">{{ journaldata.costperpaper }}</td>
+				  <td class="text-right">{{ journaldata.expenditures }}</td>
+				</tr>
+			      {% endif %}
+			    {% endfor %}
+			    </tbody>
+			  </table>
+			  <p>You can see the associated publications and their PubFractions under the <em>Publications & PubFractions</em> tab.</p>
+			</div>
+		      </td>
+		    </tr>
+		  {% endif %}
+		{% endfor %}
+	      {% endfor %}
+	    </tbody>
+	  </table>
 	</div>
 
 	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson or "can_view_org_contacts" in user_org_perms %}

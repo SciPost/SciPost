@@ -12,6 +12,9 @@ from .models import Forum, Meeting, Post, Motion
 class ForumAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description']
+    autocomplete_fields = [
+        'moderators',
+    ]
 
 admin.site.register(Forum, ForumAdmin)
 
@@ -19,17 +22,34 @@ admin.site.register(Forum, ForumAdmin)
 class MeetingAdmin(GuardedModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ['name', 'description', 'preamble']
+    autocomplete_fields = [
+        'moderators',
+    ]
 
 admin.site.register(Meeting, MeetingAdmin)
 
 
 class PostAdmin(admin.ModelAdmin):
     search_fields = ['posted_by', 'subject', 'text']
+    autocomplete_fields = [
+        'posted_by',
+        'vetted_by',
+    ]
 
 admin.site.register(Post, PostAdmin)
 
 
 class MotionAdmin(admin.ModelAdmin):
     search_fields = ['posted_by', 'subject', 'text']
+    autocomplete_fields = [
+        'posted_by',
+        'vetted_by',
+        'post',
+        'eligible_for_voting',
+        'in_agreement',
+        'in_doubt',
+        'in_disagreement',
+        'in_abstain',
+    ]
 
 admin.site.register(Motion, MotionAdmin)

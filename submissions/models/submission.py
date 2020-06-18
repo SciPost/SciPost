@@ -410,7 +410,7 @@ class Submission(models.Model):
     def editorial_decision(self):
         """Returns the latest EditorialDecision (if it exists)."""
         if self.editorialdecision_set.exists():
-            return self.editorialdecision_set.last()
+            return self.editorialdecision_set.latest_version()
         return None
 
 

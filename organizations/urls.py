@@ -41,6 +41,11 @@ urlpatterns = [
         name='organization_details'
     ),
     url(
+        r'^get_organization_detail$',
+        views.get_organization_detail,
+        name='get_organization_detail'
+    ),
+    url(
         r'^(?P<pk>[0-9]+)/orgevent/add/$',
         views.OrganizationEventCreateView.as_view(),
         name='organizationevent_create'

@@ -16,7 +16,7 @@
   {% if publication.in_issue %}
     <a href="{{ publication.in_issue.get_absolute_url }}" class="breadcrumb-item">{{ publication.in_issue.short_str }}</a>
   {% endif %}
-  <span class="breadcrumb-item active">{{publication.title}}</span>
+  <span class="breadcrumb-item active">{{ publication.title }}</span>
 {% endblock %}
 
 {% block headsup %}

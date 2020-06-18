@@ -14,16 +14,43 @@ def event_count(obj):
     return obj.events.count()
 
 
+class ProductionUserAdmin(admin.ModelAdmin):
+    search_fields = [
+        'user',
+        'name',
+    ]
+    autocomplete_fields = [
+        'user',
+    ]
+
+admin.site.register(ProductionUser, ProductionUserAdmin)
+
+
 class ProductionUserInline(admin.StackedInline):
     model = ProductionUser
     extra = 0
     min_num = 0
+    search_fields = [
+        'user',
+    ]
+    autocomplete_fields = [
+        'user',
+    ]
 
 
 class ProductionEventInline(admin.TabularInline):
     model = ProductionEvent
     extra = 1
     readonly_fields = ()
+    search_fields = [
+        'stream',
+        'noted_by',
+    ]
+    autocomplete_fields = [
+        'stream',
+        'noted_by',
+        'noted_to',
+    ]
 
 
 class ProductionStreamAdmin(GuardedModelAdmin):
@@ -34,15 +61,28 @@ class ProductionStreamAdmin(GuardedModelAdmin):
     inlines = (
         ProductionEventInline,
     )
+    autocomplete_fields = [
+        'submission',
+        'officer',
+        'supervisor',
+        'invitations_officer',
+    ]
+
+admin.site.register(ProductionStream, ProductionStreamAdmin)
 
 
 class ProductionProofsAdmin(admin.ModelAdmin):
     list_display = ['stream', 'version', 'status', 'accessible_for_authors']
     list_filter = ['status', 'accessible_for_authors']
-
+    search_fields = [
+        'stream',
+    ]
+    autocomplete_fields = [
+        'stream',
+        'uploaded_by',
+    ]
 
 admin.site.register(Proofs, ProductionProofsAdmin)
-admin.site.register(ProductionUser)
-admin.site.register(ProductionEvent)
+
+
 admin.site.register(ProductionEventAttachment)
-admin.site.register(ProductionStream, ProductionStreamAdmin)

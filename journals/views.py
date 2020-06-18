@@ -35,7 +35,7 @@ from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL
 from .exceptions import InvalidDOIError
 from .models import (
     Journal, Volume, Issue, Publication, Deposit, DOAJDeposit, GenericDOIDeposit,
-    PublicationAuthorsTable, OrgPubFraction)
+    PublicationAuthorsTable, OrgPubFraction, PublicationUpdate)
 from .forms import (
     AbstractJATSForm, FundingInfoForm, VolumeForm, IssueForm,
     AuthorsTableOrganizationSelectForm, CreateMetadataXMLForm, CitationListBibitemsForm,
@@ -1050,10 +1050,47 @@ def manage_comment_metadata(request):
     the metadata of Comments.
     """
     comments = Comment.objects.all()
+
+    paginator = Paginator(comments, 25)
+    page = request.GET.get('page')
+    try:
+        comments = paginator.page(page)
+    except PageNotAnInteger:
+        comments = paginator.page(1)
+    except EmptyPage:
+        comments = paginator.page(paginator.num_pages)
+
     context = {
         'comments': comments,
+        'page_obj': comments,
+        'paginator': paginator,
     }
     return render(request, 'journals/manage_comment_metadata.html', context)
+
+
+@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+def manage_update_metadata(request):
+    """
+    This page offers Editorial Administrators tools for managing
+    the metadata of PublicationUpdates.
+    """
+    updates = PublicationUpdate.objects.all()
+
+    paginator = Paginator(updates, 25)
+    page = request.GET.get('page')
+    try:
+        updates = paginator.page(page)
+    except PageNotAnInteger:
+        updates = paginator.page(1)
+    except EmptyPage:
+        updates = paginator.page(paginator.num_pages)
+
+    context = {
+        'updates': updates,
+        'page_obj': updates,
+        'paginator': paginator,
+    }
+    return render(request, 'journals/manage_update_metadata.html', context)
 
 
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
@@ -1082,12 +1119,22 @@ def mark_comment_doi_needed(request, comment_id, needed):
 @transaction.atomic
 def generic_metadata_xml_deposit(request, **kwargs):
     """
-    This method creates the metadata for non-Publication objects
-    such as Reports and Comments, and deposits the metadata to
-    Crossref.
-    If there exists a relation to a SciPost-published object,
-    the deposit uses Crossref's peer review content type.
+    Handle generic non-Publication metadata deposits at Crossref.
+
+    Types of objects handled:
+
+    * Reports
+    * Comments
+    * PublicationUpdates
+
+    The metadata is created and immediately deposited at Crossref.
+
+    For Reports and Comments, if there exists a relation to a
+    SciPost-published object, the deposit uses Crossref's peer review content type.
     Otherwise the deposit is done as a dataset.
+
+    For PublicationUpdates, the deposit type is `journal_article` and
+    the journal is used as container.
     """
     type_of_object = kwargs['type_of_object']
     object_id = int(kwargs['object_id'])
@@ -1096,13 +1143,15 @@ def generic_metadata_xml_deposit(request, **kwargs):
         _object = get_object_or_404(Report, id=object_id)
     elif type_of_object == 'comment':
         _object = get_object_or_404(Comment, id=object_id)
-
-    relation_to_published = _object.relation_to_published
+    elif type_of_object == 'update':
+        _object = get_object_or_404(PublicationUpdate, id=object_id)
 
     if not _object.doi_label:
         _object.create_doi_label()
         _object.refresh_from_db()
 
+    metadata_xml = ""
+    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
     # create a doi_batch_id
     salt = ""
     for i in range(5):
@@ -1110,84 +1159,93 @@ def generic_metadata_xml_deposit(request, **kwargs):
     salt = salt.encode('utf8')
     idsalt = str(_object)[:10]
     idsalt = idsalt.encode('utf8')
-    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
     doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
-    metadata_xml = (
-        '<?xml version="1.0" encoding="UTF-8"?>\n'
-        '<doi_batch version="4.4.1" xmlns="http://www.crossref.org/schema/4.4.1" '
-        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-        'xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 '
-        'http://www.crossref.org/shema/deposit/crossref4.4.1.xsd">\n'
-        '<head>\n'
-        '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
-        '<timestamp>' + timestamp + '</timestamp>\n'
-        '<depositor>\n'
-        '<depositor_name>scipost</depositor_name>\n'
-        '<email_address>' + settings.CROSSREF_DEPOSIT_EMAIL + '</email_address>\n'
-        '</depositor>\n'
-        '<registrant>scipost</registrant>\n'
-        '</head>\n'
-    )
-    if relation_to_published:
-        metadata_xml += (
-            '<body>\n'
-            '<peer_review stage="' + relation_to_published['stage'] + '">\n'
-            '<contributors>'
+
+    if type_of_object == 'update':
+        metadata_xml = _object.xml(doi_batch_id=doi_batch_id)
+
+    else:  # Report or Comment
+        relation_to_published = _object.relation_to_published # Reports and Comments have this
+
+        metadata_xml = (
+            '<?xml version="1.0" encoding="UTF-8"?>\n'
+            '<doi_batch version="4.4.1" xmlns="http://www.crossref.org/schema/4.4.1" '
+            'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+            'xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 '
+            'http://www.crossref.org/shema/deposit/crossref4.4.1.xsd">\n'
+            '<head>\n'
+            '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
+            '<timestamp>' + timestamp + '</timestamp>\n'
+            '<depositor>\n'
+            '<depositor_name>scipost</depositor_name>\n'
+            '<email_address>' + settings.CROSSREF_DEPOSIT_EMAIL + '</email_address>\n'
+            '</depositor>\n'
+            '<registrant>scipost</registrant>\n'
+            '</head>\n'
         )
-        if _object.anonymous:
+
+        if relation_to_published: # Reports and Comments have this
             metadata_xml += (
-                '<anonymous sequence="first" contributor_role="'
-                + relation_to_published['contributor_role'] + '"/>'
+                '<body>\n'
+                '<peer_review stage="' + relation_to_published['stage'] + '">\n'
+                '<contributors>'
             )
-        else:
+            if _object.anonymous:
+                metadata_xml += (
+                    '<anonymous sequence="first" contributor_role="'
+                    + relation_to_published['contributor_role'] + '"/>'
+                )
+            else:
+                metadata_xml += (
+                    '<person_name sequence="first" contributor_role="'
+                    + relation_to_published['contributor_role'] + '">'
+                    '<given_name>' + _object.author.user.first_name + '</given_name>'
+                    '<surname>' + _object.author.user.last_name + '</surname>'
+                    '</person_name>\n'
+                )
+
+            if isinstance(_object, Publication):
+                url_to_declare = 'https://scipost.org{}'.format(_object.get_absolute_url())
+            else:
+                url_to_declare = 'https://scipost.org/{}'.format(_object.doi_label)
+
             metadata_xml += (
-                '<person_name sequence="first" contributor_role="'
-                + relation_to_published['contributor_role'] + '">'
-                '<given_name>' + _object.author.user.first_name + '</given_name>'
-                '<surname>' + _object.author.user.last_name + '</surname>'
-                '</person_name>\n'
+                '</contributors>\n'
+                '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
+                '<review_date>'
+                '<month>' + _object.date_submitted.strftime('%m') + '</month>'
+                '<day>' + _object.date_submitted.strftime('%d') + '</day>'
+                '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
+                '</review_date>\n'
+                '<program xmlns="http://www.crossref.org/relations.xsd">\n'
+                '<related_item>'
+                '<description>' + relation_to_published['title'] + '</description>\n'
+                '<inter_work_relation relationship-type="isReviewOf" identifier-type="doi">'
+                + relation_to_published['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
+                '</program>'
+                '<doi_data><doi>' + _object.doi_string + '</doi>\n'
+                '<resource>' + url_to_declare +
+                '</resource></doi_data>\n'
+                '</peer_review>\n'
+                '</body>\n'
+                '</doi_batch>\n'
             )
 
-        if isinstance(_object, Publication):
-            url_to_declare = 'https://scipost.org{}'.format(_object.get_absolute_url())
-        else:
-            url_to_declare = 'https://scipost.org/{}'.format(_object.doi_label)
+        else: # Reports and Comments on not-yet-published objects
+            metadata_xml += (
+                '<body>\n'
+                '<database>\n'
+                '<database_metadata language="en">\n'
+                '<titles><title>SciPost Reports and Comments</title></titles>\n'
+                '</database_metadata>\n'
+                '<dataset dataset_type="collection">\n'
+                '<doi_data><doi>' + _object.doi_string + '</doi>\n'
+                '<resource>https://scipost.org' + _object.get_absolute_url() +
+                '</resource></doi_data>\n'
+                '</dataset></database>\n'
+                '</body></doi_batch>'
+            )
 
-        metadata_xml += (
-            '</contributors>\n'
-            '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
-            '<review_date>'
-            '<month>' + _object.date_submitted.strftime('%m') + '</month>'
-            '<day>' + _object.date_submitted.strftime('%d') + '</day>'
-            '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
-            '</review_date>\n'
-            '<program xmlns="http://www.crossref.org/relations.xsd">\n'
-            '<related_item>'
-            '<description>' + relation_to_published['title'] + '</description>\n'
-            '<inter_work_relation relationship-type="isReviewOf" identifier-type="doi">'
-            + relation_to_published['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
-            '</program>'
-            '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-            '<resource>' + url_to_declare +
-            '</resource></doi_data>\n'
-            '</peer_review>\n'
-            '</body>\n'
-            '</doi_batch>\n'
-        )
-    else:
-        metadata_xml += (
-            '<body>\n'
-            '<database>\n'
-            '<database_metadata language="en">\n'
-            '<titles><title>SciPost Reports and Comments</title></titles>\n'
-            '</database_metadata>\n'
-            '<dataset dataset_type="collection">\n'
-            '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-            '<resource>https://scipost.org' + _object.get_absolute_url() +
-            '</resource></doi_data>\n'
-            '</dataset></database>\n'
-            '</body></doi_batch>'
-        )
 
     if not settings.CROSSREF_DEBUG:
         # CAUTION: Debug is False, production goes for real deposit!!!
@@ -1326,6 +1384,19 @@ def publication_detail_pdf(request, doi_label):
     response['Content-Disposition'] = ('filename='
                                        + publication.doi_label.replace('.', '_') + '.pdf')
     return response
+
+
+def publication_update_detail(request, doi_label, update_nr):
+    """
+    Detail page for a PublicationUpdate.
+    """
+    update = get_object_or_404(PublicationUpdate,
+                               publication__doi_label=doi_label, number=update_nr)
+    context = {
+        'update': update,
+        'journal': update.publication.get_journal(),
+    }
+    return render(request, 'journals/publication_update_detail.html', context)
 
 
 ######################

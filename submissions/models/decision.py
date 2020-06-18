@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from ..constants import EDITORIAL_DECISION_CHOICES, EIC_REC_PUBLISH
+from ..managers import EditorialDecisionQuerySet
 
 
 class EditorialDecision(models.Model):
@@ -51,8 +52,10 @@ class EditorialDecision(models.Model):
     status = models.SmallIntegerField(choices=EDITORIAL_DECISION_STATUSES)
     version = models.SmallIntegerField(default=1)
 
+    objects = EditorialDecisionQuerySet.as_manager()
+
     class Meta:
-        ordering = ['version']
+        ordering = ['-submission__submission_date', '-version']
         unique_together = ['submission', 'version']
         verbose_name = 'Editorial Decision'
         verbose_name_plural = 'Editorial Decisions'
@@ -70,6 +73,10 @@ class EditorialDecision(models.Model):
     def get_absolute_url(self):
         return reverse('submissions:editorial_decision_detail',
                        kwargs={'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr})
+
+    @property
+    def is_fixed_and_accepted(self):
+        return self.status == self.FIXED_AND_ACCEPTED
 
     @property
     def publish(self):

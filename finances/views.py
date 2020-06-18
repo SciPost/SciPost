@@ -2,13 +2,20 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+from itertools import accumulate
 import mimetypes
+
+from csp.decorators import csp_update
+from plotly.offline import plot
+from plotly.graph_objs import Bar
 
 from django.contrib import messages
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views.generic.detail import DetailView
@@ -19,9 +26,118 @@ from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
 from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
+from journals.models import Journal, Publication
 from organizations.models import Organization
 from scipost.mixins import PermissionsMixin
 
+
+def publishing_years():
+    start_year = Publication.objects.all().order_by('publication_date'
+    ).first().publication_date.strftime('%Y')
+    return range(int(start_year), int(timezone.now().strftime('%Y')) + 1)
+
+
+def total_subsidies_in_year(year):
+    total = 0
+    for subsidy in Subsidy.objects.filter(date__year__lte=year, date_until__year__gte=year):
+        total += subsidy.value_in_year(year)
+    return total
+
+
+def publishing_expenditures():
+    pubyears = publishing_years()
+    journals = Journal.objects.all()
+    data = { 'pubyears': pubyears }
+    for year in pubyears:
+        data[str(year)] = {}
+        year_expenditures = 0
+        for journal in journals:
+            npub = journal.get_publications().filter(publication_date__year=year).count()
+            expenditures = npub * journal.cost_per_publication(year)
+            data[str(year)][journal.doi_label] = {
+                'npub': npub,
+                'cost_per_pub': journal.cost_per_publication(year),
+                'expenditures': expenditures,
+            }
+            year_expenditures += expenditures
+        data[str(year)]['expenditures'] = year_expenditures
+    return data
+
+
+def recent_publishing_expenditures(months=6):
+    """
+    Tally of total publishing expenditures over last `months` number of months.
+    """
+    deltat = datetime.timedelta(days=months*30)
+    npub_total = 0
+    expenditures = 0
+    for journal in Journal.objects.all():
+        npub = journal.get_publications().filter(
+            publication_date__gte=timezone.now() - deltat).count()
+        npub_total += npub
+        expenditures += npub * journal.cost_per_publication(timezone.now().strftime('%Y'))
+    return {
+        'npub': npub_total,
+        'expenditures': expenditures
+    }
+
+
+@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
+def finances(request):
+    now = timezone.now()
+    years = [year for year in range(2016, int(now.strftime('%Y')) + 5)]
+    subsidies_dict = {}
+    for year in years:
+        subsidies_dict[str(year)] = total_subsidies_in_year(year)
+    subsidies = [subsidies_dict[str(year)] for year in years]
+    pub_data = publishing_expenditures()
+    pubyears = [year for year in publishing_years()]
+    pub_expenditures = [pub_data[str(year)]['expenditures'] for year in pubyears]
+    base_expenditures = [-pub_data[str(year)]['expenditures'] for year in pubyears]
+    balance = [subsidies_dict[str(year)] - pub_data[str(year)]['expenditures'] for year in pubyears]
+    cumulative_balance = list(accumulate(balance))
+    subsidies_plot = plot(
+        [
+            Bar(x=pubyears, y=pub_expenditures,
+                marker_color='red', name='expenditures'),
+            Bar(x=years, y=subsidies, marker_color='dodgerblue', name='subsidy coverage'),
+            Bar(x=pubyears, y=balance,
+                marker_color='indigo', name='balance (year)'),
+            Bar(x=pubyears, y=cumulative_balance,
+                marker_color='darkorange', name='balance (cumulative)')
+        ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    context = {
+        'subsidies_plot': subsidies_plot,
+    }
+    current_year = int(now.strftime('%Y'))
+    future_subsidies = 0
+    for key, val in subsidies_dict.items():
+        if int(key) > current_year:
+            future_subsidies += val
+    resources = cumulative_balance[-1] + future_subsidies
+    recent_exp = recent_publishing_expenditures(6)
+    context['resources'] = {
+        'resources': resources,
+        'expenditures_mo': recent_exp['expenditures']/6,
+        'sustainable_months': resources * 6/recent_exp['expenditures'],
+        'npub': recent_exp['npub'] * resources/recent_exp['expenditures'],
+        'sustainable_until': now + datetime.timedelta(
+            days=30.5*resources * 6/recent_exp['expenditures']),
+    }
+    return render(request, 'finances/finances.html', context)
+
+
+def apex(request):
+    context = {
+        'data': publishing_expenditures()
+    }
+    return render(request, 'finances/apex.html', context)
 
 
 #############

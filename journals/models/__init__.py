@@ -7,3 +7,4 @@ from .volume import Volume
 from .issue import Issue
 from .publication import PublicationAuthorsTable, Publication, Reference, OrgPubFraction
 from .deposits import Deposit, DOAJDeposit, GenericDOIDeposit
+from .update import PublicationUpdate

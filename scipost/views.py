@@ -23,7 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
@@ -346,11 +346,11 @@ def vet_registration_request_ack(request, contributor_id):
             contributor.user.groups.add(group)
 
             # Verify if there is a pending refereeing invitation using email and invitation key.
-            updated_rows = RefereeInvitation.objects.open().filter(
+            updated_rows = RefereeInvitation.objects.awaiting_response().filter(
                 referee__isnull=True,
                 email_address=contributor.user.email).update(referee=contributor)
             if contributor.invitation_key:
-                updated_rows += RefereeInvitation.objects.open().filter(
+                updated_rows += RefereeInvitation.objects.awaiting_response().filter(
                     referee__isnull=True,
                     invitation_key=contributor.invitation_key).update(referee=contributor)
             pending_ref_inv_exists = updated_rows > 0
@@ -852,7 +852,7 @@ def personal_page(request, tab='account'):
 
     if contributor:
         # Refereeing
-        refereeing_tab_total_count = contributor.referee_invitations.open().count()
+        refereeing_tab_total_count = contributor.referee_invitations.awaiting_response().count()
         refereeing_tab_total_count += contributor.referee_invitations.in_process().count()
         refereeing_tab_total_count += contributor.reports.in_draft().count()
 
@@ -1414,3 +1414,11 @@ def csrf_failure(request, reason=''):
 
     mail.mail_admins('CSRF Failure', body)
     return render(request, 'csrf-failure.html')
+
+
+########################
+# Pawning verification #
+########################
+
+def have_i_been_pwned(request):
+    return HttpResponse(settings.HAVE_I_BEEN_PWNED_TOKEN, content_type='text/plain')

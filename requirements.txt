@@ -12,7 +12,7 @@ mock==2.0.0
 
 
 # Django packages
-django-autocomplete-light==3.4.1 # 2019-11-17
+django-autocomplete-light==3.5.1 # 2020-05-03
 django-countries==5.3.3
 django-debug-toolbar==1.8
 django-extensions==2.2.8	# 2020-02-14 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
@@ -24,6 +24,7 @@ django-silk==2.0.0
 django-webpack-loader==0.5
 django-maintenancemode-2==1.1.11
 
+plotly==4.6.0			# 2020-05-05
 
 # Documentation Packages
 docutils==0.16			# 2020-02-21

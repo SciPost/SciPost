@@ -7,7 +7,7 @@
 
 {% load journals_extras %}
 
-<script type="text/javascript" src="{% static 'scipost/accordion-focusin.js' %}"></script>
+<script src="{% static 'scipost/accordion-focusin.js' %}"></script>
 
 {% block breadcrumb_items %}
   {{block.super}}
@@ -23,6 +23,8 @@
     <li><a href="{% url 'proceedings:proceedings' %}">Manage Proceedings Issues</a></li>
     <li><a href="{% url 'journals:manage_metadata' %}">Manage Publications metadata</a></li>
     <li><a href="{% url 'journals:manage_report_metadata' %}" class="active">Manage Report metadata</a></li>
+    <li><a href="{% url 'journals:manage_comment_metadata' %}">Manage Comment metadata</a></li>
+    <li><a href="{% url 'journals:manage_update_metadata' %}">Manage PublicationUpdate metadata</a></li>
   </ul>
 
   <h2 class="mt-4">Reports</h2>
@@ -66,9 +68,9 @@
     	    <p><a href="{{ report.submission.get_absolute_url }}">{{ report.submission.preprint.identifier_w_vn_nr }}</a>, <a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }}</a></p>
 
     	    <h2 class="ml-3">Actions</h2>
-            <ul>
+	    <ul>
     	      <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
-              <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
+	      <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
     	      <li><a href="{% url 'journals:email_object_made_citable' type_of_object='report' object_id=report.id %}">Email report author: made citable</a>
     	    </ul>
 
@@ -111,9 +113,9 @@
     </tbody>
   </table>
 
-  <div class="col-12">
-    {% include 'partials/pagination.html' with page_obj=page_obj %}
-  </div>
+      <div class="col-12">
+	{% include 'partials/pagination.html' with page_obj=page_obj %}
+      </div>
 
 
 {% endblock content %}

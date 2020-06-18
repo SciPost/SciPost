@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
@@ -13,6 +14,10 @@ from scipost.constants import SCIPOST_DISCIPLINES
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
+
+
+def cost_default_value():
+    return { 'default': 400 }
 
 
 class Journal(models.Model):
@@ -57,6 +62,9 @@ class Journal(models.Model):
         verbose_name='Template (LaTeX, gzipped tarball)',
         help_text='Gzipped tarball of the LaTeX template package',
         upload_to='UPLOADS/TEMPLATES/latex/%Y/', max_length=256, blank=True)
+
+    # Cost per publication information
+    cost_info = JSONField(default=cost_default_value)
 
     objects = JournalQuerySet.as_manager()
 
@@ -166,3 +174,9 @@ class Journal(models.Model):
                     if citation['year'] == year:
                         ncites += 1
         return ncites / nrpub
+
+    def cost_per_publication(self, year):
+        try:
+            return int(self.cost_info[str(year)])
+        except KeyError:
+            return int(self.cost_info['default'])

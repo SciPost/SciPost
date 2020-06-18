@@ -1,0 +1,99 @@
+{% extends 'scipost/base.html' %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+	{% block breadcrumb_items %}
+	  <a href="{% url 'scipost:personal_page' %}" class="breadcrumb-item">Personal page</a>
+	  <a href="{% url 'security:security' %}" class="breadcrumb-item">Security</a>
+	  <span class="breadcrumb-item">Email check</span>
+	{% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}: Security{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">Security assessment for your email address {{ email }}</h2>
+
+      <p class="mb-0"><strong class="text-warning">IMPORTANT NOTE</strong></p>
+      <ul class="mt-0">
+	<li>any data presented here does not contain any actual compromised data</li>
+	<li>it makes use of publicly-accessible information
+	  (<em>e.g.</em> data dumps documenting known security breaches of external services)</li>
+	<li>it also does not in any way represent a compromise of your SciPost account</li>
+	<li>rather, it can point to the existence of information (gathered by web security
+	  professionals) about security breaches which might have affected you, since
+	  they exposed data which can be linked to you (typically through your
+	  email address).
+	</li>
+      </ul>
+
+      <h3 class="highlight">Breaches</h3>
+      {% if breaches_json|length > 0 %}
+	<h4 class="highlight p-2 bg-danger text-white">
+	  Your email address is associated to {{ breaches_json|length }}
+	  known breach{{ breaches_json|pluralize:"es" }}
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	</h4>
+	<div class="m-4">
+	  <p>Click on items in the list below to see details.</p>
+	  <div class="m-4">
+	    {% include 'security/_breaches_accordion.html' with breaches=breaches_json %}
+	  </div>
+	  <p>
+	    <strong>What should you do?</strong>
+	    <ul>
+	      <li>For each of the services listed, you should
+		ensure that you have changed your password since the date of the breach. If you
+		have already done that, you can ignore this particular breach from now on.</li>
+	      <li>For all online services you register for,
+		choose <a href="https://xkcd.com/936/" target="_blank">strong memorable passwords</a>
+		(though four words is now outdated: go for six at least!)
+		or go for a strong password manager.</li>
+	    </ul>
+	  </p>
+	</div>
+      {% else %}
+	<h4 class="highlight p-2 bg-success text-white">
+	  Your email address is not associated to any known breach
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	</h4>
+      {% endif %}
+      <h3 class="highlight">Pastes <a href="https://haveibeenpwned.com/Pastes" target="_blank">(what are pastes?)</a></h3>
+      {% if pastes_json|length > 0 %}
+	<h4 class="highlight p-2 bg-danger text-white">
+	  Your email address is associated to {{ pastes_json|length }}
+	  known paste{{ pastes_json|pluralize }}
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	</h4>
+	<div class="m-4">
+	  <p>Click on items in the list below to see details.</p>
+	  <div class="m-4">
+	    {% include 'security/_pastes_accordion.html' with pastes=pastes_json %}
+	  </div>
+	  <p>
+	    <strong>What should you do?</strong>
+	    <ul>
+	      <li>For all online services you register for,
+		choose <a href="https://xkcd.com/936/" target="_blank">strong memorable passwords</a>
+		(though four words is now outdated: go for six at least!)
+		or go for a strong password manager.</li>
+	    </ul>
+	  </p>
+	</div>
+      {% else %}
+	<h4 class="highlight p-2 bg-success text-white">
+	  Your email address is not associated to any known paste
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	</h4>
+      {% endif %}
+
+    </div>
+  </div>
+{% endblock %}

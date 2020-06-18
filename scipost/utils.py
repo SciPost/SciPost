@@ -5,6 +5,15 @@ __license__ = "AGPL v3"
 from common.utils import BaseMailUtil
 
 
+def build_absolute_uri_using_site(path):
+    """
+    In cases where request is not available, build absolute uri from Sites framework.
+    """
+    from django.contrib.sites.models import Site
+    site = Site.objects.get_current()
+    return 'https://{domain}{path}'.format(domain=site.domain, path=path)
+
+
 SCIPOST_SUMMARY_FOOTER = (
     '\n\n--------------------------------------------------'
     '\n\nAbout SciPost:\n\n'

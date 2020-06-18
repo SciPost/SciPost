@@ -40,7 +40,6 @@ from journals.models import Journal
 from mails.utils import DirectMailUtil
 from preprints.helpers import generate_new_scipost_identifier
 from preprints.models import Preprint
-from production.utils import get_or_create_production_stream
 from profiles.models import Profile
 from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
@@ -828,7 +827,7 @@ class WithdrawSubmissionForm(forms.Form):
 
             # Update editorial decision
             if EditorialDecision.objects.filter(submission=self.submission).exists():
-                EditorialDecision.objects.filter(submission=self.submission).last().update(
+                EditorialDecision.objects.filter(submission=self.submission).latest_version().update(
                     status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
 
             # Delete any production stream
@@ -1446,11 +1445,7 @@ class EditorialDecisionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance.id:
-            self.fields['submission'].queryset = Submission.objects.filter(
-                pk=self.instance.submission.id)
-        else:
-            self.fields['submission'].queryset = Submission.objects.actively_refereeing()
+        self.fields['submission'].disabled = True
         self.fields['remarks_for_authors'].widget.attrs.update({
             'placeholder': '[will be seen by authors and Fellows]'})
         self.fields['remarks_for_editorial_college'].widget.attrs.update({
@@ -1469,7 +1464,7 @@ class EditorialDecisionForm(forms.ModelForm):
         if not self.instance.id: # a new object is created
             if self.cleaned_data['submission'].editorialdecision_set.all().exists():
                 decision.version = self.cleaned_data['submission'].editorialdecision_set.all(
-                ).last().version + 1
+                ).latest_version().version + 1
         decision.save()
         return decision
 

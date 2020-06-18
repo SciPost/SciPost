@@ -103,7 +103,7 @@ function init_page() {
 
 function dynamic_load_tab( target_tab ) {
     var tab = $(target_tab);
-    var url = tab.attr('sp-dynamic-load');
+    var url = tab.attr('data-sp-dynamic-load');
     if(tab.data('sp-loaded') == 'true') {
         // window.history.replaceState('scipost', document.title, url);
         return;  // Only load once
@@ -161,7 +161,7 @@ $(function(){
     $('.tab-nav-container.dynamic a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         dynamic_load_tab( e.target )
     })
-    $('[data-toggle="tab"][sp-autoload="true"]').tab('show');
+    $('[data-toggle="tab"][data-sp-autoload="true"]').tab('show');
 
     // Backdrop for main nav dropdowns.
     $('#main-navbar .dropdown').on('shown.bs.dropdown', function () {

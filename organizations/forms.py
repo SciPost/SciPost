@@ -12,12 +12,24 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
+from dal import autocomplete
 from guardian.shortcuts import assign_perm
 
 from .constants import ROLE_GENERAL
-from .models import OrganizationEvent, ContactPerson, Contact, ContactRole
+from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from scipost.constants import TITLE_CHOICES
+
+
+class SelectOrganizationForm(forms.Form):
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='',
+    )
 
 
 class OrganizationEventForm(forms.ModelForm):

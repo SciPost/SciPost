@@ -25,6 +25,16 @@ class FellowQuerySet(models.QuerySet):
             Q(start_date__isnull=True, until_date__isnull=True)
             ).ordered()
 
+    def active_in_year(self, year):
+        """
+        Filter for Fellows which were active during a certain calendar year.
+        """
+        return self.filter(start_date__year__lte=year, until_date__year__gte=year)
+
+    def former(self):
+        today = timezone.now().date()
+        return self.filter(until_date__lt=today)
+
     def specialties_overlap(self, discipline, expertises=[]):
         """
         Returns all Fellows specialized in the given discipline

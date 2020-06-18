@@ -1228,7 +1228,8 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
 
 def decline_ref_invitation(request, invitation_key):
     """Decline a RefereeInvitation."""
-    invitation = get_object_or_404(RefereeInvitation.objects.open(), invitation_key=invitation_key)
+    invitation = get_object_or_404(RefereeInvitation.objects.awaiting_response(),
+                                   invitation_key=invitation_key)
 
     form = ConsiderRefereeInvitationForm(request.POST or None, initial={'accept': False})
     context = {'invitation': invitation, 'form': form}
@@ -2008,7 +2009,7 @@ class EditorialDecisionCreateView(SubmissionMixin, PermissionsMixin, CreateView)
             EIC_REC_PUBLISH, EIC_REC_REJECT] else EIC_REC_PUBLISH
         status = EditorialDecision.DRAFTED
         initial.update({
-            'submission': self.submission,
+            'submission': self.submission.id,
             'for_journal': for_journal,
             'decision': decision,
             'status': status,
@@ -2068,7 +2069,9 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
 
     if decision.decision == EIC_REC_PUBLISH:
         new_sub_status = STATUS_ACCEPTED
-        if decision.for_journal != submission.submitted_to:
+        if (decision.for_journal != submission.submitted_to
+            # promotion to Selections assumed automatically accepted by authors:
+            and decision.for_journal.name != 'SciPost Selections'):
             new_sub_status = STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
         Submission.objects.filter(id=submission.id).update(
             visible_public=True, status=new_sub_status, acceptance_date=datetime.date.today(),

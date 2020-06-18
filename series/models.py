@@ -16,7 +16,16 @@ class Series(models.Model):
         help_text=('You can use plain text, Markdown or reStructuredText; see our '
                    '<a href="/markup/help/" target="_blank">markup help</a> pages.')
     )
+    information = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'),
+        blank=True
+    )
     image = models.ImageField(upload_to='series/images/', blank=True)
+    container_journals = models.ManyToManyField(
+        'journals.Journal',
+        blank=True
+    )
 
     class Meta:
         verbose_name_plural = 'series'
@@ -30,7 +39,7 @@ class Series(models.Model):
 
 class Collection(models.Model):
     """
-    A set of Publications which form a coherent whole.
+    A set of Publications which forms a coherent whole.
     """
     series = models.ForeignKey(
         'series.Series',
@@ -47,6 +56,10 @@ class Collection(models.Model):
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to='series/collections/images/', blank=True)
+    submissions = models.ManyToManyField(
+        'submissions.Submission',
+        blank=True
+    )
     publications = models.ManyToManyField(
         'journals.Publication',
         through='series.CollectionPublicationsTable',

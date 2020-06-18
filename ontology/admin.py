@@ -8,16 +8,36 @@ from .models import Tag, Topic, RelationAsym, RelationSym
 
 
 class TagAdmin(admin.ModelAdmin):
-    pass
+    search_fields = [
+        'name',
+    ]
 
 admin.site.register(Tag, TagAdmin)
 
 
 class TopicAdmin(admin.ModelAdmin):
-    pass
+    search_fields = [
+        'name'
+    ]
+    autocomplete_fields = [
+        'tags',
+    ]
 
 admin.site.register(Topic, TopicAdmin)
 
 
-admin.site.register(RelationAsym)
-admin.site.register(RelationSym)
+class RelationAsymAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'A',
+        'B',
+    ]
+
+admin.site.register(RelationAsym, RelationAsymAdmin)
+
+
+class RelationSymAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'topics',
+    ]
+
+admin.site.register(RelationSym, RelationSymAdmin)

@@ -277,6 +277,17 @@ urlpatterns = [
         journals_views.publication_detail_pdf,
         name='publication_pdf'),
 
+    # Publication updates
+    url(r'^(?P<doi_label>{regex})-update-(?P<update_nr>[0-9]+)$'.format(
+        regex=PUBLICATION_DOI_LABEL_REGEX),
+        journals_views.publication_update_detail,
+        name='publication_update_detail'),
+    url(r'^10.21468/(?P<doi_label>{regex})-update-(?P<update_nr>[0-9]+)$'.format(
+        regex=PUBLICATION_DOI_LABEL_REGEX),
+        journals_views.publication_update_detail,
+        name='publication_update_detail'),
+
+
     # Journal issue
     url(r'^10.21468/(?P<doi_label>{regex})$'.format(regex=ISSUE_DOI_LABEL_REGEX),
         journals_views.issue_detail, name='issue_detail'),
@@ -306,4 +317,12 @@ urlpatterns = [
     url(r'^decline_ref_invitation/(?P<invitation_key>.+)$',
         submission_views.decline_ref_invitation),
 
+
+    ########################
+    # Pawning verification #
+    ########################
+
+    url(r'^have-i-been-pwned-verification.txt$',
+        views.have_i_been_pwned,
+        name='have_i_been_pwned'),
 ]

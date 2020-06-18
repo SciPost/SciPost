@@ -103,7 +103,7 @@
 	</thead>
 	<tbody>
 	  {% for potfel in object_list %}
-	    <tr class="table-row" data-href="{% url 'colleges:potential_fellowship_detail' pk=potfel.id %}" target="_blank" style="cursor: pointer;">
+	    <tr class="table-row" data-href="{% url 'colleges:potential_fellowship_detail' pk=potfel.id %}" style="cursor: pointer;">
 	      <td>{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</td>
 	      <td>{{ potfel.profile.get_discipline_display }}</td>
 	      <td>

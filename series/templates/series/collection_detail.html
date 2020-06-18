@@ -18,10 +18,23 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">
-	{{ collection.series.name }}
+	<a href="{{ collection.series.get_absolute_url }}">{{ collection.series.name }}</a>
+	{% if collection.series.container_journals %}
+	  <br>
+	  <small><em>
+	    <ul class="list list-inline mt-2 mb-0">
+	      <li class="list-inline-item mx-0">a series contained in</li>
+	      {% for container in collection.series.container_journals.all %}
+		<li class="list-inline-item">
+		  <a href="{{ container.get_absolute_url }}">{{ container }}</a>
+		</li>
+	      {% endfor %}
+	    </ul>
+	  </em></small>
+	{% endif %}
       </h1>
       <h2 class="highlight">
-	{{ collection.name }}
+	Collection&emsp;{{ collection.name }}
       </h2>
     </div>
   </div>
@@ -42,6 +55,33 @@
       {% endif %}
     </div>
   </div>
+
+  {% with active_submissions=collection.submissions.actively_refereeing %}
+    {% if active_submissions|length > 0 %}
+      <div class="row">
+	<div class="col-12">
+	  <h3 class="highlight">Submissions to this Collection</h3>
+	  <ul>
+	    {% for submission in collection.submissions.accepted %}
+	      <li><strong class="text-success">accepted:</strong>&nbsp;
+		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+	      </li>
+	    {% endfor %}
+	    {% for submission in collection.submissions.revision_requested %}
+	      <li><strong class="text-primary">awaiting resubmission:</strong>&nbsp;
+		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+	      </li>
+	    {% endfor %}
+	    {% for submission in collection.submissions.actively_refereeing %}
+	      <li><strong class="text-warning">under refereeing:</strong>&nbsp;
+		<a href="{{ submission.get_absolute_url }}" target="_blank">{{ submission }}</a>
+	      </li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    {% endif %}
+  {% endwith %}
 
   <div class="row">
     <div class="col-12">

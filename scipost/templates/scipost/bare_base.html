@@ -41,8 +41,8 @@
     {% include 'partials/scipost/notification_center_modal.html' %}
 
     <div class="backdrop" id="backdrop"></div>
-    <script type="text/javascript" src="{% static 'scipost/mathjax-config.js' %}"></script>
-    <script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
+    <script src="{% static 'scipost/mathjax-config.js' %}"></script>
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
 
     {% block footer_script %}
     {% endblock footer_script %}

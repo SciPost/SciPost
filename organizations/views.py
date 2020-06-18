@@ -22,7 +22,7 @@ from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR,\
     ORGANIZATION_EVENT_COMMENT, ORGANIZATION_EVENT_EMAIL_SENT
-from .forms import OrganizationEventForm, ContactPersonForm,\
+from .forms import SelectOrganizationForm, OrganizationEventForm, ContactPersonForm,\
     NewContactForm, ContactActivationForm, ContactRoleForm
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
@@ -122,6 +122,7 @@ class OrganizationListView(PaginationMixin, ListView):
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
         context['countrycodes'] = [code['country'] for code in list(
             Organization.objects.all().distinct('country').values('country'))]
+        context['select_organization_form'] = SelectOrganizationForm()
         return context
 
     def get_queryset(self):
@@ -143,12 +144,21 @@ class OrganizationListView(PaginationMixin, ListView):
         return qs
 
 
+def get_organization_detail(request):
+    org_id = request.GET.get('organization', None)
+    if org_id:
+        return redirect(reverse('organizations:organization_details',
+                                kwargs={'pk': org_id}))
+    return redirect(reverse('organizations:organizations'))
+
+
 class OrganizationDetailView(DetailView):
     model = Organization
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['pubyears'] = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        context['balance'] = self.object.get_balance_info()
         return context
 
     def get_queryset(self):

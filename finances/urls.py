@@ -12,13 +12,18 @@ app_name = 'finances'
 urlpatterns = [
     url(
         r'^$',
-        TemplateView.as_view(template_name='finances/finances.html'),
+        views.finances,
         name='finances'
     ),
     url(
         r'^business_model/$',
         TemplateView.as_view(template_name='finances/business_model.html'),
         name='business_model'
+    ),
+    url(
+        r'^apex$',
+        views.apex,
+        name='apex'
     ),
 
     # Subsidies

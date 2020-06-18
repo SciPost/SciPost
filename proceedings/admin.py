@@ -10,6 +10,14 @@ from .models import Proceedings
 class ProceedingsAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'issue',)
     list_filter = ('issue',)
-
+    search_fields = [
+        'issue',
+        'event_name',
+    ]
+    autocomplete_fields = [
+        'issue',
+        'lead_fellow',
+        'fellowships',
+    ]
 
 admin.site.register(Proceedings, ProceedingsAdmin)

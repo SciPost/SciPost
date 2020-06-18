@@ -7,7 +7,7 @@ from django import forms
 
 from journals.models import Journal, Volume, Issue, Publication, \
     Deposit, DOAJDeposit, GenericDOIDeposit, Reference, PublicationAuthorsTable,\
-    OrgPubFraction
+    OrgPubFraction, PublicationUpdate
 
 from scipost.models import Contributor
 from submissions.models import Submission
@@ -30,24 +30,13 @@ admin.site.register(Volume, VolumeAdmin)
 
 class IssueAdmin(admin.ModelAdmin):
     list_display = ['__str__', 'doi_string']
-
+    search_fields = [
+        'in_journal__name',
+        'in_volume__in_journal__name',
+        'doi_label',
+    ]
 
 admin.site.register(Issue, IssueAdmin)
-
-
-class PublicationAdminForm(forms.ModelForm):
-    accepted_submission = forms.ModelChoiceField(
-        queryset=Submission.objects.order_by('-preprint__identifier_w_vn_nr'))
-    authors_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
-    authors_false_claims = forms.ModelMultipleChoiceField(
-        required=False,
-        queryset=Contributor.objects.order_by('user__last_name'))
-
-    class Meta:
-        model = Publication
-        fields = '__all__'
 
 
 class ReferenceInline(admin.TabularInline):
@@ -58,11 +47,18 @@ class ReferenceInline(admin.TabularInline):
 class AuthorsInline(admin.TabularInline):
     model = PublicationAuthorsTable
     extra = 0
+    autocomplete_fields = [
+        'profile',
+        'affiliations',
+    ]
 
 
 class OrgPubFractionInline(admin.TabularInline):
     model = OrgPubFraction
     list_display = ('organization', 'publication', 'fraction')
+    autocomplete_fields = [
+        'organization',
+    ]
 
 
 class PublicationAdmin(admin.ModelAdmin):
@@ -71,8 +67,14 @@ class PublicationAdmin(admin.ModelAdmin):
     date_hierarchy = 'publication_date'
     list_filter = ['in_issue']
     inlines = [AuthorsInline, ReferenceInline, OrgPubFractionInline]
-    form = PublicationAdminForm
-
+    autocomplete_fields = [
+        'accepted_submission',
+        'authors_claims',
+        'authors_false_claims',
+        'grants',
+        'funders_generic',
+        'topics',
+    ]
 
 admin.site.register(Publication, PublicationAdmin)
 
@@ -85,6 +87,7 @@ class PublicationProxyMetadata(Publication):
         proxy = True
         verbose_name = 'Publication metadata'
         verbose_name_plural = 'Publication metadata'
+
 
 class PublicationProxyMetadataAdmin(admin.ModelAdmin):
     fields = ['metadata', 'metadata_xml', 'metadata_DOAJ', 'BiBTeX_entry']
@@ -109,11 +112,23 @@ class DepositAdmin(admin.ModelAdmin):
     def has_delete_permission(self, *args):
         return False
 
-
 admin.site.register(Deposit, DepositAdmin)
 
 
-admin.site.register(DOAJDeposit)
+class DOAJDepositAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'publication',
+    ]
+
+admin.site.register(DOAJDeposit, DOAJDepositAdmin)
 
 
 admin.site.register(GenericDOIDeposit)
+
+
+class PublicationUpdateAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'publication',
+    ]
+
+admin.site.register(PublicationUpdate, PublicationUpdateAdmin)

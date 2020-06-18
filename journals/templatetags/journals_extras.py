@@ -70,6 +70,16 @@ def latest_successful_crossref_deposit_comment(comment):
         return "No successful deposit found"
 
 
+@register.filter(name='latest_successful_crossref_generic_deposit')
+def latest_successful_crossref_generic_deposit(_object):
+    latest = _object.genericdoideposit.filter(
+        deposit_successful=True).order_by('-deposition_date').first()
+    if latest:
+        return latest.deposition_date.strftime('%Y-%m-%d')
+    else:
+        return "No successful deposit found"
+
+
 @register.filter(name='pubfracs_fixed')
 def pubfracs_fixed(publication):
     return publication.pubfractions_confirmed_by_authors and publication.pubfractions_sum_to_1

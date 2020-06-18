@@ -85,6 +85,7 @@ INSTALLED_APPS = (
     'django_countries',
     'django_extensions',
     'haystack',
+    'api',
     'apimail',
     'careers',
     'colleges',
@@ -96,6 +97,7 @@ INSTALLED_APPS = (
     'django_celery_beat',
     'finances',
     'forums',
+    'funders',
     'guides',
     'guardian',
     'helpdesk',
@@ -106,22 +108,22 @@ INSTALLED_APPS = (
     'markup',
     'news',
     'notifications',
+    'ontology',
+    'organizations',
     'partners',
     'petitions',
+    'preprints',
     'proceedings',
     'production',
+    'profiles',
     'rest_framework',
     'scipost',
+    'security',
     'series',
+    'sponsors',
     'stats',
     'submissions',
     'theses',
-    'ontology',
-    'organizations',
-    'profiles',
-    'sponsors',
-    'preprints',
-    'funders',
     'sitesserved',
     'webpack_loader',
     'maintenancemode',
@@ -217,8 +219,12 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'crossmark-cdn.crossref.org',
                   'www.recaptcha.net', 'www.gstatic.com',
                   'code.jquery.com',
+<<<<<<< HEAD
                   'static.mendeley.com',
                   'cdn.jsdelivr.net/npm/vue/dist/vue.js')
+=======
+                  'static.mendeley.com', 'cdn.plot.ly')
+>>>>>>> master
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark-cdn.crossref.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
@@ -443,6 +449,13 @@ CELERY_IMPORTS = ('submissions.tasks',)
 ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)
 
 
+<<<<<<< HEAD
 # Mailgun credentials
 MAILGUN_DOMAIN_NAME = ''
 MAILGUN_API_KEY = ''
+=======
+# Pawning verification token
+# Get one at https://haveibeenpwned.com
+HAVE_I_BEEN_PWNED_TOKEN = get_secret('HAVE_I_BEEN_PWNED_TOKEN')
+HAVE_I_BEEN_PWNED_API_KEY = get_secret('HAVE_I_BEEN_PWNED_API_KEY')
+>>>>>>> master
