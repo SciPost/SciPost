@@ -34,6 +34,30 @@
             <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
             <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
 	    <p>Before you get started, please make sure you are familiar with our <a href="https://scipost.org{% url 'submissions:referee_guidelines' %}" target="_blank">referee guidelines</a>, <a href="https://scipost.org{% url 'submissions:sub_and_ref_procedure' %}" target="_blank">refereeing procedure</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</p>
+
+	    <div class="card border-danger mx-1 mt-2 mb-4">
+	      <div class="card-header text-white bg-danger">
+		<h2 class="mb-0">Important!</h2>
+	      </div>
+	      <div class="card-body pb-1">
+		<ul>
+		  <li>This manuscript was submitted to <strong>{{ submission.submitted_to }}</strong>. Please make sure that you refer to this journal's <a href="{% url 'journal:about' doi_label=submission.submitted_to.doi_label %}#criteria" target="_blank"><strong>acceptance criteria</strong></a> in your evaluation.</li>
+		  <li>If you feel the article would be more appropriately published in one of our <a href="{% url 'journals:journals' discipline=submission.discipline %}" target="_blank"><strong>other {{ submission.get_discipline_display }} Journals</strong></a>, please
+		    <ul>
+		      <li>select <em>Accept in alternative Journal</em> in the <strong>Recommendation</strong> field</li>
+		      <li>in the <strong>Report</strong> field, specify the alternative Journal in which you would recommend acceptance
+			<br>
+			<ul class="list-unstyled">
+			  <li><strong>example 1</strong>: <em>This submission transcends the criteria of [Journal 1] and meets those of [Journal A], it should be published in the latter</em></li>
+			  <li><strong>example 2</strong>: <em>This submission does not meet the criteria of [Journal A], but does meet those of [Journal 1], where it could be published.</em></li>
+			</ul>
+		      </li>
+		    </ul>
+		  </li>
+		</ul>
+	      </div>
+	    </div>
+
 	    <div class="mb-0">
 	      <table class="table">
 		<tr>
