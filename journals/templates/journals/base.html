@@ -54,16 +54,9 @@
 	    {{ journal.name }} has been awarded the DOAJ Seal <img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="40"> from the <a href="https://doaj.org">Directory of Open Access Journals</a>.
 	  </p>
 	{% endif %}
-	{% if journal.doi_label == 'SciPostPhys' %}
-	  <p>
-	    All content in {{ journal }} is deposited and permanently preserved in the CLOCKSS archive <a href="https://www.clockss.org/clockss/Home" target="_blank"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" alt="CLOCKSS logo" width="40"></a>
-	  </p>
-    	  <p class="mb-1">
-	    Self-computed impact factor
-	    <small><sup><i class="fa fa-question-circle" data-toggle="tooltip" data-html="true" title="Number of citations in year N for papers published in years N-1 and N-2,<br/>divided by the number of papers in those years.<br/>Data obtained from Crossref's Cited-by service"></i></sup></small> for 2018		  (using <a href="https://www.crossref.org/services/cited-by/" target="_blank">Crossref Cited-by</a> data)
-	    : <strong>5.25</strong>
-	  </p>
-	{% endif %}
+	<p>
+	  All content in {{ journal }} is deposited and permanently preserved in the CLOCKSS archive <a href="https://www.clockss.org/clockss/Home" target="_blank"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" alt="CLOCKSS logo" width="40"></a>
+	</p>
       </div>
     </div>
   </footer>
