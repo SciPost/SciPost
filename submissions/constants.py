@@ -129,6 +129,7 @@ RANKING_CHOICES = (
 REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3 = 1, 2, 3
 REPORT_MINOR_REV, REPORT_MAJOR_REV = -1, -2
 REPORT_REJECT = -3
+REPORT_ALT_JOURNAL = -4
 REPORT_REC = (
     (None, '-'),
     (REPORT_PUBLISH_1, 'Publish (surpasses expectations and criteria for this Journal; among top 10%)'),
@@ -136,6 +137,7 @@ REPORT_REC = (
     (REPORT_PUBLISH_3, 'Publish (meets expectations and criteria for this Journal)'),
     (REPORT_MINOR_REV, 'Ask for minor revision'),
     (REPORT_MAJOR_REV, 'Ask for major revision'),
+    (REPORT_ALT_JOURNAL, 'Accept in alternative Journal (see Report)'),
     (REPORT_REJECT, 'Reject')
 )
 

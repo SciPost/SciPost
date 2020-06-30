@@ -1094,7 +1094,7 @@ class ReportForm(forms.ModelForm):
             'rows': 10,
             'cols': 100
         })
-        self.fields['report'].widget.attrs.update({'placeholder': 'Your general remarks',
+        self.fields['report'].widget.attrs.update({'placeholder': 'Your general remarks. Are this Journal\'s acceptance criteria met? Would you recommend publication in another Journal instead?',
                                                    'rows': 10, 'cols': 100})
         self.fields['requested_changes'].widget.attrs.update({
             'placeholder': 'Give a numbered (1-, 2-, ...) list of specifically requested changes',
