@@ -827,8 +827,10 @@ class WithdrawSubmissionForm(forms.Form):
 
             # Update editorial decision
             if EditorialDecision.objects.filter(submission=self.submission).exists():
-                EditorialDecision.objects.filter(submission=self.submission).latest_version().update(
-                    status=EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS)
+                decision = EditorialDecision.objects.filter(
+                    submission=self.submission).latest_version()
+                decision.status = EditorialDecision.PUBOFFER_REFUSED_BY_AUTHORS
+                decision.save()
 
             # Delete any production stream
             if hasattr(self.submission, 'production_stream'):
