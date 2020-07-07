@@ -715,11 +715,6 @@ def _personal_page_publications(request):
         'own_publications': contributor.profile.publications().published(
         ).order_by('-publication_date')
     }
-    context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
-        author_list__contains=request.user.last_name).exclude(
-            authors__profile=contributor.profile).exclude(
-        authors_claims=contributor).exclude(
-        authors_false_claims=contributor).count()
     return render(request, 'partials/scipost/personal_page/publications.html', context)
 
 
