@@ -293,8 +293,8 @@ class CommentarySearchForm(forms.Form):
 
 class CommentSciPostPublication(CommentForm):
     """
-    This Form will let authors of an SciPost publication comment on their Publication
-    using the Commentary functionalities. It will create an Commentary page if it does not
+    This Form will let authors of a SciPost publication comment on their Publication
+    using the Commentary functionalities. It will create a Commentary page if it does not
     exist yet.
 
     It inherits from ModelForm: CommentForm and thus will, by default, return a Comment!
@@ -341,8 +341,6 @@ class CommentSciPostPublication(CommentForm):
             commentary.parse_links_into_urls(commit=False)
             commentary.save()
             commentary.authors.add(*self.publication.authors.all())
-            commentary.authors_claims.add(*self.publication.authors_claims.all())
-            commentary.authors_false_claims.add(*self.publication.authors_false_claims.all())
 
         # Original saving steps
         comment = super().save(commit=False)

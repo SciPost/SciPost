@@ -104,12 +104,6 @@ class Publication(models.Model):
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True, null=True, verbose_name='approach(es) [optional]')
 
-    # Authors
-    authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                            related_name='claimed_publications')
-    authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                                  related_name='false_claimed_publications')
-
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
 
     # Funders
