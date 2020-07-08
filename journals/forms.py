@@ -482,8 +482,6 @@ class DraftPublicationForm(forms.ModelForm):
                 PublicationAuthorsTable.objects.create(
                     publication=self.instance, profile=submission_author.profile)
             self.instance.topics.add(*self.submission.topics.all())
-            self.instance.authors_claims.add(*self.submission.authors_claims.all())
-            self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
 
     def prefill_fields(self):
         if self.submission:
