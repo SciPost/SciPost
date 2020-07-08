@@ -23,7 +23,7 @@
     <tr>
       <td>Arxiv Link:</td>
       <td>
-        <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>&emsp;(<a href="{{ submission.preprint.url }}/pdf" target="_blank">pdf</a>)
+        <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>&emsp;(<a href="{{ submission.preprint.citation_pdf_url }}" target="_blank">pdf</a>)
       </td>
     </tr>
   {% elif submission.preprint.get_absolute_url %}

@@ -199,8 +199,6 @@ urlpatterns = [
 
     # Authorship claims
     url(r'^claim_authorships$', views.claim_authorships, name="claim_authorships"),
-    url(r'^claim_pub_authorship/(?P<publication_id>[0-9]+)/(?P<claim>[0-1])$',
-        views.claim_pub_authorship, name='claim_pub_authorship'),
     url(r'^claim_sub_authorship/(?P<submission_id>[0-9]+)/(?P<claim>[0-1])$',
         views.claim_sub_authorship, name='claim_sub_authorship'),
     url(r'^claim_com_authorship/(?P<commentary_id>[0-9]+)/(?P<claim>[0-1])$',

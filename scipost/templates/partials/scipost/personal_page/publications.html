@@ -4,9 +4,6 @@
       <div class="card-body">
         <h2 class="card-title">Publications</h2>
         <ul class="mb-0">
-          {% if nr_publication_authorships_to_claim > 0 %}
-            <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_publication_authorships_to_claim}})</a></li>
-          {% endif %}
         </ul>
       </div>
     </div>

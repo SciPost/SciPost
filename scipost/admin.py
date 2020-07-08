@@ -144,7 +144,6 @@ admin.site.register(Remark, RemarkAdmin)
 class AuthorshipClaimAdmin(admin.ModelAdmin):
     autocomplete_fields = [
         'claimant',
-        'publication',
         'submission',
         'commentary',
         'thesislink',

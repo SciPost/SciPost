@@ -715,11 +715,6 @@ def _personal_page_publications(request):
         'own_publications': contributor.profile.publications().published(
         ).order_by('-publication_date')
     }
-    context['nr_publication_authorships_to_claim'] = Publication.objects.filter(
-        author_list__contains=request.user.last_name).exclude(
-            authors__profile=contributor.profile).exclude(
-        authors_claims=contributor).exclude(
-        authors_false_claims=contributor).count()
     return render(request, 'partials/scipost/personal_page/publications.html', context)
 
 
@@ -966,12 +961,6 @@ def claim_authorships(request):
     """
     contributor = Contributor.objects.get(user=request.user)
 
-    publication_authorships_to_claim = (Publication.objects
-                                        .filter(author_list__contains=contributor.user.last_name)
-                                        .exclude(authors__profile=contributor.profile)
-                                        .exclude(authors_claims=contributor)
-                                        .exclude(authors_false_claims=contributor))
-    pub_auth_claim_form = AuthorshipClaimForm()
     submission_authorships_to_claim = (Submission.objects
                                        .filter(author_list__contains=contributor.user.last_name)
                                        .exclude(authors=contributor)
@@ -992,8 +981,6 @@ def claim_authorships(request):
     thesis_auth_claim_form = AuthorshipClaimForm()
 
     context = {
-        'publication_authorships_to_claim': publication_authorships_to_claim,
-        'pub_auth_claim_form': pub_auth_claim_form,
         'submission_authorships_to_claim': submission_authorships_to_claim,
         'sub_auth_claim_form': sub_auth_claim_form,
         'commentary_authorships_to_claim': commentary_authorships_to_claim,
@@ -1002,22 +989,6 @@ def claim_authorships(request):
         'thesis_auth_claim_form': thesis_auth_claim_form,
     }
     return render(request, 'scipost/claim_authorships.html', context)
-
-
-@login_required
-@is_contributor_user()
-def claim_pub_authorship(request, publication_id, claim):
-    if request.method == 'POST':
-        contributor = Contributor.objects.get(user=request.user)
-        publication = get_object_or_404(Publication, pk=publication_id)
-        if claim == '1':
-            publication.authors_claims.add(contributor)
-            newclaim = AuthorshipClaim(claimant=contributor, publication=publication)
-            newclaim.save()
-        elif claim == '0':
-            publication.authors_false_claims.add(contributor)
-        publication.save()
-    return redirect('scipost:claim_authorships')
 
 
 @login_required
@@ -1081,16 +1052,6 @@ def vet_authorship_claim(request, claim_id, claim):
         vetting_contributor = Contributor.objects.get(user=request.user)
         claim_to_vet = AuthorshipClaim.objects.get(pk=claim_id)
 
-        if claim_to_vet.publication:
-            claim_to_vet.publication.authors_claims.remove(claim_to_vet.claimant)
-            if claim == '1':
-                PublicationAuthorsTable.objects.create(
-                    publication=claim_to_vet.publication, contributor=claim_to_vet.claimant)
-                claim_to_vet.status = '1'
-            elif claim == '0':
-                claim_to_vet.publication.authors_false_claims.add(claim_to_vet.claimant)
-                claim_to_vet.status = '-1'
-            claim_to_vet.publication.save()
         if claim_to_vet.submission:
             claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)
             if claim == '1':
