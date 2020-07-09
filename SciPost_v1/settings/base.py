@@ -201,7 +201,7 @@ CSP_FONT_SRC = ("'self'", 'scipost.org', "'report-sample'",
 CSP_FRAME_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark.crossref.org',
                  'www.google.com', 'player.vimeo.com', 'www.youtube-nocookie.com',
-                 'www.recaptcha.net', 'www.mendeley.com')
+                 'www.recaptcha.net', 'www.mendeley.com', 'plaudit.pub')
 CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org',
