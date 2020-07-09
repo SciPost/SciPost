@@ -291,7 +291,7 @@ def subsidy_attachment_toggle_public_visibility(request, attachment_id):
 def subsidy_attachment(request, subsidy_id, attachment_id):
     attachment = get_object_or_404(SubsidyAttachment.objects,
                                    subsidy__id=subsidy_id, id=attachment_id)
-    if not attachment.visible_to_user(request.user):
+    if not (request.user.is_authenticated and attachment.visible_to_user(request.user)):
         raise PermissionDenied
     content_type, encoding = mimetypes.guess_type(attachment.attachment.path)
     content_type = content_type or 'application/octet-stream'
