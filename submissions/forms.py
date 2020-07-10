@@ -491,7 +491,10 @@ class SubmissionForm(forms.ModelForm):
         """
         qs = Fellowship.objects.active()
         fellows = qs.regular().filter(
-            contributor__discipline=submission.discipline).return_active_for_submission(submission)
+            contributor__profile__discipline=submission.discipline).filter(
+                Q(contributor__profile__expertises__contains=[submission.subject_area]) |
+                Q(contributor__profile__expertises__overlap=submission.secondary_areas)
+            ).return_active_for_submission(submission)
         submission.fellows.set(fellows)
 
         if submission.proceedings:
