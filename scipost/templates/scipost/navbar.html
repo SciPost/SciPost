@@ -1,6 +1,5 @@
 {% load request_filters %}
 {% load static %}
-{% load notifications_tags %}
 {% load scipost_extras %}
 {% load journals_extras %}
 {% load user_groups %}
@@ -258,17 +257,6 @@
                 <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
                 &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
               </div>
-            </div>
-          </li>
-
-          <li class="nav-item navbar-counter">
-            <div class="d-inline-block notifications_container">
-	      <!--                 <a href="#" class="d-inline-block badge_link nav-link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
-                   <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
-                   {% live_notify_badge classes="badge badge-pill" %}
-                   </a>
-                   {% live_notify_list %}
-	      -->
             </div>
           </li>
 

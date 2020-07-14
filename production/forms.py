@@ -12,7 +12,7 @@ from scipost.fields import UserModelChoiceField
 from . import constants
 from .models import ProductionUser, ProductionStream, ProductionEvent, Proofs,\
     ProductionEventAttachment
-from .signals import notify_stream_status_change
+
 
 today = datetime.datetime.today()
 
@@ -124,8 +124,6 @@ class StreamStatusForm(forms.ModelForm):
                     status=stream.get_status_display()),
                 noted_by=self.current_production_user)
             event.save()
-            notify_stream_status_change(sender=self.current_production_user.user, instance=stream,
-                                        created=False)
         return stream
 
 

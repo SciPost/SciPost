@@ -32,7 +32,6 @@ from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
-from .signals import notify_manuscript_accepted
 
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings

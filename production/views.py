@@ -28,7 +28,6 @@ from .forms import ProductionEventForm, AssignOfficerForm, UserToOfficerForm,\
                    AssignSupervisorForm, StreamStatusForm, ProofsUploadForm, ProofsDecisionForm,\
                    AssignInvitationsOfficerForm
 from .permissions import is_production_user
-from .signals import notify_stream_status_change,  notify_new_stream_assignment
 from .utils import proofs_slug_to_id, ProductionUtils
 
 
@@ -244,7 +243,6 @@ def add_officer(request, stream_id):
         officer = form.cleaned_data.get('officer')
         assign_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Officer {officer} has been assigned.'.format(officer=officer))
-        notify_new_stream_assignment(request.user, stream, officer.user)
         event = ProductionEvent(
             stream=stream,
             event='assignment',
@@ -280,7 +278,6 @@ def add_invitations_officer(request, stream_id):
         assign_perm('can_work_for_stream', officer.user, stream)
         messages.success(request, 'Invitations Officer {officer} has been assigned.'.format(
             officer=officer))
-        notify_new_stream_assignment(request.user, stream, officer.user)
         event = ProductionEvent(
             stream=stream,
             event='assignment',
@@ -353,7 +350,6 @@ def add_supervisor(request, stream_id):
         supervisor = form.cleaned_data.get('supervisor')
         messages.success(request, 'Supervisor {supervisor} has been assigned.'.format(
             supervisor=supervisor))
-        notify_new_stream_assignment(request.user, stream, supervisor.user)
         event = ProductionEvent(
             stream=stream,
             event='assignment',
@@ -445,7 +441,6 @@ def mark_as_completed(request, stream_id):
         noted_by=request.user.production_user
     )
     prodevent.save()
-    notify_stream_status_change(request.user, stream, True)
     messages.success(request, 'Stream marked as completed.')
     return redirect(reverse('production:production'))
 
@@ -593,7 +588,6 @@ def author_decision(request, slug):
     form = ProofsDecisionForm(request.POST or None, request.FILES or None, instance=proofs)
     if form.is_valid():
         proofs = form.save()
-        notify_stream_status_change(request.user, stream, False)
         messages.success(request, 'Your decision has been sent.')
 
     return redirect(stream.submission.get_absolute_url())
