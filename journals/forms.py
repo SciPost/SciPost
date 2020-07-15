@@ -25,7 +25,6 @@ from .models import (
     Issue, Publication, Reference, Volume, PublicationAuthorsTable,
     OrgPubFraction)
 from .utils import JournalUtils
-from .signals import notify_manuscript_published
 
 
 from funders.models import Grant, Funder
@@ -34,7 +33,6 @@ from mails.utils import DirectMailUtil
 from organizations.models import Organization
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
-from production.signals import notify_stream_status_change
 from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
 from submissions.constants import STATUS_PUBLISHED
@@ -482,8 +480,6 @@ class DraftPublicationForm(forms.ModelForm):
                 PublicationAuthorsTable.objects.create(
                     publication=self.instance, profile=submission_author.profile)
             self.instance.topics.add(*self.submission.topics.all())
-            self.instance.authors_claims.add(*self.submission.authors_claims.all())
-            self.instance.authors_false_claims.add(*self.submission.authors_false_claims.all())
 
     def prefill_fields(self):
         if self.submission:
@@ -691,7 +687,6 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
                     noted_by=self.request.user.production_user
                 )
                 prodevent.save()
-            notify_stream_status_change(self.request.user, stream, False)
 
     def save(self, commit=True):
         if commit:
@@ -702,7 +697,6 @@ class PublicationPublishForm(RequestFormMixin, forms.ModelForm):
             # Email authors
             JournalUtils.load({'publication': self.instance})
             JournalUtils.send_authors_paper_published_email()
-            notify_manuscript_published(self.request.user, self.instance, False)
 
         return self.instance
 

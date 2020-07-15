@@ -56,7 +56,6 @@ urlpatterns = [
     url(r'^thesis/', include('theses.urls', namespace="_theses")),
     url(r'^mails/', include('mails.urls', namespace="mails")),
     url(r'^news/', include('news.urls', namespace="news")),
-    url(r'^notifications/', include('notifications.urls', namespace="notifications")),
     url(r'^ontology/', include('ontology.urls', namespace="ontology")),
     url(r'^organizations/', include('organizations.urls', namespace="organizations")),
     url(r'^petitions/', include('petitions.urls', namespace="petitions")),

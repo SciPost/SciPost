@@ -2,7 +2,6 @@ require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/disable-selection');
 
 import QRCode from 'qrcode';
-import notifications from './notifications.js';
 
 function hide_all_alerts() {
     $(".alert").remove('.no-dismiss').fadeOut(300);

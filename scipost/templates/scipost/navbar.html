@@ -1,6 +1,5 @@
 {% load request_filters %}
 {% load static %}
-{% load notifications_tags %}
 {% load scipost_extras %}
 {% load journals_extras %}
 {% load user_groups %}
@@ -261,16 +260,9 @@
             </div>
           </li>
 
-          <li class="nav-item navbar-counter">
-            <div class="d-inline-block notifications_container">
-	      <!--                 <a href="#" class="d-inline-block badge_link nav-link" id="notifications_badge" data-toggle="modal" data-target="#notification_center">
-                   <i class="fa fa-inbox" aria-hidden="true" style="min-width: 16px;"></i>
-                   {% live_notify_badge classes="badge badge-pill" %}
-                   </a>
-                   {% live_notify_list %}
-	      -->
-            </div>
-          </li>
+	  <li class="nav-item">
+	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><i class="fa fa-sticky-note" style="font-size: 80%;" data-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket"></i></a>
+	  </li>
 
         {% else %}
           <li class="nav-item{% if request.path == '/login/' %} active{% endif %}">

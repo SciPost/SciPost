@@ -51,9 +51,6 @@ from .forms import (
     EditorialDecisionForm,
     SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
-from .signals import (
-    notify_editor_assigned, notify_eic_new_report, notify_invitation_cancelled,
-    notify_submission_author_new_report, notify_eic_invitation_reponse, notify_report_vetted)
 from .utils import SubmissionUtils
 
 from colleges.models import PotentialFellowship
@@ -812,7 +809,6 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
                 mail_sender.send_mail()
 
             submission.add_general_event('The Editor-in-charge has been assigned.')
-            notify_editor_assigned(request.user, assignment, False)
             msg = 'Thank you for becoming Editor-in-charge of this submission.'
             url = reverse(
                 'submissions:editorial_page', args=(submission.preprint.identifier_w_vn_nr,))
@@ -1213,7 +1209,6 @@ def accept_or_decline_ref_invitations(request, invitation_id=None):
         invitation.submission.add_event_for_eic('Referee %s has %s the refereeing invitation.'
                                                 % (invitation.referee.user.last_name,
                                                    decision_string))
-        notify_eic_invitation_reponse(request.user, invitation, False)
 
         if request.user.contributor.referee_invitations.awaiting_response().exists():
             return redirect('submissions:accept_or_decline_ref_invitations')
@@ -1285,7 +1280,6 @@ def cancel_ref_invitation(request, identifier_w_vn_nr, invitation_id):
     invitation.submission.add_event_for_author('A referee invitation has been cancelled.')
     invitation.submission.add_event_for_eic('Referee invitation for %s has been cancelled.'
                                             % invitation.last_name)
-    notify_invitation_cancelled(request.user, invitation, False)
 
     messages.success(request, 'Invitation cancelled')
     return redirect(reverse('submissions:editorial_page',
@@ -1620,7 +1614,6 @@ def submit_report(request, identifier_w_vn_nr):
                                      % request.user.last_name)
 
         messages.success(request, 'Thank you for your Report')
-        notify_eic_new_report(request.user, newreport, False)
         return redirect(submission.get_absolute_url())
     elif request.POST:
         messages.error(request, 'Report not submitted, please read the errors below.')
@@ -1668,7 +1661,6 @@ def vet_submitted_report(request, report_id):
         SubmissionUtils.load({'report': report,
                               'email_response': form.cleaned_data['email_response_field']})
         SubmissionUtils.acknowledge_report_email()  # email report author, bcc EIC
-        notify_report_vetted(request.user, report, False)
 
         # Add SubmissionEvent for the EIC
         report.submission.add_event_for_eic('The Report by %s is vetted.'
@@ -1678,7 +1670,6 @@ def vet_submitted_report(request, report_id):
 
             # Add SubmissionEvent to tell the author about the new report
             report.submission.add_event_for_author('A new Report has been submitted.')
-            notify_submission_author_new_report(request.user, report, False)
 
         message = 'Submitted Report vetted for <a href="{url}">{arxiv}</a>.'.format(
             url=report.submission.get_absolute_url(),

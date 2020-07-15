@@ -33,14 +33,17 @@ class Command(BaseCommand):
             fellow_profiles = Profile.objects.filter(contributor__fellowships__id__in=fellow_ids)
 
             # Get all possibly relevant Profiles
-            author_str_list = [a.split()[-1] for a in sub.author_list.split(',')]
-            if 'entries' in sub.metadata:
-                author_str_list += [
-                    a['name'].split()[-1] for a in sub.metadata['entries'][0]['authors']]
-            author_str_list = set(author_str_list)  # Distinct operator
-            author_profiles = Profile.objects.filter(
-                Q(contributor__in=sub.authors.all()) |
-                Q(last_name__in=author_str_list)).distinct()
+            # Assume the author list is purely comma-separated,
+            # with entries in format [firstname or initial[.]] lastname
+            author_profile_ids = []
+            for a in sub.author_list.split(','):
+                last = a.split()[-1]
+                first = a.split()[0].split('.')[0]
+                print("%s %s" % (first, last))
+                author_profile_ids += [p.id for p in Profile.objects.filter(
+                    last_name__endswith=last, first_name__startswith=first).all()]
+            author_profile_ids_set = set(author_profile_ids)
+            author_profiles = Profile.objects.filter(pk__in=author_profile_ids_set)
 
             n_new_conflicts += caller.compare(author_profiles, fellow_profiles, submission=sub)
             Submission.objects.filter(id=sub.id).update(needs_conflicts_update=False)

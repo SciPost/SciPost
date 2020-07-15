@@ -7,7 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from haystack import connection_router, connections, signals
 from haystack.exceptions import NotHandled
 
-from notifications.models import Notification
 from submissions.models import Submission
 
 
@@ -72,10 +71,9 @@ def update_instance_indexes(sender_type_id, object_type_id, object_id):
 
 class SearchIndexingProcessor(signals.BaseSignalProcessor):
     def handle_save(self, sender, instance, **kwargs):
-        if not isinstance(instance, Notification):
-            sender_type_id = ContentType.objects.get_for_model(sender).id
-            instance_type_id = ContentType.objects.get_for_model(instance).id
-            chain = (
-                remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
-                | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
-            chain()
+        sender_type_id = ContentType.objects.get_for_model(sender).id
+        instance_type_id = ContentType.objects.get_for_model(instance).id
+        chain = (
+            remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
+            | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
+        chain()

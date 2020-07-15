@@ -32,7 +32,6 @@ from .models import (
     Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
-from .signals import notify_manuscript_accepted
 
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
@@ -491,7 +490,10 @@ class SubmissionForm(forms.ModelForm):
         """
         qs = Fellowship.objects.active()
         fellows = qs.regular().filter(
-            contributor__discipline=submission.discipline).return_active_for_submission(submission)
+            contributor__profile__discipline=submission.discipline).filter(
+                Q(contributor__profile__expertises__contains=[submission.subject_area]) |
+                Q(contributor__profile__expertises__overlap=submission.secondary_areas)
+            ).return_active_for_submission(submission)
         submission.fellows.set(fellows)
 
         if submission.proceedings:
