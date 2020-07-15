@@ -219,7 +219,6 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'www.recaptcha.net', 'www.gstatic.com',
                   'code.jquery.com',
                   'static.mendeley.com',
-                  'cdn.jsdelivr.net/npm/vue/dist/vue.js',
                   'cdn.plot.ly')
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark-cdn.crossref.org',
