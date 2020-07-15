@@ -19,7 +19,7 @@ module.exports = {
             "./scipost/static/scipost/assets/js/fader.js",
             "./scipost/static/scipost/assets/js/newsticker.js",
 	],
-	vue: [
+	apimail: [
             "./apimail/static/apimail/assets/vue/messages_table.js",
         ],
     },
