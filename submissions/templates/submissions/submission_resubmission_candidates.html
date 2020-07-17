@@ -11,7 +11,7 @@
       <form method="post">
         {% csrf_token %}
         <h1 class="highlight">Possible Resubmissions</h1>
-        <p>The system has found {{ submissions|length|pluralize:'a Submission,Submissions' }} for which you are a verified author. If you wish to submit a new version for {{ submissions|length|pluralize:'this Submission,one of these Submissions' }}, please use the "Resubmit this Submission" buttton below.</p>
+        <p>The system has found {{ submissions|length|pluralize:'a Submission,Submissions' }} for which you are a verified author. If you wish to submit a new version for {{ submissions|length|pluralize:'this Submission,one of these Submissions' }}, please use the associated "Resubmit this Submission" buttton below.</p>
         <ul>
           {% for submission in submissions %}
             <li class="py-2">
@@ -24,7 +24,7 @@
               {% if not submission.open_for_resubmission %}
                 <strong class="text-danger">This submission is still undergoing peer refereeing. A resubmission can only be performed after request from the Editor-in-charge. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before proceeding with a resubmission.</strong>
               {% else %}
-                <button type="submit" name="submission" value="{{ submission.id }}"class="btn btn-primary py-1 mt-1">Resubmit this Submission</button>
+                <button type="submit" name="submission" value="{{ submission.id }}" class="btn btn-primary py-1 mt-1">Resubmit this Submission</button>
               {% endif %}
             </li>
           {% endfor %}

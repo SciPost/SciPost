@@ -1,0 +1,69 @@
+{% extends 'submissions/base.html' %}
+
+{% load static %}
+{% load bootstrap %}
+{% load journals_extras %}
+
+{% block headsup %}
+  <style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
+{% endblock headsup %}
+
+{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Submit a manuscript</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Submit a manuscript to SciPost</h1>
+    </div>
+
+    <div class="col-12">
+      <p class="mb-1">
+        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+      </p>
+      <p class="mb-1">
+        You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+      </p>
+      <p class="mb-1">
+        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+      </p>
+      <p>
+        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+      </p>
+    </div>
+  </div>
+
+  {% if perms.scipost.can_submit_manuscript %}
+
+    <h2>Which Journal do you wish to submit to?</h2>
+    <br>
+    <div class="card-columns">
+      {% for journal in journals %}
+	<div class="card">
+	  <div class="card-header {{ journal.doi_label }}">
+	    <h3 class="m-2"><a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+	      {% if journal.has_DOAJ_Seal %}
+		<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+	      {% endif %}
+	    </h3>
+	  </div>
+	  <div class="card-body">
+	    <a class="btn btn-outline-primary m-2" role="button" href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View Description, Scope, Content and Acceptance Criteria</em></a>
+	    {% if thread_hash %}
+	      <a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label thread_hash=thread_hash %}"><i class="fa fa-arrow-right"></i> Submit to {{ journal.name }}</a>
+	    {% else %}
+	      <a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}"><i class="fa fa-arrow-right"></i> Submit to {{ journal.name }}</a>
+	    {% endif %}
+	  </div>
+	</div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+      <h3>You are currently not allowed to submit a manuscript.</h3>
+  {% endif %}
+{% endblock content %}

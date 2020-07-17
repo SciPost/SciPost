@@ -16,7 +16,7 @@ from ..factories import UnassignedSubmissionFactory, EICassignedSubmissionFactor
                        ResubmittedSubmissionFactory, ResubmissionFactory,\
                        PublishedSubmissionFactory, DraftReportFactory,\
                        AcceptedRefereeInvitationFactory
-from ..forms import SubmissionIdentifierForm, ReportForm, SubmissionForm
+from ..forms import ArXivPrefillForm, ReportForm, SubmissionForm
 from ..models import Submission, Report, RefereeInvitation
 
 from journals.models import Journal
@@ -69,11 +69,11 @@ class BaseContributorTestCase(TestCase):
         )
 
 
-class PrefillUsingIdentifierTest(BaseContributorTestCase):
+class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        self.url = reverse('submissions:prefill_using_identifier')
+        self.url = reverse('submissions:submit_manuscript')
         self.assertTrue(self.client.login(username="Test", password="testpw"))
 
     # NOTED AS BROKEN 2019-11-08
@@ -89,7 +89,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 
     #     # Registered Contributor should get 200
     #     response = self.client.get(self.url)
-    #     self.assertIsInstance(response.context['form'], SubmissionIdentifierForm)
+    #     self.assertIsInstance(response.context['form'], ArXivPrefillForm)
     #     self.assertFalse(response.context['form'].is_valid())
     #     self.assertEqual(response.status_code, 200)
 
@@ -136,13 +136,13 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
 #         client = Client()
 
 #         # Unauthorized request shouldn't be possible
-#         response = client.post(reverse('submissions:prefill_using_identifier'),
+#         response = client.post(reverse('submissions:submit_manuscript'),
 #                                {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
 #         self.assertEqual(response.status_code, 403)
 
 #         # Registered Contributor should get 200; assuming prefiller is working properly
 #         self.assertTrue(client.login(username="Test", password="testpw"))
-#         response = client.post(reverse('submissions:prefill_using_identifier'),
+#         response = client.post(reverse('submissions:submit_manuscript'),
 #                                {'identifier': TEST_SUBMISSION['identifier_w_vn_nr']})
 #         self.assertEqual(response.status_code, 200)
 
@@ -184,7 +184,7 @@ class PrefillUsingIdentifierTest(BaseContributorTestCase):
     #     # Eventually this call should already give an error. Waiting for
     #     # Arxiv caller which is under construction [Jorran de Wit, 12 May 2017]
     #     self.assertTrue(client.login(username="Test", password="testpw"))
-    #     response = client.post(reverse('submissions:prefill_using_identifier'),
+    #     response = client.post(reverse('submissions:submit_manuscript'),
     #                            {'identifier': '1603.04689v1'})
     #     self.assertEqual(response.status_code, 200)
 

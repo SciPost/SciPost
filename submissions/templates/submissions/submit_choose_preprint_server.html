@@ -1,0 +1,78 @@
+{% extends 'submissions/base.html' %}
+
+{% load static %}
+{% load bootstrap %}
+{% load journals_extras %}
+
+{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Submit a manuscript</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Submit a manuscript to SciPost</h1>
+    </div>
+
+    <div class="col-12">
+      <p class="mb-1">
+        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+      </p>
+      <p class="mb-1">
+        You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+      </p>
+      <p class="mb-1">
+        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+      </p>
+      <p>
+        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+      </p>
+    </div>
+  </div>
+
+  {% if perms.scipost.can_submit_manuscript %}
+
+    {% if preprint_servers|length > 1 %}
+      <h2>Which preprint server do you wish to use?</h2>
+    {% else %}
+      <h2>TODO: proceed directly, only SciPost server is available</h2>
+    {% endif %}
+    <br>
+    <div class="card-columns">
+      {% for server in preprint_servers %}
+	<div class="card">
+	  <div class="card-header">
+	    <h3>Submit via {{ server }}</h3>
+	  </div>
+	  <div class="card-body">
+	    {% if server.name == 'SciPost' %}
+	      {% if thread_hash %}
+		<a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label thread_hash=thread_hash %}"><i class="fa fa-arrow-right"></i> Go to the SciPost submission form</a>
+	      {% else %}
+		<a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}"><i class="fa fa-arrow-right"></i> Go to the SciPost submission form</a>
+	      {% endif %}
+	    {% elif server.name == 'arXiv' %}
+              <h3>arXiv identifier for your Submission</h3>
+              <p><em>Give the identifier without prefix but with version number, ####.####(#)v#(#)</em></p>
+	      {% if thread_hash %}
+		<form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label thread_hash=thread_hash %}" method="get">
+	      {% else %}
+		  <form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label %}" method="get">
+	      {% endif %}
+	      {{ arxiv_query_form }}
+	          <i class="fa fa-arrow-right"></i>
+		<input type="submit" class="btn btn-success text-white" value="Query arXiv"/>
+              </form>
+	    {% endif %}
+	  </div>
+	</div>
+      {% endfor %}
+    </div>
+
+  {% else %}
+      <h3>You are currently not allowed to submit a manuscript.</h3>
+  {% endif %}
+{% endblock content %}

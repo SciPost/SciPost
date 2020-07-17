@@ -14,6 +14,9 @@ class JournalQuerySet(models.QuerySet):
     def active(self):
         return self.filter(active=True)
 
+    def submission_allowed(self):
+        return self.filter(submission_allowed=True)
+
     def has_issues(self):
         return self.filter(structure__in=(ISSUES_AND_VOLUMES, ISSUES_ONLY))
 

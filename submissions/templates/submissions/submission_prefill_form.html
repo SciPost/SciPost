@@ -33,19 +33,60 @@
 
   {% if perms.scipost.can_submit_manuscript %}
 
+    <h2 class="mb-4">Please choose one of the following routes:</h2>
+    <div class="card-columns">
+      {% if expected_resubmissions %}
+	<div class="card">
+	  <div class="card-header">
+	    <h3 class="p-2 bg-primary text-white"><em>Ongoing Submission Stream</em></h3>
+	    <h3>Resubmit</h3>
+	  </div>
+	  <div class="card-body">
+	    Submissions for which a revision is expected,
+	    and for which you are marked as submitting author:
+	    <ul class="p-2">
+	      {% for sub in expected_resubmissions %}
+		<li>
+		  <p class="mb-0"><a href="{{ sub.get_absolute_url }}">{{ sub }}</a></p>
+		  <p><a class="btn btn-outline-primary p-1 mt-0" role="button" href="{% url 'submissions:resubmit_manuscript' identifier_w_vn_nr=sub.preprint.identifier_w_vn_nr %}"><i class="fa fa-arrow-right"></i> resubmit</a></p>
+		</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
+	</div>
+      {% endif %}
+      <div class="card">
+	<div class="card-header">
+	  <h3 class="p-2 bg-success text-white"><em>New Submission</em></h3>
+	  <h3>Submit via arXiv</h3>
+	</div>
+	<div class="card-body">
+	  <p><em class="text-danger">Please do not use this route for a resubmission!</em></p>
+          <h3>arXiv identifier for your new Submission</h3>
+          <p><em>Give the identifier without prefix but with version number, ####.####(#)v#(#)</em></p>
+          <form action="{% url 'submissions:submit_manuscript' %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <i class="fa fa-arrow-right"></i>
+	    <input type="submit" class="btn btn-outline-success" value="Query arXiv"/>
+          </form>
+	</div>
+      </div>
+      <div class="card">
+	<div class="card-header">
+	  <h3 class="p-2 bg-success text-white"><em>New Submission</em></h3>
+	  <h3>Submit directly to SciPost</h3>
+	</div>
+	<div class="card-body">
+	  <p><em class="text-danger">Please do not use this route for a resubmission!</em></p>
+	  <a class="btn btn-outline-success" role="button" href="{% url 'submissions:submit_manuscript_scipost' %}"><i class="fa fa-arrow-right"></i> Go to the direct submission form</a>
+	</div>
+      </div>
+    </div>
+
     <div class="row">
       <div class="col-12">
         <div class="border p-3 bg-light">
-          <h3>Please provide the arXiv identifier for your Submission</h3>
-          <p><em>(give the identifier without prefix but with version number, as per the placeholder)</em></p>
-          <form action="{% url 'submissions:prefill_using_identifier' %}" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <input type="submit" class="btn btn-outline-secondary" value="Query arXiv"/>
-            <br>
-            <br>
-            <a href="{% url 'submissions:submit_manuscript_scipost' %}">Submit manuscript without arXiv instead</a>
-          </form>
         </div>
   {% else %}
         <h3>You are currently not allowed to submit a manuscript.</h3>

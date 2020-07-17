@@ -47,7 +47,7 @@ import strings
 
 import iThenticate
 
-IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
+ARXIV_IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
 
 
 class SubmissionSearchForm(forms.Form):
@@ -101,6 +101,7 @@ class SubmissionPoolFilterForm(forms.Form):
 # Submission and resubmission #
 ###############################
 
+
 class SubmissionService:
     """
     Object to run checks for prefiller and submit manuscript forms.
@@ -108,37 +109,43 @@ class SubmissionService:
 
     metadata = {}
 
-    def __init__(self, requested_by, preprint_server, identifier=None, resubmission_of_id=None):
+    def __init__(self, requested_by, preprint_server, identifier=None, thread_hash=None):
         self.requested_by = requested_by
         self.preprint_server = preprint_server
         self.identifier = identifier
-        self.resubmission_of_id = resubmission_of_id
+        self.thread_hash = thread_hash
         self._arxiv_data = None
 
-    @property
-    def latest_submission(self):
-        """
-        Return latest version of preprint series or None.
-        """
-        if hasattr(self, '_latest_submission'):
-            return self._latest_submission
-
-        if self.identifier:
-            # Check if is resubmission when identifier data is submitted.
-            identifier = self.identifier.rpartition('v')[0]
-            self._latest_submission = Submission.objects.filter(
-                preprint__identifier_wo_vn_nr=identifier).order_by(
-                '-preprint__vn_nr').first()
-        elif self.resubmission_of_id:
-            # Resubmission (submission id) is selected by user.
-            try:
-                self._latest_submission = Submission.objects.filter(
-                    id=int(self.resubmission_of_id)).order_by('-preprint__vn_nr').first()
-            except ValueError:
-                self._latest_submission = None
+        if self.thread_hash:
+            # Resubmission
+            self.latest_submission = Submission.objects.filter(
+                thread_hash=self.thread_hash).order_by(
+                    '-submission_date', '-preprint__vn_nr').first()
         else:
-            self._latest_submission = None
-        return self._latest_submission
+            self.latest_submission = None
+
+    # @property
+    # def latest_submission(self):
+    #     """
+    #     Return latest version of preprint series or None.
+    #     """
+    #     if hasattr(self, '_latest_submission'):
+    #         return self._latest_submission
+
+    #     # if self.identifier:
+    #     #     # Check if is resubmission when identifier data is submitted.
+    #     #     identifier = self.identifier.rpartition('v')[0]
+    #     #     self._latest_submission = Submission.objects.filter(
+    #     #         preprint__identifier_wo_vn_nr=identifier).order_by(
+    #     #         '-preprint__vn_nr').first()
+    #     if self.thread_hash:
+    #         # Resubmission
+    #         self._latest_submission = Submission.objects.filter(
+    #             thread_hash=self.thread_hash).order_by(
+    #                 '-submission_date', '-preprint__vn_nr').first()
+    #     else:
+    #         self._latest_submission = None
+    #     return self._latest_submission
 
     @property
     def arxiv_data(self):
@@ -196,6 +203,7 @@ class SubmissionService:
                 'subject_area': self.latest_submission.subject_area,
                 'submitted_to': self.latest_submission.submitted_to,
                 'submission_type': self.latest_submission.submission_type,
+                'thread_hash': self.latest_submission.thread_hash,
             }
         return {}
 
@@ -326,7 +334,7 @@ class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
-
+    thread_hash = forms.UUIDField(required=False)
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
@@ -376,15 +384,15 @@ class SubmissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop('requested_by')
         self.preprint_server = kwargs.pop('preprint_server', 'arxiv')
-        self.resubmission_preprint = kwargs['initial'].get('resubmission', False)
 
         data = args[0] if len(args) > 1 else kwargs.get('data', {})
         identifier = kwargs['initial'].get('identifier_w_vn_nr', None) or data.get('identifier_w_vn_nr')
+        thread_hash = kwargs['initial'].get('thread_hash', None)
 
         self.service = SubmissionService(
             self.requested_by, self.preprint_server,
             identifier=identifier,
-            resubmission_of_id=self.resubmission_preprint)
+            thread_hash=thread_hash)
         if self.preprint_server == 'scipost':
             kwargs['initial'] = self.service.get_latest_submission_data()
 
@@ -537,23 +545,23 @@ class SubmissionForm(forms.ModelForm):
         return submission
 
 
-class SubmissionIdentifierForm(forms.Form):
+class ArXivPrefillForm(forms.Form):
     """
-    Prefill SubmissionForm using this form that takes an arXiv ID only.
+    Prefill SubmissionForm using an arXiv identifier with version nr.
     """
-
-    IDENTIFIER_PLACEHOLDER = 'new style (with version nr) ####.####(#)v#(#)'
 
     identifier_w_vn_nr = forms.RegexField(
-        label='arXiv identifier with version number',
-        regex=IDENTIFIER_PATTERN_NEW, strip=True,
+        label='',
+        regex=ARXIV_IDENTIFIER_PATTERN_NEW, strip=True,
         error_messages={'invalid': strings.arxiv_query_invalid},
-        widget=forms.TextInput({'placeholder': IDENTIFIER_PLACEHOLDER}))
+        widget=forms.TextInput()
+    )
 
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop('requested_by')
+        self.thread_hash = kwargs.pop('thread_hash')
+        self.journal = Journal.objects.get(doi_label=kwargs.pop('journal_doi_label'))
         return super().__init__(*args, **kwargs)
-
 
     def clean_identifier_w_vn_nr(self):
         """
@@ -561,7 +569,9 @@ class SubmissionIdentifierForm(forms.Form):
         """
         identifier = self.cleaned_data.get('identifier_w_vn_nr', None)
 
-        self.service = SubmissionService(self.requested_by, 'arxiv', identifier=identifier)
+        self.service = SubmissionService(
+            self.requested_by, 'arxiv',
+            identifier=identifier, thread_hash=self.thread_hash)
         self.service.run_checks()
         return identifier
 
@@ -579,8 +589,9 @@ class SubmissionIdentifierForm(forms.Form):
                 'referees_suggested': self.service.latest_submission.referees_suggested,
                 'secondary_areas': self.service.latest_submission.secondary_areas,
                 'subject_area': self.service.latest_submission.subject_area,
-                'submitted_to': self.service.latest_submission.submitted_to,
+                'submitted_to': self.journal,
                 'submission_type': self.service.latest_submission.submission_type,
+                'thread_hash': self.service.latest_submission.thread_hash
             })
         return form_data
 

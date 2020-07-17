@@ -34,6 +34,7 @@ class Journal(models.Model):
                                  validators=[doi_journal_validator])
     issn = models.CharField(max_length=16, default='2542-4653', blank=True)
     active = models.BooleanField(default=True)
+    submission_allowed = models.BooleanField(default=True)
     structure = models.CharField(max_length=2,
                                  choices=JOURNAL_STRUCTURE, default=ISSUES_AND_VOLUMES)
     refereeing_period = models.DurationField(default=datetime.timedelta(days=28))

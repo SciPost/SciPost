@@ -1,0 +1,113 @@
+{% extends 'submissions/base.html' %}
+
+{% load bootstrap %}
+{% load journals_extras %}
+
+{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Submit a manuscript</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Submit a manuscript to SciPost</h1>
+    </div>
+
+    <div class="col-12">
+      <p class="mb-1">
+        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+      </p>
+      <p class="mb-1">
+        You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+      </p>
+      <p class="mb-1">
+        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+      </p>
+      <p>
+        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+      </p>
+    </div>
+  </div>
+
+  {% if perms.scipost.can_submit_manuscript %}
+
+    <h2 class="mb-4">Please choose one of the following routes:</h2>
+    <div class="card-columns">
+      {% if resubmission_candidates %}
+	<div class="card">
+	  <div class="card-header bg-primary text-white">
+	    <h3 class="p-2 m-0"><em>Resubmit</em></h3>
+	  </div>
+	  <div class="card-body">
+            <p>The system has found {{ resubmission_candidates|length|pluralize:'a Submission,Submissions' }} currently under evaluation, for which you are a verified author. If you wish to submit a new version of {{ resubmission_candidates|length|pluralize:'this Submission,one of these Submissions' }}, please use the associated "Resubmit" buttton below.</p>
+            <ul class="px-3 py-2">
+              {% for submission in resubmission_candidates %}
+		<li>
+		  <a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a>
+		  <br>
+		  {{ submission.author_list }}
+		  <br>
+		  Preprint {{ submission.preprint.identifier_w_vn_nr }}
+		  <br>
+		  {% if not submission.open_for_resubmission %}
+                    <strong class="text-warning">This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before proceeding with a resubmission.</strong>
+		  {% else %}
+		    <a class="btn btn-outline-primary p-1 mt-0" role="button" href="{% url 'submissions:submit_choose_journal' discipline=submission.discipline thread_hash=submission.thread_hash %}"><i class="fa fa-arrow-right"></i> Resubmit</a>
+		  {% endif %}
+		</li>
+              {% endfor %}
+            </ul>
+	  </div>
+	</div>
+      {% endif %}
+
+
+      <div class="card">
+	<div class="card-header bg-success text-white">
+	  <h3 class="p-2 m-0">New Submission</h3>
+	</div>
+	<div class="card-body">
+	  {% for branch in scipost_disciplines %}
+	    {% with journals|journals_in_branch:branch.0 as journals_branch %}
+	      {% if journals_branch|length > 0%}
+		<h3>{{ branch.0 }}</h3>
+		<ul class="list list-unstyled">
+		  {% for discipline in branch.1 %}
+		    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+		      {% if journals_disc|length > 0 %}
+			<li class="list-unstyled-item m-2"><a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_choose_journal' discipline=discipline.0 %}"><i class="fa fa-arrow-right"></i> New submission in {{ discipline.1 }}</a></li>
+		      {% endif %}
+		    {% endwith %}
+		  {% endfor %}
+		</ul>
+	      {% endif %}
+	    {% endwith %}
+	  {% endfor %}
+	</div>
+      </div>
+
+      <!-- <div class="card">
+	   <div class="card-header">
+	   <h3 class="p-2 bg-success text-white"><em>New Submission</em></h3>
+	   <h3>Submit an arXiv preprint</h3>
+	   </div>
+	   <div class="card-body">
+	   </div>
+	   </div>
+	   <div class="card">
+	   <div class="card-header">
+	   <h3 class="p-2 bg-success text-white"><em>New Submission</em></h3>
+	   <h3>Submit directly to SciPost</h3>
+	   </div>
+	   <div class="card-body">
+	   </div>
+	   </div>
+	   </div> -->
+
+  {% else %}
+      <h3>You are currently not allowed to submit a manuscript.</h3>
+  {% endif %}
+{% endblock content %}

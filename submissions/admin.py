@@ -11,13 +11,16 @@ from guardian.admin import GuardedModelAdmin
 from submissions.models import (
     Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
     EICRecommendation, SubmissionTiering, AlternativeRecommendation, EditorialDecision,
-    SubmissionEvent, iThenticateReport)
+    SubmissionEvent, iThenticateReport, PreprintServer)
 from scipost.models import Contributor
 from colleges.models import Fellowship
 
 
 def submission_short_title(obj):
     return obj.submission.title[:30]
+
+
+admin.site.register(PreprintServer)
 
 
 class iThenticateReportAdmin(admin.ModelAdmin):
