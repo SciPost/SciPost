@@ -36,34 +36,37 @@
   {% if perms.scipost.can_submit_manuscript %}
 
     {% if preprint_servers|length > 1 %}
-      <h2>Which preprint server do you wish to use?</h2>
+      <h2>Which preprint server do you wish to use for your {% if thread_hash %}re{% endif %}submission?</h2>
     {% else %}
-      <h2>TODO: proceed directly, only SciPost server is available</h2>
+      <h2>Please proceed with the SciPost preprint server (others are not available)</h2>
     {% endif %}
     <br>
     <div class="card-columns">
       {% for server in preprint_servers %}
 	<div class="card">
 	  <div class="card-header">
-	    <h3>Submit via {{ server }}</h3>
+	    <h3>{% if thread_hash %}Resubmit{% else %}Submit{% endif %} via {{ server }}</h3>
 	  </div>
 	  <div class="card-body">
 	    {% if server.name == 'SciPost' %}
-	      {% if thread_hash %}
-		<a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label thread_hash=thread_hash %}"><i class="fa fa-arrow-right"></i> Go to the SciPost submission form</a>
-	      {% else %}
-		<a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}"><i class="fa fa-arrow-right"></i> Go to the SciPost submission form</a>
-	      {% endif %}
+	      <a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}"><i class="fa fa-arrow-right"></i> Go to the SciPost submission form</a>
+	      <form action="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}" method="get">
+		{{ scipost_prefill_form }}
+		{% if thread_hash %}
+		  <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
+		{% endif %}
+	        <i class="fa fa-arrow-right"></i>
+		<input type="submit" class="btn btn-success text-white" value="Go to the SciPost submission form"/>
+              </form>
 	    {% elif server.name == 'arXiv' %}
               <h3>arXiv identifier for your Submission</h3>
               <p><em>Give the identifier without prefix but with version number, ####.####(#)v#(#)</em></p>
-	      {% if thread_hash %}
-		<form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label thread_hash=thread_hash %}" method="get">
-	      {% else %}
-		  <form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label %}" method="get">
-	      {% endif %}
-	      {{ arxiv_query_form }}
-	          <i class="fa fa-arrow-right"></i>
+	      <form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label %}" method="get">
+		{{ arxiv_prefill_form }}
+		{% if thread_hash %}
+		  <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
+		{% endif %}
+	        <i class="fa fa-arrow-right"></i>
 		<input type="submit" class="btn btn-success text-white" value="Query arXiv"/>
               </form>
 	    {% endif %}

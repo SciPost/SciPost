@@ -40,7 +40,8 @@ from .models import (
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    ArXivPrefillForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    ArXivPrefillForm, SciPostPrefillForm,
+    SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
@@ -134,32 +135,42 @@ def submit_manuscript(request):
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
-def submit_choose_journal(request, discipline=None, thread_hash=None):
+def submit_choose_journal(request, discipline=None):
+    """
+    Choose a Journal. If `thread_hash` is given as GET parameter, this is a resubmission.
+    """
     journals = Journal.objects.submission_allowed()
     if discipline:
         journals = journals.filter(discipline=discipline)
     context = {
         'journals': journals,
     }
-    if thread_hash:
-        context['thread_hash'] = thread_hash
+    if request.GET.get('thread_hash'):
+        context['thread_hash'] = request.GET.get('thread_hash')
     return render(request, 'submissions/submit_choose_journal.html', context)
 
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
-def submit_choose_preprint_server(request, journal_doi_label, thread_hash=None):
+def submit_choose_preprint_server(request, journal_doi_label):
+    """
+    Choose a preprint server. If `thread_hash` is given as a GET parameter, this is a resubmission.
+    """
     journal = get_object_or_404(Journal, doi_label=journal_doi_label)
     preprint_servers = PreprintServer.objects.filter(disciplines__contains=[journal.discipline])
-    arxiv_query_form = ArXivPrefillForm(
-        requested_by=request.user, thread_hash=thread_hash, journal_doi_label=journal_doi_label)
+    thread_hash = request.GET.get('thread_hash') or None
+    # Each integrated preprint server has a prefill form:
+    scipost_prefill_form = SciPostPrefillForm(
+        requested_by=request.user, journal_doi_label=journal_doi_label, thread_hash=thread_hash)
+    arxiv_prefill_form = ArXivPrefillForm(
+        requested_by=request.user, journal_doi_label=journal_doi_label, thread_hash=thread_hash)
     context = {
         'journal': journal,
+        'thread_hash': thread_hash,
         'preprint_servers': preprint_servers,
-        'arxiv_query_form': arxiv_query_form,
+        'scipost_prefill_form': scipost_prefill_form,
+        'arxiv_prefill_form': arxiv_prefill_form,
     }
-    if thread_hash:
-        context['thread_hash'] = thread_hash
     return render(request, 'submissions/submit_choose_preprint_server.html', context)
 
 
@@ -203,6 +214,42 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     success_url = reverse_lazy('scipost:personal_page')
     form_class = SubmissionForm
     template_name = 'submissions/submission_form.html'
+
+    def __init__(self, **kwargs):
+        self.prefill_form = None
+        self.initial_data = {}
+        super().__init__(**kwargs)
+
+    def get(self, request, journal_doi_label):
+        """
+        Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
+        """
+        if self.prefill_form.is_valid():
+            if self.prefill_form.is_resubmission():
+                resubmessage = ('An earlier preprint was found within this submission thread.'
+                                '\nYour Submission will thus be handled as a resubmission.'
+                                '\nWe have pre-filled the form where possible. '
+                                'Please check everything carefully!')
+                messages.success(request, resubmessage, fail_silently=True)
+            else:
+                if self.prefill_form.preprint_server == 'arXiv':
+                    readymessage = ('We have pre-filled the form where possible. '
+                                    'Please check everything carefully!')
+                else:
+                    readymessage = 'Your submission form is now ready to be filled in.'
+                messages.success(request, readymessage, fail_silently=True)
+            # Gather data from ArXiv API if prefill form is valid
+            self.initial_data = self.prefill_form.get_prefill_data()
+            print("initial data: %s" % self.initial_data)
+            return super().get(request)
+        else:
+            for code, err in self.prefill_form.errors.items():
+                messages.warning(request, err[0])
+            kwargs = { 'journal_doi_label': journal_doi_label }
+            redirect_url = reverse('submissions:submit_choose_preprint_server', kwargs=kwargs)
+            if request.GET.get('thread_hash'):
+                redirect_url += '?thread_hash=%s' % request.GET.get('thread_hash')
+            return redirect(redirect_url)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -251,35 +298,15 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 class RequestSubmissionUsingArXivView(RequestSubmissionView):
     """Formview to submit a new Submission using arXiv."""
 
-    def get(self, request, journal_doi_label, thread_hash=None):
+    def get(self, request, journal_doi_label):
         """
-        Redirect to the arXiv prefill form if arXiv ID is not known.
+        Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
         """
-        form = ArXivPrefillForm(
-            request.GET or None,
+        self.prefill_form = ArXivPrefillForm(
+            request.GET or None, # identifier_w_vn_nr, [thread_hash]
             requested_by=self.request.user,
-            journal_doi_label=journal_doi_label,
-            thread_hash=thread_hash)
-        if form.is_valid():
-            if form.service.is_resubmission():
-                resubmessage = ('An earlier preprint was found within this submission thread.'
-                                '\nYour Submission will be handled as a resubmission.')
-                messages.success(request, resubmessage, fail_silently=True)
-            else:
-                messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
-            # Gather data from ArXiv API if prefill form is valid
-            self.initial_data = form.get_initial_submission_data()
-            return super().get(request)
-        else:
-            for code, err in form.errors.items():
-                messages.warning(request, err[0])
-            kwargs = { 'journal_doi_label': journal_doi_label }
-            if thread_hash:
-                kwargs['thread_hash'] = thread_hash
-            return redirect(
-                'submissions:submit_choose_preprint_server',
-                **kwargs
-            )
+            journal_doi_label=journal_doi_label)
+        return super().get(request, journal_doi_label)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
@@ -291,8 +318,12 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     """Formview to submit a new Submission using SciPost's preprint server."""
 
-    def get(self, request, journal_doi_label, thread_hash=None):
-        return super().get(request)
+    def get(self, request, journal_doi_label):
+        self.prefill_form = SciPostPrefillForm(
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""

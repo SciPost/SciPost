@@ -55,7 +55,7 @@
 		  {% if not submission.open_for_resubmission %}
                     <strong class="text-warning">This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before proceeding with a resubmission.</strong>
 		  {% else %}
-		    <a class="btn btn-outline-primary p-1 mt-0" role="button" href="{% url 'submissions:submit_choose_journal' discipline=submission.discipline thread_hash=submission.thread_hash %}"><i class="fa fa-arrow-right"></i> Resubmit</a>
+		    <a class="btn btn-outline-primary p-1 mt-0" role="button" href="{% url 'submissions:submit_choose_journal' discipline=submission.discipline %}?thread_hash={{ submission.thread_hash }}"><i class="fa fa-arrow-right"></i> Resubmit</a>
 		  {% endif %}
 		</li>
               {% endfor %}

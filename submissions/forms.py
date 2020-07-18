@@ -29,7 +29,8 @@ from .constants import (
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
-    Submission, RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
+    Submission, PreprintServer,
+    RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
 
@@ -124,29 +125,6 @@ class SubmissionService:
         else:
             self.latest_submission = None
 
-    # @property
-    # def latest_submission(self):
-    #     """
-    #     Return latest version of preprint series or None.
-    #     """
-    #     if hasattr(self, '_latest_submission'):
-    #         return self._latest_submission
-
-    #     # if self.identifier:
-    #     #     # Check if is resubmission when identifier data is submitted.
-    #     #     identifier = self.identifier.rpartition('v')[0]
-    #     #     self._latest_submission = Submission.objects.filter(
-    #     #         preprint__identifier_wo_vn_nr=identifier).order_by(
-    #     #         '-preprint__vn_nr').first()
-    #     if self.thread_hash:
-    #         # Resubmission
-    #         self._latest_submission = Submission.objects.filter(
-    #             thread_hash=self.thread_hash).order_by(
-    #                 '-submission_date', '-preprint__vn_nr').first()
-    #     else:
-    #         self._latest_submission = None
-    #     return self._latest_submission
-
     @property
     def arxiv_data(self):
         if self._arxiv_data is None:
@@ -201,7 +179,7 @@ class SubmissionService:
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'secondary_areas': self.latest_submission.secondary_areas,
                 'subject_area': self.latest_submission.subject_area,
-                'submitted_to': self.latest_submission.submitted_to,
+                'submitted_to': self.latest_submission.submitted_to, # TODO: change to thread_hash
                 'submission_type': self.latest_submission.submission_type,
                 'thread_hash': self.latest_submission.thread_hash,
             }
@@ -234,7 +212,7 @@ class SubmissionService:
                              ' any further questions.')
             raise forms.ValidationError(error_message, code='submitted_to')
 
-    def process_resubmission_procedure(self, submission):
+    def process_resubmission_procedure(self, submission): # Belongs to SubmissionForm
         """
         Update all fields for new and old Submission and EditorialAssignments to comply with
         the resubmission procedures.
@@ -330,11 +308,211 @@ class SubmissionService:
                                         params={'published_id': published_id})
 
 
+# class SubmissionPrefillForm(forms.Form): # Does not work: cannot display differently
+#     """
+#     Provide initial data for SubmissionForm.
+#     """
+#     journal = forms.ModelChoiceField(
+#         queryset=Journal.objects.submission_allowed(),
+#         widget=forms.HiddenInput()
+#     )
+#     thread_hash = forms.UUIDField(
+#         required=False,
+#         widget=forms.HiddenInput()
+#     )
+#     preprint_server = forms.ModelChoiceField(
+#         queryset=PreprintServer.objects.all(),
+#         widget=forms.HiddenInput()
+#     )
+#     identifier_w_vn_nr = forms.CharField(
+#         required=False
+#     )
+
+
+
+
+######################################################################
+#
+# SubmissionForm prefill facilities. One class per integrated server.
+#
+######################################################################
+
+
+class SubmissionPrefillForm(forms.Form):
+    """
+    Base class for all SubmissionPrefillForms (one per integrated preprint servers).
+
+    Based on kwargs `requested_by`, `journal_doi_label` and `thread_hash`,
+    this prepares initial data for SubmissionForm.
+    """
+    def __init__(self, *args, **kwargs):
+        self.preprint_server = None
+        self.requested_by = kwargs.pop('requested_by')
+        self.journal = Journal.objects.get(doi_label=kwargs.pop('journal_doi_label'))
+        self.thread_hash = kwargs.pop('thread_hash')
+
+        if self.thread_hash:
+            # Resubmission
+            self.latest_submission = Submission.objects.filter(
+                thread_hash=self.thread_hash).order_by(
+                    '-submission_date', '-preprint__vn_nr').first()
+        else:
+            self.latest_submission = None
+        super().__init__(*args, **kwargs)
+
+    def is_resubmission(self):
+        return self.latest_submission is not None
+
+    def run_checks(self):
+        """
+        Consistency checks on the prefill data.
+        """
+        self._check_resubmission_readiness()
+
+    def _check_resubmission_readiness(self):
+        """
+        Check if previous submitted versions (if any) can be resubmitted.
+        """
+        if self.latest_submission:
+            if self.latest_submission.status == STATUS_REJECTED:
+                # Explicitly give rejected status warning.
+                error_message = ('This preprint has previously undergone refereeing '
+                                 'and has been rejected. Resubmission is only possible '
+                                 'if the manuscript has been substantially reworked into '
+                                 'a new submission with distinct identifier.')
+                raise forms.ValidationError(error_message)
+            elif self.latest_submission.open_for_resubmission:
+                # Check if verified author list contains current user.
+                if self.requested_by.contributor not in self.latest_submission.authors.all():
+                    error_message = ('There exists a preprint with this identifier '
+                                     'but an earlier version number. Resubmission is only possible'
+                                     ' if you are a registered author of this manuscript.')
+                    raise forms.ValidationError(error_message)
+            else:
+                # Submission has not an appropriate status for resubmission.
+                error_message = ('There exists a preprint with this identifier '
+                                 'but an earlier version number, which is still undergoing '
+                                 'peer refereeing. '
+                                 'A resubmission can only be performed after request '
+                                 'from the Editor-in-charge. Please wait until the '
+                                 'closing of the previous refereeing round and '
+                                 'formulation of the Editorial Recommendation '
+                                 'before proceeding with a resubmission.')
+                raise forms.ValidationError(error_message)
+
+    def get_prefill_data(self):
+        return {}
+
+
+class SciPostPrefillForm(SubmissionPrefillForm):
+    """
+    Provide initial data for SubmissionForm (SciPost preprint server route).
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.preprint_server = 'SciPost'
+        super().__init__(*args, **kwargs)
+
+    def is_valid(self):
+        """
+        Accept an empty form as valid. Override Django BaseForm.is_valid
+
+        Django BaseForm method requires is_bound == True and not self.errors.
+        is_bound requires data is not None.
+        We thus override is_valid by cutting the is_bound == True out.
+        """
+        return not self.errors
+
+    def get_prefill_data(self):
+        """
+        Return initial form data originating from earlier Submission.
+        """
+        if self.is_resubmission():
+            return {
+                'title': self.latest_submission.title,
+                'abstract': self.latest_submission.abstract,
+                'author_list': self.latest_submission.author_list,
+                'discipline': self.latest_submission.discipline,
+                'approaches': self.latest_submission.approaches,
+                'referees_flagged': self.latest_submission.referees_flagged,
+                'referees_suggested': self.latest_submission.referees_suggested,
+                'secondary_areas': self.latest_submission.secondary_areas,
+                'subject_area': self.latest_submission.subject_area,
+                'submitted_to': self.journal,
+                'submission_type': self.latest_submission.submission_type,
+                'thread_hash': self.latest_submission.thread_hash,
+            }
+        return {}
+
+
+class ArXivPrefillForm(SubmissionPrefillForm):
+    """
+    Provide initial data for SubmissionForm (arXiv preprint server route).
+
+    This adds the `arxiv_identifier_w_vn_nr` kwarg to those from `SubmissionPrefillForm` base class.
+    """
+    arxiv_identifier_w_vn_nr = forms.RegexField(
+        label='',
+        regex=ARXIV_IDENTIFIER_PATTERN_NEW, strip=True,
+        error_messages={'invalid': strings.arxiv_query_invalid},
+        widget=forms.TextInput()
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.preprint_server = 'arXiv'
+        super().__init__(*args, **kwargs)
+
+    def run_checks(self):
+        super().run_checks()
+        # TODO: add others here like  self._check_if_already_published()
+
+    def clean_arxiv_identifier_w_vn_nr(self):
+        """
+        Do basic prechecks based on the arXiv ID only.
+        """
+        identifier = self.cleaned_data.get('arxiv_identifier_w_vn_nr', None)
+
+        self.service = SubmissionService(
+            self.requested_by, 'arxiv',
+            identifier=identifier, thread_hash=self.thread_hash)
+        self.service.run_checks()
+        return identifier
+
+    def get_prefill_data(self):
+        """
+        Return dictionary to prefill `SubmissionForm`.
+        """
+        form_data = self.service.arxiv_data
+        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
+        if self.service.is_resubmission():
+            form_data.update({
+                'discipline': self.service.latest_submission.discipline,
+                'approaches': self.service.latest_submission.approaches,
+                'referees_flagged': self.service.latest_submission.referees_flagged,
+                'referees_suggested': self.service.latest_submission.referees_suggested,
+                'secondary_areas': self.service.latest_submission.secondary_areas,
+                'subject_area': self.service.latest_submission.subject_area,
+                'submitted_to': self.journal,
+                'submission_type': self.service.latest_submission.submission_type,
+                'thread_hash': self.service.latest_submission.thread_hash
+            })
+        return form_data
+
+
+##################
+#
+# Submission form
+#
+##################
+
 class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
-    thread_hash = forms.UUIDField(required=False)
+    thread_hash = forms.UUIDField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
@@ -382,6 +560,7 @@ class SubmissionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        print("form kwargs['initial']: %s" % kwargs['initial'])
         self.requested_by = kwargs.pop('requested_by')
         self.preprint_server = kwargs.pop('preprint_server', 'arxiv')
 
@@ -393,8 +572,8 @@ class SubmissionForm(forms.ModelForm):
             self.requested_by, self.preprint_server,
             identifier=identifier,
             thread_hash=thread_hash)
-        if self.preprint_server == 'scipost':
-            kwargs['initial'] = self.service.get_latest_submission_data()
+        # if self.preprint_server == 'scipost':
+        #     kwargs['initial'] = self.service.get_latest_submission_data()
 
         super().__init__(*args, **kwargs)
 
@@ -543,57 +722,6 @@ class SubmissionForm(forms.ModelForm):
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
         return submission
-
-
-class ArXivPrefillForm(forms.Form):
-    """
-    Prefill SubmissionForm using an arXiv identifier with version nr.
-    """
-
-    identifier_w_vn_nr = forms.RegexField(
-        label='',
-        regex=ARXIV_IDENTIFIER_PATTERN_NEW, strip=True,
-        error_messages={'invalid': strings.arxiv_query_invalid},
-        widget=forms.TextInput()
-    )
-
-    def __init__(self, *args, **kwargs):
-        self.requested_by = kwargs.pop('requested_by')
-        self.thread_hash = kwargs.pop('thread_hash')
-        self.journal = Journal.objects.get(doi_label=kwargs.pop('journal_doi_label'))
-        return super().__init__(*args, **kwargs)
-
-    def clean_identifier_w_vn_nr(self):
-        """
-        Do basic prechecks based on the arXiv ID only.
-        """
-        identifier = self.cleaned_data.get('identifier_w_vn_nr', None)
-
-        self.service = SubmissionService(
-            self.requested_by, 'arxiv',
-            identifier=identifier, thread_hash=self.thread_hash)
-        self.service.run_checks()
-        return identifier
-
-    def get_initial_submission_data(self):
-        """
-        Return dictionary to prefill `SubmissionForm`.
-        """
-        form_data = self.service.arxiv_data
-        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
-        if self.service.is_resubmission():
-            form_data.update({
-                'discipline': self.service.latest_submission.discipline,
-                'approaches': self.service.latest_submission.approaches,
-                'referees_flagged': self.service.latest_submission.referees_flagged,
-                'referees_suggested': self.service.latest_submission.referees_suggested,
-                'secondary_areas': self.service.latest_submission.secondary_areas,
-                'subject_area': self.service.latest_submission.subject_area,
-                'submitted_to': self.journal,
-                'submission_type': self.service.latest_submission.submission_type,
-                'thread_hash': self.service.latest_submission.thread_hash
-            })
-        return form_data
 
 
 class SubmissionReportsForm(forms.ModelForm):

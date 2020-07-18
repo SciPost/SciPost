@@ -128,53 +128,36 @@ urlpatterns = [
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),
 
+
     # Submission, resubmission, withdrawal
-    path( # Start a new submission process; choose between resubmission or new submission
+
+    path( # Start a new submission process; choose resub or new sub (with field choice)
         'submit_manuscript',
         views.submit_manuscript,
         name='submit_manuscript'
     ),
-    path( # Choose journal
+    path( # Choose journal (thread_hash as GET param if resubmission)
         'submit/<discipline:discipline>',
         views.submit_choose_journal,
         name='submit_choose_journal'
     ),
-    path( # Choose journal (resubmission)
-        'submit/<discipline:discipline>/<uuid:thread_hash>',
-        views.submit_choose_journal,
-        name='submit_choose_journal'
-    ),
-    path( # Choose preprint server
+    path( # Choose preprint server (thread_hash as GET param if resubmission)
         'submit/<journal_doi_label:journal_doi_label>',
         views.submit_choose_preprint_server,
         name='submit_choose_preprint_server'
     ),
-    path( # Choose preprint server (resubmission)
-        'submit/<journal_doi_label:journal_doi_label>/<uuid:thread_hash>',
-        views.submit_choose_preprint_server,
-        name='submit_choose_preprint_server'
-    ),
 
-    path( # Submit using the SciPost preprint server (new submission)
+    path( # Submit using the SciPost preprint server (thread_hash as GET param if resubmission)
         'submit_manuscript/<journal_doi_label:journal_doi_label>/scipost',
         views.RequestSubmissionUsingSciPostView.as_view(),
         name='submit_manuscript_scipost'
     ),
-    path( # Submit using the SciPost preprint server (resubmission)
-        'submit_manuscript/<journal_doi_label:journal_doi_label>/scipost/<uuid:thread_hash>',
-        views.RequestSubmissionUsingSciPostView.as_view(),
-        name='submit_manuscript_scipost'
-    ),
-    path( # Submit or resubmit using arXiv
+    path( # Submit using arXiv (thread_hash as GET param if resubmission)
         'submit_manuscript/<journal_doi_label:journal_doi_label>/arxiv',
         views.RequestSubmissionUsingArXivView.as_view(),
         name='submit_manuscript_arxiv'
     ),
-    path( # Submit or resubmit using arXiv (resubmission)
-        'submit_manuscript/<journal_doi_label:journal_doi_label>/arxiv/<uuid:thread_hash>',
-        views.RequestSubmissionUsingArXivView.as_view(),
-        name='submit_manuscript_arxiv'
-    ),
+
     url( # Redirects to the appropriate Submit page, prefilling form
         r'^resubmit_manuscript/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.resubmit_manuscript,
