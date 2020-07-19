@@ -36,7 +36,7 @@ def get_new_scipost_identifier(thread_hash=None):
     # At least one previous submission on SciPost's preprint server
     if len(scipost_submissions_in_thread) > 0:
         identifier = '{}v{}'.format(
-            scipost_submissions_in_thread.first().identifier_wo_vn_nr,
+            scipost_submissions_in_thread.first().preprint.identifier_wo_vn_nr,
             str(len(scipost_submissions_in_thread) + 1))
         return identifier
 

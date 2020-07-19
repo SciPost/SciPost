@@ -8,7 +8,7 @@
   {% endif %}
   {% for sibling in submission.thread.public %}
     <div class="mt-3 mb-1">
-      {% if forloop.last %}Submission{% else %}Resubmission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli"{% if target_blank %} target="_blank"{% endif %}>{{ sibling.preprint.identifier_w_vn_nr }}</a> on {{ sibling.submission_date|date:'j F Y' }}
+      {% if sibling.is_resubmission_of %}Resubmission{% else %}Submission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli"{% if target_blank %} target="_blank"{% endif %}>{{ sibling.preprint.identifier_w_vn_nr }}</a> on {{ sibling.submission_date|date:'j F Y' }}
     </div>
     <ul class="my-2 pl-4">
       {% for report in sibling.reports.accepted %}

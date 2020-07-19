@@ -308,28 +308,6 @@ class SubmissionService:
                                         params={'published_id': published_id})
 
 
-# class SubmissionPrefillForm(forms.Form): # Does not work: cannot display differently
-#     """
-#     Provide initial data for SubmissionForm.
-#     """
-#     journal = forms.ModelChoiceField(
-#         queryset=Journal.objects.submission_allowed(),
-#         widget=forms.HiddenInput()
-#     )
-#     thread_hash = forms.UUIDField(
-#         required=False,
-#         widget=forms.HiddenInput()
-#     )
-#     preprint_server = forms.ModelChoiceField(
-#         queryset=PreprintServer.objects.all(),
-#         widget=forms.HiddenInput()
-#     )
-#     identifier_w_vn_nr = forms.CharField(
-#         required=False
-#     )
-
-
-
 
 ######################################################################
 #
@@ -399,7 +377,7 @@ def check_arxiv_identifier_w_vn_nr(identifier):
                          'It cannot be submitted again.'),
         raise forms.ValidationError(error_message, code='published',
                                     params={'published_id': published_id})
-    return metadata, identifier
+    return arxiv_data, metadata, identifier
 
 
 class SubmissionPrefillForm(forms.Form):
@@ -434,7 +412,14 @@ class SubmissionPrefillForm(forms.Form):
         check_resubmission_readiness(self.requested_by, self.latest_submission)
 
     def get_prefill_data(self):
-        return {}
+        form_data = {
+            'discipline': self.journal.discipline,
+            'submitted_to': self.journal.id
+        }
+        if self.thread_hash:
+            form_data['thread_hash'] = self.thread_hash
+            form_data['is_resubmission_of'] = self.latest_submission.id
+        return form_data
 
 
 class SciPostPrefillForm(SubmissionPrefillForm):
@@ -460,23 +445,20 @@ class SciPostPrefillForm(SubmissionPrefillForm):
         """
         Return initial form data originating from earlier Submission.
         """
+        form_data = super().get_prefill_data()
         if self.is_resubmission():
-            return {
+            form_data.update({
                 'title': self.latest_submission.title,
                 'abstract': self.latest_submission.abstract,
                 'author_list': self.latest_submission.author_list,
-                'discipline': self.latest_submission.discipline,
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'secondary_areas': self.latest_submission.secondary_areas,
                 'subject_area': self.latest_submission.subject_area,
-                'submitted_to': self.journal.id,
                 'submission_type': self.latest_submission.submission_type,
-                'thread_hash': self.latest_submission.thread_hash,
-                'is_resubmission_of': self.latest_submission.id
-            }
-        return {}
+            })
+        return form_data
 
 
 class ArXivPrefillForm(SubmissionPrefillForm):
@@ -494,8 +476,8 @@ class ArXivPrefillForm(SubmissionPrefillForm):
 
     def __init__(self, *args, **kwargs):
         self.preprint_server = 'arXiv'
-        self.arxiv_data = None
-        self.metadata = None
+        self.arxiv_data = {}
+        self.metadata = {}
         super().__init__(*args, **kwargs)
 
     def clean_arxiv_identifier_w_vn_nr(self):
@@ -506,7 +488,7 @@ class ArXivPrefillForm(SubmissionPrefillForm):
 
         check_identifier_is_unused(identifier)
 
-        self.metadata, identifier = check_arxiv_identifier_w_vn_nr(identifier)
+        self.arxiv_data, self.metadata, identifier = check_arxiv_identifier_w_vn_nr(identifier)
 
         # caller = ArxivCaller(identifier)
         # if caller.is_valid:
@@ -539,10 +521,9 @@ class ArXivPrefillForm(SubmissionPrefillForm):
         """
         Return dictionary to prefill `SubmissionForm`.
         """
-        form_data = self.arxiv_data
+        form_data = super().get_prefill_data()
+        form_data.update(self.arxiv_data)
         form_data['identifier_w_vn_nr'] = self.cleaned_data['arxiv_identifier_w_vn_nr']
-        form_data['discipline'] = self.journal.discipline
-        form_data['submitted_to'] = self.journal.id
         if self.is_resubmission():
             form_data.update({
                 'approaches': self.latest_submission.approaches,
@@ -551,7 +532,6 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                 'secondary_areas': self.latest_submission.secondary_areas,
                 'subject_area': self.latest_submission.subject_area,
                 'submission_type': self.latest_submission.submission_type,
-                'thread_hash': self.latest_submission.thread_hash
             })
         return form_data
 
@@ -566,10 +546,10 @@ class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
-    thread_hash = forms.UUIDField(
-        required=False,
-        widget=forms.HiddenInput()
-    )
+    # thread_hash = forms.UUIDField(
+    #     required=False,
+    #     widget=forms.HiddenInput()
+    # )
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
@@ -579,6 +559,7 @@ class SubmissionForm(forms.ModelForm):
         model = Submission
         fields = [
             'is_resubmission_of',
+            'thread_hash',
             'discipline',
             'submitted_to',
             'proceedings',
@@ -598,6 +579,7 @@ class SubmissionForm(forms.ModelForm):
         ]
         widgets = {
             'is_resubmission_of': forms.HiddenInput(),
+            'thread_hash': forms.HiddenInput(),
             'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
             'arxiv_link': forms.TextInput(
                 attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}),
@@ -619,13 +601,15 @@ class SubmissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop('requested_by')
         self.preprint_server = kwargs.pop('preprint_server')
-        self.thread_hash = kwargs['initial'].get('thread_hash', None)
-
+        data = data = args[0] if len(args) > 1 else kwargs.get('data', {})
+        self.thread_hash = kwargs['initial'].get('thread_hash', None) or data.get('thread_hash')
+        self.is_resubmission_of = kwargs['initial'].get(
+            'is_resubmission_of', None) or data.get('is_resubmission_of')
         self.metadata = {} # container for possible external server-provided metadata
 
-        # print("form args:\n", args)
-        # print("form kwargs:\n", kwargs)
-        # print("is_resubmission: %s" % self.is_resubmission())
+        print("form args:\n", args)
+        print("form kwargs:\n", kwargs)
+        print("is_resubmission: %s" % self.is_resubmission())
 
         # data = args[0] if len(args) > 1 else kwargs.get('data', {})
         # identifier = kwargs['initial'].get('identifier_w_vn_nr', None) or data.get('identifier_w_vn_nr')
@@ -688,7 +672,15 @@ class SubmissionForm(forms.ModelForm):
 
     def is_resubmission(self):
         # return self.service.is_resubmission()
-        return self.thread_hash is not None
+        # return self.thread_hash is not None
+        return self.is_resubmission_of is not None
+        # if self.thread_hash is not None:
+        #     return True
+        # if hasattr(self, 'data'):
+        #     if 'is_resubmission_of' in self.data:
+        #         if self.data['is_resubmission_of']:
+        #             return True
+        # return False
 
     def clean(self, *args, **kwargs):
         """
@@ -744,7 +736,7 @@ class SubmissionForm(forms.ModelForm):
         check_identifier_is_unused(identifier)
 
         if self.preprint_server == 'arXiv':
-            self.metadata, identifier = check_arxiv_identifier_w_vn_nr(identifier)
+            self.arxiv_data, self.metadata, identifier = check_arxiv_identifier_w_vn_nr(identifier)
         return identifier
 
     def clean_submission_type(self):
@@ -811,6 +803,7 @@ class SubmissionForm(forms.ModelForm):
 
         # Open for comment and reporting and copy EIC info
         Submission.objects.filter(id=submission.id).update(
+            _is_resubmission=True,
             open_for_reporting=True,
             open_for_commenting=True,
             visible_pool=True,
