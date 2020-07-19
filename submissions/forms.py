@@ -438,9 +438,10 @@ class SciPostPrefillForm(SubmissionPrefillForm):
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'secondary_areas': self.latest_submission.secondary_areas,
                 'subject_area': self.latest_submission.subject_area,
-                'submitted_to': self.journal,
+                'submitted_to': self.journal.id,
                 'submission_type': self.latest_submission.submission_type,
                 'thread_hash': self.latest_submission.thread_hash,
+                'is_resubmission_of': self.latest_submission.id
             }
         return {}
 
@@ -460,11 +461,9 @@ class ArXivPrefillForm(SubmissionPrefillForm):
 
     def __init__(self, *args, **kwargs):
         self.preprint_server = 'arXiv'
+        self.arxiv_data = None
+        self.metadata = None
         super().__init__(*args, **kwargs)
-
-    def run_checks(self):
-        super().run_checks()
-        # TODO: add others here like  self._check_if_already_published()
 
     def clean_arxiv_identifier_w_vn_nr(self):
         """
@@ -472,29 +471,50 @@ class ArXivPrefillForm(SubmissionPrefillForm):
         """
         identifier = self.cleaned_data.get('arxiv_identifier_w_vn_nr', None)
 
-        self.service = SubmissionService(
-            self.requested_by, 'arxiv',
-            identifier=identifier, thread_hash=self.thread_hash)
-        self.service.run_checks()
+        caller = ArxivCaller(identifier)
+        if caller.is_valid:
+            self.arxiv_data = caller.data
+            self.metadata = caller.metadata
+        else:
+            error_message = 'A preprint associated to this identifier does not exist.'
+            raise forms.ValidationError(error_message)
+
+        # Check if identifier has already been used for submission
+        if Submission.objects.filter(preprint__identifier_w_vn_nr=identifier).exists():
+            error_message = 'This preprint version has already been submitted to SciPost.'
+            raise forms.ValidationError(error_message, code='duplicate')
+
+        # Check if this paper has already been published (according to arXiv)
+        published_id = None
+        if 'arxiv_doi' in self.arxiv_data:
+            published_id = self.arxiv_data['arxiv_doi']
+        elif 'arxiv_journal_ref' in self.arxiv_data:
+            published_id = self.arxiv_data['arxiv_journal_ref']
+
+        if published_id:
+            error_message = ('This paper has been published under DOI %(published_id)s. '
+                             'It cannot be submitted again.'),
+            raise forms.ValidationError(error_message, code='published',
+                                        params={'published_id': published_id})
         return identifier
 
     def get_prefill_data(self):
         """
         Return dictionary to prefill `SubmissionForm`.
         """
-        form_data = self.service.arxiv_data
-        form_data['identifier_w_vn_nr'] = self.cleaned_data['identifier_w_vn_nr']
-        if self.service.is_resubmission():
+        form_data = self.arxiv_data
+        form_data['identifier_w_vn_nr'] = self.cleaned_data['arxiv_identifier_w_vn_nr']
+        form_data['discipline'] = self.journal.discipline
+        form_data['submitted_to'] = self.journal.id
+        if self.is_resubmission():
             form_data.update({
-                'discipline': self.service.latest_submission.discipline,
-                'approaches': self.service.latest_submission.approaches,
-                'referees_flagged': self.service.latest_submission.referees_flagged,
-                'referees_suggested': self.service.latest_submission.referees_suggested,
-                'secondary_areas': self.service.latest_submission.secondary_areas,
-                'subject_area': self.service.latest_submission.subject_area,
-                'submitted_to': self.journal,
-                'submission_type': self.service.latest_submission.submission_type,
-                'thread_hash': self.service.latest_submission.thread_hash
+                'approaches': self.latest_submission.approaches,
+                'referees_flagged': self.latest_submission.referees_flagged,
+                'referees_suggested': self.latest_submission.referees_suggested,
+                'secondary_areas': self.latest_submission.secondary_areas,
+                'subject_area': self.latest_submission.subject_area,
+                'submission_type': self.latest_submission.submission_type,
+                'thread_hash': self.latest_submission.thread_hash
             })
         return form_data
 
@@ -560,49 +580,60 @@ class SubmissionForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        print("form kwargs['initial']: %s" % kwargs['initial'])
         self.requested_by = kwargs.pop('requested_by')
-        self.preprint_server = kwargs.pop('preprint_server', 'arxiv')
+        self.preprint_server = kwargs.pop('preprint_server')
+        self.thread_hash = kwargs['initial'].get('thread_hash', None)
+        # print("form args:\n", args)
+        # print("form kwargs:\n", kwargs)
+        # print("is_resubmission: %s" % self.is_resubmission())
 
-        data = args[0] if len(args) > 1 else kwargs.get('data', {})
-        identifier = kwargs['initial'].get('identifier_w_vn_nr', None) or data.get('identifier_w_vn_nr')
-        thread_hash = kwargs['initial'].get('thread_hash', None)
+        # data = args[0] if len(args) > 1 else kwargs.get('data', {})
+        # identifier = kwargs['initial'].get('identifier_w_vn_nr', None) or data.get('identifier_w_vn_nr')
+        # thread_hash = kwargs['initial'].get('thread_hash', None)
 
-        self.service = SubmissionService(
-            self.requested_by, self.preprint_server,
-            identifier=identifier,
-            thread_hash=thread_hash)
+        # self.service = SubmissionService(
+        #     self.requested_by, self.preprint_server,
+        #     identifier=identifier,
+        #     thread_hash=thread_hash)
         # if self.preprint_server == 'scipost':
         #     kwargs['initial'] = self.service.get_latest_submission_data()
 
         super().__init__(*args, **kwargs)
 
-        if not self.preprint_server == 'arxiv':
-            # No arXiv-specific data required.
+        if self.preprint_server == 'SciPost':
+            # SciPost identifier will be auto-generated
             del self.fields['identifier_w_vn_nr']
-            del self.fields['arxiv_link']
-        elif not self.preprint_server == 'scipost':
+        else:
             # No need for a file upload if user is not using the SciPost preprint server.
             del self.fields['preprint_file']
+        # Delete preprint server-specific fields
+        if not self.preprint_server == 'arXiv':
+            # No arXiv-specific data required.
+            del self.fields['arxiv_link']
 
-        # Find all submission allowed to be resubmitted by current user.
-        self.fields['is_resubmission_of'].queryset = Submission.objects.candidate_for_resubmission(
-            self.requested_by)
+        # # Find all submission allowed to be resubmitted by current user.
+        # self.fields['is_resubmission_of'].queryset = Submission.objects.candidate_for_resubmission(
+        #     self.requested_by)
 
-        # Fill resubmission-dependent fields
-        if self.is_resubmission():
-            self.fields['is_resubmission_of'].initial = self.service.latest_submission
-        else:
-            # These fields are only available for resubmissions.
+        # # Fill resubmission-dependent fields
+        # if self.is_resubmission():
+        #     self.fields['is_resubmission_of'].initial = self.service.latest_submission
+        # else:
+        #     # These fields are only available for resubmissions.
+        #     del self.fields['author_comments']
+        #     del self.fields['list_of_changes']
+
+        # if not self.fields['is_resubmission_of'].initial:
+        #     # No intial nor submitted data found.
+        #     del self.fields['is_resubmission_of']
+
+        if not self.is_resubmission():
+            del self.fields['is_resubmission_of']
             del self.fields['author_comments']
             del self.fields['list_of_changes']
 
-        if not self.fields['is_resubmission_of'].initial:
-            # No intial nor submitted data found.
-            del self.fields['is_resubmission_of']
-
         # Select Journal instances.
-        self.fields['submitted_to'].queryset = Journal.objects.active().exclude(name='SciPost Selections')
+        self.fields['submitted_to'].queryset = Journal.objects.active().submission_allowed()
         self.fields['submitted_to'].label = 'Journal: submit to'
 
         # Proceedings submission fields
@@ -616,7 +647,8 @@ class SubmissionForm(forms.ModelForm):
             del self.fields['proceedings']
 
     def is_resubmission(self):
-        return self.service.is_resubmission()
+        # return self.service.is_resubmission()
+        return self.thread_hash is not None
 
     def clean(self, *args, **kwargs):
         """

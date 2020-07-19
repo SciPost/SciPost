@@ -240,7 +240,6 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                 messages.success(request, readymessage, fail_silently=True)
             # Gather data from ArXiv API if prefill form is valid
             self.initial_data = self.prefill_form.get_prefill_data()
-            print("initial data: %s" % self.initial_data)
             return super().get(request)
         else:
             for code, err in self.prefill_form.errors.items():
@@ -262,7 +261,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
         kwargs['initial'] = getattr(self, 'initial_data', {})
-        kwargs['initial']['resubmission'] = self.request.GET.get('resubmission')
+        # kwargs['initial']['resubmission'] = self.request.GET.get('resubmission') # TODO remove
         return kwargs
 
     @transaction.atomic
@@ -303,15 +302,16 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
         """
         self.prefill_form = ArXivPrefillForm(
-            request.GET or None, # identifier_w_vn_nr, [thread_hash]
+            request.GET or None,
             requested_by=self.request.user,
-            journal_doi_label=journal_doi_label)
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
         return super().get(request, journal_doi_label)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        kwargs['preprint_server'] = 'arxiv'
+        kwargs['preprint_server'] = 'arXiv'
         return kwargs
 
 
@@ -328,9 +328,7 @@ class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        if hasattr(self, 'thread_hash'):
-            kwargs['initial']['thread_hash'] = self.thread_hash
-        kwargs['preprint_server'] = 'scipost'
+        kwargs['preprint_server'] = 'SciPost'
         return kwargs
 
 
