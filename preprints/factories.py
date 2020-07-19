@@ -21,7 +21,6 @@ class PreprintFactory(factory.django.DjangoModelFactory):
         o.identifier_wo_vn_nr, o.vn_nr))
     url = factory.lazy_attribute(lambda o: (
         'https://arxiv.org/abs/%s' % o.identifier_wo_vn_nr))
-    scipost_preprint_identifier = factory.Sequence(lambda n: Preprint.objects.count() + 1)
 
     class Meta:
         model = Preprint

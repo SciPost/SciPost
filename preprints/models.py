@@ -8,10 +8,10 @@ from django.http import Http404
 
 
 class Preprint(models.Model):
-    """A link with arXiv or standalone/SciPost-hosted preprint.
+    """
+    A preprint object, either at SciPost or with link to external preprint server.
 
-    If the instance is a SciPost preprint, the `_file` and `scipost_preprint_identifier` fields
-    should be filled. Otherwise, these fields should be left blank.
+    If the instance is a SciPost preprint, the `_file` field should be filled.
     """
 
     # (arXiv) identifiers with/without version number
@@ -20,10 +20,7 @@ class Preprint(models.Model):
     vn_nr = models.PositiveSmallIntegerField(verbose_name='Version number', default=1)
     url = models.URLField(blank=True)
 
-    # SciPost-preprints only
-    scipost_preprint_identifier = models.PositiveIntegerField(
-        verbose_name='SciPost preprint ID',
-        null=True, blank=True, help_text='Unique identifier for SciPost standalone preprints')
+    # SciPost preprints only
     _file = models.FileField(
         verbose_name='Preprint file', help_text='Preprint file for SciPost standalone preprints',
         upload_to='UPLOADS/PREPRINTS/%Y/%m/', max_length=200, blank=True)

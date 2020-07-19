@@ -49,7 +49,6 @@
 	  </div>
 	  <div class="card-body">
 	    {% if server.name == 'SciPost' %}
-	      <a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}"><i class="fa fa-arrow-right"></i> Go to the SciPost submission form</a>
 	      <form action="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}" method="get">
 		{{ scipost_prefill_form }}
 		{% if thread_hash %}
