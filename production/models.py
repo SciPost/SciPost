@@ -148,9 +148,9 @@ class ProductionEventAttachment(models.Model):
 
 def proofs_upload_location(instance, filename):
     submission = instance.stream.submission
-    return 'UPLOADS/PROOFS/{year}/{arxiv}/{filename}'.format(
+    return 'UPLOADS/PROOFS/{year}/{thread_hash_head}/{filename}'.format(
         year=submission.submission_date.year,
-        arxiv=submission.preprint.identifier_wo_vn_nr,
+        thread_hash_head=str(submission.thread_hash).partition('-')[0],
         filename=filename)
 
 

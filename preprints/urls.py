@@ -6,7 +6,7 @@ from django.conf.urls import url
 
 from . import views
 
-from submissions.constants import SUBMISSIONS_NO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
+from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'preprints'
 

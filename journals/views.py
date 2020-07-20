@@ -1307,7 +1307,7 @@ def email_object_made_citable(request, **kwargs):
         publication_doi = None
         try:
             publication = Publication.objects.get(
-                accepted_submission__preprint__identifier_wo_vn_nr=_object.submission.preprint.identifier_wo_vn_nr)
+                accepted_submission__thread_hash=_object.submission.thread_hash)
             publication_citation = publication.citation
             publication_doi = publication.doi_string
         except Publication.DoesNotExist:

@@ -12,7 +12,7 @@ from journals.converters import JournalDOILabelConverter
 from journals.regexes import JOURNAL_DOI_LABEL_REGEX
 
 from . import views
-from .constants import SUBMISSIONS_NO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
+from .constants import SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'submissions'
 
@@ -40,8 +40,6 @@ urlpatterns = [
     url(r'^referee_guidelines$',
         TemplateView.as_view(template_name='submissions/referee_guidelines.html'),
         name='referee_guidelines'),
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_NO_VN_REGEX), views.submission_detail_wo_vn_nr,
-        name='submission_wo_vn_nr'),
     url(r'^{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_detail, name='submission'),
     url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),

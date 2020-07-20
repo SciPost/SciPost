@@ -24,11 +24,11 @@ def citation_rate(obj, *args, **kwargs):
 
 @register.filter(name='submissions_count_distinct')
 def submissions_count_distinct(submissions):
-    identifiers_wo_vn_nr = []
+    thread_hashes = []
     for submission in submissions:
-        if submission.preprint.identifier_wo_vn_nr not in identifiers_wo_vn_nr:
-            identifiers_wo_vn_nr.append(submission.preprint.identifier_wo_vn_nr)
-    return len(identifiers_wo_vn_nr)
+        if submission.thread_hash not in thread_hashes:
+            thread_hashes.append(submission.thread_hash)
+    return len(thread_hashes)
 
 
 @register.filter(name='journal_publication_years')

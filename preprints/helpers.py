@@ -55,39 +55,3 @@ def get_new_scipost_identifier(thread_hash=None):
         vn_nr=str(len(submissions_in_thread) + 1)
     )
     return identifier
-
-
-# def generate_new_scipost_identifier_BUGGED(old_preprint=None):
-#     """
-#     Return an identifier for a new SciPost preprint series without version number.
-
-#     TODO: This method will explode as soon as it will be used similtaneously by two or more people.
-#     """
-#     now = timezone.now()
-
-#     if isinstance(old_preprint, Submission):
-#         old_preprint = old_preprint.preprint
-
-#     if old_preprint:
-#         # Generate new version number of existing series.
-#         # BUGGED! This fails to make scipost_preprint_identifier globally unique
-#         # BUGGED! Instead, scipost_preprint_identifier can be repeated each month.
-#         preprint_series = Preprint.objects.filter(
-#             scipost_preprint_identifier=old_preprint.scipost_preprint_identifier).values_list(
-#             'vn_nr', flat=True)
-#         identifier = '{}v{}'.format(old_preprint.identifier_wo_vn_nr, max(preprint_series) + 1)
-#         return identifier, old_preprint.scipost_preprint_identifier
-#     else:
-#         # New series of Preprints.
-#         existing_identifier = Preprint.objects.filter(
-#             created__year=now.year, created__month=now.month).aggregate(
-#             identifier=Max('scipost_preprint_identifier'))['identifier']
-#         if not existing_identifier:
-#             existing_identifier = '1'
-#         else:
-#             existing_identifier = str(existing_identifier + 1)
-
-#         identifier = 'scipost_{year}{month}_{identifier}v1'.format(
-#             year=now.year, month=str(now.month).rjust(2, '0'),
-#             identifier=existing_identifier.rjust(5, '0'))
-#         return identifier, int(existing_identifier)
