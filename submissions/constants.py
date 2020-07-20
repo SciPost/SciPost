@@ -277,13 +277,5 @@ arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
 arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
 scipost_regex_wo_vn = 'scipost_[0-9]{4,}_[0-9]{4,}'
 scipost_regex_w_vn = 'scipost_[0-9]{4,}_[0-9]{4,}v[0-9]{1,2}'
-SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (arxiv_regex_w_vn, scipost_regex_w_vn)
-
-
-# `EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS` tracks the regex rules for the manuscripts
-# submitted per journal.
-#
-# CAUTION: *triple* check whether the `default` regex also meets any other explicit journal regex!
-EXPLICIT_REGEX_MANUSCRIPT_CONSTRAINTS = {
-    'default': SUBMISSIONS_COMPLETE_REGEX
-}
+SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (
+    arxiv_regex_w_vn, scipost_regex_w_vn)

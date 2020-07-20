@@ -156,11 +156,6 @@ urlpatterns = [
         name='submit_manuscript_arxiv'
     ),
 
-    url( # Redirects to the appropriate Submit page, prefilling form
-        r'^resubmit_manuscript/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.resubmit_manuscript,
-        name='resubmit_manuscript'
-    ),
     url(
         r'^withdraw_manuscript/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.withdraw_manuscript,
