@@ -1,7 +1,7 @@
 <table class="w-100 mb-1">
   <tr>
     <td style="min-width: 40%;">Version</td>
-    <td>{{ submission.preprint.vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.preprint.vn_nr }}{% endif %})</td>
+    <td>{{ submission.thread_sequence_order }} ({% if submission.is_current %}current version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})</td>
   </tr>
   {% if submission.preprint.url %}
     <tr>

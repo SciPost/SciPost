@@ -184,8 +184,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         field if this information becomes necessary in more general information representation.
         """
         return (self.author.reports.accepted().filter(
-            submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr,
-            submission__preprint__vn_nr__lt=self.submission.preprint.vn_nr).exists())
+            submission__thread_hash=self.submission.thread_hash,
+            submission__submission_date__lt=self.submission.submission_date).exists())
 
     @property
     def associated_published_doi(self):
@@ -210,7 +210,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr)
+                accepted_submission__thread_hash=self.submission.thread_hash)
         except Publication.DoesNotExist:
             return None
 

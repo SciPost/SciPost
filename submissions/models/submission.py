@@ -123,7 +123,9 @@ class Submission(models.Model):
 
     # Metadata
     metadata = JSONField(default=dict, blank=True, null=True)
-    submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
+    submission_date = models.DateTimeField(
+        verbose_name='submission date',
+        default=datetime.datetime.now)
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
@@ -155,7 +157,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version ' + str(self.preprint.vn_nr) + ')'
+            header += ' (deprecated version ' + str(self.thread_sequence_order) + ')'
         if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
@@ -320,10 +322,15 @@ class Submission(models.Model):
         return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
             '-submission_date', '-preprint__vn_nr')
 
+    @property
+    def thread_sequence_order(self):
+        """Return the ordering of this Submission within its thread."""
+        return self.thread.filter(submission_date__lt=self.submission_date).count() + 1
+
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this thread."""
-        return self.get_other_versions().order_by('-preprint__vn_nr')
+        return self.get_other_versions().order_by('-submission_date', '-preprint__vn_nr')
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this thread."""

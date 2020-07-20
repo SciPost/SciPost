@@ -2,7 +2,7 @@
 
 {% block card_footer %}
   <p class="meta">
-    Version {{ submission.preprint.vn_nr }} ({% if submission.is_current %}current version{% else %}deprecated version {{ submission.preprint.vn_nr }}{% endif %})
+    Version {{ submission.thread_sequence_order }} ({% if submission.is_current %}current version{% else %}out of a sequence of {{ submission.thread|length }}{% endif %})
     <br>
     {% if submission.publication and submission.publication.is_published %}
       Published as <a href="{{ submission.publication.get_absolute_url }}">
