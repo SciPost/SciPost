@@ -11,9 +11,6 @@ from submissions.constants import SUBMISSIONS_NO_VN_REGEX, SUBMISSIONS_COMPLETE_
 app_name = 'preprints'
 
 urlpatterns = [
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_NO_VN_REGEX),
-        views.preprint_latest_pdf,
-        name='latest_pdf'),
     url(r'^{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.preprint_pdf,
         name='pdf'),

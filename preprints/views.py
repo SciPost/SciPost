@@ -40,12 +40,3 @@ def preprint_pdf(request, identifier_w_vn_nr):
         filename = '{}{}'.format(preprint.identifier_w_vn_nr, extension)
         response['Content-Disposition'] = ('filename=' + filename)
     return response
-
-
-def preprint_latest_pdf(request, identifier_wo_vn_nr):
-    submission = Submission.objects.filter(
-        preprint__identifier_wo_vn_nr=identifier_wo_vn_nr).first()
-    if not submission:
-        raise Http404
-    return redirect(reverse('preprints:pdf',
-                            args=[submission.get_latest_version().preprint.identifier_w_vn_nr,]))
