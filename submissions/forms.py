@@ -554,6 +554,7 @@ class SubmissionForm(forms.ModelForm):
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
         'these will only be required at the post-acceptance proofs stage)'))
+    arxiv_link = forms.URLField(label='arXiv link (including version nr)')
 
     class Meta:
         model = Submission
@@ -575,7 +576,6 @@ class SubmissionForm(forms.ModelForm):
             'remarks_for_editors',
             'referees_suggested',
             'referees_flagged',
-            'arxiv_link',
         ]
         widgets = {
             'is_resubmission_of': forms.HiddenInput(),

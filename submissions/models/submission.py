@@ -112,12 +112,6 @@ class Submission(models.Model):
         'submissions.iThenticateReport', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='to_submission')
 
-    # Arxiv identifiers with/without version number
-    arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
-    arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
-    arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
-    arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
-
     pdf_refereeing_pack = models.FileField(upload_to='UPLOADS/REFEREE/%Y/%m/',
                                            max_length=200, blank=True)
 
