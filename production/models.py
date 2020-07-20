@@ -125,9 +125,9 @@ class ProductionEvent(models.Model):
 
 def production_event_upload_location(instance, filename):
     submission = instance.production_event.stream.submission
-    return 'UPLOADS/PRODSTREAMS/{year}/{arxiv}/{filename}'.format(
+    return 'UPLOADS/PRODSTREAMS/{year}/{thread_hash_head}/{filename}'.format(
         year=submission.submission_date.year,
-        arxiv=submission.preprint.identifier_wo_vn_nr,
+        thread_hash_head=str(submission.thread_hash).partition('-')[0],
         filename=filename)
 
 

@@ -21,22 +21,21 @@ def get_new_scipost_identifier(thread_hash=None):
     * All preprints in thread are SciPost preprints: the vn_nr is incremented.
 
     * Previous preprints are all on an external preprint server: a brand new SciPost
-      identifier is generated; the vn_nr is put to [nr of previous subs in thread] + 1.
+      identifier is generated; the vn_nr is put to 1.
 
     * Previous preprints mix SciPost and external identifiers: the SciPost identifier is
-      reused, putting the vn_nr to [nr of previous subs in thread] + 1.
+      reused, putting the vn_nr to [nr of previous SciPost subs in thread] + 1.
     """
     now = timezone.now()
 
-    submissions_in_thread = Submission.objects.filter(thread_hash=thread_hash)
-
-    scipost_submissions_in_thread = submissions_in_thread.filter(
+    scipost_submissions_in_thread = Submission.objects.filter(
+        thread_hash=thread_hash,
         preprint__identifier_w_vn_nr__startswith='scipost')
 
     # At least one previous submission on SciPost's preprint server
     if len(scipost_submissions_in_thread) > 0:
         identifier = '{}v{}'.format(
-            scipost_submissions_in_thread.first().preprint.identifier_wo_vn_nr,
+            scipost_submissions_in_thread.first().preprint.identifier_w_vn_nr.rpartition('v')[0],
             str(len(scipost_submissions_in_thread) + 1))
         return identifier
 
@@ -49,9 +48,8 @@ def get_new_scipost_identifier(thread_hash=None):
     except AttributeError:
         next_identifier_nr = 1
 
-    identifier = 'scipost_{year}{month}_{identifier}v{vn_nr}'.format(
+    identifier = 'scipost_{year}{month}_{identifier}v1'.format(
         year=now.year, month=str(now.month).rjust(2, '0'),
-        identifier=str(next_identifier_nr).rjust(5, '0'),
-        vn_nr=str(len(submissions_in_thread) + 1)
+        identifier=str(next_identifier_nr).rjust(5, '0')
     )
     return identifier

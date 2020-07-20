@@ -16,16 +16,16 @@ class SubmissionQuerySet(models.QuerySet):
         TODO: Make more efficient... with agregation or whatever.
 
         The current Queryset should return only the latest version
-        of the Arxiv submissions known to SciPost.
+        of the submissions.
 
-        Method only compatible with PostGresQL
+        Method only compatible with PostgreSQL
         """
         # This method used a double query, which is a consequence of the complex distinct()
         # filter combined with the PostGresQL engine. Without the double query, ordering
         # on a specific field after filtering seems impossible.
         ids = (queryset
-               .order_by('preprint__identifier_wo_vn_nr', '-preprint__vn_nr')
-               .distinct('preprint__identifier_wo_vn_nr')
+               .order_by('thread_hash', '-submission_date')
+               .distinct('thread_hash')
                .values_list('id', flat=True))
         return queryset.filter(id__in=ids)
 
@@ -157,11 +157,11 @@ class SubmissionQuerySet(models.QuerySet):
         Returns the submissions originally received between from_date and until_date
         (including subsequent resubmissions, even if those came in later).
         """
-        identifiers = []
+        thread_hashes = []
         for sub in self.filter(is_resubmission_of__isnull=True,
                                submission_date__range=(from_date, until_date)):
-            identifiers.append(sub.preprint.identifier_wo_vn_nr)
-        return self.filter(preprint__identifier_wo_vn_nr__in=identifiers)
+            thread_hashes.append(sub.thread_hash)
+        return self.filter(thread_hash__in=thread_hashes)
 
     def accepted(self):
         """Return accepted Submissions."""

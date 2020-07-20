@@ -50,3 +50,8 @@ class Preprint(models.Model):
         if self._file: # means this is a SciPost-hosted preprint
             return "https://scipost.org%s" % self.get_absolute_url()
         return self.get_absolute_url().replace("/abs/", "/pdf/")
+
+    @property
+    def is_arXiv(self):
+        """Return True if this preprint is hosted on arXiv."""
+        return 'arxiv.org' in self.url

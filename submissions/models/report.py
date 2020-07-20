@@ -196,7 +196,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr)
+                accepted_submission__thread_hash=self.submission.thread_hash)
         except Publication.DoesNotExist:
             return None
         return publication.doi_string
@@ -244,5 +244,5 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def latest_report_from_thread(self):
         """Get latest Report of this Report's author for the Submission thread."""
         return self.author.reports.accepted().filter(
-            submission__preprint__identifier_wo_vn_nr=self.submission.preprint.identifier_wo_vn_nr
-        ).order_by('submission__preprint__identifier_wo_vn_nr').last()
+            submission__thread_hash=self.submission.thread_hash
+        ).order_by('submission__submission_date').last()

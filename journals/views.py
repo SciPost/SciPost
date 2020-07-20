@@ -1420,8 +1420,13 @@ def arxiv_doi_feed(request, doi_label):
                                                            now.strftime('%m'), now.strftime('%d'))
     publications = journal.get_publications().order_by('-publication_date')[:100]
     for publication in publications:
-        feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
-            publication.accepted_submission.preprint.identifier_wo_vn_nr, publication.doi_string,
-            publication.citation))
+        # Determine if any of the preprints in thread were on arXiv
+        for sub in publication.accepted_submission.thread:
+            if sub.preprint.is_arXiv:
+                feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
+                    sub.preprint.identifier_w_vn_nr.rpartition('v')[0],
+                    publication.doi_string,
+                    publication.citation))
+                break # only do once for each publication
     feedxml += '\n</preprint>'
     return HttpResponse(feedxml, content_type='text/xml')
