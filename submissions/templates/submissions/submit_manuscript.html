@@ -35,79 +35,71 @@
   {% if perms.scipost.can_submit_manuscript %}
 
     <h2 class="mb-4">Please choose one of the following routes:</h2>
-    <div class="card-columns">
-      {% if resubmission_candidates %}
-	<div class="card">
-	  <div class="card-header bg-primary text-white">
-	    <h3 class="p-2 m-0"><em>Resubmit</em></h3>
-	  </div>
-	  <div class="card-body">
-            <p>The system has found {{ resubmission_candidates|length|pluralize:'a Submission,Submissions' }} currently under evaluation, for which you are a verified author. If you wish to submit a new version of {{ resubmission_candidates|length|pluralize:'this Submission,one of these Submissions' }}, please use the associated "Resubmit" buttton below.</p>
-            <ul class="px-3 py-2">
-              {% for submission in resubmission_candidates %}
-		<li>
-		  <a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a>
-		  <br>
-		  {{ submission.author_list }}
-		  <br>
-		  Preprint {{ submission.preprint.identifier_w_vn_nr }}
-		  <br>
+
+    <div class="container">
+      <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
+	{% if resubmission_candidates %}
+          {% for submission in resubmission_candidates %}
+	    <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
+	      <div class="card my-4">
+		<div class="card-header bg-dark text-white">
+		  <h3 class="p-2 m-0">
+		    <em>Resubmission of <a href="{{ submission.get_absolute_url }}" class="text-info">{{ submission.preprint.identifier_w_vn_nr }}</a></em>
+		  </h3>
+		</div>
+		<div class="card-body">
+		  <p><a href="{{ submission.get_absolute_url }}"><strong>{{ submission.title }}</strong></a></p>
+		  <p>by {{ submission.author_list }}</p>
 		  {% if not submission.open_for_resubmission %}
-                    <strong class="text-warning">This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before proceeding with a resubmission.</strong>
+		    <p class="bg-dark border-warning text-warning p-3 mb-0"><strong><i class="fa fa-warning text-danger"></i> This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before resubmitting.</strong></p>
 		  {% else %}
-		    <a class="btn btn-outline-primary p-1 mt-0" role="button" href="{% url 'submissions:submit_choose_journal' discipline=submission.discipline %}?thread_hash={{ submission.thread_hash }}"><i class="fa fa-arrow-right"></i> Resubmit</a>
+		    <table class="table mb-0">
+		      <tbody>
+			<tr><td class="bg-primary">
+			  <a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' discipline=submission.discipline %}?thread_hash={{ submission.thread_hash }}"><i class="fa fa-arrow-right"></i>&emsp;Resubmit this manuscript</a>
+			</td></tr>
+		      </tbody>
+		    </table>
 		  {% endif %}
-		</li>
-              {% endfor %}
-            </ul>
-	  </div>
-	</div>
-      {% endif %}
-
-
-      <div class="card">
-	<div class="card-header bg-success text-white">
-	  <h3 class="p-2 m-0">New Submission</h3>
-	</div>
-	<div class="card-body">
-	  {% for branch in scipost_disciplines %}
-	    {% with journals|journals_in_branch:branch.0 as journals_branch %}
-	      {% if journals_branch|length > 0%}
-		<h3>{{ branch.0 }}</h3>
-		<ul class="list list-unstyled">
-		  {% for discipline in branch.1 %}
-		    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
-		      {% if journals_disc|length > 0 %}
-			<li class="list-unstyled-item m-2"><a class="btn btn-success text-white" role="button" href="{% url 'submissions:submit_choose_journal' discipline=discipline.0 %}"><i class="fa fa-arrow-right"></i> New submission in {{ discipline.1 }}</a></li>
-		      {% endif %}
-		    {% endwith %}
-		  {% endfor %}
-		</ul>
-	      {% endif %}
-	    {% endwith %}
+		</div>
+	      </div>
+	    </div>
 	  {% endfor %}
-	</div>
+	{% endif %}
+
+	{% for branch in scipost_disciplines %}
+	  {% with journals|journals_in_branch:branch.0 as journals_branch %}
+	    {% if journals_branch|length > 0%}
+	      <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
+		<div class="card my-4">
+		  <div class="card-header bg-dark text-white">
+		    <h3 class="p-2 m-0"><em>New Submission</em> <small class="text-info"><em>({{ branch.0 }})</em></small></h3>
+		  </div>
+		  <div class="card-body">
+		    <table class="table table-borderless mb-0">
+		      <tbody>
+			<tr><td></td></tr>
+			{% for discipline in branch.1 %}
+			  {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+			    {% if journals_disc|length > 0 %}
+			      <tr>
+				<td class="bg-primary"><a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' discipline=discipline.0 %}"><i class="fa fa-arrow-right"></i>&emsp;New submission in <strong>{{ discipline.1 }}</strong></a></td>
+			      </tr>
+			      <tr><td></td></tr>
+			    {% endif %}
+			  {% endwith %}
+			{% endfor %}
+		      </tbody>
+		    </table>
+		  </div>
+		</div>
+	      </div>
+	    {% endif %}
+	  {% endwith %}
+	{% endfor %}
       </div>
-
-      <!-- <div class="card">
-	   <div class="card-header">
-	   <h3 class="p-2 bg-success text-white"><em>New Submission</em></h3>
-	   <h3>Submit an arXiv preprint</h3>
-	   </div>
-	   <div class="card-body">
-	   </div>
-	   </div>
-	   <div class="card">
-	   <div class="card-header">
-	   <h3 class="p-2 bg-success text-white"><em>New Submission</em></h3>
-	   <h3>Submit directly to SciPost</h3>
-	   </div>
-	   <div class="card-body">
-	   </div>
-	   </div>
-	   </div> -->
-
+    </div>
   {% else %}
-      <h3>You are currently not allowed to submit a manuscript.</h3>
+    <h3>You are currently not allowed to submit a manuscript.</h3>
   {% endif %}
 {% endblock content %}

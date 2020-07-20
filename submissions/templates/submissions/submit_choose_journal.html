@@ -41,22 +41,27 @@
 
     <h2>Which Journal do you wish to {% if thread_hash %}send your resubmission{% else %}submit{% endif %} to?</h2>
     <br>
-    <div class="card-columns">
-      {% for journal in journals %}
-	<div class="card">
-	  <div class="card-header {{ journal.doi_label }}">
-	    <h3 class="m-2"><a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-	      {% if journal.has_DOAJ_Seal %}
-		<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
-	      {% endif %}
-	    </h3>
+
+    <div class="container">
+      <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
+	{% for journal in journals %}
+	  <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
+	    <div class="card">
+	      <div class="card-header {{ journal.doi_label }}">
+		<h3 class="m-2"><a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+		  {% if journal.has_DOAJ_Seal %}
+		    <a href="https://doaj.org" class="float-right" data-toggle="tooltip" title="{{ journal.name }} has received the Directory of Open Access Journals Seal"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+		  {% endif %}
+		</h3>
+	      </div>
+	      <div class="card-body">
+		<a class="btn btn-outline-primary m-2" role="button" href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View Description, Scope, Content and Acceptance Criteria</em></a>
+		<a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}"><i class="fa fa-arrow-right"></i>&emsp;Submit to {{ journal.name }}</a>
+	      </div>
+	    </div>
 	  </div>
-	  <div class="card-body">
-	    <a class="btn btn-outline-primary m-2" role="button" href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View Description, Scope, Content and Acceptance Criteria</em></a>
-	    <a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}"><i class="fa fa-arrow-right"></i> Submit to {{ journal.name }}</a>
-	  </div>
-	</div>
-      {% endfor %}
+	{% endfor %}
+      </div>
     </div>
 
   {% else %}

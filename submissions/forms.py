@@ -607,9 +607,9 @@ class SubmissionForm(forms.ModelForm):
             'is_resubmission_of', None) or data.get('is_resubmission_of')
         self.metadata = {} # container for possible external server-provided metadata
 
-        print("form args:\n", args)
-        print("form kwargs:\n", kwargs)
-        print("is_resubmission: %s" % self.is_resubmission())
+        # print("form args:\n", args)
+        # print("form kwargs:\n", kwargs)
+        # print("is_resubmission: %s" % self.is_resubmission())
 
         # data = args[0] if len(args) > 1 else kwargs.get('data', {})
         # identifier = kwargs['initial'].get('identifier_w_vn_nr', None) or data.get('identifier_w_vn_nr')
