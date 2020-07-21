@@ -326,6 +326,8 @@ class SubmissionForm(forms.ModelForm):
             'title',
             'author_list',
             'abstract',
+            'code_repository_url',
+            'data_repository_url',
             'author_comments',
             'list_of_changes',
             'remarks_for_editors',
@@ -337,7 +339,11 @@ class SubmissionForm(forms.ModelForm):
             'thread_hash': forms.HiddenInput(),
             'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
             'arxiv_link': forms.TextInput(
-                attrs={'placeholder': 'ex.:  arxiv.org/abs/1234.56789v1'}),
+                attrs={'placeholder': 'Full URL, ex.:  https://arxiv.org/abs/1234.56789v1'}),
+            'code_repository_url': forms.TextInput(
+                attrs={'placeholder': 'If applicable; please give the full URL'}),
+            'data_repository_url': forms.TextInput(
+                attrs={'placeholder': 'If applicable; please give the full URL'}),
             'remarks_for_editors': forms.Textarea(
                 attrs={'placeholder': 'Any private remarks (for the editors only)', 'rows': 5}),
             'referees_suggested': forms.Textarea(
@@ -413,6 +419,12 @@ class SubmissionForm(forms.ModelForm):
 
         if self.is_resubmission():
             check_resubmission_readiness(self.requested_by, cleaned_data['is_resubmission_of'])
+
+        if 'Codeb' in self.cleaned_data['submitted_to'].doi_label:
+            if not self.cleaned_data['code_repository_url']:
+                msg = 'You must specify a code repository if you submit to %s' \
+                    % self.cleaned_data['submitted_to'].name
+                self.add_error('code_repository_url', msg)
 
         if 'Proc' not in self.cleaned_data['submitted_to'].doi_label:
             try:

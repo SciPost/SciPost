@@ -101,6 +101,16 @@ class Submission(models.Model):
                                                   related_name='false_claimed_submissions')
     abstract = models.TextField()
 
+    # Links to associated code and data
+    code_repository_url = models.URLField(
+        blank=True,
+        help_text='Link to a code repository pertaining to your manuscript'
+    )
+    data_repository_url = models.URLField(
+        blank=True,
+        help_text='Link to a data repository pertaining to your manuscript'
+    )
+
     # Comments can be added to a Submission
     comments = GenericRelation('comments.Comment', related_query_name='submissions')
 

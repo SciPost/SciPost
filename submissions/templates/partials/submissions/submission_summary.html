@@ -34,6 +34,22 @@
       </td>
     </tr>
   {% endif %}
+  {% if submission.code_repository_url %}
+    <tr>
+      <td>Code repository:</td>
+      <td>
+	<a href="{{ submission.code_repository_url }}" target="_blank">{{ submission.code_repository_url }}</a>
+      </td>
+    </tr>
+  {% endif %}
+  {% if submission.data_repository_url %}
+    <tr>
+      <td>Data repository:</td>
+      <td>
+	<a href="{{ submission.data_repository_url }}" target="_blank">{{ submission.data_repository_url }}</a>
+      </td>
+    </tr>
+  {% endif %}
   {% if submission.acceptance_date %}
     <tr>
       <td>Date accepted:</td>

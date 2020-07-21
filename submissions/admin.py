@@ -114,6 +114,8 @@ class SubmissionAdmin(GuardedModelAdmin):
         ('Submission details', {
             'classes': ('collapse',),
             'fields': (
+                'code_repository_url',
+                'data_repository_url',
                 'author_comments',
                 'discipline',
                 'subject_area',
