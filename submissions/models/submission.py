@@ -72,7 +72,6 @@ class Submission(models.Model):
     is_resubmission_of = models.ForeignKey('self', blank=True, null=True,
                                            on_delete=models.SET_NULL, related_name='successor')
     thread_hash = models.UUIDField(default=uuid.uuid4)
-    _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
 

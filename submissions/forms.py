@@ -509,7 +509,6 @@ class SubmissionForm(forms.ModelForm):
 
         # Open for comment and reporting and copy EIC info
         Submission.objects.filter(id=submission.id).update(
-            _is_resubmission=True,
             open_for_reporting=True,
             open_for_commenting=True,
             visible_public=previous_submission.visible_public,
