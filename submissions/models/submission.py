@@ -126,7 +126,7 @@ class Submission(models.Model):
     metadata = JSONField(default=dict, blank=True, null=True)
     submission_date = models.DateTimeField(
         verbose_name='submission date',
-        default=datetime.datetime.now)
+        default=timezone.now)
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
