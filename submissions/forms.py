@@ -512,6 +512,7 @@ class SubmissionForm(forms.ModelForm):
             _is_resubmission=True,
             open_for_reporting=True,
             open_for_commenting=True,
+            visible_public=previous_submission.visible_public,
             visible_pool=True,
             refereeing_cycle=CYCLE_UNDETERMINED,
             editor_in_charge=previous_submission.editor_in_charge,
@@ -897,7 +898,10 @@ class EditorialAssignmentForm(forms.ModelForm):
                 # Refresh the instance
                 self.instance.submission = Submission.objects.get(id=self.submission.id)
             else:
-                # Short Refereeing process
+                # Direct editorial recommendation
+                visible_public = False
+                if self.instance.submission.is_resubmission_of:
+                    visible_public = self.instance.submission.is_resubmission_of.visible_public
                 Submission.objects.filter(id=self.submission.id).update(
                     refereeing_cycle=CYCLE_DIRECT_REC,
                     status=STATUS_EIC_ASSIGNED,
@@ -905,7 +909,7 @@ class EditorialAssignmentForm(forms.ModelForm):
                     reporting_deadline=timezone.now(),
                     open_for_reporting=False,
                     open_for_commenting=True,
-                    visible_public=False,
+                    visible_public=visible_public,
                     latest_activity=timezone.now())
                 # Refresh the instance
                 self.instance.submission = Submission.objects.get(id=self.submission.id)
@@ -1275,10 +1279,16 @@ class EICRecommendationForm(forms.ModelForm):
                     'If you recommend Publish, please also provide a Tier.')
 
     def save(self):
+        # If the cycle hadn't been chosen, set it to the DirectCycle
+        if not self.submission.refereeing_cycle:
+            self.submission.refereeing_cycle = CYCLE_DIRECT_REC
+            self.submission.save()
+
         recommendation = super().save(commit=False)
         recommendation.submission = self.submission
         recommendation.voting_deadline += datetime.timedelta(days=self.DAYS_TO_VOTE)  # Test this
         recommendation.version = len(self.earlier_recommendations) + 1
+
 
         # Delete any previous tierings (irrespective of new/updated recommendation):
         SubmissionTiering.objects.filter(
@@ -1472,7 +1482,9 @@ class RestartRefereeingForm(forms.Form):
 
 
 class SubmissionCycleChoiceForm(forms.ModelForm):
-    """Make a decision on the Submission's cycle and make publicly available."""
+    """
+    For the EIC to take a decision on the Submission's cycle. Used for resubmissions only.
+    """
 
     referees_reinvite = forms.ModelMultipleChoiceField(
         queryset=RefereeInvitation.objects.none(),
@@ -1492,11 +1504,6 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         if other_submissions:
             self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
                 submission__in=other_submissions).distinct()
-
-    def save(self):
-        """Make Submission publicly available after decision."""
-        self.instance.visible_public = True
-        return super().save()
 
 
 class iThenticateReportForm(forms.ModelForm):
