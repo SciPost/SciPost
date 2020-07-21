@@ -61,7 +61,6 @@ class SubmissionAdmin(GuardedModelAdmin):
     list_filter = (
         'status',
         'discipline',
-        'submission_type',
         'submitted_to'
     )
     search_fields = [
@@ -94,8 +93,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     radio_fields = {
         "discipline": admin.VERTICAL,
         "submitted_to": admin.VERTICAL,
-        "refereeing_cycle": admin.HORIZONTAL,
-        "submission_type": admin.VERTICAL
+        "refereeing_cycle": admin.HORIZONTAL
     }
     fieldsets = (
         (None, {
@@ -103,8 +101,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'preprint',
                 'publication',
                 'title',
-                'abstract',
-                'submission_type'),
+                'abstract'),
         }),
         ('Versioning', {
             'fields': (

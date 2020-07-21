@@ -51,13 +51,6 @@ NO_REQUIRED_ACTION_STATUSES = [
     STATUS_WITHDRAWN,
 ]
 
-SUBMISSION_TYPE = (
-    # ('', None),
-    ('Letter', 'Letter (broad-interest breakthrough results)'),
-    ('Article', 'Article (in-depth reports on specialized research)'),
-    ('Review', 'Review (candid snapshot of current research in a given area)'),
-)
-
 ED_COMM_CHOICES = (
     ('EtoA', 'Editor-in-charge to Author'),
     ('EtoR', 'Editor-in-charge to Referee'),

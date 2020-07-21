@@ -23,7 +23,6 @@ from comments.models import Comment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    SUBMISSION_TYPE,
     SUBMISSION_STATUS, STATUS_INCOMING, STATUS_UNASSIGNED, STATUS_PREASSIGNED,
     STATUS_EIC_ASSIGNED, SUBMISSION_UNDER_CONSIDERATION,
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
@@ -80,7 +79,6 @@ class Submission(models.Model):
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
 
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, blank=True)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,

@@ -244,7 +244,6 @@ class SciPostPrefillForm(SubmissionPrefillForm):
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'secondary_areas': self.latest_submission.secondary_areas,
                 'subject_area': self.latest_submission.subject_area,
-                'submission_type': self.latest_submission.submission_type,
             })
         return form_data
 
@@ -293,7 +292,6 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'secondary_areas': self.latest_submission.secondary_areas,
                 'subject_area': self.latest_submission.subject_area,
-                'submission_type': self.latest_submission.submission_type,
             })
         return form_data
 
@@ -322,7 +320,6 @@ class SubmissionForm(forms.ModelForm):
             'discipline',
             'submitted_to',
             'proceedings',
-            'submission_type',
             'subject_area',
             'secondary_areas',
             'approaches',
@@ -449,16 +446,6 @@ class SubmissionForm(forms.ModelForm):
         if self.preprint_server == 'arXiv':
             self.arxiv_data, self.metadata, identifier = check_arxiv_identifier_w_vn_nr(identifier)
         return identifier
-
-    def clean_submission_type(self):
-        """
-        Validate Submission type for the SciPost Physics journal.
-        """
-        submission_type = self.cleaned_data['submission_type']
-        journal_doi_label = self.cleaned_data['submitted_to'].doi_label
-        if journal_doi_label == 'SciPostPhys' and not submission_type:
-            self.add_error('submission_type', 'Please specify the submission type.')
-        return submission_type
 
     @transaction.atomic
     def save(self):

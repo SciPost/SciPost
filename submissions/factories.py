@@ -13,7 +13,7 @@ from journals.models import Journal
 from common.helpers import random_scipost_report_doi_label
 
 from .constants import (
-    STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED, SUBMISSION_TYPE,
+    STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED,
     STATUS_RESUBMITTED, STATUS_VETTED, REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC,
     REPORT_REC, REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT, ASSIGNMENT_STATUSES)
 from .models import Submission, Report, RefereeInvitation, EICRecommendation, EditorialAssignment
@@ -28,7 +28,6 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
     author_list = factory.Faker('name')
     submitted_by = factory.SubFactory('scipost.factories.ContributorFactory')
-    submission_type = factory.Iterator(SUBMISSION_TYPE, getter=lambda c: c[0])
     submitted_to = factory.SubFactory('journals.factories.JournalFactory')
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
@@ -159,7 +158,6 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         self.author_list = submission.author_list
         self.submitted_by = submission.submitted_by
         self.editor_in_charge = submission.editor_in_charge
-        self.submission_type = submission.submission_type
         self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.subject_area = submission.subject_area
@@ -212,7 +210,6 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         self.author_list = submission.author_list
         self.submitted_by = submission.submitted_by
         self.editor_in_charge = submission.editor_in_charge
-        self.submission_type = submission.submission_type
         self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.subject_area = submission.subject_area
