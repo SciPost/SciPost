@@ -468,11 +468,8 @@ class SubmissionForm(forms.ModelForm):
         submission.submitted_by = self.requested_by.contributor
 
         # Save identifiers
-        identifiers = self.cleaned_data['identifier_w_vn_nr'].rpartition('v')
         preprint, __ = Preprint.objects.get_or_create(
             identifier_w_vn_nr=self.cleaned_data['identifier_w_vn_nr'],
-            identifier_wo_vn_nr=identifiers[0],
-            vn_nr=identifiers[2],
             url=self.cleaned_data.get('arxiv_link', ''),
             _file=self.cleaned_data.get('preprint_file', None), )
 

@@ -140,7 +140,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         """
         if create and extracted is not False:
             # Prevent infinite loops by checking the extracted argument
-            ResubmissionFactory(preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr,
+            ResubmissionFactory(thread_hash=self.thread_hash,
                                 previous_submission=False)
 
     @factory.post_generation
@@ -150,8 +150,8 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         more or less looks like any regular real resubmission.
         """
         submission = Submission.objects.filter(
-            preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(
-            preprint__vn_nr=self.preprint.vn_nr).first()
+            thread_hash=self.thread_hash).exclude(
+            pk=self.id).first()
         if not submission:
             return
 
@@ -192,7 +192,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         if create and extracted is not False:
             # Prevent infinite loops by checking the extracted argument
             ResubmittedSubmissionFactory(
-                preprint__identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr,
+                thread_hash=self.thread_hash,
                 successive_submission=False)
 
     @factory.post_generation
@@ -202,8 +202,8 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         more or less looks like any regular real resubmission.
         """
         submission = Submission.objects.filter(
-            identifier_wo_vn_nr=self.preprint.identifier_wo_vn_nr).exclude(
-            preprint__vn_nr=self.preprint.vn_nr).first()
+            thread_hash=self.thread_hash).exclude(
+            pk=self.id).first()
         if not submission:
             return
 
