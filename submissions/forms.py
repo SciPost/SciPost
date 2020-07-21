@@ -416,24 +416,24 @@ class SubmissionForm(forms.ModelForm):
 
         # SciPost preprints are auto-generated here.
         if 'identifier_w_vn_nr' not in cleaned_data:
-            self.cleaned_data['identifier_w_vn_nr'] = get_new_scipost_identifier(
+            cleaned_data['identifier_w_vn_nr'] = get_new_scipost_identifier(
                 thread_hash=self.thread_hash)
 
         if self.is_resubmission():
             check_resubmission_readiness(self.requested_by, cleaned_data['is_resubmission_of'])
 
-        if 'Codeb' in self.cleaned_data['submitted_to'].doi_label:
-            if not self.cleaned_data['code_repository_url']:
+        if 'Codeb' in cleaned_data['submitted_to'].doi_label:
+            if not cleaned_data['code_repository_url']:
                 msg = 'You must specify a code repository if you submit to %s' \
-                    % self.cleaned_data['submitted_to'].name
+                    % cleaned_data['submitted_to'].name
                 self.add_error('code_repository_url', msg)
 
-        if 'Proc' not in self.cleaned_data['submitted_to'].doi_label:
+        if 'Proc' not in cleaned_data['submitted_to'].doi_label:
             try:
                 del self.cleaned_data['proceedings']
             except KeyError:
                 # No proceedings returned to data
-                return cleaned_data
+                pass
         return cleaned_data
 
     def clean_author_list(self):
@@ -451,6 +451,30 @@ class SubmissionForm(forms.ModelForm):
                              'You are not authorized to submit this preprint.')
             self.add_error('author_list', error_message)
         return author_list
+
+    def clean_code_repository_url(self):
+        """
+        Prevent having well-known servers in list.
+        """
+        code_repository_url = self.cleaned_data['code_repository_url']
+
+        if 'arxiv.org' in str(code_repository_url).lower():
+            error_message = ('ArXiv.org is not a code repository; '
+                             'did you perhaps use the wrong form field?')
+            self.add_error('code_repository_url', error_message)
+        return code_repository_url
+
+    def clean_data_repository_url(self):
+        """
+        Prevent having well-known servers in list.
+        """
+        data_repository_url = self.cleaned_data['data_repository_url']
+
+        if 'arxiv.org' in str(data_repository_url).lower():
+            error_message = ('ArXiv.org is not a data repository; '
+                             'did you perhaps use the wrong form field?')
+            self.add_error('data_repository_url', error_message)
+        return data_repository_url
 
     def clean_identifier_w_vn_nr(self):
         identifier = self.cleaned_data.get('identifier_w_vn_nr', None)
