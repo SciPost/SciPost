@@ -17,18 +17,20 @@ from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
-    SUBMISSION_STATUS, PUT_TO_VOTING, CYCLE_UNDETERMINED,
-    SUBMISSION_CYCLE_CHOICES,
+    SUBMISSION_STATUS, PUT_TO_VOTING,
+    SUBMISSION_CYCLE_CHOICES, CYCLE_UNDETERMINED,
+    CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,
     EIC_REC_PUBLISH, EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION, EIC_REC_REJECT,
     ALT_REC_CHOICES, SUBMISSION_TIERS,
     STATUS_VETTED, DECISION_FIXED, DEPRECATED, STATUS_COMPLETED,
-    STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC, STATUS_PREASSIGNED, STATUS_REPLACED,
+    STATUS_EIC_ASSIGNED,
+    STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED,
     STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
-    Submission, PreprintServer,
+    Submission,
     RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
@@ -507,10 +509,10 @@ class SubmissionForm(forms.ModelForm):
         # Copy Topics
         submission.topics.add(*previous_submission.topics.all())
 
-        # Open for comment and reporting and copy EIC info
+        # Open for comments (reports: opened upon cycle choice) and copy EIC info
         Submission.objects.filter(id=submission.id).update(
-            open_for_reporting=True,
             open_for_commenting=True,
+            open_for_reporting=False,
             visible_public=previous_submission.visible_public,
             visible_pool=True,
             refereeing_cycle=CYCLE_UNDETERMINED,
@@ -1503,6 +1505,14 @@ class SubmissionCycleChoiceForm(forms.ModelForm):
         if other_submissions:
             self.fields['referees_reinvite'].queryset = RefereeInvitation.objects.filter(
                 submission__in=other_submissions).distinct()
+
+    def save(self):
+        """
+        If the cycle is for a normal or short refereeing round, open the sub for reporting.
+        """
+        if self.cleaned_data['refereeing_cycle'] in [CYCLE_DEFAULT, CYCLE_SHORT]:
+            self.instance.open_for_reporting = True
+        return super().save()
 
 
 class iThenticateReportForm(forms.ModelForm):
