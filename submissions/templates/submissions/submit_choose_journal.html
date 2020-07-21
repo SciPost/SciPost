@@ -54,7 +54,7 @@
 		  {% endif %}
 		</h3>
 	      </div>
-	      <div class="card-body">
+	      <div class="card-body text-center">
 		<a class="btn btn-outline-primary m-2" role="button" href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View Description, Scope, Content and Acceptance Criteria</em></a>
 		<a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}"><i class="fa fa-arrow-right"></i>&emsp;Submit to {{ journal.name }}</a>
 	      </div>

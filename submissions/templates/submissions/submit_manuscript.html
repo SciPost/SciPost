@@ -53,6 +53,13 @@
 		  {% if not submission.open_for_resubmission %}
 		    <p class="bg-dark border-warning text-warning p-3 mb-0"><strong><i class="fa fa-warning text-danger"></i> This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before resubmitting.</strong></p>
 		  {% else %}
+		    {% if not request.user == submission.submitted_by.user %}
+		      <p class="bg-dark p-2 text-white text-center">
+			Corresponding author: {{ submission.submitted_by }}.<br>
+			<em class="text-warning">
+			  As a confirmed author, you have the right to resubmit.</em>
+		      </p>
+		    {% endif %}
 		    <table class="table mb-0">
 		      <tbody>
 			<tr><td class="bg-primary">
