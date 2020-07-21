@@ -2,6 +2,6 @@
 
 {% block card_footer %}
   <div class="meta">
-    Submitted {{submission.submission_date}} to {{submission.submitted_to}}
+    Submitted {{ submission.submission_date|date:'Y-m-d' }} to {{ submission.submitted_to }}
   </div>
 {% endblock %}
