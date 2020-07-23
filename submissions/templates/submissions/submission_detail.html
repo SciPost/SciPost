@@ -3,6 +3,7 @@
 {% load scipost_extras %}
 {% load submissions_extras %}
 {% load bootstrap %}
+{% load automarkup %}
 
 {% block pagetitle %} Submission: {{ submission.title|truncatechars:40 }}{% endblock pagetitle %}
 
@@ -125,7 +126,7 @@
       {% if submission.author_comments %}
 	<h3>Author comments upon resubmission</h3>
 	<div class="blockquote">
-	  {{ submission.author_comments|linebreaksbr }}
+	  {{ submission.author_comments|automarkup_fallback }}
 	</div>
       {% endif %}
 

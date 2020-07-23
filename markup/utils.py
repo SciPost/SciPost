@@ -343,8 +343,17 @@ def apply_markdown_preserving_displayed_maths(text):
         apply_markdown_preserving_displayed_maths(part2[2]) if len(part2[2]) > 0 else '')
 
 
-def process_markup(text, language_forced=None):
+def process_markup(text, language_forced=None, fallback=False):
+    """
+    Process a text in a markup language into HTML.
 
+    The markup language used is auto-detected.
+    Supported: plain text, reStructuredTest, Markdown.
+
+    Parameters:
+    * `language_forced=None`: override language auto-detection
+    * `fallback=False`: whether the processor should fall back to plain text if errors are detected
+    """
     markup_detector = detect_markup_language(text)
 
     markup = {
@@ -364,6 +373,9 @@ def process_markup(text, language_forced=None):
     markup['errors'] = markup_detector['errors']
 
     if markup['errors']:
+        # if language wasn't plain text and fallback is True, return as plain text:
+        if markup['language'] != 'plain' and fallback:
+            markup['processed'] = linebreaksbr(text)
         return markup
 
     if language == 'reStructuredText':
