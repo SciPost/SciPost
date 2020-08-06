@@ -418,7 +418,6 @@ def submission_detail_wo_vn_nr(request, identifier_wo_vn_nr):
     submissions = get_list_or_404(
         Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr)
     latest = submissions[0].get_latest_version()
-    print(latest)
     return redirect(reverse('submissions:submission',
                             kwargs={ 'identifier_w_vn_nr': latest.preprint.identifier_w_vn_nr }))
 
