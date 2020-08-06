@@ -413,6 +413,16 @@ class SubmissionListView(PaginationMixin, ListView):
         return context
 
 
+def submission_detail_wo_vn_nr(request, identifier_wo_vn_nr):
+    """Redirect to the latest Submission's detail page."""
+    submissions = get_list_or_404(
+        Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr)
+    latest = submissions[0].get_latest_version()
+    print(latest)
+    return redirect(reverse('submissions:submission',
+                            kwargs={ 'identifier_w_vn_nr': latest.preprint.identifier_w_vn_nr }))
+
+
 def submission_detail(request, identifier_w_vn_nr):
     """Public detail page of Submission."""
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
