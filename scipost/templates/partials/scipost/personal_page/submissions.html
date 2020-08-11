@@ -7,7 +7,7 @@
           {% if nr_submission_authorships_to_claim > 0 %}
             <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim }})</a></li>
           {% endif %}
-          <li><a href="{% url 'submissions:submit_manuscript' %}">Submit an arXiv preprint to a SciPost Journal</a></li>
+          <li><a href="{% url 'submissions:submit_manuscript' %}">Submit to a SciPost Journal</a></li>
         </ul>
       </div>
     </div>
@@ -31,7 +31,7 @@
               <p class="card-text mt-1">
 		<ul>
                   {% if sub.open_for_resubmission %}
-                    <li>To resubmit, go to the <a href="{% url 'submissions:resubmit_manuscript' %}">resubmission page</a></li>
+                    <li><a href="{% url 'submissions:submit_choose_journal' discipline=sub.discipline %}?thread_hash={{ sub.thread_hash }}"><i class="fa fa-arrow-right"></i> resubmit</a></li>
                   {% endif %}
 		  {% if sub.under_consideration %}
                     {% if sub.editor_in_charge %}

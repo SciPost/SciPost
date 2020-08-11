@@ -52,7 +52,7 @@
     <div class="col-md-2">
       <small class="text-muted">Original submission date</small>
       <br>
-      {{ submission.original_submission_date }}
+      {{ submission.original_submission_date|date:'Y-m-d' }}
     </div>
     <div class="col-md-2">
       <small class="text-muted">Latest activity</small>
@@ -76,7 +76,7 @@
   {% if submission.cycle.has_required_actions %}
     <div class="card-text bg-danger text-white mt-1 py-1 px-2">
       <button type="button" class="btn btn-link p-0" data-href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" data-toggle="modal" data-target="#modal_{{ submission.id }}" data-target-body="#modal_{{ submission.id }}_body"><small class="text-white">This Submission contains required actions, click here to see details.</small></button>
-      {% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}
+      {% if is_editorial_admin %}{% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
     </div>
   {% endif %}
 

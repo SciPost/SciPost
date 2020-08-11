@@ -32,6 +32,8 @@ class Proceedings(TimeStampedModel):
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
     logo = models.ImageField(upload_to='proceedings/images/', blank=True)
+    picture = models.ImageField(upload_to='proceedings/images/', blank=True)
+    picture_credit = models.CharField(max_length=512, blank=True)
     cover_image = models.ImageField(upload_to='proceedings/images/', blank=True)
 
     # Fellows

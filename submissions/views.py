@@ -34,12 +34,14 @@ from .constants import (
     EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
-    Submission, EICRecommendation, SubmissionTiering, AlternativeRecommendation,
+    Submission, PreprintServer,
+    EICRecommendation, SubmissionTiering, AlternativeRecommendation,
     EditorialDecision,
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    SubmissionIdentifierForm, SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    ArXivPrefillForm, SciPostPrefillForm,
+    SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
@@ -100,7 +102,7 @@ class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
         if item.is_current:
             end_info = ' (current version)'
         else:
-            end_info = ' (deprecated version ' + str(item.preprint.vn_nr) + ')'
+            end_info = ' (deprecated version ' + str(item.thread_sequence_order) + ')'
         if hasattr(item, 'publication') and item.publication.is_published:
             end_info += ' (published as %s (%s))' % (
                 item.publication.doi_string, item.publication.publication_date.strftime('%Y'))
@@ -113,42 +115,65 @@ class SubmissionAutocompleteView(autocomplete.Select2QuerySetView):
         )
 
 
-###############
-# SUBMISSIONS:
-###############
+###################
+#
+# Submission views
+#
+###################
+
 @login_required
-@is_contributor_user()
-def resubmit_manuscript(request):
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
+def submit_manuscript(request):
     """
-    Choose which Submission to resubmit if Submission is available.
-
-    On POST, redirect to submit page.
+    Initiate submission by choosing either resubmission or new submission process.
     """
-    submissions = get_list_or_404(
-        Submission.objects.candidate_for_resubmission(request.user))
-    if request.POST and request.POST.get('submission'):
-        if request.POST['submission'] == 'new':
-            return redirect(reverse('submissions:submit_manuscript_scipost') + '?resubmission=false')
-
-        last_submission = Submission.objects.candidate_for_resubmission(request.user).filter(
-            id=request.POST['submission']).first()
-
-        if last_submission:
-            if last_submission.preprint.scipost_preprint_identifier:
-                # Determine right preprint-view.
-                extra_param = '?resubmission={}'.format(request.POST['submission'])
-                return redirect(reverse('submissions:submit_manuscript_scipost') + extra_param)
-            else:
-                extra_param = '?identifier_w_vn_nr={}'.format(
-                    last_submission.preprint.identifier_w_vn_nr)
-                return redirect(reverse('submissions:submit_manuscript') + extra_param)
-        else:
-            # POST request invalid. Try again with GET request.
-            return redirect('submissions:resubmit_manuscript')
+    # For each integrated preprint server, redirect to appropriate view
     context = {
-        'submissions': submissions,
+        'journals': Journal.objects.submission_allowed(),
+        'resubmission_candidates': Submission.objects.candidate_for_resubmission(request.user)
     }
-    return render(request, 'submissions/submission_resubmission_candidates.html', context)
+    return render(request, 'submissions/submit_manuscript.html', context)
+
+
+@login_required
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
+def submit_choose_journal(request, discipline=None):
+    """
+    Choose a Journal. If `thread_hash` is given as GET parameter, this is a resubmission.
+    """
+    journals = Journal.objects.submission_allowed()
+    if discipline:
+        journals = journals.filter(discipline=discipline)
+    context = {
+        'journals': journals,
+    }
+    if request.GET.get('thread_hash'):
+        context['thread_hash'] = request.GET.get('thread_hash')
+    return render(request, 'submissions/submit_choose_journal.html', context)
+
+
+@login_required
+@permission_required('scipost.can_submit_manuscript', raise_exception=True)
+def submit_choose_preprint_server(request, journal_doi_label):
+    """
+    Choose a preprint server. If `thread_hash` is given as a GET parameter, this is a resubmission.
+    """
+    journal = get_object_or_404(Journal, doi_label=journal_doi_label)
+    preprint_servers = PreprintServer.objects.filter(disciplines__contains=[journal.discipline])
+    thread_hash = request.GET.get('thread_hash') or None
+    # Each integrated preprint server has a prefill form:
+    scipost_prefill_form = SciPostPrefillForm(
+        requested_by=request.user, journal_doi_label=journal_doi_label, thread_hash=thread_hash)
+    arxiv_prefill_form = ArXivPrefillForm(
+        requested_by=request.user, journal_doi_label=journal_doi_label, thread_hash=thread_hash)
+    context = {
+        'journal': journal,
+        'thread_hash': thread_hash,
+        'preprint_servers': preprint_servers,
+        'scipost_prefill_form': scipost_prefill_form,
+        'arxiv_prefill_form': arxiv_prefill_form,
+    }
+    return render(request, 'submissions/submit_choose_preprint_server.html', context)
 
 
 class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
@@ -158,6 +183,41 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     success_url = reverse_lazy('scipost:personal_page')
     form_class = SubmissionForm
     template_name = 'submissions/submission_form.html'
+
+    def __init__(self, **kwargs):
+        self.prefill_form = None
+        self.initial_data = {}
+        super().__init__(**kwargs)
+
+    def get(self, request, journal_doi_label):
+        """
+        Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
+        """
+        if self.prefill_form.is_valid():
+            if self.prefill_form.is_resubmission():
+                resubmessage = ('An earlier preprint was found within this submission thread.'
+                                '\nYour Submission will thus be handled as a resubmission.'
+                                '\nWe have pre-filled the form where possible. '
+                                'Please check everything carefully!')
+                messages.success(request, resubmessage, fail_silently=True)
+            else:
+                if self.prefill_form.preprint_server == 'arXiv':
+                    readymessage = ('We have pre-filled the form where possible. '
+                                    'Please check everything carefully!')
+                else:
+                    readymessage = 'Your submission form is now ready to be filled in.'
+                messages.success(request, readymessage, fail_silently=True)
+            # Gather data from ArXiv API if prefill form is valid
+            self.initial_data = self.prefill_form.get_prefill_data()
+            return super().get(request)
+        else:
+            for code, err in self.prefill_form.errors.items():
+                messages.warning(request, err[0])
+            kwargs = { 'journal_doi_label': journal_doi_label }
+            redirect_url = reverse('submissions:submit_choose_preprint_server', kwargs=kwargs)
+            if request.GET.get('thread_hash'):
+                redirect_url += '?thread_hash=%s' % request.GET.get('thread_hash')
+            return redirect(redirect_url)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
@@ -170,7 +230,6 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
         kwargs['initial'] = getattr(self, 'initial_data', {})
-        kwargs['initial']['resubmission'] = self.request.GET.get('resubmission')
         return kwargs
 
     @transaction.atomic
@@ -203,74 +262,42 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         return super().form_invalid(form)
 
 
-class RequestSubmissionUsingArXivView(RequestSubmissionView):
-    """Formview to submit a new Submission using arXiv."""
-
-    def get(self, request):
-        """
-        Redirect to the arXiv prefill form if arXiv ID is not known.
-        """
-        form = SubmissionIdentifierForm(request.GET or None, requested_by=self.request.user)
-        if form.is_valid():
-            # Gather data from ArXiv API if prefill form is valid
-            self.initial_data = form.get_initial_submission_data()
-            return super().get(request)
-        else:
-            for code, err in form.errors.items():
-                messages.warning(request, err[0])
-            return redirect('submissions:prefill_using_identifier')
-
-    def get_form_kwargs(self):
-        """Form requires extra kwargs."""
-        kwargs = super().get_form_kwargs()
-        kwargs['preprint_server'] = 'arxiv'
-        return kwargs
-
-
 class RequestSubmissionUsingSciPostView(RequestSubmissionView):
     """Formview to submit a new Submission using SciPost's preprint server."""
 
-    def get(self, request):
-        """Check for possible Resubmissions before dispatching."""
-        if Submission.objects.candidate_for_resubmission(request.user).exists():
-            if not request.GET.get('resubmission'):
-                return redirect('submissions:resubmit_manuscript')
-        return super().get(request)
+    def get(self, request, journal_doi_label):
+        self.prefill_form = SciPostPrefillForm(
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
 
     def get_form_kwargs(self):
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
-        # kwargs['use_arxiv_preprint'] = False
-        kwargs['preprint_server'] = 'scipost'
+        kwargs['preprint_server'] = 'SciPost'
         return kwargs
 
 
-@login_required
-@permission_required('scipost.can_submit_manuscript', raise_exception=True)
-def prefill_using_arxiv_identifier(request):
-    """Form view asking for the arXiv ID related to the new Submission to submit."""
-    query_form = SubmissionIdentifierForm(request.POST or None, initial=request.GET or None,
-                                          requested_by=request.user)
+class RequestSubmissionUsingArXivView(RequestSubmissionView):
+    """Formview to submit a new Submission using arXiv."""
 
-    if query_form.is_valid():
-        # Submit message to user
-        if query_form.service.is_resubmission():
-            resubmessage = ('There already exists a preprint with this arXiv identifier '
-                            'but a different version number. \nYour Submission will be '
-                            'handled as a resubmission.')
-            messages.success(request, resubmessage, fail_silently=True)
-        else:
-            messages.success(request, strings.acknowledge_arxiv_query, fail_silently=True)
+    def get(self, request, journal_doi_label):
+        """
+        Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
+        """
+        self.prefill_form = ArXivPrefillForm(
+            request.GET or None,
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
 
-        response = redirect('submissions:submit_manuscript_arxiv')
-        response['location'] += '?identifier_w_vn_nr={}'.format(
-            query_form.cleaned_data['identifier_w_vn_nr'])
-        return response
-
-    context = {
-        'form': query_form,
-    }
-    return render(request, 'submissions/submission_prefill_form.html', context)
+    def get_form_kwargs(self):
+        """Form requires extra kwargs."""
+        kwargs = super().get_form_kwargs()
+        kwargs['preprint_server'] = 'arXiv'
+        return kwargs
 
 
 @login_required
@@ -388,9 +415,11 @@ class SubmissionListView(PaginationMixin, ListView):
 
 def submission_detail_wo_vn_nr(request, identifier_wo_vn_nr):
     """Redirect to the latest Submission's detail page."""
-    submission = get_object_or_404(Submission, preprint__identifier_wo_vn_nr=identifier_wo_vn_nr,
-                                   is_current=True)
-    return submission_detail(request, submission.preprint.identifier_w_vn_nr)
+    submissions = get_list_or_404(
+        Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr)
+    latest = submissions[0].get_latest_version()
+    return redirect(reverse('submissions:submission',
+                            kwargs={ 'identifier_w_vn_nr': latest.preprint.identifier_w_vn_nr }))
 
 
 def submission_detail(request, identifier_w_vn_nr):

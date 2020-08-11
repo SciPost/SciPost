@@ -23,7 +23,6 @@ from comments.models import Comment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    SUBMISSION_TYPE,
     SUBMISSION_STATUS, STATUS_INCOMING, STATUS_UNASSIGNED, STATUS_PREASSIGNED,
     STATUS_EIC_ASSIGNED, SUBMISSION_UNDER_CONSIDERATION,
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
@@ -73,14 +72,12 @@ class Submission(models.Model):
     is_resubmission_of = models.ForeignKey('self', blank=True, null=True,
                                            on_delete=models.SET_NULL, related_name='successor')
     thread_hash = models.UUIDField(default=uuid.uuid4)
-    _is_resubmission = models.BooleanField(default=False)
     refereeing_cycle = models.CharField(
         max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
 
     fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
                                      related_name='pool')
 
-    submission_type = models.CharField(max_length=10, choices=SUBMISSION_TYPE, blank=True)
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
     voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
@@ -103,6 +100,16 @@ class Submission(models.Model):
                                                   related_name='false_claimed_submissions')
     abstract = models.TextField()
 
+    # Links to associated code and data
+    code_repository_url = models.URLField(
+        blank=True,
+        help_text='Link to a code repository pertaining to your manuscript'
+    )
+    data_repository_url = models.URLField(
+        blank=True,
+        help_text='Link to a data repository pertaining to your manuscript'
+    )
+
     # Comments can be added to a Submission
     comments = GenericRelation('comments.Comment', related_query_name='submissions')
 
@@ -112,18 +119,14 @@ class Submission(models.Model):
         'submissions.iThenticateReport', on_delete=models.SET_NULL,
         null=True, blank=True, related_name='to_submission')
 
-    # Arxiv identifiers with/without version number
-    arxiv_identifier_w_vn_nr = models.CharField(max_length=15, default='0000.00000v0')
-    arxiv_identifier_wo_vn_nr = models.CharField(max_length=10, default='0000.00000')
-    arxiv_vn_nr = models.PositiveSmallIntegerField(default=1)
-    arxiv_link = models.URLField(verbose_name='arXiv link (including version nr)')
-
     pdf_refereeing_pack = models.FileField(upload_to='UPLOADS/REFEREE/%Y/%m/',
                                            max_length=200, blank=True)
 
     # Metadata
     metadata = JSONField(default=dict, blank=True, null=True)
-    submission_date = models.DateField(verbose_name='submission date', default=datetime.date.today)
+    submission_date = models.DateTimeField(
+        verbose_name='submission date',
+        default=timezone.now)
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
@@ -155,7 +158,7 @@ class Submission(models.Model):
         if self.is_current:
             header += ' (current version)'
         else:
-            header += ' (deprecated version ' + str(self.preprint.vn_nr) + ')'
+            header += ' (deprecated version ' + str(self.thread_sequence_order) + ')'
         if hasattr(self, 'publication') and self.publication.is_published:
             header += ' (published as %s (%s))' % (
                 self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
@@ -320,10 +323,15 @@ class Submission(models.Model):
         return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
             '-submission_date', '-preprint__vn_nr')
 
+    @property
+    def thread_sequence_order(self):
+        """Return the ordering of this Submission within its thread."""
+        return self.thread.filter(submission_date__lt=self.submission_date).count() + 1
+
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this thread."""
-        return self.get_other_versions().order_by('-preprint__vn_nr')
+        return self.get_other_versions().order_by('-submission_date', '-preprint__vn_nr')
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this thread."""

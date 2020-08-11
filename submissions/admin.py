@@ -11,13 +11,16 @@ from guardian.admin import GuardedModelAdmin
 from submissions.models import (
     Submission, EditorialAssignment, RefereeInvitation, Report, EditorialCommunication,
     EICRecommendation, SubmissionTiering, AlternativeRecommendation, EditorialDecision,
-    SubmissionEvent, iThenticateReport)
+    SubmissionEvent, iThenticateReport, PreprintServer)
 from scipost.models import Contributor
 from colleges.models import Fellowship
 
 
 def submission_short_title(obj):
     return obj.submission.title[:30]
+
+
+admin.site.register(PreprintServer)
 
 
 class iThenticateReportAdmin(admin.ModelAdmin):
@@ -58,7 +61,6 @@ class SubmissionAdmin(GuardedModelAdmin):
     list_filter = (
         'status',
         'discipline',
-        'submission_type',
         'submitted_to'
     )
     search_fields = [
@@ -91,8 +93,7 @@ class SubmissionAdmin(GuardedModelAdmin):
     radio_fields = {
         "discipline": admin.VERTICAL,
         "submitted_to": admin.VERTICAL,
-        "refereeing_cycle": admin.HORIZONTAL,
-        "submission_type": admin.VERTICAL
+        "refereeing_cycle": admin.HORIZONTAL
     }
     fieldsets = (
         (None, {
@@ -100,20 +101,20 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'preprint',
                 'publication',
                 'title',
-                'abstract',
-                'submission_type'),
+                'abstract'),
         }),
         ('Versioning', {
             'fields': (
                 'thread_hash',
                 'is_current',
-                '_is_resubmission',
                 'is_resubmission_of',
                 'list_of_changes'),
         }),
         ('Submission details', {
             'classes': ('collapse',),
             'fields': (
+                'code_repository_url',
+                'data_repository_url',
                 'author_comments',
                 'discipline',
                 'subject_area',

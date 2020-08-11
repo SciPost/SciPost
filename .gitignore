@@ -30,13 +30,17 @@ __pycache__
 SCIPOST_JOURNALS
 UPLOADS
 
+/cronjobs_bups/
 /docs/_build
+/docs/build
 /docs/**/_build
 /docs/local_files/
 /local_files/
 /static/
 static_bundles/
 
+celerybeat-schedule
+start_flower.sh
 whoosh_index
 
 *.pid

@@ -3,13 +3,22 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path
+from django.urls import path, register_converter
 from django.views.generic import TemplateView
 
+from scipost.constants import DISCIPLINES_REGEX
+from scipost.converters import DisciplineConverter
+from journals.converters import JournalDOILabelConverter
+from journals.regexes import JOURNAL_DOI_LABEL_REGEX
+
 from . import views
-from .constants import SUBMISSIONS_NO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
+from .constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'submissions'
+
+register_converter(DisciplineConverter, 'discipline')
+register_converter(JournalDOILabelConverter, 'journal_doi_label')
+
 
 urlpatterns = [
     # Autocomplete
@@ -31,7 +40,7 @@ urlpatterns = [
     url(r'^referee_guidelines$',
         TemplateView.as_view(template_name='submissions/referee_guidelines.html'),
         name='referee_guidelines'),
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_NO_VN_REGEX), views.submission_detail_wo_vn_nr,
+    url(r'^{regex}/$'.format(regex=SUBMISSIONS_WO_VN_REGEX), views.submission_detail_wo_vn_nr,
         name='submission_wo_vn_nr'),
     url(r'^{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.submission_detail, name='submission'),
@@ -119,17 +128,41 @@ urlpatterns = [
     url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
         views.report_pdf_compile, name='report_pdf_compile'),
 
+
     # Submission, resubmission, withdrawal
-    url(r'^resubmit_manuscript$', views.resubmit_manuscript, name='resubmit_manuscript'),
-    url(r'^submit_manuscript$', views.prefill_using_arxiv_identifier, name='submit_manuscript'),
-    url(r'^submit_manuscript/scipost$',
-        views.RequestSubmissionUsingSciPostView.as_view(), name='submit_manuscript_scipost'),
-    url(r'^submit_manuscript/arxiv$',
-        views.RequestSubmissionUsingArXivView.as_view(), name='submit_manuscript_arxiv'),
-    url(r'^submit_manuscript/prefill$',
-        views.prefill_using_arxiv_identifier, name='prefill_using_identifier'),
-    url(r'^withdraw_manuscript/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.withdraw_manuscript, name='withdraw_manuscript'),
+
+    path( # Start a new submission process; choose resub or new sub (with field choice)
+        'submit_manuscript',
+        views.submit_manuscript,
+        name='submit_manuscript'
+    ),
+    path( # Choose journal (thread_hash as GET param if resubmission)
+        'submit/<discipline:discipline>',
+        views.submit_choose_journal,
+        name='submit_choose_journal'
+    ),
+    path( # Choose preprint server (thread_hash as GET param if resubmission)
+        'submit/<journal_doi_label:journal_doi_label>',
+        views.submit_choose_preprint_server,
+        name='submit_choose_preprint_server'
+    ),
+
+    path( # Submit using the SciPost preprint server (thread_hash as GET param if resubmission)
+        'submit_manuscript/<journal_doi_label:journal_doi_label>/scipost',
+        views.RequestSubmissionUsingSciPostView.as_view(),
+        name='submit_manuscript_scipost'
+    ),
+    path( # Submit using arXiv (thread_hash as GET param if resubmission)
+        'submit_manuscript/<journal_doi_label:journal_doi_label>/arxiv',
+        views.RequestSubmissionUsingArXivView.as_view(),
+        name='submit_manuscript_arxiv'
+    ),
+
+    url(
+        r'^withdraw_manuscript/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.withdraw_manuscript,
+        name='withdraw_manuscript'
+    ),
 
     # Pool
     url(r'^pool/$', views.pool, name='pool'),

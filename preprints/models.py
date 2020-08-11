@@ -8,22 +8,17 @@ from django.http import Http404
 
 
 class Preprint(models.Model):
-    """A link with arXiv or standalone/SciPost-hosted preprint.
+    """
+    A preprint object, either at SciPost or with link to external preprint server.
 
-    If the instance is a SciPost preprint, the `_file` and `scipost_preprint_identifier` fields
-    should be filled. Otherwise, these fields should be left blank.
+    If the instance is a SciPost preprint, the `_file` field should be filled.
     """
 
     # (arXiv) identifiers with/without version number
     identifier_w_vn_nr = models.CharField(max_length=25, unique=True, db_index=True)
-    identifier_wo_vn_nr = models.CharField(max_length=25)
-    vn_nr = models.PositiveSmallIntegerField(verbose_name='Version number', default=1)
     url = models.URLField(blank=True)
 
-    # SciPost-preprints only
-    scipost_preprint_identifier = models.PositiveIntegerField(
-        verbose_name='SciPost preprint ID',
-        null=True, blank=True, help_text='Unique identifier for SciPost standalone preprints')
+    # SciPost preprints only
     _file = models.FileField(
         verbose_name='Preprint file', help_text='Preprint file for SciPost standalone preprints',
         upload_to='UPLOADS/PREPRINTS/%Y/%m/', max_length=200, blank=True)
@@ -53,3 +48,13 @@ class Preprint(models.Model):
         if self._file: # means this is a SciPost-hosted preprint
             return "https://scipost.org%s" % self.get_absolute_url()
         return self.get_absolute_url().replace("/abs/", "/pdf/")
+
+    @property
+    def is_SciPost(self):
+        """Return True if this preprint is hosted on SciPost."""
+        return 'scipost_' in self.identifier_w_vn_nr
+
+    @property
+    def is_arXiv(self):
+        """Return True if this preprint is hosted on arXiv."""
+        return 'arxiv.org' in self.url

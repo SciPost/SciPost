@@ -185,7 +185,7 @@ class Comment(TimeStampedModel):
         to_object = self.core_content_object
         if isinstance(to_object, Submission):
             publication = Publication.objects.filter(
-                accepted_submission__preprint__identifier_wo_vn_nr=to_object.preprint.identifier_wo_vn_nr)
+                accepted_submission__thread_hash=to_object.thread_hash)
             if publication:
                 relation = {
                     'isReviewOfDOI': publication.doi_string,

@@ -1,0 +1,112 @@
+{% extends 'submissions/base.html' %}
+
+{% load bootstrap %}
+{% load journals_extras %}
+
+{% block pagetitle %}: submit manuscript{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item">Submit a manuscript</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Submit a manuscript to SciPost</h1>
+    </div>
+
+    <div class="col-12">
+      <p class="mb-1">
+        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
+      </p>
+      <p class="mb-1">
+        You should also make sure you understand the <a href="{% url 'submissions:sub_and_ref_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
+      </p>
+      <p class="mb-1">
+        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
+      </p>
+      <p>
+        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
+      </p>
+    </div>
+  </div>
+
+  {% if perms.scipost.can_submit_manuscript %}
+
+    <h2 class="mb-4">Please choose one of the following routes:</h2>
+
+    <div class="container">
+      <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
+	{% if resubmission_candidates %}
+          {% for submission in resubmission_candidates %}
+	    <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
+	      <div class="card my-4">
+		<div class="card-header bg-dark text-white">
+		  <h3 class="p-2 m-0">
+		    <em>Resubmission of <a href="{{ submission.get_absolute_url }}" class="text-info">{{ submission.preprint.identifier_w_vn_nr }}</a></em>
+		  </h3>
+		</div>
+		<div class="card-body">
+		  <p><a href="{{ submission.get_absolute_url }}"><strong>{{ submission.title }}</strong></a></p>
+		  <p>by {{ submission.author_list }}</p>
+		  {% if not submission.open_for_resubmission %}
+		    <p class="bg-dark border-warning text-warning p-3 mb-0"><strong><i class="fa fa-warning text-danger"></i> This submission is still undergoing peer refereeing. Please wait until the closing of the previous refereeing round and formulation of the Editorial Recommendation before resubmitting.</strong></p>
+		  {% else %}
+		    {% if not request.user == submission.submitted_by.user %}
+		      <p class="bg-dark p-2 text-white text-center">
+			Corresponding author: {{ submission.submitted_by }}.<br>
+			<em class="text-warning">
+			  As a confirmed author, you have the right to resubmit.</em>
+		      </p>
+		    {% endif %}
+		    <table class="table mb-0">
+		      <tbody>
+			<tr><td class="bg-primary">
+			  <a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' discipline=submission.discipline %}?thread_hash={{ submission.thread_hash }}"><i class="fa fa-arrow-right"></i>&emsp;Resubmit this manuscript</a>
+			</td></tr>
+		      </tbody>
+		    </table>
+		  {% endif %}
+		</div>
+	      </div>
+	    </div>
+	  {% endfor %}
+	{% endif %}
+
+	{% for branch in scipost_disciplines %}
+	  {% with journals|journals_in_branch:branch.0 as journals_branch %}
+	    {% if journals_branch|length > 0%}
+	      <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">
+		<div class="card my-4">
+		  <div class="card-header bg-dark text-white">
+		    <h3 class="p-2 m-0"><em>New Submission</em> <small class="text-info"><em>({{ branch.0 }})</em></small></h3>
+		  </div>
+		  <div class="card-body">
+		    <table class="table table-borderless mb-0">
+		      <tbody>
+			<tr><td></td></tr>
+			{% for discipline in branch.1 %}
+			  {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
+			    {% if journals_disc|length > 0 %}
+			      <tr>
+				<td class="bg-primary"><a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' discipline=discipline.0 %}"><i class="fa fa-arrow-right"></i>&emsp;New submission in <strong>{{ discipline.1 }}</strong></a></td>
+			      </tr>
+			      <tr><td></td></tr>
+			    {% endif %}
+			  {% endwith %}
+			{% endfor %}
+		      </tbody>
+		    </table>
+		  </div>
+		</div>
+	      </div>
+	    {% endif %}
+	  {% endwith %}
+	{% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <h3>You are currently not allowed to submit a manuscript.</h3>
+  {% endif %}
+{% endblock content %}

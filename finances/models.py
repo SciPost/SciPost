@@ -54,8 +54,11 @@ class Subsidy(models.Model):
         ordering = ['-date']
 
     def __str__(self):
-        return format_html('{}: &euro;{} from {}, for {}',
-                           self.date, self.amount, self.organization, self.description)
+        if self.amount_publicly_shown:
+            return format_html('{}: &euro;{} from {}, for {}',
+                               self.date, self.amount, self.organization, self.description)
+        return format_html('{}: from {}, for {}',
+                               self.date, self.organization, self.description)
 
     def get_absolute_url(self):
         return reverse('finances:subsidy_details', args=(self.id,))

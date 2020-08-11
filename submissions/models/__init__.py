@@ -10,6 +10,8 @@ from .assignment import EditorialAssignment
 
 from .communication import EditorialCommunication
 
+from .preprint_server import PreprintServer
+
 from .referee_invitation import RefereeInvitation
 
 from .report import Report

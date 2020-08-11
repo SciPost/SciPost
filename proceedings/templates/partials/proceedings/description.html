@@ -19,6 +19,13 @@
   </div>
 {% endif %}
 <p>{{ proceedings.event_description|safe|linebreaksbr }}</p>
+{% if proceedings.picture %}
+  <figure class="mx-4 my-2">
+    <img src="{{ proceedings.picture.url }}" alt="picture"/>
+    {% if proceedings.picture_credit %}<figcaption>{{ proceedings.picture_credit }}</figcaption>{% endif %}
+  </figure>
+  <br>
+{% endif %}
 
 {% if proceedings.open_for_submission %}
   <h3>Instructions for submitting to these Proceedings:</h3>

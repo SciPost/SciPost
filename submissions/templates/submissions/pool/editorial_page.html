@@ -8,7 +8,9 @@
 
 {% block breadcrumb_items %}
   {{block.super}}
-  <span class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</span>
+  <span class="breadcrumb-item">
+    Editorial Page ({{ submission.preprint.identifier_w_vn_nr }})
+  </span>
 {% endblock %}
 
 {% block content %}
@@ -18,8 +20,8 @@
   <div class="row">
     <div class="col-md-8">
       <h2>Editorial Page for Submission</h2>
-      <h1 class="text-primary">{{submission.title}}</h1>
-      <h3>by {{submission.author_list}}</h3>
+      <h1 class="text-primary">{{ submission.title }}</h1>
+      <h3>by {{ submission.author_list }}</h3>
 
       <h4 class="ml-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
 

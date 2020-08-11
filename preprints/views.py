@@ -4,12 +4,23 @@ __license__ = "AGPL v3"
 import os
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_list_or_404, get_object_or_404, redirect
 from django.urls import reverse
 
 from submissions.helpers import check_verified_author
 from submissions.models import Submission
 
+
+def preprint_pdf_wo_vn_nr(request, identifier_wo_vn_nr):
+    """
+    Redirect to pdf of the latest preprint in the thread.
+    """
+    submissions = get_list_or_404(
+        Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr)
+    latest = submissions[0].get_latest_version()
+    return redirect(reverse(
+        'preprints:pdf',
+        kwargs={ 'identifier_w_vn_nr': latest.preprint.identifier_w_vn_nr }))
 
 def preprint_pdf(request, identifier_w_vn_nr):
     """Open pdf of SciPost preprint or redirect to arXiv page."""
@@ -40,12 +51,3 @@ def preprint_pdf(request, identifier_w_vn_nr):
         filename = '{}{}'.format(preprint.identifier_w_vn_nr, extension)
         response['Content-Disposition'] = ('filename=' + filename)
     return response
-
-
-def preprint_latest_pdf(request, identifier_wo_vn_nr):
-    submission = Submission.objects.filter(
-        preprint__identifier_wo_vn_nr=identifier_wo_vn_nr).first()
-    if not submission:
-        raise Http404
-    return redirect(reverse('preprints:pdf',
-                            args=[submission.get_latest_version().preprint.identifier_w_vn_nr,]))
