@@ -1364,6 +1364,7 @@ def publication_detail(request, doi_label):
 
     context = {
         'publication': publication,
+        'affiliation_indices': publication.get_author_affiliation_indices_list(),
         'affiliations_list': publication.get_all_affiliations(),
         'journal': publication.get_journal(),
         'select_topic_form': SelectTopicForm(),
