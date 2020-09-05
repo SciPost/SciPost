@@ -25,9 +25,7 @@ class Specialty(models.Model):
         allow_unicode=True
     )
 
-    order = models.PositiveSmallIntegerField(
-        unique=True
-    )
+    order = models.PositiveSmallIntegerField()
 
     class Meta:
         constraints = [
