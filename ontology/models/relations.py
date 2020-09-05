@@ -3,41 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-from django.urls import reverse
 
-from .constants import TOPIC_RELATIONS_ASYM, TOPIC_RELATIONS_SYM
-
-
-class Tag(models.Model):
-    """
-    Tags can be attached to a Topic to specify which category it fits.
-    Examples: Concept, Device, Model, Theory, ...
-    """
-    name = models.CharField(max_length=32, unique=True)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-
-class Topic(models.Model):
-    """
-    A Topic represents one of the nodes in the ontology.
-    """
-    name = models.CharField(max_length=256, unique=True)
-    slug = models.SlugField(unique=True, allow_unicode=True)
-    tags = models.ManyToManyField('ontology.Tag', blank=True)
-
-    class Meta:
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-
-    def get_abolute_url(self):
-        return reverse('ontology:topic_details', kwargs={'slug': self.slug})
+from ..constants import TOPIC_RELATIONS_ASYM, TOPIC_RELATIONS_SYM
 
 
 class RelationAsym(models.Model):
