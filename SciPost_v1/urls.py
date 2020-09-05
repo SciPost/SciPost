@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import path
 
 # from rest_framework import routers
 
@@ -23,6 +24,8 @@ admin.site.login = login_required(admin.site.login)
 
 # Base URLs
 urlpatterns = [
+
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', admin.site.urls),

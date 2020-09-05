@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
-from django.urls import path
+from django.urls import include, path
 
 from . import views
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -23,7 +23,6 @@ app_name = 'scipost'
 
 
 urlpatterns = [
-
 
     # Utilities:
 
