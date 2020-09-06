@@ -21,11 +21,35 @@ def cost_default_value():
 
 
 class Journal(models.Model):
-    """Journal is a container of Publications with a unique issn and doi_label.
+    """Journal is a container of Publications, with a unique issn and doi_label.
 
     Publications may be categorized into issues or issues and volumes.
+
+    Each Journal falls under the auspices of a specific College, which is ForeignKeyed.
+    The only exception is Selections, which does not point to any College
+    (in fact: it falls under the auspices of all colleges at the same time).
+
+    A Journal's AcademicField is indirectly specified via the College, since
+    College has a ForeignKey to AcademicField.
+
+    Specialties can optionally be specified (and should be consistent with the
+    College's `acad_field`). If none are given, the Journal operates field-wide.
     """
 
+    college = models.ForeignKey(
+        'colleges.College',
+        on_delete=models.PROTECT,
+        related_name='journals',
+        blank=True, null=True
+    )
+
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        blank=True,
+        related_name='journals'
+    )
+
+    # TODO: remove discipline
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     name = models.CharField(max_length=256, unique=True)
     name_abbrev = models.CharField(max_length=128, default='SciPost [abbrev]',
