@@ -23,8 +23,18 @@ class Fellowship(TimeStampedModel):
     Submission, so it has a direct effect on the submission date.
     """
 
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                                    related_name='fellowships')
+    college = models.ForeignKey(
+        'colleges.College',
+        on_delete=models.PROTECT,
+        related_name='fellowships'
+    )
+
+    contributor = models.ForeignKey(
+        'scipost.Contributor',
+        on_delete=models.CASCADE,
+        related_name='fellowships'
+    )
+
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 
