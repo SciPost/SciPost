@@ -3,10 +3,10 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path, reverse_lazy
+from django.urls import path, register_converter, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
-from scipost.constants import DISCIPLINES_REGEX
+from ontology.converters import AcademicFieldConverter
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
@@ -14,6 +14,8 @@ from journals.regexes import PUBLICATION_DOI_LABEL_REGEX
 from journals import views as journals_views
 
 app_name = 'urls.general'
+
+register_converter(AcademicFieldConverter, 'acad_field')
 
 urlpatterns = [
     # Autocomplete
@@ -28,8 +30,8 @@ urlpatterns = [
         journals_views.JournalListView.as_view(),
         name='journals'
     ),
-    url(
-        r'^(?P<discipline>{regex})/$'.format(regex=DISCIPLINES_REGEX),
+    path(
+        '<acad_field:acad_field>',
         journals_views.JournalListView.as_view(),
         name='journals'
     ),

@@ -11,8 +11,10 @@ def populate_journal_college(apps, schema_editor):
         field_name = journal.name.split(' ')[1]
         if field_name != 'Selections':
             college = College.objects.get(name=field_name)
-            journal.college = college
-            journal.save()
+        else:
+            college = College.objects.get(name='Multidisciplinary')
+        journal.college = college
+        journal.save()
 
 
 class Migration(migrations.Migration):

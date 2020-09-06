@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
+from journals.models import Journal
+
 
 class AcademicField(models.Model):
     """
@@ -41,3 +43,7 @@ class AcademicField(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def journals(self):
+        return Journal.objects.filter(college__acad_field=self.id)

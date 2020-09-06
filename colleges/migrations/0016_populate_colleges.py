@@ -10,12 +10,11 @@ def populate_colleges(apps, schema_editor):
     College = apps.get_model('colleges.College')
 
     for af in AcademicField.objects.all():
-        if af.name != 'Multidisciplinary':
-            college, created = College.objects.get_or_create(
-                name=af.name,
-                acad_field=af,
-                order=1
-            )
+        college, created = College.objects.get_or_create(
+            name=af.name,
+            acad_field=af,
+            order=1
+        )
 
 
 class Migration(migrations.Migration):
