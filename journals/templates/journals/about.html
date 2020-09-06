@@ -7,7 +7,7 @@
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <a href="{% url 'journals:journals' discipline=journal.discipline %}" class="breadcrumb-item">{{ journal.discipline|get_discipline_display }} Journals</a>
+  <a href="{% url 'journals:journals' acad_field=journal.discipline %}" class="breadcrumb-item">{{ journal.discipline|get_discipline_display }} Journals</a>
   <a href="{% url 'journal:issues' journal.doi_label %}" class="breadcrumb-item">{{ journal.name }}</a>
   <span class="breadcrumb-item active">About</span>
 {% endblock %}
@@ -46,21 +46,18 @@
 	Scope
       </h2>
       {{ journal.scope|automarkup }}
-      {% if "multidiscip" not in journal.discipline %}
-	<br><br>
-	<p>
-	  The scope includes (but is not limited to):
-	  <ul>
-	    {% for discipline in subject_areas %}
-	      {% if discipline.0 == journal.get_discipline_display %}
-		{% for area in discipline.1 %}
-		  <li>{{ area.1 }}</li>
-		{% endfor %}
-	      {% endif %}
-	    {% endfor %}
-	  </ul>
-	</p>
-      {% endif %}
+      <br><br>
+      <ul>
+	{% if journal.specialties.length > 0 %}
+	  {% for spec in journal.specialties.all %}
+	    <li>{{ spec }}</li>
+	  {% endfor %}
+	{% elif journal.college %}
+	  {% for spec in journal.college.acad_field.specialties.all %}
+	    <li>{{ spec }}</li>
+	  {% endfor %}
+	{% endif %}
+      </ul>
 
       <h2 class="highlight" id="content">
 	Content

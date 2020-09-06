@@ -39,8 +39,7 @@ class Journal(models.Model):
     college = models.ForeignKey(
         'colleges.College',
         on_delete=models.PROTECT,
-        related_name='journals',
-        blank=True, null=True
+        related_name='journals'
     )
 
     specialties = models.ManyToManyField(
