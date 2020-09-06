@@ -147,19 +147,15 @@ class JournalListView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        # if self.kwargs.get('discipline'):
-        #     qs = qs.filter(discipline=self.kwargs.get('discipline'))
-        if self.kwargs.get('acad_field'):
-            qs = qs.filter(college__acad_field__slug=self.kwargs.get('acad_field'))
+        if self.request.GET.get('field'):
+            qs = qs.filter(college__acad_field__slug=self.request.GET.get('field'))
         return qs
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        # discipline = self.kwargs.get('discipline')
-        # context['discipline'] = discipline
-        if self.kwargs.get('acad_field'):
+        if self.request.GET.get('field'):
             context['acad_field'] = get_object_or_404(
-                AcademicField, slug=self.kwargs.get('acad_field'))
+                AcademicField, slug=self.request.GET.get('field'))
         return context
 
 

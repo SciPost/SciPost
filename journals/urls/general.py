@@ -3,10 +3,8 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path, register_converter, reverse_lazy
+from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
-
-from ontology.converters import AcademicFieldConverter
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
@@ -15,7 +13,6 @@ from journals import views as journals_views
 
 app_name = 'urls.general'
 
-register_converter(AcademicFieldConverter, 'acad_field')
 
 urlpatterns = [
     # Autocomplete
@@ -27,11 +24,6 @@ urlpatterns = [
     # Journals
     url(
         r'^$',
-        journals_views.JournalListView.as_view(),
-        name='journals'
-    ),
-    path(
-        '<acad_field:acad_field>',
         journals_views.JournalListView.as_view(),
         name='journals'
     ),

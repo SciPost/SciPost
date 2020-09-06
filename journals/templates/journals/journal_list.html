@@ -84,7 +84,7 @@
 		  <td>
 		    {% for acad_field in branch.academic_fields.all %}
 		      {% if acad_field.journals.all|length > 0 %}
-			<a href={% url 'journals:journals' acad_field=acad_field.slug %} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
+			<a href={% url 'journals:journals' %}?field={{ acad_field.slug }} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
 		      {% else %}
 			<button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field.name }}</em></small></button>
 		      {% endif %}
