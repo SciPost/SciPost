@@ -47,6 +47,7 @@
       </h2>
       {{ journal.scope|automarkup }}
       <br><br>
+      <h4>Specialties covered by this Journal</h4>
       <ul>
 	{% if journal.specialties.length > 0 %}
 	  {% for spec in journal.specialties.all %}
@@ -87,7 +88,7 @@
       {% if journal.minimal_nr_of_reports > 0 %}
 	<p><strong>Minimal number of reports</strong>: at least {{ journal.minimal_nr_of_reports }} substantial report{{ journal.minimal_nr_of_reports|pluralize }} must have been received; all points raised must have been addressed either in resubmissions or in author replies before a recommendation for publication can be formulated.</p>
       {% endif %}
-      <p>All publication decisions are taken by the <a href="{% url 'colleges:colleges' %}">Editorial College ({{ journal.get_discipline_display }})</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
+      <p>All publication decisions are taken by the <a href="{% url 'colleges:colleges' %}">{{ journal.college }}</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
       <p>Accepted submissions benefit from our top-quality production process, and from our <a href="{% url 'news:news' %}#news_51" target="_blank">industry-leading metadata handling facilities</a>.</p>
 
 
