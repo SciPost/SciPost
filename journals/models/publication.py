@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from decimal import Decimal
 
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Min, Sum
@@ -133,6 +133,15 @@ class Publication(models.Model):
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
     latest_activity = models.DateTimeField(auto_now=True)  # Needs `auto_now` as its not explicity updated anywhere?
 
+    # Calculated fields
+    cf_author_affiliation_indices_list = ArrayField(
+        ArrayField(
+            models.PositiveSmallIntegerField(blank=True, null=True),
+            default=list
+        ),
+        default=list
+    )
+
     objects = PublicationQuerySet.as_manager()
 
     class Meta:
@@ -195,6 +204,38 @@ class Publication(models.Model):
         return Organization.objects.filter(
             publicationauthorstable__publication=self
         ).annotate(order=Min('publicationauthorstable__order')).order_by('order')
+
+    def get_author_affiliation_indices_list(self):
+        """
+        Return a list containing for each author an ordered list of affiliation indices.
+
+        This is for display on the publication detail page,
+        and is a calculated field (saved in the model) to avoid
+        unnecessary db queries (problematic for papers with large number of authors).
+        """
+        if len(self.cf_author_affiliation_indices_list) > 0:
+            return self.cf_author_affiliation_indices_list
+
+        indexed_author_list = []
+        for author in self.authors.all():
+            affnrs = []
+            for idx, aff in enumerate(self.get_all_affiliations()):
+                if aff in author.affiliations.all():
+                    affnrs.append(idx + 1)
+            indexed_author_list.append(affnrs)
+        # Since nested ArrayFields must have the same dimension,
+        # we pad the "empty" entries with Null:
+        max_length = 0
+        for entry in indexed_author_list:
+            max_length = max(max_length, len(entry))
+        padded_list = []
+        for entry in indexed_author_list:
+            padded_entry = entry + [None] * (max_length - len(entry))
+            padded_list.append(padded_entry)
+        # Save into the calculated field for future purposes.
+        Publication.objects.filter(id=self.id).update(
+            cf_author_affiliation_indices_list=padded_list)
+        return padded_list
 
     def get_all_funders(self):
         from funders.models import Funder

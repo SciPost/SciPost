@@ -15,6 +15,16 @@ register = template.Library()
 # General utilities #
 #####################
 
+@register.filter(name='list_element')
+def list_element(l, idx):
+    """Return the element with index idx from list, or None."""
+    if type(l) == list:
+        try:
+            return l[idx]
+        except IndexError:
+            pass
+    return None
+
 @register.filter(name='concatenate')
 def concatenate(arg1, arg2):
     """Stringify and concatenate the two arguments"""

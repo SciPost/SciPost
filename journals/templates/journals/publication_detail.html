@@ -126,11 +126,13 @@
   <ul class="list-inline my-2">
     {% for author in publication.authors.all %}
       <li class="list-inline-item mr-1">
-        {% for aff in affiliations_list %}
-          {% if aff in author.affiliations.all %}
-            <sup>{{ forloop.counter }} </sup>
-          {% endif %}
-        {% endfor %}
+	{% with ctr=forloop.counter0 %}
+	  {% for idx in affiliation_indices|list_element:ctr %}
+	    {% if idx is not None %}
+	      <sup>{{ idx }}</sup>
+	    {% endif %}
+	  {% endfor %}
+	{% endwith %}
         {% if author.is_registered %}
           <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
           {% endif %}

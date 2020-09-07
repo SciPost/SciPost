@@ -42,7 +42,7 @@
 	      <div class="card-body pb-1">
 		<ul>
 		  <li>This manuscript was submitted to <strong>{{ submission.submitted_to }}</strong>. Please make sure that you refer to this journal's <a href="{% url 'journal:about' doi_label=submission.submitted_to.doi_label %}#criteria" target="_blank"><strong>acceptance criteria</strong></a> in your evaluation.</li>
-		  <li>If you feel the article would be more appropriately published in one of our <a href="{% url 'journals:journals' discipline=submission.discipline %}" target="_blank"><strong>other {{ submission.get_discipline_display }} Journals</strong></a>, please
+		  <li>If you feel the article would be more appropriately published in one of our <a href="{% url 'journals:journals' %}?field={{ submission.discipline }}" target="_blank"><strong>other {{ submission.get_discipline_display }} Journals</strong></a>, please
 		    <ul>
 		      <li>select <em>Accept in alternative Journal</em> in the <strong>Recommendation</strong> field</li>
 		      <li>in the <strong>Report</strong> field, specify the alternative Journal in which you would recommend acceptance

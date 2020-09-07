@@ -9,16 +9,16 @@
   <style>{% for journal in object_list %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
 {% endblock headsup %}
 
-{% block pagetitle %}: Journals{% if discipline %} in {{ discipline|get_discipline_display }}{% endif %}{% endblock pagetitle %}
+{% block pagetitle %}: Journals{% if acad_field %} in {{ acad_field.name }}{% endif %}{% endblock pagetitle %}
 
 {% block breadcrumb %}
   <div class="breadcrumb-container">
     <div class="container">
       <nav class="breadcrumb hidden-sm-down">
         {% block breadcrumb_items %}
-	  {% if discipline %}
+	  {% if acad_field %}
             <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-	    <span class="breadcrumb-item">{{ discipline|get_discipline_display }} Journals</span>
+	    <span class="breadcrumb-item">{{ acad_field.name }} Journals</span>
 	  {% else %}
             <span class="breadcrumb-item">Journals</span>
 	  {% endif %}
@@ -31,7 +31,7 @@
 
 {% block content %}
 
-  {% if discipline %}
+  {% if acad_field %}
     <ul class="list-inline">
       <li class="list-inline-item p-1"><strong>Quick links:</strong></li>
       {% for journal in object_list %}
@@ -48,13 +48,13 @@
   {% endif %}
 
 
-  <h1 class="highlight">SciPost {% if discipline %}{{ discipline|get_discipline_display }} {% endif %}Journals</h1>
+  <h1 class="highlight">SciPost {% if acad_field %}{{ acad_field.name }} {% endif %}Journals</h1>
 
   <div class="row">
     <div class="col-lg-5">
       <p><em>We are hard at work on our <a href="{% url 'scipost:PlanSciPost' %}">expansion plans</a>! Help us in our mission to reform academic publishing.</em></p>
       <p>All our Journals focus on top-quality science, and implement <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a>. Publishing with SciPost means that you automatically fulfil (and even surpass) your mandated Open Access requirements, being relieved of any author-facing charges or other administrative burdens while encouraging our <a href="{% url 'finances:business_model' %}">healthier business model</a> for scientific publishing.</p>
-      {% if discipline %}
+      {% if acad_field %}
 	<p>Click on a Journal title to view Journal-specific further information (including preparation and submission instructions).</p>
       {% endif %}
     </div>
@@ -63,7 +63,7 @@
     </div>
   </div>
 
-  {% if not discipline %}
+  {% if not acad_field %}
     <div class="row">
       <div class="col-12">
 
@@ -75,25 +75,23 @@
 	    </tr>
 	  </thead>
 	  <tbody>
-	    {% for branch in scipost_disciplines %}
-	      {% with object_list|journals_in_branch:branch.0 as journals_branch %}
+	    {% for branch in branches %}
+	      {% if branch.journals.all|length > 0 %}
 		<tr>
 		  <td class="align-middle">
-		    {{ branch.0 }}
+		    <small>{{ branch.name }}</small>
 		  </td>
 		  <td>
-		    {% for discipline in branch.1 %}
-		      {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
-			{% if journals_disc|length > 0 %}
-			  <a href={% url 'journals:journals' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
-			{% else %}
-			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ discipline.1 }}</em></small></button>
-			{% endif %}
-		      {% endwith %}
+		    {% for acad_field in branch.academic_fields.all %}
+		      {% if acad_field.journals.all|length > 0 %}
+			<a href={% url 'journals:journals' %}?field={{ acad_field.slug }} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
+		      {% else %}
+			<button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field.name }}</em></small></button>
+		      {% endif %}
 		    {% endfor %}
 		  </td>
 		</tr>
-	      {% endwith %}
+	      {% endif %}
 	    {% endfor %}
 	  </tbody>
 	</table>
@@ -103,27 +101,23 @@
 
     <h2 class="highlight">Full list of our Journals</h2>
     <table class="table table-borderless">
-      {% for branch in scipost_disciplines %}
-	{% with object_list|journals_in_branch:branch.0 as journals_branch %}
-	  {% for discipline in branch.1 %}
-	    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
-	      {% if journals_disc|length > 0 %}
-		<tr>
-		  <td class="align-middle"><strong>{{ discipline.0|capfirst }}</strong></td>
-		  <td>
-		    <ul class="list-group m-2">
-		      {% for journal in journals_disc %}
-			<li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
-			  <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-			</li>
-		      {% endfor %}
-		    </ul>
-		  </td>
-		</tr>
-	      {% endif %}
-	    {% endwith %}
-	  {% endfor %}
-	{% endwith %}
+      {% for branch in branches %}
+	{% for acad_field in branch.academic_fields.all %}
+	  {% if acad_field.journals.all|length > 0 %}
+	    <tr>
+	      <td class="align-middle"><strong>{{ acad_field.name }}</strong></td>
+	      <td>
+		<ul class="list-group m-2">
+		  {% for journal in acad_field.journals.all %}
+		    <li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
+		      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+		    </li>
+		  {% endfor %}
+		</ul>
+	      </td>
+	    </tr>
+	  {% endif %}
+	{% endfor %}
       {% endfor %}
     </table>
 

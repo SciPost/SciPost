@@ -50,7 +50,7 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditorSubview
-from ontology.models import Topic
+from ontology.models import AcademicField, Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
 from profiles.forms import ProfileSelectForm
@@ -147,14 +147,15 @@ class JournalListView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.kwargs.get('discipline'):
-            qs = qs.filter(discipline=self.kwargs.get('discipline'))
+        if self.request.GET.get('field'):
+            qs = qs.filter(college__acad_field__slug=self.request.GET.get('field'))
         return qs
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        discipline = self.kwargs.get('discipline')
-        context['discipline'] = discipline
+        if self.request.GET.get('field'):
+            context['acad_field'] = get_object_or_404(
+                AcademicField, slug=self.request.GET.get('field'))
         return context
 
 
@@ -1364,6 +1365,7 @@ def publication_detail(request, doi_label):
 
     context = {
         'publication': publication,
+        'affiliation_indices': publication.get_author_affiliation_indices_list(),
         'affiliations_list': publication.get_all_affiliations(),
         'journal': publication.get_journal(),
         'select_topic_form': SelectTopicForm(),

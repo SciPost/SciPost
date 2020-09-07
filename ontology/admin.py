@@ -4,7 +4,17 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Tag, Topic, RelationAsym, RelationSym
+from .models import (
+    Branch, AcademicField, Specialty,
+    Tag, Topic, RelationAsym, RelationSym
+)
+
+
+admin.site.register(Branch)
+
+admin.site.register(AcademicField)
+
+admin.site.register(Specialty)
 
 
 class TagAdmin(admin.ModelAdmin):
