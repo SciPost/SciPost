@@ -92,6 +92,7 @@ INSTALLED_APPS = (
     'comments',
     'common',
     'conflicts',
+    'corsheaders',
     'django_celery_results',
     'django_celery_beat',
     'finances',
@@ -106,6 +107,7 @@ INSTALLED_APPS = (
     'mails',
     'markup',
     'news',
+    'oauth2_provider',
     'ontology',
     'organizations',
     'partners',
@@ -130,9 +132,17 @@ INSTALLED_APPS = (
 SITE_ID = 1
 
 
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'introspection': 'Introspect token scope',
+    },
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 25
+    'PAGE_SIZE': 25,
 }
 
 
@@ -174,6 +184,7 @@ SHELL_PLUS_POST_IMPORTS = (
 MIDDLEWARE = (
     # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
