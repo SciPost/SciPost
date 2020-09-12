@@ -92,6 +92,7 @@ INSTALLED_APPS = (
     'comments',
     'common',
     'conflicts',
+    'corsheaders',
     'django_celery_results',
     'django_celery_beat',
     'finances',
@@ -142,12 +143,6 @@ OAUTH2_PROVIDER = {
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 25,
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    )
 }
 
 
@@ -189,6 +184,7 @@ SHELL_PLUS_POST_IMPORTS = (
 MIDDLEWARE = (
     # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

@@ -72,3 +72,9 @@ sentry_sdk.init(
 )
 CSP_REPORT_URI = get_secret('CSP_SENTRY')
 CSP_REPORT_ONLY = False
+
+
+# CORS headers
+CORS_ALLOWED_ORIGINS = [
+    'https://scipost-codebases.org'
+]

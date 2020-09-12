@@ -29,3 +29,7 @@ EMAIL_BACKEND_ORIGINAL = "mails.backends.filebased.EmailBackend"
 # CSP
 CSP_REPORT_URI = get_secret('CSP_SENTRY')
 CSP_REPORT_ONLY = True
+
+
+# CORS headers
+CORS_ALLOW_ALL_ORIGINS = True # Dev only!
