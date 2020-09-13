@@ -55,8 +55,9 @@ CSRF_COOKIE_SECURE = False
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend'
-    )
+    'guardian.backends.ObjectPermissionBackend',
+    'oauth2_provider.backends.OAuth2Backend',
+)
 
 LOGIN_URL = '/login/'
 
@@ -196,6 +197,7 @@ MIDDLEWARE = (
     'maintenancemode.middleware.MaintenanceModeMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'csp.middleware.CSPMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 )
 
 SECURE_BROWSER_XSS_FILTER = True
