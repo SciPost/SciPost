@@ -3,10 +3,13 @@ __license__ = "AGPL v3"
 
 
 import json
+
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 from oauth2_provider.decorators import protected_resource
 
 
+@csrf_exempt
 @protected_resource()
 def userinfo(request):
     """
