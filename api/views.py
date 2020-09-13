@@ -18,9 +18,14 @@ def userinfo(request):
     user = request.user
     return HttpResponse(
         json.dumps({
-            'username': user.username,
-            'last_name': user.last_name,
-            'first_name': user.first_name,
-            'email': user.email
+            'provider': 'SciPost',
+            'uid': user.username,
+            'info': {
+                'name': ("%s %s" % (user.first_name, user.last_name)),
+                'nickname': user.username,
+                'last_name': user.last_name,
+                'first_name': user.first_name,
+                'email': user.email
+            }
         }),
         content_type='application/json')
