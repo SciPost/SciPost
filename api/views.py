@@ -19,13 +19,11 @@ def userinfo(request):
     return HttpResponse(
         json.dumps({
             'provider': 'SciPost',
-            'uid': user.username,
-            'info': {
-                'name': ("%s %s" % (user.first_name, user.last_name)),
-                'nickname': user.username,
-                'last_name': user.last_name,
-                'first_name': user.first_name,
-                'email': user.email
-            }
+            'uid': user.id,
+            'username': user.username,
+            'name': ("%s %s" % (user.first_name, user.last_name)),
+            'last_name': user.last_name,
+            'first_name': user.first_name,
+            'email': user.email
         }),
         content_type='application/json')
