@@ -466,3 +466,9 @@ MAILGUN_API_KEY = ''
 # Get one at https://haveibeenpwned.com
 HAVE_I_BEEN_PWNED_TOKEN = get_secret('HAVE_I_BEEN_PWNED_TOKEN')
 HAVE_I_BEEN_PWNED_API_KEY = get_secret('HAVE_I_BEEN_PWNED_API_KEY')
+
+
+# CORS headers
+CORS_ALLOWED_ORIGINS = [
+    'https://scipost-codebases.org'
+]
