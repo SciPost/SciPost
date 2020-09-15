@@ -13,6 +13,7 @@ mock==2.0.0
 
 # Django packages
 django-autocomplete-light==3.5.1 # 2020-05-03
+django-cors-headers==3.5.0	# 2020-09-11, for enabling OAuth2 with django-oauth-toolkit
 django-countries==5.3.3
 django-debug-toolbar==1.8
 django-extensions==2.2.8	# 2020-02-14 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
@@ -20,6 +21,7 @@ django-filter==1.0.4
 django-guardian==1.5.1		# 2019-05-11
 django-mathjax==0.0.8
 django-mptt==0.8.6  # Dead
+django-oauth-toolkit==1.3.2	# 2020-09-03
 django-silk==2.0.0
 django-webpack-loader==0.5
 django-maintenancemode-2==1.1.11

@@ -6,7 +6,7 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.urls import path, re_path
+from django.urls import include, path, re_path
 
 from . import views
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -28,6 +28,7 @@ app_name = 'scipost'
 
 
 urlpatterns = [
+
 
     # redirect for favicon
     re_path(r'^favicon\.ico$', favicon_view),

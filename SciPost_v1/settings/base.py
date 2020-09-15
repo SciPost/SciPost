@@ -55,8 +55,9 @@ CSRF_COOKIE_SECURE = False
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend'
-    )
+    'guardian.backends.ObjectPermissionBackend',
+    'oauth2_provider.backends.OAuth2Backend',
+)
 
 LOGIN_URL = '/login/'
 
@@ -93,6 +94,7 @@ INSTALLED_APPS = (
     'comments',
     'common',
     'conflicts',
+    'corsheaders',
     'django_celery_results',
     'django_celery_beat',
     'finances',
@@ -107,6 +109,7 @@ INSTALLED_APPS = (
     'mails',
     'markup',
     'news',
+    'oauth2_provider',
     'ontology',
     'organizations',
     'partners',
@@ -131,6 +134,14 @@ INSTALLED_APPS = (
 SITE_ID = 1
 
 
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+        'introspection': 'Introspect token scope',
+    },
+}
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication'
@@ -139,7 +150,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAdminUser',
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 25
+    'PAGE_SIZE': 25,
 }
 
 
@@ -181,6 +192,7 @@ SHELL_PLUS_POST_IMPORTS = (
 MIDDLEWARE = (
     # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -192,6 +204,7 @@ MIDDLEWARE = (
     'maintenancemode.middleware.MaintenanceModeMiddleware',
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'csp.middleware.CSPMiddleware',
+    'oauth2_provider.middleware.OAuth2TokenMiddleware',
 )
 
 SECURE_BROWSER_XSS_FILTER = True

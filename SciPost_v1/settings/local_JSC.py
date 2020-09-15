@@ -33,3 +33,6 @@ CSP_REPORT_ONLY = True
 # Mailgun credentials
 MAILGUN_DOMAIN_NAME = get_secret('MAILGUN_DOMAIN_NAME')
 MAILGUN_API_KEY = get_secret('MAILGUN_API_KEY')
+
+# CORS headers
+CORS_ALLOW_ALL_ORIGINS = True # Dev only!
