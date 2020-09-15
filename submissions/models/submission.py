@@ -141,6 +141,9 @@ class Submission(models.Model):
 
     class Meta:
         app_label = 'submissions'
+        ordering = [
+            '-submission_date'
+        ]
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
