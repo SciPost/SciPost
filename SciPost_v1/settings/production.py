@@ -57,8 +57,8 @@ ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 
 # Logging
-LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/logs/arxiv.log'
-LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/logs/doi.log'
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost_py38/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost_py38/logs/doi.log'
 
 
 # API
