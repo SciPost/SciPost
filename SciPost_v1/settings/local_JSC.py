@@ -20,6 +20,8 @@ MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 # Logging
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/doi.log'
+LOGGING['handlers']['oauth_file']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/oauth.log'
+
 CROSSREF_DEPOSIT_EMAIL = 'jscaux@scipost.org'
 
 # Customized mailbackend

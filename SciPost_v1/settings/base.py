@@ -421,6 +421,12 @@ LOGGING = {
             'filename': '/path/to/logs/doi.log',
             'formatter': 'verbose',
         },
+        'oauth_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/logs/oauth.log',
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'scipost.services.arxiv': {
@@ -434,6 +440,18 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
             'formatter': 'simple',
+        },
+        'oauthlib': {
+            'handlers': ['oauth_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+            'formatter': 'verbose'
+        },
+        'oauth2_provider': {
+            'handlers': ['oauth_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+            'formatter': 'verbose'
         },
     },
 }
