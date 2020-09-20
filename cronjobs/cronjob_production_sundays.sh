@@ -3,10 +3,10 @@
 # Weekly cronjobs for production area
 # Weekend jobs
 
-cd /home/scipost/webapps/scipost/scipost_v1
-source venv/bin/activate
+cd /home/scipost/webapps/scipost_py38/SciPost
+source ../venv3.8/bin/activate
 
-python3 manage.py update_citedby
+python manage.py update_citedby
 
-# Do a full update_index when maybe something has slipped through during the week somehow..?
-python3 manage.py update_index -r -v 0
+# Do a full update_index when maybe something has slipped through during the week
+python manage.py update_index -r -v 0
