@@ -59,6 +59,7 @@ ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 # Logging
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost_py38/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost_py38/logs/doi.log'
+LOGGING['handlers']['api_file']['filename'] = '/home/scipost/webapps/scipost_py38/logs/api.log'
 LOGGING['handlers']['oauth_file']['filename'] = '/home/scipost/webapps/scipost_py38/logs/oauth.log'
 
 

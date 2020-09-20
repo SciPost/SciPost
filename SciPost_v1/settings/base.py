@@ -421,6 +421,12 @@ LOGGING = {
             'filename': '/path/to/logs/doi.log',
             'formatter': 'verbose',
         },
+        'api_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/logs/api.log',
+            'formatter': 'verbose',
+        },
         'oauth_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
@@ -443,6 +449,12 @@ LOGGING = {
         },
         'oauthlib': {
             'handlers': ['oauth_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+            'formatter': 'verbose'
+        },
+        'api': {
+            'handlers': ['api_file'],
             'level': 'DEBUG',
             'propagate': False,
             'formatter': 'verbose'
