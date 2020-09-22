@@ -7,18 +7,15 @@ import logging
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import View
 
 from oauth2_provider.models import get_access_token_model
-from oauth2_provider.views import ClientProtectedScopedResourceView
 
 
 log = logging.getLogger(__name__)
 
 
-@method_decorator(csrf_exempt, name="dispatch")
-class UserInfoView(ClientProtectedScopedResourceView):
+class UserInfoView(View):
     """
     Self-made userinfo endpoint to enable GitLab OAuth2 sign-in.
 
@@ -70,9 +67,15 @@ class UserInfoView(ClientProtectedScopedResourceView):
         :param kwargs:
         :return:
         """
+        log.debug(request.headers)
+        log.debug(request.body)
         try:
-            token = request.headers.get("Authorization").partition(" ")[2]
-            log.debug("GET userinfo, token %s" % token)
+            if request.headers.get("Authorization").startswith("Bearer "):
+                token = request.headers.get("Authorization").partition(" ")[2]
+                log.debug("GET userinfo, token %s" % token)
+            else:
+                token = None
+                log.debug("GET userinfo, incorrect authorization")
         except AttributeError:
             token = None
         return self.get_userinfo_response(token)
