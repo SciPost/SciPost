@@ -26,7 +26,7 @@ urlpatterns += [
 
     path( # /api/userinfo/, for SciPost as OAuth2 authorization server
         'userinfo/',
-        views.userinfo,
+        views.UserInfoView.as_view(),
         name='userinfo'
     ),
     path('journals/', include('journals.api.urls')),
