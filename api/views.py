@@ -15,11 +15,11 @@ from oauth2_provider.models import get_access_token_model
 log = logging.getLogger(__name__)
 
 
-class UserInfoView(View):
+class OmniAuthUserInfoView(View):
     """
-    Self-made userinfo endpoint to enable GitLab OAuth2 sign-in.
+    Self-made userinfo endpoint to enable GitLab OmniAuth sign-in.
 
-    This is a skeletal implementation of an OpenIDConnect userinfo endpoint.
+    Returns user data following`OmniAuth Schema 1 <https://github.com/omniauth/omniauth/wiki/auth-hash-schema#schema-10-and-later>`_
 
     This view is inspired by `oauth2_provider.views.IntrospectTokenView`.
     """
@@ -39,13 +39,17 @@ class UserInfoView(View):
         else:
             if token.is_valid():
                 data = {
-                    "sub": token.user.id,
-                    "name": token.user.get_full_name(),
-                    "given_name": token.user.get_short_name(),
-                    "family_name": token.user.last_name,
-                    "preferred_username": token.user.get_username(),
-                    "email": token.user.email,
+                    'provider': 'SciPost',
+                    'uid': str(token.user.id),
+                    'info': {
+                        'name': token.user.get_full_name(),
+                        'email': token.user.email,
+                        'nickname': token.user.get_username(),
+                        'first_name': token.user.get_short_name(),
+                        'last_name': token.user.last_name,
+                    }
                 }
+                log.debug("Response for token %s:\n\t%s" % (token_value, data))
                 return HttpResponse(
                     content=json.dumps(data),
                     status=200,
