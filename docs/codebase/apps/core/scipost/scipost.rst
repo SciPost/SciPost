@@ -19,6 +19,7 @@ Submodules
    scipost.apps
    scipost.behaviors
    scipost.constants
+   scipost.converters
    scipost.decorators
    scipost.factories
    scipost.feeds

@@ -7,6 +7,7 @@ Subpackages
 .. toctree::
 
    submissions.management
+   submissions.managers
    submissions.models
    submissions.templatetags
    submissions.tests
@@ -24,13 +25,11 @@ Submodules
    submissions.factories
    submissions.forms
    submissions.helpers
-   submissions.managers
    submissions.mixins
    submissions.plagiarism
    submissions.refereeing_cycles
    submissions.search_indexes
    submissions.services
-   submissions.signals
    submissions.tasks
    submissions.urls
    submissions.utils

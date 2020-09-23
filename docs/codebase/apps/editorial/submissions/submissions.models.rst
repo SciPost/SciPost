@@ -10,6 +10,7 @@ Submodules
    submissions.models.communication
    submissions.models.decision
    submissions.models.plagiarism
+   submissions.models.preprint_server
    submissions.models.recommendation
    submissions.models.referee_invitation
    submissions.models.report

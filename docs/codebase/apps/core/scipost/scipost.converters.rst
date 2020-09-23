@@ -1,7 +1,7 @@
-notifications.apps module
+scipost.converters module
 =========================
 
-.. automodule:: notifications.apps
+.. automodule:: scipost.converters
    :members:
    :undoc-members:
    :show-inheritance:

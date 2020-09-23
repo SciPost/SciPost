@@ -1,7 +1,7 @@
-journals.viewsets module
+journals.api.urls module
 ========================
 
-.. automodule:: journals.viewsets
+.. automodule:: journals.api.urls
    :members:
    :undoc-members:
    :show-inheritance:

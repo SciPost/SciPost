@@ -2,8 +2,8 @@
 Contributing to the SciPost codebase
 ************************************
 
-Our self-served Git depot at `code.scipost.org <https://code.scipost.org>`_
-hosts the `main SciPost repository <https://code.scipost.org/scipost/SciPost>`_
+Our self-served Git depot at `scipost-codebases.org <https://scipost-codebases.org>`_
+hosts the `main SciPost repository <https://scipost-codebases.org/scipost/SciPost>`_
 (access credentials required).
 
 Pull requests are admitted from members of our Development Team.

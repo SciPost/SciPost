@@ -1,7 +1,7 @@
-submissions.signals module
+journals.converters module
 ==========================
 
-.. automodule:: submissions.signals
+.. automodule:: journals.converters
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,7 +1,7 @@
-notifications.managers module
+journals.models.update module
 =============================
 
-.. automodule:: notifications.managers
+.. automodule:: journals.models.update
    :members:
    :undoc-members:
    :show-inheritance:
