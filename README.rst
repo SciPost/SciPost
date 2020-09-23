@@ -6,7 +6,7 @@ This repository carries the entire codebase for the
 `scipost.org <https://scipost.org>`_ scientific publication portal.
 
 This repo and other repositories relevant for the operation of SciPost,
-are hosted at `code.scipost.org <https://code.scipost.org>`_.
+are hosted at `scipost-codebases.org <https://scipost-codebases.org>`_.
 
 Relevant documentation about the intrastructure and its deployment
 can be found at `docs.scipost.org <https://docs.scipost.org>`_

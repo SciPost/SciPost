@@ -16,7 +16,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://code.scipost.org/scipost/SciPost.git"
+    "url": "git+https://scipost-codebases.org/scipost/SciPost.git"
   },
   "author": "SciPost",
   "homepage": "https://scipost.org",
