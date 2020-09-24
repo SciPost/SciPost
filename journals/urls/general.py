@@ -6,14 +6,13 @@ from django.conf.urls import url
 from django.urls import path, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
-from scipost.constants import DISCIPLINES_REGEX
-
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from journals.regexes import PUBLICATION_DOI_LABEL_REGEX
 from journals import views as journals_views
 
 app_name = 'urls.general'
+
 
 urlpatterns = [
     # Autocomplete
@@ -25,11 +24,6 @@ urlpatterns = [
     # Journals
     url(
         r'^$',
-        journals_views.JournalListView.as_view(),
-        name='journals'
-    ),
-    url(
-        r'^(?P<discipline>{regex})/$'.format(regex=DISCIPLINES_REGEX),
         journals_views.JournalListView.as_view(),
         name='journals'
     ),

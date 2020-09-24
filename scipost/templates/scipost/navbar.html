@@ -45,25 +45,21 @@
 		</tr>
 	      </thead>
 	      <tbody>
-		{% for branch in scipost_disciplines %}
-		  {% with journals|journals_in_branch:branch.0 as journals_branch %}
-		    {% if journals_branch|length > 0 %}
-		      <tr>
-			<td class="align-middle">
-			  <small>{{ branch.0 }}</small>
-			</td>
-			<td>
-			  {% for discipline in branch.1 %}
-			    {% with journals_branch|journals_in_discipline:discipline.0 as journals_disc %}
-			      {% if journals_disc|length > 0 %}
-				<a href={% url 'journals:journals' discipline=discipline.0 %} class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></a>
-			      {% endif %}
-			    {% endwith %}
-			  {% endfor %}
-			</td>
-		      </tr>
-		    {% endif %}
-		  {% endwith %}
+		{% for branch in branches %}
+		  {% if branch.journals.all|length > 0 %}
+		    <tr>
+		      <td class="align-middle">
+			<small>{{ branch.name }}</small>
+		      </td>
+		      <td>
+			{% for acad_field in branch.academic_fields.all %}
+			  {% if acad_field.journals.all|length > 0 %}
+			    <a href={% url 'journals:journals' %}?field={{ acad_field.slug }} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
+			  {% endif %}
+			{% endfor %}
+		      </td>
+		    </tr>
+		  {% endif %}
 		{% endfor %}
 	      </tbody>
 	    </table>
