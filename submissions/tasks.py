@@ -7,8 +7,6 @@ from django.utils import timezone
 from SciPost_v1.celery import app
 
 from .models import Submission, EditorialAssignment, RefereeInvitation, Report
-from .signals import (
-    notify_invitation_approaching_deadline, notify_invitation_overdue, notify_unfinished_report)
 
 
 @app.task(bind=True)
@@ -32,24 +30,6 @@ def send_editorial_assignment_invitations(self):
             if ed_assignment.send_invitation():
                 count += 1
     return {'new_invites': count}
-
-
-@app.task(bind=True)
-def remind_referees_to_fulfill_to_invitation(self):
-    """Remind Referees with unfilfilled RefereeInvitations to submit a Report."""
-    for invitation in RefereeInvitation.objects.approaching_deadline():
-        notify_invitation_approaching_deadline(RefereeInvitation, invitation, False)
-    for invitation in RefereeInvitation.objects.overdue():
-        notify_invitation_overdue(RefereeInvitation, invitation, False)
-
-
-@app.task(bind=True)
-def remind_referees_to_submit_report(self):
-    """Remind Referees with unfinished Report finish their Report."""
-    compare_dt = timezone.now() - timedelta(days=2)
-
-    for report in Report.objects.in_draft().filter(modified__lt=compare_dt):
-        notify_unfinished_report(Report, report, False)
 
 
 @app.task(bind=True)

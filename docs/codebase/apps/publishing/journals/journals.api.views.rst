@@ -1,7 +1,7 @@
-production.signals module
+journals.api.views module
 =========================
 
-.. automodule:: production.signals
+.. automodule:: journals.api.views
    :members:
    :undoc-members:
    :show-inheritance:

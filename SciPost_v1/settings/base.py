@@ -229,7 +229,7 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
                   'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org',
-                  'www.recaptcha.net', 'www.gstatic.com',
+                  'www.recaptcha.net', 'www.gstatic.com', 'www.gstatic.cn',
                   'code.jquery.com',
                   'static.mendeley.com',
                   'cdn.plot.ly')
@@ -414,7 +414,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'formatters': {
         'verbose': {
-            'format': '[%(asctime)s] %(levelname)s | %(message)s'
+            'format': '[%(asctime)s] %(levelname)s | %(module)s | %(funcName)s (%(lineno)d) | %(message)s'
         },
     },
     'handlers': {
@@ -430,6 +430,18 @@ LOGGING = {
             'filename': '/path/to/logs/doi.log',
             'formatter': 'verbose',
         },
+        'api_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/logs/api.log',
+            'formatter': 'verbose',
+        },
+        'oauth_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/logs/oauth.log',
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'scipost.services.arxiv': {
@@ -443,6 +455,24 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
             'formatter': 'simple',
+        },
+        'oauthlib': {
+            'handlers': ['oauth_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+            'formatter': 'verbose'
+        },
+        'api': {
+            'handlers': ['api_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+            'formatter': 'verbose'
+        },
+        'oauth2_provider': {
+            'handlers': ['oauth_file'],
+            'level': 'DEBUG',
+            'propagate': False,
+            'formatter': 'verbose'
         },
     },
 }

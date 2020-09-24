@@ -48,7 +48,7 @@ CROSSREF_DEBUG = False
 CROSSREF_DEPOSIT_EMAIL = 'edadmin@scipost.org'
 
 DOAJ_API_KEY = get_secret("DOAJ_API_KEY")
-HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/scipost/webapps/scipost/scipost_v1/whoosh_index'
+HAYSTACK_CONNECTIONS['default']['PATH'] = '/home/scipost/webapps/scipost_py38/SciPost/whoosh_index'
 MAILCHIMP_API_USER = get_secret("MAILCHIMP_API_USER")
 MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 
@@ -57,8 +57,10 @@ ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
 ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
 
 # Logging
-LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost/logs/arxiv.log'
-LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost/logs/doi.log'
+LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/webapps/scipost_py38/logs/arxiv.log'
+LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/webapps/scipost_py38/logs/doi.log'
+LOGGING['handlers']['api_file']['filename'] = '/home/scipost/webapps/scipost_py38/logs/api.log'
+LOGGING['handlers']['oauth_file']['filename'] = '/home/scipost/webapps/scipost_py38/logs/oauth.log'
 
 
 # API

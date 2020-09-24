@@ -59,10 +59,8 @@ Besides this, we also use
 
 We self-host our code repositories by running
 
-* a `Gitea <https://gitea.io>`_ instance
-  at `code.scipost.org <https://code.scipost.org>`_
-  (based on `Go <https://golang.org/>`_ the language,
-  not `Go the game <https://en.wikipedia.org/wiki/Go_(game)>`_).
+* a `GitLab <https://gitlab.com/gitlab-org/gitlab>`_ instance
+  at `scipost-codebases.org <https://scipost-codebases.org>`_.
 
 See our :doc:`deployment documentation <../deployment/index>` for the complete details
 of how our services are brought to life.

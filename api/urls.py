@@ -24,10 +24,10 @@ urlpatterns = router.urls
 
 urlpatterns += [
 
-    path( # /api/userinfo/, for SciPost as OAuth2 authorization server
-        'userinfo/',
-        views.userinfo,
-        name='userinfo'
+    path( # /api/omniauth/userinfo/, for SciPost as GitLab/OmniAuth authorization server
+        'omniauth/userinfo/',
+        views.OmniAuthUserInfoView.as_view(),
+        name='omniauth_userinfo'
     ),
     path('journals/', include('journals.api.urls')),
     path('organizations/', include('organizations.api.urls')),
