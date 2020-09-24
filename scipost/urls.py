@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
-from django.urls import include, path
+from django.urls import include, path, register_converter
 
 from . import views
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -13,11 +13,12 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.regexes import JOURNAL_DOI_LABEL_REGEX, ISSUE_DOI_LABEL_REGEX,\
+from journals.converters import JournalDOILabelConverter
+from journals.regexes import ISSUE_DOI_LABEL_REGEX,\
     PUBLICATION_DOI_LABEL_REGEX, DOI_DISPATCH_PATTERN
 from submissions import views as submission_views
 
-JOURNAL_PATTERN = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
+register_converter(JournalDOILabelConverter, 'journal_doi_label')
 
 app_name = 'scipost'
 
@@ -285,12 +286,22 @@ urlpatterns = [
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
-    url(r'^10.21468/%s$' % JOURNAL_PATTERN,
-        journals_views.landing_page, name='landing_page'),
-    url(r'^%s$' % JOURNAL_PATTERN,
-        journals_views.landing_page, name='landing_page'),
-    url(r'^arxiv_doi_feed/%s' % JOURNAL_PATTERN,
-        journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
+    path(
+        '10.21468/<journal_doi_label:doi_label>',
+        journals_views.landing_page,
+        name='landing_page'
+    ),
+    path(
+        '<journal_doi_label:doi_label>',
+        journals_views.landing_page,
+        name='landing_page'
+    ),
+
+    path(
+        'arxiv_doi_feed/<journal_doi_label:doi_label>',
+        journals_views.arxiv_doi_feed,
+        name='arxiv_doi_feed'
+    ),
 
     ################
     # Howto guides #

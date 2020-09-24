@@ -2,12 +2,18 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from .regexes import JOURNAL_DOI_LABEL_REGEX
+from django.urls.converters import StringConverter
 
-class JournalDOILabelConverter:
-    regex = JOURNAL_DOI_LABEL_REGEX
+from journals.models import Journal
+
+
+class JournalDOILabelConverter(StringConverter):
 
     def to_python(self, value):
+        try:
+            return Journal.objects.get(doi_label=value).doi_label
+        except Journal.DoesNotExist:
+            return ValueError
         return value
 
     def to_url(self, value):

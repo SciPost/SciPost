@@ -6,10 +6,8 @@ from django.conf.urls import url
 from django.urls import path, register_converter
 from django.views.generic import TemplateView
 
-from scipost.constants import DISCIPLINES_REGEX
 from scipost.converters import DisciplineConverter
 from journals.converters import JournalDOILabelConverter
-from journals.regexes import JOURNAL_DOI_LABEL_REGEX
 
 from . import views
 from .constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
