@@ -1869,25 +1869,24 @@ def vote_on_rec(request, rec_id):
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
-def remind_Fellows_to_vote(request):
+def remind_Fellows_to_vote(request, rec_id):
     """
-    Send an email to all Fellows with at least one pending voting duties.
+    Send an email to Fellows with a pending voting duty.
     It must be called by an Editorial Administrator.
+
+    If `rec_id` is given, then only email Fellows voting on this particular rec.
     """
-    submissions = Submission.objects.pool_editable(request.user)
-    recommendations = EICRecommendation.objects.active().filter(
-        submission__in=submissions).put_to_voting()
+    recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
 
     Fellow_emails = []
     Fellow_names = []
-    for rec in recommendations:
-        for Fellow in rec.eligible_to_vote.all():
-            if (Fellow not in rec.voted_for.all()
-                and Fellow not in rec.voted_against.all()
-                and Fellow not in rec.voted_abstain.all()
-                and Fellow.user.email not in Fellow_emails):
-                Fellow_emails.append(Fellow.user.email)
-                Fellow_names.append(str(Fellow))
+    for Fellow in recommendation.eligible_to_vote.all():
+        if (Fellow not in recommendation.voted_for.all()
+            and Fellow not in recommendation.voted_against.all()
+            and Fellow not in recommendation.voted_abstain.all()
+            and Fellow.user.email not in Fellow_emails):
+            Fellow_emails.append(Fellow.user.email)
+            Fellow_names.append(str(Fellow))
     SubmissionUtils.load({'Fellow_emails': Fellow_emails})
     SubmissionUtils.send_Fellows_voting_reminder_email()
     ack_message = 'Email reminders have been sent to: <ul>'
