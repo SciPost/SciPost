@@ -23,6 +23,7 @@ class FellowshipForm(forms.ModelForm):
     class Meta:
         model = Fellowship
         fields = (
+            'college',
             'contributor',
             'start_date',
             'until_date',
@@ -37,6 +38,7 @@ class FellowshipForm(forms.ModelForm):
         self.fields['contributor'].disabled = True
 
     def clean(self):
+        super().clean()
         start = self.cleaned_data.get('start_date')
         until = self.cleaned_data.get('until_date')
         if start and until:

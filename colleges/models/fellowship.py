@@ -44,7 +44,7 @@ class Fellowship(TimeStampedModel):
 
     class Meta:
         ordering = ['contributor__user__last_name']
-        unique_together = ('contributor', 'start_date', 'until_date')
+        unique_together = ('college', 'contributor', 'start_date', 'until_date')
 
     def __str__(self):
         _str = self.contributor.__str__()
