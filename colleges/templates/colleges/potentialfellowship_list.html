@@ -97,6 +97,7 @@
 	    <th>Name</th>
 	    <th>Discipline</th>
 	    <th>Expertises</th>
+	    <th>For College</th>
 	    <th>Status</th>
 	    <th>Latest event</th>
 	  </tr>
@@ -111,6 +112,7 @@
 		  <div class="single d-inline" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
 		{% endfor %}
 	      </td>
+	      <td>{{ potfel.college }}</td>
 	      <td style="color: #ffffff; background-color:{{ potfel.status|potfelstatuscolor }};">{{ potfel.get_status_display }}<br/><small>{% voting_results_display potfel %}</small></td>
 	      <td>{{ potfel.latest_event_details }}</td>
 	    </tr>

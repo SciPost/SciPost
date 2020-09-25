@@ -42,6 +42,8 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
     ]
     list_display = [
         '__str__',
+        'college',
+        'status'
     ]
     search_fields = [
         'profile__last_name',

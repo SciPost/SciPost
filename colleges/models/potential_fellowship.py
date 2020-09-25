@@ -28,6 +28,12 @@ class PotentialFellowship(models.Model):
     and non-registered people.
     """
 
+    college = models.ForeignKey(
+        'colleges.College',
+        on_delete=models.PROTECT,
+        related_name='potential_fellowships'
+    )
+
     profile = models.ForeignKey('profiles.Profile', on_delete=models.CASCADE)
     status = models.CharField(max_length=32, choices=POTENTIAL_FELLOWSHIP_STATUSES,
                               default=POTENTIAL_FELLOWSHIP_IDENTIFIED)

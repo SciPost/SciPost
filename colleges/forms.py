@@ -223,7 +223,7 @@ class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
 
     class Meta:
         model = PotentialFellowship
-        fields = ['profile']
+        fields = ['college', 'profile']
 
     def save(self):
         """
