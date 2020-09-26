@@ -25,6 +25,7 @@ class ThesisLink(models.Model):
         'scipost.Contributor', blank=True, null=True,
         on_delete=models.CASCADE)
     type = models.CharField(choices=THESIS_TYPES, max_length=3)
+    # TODO: Next 2 fields to be deprecated
     discipline = models.CharField(
         max_length=20, choices=SCIPOST_DISCIPLINES,
         default='physics')
@@ -32,6 +33,20 @@ class ThesisLink(models.Model):
         max_length=10,
         choices=SCIPOST_SUBJECT_AREAS,
         default='Phys:QP')
+    # Ontology-based semantic linking
+    acad_field = models.ForeignKey(
+        'ontology.AcademicField',
+        on_delete=models.PROTECT,
+        related_name='theses'
+    )
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        related_name='theses'
+    )
+    topics = models.ManyToManyField(
+        'ontology.Topic',
+        blank=True
+    )
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True, null=True, verbose_name='approach(es) [optional]')
