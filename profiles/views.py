@@ -110,8 +110,6 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'first_name': contributor.user.first_name,
                     'last_name': contributor.user.last_name,
                     'email': contributor.user.email,
-                    'discipline': contributor.discipline,
-                    'expertises': contributor.expertises,
                     'orcid_id': contributor.orcid_id,
                     'webpage': contributor.personalwebpage,
                     'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
@@ -234,10 +232,10 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of Profiles using optional GET data.
         """
         queryset = Profile.objects.all()
-        if self.request.GET.get('discipline'):
-            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
-            if self.request.GET.get('expertise'):
-                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
+        if self.request.GET.get('field'):
+            queryset = queryset.filter(acad_field__slug=self.request.GET['field'])
+            if self.request.GET.get('specialty'):
+                queryset = queryset.filter(specialties__slug__in=[self.request.GET['specialty']])
         if self.request.GET.get('contributor') == 'False':
             queryset = queryset.filter(contributor__isnull=True)
         elif self.request.GET.get('contributor') == 'True':
