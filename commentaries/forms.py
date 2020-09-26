@@ -86,7 +86,7 @@ class RequestCommentaryForm(forms.ModelForm):
     class Meta:
         model = Commentary
         fields = [
-            'discipline', 'subject_area', 'approaches', 'title',
+            'acad_field', 'specialties', 'approaches', 'title',
             'author_list', 'pub_date', 'pub_abstract'
         ]
         placeholders = {
