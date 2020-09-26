@@ -24,7 +24,9 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['title', 'first_name', 'last_name',
-                  'discipline', 'expertises', 'orcid_id', 'webpage',
+                  'discipline', 'expertises',
+                  'orcid_id', 'webpage',
+                  'acad_field', 'specialties', 'topics',
                   'accepts_SciPost_emails', 'accepts_refereeing_requests',
                   'instance_from_type', 'instance_pk']
 
@@ -77,9 +79,11 @@ class SimpleProfileForm(ProfileForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['expertises'].widget = forms.HiddenInput()
         self.fields['orcid_id'].widget = forms.HiddenInput()
         self.fields['webpage'].widget = forms.HiddenInput()
+        self.fields['acad_field'].widget = forms.HiddenInput()
+        self.fields['specialties'].widget = forms.HiddenInput()
+        self.fields['topics'].widget = forms.HiddenInput()
         self.fields['accepts_SciPost_emails'].widget = forms.HiddenInput()
         self.fields['accepts_refereeing_requests'].widget = forms.HiddenInput()
 
@@ -115,16 +119,17 @@ class ProfileMergeForm(forms.Form):
         profile_old = self.cleaned_data['to_merge']
 
         # Merge information from old to new Profile.
-        profile.expertises = list(
-            set(profile_old.expertises or []) | set(profile.expertises or []))
         if profile.orcid_id is None:
             profile.orcid_id = profile_old.orcid_id
         if profile.webpage is None:
             profile.webpage = profile_old.webpage
+        if profile.acad_field is None:
+            profile.acad_field = profile_old.acad_field
         if profile_old.has_active_contributor and not profile.has_active_contributor:
             profile.contributor = profile_old.contributor
         profile.save()  # Save all the field updates.
 
+        profile.specialties.add(*profile_old.specialties.all())
         profile.topics.add(*profile_old.topics.all())
 
         # Merge email
