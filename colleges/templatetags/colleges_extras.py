@@ -82,16 +82,16 @@ def voting_results_display(potfel):
         nr_agree = potfel.in_agreement.count()
         nr_abstain = potfel.in_abstain.count()
         nr_disagree = potfel.in_disagreement.count()
-        nr_spec_agree = potfel.in_agreement.all().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_spec_abstain = potfel.in_abstain.all().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_spec_disagree = potfel.in_disagreement.all().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_specialists = Fellowship.objects.active().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_Fellows = Fellowship.objects.active().specialties_overlap(
-            potfel.profile.discipline).count()
+        specialties_slug_list = [s.slug for s in potfel.profile.specialties.all()]
+        nr_spec_agree = potfel.in_agreement.all(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_spec_abstain = potfel.in_abstain.all(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_spec_disagree = potfel.in_disagreement.all(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_specialists = Fellowship.objects.regular().active(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_Fellows = potfel.college.fellowships.regular().active().count()
         # Establish whether election criterion has been met.
         # Rule is: spec Agree must be >= 3/4 of (total nr of spec - nr abstain)
         election_agree_percentage = int(

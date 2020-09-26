@@ -35,29 +35,13 @@ class FellowQuerySet(models.QuerySet):
         today = timezone.now().date()
         return self.filter(until_date__lt=today)
 
-    def specialties_overlap(self, discipline, expertises=[]):
+    def specialties_overlap(self, specialties_slug_list):
         """
-        Returns all Fellows specialized in the given discipline
-        and any of the (optional) expertises.
+        Returns all Fellows whose specialties overlap with those specified in the slug list.
 
         This method is also separately implemented for Contributor and Profile objects.
         """
-        qs = self.filter(contributor__profile__discipline=discipline)
-        if expertises and len(expertises) > 0:
-            qs = qs.filter(contributor__profile__expertises__overlap=expertises)
-        return qs
-
-    def specialties_contain(self, discipline, expertises=[]):
-        """
-        Returns all Fellows specialized in the given discipline
-        and all of the (optional) expertises.
-
-        This method is also separately implemented for Contributor and Profile objects.
-        """
-        qs = self.filter(contributor__profile__discipline=discipline)
-        if expertises and len(expertises) > 0:
-            qs = qs.filter(contributor__profile__expertises__contains=expertises)
-        return qs
+        return self.filter(contributor__profile__specialties__slug__in=specialties_slug_list)
 
     def ordered(self):
         """Return ordered queryset explicitly, since this may have big effect on performance."""
@@ -87,8 +71,9 @@ class FellowQuerySet(models.QuerySet):
 
 class PotentialFellowshipQuerySet(models.QuerySet):
     def vote_needed(self, contributor):
+        college_id_list = [f.college.id for f in contributor.fellowships.regular().active()]
         return self.filter(
-            profile__discipline=contributor.profile.discipline,
+            college__pk__in=college_id_list,
             status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
         ).distinct().order_by('profile__last_name')
 

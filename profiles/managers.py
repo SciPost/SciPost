@@ -44,27 +44,3 @@ class ProfileQuerySet(models.QuerySet):
             models.Q(full_name__in=[item['full_name'] for item in duplicates_by_full_name]) |
             models.Q(id__in=ids_of_duplicates_by_email)
         ).order_by('last_name', 'first_name', '-id')
-
-    def specialties_overlap(self, discipline, expertises=[]):
-        """
-        Returns all Profiles specialized in the given discipline
-        and any of the (optional) expertises.
-
-        This method is also separately implemented for Contributor and Fellowship objects.
-        """
-        qs = self.filter(discipline=discipline)
-        if expertises and len(expertises) > 0:
-            qs = qs.filter(expertises__overlap=expertises)
-        return qs
-
-    def specialties_contain(self, discipline, expertises=[]):
-        """
-        Returns all Profiles specialized in the given discipline
-        and all of the (optional) expertises.
-
-        This method is also separately implemented for Contributor and Fellowship objects.
-        """
-        qs = self.filter(discipline=discipline)
-        if expertises and len(expertises) > 0:
-            qs = qs.filter(expertises__contains=expertises)
-        return qs
