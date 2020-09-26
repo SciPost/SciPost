@@ -60,7 +60,8 @@ class SubmissionAdmin(GuardedModelAdmin):
     )
     list_filter = (
         'status',
-        'discipline',
+        'acad_field',
+        'specialties',
         'submitted_to'
     )
     search_fields = [
@@ -91,7 +92,7 @@ class SubmissionAdmin(GuardedModelAdmin):
 
     # Admin fields should be added in the fieldsets
     radio_fields = {
-        "discipline": admin.VERTICAL,
+        "acad_field": admin.VERTICAL,
         "submitted_to": admin.VERTICAL,
         "refereeing_cycle": admin.HORIZONTAL
     }
@@ -116,9 +117,8 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'code_repository_url',
                 'data_repository_url',
                 'author_comments',
-                'discipline',
-                'subject_area',
-                'secondary_areas',
+                'acad_field',
+                'specialties',
                 'approaches',
                 'proceedings'),
         }),
