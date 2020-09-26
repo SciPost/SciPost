@@ -95,11 +95,27 @@ class Publication(models.Model):
     abstract_jats = models.TextField(blank=True, default='',
                                      help_text='JATS version of abstract for Crossref deposit')
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
+
+    # TODO: next two fields to be deprecated
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
     secondary_areas = ChoiceArrayField(
         models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
+    # Ontology-based semantic linking
+    acad_field = models.ForeignKey(
+        'ontology.AcademicField',
+        on_delete=models.PROTECT,
+        related_name='publications'
+    )
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        related_name='publications'
+    )
+    topics = models.ManyToManyField(
+        'ontology.Topic',
+        blank=True
+    )
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True, null=True, verbose_name='approach(es) [optional]')
@@ -121,9 +137,6 @@ class Publication(models.Model):
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
-
-    # Topics for semantic linking
-    topics = models.ManyToManyField('ontology.Topic', blank=True)
 
     # Date fields
     submission_date = models.DateField(verbose_name='submission date')
