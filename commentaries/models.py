@@ -37,11 +37,11 @@ class Commentary(TimeStampedModel):
     acad_field = models.ForeignKey(
         'ontology.AcademicField',
         on_delete=models.PROTECT,
-        related_name='theses'
+        related_name='commentaries'
     )
     specialties = models.ManyToManyField(
         'ontology.Specialty',
-        related_name='theses'
+        related_name='commentaries'
     )
     topics = models.ManyToManyField(
         'ontology.Topic',
