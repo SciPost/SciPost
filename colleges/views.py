@@ -27,44 +27,28 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
-from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, specializations_dict
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
 from mails.views import MailView
+from ontology.models import Branch
 
 
-class EditorialCollegesView(ListView):
-    model = Fellowship
-    template_name = 'colleges/colleges.html'
-
-    def get_queryset(self):
-        queryset = Fellowship.objects.active().regular()
-        return queryset
+class CollegeListView(ListView):
+    model = College
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['fellowships'] = Fellowship.objects.active().regular()
+        context['branches'] = Branch.objects.all()
         return context
 
 
-class EditorialCollegeDetailView(ListView):
-    model = Fellowship
+class CollegeDetailView(DetailView):
+    model = College
     template_name = 'colleges/college_detail.html'
-
-    def get_queryset(self):
-        queryset = Fellowship.objects.active().regular().filter(
-            contributor__profile__discipline=self.kwargs.get('discipline'))
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        discipline = self.kwargs.get('discipline')
-        context['discipline'] = discipline
-        context['specializations'] = specializations_dict[discipline]
-        return context
 
 
 class FellowshipCreateView(PermissionsMixin, CreateView):

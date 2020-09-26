@@ -16,7 +16,7 @@
   <span class="text-muted">({{ fellowship.contributor.affiliations.active.first.institution.name }})</span>
 {% endif %}
 <div>
-  {% for expertise in fellowship.contributor.profile.expertises %}
-    <div class="single d-inline" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
+  {% for specialty in fellowship.contributor.profile.specialties.all %}
+    <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
   {% endfor %}
 </div>

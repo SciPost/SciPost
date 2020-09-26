@@ -42,3 +42,10 @@ class Specialty(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def code(self):
+        """
+        Capitalized letter code representing the specialty.
+        """
+        return self.slug.partition('-')[2].upper()

@@ -34,6 +34,11 @@ class College(models.Model):
         related_name='colleges'
     )
 
+    slug = models.SlugField(
+        unique=True,
+        allow_unicode=True
+    )
+
     order = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -57,7 +62,7 @@ class College(models.Model):
 
     @property
     def specialties(self):
-        return Specialty.objects.filter(journals__college__pk=self.id)
+        return Specialty.objects.filter(journals__college__pk=self.id).distinct()
 
     @property
     def is_field_wide(self):

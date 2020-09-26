@@ -3,23 +3,27 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path, register_converter
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from . import views
+from .converters import CollegeSlugConverter
+
+register_converter(CollegeSlugConverter, 'college_slug')
 
 app_name = 'colleges'
 
 urlpatterns = [
     # Editorial Colleges: public view
-    url(
-        r'^$',
-        views.EditorialCollegesView.as_view(),
+    path(
+        '',
+        views.CollegeListView.as_view(),
         name='colleges'
     ),
-    url(
-        r'^detail/(?P<discipline>[a-zA-Z]+)/$',
-        views.EditorialCollegeDetailView.as_view(),
+    path(
+        '<college_slug:slug>',
+        views.CollegeDetailView.as_view(),
         name='college_detail'
     ),
     # Fellowships

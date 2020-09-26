@@ -60,8 +60,22 @@ class Profile(models.Model):
                                 blank=True, validators=[orcid_validator])
     webpage = models.URLField(max_length=300, blank=True)
 
-    # Topics for semantic linking
-    topics = models.ManyToManyField('ontology.Topic', blank=True)
+    # Ontology-based semantic linking
+    acad_field = models.ForeignKey(
+        'ontology.AcademicField',
+        blank=True, null=True,
+        on_delete=models.PROTECT,
+        related_name='profiles'
+    )
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        blank=True,
+        related_name='profiles'
+    )
+    topics = models.ManyToManyField(
+        'ontology.Topic',
+        blank=True
+    )
 
     # Preferences for interactions with SciPost:
     accepts_SciPost_emails = models.BooleanField(default=True)

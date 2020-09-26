@@ -56,26 +56,26 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  {% for branch in scipost_disciplines %}
-	    {% if branch.0 != 'Multidisciplinary' %}
-	      {% with object_list|fellowships_in_branch:branch.0 as fellowships_branch %}
-		<tr>
-		  <td class="align-middle">
-		    {{ branch.0 }}
-		  </td>
-		  <td>
-		    {% for discipline in branch.1 %}
-		      {% with fellowships_branch|fellowships_in_discipline:discipline.0 as fellowships_disc %}
-			{% if fellowships_disc|length > 0 %}
-			  <a href={% url 'colleges:college_detail' discipline=discipline.0 %}><button type="button" class="btn btn-primary btn-sm"><small>{{ discipline.1 }}</small></button></a>
+	  {% for branch in branches %}
+	    {% if branch.name != 'Multidisciplinary' %}
+	      <tr>
+		<td class="align-middle">
+		  {{ branch.name }}
+		</td>
+		<td>
+		  {% for acad_field in branch.academic_fields.all %}
+		    {% if acad_field.colleges.all|length > 0 %}
+		      {% for college in acad_field.colleges.all %}
+			{% if college.fellowships.all|length > 0 %}
+			  <a href={% url 'colleges:college_detail' slug=college.slug %}><button type="button" class="btn btn-primary btn-sm m-1"><small>{{ college.name }}</small></button></a>
 			{% else %}
-			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ discipline.1 }}</em></small></button>
+			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field }}</em></small></button>
 			{% endif %}
-		      {% endwith %}
-		    {% endfor %}
-		  </td>
-		</tr>
-	      {% endwith %}
+		      {% endfor %}
+		    {% endif %}
+		  {% endfor %}
+		</td>
+	      </tr>
 	    {% endif %}
 	  {% endfor %}
 	</tbody>
