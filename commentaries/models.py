@@ -28,11 +28,6 @@ class Commentary(TimeStampedModel):
                                   on_delete=models.CASCADE)
     type = models.CharField(max_length=9, choices=COMMENTARY_TYPES)
 
-    # TODO: Next 2 fields to be deprecated
-    discipline = models.CharField(max_length=20,
-                                  choices=SCIPOST_DISCIPLINES, default=DISCIPLINE_PHYSICS)
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-                                    default='Phys:QP')
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
         'ontology.AcademicField',
