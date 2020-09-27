@@ -4,9 +4,10 @@ __license__ = "AGPL v3"
 
 import factory
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.models import Contributor
 from common.helpers import random_arxiv_identifier_with_version_number, random_external_doi
+from ontology.models import AcademicField, Specialty
 
 from .constants import COMMENTARY_TYPES
 from .models import Commentary
@@ -22,8 +23,7 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     vetted = True
     vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
     type = factory.Iterator(COMMENTARY_TYPES, getter=lambda c: c[0])
-    discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
-    subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
+    acad_field = factory.SubFactory('ontology.factories.AcademicFieldFactory')
     approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
     open_for_commenting = True
 
@@ -48,6 +48,21 @@ class BaseCommentaryFactory(factory.django.DjangoModelFactory):
     #comments
 
     # url = factory.lazy_attribute(lambda o: 'https://arxiv.org/abs/%s' % o.arxiv_identifier)
+
+    @classmethod
+    def create(cls, **kwargs):
+        if AcademicField.objects.count() < 5:
+            from ontology.factories import AcademicFieldactory
+            AcademicFieldFactory.create_batch(5)
+        if Specialty.objects.count() < 5:
+            from ontology.factories import SpecialtyFactory
+            SpecialtyFactory.create_batch(5)
+        return super().create(**kwargs)
+
+    @factory.post_generation
+    def add_specialties(self, create, extracted, **kwargs):
+        if create:
+            self.specialties.set(Specialty.objects.order_by('?')[:3])
 
     @factory.post_generation
     def create_urls(self, create, extracted, **kwargs):
