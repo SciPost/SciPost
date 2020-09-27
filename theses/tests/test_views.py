@@ -99,6 +99,7 @@ class TestVetThesisLinkRequests(TestCase):
         post_data["action_option"] = VetThesisLinkForm.ACCEPT
         target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
 
+        print("post_data:\n\t%s" % post_data)
         request = RequestFactory().post(target, post_data)
         request.user = contributor.user
 
@@ -109,6 +110,7 @@ class TestVetThesisLinkRequests(TestCase):
         setattr(request, '_messages', messages)
 
         response = VetThesisLink.as_view()(request, pk=self.thesislink.id)
+        print("response:\n\t%s" % response)
         self.thesislink.refresh_from_db()
         self.assertEqual(self.thesislink.vetted_by, contributor)
         self.assertEqual(len(mail.outbox), 1)
@@ -139,7 +141,6 @@ class TestVetThesisLinkRequests(TestCase):
         self.assertEqual(ThesisLink.objects.filter(id=self.thesislink.id).count(), 0)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'SciPost Thesis Link')
-
 
     def test_thesislink_is_vetted_by_correct_contributor_and_mail_is_sent_when_modified(self):
         contributor = ContributorFactory()

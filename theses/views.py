@@ -92,16 +92,11 @@ class ThesisListView(PaginationMixin, ListView):
         # Context is not saved to View object by default
         self.pre_context = self.kwargs
 
-        # Browse if discipline is given
-        if 'discipline' in self.kwargs:
-            self.pre_context['browse'] = True
-
         # Queryset for browsing
         if self.kwargs.get('browse', False):
             return (self.model.objects.vetted()
-                    .filter(discipline=self.kwargs['discipline'],
-                            latest_activity__gte=timezone.now() + datetime.timedelta(
-                                        weeks=-int(self.kwargs['nrweeksback'])))
+                    .filter(latest_activity__gte=timezone.now() + datetime.timedelta(
+                        weeks=-int(self.kwargs['nrweeksback'])))
                     .order_by('-latest_activity'))
 
         # Queryset for searchform is processed by managers
