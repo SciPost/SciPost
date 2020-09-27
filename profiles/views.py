@@ -121,8 +121,8 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'first_name': refinv.first_name,
                     'last_name': refinv.last_name,
                     'email': refinv.email_address,
-                    'discipline': refinv.submission.discipline,
-                    'expertises': refinv.submission.secondary_areas,
+                    'acad_field': refinv.submission.acad_field.id,
+                    'specialties': [s.id for s in refinv.submission.specialties.all()],
                 })
             elif from_type == 'registrationinvitation':
                 reginv = get_object_or_404(RegistrationInvitation, pk=pk)

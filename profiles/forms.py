@@ -24,7 +24,6 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['title', 'first_name', 'last_name',
-                  'discipline', 'expertises',
                   'orcid_id', 'webpage',
                   'acad_field', 'specialties', 'topics',
                   'accepts_SciPost_emails', 'accepts_refereeing_requests',

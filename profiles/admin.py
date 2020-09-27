@@ -21,7 +21,7 @@ class AffiliationInline(admin.TabularInline):
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'email', 'discipline', 'expertises', 'has_active_contributor']
+    list_display = ['__str__', 'email', 'acad_field', 'has_active_contributor']
     search_fields = ['first_name', 'last_name', 'emails__email', 'orcid_id']
     inlines = [ProfileEmailInline, AffiliationInline]
     autocomplete_fields = [

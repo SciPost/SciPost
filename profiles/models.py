@@ -8,8 +8,7 @@ from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 
 from scipost.behaviors import orcid_validator
-from scipost.constants import (
-    TITLE_CHOICES, SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS, SCIPOST_SUBJECT_AREAS)
+from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
@@ -51,11 +50,7 @@ class Profile(models.Model):
     title = models.CharField(max_length=4, choices=TITLE_CHOICES, blank=True, null=True)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
-                                  default=DISCIPLINE_PHYSICS, verbose_name='Main discipline')
-    expertises = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
+
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True, validators=[orcid_validator])
     webpage = models.URLField(max_length=300, blank=True)
