@@ -8,8 +8,7 @@ from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
 
 from scipost.behaviors import TimeStampedModel
-from scipost.constants import SCIPOST_DISCIPLINES, DISCIPLINE_PHYSICS,\
-    SCIPOST_APPROACHES, SCIPOST_SUBJECT_AREAS
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
 from .constants import COMMENTARY_TYPES
