@@ -16,9 +16,11 @@ from journals import views as journals_views
 from journals.converters import JournalDOILabelConverter
 from journals.regexes import ISSUE_DOI_LABEL_REGEX,\
     PUBLICATION_DOI_LABEL_REGEX, DOI_DISPATCH_PATTERN
+from ontology.converters import SpecialtySlugConverter
 from submissions import views as submission_views
 
 register_converter(JournalDOILabelConverter, 'journal_doi_label')
+register_converter(SpecialtySlugConverter, 'specialty')
 
 app_name = 'scipost'
 
@@ -79,21 +81,29 @@ urlpatterns = [
     url(r'^rss/comments/$', LatestCommentsFeedRSS(), name='feeds_rss_comments'),
     url(r'^atom/comments/$', LatestCommentsFeedAtom(), name='feeds_atom_comments'),
     url(r'^rss/submissions/$', LatestSubmissionsFeedRSS(), name='feeds_rss_submissions'),
-    url(r'^rss/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'rss/submissions/<specialty:specialty>',
         LatestSubmissionsFeedRSS(),
-        name='sub_feed_spec_rss'),
+        name='sub_feed_spec_rss'
+    ),
     url(r'^atom/submissions/$', LatestSubmissionsFeedAtom(), name='feeds_atom_submissions'),
-    url(r'^atom/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'atom/submissions/<specialty:specialty>',
         LatestSubmissionsFeedAtom(),
-        name='sub_feed_spec_atom'),
+        name='sub_feed_spec_atom'
+    ),
     url(r'^rss/publications/$', LatestPublicationsFeedRSS(), name='feeds_rss_publications'),
-    url(r'^rss/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'rss/publications/<specialty:specialty>',
         LatestPublicationsFeedRSS(),
-        name='pub_feed_spec_rss'),
+        name='pub_feed_spec_rss'
+    ),
     url(r'^atom/publications/$', LatestPublicationsFeedAtom(), name='feeds_atom_publications'),
-    url(r'^atom/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'atom/publications/<specialty:specialty>',
         LatestPublicationsFeedAtom(),
-        name='pub_feed_spec_atom'),
+        name='pub_feed_spec_atom'
+    ),
 
 
     ################

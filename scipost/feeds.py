@@ -93,31 +93,28 @@ class LatestSubmissionsFeedRSS(Feed):
     description_template = 'feeds/latest_submissions_description.html'
     link = "/submissions/"
 
-    def get_object(self, request, subject_area=''):
-        if subject_area != '':
+    def get_object(self, request, specialty=None):
+        if specialty:
             queryset = Submission.objects.filter(
-                Q(subject_area=subject_area) | Q(secondary_areas__contains=[subject_area])
+                specialties=specialty
             ).filter(visible_public=True).order_by('-submission_date')[:10]
-            queryset.subject_area = subject_area
+            queryset.specialty = specialty
         else:
             queryset = Submission.objects.filter(
                 visible_public=True).order_by('-submission_date')[:10]
-            queryset.subject_area = None
+            queryset.specialty = None
         return queryset
 
     def title(self, obj):
         title_text = 'SciPost: Latest Submissions'
-        if obj.subject_area:
-            title_text += ' in %s' % subject_areas_dict[obj.subject_area]
+        if obj.specialty:
+            title_text += ' in %s' % obj.specialty.name
         return title_text
 
     def description(self, obj):
         desc = 'SciPost: most recent submissions'
-        try:
-            if obj.subject_area:
-                desc += ' in %s' % subject_areas_dict[obj.subject_area]
-        except KeyError:
-            pass
+        if obj.specialty:
+            desc += ' in %s' % obj.specialty.name
         return desc
 
     def items(self, obj):
@@ -146,29 +143,23 @@ class LatestPublicationsFeedRSS(Feed):
     description_template = 'feeds/latest_publications_description.html'
     link = "/journals/"
 
-    def get_object(self, request, subject_area=''):
-        if subject_area and subject_area not in subject_areas_dict:
-            raise Http404('Invalid subject area')
+    def get_object(self, request, specialty=None):
         qs = Publication.objects.published()
-        if subject_area:
-            qs = qs.filter(
-                Q(subject_area=subject_area) | Q(secondary_areas__contains=[subject_area]))
-        self.subject_area = subject_area
+        if specialty:
+            qs = qs.filter(specialties=specialty)
+        self.specialty = specialty
         return qs.order_by('-publication_date')[:10]
 
     def title(self, obj):
         title_text = 'SciPost: Latest Publications'
-        if self.subject_area:
-            title_text += ' in %s' % subject_areas_dict.get(self.subject_area)
+        if self.specialty:
+            title_text += ' in %s' % self.specialty.name
         return title_text
 
     def description(self, obj):
         desc = 'SciPost: most recent publications'
-        try:
-            if self.subject_area:
-                desc += ' in %s' % subject_areas_dict.get(self.subject_area)
-        except KeyError:
-            pass
+        if self.specialty:
+            desc += ' in %s' % self.specialty.name
         return desc
 
     def items(self, obj):

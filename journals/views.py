@@ -161,7 +161,7 @@ class JournalListView(ListView):
 
 class PublicationListView(PaginationMixin, ListView):
     """
-    Show Publications filtered per subject area.
+    Show Publications filtered per specialty.
     """
     queryset = Publication.objects.published()
     paginate_by = 10
@@ -178,8 +178,8 @@ class PublicationListView(PaginationMixin, ListView):
                 issue = None
             if issue:
                 qs = qs.filter(in_issue__id=issue)
-        if self.request.GET.get('subject'):
-            qs = qs.for_subject(self.request.GET['subject'])
+        if self.request.GET.get('specialty'):
+            qs = qs.for_specialty(self.request.GET['specialty'])
 
         if self.request.GET.get('orderby') == 'citations':
             qs = qs.order_by('-number_of_citations')
@@ -190,7 +190,6 @@ class PublicationListView(PaginationMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['recent_issues'] = Issue.objects.published().order_by('-start_date')[:5]
-        context['subject_areas'] = (('', 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]
         return context
 
 

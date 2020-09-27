@@ -241,11 +241,11 @@ class SciPostPrefillForm(SubmissionPrefillForm):
                 'title': self.latest_submission.title,
                 'abstract': self.latest_submission.abstract,
                 'author_list': self.latest_submission.author_list,
+                'acad_field': self.latest_submission.acad_field.id,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()],
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'secondary_areas': self.latest_submission.secondary_areas,
-                'subject_area': self.latest_submission.subject_area,
             })
         return form_data
 
@@ -292,8 +292,8 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'secondary_areas': self.latest_submission.secondary_areas,
-                'subject_area': self.latest_submission.subject_area,
+                'acad_field': self.latest_submission.acad_field.id,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()]
             })
         return form_data
 
@@ -322,8 +322,8 @@ class SubmissionForm(forms.ModelForm):
             'discipline',
             'submitted_to',
             'proceedings',
-            'subject_area',
-            'secondary_areas',
+            'acad_field',
+            'specialties',
             'approaches',
             'title',
             'author_list',
@@ -339,7 +339,6 @@ class SubmissionForm(forms.ModelForm):
         widgets = {
             'is_resubmission_of': forms.HiddenInput(),
             'thread_hash': forms.HiddenInput(),
-            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
             'arxiv_link': forms.TextInput(
                 attrs={'placeholder': 'Full URL, ex.:  https://arxiv.org/abs/1234.56789v1'}),
             'code_repository_url': forms.TextInput(
@@ -509,7 +508,7 @@ class SubmissionForm(forms.ModelForm):
 
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)
-        self.set_pool(submission)
+        self.set_fellowship(submission)
 
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
@@ -554,16 +553,15 @@ class SubmissionForm(forms.ModelForm):
             to=previous_submission.editor_in_charge,
             status=STATUS_ACCEPTED)
 
-    def set_pool(self, submission):
+    def set_fellowship(self, submission):
         """
         Set the default set of (guest) Fellows for this Submission.
         """
         qs = Fellowship.objects.active()
         fellows = qs.regular().filter(
-            contributor__profile__discipline=submission.discipline).filter(
-                Q(contributor__profile__expertises__contains=[submission.subject_area]) |
-                Q(contributor__profile__expertises__overlap=submission.secondary_areas)
-            ).return_active_for_submission(submission)
+            college=submission.submitted_to.college,
+            contributor__profile__specialties__in=submission.specialties.all()
+        ).return_active_for_submission(submission)
         submission.fellows.set(fellows)
 
         if submission.proceedings:
@@ -1009,9 +1007,6 @@ class VotingEligibilityForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Get queryset of Contributors eligible for voting."""
         super().__init__(*args, **kwargs)
-        secondary_areas = self.instance.submission.secondary_areas
-        if not secondary_areas:
-            secondary_areas = []
 
         # If there exists a previous recommendation, include previous voting Fellows:
         prev_elig_id = []
@@ -1020,10 +1015,10 @@ class VotingEligibilityForm(forms.ModelForm):
         eligible = Contributor.objects.filter(
             fellowships__pool=self.instance.submission).filter(
                 Q(EIC=self.instance.submission) |
-                Q(expertises__contains=[self.instance.submission.subject_area]) |
-                Q(expertises__contains=secondary_areas) |
+                Q(profile__specialties__in=self.instance.submission.specialties.all()) |
                 Q(pk__in=prev_elig_id)
             ).order_by('user__last_name').distinct()
+
         self.fields['eligible_fellows'].queryset = eligible
 
     def save(self, commit=True):

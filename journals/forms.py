@@ -367,8 +367,8 @@ class DraftPublicationForm(forms.ModelForm):
             'author_list',
             'abstract',
             'discipline',
-            'subject_area',
-            'secondary_areas',
+            'acad_field',
+            'specialties',
             'approaches',
             'cc_license',
             'BiBTeX_entry',
@@ -433,9 +433,8 @@ class DraftPublicationForm(forms.ModelForm):
         del self.fields['title']
         del self.fields['author_list']
         del self.fields['abstract']
-        del self.fields['discipline']
-        del self.fields['subject_area']
-        del self.fields['secondary_areas']
+        del self.fields['acad_field']
+        del self.fields['specialties']
         del self.fields['approaches']
         del self.fields['cc_license']
         del self.fields['BiBTeX_entry']
@@ -486,9 +485,8 @@ class DraftPublicationForm(forms.ModelForm):
             self.fields['title'].initial = self.submission.title
             self.fields['author_list'].initial = self.submission.author_list
             self.fields['abstract'].initial = self.submission.abstract
-            self.fields['discipline'].initial = self.submission.discipline
-            self.fields['subject_area'].initial = self.submission.subject_area
-            self.fields['secondary_areas'].initial = self.submission.secondary_areas
+            self.fields['acad_field'].initial = self.submission.acad_field.id
+            self.fields['specialties'].initial = [s.id for s in self.submission.specialties.all()]
             self.fields['approaches'].initial = self.submission.approaches
             self.fields['submission_date'].initial = self.submission.submission_date
             self.fields['acceptance_date'].initial = self.submission.acceptance_date

@@ -49,9 +49,10 @@ class Submission(models.Model):
     discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
                                     verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
+    # secondary_areas = ChoiceArrayField(
+    #     models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
+    #     blank=True, null=True)
+
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
         'ontology.AcademicField',

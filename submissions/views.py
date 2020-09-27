@@ -1737,15 +1737,11 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.preprint.identifier_w_vn_nr]))
     else:
-        secondary_areas = recommendation.submission.secondary_areas
-        if not secondary_areas:
-            secondary_areas = []
-
         fellows_with_expertise = recommendation.submission.fellows.filter(
             Q(contributor=recommendation.submission.editor_in_charge) |
-            Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
-            Q(contributor__expertises__contains=secondary_areas)).order_by(
-                'contributor__user__last_name')
+            Q(contributor__profile__specialties__in=recommendation.submission.specialties.all())
+        ).order_by('contributor__user__last_name')
+
         #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
         coauthorships = None
 
