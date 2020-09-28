@@ -377,13 +377,6 @@ class SubmissionListView(PaginationMixin, ListView):
                 latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
                 submitted_to__doi_label=self.request.GET['to_journal']
             )
-        elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
-            discipline = self.kwargs['discipline']
-            nrweeksback = self.kwargs['nrweeksback']
-            queryset = queryset.filter(
-                discipline=discipline,
-                latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
-            )
         elif self.form.is_valid() and self.form.has_changed():
             queryset = self.form.search_results()
 
@@ -403,13 +396,6 @@ class SubmissionListView(PaginationMixin, ListView):
                     name=self.request.GET['to_journal']).first().get_name_display()
             except (Journal.DoesNotExist, AttributeError):
                 context['to_journal'] = self.request.GET['to_journal']
-        if 'discipline' in self.kwargs:
-            context['discipline'] = self.kwargs['discipline']
-            context['nrweeksback'] = self.kwargs['nrweeksback']
-            context['browse'] = True
-        elif not self.form.is_valid() or not self.form.has_changed():
-            context['recent'] = True
-
         return context
 
 

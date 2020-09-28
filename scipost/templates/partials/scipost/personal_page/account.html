@@ -126,7 +126,7 @@
       <ul class="mb-2">
         {% for fellowship in contributor.fellowships.all %}
           <li class="pt-1">
-            {{ fellowship.contributor.get_discipline_display }}
+            {{ fellowship.college }}
 
             {% if fellowship.guest %}
               (Guest Fellowship)

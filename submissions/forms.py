@@ -58,8 +58,6 @@ class SubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     abstract = forms.CharField(max_length=1000, required=False)
-    subject_area = forms.CharField(max_length=10, required=False, widget=forms.Select(
-                                   choices=((None, 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]))
 
     def search_results(self):
         """Return all Submission objects according to search."""
@@ -67,7 +65,6 @@ class SubmissionSearchForm(forms.Form):
             title__icontains=self.cleaned_data.get('title', ''),
             author_list__icontains=self.cleaned_data.get('author', ''),
             abstract__icontains=self.cleaned_data.get('abstract', ''),
-            subject_area__icontains=self.cleaned_data.get('subject_area', '')
         )
 
 
