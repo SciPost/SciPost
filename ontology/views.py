@@ -14,7 +14,7 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
-from .models import Tag, Topic, RelationAsym
+from .models import AcademicField, Specialty, Tag, Topic, RelationAsym
 from .forms import SelectTagsForm, SelectLinkedTopicForm, AddRelationAsymForm
 
 from scipost.forms import SearchTextForm
@@ -26,6 +26,24 @@ def ontology(request):
         'select_linked_topic_form': SelectLinkedTopicForm(),
     }
     return render(request, 'ontology/ontology.html', context=context)
+
+
+class AcademicFieldAutocompleteView(autocomplete.Select2QuerySetView):
+    """To feed the Select2 widget."""
+    def get_queryset(self):
+        qs = AcademicField.objects.all()
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        return qs
+
+
+class SpecialtyAutocompleteView(autocomplete.Select2QuerySetView):
+    """To feed the Select2 widget."""
+    def get_queryset(self):
+        qs = Specialty.objects.all()
+        if self.q:
+            qs = qs.filter(name__icontains=self.q)
+        return qs
 
 
 class TagAutocompleteView(autocomplete.Select2QuerySetView):

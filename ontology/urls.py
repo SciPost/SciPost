@@ -11,20 +11,30 @@ app_name = 'ontology'
 
 urlpatterns = [
     path(
+        'acad_field-autocomplete/',
+        views.AcademicFieldAutocompleteView.as_view(),
+        name='acad_field-autocomplete',
+    ),
+    path(
+        'specialty-autocomplete/',
+        views.SpecialtyAutocompleteView.as_view(),
+        name='specialty-autocomplete',
+    ),
+    path(
         'tag-autocomplete/',
         views.TagAutocompleteView.as_view(),
         name='tag-autocomplete',
-        ),
+    ),
     path(
         'topic-autocomplete/',
         views.TopicAutocompleteView.as_view(),
         name='topic-autocomplete',
-        ),
+    ),
     path(
         'topic-linked-autocomplete/',
         views.TopicLinkedAutocompleteView.as_view(),
         name='topic-linked-autocomplete',
-        ),
+    ),
     url(
         r'^$',
         views.ontology,

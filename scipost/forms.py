@@ -36,6 +36,7 @@ from funders.models import Grant
 from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
+from ontology.models import AcademicField, Specialty
 from organizations.models import Organization
 from profiles.models import Profile, ProfileEmail, Affiliation
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
@@ -250,17 +251,45 @@ class UpdateUserDataForm(forms.ModelForm):
 
 
 class UpdatePersonalDataForm(forms.ModelForm):
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/acad_field-autocomplete'
+        ),
+        label='Academic field',
+        help_text='Your main field of activity'
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        help_text='Type to search, click to include'
+    )
     class Meta:
         model = Contributor
         fields = [
             'title',
-            'discipline',
-            'expertises',
+            'acad_field',
+            'specialties',
             'orcid_id',
             'address',
             'personalwebpage',
             'accepts_SciPost_emails',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['acad_field'].initial = self.instance.profile.acad_field.id
+        self.fields['specialties'].initial = [s.id for s in self.instance.profile.specialties.all()]
+
+    def save(self):
+        self.instance.profile.acad_field = self.cleaned_data['acad_field']
+        self.instance.profile.save()
+        self.instance.profile.specialties.set(self.cleaned_data['specialties'])
+        return super().save()
 
     def sync_lists(self):
         """
@@ -270,7 +299,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
 
     def propagate_orcid(self):
         """
-        This method is called if a Contributor updates his/her personal data,
+        This method is called if a Contributor updates their personal data,
         and changes the orcid_id. It marks all Publications, Reports and Comments
         authored by this Contributor with a deposit_requires_update == True.
         """
