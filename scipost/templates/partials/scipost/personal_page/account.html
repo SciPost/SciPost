@@ -31,18 +31,18 @@
 
     {% if contributor %}
       {# Scientist fields #}
-      <h3 class="mt-3">Your main discipline:</h3>
-      <ul><li>{{ contributor.get_discipline_display }}</li></ul>
+      <h3 class="mt-3">Your main academic field:</h3>
+      <ul><li>{{ contributor.profile.acad_field }}</li></ul>
 
-      <h3 class="mt-3">Your expertises:</h3>
-      {% if contributor.expertises %}
-        {% include "scipost/_expertises_as_ul.html" with contributor=contributor %}
-      {% else %}
-        <p>You haven't listed your expertise(s).<br/>
-          Do so by <a href="{% url 'scipost:update_personal_data' %}">updating your personal data</a>
-        </p>
-      {% endif %}
-      {# END: Scientist fields #}
+      <h3 class="mt-3">Your specialties:</h3>
+      <ul>
+	{% for specialty in contributor.profile.specialties.all %}
+	  <li>{{ specialty }}</li>
+	{% empty %}
+          <li>You haven't listed your specialties yet.</li>
+	{% endfor %}
+      </ul>
+      <p>You can add/remove specialties by <a href="{% url 'scipost:update_personal_data' %}">updating your personal data</a>.</p>
     {% endif %}
   </div>
 

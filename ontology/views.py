@@ -32,9 +32,11 @@ class AcademicFieldAutocompleteView(autocomplete.Select2QuerySetView):
     """To feed the Select2 widget."""
     def get_queryset(self):
         qs = AcademicField.objects.all()
+        if self.request.GET.get('exclude'):
+            qs = qs.exclude(slug=self.request.GET['exclude'])
         if self.q:
             qs = qs.filter(name__icontains=self.q)
-        return qs
+        return qs.order_by('name')
 
 
 class SpecialtyAutocompleteView(autocomplete.Select2QuerySetView):
@@ -43,7 +45,7 @@ class SpecialtyAutocompleteView(autocomplete.Select2QuerySetView):
         qs = Specialty.objects.all()
         if self.q:
             qs = qs.filter(name__icontains=self.q)
-        return qs
+        return qs.order_by('name')
 
 
 class TagAutocompleteView(autocomplete.Select2QuerySetView):

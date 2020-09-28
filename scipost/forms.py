@@ -20,7 +20,7 @@ from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
 from .constants import (
-    SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
+    TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
     UNVERIFIABLE_CREDENTIALS, NO_SCIENTIST, DOUBLE_ACCOUNT, BARRED)
 from .fields import ReCaptchaField
 from .models import Contributor, UnavailabilityPeriod, \
@@ -91,7 +91,25 @@ class RegistrationForm(forms.Form):
         label="ORCID id", max_length=20, required=False, validators=[orcid_validator],
         widget=forms.TextInput({
             'placeholder': 'Recommended. Get one at orcid.org'}))
-    discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
+        ),
+        label='Academic field',
+        help_text='Your main field of activity',
+        required=False
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        help_text='Type to search, click to include',
+        required=False
+    )
     current_affiliation = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
         widget=autocomplete.ModelSelect2(
@@ -137,14 +155,11 @@ class RegistrationForm(forms.Form):
             )
 
         profile = Profile.objects.filter(
-            title=self.cleaned_data['title'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            discipline=self.cleaned_data['discipline']).first()
+            emails__email__icontains=self.cleaned_data['email']).first()
         try:
             if profile and profile.contributor:
                 raise forms.ValidationError(
-                    'There is already a registered Contributor with your first and last names. '
+                    'There is already a registered Contributor with your email address. '
                     'Please contact techsupport@scipost.org to clarify this issue.'
                 )
         except Contributor.DoesNotExist:
@@ -190,18 +205,16 @@ class RegistrationForm(forms.Form):
         })
         # Get or create a Profile
         profile = Profile.objects.filter(
-            title=self.cleaned_data['title'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            discipline=self.cleaned_data['discipline']).first()
+            emails__email__icontains=self.cleaned_data['email']).first()
         if profile is None:
             profile = Profile.objects.create(
                 title=self.cleaned_data['title'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                discipline=self.cleaned_data['discipline'],
+                acad_field=self.cleaned_data['acad_field'],
                 orcid_id=self.cleaned_data['orcid_id'],
                 webpage=self.cleaned_data['personalwebpage'])
+            profile.specialties.set(self.cleaned_data['specialties'])
         # Add a ProfileEmail to this Profile
         profile_email, created = ProfileEmail.objects.get_or_create(
             profile=profile, email=self.cleaned_data['email'])
@@ -254,10 +267,11 @@ class UpdatePersonalDataForm(forms.ModelForm):
     acad_field = forms.ModelChoiceField(
         queryset=AcademicField.objects.all(),
         widget=autocomplete.ModelSelect2(
-            url='/ontology/acad_field-autocomplete'
+            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
         ),
         label='Academic field',
-        help_text='Your main field of activity'
+        help_text='Your main field of activity',
+        required=False
     )
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
@@ -266,7 +280,8 @@ class UpdatePersonalDataForm(forms.ModelForm):
             attrs={'data-html': True}
         ),
         label='Specialties',
-        help_text='Type to search, click to include'
+        help_text='Type to search, click to include',
+        required=False
     )
     class Meta:
         model = Contributor

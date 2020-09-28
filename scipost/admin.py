@@ -14,6 +14,7 @@ from scipost.models import TOTPDevice, Contributor, Remark,\
 
 from organizations.admin import ContactInline
 from production.admin import ProductionUserInline
+from profiles.models import Profile
 from submissions.models import Submission
 
 
