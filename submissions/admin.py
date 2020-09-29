@@ -68,9 +68,11 @@ class SubmissionAdmin(GuardedModelAdmin):
         'submitted_by__user__last_name',
         'title',
         'author_list',
-        'abstract'
+        'abstract',
     ]
     autocomplete_fields = [
+        'acad_field',
+        'specialties',
         'preprint',
         'editor_in_charge',
         'is_resubmission_of',

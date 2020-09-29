@@ -137,13 +137,13 @@ def submit_manuscript(request):
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
-def submit_choose_journal(request, discipline=None):
+def submit_choose_journal(request, acad_field=None):
     """
     Choose a Journal. If `thread_hash` is given as GET parameter, this is a resubmission.
     """
     journals = Journal.objects.submission_allowed()
-    if discipline:
-        journals = journals.filter(discipline=discipline)
+    if acad_field:
+        journals = journals.filter(college__acad_field=acad_field)
     context = {
         'journals': journals,
     }

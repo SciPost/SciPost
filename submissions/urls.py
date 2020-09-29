@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 
 from scipost.converters import DisciplineConverter
 from journals.converters import JournalDOILabelConverter
+from ontology.converters import AcademicFieldSlugConverter
 
 from . import views
 from .constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
@@ -16,6 +17,7 @@ app_name = 'submissions'
 
 register_converter(DisciplineConverter, 'discipline')
 register_converter(JournalDOILabelConverter, 'journal_doi_label')
+register_converter(AcademicFieldSlugConverter, 'acad_field')
 
 
 urlpatterns = [
@@ -133,7 +135,7 @@ urlpatterns = [
         name='submit_manuscript'
     ),
     path( # Choose journal (thread_hash as GET param if resubmission)
-        'submit/<discipline:discipline>',
+        'submit/<acad_field:acad_field>',
         views.submit_choose_journal,
         name='submit_choose_journal'
     ),

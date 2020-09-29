@@ -13,6 +13,8 @@ from django.db.models import Q
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
+from dal import autocomplete
+
 from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
@@ -39,10 +41,10 @@ from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
 from journals.models import Journal
 from mails.utils import DirectMailUtil
+from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from profiles.models import Profile
-from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
 import strings
@@ -200,7 +202,7 @@ class SubmissionPrefillForm(forms.Form):
 
     def get_prefill_data(self):
         form_data = {
-            'discipline': self.journal.discipline,
+            'acad_field': self.journal.college.acad_field.id,
             'submitted_to': self.journal.id
         }
         if self.thread_hash:
@@ -305,6 +307,22 @@ class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
+        ),
+        label='Academic field',
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        help_text='Type to search, click to include',
+    )
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
@@ -316,7 +334,6 @@ class SubmissionForm(forms.ModelForm):
         fields = [
             'is_resubmission_of',
             'thread_hash',
-            'discipline',
             'submitted_to',
             'proceedings',
             'acad_field',
@@ -500,6 +517,10 @@ class SubmissionForm(forms.ModelForm):
         submission.preprint = preprint
 
         submission.save()
+
+        # Explicitly handle specialties (otherwise they are not saved)
+        submission.specialties.set(self.cleaned_data['specialties'])
+
         if self.is_resubmission():
             self.process_resubmission(submission)
 
@@ -1261,23 +1282,31 @@ class EICRecommendationForm(forms.ModelForm):
                 }
 
         super().__init__(*args, **kwargs)
-        self.fields['for_journal'].queryset = Journal.objects.active().filter(
-            Q(discipline=self.submission.discipline) | Q(name='SciPost Selections'))
-        self.fields['for_journal'].help_text=(
-            'Please be aware of all the points below!'
-            '<ul><li>SciPost Selections: means article in field flagship journal '
-            '(SciPost Physics, Astronomy, Biology, Chemistry...) '
-            'with extended abstract published separately in SciPost Selections. '
-            'Only choose this for '
-            'an <em>exceptionally</em> good submission to a flagship journal.</li>'
-            '<li>A submission to a flaghip which does not meet the latter\'s '
-            'tough expectations and criteria can be recommended for publication '
-            'in the field\'s Core journal (if it exists).</li>'
-            '<li>Conversely, an extremely good submission to a field\'s Core journal can be '
-            'recommended for publication in the field\'s flagship, provided '
-            'it fulfils the latter\'s expectations and criteria.</li>'
-            '</ul>'
-        )
+        for_journal_qs = Journal.objects.active().filter(
+            # The journals which can be recommended for are those falling under
+            # the responsibility of the College of the journal submitted to
+            college=self.submission.to_journal.college)
+        if self.submission.to_journal.name.partition(' ')[0] == 'SciPost':
+            # Submitted to a SciPost journal, so Selections is accessible
+            for_journal_qs = for_journal_qs | Journal.objects.filter(name='SciPost Selections')
+        self.fields['for_journal'] = for_journal_qs
+        if self.submission.to_journal.name.partition(' ')[0] == 'SciPost':
+            # Submitted to a SciPost journal, so Core and Selections are accessible
+            self.fields['for_journal'].help_text=(
+                'Please be aware of all the points below!'
+                '<ul><li>SciPost Selections: means article in field flagship journal '
+                '(SciPost Physics, Astronomy, Biology, Chemistry...) '
+                'with extended abstract published separately in SciPost Selections. '
+                'Only choose this for '
+                'an <em>exceptionally</em> good submission to a flagship journal.</li>'
+                '<li>A submission to a flaghip which does not meet the latter\'s '
+                'tough expectations and criteria can be recommended for publication '
+                'in the field\'s Core journal (if it exists).</li>'
+                '<li>Conversely, an extremely good submission to a field\'s Core journal can be '
+                'recommended for publication in the field\'s flagship, provided '
+                'it fulfils the latter\'s expectations and criteria.</li>'
+                '</ul>'
+            )
         self.fields['recommendation'].help_text=(
             'Selecting any of the three Publish choices means that you recommend publication.<br>'
             'Which one you choose simply indicates your ballpark evaluation of the '
