@@ -4,8 +4,6 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
-from scipost.constants import SCIPOST_DISCIPLINES
-
 from ontology.models import Specialty
 
 
@@ -24,7 +22,7 @@ class College(models.Model):
 
     name = models.CharField(
         max_length=256,
-        help_text='Official name of the College (default: name of the discipline)',
+        help_text='Official name of the College (default: name of the academic field)',
         unique=True
     )
 

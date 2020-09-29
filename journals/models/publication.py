@@ -16,7 +16,7 @@ from ..helpers import paper_nr_string
 from ..managers import PublicationQuerySet
 from ..validators import doi_publication_validator
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
 
@@ -95,13 +95,6 @@ class Publication(models.Model):
     abstract_jats = models.TextField(blank=True, default='',
                                      help_text='JATS version of abstract for Crossref deposit')
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
-
-    # TODO: next two fields to be deprecated
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-                                    verbose_name='Primary subject area', default='Phys:QP')
-    # secondary_areas = ChoiceArrayField(
-    #     models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(

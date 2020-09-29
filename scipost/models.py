@@ -72,11 +72,6 @@ class Contributor(models.Model):
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
-                                  default='physics', verbose_name='Main discipline')
-    expertises = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
     orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
                                 blank=True, validators=[orcid_validator])
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
