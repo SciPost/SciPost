@@ -4,7 +4,7 @@
 
 {% block breadcrumb_items %}
   {{block.super}}
-  <a href="{% url 'journals:journals' %}?field={{ journal.discipline }}" class="breadcrumb-item">{{ journal.discipline|get_discipline_display }} Journals</a>
+  <a href="{% url 'journals:journals' %}?field={{ journal.college.acad_field.slug }}" class="breadcrumb-item">{{ journal.college.acad_field }} Journals</a>
   <a href="{{ journal.get_absolute_url }}" class="breadcrumb-item">{{ journal }}</a>
   <span class="breadcrumb-item">Home</span>
 {% endblock %}

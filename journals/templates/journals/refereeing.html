@@ -9,7 +9,7 @@
 {% block breadcrumb_items %}
   {{ block.super }}
   {% if journal %}
-    <a href="{% url 'journals:journals' %}?field={{ journal.discipline }}" class="breadcrumb-item">{{ journal.discipline|get_discipline_display }} Journals</a>
+    <a href="{% url 'journals:journals' %}?field={{ journal.college.acad_field.slug }}" class="breadcrumb-item">{{ journal.college.acad_field }} Journals</a>
     <a href="{% url 'journal:about' journal.doi_label %}" class="breadcrumb-item">{{ journal.name }}</a>
   {% endif %}
   <span class="breadcrumb-item active">Refereeing guidelines</span>

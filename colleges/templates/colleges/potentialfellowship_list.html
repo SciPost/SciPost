@@ -50,53 +50,66 @@
     {% endif %}
   {% endif %}
 
-  <div class="row">
-    <div class="col-12">
-      <h3 class="highlight">List of potential Fellowships</h3>
-      <a href="{% url 'colleges:potential_fellowships' %}">View all</a>
-      <br>
-      View by discipline/subject area:
-      <ul class="d-inline-block list-inline">
-        <li class="list-inline-item">
-        </li>
-        {% for discipline in subject_areas %}
-          <li class="list-inline-item">
-            <div class="dropdown">
-              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-		<a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
-		{% for area in discipline.1 %}
-                  <a class="dropdown-item" href="{% url 'colleges:potential_fellowships' discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
+  <table class="table table-bordered table-secondary">
+    <thead class="thead-dark">
+      <tr>
+	<th><h3>Branch of Science</h3></th>
+	<th><h3>Fields<br><small><em>(click to see list of Fellows)</em></small></h3></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for branch in branches %}
+	{% if branch.name != 'Multidisciplinary' %}
+	  <tr>
+	    <td class="align-middle">
+	      {{ branch.name }}
+	    </td>
+	    <td>
+	      <ul class="d-inline-block list-inline mb-0">
+		{% for acad_field in branch.academic_fields.all %}
+		  <li class="list-inline-item m-1">
+		    <div class="dropdown">
+		      <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
+		      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ acad_field.slug }}">
+			<a class="dropdown-item" href="{% url 'colleges:potential_fellowships' acad_field=acad_field.slug %}"><small>View all in {{ acad_field }}</small></a>
+			{% for specialty in acad_field.specialties.all %}
+			  <a class="dropdown-item" href="{% url 'colleges:potential_fellowships' acad_field=acad_field.slug specialty=specialty.slug %}"><small>{{ specialty }}</small></a>
+			{% endfor %}
+		      </div>
+		    </div>
+		  </li>
 		{% endfor %}
-              </div>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
-      <div class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter by status</button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonStatus">
-          <a class="dropdown-item" href="">View all</a>
-          {% for status in statuses %}
-            <a class="dropdown-item" href="?status={{ status.0 }}">{{ status.1 }}</a>
-          {% endfor %}
-        </div>
-      </div>
+	      </ul>
+	    </td>
+	  </tr>
+	{% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter by status</button>
+    <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonStatus">
+      <a class="dropdown-item" href="">View all</a>
+      {% for status in statuses %}
+        <a class="dropdown-item" href="?status={{ status.0 }}">{{ status.1 }}</a>
+      {% endfor %}
     </div>
   </div>
 
+
+
   <div class="row">
     <div class="col-12">
-      {% if view.kwargs.discipline or request.GET.status %}
-	<h3>Potential Fellowships {% if view.kwargs.discipline %}in {{ view.kwargs.discipline }}{% if view.kwargs.expertise %}, {{ view.kwargs.expertise }}{% endif %}{% endif %}{% if request.GET.status %} with status {{ request.GET.status }}{% endif %}:</h3>
+      {% if view.kwargs.acad_field or request.GET.status %}
+	<h3>Potential Fellowships {% if view.kwargs.acad_field %}in {{ view.kwargs.acad_field }}{% if view.kwargs.specialty %}, {{ view.kwargs.specialty }}{% endif %}{% endif %}{% if request.GET.status %} with status {{ request.GET.status }}{% endif %}:</h3>
 	<br/>
       {% endif %}
       <table class="table table-hover mb-5">
 	<thead class="thead-default">
 	  <tr>
 	    <th>Name</th>
-	    <th>Discipline</th>
-	    <th>Expertises</th>
+	    <th>Field<br/><span class="text-muted">Specialties</span></th>
 	    <th>For College</th>
 	    <th>Status</th>
 	    <th>Latest event</th>
@@ -106,10 +119,10 @@
 	  {% for potfel in object_list %}
 	    <tr class="table-row" data-href="{% url 'colleges:potential_fellowship_detail' pk=potfel.id %}" style="cursor: pointer;">
 	      <td>{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</td>
-	      <td>{{ potfel.profile.get_discipline_display }}</td>
-	      <td>
-		{% for expertise in potfel.profile.expertises %}
-		  <div class="single d-inline" data-specialization="{{ expertise|lower }}" data-toggle="tooltip" data-placement="bottom" title="{{ expertise|get_specialization_display }}">{{ expertise|get_specialization_code }}</div>
+	      <td>{{ potfel.profile.acad_field }}
+		<br/>
+		{% for specialty in potfel.profile.specialties.all %}
+		  <div class="single d-inline text-muted" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
 	      <td>{{ potfel.college }}</td>

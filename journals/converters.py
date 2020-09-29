@@ -2,12 +2,11 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls.converters import StringConverter
-
 from journals.models import Journal
 
 
-class JournalDOILabelConverter(StringConverter):
+class JournalDOILabelConverter:
+    regex = '|'.join([j.doi_label for j in Journal.objects.all()])
 
     def to_python(self, value):
         try:

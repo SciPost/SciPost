@@ -125,23 +125,18 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of Fellowships filtered by optional GET data.
         """
         queryset = Fellowship.objects.all()
-        if self.kwargs.get('discipline', None):
+        if self.kwargs.get('acad_field', None):
             queryset = queryset.filter(
-                contributor__profile__discipline=self.kwargs['discipline'].lower())
-            if self.kwargs.get('expertise', None):
+                contributor__profile__acad_field=self.kwargs['acad_field'])
+            if self.kwargs.get('specialty', None):
                 queryset = queryset.filter(
-                    contributor__profile__expertises__contains=[self.kwargs['expertise']])
+                    contributor__profile__specialties=self.kwargs['specialty'])
         if self.request.GET.get('type', None):
             if self.request.GET.get('type') == 'regular':
                 queryset = queryset.filter(guest=False)
             elif self.request.GET.get('type') == 'guest':
                 queryset = queryset.filter(guest=True)
         return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
-        return context
 
 
 class FellowshipStartEmailView(PermissionsMixin, MailView):
@@ -408,10 +403,10 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of PotentialFellowships using optional GET data.
         """
         queryset = PotentialFellowship.objects.all()
-        if self.kwargs.get('discipline', None):
-            queryset = queryset.filter(profile__discipline=self.kwargs['discipline'].lower())
-            if self.kwargs.get('expertise', None):
-                queryset = queryset.filter(profile__expertises__contains=[self.kwargs['expertise']])
+        if self.kwargs.get('acad_field', None):
+            queryset = queryset.filter(profile__acad_field=self.kwargs['acad_field'])
+            if self.kwargs.get('specialty', None):
+                queryset = queryset.filter(profile__specialties=self.kwargs['specialty'])
         if self.request.GET.get('status', None):
             queryset = queryset.filter(status=self.request.GET.get('status'))
         return queryset

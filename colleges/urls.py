@@ -5,11 +5,14 @@ __license__ = "AGPL v3"
 from django.conf.urls import url
 from django.urls import path, register_converter
 
+from ontology.converters import AcademicFieldSlugConverter, SpecialtySlugConverter
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from . import views
 from .converters import CollegeSlugConverter
 
+register_converter(AcademicFieldSlugConverter, 'acad_field')
+register_converter(SpecialtySlugConverter, 'specialty')
 register_converter(CollegeSlugConverter, 'college_slug')
 
 app_name = 'colleges'
@@ -40,18 +43,18 @@ urlpatterns = [
         views.FellowshipDetailView.as_view(),
         name='fellowship_detail'
     ),
-    url(
-        r'^fellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+    path(
+        'fellowships/<acad_field:acad_field>/<specialty:specialty>',
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
-    url(
-        r'^fellowships/(?P<discipline>[a-zA-Z]+)/$',
+    path(
+        'fellowships/<acad_field:acad_field>',
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
-    url(
-        r'^fellowships/$',
+    path(
+        'fellowships',
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
@@ -130,18 +133,18 @@ urlpatterns = [
         views.PotentialFellowshipDetailView.as_view(),
         name='potential_fellowship_detail'
     ),
-    url(
-        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+    path(
+        'potentialfellowships/<acad_field:acad_field>/<specialty:specialty>',
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),
-    url(
-        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/$',
+    path(
+        'potentialfellowships/<acad_field:acad_field>',
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),
-    url(
-        r'^potentialfellowships/$',
+    path(
+        'potentialfellowships',
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),

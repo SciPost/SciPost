@@ -2,16 +2,15 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls.converters import SlugConverter
-
 from colleges.models import College
 
 
-class CollegeSlugConverter(SlugConverter):
+class CollegeSlugConverter:
+    regex = '|'.join([c.slug for c in College.objects.all()])
 
     def to_python(self, value):
         try:
-            return College.objects.get(slug=value).slug
+            return College.objects.get(slug=value)
         except College.DoesNotExist:
             return ValueError
         return value
