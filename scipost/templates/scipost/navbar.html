@@ -86,44 +86,32 @@
               </div>
             </div>
             <div class="dropdown-divider"></div>
-            <span class="dropdown-item dropdown-headline"><strong>Physics</strong></span>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:AE">Atomic, Molecular and Optical Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:AT">Atomic, Molecular and Optical Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:BI">Biophysics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:CE">Condensed Matter Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:CT">Condensed Matter Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:CC">Condensed Matter Physics - Computational</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:FD">Fluid Dynamics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:GR">Gravitation, Cosmology and Astroparticle Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-              </div>
-              <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:HE">High-Energy Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:HT">High-Energy Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:HP">High-Energy Physics - Phenomenology</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:MP">Mathematical Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:NE">Nuclear Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:NT">Nuclear Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:QP">Quantum Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:SM">Statistical and Soft Matter Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-              </div>
-
-            </div>
+	    <table class="table table-bordered table-secondary">
+	      <thead class="thead-dark">
+		<tr>
+		  <th class="px-2 py-1"><small>Branch of Science</small></th>
+		  <th class="px-2 py-1"><small>Fields <em>(click to see field-specific detailed list)</em></small></th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for branch in branches %}
+		  {% if branch.submissions.all|length > 0 %}
+		    <tr>
+		      <td class="align-middle">
+			<small>{{ branch.name }}</small>
+		      </td>
+		      <td>
+			{% for acad_field in branch.academic_fields.all %}
+			  {% if acad_field.submissions.all|length > 0 %}
+			    <a href={% url 'submissions:submissions' %}?field={{ acad_field.slug }} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
+			  {% endif %}
+			{% endfor %}
+		      </td>
+		    </tr>
+		  {% endif %}
+		{% endfor %}
+	      </tbody>
+	    </table>
 	  </div>
         </li>
 

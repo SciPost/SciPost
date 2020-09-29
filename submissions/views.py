@@ -372,9 +372,12 @@ class SubmissionListView(PaginationMixin, ListView):
         """Return queryset, filtered with GET request data if given."""
         queryset = Submission.objects.public_newest()
         self.form = self.form(self.request.GET)
+        if 'field' in self.request.GET:
+            queryset=queryset.filter(acad_field__slug=self.request.GET['field'])
+        if 'specialty' in self.request.GET:
+            queryset=queryset.filter(specialties__slug=self.request.GET['specialty'])
         if 'to_journal' in self.request.GET:
             queryset = queryset.filter(
-                latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
                 submitted_to__doi_label=self.request.GET['to_journal']
             )
         elif self.form.is_valid() and self.form.has_changed():

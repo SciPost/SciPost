@@ -158,12 +158,6 @@ class Contributor(models.Model):
         self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = timezone.now() + datetime.timedelta(days=2)
 
-    def expertises_as_string(self):
-        """Return joined expertises."""
-        if self.expertises:
-            return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
-        return ''
-
     def conflict_of_interests(self):
         if not self.profile:
             return ConflictOfInterest.objects.none()

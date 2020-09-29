@@ -1,5 +1,11 @@
 <div class="li publication">
-  <h5 class="subject"><a href="{% url 'journals:publications' %}?subject={{ publication.subject_area }}" class="muted-link">{{ publication.get_subject_area_display }}</a></h5>
+  <h5 class="subject">
+    <a href="{% url 'journals:publications' %}?field={{ publication.acad_field.slug }}" class="muted-link">{{ publication.acad_field }}</a>:&nbsp;
+    {% for specialty in publication.specialties.all %}
+      <a href="{% url 'journals:publications' %}?specialty={{ specialty.slug }}" class="muted-link">{{ specialty }}</a>
+      {% if not forloop.last %}<strong>&nbsp;&bullet;&nbsp;</strong>{% endif %}
+    {% endfor %}
+  </h5>
   <h3 class="title"><a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a></h3>
 
   <p class="authors">{{ publication.author_list }}</p>

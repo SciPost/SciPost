@@ -359,11 +359,6 @@ class Publication(models.Model):
         else:
             return 0
 
-    def get_similar_publications(self):
-        """Return 4 Publications with same subject area."""
-        return Publication.objects.published().filter(
-            subject_area=self.subject_area).exclude(id=self.id)[:4]
-
     def get_issue_related_publications(self):
         """Return 4 Publications within same Issue."""
         return Publication.objects.published().filter(

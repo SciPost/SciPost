@@ -8,7 +8,7 @@
     <td>As Contributors</td>
     <td>
       {% for author in submission.authors.all %}
-        {% if not forloop.first %}<span class="text-blue">&middot;</span> {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{author.user.first_name}} {{author.user.last_name}}</a>
+        {% if not forloop.first %}<span class="text-blue">&middot;</span> {% endif %}<a href="{% url 'scipost:contributor_info' author.id %}">{{ author.user.first_name }} {{ author.user.last_name }}</a>
       {% empty %}
         (none claimed)
       {% endfor %}
@@ -17,12 +17,18 @@
   <tr>
     <td>Submitted by</td>
     <td>
-      {{submission.submitted_by.user.first_name}} {{submission.submitted_by.user.last_name}}
+      {{ submission.submitted_by.user.first_name }} {{ submission.submitted_by.user.last_name }}
     </td>
   </tr>
   <tr>
-    <td>Subject area</td>
-    <td>{{submission.get_subject_area_display}}</td>
+    <td>Specialties</td>
+    <td>
+      <ul class="m-0 pl-4">
+	{% for specialty in submission.specialties.all %}
+	  <li>{{ specialty }}</li>
+	{% endfor %}
+      </ul>
+    </td>
   </tr>
   {% if submission.approaches %}
     <tr>
