@@ -91,12 +91,18 @@
     {% endif %}
   {% endwith %}
   <tr>
-    <td>Discipline:</td>
-    <td>{{ submission.get_discipline_display }}</td>
+    <td>Academic field:</td>
+    <td>{{ submission.acad_field }}</td>
   </tr>
   <tr>
-    <td>Subject area:</td>
-    <td>{{ submission.get_subject_area_display }}</td>
+    <td>Specialties:</td>
+    <td>
+      <ul class="m-0 pl-4">
+	{% for specialty in submission.specialties.all %}
+	  <li>{{ specialty }}</li>
+	{% endfor %}
+      </ul>
+    </td>
   </tr>
   {% if submission.approaches %}
   <tr>

@@ -6,7 +6,6 @@ from django.conf.urls import url
 from django.urls import path, register_converter
 from django.views.generic import TemplateView
 
-from scipost.converters import DisciplineConverter
 from journals.converters import JournalDOILabelConverter
 from ontology.converters import AcademicFieldSlugConverter
 
@@ -15,7 +14,6 @@ from .constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'submissions'
 
-register_converter(DisciplineConverter, 'discipline')
 register_converter(JournalDOILabelConverter, 'journal_doi_label')
 register_converter(AcademicFieldSlugConverter, 'acad_field')
 
