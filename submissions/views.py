@@ -159,7 +159,7 @@ def submit_choose_preprint_server(request, journal_doi_label):
     Choose a preprint server. If `thread_hash` is given as a GET parameter, this is a resubmission.
     """
     journal = get_object_or_404(Journal, doi_label=journal_doi_label)
-    preprint_servers = PreprintServer.objects.filter(disciplines__contains=[journal.discipline])
+    preprint_servers = PreprintServer.objects.filter(acad_fields=journal.college.acad_field)
     thread_hash = request.GET.get('thread_hash') or None
     # Each integrated preprint server has a prefill form:
     scipost_prefill_form = SciPostPrefillForm(

@@ -20,7 +20,12 @@ def submission_short_title(obj):
     return obj.submission.title[:30]
 
 
-admin.site.register(PreprintServer)
+class PreprintServerAdmin(admin.ModelAdmin):
+    autocomplete_fields = [
+        'acad_fields'
+    ]
+
+admin.site.register(PreprintServer, PreprintServerAdmin)
 
 
 class iThenticateReportAdmin(admin.ModelAdmin):
