@@ -93,7 +93,7 @@ class Journal(models.Model):
     objects = JournalQuerySet.as_manager()
 
     class Meta:
-        ordering = ['discipline', 'list_order']
+        ordering = ['college__acad_field', 'list_order']
 
     def __str__(self):
         return self.name

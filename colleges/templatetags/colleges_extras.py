@@ -18,24 +18,9 @@ from ..constants import (
 from ..models import Fellowship
 
 from common.utils import hslColorWheel
-from scipost.constants import SCIPOST_DISCIPLINES
 
 
 register = template.Library()
-
-
-@register.filter(name='fellowships_in_branch')
-def fellowships_in_branch(fellowships, branch_name):
-    matching_disciplines = ()
-    for branch in SCIPOST_DISCIPLINES:
-        if branch[0] == branch_name:
-            matching_disciplines = [d[0] for d in branch[1]]
-    return fellowships.filter(contributor__profile__discipline__in=matching_disciplines)
-
-
-@register.filter(name='fellowships_in_discipline')
-def fellowships_in_discipline(fellowships, discipline):
-    return fellowships.filter(contributor__profile__discipline=discipline)
 
 
 @register.filter(name='potfelstatuscolor')

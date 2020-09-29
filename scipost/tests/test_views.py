@@ -102,11 +102,10 @@ class BrowseCommentariesTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        CommentaryFactory(discipline='physics')
+        CommentaryFactory()
         self.view_url = reverse('commentaries:browse', kwargs={
-            'discipline': 'physics',
             'nrweeksback': '1'
-            })
+        })
 
     def test_response_list(self):
         '''Test if the browse view is passing commentaries to anoymous users.'''

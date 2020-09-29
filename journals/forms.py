@@ -366,7 +366,6 @@ class DraftPublicationForm(forms.ModelForm):
             'title',
             'author_list',
             'abstract',
-            'discipline',
             'acad_field',
             'specialties',
             'approaches',
