@@ -4,9 +4,21 @@ __license__ = "AGPL v3"
 
 import factory
 
+from django.utils.text import slugify
+
 from scipost.models import Contributor
 
-from .models import Fellowship
+from .models import College, Fellowship
+
+
+class CollegeFactory(factory.django.DjangoModelFactory):
+    name = factory.Faker('word')
+    acad_field = factory.SubFactory('ontology.factories.AcademicFieldFactory')
+    slug = factory.LazyAttribute(lambda o: slugify(o.name))
+    order = factory.Sequence(lambda n: College.objects.count() + 1)
+
+    class Meta:
+        model = College
 
 
 class BaseFellowshipFactory(factory.django.DjangoModelFactory):
