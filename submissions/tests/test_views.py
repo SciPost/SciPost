@@ -143,8 +143,6 @@ class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
 #         # Fill form parameters
 #         params = response.context['form'].initial
 #         params.update({
-#             'discipline': 'physics',
-#             'subject_area': 'Phys:MP',
 #             'submitted_to': Journal.objects.filter(doi_label='SciPostPhys'),
 #             'approaches': ('theoretical',)
 #         })
@@ -181,8 +179,6 @@ class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
     #     # Fill form parameters
     #     params = response.context['form'].initial
     #     params.update({
-    #         'discipline': 'physics',
-    #         'subject_area': 'Phys:MP',
     #         'submitted_to': Journal.objects.get(doi_label='SciPostPhys'),
     #         'approaches': ('theoretical',)
     #     })

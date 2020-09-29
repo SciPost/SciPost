@@ -17,7 +17,6 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
-from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
 from scipost.forms import SearchTextForm
@@ -256,7 +255,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
 
         context.update({
-            'subject_areas': SCIPOST_SUBJECT_AREAS,
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
             'nr_contributors_w_duplicate_emails': contributors_w_duplicate_email.count(),
             'nr_contributors_w_duplicate_names': contributors_w_duplicate_names.count(),

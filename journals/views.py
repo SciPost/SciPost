@@ -56,7 +56,6 @@ from organizations.models import Organization
 from profiles.forms import ProfileSelectForm
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
-from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
 from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
@@ -309,7 +308,6 @@ def about(request, doi_label):
     """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
-        'subject_areas': SCIPOST_SUBJECT_AREAS,
         'journal': journal,
     }
     return render(request, 'journals/about.html', context)

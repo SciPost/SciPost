@@ -109,8 +109,8 @@
           <td>
             <strong>{{ assignment.to }}</strong>
             <br>
-            {% for expertise in assignment.to.expertises %}
-              <div class="single d-inline specialization" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+            {% for specialty in assignment.to.profile.specialties.all %}
+              <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
             {% endfor %}
           </td>
           <td>
@@ -175,8 +175,8 @@
                   {% endif %}
                 </strong>
                 <br>
-                {% for expertise in form.get_fellow.expertises %}
-                  <div class="single d-inline specialization" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+                {% for specialty in form.get_fellow.profile.specialties.all %}
+                  <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
                 {% endfor %}
               </td>
               <td>

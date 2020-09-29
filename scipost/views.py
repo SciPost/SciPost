@@ -40,9 +40,7 @@ from dal import autocomplete
 from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
-from .constants import (
-    SCIPOST_SUBJECT_AREAS,
-    SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
+from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
@@ -176,7 +174,6 @@ def protected_serve(request, path, show_indexes=False):
 
 def feeds(request):
     """Information page for RSS and Atom feeds."""
-    context = {'subject_areas_physics': SCIPOST_SUBJECT_AREAS[0][1]}
     return render(request, 'scipost/feeds.html', context)
 
 

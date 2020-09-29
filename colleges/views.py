@@ -29,7 +29,6 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
-from scipost.constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, specializations_dict
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
@@ -417,7 +416,6 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
             self.request.user.contributor)
         context['potfels_voted_on'] = PotentialFellowship.objects.voted_on(
             self.request.user.contributor)
-        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
         return context
 

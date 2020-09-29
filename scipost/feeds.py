@@ -14,7 +14,6 @@ from comments.models import Comment
 from commentaries.models import Commentary
 from journals.models import Publication
 from news.models import NewsItem
-from scipost.models import subject_areas_dict
 from submissions.models import Submission
 from theses.models import ThesisLink
 
