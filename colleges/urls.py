@@ -77,7 +77,7 @@ urlpatterns = [
     url(r'^fellowships/submissions/{regex}/voting/add$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_add_fellowship_voting,
         name='submission_add_fellowship_voting'),
-    url(r'^fellowships/(?P<id>[0-9]+)/submissions/{regex}/remove$'.format(
+    url(r'^fellowships/(?P<id>[0-9]+)/submissions/{regex}/voting/remove$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.fellowship_remove_submission_voting,
         name='fellowship_remove_submission_voting'),
 
