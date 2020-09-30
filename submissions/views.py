@@ -786,7 +786,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     if submission.editor_in_charge:
         messages.success(
             request, '{} {} has already agreed to be Editor-in-charge of this Submission.'.format(
-                submission.editor_in_charge.get_title_display(),
+                submission.editor_in_charge.profile.get_title_display(),
                 submission.editor_in_charge.user.last_name))
         return redirect('submissions:pool')
     elif submission.status == STATUS_ASSIGNMENT_FAILED:

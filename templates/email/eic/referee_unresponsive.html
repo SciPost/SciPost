@@ -1,5 +1,5 @@
 <p>
-  Dear {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},
+  Dear {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},
 </p>
 <p>
   Referee {{ invitation.get_title_display }} {{ invitation.last_name }}, whom you invited to referee

@@ -1,6 +1,6 @@
 {% load automarkup %}
 <p>
-  Dear {{ decision.submission.submitted_by.get_title_display }} {{ decision.submission.submitted_by.user.last_name }},
+  Dear {{ decision.submission.submitted_by.profile.get_title_display }} {{ decision.submission.submitted_by.user.last_name }},
 </p>
 <p>
   The Editorial College of SciPost has come to a decision regarding your Submission

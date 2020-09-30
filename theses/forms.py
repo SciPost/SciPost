@@ -68,7 +68,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
 
     def vet_request(self, thesislink, user):
         mail_params = {
-            'vocative_title': thesislink.requested_by.get_title_display(),
+            'vocative_title': thesislink.requested_by.profile.get_title_display(),
             'thesislink': thesislink,
             'full_url': build_absolute_uri_using_site(thesislink.get_absolute_url())
         }

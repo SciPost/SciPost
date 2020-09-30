@@ -1,6 +1,6 @@
 {% load automarkup %}
 
-<p>Dear {{ comment.author.get_title_display }} {{ comment.author.user.last_name }},</p>
+<p>Dear {{ comment.author.profile.get_title_display }} {{ comment.author.user.last_name }},</p>
 
 <p>
   The {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} you have submitted, concerning

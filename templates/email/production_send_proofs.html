@@ -1,5 +1,5 @@
 <p>
-    Dear {% for author in proofs.stream.submission.authors.all %}{{ author.get_title_display }} {{ author.user.last_name }}{% if not forloop.last %}, {% elif proofs.stream.submission.authors.count > 1 %} and {% endif %}{% endfor %},
+    Dear {% for author in proofs.stream.submission.authors.all %}{{ author.profile.get_title_display }} {{ author.user.last_name }}{% if not forloop.last %}, {% elif proofs.stream.submission.authors.count > 1 %} and {% endif %}{% endfor %},
 </p>
 
 <p>

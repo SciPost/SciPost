@@ -101,7 +101,7 @@ class Contributor(models.Model):
 
     @property
     def formal_str(self):
-        return '%s %s' % (self.get_title_display(), self.user.last_name)
+        return '%s %s' % (self.profile.get_title_display(), self.user.last_name)
 
     @property
     def is_active(self):
