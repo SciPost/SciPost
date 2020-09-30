@@ -7,10 +7,11 @@ import pytz
 import random
 
 from comments.factories import SubmissionCommentFactory
-from scipost.constants import SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.models import Contributor
 from journals.models import Journal
 from common.helpers import random_scipost_report_doi_label
+from ontology.models import Specialty
 
 from .constants import (
     STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED,
@@ -32,7 +33,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
     list_of_changes = factory.Faker('paragraph', nb_sentences=10)
-    subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
+    acad_field = factory.SubFactory('ontology.factories.AcademicFieldFactory')
     approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
     abstract = factory.Faker('paragraph')
     author_comments = factory.Faker('paragraph')
@@ -55,7 +56,15 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         if Journal.objects.count() < 3:
             from journals.factories import JournalFactory
             JournalFactory.create_batch(3)
+        if Specialty.objects.count() < 5:
+            from ontology.factories import SpecialtyFactory
+            SpecialtyFactory.create_batch(5)
         return super().create(**kwargs)
+
+    @factory.post_generation
+    def add_specialties(self, create, extracted, **kwargs):
+        if create:
+            self.specialties.set(Specialty.objects.order_by('?')[:3])
 
     @factory.post_generation
     def contributors(self, create, extracted, **kwargs):
@@ -160,7 +169,8 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         self.editor_in_charge = submission.editor_in_charge
         self.submitted_to = submission.submitted_to
         self.title = submission.title
-        self.subject_area = submission.subject_area
+        self.acad_field = submission.acad_field
+        self.specialties = submission.specialties
         self.approaches = submission.approaches
         self.title = submission.title
         self.authors.set(self.authors.all())
@@ -212,7 +222,8 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         self.editor_in_charge = submission.editor_in_charge
         self.submitted_to = submission.submitted_to
         self.title = submission.title
-        self.subject_area = submission.subject_area
+        self.acad_field = submission.acad_field
+        self.specialties = submission.specialties
         self.approaches = submission.approaches
         self.title = submission.title
         self.authors.set(self.authors.all())

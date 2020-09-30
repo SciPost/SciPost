@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from decimal import Decimal
 
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Min, Sum
@@ -16,7 +16,7 @@ from ..helpers import paper_nr_string
 from ..managers import PublicationQuerySet
 from ..validators import doi_publication_validator
 
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 
 
@@ -95,11 +95,21 @@ class Publication(models.Model):
     abstract_jats = models.TextField(blank=True, default='',
                                      help_text='JATS version of abstract for Crossref deposit')
     pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-                                    verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS), blank=True, null=True)
+
+    # Ontology-based semantic linking
+    acad_field = models.ForeignKey(
+        'ontology.AcademicField',
+        on_delete=models.PROTECT,
+        related_name='publications'
+    )
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        related_name='publications'
+    )
+    topics = models.ManyToManyField(
+        'ontology.Topic',
+        blank=True
+    )
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True, null=True, verbose_name='approach(es) [optional]')
@@ -122,9 +132,6 @@ class Publication(models.Model):
     citedby = JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
 
-    # Topics for semantic linking
-    topics = models.ManyToManyField('ontology.Topic', blank=True)
-
     # Date fields
     submission_date = models.DateField(verbose_name='submission date')
     acceptance_date = models.DateField(verbose_name='acceptance date')
@@ -132,6 +139,15 @@ class Publication(models.Model):
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
     latest_activity = models.DateTimeField(auto_now=True)  # Needs `auto_now` as its not explicity updated anywhere?
+
+    # Calculated fields
+    cf_author_affiliation_indices_list = ArrayField(
+        ArrayField(
+            models.PositiveSmallIntegerField(blank=True, null=True),
+            default=list
+        ),
+        default=list
+    )
 
     objects = PublicationQuerySet.as_manager()
 
@@ -195,6 +211,38 @@ class Publication(models.Model):
         return Organization.objects.filter(
             publicationauthorstable__publication=self
         ).annotate(order=Min('publicationauthorstable__order')).order_by('order')
+
+    def get_author_affiliation_indices_list(self):
+        """
+        Return a list containing for each author an ordered list of affiliation indices.
+
+        This is for display on the publication detail page,
+        and is a calculated field (saved in the model) to avoid
+        unnecessary db queries (problematic for papers with large number of authors).
+        """
+        if len(self.cf_author_affiliation_indices_list) > 0:
+            return self.cf_author_affiliation_indices_list
+
+        indexed_author_list = []
+        for author in self.authors.all():
+            affnrs = []
+            for idx, aff in enumerate(self.get_all_affiliations()):
+                if aff in author.affiliations.all():
+                    affnrs.append(idx + 1)
+            indexed_author_list.append(affnrs)
+        # Since nested ArrayFields must have the same dimension,
+        # we pad the "empty" entries with Null:
+        max_length = 0
+        for entry in indexed_author_list:
+            max_length = max(max_length, len(entry))
+        padded_list = []
+        for entry in indexed_author_list:
+            padded_entry = entry + [None] * (max_length - len(entry))
+            padded_list.append(padded_entry)
+        # Save into the calculated field for future purposes.
+        Publication.objects.filter(id=self.id).update(
+            cf_author_affiliation_indices_list=padded_list)
+        return padded_list
 
     def get_all_funders(self):
         from funders.models import Funder
@@ -310,11 +358,6 @@ class Publication(models.Model):
             return (ncites * 365.25 / deltat)
         else:
             return 0
-
-    def get_similar_publications(self):
-        """Return 4 Publications with same subject area."""
-        return Publication.objects.published().filter(
-            subject_area=self.subject_area).exclude(id=self.id)[:4]
 
     def get_issue_related_publications(self):
         """Return 4 Publications within same Issue."""

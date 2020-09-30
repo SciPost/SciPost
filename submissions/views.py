@@ -137,13 +137,13 @@ def submit_manuscript(request):
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
-def submit_choose_journal(request, discipline=None):
+def submit_choose_journal(request, acad_field=None):
     """
     Choose a Journal. If `thread_hash` is given as GET parameter, this is a resubmission.
     """
     journals = Journal.objects.submission_allowed()
-    if discipline:
-        journals = journals.filter(discipline=discipline)
+    if acad_field:
+        journals = journals.filter(college__acad_field=acad_field)
     context = {
         'journals': journals,
     }
@@ -159,7 +159,7 @@ def submit_choose_preprint_server(request, journal_doi_label):
     Choose a preprint server. If `thread_hash` is given as a GET parameter, this is a resubmission.
     """
     journal = get_object_or_404(Journal, doi_label=journal_doi_label)
-    preprint_servers = PreprintServer.objects.filter(disciplines__contains=[journal.discipline])
+    preprint_servers = PreprintServer.objects.filter(acad_fields=journal.college.acad_field)
     thread_hash = request.GET.get('thread_hash') or None
     # Each integrated preprint server has a prefill form:
     scipost_prefill_form = SciPostPrefillForm(
@@ -372,17 +372,13 @@ class SubmissionListView(PaginationMixin, ListView):
         """Return queryset, filtered with GET request data if given."""
         queryset = Submission.objects.public_newest()
         self.form = self.form(self.request.GET)
+        if 'field' in self.request.GET:
+            queryset=queryset.filter(acad_field__slug=self.request.GET['field'])
+        if 'specialty' in self.request.GET:
+            queryset=queryset.filter(specialties__slug=self.request.GET['specialty'])
         if 'to_journal' in self.request.GET:
             queryset = queryset.filter(
-                latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
                 submitted_to__doi_label=self.request.GET['to_journal']
-            )
-        elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
-            discipline = self.kwargs['discipline']
-            nrweeksback = self.kwargs['nrweeksback']
-            queryset = queryset.filter(
-                discipline=discipline,
-                latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
             )
         elif self.form.is_valid() and self.form.has_changed():
             queryset = self.form.search_results()
@@ -403,13 +399,6 @@ class SubmissionListView(PaginationMixin, ListView):
                     name=self.request.GET['to_journal']).first().get_name_display()
             except (Journal.DoesNotExist, AttributeError):
                 context['to_journal'] = self.request.GET['to_journal']
-        if 'discipline' in self.kwargs:
-            context['discipline'] = self.kwargs['discipline']
-            context['nrweeksback'] = self.kwargs['nrweeksback']
-            context['browse'] = True
-        elif not self.form.is_valid() or not self.form.has_changed():
-            context['recent'] = True
-
         return context
 
 
@@ -797,7 +786,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     if submission.editor_in_charge:
         messages.success(
             request, '{} {} has already agreed to be Editor-in-charge of this Submission.'.format(
-                submission.editor_in_charge.get_title_display(),
+                submission.editor_in_charge.profile.get_title_display(),
                 submission.editor_in_charge.user.last_name))
         return redirect('submissions:pool')
     elif submission.status == STATUS_ASSIGNMENT_FAILED:
@@ -1737,15 +1726,11 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.preprint.identifier_w_vn_nr]))
     else:
-        secondary_areas = recommendation.submission.secondary_areas
-        if not secondary_areas:
-            secondary_areas = []
-
         fellows_with_expertise = recommendation.submission.fellows.filter(
             Q(contributor=recommendation.submission.editor_in_charge) |
-            Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
-            Q(contributor__expertises__contains=secondary_areas)).order_by(
-                'contributor__user__last_name')
+            Q(contributor__profile__specialties__in=recommendation.submission.specialties.all())
+        ).order_by('contributor__user__last_name')
+
         #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
         coauthorships = None
 
@@ -1869,25 +1854,24 @@ def vote_on_rec(request, rec_id):
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
-def remind_Fellows_to_vote(request):
+def remind_Fellows_to_vote(request, rec_id):
     """
-    Send an email to all Fellows with at least one pending voting duties.
+    Send an email to Fellows with a pending voting duty.
     It must be called by an Editorial Administrator.
+
+    If `rec_id` is given, then only email Fellows voting on this particular rec.
     """
-    submissions = Submission.objects.pool_editable(request.user)
-    recommendations = EICRecommendation.objects.active().filter(
-        submission__in=submissions).put_to_voting()
+    recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
 
     Fellow_emails = []
     Fellow_names = []
-    for rec in recommendations:
-        for Fellow in rec.eligible_to_vote.all():
-            if (Fellow not in rec.voted_for.all()
-                and Fellow not in rec.voted_against.all()
-                and Fellow not in rec.voted_abstain.all()
-                and Fellow.user.email not in Fellow_emails):
-                Fellow_emails.append(Fellow.user.email)
-                Fellow_names.append(str(Fellow))
+    for Fellow in recommendation.eligible_to_vote.all():
+        if (Fellow not in recommendation.voted_for.all()
+            and Fellow not in recommendation.voted_against.all()
+            and Fellow not in recommendation.voted_abstain.all()
+            and Fellow.user.email not in Fellow_emails):
+            Fellow_emails.append(Fellow.user.email)
+            Fellow_names.append(str(Fellow))
     SubmissionUtils.load({'Fellow_emails': Fellow_emails})
     SubmissionUtils.send_Fellows_voting_reminder_email()
     ack_message = 'Email reminders have been sent to: <ul>'

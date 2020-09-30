@@ -5,7 +5,8 @@ __license__ = "AGPL v3"
 import factory
 
 from common.helpers.factories import FormFactory
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from ontology.models import AcademicField, Specialty
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.models import Contributor
 
 from .models import ThesisLink
@@ -23,8 +24,7 @@ class BaseThesisLinkFactory(factory.django.DjangoModelFactory):
     vetted = True
 
     type = factory.Iterator(THESIS_TYPES, getter=lambda c: c[0])
-    discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
-    subject_area = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: c[0])
+    acad_field = factory.SubFactory('ontology.factories.AcademicFieldFactory')
     approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
     title = factory.Faker('sentence')
     pub_link = factory.Faker('uri')
@@ -33,6 +33,21 @@ class BaseThesisLinkFactory(factory.django.DjangoModelFactory):
     institution = factory.Faker('company')
     defense_date = factory.Faker('date_this_decade')
     abstract = factory.Faker('paragraph')
+
+    @classmethod
+    def create(cls, **kwargs):
+        if AcademicField.objects.count() < 5:
+            from ontology.factories import AcademicFieldactory
+            AcademicFieldFactory.create_batch(5)
+        if Specialty.objects.count() < 5:
+            from ontology.factories import SpecialtyFactory
+            SpecialtyFactory.create_batch(5)
+        return super().create(**kwargs)
+
+    @factory.post_generation
+    def add_specialties(self, create, extracted, **kwargs):
+        if create:
+            self.specialties.set(Specialty.objects.order_by('?')[:3])
 
     @factory.post_generation
     def author_as_cont(self, create, extracted, **kwargs):

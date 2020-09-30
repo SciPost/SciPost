@@ -17,8 +17,8 @@ Production server
 Git server
 ==========
 
-SciPost runs its own git repository server at `code.scipost.org <https://code.scipost.org>`_.
-This is a `Gitea <https://gitea.io>`_ instance hosted on the same server as production.
+SciPost runs its own git repository server at `scipost-codebases.org <https://scipost-codebases.org>`_.
+This is a `GitLab <https://gitlab.com/gitlab-org/gitlab>`_ instance hosted on a selfstanding server.
 
 All codes needed to run SciPost are contained in various repositories on this server
 (you will need access credentials).

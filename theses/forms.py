@@ -16,7 +16,7 @@ from .helpers import past_years
 class BaseRequestThesisLinkForm(forms.ModelForm):
     class Meta:
         model = ThesisLink
-        fields = ['type', 'discipline', 'subject_area', 'approaches',
+        fields = ['type', 'acad_field', 'specialties', 'approaches',
                   'title', 'author', 'supervisor', 'institution',
                   'defense_date', 'pub_link', 'abstract']
         widgets = {
@@ -68,7 +68,7 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
 
     def vet_request(self, thesislink, user):
         mail_params = {
-            'vocative_title': thesislink.requested_by.get_title_display(),
+            'vocative_title': thesislink.requested_by.profile.get_title_display(),
             'thesislink': thesislink,
             'full_url': build_absolute_uri_using_site(thesislink.get_absolute_url())
         }

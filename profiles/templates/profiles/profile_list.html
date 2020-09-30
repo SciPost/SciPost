@@ -63,26 +63,52 @@
 
   <div class="row">
     <div class="col-12">
-      <h4>Specialize the list:</h4>
+      <table class="table table-bordered table-secondary">
+	<thead class="thead-dark">
+	  <tr>
+	    <th><h3 class="mb-0">Branch</h3></th>
+	    <th><h3 class="mb-0">Fields</h3></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for branch in branches %}
+	    <tr>
+	      <td class="align-middle">
+		<small>{{ branch.name }}</small>
+	      </td>
+	      <td>
+		<ul class="list-inline m-0">
+		  {% for acad_field in branch.academic_fields.all %}
+		    <li class="list-inline-item">
+		      {% if acad_field.profiles.all|length > 0 %}
+			<div class="dropdown">
+			  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
+			  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ acad_field.slug }}">
+			    <a class="dropdown-item" href="{% add_get_parameters field=acad_field.slug specialty='' %}">View all in {{ acad_field }}</a>
+			    {% for specialty in acad_field.specialties.all %}
+			      <a class="dropdown-item" href="{% add_get_parameters field=acad_field.slug specialty=specialty.slug %}">{{ specialty }}</a>
+			    {% endfor %}
+			  </div>
+			</div>
+		      {% else %}
+			<button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field.name }}</em></small></button>
+		      {% endif %}
+		    </li>
+		  {% endfor %}
+	      </td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+
+      <h4>Specialize the list by selecting from the table above, or:</h4>
       <ul>
 	<li>
 	  <ul class="list-inline">
 	    <li class="list-inline-item">
-	      <a href="{% url 'profiles:profiles' %}">View all</a> or view by discipline/subject area:
+	      <a href="{% url 'profiles:profiles' %}">View all</a>
 	    </li>
-	    {% for discipline in subject_areas %}
-	      <li class="list-inline-item">
-		<div class="dropdown">
-		  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ discipline.0|cut:" " }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ discipline.0 }}</button>
-		  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ discipline.0|cut:" " }}">
-		    <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' %}">View all in {{ discipline.0 }}</a>
-		    {% for area in discipline.1 %}
-		      <a class="dropdown-item" href="{% add_get_parameters discipline=discipline.0|cut:' ' expertise=area.0 %}">{{ area.0 }}</a>
-		    {% endfor %}
-		  </div>
-		</div>
-	      </li>
-	    {% endfor %}
 	  </ul>
 	</li>
 	<li>View only Profiles <a href="{% add_get_parameters contributor=True %}">with</a> or <a href="{% add_get_parameters contributor=False %}">without</a> an associated Contributor</li>
@@ -91,10 +117,10 @@
 	    <li class="list-inline-item">Last name startswith:</li>
 	    <li class="list-inline-item">
 	      <form action="" method="get">{{ searchform }}
-		{% if request.GET.discipline %}
-		  <input type="hidden" name="discipline" value="{{ request.GET.discipline }}">
-		  {% if request.GET.expertise %}
-		    <input type="hidden" name="expertise" value="{{ request.GET.expertise }}">
+		{% if request.GET.field %}
+		  <input type="hidden" name="field" value="{{ request.GET.field }}">
+		  {% if request.GET.specialty %}
+		    <input type="hidden" name="specialty" value="{{ request.GET.specialty }}">
 		  {% endif %}
 		{% endif %}
 		{% if request.GET.contributor %}
@@ -111,15 +137,15 @@
 
   <div class="row">
     <div class="col-12">
-      <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.discipline %}in {{ request.GET.discipline }}{% if request.GET.expertise %}, {{ request.GET.expertise }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
+      <h3>Profiles {% if request.GET.text %}with last name starting with {{ request.GET.text }}{% endif %} {% if request.GET.field %}in {{ request.GET.field }}{% if request.GET.specialty %}, {{ request.GET.specialty }}{% endif %}{% endif %} ({% if request.GET.contributor == "True" %}registered Contributors{% elif request.GET.contributor == "False" %}unregistered as Contributors{% else %}all registered/unregistered{% endif %}): {{ page_obj.paginator.count }} found</h3>
       <br/>
 
       <table class="table table-hover mb-5">
 	<thead class="thead-default">
 	  <tr>
 	    <th>Name</th>
-	    <th>Discipline</th>
-	    <th>Expertises</th>
+	    <th>Academic field</th>
+	    <th>Specialties</th>
 	    <th>Contributor?</th>
 	  </tr>
 	</thead>
@@ -127,10 +153,10 @@
 	  {% for profile in object_list %}
 	    <tr class="table-row" data-href="{% url 'profiles:profile_detail' pk=profile.id %}" target="_blank" style="cursor: pointer;">
 	      <td>{{ profile }}</td>
-	      <td>{{ profile.get_discipline_display }}</td>
+	      <td>{{ profile.acad_field }}</td>
 	      <td>
-		{% for expertise in profile.expertises %}
-		  <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+		{% for specialty in profile.specialties.all %}
+		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
 	      <td>{% if profile.has_active_contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>

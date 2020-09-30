@@ -222,8 +222,8 @@ class CommentaryListView(PaginationMixin, ListView):
         context['form'] = self.form
 
         # To customize display in the template
-        if 'discipline' in self.kwargs:
-            context['discipline'] = self.kwargs['discipline']
+        if 'acad_field' in self.kwargs:
+            context['acad_field'] = self.kwargs['acad_field']
             context['nrweeksback'] = self.kwargs['nrweeksback']
             context['browse'] = True
         elif not any(self.request.GET[field] for field in self.request.GET):

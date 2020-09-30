@@ -6,18 +6,16 @@ from django.conf.urls import url
 from django.urls import path, register_converter
 from django.views.generic import TemplateView
 
-from scipost.constants import DISCIPLINES_REGEX
-from scipost.converters import DisciplineConverter
 from journals.converters import JournalDOILabelConverter
-from journals.regexes import JOURNAL_DOI_LABEL_REGEX
+from ontology.converters import AcademicFieldSlugConverter
 
 from . import views
 from .constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'submissions'
 
-register_converter(DisciplineConverter, 'discipline')
 register_converter(JournalDOILabelConverter, 'journal_doi_label')
+register_converter(AcademicFieldSlugConverter, 'acad_field')
 
 
 urlpatterns = [
@@ -29,8 +27,6 @@ urlpatterns = [
     ),
     # Submissions
     url(r'^$', views.SubmissionListView.as_view(), name='submissions'),
-    url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]{1,3})/$',
-        views.SubmissionListView.as_view(), name='browse'),
     url(r'^sub_and_ref_procedure$',
         TemplateView.as_view(template_name='submissions/sub_and_ref_procedure.html'),
         name='sub_and_ref_procedure'),
@@ -137,7 +133,7 @@ urlpatterns = [
         name='submit_manuscript'
     ),
     path( # Choose journal (thread_hash as GET param if resubmission)
-        'submit/<discipline:discipline>',
+        'submit/<acad_field:acad_field>',
         views.submit_choose_journal,
         name='submit_choose_journal'
     ),
@@ -242,6 +238,6 @@ urlpatterns = [
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting,
         name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
-    url(r'^remind_Fellows_to_vote$', views.remind_Fellows_to_vote,
+    url(r'^remind_Fellows_to_vote/(?P<rec_id>[0-9]+)$', views.remind_Fellows_to_vote,
         name='remind_Fellows_to_vote'),
 ]

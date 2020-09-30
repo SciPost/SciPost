@@ -1,9 +1,0 @@
-{% load scipost_extras %}
-
-<ul>
-  {% for expertise in contributor.expertises %}
-    <li>
-      {{ expertise|get_specialization_display }}
-    </li>
-  {% endfor %}
-</ul>

@@ -7,16 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, register_converter
 
 # from rest_framework import routers
 
-from journals.regexes import JOURNAL_DOI_LABEL_REGEX
+from journals.converters import JournalDOILabelConverter
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
 
-# Journal URL Regex
-JOURNAL_REGEX = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
+register_converter(JournalDOILabelConverter, 'journal_doi_label')
 
 
 # Disable admin login view which is essentially a 2FA workaround.
@@ -24,6 +23,8 @@ admin.site.login = login_required(admin.site.login)
 
 # Base URLs
 urlpatterns = [
+
+    path('o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', admin.site.urls),
@@ -32,9 +33,14 @@ urlpatterns = [
         'mail/',
         include('apimail.urls', namespace='apimail')
     ),
-    url(r'^10.21468/%s/' % JOURNAL_REGEX,
-        include('journals.urls.journal', namespace="prefixed_journal")),
-    url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
+    path(
+        '10.21468/<journal_doi_label:doi_label>/',
+        include('journals.urls.journal', namespace="prefixed_journal")
+    ),
+    path(
+        '<journal_doi_label:doi_label>/',
+        include('journals.urls.journal', namespace="journal")
+    ),
     url(r'^', include('scipost.urls', namespace="scipost")),
     url(r'^careers/', include('careers.urls', namespace="careers")),
     url(r'^colleges/', include('colleges.urls', namespace="colleges")),

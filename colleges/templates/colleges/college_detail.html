@@ -8,10 +8,10 @@
 {% block breadcrumb_items %}
   {{ block.super }}
   <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
-  <span class="breadcrumb-item">Editorial College ({{ discipline|get_discipline_display }})</span>
+  <span class="breadcrumb-item">{{ college }}</span>
 {% endblock %}
 
-{% block pagetitle %}: College ({{ discipline|get_discipline_display }}){% endblock pagetitle %}
+{% block pagetitle %}: {{ college }}{% endblock pagetitle %}
 
 {% block content %}
 
@@ -26,27 +26,21 @@
   {% endif %}
 
 
-  <h2 class="highlight">Editorial College ({{ discipline|get_discipline_display }})</h2>
+  <h2 class="highlight">{{ college }}</h2>
 
   <div class="row">
     <div class="col-12">
-      <button class="btn btn-primary" data-toggle="toggle-show" data-target="#specializations-{{ discipline }}">Select by specialization</button>
-      <button class="btn btn-primary" style="display: none;" data-toggle="toggle-show" data-target="#specializations-{{ discipline }}">Show full list of Fellows in {{ discipline }}</button>
-      <div id="specializations-{{ discipline }}" class="card bg-white border-default all-specializations mt-2" style="display: none">
+      <button class="btn btn-primary" data-toggle="toggle-show" data-target="#specialties-{{ college.acad_field }}">Select by specialty</button>
+      <button class="btn btn-primary" style="display: none;" data-toggle="toggle-show" data-target="#specialties-{{ college.acad_field }}">Show full list of Fellows</button>
+      <div id="specialties-{{ college.acad_field }}" class="card bg-white border-default all-specialties mt-2" style="display: none">
 	<div class="card-body">
 	  <p><em class="text-muted mt-2">Hover to highlight or click to select</em></p>
 
 	  <div class="row">
 	    <div class="col-md-6">
-	      {% with total_count=object_list|length %}
-		{% for code in specializations %}
-		  <div class="specialization" data-specialization="{{ code.0|lower }}">{{ code.0 }} - {{ code.1 }}</div>
-		  {% if forloop.counter|is_modulo_one_half:total_count %}
-	    </div>
-	    <div class="col-md-6">
-		  {% endif %}
-		{% endfor %}
-	      {% endwith %}
+	      {% for specialty in college.specialties.all %}
+		<div class="specialty m-1" data-specialty="{{ specialty.slug }}">{{ specialty.code }} - {{ specialty }}</div>
+	      {% endfor %}
 	    </div>
 	  </div>
 	</div>
@@ -54,10 +48,10 @@
     </div>
   </div>
 
-  <div class="row search-contributors" data-contributors="{{ discipline|lower }}">
+  <div class="row search-contributors" data-contributors="{{ college.acad_field.slug }}">
     <div class="col-12">
       <div class="card-columns">
-	{% for fellowship in object_list %}
+	{% for fellowship in college.fellowships.active.regular %}
 	  <div class="card contributor mb-1">
 	    {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
 	  </div>

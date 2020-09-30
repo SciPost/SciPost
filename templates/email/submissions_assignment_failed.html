@@ -1,4 +1,4 @@
-<p>Dear {{ object.submitted_by.get_title_display }} {{ object.submitted_by.user.last_name }},</p>
+<p>Dear {{ object.submitted_by.profile.get_title_display }} {{ object.submitted_by.user.last_name }},</p>
 <p>Your recent Submission to SciPost,</p>
 <p>{{ object.title }}</p>
 <p>by {{ object.author_list }}</p>

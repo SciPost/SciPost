@@ -4,7 +4,7 @@
 
 
 {% block recommendation_header %}
-  <h4 class="text-muted mb-2">By {{ recommendation.submission.editor_in_charge.get_title_display }} {{ recommendation.submission.editor_in_charge.user.first_name }} {{ recommendation.submission.editor_in_charge.user.last_name }}, formulated on {{ recommendation.date_submitted }}</h4>
+  <h4 class="text-muted mb-2">By {{ recommendation.submission.editor_in_charge.profile.get_title_display }} {{ recommendation.submission.editor_in_charge.user.first_name }} {{ recommendation.submission.editor_in_charge.user.last_name }}, formulated on {{ recommendation.date_submitted }}</h4>
 {% endblock %}
 
 {% block recommendation_remarks_for_editorial_college %}
@@ -119,7 +119,7 @@
           <h3 class="card-title mb-3">Administrative actions on recommendations undergoing voting:</h3>
           <ul class="mb-1">
 	    {% if not recommendation.submission.editorial_decision %}
-              <li class="list-item my-2"><a class="btn btn-secondary" href="{% url 'submissions:remind_Fellows_to_vote' %}" role="button">Send an email reminder to each Fellow with at least one voting duty</a><br>(this is a one-click action, for all Submissions)</li>
+              <li class="list-item my-2"><a class="btn btn-secondary" href="{% url 'submissions:remind_Fellows_to_vote' rec_id=recommendation.id %}" role="button">Send an email reminder to each Fellow with a pending voting duty on this Recommendation</a></li>
 	    {% endif %}
 	    <li class="list-item my-2"><a class="btn btn-warning" href="{% url 'submissions:communication' identifier_w_vn_nr=recommendation.submission.preprint.identifier_w_vn_nr comtype='StoE' %}" role="button">Send a communication to the Editor-in-charge</a>
 	      {% if not recommendation.submission.editorial_decision %}

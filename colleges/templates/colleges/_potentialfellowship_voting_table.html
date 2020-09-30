@@ -6,10 +6,10 @@
   {% for potfel in potfels_list %}
     <tr>
       <td><a href="{{ potfel.profile.get_absolute_url }}" target="_blank">{{ potfel.profile.last_name }}, {{ potfel.profile.get_title_display }} {{ potfel.profile.first_name }}</a></td>
-      <td>{{ potfel.profile.get_discipline_display }}</td>
+      <td>{{ potfel.profile.acad_field }}</td>
       <td>
-	{% for expertise in potfel.profile.expertises %}
-	  <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	{% for specialty in potfel.profile.specialties.all %}
+	  <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
 	{% endfor %}
       </td>
       <td>

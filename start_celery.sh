@@ -1,7 +1,7 @@
 #!/bin/bash
 pkill -f bin/celery
 
-cd /home/scipost/webapps/scipost/scipost_v1 && source venv/bin/activate
+cd /home/scipost/webapps/scipost_py38/SciPost && source ../venv3.8/bin/activate
 
 mkdir -p ./local_files/logs
 touch ./local_files/logs/celery_worker.log

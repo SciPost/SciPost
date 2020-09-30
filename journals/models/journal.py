@@ -9,8 +9,6 @@ from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
 
-from scipost.constants import SCIPOST_DISCIPLINES
-
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
@@ -21,12 +19,33 @@ def cost_default_value():
 
 
 class Journal(models.Model):
-    """Journal is a container of Publications with a unique issn and doi_label.
+    """Journal is a container of Publications, with a unique issn and doi_label.
 
     Publications may be categorized into issues or issues and volumes.
+
+    Each Journal falls under the auspices of a specific College, which is ForeignKeyed.
+    The only exception is Selections, which does not point to any College
+    (in fact: it falls under the auspices of all colleges at the same time).
+
+    A Journal's AcademicField is indirectly specified via the College, since
+    College has a ForeignKey to AcademicField.
+
+    Specialties can optionally be specified (and should be consistent with the
+    College's `acad_field`). If none are given, the Journal operates field-wide.
     """
 
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
+    college = models.ForeignKey(
+        'colleges.College',
+        on_delete=models.PROTECT,
+        related_name='journals'
+    )
+
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        blank=True,
+        related_name='journals'
+    )
+
     name = models.CharField(max_length=256, unique=True)
     name_abbrev = models.CharField(max_length=128, default='SciPost [abbrev]',
                                    help_text='Abbreviated name (for use in citations)')
@@ -70,7 +89,7 @@ class Journal(models.Model):
     objects = JournalQuerySet.as_manager()
 
     class Meta:
-        ordering = ['discipline', 'list_order']
+        ordering = ['college__acad_field', 'list_order']
 
     def __str__(self):
         return self.name

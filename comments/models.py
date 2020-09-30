@@ -166,7 +166,7 @@ class Comment(TimeStampedModel):
         """Return author string if not anonymous."""
         author = self.get_author()
         if author:
-            return '{} {}'.format(author.get_title_display(), author.user.last_name)
+            return '{} {}'.format(author.profile.get_title_display(), author.user.last_name)
         return 'Anonymous'
 
 

@@ -14,6 +14,7 @@ from scipost.models import TOTPDevice, Contributor, Remark,\
 
 from organizations.admin import ContactInline
 from production.admin import ProductionUserInline
+from profiles.models import Profile
 from submissions.models import Submission
 
 
@@ -41,7 +42,7 @@ class ContributorAdmin(admin.ModelAdmin):
         'user__first_name',
         'user__last_name',
         'user__email',
-        'orcid_id'
+        'profile__orcid_id'
     ]
     autocomplete_fields = [
         'profile',

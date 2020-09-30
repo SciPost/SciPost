@@ -4,7 +4,10 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
+
+
+admin.site.register(College)
 
 
 def fellowhip_is_active(fellowship):
@@ -13,7 +16,7 @@ def fellowhip_is_active(fellowship):
 
 class FellowshipAdmin(admin.ModelAdmin):
     search_fields = ['contributor__user__last_name', 'contributor__user__first_name']
-    list_display = ('__str__', 'guest', fellowhip_is_active, )
+    list_display = ('__str__', 'college', 'guest', fellowhip_is_active, )
     list_filter = ('guest',)
     fellowhip_is_active.boolean = True
     date_hierarchy = 'created'
@@ -39,6 +42,8 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
     ]
     list_display = [
         '__str__',
+        'college',
+        'status'
     ]
     search_fields = [
         'profile__last_name',

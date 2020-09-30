@@ -3,7 +3,7 @@
     <th>Name</th>
     <td>
       {% if notification.contributor %}
-        {{ notification.contributor.get_title_display }} {{ notification.contributor.user.first_name }} {{ notification.contributor.user.last_name }}
+        {{ notification.contributor.profile.get_title_display }} {{ notification.contributor.user.first_name }} {{ notification.contributor.user.last_name }}
       {% elif notification.invitation %}
         {{ notification.invitation.first_name }} {{ notification.invitation.last_name }}
       {% endif %}

@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+   journals.api
    journals.management
    journals.models
    journals.templatetags
@@ -19,6 +20,7 @@ Submodules
    journals.admin
    journals.constants
    journals.context_processors
+   journals.converters
    journals.exceptions
    journals.factories
    journals.forms
@@ -27,13 +29,10 @@ Submodules
    journals.mixins
    journals.regexes
    journals.search_indexes
-   journals.serializers
    journals.services
-   journals.signals
    journals.utils
    journals.validators
    journals.views
-   journals.viewsets
 
 Module contents
 ---------------

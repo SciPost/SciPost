@@ -74,13 +74,14 @@
 	  </td>
 	</tr>
 	<tr>
-	  <td>Discipline</td><td>{{ profile.get_discipline_display }}</td>
+	  <td>Field</td><td>{{ profile.acad_field }}</td>
 	</tr>
 	<tr>
-	  <td>Expertises</td>
-	  <td>{% for expertise in profile.expertises %}
-    	    <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{ expertise|get_specialization_code }}</div>
-	  {% endfor %}
+	  <td>Specialties</td>
+	  <td>
+	    {% for specialty in profile.specialties.all %}
+    	      <div class="single d-inline" data-specialty="{{ specialty }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+	    {% endfor %}
 	  </td>
 	</tr>
 	<tr><td>ORCID ID</td><td><a href="//orcid.org/{{ profile.orcid_id }}" target="_blank">{{ profile.orcid_id }}</a></td></tr>

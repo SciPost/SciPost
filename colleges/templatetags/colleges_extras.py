@@ -18,24 +18,9 @@ from ..constants import (
 from ..models import Fellowship
 
 from common.utils import hslColorWheel
-from scipost.constants import SCIPOST_DISCIPLINES
 
 
 register = template.Library()
-
-
-@register.filter(name='fellowships_in_branch')
-def fellowships_in_branch(fellowships, branch_name):
-    matching_disciplines = ()
-    for branch in SCIPOST_DISCIPLINES:
-        if branch[0] == branch_name:
-            matching_disciplines = [d[0] for d in branch[1]]
-    return fellowships.filter(contributor__profile__discipline__in=matching_disciplines)
-
-
-@register.filter(name='fellowships_in_discipline')
-def fellowships_in_discipline(fellowships, discipline):
-    return fellowships.filter(contributor__profile__discipline=discipline)
 
 
 @register.filter(name='potfelstatuscolor')
@@ -82,16 +67,16 @@ def voting_results_display(potfel):
         nr_agree = potfel.in_agreement.count()
         nr_abstain = potfel.in_abstain.count()
         nr_disagree = potfel.in_disagreement.count()
-        nr_spec_agree = potfel.in_agreement.all().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_spec_abstain = potfel.in_abstain.all().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_spec_disagree = potfel.in_disagreement.all().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_specialists = Fellowship.objects.active().specialties_overlap(
-            potfel.profile.discipline, potfel.profile.expertises).count()
-        nr_Fellows = Fellowship.objects.active().specialties_overlap(
-            potfel.profile.discipline).count()
+        specialties_slug_list = [s.slug for s in potfel.profile.specialties.all()]
+        nr_spec_agree = potfel.in_agreement.all(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_spec_abstain = potfel.in_abstain.all(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_spec_disagree = potfel.in_disagreement.all(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_specialists = Fellowship.objects.regular().active(
+        ).specialties_overlap(specialties_slug_list).count()
+        nr_Fellows = potfel.college.fellowships.regular().active().count()
         # Establish whether election criterion has been met.
         # Rule is: spec Agree must be >= 3/4 of (total nr of spec - nr abstain)
         election_agree_percentage = int(

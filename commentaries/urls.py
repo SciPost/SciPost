@@ -12,7 +12,7 @@ app_name = 'commentaries'
 urlpatterns = [
     # Commentaries
     url(r'^$', views.CommentaryListView.as_view(), name='commentaries'),
-    url(r'^browse/(?P<discipline>[a-z]+)/(?P<nrweeksback>[0-9]{1,3})/$',
+    url(r'^browse/(?P<nrweeksback>[0-9]{1,3})/$',
         views.CommentaryListView.as_view(), name='browse'),
     url(r'^howto$', TemplateView.as_view(template_name='commentaries/howto.html'), name='howto'),
 

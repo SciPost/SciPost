@@ -13,6 +13,8 @@ from django.db.models import Q
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
+from dal import autocomplete
+
 from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
@@ -39,10 +41,10 @@ from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
 from journals.models import Journal
 from mails.utils import DirectMailUtil
+from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from profiles.models import Profile
-from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.services import ArxivCaller
 from scipost.models import Contributor, Remark
 import strings
@@ -58,8 +60,6 @@ class SubmissionSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     abstract = forms.CharField(max_length=1000, required=False)
-    subject_area = forms.CharField(max_length=10, required=False, widget=forms.Select(
-                                   choices=((None, 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]))
 
     def search_results(self):
         """Return all Submission objects according to search."""
@@ -67,7 +67,6 @@ class SubmissionSearchForm(forms.Form):
             title__icontains=self.cleaned_data.get('title', ''),
             author_list__icontains=self.cleaned_data.get('author', ''),
             abstract__icontains=self.cleaned_data.get('abstract', ''),
-            subject_area__icontains=self.cleaned_data.get('subject_area', '')
         )
 
 
@@ -203,7 +202,7 @@ class SubmissionPrefillForm(forms.Form):
 
     def get_prefill_data(self):
         form_data = {
-            'discipline': self.journal.discipline,
+            'acad_field': self.journal.college.acad_field.id,
             'submitted_to': self.journal.id
         }
         if self.thread_hash:
@@ -241,11 +240,11 @@ class SciPostPrefillForm(SubmissionPrefillForm):
                 'title': self.latest_submission.title,
                 'abstract': self.latest_submission.abstract,
                 'author_list': self.latest_submission.author_list,
+                'acad_field': self.latest_submission.acad_field.id,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()],
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'secondary_areas': self.latest_submission.secondary_areas,
-                'subject_area': self.latest_submission.subject_area,
             })
         return form_data
 
@@ -292,8 +291,8 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'secondary_areas': self.latest_submission.secondary_areas,
-                'subject_area': self.latest_submission.subject_area,
+                'acad_field': self.latest_submission.acad_field.id,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()]
             })
         return form_data
 
@@ -308,6 +307,22 @@ class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
+        ),
+        label='Academic field',
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        help_text='Type to search, click to include',
+    )
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
@@ -319,11 +334,10 @@ class SubmissionForm(forms.ModelForm):
         fields = [
             'is_resubmission_of',
             'thread_hash',
-            'discipline',
             'submitted_to',
             'proceedings',
-            'subject_area',
-            'secondary_areas',
+            'acad_field',
+            'specialties',
             'approaches',
             'title',
             'author_list',
@@ -339,7 +353,6 @@ class SubmissionForm(forms.ModelForm):
         widgets = {
             'is_resubmission_of': forms.HiddenInput(),
             'thread_hash': forms.HiddenInput(),
-            'secondary_areas': forms.SelectMultiple(choices=SCIPOST_SUBJECT_AREAS),
             'arxiv_link': forms.TextInput(
                 attrs={'placeholder': 'Full URL, ex.:  https://arxiv.org/abs/1234.56789v1'}),
             'code_repository_url': forms.TextInput(
@@ -504,12 +517,16 @@ class SubmissionForm(forms.ModelForm):
         submission.preprint = preprint
 
         submission.save()
+
+        # Explicitly handle specialties (otherwise they are not saved)
+        submission.specialties.set(self.cleaned_data['specialties'])
+
         if self.is_resubmission():
             self.process_resubmission(submission)
 
         # Gather first known author and Fellows.
         submission.authors.add(self.requested_by.contributor)
-        self.set_pool(submission)
+        self.set_fellowship(submission)
 
         # Return latest version of the Submission. It could be outdated by now.
         submission.refresh_from_db()
@@ -554,16 +571,15 @@ class SubmissionForm(forms.ModelForm):
             to=previous_submission.editor_in_charge,
             status=STATUS_ACCEPTED)
 
-    def set_pool(self, submission):
+    def set_fellowship(self, submission):
         """
         Set the default set of (guest) Fellows for this Submission.
         """
         qs = Fellowship.objects.active()
         fellows = qs.regular().filter(
-            contributor__profile__discipline=submission.discipline).filter(
-                Q(contributor__profile__expertises__contains=[submission.subject_area]) |
-                Q(contributor__profile__expertises__overlap=submission.secondary_areas)
-            ).return_active_for_submission(submission)
+            college=submission.submitted_to.college,
+            contributor__profile__specialties__in=submission.specialties.all()
+        ).return_active_for_submission(submission)
         submission.fellows.set(fellows)
 
         if submission.proceedings:
@@ -1009,9 +1025,6 @@ class VotingEligibilityForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         """Get queryset of Contributors eligible for voting."""
         super().__init__(*args, **kwargs)
-        secondary_areas = self.instance.submission.secondary_areas
-        if not secondary_areas:
-            secondary_areas = []
 
         # If there exists a previous recommendation, include previous voting Fellows:
         prev_elig_id = []
@@ -1020,10 +1033,10 @@ class VotingEligibilityForm(forms.ModelForm):
         eligible = Contributor.objects.filter(
             fellowships__pool=self.instance.submission).filter(
                 Q(EIC=self.instance.submission) |
-                Q(expertises__contains=[self.instance.submission.subject_area]) |
-                Q(expertises__contains=secondary_areas) |
+                Q(profile__specialties__in=self.instance.submission.specialties.all()) |
                 Q(pk__in=prev_elig_id)
             ).order_by('user__last_name').distinct()
+
         self.fields['eligible_fellows'].queryset = eligible
 
     def save(self, commit=True):
@@ -1269,23 +1282,31 @@ class EICRecommendationForm(forms.ModelForm):
                 }
 
         super().__init__(*args, **kwargs)
-        self.fields['for_journal'].queryset = Journal.objects.active().filter(
-            Q(discipline=self.submission.discipline) | Q(name='SciPost Selections'))
-        self.fields['for_journal'].help_text=(
-            'Please be aware of all the points below!'
-            '<ul><li>SciPost Selections: means article in field flagship journal '
-            '(SciPost Physics, Astronomy, Biology, Chemistry...) '
-            'with extended abstract published separately in SciPost Selections. '
-            'Only choose this for '
-            'an <em>exceptionally</em> good submission to a flagship journal.</li>'
-            '<li>A submission to a flaghip which does not meet the latter\'s '
-            'tough expectations and criteria can be recommended for publication '
-            'in the field\'s Core journal (if it exists).</li>'
-            '<li>Conversely, an extremely good submission to a field\'s Core journal can be '
-            'recommended for publication in the field\'s flagship, provided '
-            'it fulfils the latter\'s expectations and criteria.</li>'
-            '</ul>'
-        )
+        for_journal_qs = Journal.objects.active().filter(
+            # The journals which can be recommended for are those falling under
+            # the responsibility of the College of the journal submitted to
+            college=self.submission.to_journal.college)
+        if self.submission.to_journal.name.partition(' ')[0] == 'SciPost':
+            # Submitted to a SciPost journal, so Selections is accessible
+            for_journal_qs = for_journal_qs | Journal.objects.filter(name='SciPost Selections')
+        self.fields['for_journal'] = for_journal_qs
+        if self.submission.to_journal.name.partition(' ')[0] == 'SciPost':
+            # Submitted to a SciPost journal, so Core and Selections are accessible
+            self.fields['for_journal'].help_text=(
+                'Please be aware of all the points below!'
+                '<ul><li>SciPost Selections: means article in field flagship journal '
+                '(SciPost Physics, Astronomy, Biology, Chemistry...) '
+                'with extended abstract published separately in SciPost Selections. '
+                'Only choose this for '
+                'an <em>exceptionally</em> good submission to a flagship journal.</li>'
+                '<li>A submission to a flaghip which does not meet the latter\'s '
+                'tough expectations and criteria can be recommended for publication '
+                'in the field\'s Core journal (if it exists).</li>'
+                '<li>Conversely, an extremely good submission to a field\'s Core journal can be '
+                'recommended for publication in the field\'s flagship, provided '
+                'it fulfils the latter\'s expectations and criteria.</li>'
+                '</ul>'
+            )
         self.fields['recommendation'].help_text=(
             'Selecting any of the three Publish choices means that you recommend publication.<br>'
             'Which one you choose simply indicates your ballpark evaluation of the '

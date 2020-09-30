@@ -12,12 +12,6 @@
 
 {% block content %}
 
-  {% if cont_form %}
-    <script src="{% static 'scipost/update-personal-data-expertises.js' %}"></script>
-  {% endif %}
-
-
-
   <form action="{% url 'scipost:update_personal_data' %}" method="post">
     {% csrf_token %}
     <div class="row justify-content-center">
@@ -54,3 +48,8 @@
   </form>
 
 {% endblock content %}
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ cont_form.media }}
+{% endblock footer_script %}

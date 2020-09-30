@@ -2,7 +2,7 @@
 
 # Weekly cronjobs for production area
 
-cd /home/scipost/webapps/scipost/scipost_v1
-source venv/bin/activate
+cd /home/scipost/webapps/scipost_py38/SciPost
+source ../venv3.8/bin/activate
 
-python3 manage.py email_fellows_tasklist
+python manage.py email_fellows_tasklist --settings=SciPost_v1.settings.production

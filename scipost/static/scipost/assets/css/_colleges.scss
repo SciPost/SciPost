@@ -19,10 +19,11 @@
     }
 }
 
-.specialization {
+.specialty {
     &.active-search,
     &:hover {
         cursor: pointer;
         color: $scipost-lightblue;
+	font-weight: bold;
     }
 }

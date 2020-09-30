@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import factory
 import pytz
-import random
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -13,7 +12,7 @@ from common.helpers import generate_orcid
 from submissions.models import Submission
 
 from .models import Contributor, Remark, TOTPDevice
-from .constants import TITLE_CHOICES, SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, NORMAL_CONTRIBUTOR
+from .constants import TITLE_CHOICES, NORMAL_CONTRIBUTOR
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
@@ -23,12 +22,7 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     activation_key = factory.Faker('md5')
     key_expires = factory.Faker('future_datetime', tzinfo=pytz.utc)
     status = NORMAL_CONTRIBUTOR  # normal user
-    title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
-    discipline = factory.Iterator(SCIPOST_DISCIPLINES[2][1], getter=lambda c: c[0])
-    expertises = factory.Iterator(SCIPOST_SUBJECT_AREAS[0][1], getter=lambda c: [c[0]])
-    orcid_id = factory.lazy_attribute(lambda n: generate_orcid())
     address = factory.Faker('address')
-    personalwebpage = factory.Faker('uri')
     # vetted_by = factory.Iterator(Contributor.objects.all())
 
     class Meta:

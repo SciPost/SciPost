@@ -16,7 +16,7 @@ from django.utils import timezone
 
 from .behaviors import TimeStampedModel, orcid_validator
 from .constants import (
-    SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, subject_areas_dict, NORMAL_CONTRIBUTOR, DISABLED,
+    NORMAL_CONTRIBUTOR, DISABLED,
     TITLE_CHOICES, INVITATION_STYLE, INVITATION_TYPE, INVITATION_CONTRIBUTOR, INVITATION_FORMAL,
     AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
 from .fields import ChoiceArrayField
@@ -59,10 +59,13 @@ class TOTPDevice(models.Model):
 
 
 class Contributor(models.Model):
-    """A Contributor is an academic extention of the User model.
+    """Contributor is an extension of the User model.
 
-    All *science* users of SciPost are Contributors.
-    username, password, email, first_name and last_name are inherited from User.
+    *Professionally active scientist* users of SciPost are Contributors.
+
+    The username, password, email, first_name and last_name are inherited from User.
+
+    Other information is carried by the related Profile.
     """
     profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
                                    null=True, blank=True)
@@ -71,20 +74,9 @@ class Contributor(models.Model):
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES,
-                                  default='physics', verbose_name='Main discipline')
-    expertises = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
-    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
-                                blank=True, validators=[orcid_validator])
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
-    personalwebpage = models.URLField(max_length=300, verbose_name='personal web page', blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
                                   related_name="contrib_vetted_by", blank=True, null=True)
-    accepts_SciPost_emails = models.BooleanField(
-        default=True, verbose_name="I accept to receive SciPost emails")
     # If this Contributor is merged into another, then this field is set to point to the new one:
     duplicate_of = models.ForeignKey('scipost.Contributor', on_delete=models.SET_NULL,
                                      null=True, blank=True, related_name='duplicates')
@@ -109,7 +101,7 @@ class Contributor(models.Model):
 
     @property
     def formal_str(self):
-        return '%s %s' % (self.get_title_display(), self.user.last_name)
+        return '%s %s' % (self.profile.get_title_display(), self.user.last_name)
 
     @property
     def is_active(self):
@@ -162,12 +154,6 @@ class Contributor(models.Model):
         salt = self.user.username.encode('utf8')
         self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = timezone.now() + datetime.timedelta(days=2)
-
-    def expertises_as_string(self):
-        """Return joined expertises."""
-        if self.expertises:
-            return ', '.join([subject_areas_dict[exp].lower() for exp in self.expertises])
-        return ''
 
     def conflict_of_interests(self):
         if not self.profile:

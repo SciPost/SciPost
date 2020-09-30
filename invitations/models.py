@@ -193,5 +193,5 @@ class CitationNotification(models.Model):
     def get_title(self):
         if self.invitation:
             return self.invitation.get_title_display()
-        elif self.contributor:
-            return self.contributor.get_title_display()
+        elif self.contributor and self.contributor.profile:
+            return self.contributor.profile.get_title_display()

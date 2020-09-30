@@ -17,7 +17,6 @@ from django.views.generic.list import ListView
 from dal import autocomplete
 from guardian.decorators import permission_required
 
-from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.mixins import PermissionsMixin, PaginationMixin
 from scipost.models import Contributor
 from scipost.forms import SearchTextForm
@@ -106,15 +105,9 @@ class ProfileCreateView(PermissionsMixin, CreateView):
             if from_type == 'contributor':
                 contributor = get_object_or_404(Contributor, pk=pk)
                 initial.update({
-                    'title': contributor.title,
                     'first_name': contributor.user.first_name,
                     'last_name': contributor.user.last_name,
                     'email': contributor.user.email,
-                    'discipline': contributor.discipline,
-                    'expertises': contributor.expertises,
-                    'orcid_id': contributor.orcid_id,
-                    'webpage': contributor.personalwebpage,
-                    'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
                 })
             elif from_type == 'refereeinvitation':
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)
@@ -123,8 +116,8 @@ class ProfileCreateView(PermissionsMixin, CreateView):
                     'first_name': refinv.first_name,
                     'last_name': refinv.last_name,
                     'email': refinv.email_address,
-                    'discipline': refinv.submission.discipline,
-                    'expertises': refinv.submission.secondary_areas,
+                    'acad_field': refinv.submission.acad_field.id,
+                    'specialties': [s.id for s in refinv.submission.specialties.all()],
                 })
             elif from_type == 'registrationinvitation':
                 reginv = get_object_or_404(RegistrationInvitation, pk=pk)
@@ -234,10 +227,10 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of Profiles using optional GET data.
         """
         queryset = Profile.objects.all()
-        if self.request.GET.get('discipline'):
-            queryset = queryset.filter(discipline=self.request.GET['discipline'].lower())
-            if self.request.GET.get('expertise'):
-                queryset = queryset.filter(expertises__contains=[self.request.GET['expertise']])
+        if self.request.GET.get('field'):
+            queryset = queryset.filter(acad_field__slug=self.request.GET['field'])
+            if self.request.GET.get('specialty'):
+                queryset = queryset.filter(specialties__slug__in=[self.request.GET['specialty']])
         if self.request.GET.get('contributor') == 'False':
             queryset = queryset.filter(contributor__isnull=True)
         elif self.request.GET.get('contributor') == 'True':
@@ -258,7 +251,6 @@ class ProfileListView(PermissionsMixin, PaginationMixin, ListView):
         reginv_wo_profile = RegistrationInvitation.objects.filter(profile__isnull=True)
 
         context.update({
-            'subject_areas': SCIPOST_SUBJECT_AREAS,
             'searchform': SearchTextForm(initial={'text': self.request.GET.get('text')}),
             'nr_contributors_w_duplicate_emails': contributors_w_duplicate_email.count(),
             'nr_contributors_w_duplicate_names': contributors_w_duplicate_names.count(),

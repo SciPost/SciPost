@@ -5,7 +5,6 @@ __license__ = "AGPL v3"
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
-from ..constants import disciplines_dict, subject_areas_dict
 from ..models import Contributor
 
 register = template.Library()
@@ -14,6 +13,16 @@ register = template.Library()
 #####################
 # General utilities #
 #####################
+
+@register.filter(name='list_element')
+def list_element(l, idx):
+    """Return the element with index idx from list, or None."""
+    if type(l) == list:
+        try:
+            return l[idx]
+        except IndexError:
+            pass
+    return None
 
 @register.filter(name='concatenate')
 def concatenate(arg1, arg2):
@@ -74,21 +83,3 @@ def is_modulo_one_half(counter, total):
 @register.filter(name='is_modulo_one_third')
 def is_modulo_one_third(counter, total):
     return is_modulo(counter, total, 3)
-
-
-@register.filter(name='get_discipline_display')
-def get_discipline_display(discipline):
-    # Translate the discipline db codename to human-readable name
-    return disciplines_dict[discipline]
-
-
-@register.filter(name='get_specialization_code')
-def get_specialization_code(code):
-    # Get the specialization code without the main subject identifier
-    return code.split(':')[1]
-
-
-@register.filter(name='get_specialization_display')
-def get_specialization_display(code):
-    # Due to the ArrayField construction, one is not able to use get_FOO_display in the template
-    return subject_areas_dict[code]

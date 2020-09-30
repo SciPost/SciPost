@@ -62,11 +62,6 @@
           <br>{{ issue.period_as_string }}
         </div>
       {% endfor %}
-
-      <h2 class="mb-2 mt-4">Subject area</h2>
-      {% for subject in subject_areas %}
-        <a href="?{% url_replace subject=subject.0 page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'subject' subject.0 %}">{{ subject.1 }}</a><br>
-      {% endfor %}
     </div>
   </div>
 {% endblock %}

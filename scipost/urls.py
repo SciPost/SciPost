@@ -5,8 +5,9 @@ __license__ = "AGPL v3"
 from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
+
 from django.views.generic.base import RedirectView
-from django.urls import path, re_path
+from django.urls import include, path, re_path, register_converter
 
 from . import views
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -14,15 +15,17 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.regexes import JOURNAL_DOI_LABEL_REGEX, ISSUE_DOI_LABEL_REGEX,\
+from journals.converters import JournalDOILabelConverter
+from journals.regexes import ISSUE_DOI_LABEL_REGEX,\
     PUBLICATION_DOI_LABEL_REGEX, DOI_DISPATCH_PATTERN
+from ontology.converters import SpecialtySlugConverter
 from submissions import views as submission_views
-
 
 favicon_view = RedirectView.as_view(
     url='/static/scipost/images/scipost_favicon.png', permanent=True)
 
-JOURNAL_PATTERN = '(?P<doi_label>%s)' % JOURNAL_DOI_LABEL_REGEX
+register_converter(JournalDOILabelConverter, 'journal_doi_label')
+register_converter(SpecialtySlugConverter, 'specialty')
 
 app_name = 'scipost'
 
@@ -86,21 +89,29 @@ urlpatterns = [
     url(r'^rss/comments/$', LatestCommentsFeedRSS(), name='feeds_rss_comments'),
     url(r'^atom/comments/$', LatestCommentsFeedAtom(), name='feeds_atom_comments'),
     url(r'^rss/submissions/$', LatestSubmissionsFeedRSS(), name='feeds_rss_submissions'),
-    url(r'^rss/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'rss/submissions/<specialty:specialty>',
         LatestSubmissionsFeedRSS(),
-        name='sub_feed_spec_rss'),
+        name='sub_feed_spec_rss'
+    ),
     url(r'^atom/submissions/$', LatestSubmissionsFeedAtom(), name='feeds_atom_submissions'),
-    url(r'^atom/submissions/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'atom/submissions/<specialty:specialty>',
         LatestSubmissionsFeedAtom(),
-        name='sub_feed_spec_atom'),
+        name='sub_feed_spec_atom'
+    ),
     url(r'^rss/publications/$', LatestPublicationsFeedRSS(), name='feeds_rss_publications'),
-    url(r'^rss/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'rss/publications/<specialty:specialty>',
         LatestPublicationsFeedRSS(),
-        name='pub_feed_spec_rss'),
+        name='pub_feed_spec_rss'
+    ),
     url(r'^atom/publications/$', LatestPublicationsFeedAtom(), name='feeds_atom_publications'),
-    url(r'^atom/publications/(?P<subject_area>[a-zA-Z]+:[A-Z]{2,})$',
+    path(
+        'atom/publications/<specialty:specialty>',
         LatestPublicationsFeedAtom(),
-        name='pub_feed_spec_atom'),
+        name='pub_feed_spec_atom'
+    ),
 
 
     ################
@@ -293,12 +304,22 @@ urlpatterns = [
         journals_views.issue_detail, name='issue_detail'),
 
     # Journal landing page
-    url(r'^10.21468/%s$' % JOURNAL_PATTERN,
-        journals_views.landing_page, name='landing_page'),
-    url(r'^%s$' % JOURNAL_PATTERN,
-        journals_views.landing_page, name='landing_page'),
-    url(r'^arxiv_doi_feed/%s' % JOURNAL_PATTERN,
-        journals_views.arxiv_doi_feed, name='arxiv_doi_feed'),
+    path(
+        '10.21468/<journal_doi_label:doi_label>',
+        journals_views.landing_page,
+        name='landing_page'
+    ),
+    path(
+        '<journal_doi_label:doi_label>',
+        journals_views.landing_page,
+        name='landing_page'
+    ),
+
+    path(
+        'arxiv_doi_feed/<journal_doi_label:doi_label>',
+        journals_views.arxiv_doi_feed,
+        name='arxiv_doi_feed'
+    ),
 
     ################
     # Howto guides #

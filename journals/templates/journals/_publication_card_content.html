@@ -1,7 +1,7 @@
 <div class="card-header">
-  <h3 class="my-0"><a href="{{publication.get_absolute_url}}">{{ publication.title }}</a></h3>
+  <h3 class="my-0"><a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a></h3>
 </div>
-<div class="card-body publication-{{publication.id}}">
+<div class="card-body publication-{{ publication.id }}">
   <div class="row justify-content-between mb-0">
     <div class="col">
       <p class="card-text mb-2">{{ publication.author_list }}</p>

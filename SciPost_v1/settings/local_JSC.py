@@ -20,6 +20,9 @@ MAILCHIMP_API_KEY = get_secret("MAILCHIMP_API_KEY")
 # Logging
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/doi.log'
+LOGGING['handlers']['api_file']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/api.log'
+LOGGING['handlers']['oauth_file']['filename'] = '/Users/jscaux/Sites/SciPost.org/scipost_v1/local_files/logs/oauth.log'
+
 CROSSREF_DEPOSIT_EMAIL = 'jscaux@scipost.org'
 
 # Customized mailbackend
@@ -33,3 +36,6 @@ CSP_REPORT_ONLY = True
 # Mailgun credentials
 MAILGUN_DOMAIN_NAME = get_secret('MAILGUN_DOMAIN_NAME')
 MAILGUN_API_KEY = get_secret('MAILGUN_API_KEY')
+
+# CORS headers
+CORS_ALLOW_ALL_ORIGINS = True # Dev only!

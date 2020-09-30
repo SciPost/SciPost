@@ -20,7 +20,6 @@ Submodules
    production.managers
    production.models
    production.permissions
-   production.signals
    production.urls
    production.utils
    production.views

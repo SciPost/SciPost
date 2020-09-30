@@ -73,8 +73,8 @@
 	  {% for fellow in potfel.in_agreement.all %}
 	    <tr>
 	      <td>{{ fellow }}</td>
-	      <td>{% for expertise in fellow.profile.expertises %}
-		<div class="single d-inline{% if expertise in potfel.profile.expertises %} px-1 bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	      <td>{% for specialty in fellow.profile.specialties.all %}
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -89,8 +89,8 @@
 	  {% for fellow in potfel.in_abstain.all %}
 	    <tr>
 	      <td>{{ fellow }}</td>
-	      <td>{% for expertise in fellow.profile.expertises %}
-		<div class="single d-inline{% if expertise in potfel.profile.expertises %} px-1 bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	      <td>{% for specialty in fellow.profile.specialties.all %}
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -105,8 +105,8 @@
 	  {% for fellow in potfel.in_disagreement.all %}
 	    <tr>
 	      <td>{{ fellow }}</td>
-	      <td>{% for expertise in fellow.profile.expertises %}
-		<div class="single d-inline{% if expertise in potfel.profile.expertises %} px-1 bg-success{% endif %}" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{expertise|get_specialization_code}}</div>
+	      <td>{% for specialty in fellow.profile.specialties.all %}
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>

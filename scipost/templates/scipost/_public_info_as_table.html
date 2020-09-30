@@ -1,9 +1,9 @@
 <table class="contributor-info">
-  <tr><td>Title: </td><td>{{ contributor.get_title_display }}</td></tr>
+  <tr><td>Title: </td><td>{{ contributor.profile.get_title_display }}</td></tr>
   <tr><td>First name: </td><td>{{ contributor.user.first_name }}</td></tr>
   <tr><td>Last name: </td><td>{{ contributor.user.last_name }}</td></tr>
-  <tr><td>ORCID id: </td><td>{{ contributor.orcid_id|default:'-' }}</td></tr>
-  <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage|default:'-' }}</td></tr>
+  <tr><td>ORCID id: </td><td>{{ contributor.profile.orcid_id|default:'-' }}</td></tr>
+  <tr><td>Personal web page: </td><td>{{ contributor.profile.webpage|default:'-' }}</td></tr>
 
   {% if perms.scipost.can_vet_registration_requests %}
     <tr class="text-muted"><td>Username</td><td>{{ contributor.user.username }}</td></tr>

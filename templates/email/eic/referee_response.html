@@ -1,7 +1,7 @@
-<p>Dear {{ invitation.submission.editor_in_charge.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},</p>
+<p>Dear {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }},</p>
 
 <p>
-    Referee {% if invitation.referee %}{{ invitation.referee.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
+    Referee {% if invitation.referee %}{{ invitation.referee.profile.get_title_display }} {{ invitation.referee.user.last_name }}{% else %}{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}{% endif %} has {% if invitation.accepted %}accepted{% else %}declined (due to reason: {{ invitation.get_refusal_reason_display }}){% endif %} to referee Submission
 </p>
 <p>
   {{ invitation.submission.title }}

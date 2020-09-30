@@ -27,7 +27,7 @@ class GrantAdmin(admin.ModelAdmin):
         'funder__name',
         'number',
         'recipient_name',
-        'recipiend__user__last_name',
+        'recipient__user__last_name',
     ]
     autocomplete_fields = [
         'funder',

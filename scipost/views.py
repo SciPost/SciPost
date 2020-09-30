@@ -40,9 +40,7 @@ from dal import autocomplete
 from guardian.decorators import permission_required
 from haystack.generic_views import SearchView
 
-from .constants import (
-    SCIPOST_SUBJECT_AREAS,
-    SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR)
+from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
 from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
@@ -65,6 +63,7 @@ from news.models import NewsItem
 from organizations.decorators import has_contact
 from organizations.models import Organization, Contact
 from organizations.forms import UpdateContactDataForm
+from profiles.models import Profile
 from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
 from theses.models import ThesisLink
 
@@ -176,7 +175,6 @@ def protected_serve(request, path, show_indexes=False):
 
 def feeds(request):
     """Information page for RSS and Atom feeds."""
-    context = {'subject_areas_physics': SCIPOST_SUBJECT_AREAS[0][1]}
     return render(request, 'scipost/feeds.html', context)
 
 
@@ -314,8 +312,7 @@ def unsubscribe(request, contributor_id, key):
     """
     contributor = get_object_or_404(Contributor, id=contributor_id, activation_key=key)
     if request.GET.get('confirm', False):
-        contributor.accepts_SciPost_emails = False
-        contributor.save()
+        Profile.objects.filter(pk=contributor.profile.id).update(accepts_SciPost_emails=False)
         text = ('<h3>We have recorded your preference</h3>'
                 'You will no longer receive non-essential email from SciPost.')
         messages.success(request, text)
@@ -356,7 +353,8 @@ def vet_registration_request_ack(request, contributor_id):
             pending_ref_inv_exists = updated_rows > 0
 
             email_text = (
-                'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
+                'Dear ' + contributor.profile.get_title_display() + ' ' +
+                contributor.user.last_name +
                 ', \n\nYour registration to the SciPost publication portal has been accepted. '
                 'You can now login at https://scipost.org and contribute. \n\n')
             if pending_ref_inv_exists:
@@ -374,7 +372,8 @@ def vet_registration_request_ack(request, contributor_id):
         else:
             ref_reason = form.cleaned_data['refusal_reason']
             email_text = (
-                'Dear ' + contributor.get_title_display() + ' ' + contributor.user.last_name +
+                'Dear ' + contributor.profile.get_title_display() + ' ' +
+                contributor.user.last_name +
                 ', \n\nYour registration to the SciPost publication portal has been turned down,'
                 ' the reason being: ' + reg_ref_dict[ref_reason] + '. You can however still view '
                 'all SciPost contents, just not submit papers, comments or votes. We nonetheless '
@@ -852,7 +851,8 @@ def personal_page(request, tab='account'):
         refereeing_tab_total_count += contributor.reports.in_draft().count()
 
         context['refereeing_tab_total_count'] = refereeing_tab_total_count
-        context['appellation'] = contributor.get_title_display() + ' ' + contributor.user.last_name
+        context['appellation'] = (contributor.profile.get_title_display() + ' ' +
+                                  contributor.user.last_name)
         context['contributor'] = contributor
 
     return render(request, 'scipost/personal_page.html', context)
@@ -898,7 +898,7 @@ def _update_personal_data_contributor(request):
         if 'orcid_id' in cont_form.changed_data:
             cont_form.propagate_orcid()
         messages.success(request, 'Your personal data has been updated.')
-        return redirect(reverse('scipost:update_personal_data'))
+        return redirect(reverse('scipost:personal_page'))
 
     context = {
         'user_form': user_form,
@@ -1218,11 +1218,11 @@ def email_group_members(request):
             page = p.page(pagenr)
             with mail.get_connection() as connection:
                 for member in page.object_list:
-                    if member.contributor.accepts_SciPost_emails:
+                    if member.contributor.profile.accepts_SciPost_emails:
                         email_text = ''
                         email_text_html = ''
                         if form.cleaned_data['personalize']:
-                            email_text = ('Dear ' + member.contributor.get_title_display()
+                            email_text = ('Dear ' + member.contributor.profile.get_title_display()
                                           + ' ' + member.last_name + ', \n\n')
                             email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
                         email_text += form.cleaned_data['email_text']
@@ -1240,7 +1240,7 @@ def email_group_members(request):
                             '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
                             'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
                         email_context = {
-                            'title': member.contributor.get_title_display(),
+                            'title': member.contributor.profile.get_title_display(),
                             'last_name': member.last_name,
                             'email_text': form.cleaned_data['email_text'],
                             'key': member.contributor.activation_key,

@@ -4,9 +4,6 @@ __license__ = "AGPL v3"
 
 from django.db import models
 
-from scipost.constants import SCIPOST_DISCIPLINES
-from scipost.fields import ChoiceArrayField
-
 
 class PreprintServer(models.Model):
     """
@@ -14,8 +11,10 @@ class PreprintServer(models.Model):
     """
     name = models.CharField(max_length=256)
     url = models.URLField()
-    disciplines = ChoiceArrayField(
-        models.CharField(max_length=32, choices=SCIPOST_DISCIPLINES)
+    acad_fields = models.ManyToManyField(
+        'ontology.AcademicField',
+        blank=True,
+        related_name='preprint_servers'
     )
 
     class Meta:

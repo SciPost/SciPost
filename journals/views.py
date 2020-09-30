@@ -50,13 +50,12 @@ from comments.models import Comment
 from funders.forms import FunderSelectForm, GrantSelectForm
 from funders.models import Grant
 from mails.views import MailEditorSubview
-from ontology.models import Topic
+from ontology.models import AcademicField, Topic
 from ontology.forms import SelectTopicForm
 from organizations.models import Organization
 from profiles.forms import ProfileSelectForm
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission, Report
-from scipost.constants import SCIPOST_SUBJECT_AREAS
 from scipost.forms import ConfirmationForm
 from scipost.models import Contributor
 from scipost.mixins import PermissionsMixin, RequestViewMixin, PaginationMixin
@@ -147,20 +146,21 @@ class JournalListView(ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.kwargs.get('discipline'):
-            qs = qs.filter(discipline=self.kwargs.get('discipline'))
+        if self.request.GET.get('field'):
+            qs = qs.filter(college__acad_field__slug=self.request.GET.get('field'))
         return qs
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        discipline = self.kwargs.get('discipline')
-        context['discipline'] = discipline
+        if self.request.GET.get('field'):
+            context['acad_field'] = get_object_or_404(
+                AcademicField, slug=self.request.GET.get('field'))
         return context
 
 
 class PublicationListView(PaginationMixin, ListView):
     """
-    Show Publications filtered per subject area.
+    Show Publications filtered per specialty.
     """
     queryset = Publication.objects.published()
     paginate_by = 10
@@ -177,8 +177,8 @@ class PublicationListView(PaginationMixin, ListView):
                 issue = None
             if issue:
                 qs = qs.filter(in_issue__id=issue)
-        if self.request.GET.get('subject'):
-            qs = qs.for_subject(self.request.GET['subject'])
+        if self.request.GET.get('specialty'):
+            qs = qs.for_specialty(self.request.GET['specialty'])
 
         if self.request.GET.get('orderby') == 'citations':
             qs = qs.order_by('-number_of_citations')
@@ -189,7 +189,6 @@ class PublicationListView(PaginationMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['recent_issues'] = Issue.objects.published().order_by('-start_date')[:5]
-        context['subject_areas'] = (('', 'Show all'),) + SCIPOST_SUBJECT_AREAS[0][1]
         return context
 
 
@@ -309,7 +308,6 @@ def about(request, doi_label):
     """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
-        'subject_areas': SCIPOST_SUBJECT_AREAS,
         'journal': journal,
     }
     return render(request, 'journals/about.html', context)
@@ -1364,6 +1362,7 @@ def publication_detail(request, doi_label):
 
     context = {
         'publication': publication,
+        'affiliation_indices': publication.get_author_affiliation_indices_list(),
         'affiliations_list': publication.get_all_affiliations(),
         'journal': publication.get_journal(),
         'select_topic_form': SelectTopicForm(),
