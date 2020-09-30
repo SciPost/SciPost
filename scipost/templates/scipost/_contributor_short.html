@@ -3,11 +3,11 @@
 {% load static %}
 
 <p class="mb-0 pb-0">
-  {% if fellowship.contributor.personalwebpage %}
-    <a target="_blank" href="{{ fellowship.contributor.personalwebpage }}">
+  {% if fellowship.contributor.profile.webpage %}
+    <a target="_blank" href="{{ fellowship.contributor.profile.webpage }}">
   {% endif %}
-  {{ fellowship.contributor.get_title_display }} {{ fellowship.contributor.user.first_name }} {{ fellowship.contributor.user.last_name }}
-  {% if fellowship.contributor.personalwebpage %}
+  {{ fellowship.contributor.profile.get_title_display }} {{ fellowship.contributor.user.first_name }} {{ fellowship.contributor.user.last_name }}
+  {% if fellowship.contributor.profile.webpage %}
     </a>
   {% endif %}
 </p>

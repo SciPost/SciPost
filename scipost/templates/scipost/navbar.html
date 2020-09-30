@@ -197,7 +197,7 @@
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
-              Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
+              Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
 
             {% if request.user.contributor and not request.user.contributor.is_currently_available %}
               <button type="button" class="btn btn-link p-0 text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true"><i class="fa fa-warning"></i></button>

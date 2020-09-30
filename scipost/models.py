@@ -59,10 +59,13 @@ class TOTPDevice(models.Model):
 
 
 class Contributor(models.Model):
-    """A Contributor is an academic extention of the User model.
+    """Contributor is an extension of the User model.
 
-    All *science* users of SciPost are Contributors.
-    username, password, email, first_name and last_name are inherited from User.
+    *Professionally active scientist* users of SciPost are Contributors.
+
+    The username, password, email, first_name and last_name are inherited from User.
+
+    Other information is carried by the related Profile.
     """
     profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
                                    null=True, blank=True)
@@ -71,15 +74,9 @@ class Contributor(models.Model):
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES)
-    orcid_id = models.CharField(max_length=20, verbose_name="ORCID id",
-                                blank=True, validators=[orcid_validator])
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
-    personalwebpage = models.URLField(max_length=300, verbose_name='personal web page', blank=True)
     vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
                                   related_name="contrib_vetted_by", blank=True, null=True)
-    accepts_SciPost_emails = models.BooleanField(
-        default=True, verbose_name="I accept to receive SciPost emails")
     # If this Contributor is merged into another, then this field is set to point to the new one:
     duplicate_of = models.ForeignKey('scipost.Contributor', on_delete=models.SET_NULL,
                                      null=True, blank=True, related_name='duplicates')

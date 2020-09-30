@@ -22,10 +22,7 @@ class ContributorFactory(factory.django.DjangoModelFactory):
     activation_key = factory.Faker('md5')
     key_expires = factory.Faker('future_datetime', tzinfo=pytz.utc)
     status = NORMAL_CONTRIBUTOR  # normal user
-    title = factory.Iterator(TITLE_CHOICES, getter=lambda c: c[0])
-    orcid_id = factory.lazy_attribute(lambda n: generate_orcid())
     address = factory.Faker('address')
-    personalwebpage = factory.Faker('uri')
     # vetted_by = factory.Iterator(Contributor.objects.all())
 
     class Meta:

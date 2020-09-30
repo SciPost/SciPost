@@ -105,13 +105,9 @@ class ProfileCreateView(PermissionsMixin, CreateView):
             if from_type == 'contributor':
                 contributor = get_object_or_404(Contributor, pk=pk)
                 initial.update({
-                    'title': contributor.title,
                     'first_name': contributor.user.first_name,
                     'last_name': contributor.user.last_name,
                     'email': contributor.user.email,
-                    'orcid_id': contributor.orcid_id,
-                    'webpage': contributor.personalwebpage,
-                    'accepts_SciPost_emails': contributor.accepts_SciPost_emails,
                 })
             elif from_type == 'refereeinvitation':
                 refinv = get_object_or_404(RefereeInvitation, pk=pk)

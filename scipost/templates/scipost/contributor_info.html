@@ -1,10 +1,10 @@
 {% extends 'scipost/base.html' %}
 
-{% block pagetitle %}: Contributor {{contributor}}{% endblock pagetitle %}
+{% block pagetitle %}: Contributor {{ contributor }}{% endblock pagetitle %}
 
 {% block content %}
 
-  <h1 class="highlight mb-4">Contributor info: {{ contributor.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}</h1>
+  <h1 class="highlight mb-4">Contributor info: {{ contributor.profile.get_title_display }} {{ contributor.user.first_name }} {{ contributor.user.last_name }}</h1>
 
 
   <div class="card">

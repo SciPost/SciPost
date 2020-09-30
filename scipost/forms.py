@@ -126,7 +126,7 @@ class RegistrationForm(forms.Form):
         label='Institution name and address', max_length=1000,
         widget=forms.TextInput({'placeholder': '[only if you did not find your affiliation above]'}),
         required=False)
-    personalwebpage = forms.URLField(
+    webpage = forms.URLField(
         label='Personal web page', required=False,
         widget=forms.TextInput({'placeholder': 'full URL, e.g. https://www.[yourpage].com'}))
     username = forms.CharField(label='* Username', max_length=100,
@@ -213,7 +213,7 @@ class RegistrationForm(forms.Form):
                 last_name=self.cleaned_data['last_name'],
                 acad_field=self.cleaned_data['acad_field'],
                 orcid_id=self.cleaned_data['orcid_id'],
-                webpage=self.cleaned_data['personalwebpage'])
+                webpage=self.cleaned_data['webpage'])
             profile.specialties.set(self.cleaned_data['specialties'])
         # Add a ProfileEmail to this Profile
         profile_email, created = ProfileEmail.objects.get_or_create(
@@ -231,11 +231,7 @@ class RegistrationForm(forms.Form):
             'profile': profile,
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
-            'title': self.cleaned_data['title'],
-            'orcid_id': self.cleaned_data['orcid_id'],
             'address': self.cleaned_data['address'],
-            'personalwebpage': self.cleaned_data['personalwebpage'],
-            'accepts_SciPost_emails': self.cleaned_data['subscribe'],
         })
         contributor.save()
         return contributor
@@ -264,6 +260,7 @@ class UpdateUserDataForm(forms.ModelForm):
 
 
 class UpdatePersonalDataForm(forms.ModelForm):
+    title = forms.ChoiceField(choices=TITLE_CHOICES, label='* Title')
     acad_field = forms.ModelChoiceField(
         queryset=AcademicField.objects.all(),
         widget=autocomplete.ModelSelect2(
@@ -283,6 +280,15 @@ class UpdatePersonalDataForm(forms.ModelForm):
         help_text='Type to search, click to include',
         required=False
     )
+    orcid_id = forms.CharField(
+        label="ORCID id", max_length=20, required=False, validators=[orcid_validator],
+        widget=forms.TextInput({
+            'placeholder': 'Recommended. Get one at orcid.org'}))
+    webpage = forms.URLField(
+        label='Personal web page', required=False,
+        widget=forms.TextInput({'placeholder': 'full URL, e.g. https://[yourpage].org'}))
+    accepts_SciPost_emails = forms.BooleanField(
+        required=False, label='You accept to receive unsolicited emails from SciPost')
     class Meta:
         model = Contributor
         fields = [
@@ -291,17 +297,25 @@ class UpdatePersonalDataForm(forms.ModelForm):
             'specialties',
             'orcid_id',
             'address',
-            'personalwebpage',
+            'webpage',
             'accepts_SciPost_emails',
         ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['title'].initial = self.instance.profile.title
         self.fields['acad_field'].initial = self.instance.profile.acad_field.id
         self.fields['specialties'].initial = [s.id for s in self.instance.profile.specialties.all()]
+        self.fields['orcid_id'].initial = self.instance.profile.orcid_id
+        self.fields['webpage'].initial = self.instance.profile.webpage
+        self.fields['accepts_SciPost_emails'].initial = self.instance.profile.accepts_SciPost_emails
 
     def save(self):
+        self.instance.profile.title = self.cleaned_data['title']
         self.instance.profile.acad_field = self.cleaned_data['acad_field']
+        self.instance.profile.orcid_id = self.cleaned_data['orcid_id']
+        self.instance.profile.webpage = self.cleaned_data['webpage']
+        self.instance.profile.accepts_SciPost_emails = self.cleaned_data['accepts_SciPost_emails']
         self.instance.profile.save()
         self.instance.profile.specialties.set(self.cleaned_data['specialties'])
         return super().save()
@@ -544,10 +558,6 @@ class ContributorMergeForm(forms.Form):
         if contrib_from.activation_key and not contrib_into.activation_key:
             contrib_into_qs.update(activation_key=contrib_into.activation_key)
         contrib_from_qs.update(status=DOUBLE_ACCOUNT)
-        if contrib_from.orcid_id and not contrib_into.orcid_id:
-            contrib_into_qs.update(orcid_id=contrib_from.orcid_id)
-        if contrib_from.personalwebpage and not contrib_into.personalwebpage:
-            contrib_into_qs.update(personalwebpage=contrib_from.personalwebpage)
 
         # Specify duplicate_of for deactivated Contributor
         contrib_from_qs.update(duplicate_of=contrib_into)

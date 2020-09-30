@@ -30,7 +30,7 @@ def petition(request, slug):
         country = affiliation.institution.country if affiliation else ''
         initial = {
             'petition': petition,
-            'title': request.user.contributor.title,
+            'title': request.user.contributor.profile.title,
             'first_name': request.user.first_name,
             'last_name': request.user.last_name,
             'email': request.user.email,
