@@ -2,6 +2,7 @@
 
 {% load scipost_extras %}
 
+{% block meta_description %}{{ block.super }} Commentary on {{ commentary }} {% endblock meta_description %}
 {% block pagetitle %}: Commentary detail{% endblock pagetitle %}
 
 {% block breadcrumb_items %}

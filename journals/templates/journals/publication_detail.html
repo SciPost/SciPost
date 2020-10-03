@@ -6,6 +6,7 @@
 {% load scipost_extras %}
 {% load user_groups %}
 
+{% block meta_description %}{{ block.super }} Publication Detail {{ publication.citation }} {{ publication.title }}{% endblock meta_description %}
 {% block pagetitle %}: {{ publication.citation }} - {{ publication.title }}{% endblock pagetitle %}
 
 {% block body_class %}{{ block.super }} publication{% endblock %}

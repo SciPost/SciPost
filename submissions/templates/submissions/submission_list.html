@@ -4,6 +4,7 @@
 {% load submissions_extras %}
 {% load request_filters %}
 
+{% block meta_description %}{{ block.super }} Submissions List{% endblock meta_description %}
 {% block pagetitle %}: Submissions{% endblock pagetitle %}
 
 {% block breadcrumb_items %}

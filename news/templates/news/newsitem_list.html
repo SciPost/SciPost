@@ -1,5 +1,6 @@
 {% extends 'news/base.html' %}
 
+{% block meta_description %}{{ block.super }} News{% endblock meta_description %}
 {% block pagetitle %}: News{% endblock pagetitle %}
 
 {% load request_filters %}

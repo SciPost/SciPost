@@ -1,5 +1,6 @@
 {% extends 'scipost/base.html' %}
 
+{% block meta_description %}{{ block.super }} Petition {{ petition.headline }}{% endblock meta_description %}
 {% block pagetitle %}: Petition{% endblock pagetitle %}
 
 {% load bootstrap %}

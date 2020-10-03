@@ -5,6 +5,7 @@
 {% load bootstrap %}
 {% load automarkup %}
 
+{% block meta_description %}{{ block.super }} Submission Detail {{ submission.title }}{% endblock meta_description %}
 {% block pagetitle %} Submission: {{ submission.title|truncatechars:40 }}{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -110,14 +111,14 @@
 	    <strong>We are awaiting your response to the publication offer.</strong>
 	    <br>
 	    You can either accept it, or withdraw your manuscript.</p>
-	  <ul class="list-unstyled">
-	    <li class="list-item my-1">
-	      <a class="btn btn-primary" href="{% url 'submissions:accept_puboffer' submission.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ submission.editorial_decision.for_journal }} (one-click action)</a>
-	    </li>
-	    <li class="list-item my-1">
-	      <a class="btn btn-danger" href="{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}">Turn down offer and withdraw manuscript (leads to confirmation page)</a>
-	    </li>
-	  </ul>
+	    <ul class="list-unstyled">
+	      <li class="list-item my-1">
+		<a class="btn btn-primary" href="{% url 'submissions:accept_puboffer' submission.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ submission.editorial_decision.for_journal }} (one-click action)</a>
+	      </li>
+	      <li class="list-item my-1">
+		<a class="btn btn-danger" href="{% url 'submissions:withdraw_manuscript' submission.preprint.identifier_w_vn_nr %}">Turn down offer and withdraw manuscript (leads to confirmation page)</a>
+	      </li>
+	    </ul>
 	{% endif %}
       {% endif %}
 

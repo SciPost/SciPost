@@ -5,6 +5,9 @@
 
 {% block body_class %}{{ block.super }} homepage{% endblock %}
 
+{% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
+{% block pagetitle %}Homepage{% endblock pagetitle %}
+
 {% block footer_script %}
   {% render_bundle 'homepage' 'js' %}
 {% endblock %}

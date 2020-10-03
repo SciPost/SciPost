@@ -10,6 +10,7 @@
   <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} Colleges{% endblock meta_description %}
 {% block pagetitle %}: Colleges{% endblock pagetitle %}
 
 {% block content %}

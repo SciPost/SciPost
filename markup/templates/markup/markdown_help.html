@@ -1,11 +1,12 @@
 {% extends 'markup/base.html' %}
 
+{% block meta_description %}{{ block.super }} Markdown Help{% endblock meta_description %}
 {% block pagetitle %}: Markup help{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item"><a href="{% url 'markup:help' %}">Help</a></span>
-    <span class="breadcrumb-item">Markdown</span>
+  <span class="breadcrumb-item">Markdown</span>
 {% endblock %}
 
 {% load automarkup %}

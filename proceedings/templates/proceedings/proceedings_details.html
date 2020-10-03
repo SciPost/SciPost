@@ -6,6 +6,7 @@
   <span class="breadcrumb-item">Proceedings details</span>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} Proceedings details {{ proceedings }}{% endblock meta_description %}
 {% block pagetitle %}: Proceedings details{% endblock pagetitle %}
 
 {% block content %}

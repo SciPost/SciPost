@@ -8,6 +8,7 @@
   <span class="breadcrumb-item">{{ series.name }}</span>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} Series detail {{ series.name }}{% endblock meta_description %}
 {% block pagetitle %}: Series detail{% endblock pagetitle %}
 
 {% block content %}
