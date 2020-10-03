@@ -32,13 +32,13 @@
   <ul class="news-list">
     {% for news in news_items %}
       <li>
-        <h4><a href="{% url 'news:news' %}#news_{{news.id}}">{{ news.headline }}</a></h4>
+        <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
         <div class="text-muted">{{ news.date|date:'j F Y' }}</div>
         <p>
           {{ news.blurb_short }}
           <br>
           <br>
-          <a href="{% url 'news:news' %}#news_{{news.id}}" class="my-1">Read more &rarr;</a>
+          <a href="{% url 'news:news' %}#news_{{ news.id }}" class="my-1">Read more &rarr;</a>
         </p>
       </li>
     {% endfor %}
@@ -59,6 +59,6 @@
     We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
   </p>
   <p>
-    <span style="color: red;">Scientists, please help us out:</span> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
+    <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
   </p>
 </div><!-- End Sponsors -->

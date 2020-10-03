@@ -1,11 +1,11 @@
 <div class="li submission">
-  <h5 class="subject">
+  <h3 class="specialties">
     <a href="{% url 'submissions:submissions' %}?field={{ submission.acad_field.slug }}" class="muted-link">{{ submission.acad_field }}</a>:&nbsp;
     {% for specialty in submission.specialties.all %}
       <a href="{% url 'submissions:submissions' %}?specialty={{ specialty.slug }}" class="muted-link">{{ specialty }}</a>
       {% if not forloop.last %}<strong>&nbsp;&bullet;&nbsp;</strong>{% endif %}
     {% endfor %}
-  </h5>
+  </h3>
     <h3 class="title"><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
     <p class="authors">by {{ submission.author_list }}</p>
     {% block card_footer %}{% endblock %}
