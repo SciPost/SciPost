@@ -15,9 +15,9 @@
             {% endif %}
             <div class="reference">
               {% if reference.link and reference.identifier %}
-                <a href="{{ reference.link }}" target="_blank">{{ reference.identifier }}</a>
+                <a href="{{ reference.link }}" target="_blank" rel="noopener">{{ reference.identifier }}</a>
               {% elif reference.link %}
-                <a href="{{ reference.link }}" target="_blank">link</a>
+                <a href="{{ reference.link }}" target="_blank" rel="noopener">link</a>
               {% elif reference.identifier %}
                 <span>{{ reference.identifier }}</span>
               {% endif %}
