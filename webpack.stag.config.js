@@ -17,6 +17,9 @@ module.exports = {
             "./scipost/static/scipost/assets/js/fader.js",
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
+	qr: [
+	    "./scipost/static/scipost/assets/js/activate_qr.js",
+	],
     },
     output: {
         path: path_bundles,

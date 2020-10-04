@@ -1,11 +1,17 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% load render_bundle from webpack_loader %}
+
+{% block headsup %}
+  {% render_bundle 'qr' %}
+{% endblock headsup %}
+
 {% block pagetitle %}: New device{% endblock pagetitle %}
 
 {% load bootstrap %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   <a href="{% url 'scipost:totp' %}" class="breadcrumb-item">Two-factor authentication</a>
   <span class="breadcrumb-item">New device</span>
 {% endblock %}
@@ -53,4 +59,4 @@
 
   </div>
 
-{% endblock %}
+{% endblock content %}

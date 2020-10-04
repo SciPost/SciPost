@@ -1,8 +1,6 @@
 require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/disable-selection');
 
-import QRCode from 'qrcode';
-
 function hide_all_alerts() {
     $(".alert").remove('.no-dismiss').fadeOut(300);
 }
@@ -14,16 +12,6 @@ var activate_tooltip = function() {
         placement: 'auto'
     });
 }
-
-var activate_qr = function() {
-    $.each($('[data-toggle="qr"]'), function(index, value) {
-        var el = $(value);
-        QRCode.toDataURL(el.data('qr-value'), function(err, url) {
-            el.attr({src: url});
-        });
-    });
-};
-
 
 var select_form_table = function(table_el) {
     $(table_el + ' tbody tr input[type="checkbox"]').on('change', function() {
@@ -87,7 +75,6 @@ function init_page() {
     });
 
     activate_tooltip();
-    activate_qr();
     sort_form_list('form ul.sortable-list');
     sort_form_list('table.sortable-rows > tbody');
     select_form_table('.table-selectable');
