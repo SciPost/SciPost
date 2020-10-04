@@ -10,7 +10,6 @@ module.exports = {
         main: [
 	    "tether",
             "bootstrap-loader",
-            "./scipost/static/scipost/assets/js/dynamic_loading.js",
             "./scipost/static/scipost/assets/js/scripts.js",
         ],
         homepage: [

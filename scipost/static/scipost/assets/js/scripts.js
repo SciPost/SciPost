@@ -18,16 +18,9 @@ var activate_tooltip = function() {
 var activate_qr = function() {
     $.each($('[data-toggle="qr"]'), function(index, value) {
         var el = $(value);
-        console.log(el.data('qr-value'));
-        // var str;
         QRCode.toDataURL(el.data('qr-value'), function(err, url) {
             el.attr({src: url});
         });
-        // console.log(str);
-        // el.attr({src: str});
-        // QRCode.toCanvas(el, el.data('qr-value'), function(err) {
-        //     console.log(err);
-        // })
     });
 };
 
