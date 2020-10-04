@@ -66,7 +66,7 @@
           <ul id="fader">
             {% for sponsor in current_sponsors %}
               {% if sponsor.logo %}
-                <li class="item"><img height="100" class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
+                <li class="item"><img class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
               {% endif %}
             {% endfor %}
           </ul>
