@@ -80,7 +80,7 @@ class ContributorQuerySet(models.QuerySet):
             user__is_staff=True).annotate(lower_email=Lower('user__email'))
         duplicates = qs.values('lower_email').annotate(
             Count('id')).filter(id__count__gt=1).values_list('lower_email', flat=True)
-        return qs.filter(user__email__in=duplicates)
+        return qs.filter(lower_email__in=duplicates)
 
 
 class UnavailabilityPeriodManager(models.Manager):
