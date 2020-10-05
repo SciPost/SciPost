@@ -2,7 +2,7 @@
 General style sheet for SciPost
 */
 
-@import url(//fonts.googleapis.com/css?family=Merriweather+Sans);
+@import url(//fonts.googleapis.com/css?family=Merriweather+Sans&display=swap);
 
 .pubtitleli {
   padding: 3px 5px;
