@@ -49,6 +49,13 @@ class CollegeDetailView(DetailView):
     model = College
     template_name = 'colleges/college_detail.html'
 
+    def get_object(self, queryset=None):
+        """
+        Bypass django.views.generic.detail.SingleObjectMixin:
+        since CollegeSlugConverter already found the College as a kwarg, just pass that object on.
+        """
+        return self.kwargs['college']
+
 
 class FellowshipCreateView(PermissionsMixin, CreateView):
     """
