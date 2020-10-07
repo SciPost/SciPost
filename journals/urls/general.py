@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path, register_converter, reverse_lazy
+from django.urls import path, re_path, register_converter, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
@@ -30,8 +30,8 @@ urlpatterns = [
         journals_views.JournalListView.as_view(),
         name='journals'
     ),
-    path(
-        '<acad_field:acad_field>',
+    path( # patch to preserve old links
+        '<acad_field:acad_field>/',
         journals_views.JournalListView.as_view(),
         name='journals_in_acad_spec'
     ),
