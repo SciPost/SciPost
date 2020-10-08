@@ -3,6 +3,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block headsup %}
+  {% render_bundle 'vendors~qr' %}
   {% render_bundle 'qr' %}
 {% endblock headsup %}
 

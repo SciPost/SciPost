@@ -10,6 +10,8 @@
     <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
     <link rel="stylesheet" type="text/css" href="{% static 'fa/css/font-awesome.min.css' %}" />
 
+    {% render_bundle 'vendors~homepage~main~qr' %}
+    {% render_bundle 'vendors~main' %}
     {% render_bundle 'main' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
