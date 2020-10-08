@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.template import Template
 from django.urls import reverse
 from django.utils import timezone
 
@@ -167,19 +168,15 @@ class Ticket(models.Model):
         return self.status not in [TICKET_STATUS_RESOLVED, TICKET_STATUS_CLOSED]
 
     @property
-    def priority_icons(self):
+    def priority_level(self):
         if self.priority == TICKET_PRIORITY_URGENT:
-            return ('<i class="fa fa-lg fa-thermometer-full"></i> '
-                    '<i class="fa fa-exclamation"></i><i class="fa fa-exclamation"></i>'
-                    '<i class="fa fa-exclamation"></i>')
+            return 3
         elif self.priority == TICKET_PRIORITY_HIGH:
-            return ('<i class="fa fa-lg fa-thermometer-three-quarters"></i> '
-                    '<i class="fa fa-exclamation"></i><i class="fa fa-exclamation"></i>')
+            return 2
         elif self.priority == TICKET_PRIORITY_MEDIUM:
-            return ('<i class="fa fa-lg fa-thermometer-half"></i> '
-                    '<i class="fa fa-exclamation"></i>')
+            return 1
         else:
-            return '<i class="fa fa-lg fa-thermometer-quarter"></i>'
+            return 0
 
     @property
     def status_classes(self):

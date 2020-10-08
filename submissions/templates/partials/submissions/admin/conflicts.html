@@ -7,14 +7,14 @@
       <li class="my-1" id="conflict-{{ conflict.id }}">
         <div class="actions status font-weight-bold">
           {% if conflict.status == 'unverified' %}
-            <i class="fa-li fa fa-question-circle text-warning" aria-hidden="true"></i>
+            <span class="text-warning" aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span>
             Please
             <button type="button" class="btn btn-link p-0 update-conflict-button" data-conflict-id="{{ conflict.id }}" data-status="verified" data-urllink="{% url 'api:conflictofinterest-verify_conflict' conflict.id %}">confirm</button>
             or
             <button type="button" class="btn btn-link p-0 text-danger update-conflict-button" data-conflict-id="{{ conflict.id }}" data-status="delete" data-urllink="{% url 'api:conflictofinterest-verify_conflict' conflict.id %}">delete</button>
             this conflict.
           {% elif conflict.status == 'verified' %}
-            <i class="fa-li fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
             <strong>Verified by Admin</strong>
           {% endif %}
         </div>
@@ -36,7 +36,7 @@
     {% endfor %}
   </ul>
 {% else %}
-  <em><i class="fa fa-check text-success" aria-hidden="true"></i> No conflicts found</em>
+  <em><span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span> No conflicts found</em>
 {% endif %}
 
 

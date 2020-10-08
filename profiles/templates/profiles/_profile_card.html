@@ -47,7 +47,7 @@
 		  <td class="d-flex">
                     <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
 		    <form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">Make primary</button></form>
-		    <a type="button" class="btn py-0" data-toggle="modal" data-target="#confirmDeleteEmailModal"><i class="fa fa-trash text-danger"></i></a>
+		    <a type="button" class="btn py-0" data-toggle="modal" data-target="#confirmDeleteEmailModal"><span class="text-danger">{% include 'bi/trash-fill.html' %}</span></a>
 		    <div class="modal" id="confirmDeleteEmailModal" tabindex="-1" role="dialog">
 		      <div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -190,7 +190,7 @@
       <div class="card-body">
 	<ul>
 	  {% for inv in profile.refereeinvitation_set.all %}
-	    <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<i class="fa fa-check-square text-success"></i>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
+	    <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
 	  {% empty %}
 	    <li>No refereeing invitation found</li>
 	  {% endfor %}

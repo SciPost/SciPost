@@ -48,7 +48,7 @@
         <td>Submission is publicly available:</td>
         <td>
           {% if submission.visible_public %}
-            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
             <span class="text-muted">Available in public pages and search results.</span>
           {% else %}
             <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
@@ -60,7 +60,7 @@
         <td>Submission is current version:</td>
         <td>
           {% if submission.is_current %}
-            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
             <span class="text-muted">This is the current version.</span>
           {% else %}
             <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>

@@ -21,8 +21,8 @@
           {% if not non_editable %}
             {% if event.noted_by == request.user.production_user and event.editable %}
               <div class="pl-2">
-                <a href="{% url 'production:update_event' event.id %}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-                <a class="text-danger" href="{% url 'production:delete_event' event.id %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                <a href="{% url 'production:update_event' event.id %}"><span aria-hidden="true">{% include 'bi/pencil-square.html' %}</span></a>
+                <a class="text-danger" href="{% url 'production:delete_event' event.id %}"><span aria-hidden="true">{% include 'bi/trash-fill.html' %}</span></a>
               </div>
             {% endif %}
           {% endif %}

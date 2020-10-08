@@ -46,7 +46,7 @@
 	    {{ job.short_description|automarkup }}
 	  </div>
 	  <div class="card-footer">
-	    <i class="fa fa-arrow-right"></i>&emsp;<a href="{{ job.get_absolute_url }}">View full description/apply for this job</a>
+	    {% include 'bi/arrow-right.html' %}&emsp;<a href="{{ job.get_absolute_url }}">View full description/apply for this job</a>
 	  </div>
 	</div>
       {% empty %}

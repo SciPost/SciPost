@@ -245,7 +245,7 @@
           </li>
 
 	  <li class="nav-item">
-	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><i class="fa fa-sticky-note" style="font-size: 80%;" data-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket"></i></a>
+	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
 	  </li>
 
         {% else %}

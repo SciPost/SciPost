@@ -35,7 +35,11 @@
 	</tr>
 	<tr>
 	  <th>Priority</th>
-	  <td>{{ ticket.priority_icons|safe }} - {{ ticket.get_priority_display }}</td>
+	  <td>
+	    {% for a in "x"|ljust:ticket.priority_level %}
+	      {% include 'bi/exclamation-square-fill.html' %}
+	    {% endfor %}
+	    &nbsp;-&nbsp;{{ ticket.get_priority_display }}</td>
 	</tr>
 	<tr>
 	  <th>Status</th>
@@ -73,18 +77,18 @@
 	    </ul>
 	    {% if ticket.is_open %}
 	      {% if request.user|is_in_group:ticket.queue.managing_group.name %}
-		<a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}"><i class="fa fa-trash"></i> Delete</a>
-		<a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}"><i class="fa fa-edit"></i> Update</a>
+		<a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:ticket_delete' pk=ticket.id %}">{% include 'bi/trash-fill.html' %}&nbsp;Delete</a>
+		<a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:ticket_update' pk=ticket.id %}">{% include 'bi/pencil-square.html' %}&nbsp;Update</a>
 		{% if not ticket.assigned_to %}
-		  <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Assign this ticket</a>
+		  <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">{% include 'bi/arrow-right-circle-fill.html' %}&nbsp;Assign this ticket</a>
 		{% else %}
-		  <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}"><i class="fa fa-arrow-circle-right"></i> Reassign this ticket <span class="text-small text-muted">[currently: {{ ticket.assigned_to.username }}]</span></a>
+		  <a class="btn btn-sm btn-info" role="button" href="{% url 'helpdesk:ticket_assign' pk=ticket.id %}">{% include 'bi/arrow-right-circle-fill.html' %}&nbsp;Reassign this ticket <span class="text-small text-muted">[currently: {{ ticket.assigned_to.username }}]</span></a>
 		{% endif %}
 		<br/><br/>
 	      {% endif %}
-	      <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}"><i class="fa fa-reply"></i> Reply/Followup</a>
-	      <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}"><i class="fa fa-check-square"></i> Mark as resolved</a>
-	      <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}">{% include 'bi/x-square-fill.html' %} Close this Ticket</a>
+	      <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}">{% include 'bi/reply-fill.html' %}&nbsp;Reply/Followup</a>
+	      <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}">{% include 'bi/check-square.html' %}&nbsp;Mark as resolved</a>
+	      <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}">{% include 'bi/x-square-fill.html' %}&nbsp;Close this Ticket</a>
 	    {% endif %}
 	  </td>
 	</tr>

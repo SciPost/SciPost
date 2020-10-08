@@ -100,11 +100,11 @@
             {% for profile in profiles_found %}
               <tr>
             	<td>{{ profile }}</td>
-            	<td>{% if profile.contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
-            	<td>{% if profile.email %}<i class="fa fa-check-circle text-success"></i> <span class="text-muted">{{ profile.email }}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+            	<td>{% if profile.contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+            	<td>{% if profile.email %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> <span class="text-muted">{{ profile.email }}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
                 <td>
                   {% if profile.accepts_refereeing_requests %}
-                    <i class="fa fa-check-circle text-success"></i>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
+                    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
                   {% endif %}
                 </td>
             	<td>
@@ -112,7 +112,7 @@
                     {% if profile.email %}
                       Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders. {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}
                     {% else %}
-                      <span class="text-danger">Cannot send an invitation without an email</span> <i class="fa fa-arrow-right"></i> Add one:
+                      <span class="text-danger">Cannot send an invitation without an email</span> {% include 'bi/arrow-right.html' %} Add one:
                       <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
                         {% csrf_token %}
                         {{ profile_email_form|bootstrap }}

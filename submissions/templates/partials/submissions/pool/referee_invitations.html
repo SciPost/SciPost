@@ -18,12 +18,12 @@
           {% if invitation.needs_response %}
             <div class="text-center" data-toggle="tooltip" data-title="This referee has not responded in over three days.<br>Consider sending a reminder or cancelling the invitation." data-html="true">
               <i class="fa fa-info"></i>
-              <i class="fa fa-long-arrow-right"></i>
+              {% include 'bi/arrow-right.html' %}
             </div>
           {% elif invitation.needs_fulfillment_reminder %}
             <div class="text-center" data-toggle="tooltip" data-title="This referee has accepted to send a Report, but not yet delivered it.<br>Consider sending a reminder." data-html="true">
               <i class="fa fa-info"></i>
-              <i class="fa fa-long-arrow-right"></i>
+              {% include 'bi/arrow-right.html' %}
             </div>
           {% endif %}
           {% if invitation.is_overdue %}
@@ -127,7 +127,7 @@
           {% if invitations %}
             <h4><a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">+ Invite an additional referee</a></h4>
           {% else %}
-            <i class="fa fa-exclamation-circle text-danger"></i>
+            <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             You have not invited any referees yet. <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>.
           {% endif %}
         </td>

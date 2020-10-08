@@ -26,7 +26,7 @@
 	</tr>
 	<tr>
 	  <td>Account active?</td>
-	  <td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
+	  <td>{% if contact.user.is_active %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	</tr>
 	<tr>
 	  <td>Account created</td>

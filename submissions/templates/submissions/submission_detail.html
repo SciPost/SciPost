@@ -30,9 +30,9 @@
       <div class="col-12">
 	<div class="border border-warning py-2 px-3 mb-3">
 	  {% if request.user.contributor in submission.authors_claims.all %}
-	    <i class="fa fa-exclamation-circle text-warning"></i> Your authorship claim on this Submission is pending verification by our Editorial Administration.
+	    <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Your authorship claim on this Submission is pending verification by our Editorial Administration.
 	  {% else %}
-	    <h3><i class="fa fa-exclamation-circle text-warning"></i> Please advise</h3>
+	    <h3><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Please advise</h3>
 	    The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. Particular actions and information may be blocked until your authorship has been verified.
 	  {% endif %}
 	</div>
@@ -44,7 +44,7 @@
       {% if unfinished_report_for_user %}
 	<div class="w-100">
 	  <div class="border border-warning py-2 px-3 mb-3">
-            <h3><i class="fa fa-exclamation-circle"></i> You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a></h3>
+            <h3>{% include 'bi/exclamation-circle-fill.html' %} You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a></h3>
 	  </div>
 	</div>
       {% endif %}
@@ -52,7 +52,7 @@
       {% if is_author %}
 	<div class="w-100">
 	  <div class="border py-2 px-3 mb-3">
-            <i class="fa fa-check-circle text-success"></i> You are a verified author of this Submission.
+            <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> You are a verified author of this Submission.
 	  </div>
 	</div>
       {% endif %}
@@ -80,14 +80,14 @@
 
 	{% if unfinished_report_for_user %}
 	  <h4>
-            <i class="fa fa-exclamation-circle text-danger"></i>
+            <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             You have an unfinished report for this submission, <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here.</a>
 	  </h4>
 	{% endif %}
 
 	{% if not submission.is_current %}
 	  <h4 class="text-danger">
-            <i class="fa fa-exclamation-circle text-danger"></i>
+            <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span>
             This is not the current version.
 	  </h4>
 	{% endif %}

@@ -124,7 +124,7 @@
       <br>
 
       <h2 class="highlight" id="Plain">Plain text&emsp;
-	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:plaintext_help' %}">plain text-specific</a> help page</small></em>
+	<em><small>{% include 'bi/arrow-right.html' %} See our <a href="{% url 'markup:plaintext_help' %}">plain text-specific</a> help page</small></em>
       </h2>
       {% for suggestion in PlainTextSuggestions %}
 	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
@@ -143,7 +143,7 @@
       <br>
 
       <h2 class="highlight" id="Markdown">Markdown&emsp;
-	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:markdown_help' %}">Markdown-specific</a> help page</small></em></h2>
+	<em><small>{% include 'bi/arrow-right.html' %} See our <a href="{% url 'markup:markdown_help' %}">Markdown-specific</a> help page</small></em></h2>
       {% for suggestion in MarkdownSuggestions %}
 	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
 	<div class="row">
@@ -161,7 +161,7 @@
       <br>
 
       <h2 class="highlight" id="reStructuredText">reStructuredText&emsp;
-	<em><small><i class="fa fa-arrow-right"></i> See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</small></em></h2>
+	<em><small>{% include 'bi/arrow-right.html' %} See our <a href="{% url 'markup:restructuredtext_help' %}">reStructuredText-specific</a> help page</small></em></h2>
       {% for suggestion in ReSTSuggestions %}
 	<h4 id="{{ suggestion.id }}">Example: {{ suggestion.title }}</h4>
 	<div class="row">

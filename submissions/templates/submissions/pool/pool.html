@@ -47,7 +47,7 @@
             <h2 class="text-primary">Administrative Tasks</h2>
 
             {% if pre_screening_subs %}
-              <h3>Submissions in pre-screening phase <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <h3>Submissions in pre-screening phase <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
               <ul>
                 {% for submission in pre_screening_subs %}
                   <li>
@@ -59,7 +59,7 @@
             {% endif %}
 
             {% if recommendations.voting_in_preparation %}
-              <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <h3>Recommendations to prepare for voting <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
               <ul>
                 {% for recommendation in recommendations.voting_in_preparation %}
                   <li>
@@ -71,7 +71,7 @@
             {% endif %}
 
             {% if recommendations.put_to_voting %}
-              <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <h3>Recommendations undergoing voting <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
               <ul class="fa-ul">
                 {% for recommendation in recommendations.put_to_voting %}
                   <li>
@@ -95,7 +95,7 @@
 
       {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
         {% if assignments_to_consider %}
-          <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
+          <h3>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
           <ul>
             {% for assignment in assignments_to_consider %}
               <li>On submission: {{ assignment.submission }}<br>
@@ -106,7 +106,7 @@
         {% endif %}
 
         {% if recs_to_vote_on %}
-          <h3>Recommendations to vote on <i class="fa fa-exclamation-circle text-warning"></i></h3>
+          <h3>Recommendations to vote on <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
           <ul>
             {% for recommendation in recs_to_vote_on %}
               <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>

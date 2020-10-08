@@ -40,7 +40,7 @@
           {% if submission.cycle.has_required_actions %}
             <i class="fa fa-exclamation-triangle text-danger"></i>
           {% else %}
-            <i class="fa fa-check-circle"></i>
+            {% include 'bi/check-circle-fill.html' %}
           {% endif %}
           Required actions
 	</h3>

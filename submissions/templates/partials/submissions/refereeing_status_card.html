@@ -11,12 +11,12 @@
     <h3>Your Referee Invitation</h3>
     <p>Thank you for agreeing to referee this Submission. The following checklist will guide you through the steps needed to complete your refereeing task.</p>
     <ul class="fa-ul">
-      <li><i class="fa-li fa fa-check-square-o"></i>Accepted Invitation on {{ invitation.date_responded }}.</li>
+      <li>{% include 'bi/check-square-fill.html' %} Accepted Invitation on {{ invitation.date_responded }}.</li>
 
       <li>
         {% if invitation.fulfilled %}
           Thank you!
-          <i class="fa-li fa fa-check-square-o"></i>Report submitted on {{ invitation.related_report.date_submitted }}.
+          {% include 'bi/check-square-fill.html' %} Report submitted on {{ invitation.related_report.date_submitted }}.
           <ul class="list-style-none">
             <li>Status: <span class="{% if invitation.related_report.status == 'vetted' %}text-success{% elif invitation.related_report.status == 'unvetted' %}text-danger{% endif %}">{{ invitation.related_report.get_status_display }}</span></li>
             <li>Anonymous: {{ invitation.related_report.anonymous|yesno:'Yes,No' }}</li>

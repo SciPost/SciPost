@@ -8,23 +8,23 @@
 	<dt class="col-sm-6 col-md-5">Page</dt>
 	<dd class="col-sm-6 col-md-7"><em>... where you will find info on:</em></dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if 'colleges' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if 'colleges' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  <a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></dt>
 	<dd class="col-sm-6 col-md-7"><em>Our Colleges and their Editorial Fellows</em></dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if 'by-laws' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if 'by-laws' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a></dt>
 	<dd class="col-sm-6 col-md-7"><em>Official rules for all our editorial workflows</em></dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if 'journals_terms_and_conditions' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if 'journals_terms_and_conditions' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  <a href="{% url 'journals:journals_terms_and_conditions' %}">Journals Terms and Conditions</a></dt>
 	<dd class="col-sm-6 col-md-7"><em>Expectations, Open Access policy, license and copyright, author obligations, referee code of conduct, corrections and retractions</em></dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if '/terms_and_conditions' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if '/terms_and_conditions' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  <a href="{% url 'scipost:terms_and_conditions' %}">SciPost Terms and Conditions</a></dt>
 	<dd class="col-sm-6 col-md-7"><em>General terms and conditions pertaining to ownership, license to use, contributions, impermissible uses, etc.</em></dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if 'author_guidelines' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if 'author_guidelines' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  {% if journal %}
 	    <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">Author guidelines</a>
 	  {% else %}
@@ -34,13 +34,13 @@
 	<dd class="col-sm-6 col-md-7"><em>A simple guide on how to proceed as an author</em>
 	</dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if 'sub_and_ref_procedure' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if 'sub_and_ref_procedure' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and refereeing procedure</a>
 	</dt>
 	<dd class="col-sm-6 col-md-7"><em>More details about submission procedure and refereeing protocols</em>
 	</dd>
 	<dt class="col-sm-6 col-md-5">
-	  {% if 'referee_guidelines' in request.path %}<i class="fa fa-arrow-circle-right text-success"></i>{% endif %}
+	  {% if 'referee_guidelines' in request.path %}<span class="text-success">{% include 'bi/arrow-right-circle-fill.html' %}</span>{% endif %}
 	  {% if journal %}
 	    <a href="{% url 'journal:refereeing' doi_label=journal.doi_label %}">Referee guidelines</a>
 	  {% else %}

@@ -17,10 +17,10 @@
     <div class="col-12">
       <h2 class="text-blue m-0 p-0 py-2">{{ issue }}</h2>
       {% if prev_issue %}
-        <h4 class="d-inline-block"><a href="{{ prev_issue.get_absolute_url }}"><i class="fa fa-long-arrow-left"></i> Previous issue | {{ prev_issue.short_str }}</a></h4>
+        <h4 class="d-inline-block"><a href="{{ prev_issue.get_absolute_url }}">{% include 'bi/arrow-left.html' %} Previous issue | {{ prev_issue.short_str }}</a></h4>
       {% endif %}
       {% if next_issue %}
-        <h4 class="float-right d-inline-block"><a href="{{ next_issue.get_absolute_url }}">{{ next_issue.short_str }} | Next issue <i class="fa fa-long-arrow-right"></i></a></h4>
+        <h4 class="float-right d-inline-block"><a href="{{ next_issue.get_absolute_url }}">{{ next_issue.short_str }} | Next issue {% include 'bi/arrow-right.html' %}</a></h4>
       {% endif %}
     </div>
   </div>

@@ -26,7 +26,7 @@
               <small class="text-danger">[deactivated]</small>
 	    </h4>
 	    {% if request.user.contributor in submission.authors_claims.all %}
-	      <i class="fa fa-exclamation-circle text-warning"></i> Authors are not allowed to submit a Report. Your authorship claim on this Submission is pending verification by our Editorial Administration.
+	      <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Authors are not allowed to submit a Report. Your authorship claim on this Submission is pending verification by our Editorial Administration.
 	    {% else %}
 	      <div class="border bg-light p-2 mb-2">
 		The system flagged you as a potential author of this Submission. Please <a href="{% url 'scipost:claim_authorships' %}">clarify this here</a>. You are not allowed to contribute a Report until your (non-)authorship has been verified.
@@ -45,7 +45,7 @@
 	  </li>
 	{% endif %}
       {% elif unfinished_report_for_user %}
-	<li><i class="fa fa-exclamation"></i> You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
+	<li>{% include 'bi/exclamation-circle-fill.html' %} You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
       {% else %}
 	<li class="py-1">Reporting for this Submission is closed.</li>
       {% endif %}

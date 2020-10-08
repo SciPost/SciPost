@@ -63,7 +63,7 @@
 		    <table class="table mb-0">
 		      <tbody>
 			<tr><td class="bg-primary">
-			  <a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' acad_field=submission.acad_field.slug %}?thread_hash={{ submission.thread_hash }}"><i class="fa fa-arrow-right"></i>&emsp;Resubmit this manuscript</a>
+			  <a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' acad_field=submission.acad_field.slug %}?thread_hash={{ submission.thread_hash }}">{% include 'bi/arrow-right.html' %}&emsp;Resubmit this manuscript</a>
 			</td></tr>
 		      </tbody>
 		    </table>
@@ -88,7 +88,7 @@
 		      {% for acad_field in branch.academic_fields.all %}
 			{% if acad_field.journals.submission_allowed|length > 0 %}
 			  <tr>
-			    <td class="bg-primary"><a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' acad_field=acad_field.slug %}"><i class="fa fa-arrow-right"></i>&emsp;New submission in <strong>{{ acad_field }}</strong></a></td>
+			    <td class="bg-primary"><a class="btn text-white" role="button" href="{% url 'submissions:submit_choose_journal' acad_field=acad_field.slug %}">{% include 'bi/arrow-right.html' %}&emsp;New submission in <strong>{{ acad_field }}</strong></a></td>
 			  </tr>
 			  <tr><td></td></tr>
 			{% endif %}

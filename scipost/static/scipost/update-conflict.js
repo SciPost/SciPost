@@ -34,9 +34,9 @@
            },
        }).done(function( data ) {
            if ( data['status'] == 'verified' ) {
-               $("#conflict-" + data['id'] + " .status").html('<i class="fa-li fa fa-check-circle text-success" aria-hidden="true"></i> Verified by Admin');
+               $("#conflict-" + data['id'] + " .status").html('<span class="text-success" aria-hidden="true">OK</span> Verified by Admin');
            } else if ( data['status'] == 'deprecated' ) {
-               $("#conflict-" + data['id'] ).fadeTo("fast", 0.3).find('.status').html('<span class="text-danger" aria-hidden="true">X</i> <em>Deleted</em>');
+               $("#conflict-" + data['id'] ).fadeTo("fast", 0.3).find('.status').html('<span class="text-danger" aria-hidden="true">X</span> <em>Deleted</em>');
            }
        });
    }

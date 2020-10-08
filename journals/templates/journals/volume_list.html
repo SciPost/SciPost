@@ -39,7 +39,7 @@
               <td>
 		{% if journal.get_latest_volume %}
                   {% if journal.get_latest_volume.is_current %}
-                    <i class="fa fa-check text-success"></i> Yes
+                    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
                   {% else %}
                     <i class="fa fa-exclamation-triangle text-warning"></i> No
                   {% endif %}
@@ -70,7 +70,7 @@
             <td>{{ volume.issues.count }}</td>
             <td>
               {% if volume.is_current %}
-		<i class="fa fa-check text-success"></i> Yes
+		<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
               {% else %}
 		<i class="fa fa-exclamation-triangle text-warning"></i> No
               {% endif %}

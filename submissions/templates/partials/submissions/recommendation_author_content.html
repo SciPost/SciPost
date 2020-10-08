@@ -1,7 +1,7 @@
 <div class="border px-3 py-2 my-3" id="rec-{{ recommendation.id }}">
 
   <div class="mb-4 {% if not recommendation.active %}pt-2{% endif %}">
-    {% if recommendation.is_deprecated %}<h4 class="mb-0"><i class="fa fa-exclamation-circle text-danger"></i> Deprecated</h4>{% endif %}
+    {% if recommendation.is_deprecated %}<h4 class="mb-0"><span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %}</span> Deprecated</h4>{% endif %}
     <h2 class="my-2">Editorial Recommendation</h2>
     {% block recommendation_header %}
       <h4 class="text-muted mb-2">Date {{ recommendation.date_submitted }}</h4>
