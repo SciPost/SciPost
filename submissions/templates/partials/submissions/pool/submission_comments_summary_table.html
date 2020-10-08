@@ -31,7 +31,7 @@
           {% if comment.is_vetted %}
             <i class="fa fa-check-circle text-success"></i>
           {% elif comment.is_rejected %}
-            <i class="fa fa-times-circle text-danger"></i>
+            <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
           {% elif comment.is_unvetted %}
             <i class="fa fa-exclamation-triangle text-warning"></i>
           {% endif %}

@@ -88,7 +88,7 @@
                       <i class="fa fa-check text-success"></i>
                       {{ stream.supervisor }}
                     {% else %}
-                      <i class="fa fa-times text-danger"></i>
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
                     {% endif %}
                   </td>
                   <td>
@@ -96,14 +96,14 @@
                       <i class="fa fa-check text-success"></i>
                       {{ stream.officer }}
                     {% else %}
-                      <i class="fa fa-times text-danger"></i>
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
                     {% endif %}
                     <br>
                     {% if stream.invitations_officer %}
                       <i class="fa fa-check text-success"></i>
                       {{ stream.invitations_officer }}
                     {% else %}
-                      <i class="fa fa-times text-danger"></i>
+                      <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
                     {% endif %}
                   </td>
                 </tr>

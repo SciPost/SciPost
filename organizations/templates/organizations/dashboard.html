@@ -212,7 +212,7 @@
 		    </ul>
 		  </td>
 		  {% if perms.scipost.can_manage_organizations %}
-		    <td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+		    <td>{% if contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 		  {% endif %}
 		</tr>
 	      {% empty %}

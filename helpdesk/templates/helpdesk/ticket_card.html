@@ -84,7 +84,7 @@
 	      {% endif %}
 	      <a class="btn btn-sm btn-success" role="button" href="{% url 'helpdesk:ticket_followup' pk=ticket.id %}"><i class="fa fa-reply"></i> Reply/Followup</a>
 	      <a class="btn btn-sm btn-primary" role="button" href="{% url 'helpdesk:ticket_mark_resolved' pk=ticket.id %}"><i class="fa fa-check-square"></i> Mark as resolved</a>
-	      <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}"><i class="fa fa-times"></i> Close this Ticket</a>
+	      <a class="btn btn-sm btn-secondary" role="button" href="{% url 'helpdesk:ticket_mark_closed' pk=ticket.id %}">{% include 'bi/x-square-fill.html' %} Close this Ticket</a>
 	    {% endif %}
 	  </td>
 	</tr>

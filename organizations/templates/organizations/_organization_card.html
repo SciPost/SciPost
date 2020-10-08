@@ -341,7 +341,7 @@
 		  <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 		  <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
 		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		    <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+		    <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 		    <td>
 		      <ul class="list-unstyled">
 			{% if perms.scipost.can_manage_organizations %}

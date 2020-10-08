@@ -89,16 +89,16 @@
 	      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	      {% if perms.scipost.can_manage_subsidies %}
 		<td>{{ subsidy.get_status_display }}</td>
-		<td>{% if subsidy.attachments.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+		<td>{% if subsidy.attachments.all|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	      {% endif %}
 	      <td>{{ subsidy.date }}</td>
 	      <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
 	      {% if perms.scipost.can_manage_subsidies %}
 		<td>
-		  {% if subsidy.renewable == True %}<i class="fa fa-check-circle text-success"></i>{% elif subsidy.renewable == False %}<i class="fa fa-times-circle text-danger"></i>{% else %}<i class="fa fa-question-circle text-warning"></i>{% endif %}
+		  {% if subsidy.renewable == True %}<i class="fa fa-check-circle text-success"></i>{% elif subsidy.renewable == False %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% else %}<i class="fa fa-question-circle text-warning"></i>{% endif %}
 		</td>
 		<td>
-		  {% if subsidy.renewed_by.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}
+		  {% if subsidy.renewed_by.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
 		</td>
 		<td class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</td>
 	      {% endif %}

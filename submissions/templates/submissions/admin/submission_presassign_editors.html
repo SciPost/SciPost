@@ -84,7 +84,7 @@
           {% if submission.is_sending_editorial_invitations %}
             <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
           {% else %}
-            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
           {% endif %}
         </td>
       </tr>

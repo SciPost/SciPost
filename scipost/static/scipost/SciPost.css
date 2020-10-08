@@ -4,6 +4,10 @@ General style sheet for SciPost
 
 @import url(//fonts.googleapis.com/css?family=Merriweather+Sans&display=swap);
 
+.bi::before {
+    display: inline-block;
+}
+
 .pubtitleli {
   padding: 3px 5px;
   background-color: #f4f4f4;

@@ -160,7 +160,7 @@
 		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
-	      <td>{% if profile.has_active_contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	      <td>{% if profile.has_active_contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	    </tr>
 	  {% empty %}
 	    <tr>

@@ -26,7 +26,7 @@
           {% if report.is_vetted %}
             <i class="fa fa-check-circle text-success"></i>
           {% elif report.is_rejected %}
-            <i class="fa fa-times-circle text-danger"></i>
+            <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
           {% elif report.is_unvetted %}
             <i class="fa fa-exclamation-triangle text-warning"></i>
           {% endif %}

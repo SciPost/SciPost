@@ -26,9 +26,8 @@
 <div id="news">
   <h2 class="title">
     News
-    <button class="btn btn-link btn-sm" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds"><i class="fa fa-rss"></i></button>
+    <button class="btn btn-link btn-sm m-0 mb-1" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</button>
   </h2>
-  <!-- <a href="{% url 'news:news' %}">View all news and announcements.</a> -->
   <ul class="news-list">
     {% for news in news_items %}
       <li>
