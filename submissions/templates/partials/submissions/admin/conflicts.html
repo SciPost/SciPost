@@ -2,7 +2,7 @@
 
 {% if conflicts %}
   {{ conflicts|length }} (potential) conflict{{ conflicts|length|pluralize }} found:
-  <ul class="fa-ul mt-2">
+  <ul class="mt-2">
     {% for conflict in conflicts %}
       <li class="my-1" id="conflict-{{ conflict.id }}">
         <div class="actions status font-weight-bold">

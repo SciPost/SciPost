@@ -74,7 +74,7 @@
     <div class="col-12">
       {% if workdays_left_to_report < 15 %}
         <div class="my-5 p-3 border border-danger" style="border-width: 2px !important;">
-          <i class="fa fa-exclamation-triangle text-warning"></i>
+          <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
           <strong class="text-danger">
             Warning: there are {{ workdays_left_to_report }} working days left before the refereeing deadline.
           </strong>

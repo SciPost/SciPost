@@ -10,7 +10,7 @@
       <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" id="header-search-button" href="{% url 'scipost:search' %}">
-            <i class="fa fa-search"></i>
+            {% include 'bi/search.html' %}
             Search
           </a>
 
@@ -19,7 +19,7 @@
               <input type="text" name="q" placeholder="Search term" value="{{ request.GET.q }}">
               <div class="btn-group">
                 <button type="submit" class="btn btn-link">
-                  <i class="fa fa-search"></i>
+                  {% include 'bi/search.html' %}
                 </button>
                 <a class="btn btn-link close-form" id="header-search-close-btn">
                   {% include 'bi/x-circle-fill.html' %}

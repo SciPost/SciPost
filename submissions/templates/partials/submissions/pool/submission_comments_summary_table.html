@@ -15,7 +15,7 @@
         <td class="text-center">
           {% if comment.is_unvetted %}
             <div class="text-center" data-toggle="tooltip" data-title="This Comment has not yet been vetted." data-html="true">
-              <i class="fa fa-info"></i>
+              {% include 'bi/info-circle-fill.html' %}
               {% include 'bi/arrow-right.html' %}
             </div>
           {% endif %}
@@ -33,8 +33,7 @@
           {% elif comment.is_rejected %}
             <span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>
           {% elif comment.is_unvetted %}
-            <i class="fa fa-exclamation-triangle text-warning"></i>
-          {% endif %}
+            <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>          {% endif %}
           {{ comment.get_status_display }}
           {% if comment.is_unvetted %}
             <br>

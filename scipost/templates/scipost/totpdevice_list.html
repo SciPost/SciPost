@@ -53,7 +53,7 @@
             <tr>
               <td colspan="3">
                 <div class="py-2">
-                  <i class="fa fa-exclamation-triangle text-danger"></i>
+                  <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
                   You are not yet using two-factor authentication. We strongly recommend you to <a href="{% url 'scipost:totp_create' %}">set it up</a>.
                 </div>
               </td>

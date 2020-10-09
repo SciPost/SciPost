@@ -10,7 +10,7 @@
   {% elif invitation.accepted %}
     <h3>Your Referee Invitation</h3>
     <p>Thank you for agreeing to referee this Submission. The following checklist will guide you through the steps needed to complete your refereeing task.</p>
-    <ul class="fa-ul">
+    <ul>
       <li>{% include 'bi/check-square-fill.html' %} Accepted Invitation on {{ invitation.date_responded }}.</li>
 
       <li>
@@ -23,7 +23,7 @@
             {% if invitation.related_report.doi_label %}<li>DOI: {{ invitation.related_report.doi_string }}</li>{% endif %}
           </ul>
         {% else %}
-          <i class="fa-li fa fa-square-o"></i>
+          {% include 'bi/square.html' %}
           {% if invitation.related_report.is_in_draft %}
             You have a Report in draft, <a href="{% url 'submissions:submit_report' invitation.submission.preprint.identifier_w_vn_nr %}">finish your Report</a>.
           {% else %}

@@ -21,7 +21,7 @@
 	    <li><a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a></li>
 	  {% endif %}
           <li><a href="mailto:techsupport@scipost.org">Write to tech support</a></li>
-          <li><a href="https://scipost-codebases.org" target="_blank" rel="noopener"><i class="fa fa-code-fork"></i> scipost-codebases.org</a></li>
+          <li><a href="https://scipost-codebases.org" target="_blank" rel="noopener">{% include 'bi/code-square.html' %} scipost-codebases.org</a></li>
 	</ul>
       </div>
 
@@ -39,7 +39,7 @@
           <li><a href="{% url 'scipost:feeds' %}">Feeds</a></li>
 	  <li>
             <a href="//twitter.com/scipost_dot_org" target="_blank" rel="noopener" title="Twitter">
-              <i class="fa fa-twitter" aria-hidden="true"></i>
+              Twitter
             </a>
 	  </li>
     	</ul>

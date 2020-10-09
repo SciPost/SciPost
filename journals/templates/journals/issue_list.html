@@ -41,7 +41,7 @@
                   {% if journal.get_latest_issue.is_current %}
                     <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
                   {% else %}
-                    <i class="fa fa-exclamation-triangle text-warning"></i> No
+                    <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> No
                   {% endif %}
 		{% endif %}
               </td>
@@ -74,7 +74,7 @@
               {% if issue.is_current %}
 		<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
               {% else %}
-		<i class="fa fa-exclamation-triangle text-warning"></i> No
+		<span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> No
               {% endif %}
             </td>
             <td><a href="{% url 'journals:update_issue' issue.id %}">Edit</a></td>

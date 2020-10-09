@@ -7,7 +7,7 @@
   {% include 'partials/submissions/pool/submission_tooltip.html' with submission=submission %}
 
   {% if submission.status == 'unassigned' %}
-    <i class="fa fa-exclamation mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="You can volunteer to become Editor-in-charge"></i>
+    <span class="mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="You can volunteer to become Editor-in-charge">{% include 'bi/exclamation-circle-fill.html' %}</span>
   {% endif %}
 </div>
 <div class="pool-item">
@@ -68,7 +68,7 @@
   {% if is_editorial_admin and submission.has_inadequate_pool_composition %}
     <div class="border border-danger text-danger mt-1 py-1 px-2">
       <strong>
-        <i class="fa fa-exclamation-triangle"></i>
+        {% include 'bi/exclamation-triangle-fill.html' %}
         Notice to admin: The current editor is not assigned to the pool. Therefore, the editor will not be able to reach the editorial page.
       </strong>
     </div>
@@ -84,7 +84,7 @@
     {% get_editor_invitations submission request.user as invitations %}
     {% if invitations %}
       <div class="border border-warning mt-1 py-1 px-2">
-        <i class="fa fa-exclamation mt-1 px-1 text-danger"></i>
+        <span class="mt-1 px-1 text-danger">{% include 'bi/exclamation.html' %}</i>
         You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
       </div>
     {% endif %}

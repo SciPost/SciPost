@@ -29,10 +29,10 @@
       <form method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	{{ ni_formset.management_form }}
-	<ul class="fa-ul sortable-list d-inline-block">
+	<ul class="sortable-list d-inline-block">
 	  {% for ni_form in ni_formset %}
 	    <li>
-	      <i class="fa fa-sort"></i>
+	      {% include 'bi/sort-up.html' %}
 	      {{ ni_form.instance.newsitem }}
 	      <div class="d-none">{{ ni_form }}</div>
 	    </li>

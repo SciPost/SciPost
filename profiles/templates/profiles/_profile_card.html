@@ -41,8 +41,7 @@
 		  <td>{% if profile_mail.primary %}<strong>{% endif %}{{ profile_mail.email }}{% if profile_mail.primary %}</strong>{% endif %}</td>
 		  <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
 		  <td>
-                    <i class="fa {{ profile_mail.still_valid|yesno:'fa-check-circle text-success,fa-times-circle text-danger' }}"></i>
-
+		    {% if profile_mail.still_valid %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
 		  </td>
 		  <td class="d-flex">
                     <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>

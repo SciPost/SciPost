@@ -56,7 +56,7 @@
           </tr>
         </table>
       {% else %}
-        <i class="fa-li fa fa-square"></i>
+        {% include 'bi/square.html' %}
         <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
       {% endif %}
     </li>
@@ -66,7 +66,7 @@
       {% elif submission|has_preassignments %}
         <span class="text-success">{% include 'bi/check-square-fill.html' %}</span><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">See selected pre-assignments ({{ submission.editorial_assignments.all|length }} assignments)</a>
       {% else %}
-        <i class="fa-li fa fa-square"></i><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Select pre-assignments</a>
+        {% include 'bi/square.html' %}<a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Select pre-assignments</a>
       {% endif %}
     </li>
   </ul>

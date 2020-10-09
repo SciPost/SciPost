@@ -75,7 +75,7 @@
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization
-	    <span class="text-muted small">(with PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>:</h3>
+	    <span class="text-muted small">(with PubFractions <span data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>:</h3>
 	  {% for pubyear in pubyears %}
 	    <h4>{{ pubyear }} <span class="text-muted small">(PubFractions {{ org|pubfractions_in_year:pubyear }})</span></h4>
 	    <ul>

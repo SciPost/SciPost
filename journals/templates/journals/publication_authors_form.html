@@ -9,7 +9,7 @@
     <div class="container">
       <nav class="breadcrumb hidden-sm-down">
         <a href="{% url 'journals:journals' %}" class="breadcrumb-item">Journals</a>
-        <a href="{{publication.get_absolute_url}}" class="breadcrumb-item">{{publication.citation}}</a>
+        <a href="{{ publication.get_absolute_url }}" class="breadcrumb-item">{{ publication.citation }}</a>
         <span class="breadcrumb-item active">Author ordering</span>
 
       </nav>
@@ -31,10 +31,10 @@
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ formset.management_form }}
-    <ul class="fa-ul sortable-list d-inline-block">
+    <ul class="sortable-list d-inline-block">
       {% for form in formset %}
         <li>
-          <i class="fa fa-sort handle"></i>
+          {% include 'bi/sort-up.html' %}
           {{ form.instance.first_name }} {{ form.instance.last_name }}
           <div class="d-none">{{ form }}</div>
         </li>

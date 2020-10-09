@@ -162,7 +162,7 @@
           {% for form in formset %}
             <tr>
               <td class="actions">
-                <a href="#" class="handle"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                <a href="#" class="handle"><span aria-hidden="true">{% include 'bi/list.html' %}</span></a>
                 {% for field in form %}
                   {{ field }}
                 {% endfor %}

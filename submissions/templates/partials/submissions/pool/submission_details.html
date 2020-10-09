@@ -38,7 +38,7 @@
       <div class="my-4 p-3 border{% if submission.cycle.has_required_actions %} border-danger bg-light{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
 	<h3>
           {% if submission.cycle.has_required_actions %}
-            <i class="fa fa-exclamation-triangle text-danger"></i>
+            <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
           {% else %}
             {% include 'bi/check-circle-fill.html' %}
           {% endif %}

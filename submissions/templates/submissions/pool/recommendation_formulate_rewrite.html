@@ -34,7 +34,7 @@
 
   {% if submission.editor_in_charge != request.user.contributor %}
     <div class="border border-danger p-3">
-      <i class="fa fa-exclamation-triangle text-warning" aria-hidden="true"></i>
+      <span class="text-warning" aria-hidden="true">{% include 'bi/exclamation-triangle-fill.html' %}</span>
       You are not assigned as Editor in charge. However, you can formulate an Editorial Recommendation because you are Editorial Administrator. <strong>This Editorial Recommendation will still be signed by the Editor-in-charge.</strong>
     </div>
   {% endif %}

@@ -80,8 +80,8 @@
               <tr>
                 <td>{{ ni.headline }}</td>
                 <td>{{ ni.date }}</td>
-                <td><i class="fa fa-{{ ni.published|yesno:'check text-success,times text-danger' }}"></i> {{ ni.published|yesno:'Yes,No' }}</td>
-                <td><i class="fa fa-{{ ni.on_homepage|yesno:'check text-success,times text-danger' }}"></i> {{ ni.on_homepage|yesno:'Yes,No' }}</td>
+                <td>{% if ni.published %}{% include 'bi/check-square-fill.html' %}{% else %}{% include 'bi/x-square-fill.html' %}{% endif %} {{ ni.published|yesno:'Yes,No' }}</td>
+                <td>{% if ni.on_homepage %}{% include 'bi/check-square-fill.html' %}{% else %}{% include 'bi/x-square-fill.html' %}{% endif %} {{ ni.on_homepage|yesno:'Yes,No' }}</td>
                 <td>
                   <a href="{% url 'news:newsitem_update' pk=ni.id %}">Update</a> &middot;
                   <a href="{% url 'news:newsitem_delete' pk=ni.id %}" class="text-danger">Delete</a>

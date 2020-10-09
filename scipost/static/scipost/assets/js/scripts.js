@@ -91,7 +91,7 @@ function dynamic_load_tab( target_tab ) {
     var target = $(tab.attr('href'));
     $(target)
     .show()
-    .html('<div class="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>');
+    .html('<div class="loading">Loading...</div>');
 
     $.get(url).done(function(data) {
         $(target).html(data).promise().done(function() {
@@ -119,7 +119,7 @@ $(function(){
 
         $(target)
         .show()
-        .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+        .html('<div class="loading">Loading...</div>');
 
         $.get(url + '?json=1').done(function(data) {
             $(target).html(data).promise().done(function() {
