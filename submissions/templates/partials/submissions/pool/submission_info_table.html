@@ -7,7 +7,7 @@
     <tr>
       <td>Arxiv Link</td>
       <td>
-        <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>
+        <a href="{{ submission.preprint.url }}" target="_blank" rel="noopener">{{ submission.preprint.url }}</a>
       </td>
     </tr>
   {% elif submission.preprint.get_absolute_url %}
@@ -68,7 +68,7 @@
     <td>Comments</td>
     <td>
       {{ submission.comments.vetted.count }}
-      <small><span class="fa fa-info-circle" data-toggle="tooltip" data-placement='bottom' data-html="true" title="{{ submission.comments.regular_comments.vetted.count }} comments<br>{{ submission.comments.author_replies.vetted.count }} author replies<hr>{{ submission.comments.awaiting_vetting.count }} awaiting vetting"></span></small>
+      <small><span data-toggle="tooltip" data-placement='bottom' data-html="true" title="{{ submission.comments.regular_comments.vetted.count }} comments<br>{{ submission.comments.author_replies.vetted.count }} author replies<hr>{{ submission.comments.awaiting_vetting.count }} awaiting vetting">{% include 'bi/info-circle-fill.html' %}</span></small>
     </td>
   </tr>
 

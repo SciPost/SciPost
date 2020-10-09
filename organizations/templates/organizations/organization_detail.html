@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load static %}
 
+{% block meta_description %}{{ block.super }} Organization detail {{ organization.name }}{% endblock meta_description %}
 {% block pagetitle %}: Organization details{% endblock pagetitle %}
 
 {% block breadcrumb_items %}

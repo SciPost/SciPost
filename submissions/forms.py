@@ -1285,12 +1285,12 @@ class EICRecommendationForm(forms.ModelForm):
         for_journal_qs = Journal.objects.active().filter(
             # The journals which can be recommended for are those falling under
             # the responsibility of the College of the journal submitted to
-            college=self.submission.to_journal.college)
-        if self.submission.to_journal.name.partition(' ')[0] == 'SciPost':
+            college=self.submission.submitted_to.college)
+        if self.submission.submitted_to.name.partition(' ')[0] == 'SciPost':
             # Submitted to a SciPost journal, so Selections is accessible
             for_journal_qs = for_journal_qs | Journal.objects.filter(name='SciPost Selections')
-        self.fields['for_journal'] = for_journal_qs
-        if self.submission.to_journal.name.partition(' ')[0] == 'SciPost':
+        self.fields['for_journal'].queryset = for_journal_qs
+        if self.submission.submitted_to.name.partition(' ')[0] == 'SciPost':
             # Submitted to a SciPost journal, so Core and Selections are accessible
             self.fields['for_journal'].help_text=(
                 'Please be aware of all the points below!'

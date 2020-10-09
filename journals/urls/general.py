@@ -3,13 +3,16 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path, reverse_lazy
+from django.urls import path, re_path, register_converter, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from journals.regexes import PUBLICATION_DOI_LABEL_REGEX
 from journals import views as journals_views
+from ontology.converters import AcademicFieldSlugConverter
+
+register_converter(AcademicFieldSlugConverter, 'acad_field')
 
 app_name = 'urls.general'
 
@@ -26,6 +29,11 @@ urlpatterns = [
         r'^$',
         journals_views.JournalListView.as_view(),
         name='journals'
+    ),
+    path( # patch to preserve old links
+        '<acad_field:acad_field>/',
+        journals_views.JournalListView.as_view(),
+        name='journals_in_acad_spec'
     ),
     url(r'^publications$', journals_views.PublicationListView.as_view(), name='publications'),
     url(r'scipost_physics', RedirectView.as_view(url=reverse_lazy('scipost:landing_page',

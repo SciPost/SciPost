@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load extra_form_widgets %}
 
+{% block meta_description %}{{ block.super }} Search{% endblock meta_description %}
 {% block pagetitle %} search{% if form.q.value %}: {{ form.q.value }}{% endif %}{% endblock pagetitle %}
 
 {% block breadcrumb %}
@@ -18,85 +19,85 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-md-4">
-    <h1>Filter</h1>
-    <form method="get">
-      <div class="form-group">
-        <label for="{{ form.q.auto_id }}">{{ form.q.label }}</label>
-        <input type="text" name="{{ form.q.name }}" class="form-control form-control-lg" id="{{ form.q.auto_id }}" aria-describedby="search_help" placeholder="Search term" value="{{ form.q.value|default:'' }}" required="required">
-        <small id="search_help" class="form-text text-muted">{{ form.q.help_text }}</small>
-      </div>
+  <div class="row">
+    <div class="col-md-4">
+      <h1>Filter</h1>
+      <form method="get">
+	<div class="form-group">
+          <label for="{{ form.q.auto_id }}">{{ form.q.label }}</label>
+          <input type="text" name="{{ form.q.name }}" class="form-control form-control-lg" id="{{ form.q.auto_id }}" aria-describedby="search_help" placeholder="Search term" value="{{ form.q.value|default:'' }}" required="required">
+          <small id="search_help" class="form-text text-muted">{{ form.q.help_text }}</small>
+	</div>
 
-      <div class="form-group">
-        <label>Type</label>
-      </div>
-      <div class="form-group checkboxes auto-submit">
-        {{ form.models|checkboxes_as_btn }}
-      </div>
+	<div class="form-group">
+          <label>Type</label>
+	</div>
+	<div class="form-group checkboxes auto-submit">
+          {{ form.models|checkboxes_as_btn }}
+	</div>
 
-      <label>Date from</label>
-      <div class="form-row">
-        {{ form.start }}
-      </div>
+	<label>Date from</label>
+	<div class="form-row">
+          {{ form.start }}
+	</div>
 
-      <label>Date until</label>
-      <div class="form-row">
-        {{ form.end }}
-      </div>
+	<label>Date until</label>
+	<div class="form-row">
+          {{ form.end }}
+	</div>
 
-      <div class="form-group pt-2">
+	<div class="form-group pt-2">
 
-        <input type="submit" class="btn btn-primary" value="Search">
-        <a href="{% url 'scipost:search' %}" class="btn btn-outline-danger ml-2">Reset</a>
-      </div>
-    </form>
-  </div>
+          <input type="submit" class="btn btn-primary" value="Search">
+          <a href="{% url 'scipost:search' %}" class="btn btn-outline-danger ml-2">Reset</a>
+	</div>
+      </form>
+    </div>
 
-  <div class="col-md-8">
-    <h1 class="my-3 mt-md-0">Search results{% if results_count and query %} ({{ results_count }} found){% endif %}</h1>
+    <div class="col-md-8">
+      <h1 class="my-3 mt-md-0">Search results{% if results_count and query %} ({{ results_count }} found){% endif %}</h1>
 
-    {# without this logic, an request without GET parameters would return *all* objects indexed by Haystack #}
-    {% if query %}
-      <ul class="list-group list-group-flush">
-        {% for result in object_list %}
-          <li class="list-group-item{% if result.content_type == 'journals.publication' %} border-0{% endif %}">
-            {% if result.content_type == 'submissions.submission' %}
-              {% include 'partials/submissions/search_card.html' with submission=result.object %}
-            {% elif result.content_type == 'commentaries.commentary' %}
-              {% include 'partials/commentaries/search_card.html' with commentary=result.object %}
-            {% elif result.content_type == 'theses.thesislink' %}
-              {% include 'partials/theses/search_card.html' with thesislink=result.object %}
-            {% elif result.content_type == 'comments.comment' %}
-              <div class="py-2">
-                {% include 'partials/comments/search_card.html' with comment=result.object %}
-              </div>
-            {% elif result.content_type == 'journals.publication' %}
-              <div class="card card-publication">
-                {% include 'partials/journals/search_card.html' with publication=result.object %}
-              </div>
-            {% else %}
-              <a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a>
-            {% endif %}
-          </li>
-        {% empty %}
-          <p>Your search query did not return any result.</p>
-        {% endfor %}
+      {# without this logic, an request without GET parameters would return *all* objects indexed by Haystack #}
+      {% if query %}
+	<ul class="list-group list-group-flush">
+          {% for result in object_list %}
+            <li class="list-group-item{% if result.content_type == 'journals.publication' %} border-0{% endif %}">
+              {% if result.content_type == 'submissions.submission' %}
+		{% include 'partials/submissions/search_card.html' with submission=result.object %}
+              {% elif result.content_type == 'commentaries.commentary' %}
+		{% include 'partials/commentaries/search_card.html' with commentary=result.object %}
+              {% elif result.content_type == 'theses.thesislink' %}
+		{% include 'partials/theses/search_card.html' with thesislink=result.object %}
+              {% elif result.content_type == 'comments.comment' %}
+		<div class="py-2">
+                  {% include 'partials/comments/search_card.html' with comment=result.object %}
+		</div>
+              {% elif result.content_type == 'journals.publication' %}
+		<div class="card card-publication">
+                  {% include 'partials/journals/search_card.html' with publication=result.object %}
+		</div>
+              {% else %}
+		<a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a>
+              {% endif %}
+            </li>
+          {% empty %}
+            <p>Your search query did not return any result.</p>
+          {% endfor %}
 
-        {% if is_paginated %}
-          <p>
-            {% if page_obj.has_previous %}
-              <a href="?q={{ query }}&amp;page={{ page_obj.previous_page_number }}">Previous</a>
-            {% endif %}
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-            {% if page_obj.has_next %}
-              <a href="?q={{ query }}&amp;page={{ page_obj.next_page_number }}">Next</a>
-            {% endif %}
-          </p>
-        {% endif %}
-      </ul>
-    {% else %}
-      <p>Your search query did not return any result.</p>
+          {% if is_paginated %}
+            <p>
+              {% if page_obj.has_previous %}
+		<a href="?q={{ query }}&amp;page={{ page_obj.previous_page_number }}">Previous</a>
+              {% endif %}
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+              {% if page_obj.has_next %}
+		<a href="?q={{ query }}&amp;page={{ page_obj.next_page_number }}">Next</a>
+              {% endif %}
+            </p>
+          {% endif %}
+	</ul>
+      {% else %}
+	<p>Your search query did not return any result.</p>
     {% endif %}
   </div>
 </div>

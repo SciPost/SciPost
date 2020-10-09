@@ -16,7 +16,7 @@
 	<h4>Matching profiles found for this {{ from_type }}</h4>
 	<ul>
 	  {% for matching_profile in matching_profiles %}
-	    <li><a href="{{ matching_profile.get_absolute_url }}" target="_blank">{{ matching_profile }}</a> (id {{ matching_profile.id }}, {{ matching_profile.email }})&nbsp;&nbsp;<a href="{% url 'profiles:profile_match' profile_id=matching_profile.id from_type=from_type pk=pk %}"><i class="fa fa-arrow-right"></i> Match this {{ from_type }} to this Profile</a>
+	    <li><a href="{{ matching_profile.get_absolute_url }}" target="_blank">{{ matching_profile }}</a> (id {{ matching_profile.id }}, {{ matching_profile.email }})&nbsp;&nbsp;<a href="{% url 'profiles:profile_match' profile_id=matching_profile.id from_type=from_type pk=pk %}">{% include 'bi/arrow-right.html' %} Match this {{ from_type }} to this Profile</a>
 	    </li>
 	  {% endfor %}
 	</ul>

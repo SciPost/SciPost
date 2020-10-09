@@ -1,5 +1,6 @@
 {% extends 'finances/base.html' %}
 
+{% block meta_description %}{{ block.super }} Subsidies List{% endblock meta_description %}
 {% block pagetitle %}: Subsidies{% endblock pagetitle %}
 
 {% load static %}
@@ -33,14 +34,14 @@
 	    <th>Type</th>
 	    <th>Amount
 	      {% if request.GET.ordering != 'asc' %}
-		<a href="?order_by=amount&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+		<a href="?order_by=amount&ordering=asc">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}
-		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% endif %}
 	      {% if request.GET.ordering != 'desc' %}
-		<a href="?order_by=amount&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+		<a href="?order_by=amount&ordering=desc">{% include 'bi/sort-down.html' %}</a>
 	      {% else %}
-		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</a>
 	      {% endif %}
 	    </th>
 	    {% if perms.scipost.can_manage_subsidies %}
@@ -49,26 +50,26 @@
 	    {% endif %}
 	    <th>From date
 	      {% if request.GET.ordering != 'asc' %}
-		<a href="?order_by=date&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+		<a href="?order_by=date&ordering=asc">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}
-		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% endif %}
 	      {% if request.GET.ordering != 'desc' %}
-		<a href="?order_by=date&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+		<a href="?order_by=date&ordering=desc">{% include 'bi/sort-down.html' %}</a>
 	      {% else %}
-		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</i></a>
 	      {% endif %}
 	    </th>
 	    <th>Until
 	      {% if request.GET.ordering != 'asc' %}
-		<a href="?order_by=until&ordering=asc"><i class="fa fa-sort-asc"></i></a>
+		<a href="?order_by=until&ordering=asc">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}
-		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-asc"></i></a>
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% endif %}
 	      {% if request.GET.ordering != 'desc' %}
-		<a href="?order_by=until&ordering=desc"><i class="fa fa-sort-desc"></i></a>
+		<a href="?order_by=until&ordering=desc">{% include 'bi/sort-down.html' %}</a>
 	      {% else %}
-		<a href="{% url 'finances:subsidies' %}"><i class="fa fa-sort-desc"></i></a>
+		<a href="{% url 'finances:subsidies' %}">{% include 'bi/sort-down.html' %}</a>
 	      {% endif %}
 	    </th>
 	    {% if perms.scipost.can_manage_subsidies %}
@@ -88,16 +89,16 @@
 	      <td>{% if subsidy.amount_publicly_shown or perms.scipost.can_manage_subsidies %}&euro;{{ subsidy.amount }}{% else %}-{% endif %}</td>
 	      {% if perms.scipost.can_manage_subsidies %}
 		<td>{{ subsidy.get_status_display }}</td>
-		<td>{% if subsidy.attachments.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+		<td>{% if subsidy.attachments.all|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	      {% endif %}
 	      <td>{{ subsidy.date }}</td>
 	      <td class="bg-{{ subsidy.date_until_color_class }}">{{ subsidy.date_until }}</td>
 	      {% if perms.scipost.can_manage_subsidies %}
 		<td>
-		  {% if subsidy.renewable == True %}<i class="fa fa-check-circle text-success"></i>{% elif subsidy.renewable == False %}<i class="fa fa-times-circle text-danger"></i>{% else %}<i class="fa fa-question-circle text-warning"></i>{% endif %}
+		  {% if subsidy.renewable == True %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% elif subsidy.renewable == False %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% else %}<span class="text-warning">{% include 'bi/question-circle-fill.html' %}</span>{% endif %}
 		</td>
 		<td>
-		  {% if subsidy.renewed_by.all|length > 0 %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}
+		  {% if subsidy.renewed_by.all|length > 0 %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
 		</td>
 		<td class="bg-{{ subsidy.renewal_action_date_color_class }}">{{ subsidy.renewal_action_date }}</td>
 	      {% endif %}

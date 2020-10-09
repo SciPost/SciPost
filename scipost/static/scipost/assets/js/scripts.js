@@ -1,8 +1,6 @@
 require('jquery-ui/ui/widgets/sortable');
 require('jquery-ui/ui/disable-selection');
 
-import QRCode from 'qrcode';
-
 function hide_all_alerts() {
     $(".alert").remove('.no-dismiss').fadeOut(300);
 }
@@ -14,23 +12,6 @@ var activate_tooltip = function() {
         placement: 'auto'
     });
 }
-
-var activate_qr = function() {
-    $.each($('[data-toggle="qr"]'), function(index, value) {
-        var el = $(value);
-        console.log(el.data('qr-value'));
-        // var str;
-        QRCode.toDataURL(el.data('qr-value'), function(err, url) {
-            el.attr({src: url});
-        });
-        // console.log(str);
-        // el.attr({src: str});
-        // QRCode.toCanvas(el, el.data('qr-value'), function(err) {
-        //     console.log(err);
-        // })
-    });
-};
-
 
 var select_form_table = function(table_el) {
     $(table_el + ' tbody tr input[type="checkbox"]').on('change', function() {
@@ -94,7 +75,6 @@ function init_page() {
     });
 
     activate_tooltip();
-    activate_qr();
     sort_form_list('form ul.sortable-list');
     sort_form_list('table.sortable-rows > tbody');
     select_form_table('.table-selectable');
@@ -111,7 +91,7 @@ function dynamic_load_tab( target_tab ) {
     var target = $(tab.attr('href'));
     $(target)
     .show()
-    .html('<div class="loading"><i class="fa fa-spinner fa-pulse fa-3x fa-fw"></i></div>');
+    .html('<div class="loading">Loading...</div>');
 
     $.get(url).done(function(data) {
         $(target).html(data).promise().done(function() {
@@ -139,7 +119,7 @@ $(function(){
 
         $(target)
         .show()
-        .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+        .html('<div class="loading">Loading...</div>');
 
         $.get(url + '?json=1').done(function(data) {
             $(target).html(data).promise().done(function() {

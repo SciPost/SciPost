@@ -2,6 +2,7 @@
 
 {% load static %}
 
+{% block meta_description %}{{ block.super }} Frequently Asked Questions{% endblock meta_description %}
 {% block pagetitle %}: Frequently asked questions{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -24,7 +25,7 @@
     all the way to post-publication commenting, is offered by SciPost.
   </p>
   <p>
-    Thus, simply stated: share your preprint on <a target="_blank" href="https://www.arxiv.org">arXiv</a>, publish it in <a href="https://scipost.org">SciPost</a>.
+    Thus, simply stated: share your preprint on <a target="_blank" rel="noopener" href="https://www.arxiv.org">arXiv</a>, publish it in <a href="https://scipost.org">SciPost</a>.
   </p><!-- End SciPost -->
 
   <!-- SciPost Journals -->
@@ -105,7 +106,7 @@
       </a>
       <div id="journals_citable" class="collapse" role="journals_citable">
         <p>Yes. All SciPost publications will obtain a unique DOI, enabling citations and metrics as per other journals.
-          Membership of <a target="_blank" href="//crossref.org">Crossref</a> means that SciPost papers directly benefit from a set of citation metrics.</p>
+          Membership of <a target="_blank" rel="noopener" href="//crossref.org">Crossref</a> means that SciPost papers directly benefit from a set of citation metrics.</p>
       </div>
     </div>
 
@@ -134,7 +135,7 @@
         <h3>Under what license do SciPost Journals publish articles?</h3>
       </a>
       <div id="journals_license" class="collapse" role="journals_license">
-        <p>All SciPost contents are licensed under the <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>. Under this license, the copyright remains the property of the authors, who then agree to make their articles available for reuse without permission or fees, for virtually any purpose. Anyone may copy, distribute or reuse these articles as long as the author(s) and original source are properly cited. This is the standard license used worldwide in open access journals. You can read more about the details in the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
+        <p>All SciPost contents are licensed under the <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC BY 4.0) License</a>. Under this license, the copyright remains the property of the authors, who then agree to make their articles available for reuse without permission or fees, for virtually any purpose. Anyone may copy, distribute or reuse these articles as long as the author(s) and original source are properly cited. This is the standard license used worldwide in open access journals. You can read more about the details in the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
       </div>
     </div>
 
@@ -247,7 +248,7 @@
       </a>
       <div id="scipost_who" class="collapse" role="tabpanel">
         <ul>
-          <li>SciPost was founded by <a target="_blank" href="//jscaux.org/">J.-S. Caux</a>, Professor of Theoretical Physics at the University of Amsterdam.</li>
+          <li>SciPost was founded by <a target="_blank" rel="noopener" href="//jscaux.org/">J.-S. Caux</a>, Professor of Theoretical Physics at the University of Amsterdam.</li>
           <li>The legal entity behind SciPost is <a href="{% url 'scipost:foundation' %}">Stichting SciPost</a>, a not-for-profit Foundation established in Amsterdam. Its (non-remunerated) personnel consists in Prof. J.-S. Caux (chairman), Dr J. van Mameren (secretary) and Dr J. van Wezel (treasurer). The portal is run by a team of volunteer officers coordinated by the Foundation.</li>
         </ul>
       </div>
@@ -287,7 +288,7 @@
       </a>
       <div id="scipost_funded" class="collapse" role="tabpanel">
         <p>SciPost operates non-commercially and purely not-for-profit, incurring minimal costs. Contributors, who are by definition all academically employed, provide all the content and perform all editorial tasks as part of their normal institutional academic duties. Operations are kept running by a team of volunteer officers, themselves academically employed.</p>
-        <p>The startup phase was supported by a grant from the <a target="_blank" href="https://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. More information on our cost-slashing consortial scheme can be found on our <a href="{% url 'sponsors:sponsors' %}">sponsors page</a>. You can also take a look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a> for more information. You might even consider petitioning your local librarian/director/... to consider sponsoring us, which you can easily do using this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
+        <p>The startup phase was supported by a grant from the <a target="_blank" rel="noopener" href="https://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. More information on our cost-slashing consortial scheme can be found on our <a href="{% url 'sponsors:sponsors' %}">sponsors page</a>. You can also take a look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a> for more information. You might even consider petitioning your local librarian/director/... to consider sponsoring us, which you can easily do using this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
 	</p>
       </div>
     </div>

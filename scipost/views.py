@@ -175,7 +175,7 @@ def protected_serve(request, path, show_indexes=False):
 
 def feeds(request):
     """Information page for RSS and Atom feeds."""
-    return render(request, 'scipost/feeds.html', context)
+    return render(request, 'scipost/feeds.html')
 
 
 ################

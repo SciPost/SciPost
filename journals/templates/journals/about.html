@@ -3,6 +3,7 @@
 {% load automarkup %}
 {% load scipost_extras %}
 
+{% block meta_description %}{{ block.super }} About Journal {{ journal.name }}{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: About {{ journal.name }}{% endblock pagetitle %}
 
 {% block breadcrumb_items %}

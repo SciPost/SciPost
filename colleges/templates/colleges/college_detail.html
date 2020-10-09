@@ -11,6 +11,7 @@
   <span class="breadcrumb-item">{{ college }}</span>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} College detail {{ college }}{% endblock meta_description %}
 {% block pagetitle %}: {{ college }}{% endblock pagetitle %}
 
 {% block content %}

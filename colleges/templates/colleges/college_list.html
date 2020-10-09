@@ -10,6 +10,7 @@
   <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} Colleges{% endblock meta_description %}
 {% block pagetitle %}: Colleges{% endblock pagetitle %}
 
 {% block content %}
@@ -67,7 +68,7 @@
 		    {% if acad_field.colleges.all|length > 0 %}
 		      {% for college in acad_field.colleges.all %}
 			{% if college.fellowships.all|length > 0 %}
-			  <a href={% url 'colleges:college_detail' slug=college.slug %}><button type="button" class="btn btn-primary btn-sm m-1"><small>{{ college.name }}</small></button></a>
+			  <a href={% url 'colleges:college_detail' college=college.slug %}><button type="button" class="btn btn-primary btn-sm m-1"><small>{{ college.name }}</small></button></a>
 			{% else %}
 			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field }}</em></small></button>
 			{% endif %}

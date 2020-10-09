@@ -9,6 +9,7 @@
   <style>{% for journal in object_list %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
 {% endblock headsup %}
 
+{% block meta_description %}{{ block.super }} {% if acad_field %} in {{ acad_field.name }}{% endif %}{% endblock meta_description %}
 {% block pagetitle %}: Journals{% if acad_field %} in {{ acad_field.name }}{% endif %}{% endblock pagetitle %}
 
 {% block breadcrumb %}

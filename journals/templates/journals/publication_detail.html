@@ -6,6 +6,7 @@
 {% load scipost_extras %}
 {% load user_groups %}
 
+{% block meta_description %}{{ block.super }} Publication Detail {{ publication.citation }} {{ publication.title }}{% endblock meta_description %}
 {% block pagetitle %}: {{ publication.citation }} - {{ publication.title }}{% endblock pagetitle %}
 
 {% block body_class %}{{ block.super }} publication{% endblock %}
@@ -92,7 +93,7 @@
 
     <div>
       {% for topic in publication.topics.all %}
-        <span class="label label-secondary"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'journals:publication_remove_topic' doi_label=publication.doi_label slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</span>
+        <span class="label label-secondary"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'journals:publication_remove_topic' doi_label=publication.doi_label slug=topic.slug %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</span>
       {% empty %}
         <div>No Topic has yet been associated to this Publication</div>
       {% endfor %}

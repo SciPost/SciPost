@@ -10,7 +10,7 @@
 {% block content %}
 
   {% if assignments_to_consider %}
-    <h1>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h1>
+    <h1>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h1>
     <h3 class="pt-0 mb-2">Can you act as Editor-in-charge? (click to see details)</h3>
     <ul>
       {% for assignment in assignments_to_consider %}

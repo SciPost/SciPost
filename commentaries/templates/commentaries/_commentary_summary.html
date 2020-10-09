@@ -25,14 +25,14 @@
     <tr>
       <td>DOI:</td>
       <td>
-        <a href="{{commentary.pub_DOI_link}}" target="_blank">{{ commentary.pub_DOI_link }}</a>
+        <a href="{{ commentary.pub_DOI_link }}" target="_blank" rel="noopener">{{ commentary.pub_DOI_link }}</a>
       </td>
     </tr>
   {% elif commentary.type == 'preprint' %}
     <tr>
       <td>arxiv Link:</td>
       <td>
-        <a href="{{commentary.arxiv_link}}" target="_blank">{{ commentary.arxiv_link }}</a>
+        <a href="{{ commentary.arxiv_link }}" target="_blank" rel="noopener">{{ commentary.arxiv_link }}</a>
       </td>
     </tr>
   {% endif %}

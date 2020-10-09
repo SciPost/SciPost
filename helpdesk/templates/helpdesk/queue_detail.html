@@ -32,13 +32,13 @@
 	  <h4>Admin actions:</h4>
 
 	  {% if perms.helpdesk.delete_queue or "delete_queue" in user_perms %}
-	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:queue_delete' slug=queue.slug %}"><i class="fa fa-trash"></i> Delete this Queue</a>
+	    <a class="btn btn-sm btn-danger" role="button" href="{% url 'helpdesk:queue_delete' slug=queue.slug %}">{% include 'bi/trash-fill.html' %}&nbsp;Delete this Queue</a>
 	  {% endif %}
 	  {% if perms.helpdesk.update_queue or "update_queue" in user_perms %}
-	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:queue_update' slug=queue.slug %}"><i class="fa fa-edit"></i> Update this Queue</a>
+	    <a class="btn btn-sm btn-warning" role="button" href="{% url 'helpdesk:queue_update' slug=queue.slug %}">{% include 'bi/pencil-square.html' %}&nbsp;Update this Queue</a>
 	  {% endif %}
 	  {% if perms.helpdesk.add_queue or request.user in queue.managing_group.users.all %}
-	    <a class="btn btn-sm btn-primary" href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}"><i class="fa fa-plus"></i> Add a sub-Queue to this Queue</a>
+	    <a class="btn btn-sm btn-primary" href="{% url 'helpdesk:queue_create' parent_slug=queue.slug %}">{% include 'bi/plus-square-fill.html' %}&nbsp;Add a sub-Queue to this Queue</a>
 	  {% endif %}
 
 	  <hr/>

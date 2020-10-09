@@ -2,7 +2,7 @@
   {% for cite in publication.citedby %}
     <li>
       {{cite.first_author_given_name}} {{cite.first_author_surname}}{% if cite.multiauthors %} <em>et al.</em>{% endif %}, <em>{{cite.article_title}}</em><br>
-      {{cite.journal_abbreviation}}{% if cite.volume %} <strong>{{cite.volume}}</strong>{% endif %}, {{cite.first_page|default_if_none:''}} {{cite.item_number|default_if_none:''}} ({{cite.year}}) <a href="https://doi.org/{{cite.doi}}" target="_blank">[Crossref]</a>
+      {{cite.journal_abbreviation}}{% if cite.volume %} <strong>{{cite.volume}}</strong>{% endif %}, {{cite.first_page|default_if_none:''}} {{cite.item_number|default_if_none:''}} ({{cite.year}}) <a href="https://doi.org/{{cite.doi}}" target="_blank" rel="noopener">[Crossref]</a>
     </li>
   {% endfor %}
 </ul>

@@ -1,5 +1,6 @@
 {% extends 'scipost/base.html' %}
 
+{% block meta_description %}{{ block.super }} Plan SciPost{% endblock meta_description %}
 {% block pagetitle %}: Plan SciPost{% endblock pagetitle %}
 
 {% load static %}
@@ -15,7 +16,7 @@
     <div class="col-12">
       <h1 class="highlight">Plan Scipost</h1>
       <p class="ml-2 mr-2">At SciPost, we believe that cleaning up the business of scientific publishing requires building new infrastructure. We also believe that this business is most appropriately left in the hands of scientists themselves. Our achievements so far in the field of Physics have demonstrated the success and further potential of this approach.</p>
-      <p class="ml-2 mr-2">Increasing numbers of governments, funding agencies, universities and other academic instances have taken position in favour of a faster, larger-scale transition to Open Access (see in particular the recently-announced <a href="https://www.coalition-s.org" target="_blank">Plan S</a>). SciPost applauds these encouraging and empowering statements.</p>
+      <p class="ml-2 mr-2">Increasing numbers of governments, funding agencies, universities and other academic instances have taken position in favour of a faster, larger-scale transition to Open Access (see in particular the recently-announced <a href="https://www.coalition-s.org" target="_blank" rel="noopener">Plan S</a>). SciPost applauds these encouraging and empowering statements.</p>
       <p class="ml-2 mr-2">Our initiative volunteers to provide the missing element in the proposed solutions: <strong>the infrastructure</strong>.</p>
 
       <h2 class="highlight">Our vision for the future</h2>
@@ -31,7 +32,7 @@
 
       <h3>Current situation and triggers for expansion</h3>
       <p class="ml-2 mr-2 mt-2">
-	The Physics side of our operations is by now established, with our <a href="{% url 'journals:journals' %}?field=physics">Physics Journals</a> published under the auspices of the <a href="{% url 'colleges:college_detail' slug='physics' %}">Editorial College (Physics)</a>. We will continue expanding this side of our operations according to the increase in the number of submissions we receive.</p>
+	The Physics side of our operations is by now established, with our <a href="{% url 'journals:journals' %}?field=physics">Physics Journals</a> published under the auspices of the <a href="{% url 'colleges:college_detail' college='physics' %}">Editorial College (Physics)</a>. We will continue expanding this side of our operations according to the increase in the number of submissions we receive.</p>
       <p class="ml-2 mr-2">On the infrastructure side, we have made great strides. Our platform is not just a website: we have conceived, designed and implemented a fully-featured system to handle all aspects of the publication business, from manuscript submission all the way to professional metadata curation. Since our systems were implemented from the start in a field-agnostic way, we are now in perfect position to enable other fields to profit from our development work.
       </p>
 
@@ -83,7 +84,7 @@
 	</thead>
 	<tbody>
 	  <tr>
-	    <td>At least 3 Advisory Board members</td><td><i class="fa fa-circle"</i></td>
+	    <td>At least 3 Advisory Board members</td><td>{% include 'bi/circle-fill.html' %}</td>
 	  </tr>
 	  <tr>
 	    <td>Specializations defined</td><td></td>

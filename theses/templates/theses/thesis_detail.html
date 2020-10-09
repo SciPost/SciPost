@@ -2,6 +2,7 @@
 
 {% load scipost_extras %}
 
+{% block meta_description %}{{ block.super }} Thesis detail {{ thesislink }}{% endblock meta_description %}
 {% block pagetitle %}: Thesis Link detail{% endblock pagetitle %}
 
 {% block content %}

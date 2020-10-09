@@ -151,10 +151,10 @@
       <td>Publicly available:</td>
       <td>
         {% if submission.visible_public %}
-          <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+          <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
           <span class="text-muted">Available in public pages and search results.</span>
         {% else %}
-          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+          <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
           <span class="text-muted">Only available for editors and authors.</span>
         {% endif %}
       </td>
@@ -185,10 +185,10 @@
       <td>Open for commenting:</td>
       <td>
         {% if submission.open_for_commenting %}
-          <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+          <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
           <span class="text-muted">Open for commenting.</span>
         {% else %}
-          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+          <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
           <span class="text-muted">Commenting closed.</span>
         {% endif %}
       </td>
@@ -197,10 +197,10 @@
       <td>Open for refereeing:</td>
       <td>
         {% if submission.is_open_for_reporting %}
-          <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+          <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
           <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.</span>
         {% else %}
-          <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+          <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
           <span class="text-muted">
             Refereeing closed.
             {% if submission.referee_invitations.exists %}
@@ -212,12 +212,12 @@
         {% if submission.in_refereeing_phase %}
           {% if submission.reporting_deadline_has_passed %}
             <div class="mt-2 p-2 border">
-              <i class="fa fa-exclamation-triangle text-danger"></i>
+              <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
               <strong>The reporting deadline has passed.</strong>
             </div>
           {% elif submission.reporting_deadline_approaching %}
             <div class="mt-2 p-2 border">
-              <i class="fa fa-exclamation-triangle text-warning"></i>
+              <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span>
               The reporting deadline is in {{ submission.reporting_deadline|timeuntil }}.
             </div>
           {% endif %}
@@ -291,9 +291,9 @@
     <div class="my-5 p-3 border{% if submission.cycle.has_required_actions %} border-danger{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
       <h3>
         {% if submission.cycle.has_required_actions %}
-          <i class="fa fa-exclamation-triangle text-danger"></i>
+          <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
         {% else %}
-          <i class="fa fa-check-circle"></i>
+          {% include 'bi/check-circle-fill.html' %}
         {% endif %}
         Required actions
       </h3>
@@ -422,7 +422,7 @@
         {% endif %}
 
         {% if submission.referee_invitations.needs_attention.count %}
-          <p><strong><i class="fa fa-exclamation-triangle text-warning"></i> {{ submission.referee_invitations.needs_attention.count }} refereeing invitation{{ submission.referee_invitations.needs_attention.count|pluralize }} need{{ submission.referee_invitations.needs_attention.count|pluralize:'s,' }} attention. See below.</strong></p>
+          <p><strong><span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> {{ submission.referee_invitations.needs_attention.count }} refereeing invitation{{ submission.referee_invitations.needs_attention.count|pluralize }} need{{ submission.referee_invitations.needs_attention.count|pluralize:'s,' }} attention. See below.</strong></p>
         {% endif %}
 
         {% if submission.eic_recommendation_required %}
@@ -459,7 +459,7 @@
       {% else %}
         {% if submission.reporting_deadline_has_passed and submission.eic_recommendation_required %}
           <p>
-            <i class="fa fa-exclamation-triangle text-danger"></i>
+            <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
             <strong>The refereeing deadline has passed and you have received no Reports yet.</strong>
             Please <a href="#reporting-deadline">extend the reporting deadline</a> and consider sending a reminder to your referees.
           </p>

@@ -12,7 +12,7 @@
 
   <div>
     {% for topic in submission.topics.all %}
-      <span class="label label-secondary mb-2"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'submissions:submission_remove_topic' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</span>
+      <span class="label label-secondary mb-2"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'submissions:submission_remove_topic' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr slug=topic.slug %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</span>
     {% empty %}
       <div>No Topic has yet been associated to this Submission</div>
     {% endfor %}

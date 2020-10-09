@@ -5,7 +5,7 @@
     {{ post.subject }}
     <div class="postInfo">
       {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d" }}
-      - <a href="{{ post.get_absolute_url }}"><i class="fa fa-link" title="permalink to this Post"></i></a>
+      - <a href="{{ post.get_absolute_url }}"><span title="permalink to this Post">{% include 'bi/link.html' %}</span></a>
       {% if post.parent and not post.motion %}
 	- regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
       {% endif %}

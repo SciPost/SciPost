@@ -1,5 +1,6 @@
 {% extends 'journals/base.html' %}
 
+{% block meta_description %}{{ block.super }} Recent{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: recent{% endblock pagetitle %}
 
 {% block link_class_physics_recent %}active{% endblock %}

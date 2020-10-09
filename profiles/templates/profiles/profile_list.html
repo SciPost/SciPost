@@ -13,6 +13,7 @@
 {% endblock %}
 
 
+{% block meta_description %}{{ block.super }} Profiles List{% endblock meta_description %}
 {% block pagetitle %}: Profiles{% endblock pagetitle %}
 
 {% block content %}
@@ -26,34 +27,34 @@
       <ul>
 	{% if is_scipost_admin or is_edcol_admin %}
 	  {% if nr_contributors_w_duplicate_names > 0 %}
-	    <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
+	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
 	  {% else %}
-	    <li><i class="fa fa-check-circle text-success"></i> No name-duplicate Contributors found</li>
+	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No name-duplicate Contributors found</li>
 	  {% endif %}
 	  {% if nr_contributors_w_duplicate_emails > 0 %}
 	    <li><a href="{% url 'scipost:contributor_duplicates' %}?kind=emails">Handle Contributors with duplicate emails ({{ nr_contributors_w_duplicate_emails }} to handle)</a></li>
 	  {% else %}
-	    <li><i class="fa fa-check-circle text-success"></i> No email-duplicate Contributors found</li>
+	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No email-duplicate Contributors found</li>
 	  {% endif %}
 	  {% if next_contributor_wo_profile %}
-	    <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
+	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='contributor' pk=next_contributor_wo_profile.id %}">the next</a> Contributor without one ({{ nr_contributors_wo_profile }} to handle)</li>
 	  {% else %}
-	    <li><i class="fa fa-check-circle text-success"></i> All registered Contributors have a Profile</li>
+	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All registered Contributors have a Profile</li>
 	  {% endif %}
 	  {% if nr_potential_duplicate_profiles > 0 %}
-	    <li><i class="fa fa-exclamation-circle text-warning"></i> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a></li>
+	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> <a href="{% url 'profiles:duplicates' %}">Check for duplicate Profiles ({{ nr_potential_duplicate_profiles }} to handle)</a></li>
 	  {% else %}
-	    <li><i class="fa fa-check-circle text-success"></i> No potential duplicate Profiles detected</li>
+	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> No potential duplicate Profiles detected</li>
 	  {% endif %}
 	  {% if next_reginv_wo_profile %}
-	    <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
+	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='registrationinvitation' pk=next_reginv_wo_profile.id %}">the next</a> Registration Invitation without one ({{ nr_reginv_wo_profile }} to handle)</li>
 	  {% else %}
-	    <li><i class="fa fa-check-circle text-success"></i> All Registration Invitations have a Profile</li>
+	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Registration Invitations have a Profile</li>
 	  {% endif %}
 	  {% if next_refinv_wo_profile %}
-	    <li><i class="fa fa-exclamation-circle text-warning"></i> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
+	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span> Create a Profile for <a href="{% url 'profiles:profile_create' from_type='refereeinvitation' pk=next_refinv_wo_profile.id %}">the next</a> Referee Invitation without one ({{ nr_refinv_wo_profile }} to handle)</li>
 	  {% else %}
-	    <li><i class="fa fa-check-circle text-success"></i> All Referee Invitations have a Profile</li>
+	    <li><span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> All Referee Invitations have a Profile</li>
 	  {% endif %}
 	{% endif %}
 	<li><a href="{% url 'profiles:profile_create' %}">Add a Profile</a></li>
@@ -159,7 +160,7 @@
 		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
-	      <td>{% if profile.has_active_contributor %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+	      <td>{% if profile.has_active_contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 	    </tr>
 	  {% empty %}
 	    <tr>

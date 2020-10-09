@@ -1,5 +1,6 @@
 {% extends 'scipost/base.html' %}
 
+{% block meta_description %}{{ block.super }} Contributor info {{ contributor }}{% endblock meta_description %}
 {% block pagetitle %}: Contributor {{ contributor }}{% endblock pagetitle %}
 
 {% block content %}

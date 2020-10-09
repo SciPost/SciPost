@@ -70,7 +70,7 @@
           <td>Number of <u data-toggle="tooltip" data-title="Red-label declines are declines with reason: 'Not interested enough' or 'SciPost should not even consider this paper'.">red-label declines</u>:</td>
           <td>
             {% if submission.editorial_assignments.declined_red.count >= 3 %}
-              <span class="text-danger"><i class="fa fa-exclamation-triangle"></i> {{ submission.editorial_assignments.declined_red.count }}</span>
+              <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %} {{ submission.editorial_assignments.declined_red.count }}</span>
               &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a>
             {% else %}
               {{ submission.editorial_assignments.declined_red.count }}
@@ -82,9 +82,9 @@
         <td>Sending invitations in progress:</td>
         <td>
           {% if submission.is_sending_editorial_invitations %}
-            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
           {% else %}
-            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
           {% endif %}
         </td>
       </tr>
@@ -162,7 +162,7 @@
           {% for form in formset %}
             <tr>
               <td class="actions">
-                <a href="#" class="handle"><i class="fa fa-bars" aria-hidden="true"></i></a>
+                <a href="#" class="handle"><span aria-hidden="true">{% include 'bi/list.html' %}</span></a>
                 {% for field in form %}
                   {{ field }}
                 {% endfor %}
@@ -171,7 +171,7 @@
                 <strong>
                   {{ form.get_fellow }}
                   {% if form.instance.status != 'preassigned' %}
-                    <span data-toggle="tooltip" data-title="This fellow has already been invited. Therefore, this invitation will not be removed."><i class="fa fa-exclamation-circle text-danger" aria-hidden="true"></i></span>
+                    <span data-toggle="tooltip" data-title="This fellow has already been invited. Therefore, this invitation will not be removed."><span class="text-danger" aria-hidden="true">{% include 'bi/exclamation-circle-fill.html' %}</span></span>
                   {% endif %}
                 </strong>
                 <br>

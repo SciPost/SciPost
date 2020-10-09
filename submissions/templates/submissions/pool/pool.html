@@ -47,7 +47,7 @@
             <h2 class="text-primary">Administrative Tasks</h2>
 
             {% if pre_screening_subs %}
-              <h3>Submissions in pre-screening phase <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <h3>Submissions in pre-screening phase <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
               <ul>
                 {% for submission in pre_screening_subs %}
                   <li>
@@ -59,7 +59,7 @@
             {% endif %}
 
             {% if recommendations.voting_in_preparation %}
-              <h3>Recommendations to prepare for voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
+              <h3>Recommendations to prepare for voting <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
               <ul>
                 {% for recommendation in recommendations.voting_in_preparation %}
                   <li>
@@ -71,11 +71,11 @@
             {% endif %}
 
             {% if recommendations.put_to_voting %}
-              <h3>Recommendations undergoing voting <i class="fa fa-exclamation-circle text-warning"></i></h3>
-              <ul class="fa-ul">
+              <h3>Recommendations undergoing voting <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
+              <ul>
                 {% for recommendation in recommendations.put_to_voting %}
                   <li>
-                    {% include 'partials/submissions/admin/recommendation_tooltip.html' with classes='fa-li' recommendation=recommendation %}
+                    {% include 'partials/submissions/admin/recommendation_tooltip.html' with recommendation=recommendation %}
                     On Editorial Recommendation: {{ recommendation }}<br>
                     <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr %}">See Editorial Recommendation</a>
                   </li>
@@ -83,7 +83,7 @@
               </ul>
             {% endif %}
             {% if latest_submission_events %}
-              <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#lastest_events_list"><i class="fa fa-comments-o"></i> View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</button>
+              <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#lastest_events_list">{% include 'bi/chat-right-text-fill.html' %} View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</button>
               <div id="lastest_events_list" style="display: none;">
                 {% include 'partials/submissions/submission_events_explicit.html' with events=latest_submission_events %}
               </div>
@@ -95,7 +95,7 @@
 
       {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
         {% if assignments_to_consider %}
-          <h3>Your open Assignment Requests <i class="fa fa-exclamation-circle text-warning"></i></h3>
+          <h3>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
           <ul>
             {% for assignment in assignments_to_consider %}
               <li>On submission: {{ assignment.submission }}<br>
@@ -106,7 +106,7 @@
         {% endif %}
 
         {% if recs_to_vote_on %}
-          <h3>Recommendations to vote on <i class="fa fa-exclamation-circle text-warning"></i></h3>
+          <h3>Recommendations to vote on <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
           <ul>
             {% for recommendation in recs_to_vote_on %}
               <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>

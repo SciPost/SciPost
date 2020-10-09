@@ -13,7 +13,7 @@ from .converters import CollegeSlugConverter
 
 register_converter(AcademicFieldSlugConverter, 'acad_field')
 register_converter(SpecialtySlugConverter, 'specialty')
-register_converter(CollegeSlugConverter, 'college_slug')
+register_converter(CollegeSlugConverter, 'college')
 
 app_name = 'colleges'
 
@@ -25,7 +25,7 @@ urlpatterns = [
         name='colleges'
     ),
     path(
-        '<college_slug:slug>',
+        '<college:college>',
         views.CollegeDetailView.as_view(),
         name='college_detail'
     ),
