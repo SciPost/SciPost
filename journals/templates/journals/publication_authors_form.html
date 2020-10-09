@@ -34,7 +34,7 @@
     <ul class="sortable-list d-inline-block">
       {% for form in formset %}
         <li>
-          {% include 'bi/sort-up.html' %}
+          <span class="handle">{% include 'bi/sort-up.html' %}</span>
           {{ form.instance.first_name }} {{ form.instance.last_name }}
           <div class="d-none">{{ form }}</div>
         </li>
