@@ -64,7 +64,7 @@ LOGGING['handlers']['oauth_file']['filename'] = '/home/scipost/webapps/scipost_p
 
 
 # API
-REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
+# REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
 
 
 # Sentry
