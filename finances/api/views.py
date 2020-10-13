@@ -13,7 +13,7 @@ from .serializers import SubsidySerializer
 
 class CanManageSubsidies(BasePermission):
     def has_permission(self, request, view):
-        return request.user.has_perm('scipost:can_manage_subsidies')
+        return request.user.has_perm('scipost.can_manage_subsidies')
 
 
 class SubsidyListAPIView(ListAPIView):
