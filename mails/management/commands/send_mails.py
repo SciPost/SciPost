@@ -65,6 +65,6 @@ class Command(BaseCommand):
         if options.get('id'):
             mails = MailLog.objects.filter(id=options['id'])
         else:
-            mails = MailLog.objects.not_sent()
+            mails = MailLog.objects.not_sent()[:2]
         nr_mails = self.send_mails(mails)
         self.stdout.write('Sent {} mails.'.format(nr_mails))
