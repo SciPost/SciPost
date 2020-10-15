@@ -1,4 +1,5 @@
 {% load bootstrap %}
+{% load submissions_extras %}
 
 <h3 class="highlight">
   Author information
@@ -80,7 +81,7 @@
     </table>
   </div>
 
-  {% if submission.eicrecommendations and submission.eicrecommendations.last.is_viewable_by_authors %}
+    {% if submission.eicrecommendations and submission.eicrecommendations.last|is_viewable_by_authors %}
     <div class="mb-4">
       <h4 class="mb-2">Editorial Recommendation:</h4>
       {% include 'partials/submissions/recommendation_author_content.html' with recommendation=submission.eicrecommendations.last %}
