@@ -12,7 +12,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordChangeView,
     PasswordResetView, PasswordResetConfirmView)
@@ -23,6 +23,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
+from django.db.models import Q
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect
 from django.template import Context, Template
@@ -96,6 +97,7 @@ def sitemap_xml(request):
     }
     return render(request, 'scipost/sitemap.xml', context)
 
+
 ################
 # Autocomplete #
 ################
@@ -111,6 +113,25 @@ class GroupAutocompleteView(autocomplete.Select2QuerySetView):
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs
+
+
+class UserAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        if not self.request.user.has_perm('auth.view_user'):
+            return None
+        qs = User.objects.all()
+        if self.q:
+            qs = qs.filter(Q(username__icontains=self.q) |
+                           Q(email__icontains=self.q) |
+                           Q(first_name__icontains=self.q) |
+                           Q(last_name__icontains=self.q))
+        return qs
+
+    def get_result_label(self, item):
+        return f"{item.last_name}, {item.first_name}"
 
 
 ##############

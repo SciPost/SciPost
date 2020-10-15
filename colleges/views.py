@@ -29,6 +29,7 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
+from scipost.forms import EmailUsersForm
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
@@ -153,6 +154,23 @@ class FellowshipStartEmailView(PermissionsMixin, MailView):
     queryset = Fellowship.objects.all()
     mail_code = 'fellows/email_fellow_fellowship_start'
     success_url = reverse_lazy('colleges:fellowships')
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def email_College_Fellows(request, college):
+    """
+    Send an email to all Fellows within a College.
+    """
+    user_ids = [f.contributor.user.id for f in college.fellowships.all()]
+    form = EmailUsersForm(request.POST or None, initial={'users': user_ids})
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Email sent')
+        return redirect(college.get_absolute_url())
+    return render(request,
+                  'colleges/email_College_Fellows.html',
+                  {'form': form, 'college': college})
 
 
 @login_required

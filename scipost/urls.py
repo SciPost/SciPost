@@ -38,6 +38,11 @@ urlpatterns = [
         views.GroupAutocompleteView.as_view(),
         name='group-autocomplete'
     ),
+    path(
+        'user-autocomplete',
+        views.UserAutocompleteView.as_view(),
+        name='user-autocomplete'
+    ),
 
     # Search
     url(r'^search', views.SearchView.as_view(), name='search'),

@@ -22,6 +22,7 @@
       <ul>
 	<li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a></li>
 	<li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
+	<li><a href="{% url 'colleges:email_College_Fellows' college=college.slug %}">Email Fellows of this College</a></li>
       </ul>
     </div>
   {% endif %}
