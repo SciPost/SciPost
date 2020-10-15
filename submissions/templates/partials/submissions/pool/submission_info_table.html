@@ -98,7 +98,7 @@
 
   {% if perms.scipost.can_manage_college_composition %}
     <tr>
-      <td>Pool composition</td>
+      <td>This Submission's Fellowship</td>
       <td><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
     </tr>
     <tr>
