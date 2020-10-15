@@ -29,7 +29,7 @@ from dal import autocomplete
 
 from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
-    STATUS_VETTED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
+    STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
     EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED)
 from .helpers import check_verified_author, check_unverified_author
@@ -865,8 +865,40 @@ def assignment_request(request, assignment_id):
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 @transaction.atomic
+def prescreening_failed(request, identifier_w_vn_nr):
+    """
+    Reject a Submission because pre-screening has failed.
+    """
+    submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    mail_editor_view = MailEditorSubview(
+        request, mail_code='prescreening_failed', instance=submission,
+        header_template='partials/submissions/admin/prescreening_failed.html')
+    if mail_editor_view.is_valid():
+        # Deprecate old Editorial Assignments
+        EditorialAssignment.objects.filter(submission=submission).invited().update(
+            status=STATUS_DEPRECATED)
+
+        # Update status of Submission
+        submission.touch()
+        Submission.objects.filter(id=submission.id).update(
+            status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
+
+        messages.success(
+            request, 'Submission {identifier} has failed pre-screening and been rejected.'.format(
+                identifier=submission.preprint.identifier_w_vn_nr))
+        messages.success(request, 'Authors have been informed by email.')
+        mail_editor_view.send_mail()
+        return redirect(reverse('submissions:pool'))
+    return mail_editor_view.interrupt()
+
+
+@login_required
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
+@transaction.atomic
 def assignment_failed(request, identifier_w_vn_nr):
-    """Reject a Submission in pre-screening.
+    """Reject a Submission in screening.
 
     No Editorial Fellow has accepted or volunteered to become Editor-in-charge., hence the
     Submission is rejected. An Editorial Administrator can access this view from the Pool.
@@ -888,8 +920,8 @@ def assignment_failed(request, identifier_w_vn_nr):
             status=STATUS_ASSIGNMENT_FAILED, visible_pool=False, visible_public=False)
 
         messages.success(
-            request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
-                arxiv=submission.preprint.identifier_w_vn_nr))
+            request, 'Submission {identifier} has failed screening and been rejected.'.format(
+                identifier=submission.preprint.identifier_w_vn_nr))
         messages.success(request, 'Authors have been informed by email.')
         mail_editor_view.send_mail()
         return redirect(reverse('submissions:pool'))
