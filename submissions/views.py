@@ -1912,7 +1912,7 @@ def editor_invitations(request, identifier_w_vn_nr):
         elif request.method == 'POST':
             messages.warning(request, 'Invalid form. Please try again.')
         context['formset'] = formset
-    return render(request, 'submissions/admin/submission_presassign_editors.html', context)
+    return render(request, 'submissions/admin/submission_preassign_editors.html', context)
 
 
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
