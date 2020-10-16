@@ -72,7 +72,7 @@ urlpatterns = [
     ),
 
     url(r'^fellowships/submissions/{regex}/$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_pool,
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_fellowships,
         name='submission'),
     url(r'^fellowships/submissions/{regex}/voting$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_voting_fellows,

@@ -175,7 +175,7 @@ def email_College_Fellows(request, college):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_pool(request, identifier_w_vn_nr):
+def submission_fellowships(request, identifier_w_vn_nr):
     """
     List all Fellowships related to Submission.
     """
@@ -184,7 +184,7 @@ def submission_pool(request, identifier_w_vn_nr):
     context = {
         'submission': submission
     }
-    return render(request, 'colleges/submission_pool.html', context)
+    return render(request, 'colleges/submission_fellowships.html', context)
 
 
 @login_required
