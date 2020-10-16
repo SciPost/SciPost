@@ -1,0 +1,11 @@
+{
+    "subject": "SciPost: update on your Submission",
+    "recipient_list": [
+        "submitted_by.user.email"
+    ],
+    "bcc": [
+        "edadmin@scipost.org"
+    ],
+    "from_name": "SciPost Submissions",
+    "from_email": "submissions@scipost.org"
+}

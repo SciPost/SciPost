@@ -300,6 +300,8 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         return kwargs
 
 
+
+
 @login_required
 def withdraw_manuscript(request, identifier_w_vn_nr):
     """
@@ -896,6 +898,31 @@ def prescreening_failed(request, identifier_w_vn_nr):
 
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
+def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
+    """
+    Send an email to the authors, informing them that screening is still ongoing after one week.
+    """
+    submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    mail_code = 'authors/update_authors_screening_1week'
+    if nrweeks == '2':
+        mail_code = 'authors/update_authors_screening_2weeks'
+
+    mail_editor_view = MailEditorSubview(
+        request, mail_code=mail_code, instance=submission)
+    if mail_editor_view.is_valid():
+        messages.success(
+            request,
+            'Authors of Submission {identifier} updated by email (screening week {nrweeks}).'.format(
+                identifier=submission.preprint.identifier_w_vn_nr, nrweeks=nrweeks))
+        messages.success(request, 'Authors have been updated by email.')
+        mail_editor_view.send_mail()
+        return redirect(reverse('submissions:pool'))
+    return mail_editor_view.interrupt()
+
+
+@login_required
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
 @transaction.atomic
 def assignment_failed(request, identifier_w_vn_nr):
     """Reject a Submission in screening.
@@ -907,7 +934,7 @@ def assignment_failed(request, identifier_w_vn_nr):
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     mail_editor_view = MailEditorSubview(
-        request, mail_code='submissions_assignment_failed', instance=submission,
+        request, mail_code='authors/submissions_assignment_failed', instance=submission,
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
     if mail_editor_view.is_valid():
         # Deprecate old Editorial Assignments
