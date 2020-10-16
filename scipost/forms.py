@@ -777,7 +777,6 @@ class EmailUsersForm(forms.Form):
     def save(self):
         from django.core import mail
         from django.template import Context, Template
-        from scipost.utils import EMAIL_FOOTER
         with mail.get_connection() as connection:
             for user in self.cleaned_data['users']:
                 email_text = ''
@@ -788,7 +787,6 @@ class EmailUsersForm(forms.Form):
                 email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
                 email_text += self.cleaned_data['email_text']
                 email_text_html += '{{ email_text|linebreaks }}'
-                email_text_html += EMAIL_FOOTER
                 email_context = {
                     'title': user.contributor.profile.get_title_display(),
                     'last_name': user.last_name,
