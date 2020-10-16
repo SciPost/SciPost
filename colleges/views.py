@@ -162,7 +162,7 @@ def email_College_Fellows(request, college):
     """
     Send an email to all Fellows within a College.
     """
-    user_ids = [f.contributor.user.id for f in college.fellowships.all()]
+    user_ids = [f.contributor.user.id for f in college.fellowships.active()]
     form = EmailUsersForm(request.POST or None, initial={'users': user_ids})
     if form.is_valid():
         form.save()
