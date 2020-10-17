@@ -123,6 +123,19 @@
       <b-row>
 	<b-col class="col-lg-6">
 	  <h2>Messages for <strong>{{ accountSelected.email }}</strong></h2>
+	  <!-- <b-form-group -->
+	  <!--   label="Auto refresh (minutes): " -->
+	  <!--   label-cols-sm="4" -->
+	  <!--   label-align-sm="right" -->
+	  <!--   label-size="sm" -->
+	  <!--   > -->
+	  <!--   <b-form-radio-group -->
+	  <!--     v-model="refreshMinutes" -->
+	  <!--     :options="refreshMinutesOptions" -->
+	  <!--     class="float-center" -->
+	  <!--     > -->
+	  <!--   </b-form-radio-group> -->
+	  <!-- </b-form-group> -->
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -130,7 +143,7 @@
 	    variant="primary"
 	    @click="refreshMessages"
 	    >
-	    Refresh
+	    Refresh now
 	  </b-badge>
 	</b-col>
 	<b-col class="col-lg-2">
@@ -391,6 +404,9 @@ export default {
 		{ text: 'read', value: true },
 		{ text: 'all', value: null },
 	    ],
+	    refreshInterval: null,
+	    refreshMinutes: 1,
+	    refreshMinutesOptions: [ 1, 5, 15, 60 ],
 	    tags: null,
 	    tagRequired: 'any',
 	}
@@ -507,7 +523,11 @@ export default {
 		this.fetchDrafts()
 	    }
 	})
+	// this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 1000)
     },
+    // beforeDestroy() {
+    // 	clearInterval(this.refreshInterval)
+    // },
     watch: {
 	accountSelected: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
@@ -523,7 +543,11 @@ export default {
 	},
 	tagRequired: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
-	}
+	},
+	// refreshMinutes: function () {
+	//     clearInterval(this.refreshInterval)
+	//     this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 1000)
+	// }
     }
 }
 
