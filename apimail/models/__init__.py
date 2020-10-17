@@ -8,6 +8,8 @@ from .attachment import AttachmentFile
 
 from .composed_message import ComposedMessage, ComposedMessageAPIResponse
 
+from .domain import Domain
+
 from .event import Event
 
 from .stored_message import StoredMessage
