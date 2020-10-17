@@ -4,6 +4,10 @@
   @include border-radius();
 }
 
+.pagination li { // for DRF API pagination, file tepmlates/rest_framework/api.html
+    margin: 0.2rem;
+}
+
 .page-link {
   position: relative;
   display: block;

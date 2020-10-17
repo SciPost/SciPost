@@ -37,11 +37,10 @@
       <title>SciPost API</title>
 
       {% block style %}
-	<link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
-	<link rel="stylesheet" type="text/css" href="{% static 'fa/css/font-awesome.min.css' %}" />
 	<link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 
+	{% render_bundle 'vendors~homepage~main~qr' %}
+	{% render_bundle 'vendors~main' %}
 	{% render_bundle 'main' %}
 
 	<link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
@@ -85,82 +84,78 @@
             {% block content %}
 
               <div class="region"  aria-label="{% trans "request form" %}">
-		{% block request_forms %}
-
-		  {% if 'GET' in allowed_methods %}
-		    <form id="get-form" class="pull-right">
-		      <fieldset>
-			{% if api_settings.URL_FORMAT_OVERRIDE %}
-			  <div class="btn-group format-selection">
-			    <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
-
-			    <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
-			      <span class="caret"></span>
-			    </button>
-			    <ul class="dropdown-menu">
-			      {% for format in available_formats %}
-				<li>
-				  <a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Make a GET request on the {{ name }} resource with the format set to `{{ format }}`">{{ format }}</a>
-				</li>
-			      {% endfor %}
-			    </ul>
-			  </div>
-			{% else %}
+		{% if 'GET' in allowed_methods %}
+		  <form id="get-form" class="float-right">
+		    <fieldset>
+		      {% if api_settings.URL_FORMAT_OVERRIDE %}
+			<div class="btn-group format-selection">
 			  <a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
-			{% endif %}
-		      </fieldset>
-		    </form>
-		  {% endif %}
 
-		  {% if options_form %}
-		    <form class="button-form" action="{{ request.get_full_path }}" data-method="OPTIONS">
-		      <button class="btn btn-primary js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
-		    </form>
-		  {% endif %}
+			  <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="Specify a format for the GET request">
+			    <span class="caret"></span>
+			  </button>
+			  <ul class="dropdown-menu">
+			    {% for format in available_formats %}
+			      <li>
+				<a class="js-tooltip format-option" href="{% add_query_param request api_settings.URL_FORMAT_OVERRIDE format %}" rel="nofollow" title="Make a GET request on the {{ name }} resource with the format set to `{{ format }}`">{{ format }}</a>
+			      </li>
+			    {% endfor %}
+			  </ul>
+			</div>
+		      {% else %}
+			<a class="btn btn-primary js-tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</a>
+		      {% endif %}
+		    </fieldset>
+		  </form>
+		{% endif %}
 
-		  {% if delete_form %}
-		    <button class="btn btn-danger button-form js-tooltip" title="Make a DELETE request on the {{ name }} resource" data-toggle="modal" data-target="#deleteModal">DELETE</button>
+		{% if options_form %}
+		  <form class="button-form" action="{{ request.get_full_path }}" data-method="OPTIONS">
+		    <button class="btn btn-primary js-tooltip" title="Make an OPTIONS request on the {{ name }} resource">OPTIONS</button>
+		  </form>
+		{% endif %}
 
-		    <!-- Delete Modal -->
-		    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		      <div class="modal-dialog">
-			<div class="modal-content">
-			  <div class="modal-body">
-			    <h4 class="text-center">Are you sure you want to delete this {{ name }}?</h4>
-			  </div>
-			  <div class="modal-footer">
-			    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-			    <form class="button-form" action="{{ request.get_full_path }}" data-method="DELETE">
-			      <button class="btn btn-danger">Delete</button>
-			    </form>
-			  </div>
+		{% if delete_form %}
+		  <button class="btn btn-danger button-form js-tooltip" title="Make a DELETE request on the {{ name }} resource" data-toggle="modal" data-target="#deleteModal">DELETE</button>
+
+		  <!-- Delete Modal -->
+		  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		    <div class="modal-dialog">
+		      <div class="modal-content">
+			<div class="modal-body">
+			  <h4 class="text-center">Are you sure you want to delete this {{ name }}?</h4>
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+			  <form class="button-form" action="{{ request.get_full_path }}" data-method="DELETE">
+			    <button class="btn btn-danger">Delete</button>
+			  </form>
 			</div>
 		      </div>
 		    </div>
-		  {% endif %}
+		  </div>
+		{% endif %}
 
-		  {% if extra_actions %}
-		    <div class="dropdown" style="float: right; margin-right: 10px">
-		      <button class="btn btn-default" id="extra-actions-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-			{% trans "Extra Actions" %}
-			<span class="caret"></span>
-		      </button>
-		      <ul class="dropdown-menu" aria-labelledby="extra-actions-menu">
-			{% for action_name, url in extra_actions|items %}
-			  <li><a href="{{ url }}">{{ action_name }}</a></li>
-			{% endfor %}
-		      </ul>
-		    </div>
-		  {% endif %}
-
-		  {% if filter_form %}
-		    <button style="float: right; margin-right: 10px" data-toggle="modal" data-target="#filtersModal" class="btn btn-default">
-		      <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
-		      {% trans "Filters" %}
+		{% if extra_actions %}
+		  <div class="dropdown" style="float: right; margin-right: 10px">
+		    <button class="btn btn-default" id="extra-actions-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		      {% trans "Extra Actions" %}
+		      <span class="caret"></span>
 		    </button>
-		  {% endif %}
+		    <ul class="dropdown-menu" aria-labelledby="extra-actions-menu">
+		      {% for action_name, url in extra_actions|items %}
+			<li><a href="{{ url }}">{{ action_name }}</a></li>
+		      {% endfor %}
+		    </ul>
+		  </div>
+		{% endif %}
 
-		{% endblock request_forms %}
+		{% if filter_form %}
+		  <button style="float: right; margin-right: 10px" data-toggle="modal" data-target="#filtersModal" class="btn btn-default">
+		    <span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+		    {% trans "Filters" %}
+		  </button>
+		{% endif %}
               </div>
 
               <div class="content-main" role="main"  aria-label="{% trans "main content" %}">
@@ -184,10 +179,7 @@
 		</div>
 
 		<div class="response-info" aria-label="{% trans "response info" %}">
-                  <pre class="prettyprint"><span class="meta nocode"><b>HTTP {{ response.status_code }} {{ response.status_text }}</b>{% for key, val in response_headers|items %}
-		    <b>{{ key }}:</b> <span class="lit">{{ val|break_long_headers|urlize_quoted_links }}</span>{% endfor %}
-
-		  </span>{{ content|urlize_quoted_links }}</pre>
+                  <pre class="prettyprint"><span class="meta nocode"><b>HTTP {{ response.status_code }} {{ response.status_text }}</b><br>{% autoescape off %}{% for key, val in response_headers|items %}<b>{{ key }}:</b> <span class="lit">{{ val|break_long_headers|urlize_quoted_links }}</span><br>{% endfor %}</span><br>{{ content|urlize_quoted_links }}</pre>{% endautoescape %}
 		</div>
               </div>
 
