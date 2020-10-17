@@ -7,6 +7,12 @@ import datetime
 from django.db import models
 
 
+class DomainQuerySet(models.QuerySet):
+    def active(self):
+        from apimail.models import Domain
+        return self.filter(status=Domain.STATUS_ACTIVE)
+
+
 class EmailAccountAccessQuerySet(models.QuerySet):
     def current(self):
         today = datetime.date.today()

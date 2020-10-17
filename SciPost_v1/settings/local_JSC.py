@@ -34,7 +34,6 @@ CSP_REPORT_URI = get_secret('CSP_SENTRY')
 CSP_REPORT_ONLY = True
 
 # Mailgun credentials
-MAILGUN_DOMAIN_NAME = get_secret('MAILGUN_DOMAIN_NAME')
 MAILGUN_API_KEY = get_secret('MAILGUN_API_KEY')
 
 # CORS headers

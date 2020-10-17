@@ -38,5 +38,4 @@ WSGI_APPLICATION = 'SciPost_v1.wsgi_staging_do1.application'
 #MONGO_DATABASE['port'] = get_secret('MONGO_DB_PORT')
 
 # Mailgun credentials
-MAILGUN_DOMAIN_NAME = get_secret('MAILGUN_DOMAIN_NAME')
 MAILGUN_API_KEY = get_secret('MAILGUN_API_KEY')
