@@ -8,7 +8,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 
-from scipost.storage import SecureFileStorage
+from ..storage import APIMailSecureFileStorage
 
 from ..validators import validate_max_email_attachment_file_size
 
@@ -27,7 +27,7 @@ class AttachmentFile(models.Model):
     file = models.FileField(
         upload_to='uploads/mail/attachments/%Y/%m/%d/',
         validators=[validate_max_email_attachment_file_size,],
-        storage=SecureFileStorage())
+        storage=APIMailSecureFileStorage())
 
     def __str__(self):
         return '%s (%s, %s)' % (self.data['name'], self.data['content-type'], self.file.size)

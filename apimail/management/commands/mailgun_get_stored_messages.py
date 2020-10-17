@@ -44,7 +44,6 @@ class Command(BaseCommand):
                 orphan.save()
 
             except StoredMessage.DoesNotExist:
-
                 # Need to get and create the message
                 try:
                     storage_url = orphan.data['storage']['url']

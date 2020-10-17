@@ -10,10 +10,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 
-from scipost.storage import SecureFileStorage
-
 from ..managers import ComposedMessageQuerySet
-from ..validators import validate_max_email_attachment_file_size
 
 
 class ComposedMessage(models.Model):
