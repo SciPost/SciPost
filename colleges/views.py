@@ -29,6 +29,7 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
+from scipost.forms import EmailUsersForm
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
@@ -157,7 +158,24 @@ class FellowshipStartEmailView(PermissionsMixin, MailView):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_pool(request, identifier_w_vn_nr):
+def email_College_Fellows(request, college):
+    """
+    Send an email to all Fellows within a College.
+    """
+    user_ids = [f.contributor.user.id for f in college.fellowships.regular().active()]
+    form = EmailUsersForm(request.POST or None, initial={'users': user_ids})
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Email sent')
+        return redirect(college.get_absolute_url())
+    return render(request,
+                  'colleges/email_College_Fellows.html',
+                  {'form': form, 'college': college})
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def submission_fellowships(request, identifier_w_vn_nr):
     """
     List all Fellowships related to Submission.
     """
@@ -166,7 +184,7 @@ def submission_pool(request, identifier_w_vn_nr):
     context = {
         'submission': submission
     }
-    return render(request, 'colleges/submission_pool.html', context)
+    return render(request, 'colleges/submission_fellowships.html', context)
 
 
 @login_required

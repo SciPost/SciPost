@@ -7,7 +7,7 @@
 {% block pagetitle %}: Submission Editors{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   {% if submission.status == 'incoming' %}
     <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a>
   {% else %}
@@ -20,8 +20,8 @@
 
 
   <h1 class="highlight">Submission editor invitations</h1>
-  <h3><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
-  <h4>by {{submission.author_list}}</h4>
+  <h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
+  <h4>by {{ submission.author_list }}</h4>
   <br>
 
   <h3>Submission summary</h3>
@@ -34,7 +34,10 @@
     {% if submission.status == 'incoming' %}
       <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
     {% else %}
-      <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
+      <li><a href="{% url 'submissions:prescreening_failed' submission.preprint.identifier_w_vn_nr %}">Close: pre-screening failed</a></li>
+      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr nrweeks=1 %}">Update authors by email (1 week into screening)</a></li>
+      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr nrweeks=2 %}">Update authors by email (2 weeks into screening)</a></li>
+      <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
     {% endif %}
   </ul>
 
@@ -71,7 +74,7 @@
           <td>
             {% if submission.editorial_assignments.declined_red.count >= 3 %}
               <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %} {{ submission.editorial_assignments.declined_red.count }}</span>
-              &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a>
+              &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close screening: failure to find EIC</a>
             {% else %}
               {{ submission.editorial_assignments.declined_red.count }}
             {% endif %}
@@ -189,7 +192,7 @@
         </tbody>
       </table>
       <button class="btn btn-primary" type="submit">Save pre-assignments</button>
-      <a class="btn btn-default" href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition</a>
+      <a class="btn btn-default" href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a>
     </form>
   {% endif %}
 

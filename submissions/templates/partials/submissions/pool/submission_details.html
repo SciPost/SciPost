@@ -55,7 +55,7 @@
       <h3>Editorial Administration</h3>
       <ul class="pl-4 mb-3">
         <li><a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a></li>
-        <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition</a></li>
+        <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
         <li><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
         {% if not submission.editor_in_charge %}
           <li><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
@@ -74,7 +74,10 @@
             {% endfor %}
 
             {% if not submission.editor_in_charge %}
-              <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close pre-screening: failure to find EIC</a></li>
+              <li><a href="{% url 'submissions:prescreening_failed' submission.preprint.identifier_w_vn_nr %}">Close: pre-screening failed</a></li>
+	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
+	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
+              <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
             {% endif %}
           </ul>
         {% endif %}

@@ -177,8 +177,14 @@ urlpatterns = [
     url(r'^pool/{regex}/editorial_assignment/(?P<assignment_id>[0-9]+)/$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
         name='editorial_assignment'),
+    url(r'^prescreening_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.prescreening_failed, name='prescreening_failed'),
+    url(r'^update_authors_screening/{regex}/(?P<nrweeks>[1-2])$'.format(
+        regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.update_authors_screening, name='update_authors_screening'),
     url(r'^assignment_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.assignment_failed, name='assignment_failed'),
+
     # Editorial workflow and refereeing
     url(r'^editorial_workflow$', views.editorial_workflow, name='editorial_workflow'),
     url(r'^assignments$', views.assignments, name='assignments'),

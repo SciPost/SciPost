@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
+from django.urls import reverse
 
 from ontology.models import Specialty
 
@@ -57,6 +58,9 @@ class College(models.Model):
 
     def __str__(self):
         return "Editorial College (%s)" % self.name
+
+    def get_absolute_url(self):
+        return reverse('colleges:college_detail', kwargs={'college': self.slug})
 
     @property
     def specialties(self):

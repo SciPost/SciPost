@@ -751,6 +751,57 @@ class EmailParticularForm(forms.Form):
             {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
 
 
+class EmailUsersForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/user-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Recipients',
+        required=True
+    )
+    email_subject = forms.CharField(widget=forms.Textarea(), label='')
+    personalize = forms.BooleanField(
+        required=False, initial=False,
+        label='Personalize (Dear Prof. AAA)?')
+    email_text = forms.CharField(widget=forms.Textarea(), label='')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email_subject'].widget.attrs.update(
+            {'rows': 1, 'cols': 50, 'placeholder': 'Email subject'})
+        self.fields['email_text'].widget.attrs.update(
+            {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+
+    def save(self):
+        from django.core import mail
+        from django.template import Context, Template
+        with mail.get_connection() as connection:
+            for user in self.cleaned_data['users']:
+                email_text = ''
+                email_text_html = ''
+                if self.cleaned_data['personalize']:
+                    email_text = ('Dear ' + user.contributor.profile.get_title_display()
+                                  + ' ' + user.last_name + ', \n\n')
+                email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
+                email_text += self.cleaned_data['email_text']
+                email_text_html += '{{ email_text|linebreaks }}'
+                email_context = {
+                    'title': user.contributor.profile.get_title_display(),
+                    'last_name': user.last_name,
+                    'email_text': self.cleaned_data['email_text'],
+                }
+                html_template = Template(email_text_html)
+                html_version = html_template.render(Context(email_context))
+                message = mail.EmailMultiAlternatives(
+                    self.cleaned_data['email_subject'],
+                    email_text, 'SciPost Admin <admin@scipost.org>',
+                    [user.email], connection=connection)
+                message.attach_alternative(html_version, 'text/html')
+                message.send()
+
+
 class SendPrecookedEmailForm(forms.Form):
     email_address = forms.EmailField()
     email_option = forms.ModelChoiceField(

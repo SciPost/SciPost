@@ -8,26 +8,26 @@
 {% block pagetitle %}: pre-screening ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   <span class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
 {% block content %}
   <h1 class="highlight">Pre-screening of Submission</h1>
-  <h3><a href="{{ submission.get_absolute_url }}">{{submission.title}}</a></h3>
-  <h4>by {{submission.author_list}}</h4>
+  <h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
+  <h4>by {{ submission.author_list }}</h4>
 
   <h3 class="mt-4">Submission summary</h3>
   {% include 'partials/submissions/pool/submission_info_table_extended.html' with submission=submission %}
 
   <h3 class="mt-4">Abstract</h3>
-  <p>{{submission.abstract}}</p>
+  <p>{{ submission.abstract }}</p>
 
   <h3 class="mt-4">Pre-screening steps</h3>
   <ul>
     <li>
       <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
-      <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage Pool composition ({{ submission.fellows.count }} fellows)</a><br>
+      <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this submission's Fellowship ({{ submission.fellows.count }} fellows)</a><br>
     </li>
     <li>
       {% if submission.plagiarism_report %}
@@ -36,7 +36,7 @@
         <table>
           <tr>
             <td style="min-width: 150px;">iThenticate document</td>
-            <td>{{submission.plagiarism_report.doc_id}}</td>
+            <td>{{ submission.plagiarism_report.doc_id }}</td>
           </tr>
           <tr>
             <td>Percent match</td>
@@ -44,15 +44,15 @@
           </tr>
           <tr>
             <td>Processed</td>
-            <td>{{submission.plagiarism_report.processed_time}}</td>
+            <td>{{ submission.plagiarism_report.processed_time }}</td>
           </tr>
           <tr>
             <td>Uploaded</td>
-            <td>{{submission.plagiarism_report.uploaded_time}}</td>
+            <td>{{ submission.plagiarism_report.uploaded_time }}</td>
           </tr>
           <tr>
             <td>Latest update</td>
-            <td>{{submission.plagiarism_report.latest_activity}}</td>
+            <td>{{ submission.plagiarism_report.latest_activity }}</td>
           </tr>
         </table>
       {% else %}

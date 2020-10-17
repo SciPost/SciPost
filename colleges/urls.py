@@ -29,6 +29,12 @@ urlpatterns = [
         views.CollegeDetailView.as_view(),
         name='college_detail'
     ),
+    path(
+        '<college:college>/email_Fellows',
+        views.email_College_Fellows,
+        name='email_College_Fellows'
+    ),
+
     # Fellowships
     url(
         r'^fellowships/(?P<contributor_id>[0-9]+)/add/$',
@@ -66,7 +72,7 @@ urlpatterns = [
     ),
 
     url(r'^fellowships/submissions/{regex}/$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_pool,
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_fellowships,
         name='submission'),
     url(r'^fellowships/submissions/{regex}/voting$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_voting_fellows,

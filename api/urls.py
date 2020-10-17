@@ -29,6 +29,7 @@ urlpatterns += [
         views.OmniAuthUserInfoView.as_view(),
         name='omniauth_userinfo'
     ),
+    path('finances/', include('finances.api.urls')),
     path('journals/', include('journals.api.urls')),
     path('organizations/', include('organizations.api.urls')),
 
