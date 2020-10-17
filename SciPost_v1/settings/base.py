@@ -331,6 +331,10 @@ MAX_UPLOAD_SIZE = "2097152"  # Default max attachment size in Bytes; 2MB
 MEDIA_ROOT = 'local_files/media/'
 MEDIA_ROOT_SECURE = 'local_files/secure/media/'
 
+# Secure storage for apimail
+APIMAIL_MEDIA_ROOT_SECURE = 'local_files/secure/apimail/'
+APIMAIL_MEDIA_URL_SECURE = '/apimail/files/secure/'
+
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = 'local_files/static/'
