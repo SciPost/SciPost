@@ -25,15 +25,19 @@ def get_and_save_events(url=None, domain_name=None):
         url if url else "https://api.eu.mailgun.net/v3/%s/events" % domain_name,
         auth=("api", settings.MAILGUN_API_KEY)
     ).json()
-    events = response['items']
-    for item in events:
-        if not Event.objects.filter(data__timestamp=item['timestamp'],
-                                    data__id=item['id']).exists():
-            Event.objects.create(data=item)
-    info = {'nitems': len(events)}
-    if 'paging' in response:
-        info['paging'] = response['paging']
-    return info
+    try:
+        events = response['items']
+        for item in events:
+            if not Event.objects.filter(data__timestamp=item['timestamp'],
+                                        data__id=item['id']).exists():
+                Event.objects.create(data=item)
+        info = {'nitems': len(events)}
+        if 'paging' in response:
+            info['paging'] = response['paging']
+        return info
+    except KeyError:
+        print('No items found for domain %s\nresponse: %s' % (domain_name, response))
+    return {'nitems': 0}
 
 
 class Command(BaseCommand):
@@ -45,7 +49,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for domain in Domain.objects.active():
-            info = get_and_save_events(domain.name)
+            info = get_and_save_events(domain_name=domain.name)
             ctr = 1 # Safety: ensure no runaway requests
             while ctr < 100 and info['nitems'] > 0:
                 info = get_and_save_events(url=info['paging']['next'])
