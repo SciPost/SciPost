@@ -1,7 +1,7 @@
 <template>
 <div>
 
-  <div v-if="accesses" class="m-2 mb-4">
+  <div v-if="currentSendingAccesses && currentSendingAccesses.length > 0" class="m-2 mb-4">
     <b-button
       v-b-modal.modal-newdraft
       variant="primary"
@@ -56,7 +56,7 @@
   </b-modal>
 
 
-  <div v-if="draftMessages.length > 0" class="m-2 mb-4">
+  <div v-if="draftMessages && draftMessages.length > 0" class="m-2 mb-4">
     <h2>Message drafts to complete</h2>
     <table class="table">
       <tr>
@@ -370,6 +370,7 @@ export default {
     data() {
 	return {
 	    accesses: null,
+	    currentSendingAccesses: null,
 	    accountSelected: null,
 	    draftMessages: [],
 	    draftMessageSelected: null,
@@ -416,6 +417,12 @@ export default {
 	    fetch('/mail/api/user_account_accesses')
 		.then(stream => stream.json())
 		.then(data => this.accesses = data.results)
+		.catch(error => console.error(error))
+	},
+	fetchCurrentSendingAccounts () {
+	    fetch('/mail/api/user_account_accesses?current=true&cansend=true')
+		.then(stream => stream.json())
+		.then(data => this.currentSendingAccesses = data.results)
 		.catch(error => console.error(error))
 	},
 	fetchTags () {
@@ -513,6 +520,7 @@ export default {
     },
     mounted() {
 	this.fetchAccounts()
+	this.fetchCurrentSendingAccounts()
 	this.fetchTags()
 	this.fetchDrafts()
 	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
