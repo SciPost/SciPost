@@ -20,6 +20,7 @@ module.exports = {
         ],
 	apimail: [
             "./apimail/static/apimail/assets/vue/messages_table.js",
+	],
 	qr: [
 	    "./scipost/static/scipost/assets/js/activate_qr.js",
 	],

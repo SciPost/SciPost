@@ -5,12 +5,16 @@ __license__ = "AGPL v3"
 from django.contrib import admin
 
 from .models import (
+    Domain,
     EmailAccount, EmailAccountAccess,
     AttachmentFile,
     ComposedMessage, ComposedMessageAPIResponse,
     Event,
     StoredMessage,
     UserTag)
+
+
+admin.site.register(Domain)
 
 
 class EmailAccountAccessInline(admin.StackedInline):

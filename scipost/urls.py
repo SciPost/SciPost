@@ -32,7 +32,6 @@ app_name = 'scipost'
 
 urlpatterns = [
 
-
     # redirect for favicon
     re_path(r'^favicon\.ico$', favicon_view),
 

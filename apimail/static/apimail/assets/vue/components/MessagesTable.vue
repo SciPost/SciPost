@@ -1,7 +1,7 @@
 <template>
 <div>
 
-  <div v-if="accesses" class="m-2 mb-4">
+  <div v-if="currentSendingAccesses && currentSendingAccesses.length > 0" class="m-2 mb-4">
     <b-button
       v-b-modal.modal-newdraft
       variant="primary"
@@ -56,7 +56,7 @@
   </b-modal>
 
 
-  <div v-if="draftMessages.length > 0" class="m-2 mb-4">
+  <div v-if="draftMessages && draftMessages.length > 0" class="m-2 mb-4">
     <h2>Message drafts to complete</h2>
     <table class="table">
       <tr>
@@ -123,6 +123,19 @@
       <b-row>
 	<b-col class="col-lg-6">
 	  <h2>Messages for <strong>{{ accountSelected.email }}</strong></h2>
+	  <!-- <b-form-group -->
+	  <!--   label="Auto refresh (minutes): " -->
+	  <!--   label-cols-sm="4" -->
+	  <!--   label-align-sm="right" -->
+	  <!--   label-size="sm" -->
+	  <!--   > -->
+	  <!--   <b-form-radio-group -->
+	  <!--     v-model="refreshMinutes" -->
+	  <!--     :options="refreshMinutesOptions" -->
+	  <!--     class="float-center" -->
+	  <!--     > -->
+	  <!--   </b-form-radio-group> -->
+	  <!-- </b-form-group> -->
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -130,7 +143,7 @@
 	    variant="primary"
 	    @click="refreshMessages"
 	    >
-	    Refresh
+	    Refresh now
 	  </b-badge>
 	</b-col>
 	<b-col class="col-lg-2">
@@ -311,10 +324,14 @@
       </template>
       <template v-slot:cell(actions)="row">
         <span v-if="row.detailsShowing">
-	  <i class="fa fa-angle-down"></i>
+	  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+	  </svg>
 	</span>
 	<span v-else>
-	  <i class="fa fa-angle-right"></i>
+	  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-right-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	    <path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+	  </svg>
 	</span>
       </template>
       <template v-slot:row-details="row">
@@ -353,6 +370,7 @@ export default {
     data() {
 	return {
 	    accesses: null,
+	    currentSendingAccesses: null,
 	    accountSelected: null,
 	    draftMessages: [],
 	    draftMessageSelected: null,
@@ -387,6 +405,9 @@ export default {
 		{ text: 'read', value: true },
 		{ text: 'all', value: null },
 	    ],
+	    refreshInterval: null,
+	    refreshMinutes: 1,
+	    refreshMinutesOptions: [ 1, 5, 15, 60 ],
 	    tags: null,
 	    tagRequired: 'any',
 	}
@@ -396,6 +417,12 @@ export default {
 	    fetch('/mail/api/user_account_accesses')
 		.then(stream => stream.json())
 		.then(data => this.accesses = data.results)
+		.catch(error => console.error(error))
+	},
+	fetchCurrentSendingAccounts () {
+	    fetch('/mail/api/user_account_accesses?current=true&cansend=true')
+		.then(stream => stream.json())
+		.then(data => this.currentSendingAccesses = data.results)
 		.catch(error => console.error(error))
 	},
 	fetchTags () {
@@ -493,6 +520,7 @@ export default {
     },
     mounted() {
 	this.fetchAccounts()
+	this.fetchCurrentSendingAccounts()
 	this.fetchTags()
 	this.fetchDrafts()
 	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
@@ -503,7 +531,11 @@ export default {
 		this.fetchDrafts()
 	    }
 	})
+	// this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 1000)
     },
+    // beforeDestroy() {
+    // 	clearInterval(this.refreshInterval)
+    // },
     watch: {
 	accountSelected: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
@@ -519,7 +551,11 @@ export default {
 	},
 	tagRequired: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
-	}
+	},
+	// refreshMinutes: function () {
+	//     clearInterval(this.refreshInterval)
+	//     this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 1000)
+	// }
     }
 }
 

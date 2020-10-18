@@ -32,7 +32,7 @@ class Command(BaseCommand):
                      for att in msg.attachment_files.all()]
 
             response = requests.post(
-                "https://api.eu.mailgun.net/v3/%s/messages" % settings.MAILGUN_DOMAIN_NAME,
+                "https://api.eu.mailgun.net/v3/%s/messages" % msg.from_account.domain.name,
                 auth=("api", settings.MAILGUN_API_KEY),
                 files=files,
                 data=data)

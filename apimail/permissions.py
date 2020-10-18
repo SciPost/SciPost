@@ -33,10 +33,10 @@ class CanHandleStoredMessage(permissions.BasePermission):
         # Check, based on account accesses
         for access in request.user.email_account_accesses.filter(
                 rights=EmailAccountAccess.CRUD):
-            if ((access.account.email == obj.data.sender or
-                 access.account.email in obj.data.recipients)
-                and access.date_from < obj.datetimestamp
-                and access.data_until > obj.datetimestamp):
+            if ((access.account.email == obj.data['sender'] or
+                 access.account.email in obj.data['recipients'])
+                and access.date_from < obj.datetimestamp.date()
+                and access.date_until > obj.datetimestamp.date()):
                 return True
         return False
 
@@ -53,9 +53,9 @@ class CanReadStoredMessage(permissions.BasePermission):
 
         # Check, based on account accesses
         for access in request.user.email_account_accesses.all():
-            if ((access.account.email == obj.data.sender or
-                 access.account.email in obj.data.recipients)
-                and access.date_from < obj.datetimestamp
-                and access.data_until > obj.datetimestamp):
+            if ((access.account.email == obj.data['sender'] or
+                 access.account.email in obj.data['recipients'])
+                and access.date_from < obj.datetimestamp.date()
+                and access.date_until > obj.datetimestamp.date()):
                 return True
         return False

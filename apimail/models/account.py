@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from ..managers import EmailAccountAccessQuerySet
@@ -14,6 +15,11 @@ class EmailAccount(models.Model):
 
     Access is specified on a per-user basis through the related EmailAccountAccess model.
     """
+    domain = models.ForeignKey(
+        'apimail.Domain',
+        related_name='email_accounts',
+        on_delete=models.CASCADE
+    )
     name = models.CharField(max_length=256)
     email = models.EmailField(unique=True)
     description = models.TextField()
@@ -23,6 +29,10 @@ class EmailAccount(models.Model):
 
     def __str__(self):
         return('%s <%s>' % (self.name, self.email))
+
+    def clean(self):
+        if self.email.rpartition('@')[2] != self.domain.name:
+            raise ValidationError("Email domain does not match domain name.")
 
 
 class EmailAccountAccess(models.Model):
