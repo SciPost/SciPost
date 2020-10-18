@@ -118,7 +118,7 @@ class UserTagSerializer(serializers.ModelSerializer):
         fields = ['pk', 'user', 'label', 'unicode_symbol', 'variant']
 
     def get_queryset(self):
-        user = self.request.user
+        user = self.context['request'].user
         return UserTag.objects.filter(user=user)
 
 
@@ -126,10 +126,16 @@ class StoredMessageSerializer(serializers.ModelSerializer):
     attachment_files = AttachmentFileSerializer(many=True)
     event_set = EventSerializer(many=True)
     read = serializers.SerializerMethodField()
-    tags = UserTagSerializer(many=True)
+    tags = serializers.SerializerMethodField()
 
     def get_read(self, obj):
         return self.context['request'].user in obj.read_by.all()
+
+    def get_tags(self, obj):
+        return UserTagSerializer(
+            obj.tags.filter(user=self.context['request'].user),
+            many=True
+        ).data
 
     class Meta:
         model = StoredMessage
