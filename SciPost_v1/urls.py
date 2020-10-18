@@ -33,9 +33,6 @@ urlpatterns = [
         'mail/',
         include('apimail.urls', namespace='apimail')
     ),
-    url(r'^10.21468/%s/' % JOURNAL_REGEX,
-        include('journals.urls.journal', namespace="prefixed_journal")),
-    url(r'^%s/' % JOURNAL_REGEX, include('journals.urls.journal', namespace="journal")),
     path(
         '10.21468/<journal_doi_label:doi_label>/',
         include('journals.urls.journal', namespace="prefixed_journal")
