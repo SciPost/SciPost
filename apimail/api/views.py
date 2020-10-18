@@ -225,7 +225,6 @@ class StoredMessageUpdateReadAPIView(UpdateAPIView):
     queryset = StoredMessage.objects.all()
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
-    filter_backends = [StoredMessageFilterBackend,]
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
@@ -270,7 +269,7 @@ class StoredMessageUpdateTagAPIView(UpdateAPIView):
     Adds or removes a user tag on a StoredMessage.
     """
 
-    permission_classes = [IsAuthenticated, CanHandleStoredMessage]
+    permission_classes = [IsAuthenticated, CanReadStoredMessage]
     queryset = StoredMessage.objects.all()
     serializer_class = StoredMessageSerializer
     lookup_field = 'uuid'
