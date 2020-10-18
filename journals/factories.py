@@ -36,8 +36,9 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 
 class JournalFactory(factory.django.DjangoModelFactory):
-    name = 'fakeJournal'
-    doi_label = '10.21468/fakeJournal'
+    college = factory.SubFactory('colleges.factories.CollegeFactory')
+    name = 'Fake Journal'
+    doi_label = 'SciPostFakeJournal'
     issn = factory.lazy_attribute(lambda n: random_digits(8))
     structure = factory.Iterator(JOURNAL_STRUCTURE, getter=lambda c: c[0])
 
@@ -82,8 +83,8 @@ class PublicationFactory(factory.django.DjangoModelFactory):
     acceptance_date = factory.Faker('date_this_year')
     publication_date = factory.Faker('date_this_year')
 
-    discipline = factory.LazyAttribute(lambda o: o.accepted_submission.discipline)
-    subject_area = factory.LazyAttribute(lambda o: o.accepted_submission.subject_area)
+    acad_field = factory.LazyAttribute(lambda o: o.accepted_submission.acad_field)
+    specialties = factory.LazyAttribute(lambda o: o.accepted_submission.specialties)
     approaches = factory.LazyAttribute(lambda o: o.accepted_submission.approaches)
     title = factory.LazyAttribute(lambda o: o.accepted_submission.title)
     abstract = factory.LazyAttribute(lambda o: o.accepted_submission.abstract)

@@ -21,7 +21,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_assignment_request_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' ' +
+        email_text = ('Dear ' + cls.assignment.to.profile.get_title_display() + ' ' +
                       cls.assignment.to.user.last_name +
                       ', \n\nWe have received a Submission to SciPost ' +
                       'for which we would like you to consider becoming Editor-in-charge:\n\n' +
@@ -54,7 +54,7 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = {
-            'title': cls.assignment.to.get_title_display(),
+            'title': cls.assignment.to.profile.get_title_display(),
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
@@ -75,7 +75,7 @@ class SubmissionUtils(BaseMailUtil):
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
         r = cls.assignment
-        email_text = ('Dear ' + cls.assignment.to.get_title_display() + ' '
+        email_text = ('Dear ' + cls.assignment.to.profile.get_title_display() + ' '
                       + cls.assignment.to.user.last_name
                       + ', \n\nThank you for accepting to become Editor-in-charge '
                       'of the SciPost Submission\n\n'
@@ -113,7 +113,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = {
-            'title': cls.assignment.to.get_title_display(),
+            'title': cls.assignment.to.profile.get_title_display(),
             'last_name': cls.assignment.to.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
@@ -134,7 +134,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_author_prescreening_passed_email(cls):
         """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + cls.assignment.submission.submitted_by.get_title_display() + ' '
+        email_text = ('Dear ' + cls.assignment.submission.submitted_by.profile.get_title_display() + ' '
                       + cls.assignment.submission.submitted_by.user.last_name
                       + ', \n\nWe are pleased to inform you that your recent Submission to SciPost,\n\n'
                       + cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list
@@ -189,7 +189,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = {
-            'title': cls.assignment.submission.submitted_by.get_title_display(),
+            'title': cls.assignment.submission.submitted_by.profile.get_title_display(),
             'last_name': cls.assignment.submission.submitted_by.user.last_name,
             'sub_title': cls.assignment.submission.title,
             'author_list': cls.assignment.submission.author_list,
@@ -220,7 +220,7 @@ class SubmissionUtils(BaseMailUtil):
             'Dear ' + cls.invitation.get_title_display() + ' '
             + cls.invitation.last_name + ',\n\n'
             'On behalf of the Editor-in-charge '
-            + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
+            + cls.invitation.submission.editor_in_charge.profile.get_title_display() + ' '
             + cls.invitation.submission.editor_in_charge.user.last_name
             + ', we would like to cordially remind you of our recent request to referee\n\n'
             + cls.invitation.submission.title + ' by '
@@ -295,7 +295,7 @@ class SubmissionUtils(BaseMailUtil):
         email_context = {
             'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
-            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
+            'EIC_title': cls.invitation.submission.editor_in_charge.profile.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
@@ -328,7 +328,7 @@ class SubmissionUtils(BaseMailUtil):
             'Dear ' + cls.invitation.get_title_display() + ' '
             + cls.invitation.last_name + ',\n\n'
             'On behalf of the Editor-in-charge '
-            + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
+            + cls.invitation.submission.editor_in_charge.profile.get_title_display() + ' '
             + cls.invitation.submission.editor_in_charge.user.last_name
             + ', we would like to cordially remind you of our recent request to referee\n\n'
             + cls.invitation.submission.title + ' by '
@@ -381,7 +381,7 @@ class SubmissionUtils(BaseMailUtil):
         email_context = {
             'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
-            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
+            'EIC_title': cls.invitation.submission.editor_in_charge.profile.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
@@ -412,7 +412,7 @@ class SubmissionUtils(BaseMailUtil):
         email_text = ('Dear ' + cls.invitation.get_title_display() + ' '
                       + cls.invitation.last_name + ',\n\n'
                       'On behalf of the Editor-in-charge '
-                      + cls.invitation.submission.editor_in_charge.get_title_display() + ' '
+                      + cls.invitation.submission.editor_in_charge.profile.get_title_display() + ' '
                       + cls.invitation.submission.editor_in_charge.user.last_name
                       + ', we would like to inform you that your report on\n\n'
                       + cls.invitation.submission.title + ' by '
@@ -452,7 +452,7 @@ class SubmissionUtils(BaseMailUtil):
         email_context = {
             'title': cls.invitation.get_title_display(),
             'last_name': cls.invitation.last_name,
-            'EIC_title': cls.invitation.submission.editor_in_charge.get_title_display(),
+            'EIC_title': cls.invitation.submission.editor_in_charge.profile.get_title_display(),
             'EIC_last_name': cls.invitation.submission.editor_in_charge.user.last_name,
             'sub_title': cls.invitation.submission.title,
             'author_list': cls.invitation.submission.author_list,
@@ -474,7 +474,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def acknowledge_report_email(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + cls.report.author.get_title_display() + ' ' +
+        email_text = ('Dear ' + cls.report.author.profile.get_title_display() + ' ' +
                       cls.report.author.user.last_name + ','
                       '\n\nMany thanks for your Report on Submission\n\n' +
                       cls.report.submission.title + ' by '
@@ -527,7 +527,7 @@ class SubmissionUtils(BaseMailUtil):
                 '\n<strong>Requested changes</strong>: <br/><p>{{ requested_changes|linebreaks }}</p>'
                 '\n<strong>Remarks for Editors</strong>: <br/><p>{{ remarks_for_editors|linebreaks }}</p>')
         email_context = {
-            'ref_title': cls.report.author.get_title_display(),
+            'ref_title': cls.report.author.profile.get_title_display(),
             'ref_last_name': cls.report.author.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
@@ -557,7 +557,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_author_report_received_email(cls):
         """ Requires loading 'report' attribute. """
-        email_text = ('Dear ' + cls.report.submission.submitted_by.get_title_display() + ' ' +
+        email_text = ('Dear ' + cls.report.submission.submitted_by.profile.get_title_display() + ' ' +
                       cls.report.submission.submitted_by.user.last_name +
                       ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
@@ -588,7 +588,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = {
-            'auth_title': cls.report.submission.submitted_by.get_title_display(),
+            'auth_title': cls.report.submission.submitted_by.profile.get_title_display(),
             'auth_last_name': cls.report.submission.submitted_by.user.last_name,
             'sub_title': cls.report.submission.title,
             'author_list': cls.report.submission.author_list,
@@ -620,7 +620,7 @@ class SubmissionUtils(BaseMailUtil):
         if cls.communication.comtype in ['AtoE', 'RtoE', 'StoE']:
             recipient_email.append(cls.communication.submission.editor_in_charge.user.email)
             recipient_greeting = ('Dear ' +
-                                  cls.communication.submission.editor_in_charge.get_title_display() + ' ' +
+                                  cls.communication.submission.editor_in_charge.profile.get_title_display() + ' ' +
                                   cls.communication.submission.editor_in_charge.user.last_name)
             further_action_page = ('https://scipost.org/submission/editorial_page/'
                                    + cls.communication.submission.preprint.identifier_w_vn_nr)
@@ -630,14 +630,14 @@ class SubmissionUtils(BaseMailUtil):
         elif cls.communication.comtype in ['EtoA']:
             recipient_email.append(cls.communication.submission.submitted_by.user.email)
             recipient_greeting = ('Dear ' +
-                                  cls.communication.submission.submitted_by.get_title_display() + ' ' +
+                                  cls.communication.submission.submitted_by.profile.get_title_display() + ' ' +
                                   cls.communication.submission.submitted_by.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
             bcc_emails.append('submissions@scipost.org')
         elif cls.communication.comtype in ['EtoR']:
             recipient_email.append(cls.communication.referee.user.email)
             recipient_greeting = ('Dear ' +
-                                  cls.communication.referee.get_title_display() + ' ' +
+                                  cls.communication.referee.profile.get_title_display() + ' ' +
                                   cls.communication.referee.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
             bcc_emails.append('submissions@scipost.org')
@@ -672,7 +672,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_author_revision_requested_email(cls):
         """ Requires loading 'submission' and 'recommendation' attributes. """
-        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.profile.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nThe Editor-in-charge of your recent Submission to SciPost,\n\n' +
                       cls.submission.title + ' by ' + cls.submission.author_list + ','
@@ -719,7 +719,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>Sincerely,</p>'
             '<p>The SciPost Team.</p>')
         email_context = {
-            'auth_title': cls.submission.submitted_by.get_title_display(),
+            'auth_title': cls.submission.submitted_by.profile.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,
@@ -741,7 +741,7 @@ class SubmissionUtils(BaseMailUtil):
     @classmethod
     def send_author_College_decision_email(cls):
         """ Requires loading 'submission' and 'recommendation' attributes. """
-        email_text = ('Dear ' + cls.submission.submitted_by.get_title_display() + ' ' +
+        email_text = ('Dear ' + cls.submission.submitted_by.profile.get_title_display() + ' ' +
                       cls.submission.submitted_by.user.last_name +
                       ', \n\nThe Editorial College of SciPost has taken a decision '
                       'regarding your recent Submission,\n\n' +
@@ -808,7 +808,7 @@ class SubmissionUtils(BaseMailUtil):
                             '<p>Sincerely,</p>'
                             '<p>The SciPost Team.</p>')
         email_context = {
-            'auth_title': cls.submission.submitted_by.get_title_display(),
+            'auth_title': cls.submission.submitted_by.profile.get_title_display(),
             'auth_last_name': cls.submission.submitted_by.user.last_name,
             'sub_title': cls.submission.title,
             'author_list': cls.submission.author_list,

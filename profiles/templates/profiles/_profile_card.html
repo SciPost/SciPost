@@ -41,13 +41,12 @@
 		  <td>{% if profile_mail.primary %}<strong>{% endif %}{{ profile_mail.email }}{% if profile_mail.primary %}</strong>{% endif %}</td>
 		  <td>{{ profile_mail.primary|yesno:'Primary,Alternative' }}</td>
 		  <td>
-                    <i class="fa {{ profile_mail.still_valid|yesno:'fa-check-circle text-success,fa-times-circle text-danger' }}"></i>
-
+		    {% if profile_mail.still_valid %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}
 		  </td>
 		  <td class="d-flex">
                     <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
 		    <form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">Make primary</button></form>
-		    <a type="button" class="btn py-0" data-toggle="modal" data-target="#confirmDeleteEmailModal"><i class="fa fa-trash text-danger"></i></a>
+		    <a type="button" class="btn py-0" data-toggle="modal" data-target="#confirmDeleteEmailModal"><span class="text-danger">{% include 'bi/trash-fill.html' %}</span></a>
 		    <div class="modal" id="confirmDeleteEmailModal" tabindex="-1" role="dialog">
 		      <div class="modal-dialog" role="document">
 			<div class="modal-content">
@@ -74,17 +73,18 @@
 	  </td>
 	</tr>
 	<tr>
-	  <td>Discipline</td><td>{{ profile.get_discipline_display }}</td>
+	  <td>Field</td><td>{{ profile.acad_field }}</td>
 	</tr>
 	<tr>
-	  <td>Expertises</td>
-	  <td>{% for expertise in profile.expertises %}
-    	    <div class="single d-inline" data-specialization="{{expertise|lower}}" data-toggle="tooltip" data-placement="bottom" title="{{expertise|get_specialization_display}}">{{ expertise|get_specialization_code }}</div>
-	  {% endfor %}
+	  <td>Specialties</td>
+	  <td>
+	    {% for specialty in profile.specialties.all %}
+    	      <div class="single d-inline" data-specialty="{{ specialty }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+	    {% endfor %}
 	  </td>
 	</tr>
-	<tr><td>ORCID ID</td><td><a href="//orcid.org/{{ profile.orcid_id }}" target="_blank">{{ profile.orcid_id }}</a></td></tr>
-	<tr><td>Webpage</td><td><a href="{{ profile.webpage }}" target="_blank">{{ profile.webpage }}</a></td></tr>
+	<tr><td>ORCID ID</td><td><a href="//orcid.org/{{ profile.orcid_id }}" target="_blank" rel="noopener">{{ profile.orcid_id }}</a></td></tr>
+	<tr><td>Webpage</td><td><a href="{{ profile.webpage }}" target="_blank" rel="noopener">{{ profile.webpage }}</a></td></tr>
 	<tr><td>Accepts SciPost emails</td><td>{{ profile.accepts_SciPost_emails }}</td></tr>
 	<tr><td>Accepts refereeing requests</td><td>{{ profile.accepts_refereeing_requests }}</td></tr>
 	<tr><td>Contributor</td><td>{% if profile.contributor %}Yes, id: {{ profile.contributor.pk }}, status: {{ profile.contributor.get_status_display }}, user active: {{ profile.contributor.user.is_active }} (<a href="{% url 'scipost:contributor_info' contributor_id=profile.contributor.id %}" target="_blank">info link</a>){% else %}No{% endif %}</td></tr>
@@ -189,7 +189,7 @@
       <div class="card-body">
 	<ul>
 	  {% for inv in profile.refereeinvitation_set.all %}
-	    <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<i class="fa fa-check-square text-success"></i>{% else %}<i class="fa fa-times-circle"></i>{% endif %})</li>
+	    <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
 	  {% empty %}
 	    <li>No refereeing invitation found</li>
 	  {% endfor %}

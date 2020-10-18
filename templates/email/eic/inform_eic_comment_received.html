@@ -1,7 +1,7 @@
-<p>Dear {{ comment.core_content_object.editor_in_charge.get_title_display }} {{ comment.core_content_object.editor_in_charge.user.last_name }},</p>
+<p>Dear {{ comment.core_content_object.editor_in_charge.profile.get_title_display }} {{ comment.core_content_object.editor_in_charge.user.last_name }},</p>
 
 <p>
-    {{ comment.author.get_title_display }} {{ comment.author.user.last_name }} has delivered a Comment for Submission:
+    {{ comment.author.profile.get_title_display }} {{ comment.author.user.last_name }} has delivered a Comment for Submission:
 </p>
 <p>
     {{ comment.core_content_object.title }}

@@ -3,25 +3,38 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
+from django.urls import path, register_converter
 
+from ontology.converters import AcademicFieldSlugConverter, SpecialtySlugConverter
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from . import views
+from .converters import CollegeSlugConverter
+
+register_converter(AcademicFieldSlugConverter, 'acad_field')
+register_converter(SpecialtySlugConverter, 'specialty')
+register_converter(CollegeSlugConverter, 'college')
 
 app_name = 'colleges'
 
 urlpatterns = [
     # Editorial Colleges: public view
-    url(
-        r'^$',
-        views.EditorialCollegesView.as_view(),
+    path(
+        '',
+        views.CollegeListView.as_view(),
         name='colleges'
     ),
-    url(
-        r'^detail/(?P<discipline>[a-zA-Z]+)/$',
-        views.EditorialCollegeDetailView.as_view(),
+    path(
+        '<college:college>',
+        views.CollegeDetailView.as_view(),
         name='college_detail'
     ),
+    path(
+        '<college:college>/email_Fellows',
+        views.email_College_Fellows,
+        name='email_College_Fellows'
+    ),
+
     # Fellowships
     url(
         r'^fellowships/(?P<contributor_id>[0-9]+)/add/$',
@@ -36,18 +49,18 @@ urlpatterns = [
         views.FellowshipDetailView.as_view(),
         name='fellowship_detail'
     ),
-    url(
-        r'^fellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+    path(
+        'fellowships/<acad_field:acad_field>/<specialty:specialty>',
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
-    url(
-        r'^fellowships/(?P<discipline>[a-zA-Z]+)/$',
+    path(
+        'fellowships/<acad_field:acad_field>',
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
-    url(
-        r'^fellowships/$',
+    path(
+        'fellowships',
         views.FellowshipListView.as_view(),
         name='fellowships'
     ),
@@ -59,7 +72,7 @@ urlpatterns = [
     ),
 
     url(r'^fellowships/submissions/{regex}/$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_pool,
+        regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_fellowships,
         name='submission'),
     url(r'^fellowships/submissions/{regex}/voting$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_voting_fellows,
@@ -70,7 +83,7 @@ urlpatterns = [
     url(r'^fellowships/submissions/{regex}/voting/add$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.submission_add_fellowship_voting,
         name='submission_add_fellowship_voting'),
-    url(r'^fellowships/(?P<id>[0-9]+)/submissions/{regex}/remove$'.format(
+    url(r'^fellowships/(?P<id>[0-9]+)/submissions/{regex}/voting/remove$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.fellowship_remove_submission_voting,
         name='fellowship_remove_submission_voting'),
 
@@ -126,18 +139,18 @@ urlpatterns = [
         views.PotentialFellowshipDetailView.as_view(),
         name='potential_fellowship_detail'
     ),
-    url(
-        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/(?P<expertise>[a-zA-Z:]+)/$',
+    path(
+        'potentialfellowships/<acad_field:acad_field>/<specialty:specialty>',
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),
-    url(
-        r'^potentialfellowships/(?P<discipline>[a-zA-Z]+)/$',
+    path(
+        'potentialfellowships/<acad_field:acad_field>',
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),
-    url(
-        r'^potentialfellowships/$',
+    path(
+        'potentialfellowships',
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),

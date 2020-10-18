@@ -11,7 +11,7 @@
     <div class="card-body">
       <ul class="list-inline mb-0">
 	{% for topic in submission.topics.all %}
-	  <li class="list-inline-item p-1"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'submissions:submission_remove_topic' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+	  <li class="list-inline-item p-1"><a href="{% url 'ontology:topic_details' slug=topic.slug %}">{{ topic }}</a>{% if perms.scipost.can_manage_ontology %} <a href="{% url 'submissions:submission_remove_topic' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr slug=topic.slug %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</li>
 	{% empty %}
 	  <li class="list-inline-item">No Topic has yet been associated to this Submission</li>
 	{% endfor %}

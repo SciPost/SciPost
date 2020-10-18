@@ -89,7 +89,7 @@ class CitationNotificationsProcessView(PermissionsMixin, RequestArgumentMixin, M
         citation = self.get_form().get_all_notifications().filter(contributor__isnull=False).first()
         if not citation.contributor:
             return True
-        return citation.contributor.accepts_SciPost_emails
+        return citation.contributor.profile.accepts_SciPost_emails
 
     @transaction.atomic
     def form_valid(self, form):

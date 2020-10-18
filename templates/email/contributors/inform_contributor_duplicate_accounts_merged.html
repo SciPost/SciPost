@@ -1,5 +1,5 @@
 <p>
-  Dear {{ object.duplicate_of.get_title_display }} {{ object.duplicate_of.user.last_name }},
+  Dear {{ object.duplicate_of.profile.get_title_display }} {{ object.duplicate_of.user.last_name }},
 </p>
 <p>
   We noticed that you had two separate registrations at SciPost, and have consolidated your two accounts into a single active one, namely your account with username <strong><em style="color: green;">{{ object.duplicate_of.user.username }}</em></strong>.

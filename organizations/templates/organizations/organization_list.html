@@ -1,5 +1,6 @@
 {% extends 'organizations/base.html' %}
 
+{% block meta_description %}{{ block.super }} Organizations list{% endblock meta_description %}
 {% block pagetitle %}: Organizations{% endblock pagetitle %}
 
 {% load bootstrap %}
@@ -104,16 +105,16 @@
 	  <tr>
 	    <th><a href="{% add_get_parameters order_by='country' %}">Country</a></th>
 	    <th><a href="{% add_get_parameters order_by='name' %}">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
-	    <th>NAP <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab"></i>
+	    <th>NAP <span data-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab">{% include 'bi/info-circle-fill.html' %}</span>
 	      {% if request.GET.ordering != 'asc' %}
-		<a href="{% add_get_parameters order_by='nap' ordering='asc' %}"><i class="fa fa-sort-asc"></i></a>
+		<a href="{% add_get_parameters order_by='nap' ordering='asc' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}
-		<a href="{% url 'organizations:organizations' %}"><i class="fa fa-sort-asc"></i></a>
+		<a href="{% url 'organizations:organizations' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% endif %}
 	      {% if request.GET.ordering != 'desc' %}
-		<a href="{% add_get_parameters order_by='nap' ordering='desc' %}"><i class="fa fa-sort-desc"></i></a>
+		<a href="{% add_get_parameters order_by='nap' ordering='desc' %}">{% include 'bi/sort-down.html' %}</a>
 	      {% else %}
-		<a href="{% url 'organizations:organizations' %}"><i class="fa fa-sort-desc"></i></a>
+		<a href="{% url 'organizations:organizations' %}">{% include 'bi/sort-down.html' %}</a>
 	      {% endif %}
 	    </th>
 	    <th>SciPost sponsor?</th>

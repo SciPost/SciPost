@@ -6,6 +6,7 @@
 
 {% block body_class %}{{block.super}} sidebar-left{% endblock %}
 
+{% block meta_description %}{{ block.super }} Publication List{% endblock meta_description %}
 {% block pagetitle %}: Publications{% endblock pagetitle %}
 
 {% block page_header %}<h1 class="highlight">Recent SciPost Publications</h1>{% endblock page_header %}
@@ -61,11 +62,6 @@
           <a href="?{% url_replace issue=issue.id page='' subject='' %}" class="{% active_get_request 'issue' issue.id %}">{{ issue.in_volume.in_journal }} {{ issue.short_str }}</a>
           <br>{{ issue.period_as_string }}
         </div>
-      {% endfor %}
-
-      <h2 class="mb-2 mt-4">Subject area</h2>
-      {% for subject in subject_areas %}
-        <a href="?{% url_replace subject=subject.0 page='' %}" class="d-inline-block mb-1 ml-2 {% active_get_request 'subject' subject.0 %}">{{ subject.1 }}</a><br>
       {% endfor %}
     </div>
   </div>

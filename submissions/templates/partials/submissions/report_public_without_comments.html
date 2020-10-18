@@ -15,7 +15,7 @@
             Report {{report.report_nr}} by <a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
             on {{ report.date_submitted|date:'Y-n-j' }}
             {% if report.report_type == 'report_post_edrec' %}
-              <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <i class="fa fa-question-circle-o text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true"></i></small>
+              <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
             {% endif %}
 
             {% if report.invited %}
@@ -37,7 +37,7 @@
               {% endif %}
               {% if report.pdf_report %}
                 <li>
-                  <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                  <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank">{% include 'bi/download.html' %} Download as PDF</a>
                 </li>
               {% endif %}
             </ul>
@@ -89,7 +89,7 @@
 
             on {{ report.date_submitted|date:'Y-n-j' }}
             {% if report.report_type == 'report_post_edrec' %}
-              <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <i class="fa fa-question-circle-o text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true"></i></small>
+              <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
             {% endif %}
 
             {% if report.invited %}
@@ -105,7 +105,7 @@
               {% endif %}
               {% if report.pdf_report %}
                 <li>
-                  <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank"><i class="fa fa-download"></i> Download as PDF</a>
+                  <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank">{% include 'bi/download.html' %} Download as PDF</a>
                 </li>
               {% endif %}
             </ul>

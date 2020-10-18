@@ -64,7 +64,7 @@
 		<strong class="text-danger">Without a Funder Registry instance, we cannot record funding acknowledgements to this Organization with Crossref.</strong>
 		<p>Are you a representative of this Organization? We advise you to:</p>
 		<ul>
-		  <li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank">Crossref's Funder Registry</a>;</li>
+		  <li>Make sure your Organization gets included in <a href="https://www.crossref.org/services/funder-registry/" target="_blank" rel="noopener">Crossref's Funder Registry</a>;</li>
 		  <li>After inclusion, <a href="mailto:admin@scipost.org?subject=Inclusion&nbsp;of&nbsp;{{ organization|urlencode }}&nbsp;{% if organization.acronym %}({{ organization.acronym|urlencode }}){% endif %}&nbsp;in&nbsp;the&nbsp;Funder&nbsp;Registry">contact our administration</a> with this information so that we can update our records.</li>
 		</ul>
 	      </li>
@@ -75,7 +75,7 @@
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization
-	    <span class="text-muted small">(with PubFractions <i class="fa fa-info-circle" data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization"></i>)</span>:</h3>
+	    <span class="text-muted small">(with PubFractions <span data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>:</h3>
 	  {% for pubyear in pubyears %}
 	    <h4>{{ pubyear }} <span class="text-muted small">(PubFractions {{ org|pubfractions_in_year:pubyear }})</span></h4>
 	    <ul>
@@ -341,7 +341,7 @@
 		  <td>{{ contactrole.date_from|date:"Y-m-d" }}</td>
 		  <td>{{ contactrole.date_until|date:"Y-m-d" }}</td>
 		  {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		    <td>{% if contactrole.contact.user.is_active %}<i class="fa fa-check-circle text-success"></i>{% else %}<i class="fa fa-times-circle text-danger"></i>{% endif %}</td>
+		    <td>{% if contactrole.contact.user.is_active %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>
 		    <td>
 		      <ul class="list-unstyled">
 			{% if perms.scipost.can_manage_organizations %}

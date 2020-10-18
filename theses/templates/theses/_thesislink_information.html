@@ -19,10 +19,16 @@
     <td>Type: </td><td></td><td>  {{ thesislink.get_type_display }}</td>
   </tr>
   <tr>
-    <td>Discipline: </td><td></td><td>{{ thesislink.get_discipline_display }}</td>
+    <td>Field: </td><td></td><td>{{ thesislink.acad_field }}</td>
   </tr>
   <tr>
-    <td>Subject area: </td><td></td><td> {{ thesislink.get_subject_area_display }} </td>
+    <td>Specialties: </td><td></td><td>
+      <ul class="list-inline mb-0">
+	{% for spec in thesislink.specialties.all %}
+	  <li class="list-inline-item">{{ spec }}</li>
+	{% endfor %}
+      </ul>
+    </td>
   </tr>
   {% if thesislink.approaches %}
     <tr>
@@ -31,7 +37,7 @@
     </tr>
   {% endif %}
   <tr>
-    <td>URL: </td><td>&nbsp;</td><td><a href="{{ thesislink.pub_link }}" target="_blank">{{ thesislink.pub_link }}</a></td>
+    <td>URL: </td><td>&nbsp;</td><td><a href="{{ thesislink.pub_link }}" target="_blank" rel="noopener">{{ thesislink.pub_link }}</a></td>
   </tr>
   <tr>
     <td>Degree granting institution: </td><td>&nbsp;</td><td>{{ thesislink.institution }}</td>

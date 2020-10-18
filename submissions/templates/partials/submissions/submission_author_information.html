@@ -1,8 +1,9 @@
 {% load bootstrap %}
+{% load submissions_extras %}
 
 <h3 class="highlight">
   Author information
-  <button type="button" class="btn btn-link p-0 text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission."><i class="fa fa-question-circle"></i></button>
+  <button type="button" class="btn btn-link p-0 text-muted" data-toggle="tooltip" data-title="You see this information because you are a verified author of this Submission.">{% include 'bi/question-circle-fill.html' %}</button>
 </h3>
 
 <div id="authorinformation" class="mt-2">
@@ -31,10 +32,10 @@
         <td>Submission is publicly available:</td>
         <td>
           {% if submission.visible_public %}
-            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
             <span class="text-muted">Available in public pages and search results.</span>
           {% else %}
-            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
             <span class="text-muted">Only available for editors and authors.</span>
           {% endif %}
         </td>
@@ -43,10 +44,10 @@
         <td>Submission is current version:</td>
         <td>
           {% if submission.is_current %}
-            <i class="fa fa-check-circle text-success" aria-hidden="true"></i>
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
             <span class="text-muted">This is the current version.</span>
           {% else %}
-            <i class="fa fa-times-circle text-danger" aria-hidden="true"></i>
+            <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
             <span class="text-muted">This is not the current version.</span>
           {% endif %}
         </td>
@@ -80,7 +81,7 @@
     </table>
   </div>
 
-  {% if submission.eicrecommendations and submission.eicrecommendations.last.is_viewable_by_authors %}
+    {% if submission.eicrecommendations and submission.eicrecommendations.last|is_viewable_by_authors %}
     <div class="mb-4">
       <h4 class="mb-2">Editorial Recommendation:</h4>
       {% include 'partials/submissions/recommendation_author_content.html' with recommendation=submission.eicrecommendations.last %}

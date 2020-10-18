@@ -16,7 +16,7 @@
       <ul class="list list-inline mb-0">
 	<li class="list-inline-item"><strong>Tags</strong>:</li>
 	{% for tag in topic.tags.all %}
-	  <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+	  <li class="list-inline-item">{{ tag }}{% if perms.scipost.can_manage_ontology %} <a href="{% url 'ontology:topic_remove_tag' slug=topic.slug tag_id=tag.id %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</li>
 	{% endfor %}
 	{% if perms.scipost.can_manage_ontology %}
 	  <form class="p-2" action="{% url 'ontology:topic_add_tags' slug=topic.slug %}" method="post">
@@ -39,7 +39,7 @@
 	  <h5>asymmetric:</h5>
 	  <ul>
 	    {% for rel in relations_asym %}
-	      <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} <em>{{ rel.get_relation_display }}</em> {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %} {% if perms.scipost.can_manage_ontology %}<a href="{% url 'ontology:delete_relation_asym' relation_id=rel.id slug=topic.slug %}"><i class="fa fa-times-circle text-danger"></i></a>{% endif %}</li>
+	      <li>{% if rel.A != topic %}<a href="{% url 'ontology:topic_details' slug=rel.A.slug %}">{{ rel.A}}</a>{% else %}{{ rel.A }}{% endif %} <em>{{ rel.get_relation_display }}</em> {% if rel.B != topic %}<a href="{% url 'ontology:topic_details' slug=rel.B.slug %}">{{ rel.B }}</a>{% else %}{{ rel.B }}{% endif %} {% if perms.scipost.can_manage_ontology %}<a href="{% url 'ontology:delete_relation_asym' relation_id=rel.id slug=topic.slug %}"><span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span></a>{% endif %}</li>
 	    {% empty %}
 	      <li>No relations have been defined</li>
 	    {% endfor %}

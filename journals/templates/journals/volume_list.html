@@ -1,5 +1,6 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% block meta_description %}{{ block.super }} Volumes List{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: Volumes Admin{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -38,9 +39,9 @@
               <td>
 		{% if journal.get_latest_volume %}
                   {% if journal.get_latest_volume.is_current %}
-                    <i class="fa fa-check text-success"></i> Yes
+                    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
                   {% else %}
-                    <i class="fa fa-exclamation-triangle text-warning"></i> No
+                    <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> No
                   {% endif %}
 		{% endif %}
               </td>
@@ -69,9 +70,9 @@
             <td>{{ volume.issues.count }}</td>
             <td>
               {% if volume.is_current %}
-		<i class="fa fa-check text-success"></i> Yes
+		<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
               {% else %}
-		<i class="fa fa-exclamation-triangle text-warning"></i> No
+		<span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> No
               {% endif %}
             </td>
             <td><a href="{% url 'journals:update_volume' volume.id %}">Edit</a></td>

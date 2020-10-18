@@ -67,7 +67,7 @@
 		    {% if thread_hash %}
 		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
 		    {% endif %}
-	            <i class="fa fa-arrow-right"></i>
+	            {% include 'bi/arrow-right.html' %}
 		    <input type="submit" class="btn btn-primary text-white" value="Query arXiv"/>
 		  </form>
 		{% endif %}
@@ -79,6 +79,6 @@
     </div>
 
   {% else %}
-      <h3>You are currently not allowed to submit a manuscript.</h3>
+    <h3>You are currently not allowed to submit a manuscript.</h3>
   {% endif %}
 {% endblock content %}

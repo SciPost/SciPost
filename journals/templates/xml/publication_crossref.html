@@ -76,8 +76,8 @@
 			<affiliation>{{ aff.name }}</affiliation>
 			{% endfor %}
 			{% endif %}
-                        {% if author_object.contributor and author_object.contributor.orcid_id %}
-                            <ORCID>https://orcid.org/{{ author_object.contributor.orcid_id }}</ORCID>
+                        {% if author_object.contributor and author_object.contributor.profile.orcid_id %}
+                            <ORCID>https://orcid.org/{{ author_object.contributor.profile.orcid_id }}</ORCID>
                         {% endif %}
                         </person_name>
                     {% endfor %}

@@ -16,6 +16,7 @@ from .constants import MAIL_LIST_STATUSES, MAIL_LIST_STATUS_ACTIVE,\
                        MAILCHIMP_STATUSES, MAILCHIMP_SUBSCRIBED
 from .managers import MailListManager
 
+from profiles.models import Profile
 from scipost.behaviors import TimeStampedModel
 from scipost.constants import NORMAL_CONTRIBUTOR
 from scipost.models import Contributor
@@ -74,10 +75,10 @@ class MailchimpList(TimeStampedModel):
             return None
 
         # Unsubscribe *all* Contributors in the database if asked for
-        updated_contributors = (Contributor.objects
-                                .filter(accepts_SciPost_emails=True,
-                                        user__email__in=unsubscribe_emails)
-                                .update(accepts_SciPost_emails=False))
+        updated_contributors = Profile.objects.filter(
+            accepts_SciPost_emails=True,
+            contributor__user__email__in=unsubscribe_emails
+        ).update(accepts_SciPost_emails=False)
 
         # Check the current list of subscribers in MailChimp account
         subscribers_list = client.lists.members.all(self.mailchimp_list_id, True,
@@ -89,7 +90,7 @@ class MailchimpList(TimeStampedModel):
         db_subscribers = (User.objects
                           .filter(contributor__isnull=False)
                           .filter(is_active=True, contributor__status=NORMAL_CONTRIBUTOR)
-                          .filter(contributor__accepts_SciPost_emails=True,
+                          .filter(contributor__profile__accepts_SciPost_emails=True,
                                   groups__in=self.allowed_groups.all(),
                                   email__isnull=False,
                                   first_name__isnull=False,
@@ -115,9 +116,6 @@ class MailchimpList(TimeStampedModel):
             })
         # Make the subscribe call
         post_response = client.batches.create(data=batch_data)
-
-        # No need to update Contributor field *yet*. MailChimp account is leading here.
-        # Contributor.objects.filter(user__in=db_subscribers).update(accepts_SciPost_emails=True)
 
         list_data = client.lists.get(list_id=self.mailchimp_list_id)
         self.subscriber_count = list_data['stats']['member_count']

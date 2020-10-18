@@ -11,6 +11,7 @@
   <span class="breadcrumb-item">{{ collection.name }}</span>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} Collection detail {{ collection.series.name }} {{ collection.name }}{% endblock meta_description %}
 {% block pagetitle %}: Collection detail{% endblock pagetitle %}
 
 {% block content %}

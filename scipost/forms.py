@@ -20,7 +20,7 @@ from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
 from .constants import (
-    SCIPOST_DISCIPLINES, TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
+    TITLE_CHOICES, SCIPOST_FROM_ADDRESSES,
     UNVERIFIABLE_CREDENTIALS, NO_SCIENTIST, DOUBLE_ACCOUNT, BARRED)
 from .fields import ReCaptchaField
 from .models import Contributor, UnavailabilityPeriod, \
@@ -36,6 +36,7 @@ from funders.models import Grant
 from invitations.models import CitationNotification
 from journals.models import PublicationAuthorsTable, Publication
 from mails.utils import DirectMailUtil
+from ontology.models import AcademicField, Specialty
 from organizations.models import Organization
 from profiles.models import Profile, ProfileEmail, Affiliation
 from submissions.models import Submission, EditorialAssignment, RefereeInvitation, Report, \
@@ -90,7 +91,25 @@ class RegistrationForm(forms.Form):
         label="ORCID id", max_length=20, required=False, validators=[orcid_validator],
         widget=forms.TextInput({
             'placeholder': 'Recommended. Get one at orcid.org'}))
-    discipline = forms.ChoiceField(choices=SCIPOST_DISCIPLINES, label='* Main discipline')
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
+        ),
+        label='Academic field',
+        help_text='Your main field of activity',
+        required=False
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        help_text='Type to search, click to include',
+        required=False
+    )
     current_affiliation = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
         widget=autocomplete.ModelSelect2(
@@ -107,7 +126,7 @@ class RegistrationForm(forms.Form):
         label='Institution name and address', max_length=1000,
         widget=forms.TextInput({'placeholder': '[only if you did not find your affiliation above]'}),
         required=False)
-    personalwebpage = forms.URLField(
+    webpage = forms.URLField(
         label='Personal web page', required=False,
         widget=forms.TextInput({'placeholder': 'full URL, e.g. https://www.[yourpage].com'}))
     username = forms.CharField(label='* Username', max_length=100,
@@ -136,14 +155,11 @@ class RegistrationForm(forms.Form):
             )
 
         profile = Profile.objects.filter(
-            title=self.cleaned_data['title'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            discipline=self.cleaned_data['discipline']).first()
+            emails__email__icontains=self.cleaned_data['email']).first()
         try:
             if profile and profile.contributor:
                 raise forms.ValidationError(
-                    'There is already a registered Contributor with your first and last names. '
+                    'There is already a registered Contributor with your email address. '
                     'Please contact techsupport@scipost.org to clarify this issue.'
                 )
         except Contributor.DoesNotExist:
@@ -189,18 +205,16 @@ class RegistrationForm(forms.Form):
         })
         # Get or create a Profile
         profile = Profile.objects.filter(
-            title=self.cleaned_data['title'],
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            discipline=self.cleaned_data['discipline']).first()
+            emails__email__icontains=self.cleaned_data['email']).first()
         if profile is None:
             profile = Profile.objects.create(
                 title=self.cleaned_data['title'],
                 first_name=self.cleaned_data['first_name'],
                 last_name=self.cleaned_data['last_name'],
-                discipline=self.cleaned_data['discipline'],
+                acad_field=self.cleaned_data['acad_field'],
                 orcid_id=self.cleaned_data['orcid_id'],
-                webpage=self.cleaned_data['personalwebpage'])
+                webpage=self.cleaned_data['webpage'])
+            profile.specialties.set(self.cleaned_data['specialties'])
         # Add a ProfileEmail to this Profile
         profile_email, created = ProfileEmail.objects.get_or_create(
             profile=profile, email=self.cleaned_data['email'])
@@ -217,11 +231,7 @@ class RegistrationForm(forms.Form):
             'profile': profile,
             'user': user,
             'invitation_key': self.cleaned_data.get('invitation_key', ''),
-            'title': self.cleaned_data['title'],
-            'orcid_id': self.cleaned_data['orcid_id'],
             'address': self.cleaned_data['address'],
-            'personalwebpage': self.cleaned_data['personalwebpage'],
-            'accepts_SciPost_emails': self.cleaned_data['subscribe'],
         })
         contributor.save()
         return contributor
@@ -250,17 +260,65 @@ class UpdateUserDataForm(forms.ModelForm):
 
 
 class UpdatePersonalDataForm(forms.ModelForm):
+    title = forms.ChoiceField(choices=TITLE_CHOICES, label='* Title')
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
+        ),
+        label='Academic field',
+        help_text='Your main field of activity',
+        required=False
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        help_text='Type to search, click to include',
+        required=False
+    )
+    orcid_id = forms.CharField(
+        label="ORCID id", max_length=20, required=False, validators=[orcid_validator],
+        widget=forms.TextInput({
+            'placeholder': 'Recommended. Get one at orcid.org'}))
+    webpage = forms.URLField(
+        label='Personal web page', required=False,
+        widget=forms.TextInput({'placeholder': 'full URL, e.g. https://[yourpage].org'}))
+    accepts_SciPost_emails = forms.BooleanField(
+        required=False, label='You accept to receive unsolicited emails from SciPost')
     class Meta:
         model = Contributor
         fields = [
             'title',
-            'discipline',
-            'expertises',
+            'acad_field',
+            'specialties',
             'orcid_id',
             'address',
-            'personalwebpage',
+            'webpage',
             'accepts_SciPost_emails',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title'].initial = self.instance.profile.title
+        self.fields['acad_field'].initial = self.instance.profile.acad_field.id
+        self.fields['specialties'].initial = [s.id for s in self.instance.profile.specialties.all()]
+        self.fields['orcid_id'].initial = self.instance.profile.orcid_id
+        self.fields['webpage'].initial = self.instance.profile.webpage
+        self.fields['accepts_SciPost_emails'].initial = self.instance.profile.accepts_SciPost_emails
+
+    def save(self):
+        self.instance.profile.title = self.cleaned_data['title']
+        self.instance.profile.acad_field = self.cleaned_data['acad_field']
+        self.instance.profile.orcid_id = self.cleaned_data['orcid_id']
+        self.instance.profile.webpage = self.cleaned_data['webpage']
+        self.instance.profile.accepts_SciPost_emails = self.cleaned_data['accepts_SciPost_emails']
+        self.instance.profile.save()
+        self.instance.profile.specialties.set(self.cleaned_data['specialties'])
+        return super().save()
 
     def sync_lists(self):
         """
@@ -270,7 +328,7 @@ class UpdatePersonalDataForm(forms.ModelForm):
 
     def propagate_orcid(self):
         """
-        This method is called if a Contributor updates his/her personal data,
+        This method is called if a Contributor updates their personal data,
         and changes the orcid_id. It marks all Publications, Reports and Comments
         authored by this Contributor with a deposit_requires_update == True.
         """
@@ -500,10 +558,6 @@ class ContributorMergeForm(forms.Form):
         if contrib_from.activation_key and not contrib_into.activation_key:
             contrib_into_qs.update(activation_key=contrib_into.activation_key)
         contrib_from_qs.update(status=DOUBLE_ACCOUNT)
-        if contrib_from.orcid_id and not contrib_into.orcid_id:
-            contrib_into_qs.update(orcid_id=contrib_from.orcid_id)
-        if contrib_from.personalwebpage and not contrib_into.personalwebpage:
-            contrib_into_qs.update(personalwebpage=contrib_from.personalwebpage)
 
         # Specify duplicate_of for deactivated Contributor
         contrib_from_qs.update(duplicate_of=contrib_into)
@@ -695,6 +749,57 @@ class EmailParticularForm(forms.Form):
             {'rows': 1, 'cols': 50, 'placeholder': 'Email subject'})
         self.fields['email_text'].widget.attrs.update(
             {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+
+
+class EmailUsersForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/user-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Recipients',
+        required=True
+    )
+    email_subject = forms.CharField(widget=forms.Textarea(), label='')
+    personalize = forms.BooleanField(
+        required=False, initial=False,
+        label='Personalize (Dear Prof. AAA)?')
+    email_text = forms.CharField(widget=forms.Textarea(), label='')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['email_subject'].widget.attrs.update(
+            {'rows': 1, 'cols': 50, 'placeholder': 'Email subject'})
+        self.fields['email_text'].widget.attrs.update(
+            {'rows': 15, 'cols': 50, 'placeholder': 'Write your message in this box.'})
+
+    def save(self):
+        from django.core import mail
+        from django.template import Context, Template
+        with mail.get_connection() as connection:
+            for user in self.cleaned_data['users']:
+                email_text = ''
+                email_text_html = ''
+                if self.cleaned_data['personalize']:
+                    email_text = ('Dear ' + user.contributor.profile.get_title_display()
+                                  + ' ' + user.last_name + ', \n\n')
+                email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
+                email_text += self.cleaned_data['email_text']
+                email_text_html += '{{ email_text|linebreaks }}'
+                email_context = {
+                    'title': user.contributor.profile.get_title_display(),
+                    'last_name': user.last_name,
+                    'email_text': self.cleaned_data['email_text'],
+                }
+                html_template = Template(email_text_html)
+                html_version = html_template.render(Context(email_context))
+                message = mail.EmailMultiAlternatives(
+                    self.cleaned_data['email_subject'],
+                    email_text, 'SciPost Admin <admin@scipost.org>',
+                    [user.email], connection=connection)
+                message.attach_alternative(html_version, 'text/html')
+                message.send()
 
 
 class SendPrecookedEmailForm(forms.Form):

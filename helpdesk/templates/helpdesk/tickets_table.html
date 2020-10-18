@@ -23,7 +23,9 @@
 	</td>
 	<td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
 	<td data-toggle="tooltip" title="{{ ticket.priority }}">
-	  {{ ticket.priority_icons|safe }}
+	  {% for a in "x"|ljust:ticket.priority_level %}
+	    {% include 'bi/exclamation-square-fill.html' %}
+	  {% endfor %}
 	</td>
 	{% with classes=ticket.status_classes %}
 	  <td>

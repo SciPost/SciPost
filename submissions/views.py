@@ -29,7 +29,7 @@ from dal import autocomplete
 
 from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
-    STATUS_VETTED, SUBMISSION_STATUS, STATUS_ASSIGNMENT_FAILED,
+    STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
     EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED)
 from .helpers import check_verified_author, check_unverified_author
@@ -137,13 +137,13 @@ def submit_manuscript(request):
 
 @login_required
 @permission_required('scipost.can_submit_manuscript', raise_exception=True)
-def submit_choose_journal(request, discipline=None):
+def submit_choose_journal(request, acad_field=None):
     """
     Choose a Journal. If `thread_hash` is given as GET parameter, this is a resubmission.
     """
     journals = Journal.objects.submission_allowed()
-    if discipline:
-        journals = journals.filter(discipline=discipline)
+    if acad_field:
+        journals = journals.filter(college__acad_field=acad_field)
     context = {
         'journals': journals,
     }
@@ -159,7 +159,7 @@ def submit_choose_preprint_server(request, journal_doi_label):
     Choose a preprint server. If `thread_hash` is given as a GET parameter, this is a resubmission.
     """
     journal = get_object_or_404(Journal, doi_label=journal_doi_label)
-    preprint_servers = PreprintServer.objects.filter(disciplines__contains=[journal.discipline])
+    preprint_servers = PreprintServer.objects.filter(acad_fields=journal.college.acad_field)
     thread_hash = request.GET.get('thread_hash') or None
     # Each integrated preprint server has a prefill form:
     scipost_prefill_form = SciPostPrefillForm(
@@ -300,6 +300,8 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         return kwargs
 
 
+
+
 @login_required
 def withdraw_manuscript(request, identifier_w_vn_nr):
     """
@@ -372,17 +374,13 @@ class SubmissionListView(PaginationMixin, ListView):
         """Return queryset, filtered with GET request data if given."""
         queryset = Submission.objects.public_newest()
         self.form = self.form(self.request.GET)
+        if 'field' in self.request.GET:
+            queryset=queryset.filter(acad_field__slug=self.request.GET['field'])
+        if 'specialty' in self.request.GET:
+            queryset=queryset.filter(specialties__slug=self.request.GET['specialty'])
         if 'to_journal' in self.request.GET:
             queryset = queryset.filter(
-                latest_activity__gte=timezone.now() + datetime.timedelta(days=-60),
                 submitted_to__doi_label=self.request.GET['to_journal']
-            )
-        elif 'discipline' in self.kwargs and 'nrweeksback' in self.kwargs:
-            discipline = self.kwargs['discipline']
-            nrweeksback = self.kwargs['nrweeksback']
-            queryset = queryset.filter(
-                discipline=discipline,
-                latest_activity__gte=timezone.now() + datetime.timedelta(weeks=-int(nrweeksback))
             )
         elif self.form.is_valid() and self.form.has_changed():
             queryset = self.form.search_results()
@@ -403,13 +401,6 @@ class SubmissionListView(PaginationMixin, ListView):
                     name=self.request.GET['to_journal']).first().get_name_display()
             except (Journal.DoesNotExist, AttributeError):
                 context['to_journal'] = self.request.GET['to_journal']
-        if 'discipline' in self.kwargs:
-            context['discipline'] = self.kwargs['discipline']
-            context['nrweeksback'] = self.kwargs['nrweeksback']
-            context['browse'] = True
-        elif not self.form.is_valid() or not self.form.has_changed():
-            context['recent'] = True
-
         return context
 
 
@@ -797,7 +788,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     if submission.editor_in_charge:
         messages.success(
             request, '{} {} has already agreed to be Editor-in-charge of this Submission.'.format(
-                submission.editor_in_charge.get_title_display(),
+                submission.editor_in_charge.profile.get_title_display(),
                 submission.editor_in_charge.user.last_name))
         return redirect('submissions:pool')
     elif submission.status == STATUS_ASSIGNMENT_FAILED:
@@ -876,8 +867,65 @@ def assignment_request(request, assignment_id):
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
 @transaction.atomic
+def prescreening_failed(request, identifier_w_vn_nr):
+    """
+    Reject a Submission because pre-screening has failed.
+    """
+    submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+
+    mail_editor_view = MailEditorSubview(
+        request, mail_code='prescreening_failed', instance=submission,
+        header_template='partials/submissions/admin/prescreening_failed.html')
+    if mail_editor_view.is_valid():
+        # Deprecate old Editorial Assignments
+        EditorialAssignment.objects.filter(submission=submission).invited().update(
+            status=STATUS_DEPRECATED)
+
+        # Update status of Submission
+        submission.touch()
+        Submission.objects.filter(id=submission.id).update(
+            status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
+
+        messages.success(
+            request, 'Submission {identifier} has failed pre-screening and been rejected.'.format(
+                identifier=submission.preprint.identifier_w_vn_nr))
+        messages.success(request, 'Authors have been informed by email.')
+        mail_editor_view.send_mail()
+        return redirect(reverse('submissions:pool'))
+    return mail_editor_view.interrupt()
+
+
+@login_required
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
+def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
+    """
+    Send an email to the authors, informing them that screening is still ongoing after one week.
+    """
+    submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    mail_code = 'authors/update_authors_screening_1week'
+    if nrweeks == '2':
+        mail_code = 'authors/update_authors_screening_2weeks'
+
+    mail_editor_view = MailEditorSubview(
+        request, mail_code=mail_code, instance=submission)
+    if mail_editor_view.is_valid():
+        messages.success(
+            request,
+            'Authors of Submission {identifier} updated by email (screening week {nrweeks}).'.format(
+                identifier=submission.preprint.identifier_w_vn_nr, nrweeks=nrweeks))
+        messages.success(request, 'Authors have been updated by email.')
+        mail_editor_view.send_mail()
+        return redirect(reverse('submissions:pool'))
+    return mail_editor_view.interrupt()
+
+
+@login_required
+@permission_required('scipost.can_assign_submissions', raise_exception=True)
+@transaction.atomic
 def assignment_failed(request, identifier_w_vn_nr):
-    """Reject a Submission in pre-screening.
+    """Reject a Submission in screening.
 
     No Editorial Fellow has accepted or volunteered to become Editor-in-charge., hence the
     Submission is rejected. An Editorial Administrator can access this view from the Pool.
@@ -886,7 +934,7 @@ def assignment_failed(request, identifier_w_vn_nr):
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     mail_editor_view = MailEditorSubview(
-        request, mail_code='submissions_assignment_failed', instance=submission,
+        request, mail_code='authors/submissions_assignment_failed', instance=submission,
         header_template='partials/submissions/admin/editorial_assignment_failed.html')
     if mail_editor_view.is_valid():
         # Deprecate old Editorial Assignments
@@ -899,8 +947,8 @@ def assignment_failed(request, identifier_w_vn_nr):
             status=STATUS_ASSIGNMENT_FAILED, visible_pool=False, visible_public=False)
 
         messages.success(
-            request, 'Submission {arxiv} has failed pre-screening and been rejected.'.format(
-                arxiv=submission.preprint.identifier_w_vn_nr))
+            request, 'Submission {identifier} has failed screening and been rejected.'.format(
+                identifier=submission.preprint.identifier_w_vn_nr))
         messages.success(request, 'Authors have been informed by email.')
         mail_editor_view.send_mail()
         return redirect(reverse('submissions:pool'))
@@ -1737,15 +1785,11 @@ def prepare_for_voting(request, rec_id):
         return redirect(reverse('submissions:editorial_page',
                                 args=[recommendation.submission.preprint.identifier_w_vn_nr]))
     else:
-        secondary_areas = recommendation.submission.secondary_areas
-        if not secondary_areas:
-            secondary_areas = []
-
         fellows_with_expertise = recommendation.submission.fellows.filter(
             Q(contributor=recommendation.submission.editor_in_charge) |
-            Q(contributor__expertises__contains=[recommendation.submission.subject_area]) |
-            Q(contributor__expertises__contains=secondary_areas)).order_by(
-                'contributor__user__last_name')
+            Q(contributor__profile__specialties__in=recommendation.submission.specialties.all())
+        ).order_by('contributor__user__last_name')
+
         #coauthorships = recommendation.submission.flag_coauthorships_arxiv(fellows_with_expertise)
         coauthorships = None
 
@@ -1869,25 +1913,24 @@ def vote_on_rec(request, rec_id):
 
 
 @permission_required('scipost.can_prepare_recommendations_for_voting', raise_exception=True)
-def remind_Fellows_to_vote(request):
+def remind_Fellows_to_vote(request, rec_id):
     """
-    Send an email to all Fellows with at least one pending voting duties.
+    Send an email to Fellows with a pending voting duty.
     It must be called by an Editorial Administrator.
+
+    If `rec_id` is given, then only email Fellows voting on this particular rec.
     """
-    submissions = Submission.objects.pool_editable(request.user)
-    recommendations = EICRecommendation.objects.active().filter(
-        submission__in=submissions).put_to_voting()
+    recommendation = get_object_or_404(EICRecommendation, pk=rec_id)
 
     Fellow_emails = []
     Fellow_names = []
-    for rec in recommendations:
-        for Fellow in rec.eligible_to_vote.all():
-            if (Fellow not in rec.voted_for.all()
-                and Fellow not in rec.voted_against.all()
-                and Fellow not in rec.voted_abstain.all()
-                and Fellow.user.email not in Fellow_emails):
-                Fellow_emails.append(Fellow.user.email)
-                Fellow_names.append(str(Fellow))
+    for Fellow in recommendation.eligible_to_vote.all():
+        if (Fellow not in recommendation.voted_for.all()
+            and Fellow not in recommendation.voted_against.all()
+            and Fellow not in recommendation.voted_abstain.all()
+            and Fellow.user.email not in Fellow_emails):
+            Fellow_emails.append(Fellow.user.email)
+            Fellow_names.append(str(Fellow))
     SubmissionUtils.load({'Fellow_emails': Fellow_emails})
     SubmissionUtils.send_Fellows_voting_reminder_email()
     ack_message = 'Email reminders have been sent to: <ul>'
@@ -1928,7 +1971,7 @@ def editor_invitations(request, identifier_w_vn_nr):
         elif request.method == 'POST':
             messages.warning(request, 'Invalid form. Please try again.')
         context['formset'] = formset
-    return render(request, 'submissions/admin/submission_presassign_editors.html', context)
+    return render(request, 'submissions/admin/submission_preassign_editors.html', context)
 
 
 @permission_required('scipost.can_assign_submissions', raise_exception=True)

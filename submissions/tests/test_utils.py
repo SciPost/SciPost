@@ -18,8 +18,6 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 
 
 # NOTED AS BROKEN 2019-11-08
-# factory.errors.InvalidDeclarationError: Received deep context for unknown fields: {'dates__submission': datetime.date(2019, 11, 8)} (known=['abstract', 'approaches', 'author_comments', 'author_list', 'is_current', 'latest_activity', 'list_of_changes', 'preprint', 'remarks_for_editors', 'status', 'subject_area', 'submission_date', 'submitted_by', 'submitted_to', 'thread_hash', 'title'])
-
 # class TestDefaultSubmissionCycle(TestCase):
 #     """Test all steps in the Submission default cycle."""
 
@@ -65,7 +63,6 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 
 
 # NOTED AS BROKEN 2019-11-08
-# factory.errors.InvalidDeclarationError: Received deep context for unknown fields: {'dates__submission': datetime.date(2019, 11, 8)} (known=['abstract', 'approaches', 'author_comments', 'author_list', 'editor_in_charge', 'is_current', 'latest_activity', 'list_of_changes', 'open_for_commenting', 'open_for_reporting', 'preprint', 'remarks_for_editors', 'status', 'subject_area', 'submission_date', 'submitted_by', 'submitted_to', 'thread_hash', 'title', 'vn_nr'])
 # class TestResubmissionSubmissionCycle(TestCase):
 #     '''
 #     This TestCase should act as a master test to check all steps in the
@@ -106,7 +103,6 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 
 
 # NOTED AS BROKEN 2019-11-08
-# factory.errors.InvalidDeclarationError: Received deep context for unknown fields: {'dates__submission': datetime.date(2019, 11, 8)} (known=['abstract', 'approaches', 'author_comments', 'author_list', 'editor_in_charge', 'is_current', 'latest_activity', 'list_of_changes', 'open_for_commenting', 'open_for_reporting', 'preprint', 'refereeing_cycle', 'remarks_for_editors', 'status', 'subject_area', 'submission_date', 'submitted_by', 'submitted_to', 'thread_hash', 'title', 'vn_nr'])
 # class TestResubmissionDirectSubmissionCycle(TestCase):
 #     '''
 #     This TestCase should act as a master test to check all steps in the

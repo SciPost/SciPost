@@ -9,8 +9,6 @@ from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
 
-from scipost.constants import SCIPOST_DISCIPLINES
-
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
@@ -48,8 +46,6 @@ class Journal(models.Model):
         related_name='journals'
     )
 
-    # TODO: remove discipline
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
     name = models.CharField(max_length=256, unique=True)
     name_abbrev = models.CharField(max_length=128, default='SciPost [abbrev]',
                                    help_text='Abbreviated name (for use in citations)')
@@ -93,7 +89,7 @@ class Journal(models.Model):
     objects = JournalQuerySet.as_manager()
 
     class Meta:
-        ordering = ['discipline', 'list_order']
+        ordering = ['college__acad_field', 'list_order']
 
     def __str__(self):
         return self.name

@@ -10,6 +10,8 @@
     .separator,
     .nav-link {
         display: inline-block;
+	font-size: 0.9rem;
+	font-weight: bold;
     }
 }
 
@@ -21,7 +23,7 @@
 }
 
 .main-nav {
-    background-color: $scipost-lightblue;
+    background-color: $scipost-blue50;
     letter-spacing: 0.3px;
 
     .container {
@@ -45,6 +47,7 @@
     .nav-item .dropdown-toggle::after {
         margin-left: 0.2em;
         vertical-align: 0.1255em;
+	font-weight: bold;
     }
 
     .dropdown-menu {
@@ -72,7 +75,7 @@
             white-space: normal;
 
             a {
-                color: $scipost-lightblue;
+                color: $scipost-blue50;
                 transition: 0.08s;
 
                 &:hover {

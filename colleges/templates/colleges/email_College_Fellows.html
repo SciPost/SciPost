@@ -1,0 +1,33 @@
+{% extends 'colleges/base.html' %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+  <a href="{% url 'colleges:college_detail' college=college.slug %}" class="breadcrumb-item">{{ college }}</a>
+  <span class="breadcrumb-item">Email College Fellows</span>
+{% endblock %}
+
+{% block pagetitle %}: email College Fellows{% endblock pagetitle %}
+
+{% load bootstrap %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">Email Fellows of {{ college }}</h1>
+
+      <form action="{% url 'colleges:email_College_Fellows' college=college.slug %}" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <input type="submit" class="btn btn-outline-secondary" value="Send email"/>
+      </form>
+
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block footer_script %}
+  {{ form.media }}
+{% endblock %}

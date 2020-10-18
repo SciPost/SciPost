@@ -8,6 +8,7 @@
   <span class="breadcrumb-item">{{ topic }}</span>
 {% endblock %}
 
+{% block meta_description %}{{ block.super }} Topic detail {{ topic }}{% endblock meta_description %}
 {% block pagetitle %}: Topic details{% endblock pagetitle %}
 
 {% block content %}

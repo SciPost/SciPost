@@ -1,5 +1,5 @@
 <table class="contributor-info">
-  <tr><td>Title:</td><td>{{ contributor.get_title_display }}</td></tr>
+  <tr><td>Title:</td><td>{{ contributor.profile.get_title_display }}</td></tr>
   <tr><td>First name:</td><td>{{ contributor.user.first_name }}</td></tr>
   <tr><td>Last name: </td><td>{{ contributor.user.last_name }}</td></tr>
   <tr>
@@ -8,7 +8,7 @@
       <a href="{% url 'security:security' %}" class="text-warning">&rarr;&nbsp;security&nbsp;check</a>
     </td>
   </tr>
-  <tr><td>ORCID id: </td><td>{{ contributor.orcid_id }}</td></tr>
+  <tr><td>ORCID id: </td><td>{{ contributor.profile.orcid_id }}</td></tr>
   <tr>
     <td>Affiliation(s):</td>
     <td>
@@ -16,6 +16,6 @@
     </td>
   </tr>
   <tr><td>Address: </td><td>{{ contributor.address }}</td></tr>
-  <tr><td>Personal web page: </td><td>{{ contributor.personalwebpage }}</td></tr>
-  <tr><td>Accept SciPost emails: </td><td>{{ contributor.accepts_SciPost_emails }}</td></tr>
+  <tr><td>Personal web page: </td><td>{{ contributor.profile.webpage }}</td></tr>
+  <tr><td>Accept SciPost emails: </td><td>{{ contributor.profile.accepts_SciPost_emails }}</td></tr>
 </table>

@@ -12,7 +12,6 @@ module.exports = {
         main: [
 	    "tether",
             "bootstrap-loader",
-            "./scipost/static/scipost/assets/js/dynamic_loading.js",
             "./scipost/static/scipost/assets/js/scripts.js",
         ],
         homepage: [
@@ -21,6 +20,8 @@ module.exports = {
         ],
 	apimail: [
             "./apimail/static/apimail/assets/vue/messages_table.js",
+	qr: [
+	    "./scipost/static/scipost/assets/js/activate_qr.js",
 	],
     },
     output: {
@@ -107,5 +108,10 @@ module.exports = {
 	    // Or if using full build of Vue (runtime + compiler) # NOT GOOD WITH CSP
 	    // 'vue$': 'vue/dist/vue.esm.js'
 	}
+    },
+    optimization: {
+	splitChunks: {
+	    chunks: 'all',
+	},
     },
 }

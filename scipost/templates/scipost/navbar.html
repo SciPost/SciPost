@@ -11,15 +11,15 @@
 
 <nav class="navbar navbar-expand-lg main-nav">
   <div class="container">
-    <button class="navbar-toggler p-0 border-0" type="button" data-toggle="collapse" data-target="#main-navbar">
-      <i class="fa fa-bars navbar-toggler-icon"></i>
+    <button class="navbar-toggler p-0 border-0" type="button" data-toggle="collapse" data-target="#main-navbar" aria-label="Navbar toggler">
+      <span class="navbar-toggler-icon">{% include 'bi/list.html' %}</span>
     </button>
     <div class="collapse navbar-collapse mt-lg-0 mt-3" id="main-navbar">
       <ul class="navbar-nav mr-auto">
 
         <li class="nav-item{% if request.path == '/' %} active{% endif %}">
-          <a href="{% url 'scipost:index' %}" class="nav-link">
-            <i class="fa fa-home d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;"></i>
+          <a href="{% url 'scipost:index' %}" class="nav-link" aria-label="SciPost Home">
+            <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/house-fill.html' %}</span>
             <span class="d-lg-none d-inline-block">Home</span>
           </a>
         </li>
@@ -29,10 +29,10 @@
           <div class="dropdown-menu mega-menu mega-menu-2" aria-labelledby="JournalsDropdown">
             <div class="row">
               <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'journals:journals' %}">Journals homepage</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
+                <div class="dropdown-item"><a href="{% url 'journals:journals' %}">Journals homepage</a></div>
               </div>
               <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'journals:publications' %}">View all publications</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
+                <div class="dropdown-item"><a href="{% url 'journals:publications' %}">View all publications</a></div>
               </div>
             </div>
             <div class="dropdown-divider"></div>
@@ -76,54 +76,42 @@
           <div class="dropdown-menu mega-menu mega-menu-2" aria-labelledby="SubmissionsDropdown">
             <div class="row">
               <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}">View all Submissions</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
+                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></div>
               </div>
               <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'submissions:submit_manuscript' %}">Submit a manuscript</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-                <div class="dropdown-item"><a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-                <div class="dropdown-item"><a href="{% url 'submissions:referee_guidelines' %}">Referee guidelines</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-		<div class="dropdown-item"><a href="{% url 'colleges:colleges' %}">Editorial Colleges</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
+                <div class="dropdown-item"><a href="{% url 'submissions:submit_manuscript' %}">Submit a manuscript</a></div>
+                <div class="dropdown-item"><a href="{% url 'submissions:author_guidelines' %}">Author guidelines</a></div>
+                <div class="dropdown-item"><a href="{% url 'submissions:referee_guidelines' %}">Referee guidelines</a></div>
+		<div class="dropdown-item"><a href="{% url 'colleges:colleges' %}">Editorial Colleges</a></div>
               </div>
             </div>
             <div class="dropdown-divider"></div>
-            <span class="dropdown-item dropdown-headline"><strong>Physics</strong></span>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:AE">Atomic, Molecular and Optical Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:AT">Atomic, Molecular and Optical Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:BI">Biophysics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:CE">Condensed Matter Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:CT">Condensed Matter Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:CC">Condensed Matter Physics - Computational</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:FD">Fluid Dynamics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:GR">Gravitation, Cosmology and Astroparticle Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-              </div>
-              <div class="col-md-6">
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:HE">High-Energy Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:HT">High-Energy Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:HP">High-Energy Physics - Phenomenology</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:MP">Mathematical Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:NE">Nuclear Physics - Experiment</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:NT">Nuclear Physics - Theory</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:QP">Quantum Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-
-                <div class="dropdown-item"><a href="{% url 'submissions:submissions' %}?subject_area=Phys:SM">Statistical and Soft Matter Physics</a>&nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i></div>
-              </div>
-
-            </div>
+	    <table class="table table-bordered table-secondary">
+	      <thead class="thead-dark">
+		<tr>
+		  <th class="px-2 py-1"><small>Branch of Science</small></th>
+		  <th class="px-2 py-1"><small>Fields <em>(click to see field-specific detailed list)</em></small></th>
+		</tr>
+	      </thead>
+	      <tbody>
+		{% for branch in branches %}
+		  {% if branch.submissions.all|length > 0 %}
+		    <tr>
+		      <td class="align-middle">
+			<small>{{ branch.name }}</small>
+		      </td>
+		      <td>
+			{% for acad_field in branch.academic_fields.all %}
+			  {% if acad_field.submissions.all|length > 0 %}
+			    <a href={% url 'submissions:submissions' %}?field={{ acad_field.slug }} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
+			  {% endif %}
+			{% endfor %}
+		      </td>
+		    </tr>
+		  {% endif %}
+		{% endfor %}
+	      </tbody>
+	    </table>
 	  </div>
         </li>
 
@@ -132,11 +120,9 @@
           <div class="dropdown-menu" aria-labelledby="MoreDropdown">
             <div class="dropdown-item">
               <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
             <div class="dropdown-item">
               <a href="{% url 'theses:theses' %}">Theses</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
           </div>
         </li>
@@ -146,56 +132,46 @@
           <div class="dropdown-menu" aria-labelledby="AboutDropdown">
             <div class="dropdown-item">
               <a href="{% url 'scipost:about' %}">About SciPost</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
               <a href="{% url 'scipost:foundation' %}">The Foundation</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
 	      <a href="{% url 'careers:jobopenings' %}">Careers&#64;SciPost</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-divider"></div>
 
             <div class="dropdown-item">
               <a href="{% url 'scipost:FAQ' %}">FAQ</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
               <a href="{% url 'news:news' %}">News</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
               <a href="{% url 'scipost:feeds' %}">Feeds</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-divider"></div>
 
             <div class="dropdown-item">
               <a href="{% url 'finances:business_model' %}">Our Business Model</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
               <a href="{% url 'organizations:organizations' %}">Organizations<br/><span class="small">benefitting from our activities</span></a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
               <a href="{% url 'sponsors:sponsors' %}">Sponsors</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
             <div class="dropdown-item">
               <a href="{% url 'finances:finances' %}">Finances</a>
-              &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
             </div>
 
           </div>
@@ -209,35 +185,31 @@
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
-              Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
+              Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
 
             {% if request.user.contributor and not request.user.contributor.is_currently_available %}
-              <button type="button" class="btn btn-link p-0 text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true"><i class="fa fa-warning"></i></button>
+              <button type="button" class="btn btn-link p-0 text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true">{% include 'bi/exclamation-triangle-fill.html' %}</button>
               &nbsp;
             {% endif %}
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="PersonalDropdown">
               {% if user.contributor %}
                 <div class="dropdown-item">
                   <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
-                  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                 </div>
                 {% if is_editorial_college %}
                   <div class="dropdown-item">
                     <a href="{% url 'submissions:pool' %}">Submissions Pool</a>
-                    &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                   </div>
                 {% endif %}
               {% endif %}
               {% if perms.scipost.can_view_production %}
                 <div class="dropdown-item">
                   <a href="{% url 'production:production' %}">Production</a>
-                  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                 </div>
               {% endif %}
               {% if perms.scipost.can_manage_organizations or user.org_contact %}
                 <div class="dropdown-item">
                   <a href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
-                  &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
                 </div>
               {% endif %}
 	      <div class="dropdown-divider"></div>
@@ -251,13 +223,12 @@
               <div class="dropdown-divider"></div>
               <div class="dropdown-item">
                 <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
-                &nbsp;<i class="fa fa-angle-right" aria-hidden="true"></i>
               </div>
             </div>
           </li>
 
 	  <li class="nav-item">
-	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><i class="fa fa-sticky-note" style="font-size: 80%;" data-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket"></i></a>
+	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
 	  </li>
 
         {% else %}

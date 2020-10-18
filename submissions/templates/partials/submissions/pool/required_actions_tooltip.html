@@ -1,10 +1,10 @@
 {% if submission.cycle.has_required_actions %}
-  <i class="fa fa-exclamation-circle {{ classes }}" data-toggle="tooltip" data-html="true" title="
+  <span class="{{ classes }}" data-toggle="tooltip" data-html="true" title="
             Required Actions:
             <ul class='mb-0 pl-3 text-left'>
             {% for code, action in submission.cycle.required_actions.items %}
             <li>{{ action }}</li>
             {% endfor %}
             </ul>
-    	    "></i>
+    	    ">{% include 'bi/exclamation.html' %}</span>
 {% endif %}

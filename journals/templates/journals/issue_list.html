@@ -1,5 +1,6 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% block meta_description %}{{ block.super }} Issues{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: Issues Admin{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
@@ -38,9 +39,9 @@
               <td>
 		{% if journal.get_latest_issue %}
                   {% if journal.get_latest_issue.is_current %}
-                    <i class="fa fa-check text-success"></i> Yes
+                    <span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
                   {% else %}
-                    <i class="fa fa-exclamation-triangle text-warning"></i> No
+                    <span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> No
                   {% endif %}
 		{% endif %}
               </td>
@@ -71,9 +72,9 @@
             <td>{{ issue.publications.count }}</td>
             <td>
               {% if issue.is_current %}
-		<i class="fa fa-check text-success"></i> Yes
+		<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span> Yes
               {% else %}
-		<i class="fa fa-exclamation-triangle text-warning"></i> No
+		<span class="text-warning">{% include 'bi/exclamation-triangle-fill.html' %}</span> No
               {% endif %}
             </td>
             <td><a href="{% url 'journals:update_issue' issue.id %}">Edit</a></td>

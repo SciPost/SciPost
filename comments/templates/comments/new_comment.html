@@ -7,7 +7,7 @@
   <h2 class="highlight" id="contribute_comment">Contribute a Comment</h2>
   {% if user_is_referee and submission %}
     <h4 class="text-danger my-3">
-      <i class="fa fa-exclamation-triangle"></i>
+      {% include 'bi/exclamation-triangle-fill.html' %}
       You are an invited referee, please <a href="{% url 'submissions:submit_report' submission.preprint.identifier_w_vn_nr %}">submit a Report</a> instead.
     </h4>
   {% endif %}

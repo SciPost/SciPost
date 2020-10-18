@@ -1,0 +1,199 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% load bootstrap %}
+{% load scipost_extras %}
+{% load conflict_tags %}
+
+{% block pagetitle %}: Submission Editors{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  {% if submission.status == 'incoming' %}
+    <a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a>
+  {% else %}
+    <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial page {{ submission.preprint.identifier_w_vn_nr }}</a>
+  {% endif %}
+  <span class="breadcrumb-item">Editor invitations</span>
+{% endblock %}
+
+{% block content %}
+
+
+  <h1 class="highlight">Submission editor invitations</h1>
+  <h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
+  <h4>by {{ submission.author_list }}</h4>
+  <br>
+
+  <h3>Submission summary</h3>
+  {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
+
+  <br>
+
+  <ul>
+    <li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
+    {% if submission.status == 'incoming' %}
+      <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
+    {% else %}
+      <li><a href="{% url 'submissions:prescreening_failed' submission.preprint.identifier_w_vn_nr %}">Close: pre-screening failed</a></li>
+      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr nrweeks=1 %}">Update authors by email (1 week into screening)</a></li>
+      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr nrweeks=2 %}">Update authors by email (2 weeks into screening)</a></li>
+      <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+    {% endif %}
+  </ul>
+
+
+  <h3 class="highlight">Current invitations</h3>
+  <table class="submission" id="current-status">
+    <tbody>
+      {% if active_assignment %}
+        <tr>
+          <td>Assigned editor-in-charge</td>
+          <td>{{ active_assignment.to }}</td>
+        </tr>
+        <tr>
+          <td>Assignment status</td>
+          <td>{{ active_assignment.get_status_display }}</td>
+        </tr>
+      {% else %}
+        <tr>
+          <td style="min-width: 200px;">Conflict of interests:</td>
+          <td>
+            {% if submission.needs_conflicts_update %}
+              Conflict of interest awaiting update. <a href="mailto:techsupport@scipost.org">Contact techsupport</a> if this is not automatically resolved soon.
+            {% else %}
+              Conflict of interest updated
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td>Submission status:</td>
+          <td>{{ submission.get_status_display }}</td>
+        </tr>
+        <tr>
+          <td>Number of <u data-toggle="tooltip" data-title="Red-label declines are declines with reason: 'Not interested enough' or 'SciPost should not even consider this paper'.">red-label declines</u>:</td>
+          <td>
+            {% if submission.editorial_assignments.declined_red.count >= 3 %}
+              <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %} {{ submission.editorial_assignments.declined_red.count }}</span>
+              &middot; <a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close screening: failure to find EIC</a>
+            {% else %}
+              {{ submission.editorial_assignments.declined_red.count }}
+            {% endif %}
+          </td>
+        </tr>
+      {% endif %}
+      <tr>
+        <td>Sending invitations in progress:</td>
+        <td>
+          {% if submission.is_sending_editorial_invitations %}
+            <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
+          {% else %}
+            <span class="text-danger" aria-hidden="true">{% include 'bi/x-circle-fill.html' %}</span>
+          {% endif %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <br>
+
+  <table class="table table-hover" id="current-assignments">
+    <thead>
+      <tr>
+        <th style="width: 10px;">#</th>
+        <th style="width: 20%;">Fellow</th>
+        <th>Status</th>
+        <th>Invited on</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assignment in assignments %}
+        <tr>
+          <td>{{ assignment.invitation_order }}</td>
+          <td>
+            <strong>{{ assignment.to }}</strong>
+            <br>
+            {% for specialty in assignment.to.profile.specialties.all %}
+              <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+            {% endfor %}
+          </td>
+          <td>
+            {{ assignment.get_status_display }}
+            {% if assignment.refusal_reason %}
+              | <span class="text-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">Reason: {{ assignment.get_refusal_reason_display }}</span>
+            {% endif %}
+
+            <br>
+
+          </td>
+          <td>
+            {{ assignment.date_invited|default:'<i>Not invited (yet)</i>' }}
+            {% if assignment.status == 'preassigned' %}
+              <br>
+              <a href="{% url 'submissions:send_editorial_assignment_invitation' submission.preprint.identifier_w_vn_nr assignment.id %}">Send invitation now</a>
+            {% endif %}
+            {% if assignment.date_answered %}
+              <br>
+              <span class="text-muted">Answered {{ assignment.date_answered }}</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4">No invitations yet. Please use the form below.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if formset %}
+    <hr class="divider">
+    <h2 class="highlight">Update invitations</h2>
+    <p>Use the form below to select and order the fellows you want to invite to become an editor for <em>'{{ submission.title }}'</em>.</p>
+
+    <form method="post" action="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">
+      {% csrf_token %}
+      {{ formset.management_form }}
+      <table class="table sortable-rows table-selectable table-hover" id="preassignments">
+        <thead>
+          <tr>
+            <th style="width: 60px;"></th>
+            <th style="width: 20%;">Fellow</th>
+            <th>Possible conflicts</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for form in formset %}
+            <tr>
+              <td class="actions">
+                <a href="#" class="handle"><span aria-hidden="true">{% include 'bi/list.html' %}</span></a>
+                {% for field in form %}
+                  {{ field }}
+                {% endfor %}
+              </td>
+              <td>
+                <strong>
+                  {{ form.get_fellow }}
+                  {% if form.instance.status != 'preassigned' %}
+                    <span data-toggle="tooltip" data-title="This fellow has already been invited. Therefore, this invitation will not be removed."><span class="text-danger" aria-hidden="true">{% include 'bi/exclamation-circle-fill.html' %}</span></span>
+                  {% endif %}
+                </strong>
+                <br>
+                {% for specialty in form.get_fellow.profile.specialties.all %}
+                  <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+                {% endfor %}
+              </td>
+              <td>
+                {% with submission.conflict_of_interests.non_deprecated|filter_for_contributor:form.get_fellow as conflicts %}
+                  {% include 'partials/submissions/admin/conflicts.html' with conflicts=conflicts %}
+                {% endwith %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <button class="btn btn-primary" type="submit">Save pre-assignments</button>
+      <a class="btn btn-default" href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a>
+    </form>
+  {% endif %}
+
+{% endblock %}

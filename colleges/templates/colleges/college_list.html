@@ -1,0 +1,93 @@
+{% extends 'colleges/base.html' %}
+
+{% load static %}
+{% load scipost_extras %}
+{% load colleges_extras %}
+{% load add_get_parameters %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+{% endblock %}
+
+{% block meta_description %}{{ block.super }} Colleges{% endblock meta_description %}
+{% block pagetitle %}: Colleges{% endblock pagetitle %}
+
+{% block content %}
+
+  {% if perms.scipost.can_manage_college_composition %}
+    <div class="adminLinks">
+      <h3>Links for users with permission <em>scipost.can_manage_college_composition</em>:</h3>
+      <ul>
+	<li><a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a></li>
+	<li><a href="{% url 'colleges:fellowships' %}">Fellowships</a></li>
+      </ul>
+    </div>
+  {% endif %}
+
+  <h1 class="highlight">SciPost's Editorial Colleges</h1>
+  <div class="row">
+    <div class="col-lg-5">
+      <p>
+	Below, you will find the composition of each of our Editorial Colleges,
+	one of which is formed for each field in which SciPost carries
+	out publishing activities.
+      </p>
+      <p>The Editorial College of a certain field, composed of a collection of Fellows, takes
+	end responsibility for editorial matters for all Journals operating in that field.
+	For interdisciplinary submissions, the services of Fellows from distinct Colleges can
+	be called upon during the evaluation process.
+      </p>
+    </div>
+    <div class="col-lg-7">
+      {% include 'submissions/_guidelines_dl.html' %}
+    </div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-12">
+
+      <table class="table table-bordered table-secondary">
+	<thead class="thead-dark">
+	  <tr>
+	    <th><h3>Branch of Science</h3></th>
+	    <th><h3>Fields<br><small><em>(click to see list of Fellows)</em></small></h3></th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for branch in branches %}
+	    {% if branch.name != 'Multidisciplinary' %}
+	      <tr>
+		<td class="align-middle">
+		  {{ branch.name }}
+		</td>
+		<td>
+		  {% for acad_field in branch.academic_fields.all %}
+		    {% if acad_field.colleges.all|length > 0 %}
+		      {% for college in acad_field.colleges.all %}
+			{% if college.fellowships.all|length > 0 %}
+			  <a href={% url 'colleges:college_detail' college=college.slug %}><button type="button" class="btn btn-primary btn-sm m-1"><small>{{ college.name }}</small></button></a>
+			{% else %}
+			  <button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field }}</em></small></button>
+			{% endif %}
+		      {% endfor %}
+		    {% endif %}
+		  {% endfor %}
+		</td>
+	      </tr>
+	    {% endif %}
+	  {% endfor %}
+	</tbody>
+      </table>
+
+      <p>
+	Does your field not have a College yet? Help us to form one by
+	<a href="mailto:admin@scipost.org">sending us your suggestions</a> for potential Fellows.
+      </p>
+    </div>
+  </div>
+
+
+{% endblock content %}

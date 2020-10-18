@@ -7,20 +7,17 @@
 
     {% load static %}
 
-    <link href="https://fonts.googleapis.com/css?family=Merriweather+Sans:300,400,700" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="{% static 'scipost/SciPost.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'fa/css/font-awesome.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
-
+    {% render_bundle 'vendors~homepage~main~qr' %}
+    {% render_bundle 'vendors~main' %}
     {% render_bundle 'main' %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
+    <meta name="description" content="{% block meta_description %}SciPost{% endblock meta_description %}">
 
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
+    <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
 
     {% block headsup %}
     {% endblock headsup %}

@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.db import models
 
 from journals.models import Journal
+from submissions.models import Submission
 
 
 class Branch(models.Model):
@@ -37,3 +38,7 @@ class Branch(models.Model):
     @property
     def journals(self):
         return Journal.objects.filter(college__acad_field__branch=self.id)
+
+    @property
+    def submissions(self):
+        return Submission.objects.public_newest().filter(acad_field__branch=self.id)

@@ -26,7 +26,7 @@
         {% csrf_token %}
         {{ form|bootstrap }}
         <h3>Map to Contributor</h3>
-        {{ form.get_contributor.get_title_display }} {{ form.get_contributor.user.first_name }} {{ form.get_contributor.user.last_name }}
+        {{ form.get_contributor.profile.get_title_display }} {{ form.get_contributor.user.first_name }} {{ form.get_contributor.user.last_name }}
         <br>
         <br>
         <input type="submit" class="btn btn-primary" name="save" value="Map to Contributor">

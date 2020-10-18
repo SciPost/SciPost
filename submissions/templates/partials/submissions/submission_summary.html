@@ -23,7 +23,7 @@
     <tr>
       <td>Arxiv Link:</td>
       <td>
-        <a href="{{ submission.preprint.url }}" target="_blank">{{ submission.preprint.url }}</a>&emsp;(<a href="{{ submission.preprint.citation_pdf_url }}" target="_blank">pdf</a>)
+        <a href="{{ submission.preprint.url }}" target="_blank" rel="noopener">{{ submission.preprint.url }}</a>&emsp;(<a href="{{ submission.preprint.citation_pdf_url }}" target="_blank" rel="noopener">pdf</a>)
       </td>
     </tr>
   {% elif submission.preprint.get_absolute_url %}
@@ -38,7 +38,7 @@
     <tr>
       <td>Code repository:</td>
       <td>
-	<a href="{{ submission.code_repository_url }}" target="_blank">{{ submission.code_repository_url }}</a>
+	<a href="{{ submission.code_repository_url }}" target="_blank" rel="noopener">{{ submission.code_repository_url }}</a>
       </td>
     </tr>
   {% endif %}
@@ -46,7 +46,7 @@
     <tr>
       <td>Data repository:</td>
       <td>
-	<a href="{{ submission.data_repository_url }}" target="_blank">{{ submission.data_repository_url }}</a>
+	<a href="{{ submission.data_repository_url }}" target="_blank" rel="noopener">{{ submission.data_repository_url }}</a>
       </td>
     </tr>
   {% endif %}
@@ -91,12 +91,18 @@
     {% endif %}
   {% endwith %}
   <tr>
-    <td>Discipline:</td>
-    <td>{{ submission.get_discipline_display }}</td>
+    <td>Academic field:</td>
+    <td>{{ submission.acad_field }}</td>
   </tr>
   <tr>
-    <td>Subject area:</td>
-    <td>{{ submission.get_subject_area_display }}</td>
+    <td>Specialties:</td>
+    <td>
+      <ul class="m-0 pl-4">
+	{% for specialty in submission.specialties.all %}
+	  <li>{{ specialty }}</li>
+	{% endfor %}
+      </ul>
+    </td>
   </tr>
   {% if submission.approaches %}
   <tr>

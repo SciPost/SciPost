@@ -39,7 +39,7 @@
 	<h4 class="highlight p-2 bg-danger text-white">
 	  Your email address is associated to {{ breaches_json|length }}
 	  known breach{{ breaches_json|pluralize:"es" }}
-	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="text-info">haveibeenpawned.com</a>)
 	</h4>
 	<div class="m-4">
 	  <p>Click on items in the list below to see details.</p>
@@ -53,7 +53,7 @@
 		ensure that you have changed your password since the date of the breach. If you
 		have already done that, you can ignore this particular breach from now on.</li>
 	      <li>For all online services you register for,
-		choose <a href="https://xkcd.com/936/" target="_blank">strong memorable passwords</a>
+		choose <a href="https://xkcd.com/936/" target="_blank" rel="noopener">strong memorable passwords</a>
 		(though four words is now outdated: go for six at least!)
 		or go for a strong password manager.</li>
 	    </ul>
@@ -62,15 +62,15 @@
       {% else %}
 	<h4 class="highlight p-2 bg-success text-white">
 	  Your email address is not associated to any known breach
-	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="text-info">haveibeenpawned.com</a>)
 	</h4>
       {% endif %}
-      <h3 class="highlight">Pastes <a href="https://haveibeenpwned.com/Pastes" target="_blank">(what are pastes?)</a></h3>
+      <h3 class="highlight">Pastes <a href="https://haveibeenpwned.com/Pastes" target="_blank" rel="noopener">(what are pastes?)</a></h3>
       {% if pastes_json|length > 0 %}
 	<h4 class="highlight p-2 bg-danger text-white">
 	  Your email address is associated to {{ pastes_json|length }}
 	  known paste{{ pastes_json|pluralize }}
-	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="text-info">haveibeenpawned.com</a>)
 	</h4>
 	<div class="m-4">
 	  <p>Click on items in the list below to see details.</p>
@@ -81,7 +81,7 @@
 	    <strong>What should you do?</strong>
 	    <ul>
 	      <li>For all online services you register for,
-		choose <a href="https://xkcd.com/936/" target="_blank">strong memorable passwords</a>
+		choose <a href="https://xkcd.com/936/" target="_blank" rel="noopener">strong memorable passwords</a>
 		(though four words is now outdated: go for six at least!)
 		or go for a strong password manager.</li>
 	    </ul>
@@ -90,7 +90,7 @@
       {% else %}
 	<h4 class="highlight p-2 bg-success text-white">
 	  Your email address is not associated to any known paste
-	  (according to <a href="https://haveibeenpwned.com" target="_blank" class="text-info">haveibeenpawned.com</a>)
+	  (according to <a href="https://haveibeenpwned.com" target="_blank" rel="noopener" class="text-info">haveibeenpawned.com</a>)
 	</h4>
       {% endif %}
 

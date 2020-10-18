@@ -1,7 +1,7 @@
-<p>Dear {{ report.submission.editor_in_charge.get_title_display }} {{ report.submission.editor_in_charge.user.last_name }},</p>
+<p>Dear {{ report.submission.editor_in_charge.profile.get_title_display }} {{ report.submission.editor_in_charge.user.last_name }},</p>
 
 <p>
-  Referee {{ report.author.get_title_display }} {{ report.author.user.last_name }} has delivered a Report for Submission:
+  Referee {{ report.author.profile.get_title_display }} {{ report.author.user.last_name }} has delivered a Report for Submission:
 </p>
 <p>
   {{ report.submission.title }}

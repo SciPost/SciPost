@@ -1,6 +1,11 @@
 <div class="card-body px-0">
   <div class="li thesis">
-    <h5 class="subject">{{ thesislink.get_discipline_display }} &middot; {{ thesislink.get_subject_area_display }}</h5>
+    <h3 class="specialties">{{ thesislink.acad_field }}</h3>
+    <ul class="list-inline">
+      {% for spec in thesislink.specialties.all %}
+	<li class="list-inline-item">{{ spec }}</li>
+      {% endfor %}
+    </ul>
     <h3 class="title">
       <a href="{% url 'theses:thesis' thesislink_id=thesislink.id %}">{{ thesislink.title }}</a>
     </h3>

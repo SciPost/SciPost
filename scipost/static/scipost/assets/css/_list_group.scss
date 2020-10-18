@@ -24,10 +24,6 @@ ul.events-list {
 }
 
 
-.fa-li {
-    line-height: 1.25 !important;
-}
-
 ul.references {
     list-style: none;
     padding-left: 0;
@@ -70,8 +66,14 @@ li,
     .commentary,
     .submission,
     .publication {
+	.specialties {
+	    margin-bottom: 0;
+	    padding-top: 5px;
+	    color: $text-muted;
+	    font-size: 1em;
+	}
         .subject {
-            margin-bottom: 0;
+            margin-bottom: 1;
             padding-top: 5px;
             color: $text-muted;
         }
@@ -80,6 +82,7 @@ li,
             margin-bottom: 0;
             padding-top: 5px;
             padding-bottom: 5px;
+	    font-weight: bold;
         }
 
         .authors {
@@ -109,7 +112,7 @@ ul.news-list {
     margin: 0;
     padding: 0;
 
-    h4 {
+    h3 {
         margin: 0.25rem 0;
 
         a {

@@ -10,13 +10,15 @@ module.exports = {
         main: [
 	    "tether",
             "bootstrap-loader",
-            "./scipost/static/scipost/assets/js/dynamic_loading.js",
             "./scipost/static/scipost/assets/js/scripts.js",
         ],
         homepage: [
             "./scipost/static/scipost/assets/js/fader.js",
             "./scipost/static/scipost/assets/js/newsticker.js",
         ],
+	qr: [
+	    "./scipost/static/scipost/assets/js/activate_qr.js",
+	],
     },
     output: {
         path: path_bundles,
@@ -71,5 +73,10 @@ module.exports = {
 	    	use: ['style-loader', 'css-loader', 'postcss-loader', 'sass-loader'],
             }
 	]
+    },
+    optimization: {
+	splitChunks: {
+	    chunks: 'all',
+	},
     },
 }

@@ -1,5 +1,6 @@
 {% extends 'scipost/base.html' %}
 
+{% block meta_description %}{{ block.super }} Feeds{% endblock meta_description %}
 {% block pagetitle %}: Feeds{% endblock pagetitle %}
 
 {% load static %}
@@ -31,33 +32,41 @@
         The URL of the general RSS feed is <a href="{% url 'scipost:feeds_rss_submissions' %}">https://scipost.org/rss/submissions</a>.
         The URL of the general Atom feed is <a href="{% url 'scipost:feeds_atom_submissions' %}">https://scipost.org/atom/submissions/</a>.
       </p>
-      <p>You can also obtain feeds only for any specific specialization by using the links in the table below.</p>
+      <p>You can also obtain feeds only for any specific specialty by using the links in the table below.</p>
 
-      <h2>Feeds by specific subject area</h2>
-      <h3>Physics:</h3>
+      <h2>Feeds by specific specialty</h2>
 
-      <table class="table">
-    	<thead>
-          <th>Subject area</th>
-          <th>Submissions</th>
-          <th>Publications</th>
-    	</thead>
-    	<tbody>
-    	  {% for key, val in subject_areas_physics %}
-            <tr>
-              <td>{{ val }}</td>
-              <td>
-                <a href="{% url 'scipost:sub_feed_spec_rss' subject_area=key %}">RSS</a> &middot;
-                <a href="{% url 'scipost:sub_feed_spec_atom' subject_area=key %}">Atom</a>
-              </td>
-              <td>
-                <a href="{% url 'scipost:pub_feed_spec_rss' subject_area=key %}">RSS</a> &middot;
-            	<a href="{% url 'scipost:pub_feed_spec_atom' subject_area=key %}">Atom</a>
-              </td>
-            </tr>
-    	  {% endfor %}
-    	</tbody>
-      </table>
+      {% for branch in branches %}
+	<hr>
+	<h3 class="highlight">{{ branch }}</h3>
+	{% for field in branch.academic_fields.all %}
+	  <h4 class="highlight p-1 ml-1">{{ field }}</h4>
+	  {% if field.specialties.all|length > 0 %}
+	    <table class="table ml-1">
+    	      <thead>
+		<th>Specialty</th>
+		<th>Submissions</th>
+		<th>Publications</th>
+    	      </thead>
+    	      <tbody>
+		{% for specialty in field.specialties.all %}
+		  <tr>
+		    <td>{{ specialty }}</td>
+		    <td>
+                      <a href="{% url 'scipost:sub_feed_spec_rss' specialty=specialty.slug %}">RSS</a> &middot;
+                      <a href="{% url 'scipost:sub_feed_spec_atom' specialty=specialty.slug %}">Atom</a>
+		    </td>
+		    <td>
+                      <a href="{% url 'scipost:pub_feed_spec_rss' specialty=specialty.slug %}">RSS</a> &middot;
+                      <a href="{% url 'scipost:pub_feed_spec_atom' specialty=specialty.slug %}">Atom</a>
+		    </td>
+		  </tr>
+		{% endfor %}
+    	      </tbody>
+	    </table>
+	  {% endif %}
+	{% endfor %}
+      {% endfor %}
     </div>
   </div>
 

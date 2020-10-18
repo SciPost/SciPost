@@ -31,7 +31,7 @@
               <p class="card-text mt-1">
 		<ul>
                   {% if sub.open_for_resubmission %}
-                    <li><a href="{% url 'submissions:submit_choose_journal' discipline=sub.discipline %}?thread_hash={{ sub.thread_hash }}"><i class="fa fa-arrow-right"></i> resubmit</a></li>
+                    <li><a href="{% url 'submissions:submit_choose_journal' acad_field=sub.acad_field.slug %}?thread_hash={{ sub.thread_hash }}">{% include 'bi/arrow-right.html' %} resubmit</a></li>
                   {% endif %}
 		  {% if sub.under_consideration %}
                     {% if sub.editor_in_charge %}

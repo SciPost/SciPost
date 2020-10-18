@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 
 from scipost.behaviors import TimeStampedModel
-from scipost.constants import SCIPOST_DISCIPLINES, SCIPOST_SUBJECT_AREAS, SCIPOST_APPROACHES
+from scipost.constants import SCIPOST_APPROACHES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
@@ -44,12 +44,22 @@ class Submission(models.Model):
 
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=10000, verbose_name="author list")
-    discipline = models.CharField(max_length=20, choices=SCIPOST_DISCIPLINES, default='physics')
-    subject_area = models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS,
-                                    verbose_name='Primary subject area', default='Phys:QP')
-    secondary_areas = ChoiceArrayField(
-        models.CharField(max_length=10, choices=SCIPOST_SUBJECT_AREAS),
-        blank=True, null=True)
+
+    # Ontology-based semantic linking
+    acad_field = models.ForeignKey(
+        'ontology.AcademicField',
+        on_delete=models.PROTECT,
+        related_name='submissions'
+    )
+    specialties = models.ManyToManyField(
+        'ontology.Specialty',
+        related_name='submissions'
+    )
+    topics = models.ManyToManyField(
+        'ontology.Topic',
+        blank=True
+    )
+
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
         blank=True, null=True, verbose_name='approach(es) [optional]')
@@ -130,9 +140,6 @@ class Submission(models.Model):
     acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
-
-    # Topics for semantic linking
-    topics = models.ManyToManyField('ontology.Topic', blank=True)
 
     objects = SubmissionQuerySet.as_manager()
 

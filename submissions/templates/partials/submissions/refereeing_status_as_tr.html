@@ -1,12 +1,12 @@
 {% if submission.refereeing_cycle != 'direct_rec' %}
   <tr>
     <td>Referees invited</td>
-    <td>{{ submission.referee_invitations.count }} <small><span class="fa fa-info-circle" data-placement='bottom' data-toggle="tooltip" data-html="true" title="{{ submission.referee_invitations.accepted.count }} accepted<br>{{ submission.referee_invitations.declined.count }} declined<br>{{ submission.referee_invitations.pending.count }} response pending"></span></small>
+    <td>{{ submission.referee_invitations.count }} <small><span data-placement='bottom' data-toggle="tooltip" data-html="true" title="{{ submission.referee_invitations.accepted.count }} accepted<br>{{ submission.referee_invitations.declined.count }} declined<br>{{ submission.referee_invitations.pending.count }} response pending">{% include 'bi/info-circle-fill.html' %}</span></small>
     </td>
   </tr>
   <tr>
     <td>Reports obtained</td>
-    <td>{{ submission.reports.accepted.count }} <small><span class="fa fa-info-circle" data-placement='bottom' data-toggle="tooltip" data-html="true" title="{{ submission.reports.accepted.invited.count }} invited<br>{{ submission.reports.accepted.contributed.count }} contributed<hr>{{ submission.reports.awaiting_vetting.count }} awaiting vetting<br>{{ submission.reports.rejected.count }} rejected"></span></small>
+    <td>{{ submission.reports.accepted.count }} <small><span data-placement='bottom' data-toggle="tooltip" data-html="true" title="{{ submission.reports.accepted.invited.count }} invited<br>{{ submission.reports.accepted.contributed.count }} contributed<hr>{{ submission.reports.awaiting_vetting.count }} awaiting vetting<br>{{ submission.reports.rejected.count }} rejected">{% include 'bi/info-circle-fill.html' %}</span></small>
     </td>
   </tr>
 {% endif %}

@@ -57,30 +57,6 @@ class ContributorQuerySet(models.QuerySet):
         """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
         return self.filter(fellowships__isnull=False).distinct()
 
-    def specialties_overlap(self, discipline, expertises=[]):
-        """
-        Returns all Contributors specialized in the given discipline
-        and any of the (optional) expertises.
-
-        This method is also separately implemented for Profile and Fellowship objects.
-        """
-        qs = self.filter(profile__discipline=discipline)
-        if expertises and len(expertises) > 0:
-            qs = qs.filter(profile__expertises__overlap=expertises)
-        return qs
-
-    def specialties_contain(self, discipline, expertises=[]):
-        """
-        Returns all Contributors specialized in the given discipline
-        and all of the (optional) expertises.
-
-        This method is also separately implemented for Profile and Fellowship objects.
-        """
-        qs = self.filter(profile__discipline=discipline)
-        if expertises and len(expertises) > 0:
-            qs = qs.filter(profile__expertises__contains=expertises)
-        return qs
-
     def with_duplicate_names(self):
         """
         Returns only potential duplicate Contributors (as identified by first and
@@ -104,7 +80,7 @@ class ContributorQuerySet(models.QuerySet):
             user__is_staff=True).annotate(lower_email=Lower('user__email'))
         duplicates = qs.values('lower_email').annotate(
             Count('id')).filter(id__count__gt=1).values_list('lower_email', flat=True)
-        return qs.filter(user__email__in=duplicates)
+        return qs.filter(lower_email__in=duplicates)
 
 
 class UnavailabilityPeriodManager(models.Manager):

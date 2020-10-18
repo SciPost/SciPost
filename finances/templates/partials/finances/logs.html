@@ -18,7 +18,7 @@
             <strong>Duration: {{ log.duration|duration }}</strong>
           </div>
           <div class="pl-2">
-            <a class="text-danger" href="{% url 'finances:log_delete' log.slug %}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+            <a class="text-danger" href="{% url 'finances:log_delete' log.slug %}"><span aria-hidden="true">{% include 'bi/trash-fill.html' %}</a>
           </div>
         </div>
       </div>

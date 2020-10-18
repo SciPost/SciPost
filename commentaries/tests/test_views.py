@@ -143,14 +143,13 @@ class BrowseCommentariesTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        CommentaryFactory(discipline='physics', requested_by=ContributorFactory())
+        CommentaryFactory(requested_by=ContributorFactory())
         self.view_url = reverse('commentaries:browse', kwargs={
-            'discipline': 'physics',
             'nrweeksback': '1'
             })
 
     def test_response_list(self):
-        '''Test if the browse view is passing commentaries to anoymous users.'''
+        '''Test if the browse view is passing commentaries to anonymous users.'''
         response = self.client.get(self.view_url)
         self.assertEqual(response.status_code, 200)
 

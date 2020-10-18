@@ -3,8 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-
-from scipost.constants import SCIPOST_DISCIPLINES
+from django.urls import reverse
 
 from ontology.models import Specialty
 
@@ -24,7 +23,7 @@ class College(models.Model):
 
     name = models.CharField(
         max_length=256,
-        help_text='Official name of the College (default: name of the discipline)',
+        help_text='Official name of the College (default: name of the academic field)',
         unique=True
     )
 
@@ -32,6 +31,11 @@ class College(models.Model):
         'ontology.AcademicField',
         on_delete=models.PROTECT,
         related_name='colleges'
+    )
+
+    slug = models.SlugField(
+        unique=True,
+        allow_unicode=True
     )
 
     order = models.PositiveSmallIntegerField()
@@ -55,9 +59,12 @@ class College(models.Model):
     def __str__(self):
         return "Editorial College (%s)" % self.name
 
+    def get_absolute_url(self):
+        return reverse('colleges:college_detail', kwargs={'college': self.slug})
+
     @property
     def specialties(self):
-        return Specialty.objects.filter(journals__college__pk=self.id)
+        return Specialty.objects.filter(journals__college__pk=self.id).distinct()
 
     @property
     def is_field_wide(self):

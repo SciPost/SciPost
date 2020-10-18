@@ -6,6 +6,7 @@ import factory
 
 from django.test import TestCase, RequestFactory
 
+from ontology.models import AcademicField, Specialty
 from scipost.factories import ContributorFactory
 from ..factories import ThesisLinkFactory, VetThesisLinkFormFactory
 from ..forms import RequestThesisLinkForm, VetThesisLinkForm
@@ -22,6 +23,8 @@ class TestRequestThesisLink(TestCase):
         self.request.user = self.user
         self.valid_form_data = model_form_data(
             ThesisLinkFactory(), RequestThesisLinkForm, form_kwargs={'request': self.request})
+        self.valid_form_data['acad_field'] = AcademicField.objects.order_by('?').first().id
+        self.valid_form_data['specialties'] = [s.id for s in Specialty.objects.order_by('?')[:3]]
 
     def test_valid_data_is_valid(self):
         form_data = self.valid_form_data
@@ -40,5 +43,7 @@ class TestRequestThesisLink(TestCase):
         form = RequestThesisLinkForm(form_data, request=self.request)
 
         # Check if the user is properly saved to the new ThesisLink as `requested_by`
+        print(form.is_valid())
+        print(form.errors)
         thesislink = form.save()
         self.assertEqual(thesislink.requested_by, self.contributor)

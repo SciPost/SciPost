@@ -1,5 +1,6 @@
 {% extends 'funders/base.html' %}
 
+{% block meta_description %}{{ block.super }} Funder details {{ funder.name }}{% endblock meta_description %}
 {% block pagetitle %}: Funder details{% endblock pagetitle %}
 
 {% block breadcrumb_items %}

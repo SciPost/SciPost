@@ -15,7 +15,7 @@ class JournalUtils(BaseMailUtil):
     def send_authors_paper_published_email(cls):
         """ Requires loading 'publication' attribute. """
         email_text = ('Dear '
-                      + cls.publication.accepted_submission.submitted_by.get_title_display()
+                      + cls.publication.accepted_submission.submitted_by.profile.get_title_display()
                       + ' ' +
                       cls.publication.accepted_submission.submitted_by.user.last_name +
                       ', \n\nWe are happy to inform you that your Submission to SciPost,\n\n' +

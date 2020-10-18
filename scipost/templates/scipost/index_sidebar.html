@@ -17,7 +17,7 @@
 <div class="p-3 my-3 bg-light" id="news">
   <h2 class="title">
     News
-    <small><a href="{% url 'scipost:feeds' %}"><i class="fa fa-rss"></i></a></small>
+    <small><a href="{% url 'scipost:feeds' %}">{% include 'bi/rss-fill.html' %}</a></small>
   </h2>
   <a href="{% url 'news:news' %}">View all news and announcements.</a>
   <hr class="sm">

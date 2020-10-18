@@ -10,23 +10,6 @@
   <span class="breadcrumb-item">Submit a manuscript</span>
 {% endblock %}
 
-{% block footer_script %}
-  <script nonce="{{ request.csp_nonce }}">
-   $(document).ready(function(){
-       $("#id_proceedings").parents('.form-group').hide()
-       $('select#id_submitted_to').on('change', function (){
-           var selection = $(this).val();
-           $("#id_proceedings").parents('.form-group').hide()
-
-           switch(selection){
-               case "{{ id_SciPostPhysProc }}":
-		   $("#id_proceedings").parents('.form-group').show()
-		   break;
-           }
-       }).trigger('change');
-   });
-  </script>
-{% endblock %}
 
 {% block content %}
   <div class="row">
@@ -72,3 +55,23 @@
     </div>
   </div>
 {% endblock content %}
+
+
+{% block footer_script %}
+  {{ form.media }}
+  <script nonce="{{ request.csp_nonce }}">
+   $(document).ready(function(){
+       $("#id_proceedings").parents('.form-group').hide()
+       $('select#id_submitted_to').on('change', function (){
+           var selection = $(this).val();
+           $("#id_proceedings").parents('.form-group').hide()
+
+           switch(selection){
+               case "{{ id_SciPostPhysProc }}":
+		   $("#id_proceedings").parents('.form-group').show()
+		   break;
+           }
+       }).trigger('change');
+   });
+  </script>
+{% endblock %}

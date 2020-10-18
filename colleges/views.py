@@ -27,44 +27,35 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
     FellowVotingRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
-from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
-from scipost.constants import SCIPOST_SUBJECT_AREAS, subject_areas_raw_dict, specializations_dict
+from scipost.forms import EmailUsersForm
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
 from mails.views import MailView
+from ontology.models import Branch
 
 
-class EditorialCollegesView(ListView):
-    model = Fellowship
-    template_name = 'colleges/colleges.html'
-
-    def get_queryset(self):
-        queryset = Fellowship.objects.active().regular()
-        return queryset
+class CollegeListView(ListView):
+    model = College
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['fellowships'] = Fellowship.objects.active().regular()
+        context['branches'] = Branch.objects.all()
         return context
 
 
-class EditorialCollegeDetailView(ListView):
-    model = Fellowship
+class CollegeDetailView(DetailView):
+    model = College
     template_name = 'colleges/college_detail.html'
 
-    def get_queryset(self):
-        queryset = Fellowship.objects.active().regular().filter(
-            contributor__profile__discipline=self.kwargs.get('discipline'))
-        return queryset
-
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-        discipline = self.kwargs.get('discipline')
-        context['discipline'] = discipline
-        context['specializations'] = specializations_dict[discipline]
-        return context
+    def get_object(self, queryset=None):
+        """
+        Bypass django.views.generic.detail.SingleObjectMixin:
+        since CollegeSlugConverter already found the College as a kwarg, just pass that object on.
+        """
+        return self.kwargs['college']
 
 
 class FellowshipCreateView(PermissionsMixin, CreateView):
@@ -141,23 +132,18 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of Fellowships filtered by optional GET data.
         """
         queryset = Fellowship.objects.all()
-        if self.kwargs.get('discipline', None):
+        if self.kwargs.get('acad_field', None):
             queryset = queryset.filter(
-                contributor__profile__discipline=self.kwargs['discipline'].lower())
-            if self.kwargs.get('expertise', None):
+                contributor__profile__acad_field=self.kwargs['acad_field'])
+            if self.kwargs.get('specialty', None):
                 queryset = queryset.filter(
-                    contributor__profile__expertises__contains=[self.kwargs['expertise']])
+                    contributor__profile__specialties=self.kwargs['specialty'])
         if self.request.GET.get('type', None):
             if self.request.GET.get('type') == 'regular':
                 queryset = queryset.filter(guest=False)
             elif self.request.GET.get('type') == 'guest':
                 queryset = queryset.filter(guest=True)
         return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
-        return context
 
 
 class FellowshipStartEmailView(PermissionsMixin, MailView):
@@ -172,7 +158,24 @@ class FellowshipStartEmailView(PermissionsMixin, MailView):
 
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_pool(request, identifier_w_vn_nr):
+def email_College_Fellows(request, college):
+    """
+    Send an email to all Fellows within a College.
+    """
+    user_ids = [f.contributor.user.id for f in college.fellowships.regular().active()]
+    form = EmailUsersForm(request.POST or None, initial={'users': user_ids})
+    if form.is_valid():
+        form.save()
+        messages.success(request, 'Email sent')
+        return redirect(college.get_absolute_url())
+    return render(request,
+                  'colleges/email_College_Fellows.html',
+                  {'form': form, 'college': college})
+
+
+@login_required
+@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+def submission_fellowships(request, identifier_w_vn_nr):
     """
     List all Fellowships related to Submission.
     """
@@ -181,7 +184,7 @@ def submission_pool(request, identifier_w_vn_nr):
     context = {
         'submission': submission
     }
-    return render(request, 'colleges/submission_pool.html', context)
+    return render(request, 'colleges/submission_fellowships.html', context)
 
 
 @login_required
@@ -424,10 +427,10 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of PotentialFellowships using optional GET data.
         """
         queryset = PotentialFellowship.objects.all()
-        if self.kwargs.get('discipline', None):
-            queryset = queryset.filter(profile__discipline=self.kwargs['discipline'].lower())
-            if self.kwargs.get('expertise', None):
-                queryset = queryset.filter(profile__expertises__contains=[self.kwargs['expertise']])
+        if self.kwargs.get('acad_field', None):
+            queryset = queryset.filter(profile__acad_field=self.kwargs['acad_field'])
+            if self.kwargs.get('specialty', None):
+                queryset = queryset.filter(profile__specialties=self.kwargs['specialty'])
         if self.request.GET.get('status', None):
             queryset = queryset.filter(status=self.request.GET.get('status'))
         return queryset
@@ -438,7 +441,6 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
             self.request.user.contributor)
         context['potfels_voted_on'] = PotentialFellowship.objects.voted_on(
             self.request.user.contributor)
-        context['subject_areas'] = SCIPOST_SUBJECT_AREAS
         context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
         return context
 

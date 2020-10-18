@@ -3,11 +3,12 @@
 {% load automarkup %}
 {% load scipost_extras %}
 
+{% block meta_description %}{{ block.super }} About Journal {{ journal.name }}{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: About {{ journal.name }}{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <a href="{% url 'journals:journals' %}?field={{ journal.discipline }}" class="breadcrumb-item">{{ journal.discipline|get_discipline_display }} Journals</a>
+  <a href="{% url 'journals:journals' %}?field={{ journal.college.acad_field.slug }}" class="breadcrumb-item">{{ journal.college.acad_field }} Journals</a>
   <a href="{% url 'journal:issues' journal.doi_label %}" class="breadcrumb-item">{{ journal.name }}</a>
   <span class="breadcrumb-item active">About</span>
 {% endblock %}

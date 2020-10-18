@@ -1,18 +1,19 @@
 {% extends 'journals/base.html' %}
 
-{% block pagetitle %}{{block.super}}: issues{% endblock pagetitle %}
+{% block meta_description %}{{ block.super }} Issues{% endblock meta_description %}
+{% block pagetitle %}{{ block.super }}: issues{% endblock pagetitle %}
 
 {% block link_class_physics_issues %}active{% endblock %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
-  <span class="breadcrumb-item active">{{journal}}</span>
+  {{ block.super }}
+  <span class="breadcrumb-item active">{{ journal }}</span>
 {% endblock %}
 
 {% block content %}
 
   {% with header_text='Issues' %}
-    {{block.super}}
+    {{ block.super }}
   {% endwith %}
 
   <div class="row">
@@ -20,7 +21,7 @@
       <ul>
         {% for issue in journal.get_issues %}
           <li>
-            <a href="{{issue.get_absolute_url}}">{{issue}}</a>
+            <a href="{{ issue.get_absolute_url }}">{{ issue }}</a>
             {% if issue.proceedings %}
               {% include 'partials/proceedings/proceedings_li.html' with proceedings=issue.proceedings %}
             {% endif %}

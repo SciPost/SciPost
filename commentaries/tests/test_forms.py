@@ -14,6 +14,7 @@ from ..factories import CommentaryFactory, UnvettedCommentaryFactory,\
 from ..forms import RequestPublishedArticleForm, VetCommentaryForm, DOIToQueryForm,\
                    ArxivQueryForm, RequestArxivPreprintForm
 from ..models import Commentary
+from common.helpers import random_arxiv_identifier_with_version_number, random_external_doi
 from common.helpers.test import add_groups_and_permissions
 
 
@@ -166,13 +167,18 @@ class TestRequestPublishedArticleForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        factory_instance = UnvettedCommentaryFactory.build()
+        factory_instance = UnvettedCommentaryFactory()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
+        self.valid_form_data['acad_field'] = factory_instance.acad_field.id
+        self.valid_form_data['specialties'] = [s.id for s in factory_instance.specialties.all()]
 
     def test_valid_data_is_valid(self):
         """Test valid form for DOI"""
-        form = RequestPublishedArticleForm(self.valid_form_data)
+        form = RequestPublishedArticleForm({
+            **self.valid_form_data,
+            **{'pub_DOI': random_external_doi}
+        })
         self.assertTrue(form.is_valid())
 
     def test_doi_that_already_has_commentary_page_is_invalid(self):
@@ -193,13 +199,21 @@ class TestRequestArxivPreprintForm(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
-        factory_instance = UnvettedUnpublishedCommentaryFactory.build()
+        # Next line: don't use .build() because the instance must be saved so that
+        # factory_instance.specialties.all() below works out.
+        factory_instance = UnvettedUnpublishedCommentaryFactory()
         self.user = UserFactory()
         self.valid_form_data = model_form_data(factory_instance, RequestPublishedArticleForm)
         self.valid_form_data['arxiv_identifier'] = factory_instance.arxiv_identifier
+        self.valid_form_data['acad_field'] = factory_instance.acad_field.id
+        self.valid_form_data['specialties'] = [s.id for s in factory_instance.specialties.all()]
 
     def test_valid_data_is_valid(self):
-        form = RequestArxivPreprintForm(self.valid_form_data)
+        form = RequestArxivPreprintForm({
+            **self.valid_form_data,
+            **{'arxiv_identifier': random_arxiv_identifier_with_version_number}
+        })
+        print("form.errors:\n\t%s" % form.errors)
         self.assertTrue(form.is_valid())
 
     def test_identifier_that_already_has_commentary_page_is_invalid(self):

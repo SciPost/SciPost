@@ -12,9 +12,21 @@ from .models import (
 
 admin.site.register(Branch)
 
-admin.site.register(AcademicField)
 
-admin.site.register(Specialty)
+class AcademicFieldAdmin(admin.ModelAdmin):
+    search_fields = [
+        'name'
+    ]
+
+admin.site.register(AcademicField, AcademicFieldAdmin)
+
+
+class SpecialtyAdmin(admin.ModelAdmin):
+    search_fields = [
+        'name'
+    ]
+
+admin.site.register(Specialty, SpecialtyAdmin)
 
 
 class TagAdmin(admin.ModelAdmin):
