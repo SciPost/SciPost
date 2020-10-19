@@ -2,13 +2,20 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from colleges.models import College
+from django.db.utils import ProgrammingError
 
 
 class CollegeSlugConverter:
-    regex = '|'.join([c.slug for c in College.objects.all()])
+
+    def __init__(self):
+        try:
+            from colleges.models import College
+            self.regex = '|'.join([c.slug for c in College.objects.all()])
+        except ProgrammingError:
+            self.regex = 'physics'
 
     def to_python(self, value):
+        from colleges.models import College
         try:
             return College.objects.get(slug=value)
         except College.DoesNotExist:
