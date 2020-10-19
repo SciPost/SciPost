@@ -21,6 +21,8 @@ WEBPACK_LOADER['DEFAULT']['BUNDLE_DIR_NAME'] = '/home/scipost/SciPost/static_bun
 # Logging location
 LOGGING['handlers']['scipost_file_arxiv']['filename'] = '/home/scipost/SciPost/local_files/logs/arxiv.log'
 LOGGING['handlers']['scipost_file_doi']['filename'] = '/home/scipost/SciPost/local_files/logs/doi.log'
+LOGGING['handlers']['api_file']['filename'] = '/home/scipost/SciPost/local_files/logs/api.log'
+LOGGING['handlers']['oauth_file']['filename'] = '/home/scipost/SciPost/local_files/logs/oauth.log'
 
 # Cookies
 SESSION_COOKIE_SECURE = True
