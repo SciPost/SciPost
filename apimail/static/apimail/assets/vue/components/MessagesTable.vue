@@ -121,22 +121,10 @@
 
   <div v-if="accountSelected" :key="accountSelected.pk">
     <b-card bg-variant="light">
-      <b-row>
+      <h2 class="text-center mb-2">Messages&nbsp;for&emsp;<strong>{{ accountSelected.email }}</strong></h2>
+      <hr class="my-2">
+      <b-row class="mb-0">
 	<b-col class="col-lg-6">
-	  <h2>Messages for <strong>{{ accountSelected.email }}</strong></h2>
-	  <b-form-group
-	    label="Auto refresh (minutes): "
-	    label-cols-sm="4"
-	    label-align-sm="right"
-	    label-size="sm"
-	    >
-	    <b-form-radio-group
-	      v-model="refreshMinutes"
-	      :options="refreshMinutesOptions"
-	      class="float-center"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -147,41 +135,29 @@
 	    Refresh now
 	  </b-badge>
 	</b-col>
-	<b-col class="col-lg-2">
-	  <b-badge variant="primary" class="p-2">{{ totalRows }} messages</b-badge>
-	</b-col>
-	<b-col class="col-lg-4">
-	  <b-pagination
-	    v-model="currentPage"
-	    :total-rows="totalRows"
-	    :per-page="perPage"
-	    class="m-1"
-	    align="center"
-	    aria-controls="my-table"
-	    >
-	  </b-pagination>
+	<b-col class="col-lg-6">
 	  <b-form-group
-	    label="Per page:"
-	    label-cols-sm="3"
+	    label="Auto refresh every: "
+	    label-cols-sm="6"
 	    label-align-sm="right"
 	    label-size="sm"
 	    >
 	    <b-form-radio-group
-	      v-model="perPage"
-	      :options="perPageOptions"
+	      v-model="refreshMinutes"
+	      :options="refreshMinutesOptions"
 	      class="float-center"
 	      >
+	      minutes
 	    </b-form-radio-group>
 	  </b-form-group>
 	</b-col>
       </b-row>
-      <hr>
-
+      <hr class="my-1">
       <b-row class="mb-0">
 	<b-col class="col-lg-1">
 	  <strong>Restrict:</strong>
 	</b-col>
-	<b-col class="col-lg-5">
+	<b-col class="col-lg-4">
 	  <b-form-group
 	    label="Status:"
 	    label-cols-sm="3"
@@ -212,7 +188,7 @@
 	    </b-form-radio-group>
 	  </b-form-group>
 	</b-col>
-	<b-col class="col-lg-1">
+	<b-col class="col-lg-2">
 	  <b-button
 	    size="sm"
 	    class="pb-2"
@@ -223,8 +199,8 @@
 	  </b-button>
 	</b-col>
       </b-row>
-      <hr>
-      <b-row class="mb-0">
+      <hr class="my-1">
+      <b-row>
 	<b-col class="col-lg-1">
 	  <strong>Search:</strong>
 	</b-col>
@@ -286,6 +262,7 @@
     </b-card>
     <b-table
       id="my-table"
+      class="mb-0"
       responsive
       show-empty
       :items="messagesProvider"
@@ -323,8 +300,42 @@
 	</ul>
       </template>
     </b-table>
-
-    <b-tabs>
+    <b-card bg-variant="light" class="pb-0">
+      <b-row>
+	<b-col class="col-lg-4">
+	  <div class="text-center">
+	    <b-button size="sm" variant="secondary" class="p-2">{{ totalRows }} messages</b-button>
+	  </div>
+	</b-col>
+	<b-col class="col-lg-4">
+	  <b-pagination
+	    v-model="currentPage"
+	    :total-rows="totalRows"
+	    :per-page="perPage"
+	    class="m-1"
+	    align="center"
+	    aria-controls="my-table"
+	    >
+	  </b-pagination>
+	</b-col>
+	<b-col class="col-lg-4">
+	  <b-form-group
+	    label="Per page:"
+	    label-cols-sm="3"
+	    label-align-sm="right"
+	    label-size="sm"
+	    >
+	    <b-form-radio-group
+	      v-model="perPage"
+	      :options="perPageOptions"
+	      class="float-center"
+	      >
+	    </b-form-radio-group>
+	  </b-form-group>
+	</b-col>
+      </b-row>
+    </b-card>
+    <b-tabs class="mt-4">
       <b-tab
 	v-for="message in tabbedMessages"
 	>
