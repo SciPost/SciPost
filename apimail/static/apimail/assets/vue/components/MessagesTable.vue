@@ -1,3 +1,4 @@
+
 <template>
 <div>
 
@@ -294,7 +295,6 @@
       @filtered="onFiltered"
       :per-page="perPage"
       :current-page="currentPage"
-      selectable
       @row-clicked="onMessageRowClicked"
       >
       <template v-slot:table-busy>
@@ -322,27 +322,28 @@
 	  </li>
 	</ul>
       </template>
-      <template v-slot:cell(actions)="row">
-        <span v-if="row.detailsShowing">
-	  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-down-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-	    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-	  </svg>
-	</span>
-	<span v-else>
-	  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-caret-right-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-	    <path d="M12.14 8.753l-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
-	  </svg>
-	</span>
-      </template>
-      <template v-slot:row-details="row">
-	<message-content
-	  :message=row.item
-	  :tags="tags"
-	  :accountSelected="accountSelected"
-	  class="m-2 mb-4"></message-content>
-      </template>
     </b-table>
 
+    <b-tabs>
+      <b-tab
+	v-for="message in tabbedMessages"
+	>
+	<template v-slot:title>
+	  {{ message.data.subject.substr(0,16) }}
+	  <b-button size="sm" variant="light" class="float-right ml-2 p-0" @click="closeTab(message.uuid)">
+	    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	      <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+	    </svg>
+	  </b-button>
+	</template>
+	<message-content
+	  :message="message"
+	  :tags="tags"
+	  :accountSelected="accountSelected"
+	  class="m-2 mb-4">
+	</message-content>
+      </b-tab>
+    </b-tabs>
   </div>
 
 </div>
@@ -376,6 +377,7 @@ export default {
 	    draftMessageSelected: null,
 	    queuedMessages: null,
 	    messages: [],
+	    tabbedMessages: [],
 	    perPage: 8,
 	    perPageOptions: [ 8, 16, 32 ],
 	    currentPage: 1,
@@ -515,8 +517,17 @@ export default {
             this.currentPage = 1
 	},
 	onMessageRowClicked (item, index) {
-	    this.$set(item, '_showDetails', !item._showDetails)
-	}
+	    if (!this.tabbedMessages.includes(item)) {
+		this.tabbedMessages.push(item)
+	    }
+	},
+	closeTab(uuid) {
+	    for (let i = 0; i < this.tabbedMessages.length; i++) {
+		if (this.tabbedMessages[i].uuid === uuid) {
+		    this.tabbedMessages.splice(i, 1)
+		}
+            }
+	},
     },
     mounted() {
 	this.fetchAccounts()
@@ -551,6 +562,9 @@ export default {
 	},
 	tagRequired: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
+	},
+	accountSelected: function () {
+	    this.tabbedMessages = []
 	},
 	// refreshMinutes: function () {
 	//     clearInterval(this.refreshInterval)
