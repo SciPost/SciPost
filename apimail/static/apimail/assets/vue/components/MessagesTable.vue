@@ -95,8 +95,14 @@
     </table>
   </div>
 
-  <h2 class="m-2">Click on an account to view messages</h2>
-  <table class="table mb-4">
+  <div class="accounts-table text-white">
+  <h2 class="p-2 mb-0 text-center">Click on an account to view messages</h2>
+  <table
+    class="table mb-4 text-white"
+    selectable
+    :select-mode="single"
+    :selected-variant="danger"
+    >
     <tr>
       <th>Account</th>
       <th>Address</th>
@@ -118,6 +124,7 @@
       <td>{{ access.date_until }}</td>
     </tr>
   </table>
+  </div>
 
   <div v-if="accountSelected" :key="accountSelected.pk">
     <b-card bg-variant="light">
@@ -585,3 +592,12 @@ export default {
 }
 
 </script>
+
+<style>
+  .accounts-table {
+  background-color: #002b49;
+  }
+  .highlight {
+  background-color: #496bb6;
+  }
+</style>
