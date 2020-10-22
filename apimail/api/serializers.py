@@ -51,6 +51,7 @@ class ComposedMessageAPIResponseSerializer(serializers.ModelSerializer):
 
 
 class ComposedMessageSerializer(serializers.ModelSerializer):
+    from_email = serializers.SerializerMethodField()
     attachment_files = AttachmentFileSerializer(many=True, read_only=True)
     api_responses = ComposedMessageAPIResponseSerializer(many=True, read_only=True)
 
@@ -58,10 +59,13 @@ class ComposedMessageSerializer(serializers.ModelSerializer):
         model = ComposedMessage
         fields = [
             'uuid', 'author', 'created_on', 'status',
-            'from_account', 'to_recipient', 'cc_recipients', 'bcc_recipients',
+            'from_account', 'from_email', 'to_recipient', 'cc_recipients', 'bcc_recipients',
             'subject', 'body_text', 'body_html',
             'attachment_files', 'api_responses'
         ]
+
+    def get_from_email(self, obj):
+        return obj.from_account.email
 
     def create(self, validated_data):
         attachment_uuids = validated_data.pop('attachment_uuids')

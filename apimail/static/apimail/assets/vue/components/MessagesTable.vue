@@ -70,7 +70,7 @@
       <tr
 	v-for="draftmsg in draftMessages"
 	>
-	<td>{{ draftmsg.from_account }}</td>
+	<td>{{ draftmsg.from_email }}</td>
 	<td>{{ draftmsg.to_recipient }}</td>
 	<td>{{ draftmsg.subject }}</td>
 	<td>{{ draftmsg.status }}</td>
@@ -163,17 +163,34 @@
 	  </b-form-group>
 	</b-col>
       </b-row>
-      <hr class="my-1">
+      <hr class="mt-1 mb-2">
       <b-row class="mb-0">
 	<b-col class="col-lg-1">
 	  <strong>Restrict:</strong>
 	</b-col>
 	<b-col class="col-lg-4">
 	  <b-form-group
+	    label="Last: "
+	    label-cols-sm="3"
+	    label-align-sm="right"
+	    label-size="sm"
+	    class="mb-0"
+	    >
+	    <b-form-radio-group
+	      v-model="timePeriod"
+	      buttons
+	      button-variant="primary"
+	      size="sm"
+	      :options="timePeriodOptions"
+	      >
+	    </b-form-radio-group>
+	  </b-form-group>
+	  <b-form-group
 	    label="Status:"
 	    label-cols-sm="3"
 	    label-align-sm="right"
 	    label-size="sm"
+	    class="mb-0"
 	    >
 	    <b-form-radio-group
 	      v-model="readStatus"
@@ -189,6 +206,7 @@
 	    label-cols-sm="3"
 	    label-align-sm="right"
 	    label-size="sm"
+	    class="mb-0"
 	    >
 	    <b-form-radio-group
 	      v-model="flowDirection"
@@ -228,25 +246,17 @@
 	  </b-button>
 	</b-col>
       </b-row>
-      <hr class="my-1">
-      <b-row>
-	<b-col class="col-lg-1">
-	  <strong>Search:</strong>
-	</b-col>
+      <hr class="mt-1 mb-2">
+      <b-row class="mb-0">
 	<b-col class="col-lg-6">
-	  <b-form-group
-	    label-cols-sm="3"
-	    label="Filter:"
-            label-align-sm="right"
-            label-size="sm"
-	    >
+	  <b-form-group>
 	    <b-input-group size="sm">
 	      <b-form-input
 		v-model="filter"
 		debounce="250"
 		type="search"
 		id="filterInput"
-		placeholder="Type to search"
+		placeholder="Type to filter"
 		>
 	      </b-form-input>
 	      <b-input-group-append>
@@ -254,24 +264,8 @@
 	      </b-input-group-append>
 	    </b-input-group>
 	  </b-form-group>
-	  <b-form-group
-	    label="Period: last"
-	    label-cols-sm="3"
-	    label-align-sm="right"
-	    label-size="sm"
-	    class="mb-0"
-	    >
-	    <b-form-radio-group
-	      v-model="timePeriod"
-	      buttons
-	      button-variant="primary"
-	      size="sm"
-	      :options="timePeriodOptions"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
 	</b-col>
-	<b-col class="col-lg-5 mb-0">
+	<b-col class="col-lg-6 mb-0">
 	  <b-form-group
             label="Filter on:"
 	    label-cols-sm="3"
@@ -316,7 +310,9 @@
 	Tags
       </template>
       <template v-slot:cell(read)="row">
-	<b-badge variant="primary">{{ row.item.read ? "" : "&emsp;" }}</b-badge>
+	<div v-if="!row.item.read">
+	  <b-badge variant="primary">&emsp;</b-badge>
+	</div>
       </template>
       <template v-slot:cell(tags)="row">
 	<ul class="list-inline">
@@ -442,7 +438,7 @@ export default {
 		{ text: 'week', value: 'week' },
 		{ text: 'month', value: 'month' },
 		{ text: 'year', value: 'year' },
-		{ text: 'any time', value: 'any' },
+		{ text: 'any', value: 'any' },
 	    ],
 	    readStatus: null,
 	    readStatusOptions: [
