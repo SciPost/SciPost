@@ -153,12 +153,12 @@
 	    <b-form-radio-group
 	      v-model="refreshMinutes"
 	      buttons
-	      button-variant="info"
+	      button-variant="primary"
 	      size="sm"
 	      :options="refreshMinutesOptions"
 	      class="float-center"
 	      >
-	      minutes
+	      &nbsp;minutes
 	    </b-form-radio-group>
 	  </b-form-group>
 	</b-col>
@@ -178,7 +178,7 @@
 	    <b-form-radio-group
 	      v-model="readStatus"
 	      buttons
-	      button-variant="info"
+	      button-variant="primary"
 	      size="sm"
 	      :options="readStatusOptions"
 	      >
@@ -193,7 +193,7 @@
 	    <b-form-radio-group
 	      v-model="flowDirection"
 	      buttons
-	      button-variant="info"
+	      button-variant="primary"
 	      size="sm"
 	      :options="flowDirectionOptions"
 	      >
@@ -255,7 +255,7 @@
 	    </b-input-group>
 	  </b-form-group>
 	  <b-form-group
-	    label="Period:"
+	    label="Period: last"
 	    label-cols-sm="3"
 	    label-align-sm="right"
 	    label-size="sm"
@@ -264,7 +264,7 @@
 	    <b-form-radio-group
 	      v-model="timePeriod"
 	      buttons
-	      button-variant="info"
+	      button-variant="primary"
 	      size="sm"
 	      :options="timePeriodOptions"
 	      >
@@ -336,7 +336,7 @@
       <b-row>
 	<b-col class="col-lg-4">
 	  <div class="text-center">
-	    <b-button size="sm" variant="secondary" class="p-2">{{ totalRows }} messages</b-button>
+	    <b-button size="sm" variant="info" class="p-2">{{ totalRows }} messages</b-button>
 	  </div>
 	</b-col>
 	<b-col class="col-lg-4">
@@ -439,10 +439,10 @@ export default {
 	    filterOn: [],
 	    timePeriod: 'any',
 	    timePeriodOptions: [
-		{ text: 'Last week', value: 'week' },
-		{ text: 'Last month', value: 'month' },
-		{ text: 'Last year', value: 'year' },
-		{ text: 'Any time', value: 'any' },
+		{ text: 'week', value: 'week' },
+		{ text: 'month', value: 'month' },
+		{ text: 'year', value: 'year' },
+		{ text: 'any time', value: 'any' },
 	    ],
 	    readStatus: null,
 	    readStatusOptions: [
@@ -452,9 +452,9 @@ export default {
 	    ],
 	    flowDirection: 'in',
 	    flowDirectionOptions: [
-		{ text: 'In', value: 'in' },
-		{ text: 'Out', value: 'out' },
-		{ text: 'Both', value: null }
+		{ text: 'in', value: 'in' },
+		{ text: 'out', value: 'out' },
+		{ text: 'both', value: null }
 	    ],
 	    refreshInterval: null,
 	    refreshMinutes: 1,
