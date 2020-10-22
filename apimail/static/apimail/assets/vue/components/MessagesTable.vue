@@ -7,7 +7,7 @@
       v-b-modal.modal-newdraft
       variant="primary"
       >
-      Compose a new message
+      New message
     </b-button>
 
     <b-modal
@@ -96,34 +96,35 @@
   </div>
 
   <div class="accounts-table text-white">
-  <h2 class="p-2 mb-0 text-center">Click on an account to view messages</h2>
-  <table
-    class="table mb-4 text-white"
-    selectable
-    :select-mode="single"
-    :selected-variant="danger"
-    >
-    <tr>
-      <th>Account</th>
-      <th>Address</th>
-      <th>Rights</th>
-      <th>From</th>
-      <th>Until</th>
-    </tr>
-    <tr
-      v-for="access in accesses"
-      v-bind:class="{'highlight': isSelected(access.account.email)}"
-      v-on:click="accountSelected = access.account"
-      v-on:change=""
-      class="p-2 m-0"
+    <h1 class="p-2 mb-0 text-center">Your email accounts</h1>
+    <div class="text-center mb-1"><em>(click on a row to see messages)</em></div>
+    <table
+      class="table mb-4 text-white"
+      selectable
+      :select-mode="single"
+      :selected-variant="danger"
       >
-      <td>{{ access.account.name }}</td>
-      <td>{{ access.account.email }}</td>
-      <td>{{ access.rights }}</td>
-      <td>{{ access.date_from }}</td>
-      <td>{{ access.date_until }}</td>
-    </tr>
-  </table>
+      <tr>
+	<th>Account</th>
+	<th>Address</th>
+	<th>Rights</th>
+	<th>From</th>
+	<th>Until</th>
+      </tr>
+      <tr
+	v-for="access in accesses"
+	v-bind:class="{'highlight': isSelected(access.account.email)}"
+	v-on:click="accountSelected = access.account"
+	v-on:change=""
+	class="p-2 m-0"
+	>
+	<td>{{ access.account.name }}</td>
+	<td>{{ access.account.email }}</td>
+	<td>{{ access.rights }}</td>
+	<td>{{ access.date_from }}</td>
+	<td>{{ access.date_until }}</td>
+      </tr>
+    </table>
   </div>
 
   <div v-if="accountSelected" :key="accountSelected.pk">
@@ -151,6 +152,9 @@
 	    >
 	    <b-form-radio-group
 	      v-model="refreshMinutes"
+	      buttons
+	      button-variant="info"
+	      size="sm"
 	      :options="refreshMinutesOptions"
 	      class="float-center"
 	      >
@@ -173,7 +177,25 @@
 	    >
 	    <b-form-radio-group
 	      v-model="readStatus"
+	      buttons
+	      button-variant="info"
+	      size="sm"
 	      :options="readStatusOptions"
+	      >
+	    </b-form-radio-group>
+	  </b-form-group>
+	  <b-form-group
+	    label="Flow:"
+	    label-cols-sm="3"
+	    label-align-sm="right"
+	    label-size="sm"
+	    >
+	    <b-form-radio-group
+	      v-model="flowDirection"
+	      buttons
+	      button-variant="info"
+	      size="sm"
+	      :options="flowDirectionOptions"
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
@@ -241,6 +263,9 @@
 	    >
 	    <b-form-radio-group
 	      v-model="timePeriod"
+	      buttons
+	      button-variant="info"
+	      size="sm"
 	      :options="timePeriodOptions"
 	      >
 	    </b-form-radio-group>
@@ -425,6 +450,12 @@ export default {
 		{ text: 'read', value: true },
 		{ text: 'all', value: null },
 	    ],
+	    flowDirection: 'in',
+	    flowDirectionOptions: [
+		{ text: 'In', value: 'in' },
+		{ text: 'Out', value: 'out' },
+		{ text: 'Both', value: null }
+	    ],
 	    refreshInterval: null,
 	    refreshMinutes: 1,
 	    refreshMinutesOptions: [ 1, 5, 15 ],
@@ -492,6 +523,10 @@ export default {
 	    var params = '?account=' + this.accountSelected.email
 	    // Our API uses limit/offset pagination
 	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
+	    // Add flow direction
+	    if (this.flowDirection) {
+		params += '&flow=' + this.flowDirection
+	    }
 	    // Add search time period
 	    params += '&period=' + this.timePeriod
 	    if (this.readStatus !== null) {
@@ -576,6 +611,9 @@ export default {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	readStatus: function () {
+	    this.$root.$emit('bv::refresh::table', 'my-table')
+	},
+	flowDirection: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	tagRequired: function () {

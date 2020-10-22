@@ -152,6 +152,14 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
         queryset = StoredMessage.objects.all()
         queryfilter = Q()
 
+        flow = request.query_params.get('flow', None)
+        if flow == 'in':
+            # Restrict to incoming emails
+            queryset = queryset.exclude(data__sender=request.query_params.get('account'))
+        elif flow == 'out':
+            # Restrict to outgoing emails
+            queryset = queryset.filter(data__sender=request.query_params.get('account'))
+
         period = request.query_params.get('period', 'any')
         if period != 'any':
             days = 365
