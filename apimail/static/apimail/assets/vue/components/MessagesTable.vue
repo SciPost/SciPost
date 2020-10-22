@@ -329,7 +329,7 @@
       </template>
     </b-table>
     <b-card bg-variant="light" class="pb-0">
-      <b-row>
+      <b-row class="mb-0">
 	<b-col class="col-lg-4">
 	  <div class="text-center">
 	    <b-button size="sm" variant="info" class="p-2">{{ totalRows }} messages</b-button>
@@ -341,6 +341,7 @@
 	    :total-rows="totalRows"
 	    :per-page="perPage"
 	    class="m-1"
+	    size="sm"
 	    align="center"
 	    aria-controls="my-table"
 	    >
