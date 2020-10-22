@@ -115,27 +115,43 @@
       <hr>
       <div class="text-dark">
 	<b-row>
-	<b-col class="col-lg-8">
-	  On: {{ message.datetimestamp }}
-	  <br>
-	  Subject: <strong>{{ message.data.subject }}</strong>
-	  <br>
-	  From: {{ message.data.from }}
-	  <br>
-	  Recipients: {{ message.data.recipients }}
-	</b-col>
-	<b-col class="col-lg-4">
-	  <h5>Events for this message:</h5>
-	  <ul class="list-unstyled">
-	    <li v-for="event in message.event_set">
-	      <small>
-		{{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
-		<span v-if="event.data.recipient">&emsp;
-		  [{{ event.data.recipient }}]</span>
-	      </small>
-	    </li>
-	  </ul>
-	</b-col>
+	  <b-col class="col-lg-10">
+	    On: {{ message.datetimestamp }}
+	    <br>
+	    Subject: <strong>{{ message.data.subject }}</strong>
+	    <br>
+	    From: {{ message.data.from }}
+	    <br>
+	    Recipients: {{ message.data.recipients }}
+	  </b-col>
+	  <b-col class="col-lg-2">
+	    <b-button
+	      v-b-modal="'message-events-modal' + message.uuid"
+	      variant="secondary"
+	      >
+	      <small>View all events</small>
+	    </b-button>
+	    <b-modal
+	      :id="'message-events-modal' + message.uuid"
+	      centered
+	      hide-header-close
+	      >
+	      <ul class="list-unstyled">
+	    	<li v-for="event in message.event_set">
+	    	  <small>
+	    	    {{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
+	    	    <span v-if="event.data.recipient">&emsp;
+	    	      [{{ event.data.recipient }}]</span>
+	    	  </small>
+	    	</li>
+	      </ul>
+	      <template v-slot:modal-footer="{ close, }">
+		<b-button size="sm" variant="info" @click="close()">
+		  Close
+		</b-button>
+	      </template>
+	    </b-modal>
+	  </b-col>
 	</b-row>
       </div>
     </template>
