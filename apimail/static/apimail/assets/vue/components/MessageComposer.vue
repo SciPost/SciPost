@@ -457,6 +457,10 @@ export default {
     },
     mounted () {
 	this.fetchCurrentAccounts()
+	if (this.accountSelected) {
+	    this.form.from_account = this.accountSelected.pk
+	    this.form.headers_added['Reply-To'] = this.accountSelected.email
+	}
 	if (this.draftmessage) {
 	    this.currentdraft_uuid = this.draftmessage.uuid
 	    this.form.from_account = this.draftmessage.from_account
@@ -468,9 +472,7 @@ export default {
 	    this.form.attachments = this.draftmessage.attachment_files
 	}
       	else if (this.originalmessage) {
-	    this.form.from_account = this.accountSelected.pk
       	    this.form.body_html = ('<br><br><blockquote>')
-	    this.form.headers_added['Reply-To'] = this.accountSelected.email
 	    this.form.headers_added['In-Reply-To'] = this.originalmessage.data['Message-Id']
 	    if (this.originalmessage.data['References']) {
 		this.form.headers_added['References'] = (

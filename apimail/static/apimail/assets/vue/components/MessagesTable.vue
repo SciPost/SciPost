@@ -18,7 +18,10 @@
       no-close-on-escape
       no-close-on-backdrop
       >
-      <message-composer></message-composer>
+      <message-composer
+	:accountSelected="accountSelected"
+	>
+      </message-composer>
       <template v-slot:modal-footer="{ close, }">
 	<b-button variant="danger" class="px-2 py-1" @click="close()">
 	  Close
