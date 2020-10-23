@@ -34,7 +34,6 @@
     id="modal-resumedraft"
     size="xl"
     title="Rework draft"
-    hide-header-close
     no-close-on-escape
     no-close-on-backdrop
     >

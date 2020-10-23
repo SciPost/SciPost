@@ -1,6 +1,6 @@
 <template>
 <div>
-  <h1 class="mb-4">Compose email message</h1>
+  <h1 class="mb-1">Compose email message</h1>
   <template v-if="!markReadySuccessful" class="mt-4">
     <b-button
       type="savedraft"
@@ -16,9 +16,32 @@
       variant="primary"
       @click.stop.prevent="saveMessage('ready')"
       >
-	Send
-      </b-button>
+      Send
+    </b-button>
   </template>
+  <template v-if="saveDraftSuccessful">
+    <p class="m-2 p-2 bg-success text-white">
+      The message draft was successfully saved.
+    </p>
+  </template>
+  <template v-else-if="markReadySuccessful">
+    <p class="m-2 p-2 bg-success text-white">
+      The message was successfully queued for sending.
+    </p>
+  </template>
+  <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
+    <div class="bg-danger text-white">
+      <p class="mx-2 mb-0 p-2">
+	The server responded with errors, please check and try again.
+      </p>
+      <ul class="pb-2">
+	<li class="m-2" v-for="(field, error) in response_body_json">
+	  {{ error }}:&emsp;{{ field }}
+	</li>
+      </ul>
+    </div>
+  </template>
+  <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
   <b-form>
     <b-row>
       <b-col class="col-lg-6">
@@ -26,7 +49,6 @@
 	  id="from_account"
 	  label="From:"
 	  label-for="input-from-account-access"
-	  class="mb-4"
 	  >
 	  <b-form-select
 	    id="input-from-account"
@@ -44,7 +66,6 @@
 	  id="to-recipient"
 	  label="To:"
 	  label-for="input-to-recipient"
-	  class="mb-4"
 	  >
 	  <b-form-input
 	    id="input-to-recipient"
@@ -62,7 +83,6 @@
 	<b-form-group
 	  id="cc"
 	  label="cc:"
-	  class="mb-4"
 	  >
 	  <email-list-editable :emails="form.cc_recipients" keyword="cc"></email-list-editable>
 	</b-form-group>
@@ -71,7 +91,6 @@
 	<b-form-group
 	  id="bcc"
 	  label="bcc:"
-	  class="mb-4"
 	  >
 	  <email-list-editable :emails="form.bcc_recipients" keyword="bcc"></email-list-editable>
 	</b-form-group>
@@ -242,44 +261,6 @@
       </div>
     </editor-menu-bar>
     <editor-content class="editor__content m-1 p-1" :editor="editor" />
-
-    <template v-if="!markReadySuccessful" class="mt-4">
-      <b-button
-	type="savedraft"
-	class="text-white px-2 py-1"
-	variant="warning"
-	@click.stop.prevent="saveMessage('draft')"
-	>
-	Save draft
-      </b-button>
-      <b-button
-	type="send"
-	class="text-white px-2 py-1"
-	variant="primary"
-	@click.stop.prevent="saveMessage('ready')"
-	>
-	Send
-      </b-button>
-    </template>
-    <template v-if="saveDraftSuccessful">
-      <p class="m-2 p-2 bg-success text-white">
-	The message draft was successfully saved.
-      </p>
-    </template>
-    <template v-else-if="markReadySuccessful">
-      <p class="m-2 p-2 bg-success text-white">
-	The message was successfully queued for sending.
-      </p>
-    </template>
-    <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
-      <p class="m-2 p-2 bg-danger text-white">
-	The server responded with an error, please check and try again.<br>
-	{{ response_body_json }}
-      </p>
-    </template>
-
-    <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
-
   </b-form>
 </div>
 </template>
