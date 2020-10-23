@@ -132,25 +132,7 @@
       <h2 class="text-center mb-2">Messages&nbsp;for&emsp;<strong>{{ accountSelected.email }}</strong></h2>
       <hr class="my-2">
       <b-row class="mb-0">
-	<b-col class="col-lg-4">
-	  <b-form-group
-	    label="View by "
-	    label-cols-sm="6"
-	    label-align-sm="right"
-	    label-size="sm"
-	    >
-	    <b-form-radio-group
-	      v-model="viewFormat"
-	      buttons
-	      button-variant="outline-primary"
-	      size="sm"
-	      :options="viewFormatOptions"
-	      class="float-center"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
-	</b-col>
-	<b-col md="auto">
+	<b-col class="col-lg-6">
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -161,7 +143,7 @@
 	    Refresh now
 	  </b-badge>
 	</b-col>
-	<b-col>
+	<b-col class="col-lg-6">
 	  <b-form-group
 	    label="Refresh interval: "
 	    label-cols-sm="6"
@@ -473,11 +455,6 @@ export default {
 	    ],
 	    filter: null,
 	    filterOn: [],
-	    viewFormat: 'by_message',
-	    viewFormatOptions: [
-		{ text: 'message', value: 'by_message' },
-		{ text: 'thread', value: 'by_thread' },
-	    ],
 	    threadOf: null,
 	    timePeriod: 'any',
 	    timePeriodOptions: [
@@ -565,10 +542,6 @@ export default {
 	    var params = '?account=' + this.accountSelected.email
 	    // Our API uses limit/offset pagination
 	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
-	    // By message or thread view:
-	    if (this.viewFormat == 'by_thread') {
-		params += '&view=by_thread'
-	    }
 	    if (this.threadOf) {
 		params += '&thread_of_uuid=' + this.threadOf
 	    }
@@ -651,9 +624,6 @@ export default {
     },
     watch: {
 	accountSelected: function () {
-	    this.$root.$emit('bv::refresh::table', 'my-table')
-	},
-	viewFormat: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	threadOf: function () {

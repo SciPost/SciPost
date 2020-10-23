@@ -152,10 +152,6 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
         queryset = StoredMessage.objects.all()
         queryfilter = Q()
 
-        view_option = request.query_params.get('view', None)
-        if view_option == 'by_thread':
-            queryset = queryset.filter(data__References__isnull=True)
-
         thread_of_uuid = request.query_params.get('thread_of_uuid', None)
         if thread_of_uuid:
             # Identify email thread using data['References'] or data['Message-Id'].
