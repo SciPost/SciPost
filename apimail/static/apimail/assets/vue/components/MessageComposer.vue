@@ -330,6 +330,7 @@ export default {
 		bcc_recipients: [],
 		subject: '',
 		body_html: '',
+		headers_added: {},
 		attachments: [],
 	    },
 	    from_account_accesses: [],
@@ -404,6 +405,7 @@ export default {
 			  'subject': this.form.subject,
 			  'body_text': this.form.body_html, // TODO: remove; only html emails
 			  'body_html': this.sanitized_body_html,
+			  'headers_added': this.form.headers_added,
 			  'attachment_uuids': attachment_uuids
 	    	      })
 	    	  })
@@ -450,6 +452,16 @@ export default {
       	else if (this.originalmessage) {
 	    this.form.from_account = this.accountSelected.pk
       	    this.form.body_html = ('<br><br><blockquote>')
+	    this.form.headers_added['Reply-To'] = this.accountSelected.email
+	    this.form.headers_added['In-Reply-To'] = this.originalmessage.data['Message-Id']
+	    if (this.originalmessage.data['References']) {
+		this.form.headers_added['References'] = (
+		    this.originalmessage.data['References'] + " "
+			+ this.originalmessage.data['Message-Id'])
+	    }
+	    else {
+		this.form.headers_added['References'] = this.originalmessage.data['Message-Id']
+	    }
 	    if (this.action == 'reply') {
       		this.form.to_recipient = this.originalmessage.data.sender
 		this.form.cc_recipients = this.originalmessage.data.recipients.split(',')

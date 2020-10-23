@@ -59,8 +59,10 @@ class ComposedMessageSerializer(serializers.ModelSerializer):
         model = ComposedMessage
         fields = [
             'uuid', 'author', 'created_on', 'status',
-            'from_account', 'from_email', 'to_recipient', 'cc_recipients', 'bcc_recipients',
+            'from_account', 'from_email',
+            'to_recipient', 'cc_recipients', 'bcc_recipients',
             'subject', 'body_text', 'body_html',
+            'headers_added',
             'attachment_files', 'api_responses'
         ]
 

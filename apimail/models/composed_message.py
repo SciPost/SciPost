@@ -64,6 +64,8 @@ class ComposedMessage(models.Model):
     body_text = models.TextField(blank=True)
     body_html = models.TextField(blank=True)
 
+    headers_added = JSONField(default=dict)
+
     attachment_files = models.ManyToManyField(
         'apimail.AttachmentFile',
         blank=True)

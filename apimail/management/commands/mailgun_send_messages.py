@@ -28,6 +28,11 @@ class Command(BaseCommand):
             if msg.bcc_recipients:
                 data['bcc'] = msg.bcc_recipients
 
+            # RFC 2822 MIME headers:
+            for key, val in msg.headers_added.items():
+                h_key = "h:%s" % key
+                data[h_key] = val
+
             files = [('attachment', (att.data['name'], att.file.read()))
                      for att in msg.attachment_files.all()]
 
