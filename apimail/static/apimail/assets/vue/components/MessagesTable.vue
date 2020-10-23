@@ -95,14 +95,13 @@
     </table>
   </div>
 
-  <div class="accounts-table text-white">
+  <div class="accounts-table">
     <h1 class="p-2 mb-0 text-center">Your email accounts</h1>
     <div class="text-center mb-1"><em>(click on a row to see messages)</em></div>
     <table
-      class="table mb-4 text-white"
+      class="table mb-4"
       selectable
       :select-mode="single"
-      :selected-variant="danger"
       >
       <tr>
 	<th>Account</th>
@@ -291,9 +290,9 @@
       </b-row>
     </b-card>
     <div v-if="threadOf" class="m-2">
-      <b-button size="sm" variant="info"><strong>Focusing on thread {{ threadOf }}</strong></b-button>
+      <b-button size="sm" variant="info"><strong>Focusing on thread</strong></b-button>
       <b-button size="sm" variant="warning" @click="threadOf = null">
-	Unfocus this thread
+	Unfocus
       </b-button>
     </div>
     <b-table
@@ -388,12 +387,12 @@
 	  <br>
 	</template>
 	<div v-if="threadOf != message.uuid">
-	  <b-button class="m-2" variant="primary" @click="threadOf = message.uuid">
+	  <b-button class="m-2" size="sm" variant="primary" @click="threadOf = message.uuid">
 	    Focus on this thread
 	  </b-button>
 	</div>
 	<div v-else>
-	  <b-button class="m-2" variant="warning" @click="threadOf = null">
+	  <b-button class="m-2" size="sm" variant="warning" @click="threadOf = null">
 	    Unfocus this thread
 	  </b-button>
 	</div>
@@ -470,6 +469,7 @@ export default {
 		{ text: 'all', value: null },
 	    ],
 	    flowDirection: 'in',
+	    flowDirectionLastNotNull: 'in',
 	    flowDirectionOptions: [
 		{ text: 'in', value: 'in' },
 		{ text: 'out', value: 'out' },
@@ -627,6 +627,13 @@ export default {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	threadOf: function () {
+	    if (this.threadOf == null) {
+		this.flowDirection = this.flowDirectionLastNotNull
+	    }
+	    else {
+		this.flowDirectionLastNotNull = this.flowDirection
+		this.flowDirection = null
+	    }
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	timePeriod: function () {
@@ -639,6 +646,9 @@ export default {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	flowDirection: function () {
+	    if (this.flowDirection != null) {
+		this.flowDirectionLastNotNull = this.flowDirection
+	    }
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	tagRequired: function () {
@@ -658,9 +668,10 @@ export default {
 
 <style>
   .accounts-table {
-  background-color: #002b49;
+  background-color: #d3e3f6;
   }
   .highlight {
   background-color: #496bb6;
+  color: white;
   }
 </style>
