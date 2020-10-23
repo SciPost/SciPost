@@ -1,6 +1,24 @@
 <template>
 <div>
   <h1 class="mb-4">Compose email message</h1>
+  <template v-if="!markReadySuccessful" class="mt-4">
+    <b-button
+      type="savedraft"
+      class="text-white px-2 py-1 my-2"
+      variant="warning"
+      @click.stop.prevent="saveMessage('draft')"
+      >
+      Save draft
+    </b-button>
+    <b-button
+      type="send"
+      class="text-white px-2 py-1 my-2"
+      variant="primary"
+      @click.stop.prevent="saveMessage('ready')"
+      >
+	Send
+      </b-button>
+  </template>
   <b-form>
     <b-row>
       <b-col class="col-lg-6">
@@ -228,7 +246,7 @@
     <template v-if="!markReadySuccessful" class="mt-4">
       <b-button
 	type="savedraft"
-	class="text-white px-1 py-0"
+	class="text-white px-2 py-1"
 	variant="warning"
 	@click.stop.prevent="saveMessage('draft')"
 	>
@@ -236,7 +254,7 @@
       </b-button>
       <b-button
 	type="send"
-	class="text-white px-1 py-0"
+	class="text-white px-2 py-1"
 	variant="primary"
 	@click.stop.prevent="saveMessage('ready')"
 	>

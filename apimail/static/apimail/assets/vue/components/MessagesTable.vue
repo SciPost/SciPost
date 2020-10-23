@@ -20,7 +20,7 @@
       >
       <message-composer></message-composer>
       <template v-slot:modal-footer="{ close, }">
-	<b-button size="sm" variant="danger" @click="close()">
+	<b-button variant="danger" class="px-2 py-1" @click="close()">
 	  Close
 	</b-button>
       </template>
