@@ -152,6 +152,44 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
         queryset = StoredMessage.objects.all()
         queryfilter = Q()
 
+        view_option = request.query_params.get('view', None)
+        if view_option == 'by_thread':
+            queryset = queryset.filter(data__References__isnull=True)
+
+        thread_of_uuid = request.query_params.get('thread_of_uuid', None)
+        if thread_of_uuid:
+            # Identify email thread using data['References'] or data['Message-Id'].
+            # Since Django ORM does not support hyphenated lookups, use raw SQL.
+            # First find the message at the root of the thread. which is the message
+            # with Message-Id first in the list of the message with uuid `thread_of_uuid`
+            reference_message = get_object_or_404(StoredMessage, uuid=thread_of_uuid)
+
+            # First try the RFC 2822 References MIME header:
+            head_id = None
+            try:
+                head_id = reference_message.data['References'].split()[0]
+            except KeyError:
+                # Then try the RFC 2822 In-Reply-To
+                try:
+                    head_id = reference_message.data['In-Reply-To'].split()[0]
+                except KeyError:
+                    # This message is head of the thread as far as can be guessed
+                    head_id = reference_message.data['Message-Id']
+
+            if head_id:
+                thread_query_raw = (
+                    "SELECT apimail_storedmessage.id FROM apimail_storedmessage "
+                    "WHERE UPPER((apimail_storedmessage.data ->> %s)::text) LIKE UPPER(%s) "
+                    "OR UPPER((apimail_storedmessage.data ->> %s)::text) LIKE UPPER(%s) "
+                    "ORDER BY apimail_storedmessage.datetimestamp DESC;")
+                sm_ids = [sm.id for sm in StoredMessage.objects.raw(
+                    thread_query_raw,
+                    ['Message-Id', '%%%s%%' % head_id, 'References', '%%%s%%' % head_id])]
+                queryset = queryset.filter(pk__in=sm_ids)
+            else:
+                queryset = queryset.filter(uuid=thread_of_uuid)
+
+
         flow = request.query_params.get('flow', None)
         if flow == 'in':
             # Restrict to incoming emails

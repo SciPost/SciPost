@@ -132,7 +132,25 @@
       <h2 class="text-center mb-2">Messages&nbsp;for&emsp;<strong>{{ accountSelected.email }}</strong></h2>
       <hr class="my-2">
       <b-row class="mb-0">
-	<b-col class="col-lg-6">
+	<b-col class="col-lg-4">
+	  <b-form-group
+	    label="View by "
+	    label-cols-sm="6"
+	    label-align-sm="right"
+	    label-size="sm"
+	    >
+	    <b-form-radio-group
+	      v-model="viewFormat"
+	      buttons
+	      button-variant="outline-primary"
+	      size="sm"
+	      :options="viewFormatOptions"
+	      class="float-center"
+	      >
+	    </b-form-radio-group>
+	  </b-form-group>
+	</b-col>
+	<b-col md="auto">
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -143,9 +161,9 @@
 	    Refresh now
 	  </b-badge>
 	</b-col>
-	<b-col class="col-lg-6">
+	<b-col>
 	  <b-form-group
-	    label="Auto refresh every: "
+	    label="Refresh interval: "
 	    label-cols-sm="6"
 	    label-align-sm="right"
 	    label-size="sm"
@@ -158,7 +176,7 @@
 	      :options="refreshMinutesOptions"
 	      class="float-center"
 	      >
-	      &nbsp;minutes
+	      &nbsp;mins
 	    </b-form-radio-group>
 	  </b-form-group>
 	</b-col>
@@ -290,6 +308,12 @@
 	</b-col>
       </b-row>
     </b-card>
+    <div v-if="threadOf" class="m-2">
+      <b-button size="sm" variant="info"><strong>Focusing on thread {{ threadOf }}</strong></b-button>
+      <b-button size="sm" variant="warning" @click="threadOf = null">
+	Unfocus this thread
+      </b-button>
+    </div>
     <b-table
       id="my-table"
       class="mb-0"
@@ -379,7 +403,18 @@
 	      <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
 	    </svg>
 	  </b-button>
+	  <br>
 	</template>
+	<div v-if="threadOf != message.uuid">
+	  <b-button class="m-2" variant="primary" @click="threadOf = message.uuid">
+	    Focus on this thread
+	  </b-button>
+	</div>
+	<div v-else>
+	  <b-button class="m-2" variant="warning" @click="threadOf = null">
+	    Unfocus this thread
+	  </b-button>
+	</div>
 	<message-content
 	  :message="message"
 	  :tags="tags"
@@ -438,6 +473,12 @@ export default {
 	    ],
 	    filter: null,
 	    filterOn: [],
+	    viewFormat: 'by_message',
+	    viewFormatOptions: [
+		{ text: 'message', value: 'by_message' },
+		{ text: 'thread', value: 'by_thread' },
+	    ],
+	    threadOf: null,
 	    timePeriod: 'any',
 	    timePeriodOptions: [
 		{ text: 'week', value: 'week' },
@@ -524,6 +565,13 @@ export default {
 	    var params = '?account=' + this.accountSelected.email
 	    // Our API uses limit/offset pagination
 	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
+	    // By message or thread view:
+	    if (this.viewFormat == 'by_thread') {
+		params += '&view=by_thread'
+	    }
+	    if (this.threadOf) {
+		params += '&thread_of_uuid=' + this.threadOf
+	    }
 	    // Add flow direction
 	    if (this.flowDirection) {
 		params += '&flow=' + this.flowDirection
@@ -603,6 +651,12 @@ export default {
     },
     watch: {
 	accountSelected: function () {
+	    this.$root.$emit('bv::refresh::table', 'my-table')
+	},
+	viewFormat: function () {
+	    this.$root.$emit('bv::refresh::table', 'my-table')
+	},
+	threadOf: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	timePeriod: function () {
