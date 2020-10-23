@@ -153,7 +153,7 @@
 	    <b-form-radio-group
 	      v-model="refreshMinutes"
 	      buttons
-	      button-variant="primary"
+	      button-variant="outline-primary"
 	      size="sm"
 	      :options="refreshMinutesOptions"
 	      class="float-center"
@@ -179,7 +179,7 @@
 	    <b-form-radio-group
 	      v-model="timePeriod"
 	      buttons
-	      button-variant="primary"
+	      button-variant="outline-primary"
 	      size="sm"
 	      :options="timePeriodOptions"
 	      >
@@ -195,7 +195,7 @@
 	    <b-form-radio-group
 	      v-model="readStatus"
 	      buttons
-	      button-variant="primary"
+	      button-variant="outline-primary"
 	      size="sm"
 	      :options="readStatusOptions"
 	      >
@@ -211,7 +211,7 @@
 	    <b-form-radio-group
 	      v-model="flowDirection"
 	      buttons
-	      button-variant="primary"
+	      button-variant="outline-primary"
 	      size="sm"
 	      :options="flowDirectionOptions"
 	      >
@@ -276,7 +276,11 @@
 	    >
             <b-form-checkbox-group
 	      v-model="filterOn"
-	      class="mt-1 mb-0">
+	      buttons
+	      button-variant="outline-primary"
+	      class="mt-1 mb-0"
+	      size="sm"
+	      >
               <b-form-checkbox value="from">From</b-form-checkbox>
               <b-form-checkbox value="recipients">Recipients</b-form-checkbox>
               <b-form-checkbox value="subject">Subject</b-form-checkbox>
