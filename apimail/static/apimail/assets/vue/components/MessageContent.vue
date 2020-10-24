@@ -221,6 +221,23 @@ export default {
 	}
     },
     methods: {
+	markAsRead () {
+	    if (!this.message.read) {
+		fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
+		      {
+			  method: 'PATCH',
+			  headers: {
+			      "X-CSRFToken": csrftoken,
+			  }
+		      }
+		     ).then(function(response) {
+			 if (!response.ok) {
+			     throw new Error('HTTP error, status = ' + response.status);
+			 }
+		     });
+		this.message.read = true
+	    }
+	},
 	tagMessage (message, tag, action) {
 	    fetch('/mail/api/stored_message/' + message.uuid + '/tag',
 		  {
@@ -251,21 +268,11 @@ export default {
 	},
     },
     mounted () {
-	if (!this.message.read) {
-	    fetch('/mail/api/stored_message/' + this.message.uuid + '/mark_as_read',
-		  {
-		      method: 'PATCH',
-		      headers: {
-			  "X-CSRFToken": csrftoken,
-		      }
-		  }
-		 ).then(function(response) {
-		     if (!response.ok) {
-			 throw new Error('HTTP error, status = ' + response.status);
-		     }
-		 });
-	    this.message.read = true
-	}
+	this.markAsRead()
+    },
+    updated () {
+	// needed: mounted is called for leftmost tab in MessagesTable before any data is loaded
+	this.markAsRead()
     }
 }
 </script>

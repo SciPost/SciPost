@@ -293,7 +293,7 @@
     </b-card>
     <div v-if="threadOf" class="m-2">
       <b-button size="sm" variant="info"><strong>Focusing on thread</strong></b-button>
-      <b-button size="sm" variant="warning" @click="threadOf = null">
+      <b-button size="sm" variant="warning" @click="unfocusThread()">
 	Unfocus
       </b-button>
     </div>
@@ -317,13 +317,21 @@
       	  <strong>Loading...</strong>
       	</div>
       </template>
+      <template v-slot:head(read)="row">
+	<span v-if="threadOf">
+	  Tab
+	</span>
+      </template>
       <template v-slot:head(tags)="row">
 	Tags
       </template>
       <template v-slot:cell(read)="row">
-	<div v-if="!row.item.read">
+	<span v-if="tabbedMessages.includes(row.item)">
+	  {{ tabbedMessages.length - tabbedMessages.indexOf(row.item) }}
+	</span>
+	<span v-if="!row.item.read">
 	  <b-badge variant="primary">&emsp;</b-badge>
-	</div>
+	</span>
       </template>
       <template v-slot:cell(tags)="row">
 	<ul class="list-inline">
@@ -375,12 +383,15 @@
 	</b-col>
       </b-row>
     </b-card>
-    <b-tabs class="mt-4">
+    <b-tabs
+      class="mt-4"
+      lazy
+      >
       <b-tab
-	v-for="message in tabbedMessages"
+	v-for="(message, index) in tabbedMessages"
 	>
 	<template v-slot:title>
-	  {{ message.data.subject.substr(0,16) }}
+	  {{ tabbedMessages.length - index }}
 	  <b-button size="sm" variant="light" class="float-right ml-2 p-0" @click="closeTab(message.uuid)">
 	    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 	      <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -388,14 +399,9 @@
 	  </b-button>
 	  <br>
 	</template>
-	<div v-if="threadOf != message.uuid">
-	  <b-button class="m-2" size="sm" variant="primary" @click="threadOf = message.uuid">
-	    Focus on this thread
-	  </b-button>
-	</div>
-	<div v-else>
-	  <b-button class="m-2" size="sm" variant="warning" @click="threadOf = null">
-	    Unfocus this thread
+	<div v-if="!threadOf">
+	  <b-button class="m-2" size="sm" variant="primary" @click="focusOnThread(message.uuid)">
+	    Focus on this message's thread
 	  </b-button>
 	</div>
 	<message-content
@@ -438,7 +444,6 @@ export default {
 	    draftMessages: [],
 	    draftMessageSelected: null,
 	    queuedMessages: null,
-	    messages: [],
 	    tabbedMessages: [],
 	    perPage: 8,
 	    perPageOptions: [ 8, 16, 32 ],
@@ -579,6 +584,9 @@ export default {
 		.then(data => {
 		    const items = data.results
 		    this.totalRows = data.count
+		    if (this.threadOf) {
+			this.tabbedMessages = items
+		    }
 		    return items || []
 		})
 	},
@@ -597,6 +605,13 @@ export default {
 	    if (!this.tabbedMessages.includes(item)) {
 		this.tabbedMessages.push(item)
 	    }
+	},
+	focusOnThread (uuid) {
+	    this.threadOf = uuid
+	},
+	unfocusThread () {
+	    this.threadOf = null
+	    this.tabbedMessages = []
 	},
 	closeTab(uuid) {
 	    for (let i = 0; i < this.tabbedMessages.length; i++) {
