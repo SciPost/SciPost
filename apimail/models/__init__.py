@@ -15,3 +15,5 @@ from .event import Event
 from .stored_message import StoredMessage
 
 from .tag import UserTag
+
+from .validated_address import ValidatedAddress, AddressValidation

@@ -1,8 +1,7 @@
 __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
-
-#import pytz
+import pytz
 import uuid as uuid_lib
 
 from django.conf import settings

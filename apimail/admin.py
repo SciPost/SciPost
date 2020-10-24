@@ -11,7 +11,9 @@ from .models import (
     ComposedMessage, ComposedMessageAPIResponse,
     Event,
     StoredMessage,
-    UserTag)
+    UserTag,
+    ValidatedAddress, AddressValidation
+)
 
 
 admin.site.register(Domain)
@@ -66,3 +68,15 @@ class UserTagAdmin(admin.ModelAdmin):
     pass
 
 admin.site.register(UserTag, UserTagAdmin)
+
+
+class AddressValidationInline(admin.StackedInline):
+    model = AddressValidation
+    extra = 0
+    min_num = 0
+
+
+class ValidatedAddressAdmin(admin.ModelAdmin):
+    inlines = [AddressValidationInline,]
+
+admin.site.register(ValidatedAddress, ValidatedAddressAdmin)
