@@ -291,11 +291,15 @@
 	</b-col>
       </b-row>
     </b-card>
-    <div v-if="threadOf" class="m-2">
-      <b-button size="sm" variant="info"><strong>Focusing on thread</strong></b-button>
-      <b-button size="sm" variant="warning" @click="unfocusThread()">
-	Unfocus
-      </b-button>
+    <div v-if="threadOf" class="bg-primary text-white">
+      <b-row class="mt-2 p-2">
+	<b-col class="my-auto"><h2 class="my-0 px-2">Thread focusing is active</h2></b-col>
+	<b-col class="mx-auto">
+	  <b-button class="text-white float-right" variant="warning" @click="unfocusThread()">
+	    <strong>Turn off</strong>
+	  </b-button>
+	</b-col>
+      </b-row>
     </div>
     <b-table
       id="my-table"
@@ -317,18 +321,20 @@
       	  <strong>Loading...</strong>
       	</div>
       </template>
-      <template v-slot:head(read)="row">
-	<span v-if="threadOf">
+      <template v-slot:head(tab)="row">
+	<span v-if="tabbedMessages.length > 0">
 	  Tab
 	</span>
       </template>
       <template v-slot:head(tags)="row">
 	Tags
       </template>
-      <template v-slot:cell(read)="row">
-	<span v-if="tabbedMessages.includes(row.item)">
-	  {{ tabbedMessages.length - tabbedMessages.indexOf(row.item) }}
+      <template v-slot:cell(tab)="row">
+	<span v-if="isInTabbedMessages(row.item.uuid)">
+	  {{ tabbedMessages.length - indexInTabbedMessages(row.item.uuid) }}
 	</span>
+      </template>
+      <template v-slot:cell(read)="row">
 	<span v-if="!row.item.read">
 	  <b-badge variant="primary">&emsp;</b-badge>
 	</span>
@@ -392,7 +398,7 @@
 	>
 	<template v-slot:title>
 	  {{ tabbedMessages.length - index }}
-	  <b-button size="sm" variant="light" class="float-right ml-2 p-0" @click="closeTab(message.uuid)">
+	  <b-button v-if="!threadOf" size="sm" variant="light" class="float-right ml-2 p-0" @click="closeTab(message.uuid)">
 	    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 	      <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
 	    </svg>
@@ -413,7 +419,6 @@
       </b-tab>
     </b-tabs>
   </div>
-
 </div>
 </template>
 
@@ -451,7 +456,7 @@ export default {
 	    totalRows: 1,
 	    lastLoaded: null,
 	    fields: [
-		{ key: 'actions', label: '' },
+		{ key: 'tab', label: '' },
 		{ key: 'read', label: '' },
 		{ key: 'datetimestamp', label: 'On' },
 		{ key: 'data.subject', label: 'Subject' },
@@ -601,9 +606,20 @@ export default {
             this.totalRows = filteredItems.length
             this.currentPage = 1
 	},
+	indexInTabbedMessages (uuid) {
+	    for (let i = 0; i < this.tabbedMessages.length; i++) {
+		if (this.tabbedMessages[i].uuid == uuid) {
+		    return i
+		}
+	    }
+	    return -1
+	},
+	isInTabbedMessages (uuid) {
+	    return this.indexInTabbedMessages(uuid) != -1
+	},
 	onMessageRowClicked (item, index) {
-	    if (!this.tabbedMessages.includes(item)) {
-		this.tabbedMessages.push(item)
+	    if (!this.isInTabbedMessages(item.uuid)) {
+	    	this.tabbedMessages.push(item)
 	    }
 	},
 	focusOnThread (uuid) {
