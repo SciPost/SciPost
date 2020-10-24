@@ -3,13 +3,24 @@
 <div>
 
   <div v-if="currentSendingAccesses && currentSendingAccesses.length > 0" class="m-2 mb-4">
-    <b-button
-      v-b-modal.modal-newdraft
-      variant="primary"
-      >
-      New message
-    </b-button>
-
+    <b-button-toolbar aria-label="apimail button toolbar">
+      <b-button-group class="mx-1">
+	<b-button
+	  v-b-modal.modal-newdraft
+	  variant="primary"
+	  >
+	  New message
+	</b-button>
+      </b-button-group>
+      <b-button-group class="mx-1">
+	<b-button
+	  @click="showManageTagsModal"
+	  variant="primary"
+	  >
+	  Manage your tags
+	</b-button>
+      </b-button-group>
+    </b-button-toolbar>
     <b-modal
       id="modal-newdraft"
       size="xl"
@@ -98,8 +109,10 @@
   </div>
 
   <div class="accounts-table">
-    <h1 class="p-2 mb-0 text-center">Your email accounts</h1>
-    <div class="text-center mb-1"><em>(click on a row to see messages)</em></div>
+    <div class="bg-primary text-white pb-2">
+      <h1 class="p-2 mb-0 text-center">Your email accounts</h1>
+      <div class="text-center"><em>(click on a row to see messages)</em></div>
+    </div>
     <table
       class="table mb-4"
       selectable
@@ -164,7 +177,7 @@
 	  </b-form-group>
 	</b-col>
       </b-row>
-      <hr class="mt-1 mb-2">
+      <hr class="hr-lightweight mt-1 mb-2">
       <b-row class="mb-0">
 	<b-col class="col-lg-1">
 	  <strong>Restrict:</strong>
@@ -186,6 +199,8 @@
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
+	</b-col>
+	<b-col class="col-lg-4">
 	  <b-form-group
 	    label="Status:"
 	    label-cols-sm="3"
@@ -202,6 +217,8 @@
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
+	</b-col>
+	<b-col class="col-lg-3">
 	  <b-form-group
 	    label="Flow:"
 	    label-cols-sm="3"
@@ -219,10 +236,14 @@
 	    </b-form-radio-group>
 	  </b-form-group>
 	</b-col>
-	<b-col class="col-lg-5">
+      </b-row>
+      <hr class="hr-lightweight mt-1 mb-2">
+      <b-row class="mb-0">
+	<b-col class="col-lg-1">
+	  <strong>Tags:</strong>
+	</b-col>
+	<b-col class="col-lg-9">
 	  <b-form-group
-	    label="Tag:"
-	    label-cols-sm="3"
 	    label-align-sm="right"
 	    label-size="sm"
 	    >
@@ -247,7 +268,7 @@
 	  </b-button>
 	</b-col>
       </b-row>
-      <hr class="mt-1 mb-2">
+      <hr class="hr-lightweight mt-1 mb-2">
       <b-row class="mb-0">
 	<b-col class="col-lg-6">
 	  <b-form-group>
@@ -706,5 +727,10 @@ export default {
   .highlight {
   background-color: #496bb6;
   color: white;
+  }
+  .hr-lightweight {
+  background: #808080;
+  color: #808080;
+  height: 1px;
   }
 </style>
