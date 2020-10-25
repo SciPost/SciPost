@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from .account import EmailAccount, EmailAccountAccess
 
+from .address_book import AddressBookEntry
+
 from .attachment import AttachmentFile
 
 from .composed_message import ComposedMessage, ComposedMessageAPIResponse

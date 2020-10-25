@@ -16,3 +16,10 @@ from .composed_message import (
 )
 
 from .stored_message import StoredMessageSerializer
+
+from .validated_address import (
+    ValidatedAddressSerializer, AddressValidationSerializer,
+    ValidatedAddressSimpleSerializer
+)
+
+from .address_book import AddressBookEntrySerializer

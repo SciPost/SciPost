@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 from .account import EmailAccountListAPIView, UserEmailAccountAccessListAPIView
 
+from .address_book import check_address_book, AddressBookAPIView
+
 from .attachment import AttachmentFileCreateAPIView
 
 from .event import EventListAPIView, EventRetrieveAPIView

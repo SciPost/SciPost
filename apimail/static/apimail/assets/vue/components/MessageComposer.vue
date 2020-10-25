@@ -10,10 +10,31 @@
       >
       Save draft
     </b-button>
+    <span v-if="!allEmailsValid">
+      <b-button
+	type="validateemails"
+	class="text-white px-2 py-1 my-2"
+	variant="warning"
+	@click.stop.prevent="validateAllEmails()"
+	:disabled="emailValidationHasRun || (!form.to_recipient && form.cc_recipients.length == 0 && form.bcc_recipients == 0)"
+	>
+	Validate emails
+      </b-button>
+    </span>
+    <span v-else>
+      <b-button
+	type="validateemails"
+	class="text-white px-2 py-1 my-2"
+	variant="success"
+	>
+	All emails are validated
+      </b-button>
+    </span>
     <b-button
       type="send"
       class="text-white px-2 py-1 my-2"
       variant="primary"
+      :disabled="!emailValidationHasRun || !allEmailsValid"
       @click.stop.prevent="saveMessage('ready')"
       >
       Send
@@ -42,6 +63,15 @@
     </div>
   </template>
   <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
+  <template v-if="emailValidationHasRun && !allEmailsValid">
+    <p class="m-2 p-2">
+      <strong class="text-danger">Some email addresses cannot be sent to:</strong>
+      <ul class="mb-0">
+	<li v-for="item in emailValidations">{{ item.address }}&emsp;<span v-if="item.can_send" class="text-success">Can send</span><span v-else><strong class="text-danger">Cannot send: {{ item.result }}</strong></span></li>
+      </ul>
+      <strong class="text-danger">Please remove the failing addresses from your message draft.</strong>
+    </p>
+  </template>
   <b-form>
     <b-row>
       <b-col class="col-lg-6">
@@ -332,6 +362,9 @@ export default {
 		headers_added: {},
 		attachments: [],
 	    },
+	    emailValidations: [],
+	    emailValidationHasRun: false,
+	    allEmailsValid: false,
 	    from_account_accesses: [],
 	    response: null,
 	    response_body_json: null,
@@ -434,6 +467,29 @@ export default {
 		    this.currentdraft_uuid = responsejson.uuid
 		})
 		.catch(error => console.error(error))
+	},
+	verifyEmailValidity (email) {
+	    fetch('/mail/api/check_address_book',
+	    	  {
+	    	      method: 'POST',
+	    	      headers: {
+	    		  "X-CSRFToken": csrftoken,
+	    		  "Content-Type": "application/json; charset=utf-8"
+	    	      },
+	    	      body: JSON.stringify({
+	    		  'email': email
+	    	      })
+		  })
+		.then(response => response.json())
+		.then(responsejson => this.emailValidations.push(responsejson))
+		.catch(error => console.error(error))
+	},
+	validateAllEmails () {
+	    this.emailValidations = []
+	    if (this.form.to_recipient) this.verifyEmailValidity(this.form.to_recipient)
+	    this.form.cc_recipients.forEach(email => this.verifyEmailValidity(email))
+	    this.form.bcc_recipients.forEach(email => this.verifyEmailValidity(email))
+	    this.emailValidationHasRun = true
 	}
     },
     mounted () {
@@ -494,6 +550,26 @@ export default {
 	    this.form.body_html = '<br><br>'
 	}
 	this.editor.setContent(this.form.body_html)
+    },
+    watch: {
+	"form.to_recipient": function () {
+	    this.emailValidationHasRun = false
+	    this.allEmailsValid = false
+	},
+	"form.cc_recipients": function () {
+	    this.emailValidationHasRun = false
+	    this.allEmailsValid = false
+	},
+	"form.bcc_recipients": function () {
+	    this.emailValidationHasRun = false
+	    this.allEmailsValid = false
+	},
+	emailValidations: function () {
+	    this.allEmailsValid = true
+	    this.emailValidations.forEach(item => {
+		if (!item.can_send) this.allEmailsValid = false
+	    })
+	}
     },
     beforeDestroy() {
 	this.editor.destroy()

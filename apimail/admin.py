@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.contrib import admin
 
 from .models import (
+    AddressBookEntry,
     Domain,
     EmailAccount, EmailAccountAccess,
     AttachmentFile,
@@ -76,7 +77,13 @@ class AddressValidationInline(admin.StackedInline):
     min_num = 0
 
 
+class AddressBookEntryInline(admin.StackedInline):
+    model = AddressBookEntry
+    extra = 0
+    min_num = 0
+
+
 class ValidatedAddressAdmin(admin.ModelAdmin):
-    inlines = [AddressValidationInline,]
+    inlines = [AddressValidationInline, AddressBookEntryInline,]
 
 admin.site.register(ValidatedAddress, ValidatedAddressAdmin)

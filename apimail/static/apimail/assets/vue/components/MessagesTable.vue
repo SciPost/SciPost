@@ -572,6 +572,8 @@ export default {
 	    return false
 	},
 	messagesProvider (ctx) {
+	    if (!this.accountSelected) return []
+
 	    var params = '?account=' + this.accountSelected.email
 	    // Our API uses limit/offset pagination
 	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
@@ -612,11 +614,11 @@ export default {
 		    this.totalRows = data.count
 		    if (this.threadOf) {
 			this.tabbedMessages = items
-		    }
-		    return items || []
+			}
+			return items || []
 		})
-	},
-	refreshMessages () {
+	    },
+	    refreshMessages () {
 	    this.messagesProvider({
 		'perPage': this.perPage,
 		'currentPage': this.currentPage

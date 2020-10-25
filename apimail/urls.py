@@ -97,6 +97,16 @@ urlpatterns = [
             apiviews.UserTagListAPIView.as_view(),
             name='api_user_tags'
         ),
+        path( # /mail/api/address_book
+            'address_book',
+            apiviews.AddressBookAPIView.as_view(),
+            name='api_address_book'
+        ),
+        path( # /mail/api/check_address_book
+            'check_address_book',
+            apiviews.check_address_book,
+            name='api_check_address_book'
+        ),
     ])),
 
 
