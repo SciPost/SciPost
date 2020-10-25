@@ -116,7 +116,7 @@
     <table
       class="table mb-4"
       selectable
-      :select-mode="single"
+      select-mode="single"
       >
       <tr>
 	<th>Account</th>
