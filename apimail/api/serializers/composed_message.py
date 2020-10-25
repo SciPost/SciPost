@@ -9,10 +9,7 @@ from ...models import (
     ComposedMessage, ComposedMessageAPIResponse,
     AttachmentFile,
 )
-from ..serializers import (
-    ComposedMessageAPIResponseSerializer,
-    AttachmentFileSerializer
-)
+from ..serializers import AttachmentFileSerializer
 
 
 class ComposedMessageAPIResponseSerializer(serializers.ModelSerializer):
