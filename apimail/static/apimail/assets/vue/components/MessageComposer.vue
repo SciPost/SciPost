@@ -1,79 +1,78 @@
 <template>
 <div>
-  <h1 class="mb-1">Compose email message</h1>
   <div class="row">
     <div class="col-lg-6">
-  <template v-if="!markReadySuccessful" class="mt-4">
-    <b-button
-      type="savedraft"
-      class="text-white px-2 py-1 my-2"
-      variant="warning"
-      @click.stop.prevent="saveMessage('draft')"
-      >
-      Save draft
-    </b-button>
-    <span v-if="!allEmailsValid">
-      <b-button
-	type="validateemails"
-	class="text-white px-2 py-1 my-2"
-	variant="warning"
-	@click.stop.prevent="validateAllEmails()"
-	:disabled="emailValidationHasRun || (!form.to_recipient && form.cc_recipients.length == 0 && form.bcc_recipients == 0)"
-	>
-	Validate emails
-      </b-button>
-    </span>
-    <span v-else>
-      <b-button
-	type="validateemails"
-	class="text-white px-2 py-1 my-2"
-	variant="success"
-	>
-	All emails are validated
-      </b-button>
-    </span>
-    <b-button
-      type="send"
-      class="text-white px-2 py-1 my-2"
-      variant="primary"
-      :disabled="!emailValidationHasRun || !allEmailsValid"
-      @click.stop.prevent="saveMessage('ready')"
-      >
-      Send
-    </b-button>
-  </template>
-  <template v-if="saveDraftSuccessful">
-    <p class="m-2 p-2 bg-success text-white">
-      The message draft was successfully saved.
-    </p>
-  </template>
-  <template v-else-if="markReadySuccessful">
-    <p class="m-2 p-2 bg-success text-white">
-      The message was successfully queued for sending.
-    </p>
-  </template>
-  <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
-    <div class="bg-danger text-white">
-      <p class="mx-2 mb-0 p-2">
-	The server responded with errors, please check and try again.
-      </p>
-      <ul class="pb-2">
-	<li class="m-2" v-for="(field, error) in response_body_json">
-	  {{ error }}:&emsp;{{ field }}
-	</li>
-      </ul>
-    </div>
-  </template>
-  <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
-  <template v-if="emailValidationHasRun && !allEmailsValid">
-    <p class="m-2 p-2">
-      <strong class="text-danger">Some email addresses cannot be sent to:</strong>
-      <ul class="mb-1">
-	<li v-for="item in emailValidations">{{ item.address }}&emsp;<span v-if="item.can_send" class="text-success">Can send</span><span v-else><strong class="p-1 bg-danger text-white">Cannot send: {{ item.result }}</strong></span></li>
-      </ul>
-      <strong class="text-danger">Please remove the failing addresses from your message draft.</strong>
-    </p>
-  </template>
+      <template v-if="!markReadySuccessful">
+	<b-button
+	  type="savedraft"
+	  class="text-white mx-1 px-2 py-1"
+	  variant="warning"
+	  @click.stop.prevent="saveMessage('draft')"
+	  >
+	  Save draft
+	</b-button>
+	<span v-if="!allEmailsValid">
+	  <b-button
+	    type="validateemails"
+	    class="text-white mx-1 px-2 py-1"
+	    variant="warning"
+	    @click.stop.prevent="validateAllEmails()"
+	    :disabled="emailValidationHasRun || (!form.to_recipient && form.cc_recipients.length == 0 && form.bcc_recipients == 0)"
+	    >
+	    Validate emails
+	  </b-button>
+	</span>
+	<span v-else>
+	  <b-button
+	    type="validateemails"
+	    class="text-white mx-1 px-2 py-1"
+	    variant="success"
+	    >
+	    All emails are validated
+	  </b-button>
+	</span>
+	<b-button
+	  type="send"
+	  class="text-white px-2 py-1 mx-1 my-2"
+	  variant="primary"
+	  :disabled="!emailValidationHasRun || !allEmailsValid"
+	  @click.stop.prevent="saveMessage('ready')"
+	  >
+	  Send
+	</b-button>
+      </template>
+      <template v-if="saveDraftSuccessful">
+	<p class="m-2 p-2 bg-success text-white">
+	  The message draft was successfully saved.
+	</p>
+      </template>
+      <template v-else-if="markReadySuccessful">
+	<p class="m-2 p-2 bg-success text-white">
+	  The message was successfully queued for sending.
+	</p>
+      </template>
+      <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
+	<div class="bg-danger text-white">
+	  <p class="mx-2 mb-0 p-2">
+	    The server responded with errors, please check and try again.
+	  </p>
+	  <ul class="pb-2">
+	    <li class="m-2" v-for="(field, error) in response_body_json">
+	      {{ error }}:&emsp;{{ field }}
+	    </li>
+	  </ul>
+	</div>
+      </template>
+      <span v-if="draftLastSaved" size="sm">&emsp;[last saved: {{ draftLastSaved }}]</span>
+      <template v-if="emailValidationHasRun && !allEmailsValid">
+	<p class="m-2 p-2">
+	  <strong class="text-danger">Some email addresses cannot be sent to:</strong>
+	  <ul class="mb-1">
+	    <li v-for="item in emailValidations">{{ item.address }}&emsp;<span v-if="item.can_send" class="text-success">Can send</span><span v-else><strong class="p-1 bg-danger text-white">Cannot send: {{ item.result }}</strong></span></li>
+	  </ul>
+	  <strong class="text-danger">Please remove the failing addresses from your message draft.</strong>
+	</p>
+      </template>
     </div>
     <div class="col-lg-6">
       <b-form

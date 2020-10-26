@@ -1,8 +1,7 @@
 
 <template>
 <div>
-
-  <div v-if="currentSendingAccesses && currentSendingAccesses.length > 0" class="m-2 mb-4">
+  <div v-if="currentSendingAccesses && currentSendingAccesses.length > 0" class="mb-4">
     <b-button-toolbar aria-label="apimail button toolbar">
       <b-button-group class="mx-1">
 	<b-button
@@ -33,9 +32,15 @@
 	:accountSelected="accountSelected"
 	>
       </message-composer>
+      <template v-slot:modal-header="{ close, }">
+	<h1>Compose a new email message</h1>
+	<b-button variant="danger" class="px-2 py-1" @click="close()">
+	  Discard/Close
+	</b-button>
+      </template>
       <template v-slot:modal-footer="{ close, }">
 	<b-button variant="danger" class="px-2 py-1" @click="close()">
-	  Close
+	  Discard/Close
 	</b-button>
       </template>
     </b-modal>
