@@ -10,14 +10,6 @@
       >
     </li>
   </ul>
-  <!-- <form @submit.prevent="addEmail"> -->
-  <!--   <input -->
-  <!--     v-model="newEmail" -->
-  <!--     placeholder="Add" -->
-  <!--     type="email" -->
-  <!--     > -->
-  <!--   <button>Add</button> -->
-  <!-- </form> -->
   <select-from-address-book @selected="addSelectedEmail"></select-from-address-book>
 </div>
 </template>
@@ -43,18 +35,9 @@ export default {
 	    required: true,
 	},
     },
-    // data () {
-    // 	return {
-    // 	    newEmail: '',
-    // 	}
-    // },
     methods: {
-	// addEmail () {
-	//     this.emails.push(this.newEmail)
-	//     this.newEmail = ''
-	// },
 	addSelectedEmail (value) {
-	    this.emails.push(value.address)
+	    if (value) this.emails.push(value.address)
 	}
     }
 }

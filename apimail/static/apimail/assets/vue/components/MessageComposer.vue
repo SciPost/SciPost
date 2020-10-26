@@ -1,6 +1,8 @@
 <template>
 <div>
   <h1 class="mb-1">Compose email message</h1>
+  <div class="row">
+    <div class="col-lg-6">
   <template v-if="!markReadySuccessful" class="mt-4">
     <b-button
       type="savedraft"
@@ -66,19 +68,49 @@
   <template v-if="emailValidationHasRun && !allEmailsValid">
     <p class="m-2 p-2">
       <strong class="text-danger">Some email addresses cannot be sent to:</strong>
-      <ul class="mb-0">
-	<li v-for="item in emailValidations">{{ item.address }}&emsp;<span v-if="item.can_send" class="text-success">Can send</span><span v-else><strong class="text-danger">Cannot send: {{ item.result }}</strong></span></li>
+      <ul class="mb-1">
+	<li v-for="item in emailValidations">{{ item.address }}&emsp;<span v-if="item.can_send" class="text-success">Can send</span><span v-else><strong class="p-1 bg-danger text-white">Cannot send: {{ item.result }}</strong></span></li>
       </ul>
       <strong class="text-danger">Please remove the failing addresses from your message draft.</strong>
     </p>
   </template>
+    </div>
+    <div class="col-lg-6">
+      <b-form
+	@submit.prevent="addNewEmailToAddressBook(newEmail)"
+	inline
+	>
+    	<label
+	  class="p-1 bg-info"
+	  for="new-email-form"
+	  >Add an email address to your address book</label>
+	<b-input-group>
+	  <b-form-input
+    	    v-model="newEmail"
+	    id="new-email-form"
+    	    type="email"
+    	    size="sm"
+    	    >
+	  </b-form-input>
+	  <b-input-group-append>
+	    <b-button type="submit" size="sm" variant="primary">Add</b-button>
+	  </b-input-group-append>
+	</b-input-group>
+      </b-form>
+      <div v-if="addNewEmailResponse">
+	<ul class="mb-0">
+	  <li>{{ addNewEmailResponse.address }}&emsp;<span v-if="addNewEmailResponse.can_send" class="text-success">Can send</span><span v-else><strong class="text-danger">Cannot send: {{ addNewEmailResponse.result }}</strong></span></li>
+	</ul>
+      </div>
+    </div>
+  </div>
   <b-form>
     <b-row>
       <b-col class="col-lg-6">
 	<b-form-group
 	  id="from_account"
 	  label="From:"
-	  label-for="input-from-account-access"
+	  label-for="input-from-account"
 	  >
 	  <b-form-select
 	    id="input-from-account"
@@ -97,14 +129,9 @@
 	  label="To:"
 	  label-for="input-to-recipient"
 	  >
-	  <!-- <b-form-input -->
-	  <!--   id="input-to-recipient" -->
-	  <!--   v-model="form.to_recipient" -->
-	  <!--   type="email" -->
-	  <!--   required -->
-	  <!--   placeholder="Enter main recipient's email" -->
-	  <!--   > -->
-	    <!-- </b-form-input> -->
+	  <ul v-if="form.to_recipient">
+	    <li>{{ form.to_recipient }}</li>
+	  </ul>
 	  <select-from-address-book @selected="onToRecipientSelected"></select-from-address-book>
 	</b-form-group>
       </b-col>
@@ -365,6 +392,8 @@ export default {
 		headers_added: {},
 		attachments: [],
 	    },
+	    newEmail: null,
+	    addNewEmailResponse: null,
 	    addressOptions: [],
 	    emailValidations: [],
 	    emailValidationHasRun: false,
@@ -412,13 +441,13 @@ export default {
 		.catch(error => console.error(error))
 	},
 	onToRecipientSelected (value) {
-	    this.form.to_recipient = value.address
+	    if (value) this.form.to_recipient = value.address
 	},
 	onCCRecipientSelected (value) {
-	    this.form.cc_recipients.push(value.address)
+	    if (value) this.form.cc_recipients.push(value.address)
 	},
 	onBCCRecipientSelected (value) {
-	    this.form.cc_recipients.push(value.address)
+	    if (value) this.form.cc_recipients.push(value.address)
 	},
 	saveMessage (status) {
 	    var url = '/mail/api/composed_message'
@@ -481,7 +510,7 @@ export default {
 		})
 		.catch(error => console.error(error))
 	},
-	verifyEmailValidity (email) {
+	addNewEmailToAddressBook (email) {
 	    fetch('/mail/api/check_address_book',
 	    	  {
 	    	      method: 'POST',
@@ -494,6 +523,23 @@ export default {
 	    	      })
 		  })
 		.then(response => response.json())
+		.then(responsejson => this.addNewEmailResponse = responsejson)
+		.catch(error => console.error(error))
+	    this.newEmail = null
+	},
+	verifyEmailValidity (email) {
+	    fetch('/mail/api/check_address_book',
+	     	  {
+	     	      method: 'POST',
+	     	      headers: {
+	     		  "X-CSRFToken": csrftoken,
+	     		  "Content-Type": "application/json; charset=utf-8"
+	     	      },
+	     	      body: JSON.stringify({
+	     		  'email': email
+	     	      })
+	     	  })
+	     	.then(response => response.json())
 		.then(responsejson => this.emailValidations.push(responsejson))
 		.catch(error => console.error(error))
 	},
@@ -576,6 +622,9 @@ export default {
 	"form.bcc_recipients": function () {
 	    this.emailValidationHasRun = false
 	    this.allEmailsValid = false
+	},
+	newEmail: function () {
+	    this.addNewEmailResponse = null
 	},
 	emailValidations: function () {
 	    this.allEmailsValid = true

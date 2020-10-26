@@ -1,6 +1,5 @@
 <template>
 <div>
-  {{ target }}
   <v-select
     v-model="selected"
     :options="addressOptions"
