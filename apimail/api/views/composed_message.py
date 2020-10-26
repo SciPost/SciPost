@@ -75,4 +75,7 @@ class ComposedMessageListAPIView(ListAPIView):
         queryset = ComposedMessage.objects.filter_for_user(self.request.user)
         if self.request.query_params.get('status', None) == 'draft':
             queryset = queryset.filter(status=ComposedMessage.STATUS_DRAFT)
+        if self.request.query_params.get('status', None) == 'queued':
+            queryset = queryset.filter(
+                status__in=[ComposedMessage.STATUS_READY, ComposedMessage.STATUS_RENDERED])
         return queryset

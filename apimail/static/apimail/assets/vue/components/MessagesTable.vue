@@ -108,6 +108,28 @@
     </table>
   </div>
 
+  <div v-if="queuedMessages && queuedMessages.length > 0" class="m-2 mb-4">
+    <h2>Messages in sending queue</h2>
+    <table class="table">
+      <tr>
+	<th>On</th>
+	<th>From</th>
+	<th>To</th>
+	<th>Subject</th>
+	<th>Status</th>
+      </tr>
+      <tr
+	v-for="queuedmsg in queuedMessages"
+	>
+	<td>{{ queuedmsg.created_on }}</td>
+	<td>{{ queuedmsg.from_email }}</td>
+	<td>{{ queuedmsg.to_recipient }}</td>
+	<td>{{ queuedmsg.subject }}</td>
+	<td>{{ queuedmsg.status }}</td>
+      </tr>
+    </table>
+  </div>
+
   <div class="accounts-table">
     <div class="bg-primary text-white pb-2">
       <h1 class="p-2 mb-0 text-center">Your email accounts</h1>
@@ -540,6 +562,12 @@ export default {
 		.then(data => this.draftMessages = data.results)
 		.catch(error => console.error(error))
 	},
+	fetchQueued () {
+	    fetch('/mail/api/composed_messages?status=queued')
+		.then(stream => stream.json())
+		.then(data => this.queuedMessages = data.results)
+		.catch(error => console.error(error))
+	},
 	showManageTagsModal () {
 	    this.$bvModal.show('modal-manage-tags')
 	},
@@ -618,12 +646,13 @@ export default {
 			return items || []
 		})
 	    },
-	    refreshMessages () {
+	refreshMessages () {
 	    this.messagesProvider({
 		'perPage': this.perPage,
 		'currentPage': this.currentPage
 	    })
 	    this.$root.$emit('bv::refresh::table', 'my-table')
+	    this.fetchQueued()
 	},
 	onFiltered(filteredItems) {
             this.totalRows = filteredItems.length
@@ -665,6 +694,7 @@ export default {
 	this.fetchCurrentSendingAccounts()
 	this.fetchTags()
 	this.fetchDrafts()
+	this.fetchQueued()
 	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
 	    if (bvEvent.componentId === 'modal-newdraft' ||
 		bvEvent.componentId === 'modal-resumedraft' ||
