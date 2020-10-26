@@ -117,14 +117,14 @@ urlpatterns = [
 
     # User views
 
-    path( # /mail/messages
-        'messages',
-        views.message_list,
-        name='message_list'
-    ),
     path( # /mail/attachment_file/<uuid>
         'attachment_file/<uuid:uuid>',
         views.attachment_file,
         name='attachment_file'
+    ),
+    path( # /mail
+        '',
+        views.mail,
+        name='mail'
     ),
 ]

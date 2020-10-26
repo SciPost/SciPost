@@ -12,8 +12,8 @@ from .models import AttachmentFile
 
 
 @login_required
-def message_list(request):
-    return render(request, 'apimail/message_list.html')
+def mail(request):
+    return render(request, 'apimail/mail.html')
 
 
 @login_required
