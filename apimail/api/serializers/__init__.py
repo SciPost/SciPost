@@ -22,4 +22,4 @@ from .validated_address import (
     ValidatedAddressSimpleSerializer
 )
 
-from .address_book import AddressBookEntrySerializer
+from .address_book import AddressBookEntrySerializer, AddressBookEntrySelectSerializer

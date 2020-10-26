@@ -97,14 +97,15 @@
 	  label="To:"
 	  label-for="input-to-recipient"
 	  >
-	  <b-form-input
-	    id="input-to-recipient"
-	    v-model="form.to_recipient"
-	    type="email"
-	    required
-	    placeholder="Enter main recipient's email"
-	    >
-	  </b-form-input>
+	  <!-- <b-form-input -->
+	  <!--   id="input-to-recipient" -->
+	  <!--   v-model="form.to_recipient" -->
+	  <!--   type="email" -->
+	  <!--   required -->
+	  <!--   placeholder="Enter main recipient's email" -->
+	  <!--   > -->
+	    <!-- </b-form-input> -->
+	  <select-from-address-book @selected="onToRecipientSelected"></select-from-address-book>
 	</b-form-group>
       </b-col>
     </b-row>
@@ -300,6 +301,7 @@ import Cookies from 'js-cookie'
 
 import EmailListEditable from './EmailListEditable.vue'
 import AttachmentListEditable from './AttachmentListEditable.vue'
+import SelectFromAddressBook from './SelectFromAddressBook.vue'
 
 var csrftoken = Cookies.get('csrftoken');
 
@@ -330,6 +332,7 @@ export default {
 	AttachmentListEditable,
 	EmailListEditable,
 	EditorMenuBar, EditorContent,
+	SelectFromAddressBook
     },
     props: {
 	draftmessage: {
@@ -362,6 +365,7 @@ export default {
 		headers_added: {},
 		attachments: [],
 	    },
+	    addressOptions: [],
 	    emailValidations: [],
 	    emailValidationHasRun: false,
 	    allEmailsValid: false,
@@ -406,6 +410,15 @@ export default {
 		.then(stream => stream.json())
 		.then(data => this.from_account_accesses = data.results)
 		.catch(error => console.error(error))
+	},
+	onToRecipientSelected (value) {
+	    this.form.to_recipient = value.address
+	},
+	onCCRecipientSelected (value) {
+	    this.form.cc_recipients.push(value.address)
+	},
+	onBCCRecipientSelected (value) {
+	    this.form.cc_recipients.push(value.address)
 	},
 	saveMessage (status) {
 	    var url = '/mail/api/composed_message'

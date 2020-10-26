@@ -58,6 +58,7 @@
     "expose-loader": "^0.7.5",
     "fibers": "^4.0.2",
     "js-cookie": "^2.2.1",
+    "lodash.debounce": "^4.0.8",
     "mem": "^6.0.0",
     "mini-css-extract-plugin": "^0.8.0",
     "nan": "^2.14.0",
@@ -71,7 +72,8 @@
     "tiptap": "^1.26.6",
     "tiptap-extensions": "^1.28.6",
     "vue": "^2.6.10",
-    "vue-sanitize": "^0.2.0"
+    "vue-sanitize": "^0.2.0",
+    "vue-select": "^3.10.8"
   },
   "resolutions": {
     "prosemirror-model": "1.8.2"

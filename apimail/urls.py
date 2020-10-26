@@ -102,6 +102,11 @@ urlpatterns = [
             apiviews.AddressBookAPIView.as_view(),
             name='api_address_book'
         ),
+        path( # /mail/api/address_book/select
+            'address_book/select',
+            apiviews.AddressBookSelectView.as_view(),
+            name='api_address_book'
+        ),
         path( # /mail/api/check_address_book
             'check_address_book',
             apiviews.check_address_book,

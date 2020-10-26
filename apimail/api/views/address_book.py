@@ -8,7 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from ...models import ValidatedAddress, AddressBookEntry
-from ..serializers import AddressBookEntrySerializer, ValidatedAddressSimpleSerializer
+from ..serializers import (
+    AddressBookEntrySerializer, AddressBookEntrySelectSerializer,
+    ValidatedAddressSimpleSerializer
+)
 
 
 @api_view(['POST'])
@@ -39,6 +42,17 @@ def check_address_book(request):
 class AddressBookAPIView(ListAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = AddressBookEntrySerializer
+
+    def get_queryset(self):
+        return self.request.user.address_book_entries.all()
+
+
+class AddressBookSelectView(ListAPIView):
+    """
+    Simpler view to feed the vue-select element.
+    """
+    permission_classes = (IsAuthenticated,)
+    serializer_class = AddressBookEntrySelectSerializer
 
     def get_queryset(self):
         return self.request.user.address_book_entries.all()
