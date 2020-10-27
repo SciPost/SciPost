@@ -75,14 +75,12 @@
       </template>
     </div>
     <div class="col-lg-6">
+      <span
+	class="my-1 p-1 bg-info"
+	>Add an email address to your address book</span>
       <b-form
 	@submit.prevent="addNewEmailToAddressBook(newEmail, newEmailDescription)"
-	inline
 	>
-    	<label
-	  class="my-1 p-1 bg-info"
-	  for="new-email-form"
-	  >Add an email address to your address book</label>
 	<b-input-group>
 	  <b-form-input
     	    v-model="newEmail"
