@@ -50,7 +50,7 @@ class ComposedMessage(models.Model):
         'apimail.EmailAccount',
         on_delete=models.PROTECT)
 
-    to_recipient = models.EmailField()
+    to_recipient = models.EmailField(blank=True)
 
     cc_recipients = ArrayField(
         models.EmailField(),
@@ -60,7 +60,9 @@ class ComposedMessage(models.Model):
         models.EmailField(),
         blank=True, null=True)
 
-    subject = models.CharField(max_length=256)
+    subject = models.CharField(
+        max_length=256,
+        blank=True)
 
     body_text = models.TextField(blank=True)
     body_html = models.TextField(blank=True)

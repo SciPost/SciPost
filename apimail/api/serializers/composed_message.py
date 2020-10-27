@@ -42,6 +42,16 @@ class ComposedMessageSerializer(serializers.ModelSerializer):
     def get_from_email(self, obj):
         return obj.from_account.email
 
+    def validate(self, data):
+        if data['status'] != ComposedMessage.STATUS_DRAFT:
+            if not data['to_recipient']:
+                raise serializers.ValidationError(
+                    "to_recipient cannot be empty if message is not a draft")
+            if not data['subject']:
+                raise serializers.ValidationError(
+                    "Subject cannot be empty if message is not a draft")
+        return data
+
     def create(self, validated_data):
         attachment_uuids = validated_data.pop('attachment_uuids')
         cm = super().create(validated_data)
