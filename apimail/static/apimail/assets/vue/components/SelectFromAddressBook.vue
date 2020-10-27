@@ -10,7 +10,8 @@
       Type to search your address book
     </template>
     <template slot="option" slot-scope="option">
-      {{ option.address }}&emsp;{{ option.description }}
+      {{ option.address }}
+      <span v-if="option.description"><br>&emsp;<em>({{ option.description }})</em></span>
     </template>
     <template slot="selected-option" slot-scope="option">
       {{ option.address }}

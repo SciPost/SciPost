@@ -76,11 +76,11 @@
     </div>
     <div class="col-lg-6">
       <b-form
-	@submit.prevent="addNewEmailToAddressBook(newEmail)"
+	@submit.prevent="addNewEmailToAddressBook(newEmail, newEmailDescription)"
 	inline
 	>
     	<label
-	  class="p-1 bg-info"
+	  class="my-1 p-1 bg-info"
 	  for="new-email-form"
 	  >Add an email address to your address book</label>
 	<b-input-group>
@@ -88,6 +88,7 @@
     	    v-model="newEmail"
 	    id="new-email-form"
     	    type="email"
+	    placeholder="email"
     	    size="sm"
     	    >
 	  </b-form-input>
@@ -95,14 +96,24 @@
 	    <b-button type="submit" size="sm" variant="primary">Add</b-button>
 	  </b-input-group-append>
 	</b-input-group>
+	<b-input-group>
+	  <b-form-input
+    	    v-model="newEmailDescription"
+	    id="new-email-description"
+	    placeholder="description (optional)"
+    	    size="sm"
+    	    >
+	  </b-form-input>
+	</b-input-group>
       </b-form>
       <div v-if="addNewEmailResponse">
 	<ul class="mb-0">
-	  <li>{{ addNewEmailResponse.address }}&emsp;<span v-if="addNewEmailResponse.can_send" class="text-success">Can send</span><span v-else><strong class="text-danger">Cannot send: {{ addNewEmailResponse.result }}</strong></span></li>
+	  <li>Added:&emsp;{{ addNewEmailResponse.address }}&emsp;<span v-if="addNewEmailResponse.can_send" class="text-success">Can send</span><span v-else><strong class="text-danger">Cannot send: {{ addNewEmailResponse.result }}</strong></span></li>
 	</ul>
       </div>
     </div>
   </div>
+  <hr>
   <b-form>
     <b-row>
       <b-col class="col-lg-6">
@@ -392,6 +403,7 @@ export default {
 		attachments: [],
 	    },
 	    newEmail: null,
+	    newEmailDescription: null,
 	    addNewEmailResponse: null,
 	    addressOptions: [],
 	    emailValidations: [],
@@ -509,7 +521,7 @@ export default {
 		})
 		.catch(error => console.error(error))
 	},
-	addNewEmailToAddressBook (email) {
+	addNewEmailToAddressBook (email, description) {
 	    fetch('/mail/api/check_address_book',
 	    	  {
 	    	      method: 'POST',
@@ -518,13 +530,15 @@ export default {
 	    		  "Content-Type": "application/json; charset=utf-8"
 	    	      },
 	    	      body: JSON.stringify({
-	    		  'email': email
+	    		  'email': email,
+			  'description': description
 	    	      })
 		  })
 		.then(response => response.json())
 		.then(responsejson => this.addNewEmailResponse = responsejson)
 		.catch(error => console.error(error))
 	    this.newEmail = null
+	    this.newEmailDescription = null
 	},
 	verifyEmailValidity (email) {
 	    fetch('/mail/api/check_address_book',

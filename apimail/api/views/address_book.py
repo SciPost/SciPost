@@ -35,6 +35,9 @@ def check_address_book(request):
         user=request.user,
         address=validated_address,
     )
+    if 'description' in request.data.keys() and request.data['description']:
+        entry.description = request.data['description']
+        entry.save()
     serializer = ValidatedAddressSimpleSerializer(validated_address)
     return Response(serializer.data)
 
