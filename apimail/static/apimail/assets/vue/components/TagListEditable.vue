@@ -51,16 +51,22 @@
     </b-form-group>
     <b-form-group
       id="variant"
-      label="Variant:"
       label-for="input-variant"
       >
-      <b-form-select
-	id="input-variant"
-	:options="variantOptions"
-	v-model="newTagForm.variant"
+      <label>Variant
+	<span v-if="newTagForm.variant"> selected: <b-button class="my-2 px-1 py-0" :variant="newTagForm.variant">{{ newTagForm.variant }}</b-button></span>
+	<span v-else>:</span>
+      </label>
+      <b-form-radio-group
+      	id="input-variant"
+      	v-model="newTagForm.variant"
+	buttons
 	>
-      </b-form-select>
+	<b-form-radio v-for="variant in variantOptions" class="px-1 py-0" :value="variant" :button-variant="variant">{{ variant }}</b-form-radio>
+      </b-form-radio-group>
+
     </b-form-group>
+
   </b-form>
   <b-button
     variant="success"
@@ -92,14 +98,7 @@ export default {
 		variant: null
 	    },
 	    variantOptions: [
-		{ text: 'primary', value: 'primary' },
-		{ text: 'secondary', value: 'secondary' },
-		{ text: 'success', value: 'success' },
-		{ text: 'warning', value: 'warning' },
-		{ text: 'danger', value: 'danger' },
-		{ text: 'info', value: 'info' },
-		{ text: 'light', value: 'light' },
-		{ text: 'dark', value: 'dark' },
+		'primary', 'secondary', 'success', 'warning', 'danger', 'info', 'dark',
 	    ]
 	}
     },
