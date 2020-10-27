@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.db.models import Q
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -58,4 +60,10 @@ class AddressBookSelectView(ListAPIView):
     serializer_class = AddressBookEntrySelectSerializer
 
     def get_queryset(self):
-        return self.request.user.address_book_entries.all()
+        queryset = self.request.user.address_book_entries.all()
+        query = self.request.query_params.get('q', None)
+        if query:
+            queryset = queryset.filter(
+                Q(address__address__contains=query.lower()) |
+                Q(description__icontains=query))
+        return queryset

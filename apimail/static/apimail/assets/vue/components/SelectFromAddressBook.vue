@@ -4,10 +4,12 @@
     v-model="selected"
     :options="addressOptions"
     @search="onSearchAddressBook"
+    placeholder="Type to search in your address book"
     label="address"
+    :filterable="false"
     >
     <template slot="no-options">
-      Type to search your address book
+      No match found in your address book
     </template>
     <template slot="option" slot-scope="option">
       {{ option.address }}
@@ -15,6 +17,10 @@
     </template>
     <template slot="selected-option" slot-scope="option">
       {{ option.address }}
+    </template>
+    <template #spinner="{ loading }">
+      <div v-if="loading" style="border-left-color: rgba(88,151,251,0.71)" class="vs__spinner">
+      </div>
     </template>
   </v-select>
 </div>
