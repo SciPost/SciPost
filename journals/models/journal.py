@@ -70,6 +70,8 @@ class Journal(models.Model):
     scope = models.TextField(default='[To be filled in; you can use markup]')
     content = models.TextField(default='[To be filled in; you can use markup]')
     acceptance_criteria = models.TextField(default='[To be filled in; you can use markup]')
+    submission_insert = models.TextField(blank=True, null=True,
+                                         default='[Optional; you can use markup]')
     minimal_nr_of_reports = models.PositiveSmallIntegerField(
         help_text=('Minimal number of substantial Reports required '
                    'before an acceptance motion can be formulated'),

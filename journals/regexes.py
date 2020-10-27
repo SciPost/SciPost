@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-JOURNAL_DOI_LABEL_REGEX = r'(SciPost|MigPol)[a-zA-Z]+'
+JOURNAL_DOI_LABEL_REGEX = r'(SciPost)[a-zA-Z]+|(MigPol)'
 
 VOLUME_DOI_LABEL_REGEX = r'({}\.\w)'.format(JOURNAL_DOI_LABEL_REGEX)
 

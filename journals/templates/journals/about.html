@@ -84,7 +84,8 @@
       <h2 class="highlight" id="sub_and_ed">
 	Submission and Editorial Process
       </h2>
-      <p>Authors should follow the <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">authoring guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to SciPost Physics.</p>
+      {{ journal.submission_insert|automarkup }}
+      <p>Authors should follow the <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">authoring guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to {{ journal }}.</p>
       <p>All incoming Submissions are thoroughly checked for plagiarism, and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:sub_and_ref_procedure' %}">Submission and Refereeing procedure</a>.</p>
       {% if journal.minimal_nr_of_reports > 0 %}
 	<p><strong>Minimal number of reports</strong>: at least {{ journal.minimal_nr_of_reports }} substantial report{{ journal.minimal_nr_of_reports|pluralize }} must have been received; all points raised must have been addressed either in resubmissions or in author replies before a recommendation for publication can be formulated.</p>

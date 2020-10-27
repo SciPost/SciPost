@@ -1,0 +1,36 @@
+{% extends 'scipost/base.html' %}
+
+{% block meta_description %}{{ block.super }} Impact Factor{% endblock meta_description %}
+{% block pagetitle %}: Impact Factor{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Impact Factor</span>
+{% endblock %}
+
+
+{% block content %}
+
+  <h1 class="highlight">SciPost and the Impact Factor</h1>
+
+  <ul>
+    <li>
+      <strong>It greatly disfavours emerging publishing venues</strong>
+      <li>
+	<strong>Any feature it reflects is already outdated, at least for emerging Journals</strong>.
+      </li>
+  </ul>
+
+
+  <h3>Do not be misled by incorrect information from Google</h3>
+  <p>
+    A simple search for <em>"SciPost Physics impact factor"</em> (as of 2020-08-01) on Google brings
+    about a <em>"featured snippet"</em> with journal details
+    stating that the impact factor is 1.067. <strong>This is false information</strong>.
+    We have contacted Google about this, but have not received any acknowledgement from them,
+    let alone a proposal for a solution.</p>
+  <p>
+    This false information from Google is of course very damaging to our initiative, since most
+    people will use this search engine and not think twice about whether the info is correct or not.
+  </p>
+
+{% endblock %}
