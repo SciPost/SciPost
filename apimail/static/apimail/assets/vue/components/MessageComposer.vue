@@ -8,6 +8,7 @@
 	  class="text-white mx-1 px-2 py-1"
 	  variant="warning"
 	  @click.stop.prevent="saveMessage('draft')"
+	  :disabled="saveDraftSuccessful"
 	  >
 	  Save draft
 	</b-button>
@@ -41,17 +42,17 @@
 	  Send
 	</b-button>
       </template>
-      <template v-if="saveDraftSuccessful">
-	<p class="m-2 p-2 bg-success text-white">
-	  The message draft was successfully saved.
-	</p>
-      </template>
-      <template v-else-if="markReadySuccessful">
+      <template v-if="markReadySuccessful">
 	<p class="m-2 p-2 bg-success text-white">
 	  The message was successfully queued for sending.
 	</p>
       </template>
-      <template v-else-if="saveDraftSuccessful === false || markReadySuccessful === false">
+      <template v-else-if="saveDraftSuccessful">
+	<p class="m-2 p-2 bg-success text-white">
+	  The message draft was successfully saved.
+	</p>
+      </template>
+      <template v-if="!responseOK">
 	<div class="bg-danger text-white">
 	  <p class="mx-2 mb-0 p-2">
 	    The server responded with errors, please check and try again.
@@ -409,6 +410,7 @@ export default {
 	    allEmailsValid: false,
 	    from_account_accesses: [],
 	    response: null,
+	    responseOK: true,
 	    response_body_json: null,
 	    saveDraftSuccessful: null,
 	    draftLastSaved: null,
@@ -495,6 +497,7 @@ export default {
 		.then(response => {
 		    this.response = response.clone()
 		    if (response.ok) {
+			this.responseOK = true
 			if (status === 'draft') {
 			    this.saveDraftSuccessful = true
 		 	    this.draftLastSaved = Date().toString()
@@ -504,6 +507,7 @@ export default {
 			}
 		    }
 	    	    if (!response.ok) {
+			this.responseOK = false
 			if (status === 'draft') {
 			    this.saveDraftSuccessful = false
 			}
@@ -633,6 +637,15 @@ export default {
 	"form.bcc_recipients": function () {
 	    this.emailValidationHasRun = false
 	    this.allEmailsValid = false
+	},
+	form: {
+	    handler: function () {
+		this.saveDraftSuccessful = false
+	    },
+	    deep: true
+	},
+	sanitized_body_html: function () { // separate watcher since this is a computed field
+	    this.saveDraftSuccessful = false
 	},
 	newEmail: function () {
 	    this.addNewEmailResponse = null
