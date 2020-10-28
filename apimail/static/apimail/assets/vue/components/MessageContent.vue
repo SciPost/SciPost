@@ -70,10 +70,10 @@
 	      <b-button
 		size="sm"
 		class="p-1"
-		@click="tagMessage(message, tag, 'remove')"
-		:variant="tag.variant"
+		@click.shift="tagMessage(message, tag, 'remove')"
+		:style="'background-color: ' + tag.bg_color"
 		>
-		{{ tag.unicode_symbol }}
+		<small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
 	      </b-button>
 	    </li>
 	    <li class="list-inline-item float-right mx-2">
@@ -84,7 +84,7 @@
 		>
 		Add&nbsp;tag
 	      </b-button>
-	      <br><small class="text-muted">click on tag to remove it</small>
+	      <br><small class="text-muted">Shift-click on tag to remove it</small>
 	      <b-modal
 		:id="'modal-tags' + message.uuid"
 		hide-header-close
@@ -96,9 +96,9 @@
 		      size="sm"
 		      class="p-1"
 		      @click="tagMessage(message, tag, 'add')"
-		      :variant="tag.variant"
+		      :style="'background-color: ' + tag.bg_color"
 		      >
-		      {{ tag.unicode_symbol }}&nbsp;{{ tag.label }}
+		      <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
 		    </b-button>
 		  </li>
 		</ul>

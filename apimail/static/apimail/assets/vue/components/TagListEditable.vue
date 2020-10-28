@@ -7,12 +7,11 @@
 	<b-button
 	  size="sm"
 	  class="p-1"
-	  :variant="tag.variant"
+	  :style="'background-color: ' + tag.bg_color"
 	  >
-	  {{ tag.unicode_symbol }}
+	  <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
 	</b-button>
       </td>
-      <td>{{ tag.label }}</td>
       <td>
 	<b-button class="float-right bg-danger text-white px-1 py-0" @click.stop="deleteTag(tag.pk)">
 	  <small>Delete</small>
@@ -21,6 +20,18 @@
     </tr>
   </table>
   <h3>Create a new tag:</h3>
+  <template v-if="!responseOK">
+    <div class="bg-danger text-white">
+      <p class="mx-2 mb-0 p-2">
+	The server responded with errors, please check and try again.
+      </p>
+      <ul class="pb-2">
+	<li class="m-2" v-for="(field, error) in response_body_json">
+	  {{ error }}:&emsp;{{ field }}
+	</li>
+      </ul>
+    </div>
+  </template>
   <b-form
     >
     <b-form-group
@@ -32,41 +43,32 @@
 	id="input-label"
 	v-model="newTagForm.label"
 	required
-	placeholder="Enter a label for your new Tag"
+	placeholder="Up to 16 characters"
 	>
       </b-form-input>
     </b-form-group>
     <b-form-group
-      id="unicode_symbol"
-      label="Unicode symbol:"
-      label-for="input-unicode-symbol"
+      id="text-color"
+      label="Text color:"
+      label-for="input-text-color"
       >
       <b-form-input
-	id="input-unicode-symbol"
-	v-model="newTagForm.unicode_symbol"
-	required
-	placeholder="Enter a single (arbitrary) unicode character"
-	>
+	id="input-text-color"
+	v-model="newTagForm.textColor"
+	type="color">
       </b-form-input>
     </b-form-group>
     <b-form-group
-      id="variant"
-      label-for="input-variant"
+      id="bg-color"
+      label="Background color:"
+      label-for="input-bg-color"
       >
-      <label>Variant
-	<span v-if="newTagForm.variant"> selected: <b-button class="my-2 px-1 py-0" :variant="newTagForm.variant">{{ newTagForm.variant }}</b-button></span>
-	<span v-else>:</span>
-      </label>
-      <b-form-radio-group
-      	id="input-variant"
-      	v-model="newTagForm.variant"
-	buttons
-	>
-	<b-form-radio v-for="variant in variantOptions" class="px-1 py-0" :value="variant" :button-variant="variant">{{ variant }}</b-form-radio>
-      </b-form-radio-group>
-
+      <b-form-input
+	id="input-bg-color"
+	v-model="newTagForm.bgColor"
+	type="color">
+      </b-form-input>
     </b-form-group>
-
   </b-form>
   <b-button
     variant="success"
@@ -94,12 +96,11 @@ export default {
 	return {
 	    newTagForm: {
 		label: null,
-		unicode_symbol: null,
-		variant: null
+		textColor: null,
+		bgColor: null,
 	    },
-	    variantOptions: [
-		'primary', 'secondary', 'success', 'warning', 'danger', 'info', 'dark',
-	    ]
+	    responseOK: true,
+	    response_body_json: null,
 	}
     },
     methods: {
@@ -113,20 +114,25 @@ export default {
 		      },
 		      body: JSON.stringify({
 			  'label': this.newTagForm.label,
-			  'unicode_symbol': this.newTagForm.unicode_symbol,
-			  'variant': this.newTagForm.variant,
+			  'text_color': this.newTagForm.textColor,
+			  'bg_color': this.newTagForm.bgColor,
 		      })
 		  })
 		.then(response => {
 		    if (response.ok) {
-			this.newTagForm.label = null,
-			this.newTagForm.unicode_symbol = null,
-			this.newTagForm.variant = null
+			this.responseOK = true
+			this.newTagForm.label = null
+			this.newTagForm.textColor = null
+			this.newTagForm.bgColor = null
 			this.$emit('fetchtags')
 		    }
 		    else {
-			console.log(response.data)
+			this.responseOK = false
 		    }
+		    return response.json()
+		})
+		.then(responsejson => {
+		    this.response_body_json = responsejson
 		})
 		.catch(error => console.error(error))
 	},

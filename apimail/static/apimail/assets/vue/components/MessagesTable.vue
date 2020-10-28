@@ -276,8 +276,8 @@
 	    >
 	    <b-form-checkbox-group>
 	      <b-form-checkbox v-model="tagsRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
-		<b-button size="sm" class="p-1" :variant="tag.variant">
-		  {{ tag.unicode_symbol }}
+		<b-button size="sm" class="p-1" :style="'background-color: ' + tag.bg_color">
+		  <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
 		</b-button>
 	      </b-form-checkbox>
 	    </b-form-checkbox-group>
@@ -389,9 +389,9 @@
 	    <b-button
 	      size="sm"
 	      class="p-1"
-	      :variant="tag.variant"
+	      :style="'background-color: ' + tag.bg_color"
 	      >
-	      {{ tag.unicode_symbol }}
+	      <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
 	    </b-button>
 	  </li>
 	</ul>

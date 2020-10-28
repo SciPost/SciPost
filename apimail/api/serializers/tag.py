@@ -10,7 +10,7 @@ from ...models import UserTag
 class UserTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTag
-        fields = ['pk', 'user', 'label', 'unicode_symbol', 'variant']
+        fields = ['pk', 'user', 'label', 'text_color', 'bg_color']
 
     def get_queryset(self):
         user = self.context['request'].user
