@@ -315,11 +315,7 @@
 	</b-col>
 	<b-col class="col-lg-6 mb-0">
 	  <b-form-group
-            label="Filter on:"
-	    label-cols-sm="3"
-            label-align-sm="right"
-            label-size="sm"
-            description="Leave all unchecked to filter on all data"
+            description="Leave all unchecked to filter on all fields"
 	    class="mb-0"
 	    >
             <b-form-checkbox-group
@@ -332,7 +328,8 @@
               <b-form-checkbox value="from">From</b-form-checkbox>
               <b-form-checkbox value="recipients">Recipients</b-form-checkbox>
               <b-form-checkbox value="subject">Subject</b-form-checkbox>
-              <b-form-checkbox value="body">Message body</b-form-checkbox>
+              <b-form-checkbox value="body">Body</b-form-checkbox>
+              <b-form-checkbox value="attachment">Attachments</b-form-checkbox>
             </b-form-checkbox-group>
 	  </b-form-group>
 	</b-col>
@@ -632,7 +629,7 @@ export default {
 	    })
 	    // Add search query (if it exists)
 	    if (this.filter) {
-		var filterlist = ['from', 'recipients', 'subject', 'body']
+		var filterlist = ['from', 'recipients', 'subject', 'body', 'attachment']
 		if (this.filterOn.length > 0) {
 		    filterlist = this.filterOn
 		}

@@ -89,7 +89,6 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
                 queryset = queryset.exclude(read_by__in=[request.user])
 
         tagpklist = request.query_params.getlist('tag')
-        print(tagpklist)
         if tagpklist:
             queryset = queryset.filter(tags__pk__in=tagpklist)
 
@@ -116,6 +115,11 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
             sm_ids = [sm.id for sm in StoredMessage.objects.raw(
                 query_raw, ['body-plain', '%%%s%%' % body, 'body-html', '%%%s%%' % body])]
             queryfilter = queryfilter | Q(pk__in=sm_ids)
+
+        attachment_filename = request.query_params.get('attachment', None)
+        if attachment_filename is not None:
+            queryfilter = queryfilter | Q(
+                attachment_files__data__name__icontains=attachment_filename)
 
         return queryset.filter(queryfilter).filter_for_user(
             request.user, request.query_params.get('account'))
