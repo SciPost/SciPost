@@ -274,14 +274,13 @@
 	    label-align-sm="right"
 	    label-size="sm"
 	    >
-	    <b-form-radio-group>
-	      <b-form-radio v-model="tagRequired" value="any">Any</b-form-radio>
-	      <b-form-radio v-model="tagRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
+	    <b-form-checkbox-group>
+	      <b-form-checkbox v-model="tagsRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
 		<b-button size="sm" class="p-1" :variant="tag.variant">
 		  {{ tag.unicode_symbol }}
 		</b-button>
-	      </b-form-radio>
-	    </b-form-radio-group>
+	      </b-form-checkbox>
+	    </b-form-checkbox-group>
 	  </b-form-group>
 	</b-col>
 	<b-col class="col-lg-2">
@@ -544,7 +543,7 @@ export default {
 	    tabIndex: 0,
 	    tabsKey: 0,
 	    tags: null,
-	    tagRequired: 'any',
+	    tagsRequired: [],
 	}
     },
     methods: {
@@ -628,9 +627,9 @@ export default {
 	    if (this.readStatus !== null) {
 		params += '&read=' + this.readStatus
 	    }
-	    if (this.tagRequired !== 'any') {
-		params += '&tag=' + this.tagRequired
-	    }
+	    this.tagsRequired.forEach((tag) => {
+		params += '&tag=' + tag
+	    })
 	    // Add search query (if it exists)
 	    if (this.filter) {
 		var filterlist = ['from', 'recipients', 'subject', 'body']
@@ -752,7 +751,7 @@ export default {
 	    }
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
-	tagRequired: function () {
+	tagsRequired: function () {
 	    this.$root.$emit('bv::refresh::table', 'my-table')
 	},
 	accountSelected: function () {

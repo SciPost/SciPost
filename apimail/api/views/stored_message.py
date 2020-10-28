@@ -88,10 +88,10 @@ class StoredMessageFilterBackend(filters.BaseFilterBackend):
             elif readstatus == 'false':
                 queryset = queryset.exclude(read_by__in=[request.user])
 
-        tagpk = request.query_params.get('tag', None)
-        if tagpk is not None:
-            tag = get_object_or_404(UserTag, pk=tagpk)
-            queryset = queryset.filter(tags__in=[tag])
+        tagpklist = request.query_params.getlist('tag')
+        print(tagpklist)
+        if tagpklist:
+            queryset = queryset.filter(tags__pk__in=tagpklist)
 
         _from = request.query_params.get('from', None)
         if _from is not None:
