@@ -8,8 +8,13 @@
     label="address"
     :filterable="false"
     >
-    <template slot="no-options">
-      No match found in your address book
+    <template v-slot:no-options="{ search, searching }">
+      <template v-if="searching">
+	<span class="bg-danger px-4 py-2 text-white">No match found in your address book</span>
+      </template>
+      <template v-else>
+	Type to search in your address book
+      </template>
     </template>
     <template slot="option" slot-scope="option">
       {{ option.address }}
