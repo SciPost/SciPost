@@ -545,7 +545,6 @@ export default {
     },
     methods: {
 	fetchAccounts () {
-	    console.log("Fetching accounts")
 	    fetch('/mail/api/user_account_accesses')
 		.then(stream => stream.json())
 		.then(data => this.accesses = data.results)
