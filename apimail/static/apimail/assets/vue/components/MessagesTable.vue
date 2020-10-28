@@ -438,7 +438,10 @@
       </b-row>
     </b-card>
     <b-tabs
+      id="message-tabs"
+      v-model="tabIndex"
       class="mt-4"
+      :key="tabsKey"
       lazy
       >
       <b-tab
@@ -538,6 +541,8 @@ export default {
 	    refreshInterval: null,
 	    refreshMinutes: 1,
 	    refreshMinutesOptions: [ 1, 5, 15 ],
+	    tabIndex: 0,
+	    tabsKey: 0,
 	    tags: null,
 	    tagRequired: 'any',
 	}
@@ -648,8 +653,8 @@ export default {
 		    this.totalRows = data.count
 		    if (this.threadOf) {
 			this.tabbedMessages = items
-			}
-			return items || []
+		    }
+		    return items || []
 		})
 	    },
 	refreshMessages () {
@@ -679,6 +684,8 @@ export default {
 	    if (!this.isInTabbedMessages(item.uuid)) {
 	    	this.tabbedMessages.push(item)
 	    }
+	    this.tabIndex = this.indexInTabbedMessages(item.uuid)
+	    this.tabsKey = 1 - this.tabsKey // force re-render of b-tabs id="message-tabs"
 	},
 	focusOnThread (uuid) {
 	    this.threadOf = uuid
@@ -686,11 +693,13 @@ export default {
 	unfocusThread () {
 	    this.threadOf = null
 	    this.tabbedMessages = []
+	    this.tabIndex = 0
 	},
 	closeTab(uuid) {
 	    for (let i = 0; i < this.tabbedMessages.length; i++) {
 		if (this.tabbedMessages[i].uuid === uuid) {
 		    this.tabbedMessages.splice(i, 1)
+		    this.tabIndex = 0
 		}
             }
 	},
@@ -749,10 +758,16 @@ export default {
 	accountSelected: function () {
 	    this.tabbedMessages = []
 	},
+	tabbedMessages: function () {
+	    if (this.threadOf) {
+		this.tabIndex = this.indexInTabbedMessages(this.threadOf)
+		this.tabsKey = 1 - this.tabsKey // force re-render of b-tabs id="message-tabs"
+	    }
+	},
 	refreshMinutes: function () {
 	    clearInterval(this.refreshInterval)
 	    this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 60000)
-	}
+	},
     }
 }
 
