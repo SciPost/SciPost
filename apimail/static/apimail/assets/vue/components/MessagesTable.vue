@@ -183,6 +183,9 @@
 	    >
 	    Refresh now
 	  </b-badge>
+	  <div v-if="loadError">
+	    <small class="bg-danger text-white mx-2 p-1">A network problem occurred on {{ lastFetched }}</small>
+	  </div>
 	</b-col>
 	<b-col class="col-lg-6">
 	  <b-form-group
@@ -505,7 +508,9 @@ export default {
 	    perPageOptions: [ 8, 16, 32 ],
 	    currentPage: 1,
 	    totalRows: 1,
+	    lastFetched: null,
 	    lastLoaded: null,
+	    loadError: false,
 	    fields: [
 		{ key: 'tab', label: '' },
 		{ key: 'read', label: '' },
@@ -644,9 +649,18 @@ export default {
 	    const promise = fetch('/mail/api/stored_messages' + params)
 
 	    var now = new Date()
-	    this.lastLoaded = now.toISOString()
 
-	    return promise.then(stream => stream.json())
+	    return promise.then(response => {
+		if (response.ok) {
+		    this.lastLoaded = now.toISOString()
+		    this.loadError = false
+		}
+		else {
+		    this.lastFetched = now.toISOString()
+		    this.loadError = true
+		}
+		return response.json()
+	    })
 		.then(data => {
 		    const items = data.results
 		    this.totalRows = data.count
@@ -655,7 +669,8 @@ export default {
 		    }
 		    return items || []
 		})
-	    },
+		.catch(error => console.error(error))
+	},
 	refreshMessages () {
 	    this.messagesProvider({
 		'perPage': this.perPage,

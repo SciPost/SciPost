@@ -234,7 +234,8 @@ export default {
 			 if (!response.ok) {
 			     throw new Error('HTTP error, status = ' + response.status);
 			 }
-		     });
+		     })
+		    .catch(error => console.error(error))
 		this.message.read = true
 	    }
 	},
@@ -255,7 +256,8 @@ export default {
 		     if (!response.ok) {
 			 throw new Error('HTTP error, status = ' + response.status);
 		     }
-		 });
+		 })
+	    	.catch(error => console.error(error))
 
 	    if (action == 'add') {
 		// Prevent doubling by removing first, then (re)adding

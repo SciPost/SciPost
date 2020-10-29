@@ -48,12 +48,12 @@ export default {
 	    this.searchAddressBook(loading, search, this)
 	},
 	searchAddressBook: debounce((loading, search, vm) => {
-	    fetch(
-		`/mail/api/address_book/select?q=${escape(search)}`
-	    ).then(res => {
-		res.json().then(json => (vm.addressOptions = json.results))
-		loading(false);
-	    });
+	    fetch(`/mail/api/address_book/select?q=${escape(search)}`
+		 ).then(res => {
+		     res.json().then(json => (vm.addressOptions = json.results))
+		     loading(false);
+		 })
+		.catch(error => console.error(error))
 	}, 350),
     },
     watch: {
