@@ -655,10 +655,6 @@ export default {
 		    this.lastLoaded = now.toISOString()
 		    this.loadError = false
 		}
-		else {
-		    this.lastFetched = now.toISOString()
-		    this.loadError = true
-		}
 		return response.json()
 	    })
 		.then(data => {
@@ -669,7 +665,11 @@ export default {
 		    }
 		    return items || []
 		})
-		.catch(error => console.error(error))
+		.catch(error => {
+		    this.lastFetched = now.toISOString()
+		    this.loadError = true
+		    console.error(error)
+		})
 	},
 	refreshMessages () {
 	    this.messagesProvider({
