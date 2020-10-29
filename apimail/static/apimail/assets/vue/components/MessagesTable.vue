@@ -442,6 +442,7 @@
       >
       <b-tab
 	v-for="(message, index) in tabbedMessages"
+	:key="'tab-' + message.uuid"
 	>
 	<template v-slot:title>
 	  {{ tabbedMessages.length - index }}
@@ -473,11 +474,14 @@
 <script>
 import Cookies from 'js-cookie'
 
-import MessageContent from './MessageContent.vue'
+//import MessageContent from './MessageContent.vue'
+const MessageContent = () => import('./MessageContent.vue');
 
-import MessageComposer from './MessageComposer.vue'
+//import MessageComposer from './MessageComposer.vue'
+const MessageComposer = () => import('./MessageComposer.vue');
 
-import TagListEditable from './TagListEditable.vue'
+//import TagListEditable from './TagListEditable.vue'
+const TagListEditable = () => import('./TagListEditable.vue');
 
 var csrftoken = Cookies.get('csrftoken');
 
