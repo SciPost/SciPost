@@ -184,7 +184,7 @@
 	    Refresh now
 	  </b-badge>
 	  <div v-if="loadError">
-	    <small class="bg-danger text-white mx-2 p-1">A network problem occurred on {{ lastFetched }}</small>
+	    <small class="bg-danger text-white mx-2 my-1 p-1">A network problem occurred on {{ lastFetched }}</small>
 	  </div>
 	</b-col>
 	<b-col class="col-lg-6">
