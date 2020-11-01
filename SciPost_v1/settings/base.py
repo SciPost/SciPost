@@ -362,6 +362,7 @@ MAILCHIMP_DATABASE_CODE = 'us6'
 MAILCHIMP_API_USER = 'test_API-user'
 MAILCHIMP_API_KEY = 'test_API-key'
 MAX_EMAIL_ATTACHMENT_FILE_SIZE = 20000000
+MAX_EMAIL_MIME_FILE_SIZE = 25000000
 
 
 # iThenticate
@@ -491,9 +492,10 @@ CELERY_IMPORTS = ('submissions.tasks',)
 ED_ASSIGMENT_DT_DELTA = timedelta(hours=6)
 
 
-
 # Mailgun credentials
 MAILGUN_API_KEY = ''
+MAILGUN_STORED_MESSAGES_RETENTION_DAYS = 3
+
 
 # Pawning verification token
 # Get one at https://haveibeenpwned.com
