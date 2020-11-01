@@ -32,7 +32,14 @@ class EmailAccountAdmin(admin.ModelAdmin):
 admin.site.register(EmailAccount, EmailAccountAdmin)
 
 
-admin.site.register(AttachmentFile)
+class AttachmentFileAdmin(admin.ModelAdmin):
+    list_display = [
+        '__str__',
+        'uuid',
+        'sha224_hash',
+    ]
+
+admin.site.register(AttachmentFile, AttachmentFileAdmin)
 
 
 class AttachmentFileInline(admin.StackedInline):

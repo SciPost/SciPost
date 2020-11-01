@@ -57,3 +57,43 @@ class StoredMessageQuerySet(models.QuerySet):
                 )
             return self.filter(queryfilter)
         return self.none()
+
+    def in_thread_of_uuid(self, thread_of_uuid):
+        """
+        Filters for messages in the thread of message with given uuid.
+
+        Identify email thread using data['References'] or data['Message-Id'].
+        Since Django ORM does not support hyphenated lookups, use raw SQL.
+        First find the message at the root of the thread, which is the message
+        with Message-Id first in the list of the message with uuid `thread_of_uuid`
+        """
+        try:
+            reference_message = self.model.objects.get(uuid=thread_of_uuid)
+        except self.model.DoesNotExist:
+            return self.none()
+
+        # First try the RFC 2822 References MIME header:
+        head_id = None
+        try:
+            head_id = reference_message.data['References'].split()[0]
+        except KeyError:
+            # Then try the RFC 2822 In-Reply-To
+            try:
+                head_id = reference_message.data['In-Reply-To'].split()[0]
+            except KeyError:
+                # This message is head of the thread as far as can be guessed
+                head_id = reference_message.data['Message-Id']
+
+        if head_id:
+            thread_query_raw = (
+                "SELECT apimail_storedmessage.id FROM apimail_storedmessage "
+                "WHERE UPPER((apimail_storedmessage.data ->> %s)::text) LIKE UPPER(%s) "
+                "OR UPPER((apimail_storedmessage.data ->> %s)::text) LIKE UPPER(%s) "
+                "ORDER BY apimail_storedmessage.datetimestamp DESC;")
+            sm_ids = [sm.id for sm in self.model.objects.raw(
+                thread_query_raw,
+                ['Message-Id', '%%%s%%' % head_id, 'References', '%%%s%%' % head_id])]
+            return self.filter(pk__in=sm_ids)
+
+        # Otherwise message is already the head
+        return self.filter(uuid=thread_of_uuid)

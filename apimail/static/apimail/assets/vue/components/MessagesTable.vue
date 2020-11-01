@@ -50,13 +50,20 @@
     id="modal-resumedraft"
     size="xl"
     title="Rework draft"
+    hide-header-close
     no-close-on-escape
     no-close-on-backdrop
     >
     <message-composer :draftmessage="draftMessageSelected"></message-composer>
+    <template v-slot:modal-header="{ close, }">
+      <h1>Message draft</h1>
+      <b-button variant="danger" class="px-2 py-1" @click="close()">
+	Discard/Close
+      </b-button>
+    </template>
     <template v-slot:modal-footer="{ close, }">
-      <b-button size="sm" variant="danger" @click="close()">
-	Close
+      <b-button variant="danger" class="px-2 py-1" @click="close()">
+	Discard/Close
       </b-button>
     </template>
   </b-modal>
