@@ -13,7 +13,7 @@ from ..storage import APIMailSecureFileStorage
 
 from ..validators import validate_max_email_attachment_file_size
 
-ATT_BASE_DIR = "uploads/apimail/attachments/"
+ATT_BASE_DIR = "uploads/apimail/attachments"
 
 def get_attachment_upload_path(instance, filename):
     """
@@ -22,7 +22,7 @@ def get_attachment_upload_path(instance, filename):
     if not isinstance(instance.uuid, uuid_lib.UUID):
         raise FieldError("AttachmentFile upload path cannot be determined (uuid not defined).")
     u = str(instance.uuid)
-    return f"{ATT_BASE_DIR}{u[:2]}/{u[2:4]}/{u[4:6]}/{u[6:8]}/{filename}"
+    return f"{ATT_BASE_DIR}/{u[:2]}/{u[2:4]}/{u[4:6]}/{u[6:8]}/{filename}"
 
 
 class AttachmentFile(models.Model):
@@ -62,7 +62,7 @@ class AttachmentFile(models.Model):
         """
         uuid_01 = str(self.uuid)[0:2]
         uuid_23 = str(self.uuid)[2:4]
-        part0, part1, part2 = self.file.path.partition(f"{ATT_BASE_DIR}{uuid_01}/{uuid_23}/")
+        part0, part1, part2 = self.file.path.partition(f"{ATT_BASE_DIR}/{uuid_01}/{uuid_23}/")
         path = part0 + part1
         # Safety, in case file has been moved from standard location
         if f"{ATT_BASE_DIR}/{uuid_01}/{uuid_23}/" in path:
