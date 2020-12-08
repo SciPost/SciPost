@@ -65,6 +65,8 @@ LOGGING['handlers']['oauth_file']['filename'] = '/home/scipost/SciPost_logs/oaut
 # API
 # REST_FRAMEWORK['DEFAULT_RENDERER_CLASSES'] = ('rest_framework.renderers.JSONRenderer',)
 
+# Mailgun credentials
+MAILGUN_API_KEY = get_secret('MAILGUN_API_KEY')
 
 # Sentry
 sentry_sdk.init(
