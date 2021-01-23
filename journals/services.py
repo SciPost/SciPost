@@ -102,12 +102,17 @@ def update_citedby(doi_label):
             citation['isbn'] = link_el.find(prefix + 'isbn').text
 
         multiauthors = False
-        for author in link_el.find(prefix + 'contributors').iter(prefix + 'contributor'):
-            if author.get('sequence') == 'first':
-                citation['first_author_given_name'] = author.find(prefix + 'given_name').text
-                citation['first_author_surname'] = author.find(prefix + 'surname').text
-            else:
-                multiauthors = True
+        if link_el.find(prefix + 'contributors') is not None:
+            for author in link_el.find(prefix + 'contributors').iter(prefix + 'contributor'):
+                if author.get('sequence') == 'first':
+                    citation['first_author_given_name'] = author.find(prefix + 'given_name').text
+                    citation['first_author_surname'] = author.find(prefix + 'surname').text
+                else:
+                    multiauthors = True
+        else:
+            citation['first_author_given_name'] = ''
+            citation['first_author_surname'] = '[undetermined]'
+
         citation['multiauthors'] = multiauthors
         citations.append(citation)
 
