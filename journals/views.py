@@ -315,8 +315,31 @@ def redirect_to_about(request, doi_label):
 def about(request, doi_label):
     """Journal specific about page."""
     journal = get_object_or_404(Journal, doi_label=doi_label)
+    year = timezone.now().year
+    nr_publications = journal.nr_publications(year=year)
+    nr_publications_1 = journal.nr_publications(year=year - 1)
+    nr_publications_2 = journal.nr_publications(year=year - 2)
+    nr_citations = journal.nr_citations(year=year)
+    nr_citations_1 = journal.nr_citations(year=year - 1)
+    nr_citations_2 = journal.nr_citations(year=year - 2)
+    citedby_citescore = journal.citedby_citescore(year=year)
+    citedby_citescore_1 = journal.citedby_citescore(year=year - 1)
+    citedby_citescore_2 = journal.citedby_citescore(year=year - 2)
+    citedby_impact_factor_1 = journal.citedby_impact_factor(year - 1)
+    citedby_impact_factor_2 = journal.citedby_impact_factor(year - 2)
     context = {
         'journal': journal,
+        'nr_publications': nr_publications,
+        'nr_publications_1': nr_publications_1,
+        'nr_publications_2': nr_publications_2,
+        'nr_citations': nr_citations,
+        'nr_citations_1': nr_citations_1,
+        'nr_citations_2': nr_citations_2,
+        'citedby_citescore': citedby_citescore,
+        'citedby_citescore_1': citedby_citescore_1,
+        'citedby_citescore_2': citedby_citescore_2,
+        'citedby_impact_factor_1': citedby_impact_factor_1,
+        'citedby_impact_factor_2': citedby_impact_factor_2,
     }
     return render(request, 'journals/about.html', context)
 
