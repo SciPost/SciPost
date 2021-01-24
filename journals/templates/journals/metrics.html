@@ -4,6 +4,8 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
+{% load bootstrap %}  
+
 {% block meta_description %}{{ block.super }} {{ journal.name }} Metrics{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: {{ journal.name }} Metrics{% endblock pagetitle %}
 
