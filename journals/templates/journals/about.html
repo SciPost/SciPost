@@ -38,7 +38,7 @@
 	    <th>Metrics<br>
 	      <small>*Citation stats based on
 		<a href="https://www.crossref.org/services/cited-by/">Crossref CitedBy</a> data;
-		&emsp;<span class="text-danger">in red: prelim data</span>
+		&emsp;<span class="text-secondary">Preliminary data</span>
 	    </th>
 	    <th>{{ currentyear|add:"-2" }}</th>
 	    <th>{{ currentyear|add:"-1" }}</th>
@@ -49,25 +49,25 @@
 	  <td>Number of publications</td>
 	  <td><strong>{{ nr_publications_2 }}</strong></td>
 	  <td><strong>{{ nr_publications_1 }}</strong></td>
-	  <td><strong class="text-danger">{{ nr_publications }}</strong></td>
+	  <td><strong class="text-secondary">{{ nr_publications }}</strong></td>
 	</tr>
 	<tr>
 	  <td>Number of citations</td>
 	  <td><strong>{{ nr_citations_2 }}</strong></td>
 	  <td><strong>{{ nr_citations_1 }}</strong></td>
-	  <td><strong class="text-danger">{{ nr_citations }}</strong></td>
+	  <td><strong class="text-secondary">{{ nr_citations }}</strong></td>
 	</tr>
 	<tr>
-	  <td>CiteScore*</td>
+	  <td><a href="https://en.wikipedia.org/wiki/CiteScore" target="_blank">CiteScore</a>*</td>
 	  <td><strong>{{ citedby_citescore_2|floatformat:2 }}</strong></td>
 	  <td><strong>{{ citedby_citescore_1|floatformat:2 }}</strong></td>
-	  <td><strong class="text-danger">{{ citedby_citescore|floatformat:2 }}</strong></td>
+	  <td><strong class="text-secondary">{{ citedby_citescore|floatformat:2 }}</strong></td>
 	</tr>
 	<tr>
-	  <td>Impact Factor*</td>
+	  <td><a href="https://en.wikipedia.org/wiki/Impact_factor" target="_blank">Impact Factor</a>*</td>
 	  <td><strong>{{ citedby_impact_factor_2|floatformat:2 }}</strong></td>
 	  <td><strong>{{ citedby_impact_factor_1|floatformat:2 }}</strong></td>
-	  <td><strong class="text-danger">-</strong></td>
+	  <td><strong class="text-secondary">-</strong></td>
 	</tr>
       </table>
       </small>      
