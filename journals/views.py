@@ -10,6 +10,7 @@ import string
 import shutil
 import requests
 
+from csp.decorators import csp_update
 from plotly.offline import plot
 from plotly.graph_objs import Bar
 
@@ -413,6 +414,7 @@ def metrics_DEPREC(request, doi_label, specialty=None):
     return render(request, 'journals/metrics.html', context)
 
 
+@csp_update(SCRIPT_SRC=["'unsafe-eval'", "'unsafe-inline'"])
 def metrics(request, doi_label, specialty=None):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
