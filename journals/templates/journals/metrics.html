@@ -1,0 +1,122 @@
+{% extends 'journals/base.html' %}
+
+{% block headsup %}
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+{% endblock %}
+
+{% block meta_description %}{{ block.super }} {{ journal.name }} Metrics{% endblock meta_description %}
+{% block pagetitle %}{{block.super}}: {{ journal.name }} Metrics{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{% url 'journals:journals' %}?field={{ journal.college.acad_field.slug }}" class="breadcrumb-item">{{ journal.college.acad_field }} Journals</a>
+  <a href="{% url 'journal:issues' journal.doi_label %}" class="breadcrumb-item">{{ journal.name }}</a>
+  <span class="breadcrumb-item active">Metrics</span>
+{% endblock %}
+
+{% block content %}
+  {{ block.super }}
+
+  <div class="row">
+    <div class="col-12">
+
+      <h1 class="highlight">
+	<span class="px-2 py-1">Metrics for {{ journal.name }}{% if specialty %} <small><em>(specialized to {{ specialty }})</em></small>{% endif %}</span>
+
+	<button class="btn btn-secondary dropdown-toggle m-0 px-2 py-0 float-right" type="button" id="dropdownMenuSpecialty" data-toggle="dropdown"><small class="py-0">Filter by specialty</small></button>
+	<div class="dropdown-menu" aria-labelledby="dropdownMenuSpecialty">
+	  <a class="dropdown-item" href="{% url 'journal:metrics' doi_label=journal.doi_label %}">View all</a>
+	  {% for spec in journal.specialties.all %}
+	  <a class="dropdown-item" href="{% url 'journal:metrics' doi_label=journal.doi_label specialty=spec.slug %}">{{ spec }}</a>
+	  {% endfor %}
+	</div>
+
+      </h1>
+
+      <h2 class="highlight mt-4">Editorial metrics</h2>
+      <div class="row">
+	<div class="col-lg-4">
+	  <div class="card">
+	    <div class="card-header">
+	      <h3>Publications
+		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+	      </h3>
+	    </div>
+	    <div class="card-body">
+	      {% autoescape off %}
+	      {{ nr_publications_plot }}
+	      {% endautoescape %}
+	    </div>
+	  </div>
+	</div>
+	<div class="col-lg-4">
+	  <div class="card">
+	    <div class="card-header">
+	      <h3>Submissions
+		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+	      </h3>
+	    </div>
+	    <div class="card-body">
+	      {% autoescape off %}
+	      {{ nr_submissions_plot }}
+	      {% endautoescape %}
+	    </div>
+	  </div>
+	</div>
+      </div>
+
+      <h2 class="highlight mt-4">Citation metrics</h2>
+      <div class="row">
+	<div class="col-12">
+	  <strong>All citation statistics presented here are based on <a href="https://www.crossref.org/services/cited-by/">Crossref CitedBy</a> data</strong>.
+	</div>
+      </div>
+
+      <div class="row">
+	<div class="col-lg-4">
+	  <div class="card">
+	    <div class="card-header">
+	      <h3>Citations (total)
+		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+	      </h3>
+	    </div>
+	    <div class="card-body">
+	      {% autoescape off %}
+	      {{ nr_citations_plot }}
+	      {% endautoescape %}
+	    </div>
+	  </div>
+	</div>
+	<div class="col-lg-4">
+	  <div class="card">
+	    <div class="card-header">
+	      <h3><a href="https://en.wikipedia.org/wiki/CiteScore" target="_blank">CiteScore</a>
+		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+	      </h3>
+	    </div>
+	    <div class="card-body">
+	      {% autoescape off %}
+	      {{ citescore_plot }}
+	      {% endautoescape %}
+	    </div>
+	  </div>
+	</div>
+	<div class="col-lg-4">
+	  <div class="card">
+	    <div class="card-header">
+	      <h3><a href="https://en.wikipedia.org/wiki/Impact_factor" target="_blank">Impact Factor</a>
+		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+	      </h3>
+	    </div>
+	    <div class="card-body">
+	      {% autoescape off %}
+	      {{ impact_factor_plot }}
+	      {% endautoescape %}
+	    </div>
+	  </div>
+	</div>
+      </div>
+      
+    </div>
+  </div>
+{% endblock %}

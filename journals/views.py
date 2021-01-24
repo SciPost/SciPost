@@ -10,6 +10,8 @@ import string
 import shutil
 import requests
 
+from plotly.offline import plot
+from plotly.graph_objs import Bar
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
@@ -342,6 +344,110 @@ def about(request, doi_label):
         'citedby_impact_factor_2': citedby_impact_factor_2,
     }
     return render(request, 'journals/about.html', context)
+
+
+def provide_plot(x, y, name):
+    return plot(
+        [ Bar(x=x, y=y, name=name) ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    
+
+def metrics_DEPREC(request, doi_label, specialty=None):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
+    publications = journal.get_publications()
+    if specialty:
+        publications = publications.filter(specialties=specialty)
+    context = {
+        'journal': journal,
+        'specialty': specialty,
+    }
+    if not publications:
+        return render(request, 'journals/metrics.html', context)
+    pubyears = [year for year in range(publications.last().publication_date.year, # pubs ordered in -publication_date
+                                       timezone.now().year)]
+    nr_publications = [publications.filter(publication_date__year=year).count() for year in pubyears]
+    nr_citations = [journal.nr_citations(year, specialty) for year in pubyears]
+    citedby_citescore = [journal.citedby_citescore(year, specialty) for year in pubyears]
+    citedby_impact_factor = [journal.citedby_impact_factor(year, specialty) for year in pubyears]
+    nr_publications_plot = plot(
+        [ Bar(x=pubyears, y=nr_publications, name='publications') ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    nr_citations_plot = plot(
+        [ Bar(x=pubyears, y=nr_citations, name='citations') ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    citescore_plot = plot(
+        [ Bar(x=pubyears, y=citedby_citescore, name='citescore') ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    impact_factor_plot = plot(
+        [ Bar(x=pubyears, y=citedby_impact_factor, name='impactfactor') ],
+        config={
+            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
+                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+        },
+        output_type='div', include_plotlyjs=False,
+        show_link=False, link_text="")
+    context['nr_publications_plot'] = nr_publications_plot
+    context['nr_citations_plot'] = nr_citations_plot
+    context['citescore_plot'] = citescore_plot
+    context['impact_factor_plot'] = impact_factor_plot
+    return render(request, 'journals/metrics.html', context)
+
+
+def metrics(request, doi_label, specialty=None):
+    journal = get_object_or_404(Journal, doi_label=doi_label)
+    context = {
+        'journal': journal,
+        'specialty': specialty,
+    }
+    key = 'all'
+    if specialty:
+        key = specialty.slug
+    nr_publications_plot = provide_plot(
+        x=journal.cf_metrics['nr_publications']['years'],
+        y=journal.cf_metrics['nr_publications']['nr_publications'][key],
+        name='publications')
+    nr_submissions_plot = provide_plot(
+        x=journal.cf_metrics['nr_submissions']['years'],
+        y=journal.cf_metrics['nr_submissions']['nr_submissions'][key],
+        name='submissions')
+    nr_citations_plot = provide_plot(
+        x=journal.cf_metrics['nr_citations']['years'],
+        y=journal.cf_metrics['nr_citations']['nr_citations'][key],
+        name='citations')
+    citescore_plot = provide_plot(
+        x=journal.cf_metrics['citedby_citescore']['years'],
+        y=journal.cf_metrics['citedby_citescore']['citedby_citescore'][key],
+        name='citations')
+    impact_factor_plot = provide_plot(
+        x=journal.cf_metrics['citedby_impact_factor']['years'],
+        y=journal.cf_metrics['citedby_impact_factor']['citedby_impact_factor'][key],
+        name='citations')
+    context['nr_publications_plot'] = nr_publications_plot
+    context['nr_submissions_plot'] = nr_submissions_plot
+    context['nr_citations_plot'] = nr_citations_plot
+    context['citescore_plot'] = citescore_plot
+    context['impact_factor_plot'] = impact_factor_plot
+    return render(request, 'journals/metrics.html', context)
 
 
 def issue_detail(request, doi_label):

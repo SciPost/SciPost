@@ -8,6 +8,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
+from django.utils import timezone
 
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
@@ -88,6 +89,9 @@ class Journal(models.Model):
     # Cost per publication information
     cost_info = JSONField(default=cost_default_value)
 
+    # Calculated fields (to save CPU; field name always starts with cf_)
+    cf_metrics = JSONField(default=dict)
+    
     objects = JournalQuerySet.as_manager()
 
     class Meta:
@@ -177,8 +181,10 @@ class Journal(models.Model):
                 deltat += (pub.latest_citedby_update.date() - pub.publication_date).days
         return (ncites * 365.25/deltat)
 
-    def nr_citations(self, year):
+    def nr_citations(self, year, specialty=None):
         publications = self.get_publications()
+        if specialty:
+            publications = publications.filter(specialties=specialty)
         ncites = 0
         for pub in publications:
             if pub.citedby and pub.latest_citedby_update:
@@ -187,7 +193,7 @@ class Journal(models.Model):
                         ncites += 1
         return ncites
     
-    def citedby_impact_factor(self, year):
+    def citedby_impact_factor(self, year, specialty=None):
         """Compute the impact factor for a given year YYYY, from Crossref cited-by data.
 
         This is defined as the total number of citations in year YYYY
@@ -197,6 +203,8 @@ class Journal(models.Model):
         publications = self.get_publications().filter(
             models.Q(publication_date__year=int(year)-1) |
             models.Q(publication_date__year=int(year)-2))
+        if specialty:
+            publications = publications.filter(specialties=specialty)
         nrpub = publications.count()
         if nrpub == 0:
             return 0
@@ -208,7 +216,7 @@ class Journal(models.Model):
                         ncites += 1
         return ncites / nrpub
 
-    def citedby_citescore(self, year):
+    def citedby_citescore(self, year, specialty=None):
         """Compute the CiteScore for a given year YYYY, from Crossref cited-by data.
 
         This is defined as the total number of citations in years YYYY to YYYY-3
@@ -218,6 +226,8 @@ class Journal(models.Model):
         publications = self.get_publications().filter(
             publication_date__year__lte=int(year),
             publication_date__year__gte=int(year)-3)
+        if specialty:
+            publications = publications.filter(specialties=specialty)
         nrpub = publications.count()
         if nrpub == 0:
             return 0
@@ -234,3 +244,67 @@ class Journal(models.Model):
             return int(self.cost_info[str(year)])
         except KeyError:
             return int(self.cost_info['default'])
+
+    def update_cf_metrics(self):
+        """
+        Update the `cf_metrics` calculated field for this Journal.
+        """
+        publications = self.get_publications()
+        from submissions.models import Submission
+        if publications:
+            pubyears = [year for year in range(publications.last().publication_date.year, 
+                                       timezone.now().year)]
+        else:
+            pubyears = [timezone.now().year]
+        from submissions.models import Submission
+        submissions = Submission.objects.filter(
+                    submitted_to=self,
+                    is_resubmission_of__isnull=True
+        )
+        self.cf_metrics['nr_publications'] = {
+            'title': 'Number of publications per year',
+            'years': pubyears,
+            'nr_publications': {
+                'all': [publications.filter(publication_date__year=year).count() for year in pubyears]
+            }
+        }
+        self.cf_metrics['nr_submissions'] = {
+            'title': 'Number of submissions per year',
+            'years': pubyears,
+            'nr_submissions': {
+                'all': [submissions.filter(submission_date__year=year).count() for year in pubyears]
+            }
+        }
+        self.cf_metrics['nr_citations'] = {
+            'title': 'Number of citations per year',
+            'years': pubyears,
+            'nr_citations': {
+                'all': [self.nr_citations(year) for year in pubyears]
+            }
+        }
+        self.cf_metrics['citedby_citescore'] = {
+            'title': 'CiteScore',
+            'years': pubyears,
+            'citedby_citescore': {
+                'all': [self.citedby_citescore(year) for year in pubyears]
+            }
+        }
+        self.cf_metrics['citedby_impact_factor'] = {
+            'title': 'Impact Factor',
+            'years': pubyears,
+            'citedby_impact_factor': {
+                'all': [self.citedby_impact_factor(year) for year in pubyears]
+            }
+        }
+        for specialty in self.specialties.all():
+            self.cf_metrics['nr_publications']['nr_publications'][specialty.slug] = [
+                publications.filter(specialties=specialty, publication_date__year=year).count() for year in pubyears]
+            self.cf_metrics['nr_submissions']['nr_submissions'][specialty.slug] = [
+                submissions.filter(specialties=specialty, submission_date__year=year).count() for year in pubyears]
+            self.cf_metrics['nr_citations']['nr_citations'][specialty.slug] = [
+                self.nr_citations(year, specialty) for year in pubyears]
+            self.cf_metrics['citedby_citescore']['citedby_citescore'][specialty.slug] = [
+                self.citedby_citescore(year, specialty) for year in pubyears]
+            self.cf_metrics['citedby_impact_factor']['citedby_impact_factor'][specialty.slug] = [
+                self.citedby_impact_factor(year, specialty) for year in pubyears]
+        self.save()

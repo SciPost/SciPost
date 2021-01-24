@@ -35,7 +35,11 @@
       <table class="table table-bordered">
 	<thead class="thead-secondary">
 	  <tr>
-	    <th>Metrics<br>
+	    <th>
+	      Metrics&emsp;
+	      <a class="float-right" href="{% url 'journal:metrics' doi_label=journal.doi_label %}">
+	      &rarr;<small><em>view detailed metrics</em></small></a>
+	      <br>
 	      <small>*Citation stats based on
 		<a href="https://www.crossref.org/services/cited-by/">Crossref CitedBy</a> data;
 		&emsp;<span class="text-secondary">Preliminary data</span>
