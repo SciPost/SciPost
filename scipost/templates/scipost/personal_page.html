@@ -44,7 +44,7 @@
               <li class="nav-item btn btn-outline-secondary">
                 <a class="nav-link" {% if tab == 'account' %}data-sp-autoload='true'{% endif %} href="#account" data-sp-dynamic-load="{% url 'scipost:personal_page_account' %}" data-toggle="tab">Account</a>
               </li>
-	      {% if is_scipost_admin or is_financial_admin %}
+	      {% if is_scipost_admin or is_financial_admin or perms.scipost.can_vet_registration_requests %}
 		<li class="nav-item btn btn-outline-secondary">
 		  <a class="nav-link" {% if tab == 'admin_actions' %}data-sp-autoload='true'{% endif %} href="#admin-actions" data-sp-dynamic-load="{% url 'scipost:personal_page_admin_actions' %}" data-toggle="tab">Admin Actions</a>
 		</li>
