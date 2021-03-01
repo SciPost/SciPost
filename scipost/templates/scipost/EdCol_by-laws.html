@@ -46,6 +46,17 @@
                   For interdisciplinary submissions, the services of Fellows from distinct Colleges
                   can be called upon during the evaluation process.
                 </p>
+		{% if perms.can_view_pool %}
+		<div class="bg-warning my-1 p-1">
+		  <h4>Proposed modification 1.1 (VGM 2021-01): add the following paragraph</h4>
+		  <p>
+		    Within each College, a number of Fellows are marked as <em>Senior Fellows</em>.
+		    These <em>primi inter pares</em> are selected from existing Fellows,
+		    and are given special tasks and responsibilities relating to maintaining the
+		    College's composition and sustaining the editorial processes.
+		  </p>
+		</div>
+		{% endif %}
               </li>
               <li><strong>Eligibility</strong>
                 <p>
@@ -68,6 +79,18 @@
                   caring for a stated subject area shall be adjusted to ensure a workload per Fellow
                   limited to approximately one half-day per month on average.
                 </p>
+		{% if perms.can_view_pool %}
+		<div class="bg-warning my-1 p-1">
+		  <h4>Proposed modification 1.3 (VGM 2021-01): rephrase to</h4>
+		  <p>
+                    The size of an Editorial College will be such that each stated specialty
+                    will be represented by at least 8 Fellows, with at least 3 Senior Fellows.
+		    There is no maximum. The number of Fellows
+                    caring for a stated specialty shall be adjusted to ensure a workload per Fellow
+                    limited to approximately one half-day per month on average.
+		  </p>
+		</div>
+		{% endif %}
               </li>
               <li><strong>Appointment</strong>
                 <p>SciPost's Editorial Colleges should be representative of their respective field's academic communities. They are meant to be self-sustaining in scale and composition.</p>
@@ -103,6 +126,69 @@
                   Foundation. Appointment to an Editorial College starts immediately upon receipt
                   of a positive answer from the candidate.
                 </p>
+		{% if perms.can_view_pool %}
+		<div class="bg-warning my-1 p-1">
+		  <h4>Proposed modification 1.4.2 (VGM 2021-01): replace paragraph 1.4.2 and paragraph after by</h4>
+		  <p>
+		    <ul>
+		      <li>1.4.2 Nomination
+			<p>
+			  Senior Fellows shall ensure that the number of Fellows in their specialty is sufficient,
+			  by actively scouting for and nominating appropriately qualified candidates.
+			</p>
+			<p>
+			  In addition, Foundation board members, members of the Advisory Board as well as current and past
+			  Fellows of an Editorial College can nominate candidates for an Editorial Fellowship.
+			  Guest Fellows which have proved to be reliable Editors-in-charge
+			  for <em>Core</em>- or <em>Proceedings</em>-class Submissions can also be
+			  nominated by Editorial Administration on behalf of the Foundation.
+			  Candidates must fulfil the eligiblity criteria.
+			</p>
+		      </li>
+		      <li>1.4.3 Election of new Fellows (Senior Fellows vote)
+			<p>
+			  Nominations are first forwarded to Senior Fellows of the relevant College for voting.
+			  If a candidate secures a positive vote from a strict majority of Senior Fellows in their
+			  stated specialties, and if no veto is received from Senior Fellows in other specialties,
+			  from the Advisory Board or from the Foundation's Board, then the candidate is deemed elected.
+			</p>
+		      </li>
+		      <li>1.4.4 Election of new Fellows (Editorial College vote)
+			<p>
+			  As an alternate route, nominations can also be forwarded to the relevant Editorial College
+			  for voting, at the latest at the next Virtual General Meeting.
+			  If a candidate secures a positive vote from at least half
+			  of the Fellows currently
+			  caring for the candidate's stated main specialty, and if no veto is received from
+			  Fellows in other specialties, from the Advisory Board or from the Foundation's
+			  Board, then the candidate is deemed elected.
+			</p>			
+		      </li>
+		      <li>1.4.5 Appointment of new Fellows
+			<p>
+			  Upon election, a candidate is invited to join.
+			  Appointment to an Editorial College starts immediately upon receipt
+			  of a positive answer from the candidate.
+			</p>
+		      </li>
+		      <li>1.4.6 Election and appointment of Senior Fellows
+			<p>
+			  Each College shall be responsible for maintaining a sufficient number of Senior
+			  Fellows in each specialty. When a need for new Senior Fellows arises, Editorial Administration
+			  shall probe current Fellows in order to identify suitable follow-up
+			  Senior Fellow candidates. Current Fellows in that specialty shall then be requested
+			  by Editorial Administration to express their preferences.
+			  Candidates having obtained the highest expressed preferences then become the new Senior Fellow(s).
+			</p>
+			<p>
+			  As a special provision, if a given specialty has fewer than 3 Senior Fellows, 
+			  then the Foundation has the right to directly appoint appropriate candidates to take
+			  on the role.
+			</p>
+		    </ul>
+		  </p>
+		</div>
+		{% endif %}
               </li>
               <li><strong>Duration</strong>
                 <p>
@@ -226,6 +312,15 @@
                   and a list of potential Editors-in-charge is preselected based on expertise and
                   availability.
                 </p>
+		{% if perms.can_view_pool %}
+		<div class="bg-warning my-1 p-1">
+		  <h4>Proposed modification 3.2 (VGM 2021-01): add the following phrase</h4>
+		  <p>
+		    Senior Fellows in the relevant specialty assist Editorial Administration
+		    in establishing this list of potential Editors-in-charge.
+		  </p>
+		</div>
+		{% endif %}
                 <p>
                   Special provisions exist for certain classes of Journals:
                   <ul>
@@ -263,6 +358,23 @@
                   given the option of either withdrawing their Submission,
                   or of accepting an extension to the duration of their Submission's pre-screening process.
                 </p>
+		{% if perms.can_view_pool %}
+		<div class="bg-warning my-1 p-1">
+		  <h4>Proposed modification 3.3 (VGM 2021-01): change the last paragraph to</h4>
+		  <p>
+                    The Editorial College and Administration must make all reasonable efforts to ensure
+		    that the screening process
+                    be completed within 5 working days starting from the moment of submission.
+		    Senior Fellows in the relevant specialty can be consulted by Editorial Administration
+		    in order to assist in this endeavour. 
+                    If this timing proves impossible (for example due to a large influx of Submissions or current
+                    unavailability of specialist (guest) Fellows), the authors are informed of the delay and
+                    given the option of either withdrawing their Submission,
+                    or of accepting an extension to the duration of their Submission's screening process.
+		  </p>
+		</div>
+		{% endif %}
+		
               </li>
               <li><strong>Appointment of Editor-in-charge</strong>
                 <ol>
@@ -422,6 +534,14 @@
 		    <p>
 		      A number of Fellows (depending on the Journal) is selected by Editorial Administration and specifically given voting rights on the recommendation. This selection is made to ensure sufficient expertise, enforce checks on impartiality and avoid conflicts of interest. Other qualified Fellows can claim voting rights on the recommendation if they so wish, by contacting Editorial Administration.
 		    </p>
+		    {% if perms.can_view_pool %}
+		    <div class="bg-warning my-1 p-1">
+		      <h4>Proposed modification 3.7 (VGM 2021-01): replace last paragraph by</h4>
+		      <p>
+		      A number of Fellows (depending on the Journal) is selected by Editorial Administration (with assistance from Senior Fellows) and specifically given voting rights on the recommendation. This selection is made to ensure sufficient expertise, enforce checks on impartiality and avoid conflicts of interest. Other qualified Fellows can claim voting rights on the recommendation if they so wish, by contacting Editorial Administration.
+		      </p>
+		    </div>
+		    {% endif %}
 		    <p>
 		      The voting Fellows cast their opinion on the recommendation. They can:
 		      <ul>
@@ -534,6 +654,21 @@
 		      </li>
 		    </ol>
                   </li>
+		  {% if perms.can_view_pool %}
+		  <div class="bg-warning my-1 p-1">
+		    <h4>Proposed modification 3.8 (VGM 2021-01): add this point, move Production to 3.9</h4>
+		    <ul>
+		      <li>Appeals</li>
+		      <p>
+			Authors can appeal a decision by the College if evidence exists that
+			procedures were improperly followed during the handling of their manuscript.
+			Appeals should be promptly lodged to Editorial Administration, and detail the evidence.
+			Appeals shall be handled by the Senior Fellows in the relevant specialty,
+			who collectively act as adjudicators. Adjudications by Senior Fellows are final.
+		      </p>
+		    </ul>
+		  </div>
+		  {% endif %}
                   <li><strong>Production</strong>
 		    <p>Post-acceptance, the paper is handled by the production team, who produce the final version
 		      of the manuscript and ensure compliance with publication requirements (including outbound
