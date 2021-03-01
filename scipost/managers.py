@@ -53,10 +53,6 @@ class ContributorQuerySet(models.QuerySet):
         return self.filter(user__is_active=True, status=NEWLY_REGISTERED
                            ).exclude(status=DOUBLE_ACCOUNT)
 
-    def fellows(self):
-        """TODO: NEEDS UPDATE TO NEW FELLOWSHIP RELATIONS."""
-        return self.filter(fellowships__isnull=False).distinct()
-
     def with_duplicate_names(self):
         """
         Returns only potential duplicate Contributors (as identified by first and

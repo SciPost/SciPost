@@ -8,7 +8,7 @@ from ...models import EICRecommendation
 
 from colleges.models import PotentialFellowship
 from mails.utils import DirectMailUtil
-from scipost.models import Contributor
+from colleges.models import Fellowship
 
 
 class Command(BaseCommand):
@@ -17,15 +17,15 @@ class Command(BaseCommand):
     help = 'Sends an email to Fellows with current and upcoming tasks list'
 
     def handle(self, *args, **kwargs):
-        fellows = Contributor.objects.fellows()
+        fellowships = Fellowship.objects.active()
         count = 0
 
-        for fellow in fellows:
-            nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(fellow).count()
-            recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(fellow.user)
-            assignments_ongoing = fellow.editorial_assignments.ongoing()
+        for fellowship in fellowships:
+            nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(fellowship.contributor).count()
+            recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(fellowship.contributor.user)
+            assignments_ongoing = fellowship.contributor.editorial_assignments.ongoing()
             assignments_ongoing_with_required_actions = assignments_ongoing.with_required_actions()
-            assignments_to_consider = fellow.editorial_assignments.invited()
+            assignments_to_consider = fellowship.contributor.editorial_assignments.invited()
             assignments_upcoming_deadline = assignments_ongoing.refereeing_deadline_within(days=7)
             if (recs_to_vote_on or assignments_ongoing_with_required_actions
                 or assignments_to_consider or assignments_upcoming_deadline):
@@ -33,8 +33,8 @@ class Command(BaseCommand):
                     'fellows/email_fellow_tasklist',
                     # Render immediately, because m2m/querysets cannot be saved for later rendering:
                     delayed_processing=False,
-                    object=fellow,
-                    fellow=fellow,
+                    object=fellowship.contributor,
+                    fellow=fellowship.contributor,
                     nr_potfels_to_vote_on=nr_potfels_to_vote_on,
                     recs_to_vote_on=recs_to_vote_on,
                     assignments_ongoing=assignments_ongoing,
