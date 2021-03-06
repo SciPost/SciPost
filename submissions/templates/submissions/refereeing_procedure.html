@@ -1,18 +1,18 @@
 {% extends 'submissions/base.html' %}
 
-{% block meta_description %}{{ block.super }} Submission and Refereeing Procedure{% endblock meta_description %}
-{% block pagetitle %}: submission and refereeing procedure{% endblock pagetitle %}
+{% block meta_description %}{{ block.super }} Refereeing Procedure{% endblock meta_description %}
+{% block pagetitle %}: refereeing procedure{% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
-  <span class="breadcrumb-item">Submission and refereeing procedure</span>
+  <span class="breadcrumb-item">Refereeing procedure</span>
 {% endblock %}
 
 {% block content %}
 
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Submission and Refereeing procedure</h1>
+      <h1 class="highlight">Refereeing procedure</h1>
     </div>
   </div>
 
@@ -21,33 +21,6 @@
       {% include 'submissions/_guidelines_dl.html' %}
     </div>
   </div>
-
-  <div class="row">
-    <div class="col-12">
-      <h2>Submission</h2>
-      <p>This is a quick summary. For more details, see the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>
-        and the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.</p>
-      <h3>To submit an article for publication in a SciPost Journal, you must:</h3>
-      <ol>
-        <li>Prepare your manuscript following the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a></li>
-        <li>Make your preprint publicly available on an appropriate preprint server:
-	  <ul>
-	    <li>Physics, Astonomy, Mathematics, Computer Science: <a href="https://arxiv.org">arXiv.org</a></li>
-	    <li>Biology: <a href="https://www.biorxiv.org">bioRxiv</a></li>
-	    <li>Chemistry: <a href="https://chemrxiv.org">ChemRxiv</a></li>
-	    <li>Social Sciences: <a href="https://osf.io/preprints/socarxiv/">SocArXiv</a></li>
-	  </ul>
-	  <em>Notes:</em>
-	  <ul>
-	    <li><em>You can also submit directly without using a preprint server, but we greatly encourage you to embrace preprint culture: it can greatly increases the visibility of your manuscript among your peers.</em></li>
-	    <li><em>For non-arXiv servers, there is no API integration yet through which we can automatically extract preprint metadata. You will thus have to provide all data upon submission.</em></li>
-	  </ul>
-	</li>
-        <li>After appearance on the preprint server, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form, selecting which SciPost Journal to submit to (and providing additional info such as domain and speciality specifications).</li>
-      </ol>
-    </div>
-  </div>
-
 
   <hr>
   <div class="row">

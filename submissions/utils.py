@@ -257,7 +257,7 @@ class SubmissionUtils(BaseMailUtil):
             + '; your report will be automatically recognized as an invited report). '
             'You might want to make sure you are familiar with our refereeing code of conduct '
             'https://scipost.org/journals/journals_terms_and_conditions and with the '
-            'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.'
+            'refereeing procedure https://scipost.org/submissions/refereeing_procedure.'
             '\n\nWe very much hope we can count on your expertise,'
             '\n\nMany thanks in advance,\n\nThe SciPost Team'
         )
@@ -287,7 +287,7 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>You might want to make sure you are familiar with our '
             '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
             'refereeing code of conduct</a> and with the '
-            '<a href="https://scipost.org/submissions/sub_and_ref_procedure">'
+            '<a href="https://scipost.org/submissions/refereeing_procedure">'
             'refereeing procedure</a>.</p>'
             '<p>We very much hope we can count on your expertise,</p>'
             '<p>Many thanks in advance,</p>'
@@ -361,7 +361,7 @@ class SubmissionUtils(BaseMailUtil):
             + '; your report will be automatically recognized as an invited report). '
             'You might want to make sure you are familiar with our refereeing code of conduct '
             'https://scipost.org/journals/journals_terms_and_conditions and with the '
-            'refereeing procedure https://scipost.org/submissions/sub_and_ref_procedure.'
+            'refereeing procedure https://scipost.org/submissions/refereeing_procedure.'
             '\n\nWe very much hope we can count on your expertise,'
             '\n\nMany thanks in advance,\n\nThe SciPost Team')
         email_text_html += (
@@ -373,7 +373,7 @@ class SubmissionUtils(BaseMailUtil):
             '\n<p>You might want to make sure you are familiar with our '
             '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
             'refereeing code of conduct</a> and with the '
-            '<a href="https://scipost.org/submissions/sub_and_ref_procedure">'
+            '<a href="https://scipost.org/submissions/refereeing_procedure">'
             'refereeing procedure</a>.</p>'
             '<p>We very much hope we can count on your expertise,</p>'
             '<p>Many thanks in advance,</p>'

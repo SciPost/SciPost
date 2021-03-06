@@ -27,10 +27,10 @@
 
   <div class="row">
     <div class="col-12">
-
+      
       <hr>
       <h2 class="highlight" id="manuprep">Manuscript preparation</h2>
-
+      
       <p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
 	as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
 	composed of the following individual files:
@@ -64,9 +64,6 @@
 	<dt class="col-sm-3 col-md-2">Abstract</dt>
 	<dd class="col-sm-9 col-md-10">The abstract should preferably fit within 8 lines of the template (about 200 words).</dd>
 
-	<!-- <dt class="col-sm-3 col-md-2">Extended Abstract</span></dt>
-	     <dd class="col-sm-9 col-md-10"><strong class="text-danger">Only if you are submitting to a field-leading title:</strong> A one-page summary of the context, the breakthrough obtained and perspectives for future research, accessible to a wide spectrum of researchers.</dd> -->
-
 	<dt class="col-sm-3 col-md-2">Bulk Sections</dt>
 	<dd class="col-sm-9 col-md-10">The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</dd>
 
@@ -86,27 +83,58 @@
 	<dd class="col-sm-9 col-md-10">Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</dd>
 
 	<dt class="col-sm-3 col-md-2">Appendices</dt>
-	<dd class="col-sm-9 col-md-10">Supplementary material which goes beyond the paper's bulk contents can be provided in appendices, which should be
+	<dd class="col-sm-9 col-md-10">Extra material which goes beyond the paper's bulk contents can be provided in appendices, which should be
 	  labeled using capital letters.</dd>
+
+        <dt class="col-sm-3 col-md-2">Supplementary Material</dt>
+	<dd class="col-sm-9 col-md-10">
+	  You should make supplementary material (data, code and similar) openly available,
+	  most simply by depositing those in institutional repositories.
+	  In your paper, please list the items together with the link pointing to where they are hosted.
+	</dd>
 
 	<dt class="col-sm-3 col-md-2">References</dt>
 	<dd class="col-sm-9 col-md-10">Items in the list of references should include authors, title, journal reference and most importantly
 	  <b>** include the DOI link **</b> (see the template above for an example).</dd>
       </dl>
 
-      <p>All equations and references should be hyperlinked to ensure ease of navigation.</p>
+      <p>All elements in your paper (equations, references, tables, figures etc)
+	should be hyperlinked to ensure ease of navigation.</p>
       <p>There is no strict length limitation, but the authors are strongly encouraged to keep contents to the
 	strict minimum necessary for peers to reproduce the research described in the paper.</p>
 
-
       <hr>
       <h2 class="highlight" id="manusub">Manuscript submission</h2>
-      <p>Submitting your manuscript to SciPost is extremely easy. You should:</p>
-      <ul>
-	<li>Make your preprint publicly available on <a href="https://arxiv.org">arXiv.org</a> (please include a statement as `Submission to SciPost' in the Comments)</li>
-	<li>After appearance on arxiv.org, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form, selecting which SciPost Journal
-	  to submit to and providing domain and speciality specifications.</li>
-      </ul>
+      <h3>To submit an article for publication in a SciPost Journal, you must:</h3>
+      <ol class="mb-4">
+        <li>Prepare your manuscript following the <a href="#manuprep">Manuscript preparation</a> instructions above</li>
+        <li>Submit using one of two pathways: via a preprint server, or directly to SciPost:
+	  <ul>
+	    <li class="mt-4">
+	      <h4>Submit via a preprint server (the recommended route)</h4>
+	      We encourage you to embrace preprint culture: it greatly increases the visibility
+	      of your manuscript among your peers. Depending on your academic field, you can consider
+	      the following servers:
+	      <ul>
+		<li>Physics, Astonomy, Mathematics, Computer Science: <a href="https://arxiv.org">arXiv.org</a></li>
+		<li>Biology: <a href="https://www.biorxiv.org">bioRxiv</a></li>
+		<li>Chemistry: <a href="https://chemrxiv.org">ChemRxiv</a></li>
+		<li>Social Sciences: <a href="https://osf.io/preprints/socarxiv/">SocArXiv</a></li>
+	      </ul>
+	      <em>Notes:</em>
+	      <ul>
+		<li><em>Please include a statement as "Submission to SciPost" in the Comments</em></li>
+		<li><em>For non-arXiv servers, there is no API integration yet through which we can automatically extract preprint metadata. You will thus have to provide all data upon submission.</em></li>
+	      </ul>
+              After appearance on the preprint server, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form (most fields will be auto-filled if the preprint server has an API integration with SciPost), selecting which SciPost Journal to submit to (and providing additional info such as domain and speciality specifications).
+	    </li>
+	    <li class="mt-4">
+	      <h4>Submit directly to SciPost</h4>
+	      In this case, simply fill the <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form,
+	      providing all the required data. You might prefer using this pathway for a resubmission.
+	    </li>
+	</li>
+      </ol>
       <p>By submitting your manuscript, you assert that you have read and agree with the
 	<a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.</p>
 
@@ -119,7 +147,7 @@
       <hr>
       <h2 class="highlight" id="refphase">The refereeing phase</h2>
       <p>
-	First, you should make sure you are familiar with our open peer-witnessed <a href="{% url 'submissions:sub_and_ref_procedure' %}">refereeing procedure</a>.
+	First, you should make sure you are familiar with our open peer-witnessed <a href="{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>.
       </p>
       <p>
 	Second, it is also wise to understand what we ask and expect from our referees, which is best summarized in our <a href="{% url 'submissions:referee_guidelines' %}" target="_blank">referee guidelines</a>, which also includes some information about how, as an author, you should react to submitted Reports.
