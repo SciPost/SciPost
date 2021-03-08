@@ -1239,7 +1239,8 @@ def email_group_members(request):
             page = p.page(pagenr)
             with mail.get_connection() as connection:
                 for member in page.object_list:
-                    if member.contributor.profile.accepts_SciPost_emails:
+                    if (member.contributor.profile.accepts_SciPost_emails or
+                        member.groups.filter(name='Editorial College').exists()): # bypass for Fellows
                         email_text = ''
                         email_text_html = ''
                         if form.cleaned_data['personalize']:
