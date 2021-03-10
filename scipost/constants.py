@@ -43,6 +43,7 @@ TITLE_CHOICES = (
     ('MR', 'Mr'),
     ('MRS', 'Mrs'),
     ('MS', 'Ms'),
+    ('MX', 'Mx'),
 )
 
 INVITATION_EDITORIAL_FELLOW = 'F'
