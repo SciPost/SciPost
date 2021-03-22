@@ -271,6 +271,15 @@ class AuthorshipClaim(models.Model):
 
     objects = AuthorshipClaimQuerySet.as_manager()
 
+    def __str__(self):
+        if self.submission:
+            return "Authorship claim: %s for %s %s" % (self.claimant, "Submission", self.submission)
+        elif self.commentary:
+            return "Authorship claim: %s for %s %s" % (self.claimant, "Commentary", self.commentary)
+        elif self.thesislink:
+            return "Authorship claim: %s for %s %s" % (self.claimant, "Thesis Link", self.thesislink)
+        return "Authorship claim: %s for [undefined]" % self.claimant
+
 
 class PrecookedEmail(models.Model):
     """
