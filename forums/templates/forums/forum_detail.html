@@ -90,8 +90,11 @@
 	  </div>
 	</div>
       {% endif %}
+    </div>
+  </div>
 
-
+  <div class="row">
+    <div class="col">
       <h2>Table of Contents</h2>
       <div class="m-2">
 	<ul>
@@ -100,11 +103,37 @@
 	    <li><a href="#Preamble">Preamble</a></li>
 	    <li><a href="#Motions">Motions</a></li>
 	  {% endif %}
-	  <li><a href="#Posts">Posts</a></li>
+	  <li><a href="#Posts">Posts</a>
+	  </li>
 	  {% if forum.meeting %}
 	    <li><a href="#Minutes">Minutes</a></li>
 	  {% endif %}
 	</ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+	<div class="card-header">
+	  <button class="btn btn-primary btn-small" data-toggle="collapse" data-target="#recentPostsLinks">
+	    Quick links: posts and motions (click to toggle)
+	  </button>
+	</div>
+	<div class="card-body collapse" id="recentPostsLinks">
+	  <h3>(most recent first)</h3>
+	  <ul>
+	    {% for post in forum.posts.reverse %}
+	    <li>
+	      <a href="{{ post.get_absolute_url }}">{{ post.subject }}</a> posted by {{ post.posted_by.first_name }} {{ post.posted_by.last_name }} on {{ post.posted_on|date:"Y-m-d H:m" }}
+	      {% if post.parent and not post.motion %}
+	      - regarding <a href="{{ post.parent.get_absolute_url }}">{{ post.parent }}</a>
+	      {% endif %}
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</div>
       </div>
     </div>
   </div>
