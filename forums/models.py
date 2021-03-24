@@ -94,6 +94,14 @@ class Forum(models.Model):
         except:
             return None
 
+    @property
+    def posts_all(self):
+        """
+        Return all posts in the hierarchy.
+        """
+        posts_id_list = self.posts_hierarchy_id_list()
+        return Post.objects.filter(id__in=posts_id_list)
+
 
 class Meeting(Forum):
     """
