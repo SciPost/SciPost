@@ -23,6 +23,15 @@ class Fellowship(TimeStampedModel):
     Submission, so it has a direct effect on the submission date.
     """
 
+    STATUS_REGULAR = 'regular'
+    STATUS_SENIOR = 'senior'
+    STATUS_GUEST = 'guest'
+    STATUS_CHOICES = (
+        (STATUS_REGULAR, 'Regular'),
+        (STATUS_SENIOR, 'Senior'),
+        (STATUS_GUEST, 'Guest')
+    )
+
     college = models.ForeignKey(
         'colleges.College',
         on_delete=models.PROTECT,
@@ -38,6 +47,12 @@ class Fellowship(TimeStampedModel):
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_REGULAR
+    )
+
     guest = models.BooleanField('Guest Fellowship', default=False)
 
     objects = FellowQuerySet.as_manager()
@@ -51,6 +66,14 @@ class Fellowship(TimeStampedModel):
         if self.guest:
             _str += ' (guest fellowship)'
         return _str
+
+    @property
+    def guest(self):
+        return self.status == self.STATUS_GUEST
+
+    @property
+    def senior(self):
+        return self.status == self.STATUS_SENIOR
 
     def get_absolute_url(self):
         """Return the admin fellowship page."""

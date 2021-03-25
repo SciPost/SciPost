@@ -27,10 +27,10 @@ class FellowshipForm(forms.ModelForm):
             'contributor',
             'start_date',
             'until_date',
-            'guest',
+            'status',
         )
         help_texts = {
-            'guest': '[select if this is a guest Fellowship]'
+            'status': '[select if this is a regular, senior or guest Fellowship]'
         }
 
     def __init__(self, *args, **kwargs):

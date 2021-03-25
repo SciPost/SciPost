@@ -11,10 +11,12 @@ from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 
 class FellowQuerySet(models.QuerySet):
     def guests(self):
-        return self.filter(guest=True)
+        from .models import Fellowship
+        return self.filter(status=Fellowship.STATUS_GUEST)
 
     def regular(self):
-        return self.filter(guest=False)
+        from .models import Fellowship
+        return self.filter(status=Fellowship.STATUS_NORMAL)
 
     def active(self):
         today = timezone.now().date()
