@@ -74,21 +74,21 @@ def voting_results_display(potfel):
         ).specialties_overlap(specialties_slug_list).count()
         nr_spec_disagree = potfel.in_disagreement.all(
         ).specialties_overlap(specialties_slug_list).count()
-        nr_specialists = Fellowship.objects.regular().active(
+        nr_specialists = Fellowship.objects.senior().active(
         ).specialties_overlap(specialties_slug_list).count()
-        nr_Fellows = potfel.college.fellowships.regular().active().count()
+        nr_Fellows = potfel.college.fellowships.senior().active().count()
         # Establish whether election criterion has been met.
-        # Rule is: spec Agree must be >= 3/4 of (total nr of spec - nr abstain)
+        # Rule is: spec Agree must be > half of (total nr of spec - nr abstain)
         election_agree_percentage = int(
             100 * nr_spec_agree/(max(1, nr_specialists - nr_spec_abstain)))
-        election_criterion_met = nr_spec_agree > 0 and election_agree_percentage >= 75
+        election_criterion_met = nr_spec_agree > 0 and election_agree_percentage > 50
         if election_criterion_met:
             election_text = ('&emsp;<strong class="bg-success p-1 text-white">'
                              'Elected (%s&#37; in favour)</strong>' % str(election_agree_percentage))
         else:
             election_text = ('&emsp;<strong class="bg-warning p-1 text-white">'
                              '%s&#37; in favour</strong>') % str(election_agree_percentage)
-        return format_html('Specialists ({}):<br/>Agree: {}, Abstain: {}, Disagree: {}&nbsp;{}<br/>'
+        return format_html('Specialist Senior Fellows ({}):<br/>Agree: {}, Abstain: {}, Disagree: {}&nbsp;{}<br/>'
                            'All: ({} Fellows)<br/>Agree: {}, Abstain: {}, Disagree: {}',
                            nr_specialists, nr_spec_agree, nr_spec_abstain, nr_spec_disagree,
                            mark_safe(election_text),
