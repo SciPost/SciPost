@@ -4,7 +4,7 @@
 {% load journals_extras %}
 {% load user_groups %}
 
-{% is_editorial_college request.user as is_editorial_college %}
+{% is_active_fellow request.user as is_active_fellow %}
 
 
 
@@ -196,7 +196,7 @@
                 <div class="dropdown-item">
                   <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
                 </div>
-                {% if is_editorial_college %}
+                {% if is_active_fellow %}
                   <div class="dropdown-item">
                     <a href="{% url 'submissions:pool' %}">Submissions Pool</a>
                   </div>

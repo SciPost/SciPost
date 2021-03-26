@@ -4,7 +4,6 @@
 {# Save all Permission groups into template variables #}
 {% is_ed_admin request.user as is_ed_admin %}
 {% is_scipost_admin request.user as is_scipost_admin %}
-{% is_editorial_college request.user as is_editorial_college %}
 {% is_advisory_board request.user as is_advisory_board %}
 {% is_vetting_editor request.user as is_vetting_editor %}
 {% is_ambassador request.user as is_ambassador %}
@@ -91,10 +90,6 @@
 
     {% if is_advisory_board %}
       <h3>You are a member of the Advisory Board.</h3>
-    {% endif %}
-
-    {% if is_editorial_college %}
-      <h3>You are a member of the Editorial College.</h3>
     {% endif %}
 
     {% if is_vetting_editor %}

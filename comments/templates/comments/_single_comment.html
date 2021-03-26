@@ -5,7 +5,7 @@
 {% load automarkup %}
 
 {% is_ed_admin request.user as is_ed_admin %}
-{% is_editorial_college request.user as is_editorial_college %}
+{% is_active_fellow request.user as is_active_fellow %}
 
 <div class="comment">
   {% include 'comments/_comment_identifier.html' with comment=comment %}
@@ -29,7 +29,7 @@
     </p>
   {% endif %}
 
-  {% if is_editorial_college or is_ed_admin %}
+  {% if is_active_fellow or is_ed_admin %}
     {% if comment.remarks_for_editors %}
       <div class="card">
 	<div class="card-header">

@@ -35,17 +35,13 @@ def is_financial_admin(user):
 
 
 @register.simple_tag
-def is_editorial_college(user):
+def is_active_fellow(user):
     """
     Assign template variable (boolean) to check if user is member of Editorial College group.
     """
     if not hasattr(user, 'contributor'):
         return False
-    if user.is_superuser:
-        return True
-    elif user.groups.filter(name='Editorial College').exists():
-        return True
-    return user.contributor.fellowships.exists()
+    return user.contributor.is_active_fellow
 
 
 @register.simple_tag
