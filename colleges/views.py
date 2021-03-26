@@ -463,8 +463,7 @@ class PotentialFellowshipDetailView(PermissionsMixin, DetailView):
 @permission_required('scipost.can_vote_on_potentialfellowship', raise_exception=True)
 def vote_on_potential_fellowship(request, potfel_id, vote):
     potfel = get_object_or_404(PotentialFellowship, pk=potfel_id)
-    from colleges.permissions import can_vote_on_potential_fellowship_for_college
-    if not can_vote_on_potential_fellowship_for_college(request.user, potfel.college):
+    if not potfel.can_vote(request.user):
         raise Http404
     potfel.in_agreement.remove(request.user.contributor)
     potfel.in_abstain.remove(request.user.contributor)

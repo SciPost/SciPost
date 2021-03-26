@@ -130,6 +130,11 @@ class Contributor(models.Model):
         return (self.user.groups.filter(name='Editorial Administrators').exists()
                 or self.user.is_superuser)
 
+    def is_in_advisory_board(self):
+        """Check if Contributor is in the Advisory Board."""
+        return (self.user.groups.filter(name='Advisory Board').exists()
+                or self.user.is_superuser)
+
     def is_active_fellow(self):
         """Check if Contributor is a member of the Editorial College."""
         return self.fellowships.active().exists() or self.user.is_superuser

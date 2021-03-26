@@ -57,6 +57,18 @@ class PotentialFellowship(models.Model):
     def __str__(self):
         return '%s, %s' % (self.profile.__str__(), self.get_status_display())
 
+    def can_vote(self, user):
+        """
+        Determines whether user can vote on election for this PotentialFellow.
+        Qualifying conditions (either of the following):
+        * is Admin
+        * is in AdvisoryBoard for this College's Academic Field
+        * is a Senior Fellow in the College proposed
+        """
+        return (user.contributor.is_sp_admin() or
+                user.contributor.is_in_advisory_board and user.contributor.profile.acad_field == self.college.acad_field or
+                user.contributor.fellowships.senior().filter(college=self.college).exists())
+
     def latest_event_details(self):
         event = self.potentialfellowshipevent_set.order_by('-noted_on').first()
         if not event:
