@@ -47,7 +47,6 @@ class PotentialFellowship(models.Model):
         'scipost.Contributor',
         related_name='in_disagreement_with_election', blank=True)
     voting_deadline = models.DateTimeField('voting deadline', default=timezone.now)
-    elected = models.NullBooleanField()
 
     objects = PotentialFellowshipQuerySet.as_manager()
 
