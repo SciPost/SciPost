@@ -262,3 +262,9 @@ class PotentialFellowshipEventForm(forms.ModelForm):
     class Meta:
         model = PotentialFellowshipEvent
         fields = ['event', 'comments']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['comments'].widget.attrs.update({
+            'placeholder': 'NOTA BENE: careful, will be visible to all who have voting rights'
+            })

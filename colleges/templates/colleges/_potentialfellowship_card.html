@@ -1,7 +1,11 @@
 {% load bootstrap %}
 
 {% load scipost_extras %}
+{% load user_groups %}
 {% load colleges_extras %}
+
+{% is_scipost_admin request.user as is_scipost_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 
 <div class="card-body">
   <div class="row">
@@ -54,18 +58,20 @@
     </div>
   {% endif %}
 
-  {% if perms.scipost.can_manage_college_composition %}
-    <h3 class="highlight">Voting results</h3>
-    <div class="row">
+  <h3 class="highlight">Voting results</h3>
+  <div class="row">
+    {% if perms.scipost.can_manage_college_composition %}
       <div class="col-6">
 	<p>
 	  Voting Fellows' matching expertises are marked in <span class="px-1 bg-success">green</span>.
 	</p>
       </div>
-      <div class="col-6">
-	{% voting_results_display potfel %}
-      </div>
+    {% endif %}
+    <div class="col-6">
+      {% voting_results_display potfel %}
     </div>
+  </div>
+  {% if perms.scipost.can_manage_college_composition %}
     <div class="row">
       <div class="col-4">
 	<table class="table">
@@ -118,19 +124,19 @@
     </div>
   {% endif %}
 
-  {% if perms.scipost.can_manage_college_composition %}
-    <h3 class="highlight">Events</h3>
-    <div class="row">
-      <div class="col-md-6">
-	<ul>
-	  {% for event in potfel.potentialfellowshipevent_set.all %}
-	    {% include 'colleges/_potentialfellowship_event_li.html' with event=event %}
-	  {% empty %}
-	    <li>No events found.</li>
-	  {% endfor %}
-	</ul>
-      </div>
+  <h3 class="highlight">Events</h3>
+  <div class="row">
+    <div class="col-md-6">
+      <ul>
+	{% for event in potfel.potentialfellowshipevent_set.all %}
+	  {% include 'colleges/_potentialfellowship_event_li.html' with event=event %}
+	{% empty %}
+	  <li>No events found.</li>
+	{% endfor %}
+      </ul>
+    </div>
 
+    {% if perms.scipost.can_manage_college_composition %}
       <div class="col-md-6">
 	<h3>Add an event for this Potential Fellowship</h3>
 	<form class="d-block mt-2 mb-3" action="{% url 'colleges:potential_fellowship_event_create' pk=potfel.id %}" method="post">
@@ -139,6 +145,7 @@
 	  <input type="submit" name="submit" value="Submit" class="btn btn-primary">
 	</form>
       </div>
-    </div>
-  {% endif %}
+    {% endif %}
+  </div>
+
 </div>
