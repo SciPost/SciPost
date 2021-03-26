@@ -16,7 +16,8 @@ class FellowQuerySet(models.QuerySet):
 
     def regular(self):
         from .models import Fellowship
-        return self.filter(status=Fellowship.STATUS_NORMAL)
+        print(Fellowship.__dict__)
+        return self.filter(status=Fellowship.STATUS_REGULAR)
 
     def active(self):
         today = timezone.now().date()

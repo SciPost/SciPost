@@ -31,7 +31,7 @@
   <h2 class="highlight">{{ college }}</h2>
 
   <div class="row">
-    <div class="col-12">
+    <div class="col-md-6">
       <button class="btn btn-primary" data-toggle="toggle-show" data-target="#specialties-{{ college.acad_field }}">Select by specialty</button>
       <button class="btn btn-primary" style="display: none;" data-toggle="toggle-show" data-target="#specialties-{{ college.acad_field }}">Show full list of Fellows</button>
       <div id="specialties-{{ college.acad_field }}" class="card bg-white border-default all-specialties mt-2" style="display: none">
@@ -50,10 +50,16 @@
     </div>
   </div>
 
+  <div class="row">
+    <div class="col">
+      [S] denotes a Senior Fellow
+    </div>
+  </div>
+
   <div class="row search-contributors" data-contributors="{{ college.acad_field.slug }}">
     <div class="col-12">
       <div class="card-columns">
-	{% for fellowship in college.fellowships.active.regular %}
+	{% for fellowship in college.fellowships.active %}
 	  <div class="card contributor mb-1">
 	    {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
 	  </div>
