@@ -44,3 +44,11 @@ class ProfileQuerySet(models.QuerySet):
             models.Q(full_name__in=[item['full_name'] for item in duplicates_by_full_name]) |
             models.Q(id__in=ids_of_duplicates_by_email)
         ).order_by('last_name', 'first_name', '-id')
+
+    def specialties_overlap(self, specialties_slug_list):
+        """
+        Returns all Profiles whose specialties overlap with those specified in the slug list.
+
+        This method is also separately implemented for Contributor and PotentialFellowship objects.
+        """
+        return self.filter(specialties__slug__in=specialties_slug_list)

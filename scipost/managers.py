@@ -78,6 +78,13 @@ class ContributorQuerySet(models.QuerySet):
             Count('id')).filter(id__count__gt=1).values_list('lower_email', flat=True)
         return qs.filter(lower_email__in=duplicates)
 
+    def specialties_overlap(self, specialties_slug_list):
+        """
+        Returns all Contributors whose specialties overlap with those specified in the slug list.
+
+        This method is also separately implemented for Profile and PotentialFellowship objects.
+        """
+        return self.filter(profile__specialties__slug__in=specialties_slug_list)
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):

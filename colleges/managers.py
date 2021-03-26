@@ -16,8 +16,11 @@ class FellowQuerySet(models.QuerySet):
 
     def regular(self):
         from .models import Fellowship
-        print(Fellowship.__dict__)
         return self.filter(status=Fellowship.STATUS_REGULAR)
+
+    def senior(self):
+        from.models import Fellowship
+        return self.filter(status=Fellowship.STATUS_SENIOR)
 
     def active(self):
         today = timezone.now().date()
@@ -74,7 +77,7 @@ class FellowQuerySet(models.QuerySet):
 
 class PotentialFellowshipQuerySet(models.QuerySet):
     def vote_needed(self, contributor):
-        college_id_list = [f.college.id for f in contributor.fellowships.regular().active()]
+        college_id_list = [f.college.id for f in contributor.fellowships.senior().active()]
         return self.filter(
             college__pk__in=college_id_list,
             status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
