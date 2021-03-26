@@ -6,11 +6,11 @@
 {% load bootstrap %}
 {% load user_groups %}
 
-{% is_edcol_admin request.user as is_editorial_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 
 {% block breadcrumb_items %}
 
-  {% if request.user.contributor == submissions.editor_in_charge or is_edcol_admin %}
+  {% if request.user.contributor == submissions.editor_in_charge or is_ed_admin %}
     {{block.super}}
     <a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}" class="breadcrumb-item">Editorial Page ({{submission.preprint.identifier_w_vn_nr}})</a>
   {% else %}

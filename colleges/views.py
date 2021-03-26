@@ -429,8 +429,15 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         Return a queryset of PotentialFellowships using optional GET data.
         """
         queryset = PotentialFellowship.objects.all()
-        if self.kwargs.get('acad_field', None):
-            queryset = queryset.filter(profile__acad_field=self.kwargs['acad_field'])
+        # Admin and EdAdmin see all
+        # while Advisory Board and (Senior) Fellows see their field by default
+        # if they have not specified another field
+        acad_field = None
+        if not (self.request.user.contributor.is_scipost_admin or self.request.user.contributor.is_ed_admin):
+            acad_field = self.request.user.contributor.profile.acad_field
+        acad_field = self.kwargs.get('acad_field', None) or acad_field
+        if acad_field:
+            queryset = queryset.filter(profile__acad_field=acad_field)
             if self.kwargs.get('specialty', None):
                 queryset = queryset.filter(profile__specialties=self.kwargs['specialty'])
         if self.request.GET.get('status', None):

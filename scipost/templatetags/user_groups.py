@@ -8,7 +8,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def is_edcol_admin(user):
+def is_ed_admin(user):
     """
     Assign template variable (boolean) to check if user is Editorial Administator.
     This assignment is limited to a certain context block!

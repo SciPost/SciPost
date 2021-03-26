@@ -2,7 +2,7 @@
 {% load submissions_extras %}
 {% load user_groups %}
 
-{% is_edcol_admin request.user as is_editorial_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 
 <h3 class="highlight">
   Editorial information &emsp;<button type="button" class="btn btn-primary px-1 py-0" data-toggle="toggle" data-target="#editorialinformation"><small>Show/hide</small></button>
@@ -84,7 +84,7 @@
   <div class="mb-4">
     <h3 class="mb-2">Editorial Recommendation:</h3>
     {% for recommendation in submission.eicrecommendations.active %}
-      {% if is_editorial_admin or request.user.contributor in recommendation.eligible_to_vote.all %}
+      {% if is_ed_admin or request.user.contributor in recommendation.eligible_to_vote.all %}
 	{% include 'partials/submissions/_previous_recommendations_card_fellow_content.html' with recommendation=recommendation %}
 	{% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
       {% else %}

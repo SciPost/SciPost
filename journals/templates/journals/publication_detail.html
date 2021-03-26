@@ -42,7 +42,7 @@
 
 {% block content %}
   {% is_scipost_admin request.user as is_scipost_admin %}
-  {% is_edcol_admin request.user as is_edcol_admin %}
+  {% is_ed_admin request.user as is_ed_admin %}
 
   {{ block.super }}
 
@@ -178,7 +178,7 @@
       </div>
     </div>
   {% endif %}
-  {% if is_edcol_admin %}
+  {% if is_ed_admin %}
     <hr class="divider">
     <div class="row">
       <div class="col-12">

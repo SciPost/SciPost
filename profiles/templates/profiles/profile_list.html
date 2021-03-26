@@ -18,14 +18,14 @@
 
 {% block content %}
 
-  {% is_edcol_admin request.user as is_edcol_admin %}
+  {% is_ed_admin request.user as is_ed_admin %}
   {% is_scipost_admin request.user as is_scipost_admin %}
 
   <div class="row">
     <div class="col-12">
       <h4>Profiles-related Actions:</h4>
       <ul>
-	{% if is_scipost_admin or is_edcol_admin %}
+	{% if is_scipost_admin or is_ed_admin %}
 	  {% if nr_contributors_w_duplicate_names > 0 %}
 	    <li><span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span><a href="{% url 'scipost:contributor_duplicates' %}?kind=names">Handle Contributors with duplicate names ({{ nr_contributors_w_duplicate_names }} to handle)</a></li>
 	  {% else %}

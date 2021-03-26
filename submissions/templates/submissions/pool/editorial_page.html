@@ -15,7 +15,7 @@
 
 {% block content %}
 
-  {% is_edcol_admin request.user as is_editorial_admin %}
+  {% is_ed_admin request.user as is_ed_admin %}
 
   <div class="row">
     <div class="col-md-8">
@@ -139,7 +139,7 @@
         {% if submission.editor_in_charge %}
           {{ submission.editor_in_charge.formal_str }}
         {% else %}
-          Unassigned{% if is_editorial_admin %}, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">see editor invitations</a>.{% endif %}
+          Unassigned{% if is_ed_admin %}, <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">see editor invitations</a>.{% endif %}
         {% endif %}
       </td>
     </tr>
@@ -493,7 +493,7 @@
         <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoA' %}">Draft and send a communication with the submitting Author</a></li>
         <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoS' %}">Draft and send a communication with SciPost Editorial Administration</a></li>
       {% endif %}
-      {% if is_editorial_admin %}
+      {% if is_ed_admin %}
         <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Draft and send a communication as Editorial Administrator to the Editor-in-charge</a></li>
       {% endif %}
     </ul>

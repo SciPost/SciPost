@@ -1,9 +1,9 @@
 {% load user_groups %}
 
 {% is_scipost_admin request.user as is_scipost_admin %}
-{% is_edcol_admin request.user as is_edcol_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 
-{% if submission.topics.all or is_scipost_admin or is_edcol_admin %}
+{% if submission.topics.all or is_scipost_admin or is_ed_admin %}
   <div class="card">
     <div class="card-header">
       <a href="{% url 'ontology:ontology' %}">Ontology</a>/<a href="{% url 'ontology:topics' %}">Topics</a>

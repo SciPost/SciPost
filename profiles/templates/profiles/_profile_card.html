@@ -2,7 +2,7 @@
 {% load scipost_extras %}
 {% load user_groups %}
 
-{% is_edcol_admin request.user as is_edcol_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 {% is_scipost_admin request.user as is_scipost_admin %}
 
 
@@ -137,7 +137,7 @@
 
 </div>
 
-{% if is_scipost_admin or is_edcol_admin %}
+{% if is_scipost_admin or is_ed_admin %}
   <h4 class="highlight p-2 text-danger">Admin-level info</h4>
   <div class="card-columns">
 

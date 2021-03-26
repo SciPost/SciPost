@@ -20,7 +20,7 @@
 {% block pagetitle %}: Submissions Pool{% endblock pagetitle %}
 
 {% block content %}
-  {% is_edcol_admin request.user as is_ECAdmin %}
+  {% is_ed_admin request.user as is_ed_admin %}
 
   <div class="row">
     <div class="col-6">
@@ -40,7 +40,7 @@
 
   <div class="row">
     <div class="col-12">
-      {% if is_ECAdmin %}
+      {% if is_ed_admin %}
 
         {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events or pre_screening_subs %}
           <div class="quote-border">

@@ -3,7 +3,7 @@
 {% load user_groups %}
 
 {% is_editor_in_charge request.user submission as is_editor_in_charge %}
-{% is_edcol_admin request.user as is_editorial_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 
 
 <hr>
@@ -34,7 +34,7 @@
       {% endfor %}
     </ul>
 
-    {% if is_editor_in_charge or is_editorial_admin %}
+    {% if is_editor_in_charge or is_ed_admin %}
       <div class="my-4 p-3 border{% if submission.cycle.has_required_actions %} border-danger bg-light{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
 	<h3>
           {% if submission.cycle.has_required_actions %}
@@ -51,7 +51,7 @@
       </h4>
     {% endif %}
 
-    {% if is_editorial_admin %}
+    {% if is_ed_admin %}
       <h3>Editorial Administration</h3>
       <ul class="pl-4 mb-3">
         <li><a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a></li>

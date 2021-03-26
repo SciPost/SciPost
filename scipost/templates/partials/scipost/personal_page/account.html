@@ -2,7 +2,7 @@
 {% load user_groups %}
 
 {# Save all Permission groups into template variables #}
-{% is_edcol_admin request.user as is_edcol_admin %}
+{% is_ed_admin request.user as is_ed_admin %}
 {% is_scipost_admin request.user as is_scipost_admin %}
 {% is_editorial_college request.user as is_editorial_college %}
 {% is_advisory_board request.user as is_advisory_board %}
@@ -85,7 +85,7 @@
       <h3>You are a SciPost Administrator.</h3>
     {% endif %}
 
-    {% if is_edcol_admin %}
+    {% if is_ed_admin %}
       <h3>You are a SciPost Editorial Administrator.</h3>
     {% endif %}
 

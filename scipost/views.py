@@ -657,7 +657,7 @@ def _personal_page_admin_actions(request):
     context = {}
     contributor = request.user.contributor
 
-    if contributor.is_sp_admin():
+    if contributor.is_scipost_admin():
         # count the number of pending registration requests
         context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
         context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
@@ -685,7 +685,7 @@ def _personal_page_editorial_actions(request):
     context = {}
     contributor = request.user.contributor
 
-    if contributor.is_sp_admin():
+    if contributor.is_scipost_admin():
         context['nr_submissions_to_assign'] = Submission.objects.prescreening().count()
         context['nr_recommendations_to_prepare_for_voting'] = \
             EICRecommendation.objects.voting_in_preparation().count()

@@ -23,7 +23,7 @@
 
   {% else %}
     {# Save all Permission groups into template variables #}
-    {% is_edcol_admin request.user as is_edcol_admin %}
+    {% is_ed_admin request.user as is_ed_admin %}
     {% is_scipost_admin request.user as is_scipost_admin %}
     {% is_financial_admin request.user as is_financial_admin %}
     {% is_editorial_college request.user as is_editorial_college %}
@@ -49,7 +49,7 @@
 		  <a class="nav-link" {% if tab == 'admin_actions' %}data-sp-autoload='true'{% endif %} href="#admin-actions" data-sp-dynamic-load="{% url 'scipost:personal_page_admin_actions' %}" data-toggle="tab">Admin Actions</a>
 		</li>
 	      {% endif %}
-              {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
+              {% if is_scipost_admin or is_ed_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
                 <li class="nav-item btn btn-outline-secondary">
                   <a class="nav-link" {% if tab == 'editorial_actions' %}data-sp-autoload='true'{% endif %} href="#editorial-actions" data-sp-dynamic-load="{% url 'scipost:personal_page_editorial_actions' %}" data-toggle="tab">Editorial Actions</a>
                 </li>
@@ -102,7 +102,7 @@
 	</div>
       {% endif %}
 
-      {% if is_scipost_admin or is_edcol_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
+      {% if is_scipost_admin or is_ed_admin or is_editorial_college or is_advisory_board or is_vetting_editor or is_ambassador or is_junior_ambassador %}
         <!-- Tab: Editorial Actions -->
         <div class="tab-pane" id="editorial-actions" role="tabpanel">
         </div><!-- End tab -->
