@@ -13,7 +13,7 @@ from .models import Submission
 class FriendlyPermissionMixin(PermissionRequiredMixin):
     """
     This mixin controls the permissions with a fallback for anonymous users
-    to help them login first. If a logged in user is refused, he will get the
+    to help them login first. If a logged in user is refused, they will get the
     http 403 screen anyway.
 
     :permission_required: The permission code the user should comply with.
