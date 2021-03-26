@@ -657,7 +657,7 @@ def _personal_page_admin_actions(request):
     context = {}
     contributor = request.user.contributor
 
-    if contributor.is_SP_Admin():
+    if contributor.is_sp_admin():
         # count the number of pending registration requests
         context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
         context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
@@ -677,7 +677,7 @@ def _personal_page_editorial_actions(request):
         'Editorial College',
         'Vetting Editors',
         'Junior Ambassadors']).exists() or request.user.is_superuser
-    permission = permission or request.user.contributor.is_MEC()
+    permission = permission or request.user.contributor.is_active_fellow()
 
     if not permission:
         raise PermissionDenied
@@ -685,25 +685,25 @@ def _personal_page_editorial_actions(request):
     context = {}
     contributor = request.user.contributor
 
-    if contributor.is_SP_Admin():
+    if contributor.is_sp_admin():
         context['nr_submissions_to_assign'] = Submission.objects.prescreening().count()
         context['nr_recommendations_to_prepare_for_voting'] = \
             EICRecommendation.objects.voting_in_preparation().count()
 
-    if contributor.is_VE():
+    if contributor.is_vetting_editor():
         context['nr_commentary_page_requests_to_vet'] = (Commentary.objects.awaiting_vetting()
                                                          .exclude(requested_by=contributor).count())
         context['nr_comments_to_vet'] = Comment.objects.awaiting_vetting().count()
         context['nr_thesislink_requests_to_vet'] = ThesisLink.objects.awaiting_vetting().count()
         context['nr_authorship_claims_to_vet'] = AuthorshipClaim.objects.awaiting_vetting().count()
 
-    if contributor.is_MEC():
+    if contributor.is_active_fellow():
         context['nr_assignments_to_consider'] = contributor.editorial_assignments.invited().count()
         context['active_assignments'] = contributor.editorial_assignments.ongoing()
         context['nr_reports_to_vet'] = Report.objects.awaiting_vetting().filter(
             submission__editor_in_charge=contributor).count()
 
-    if contributor.is_EdCol_Admin():
+    if contributor.is_ed_admin():
         context['nr_reports_without_pdf'] = Report.objects.accepted().filter(pdf_report='').count()
         context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().public().filter(
             pdf_refereeing_pack='').count()

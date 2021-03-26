@@ -55,7 +55,7 @@
 
   </div>
 
-  {% if perms.scipost.can_oversee_refereeing or request.user.contributor.is_MEC %}
+  {% if perms.scipost.can_oversee_refereeing or request.user.contributor.is_active_fellow %}
     <div class="col-md-4">
       <h3>Info</h3>
       <ul>
@@ -70,7 +70,7 @@
         {% if perms.scipost.can_assign_submissions %}
           <li>Assign Submissions via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_submissions_to_assign }})</li>
         {% endif %}
-        {% if request.user.contributor.is_MEC %}
+        {% if request.user.contributor.is_active_fellow %}
           <li>Accept or decline assignments via the <a href="{% url 'submissions:pool' %}">Submissions Pool</a> ({{ nr_assignments_to_consider }})</li>
         {% endif %}
       </ul>

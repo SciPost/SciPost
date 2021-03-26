@@ -120,28 +120,21 @@ class Contributor(models.Model):
         """Check if Contributor is currently not marked as unavailable."""
         return not self.unavailability_periods.today().exists()
 
-    def is_SP_Admin(self):
+    def is_sp_admin(self):
         """Check if Contributor is a SciPost Administrator."""
         return (self.user.groups.filter(name='SciPost Administrators').exists()
                 or self.user.is_superuser)
 
-    def is_Fin_Admin(self):
-        """
-        Check if Contributor is a SciPost Financial Administrator.
-        """
-        return (self.user.groups.filter(name='Financial Administrators').exists()
-                or self.user.is_superuser)
-
-    def is_EdCol_Admin(self):
+    def is_ed_admin(self):
         """Check if Contributor is an Editorial Administrator."""
         return (self.user.groups.filter(name='Editorial Administrators').exists()
                 or self.user.is_superuser)
 
-    def is_MEC(self):
+    def is_active_fellow(self):
         """Check if Contributor is a member of the Editorial College."""
         return self.fellowships.active().exists() or self.user.is_superuser
 
-    def is_VE(self):
+    def is_vetting_editor(self):
         """Check if Contributor is a Vetting Editor."""
         return (self.user.groups.filter(name='Vetting Editors').exists()
                 or self.user.is_superuser)
