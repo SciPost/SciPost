@@ -1,0 +1,45 @@
+{% extends 'submissions/base.html' %}
+
+{% load bootstrap %}
+
+{% block meta_description %}{{ block.super }} Submissions monitor{% endblock meta_description %}
+{% block pagetitle %}: Submissions monitor{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  <a href="{% url 'scipost:index' %}" class="breadcrumb-item">Homepage</a>
+  <span class="breadcrumb-item">Submissions</span>
+  <span class="breadcrumb-item">Monitor</span>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col">
+      <h1 class="highlight">Submissions Monitor</h1>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h2 class="highlight">Submissions with status: unassigned (awaiting editor assignment)</h2>
+      <table class="table">
+	<thead>
+	  <th>Field</th>
+	  <th>Specialty</th>
+	  <th>Nr awaiting EIC</th>
+	  <th>Total waiting days</th>
+	  <th>Avg waiting days</th>
+	  <th>Max waiting days</th>
+	</thead>
+	{% for entry in delays_unassigned %}
+	  <tr{% if entry.avg_waiting_days > 10 %} class="bg-danger text-white"{% elif entry.avg_waiting_days > 5 %} class="bg-warning text-white"{% else %} class="bg-success text-white"{% endif %}>
+	    <td>{{ entry.acad_field }}</td>
+	    <td>{{ entry.specialty }}</td>
+	    <td>{{ entry.number }}</td>
+	    <th>{{ entry.waiting_days }}</th>
+	    <th>{{ entry.avg_waiting_days }}</th>
+	    <th>{{ entry.max_waiting_days }}</th>
+	  </tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+{% endblock content %}

@@ -2279,3 +2279,48 @@ class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, Redir
         if not url:
             raise Http404
         return url
+
+
+##############
+# Monitoring #
+##############
+
+def submissions_processing_delays(submissions):
+    """
+    Generate a tuple containing information about delays on submissions.
+    """
+    delays = []
+    now = timezone.now()
+    from ontology.models import AcademicField
+    for acad_field in AcademicField.objects.all():
+        for specialty in acad_field.specialties.all():
+            submissions_in_spec = submissions.filter(acad_field=acad_field, specialties__in=[specialty])
+            number = len(submissions_in_spec)
+            if number > 0:
+                waiting_days = 0
+                max_waiting_days = 0
+                for sub in submissions_in_spec.all():
+                    waiting_days += workdays_between(sub.submission_date, now)
+                    max_waiting_days = max(waiting_days, max_waiting_days)
+                delays.append({
+                    'acad_field': acad_field,
+                    'specialty': specialty,
+                    'number': number,
+                    'waiting_days': waiting_days,
+                    'avg_waiting_days': round(waiting_days/number, 2),
+                    'max_waiting_days': max_waiting_days
+                })
+
+
+    return sorted(delays, key=lambda tup: tup['number'], reverse=True)
+
+
+def monitor(request):
+    """
+    Dashboard providing an overview of the status of submission workflows.
+    """
+    # Compute stats for all submissions under processing
+    context = {
+        'delays_unassigned': submissions_processing_delays(Submission.objects.unassigned())
+    }
+    return render(request, 'submissions/monitor.html', context)

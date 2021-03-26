@@ -246,4 +246,11 @@ urlpatterns = [
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
     url(r'^remind_Fellows_to_vote/(?P<rec_id>[0-9]+)$', views.remind_Fellows_to_vote,
         name='remind_Fellows_to_vote'),
+
+    # Monitoring
+    path(
+        'monitor',
+        views.monitor,
+        name='monitor'
+    ),
 ]
