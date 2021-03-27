@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from datetime import timedelta
+import datetime
 
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
@@ -81,16 +81,22 @@ def hslColorWheel(N=10, index=0, saturation=50, lightness=50):
     return 'hsl(%s, %s%%, %s%%)' % (str(hue), str(saturation), str(lightness))
 
 
-def workdays_between(datetime_from, datetime_until):
+def workdays_between(date_from, date_until):
     """Return number of complete workdays.
 
     Given two datetime parameters, this function returns the
     number of complete workdays (defined as weekdays) separating them.
     """
-    duration = datetime_until - datetime_from
+    _from = date_from
+    _until = date_until
+    if isinstance(date_from, datetime.datetime):
+        _from = date_from.date()
+    if isinstance(date_until, datetime.datetime):
+        _until = date_until.date()
+    duration = _until - _from
     days = int(duration.total_seconds() // 86400)
     weeks = int(days // 7)
-    daygenerator = (datetime_until - timedelta(x) for x in range(days - 7 * weeks))
+    daygenerator = (_until - datetime.timedelta(x) for x in range(days - 7 * weeks))
     workdays = 5 * weeks + sum(1 for day in daygenerator if day.weekday() < 5)
     return workdays
 

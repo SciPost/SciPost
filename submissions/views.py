@@ -2285,11 +2285,14 @@ class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, Redir
 # Monitoring #
 ##############
 
-def submissions_processing_delays(submissions):
+def submissions_processing_timescales(submissions, phase):
     """
-    Generate a tuple containing information about delays on submissions.
+    Generate a tuple containing information about timescales on submissions.
+
+    :params:
+    * phase: one of `screening`, `acceptance`
     """
-    delays = []
+    timescales = []
     now = timezone.now()
     from ontology.models import AcademicField
     for acad_field in AcademicField.objects.all():
@@ -2300,9 +2303,12 @@ def submissions_processing_delays(submissions):
                 waiting_days = 0
                 max_waiting_days = 0
                 for sub in submissions_in_spec.all():
-                    waiting_days += workdays_between(sub.submission_date, now)
+                    if phase == 'screening':
+                        waiting_days += workdays_between(sub.submission_date, now)
+                    elif phase == 'acceptance':
+                        waiting_days += workdays_between(sub.original_submission_date, sub.acceptance_date)
                     max_waiting_days = max(waiting_days, max_waiting_days)
-                delays.append({
+                timescales.append({
                     'acad_field': acad_field,
                     'specialty': specialty,
                     'number': number,
@@ -2312,7 +2318,7 @@ def submissions_processing_delays(submissions):
                 })
 
 
-    return sorted(delays, key=lambda tup: tup['number'], reverse=True)
+    return sorted(timescales, key=lambda tup: tup['number'], reverse=True)
 
 
 def monitor(request):
@@ -2321,6 +2327,8 @@ def monitor(request):
     """
     # Compute stats for all submissions under processing
     context = {
-        'delays_unassigned': submissions_processing_delays(Submission.objects.unassigned())
+        'timescales_unassigned': submissions_processing_timescales(Submission.objects.unassigned(), 'screening'),
+        'timescales_accepted': submissions_processing_timescales(
+            Submission.objects.accepted(), 'acceptance'),
     }
     return render(request, 'submissions/monitor.html', context)

@@ -19,7 +19,15 @@
   </div>
   <div class="row">
     <div class="col">
-      <h2 class="highlight">Submissions with status: unassigned (awaiting editor assignment)</h2>
+      <h2 class="highlight">Status: unassigned (awaiting editor assignment)</h2>
+      <table class="table">
+	<tr>
+	  <td>Legend</td>
+	  <td class="bg-danger text-white">More than 10 days</td>
+	  <td class="bg-warning text-white">More than 5 days</td>
+	  <td class="bg-success text-white">5 days or less (target)</td>
+	</tr>
+      </table>
       <table class="table">
 	<thead>
 	  <th>Field</th>
@@ -29,8 +37,45 @@
 	  <th>Avg waiting days</th>
 	  <th>Max waiting days</th>
 	</thead>
-	{% for entry in delays_unassigned %}
+	{% for entry in timescales_unassigned %}
 	  <tr{% if entry.avg_waiting_days > 10 %} class="bg-danger text-white"{% elif entry.avg_waiting_days > 5 %} class="bg-warning text-white"{% else %} class="bg-success text-white"{% endif %}>
+	    <td>{{ entry.acad_field }}</td>
+	    <td>{{ entry.specialty }}</td>
+	    <td>{{ entry.number }}</td>
+	    <th>{{ entry.waiting_days }}</th>
+	    <th>{{ entry.avg_waiting_days }}</th>
+	    <th>{{ entry.max_waiting_days }}</th>
+	  </tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <h2 class="highlight">Status: accepted (not yet published)</h2>
+      <p>Time from submission to acceptance, including all resubmissions).</p>
+      <p>This is not an accurate evaluation of the rapidity of processing at SciPost, since
+	the time to resubmit is counted.</p>
+      <table class="table">
+	<tr>
+	  <td>Legend</td>
+	  <td class="bg-danger text-white">More than 180 days</td>
+	  <td class="bg-warning text-white">More than 90 days</td>
+	  <td class="bg-success text-white">90 days or less (target)</td>
+	</tr>
+      </table>
+      <table class="table">
+	<thead>
+	  <th>Field</th>
+	  <th>Specialty</th>
+	  <th>Nr</th>
+	  <th>Total processing days</th>
+	  <th>Avg processing days</th>
+	  <th>Max processing days</th>
+	</thead>
+	{% for entry in timescales_accepted %}
+	  <tr{% if entry.avg_waiting_days > 180 %} class="bg-danger text-white"{% elif entry.avg_waiting_days > 90 %} class="bg-warning text-white"{% else %} class="bg-success text-white"{% endif %}>
 	    <td>{{ entry.acad_field }}</td>
 	    <td>{{ entry.specialty }}</td>
 	    <td>{{ entry.number }}</td>
