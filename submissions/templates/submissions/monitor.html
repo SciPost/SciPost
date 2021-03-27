@@ -15,11 +15,14 @@
   <div class="row">
     <div class="col">
       <h1 class="highlight">Submissions Monitor</h1>
+      <p>This page provides information of the timescales associated to various phases of the editorial workflow.</p>
     </div>
   </div>
   <div class="row">
     <div class="col">
-      <h2 class="highlight">Status: unassigned (awaiting editor assignment)</h2>
+      <h2 class="highlight">Screening phase (finding an EIC)</h2>
+      <p>Dataset: Submissions with status <em>unassigned (awaiting editor assignment)</em></p>
+      <p>Any fields in <span class="bg-danger text-white px-1">red</span> or <span class="bg-warning text-white px-1">orange</span> background need more Fellows in order to accelerate processing.</p>
       <table class="table">
 	<tr>
 	  <td>Legend</td>
@@ -37,7 +40,7 @@
 	  <th>Avg waiting days</th>
 	  <th>Max waiting days</th>
 	</thead>
-	{% for entry in timescales_unassigned %}
+	{% for entry in timescales_screening %}
 	  <tr{% if entry.avg_waiting_days > 10 %} class="bg-danger text-white"{% elif entry.avg_waiting_days > 5 %} class="bg-warning text-white"{% else %} class="bg-success text-white"{% endif %}>
 	    <td>{{ entry.acad_field }}</td>
 	    <td>{{ entry.specialty }}</td>
@@ -53,10 +56,11 @@
 
   <div class="row">
     <div class="col">
-      <h2 class="highlight">Status: accepted (not yet published)</h2>
-      <p>Time from submission to acceptance, including all resubmissions).</p>
-      <p>This is not an accurate evaluation of the rapidity of processing at SciPost, since
-	the time to resubmit is counted.</p>
+      <h2 class="highlight">From original submission to acceptance</h2>
+      <p>Dataset: Submissions with status <em>accepted (not yet published)</em>.</p>
+      <p>Total time from original submission to acceptance, including all resubmissions.</p>
+      <p>This is not an accurate reflection of the rapidity of processing at SciPost, since
+	the time for authors to resubmit is counted in.</p>
       <table class="table">
 	<tr>
 	  <td>Legend</td>
@@ -74,7 +78,7 @@
 	  <th>Avg processing days</th>
 	  <th>Max processing days</th>
 	</thead>
-	{% for entry in timescales_accepted %}
+	{% for entry in timescales_original_submission_to_acceptance %}
 	  <tr{% if entry.avg_waiting_days > 180 %} class="bg-danger text-white"{% elif entry.avg_waiting_days > 90 %} class="bg-warning text-white"{% else %} class="bg-success text-white"{% endif %}>
 	    <td>{{ entry.acad_field }}</td>
 	    <td>{{ entry.specialty }}</td>

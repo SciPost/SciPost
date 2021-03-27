@@ -2301,23 +2301,23 @@ def submissions_processing_timescales(submissions, phase):
             number = len(submissions_in_spec)
             if number > 0:
                 waiting_days = 0
+                total_waiting_days = 0
                 max_waiting_days = 0
                 for sub in submissions_in_spec.all():
                     if phase == 'screening':
-                        waiting_days += workdays_between(sub.submission_date, now)
-                    elif phase == 'acceptance':
-                        waiting_days += workdays_between(sub.original_submission_date, sub.acceptance_date)
+                        waiting_days = workdays_between(sub.submission_date, now)
+                    elif phase == 'original_submission_to_acceptance':
+                        waiting_days = workdays_between(sub.original_submission_date, sub.acceptance_date)
+                    total_waiting_days += waiting_days
                     max_waiting_days = max(waiting_days, max_waiting_days)
                 timescales.append({
                     'acad_field': acad_field,
                     'specialty': specialty,
                     'number': number,
-                    'waiting_days': waiting_days,
-                    'avg_waiting_days': round(waiting_days/number, 2),
+                    'waiting_days': total_waiting_days,
+                    'avg_waiting_days': round(total_waiting_days/number, 2),
                     'max_waiting_days': max_waiting_days
                 })
-
-
     return sorted(timescales, key=lambda tup: tup['number'], reverse=True)
 
 
@@ -2327,8 +2327,8 @@ def monitor(request):
     """
     # Compute stats for all submissions under processing
     context = {
-        'timescales_unassigned': submissions_processing_timescales(Submission.objects.unassigned(), 'screening'),
-        'timescales_accepted': submissions_processing_timescales(
-            Submission.objects.accepted(), 'acceptance'),
+        'timescales_screening': submissions_processing_timescales(Submission.objects.unassigned(), 'screening'),
+        'timescales_original_submission_to_acceptance': submissions_processing_timescales(
+            Submission.objects.accepted(), 'original_submission_to_acceptance'),
     }
     return render(request, 'submissions/monitor.html', context)
