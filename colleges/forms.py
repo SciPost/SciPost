@@ -238,7 +238,9 @@ class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
             'Advisory Board', 'Editorial College']).exists()
         if nominated:
             potfel.status = POTENTIAL_FELLOWSHIP_NOMINATED
-            potfel.in_agreement.add(self.request.user.contributor)
+            # If user is Senior Fellow for that College, auto-add Agree vote
+            if self.request.user.contributor.fellowships.senior().filter(college=potfel.college).exists():
+                potfel.in_agreement.add(self.request.user.contributor)
             event = POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
         else:
             potfel.status = POTENTIAL_FELLOWSHIP_IDENTIFIED

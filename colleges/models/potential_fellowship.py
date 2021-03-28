@@ -64,7 +64,7 @@ class PotentialFellowship(models.Model):
         * is in AdvisoryBoard for this College's Academic Field
         * is a Senior Fellow in the College proposed
         """
-        return (user.contributor.is_scipost_admin() or
+        return (user.contributor.is_scipost_admin or
                 user.contributor.is_in_advisory_board and user.contributor.profile.acad_field == self.college.acad_field or
                 user.contributor.fellowships.senior().filter(college=self.college).exists())
 
