@@ -657,7 +657,7 @@ def _personal_page_admin_actions(request):
     context = {}
     contributor = request.user.contributor
 
-    if contributor.is_scipost_admin():
+    if contributor.is_scipost_admin:
         # count the number of pending registration requests
         context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
         context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
