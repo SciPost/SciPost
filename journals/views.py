@@ -999,7 +999,7 @@ def metadata_DOAJ_deposit(request, doi_label):
 
     messages.success(request, '<h3>%s</h3>Successful deposit of metadata DOAJ.'
                               % publication.doi_label)
-    return redirect('journals:manage_metadata')
+    return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
 
 
 @permission_required('scipost.can_manage_ontology', return_403=True)
