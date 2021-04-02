@@ -214,50 +214,16 @@ class CreateMetadataDOAJForm(forms.ModelForm):
                         'type': 'fulltext',
                     }
                 ],
+                'journal': {
+                    'start_page': publication.get_paper_nr(),
+                },
             }
         }
         if publication.in_issue:
-            md['bibjson']['journal'] = {
-                'publisher': 'SciPost',
-                'volume': str(publication.in_issue.in_volume.number),
-                'number': str(publication.in_issue.number),
-                'start_page': publication.get_paper_nr(),
-                'identifier': [{
-                    'type': 'eissn',
-                    'id': issn
-                }],
-                'license': [
-                    {
-                        'url': self.request.build_absolute_uri(
-                            publication.in_issue.in_volume.in_journal.get_absolute_url()),
-                        'open_access': 'true',
-                        'type': publication.get_cc_license_display(),
-                        'title': publication.get_cc_license_display(),
-                    }
-                ],
-                'language': ['EN'],
-                'title': publication.in_issue.in_volume.in_journal.name,
-            }
-        else:
-            md['bibjson']['journal'] = {
-                'publisher': 'SciPost',
-                'start_page': publication.get_paper_nr(),
-                'identifier': [{
-                    'type': 'eissn',
-                    'id': issn
-                }],
-                'license': [
-                    {
-                        'url': self.request.build_absolute_uri(
-                            publication.in_journal.get_absolute_url()),
-                        'open_access': 'true',
-                        'type': publication.get_cc_license_display(),
-                        'title': publication.get_cc_license_display(),
-                    }
-                ],
-                'language': ['EN'],
-                'title': publication.in_journal.name,
-            }
+            if publication.in_issue.in_volume:
+                md['bibjson']['journal']['volume'] = str(publication.in_issue.in_volume.number)
+            md['bibjson']['journal']['number'] = str(publication.in_issue.number)
+
         return md
 
 
