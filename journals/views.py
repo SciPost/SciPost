@@ -356,7 +356,7 @@ def provide_plot(x, y, name):
         },
         output_type='div', include_plotlyjs=False,
         show_link=False, link_text="")
-    
+
 
 def metrics_DEPREC(request, doi_label, specialty=None):
     journal = get_object_or_404(Journal, doi_label=doi_label)
@@ -968,7 +968,7 @@ def metadata_DOAJ_deposit(request, doi_label):
         errormessage = 'The metadata file for this metadata timestamp already exists'
         return render(request, 'scipost/error.html', context={'errormessage': errormessage})
 
-    url = 'https://doaj.org/api/v1/articles'
+    url = 'https://doaj.org/api/v2/articles'
     params = {
         'api_key': settings.DOAJ_API_KEY,
     }
