@@ -11,7 +11,7 @@ is fired up and unleashed at `scipost.org <https://scipost.org>`_.
 Production server
 =================
 
-`SciPost <https://scipost.org>`_ is currently hosted at `WebFaction <https://www.webfaction.com>`_.
+`SciPost <https://scipost.org>`_ is currently hosted at `Digital Ocean <https://www.digitalocean.com>`_.
 
 
 Git server
@@ -38,9 +38,3 @@ Scheduled tasks monitoring
 Scheduled tasks on the production server are powered by `Celery <http://www.celeryproject.org>`_.
 Monitoring is done via our `Flower <https://scipost.org/flower/>`_ instance
 (you will need access credentials).
-
-
-Site traffic statistics
-=======================
-
-We run an `AWStats <https://www.awstats.org>`_ instance at `this page <https://scipost.org/awstats>`_.
