@@ -187,10 +187,7 @@ class CreateMetadataDOAJForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
     def generate(self, publication):
-        if publication.in_issue:
-            issn = str(publication.in_issue.in_volume.in_journal.issn)
-        else:
-            issn = str(publication.in_journal.issn)
+        issn = str(publication.get_journal().issn)
         md = {
             'bibjson': {
                 'author': [{'name': publication.author_list}],
