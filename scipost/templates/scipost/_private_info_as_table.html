@@ -8,7 +8,15 @@
       <a href="{% url 'security:security' %}" class="text-warning">&rarr;&nbsp;security&nbsp;check</a>
     </td>
   </tr>
-  <tr><td>ORCID id: </td><td>{{ contributor.profile.orcid_id }}</td></tr>
+  <tr>
+    <td>ORCID id: </td>
+    <td>
+      {% if contributor.profile.orcid_id %}
+	<a href="https://orcid.org/{{ contributor.profile.orcid_id }}" target="_blank">{{ contributor.profile.orcid_id }}</a>
+      {% else %}(no ORCID id known)
+      {% endif %}
+    </td>
+  </tr>
   <tr>
     <td>Affiliation(s):</td>
     <td>
@@ -16,6 +24,15 @@
     </td>
   </tr>
   <tr><td>Address: </td><td>{{ contributor.address }}</td></tr>
-  <tr><td>Personal web page: </td><td>{{ contributor.profile.webpage }}</td></tr>
+  <tr>
+    <td>Personal web page:</td>
+    <td>
+      {% if contributor.profile.webpage %}
+	<a href="{{ contributor.profile.webpage }}" target="_blank">{{ contributor.profile.webpage }}</a>
+      {% else %}
+	(no webpage known)
+      {% endif %}
+    </td>
+  </tr>
   <tr><td>Accept SciPost emails: </td><td>{{ contributor.profile.accepts_SciPost_emails }}</td></tr>
 </table>
