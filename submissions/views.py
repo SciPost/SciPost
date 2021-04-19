@@ -2291,6 +2291,7 @@ def submissions_processing_timescales(submissions, phase):
 
     :params:
     * phase: one of `screening`, `acceptance`
+
     """
     timescales = []
     now = timezone.now()

@@ -98,7 +98,7 @@ def match_rst_hyperlink_reference(text):
 # reStructuredText roles and directives
 def match_rst_role(text, role=None):
     """
-    Return first match object of regex search for given ReST role :role:`... .
+    Return first match object of regex search for given ReST role :role:... .
 
     If no role is given, all roles in ReST_ROLES are tested one by one.
     """

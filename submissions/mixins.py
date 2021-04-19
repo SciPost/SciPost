@@ -89,6 +89,7 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin)
         This method is used in all Class-Based-Views. However, if one overwrites either one of the
          - get_object()
          - get_queryset()
+
         methods, please don't forget to call super().method_name() to not remove this filter!
         """
         qs = super().get_queryset()
