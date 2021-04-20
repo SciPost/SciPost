@@ -833,8 +833,8 @@ def metadata_xml_deposit(request, doi_label, option='test'):
             doi_label=publication.doi_label.replace('.', '_'))
 
     if publication.in_journal:
-        path += 'SCIPOST_JOURNALS/{journal_name}/{paper_nr}/{doi_label}_Crossref'.format(
-            journal_name=publication.in_journal.name,
+        path += 'SCIPOST_JOURNALS/{journal_doi_label}/{paper_nr}/{doi_label}_Crossref'.format(
+            journal_doi_label=publication.in_journal.doi_label,
             paper_nr=publication.get_paper_nr(),
             doi_label=publication.doi_label.replace('.', '_'))
 
@@ -955,8 +955,8 @@ def metadata_DOAJ_deposit(request, doi_label):
             paper_nr=publication.get_paper_nr(),
             doi_label=publication.doi_label.replace('.', '_'))
     elif publication.in_journal:
-        path += 'SCIPOST_JOURNALS/{journal_name}/{paper_nr}/{doi_label}_DOAJ'.format(
-            journal_name=publication.in_journal.name,
+        path += 'SCIPOST_JOURNALS/{journal_doi_label}/{paper_nr}/{doi_label}_DOAJ'.format(
+            journal_doi_label=publication.in_journal.doi_label,
             paper_nr=publication.get_paper_nr(),
             doi_label=publication.doi_label.replace('.', '_'))
 
