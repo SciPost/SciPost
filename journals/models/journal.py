@@ -85,13 +85,17 @@ class Journal(models.Model):
         verbose_name='Template (LaTeX, gzipped tarball)',
         help_text='Gzipped tarball of the LaTeX template package',
         upload_to='UPLOADS/TEMPLATES/latex/%Y/', max_length=256, blank=True)
+    template_docx = models.FileField(
+        verbose_name='Template (.docx)',
+        help_text='.docx template',
+        upload_to='UPLOADS/TEMPLATES/docx/%Y/', max_length=256, blank=True)
 
     # Cost per publication information
     cost_info = JSONField(default=cost_default_value)
 
     # Calculated fields (to save CPU; field name always starts with cf_)
     cf_metrics = JSONField(default=dict)
-    
+
     objects = JournalQuerySet.as_manager()
 
     class Meta:
@@ -192,7 +196,7 @@ class Journal(models.Model):
                     if citation['year'] == str(year):
                         ncites += 1
         return ncites
-    
+
     def citedby_impact_factor(self, year, specialty=None):
         """Compute the impact factor for a given year YYYY, from Crossref cited-by data.
 
@@ -238,7 +242,7 @@ class Journal(models.Model):
                     if int(citation['year']) <= year and int(citation['year']) >= year - 3:
                         ncites += 1
         return ncites / nrpub
-    
+
     def cost_per_publication(self, year):
         try:
             return int(self.cost_info[str(year)])
@@ -252,7 +256,7 @@ class Journal(models.Model):
         publications = self.get_publications()
         from submissions.models import Submission
         if publications:
-            pubyears = [year for year in range(publications.last().publication_date.year, 
+            pubyears = [year for year in range(publications.last().publication_date.year,
                                        timezone.now().year)]
         else:
             pubyears = [timezone.now().year]

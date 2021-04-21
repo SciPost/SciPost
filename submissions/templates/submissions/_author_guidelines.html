@@ -27,15 +27,28 @@
 
   <div class="row">
     <div class="col-12">
-      
+
       <hr>
       <h2 class="highlight" id="manuprep">Manuscript preparation</h2>
-      
-      <p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
-	as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
-	composed of the following individual files:
-	<ul>
-	  <li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.tex' %}">LaTeX2e template (.tex)</a></li>
+
+      {% if journal.doi_label == 'MigPol' %}
+	<p>Authors can prepare their manuscript in Word or LaTeX.</p>
+	<p>
+	  For Word, please use this <a href="{{ journal.template_docx.url }}">template</a>.
+	  Manuscripts should be <strong>submitted as pdf files.</strong>
+	</p>
+	<p>For LaTeX, we prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
+	  as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
+	  composed of the following individual files:
+	</p>
+      {% else %}
+	<p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
+	  as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
+	  composed of the following individual files:
+	</p>
+      {% endif %}
+      <ul>
+	<li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.tex' %}">LaTeX2e template (.tex)</a></li>
 	  <li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.pdf' %}">LaTeX2e template (.pdf)</a></li>
 	  <li><a href="{% static 'submissions/latex/SciPost.cls' %}">class file (.cls)</a></li>
 	  <li><a href="{% static 'submissions/latex/SciPost_bibstyle.bst' %}">BiBTeX style file (.bst)</a></li>
@@ -100,8 +113,12 @@
 
       <p>All elements in your paper (equations, references, tables, figures etc)
 	should be hyperlinked to ensure ease of navigation.</p>
-      <p>There is no strict length limitation, but the authors are strongly encouraged to keep contents to the
-	strict minimum necessary for peers to reproduce the research described in the paper.</p>
+      {% if journal.doi_label == 'MigPol' %}
+	<p>Articles should be 6000 to 12000 words in length.</p>
+      {% else %}
+	<p>There is no strict length limitation, but the authors are strongly encouraged to keep contents to the
+	  strict minimum necessary for peers to reproduce the research described in the paper.</p>
+      {% endif %}
 
       <hr>
       <h2 class="highlight" id="manusub">Manuscript submission</h2>
@@ -157,7 +174,9 @@
       <hr>
       <h2 class="highlight" id="resub">Resubmission</h2>
       <p>
-	To resubmit your manuscript, simply upload your new version to the arXiv. When this has appeared, you can then re-fill our <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form. Our system will automatically recognize your new version as a resubmission of your earlier manuscript.
+	To resubmit your manuscript, please follow the resubmission link (from your personal page,
+	as corresponding author). Our system will then automatically recognize your new version
+	as a resubmission of your earlier manuscript.
       </p>
 
       <hr>
@@ -217,12 +236,16 @@
 	      </p>
 	    </li>
 	    <li>
-	      <h4>Do I need to re-upload to the arXiv for each resubmission?</h4>
+	      <h4>Do I need to re-upload to a preprint server for each resubmission?</h4>
 	      <p>
-		Yes. We require your manuscript to be accessible to and seen by all interested parties worldwide, and the arXiv is the best channel for ensuring this.
+		Ideally, yes, but we actually do not enforce this.
+		We prefer your manuscript to be accessible to and seen by all interested parties worldwide,
+		and the relevant preprint server is the best channel for ensuring this.
 	      </p>
 	      <p>
-		The only case in which you don't need to re-upload to the arXiv is when your manuscript has been accepted, and the (hopefully very minor) last modifications can be implemented by our production team during the proofs stage.
+		The only case in which you don't need to re-upload to the relevant preprint server
+		is when your manuscript has been accepted, and the (hopefully very minor) last modifications
+		can be implemented by our production team during the proofs stage.
 	      </p>
 	    </li>
 	    <li>
