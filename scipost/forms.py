@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 import pyotp
+import re
 
 from django import forms
 from django.contrib.auth import authenticate
@@ -699,6 +700,10 @@ class SearchForm(HayStackSearchForm):
             return self.no_query_found()
 
         if not self.cleaned_data.get("q"):
+            return self.no_query_found()
+
+        # Block queries matching flagged regex to avoid gunicorn worker timeout
+        if re.search(r'\w{8,}.www.\w{7,}.cn', self.cleaned_data["q"]):
             return self.no_query_found()
 
         sqs = self.searchqueryset.auto_query(self.cleaned_data["q"])
