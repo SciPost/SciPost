@@ -39,8 +39,7 @@ class Proceedings(TimeStampedModel):
     # Fellows
     lead_fellow = models.ForeignKey('colleges.Fellowship', null=True, blank=True,
                                     on_delete=models.SET_NULL, related_name='+')
-    fellowships = models.ManyToManyField('colleges.Fellowship', blank=True,
-                                         limit_choices_to={'guest': True})
+    fellowships = models.ManyToManyField('colleges.Fellowship', blank=True)
 
     # Submission data
     submissions_open = models.DateField()
