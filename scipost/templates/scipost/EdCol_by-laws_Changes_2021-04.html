@@ -1,0 +1,689 @@
+{% extends 'scipost/base.html' %}
+
+{% load static %}
+
+{% load scipost_extras %}
+
+{% block meta_description %}{{ block.super }} Editorial College By-laws{% endblock meta_description %}
+{% block pagetitle %}: Editorial College By-laws{% endblock pagetitle %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        <a href="{% url 'scipost:about' %}" class="breadcrumb-item">About SciPost</a>
+        <span class="breadcrumb-item">Editorial College By-laws [deprecated 2021-04]</span>
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h1 class="highlight">SciPost Editorial Colleges By-laws
+	<br><br>
+	<span class="text-danger">[deprecated 2021-04]</span>
+	&emsp;
+	<a href="{% url 'scipost:EdCol_by-laws' %}"><span class="text-primary">Go to current version</span></a>
+      </h1>
+
+      <p>
+        Functioning of the SciPost Editorial Colleges is governed by the following set of by-laws.
+      </p>
+      <p>
+        These complement and are subsidiary to the <a href="{% static 'scipost/info/afschrift_OPR_St_SciPost.pdf' %}">legal statutes</a> (official version, in Dutch) of Stichting SciPost (hereafter: the Foundation).
+      </p>
+
+      <ol>
+        <hr>
+        <li><strong>Editorial Colleges and their Composition</strong><button type="button" class="btn btn-default" data-toggle="toggle" data-target="#Composition">view/hide</button>
+          <div id="Composition" class="py-2" style="display: none;">
+            <ol>
+              <li><strong>The Colleges</strong>
+                <p>
+                  An Editorial College is formed for each academic field in which SciPost
+                  carries out publishing activities. The Editorial College of a certain field,
+                  composed of a collection of Fellows, takes end
+                  responsibility for editorial matters for all Journals operating in that field.
+                  For interdisciplinary submissions, the services of Fellows from distinct Colleges
+                  can be called upon during the evaluation process.
+                </p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification 1.1 (VGM 2021-03): add the following paragraph</h4>
+		  <p>
+		    Within each College, a number of Fellows are marked as <em>Senior Fellows</em>.
+		    These <em>primi inter pares</em> are selected from existing Fellows,
+		    and are given special tasks and responsibilities relating to maintaining the
+		    College's composition and sustaining the editorial processes.
+		  </p>
+		</div>
+              </li>
+              <li><strong>Eligibility</strong>
+                <p>
+                  Fellows of an Editorial College must be professionally active academics
+                  with a permanent position of at least associate professor level or equivalent
+                  at a recognized university or research institute. They must possess an extensive
+                  publication record demonstrating world-leading research capabilities in at least one
+                  stated subject area covered by SciPost Journals falling under the Editorial College
+                  concerned. There is no age limitation.
+                </p>
+                <p>
+                  <em>Guest Fellows</em>, whose services can be called upon for Core- or Proceedings-class journals, should be professionally active academics with a position equivalent to junior faculty at a recognized university or research institute. The must possess a solid publication record demonstrating international-level research capabilities in at least one stated subject area covered by SciPost Journals falling under the Editorial College concerned. There is no age limitation. Guest Fellows are only given editorial tasks for specific submissions, and are not officially part of the Editorial College.
+                </p>
+              </li>
+              <li><strong>Number of Fellows</strong>
+                <p>
+                  The size of an Editorial College will be such that each stated subject area
+                  will be represented by at least 8 Fellows. There is no maximum.
+                  The number of Fellows
+                  caring for a stated subject area shall be adjusted to ensure a workload per Fellow
+                  limited to approximately one half-day per month on average.
+                </p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification 1.3 (VGM 2021-03): rephrase to</h4>
+		  <p>
+		    Within an Editorial College, the number of Fellows should be continuously
+		    adjusted to ensure that i) each specialty is properly represented
+		    ii) rapid editorial processing is ensured and iii) the workload per Fellow
+                    is limited to approximately one half-day per month on average.
+		    There is no maximum to the number of Fellows within a College.
+		  </p>
+		</div>
+              </li>
+              <li><strong>Appointment</strong>
+                <p>SciPost's Editorial Colleges should be representative of their respective field's academic communities. They are meant to be self-sustaining in scale and composition.</p>
+                <ol>
+                  <li>Direct appointment by the Foundation
+                    <p>
+                      If the number of Fellows in a stated specialty is below the required minimum number,
+                      or if the number of currently available Fellows in a stated specialty
+                      has diminished to a level where processing of Submissions becomes delayed,
+                      the Foundation has the right to directly nominate and immediately appoint
+                      individuals deemed to fulfil the eligibility criteria.
+                    </p>
+                  </li>
+                  <li>Appointment by election
+                    <p>
+                      Foundation board members, members of the Advisory Board as well as current and past
+                      Fellows of an Editorial College can nominate candidates for an Editorial Fellowship.
+                      In addition, guest Fellows which have proved to be reliable Editors-in-charge
+                      for <em>Core</em>- or <em>Proceedings</em>-class Submissions can also be
+                      nominated by Editorial Administration on behalf of the Foundation.
+                      Candidates must fulfil the eligiblity criteria.
+                    </p>
+                  </li>
+                </ol>
+                <p>
+                  These nominations shall be forwarded to the relevant Editorial College
+                  for voting, at the latest at the next Virtual General Meeting.
+                  If a candidate secures a positive vote from at least half
+                  of the Fellows currently
+                  caring for the candidate's stated main expertise, and if no veto is received from
+                  Fellows in other subject areas, from the Advisory Board or from the Foundation's
+                  Board, then the candidate is deemed elected, and is invited to join by the
+                  Foundation. Appointment to an Editorial College starts immediately upon receipt
+                  of a positive answer from the candidate.
+                </p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification 1.4.2 (VGM 2021-03): replace paragraph 1.4.2 and paragraph after by</h4>
+		  <p>
+		    <ul>
+		      <li>1.4.2 Nomination
+			<p>
+			  Senior Fellows shall ensure that the number of Fellows in their specialty is sufficient,
+			  by actively scouting for and nominating appropriately qualified candidates.
+			</p>
+			<p>
+			  In addition, Foundation board members, members of the Advisory Board as well as current and past
+			  Fellows of an Editorial College can nominate candidates for an Editorial Fellowship.
+			  Guest Fellows which have proved to be reliable Editors-in-charge
+			  for <em>Core</em>- or <em>Proceedings</em>-class Submissions can also be
+			  nominated by Editorial Administration on behalf of the Foundation.
+			  Candidates must fulfil the eligiblity criteria.
+			</p>
+		      </li>
+		      <li>1.4.3 Election of new Fellows (Senior Fellows vote)
+			<p>
+			  Nominations are first forwarded to Senior Fellows of the relevant College for voting.
+			  If a candidate secures a positive vote from a strict majority of Senior Fellows in their
+			  stated specialties, and if no veto is received from Senior Fellows in other specialties,
+			  from the Advisory Board or from the Foundation's Board, then the candidate is deemed elected.
+			</p>
+		      </li>
+		      <li>1.4.4 Election of new Fellows (Editorial College vote)
+			<p>
+			  As an alternate route, nominations can also be forwarded to the relevant Editorial College
+			  for voting, at the latest at the next Virtual General Meeting.
+			  If a candidate secures a positive vote from at least half
+			  of the Fellows currently
+			  caring for the candidate's stated main specialty, and if no veto is received from
+			  Fellows in other specialties, from the Advisory Board or from the Foundation's
+			  Board, then the candidate is deemed elected.
+			</p>
+		      </li>
+		      <li>1.4.5 Appointment of new Fellows
+			<p>
+			  Upon election, a candidate is invited to join.
+			  Appointment to an Editorial College starts immediately upon receipt
+			  of a positive answer from the candidate.
+			</p>
+		      </li>
+		      <li>1.4.6 Election and appointment of Senior Fellows
+			<p>
+			  Each College shall be responsible for maintaining a sufficient number of Senior
+			  Fellows in each specialty. When a need for new Senior Fellows arises, Editorial Administration
+			  shall seek volunteers from the set of current Fellows. The Advisory Board
+			  shall have a right of veto on any such nomination.
+			</p>
+			<p>
+			  As a special provision, if a given specialty has fewer than 3 Senior Fellows,
+			  then the Foundation has the right to directly appoint appropriate candidates to take
+			  on the role.
+			</p>
+		      </li>
+		    </ul>
+		  </p>
+		</div>
+	      </li>
+	      <li><strong>Duration</strong>
+		<p>
+		  An appointment as Fellow of an Editorial College is in principle for a period of five years.
+		</p>
+	      </li>
+	      <li><strong>Visibility</strong>
+		<p>
+		  The composition of an Editorial College is made public. The list of Editorial
+		  Fellows and their stated expertises is published on the <a href="{% url 'colleges:colleges' %}">Colleges page</a>.
+		</p>
+	      </li>
+	      <li><strong>Renewal</strong>
+		<p>
+		  An appointment is renewable without limitation. A Fellow coming to the end of
+		  an appointment is automatically put up for renewal, unless
+		  the said Fellow has informed the Foundation of their desire not to renew,
+		  or if the Foundation or the Advisory Board vetoes the renewal.
+		</p>
+	      </li>
+	      <li><strong>End of appointment</strong>
+		<p>
+		  Appointment as an Editorial Fellow immediately ends upon:
+		  <ul>
+		    <li>the Fellow informing the Foundation of their wish to cease
+		      their Fellowship</li>
+		    <li>the Fellow ceasing to fulfil the eligibility criteria</li>
+		    <li>the Foundation terminating the appointment due to
+		      conduct which it deems to be improper or in
+		      conflict with the general aims and guiding principles of the Foundation.</li>
+		  </ul>
+		</p>
+	      </li>
+            </ol>
+          </div>
+        </li>
+
+        <hr>
+        <li><strong>Meetings</strong> <button type="button" class="btn btn-default" data-toggle="toggle" data-target="#Meetings">view/hide</button>
+	  <div id="Meetings" class="py-2" style="display: none;">
+	    <p>
+	      Editorial Colleges, consisting of internationally-distributed scientists with a broad
+	      geographic distribution, do not physically meet. Meetings are instead organized
+	      using our online forums/meetings facilities.
+	    </p>
+	    <ol>
+	      <li><strong>Virtual General Meetings</strong>
+                <p>Once per year, Fellows of the Editorial Colleges are asked to participate in a
+		  virtual general meeting. The meeting is organized by the Foundation and takes
+		  place over the course of one week during the month of January.</p>
+                <p>For the VGM, a special web page is activated, which is accessible only to
+		  Fellows, members of the Advisory Board, Foundation Board members and SciPost
+		  Administration.
+		  This page contains items and points of discussion put forward by
+		  the Foundation, Advisory Board and Editorial Fellows,
+		  and can be consulted and acted upon by Board members and Fellows at
+		  their own leisure during the week of the meeting.
+		  The meeting is chaired by the Foundation's chairman.
+		  During the week of the meeting, Fellows are able to comment on individual items and
+		  bring forth motions for voting.
+		  Re-elections, new nominations to the College and suggested amendments
+		  to the By-laws must appear among the items at the meeting.</p>
+                <p>At the end of the week, the meeting is closed, and motions are put forward
+		  for voting, which is open online for one week after the end of the VGM.</p>
+                <p>Within one week following the end of voting, the Foundation sets to work
+		  implementing the decisions taken
+		  and releases the minutes of the VGM to the Advisory Board and Editorial College.</p>
+	      </li>
+	      <li><strong>Extraordinary Virtual Meetings</strong>
+                <p>At any time, the Foundation can call an Extraordinary Virtual Meeting, to
+		  discuss pressing issues. This meeting must be
+		  announced at least one week before its scheduled start.
+		  An EVM otherwise follows the same procedures as a VGM.
+                </p>
+	      </li>
+	    </ol>
+	  </div>
+        </li>
+
+        <hr>
+        <li><strong>Submissions processing</strong> <button type="button" class="btn btn-default" data-toggle="toggle" data-target="#SubmissionsProcessing">view/hide</button>
+	  <div id="SubmissionsProcessing" class="py-2" style="display: none;">
+	    <p>The primary responsibility of the Editorial Colleges is to run the editorial process
+	      for submissions to SciPost Journals.
+	      The Colleges shall strive towards the very highest standards of
+	      professionalism at all stages of the refereeing process.</p>
+	    <ol>
+	      <li><strong>Submissions pool</strong>
+                <p>
+		  Incoming Submissions are added to the field-specific pool of manuscripts
+		  under consideration for publication.
+		  This pool is visible to all members of the relevant Editorial College (with the
+		  exception of Fellows flagged for potential conflict of interest with the authors
+		  or the contents of the incoming Submission),
+		  as well as to the Advisory Board and Foundation.
+		  Each item in the pool represents a single Submission's whole history, including
+		  possible earlier (pre-resubmission) versions.</p>
+                <p>
+		  Submissions in the pool can be in any of the following stages:
+		  <ul>
+		    <li>Pre-screening</li>
+		    <li>Screening</li>
+		    <li>Editor-in-charge appointed</li>
+		    <li>Refereeing round open</li>
+		    <li>Refereeing round closed</li>
+		    <li>Editorial Recommendation formulated</li>
+		    <li>Awaiting resubmission</li>
+		    <li>Editorial College decision pending</li>
+		    <li>Rejected</li>
+		    <li>Accepted and in production</li>
+		    <li>Published</li>
+		  </ul>
+                </p>
+	      </li>
+	      <li><strong>Pre-screening</strong>
+                <p>
+		  For each Submission added to the pool, a thorough plagiarism check is performed
+		  by SciPost's Editorial Administration. Appropriate action (immediate rejection;
+		  request to authors for modified version) is taken if necessary. A thorough scan
+		  is performed to flag potential conflicts of interest of authors with Fellows,
+		  and a list of potential Editors-in-charge is preselected based on expertise and
+		  availability.
+                </p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification 3.2 (VGM 2021-03): add the following phrase</h4>
+		  <p>
+		    Senior Fellows in the relevant specialty assist Editorial Administration
+		    in establishing this list of potential Editors-in-charge.
+		  </p>
+		</div>
+                <p>
+		  Special provisions exist for certain classes of Journals:
+		  <ul>
+		    <li>for <em>field flagship</em> Journals, only current Fellows are preselected;</li>
+		    <li>for <em>Core</em>-class Journals, Editors-in-charge can
+		      be preselected not only from current Fellows, but from well-respected members of the
+		      community at large (in which case they become guest Fellows).</li>
+		    <li>for <em>Proceedings</em>-class Journals, Editors-in-charge are normally
+		      preselected from the guest Fellows selected by the proceedings convenors
+		      (in normal circumstances the conference/workshop organizers).</li>
+		  </ul>
+                </p>
+	      </li>
+	      <li><strong>Screening</strong>
+                <p>
+		  The preselected Fellows are sent an assignment request to become Editor-in-charge.
+		  Other Fellows within the Editorial College do not receive an assignment request but
+		  can still view a Submission's details (and volunteer to become Editor-in-charge)
+		  through their visibility rights on the Submissions pool.
+                </p>
+                <p>
+		  Each assigned Fellow can explicitly decline the assignment, stating a reason among:
+		  <em>too busy</em>, <em>away</em>, <em>conflict of interest</em>, <em>cannot give impartial assessment</em>, <em>insufficiently qualified</em>, <em>not interested</em> or <em>this paper should not even be considered</em>.
+		  If the preselected list of Fellows empties and the submission has still not been
+		  taken charge of, the preselection list is extended and new assignment requests
+		  are sent to different Fellows.
+		  If 5 assignments are declined citing lack of interest reasons, the Submission is returned
+		  to the authors and not considered for further processing towards publication.
+                </p>
+                <p>
+		  The Editorial College and Administration must make all reasonable efforts to ensure that the pre-screening process
+		  be completed within 5 working days starting from the moment of submission.
+		  If this proves impossible (for example due to a large influx of Submissions or current
+		  unavailability of specialist (guest) Fellows), the authors are informed of the delay and
+		  given the option of either withdrawing their Submission,
+		  or of accepting an extension to the duration of their Submission's pre-screening process.
+                </p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification 3.3 (VGM 2021-03): change the last paragraph to</h4>
+		  <p>
+		    The Editorial College and Administration must make all reasonable efforts to ensure
+		    that the screening process
+		    be completed within 5 working days starting from the moment of submission.
+		    Senior Fellows in the relevant specialty can be consulted by Editorial Administration
+		    in order to assist in this endeavour.
+		    If this timing proves impossible (for example due to a large influx of Submissions or current
+		    unavailability of specialist (guest) Fellows), the authors are informed of the delay and
+		    given the option of either withdrawing their Submission,
+		    or of accepting an extension to the duration of their Submission's screening process.
+		  </p>
+		</div>
+
+	      </li>
+	      <li><strong>Appointment of Editor-in-charge</strong>
+                <ol>
+		  <li>First appointment
+		    <p>The first Fellow of the Editorial College
+		      (or, for <em>Core</em>- or <em>Proceedings</em>-class Journals, guest Fellow)
+		      who accepts an assignment,
+		      or who volunteers while perusing the pool, becomes Editor-in-charge of the Submission,
+		      under the conditions that:
+		      <ul>
+                        <li>the Submission's main specialty matches one of the Fellow's stated specialties</li>
+                        <li>there is no conflict of interest of any form between the Fellow and any of the Submission's authors, in particular:
+			  <ul>
+			    <li>there is no personal or hierarchical relationship between the Fellow and any of the Submission's authors</li>
+			    <li>the Fellow has not co-authored a paper with any of the Submission's authors in the last 5 years.</li>
+			  </ul>
+			</li>
+		      </ul>
+		      <br/>
+		      It is the responsibility of the Fellow to ensure that these conditions are met. In fields where large collaborations are listed as paper authors, a reasonable filtering of the above conflicts is applied, with only the directly meaningful ones being retained.</p>
+		  </li>
+		  <li>Reappointment
+		    <p>In the case of a Resubmission, the original Submission's Editor-in-charge is
+		      automatically appointed as Editor-in-charge for the Resubmission.</p>
+		  </li>
+		  <li>Replacement of the Editor-in-charge
+		    <p>Upon explicit request by the Editor-in-charge, or in circumstances in which the editorial processing of a given
+                      Submission is suffering from unreasonable delays, the Editorial Administration
+                      reserves the right to seek a replacement Editor-in-charge for that Submission.</p>
+		  </li>
+                </ol>
+	      </li>
+	      <li><strong>Refereeing rounds</strong>
+		<ol>
+		  <li>Choice of refereeing cycle
+                    <p>
+		      Upon appointment, the Editor-in-charge can choose one of the following cycles:
+		      <ul>
+			<li>default refereeing cycle</li>
+			<li>short refereeing cycle</li>
+			<li>direct Editorial Recommendation</li>
+		      </ul>
+                    </p>
+                    <p>
+		      For first-time submission, the choice is between the default refereeing cycle, or for a direct Editorial Recommendation for rejection. For resubmission, all three choices are available, the short cycle being meant for rapid re-consultation of referees from previous rounds. Upon choosing either the direct or short refereeing cycles, the online Submission Page is automatically created and opened for contributed Reports and Comments, and the Editor-in-charge is required to immediately open a refereeing round.
+                    </p>
+		  </li>
+		  <li>Opening
+                    <p>For the default or short cycles,
+		      a refereeing round must be opened. For a default refereeing cycle,
+		      at least 3 referees must be invited to provide a Report. For the short cycle (exclusively meant for resubmissions), at least one of the previous referees must be reinvited.
+		      Referees can accept or decline the invitation; if a referee declines or fails to commit
+		      within 5 working days, the Editor-in-charge must seek an alternative referee.
+                    </p>
+		  </li>
+		  <li>Duration
+                    <p>The indicated duration of a refereeing round in the default cycle is 4 weeks for flagship journals, 3 weeks for Core journals and 8 weeks for Lecture Notes,
+		      counted from the moment one of the invited referees first accepts to provide a report. For the short cycle, the duration is 2 weeks.
+		      Referees will automatically be sent reminders of impending deadlines.
+                    </p>
+		  </li>
+		  <li>Access to identities
+                    <p>Besides the invited Reports, contributed Reports and Comments can also be provided by
+		      registered Contributors. Although anonymity can be requested by the Contributor, this implements anonymity on the public interface only: the
+		      identity of the authors of all contributed material is accessible to Editorial Administration and to the Editor-in-charge of
+		      the Submission. It is forbidden for them to reveal those identities in any
+		      way, except to non-conflicted members of the Editorial College or of the Advisory Board if it is deemed
+		      necessary.</p>
+		  </li>
+		  <li>Admissibility of Reports and Comments
+                    <p>The Editor-in-charge must ensure that referees they invite to report on a given manuscript
+		      are in particular not in conflict of interest, personal or hierarchical relationship with any of the authors
+		      and more generally fulfil the conditions stated in the
+		      <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_obligations">referee obligations</a>.
+		      Similarly, the Editor-in-charge must verify that the authors of contributed Reports and Comments
+		      also fulfil these conditions (this occurring during vetting of the Report). If in doubt, the Editor-in-charge
+		      must disregard the Reports and Comments in question when formulating the Editorial Recommendation.
+		      The Editorial Administration monitors the correctness of the implementation of these conditions.</p>
+		  </li>
+		  <li>Minimal number of Reports
+                    <p>
+		      Two types of Reports are considered: <em>invited</em> and <em>contributed</em>,
+		      respectively from Editor-in-charge-invited or from volunteer referees.
+		      Moreover, upon vetting, the Editor-in-charge determines whether a Report is
+		      <em>substantial</em> (if it reviews the Submission
+		      in a thorough and complete manner) or <em>fractional</em> (if it covers only
+		      some aspects).
+		      The minimal number of Reports required for the Editor-in-charge to make a
+		      recommendation depends on the Journal which is submitted to:
+                    </p>
+                    <ul>
+		      <li>for field flagship titles: at least two substantial Reports,
+			at least one of which is an invited one</li>
+		      <li>for <em>Core</em> and other field-specific titles: at least one
+			substantial Report</li>
+		      <li>for <em>Proceedings</em>: at least one Report.</li>
+                    </ul>
+                    <br/>
+                    <p>
+		      If none of the invited referees have responded within the first round,
+		      the Editor-in-charge must start a second round and invite three new referees.
+		      If no invited or contributed Report has been obtained at the end of the second round,
+		      the Editor-in-charge can elect to put forth a motion of rejection due to lack
+		      of interest, or to extend the refereeing round.</p>
+		  </li>
+		  <li>Author reponses
+		    <p>Authors are informed by email upon any Report being published. Authors can reply to Reports at any point by submitting an Author Reply. These replies should focus on addressing the Report (rather than providing a list of changes as per a resubmission).
+		    </p>
+		  </li>
+		  <li>Closing
+                    <p>At the end of the refereeing period, submission of Reports on the Submission Page is deactivated.
+		      The Editor-in-charge can (but is not obliged to) invite the authors to finalize their responses to any submitted Reports
+		      and Comments before the Editorial Recommendation is formulated.</p>
+		  </li>
+		</ol>
+	      </li>
+	      <li><strong>Editorial Recommendation</strong>
+		<p>An Editorial Recommendation is formulated by the Editor-in-charge at the end of a
+		  refereeing round. The recommendation is based on the invited Reports, any contributed
+		  Reports and/or Comments received, together with the Editor-in-charge's own assessment of the Submission.
+		  Such a recommendation is not made publicly visible.
+		  The recommendation targets a specific journal, and can be for:
+		  <ul>
+                    <li>Publication</li>
+                    <li>Minor revision</li>
+                    <li>Major revision</li>
+                    <li>Rejection.</li>
+		  </ul>
+		</p>
+		<p>
+		  A recommendation for Publication in SciPost Selections can only be made
+		  for a submission to a field flagship journal, and carries a special meaning:
+		  the paper itself is to be published in the flagship journal,
+		  while the extended abstract is to be separately published in SciPost
+		  Selections.
+		</p>
+		<ol>
+		  <li>
+                    <p>A recommendation for Publication or Rejection is immediately forwarded to the
+		      Editorial College for voting. It is at this stage not communicated to the authors.</p>
+		  </li>
+		  <li>
+                    <p>If the recommendation is for a minor or major revision, it is communicated
+		      directly to the authors, who must then resubmit in order for further
+		      processing to take place. Upon resubmission, the Editor-in-charge
+		      can either start a new refereeing round or directly formulate a new
+		      editorial recommendation.</p>
+		  </li>
+		</ol>
+	      </li>
+	      <li><strong>Editorial College Vote</strong>
+		<p>
+		  The decision to publish or reject a paper is formally taken by the relevant
+		  Editorial College.
+		  After being formulated by the Editor-in-charge, the Editorial Recommendation
+		  is made visible to all non-conflicted Fellows.
+		</p>
+		<p>
+		  A number of Fellows (depending on the Journal) is selected by Editorial Administration and specifically given voting rights on the recommendation. This selection is made to ensure sufficient expertise, enforce checks on impartiality and avoid conflicts of interest. Other qualified Fellows can claim voting rights on the recommendation if they so wish, by contacting Editorial Administration.
+		</p>
+		<div class="bg-warning my-1 p-1">
+		  <h4>Adopted modification 3.7 (VGM 2021-03): replace last paragraph by</h4>
+		  <p>
+		    A number of Fellows (depending on the Journal) is selected by Editorial Administration (with assistance from Senior Fellows) and specifically given voting rights on the recommendation. This selection is made to ensure sufficient expertise, enforce checks on impartiality and avoid conflicts of interest. Other qualified Fellows can claim voting rights on the recommendation if they so wish, by contacting Editorial Administration.
+		  </p>
+		</div>
+		<p>
+		  The voting Fellows cast their opinion on the recommendation. They can:
+		  <ul>
+		    <li>agree</li>
+		    <li>disagree</li>
+		    <li>abstain.</li>
+		  </ul>
+		</p>
+		<p>
+		  The result of the vote is determined by strict majority of
+		  non-abstaining Fellows, the acceptance quorum (minimal number of
+		  agreeing Fellows) depending on the Journal (e.g. 4 for flagship, 3 for Core).
+		</p>
+		<p>
+		  When agreeing with a recommendation for publication, voting Fellows
+		  are asked to optionally rank the paper among the following Tiers:
+		  <ul>
+		    <li>I: surpasses expectations and criteria for this Journal</li>
+		    <li>II: easily meets expectations and criteria for this Journal</li>
+		    <li>III: meets expectations and criteria for this Journal.</li>
+		  </ul>
+		</p>
+		<p>
+		  This tiering is merely indicative and has no further impact on publication.
+		  Voting Fellows can elect to leave their Tier indication unspecified.
+		</p>
+		<p>
+		  If voting Fellows disagree with the recommendation, they are asked to specify
+		  which recommendation(s) they would support; they can alternately
+		  specify that they think previous referees should be reconsulted, or that
+		  new referees should be found (this can happen in particular when a voting
+		  Fellow disagrees with a direct recommendation). These alternative
+		  recommendations are taken into account to fix the College decision or
+		  by the Editor-in-charge if they wish to reformulate the recommendation
+		  (see detailed explanations below).
+		</p>
+		<p>
+		  For example, a voting Fellow can disagree with a recommendation to
+		  publish and specify that they think the paper should be rejected. Alternately,
+		  the voting Fellow might think that a higher-grade recommendation would
+		  be more appropriate: a voting Fellow can thus disagree with a
+		  recommendation for publication in a flagship journal because they
+		  deem the paper to be appropriate for Selections.
+		</p>
+
+		<ol>
+		  <li><strong>Publication in flagship Journal, with extended abstract in Selections</strong>
+                    <p>
+		      Submissions to a flagship title which are deemed to be of superlative
+		      quality can be recommended for publication in SciPost Selections.
+		      This means that upon acceptance, the main paper is published in the flagship journal,
+		      and the extended abstract is separately published in SciPost Selections.
+                    </p>
+		  </li>
+		  <li><strong>Recommendation for Publication</strong>
+                    <p>
+		      If the editorial recommendation is to publish the paper
+		      and voting conditions for acceptance
+		      are met, the authors are informed and the paper is immediately
+		      forwarded to Production.
+                    </p>
+                    <p>
+		      If the editorial recommendation was to accept the paper, but the voting
+		      conditions for acceptance given above are not met, then voting
+		      Fellows' alternative recommendations are considered.
+		      If a majority of voting Fellows either agreed with the original
+		      recommendation or alternately recommend
+		      publication in a subsidiary journal, then the paper
+		      is immediately accepted for
+		      publication in that journal without the need for a new voting round.
+		      For example, a recommendation to publish in Selections being voted
+		      down might hereby lead to direct acceptance in a flagship journal,
+		      or one to publish in a flagship might lead to direct acceptance
+		      in a <em>Core</em> title.
+		    </p>
+		    <p>
+		      If none of the above direct acceptance conditions are met,
+		      then the Editor-in-charge
+		      is given the opportunity to reformulate the recommendation to
+		      a request for revision, which is then forwarded to the authors, further
+		      consideration of the manuscript then following the rules for resubmission.
+		      If the Editor-in-charge elects not to pursue this route,
+		      voting Fellows who had voted in favour of acceptance are given the
+		      opportunity to take over as Editor-in-charge.
+		      If none elect to do so, the paper is rejected.
+                    </p>
+		  </li>
+		  <li><strong>Recommendation for Rejection</strong>
+                    <p>
+		      If the editorial recommendation is to reject the paper,
+		      and the voting procedure supports this, the paper is rejected.
+                    </p>
+                    <p>
+		      If the recommendation was to reject the paper but voting Fellows
+		      disagree and a majority of them alternately recommend publication
+		      in a given journal, then the paper is accepted in that journal.
+                    </p>
+                    <p>
+		      Upon rejection, the authors are informed, the Submission Page
+		      is deactivated and its contents removed from public view unless the
+		      authors explicitly request otherwise.
+                    </p>
+		  </li>
+		  <li><strong>Special provision for <em>Proceedings</em></strong>
+                    <p>For <em>Proceedings</em>-class Journals, the publication decision process is
+		      delegated to the set of guest Fellows associated to the Proceedings Issue concerned.
+		      To maintain high quality standards, the field's Editorial College retains rights
+		      of regard and veto on any decisions taken by guest Fellows.
+                    </p>
+		  </li>
+		</ol>
+	      </li>
+	      <div class="bg-warning my-1 p-1">
+		<h4>Adopted modification 3.8 (VGM 2021-03): add this point, move Production to 3.9</h4>
+		<ul>
+		  <li>Appeals</li>
+		  <p>
+		    Decisions taken by an Editorial College are final. If evidence exists that
+		    procedures were improperly followed during the handling of their manuscript,
+		    authors can appeal a decision by the College.
+		    Appeals should be promptly lodged to Editorial Administration, and detail the evidence.
+		    Appeals shall be handled by the Senior Fellows in the relevant specialty,
+		    who collectively act as adjudicators. Adjudications by Senior Fellows are final.
+		  </p>
+		</ul>
+	      </div>
+	      <li><strong>Production</strong>
+		<p>Post-acceptance, the paper is handled by the production team, who produce the final version
+		  of the manuscript and ensure compliance with publication requirements (including outbound
+		  references linking). The final version is assigned a DOI and published online in the appropriate SciPost Journal.</p>
+	      </li>
+	    </ol>
+	  </div>
+	</li>
+
+	<hr>
+	<li><strong>Amendments</strong> <button type="button" class="btn btn-default" data-toggle="toggle" data-target="#Amendments">view/hide</button>
+	  <div id="Amendments" class="py-2" style="display: none;">
+	    <p>The present By-laws can be amended by:
+	      <ul>
+		<li>the Foundation, with veto right (by majority vote) from the Advisory Board</li>
+		<li>by motion at a VGM, the motion being supported by a three-quarters majority vote of
+		  all the Editorial Fellows, with veto right from the Foundation and (by majority vote) from the Advisory Board.</li>
+	      </ul>
+	    </p>
+	  </div>
+	</li>
+      </ol>
+    </div>
+  </div>
+
+{% endblock %}

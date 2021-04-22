@@ -244,6 +244,7 @@ urlpatterns = [
     # Editorial College #
     #####################
     url(r'^EdCol_by-laws$', views.EdCol_bylaws, name='EdCol_by-laws'),
+    url(r'^EdCol_by-laws_Changes_2021_04$', views.EdCol_bylaws_Changes_2021_04, name='EdCol_by-laws_Changes_2021_04'),
 
     ################
     # Publications #
