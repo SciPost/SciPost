@@ -13,6 +13,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.exceptions import ValidationError
+from django.http import Http404
 from django.utils import timezone
 from django.utils.dates import MONTHS
 
@@ -703,8 +704,8 @@ class SearchForm(HayStackSearchForm):
             return self.no_query_found()
 
         # Block queries matching flagged regex to avoid gunicorn worker timeout
-        if re.search(r'\w{8,}.www.\w{7,}.cn', self.cleaned_data["q"]):
-            return self.no_query_found()
+        if re.search(r'\w+.www.\w+.cn', self.cleaned_data["q"]):
+            raise Http404
 
         sqs = self.searchqueryset.auto_query(self.cleaned_data["q"])
 
