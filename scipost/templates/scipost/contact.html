@@ -1,0 +1,87 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Contact {% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-12">
+      <h2 class="highlight">Contact us</h2>
+      <div class="container">
+	<div class="row">
+	  <div class="col-sm-6 col-md-4 p-3">
+	    <div class="card">
+	      <div class="card-header p-3">
+		Administrative matters
+	      </div>
+	      <div class="card-body">
+		<p>
+		  For anything relating to the initiative, its setup, running and plans, email us at
+		  <a href="mailto:admin@scipost.org">admin[at]scipost.org</a>.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="col-sm-6 col-md-4 p-3">
+	    <div class="card">
+	      <div class="card-header p-3">
+		Colleges and Fellowships
+	      </div>
+	      <div class="card-body">
+		<p>
+		  Know an ideal Fellow candidate for one of our <a href="{% url 'colleges:colleges' %}">Editorial Colleges</a>?
+		</p>
+		<p>
+		  Email your suggestion to <a href="mailto:edadmin@scipost.org">edadmin[at]scipost.org</a>.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="col-sm-6 col-md-4 p-3">
+	    <div class="card">
+	      <div class="card-header p-3">
+		Editorial matters
+	      </div>
+	      <div class="card-body">
+		<p>
+		  For all editorial matters, please contact us at
+		  <a href="mailto:edadmin@scipost.org">edadmin[at]scipost.org</a>.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="col-sm-6 col-md-4 p-3">
+	    <div class="card">
+	      <div class="card-header p-3">
+		Sponsoring
+	      </div>
+	      <div class="card-body">
+		<p>
+		  We survive through your (and your institution's) support.
+		</p>
+		<p>
+		  Interested in helping? Get in touch with us at
+		  <a href="mailto:sponsors@scipost.org">sponsors[at]scipost.org</a>.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+	  <div class="col-sm-6 col-md-4 p-3">
+	    <div class="card">
+	      <div class="card-header p-3">
+		Technical support
+	      </div>
+	      <div class="card-body">
+		<p>
+		  For all technical matters, contact us at
+		  <a href="mailto:techsupport@scipost.org">techsupport[at]scipost.org</a>.
+		</p>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

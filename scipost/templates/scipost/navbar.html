@@ -130,6 +130,9 @@
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" id="AboutDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">About SciPost</a>
           <div class="dropdown-menu" aria-labelledby="AboutDropdown">
+	    <div class="dropdown-item">
+	      <a href="{% url 'scipost:contact' %}">Contact us</a>
+	    </div>
             <div class="dropdown-item">
               <a href="{% url 'scipost:about' %}">About SciPost</a>
             </div>

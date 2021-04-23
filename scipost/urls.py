@@ -64,6 +64,11 @@ urlpatterns = [
 
     # Info
     url(r'^about$', TemplateView.as_view(template_name='scipost/about.html'), name='about'),
+    path(
+        'contact',
+        TemplateView.as_view(template_name='scipost/contact.html'),
+        name='contact'
+    ),
     url(r'^call$', TemplateView.as_view(template_name='scipost/call.html'), name='call'),
     url(r'^donations/thank-you/$', TemplateView.as_view(template_name='scipost/donation_thank_you.html'), name='donation_thank_you'),
     url(
