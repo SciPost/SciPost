@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
 from django.urls import include, path, re_path, register_converter
 
-from . import views
+from . import views, sso
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
                    LatestCommentsFeedAtom, LatestSubmissionsFeedRSS, LatestSubmissionsFeedAtom,\
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
@@ -189,6 +189,13 @@ urlpatterns = [
     url(r'^totp/$', views.TOTPListView.as_view(), name='totp'),
     url(r'^totp/create$', views.TOTPDeviceCreateView.as_view(), name='totp_create'),
     url(r'^totp/(?P<device_id>[0-9]+)/delete$', views.TOTPDeviceDeleteView.as_view(), name='totp_delete'),
+
+    # Single sign-on [for GitLab: see api/urls]
+    path(
+        'sso_discourse',
+        sso.discourse,
+        name='sso_discourse'
+    ),
 
     # Personal Page
     url(r'^personal_page/$', views.personal_page, name='personal_page'),

@@ -503,6 +503,10 @@ HAVE_I_BEEN_PWNED_TOKEN = get_secret('HAVE_I_BEEN_PWNED_TOKEN')
 HAVE_I_BEEN_PWNED_API_KEY = get_secret('HAVE_I_BEEN_PWNED_API_KEY')
 
 
+# Single sign-on facilities for Discourse instance at disc.scipost.org
+DISCOURSE_BASE_URL = "disc.scipost.org"
+DISCOURSE_SSO_SECRET = get_secret('DISCOURSE_SSO_SECRET')
+
 # CORS headers
 CORS_ALLOWED_ORIGINS = [
     'https://scipost-codebases.org'

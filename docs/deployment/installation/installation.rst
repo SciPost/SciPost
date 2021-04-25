@@ -100,7 +100,8 @@ user and password are the ones you set up in Database above; the
        "DB_NAME": "",
        "DB_USER": "",
        "DB_PWD": "",
-       "CELERY_BROKER_URL": ""
+       "CELERY_BROKER_URL": "",
+       "DISCOURSE_SSO_SECRET": ""
      }
 
 The settings file itself is saved into
