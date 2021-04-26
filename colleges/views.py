@@ -29,10 +29,11 @@ from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
-from scipost.forms import EmailUsersForm
+from scipost.forms import EmailUsersForm, SearchTextForm
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
 from scipost.models import Contributor
 
+from common.utils import Q_with_alternative_spellings
 from mails.views import MailView
 from ontology.models import Branch
 
@@ -442,6 +443,10 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
                 queryset = queryset.filter(profile__specialties=self.kwargs['specialty'])
         if self.request.GET.get('status', None):
             queryset = queryset.filter(status=self.request.GET.get('status'))
+        if self.request.GET.get('text'):
+            query = Q_with_alternative_spellings(
+                profile__last_name__istartswith=self.request.GET['text'])
+            queryset = queryset.filter(query)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -451,6 +456,7 @@ class PotentialFellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         context['potfels_voted_on'] = PotentialFellowship.objects.voted_on(
             self.request.user.contributor)
         context['statuses'] = POTENTIAL_FELLOWSHIP_STATUSES
+        context['searchform'] = SearchTextForm(initial={'text': self.request.GET.get('text')})
         return context
 
 
