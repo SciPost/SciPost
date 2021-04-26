@@ -704,7 +704,7 @@ class SearchForm(HayStackSearchForm):
             return self.no_query_found()
 
         # Block queries matching flagged regex to avoid gunicorn worker timeout
-        if re.search(r'\w+.www.\w+.cn', self.cleaned_data["q"]):
+        if re.search(r'\w+.cn', self.cleaned_data["q"]):
             raise Http404
 
         sqs = self.searchqueryset.auto_query(self.cleaned_data["q"])
