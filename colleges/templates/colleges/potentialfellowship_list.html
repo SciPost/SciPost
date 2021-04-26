@@ -116,7 +116,7 @@
 
   <div class="row">
     <div class="col-12">
-      {% if view.kwargs.acad_field or request.GET.status %}
+      {% if view.kwargs.acad_field or request.GET.status or request.GET.text %}
 	<h3>Potential Fellowships
 	  {% if view.kwargs.acad_field %}in {{ view.kwargs.acad_field }}
 	    {% if view.kwargs.specialty %}, {{ view.kwargs.specialty }}{% endif %}

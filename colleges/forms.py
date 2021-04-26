@@ -225,6 +225,15 @@ class PotentialFellowshipForm(RequestFormMixin, forms.ModelForm):
         model = PotentialFellowship
         fields = ['college', 'profile']
 
+    def clean_profile(self):
+        """Check that no preexisting PotentialFellowship exists."""
+        cleaned_profile = self.cleaned_data['profile']
+        if cleaned_profile.potentialfellowship_set.all():
+            self.add_error(
+                'profile',
+                'This profile already has a PotentialFellowship. Update that instead.')
+        return cleaned_profile
+
     def save(self):
         """
         The default status is IDENTIFIED, which is appropriate
