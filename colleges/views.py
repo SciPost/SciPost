@@ -144,7 +144,16 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
                 queryset = queryset.filter(guest=False)
             elif self.request.GET.get('type') == 'guest':
                 queryset = queryset.filter(guest=True)
+        if self.request.GET.get('text'):
+            query = Q_with_alternative_spellings(
+                contributor__profile__last_name__istartswith=self.request.GET['text'])
+            queryset = queryset.filter(query)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['searchform'] = SearchTextForm(initial={'text': self.request.GET.get('text')})
+        return context
 
 
 class FellowshipStartEmailView(PermissionsMixin, MailView):

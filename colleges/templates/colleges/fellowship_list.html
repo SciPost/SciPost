@@ -65,8 +65,30 @@
     </tbody>
   </table>
 
+  <div class="mt-2">
+    <ul class="list-inline">
+      <li class="list-inline-item">Last name startswith:</li>
+      <li class="list-inline-item">
+	<form action="" method="get">{{ searchform }}
+	  {% if request.GET.field %}
+	    <input type="hidden" name="field" value="{{ request.GET.field }}">
+	    {% if request.GET.specialty %}
+	      <input type="hidden" name="specialty" value="{{ request.GET.specialty }}">
+	    {% endif %}
+	  {% endif %}
+	  <input class="btn btn-outline-secondary" type="submit" value="Search">
+	</form>
+      </li>
+    </ul>
+  </div>
+
   {% if view.kwargs.acad_field %}
-    <h3>Fellowships {% if view.kwargs.acad_field %}in {{ view.kwargs.acad_field }}{% if view.kwargs.specialty %} ({{ view.kwargs.specialty }}){% endif %}{% endif %}:</h3>
+    <h3>Fellowships
+      {% if view.kwargs.acad_field %}in {{ view.kwargs.acad_field }}
+	{% if view.kwargs.specialty %} ({{ view.kwargs.specialty }}){% endif %}
+      {% endif %}
+      {% if request.GET.text %} with last name starting with {{ request.GET.text }}{% endif %}
+      :</h3>
     <br/>
   {% endif %}
   <table class="table mt-3">
