@@ -306,7 +306,8 @@ class UpdatePersonalDataForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['title'].initial = self.instance.profile.title
-        self.fields['acad_field'].initial = self.instance.profile.acad_field.id
+        if self.instance.profile.acad_field:
+            self.fields['acad_field'].initial = self.instance.profile.acad_field.id
         self.fields['specialties'].initial = [s.id for s in self.instance.profile.specialties.all()]
         self.fields['orcid_id'].initial = self.instance.profile.orcid_id
         self.fields['webpage'].initial = self.instance.profile.webpage
