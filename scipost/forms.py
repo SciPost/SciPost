@@ -695,6 +695,12 @@ class SearchForm(HayStackSearchForm):
     start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
     end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
 
+    def clean_q(self):
+        q = self.cleaned_data.get('q', '')
+        # Block queries matching flagged regex to avoid gunicorn worker timeout
+        if re.search(r'\w+.cn', q):
+            raise Http404
+        return q
 
     def search(self):
         if not self.is_valid():
@@ -702,10 +708,6 @@ class SearchForm(HayStackSearchForm):
 
         if not self.cleaned_data.get("q"):
             return self.no_query_found()
-
-        # Block queries matching flagged regex to avoid gunicorn worker timeout
-        if re.search(r'\w+.cn', self.cleaned_data["q"]):
-            raise Http404
 
         sqs = self.searchqueryset.auto_query(self.cleaned_data["q"])
 

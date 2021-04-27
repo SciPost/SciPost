@@ -152,7 +152,6 @@ class SearchView(SearchView):
     def get_context_data(self, *args, **kwargs):
         """Update context with some additional information."""
         ctx = super().get_context_data(*args, **kwargs)
-        ctx['search_query'] = self.request.GET.get('q')
         ctx['results_count'] = kwargs['object_list'].count()
         return ctx
 
