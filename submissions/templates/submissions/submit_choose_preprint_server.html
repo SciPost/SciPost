@@ -74,6 +74,7 @@
 		  <h3>Please provide the ChemRxiv identifier for your Submission</h3>
 		  <p><em>without the url prefix but with version number, e.g.
 		    <br> #######.v#</em></p>
+		  <p><em>Hint: on the ChemRxiv page, click on the "Cite" button to see the identifier.</em></p>
 		  <form action="{% url 'submissions:submit_manuscript_chemrxiv' journal_doi_label=journal.doi_label %}" method="get">
 		    {{ chemrxiv_prefill_form }}
 		    {% if thread_hash %}
