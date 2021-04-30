@@ -389,6 +389,7 @@ class SubmissionForm(forms.ModelForm):
             url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
         ),
         label='Academic field',
+        disabled=True
     )
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
@@ -486,8 +487,14 @@ class SubmissionForm(forms.ModelForm):
             del self.fields['list_of_changes']
 
         # Select Journal instances.
-        self.fields['submitted_to'].queryset = Journal.objects.active().submission_allowed()
-        self.fields['submitted_to'].label = 'Journal: submit to'
+        # self.fields['submitted_to'].queryset = Journal.objects.active().submission_allowed()
+        # self.fields['submitted_to'].label = 'Journal: submit to'
+        self.fields['submitted_to'].widget.attrs.update({ 'disabled': True})
+
+        # Restrict choice of specialties to those of relevant AcademicField
+        if kwargs['initial'].get('acad_field', None):
+            self.fields['specialties'].widget.url = \
+                self.fields['specialties'].widget.url + '?acad_field_id=' + str(kwargs['initial'].get('acad_field'))
 
         # Proceedings submission fields
         qs = self.fields['proceedings'].queryset.open_for_submission()

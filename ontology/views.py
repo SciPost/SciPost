@@ -43,6 +43,8 @@ class SpecialtyAutocompleteView(autocomplete.Select2QuerySetView):
     """To feed the Select2 widget."""
     def get_queryset(self):
         qs = Specialty.objects.all()
+        if self.request.GET.get('acad_field_id'):
+            qs = qs.filter(acad_field__id=self.request.GET['acad_field_id'])
         if self.q:
             qs = qs.filter(name__icontains=self.q)
         return qs.order_by('name')
