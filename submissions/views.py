@@ -230,8 +230,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['id_SciPostPhys'] = get_object_or_404(Journal, doi_label='SciPostPhys').id
-        context['id_SciPostPhysProc'] = get_object_or_404(Journal, doi_label='SciPostPhysProc').id
+        context['journal'] = get_object_or_404(Journal, doi_label=self.kwargs.get('journal_doi_label'))
         return context
 
     def get_form_kwargs(self):
@@ -512,7 +511,6 @@ def submission_detail(request, identifier_w_vn_nr):
         'is_author': is_author,
         'is_author_unchecked': is_author_unchecked,
     })
-    print(context)
     return render(request, 'submissions/submission_detail.html', context)
 
 

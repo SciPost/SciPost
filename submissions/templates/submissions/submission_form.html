@@ -14,7 +14,7 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Submit a manuscript to SciPost</h1>
+      <h1 class="highlight">Submit a manuscript to {{ journal.name }}</h1>
     </div>
 
     <div class="col-12">
@@ -59,19 +59,4 @@
 
 {% block footer_script %}
   {{ form.media }}
-  <script nonce="{{ request.csp_nonce }}">
-   $(document).ready(function(){
-       $("#id_proceedings").parents('.form-group').hide()
-       $('select#id_submitted_to').on('change', function (){
-           var selection = $(this).val();
-           $("#id_proceedings").parents('.form-group').hide()
-
-           switch(selection){
-               case "{{ id_SciPostPhysProc }}":
-		   $("#id_proceedings").parents('.form-group').show()
-		   break;
-           }
-       }).trigger('change');
-   });
-  </script>
 {% endblock %}

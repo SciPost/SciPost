@@ -241,8 +241,8 @@ class SubmissionPrefillForm(forms.Form):
 
     def get_prefill_data(self):
         form_data = {
-            'acad_field': self.journal.college.acad_field.id,
-            'submitted_to': self.journal.id
+            'acad_field': self.journal.college.acad_field,
+            'submitted_to': self.journal
         }
         if self.thread_hash:
             form_data['thread_hash'] = self.thread_hash
@@ -397,14 +397,13 @@ class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
-    acad_field = forms.ModelChoiceField(
-        queryset=AcademicField.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
-        ),
-        label='Academic field',
-        disabled=True
-    )
+    # acad_field = forms.ModelChoiceField(
+    #     queryset=AcademicField.objects.all(),
+    #     # widget=autocomplete.ModelSelect2(
+    #     #     url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
+    #     # ),
+    #     label='Academic field',
+    # )
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
@@ -443,6 +442,8 @@ class SubmissionForm(forms.ModelForm):
             'referees_flagged',
         ]
         widgets = {
+            'submitted_to': forms.HiddenInput(),
+            'acad_field': forms.HiddenInput(),
             'is_resubmission_of': forms.HiddenInput(),
             'thread_hash': forms.HiddenInput(),
             'arxiv_link': forms.TextInput(
@@ -500,25 +501,21 @@ class SubmissionForm(forms.ModelForm):
             del self.fields['author_comments']
             del self.fields['list_of_changes']
 
-        # Select Journal instances.
-        # self.fields['submitted_to'].queryset = Journal.objects.active().submission_allowed()
-        # self.fields['submitted_to'].label = 'Journal: submit to'
-        self.fields['submitted_to'].widget.attrs.update({ 'disabled': True})
-
         # Restrict choice of specialties to those of relevant AcademicField
         if kwargs['initial'].get('acad_field', None):
             self.fields['specialties'].widget.url = \
-                self.fields['specialties'].widget.url + '?acad_field_id=' + str(kwargs['initial'].get('acad_field'))
+                self.fields['specialties'].widget.url + '?acad_field_id=' + str(kwargs['initial'].get('acad_field').id)
 
         # Proceedings submission fields
-        qs = self.fields['proceedings'].queryset.open_for_submission()
-        self.fields['proceedings'].queryset = qs
-        self.fields['proceedings'].empty_label = None
-        if not qs.exists():
-            # No proceedings issue to submit to, so adapt the form fields
-            self.fields['submitted_to'].queryset = self.fields['submitted_to'].queryset.exclude(
-                doi_label__contains='Proc')
+        if 'Proc' not in kwargs['initial'].get('submitted_to', None).doi_label:
             del self.fields['proceedings']
+            pass
+        else:
+            qs = self.fields['proceedings'].queryset.open_for_submission()
+            self.fields['proceedings'].queryset = qs
+            self.fields['proceedings'].empty_label = None
+            if not qs.exists():
+                del self.fields['proceedings']
 
     def is_resubmission(self):
         return self.is_resubmission_of is not None
@@ -612,7 +609,7 @@ class SubmissionForm(forms.ModelForm):
         submission.submitted_by = self.requested_by.contributor
 
         # Save identifiers
-        url = None
+        url = ''
         if self.preprint_server == 'arXiv':
             url = self.cleaned_data.get('arxiv_link', '')
         elif self.preprint_server == 'ChemRxiv':
