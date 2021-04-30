@@ -1,0 +1,37 @@
+<div class="border border-dark px-2 pt-2">
+  <h3>Progess tracker</h3>
+  <table class="table p-4">
+    <tr {% if step == 1 %}class="bg-dark text-white"{% endif %}>
+      <td>Step&nbsp;1</td>
+      <td class="text-center">
+	{% if step == 1 %}<span class="text-warning">{% include 'bi/arrow-right-square-fill.html' %}</span>{% endif %}
+	{% if step > 1 %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% endif %}
+      </td>
+      <td>Choose the route&emsp;<small>({% if resubmission_candidates %}Resubmission, or {% endif %}new Submission, but in which field?)</small></td>
+    </tr>
+    <tr {% if step == 2 %}class="bg-dark text-white"{% endif %}>
+      <td>Step&nbsp;2</td>
+      <td class="text-center">
+	{% if step == 2 %}<span class="text-warning">{% include 'bi/arrow-right-square-fill.html' %}</span>{% endif %}
+	{% if step > 2 %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% endif %}
+      </td>
+      <td>Choose which Journal you want to {% if thread_hash %}send your resubmission{% else %}submit{% endif %} to</td>
+    </tr>
+    <tr {% if step == 3 %}class="bg-dark text-white"{% endif %}>
+      <td>Step&nbsp;3</td>
+      <td class="text-center">
+	{% if step == 3 %}<span class="text-warning">{% include 'bi/arrow-right-square-fill.html' %}</span>{% endif %}
+	{% if step > 3 %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% endif %}
+      </td>
+      <td>Choose a preprint server</td>
+    </tr>
+    <tr {% if step == 4 %}class="bg-dark text-white"{% endif %}>
+      <td>Step&nbsp;4</td>
+      <td class="text-center">
+	{% if step == 4 %}<span class="text-warning">{% include 'bi/arrow-right-square-fill.html' %}</span>{% endif %}
+	{% if step > 4 %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% endif %}
+      </td>
+      <td>Complete and submit the form</td>
+    </tr>
+  </table>
+</div>

@@ -20,29 +20,21 @@
     <div class="col-12">
       <h1 class="highlight">Submit a manuscript to SciPost</h1>
     </div>
-
-    <div class="col-12">
-      <p class="mb-1">
-        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
-      </p>
-      <p class="mb-1">
-        You should also make sure you understand the <a href="{% url 'submissions:refereeing_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
-      </p>
-      <p class="mb-1">
-        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
-      </p>
-      <p>
-        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
-      </p>
-    </div>
   </div>
 
   {% if perms.scipost.can_submit_manuscript %}
 
-    <h2>Which Journal do you wish to {% if thread_hash %}send your resubmission{% else %}submit{% endif %} to?</h2>
-    <br>
+    <div class="row">
+      <div class="col-md-6">
+	<h2 class=highlight>Step 2</h2>
+	<h3>Which Journal do you want to {% if thread_hash %}send your resubmission{% else %}submit{% endif %} to?</h3>
+      </div>
+      <div class="col-md-6">
+	{% include 'submissions/submit_steps.html' with step=2 thread_hash=thread_hash %}
+      </div>
+    </div>
 
-    <div class="container">
+    <div class="container mt-4">
       <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
 	{% for journal in journals %}
 	  <div class="col col-sm-12 col-md-6 col-lg-4 mb-2">

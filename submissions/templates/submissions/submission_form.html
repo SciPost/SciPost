@@ -16,30 +16,19 @@
     <div class="col-12">
       <h1 class="highlight">Submit a manuscript to {{ journal.name }}</h1>
     </div>
-
-    <div class="col-12">
-      <p class="mb-1">
-        Before submitting, make sure you agree with the <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a>.
-      </p>
-      <p class="mb-1">
-        You should also make sure you understand the <a href="{% url 'submissions:refereeing_procedure' %}#pwr">refereeing procedure</a> and its open aspect.
-      </p>
-      <p class="mb-1">
-        In particular, make sure you are familiar with the <a href="{% url 'journals:journals_terms_and_conditions' %}#license_and_copyright_agreement">license and copyright agreement</a> and the <a href="{% url 'journals:journals_terms_and_conditions' %}#author_obligations"> author obligations</a>.
-      </p>
-      <p>
-        Please prepare your manuscript according to the <a href="{% url 'submissions:author_guidelines' %}">author guidelines</a>.
-      </p>
-    </div>
   </div>
-
 
   <div class="row">
     <div class="col-12">
       {% if perms.scipost.can_submit_manuscript %}
 
+	{% include 'submissions/submit_steps.html' with step=4 %}
+
         {% if form %}
-          <form id="full_submission_form" method="post" enctype="multipart/form-data">
+	  <h3>Just one more step to finish your submission to {{ journal }}...</h3>
+	  <p>We prefilled the form as much as we could, please complete it and then submit.</p>
+
+          <form class="mt-4" id="full_submission_form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|bootstrap }}
             <p>
