@@ -266,11 +266,19 @@ PLAGIARISM_STATUSES = (
 )
 
 # Define regexes
-arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
-arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
 scipost_regex_wo_vn = 'scipost_[0-9]{4,}_[0-9]{4,}'
 scipost_regex_w_vn = 'scipost_[0-9]{4,}_[0-9]{4,}v[0-9]{1,2}'
-SUBMISSIONS_WO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s))' % (
-    arxiv_regex_wo_vn, scipost_regex_wo_vn)
-SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s))' % (
-    arxiv_regex_w_vn, scipost_regex_w_vn)
+arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
+arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
+chemrxiv_regex_wo_vn = 'chemrxiv_[0-9]+'
+chemrxiv_regex_w_vn = 'chemrxiv_[0-9]+.v[0-9]{1,2}'
+SUBMISSIONS_WO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s|%s))' % (
+    scipost_regex_wo_vn,
+    arxiv_regex_wo_vn,
+    chemrxiv_regex_wo_vn
+)
+SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s|%s))' % (
+    scipost_regex_w_vn,
+    arxiv_regex_w_vn,
+    chemrxiv_regex_w_vn
+)

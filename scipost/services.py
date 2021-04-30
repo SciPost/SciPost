@@ -11,6 +11,7 @@ import logging
 
 arxiv_logger = logging.getLogger('scipost.services.arxiv')
 doi_logger = logging.getLogger('scipost.services.doi')
+figshare_logger = logging.getLogger('scipost.services.figshare')
 
 
 class DOICaller:
@@ -158,4 +159,69 @@ class ArxivCaller:
     def _search_result_present(self, data):
         if len(data.get('entries', [])) > 0:
             return 'title' in data['entries'][0]
+        return False
+
+
+class FigshareCaller:
+    """
+    Figshare caller to get data from api.figshare.com.
+    """
+
+    query_base_url = 'https://api.figshare.com/v2/articles/%s/versions/%s'
+
+    def __init__(self, identifier_w_vn_nr):
+        self.identifier_w_vn_nr = identifier_w_vn_nr
+        self.identifier = identifier_w_vn_nr.split('.')[0]
+        self.version = identifier_w_vn_nr.split('.v')[1]
+        figshare_logger.info(
+            'New figshare API call for identifier %s.v%s' % (self.identifier, self.version))
+        self._call_figshare()
+        if self.is_valid:
+            self._format_data()
+
+    def _call_figshare(self):
+        url = self.query_base_url % (self.identifier, self.version)
+        request = requests.get(url)
+        response_content = request.json()
+        figshare_logger.info('GET [{identifier_w_vn_nr} [request] | {url}'.format(
+            identifier_w_vn_nr=self.identifier_w_vn_nr,
+            url=url,
+        ))
+        if self._result_present(response_content):
+            self.is_valid = True
+            self._figshare_data = response_content
+            self.metadata = response_content
+        else:
+            self.is_valid = False
+
+        figshare_logger.info('GET [{identifier}] [response {valid}] | {response}'.format(
+            identifier=self.identifier,
+            valid='VALID' if self.is_valid else 'INVALID',
+            response=response_content,
+        ))
+
+    def _format_data(self):
+        title = self._figshare_data['title']
+        author_list = [author['full_name'] for author in self._figshare_data.get('authors', [])]
+        # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
+        author_list = ", ".join(author_list)
+        chemrxiv_identifier_w_vn_nr = self._figshare_data['doi'].partition('chemrxiv.')[2]
+        abstract = self._figshare_data['description']
+        pub_date = self._figshare_data['published_date']
+        self.data = {
+            'title': title,
+            'author_list': author_list,
+            'chemrxiv_identifier_w_vn_nr': chemrxiv_identifier_w_vn_nr,
+            'pub_abstract': abstract,
+            'abstract': abstract,  # Duplicate for Commentary/Submission cross-compatibility
+            'pub_date': pub_date,
+        }
+        figshare_logger.info('GET [{identifier}] [formatted data] | {data}'.format(
+            identifier=self.identifier,
+            data=self.data,
+        ))
+
+    def _result_present(self, data):
+        if data['id'] == int(self.identifier):
+            return True
         return False

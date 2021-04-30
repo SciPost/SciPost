@@ -47,7 +47,10 @@ class Preprint(models.Model):
         """Return the absolute URL of the pdf for the meta tag for Google Scholar."""
         if self._file: # means this is a SciPost-hosted preprint
             return "https://scipost.org%s" % self.get_absolute_url()
-        return self.get_absolute_url().replace("/abs/", "/pdf/")
+        elif self.is_arXiv:
+            return self.get_absolute_url().replace("/abs/", "/pdf/")
+        elif self.is_ChemRxiv:
+            return self.get_absolute_url()
 
     @property
     def is_SciPost(self):
@@ -58,3 +61,8 @@ class Preprint(models.Model):
     def is_arXiv(self):
         """Return True if this preprint is hosted on arXiv."""
         return 'arxiv.org' in self.url
+
+    @property
+    def is_ChemRxiv(self):
+        """Return True if this preprint is hosted on ChemRxiv."""
+        return 'chemrxiv' in self.url

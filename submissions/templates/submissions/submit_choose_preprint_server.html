@@ -70,6 +70,18 @@
 	            {% include 'bi/arrow-right.html' %}
 		    <input type="submit" class="btn btn-primary text-white" value="Query arXiv"/>
 		  </form>
+		{% elif server.name == 'ChemRxiv' %}
+		  <h3>Please provide the ChemRxiv identifier for your Submission</h3>
+		  <p><em>without the url prefix but with version number, e.g.
+		    <br> #######.v#</em></p>
+		  <form action="{% url 'submissions:submit_manuscript_chemrxiv' journal_doi_label=journal.doi_label %}" method="get">
+		    {{ chemrxiv_prefill_form }}
+		    {% if thread_hash %}
+		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
+		    {% endif %}
+	            {% include 'bi/arrow-right.html' %}
+		    <input type="submit" class="btn btn-primary text-white" value="Query ChemRxiv"/>
+		  </form>
 		{% endif %}
 	      </div>
 	    </div>

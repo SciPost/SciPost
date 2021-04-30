@@ -40,7 +40,7 @@ from .models import (
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    ArXivPrefillForm, SciPostPrefillForm,
+    SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
     SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
@@ -163,15 +163,24 @@ def submit_choose_preprint_server(request, journal_doi_label):
     thread_hash = request.GET.get('thread_hash') or None
     # Each integrated preprint server has a prefill form:
     scipost_prefill_form = SciPostPrefillForm(
-        requested_by=request.user, journal_doi_label=journal_doi_label, thread_hash=thread_hash)
+        requested_by=request.user,
+        journal_doi_label=journal_doi_label,
+        thread_hash=thread_hash)
     arxiv_prefill_form = ArXivPrefillForm(
-        requested_by=request.user, journal_doi_label=journal_doi_label, thread_hash=thread_hash)
+        requested_by=request.user,
+        journal_doi_label=journal_doi_label,
+        thread_hash=thread_hash)
+    chemrxiv_prefill_form = ChemRxivPrefillForm(
+        requested_by=request.user,
+        journal_doi_label=journal_doi_label,
+        thread_hash=thread_hash)
     context = {
         'journal': journal,
         'thread_hash': thread_hash,
         'preprint_servers': preprint_servers,
         'scipost_prefill_form': scipost_prefill_form,
         'arxiv_prefill_form': arxiv_prefill_form,
+        'chemrxiv_prefill_form': chemrxiv_prefill_form,
     }
     return render(request, 'submissions/submit_choose_preprint_server.html', context)
 
@@ -191,7 +200,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
 
     def get(self, request, journal_doi_label):
         """
-        Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
+        Redirect to `submit_choose_preprint_server` if preprint identifier is not known.
         """
         if self.prefill_form.is_valid():
             if self.prefill_form.is_resubmission():
@@ -201,13 +210,13 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                                 'Please check everything carefully!')
                 messages.success(request, resubmessage, fail_silently=True)
             else:
-                if self.prefill_form.preprint_server == 'arXiv':
+                if self.prefill_form.preprint_server in ['arXiv', 'ChemRxiv']:
                     readymessage = ('We have pre-filled the form where possible. '
                                     'Please check everything carefully!')
                 else:
                     readymessage = 'Your submission form is now ready to be filled in.'
                 messages.success(request, readymessage, fail_silently=True)
-            # Gather data from ArXiv API if prefill form is valid
+            # Gather data from preprint server API if prefill form is valid
             self.initial_data = self.prefill_form.get_prefill_data()
             return super().get(request)
         else:
@@ -300,6 +309,25 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         return kwargs
 
 
+class RequestSubmissionUsingChemRxivView(RequestSubmissionView):
+    """Formview to submit a new Submission using ChemRxiv."""
+
+    def get(self, request, journal_doi_label):
+        """
+        Redirect to `submit_choose_preprint_server` if ChemRxiv identifier is not known.
+        """
+        self.prefill_form = ChemRxivPrefillForm(
+            request.GET or None,
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
+
+    def get_form_kwargs(self):
+        """Form requires extra kwargs."""
+        kwargs = super().get_form_kwargs()
+        kwargs['preprint_server'] = 'ChemRxiv'
+        return kwargs
 
 
 @login_required
@@ -417,6 +445,7 @@ def submission_detail_wo_vn_nr(request, identifier_wo_vn_nr):
 
 def submission_detail(request, identifier_w_vn_nr):
     """Public detail page of Submission."""
+
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     context = {
         'can_read_editorial_information': False,
@@ -431,9 +460,9 @@ def submission_detail(request, identifier_w_vn_nr):
         if not request.user.is_authenticated:
             raise Http404
         elif not request.user.has_perm(
-            'scipost.can_assign_submissions') and not submission.fellows.filter(
-                contributor__user=request.user).exists():
-                    raise Http404
+                'scipost.can_assign_submissions') and not submission.fellows.filter(
+                    contributor__user=request.user).exists():
+            raise Http404
 
     if is_author:
         context['proofs_decision_form'] = ProofsDecisionForm()
@@ -483,6 +512,7 @@ def submission_detail(request, identifier_w_vn_nr):
         'is_author': is_author,
         'is_author_unchecked': is_author_unchecked,
     })
+    print(context)
     return render(request, 'submissions/submission_detail.html', context)
 
 
