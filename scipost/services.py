@@ -222,6 +222,6 @@ class FigshareCaller:
         ))
 
     def _result_present(self, data):
-        if data['id'] == int(self.identifier):
+        if 'id' in data and data['id'] == int(self.identifier):
             return True
         return False
