@@ -180,6 +180,20 @@ def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
         error_message = 'A preprint associated to this identifier does not exist.'
         raise forms.ValidationError(error_message)
 
+    # Check if the type of this resource is indeed a preprint
+    if 'defined_type_name' in metadata:
+        if metadata['defined_type_name'] != 'preprint':
+            error_message = ('This does not seem to be a preprint: the type '
+                            'returned by ChemRxiv is %(defined_type_name)s. '
+                             'Please contact techsupport.')
+            raise forms.ValidationError(
+                error_message, code='wrong_defined_type_name',
+                params={'defined_type_name': metadata['defined_type_name']})
+    else:
+        raise forms.ValidationError(
+            'ChemRxiv failed to return a defined_type_name. Please contact techsupport.',
+            code='wrong_defined_type_name')
+
     # Check if this article has already been published (according to Figshare)
     published_id = None
     if 'resource_doi' in metadata:
