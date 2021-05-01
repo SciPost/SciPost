@@ -387,23 +387,16 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
         return form_data
 
 
-##################
+###################
 #
 # Submission form
 #
-##################
+###################
 
 class SubmissionForm(forms.ModelForm):
     """
     Form to submit a new (re)Submission.
     """
-    # acad_field = forms.ModelChoiceField(
-    #     queryset=AcademicField.objects.all(),
-    #     # widget=autocomplete.ModelSelect2(
-    #     #     url='/ontology/acad_field-autocomplete?exclude=multidisciplinary'
-    #     # ),
-    #     label='Academic field',
-    # )
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
@@ -473,6 +466,7 @@ class SubmissionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop('requested_by')
+        self.submitted_to_journal = kwargs.pop('submitted_to_journal')
         self.preprint_server = kwargs.pop('preprint_server')
         data = args[0] if len(args) > 1 else kwargs.get('data', {})
         self.thread_hash = kwargs['initial'].get('thread_hash', None) or data.get('thread_hash')
@@ -507,9 +501,8 @@ class SubmissionForm(forms.ModelForm):
                 self.fields['specialties'].widget.url + '?acad_field_id=' + str(kwargs['initial'].get('acad_field').id)
 
         # Proceedings submission fields
-        if 'Proc' not in kwargs['initial'].get('submitted_to', None).doi_label:
+        if 'Proc' not in self.submitted_to_journal.doi_label:
             del self.fields['proceedings']
-            pass
         else:
             qs = self.fields['proceedings'].queryset.open_for_submission()
             self.fields['proceedings'].queryset = qs

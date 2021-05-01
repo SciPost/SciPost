@@ -145,6 +145,7 @@ def submit_choose_journal(request, acad_field=None):
     if acad_field:
         journals = journals.filter(college__acad_field=acad_field)
     context = {
+        'acad_field': acad_field,
         'journals': journals,
     }
     if request.GET.get('thread_hash'):
@@ -237,6 +238,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
         """Form requires extra kwargs."""
         kwargs = super().get_form_kwargs()
         kwargs['requested_by'] = self.request.user
+        kwargs['submitted_to_journal'] = get_object_or_404(Journal, doi_label=self.kwargs.get('journal_doi_label'))
         kwargs['initial'] = getattr(self, 'initial_data', {})
         return kwargs
 

@@ -14,20 +14,29 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Submit a manuscript to {{ journal.name }}</h1>
+      <h1 class="highlight">{% if thread_hash %}Resubmit a{% else %}Submit a new{% endif %} manuscript to {{ journal }}</h1>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-12">
-      {% if perms.scipost.can_submit_manuscript %}
+  {% if perms.scipost.can_submit_manuscript %}
 
-	{% include 'submissions/submit_steps.html' with step=4 %}
+    <div class="row">
+      <div class="col-md-6">
+	<h2 class=highlight>Step 4</h2>
+	<h3>Final step: complete and submit the form</h3>
+	<p>We prefilled the form as much as we could, please complete it and then submit.</p>
+
+      </div>
+      <div class="col-md-6">
+	{% include 'submissions/submit_steps.html' with step=4 thread_hash=thread_hash %}
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
 
         {% if form %}
-	  <h3>Just one more step to finish your submission to {{ journal }}...</h3>
-	  <p>We prefilled the form as much as we could, please complete it and then submit.</p>
-
+	  <h2>Please provide these last bits of information, and carefully check all prefilled fields</h2>
           <form class="mt-4" id="full_submission_form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|bootstrap }}
@@ -38,11 +47,13 @@
           </form>
         {% endif %}
 
-      {% else %}
-        <h3>You are currently not allowed to submit a manuscript.</h3>
-      {% endif %}
+      </div>
     </div>
-  </div>
+
+  {% else %}
+    <h3>You are currently not allowed to submit a manuscript.</h3>
+  {% endif %}
+
 {% endblock content %}
 
 

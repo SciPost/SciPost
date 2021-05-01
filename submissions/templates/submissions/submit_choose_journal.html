@@ -18,7 +18,7 @@
 {% block content %}
   <div class="row">
     <div class="col-12">
-      <h1 class="highlight">Submit a manuscript to SciPost</h1>
+      <h1 class="highlight">{% if thread_hash %}Resubmit a{% else %}Submit a new{% endif %} manuscript {% if acad_field %}in {{ acad_field }} {% endif %}</h1>
     </div>
   </div>
 
