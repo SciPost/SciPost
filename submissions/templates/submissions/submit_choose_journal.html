@@ -3,6 +3,7 @@
 {% load static %}
 {% load bootstrap %}
 {% load journals_extras %}
+{% load automarkup %}
 
 {% block headsup %}
   <style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
@@ -47,6 +48,7 @@
 		</h3>
 	      </div>
 	      <div class="card-body text-center">
+		<p>{{ journal.oneliner|automarkup }}</p>
 		<a class="btn btn-outline-primary m-2" role="button" href="{{ journal.get_absolute_url }}/about" target="_blank"><em>View Description, Scope, Content and Acceptance Criteria</em></a>
 		<a class="btn btn-primary m-2" role="button" href="{% url 'submissions:submit_choose_preprint_server' journal_doi_label=journal.doi_label %}{% if thread_hash %}?thread_hash={{ thread_hash }}{% endif %}">{% include 'bi/arrow-right.html' %}&emsp;Submit to {{ journal.name }}</a>
 	      </div>

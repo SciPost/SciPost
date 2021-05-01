@@ -64,6 +64,10 @@ class Journal(models.Model):
                                         'should be used as class'))
 
     # For Journals list page
+    oneliner = models.TextField(
+        blank=True,
+        help_text='One-line description, for Journal card. You can use markup'
+    )
     blurb = models.TextField(default='[To be filled in; you can use markup]')
     list_order = models.PositiveSmallIntegerField(default=100)
     # For about page:
