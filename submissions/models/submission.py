@@ -331,7 +331,7 @@ class Submission(models.Model):
     def thread(self):
         """Return all (public) Submissions in the database in this thread."""
         return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
-            '-submission_date', '-preprint__vn_nr')
+            '-submission_date', '-preprint')
 
     @property
     def thread_sequence_order(self):
@@ -341,7 +341,7 @@ class Submission(models.Model):
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this thread."""
-        return self.get_other_versions().order_by('-submission_date', '-preprint__vn_nr')
+        return self.get_other_versions().order_by('-submission_date', '-preprint')
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this thread."""

@@ -225,7 +225,7 @@ class SubmissionPrefillForm(forms.Form):
             # Resubmission
             self.latest_submission = Submission.objects.filter(
                 thread_hash=self.thread_hash).order_by(
-                    '-submission_date', '-preprint__vn_nr').first()
+                    '-submission_date', '-preprint').first()
         else:
             self.latest_submission = None
         super().__init__(*args, **kwargs)
