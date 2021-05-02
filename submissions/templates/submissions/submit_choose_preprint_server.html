@@ -75,13 +75,39 @@
 		  <p><em>without the url prefix but with version number, e.g.
 		    <br> ########.v#</em></p>
 		  <p><em>Hint: on the submission's ChemRxiv page, click on the "Cite" button to see the identifier.</em></p>
-		  <form action="{% url 'submissions:submit_manuscript_chemrxiv' journal_doi_label=journal.doi_label %}" method="get">
+		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
 		    {{ chemrxiv_prefill_form }}
 		    {% if thread_hash %}
 		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
 		    {% endif %}
 	            {% include 'bi/arrow-right.html' %}
 		    <input type="submit" class="btn btn-primary text-white" value="Query ChemRxiv"/>
+		  </form>
+		{% elif server.name == 'TechRxiv' %}
+		  <h3>Please provide the TechRxiv identifier for your Submission</h3>
+		  <p><em>without the url prefix but with version number, e.g.
+		    <br> ########.v#</em></p>
+		  <p><em>Hint: on the submission's TechRxiv page, click on the "Cite" button to see the identifier.</em></p>
+		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
+		    {{ techrxiv_prefill_form }}
+		    {% if thread_hash %}
+		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
+		    {% endif %}
+	            {% include 'bi/arrow-right.html' %}
+		    <input type="submit" class="btn btn-primary text-white" value="Query TechRxiv"/>
+		  </form>
+		{% elif server.name == 'Advance' %}
+		  <h3>Please provide the Advance identifier for your Submission</h3>
+		  <p><em>without the url prefix but with version number, e.g.
+		    <br> ########.v#</em></p>
+		  <p><em>Hint: on the submission's Advance page, click on the "Cite" button to see the identifier.</em></p>
+		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
+		    {{ advance_prefill_form }}
+		    {% if thread_hash %}
+		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
+		    {% endif %}
+	            {% include 'bi/arrow-right.html' %}
+		    <input type="submit" class="btn btn-primary text-white" value="Query Advance"/>
 		  </form>
 		{% endif %}
 	      </div>

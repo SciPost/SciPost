@@ -11,6 +11,12 @@ class PreprintServer(models.Model):
     """
     name = models.CharField(max_length=256)
     url = models.URLField()
+    served_by = models.ForeignKey(
+        'submissions.PreprintServer',
+        on_delete=models.SET_NULL,
+        blank=True, null=True,
+        related_name='subsidiaries'
+    )
     acad_fields = models.ManyToManyField(
         'ontology.AcademicField',
         blank=True,
@@ -21,4 +27,7 @@ class PreprintServer(models.Model):
         ordering = ['name',]
 
     def __str__(self):
-        return self.name
+        name = self.name
+        if self.served_by:
+            name = name + ' (served by ' + self.served_by.name +')'
+        return name

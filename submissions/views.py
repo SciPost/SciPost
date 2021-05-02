@@ -31,7 +31,8 @@ from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
     STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
-    EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED)
+    EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED,
+    FIGSHARE_PREPRINT_SERVERS)
 from .helpers import check_verified_author, check_unverified_author
 from .models import (
     Submission, PreprintServer,
@@ -40,7 +41,7 @@ from .models import (
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
+    SciPostPrefillForm, ArXivPrefillForm, FigsharePrefillForm,
     SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
@@ -167,22 +168,50 @@ def submit_choose_preprint_server(request, journal_doi_label):
         requested_by=request.user,
         journal_doi_label=journal_doi_label,
         thread_hash=thread_hash)
-    arxiv_prefill_form = ArXivPrefillForm(
-        requested_by=request.user,
-        journal_doi_label=journal_doi_label,
-        thread_hash=thread_hash)
-    chemrxiv_prefill_form = ChemRxivPrefillForm(
-        requested_by=request.user,
-        journal_doi_label=journal_doi_label,
-        thread_hash=thread_hash)
     context = {
         'journal': journal,
         'thread_hash': thread_hash,
         'preprint_servers': preprint_servers,
         'scipost_prefill_form': scipost_prefill_form,
-        'arxiv_prefill_form': arxiv_prefill_form,
-        'chemrxiv_prefill_form': chemrxiv_prefill_form,
     }
+
+    if preprint_servers.filter(name='arXiv').exists():
+        arxiv_prefill_form = ArXivPrefillForm(
+            requested_by=request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=thread_hash)
+        context['arxiv_prefill_form'] = arxiv_prefill_form
+
+    if preprint_servers.filter(name='ChemRxiv').exists():
+        chemrxiv_prefill_form = FigsharePrefillForm(
+            initial={
+                'figshare_preprint_server': preprint_servers.get(name='ChemRxiv')
+            },
+            requested_by=request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=thread_hash)
+        context['chemrxiv_prefill_form'] = chemrxiv_prefill_form
+
+    if preprint_servers.filter(name='TechRxiv').exists():
+        techrxiv_prefill_form = FigsharePrefillForm(
+            initial={
+                'figshare_preprint_server': preprint_servers.get(name='TechRxiv')
+            },
+            requested_by=request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=thread_hash)
+        context['techrxiv_prefill_form'] = techrxiv_prefill_form
+
+    if preprint_servers.filter(name='Advance').exists():
+        advance_prefill_form = FigsharePrefillForm(
+            initial={
+                'figshare_preprint_server': preprint_servers.get(name='Advance')
+            },
+            requested_by=request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=thread_hash)
+        context['advance_prefill_form'] = advance_prefill_form
+
     return render(request, 'submissions/submit_choose_preprint_server.html', context)
 
 
@@ -211,11 +240,8 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
                                 'Please check everything carefully!')
                 messages.success(request, resubmessage, fail_silently=True)
             else:
-                if self.prefill_form.preprint_server in ['arXiv', 'ChemRxiv']:
-                    readymessage = ('We have pre-filled the form where possible. '
-                                    'Please check everything carefully!')
-                else:
-                    readymessage = 'Your submission form is now ready to be filled in.'
+                readymessage = ('Your submission form is now ready to be filled in. '
+                                '\nPlease check everything carefully!')
                 messages.success(request, readymessage, fail_silently=True)
             # Gather data from preprint server API if prefill form is valid
             self.initial_data = self.prefill_form.get_prefill_data()
@@ -282,12 +308,6 @@ class RequestSubmissionUsingSciPostView(RequestSubmissionView):
             thread_hash=request.GET.get('thread_hash'))
         return super().get(request, journal_doi_label)
 
-    def get_form_kwargs(self):
-        """Form requires extra kwargs."""
-        kwargs = super().get_form_kwargs()
-        kwargs['preprint_server'] = 'SciPost'
-        return kwargs
-
 
 class RequestSubmissionUsingArXivView(RequestSubmissionView):
     """Formview to submit a new Submission using arXiv."""
@@ -303,32 +323,17 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
             thread_hash=request.GET.get('thread_hash'))
         return super().get(request, journal_doi_label)
 
-    def get_form_kwargs(self):
-        """Form requires extra kwargs."""
-        kwargs = super().get_form_kwargs()
-        kwargs['preprint_server'] = 'arXiv'
-        return kwargs
 
-
-class RequestSubmissionUsingChemRxivView(RequestSubmissionView):
-    """Formview to submit a new Submission using ChemRxiv."""
+class RequestSubmissionUsingFigshareView(RequestSubmissionView):
+    """Formview to submit a new Submission using Figshare-related servers."""
 
     def get(self, request, journal_doi_label):
-        """
-        Redirect to `submit_choose_preprint_server` if ChemRxiv identifier is not known.
-        """
-        self.prefill_form = ChemRxivPrefillForm(
+        self.prefill_form = FigsharePrefillForm(
             request.GET or None,
             requested_by=self.request.user,
             journal_doi_label=journal_doi_label,
             thread_hash=request.GET.get('thread_hash'))
         return super().get(request, journal_doi_label)
-
-    def get_form_kwargs(self):
-        """Form requires extra kwargs."""
-        kwargs = super().get_form_kwargs()
-        kwargs['preprint_server'] = 'ChemRxiv'
-        return kwargs
 
 
 @login_required

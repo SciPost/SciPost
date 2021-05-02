@@ -32,7 +32,7 @@ from .constants import (
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
-    Submission,
+    PreprintServer, Submission,
     RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
@@ -54,6 +54,7 @@ import iThenticate
 ARXIV_IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
 CHEMRXIV_DOI_PATTERN = r'https://doi.org/10.26434/chemrxiv.[0-9]+.v[0-9]{1,2}$'
 CHEMRXIV_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
+FIGSHARE_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
 
 
 class SubmissionSearchForm(forms.Form):
@@ -171,10 +172,16 @@ def check_arxiv_identifier_w_vn_nr(identifier):
     return arxiv_data, metadata, identifier
 
 
-def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
-    caller = FigshareCaller(chemrxiv_identifier_w_vn_nr)
+def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_nr):
+    """
+    Call Figshare to retrieve submission prefill data and perform basic checks.
+
+    This method is defined outside of FigsharePrefillform in order to
+    also be callable by SubmissionForm.
+    """
+    caller = FigshareCaller(preprint_server, figshare_identifier_w_vn_nr)
     if caller.is_valid:
-        chemrxiv_data = caller.data
+        figshare_data = caller.data
         metadata = caller.metadata
     else:
         error_message = 'A preprint associated to this identifier does not exist.'
@@ -184,14 +191,18 @@ def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
     if 'defined_type_name' in metadata:
         if metadata['defined_type_name'] != 'preprint':
             error_message = ('This does not seem to be a preprint: the type '
-                            'returned by ChemRxiv is %(defined_type_name)s. '
+                             'returned by Figshare on behalf of '
+                             '%(preprint_server) is %(defined_type_name)s. '
                              'Please contact techsupport.')
             raise forms.ValidationError(
                 error_message, code='wrong_defined_type_name',
-                params={'defined_type_name': metadata['defined_type_name']})
+                params={
+                    'preprint_server': preprint_server.name,
+                    'defined_type_name': metadata['defined_type_name']
+                })
     else:
         raise forms.ValidationError(
-            'ChemRxiv failed to return a defined_type_name. Please contact techsupport.',
+            'Figshare failed to return a defined_type_name. Please contact techsupport.',
             code='wrong_defined_type_name')
 
     # Check if this article has already been published (according to Figshare)
@@ -204,8 +215,41 @@ def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
                          'It cannot be submitted again.')
         raise forms.ValidationError(error_message, code='published',
                                     params={'published_id': published_id})
-    identifier = 'chemrxiv_' + chemrxiv_identifier_w_vn_nr
-    return chemrxiv_data, metadata, identifier
+    identifier = preprint_server.name.lower() + '_' + figshare_identifier_w_vn_nr
+    return figshare_data, metadata, identifier
+
+
+def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
+    """
+    Call `check_figshare_identifier_w_vn_nr` but correct identifier
+    by substituting `chemrxiv` for `figshare`.
+    """
+    data, metadata, identifier = check_figshare_identifier_w_vn_nr(
+        PreprintServer.objects.get(name='ChemRxiv'),
+        chemrxiv_identifier_w_vn_nr)
+    return data, metadata, identifier.replace('figshare', 'chemrxiv')
+
+
+def check_techrxiv_identifier_w_vn_nr(techrxiv_identifier_w_vn_nr):
+    """
+    Call `check_figshare_identifier_w_vn_nr` but correct identifier
+    by substituting `techrxiv` for `figshare`.
+    """
+    data, metadata, identifier = check_figshare_identifier_w_vn_nr(
+        PreprintServer.objects.get(name='TechRxiv'),
+        techrxiv_identifier_w_vn_nr)
+    return data, metadata, identifier.replace('figshare', 'techrxiv')
+
+
+def check_advance_identifier_w_vn_nr(advance_identifier_w_vn_nr):
+    """
+    Call `check_figshare_identifier_w_vn_nr` but correct identifier
+    by substituting `advance` for `figshare`.
+    """
+    data, metadata, identifier = check_figshare_identifier_w_vn_nr(
+        PreprintServer.objects.get(name='Advance'),
+        advance_identifier_w_vn_nr)
+    return data, metadata, identifier.replace('figshare', 'advance')
 
 
 class SubmissionPrefillForm(forms.Form):
@@ -216,7 +260,6 @@ class SubmissionPrefillForm(forms.Form):
     this prepares initial data for SubmissionForm.
     """
     def __init__(self, *args, **kwargs):
-        self.preprint_server = None
         self.requested_by = kwargs.pop('requested_by')
         self.journal = Journal.objects.get(doi_label=kwargs.pop('journal_doi_label'))
         self.thread_hash = kwargs.pop('thread_hash')
@@ -255,10 +298,6 @@ class SciPostPrefillForm(SubmissionPrefillForm):
     Provide initial data for SubmissionForm (SciPost preprint server route).
     """
 
-    def __init__(self, *args, **kwargs):
-        self.preprint_server = 'SciPost'
-        super().__init__(*args, **kwargs)
-
     def is_valid(self):
         """
         Accept an empty form as valid. Override Django BaseForm.is_valid
@@ -274,6 +313,7 @@ class SciPostPrefillForm(SubmissionPrefillForm):
         Return initial form data originating from earlier Submission.
         """
         form_data = super().get_prefill_data()
+        form_data['preprint_server'] = PreprintServer.objects.get(name='SciPost')
         if self.is_resubmission():
             form_data.update({
                 'title': self.latest_submission.title,
@@ -292,7 +332,7 @@ class ArXivPrefillForm(SubmissionPrefillForm):
     """
     Provide initial data for SubmissionForm (arXiv preprint server route).
 
-    This adds the `arxiv_identifier_w_vn_nr` kwarg to those
+    This adds the `arxiv_identifier_w_vn_nr` field to those
     from `SubmissionPrefillForm` base class.
     """
     arxiv_identifier_w_vn_nr = forms.RegexField(
@@ -303,7 +343,6 @@ class ArXivPrefillForm(SubmissionPrefillForm):
     )
 
     def __init__(self, *args, **kwargs):
-        self.preprint_server = 'arXiv'
         self.arxiv_data = {}
         self.metadata = {}
         super().__init__(*args, **kwargs)
@@ -331,50 +370,51 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
                 'acad_field': self.latest_submission.acad_field.id,
-                'specialties': [s.id for s in self.latest_submission.specialties.all()]
+                'specialties': [s.id for s in self.latest_submission.specialties.all()],
             })
         return form_data
 
 
-class ChemRxivPrefillForm(SubmissionPrefillForm):
+class FigsharePrefillForm(SubmissionPrefillForm):
     """
-    Provide initial data for SubmissionForm (ChemRxiv preprint server route).
+    Provide initial data for SubmissionForm from Figshare.
 
-    This adds the `chemrxiv_identifier_w_vn_nr` kwarg to those
-    from the `SubmissionPrefillForm` base class.
+    This form is used by the ChemRxiv, TechRxiv and Advance routes.
     """
-    chemrxiv_identifier_w_vn_nr = forms.RegexField(
+    figshare_preprint_server = forms.ModelChoiceField(
+        queryset=PreprintServer.objects.filter(served_by__name='Figshare'),
+        widget=forms.HiddenInput()
+    )
+    figshare_identifier_w_vn_nr = forms.RegexField(
         label='',
-        regex=CHEMRXIV_IDENTIFIER_PATTERN, strip=True,
-        error_messages={'invalid': 'Invalid ChemRxiv identifier'},
+        regex=FIGSHARE_IDENTIFIER_PATTERN, strip=True,
+        error_messages={'invalid': 'Invalid Figshare identifier'},
         widget=forms.TextInput()
     )
 
     def __init__(self, *args, **kwargs):
-        self.preprint_server = 'ChemRxiv'
-        self.chemrxiv_data = {}
+        self.figshare_data = {}
         self.metadata = {}
         self.identifier = None
         super().__init__(*args, **kwargs)
 
-    def clean_chemrxiv_identifier_w_vn_nr(self):
+    def clean_figshare_identifier_w_vn_nr(self):
         """
-        Do basic prechecks based on the ChemRxiv identifier.
+        Do basic prechecks based on the Figshare identifier.
         """
-        self.chemrxiv_data, self.metadata, self.identifier = \
-            check_chemrxiv_identifier_w_vn_nr(self.cleaned_data['chemrxiv_identifier_w_vn_nr'])
+        self.figshare_data, self.metadata, self.identifier = \
+            check_figshare_identifier_w_vn_nr(
+                self.cleaned_data['figshare_preprint_server'],
+                self.cleaned_data['figshare_identifier_w_vn_nr'])
         check_identifier_is_unused(self.identifier)
-        return self.cleaned_data['chemrxiv_identifier_w_vn_nr']
+        return self.cleaned_data['figshare_identifier_w_vn_nr']
 
     def get_prefill_data(self):
         """
         Return dictionary to prefill `SubmissionForm`.
         """
         form_data = super().get_prefill_data()
-        form_data.update(self.chemrxiv_data)
-        form_data['identifier_w_vn_nr'] = self.identifier
-        form_data['chemrxiv_doi'] = ('https://doi.org/10.26434/chemrxiv.'
-                                     + self.cleaned_data['chemrxiv_identifier_w_vn_nr'])
+        form_data.update(self.figshare_data)
 
         if self.is_resubmission():
             form_data.update({
@@ -385,6 +425,56 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
                 'specialties': [s.id for s in self.latest_submission.specialties.all()]
             })
         return form_data
+
+
+# class ChemRxivPrefillForm(SubmissionPrefillForm):
+#     """
+#     Provide initial data for SubmissionForm (ChemRxiv preprint server route).
+
+#     This adds the `chemrxiv_identifier_w_vn_nr` field to those
+#     from the `SubmissionPrefillForm` base class.
+#     """
+#     chemrxiv_identifier_w_vn_nr = forms.RegexField(
+#         label='',
+#         regex=CHEMRXIV_IDENTIFIER_PATTERN, strip=True,
+#         error_messages={'invalid': 'Invalid ChemRxiv identifier'},
+#         widget=forms.TextInput()
+#     )
+
+#     def __init__(self, *args, **kwargs):
+#         self.chemrxiv_data = {}
+#         self.metadata = {}
+#         self.identifier = None
+#         super().__init__(*args, **kwargs)
+
+#     def clean_chemrxiv_identifier_w_vn_nr(self):
+#         """
+#         Do basic prechecks based on the ChemRxiv identifier.
+#         """
+#         self.chemrxiv_data, self.metadata, self.identifier = \
+#             check_chemrxiv_identifier_w_vn_nr(self.cleaned_data['chemrxiv_identifier_w_vn_nr'])
+#         check_identifier_is_unused(self.identifier)
+#         return self.cleaned_data['chemrxiv_identifier_w_vn_nr']
+
+#     def get_prefill_data(self):
+#         """
+#         Return dictionary to prefill `SubmissionForm`.
+#         """
+#         form_data = super().get_prefill_data()
+#         form_data.update(self.chemrxiv_data)
+#         form_data['identifier_w_vn_nr'] = self.identifier
+#         form_data['chemrxiv_doi'] = ('https://doi.org/10.26434/chemrxiv.'
+#                                      + self.cleaned_data['chemrxiv_identifier_w_vn_nr'])
+
+#         if self.is_resubmission():
+#             form_data.update({
+#                 'approaches': self.latest_submission.approaches,
+#                 'referees_flagged': self.latest_submission.referees_flagged,
+#                 'referees_suggested': self.latest_submission.referees_suggested,
+#                 'acad_field': self.latest_submission.acad_field.id,
+#                 'specialties': [s.id for s in self.latest_submission.specialties.all()]
+#             })
+#         return form_data
 
 
 ###################
@@ -406,12 +496,17 @@ class SubmissionForm(forms.ModelForm):
         label='Specialties',
         help_text='Type to search, click to include',
     )
+    preprint_server = forms.ModelChoiceField(
+        queryset=PreprintServer.objects.all(),
+        widget=forms.HiddenInput()
+    )
+    preprint_link = forms.URLField(
+        widget=forms.HiddenInput()
+    )
     identifier_w_vn_nr = forms.CharField(widget=forms.HiddenInput())
     preprint_file = forms.FileField(
         help_text=('Please submit the processed .pdf (not the source files; '
         'these will only be required at the post-acceptance proofs stage)'))
-    arxiv_link = forms.URLField(label='arXiv link (including version nr)')
-    chemrxiv_doi = forms.URLField(label='ChemRxiv DOI (including version nr)')
 
     class Meta:
         model = Submission
@@ -439,10 +534,6 @@ class SubmissionForm(forms.ModelForm):
             'acad_field': forms.HiddenInput(),
             'is_resubmission_of': forms.HiddenInput(),
             'thread_hash': forms.HiddenInput(),
-            'arxiv_link': forms.TextInput(
-                attrs={'placeholder': 'Full URL, ex.:  https://arxiv.org/abs/1234.56789v1'}),
-            'chemrxiv_doi': forms.TextInput(
-                attrs={'placeholder': 'Full URL, ex.:  https://doi.org/10.26434/chemrxiv.1234567.v1'}),
             'code_repository_url': forms.TextInput(
                 attrs={'placeholder': 'If applicable; please give the full URL'}),
             'data_repository_url': forms.TextInput(
@@ -467,8 +558,9 @@ class SubmissionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.requested_by = kwargs.pop('requested_by')
         self.submitted_to_journal = kwargs.pop('submitted_to_journal')
-        self.preprint_server = kwargs.pop('preprint_server')
         data = args[0] if len(args) > 1 else kwargs.get('data', {})
+        self.preprint_server = kwargs['initial'].get('preprint_server', None) or \
+            PreprintServer.objects.get(id=data.get('preprint_server'))
         self.thread_hash = kwargs['initial'].get('thread_hash', None) or data.get('thread_hash')
         self.is_resubmission_of = kwargs['initial'].get(
             'is_resubmission_of', None) or data.get('is_resubmission_of')
@@ -477,18 +569,14 @@ class SubmissionForm(forms.ModelForm):
 
         super().__init__(*args, **kwargs)
 
-        if self.preprint_server == 'SciPost':
+        if self.preprint_server.name == 'SciPost':
             # SciPost identifier will be auto-generated
             del self.fields['identifier_w_vn_nr']
+            # Preprint will be linked directly from preprint file object
+            del self.fields['preprint_link']
         else:
             # No need for a file upload if user is not using the SciPost preprint server.
             del self.fields['preprint_file']
-        # Delete preprint server-specific fields
-        if not self.preprint_server == 'arXiv':
-            # No arXiv-specific data required.
-            del self.fields['arxiv_link']
-        if not self.preprint_server == 'ChemRxiv':
-            del self.fields['chemrxiv_doi']
 
         if not self.is_resubmission():
             del self.fields['is_resubmission_of']
@@ -586,11 +674,25 @@ class SubmissionForm(forms.ModelForm):
 
         check_identifier_is_unused(identifier)
 
-        if self.preprint_server == 'arXiv':
-            self.preprint_data, self.metadata, identifier = check_arxiv_identifier_w_vn_nr(identifier)
-        elif self.preprint_server == 'ChemRxiv':
-            self.preprint_data, self.metadata, identifier = check_chemrxiv_identifier_w_vn_nr(
-                identifier.lstrip('chemrxiv_'))
+        if self.preprint_server.name == 'arXiv':
+            self.preprint_data, self.metadata, identifier = \
+                check_arxiv_identifier_w_vn_nr(identifier)
+        elif self.preprint_server.name == 'ChemRxiv':
+            self.preprint_data, self.metadata, identifier = \
+                check_chemrxiv_identifier_w_vn_nr(
+                    identifier.lstrip('chemrxiv_'))
+        elif self.preprint_server.name == 'TechRxiv':
+            self.preprint_data, self.metadata, identifier = \
+                check_techrxiv_identifier_w_vn_nr(
+                    identifier.lstrip('techrxiv_'))
+        elif self.preprint_server.name == 'Advance':
+            self.preprint_data, self.metadata, identifier = \
+                check_advance_identifier_w_vn_nr(
+                    identifier.lstrip('advance_'))
+        else:
+            error_message = ('Check method not implemented for preprint server: %s. '
+                             'Please contact techsupport.') % self.preprint_server
+            self.add_error('identifier_w_vn_nr', error_message)
         return identifier
 
     @transaction.atomic
@@ -603,10 +705,8 @@ class SubmissionForm(forms.ModelForm):
 
         # Save identifiers
         url = ''
-        if self.preprint_server == 'arXiv':
-            url = self.cleaned_data.get('arxiv_link', '')
-        elif self.preprint_server == 'ChemRxiv':
-            url = self.cleaned_data.get('chemrxiv_doi', '')
+        if self.cleaned_data.get('preprint_link', None):
+            url = self.cleaned_data['preprint_link']
         preprint, __ = Preprint.objects.get_or_create(
             identifier_w_vn_nr=self.cleaned_data['identifier_w_vn_nr'],
             url=url,

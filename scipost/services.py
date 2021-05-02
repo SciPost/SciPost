@@ -9,6 +9,9 @@ import datetime
 import dateutil.parser
 import logging
 
+from submissions.constants import FIGSHARE_PREPRINT_SERVERS
+from submissions.models import PreprintServer
+
 arxiv_logger = logging.getLogger('scipost.services.arxiv')
 doi_logger = logging.getLogger('scipost.services.doi')
 figshare_logger = logging.getLogger('scipost.services.figshare')
@@ -146,10 +149,12 @@ class ArxivCaller:
         self.data = {
             'title': title,
             'author_list': author_list,
-            'arxiv_link': arxiv_link,
             'pub_abstract': abstract,
             'abstract': abstract,  # Duplicate for Commentary/Submission cross-compatibility
             'pub_date': pub_date,
+            'arxiv_link': arxiv_link, # Duplicate for Commentary
+            'preprint_server': PreprintServer.objects.get(name='arXiv'),
+            'preprint_link': arxiv_link,
         }
         arxiv_logger.info('GET [{arxiv}] [formatted data] | {data}'.format(
             arxiv=self.identifier,
@@ -169,7 +174,8 @@ class FigshareCaller:
 
     query_base_url = 'https://api.figshare.com/v2/articles/%s/versions/%s'
 
-    def __init__(self, identifier_w_vn_nr):
+    def __init__(self, preprint_server, identifier_w_vn_nr):
+        self.preprint_server = preprint_server
         self.identifier_w_vn_nr = identifier_w_vn_nr
         self.identifier = identifier_w_vn_nr.split('.')[0]
         self.version = identifier_w_vn_nr.split('.v')[1]
@@ -201,25 +207,24 @@ class FigshareCaller:
         ))
 
     def _format_data(self):
+        """Format data to prefill SubmissionForm as much as possible"""
         title = self._figshare_data['title']
         author_list = [author['full_name'] for author in self._figshare_data.get('authors', [])]
         # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
         author_list = ", ".join(author_list)
-        chemrxiv_identifier_w_vn_nr = self._figshare_data['doi'].partition('chemrxiv.')[2]
         abstract = self._figshare_data['description']
         pub_date = self._figshare_data['published_date']
+        figshare_doi = self._figshare_data['doi']
+        identifier_w_vn_nr = self.preprint_server.name.lower() + '_' + self.identifier_w_vn_nr
         self.data = {
             'title': title,
             'author_list': author_list,
-            'chemrxiv_identifier_w_vn_nr': chemrxiv_identifier_w_vn_nr,
-            'pub_abstract': abstract,
-            'abstract': abstract,  # Duplicate for Commentary/Submission cross-compatibility
+            'abstract': abstract,
             'pub_date': pub_date,
+            'preprint_server': self.preprint_server,
+            'preprint_link': 'https://doi.org/' + figshare_doi,
+            'identifier_w_vn_nr': identifier_w_vn_nr
         }
-        figshare_logger.info('GET [{identifier}] [formatted data] | {data}'.format(
-            identifier=self.identifier,
-            data=self.data,
-        ))
 
     def _result_present(self, data):
         if 'id' in data and data['id'] == int(self.identifier):

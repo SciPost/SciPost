@@ -153,10 +153,10 @@ urlpatterns = [
         views.RequestSubmissionUsingArXivView.as_view(),
         name='submit_manuscript_arxiv'
     ),
-    path( # Submit using arXiv (thread_hash as GET param if resubmission)
-        'submit_manuscript/<journal_doi_label:journal_doi_label>/chemrxiv',
-        views.RequestSubmissionUsingChemRxivView.as_view(),
-        name='submit_manuscript_chemrxiv'
+    path( # Submit using a Figshare-related preprint server (thread_hash as GET param if resubmission)
+        'submit_manuscript/<journal_doi_label:journal_doi_label>/figshare',
+        views.RequestSubmissionUsingFigshareView.as_view(),
+        name='submit_manuscript_figshare'
     ),
 
     url(

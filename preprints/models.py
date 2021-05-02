@@ -51,6 +51,8 @@ class Preprint(models.Model):
             return self.get_absolute_url().replace("/abs/", "/pdf/")
         elif self.is_ChemRxiv:
             return self.get_absolute_url()
+        else:
+            return self.get_absolute_url()
 
     @property
     def is_SciPost(self):
