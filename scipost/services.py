@@ -228,8 +228,10 @@ class FigshareCaller:
         }
 
     def _result_present(self, data):
-        if 'id' in data and data['id'] == int(self.identifier):
-            return True
+        try:
+            return data['id'] == int(self.identifier)
+        except KeyError:
+            pass
         return False
 
 
@@ -272,7 +274,6 @@ class OSFPreprintsCaller:
 
     def _format_data(self):
         """Format data to prefill SubmissionForm as much as possible"""
-        print(self._osfpreprints_data)
         title = self._osfpreprints_data['attributes']['title']
         contributors_data = self._osfpreprints_data['embeds']['contributors']['data']
         author_list = [d['embeds']['users']['data']['attributes']['full_name'] for d in contributors_data]
@@ -293,8 +294,8 @@ class OSFPreprintsCaller:
         }
 
     def _result_present(self, response_content):
-        if ('data' in response_content and
-            'id' in response_content['data'] and
-            response_content['data']['id'] == self.identifier):
-            return True
+        try:
+            return response_content['data']['id'] == self.identifier
+        except KeyError:
+            pass
         return False
