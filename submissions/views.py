@@ -163,55 +163,75 @@ def submit_choose_preprint_server(request, journal_doi_label):
     journal = get_object_or_404(Journal, doi_label=journal_doi_label)
     preprint_servers = PreprintServer.objects.filter(acad_fields=journal.college.acad_field)
     thread_hash = request.GET.get('thread_hash') or None
+
     # Each integrated preprint server has a prefill form:
-    scipost_prefill_form = SciPostPrefillForm(
-        requested_by=request.user,
-        journal_doi_label=journal_doi_label,
-        thread_hash=thread_hash)
+    preprint_server_list = []
+
+    if preprint_servers.filter(name='arXiv').exists():
+        preprint_server_list.append({
+            'server': preprint_servers.get(name='arXiv'),
+            'prefill_form': ArXivPrefillForm(
+                requested_by=request.user,
+                journal_doi_label=journal_doi_label,
+                thread_hash=thread_hash)
+        })
+
+    for ps in preprint_servers.filter(served_by__name='Figshare'):
+        preprint_server_list.append({
+            'server': ps,
+            'prefill_form': FigsharePrefillForm(
+                initial={
+                    'figshare_preprint_server': ps
+                },
+                requested_by=request.user,
+                journal_doi_label=journal_doi_label,
+                thread_hash=thread_hash)
+        })
+
+    # We put the SciPost server last, since we prefer authors to use external servers
+    preprint_server_list.append({
+        'server': preprint_servers.get(name='SciPost'),
+        'prefill_form': SciPostPrefillForm(
+            requested_by=request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=thread_hash)
+    })
+
+    # if preprint_servers.filter(name='ChemRxiv').exists():
+    #     chemrxiv_prefill_form = FigsharePrefillForm(
+    #         initial={
+    #             'figshare_preprint_server': preprint_servers.get(name='ChemRxiv')
+    #         },
+    #         requested_by=request.user,
+    #         journal_doi_label=journal_doi_label,
+    #         thread_hash=thread_hash)
+    #     context['chemrxiv_prefill_form'] = chemrxiv_prefill_form
+
+    # if preprint_servers.filter(name='TechRxiv').exists():
+    #     techrxiv_prefill_form = FigsharePrefillForm(
+    #         initial={
+    #             'figshare_preprint_server': preprint_servers.get(name='TechRxiv')
+    #         },
+    #         requested_by=request.user,
+    #         journal_doi_label=journal_doi_label,
+    #         thread_hash=thread_hash)
+    #     context['techrxiv_prefill_form'] = techrxiv_prefill_form
+
+    # if preprint_servers.filter(name='Advance').exists():
+    #     advance_prefill_form = FigsharePrefillForm(
+    #         initial={
+    #             'figshare_preprint_server': preprint_servers.get(name='Advance')
+    #         },
+    #         requested_by=request.user,
+    #         journal_doi_label=journal_doi_label,
+    #         thread_hash=thread_hash)
+    #     context['advance_prefill_form'] = advance_prefill_form
+
     context = {
         'journal': journal,
         'thread_hash': thread_hash,
-        'preprint_servers': preprint_servers,
-        'scipost_prefill_form': scipost_prefill_form,
+        'preprint_server_list': preprint_server_list,
     }
-
-    if preprint_servers.filter(name='arXiv').exists():
-        arxiv_prefill_form = ArXivPrefillForm(
-            requested_by=request.user,
-            journal_doi_label=journal_doi_label,
-            thread_hash=thread_hash)
-        context['arxiv_prefill_form'] = arxiv_prefill_form
-
-    if preprint_servers.filter(name='ChemRxiv').exists():
-        chemrxiv_prefill_form = FigsharePrefillForm(
-            initial={
-                'figshare_preprint_server': preprint_servers.get(name='ChemRxiv')
-            },
-            requested_by=request.user,
-            journal_doi_label=journal_doi_label,
-            thread_hash=thread_hash)
-        context['chemrxiv_prefill_form'] = chemrxiv_prefill_form
-
-    if preprint_servers.filter(name='TechRxiv').exists():
-        techrxiv_prefill_form = FigsharePrefillForm(
-            initial={
-                'figshare_preprint_server': preprint_servers.get(name='TechRxiv')
-            },
-            requested_by=request.user,
-            journal_doi_label=journal_doi_label,
-            thread_hash=thread_hash)
-        context['techrxiv_prefill_form'] = techrxiv_prefill_form
-
-    if preprint_servers.filter(name='Advance').exists():
-        advance_prefill_form = FigsharePrefillForm(
-            initial={
-                'figshare_preprint_server': preprint_servers.get(name='Advance')
-            },
-            requested_by=request.user,
-            journal_doi_label=journal_doi_label,
-            thread_hash=thread_hash)
-        context['advance_prefill_form'] = advance_prefill_form
-
     return render(request, 'submissions/submit_choose_preprint_server.html', context)
 
 

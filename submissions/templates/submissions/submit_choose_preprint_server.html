@@ -43,71 +43,45 @@
     <br>
     <div class="container">
       <div class="row row-cols-1 row-cols-lg-2 row-cols-xl-3">
-	{% for server in preprint_servers %}
+	{% for preprint_server in preprint_server_list %}
 	  <div class="col col-sm-12 col-lg-6 mb-2">
 	    <div class="card mb-4">
 	      <div class="card-header bg-dark text-white">
-		<h3 class="p-2 m-0"><em>{% if thread_hash %}Resubmit{% else %}Submit{% endif %} via</em>&emsp;<strong class="text-warning">{{ server }}</strong></h3>
+		<h3 class="p-2 m-0"><em>{% if thread_hash %}Resubmit{% else %}Submit{% endif %} via</em>&emsp;<strong class="text-warning">{{ preprint_server.server }}</strong></h3>
 	      </div>
 	      <div class="card-body text-center">
-		{% if server.name == 'SciPost' %}
+		{% if preprint_server.server.name == 'SciPost' %}
 		  <form action="{% url 'submissions:submit_manuscript_scipost' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ scipost_prefill_form }}
+		    {{ preprint_server.prefill_form }}
 		    {% if thread_hash %}
 		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
 		    {% endif %}
 		    <input type="submit" class="btn btn-primary text-white" value="Go to the SciPost submission form"/>
 		  </form>
-		{% elif server.name == 'arXiv' %}
+		{% elif preprint_server.server.name == 'arXiv' %}
 		  <h3>Please provide the arXiv identifier for your Submission</h3>
 		  <p><em>without the website prefix but with version number, e.g.
 		    <br> ####.####(#)v#(#)</em></p>
 		  <form action="{% url 'submissions:submit_manuscript_arxiv' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ arxiv_prefill_form }}
+		    {{ preprint_server.prefill_form }}
 		    {% if thread_hash %}
 		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
 		    {% endif %}
 	            {% include 'bi/arrow-right.html' %}
 		    <input type="submit" class="btn btn-primary text-white" value="Query arXiv"/>
 		  </form>
-		{% elif server.name == 'ChemRxiv' %}
-		  <h3>Please provide the ChemRxiv identifier for your Submission</h3>
+		{% elif preprint_server.server.served_by and preprint_server.server.served_by.name == 'Figshare' %}
+		  <h3>Please provide the {{ preprint_server.server.name }} identifier for your Submission</h3>
 		  <p><em>without the url prefix but with version number, e.g.
 		    <br> ########.v#</em></p>
-		  <p><em>Hint: on the submission's ChemRxiv page, click on the "Cite" button to see the identifier.</em></p>
+		  <p><em>Hint: on the submission's {{ preprint_server.server.name }} page, click on the "Cite" button to see the identifier.</em></p>
 		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ chemrxiv_prefill_form }}
+		    {{ preprint_server.prefill_form }}
 		    {% if thread_hash %}
 		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
 		    {% endif %}
 	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query ChemRxiv"/>
-		  </form>
-		{% elif server.name == 'TechRxiv' %}
-		  <h3>Please provide the TechRxiv identifier for your Submission</h3>
-		  <p><em>without the url prefix but with version number, e.g.
-		    <br> ########.v#</em></p>
-		  <p><em>Hint: on the submission's TechRxiv page, click on the "Cite" button to see the identifier.</em></p>
-		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ techrxiv_prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query TechRxiv"/>
-		  </form>
-		{% elif server.name == 'Advance' %}
-		  <h3>Please provide the Advance identifier for your Submission</h3>
-		  <p><em>without the url prefix but with version number, e.g.
-		    <br> ########.v#</em></p>
-		  <p><em>Hint: on the submission's Advance page, click on the "Cite" button to see the identifier.</em></p>
-		  <form action="{% url 'submissions:submit_manuscript_figshare' journal_doi_label=journal.doi_label %}" method="get">
-		    {{ advance_prefill_form }}
-		    {% if thread_hash %}
-		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
-		    {% endif %}
-	            {% include 'bi/arrow-right.html' %}
-		    <input type="submit" class="btn btn-primary text-white" value="Query Advance"/>
+		    <input type="submit" class="btn btn-primary text-white" value="Query {{ preprint_server.server.name }}"/>
 		  </form>
 		{% endif %}
 	      </div>
