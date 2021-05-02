@@ -158,6 +158,11 @@ urlpatterns = [
         views.RequestSubmissionUsingFigshareView.as_view(),
         name='submit_manuscript_figshare'
     ),
+    path( # Submit using a OSFPreprints-related preprint server (thread_hash as GET param if resubmission)
+        'submit_manuscript/<journal_doi_label:journal_doi_label>/osfpreprints',
+        views.RequestSubmissionUsingOSFPreprintsView.as_view(),
+        name='submit_manuscript_osfpreprints'
+    ),
 
     url(
         r'^withdraw_manuscript/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),

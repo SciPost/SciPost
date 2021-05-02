@@ -49,22 +49,10 @@ class Preprint(models.Model):
             return "https://scipost.org%s" % self.get_absolute_url()
         elif self.is_arXiv:
             return self.get_absolute_url().replace("/abs/", "/pdf/")
-        elif self.is_ChemRxiv:
-            return self.get_absolute_url()
         else:
             return self.get_absolute_url()
-
-    @property
-    def is_SciPost(self):
-        """Return True if this preprint is hosted on SciPost."""
-        return 'scipost_' in self.identifier_w_vn_nr
 
     @property
     def is_arXiv(self):
         """Return True if this preprint is hosted on arXiv."""
         return 'arxiv.org' in self.url
-
-    @property
-    def is_ChemRxiv(self):
-        """Return True if this preprint is hosted on ChemRxiv."""
-        return 'chemrxiv' in self.url

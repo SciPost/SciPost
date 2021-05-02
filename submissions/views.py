@@ -41,7 +41,7 @@ from .models import (
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    SciPostPrefillForm, ArXivPrefillForm, FigsharePrefillForm,
+    SciPostPrefillForm, ArXivPrefillForm, FigsharePrefillForm, OSFPreprintsPrefillForm,
     SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
@@ -188,6 +188,18 @@ def submit_choose_preprint_server(request, journal_doi_label):
                 thread_hash=thread_hash)
         })
 
+    for ps in preprint_servers.filter(served_by__name='OSFPreprints'):
+        preprint_server_list.append({
+            'server': ps,
+            'prefill_form': OSFPreprintsPrefillForm(
+                initial={
+                    'osfpreprints_preprint_server': ps
+                },
+                requested_by=request.user,
+                journal_doi_label=journal_doi_label,
+                thread_hash=thread_hash)
+        })
+
     # We put the SciPost server last, since we prefer authors to use external servers
     preprint_server_list.append({
         'server': preprint_servers.get(name='SciPost'),
@@ -196,36 +208,6 @@ def submit_choose_preprint_server(request, journal_doi_label):
             journal_doi_label=journal_doi_label,
             thread_hash=thread_hash)
     })
-
-    # if preprint_servers.filter(name='ChemRxiv').exists():
-    #     chemrxiv_prefill_form = FigsharePrefillForm(
-    #         initial={
-    #             'figshare_preprint_server': preprint_servers.get(name='ChemRxiv')
-    #         },
-    #         requested_by=request.user,
-    #         journal_doi_label=journal_doi_label,
-    #         thread_hash=thread_hash)
-    #     context['chemrxiv_prefill_form'] = chemrxiv_prefill_form
-
-    # if preprint_servers.filter(name='TechRxiv').exists():
-    #     techrxiv_prefill_form = FigsharePrefillForm(
-    #         initial={
-    #             'figshare_preprint_server': preprint_servers.get(name='TechRxiv')
-    #         },
-    #         requested_by=request.user,
-    #         journal_doi_label=journal_doi_label,
-    #         thread_hash=thread_hash)
-    #     context['techrxiv_prefill_form'] = techrxiv_prefill_form
-
-    # if preprint_servers.filter(name='Advance').exists():
-    #     advance_prefill_form = FigsharePrefillForm(
-    #         initial={
-    #             'figshare_preprint_server': preprint_servers.get(name='Advance')
-    #         },
-    #         requested_by=request.user,
-    #         journal_doi_label=journal_doi_label,
-    #         thread_hash=thread_hash)
-    #     context['advance_prefill_form'] = advance_prefill_form
 
     context = {
         'journal': journal,
@@ -349,6 +331,18 @@ class RequestSubmissionUsingFigshareView(RequestSubmissionView):
 
     def get(self, request, journal_doi_label):
         self.prefill_form = FigsharePrefillForm(
+            request.GET or None,
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
+
+
+class RequestSubmissionUsingOSFPreprintsView(RequestSubmissionView):
+    """Formview to submit a new Submission using OSFPreprints-related servers."""
+
+    def get(self, request, journal_doi_label):
+        self.prefill_form = OSFPreprintsPrefillForm(
             request.GET or None,
             requested_by=self.request.user,
             journal_doi_label=journal_doi_label,

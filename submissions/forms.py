@@ -45,7 +45,7 @@ from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from profiles.models import Profile
-from scipost.services import ArxivCaller, FigshareCaller
+from scipost.services import ArxivCaller, FigshareCaller, OSFPreprintsCaller
 from scipost.models import Contributor, Remark
 import strings
 
@@ -55,6 +55,7 @@ ARXIV_IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
 CHEMRXIV_DOI_PATTERN = r'https://doi.org/10.26434/chemrxiv.[0-9]+.v[0-9]{1,2}$'
 CHEMRXIV_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
 FIGSHARE_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
+OSFPREPRINTS_IDENTIFIER_PATTERN = r'[a-z0-9]+$'
 
 
 class SubmissionSearchForm(forms.Form):
@@ -252,6 +253,56 @@ def check_advance_identifier_w_vn_nr(advance_identifier_w_vn_nr):
     return data, metadata, identifier.replace('figshare', 'advance')
 
 
+def check_osfpreprints_identifier(preprint_server, osfpreprints_identifier):
+    """
+    Call OSFPreprints to retrieve submission prefill data and perform basic checks.
+
+    This method is defined outside of FigsharePrefillform in order to
+    also be callable by SubmissionForm.
+    """
+    caller = OSFPreprintsCaller(preprint_server, osfpreprints_identifier)
+    if caller.is_valid:
+        osfpreprints_data = caller.data
+        metadata = caller.metadata
+    else:
+        error_message = 'A preprint associated to this identifier does not exist.'
+        raise forms.ValidationError(error_message)
+
+    # Check if the type of this resource is indeed a preprint
+    if 'type' in metadata:
+        if metadata['type'] != 'preprints':
+            error_message = ('This does not seem to be a preprint: the type '
+                             'returned by OSFPreprints on behalf of '
+                             '%(preprint_server) is %(type)s. '
+                             'Please contact techsupport.')
+            raise forms.ValidationError(
+                error_message, code='wrong_type',
+                params={
+                    'preprint_server': preprint_server.name,
+                    'type': metadata['type']
+                })
+    else:
+        raise forms.ValidationError(
+            'OSFPreprints failed to return a type. Please contact techsupport.',
+            code='wrong_type')
+
+    # TODO: Check if this article has already been published (according to OSFPreprints)
+
+    identifier = preprint_server.name.lower() + '_' + osfpreprints_identifier
+    return osfpreprints_data, metadata, identifier
+
+
+def check_socarxiv_identifier(socarxiv_identifier):
+    """
+    Call `check_osfpreprints_identifier_w_vn_nr` but correct identifier
+    by substituting `socarxiv` for `osfpreprints`.
+    """
+    data, metadata, identifier = check_osfpreprints_identifier(
+        PreprintServer.objects.get(name='SocArXiv'),
+        socarxiv_identifier)
+    return data, metadata, identifier.replace('osfpreprints', 'socarxiv')
+
+
 class SubmissionPrefillForm(forms.Form):
     """
     Base class for all SubmissionPrefillForms (one per integrated preprint server).
@@ -427,54 +478,56 @@ class FigsharePrefillForm(SubmissionPrefillForm):
         return form_data
 
 
-# class ChemRxivPrefillForm(SubmissionPrefillForm):
-#     """
-#     Provide initial data for SubmissionForm (ChemRxiv preprint server route).
+class OSFPreprintsPrefillForm(SubmissionPrefillForm):
+    """
+    Provide initial data for SubmissionForm from OSFPreprints.
 
-#     This adds the `chemrxiv_identifier_w_vn_nr` field to those
-#     from the `SubmissionPrefillForm` base class.
-#     """
-#     chemrxiv_identifier_w_vn_nr = forms.RegexField(
-#         label='',
-#         regex=CHEMRXIV_IDENTIFIER_PATTERN, strip=True,
-#         error_messages={'invalid': 'Invalid ChemRxiv identifier'},
-#         widget=forms.TextInput()
-#     )
+    This form is used by the SocArXiv (and others) routes.
+    """
+    osfpreprints_preprint_server = forms.ModelChoiceField(
+        queryset=PreprintServer.objects.filter(served_by__name='OSFPreprints'),
+        widget=forms.HiddenInput()
+    )
+    osfpreprints_identifier = forms.RegexField(
+        label='',
+        regex=OSFPREPRINTS_IDENTIFIER_PATTERN, strip=True,
+        error_messages={'invalid': 'Invalid OSFPreprints identifier'},
+        widget=forms.TextInput()
+    )
 
-#     def __init__(self, *args, **kwargs):
-#         self.chemrxiv_data = {}
-#         self.metadata = {}
-#         self.identifier = None
-#         super().__init__(*args, **kwargs)
+    def __init__(self, *args, **kwargs):
+        self.osfpreprints_data = {}
+        self.metadata = {}
+        self.identifier = None
+        super().__init__(*args, **kwargs)
 
-#     def clean_chemrxiv_identifier_w_vn_nr(self):
-#         """
-#         Do basic prechecks based on the ChemRxiv identifier.
-#         """
-#         self.chemrxiv_data, self.metadata, self.identifier = \
-#             check_chemrxiv_identifier_w_vn_nr(self.cleaned_data['chemrxiv_identifier_w_vn_nr'])
-#         check_identifier_is_unused(self.identifier)
-#         return self.cleaned_data['chemrxiv_identifier_w_vn_nr']
+    def clean_osfpreprints_identifier(self):
+        """
+        Do basic prechecks based on the OSFPreprints identifier.
+        """
+        self.osfpreprints_data, self.metadata, self.identifier = \
+            check_osfpreprints_identifier(
+                self.cleaned_data['osfpreprints_preprint_server'],
+                self.cleaned_data['osfpreprints_identifier'])
+        check_identifier_is_unused(self.identifier)
+        return self.cleaned_data['osfpreprints_identifier']
 
-#     def get_prefill_data(self):
-#         """
-#         Return dictionary to prefill `SubmissionForm`.
-#         """
-#         form_data = super().get_prefill_data()
-#         form_data.update(self.chemrxiv_data)
-#         form_data['identifier_w_vn_nr'] = self.identifier
-#         form_data['chemrxiv_doi'] = ('https://doi.org/10.26434/chemrxiv.'
-#                                      + self.cleaned_data['chemrxiv_identifier_w_vn_nr'])
+    def get_prefill_data(self):
+        """
+        Return dictionary to prefill `SubmissionForm`.
+        """
+        form_data = super().get_prefill_data()
+        form_data.update(self.osfpreprints_data)
 
-#         if self.is_resubmission():
-#             form_data.update({
-#                 'approaches': self.latest_submission.approaches,
-#                 'referees_flagged': self.latest_submission.referees_flagged,
-#                 'referees_suggested': self.latest_submission.referees_suggested,
-#                 'acad_field': self.latest_submission.acad_field.id,
-#                 'specialties': [s.id for s in self.latest_submission.specialties.all()]
-#             })
-#         return form_data
+        if self.is_resubmission():
+            form_data.update({
+                'approaches': self.latest_submission.approaches,
+                'referees_flagged': self.latest_submission.referees_flagged,
+                'referees_suggested': self.latest_submission.referees_suggested,
+                'acad_field': self.latest_submission.acad_field.id,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()]
+            })
+        return form_data
 
 
 ###################
@@ -680,15 +733,18 @@ class SubmissionForm(forms.ModelForm):
         elif self.preprint_server.name == 'ChemRxiv':
             self.preprint_data, self.metadata, identifier = \
                 check_chemrxiv_identifier_w_vn_nr(
-                    identifier.lstrip('chemrxiv_'))
+                    identifier.replace('chemrxiv_', ''))
         elif self.preprint_server.name == 'TechRxiv':
             self.preprint_data, self.metadata, identifier = \
                 check_techrxiv_identifier_w_vn_nr(
-                    identifier.lstrip('techrxiv_'))
+                    identifier.replace('techrxiv_', ''))
         elif self.preprint_server.name == 'Advance':
             self.preprint_data, self.metadata, identifier = \
                 check_advance_identifier_w_vn_nr(
-                    identifier.lstrip('advance_'))
+                    identifier.replace('advance_', ''))
+        elif self.preprint_server.name == 'SocArXiv':
+            self.preprint_data, self.metadata, identifier = \
+                check_socarxiv_identifier(identifier.replace('socarxiv_', ''))
         else:
             error_message = ('Check method not implemented for preprint server: %s. '
                              'Please contact techsupport.') % self.preprint_server

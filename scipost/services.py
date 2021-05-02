@@ -15,6 +15,7 @@ from submissions.models import PreprintServer
 arxiv_logger = logging.getLogger('scipost.services.arxiv')
 doi_logger = logging.getLogger('scipost.services.doi')
 figshare_logger = logging.getLogger('scipost.services.figshare')
+osfpreprints_logger = logging.getLogger('scipost.services.osfpreprints')
 
 
 class DOICaller:
@@ -228,5 +229,70 @@ class FigshareCaller:
 
     def _result_present(self, data):
         if 'id' in data and data['id'] == int(self.identifier):
+            return True
+        return False
+
+
+class OSFPreprintsCaller:
+    """
+    OSFPreprints caller to get data from api.osf.io.
+    """
+
+    query_base_url = 'https://api.osf.io/v2/preprints/%s/?embed=contributors'
+
+    def __init__(self, preprint_server, identifier):
+        self.preprint_server = preprint_server
+        self.identifier = identifier
+        osfpreprints_logger.info(
+            'New osfpreprints API call for identifier %s' % self.identifier)
+        self._call_osfpreprints()
+        if self.is_valid:
+            self._format_data()
+
+    def _call_osfpreprints(self):
+        url = self.query_base_url % self.identifier
+        request = requests.get(url)
+        response_content = request.json()
+        osfpreprints_logger.info('GET [{identifier} [request] | {url}'.format(
+            identifier=self.identifier,
+            url=url,
+        ))
+        if self._result_present(response_content['data']):
+            self.is_valid = True
+            self._osfpreprints_data = response_content['data']
+            self.metadata = response_content['data']
+        else:
+            self.is_valid = False
+
+        osfpreprints_logger.info('GET [{identifier}] [response {valid}] | {response}'.format(
+            identifier=self.identifier,
+            valid='VALID' if self.is_valid else 'INVALID',
+            response=response_content['data'],
+        ))
+
+    def _format_data(self):
+        """Format data to prefill SubmissionForm as much as possible"""
+        print(self._osfpreprints_data)
+        title = self._osfpreprints_data['attributes']['title']
+        contributors_data = self._osfpreprints_data['embeds']['contributors']['data']
+        author_list = [d['embeds']['users']['data']['attributes']['full_name'] for d in contributors_data]
+        # author_list is given as a comma separated list of names on the relevant models (Commentary, Submission)
+        author_list = ", ".join(author_list)
+        abstract = self._osfpreprints_data['attributes']['description']
+        pub_date = self._osfpreprints_data['attributes']['date_published']
+        osfpreprints_doi = self._osfpreprints_data['links']['preprint_doi']
+        identifier_w_vn_nr = self.preprint_server.name.lower() + '_' + self.identifier
+        self.data = {
+            'title': title,
+            'author_list': author_list,
+            'abstract': abstract,
+            'pub_date': pub_date,
+            'preprint_server': self.preprint_server,
+            'preprint_link': osfpreprints_doi,
+            'identifier_w_vn_nr': identifier_w_vn_nr
+        }
+
+    def _result_present(self, data):
+        if 'id' in data and data['id'] == self.identifier:
             return True
         return False

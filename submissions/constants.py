@@ -283,6 +283,11 @@ techrxiv_regex_wo_vn = 'techrxiv_[0-9]+'
 techrxiv_regex_w_vn = 'techrxiv_[0-9]+.v[0-9]{1,2}'
 advance_regex_wo_vn = 'advance_[0-9]+'
 advance_regex_w_vn = 'advance_[0-9]+.v[0-9]{1,2}'
+socarxiv_regex = 'socarxiv_[a-z0-9]+'
+
+# Preprints with structurally no version number
+# (like OSFPreprints-based ones: SocArXiv, ...)
+# must not match SUBMISSIONS_WO_VN_REGEX to avoid ambiguities.
 SUBMISSIONS_WO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s|%s|%s|%s))' % (
     scipost_regex_wo_vn,
     arxiv_regex_wo_vn,
@@ -290,10 +295,11 @@ SUBMISSIONS_WO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s|%s|%s|%s))' % (
     techrxiv_regex_wo_vn,
     advance_regex_wo_vn,
 )
-SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s|%s|%s|%s))' % (
+SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s|%s|%s|%s|%s))' % (
     scipost_regex_w_vn,
     arxiv_regex_w_vn,
     chemrxiv_regex_w_vn,
     techrxiv_regex_w_vn,
     advance_regex_w_vn,
+    socarxiv_regex
 )
