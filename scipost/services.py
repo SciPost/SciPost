@@ -257,7 +257,7 @@ class OSFPreprintsCaller:
             identifier=self.identifier,
             url=url,
         ))
-        if self._result_present(response_content['data']):
+        if self._result_present(response_content):
             self.is_valid = True
             self._osfpreprints_data = response_content['data']
             self.metadata = response_content['data']
@@ -267,7 +267,7 @@ class OSFPreprintsCaller:
         osfpreprints_logger.info('GET [{identifier}] [response {valid}] | {response}'.format(
             identifier=self.identifier,
             valid='VALID' if self.is_valid else 'INVALID',
-            response=response_content['data'],
+            response=response_content,
         ))
 
     def _format_data(self):
@@ -292,7 +292,9 @@ class OSFPreprintsCaller:
             'identifier_w_vn_nr': identifier_w_vn_nr
         }
 
-    def _result_present(self, data):
-        if 'id' in data and data['id'] == self.identifier:
+    def _result_present(self, response_content):
+        if ('data' in response_content and
+            'id' in response_content['data'] and
+            response_content['data']['id'] == self.identifier):
             return True
         return False
