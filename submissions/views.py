@@ -167,6 +167,7 @@ def submit_choose_preprint_server(request, journal_doi_label):
     # Each integrated preprint server has a prefill form:
     preprint_server_list = []
 
+    # arXiv the beloved, always first (if available in this field)
     if preprint_servers.filter(name='arXiv').exists():
         preprint_server_list.append({
             'server': preprint_servers.get(name='arXiv'),
@@ -176,24 +177,26 @@ def submit_choose_preprint_server(request, journal_doi_label):
                 thread_hash=thread_hash)
         })
 
-    for ps in preprint_servers.filter(served_by__name='Figshare'):
-        preprint_server_list.append({
-            'server': ps,
-            'prefill_form': FigsharePrefillForm(
-                initial={
-                    'figshare_preprint_server': ps
-                },
-                requested_by=request.user,
-                journal_doi_label=journal_doi_label,
-                thread_hash=thread_hash)
-        })
-
+    # then all OSF-based preprint servers
     for ps in preprint_servers.filter(served_by__name='OSFPreprints'):
         preprint_server_list.append({
             'server': ps,
             'prefill_form': OSFPreprintsPrefillForm(
                 initial={
                     'osfpreprints_preprint_server': ps
+                },
+                requested_by=request.user,
+                journal_doi_label=journal_doi_label,
+                thread_hash=thread_hash)
+        })
+
+    # then all Figshare-based preprint servers
+    for ps in preprint_servers.filter(served_by__name='Figshare'):
+        preprint_server_list.append({
+            'server': ps,
+            'prefill_form': FigsharePrefillForm(
+                initial={
+                    'figshare_preprint_server': ps
                 },
                 requested_by=request.user,
                 journal_doi_label=journal_doi_label,
