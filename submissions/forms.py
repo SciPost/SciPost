@@ -637,7 +637,7 @@ class SubmissionForm(forms.ModelForm):
         # Restrict choice of specialties to those of relevant AcademicField
         if kwargs['initial'].get('acad_field', None):
             self.fields['specialties'].widget.url = \
-                self.fields['specialties'].widget.url + '?acad_field_id=' + str(kwargs['initial'].get('acad_field'))
+                self.fields['specialties'].widget.url + '?acad_field_id=' + str(kwargs['initial'].get('acad_field').id)
 
         # Proceedings submission fields
         if 'Proc' not in self.submitted_to_journal.doi_label:
