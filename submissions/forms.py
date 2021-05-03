@@ -368,7 +368,7 @@ class SciPostPrefillForm(SubmissionPrefillForm):
                 'title': self.latest_submission.title,
                 'abstract': self.latest_submission.abstract,
                 'author_list': self.latest_submission.author_list,
-                'acad_field': self.latest_submission.acad_field.id,
+                'acad_field': self.latest_submission.acad_field,
                 'specialties': [s.id for s in self.latest_submission.specialties.all()],
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
@@ -418,7 +418,7 @@ class ArXivPrefillForm(SubmissionPrefillForm):
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'acad_field': self.latest_submission.acad_field.id,
+                'acad_field': self.latest_submission.acad_field,
                 'specialties': [s.id for s in self.latest_submission.specialties.all()],
             })
         return form_data
@@ -470,7 +470,7 @@ class FigsharePrefillForm(SubmissionPrefillForm):
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'acad_field': self.latest_submission.acad_field.id,
+                'acad_field': self.latest_submission.acad_field,
                 'specialties': [s.id for s in self.latest_submission.specialties.all()]
             })
         return form_data
@@ -522,7 +522,7 @@ class OSFPreprintsPrefillForm(SubmissionPrefillForm):
                 'approaches': self.latest_submission.approaches,
                 'referees_flagged': self.latest_submission.referees_flagged,
                 'referees_suggested': self.latest_submission.referees_suggested,
-                'acad_field': self.latest_submission.acad_field.id,
+                'acad_field': self.latest_submission.acad_field,
                 'specialties': [s.id for s in self.latest_submission.specialties.all()]
             })
         return form_data
