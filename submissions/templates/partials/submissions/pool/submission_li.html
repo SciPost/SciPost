@@ -11,23 +11,23 @@
   {% endif %}
 </div>
 <div class="pool-item">
-  <div class="row mb-1">
+  <div class="row mb-2">
     <div class="col-md-7">
-      <a href="{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a><br>
+      <a href="{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a>
+      <br>
       <em>by {{ submission.author_list }}</em>
+      <br>
+      <div class="my-2">
+	<span class="text-secondary">{% include 'bi/bullseye.html' %}:&nbsp;</span>
+	{{ submission.submitted_to }}
+      </div>
     </div>
     <div class="col-md-5">
-      {% if submission.eicrecommendations.active.first %}
-        <small class="text-muted">EIC Recommendation Status</small>
-        <br>
-        <span class="label label-sm label-secondary">{{ submission.eicrecommendations.active.first.get_full_status_display }}</span>
-      {% endif %}
-      {% if submission.editorial_decision %}
-	<br>
-	<small class="text-muted">Editorial Decision Status</small>
-	<br>
-	<span class="label label-sm label-secondary">{{ submission.editorial_decision.get_status_display }}</span>
-      {% endif %}
+      <ul class="bg-secondary py-1">
+	{% for specialty in submission.specialties.all %}
+	  <li><small>{{ specialty }}</small></li>
+	{% endfor %}
+      </ul>
     </div>
   </div>
 
@@ -62,7 +62,19 @@
     <div class="col-md-4">
       <small class="text-muted">Submission Status</small>
       <br>
-      <span class="label label-sm label-secondary">{{ submission.get_status_display }}</span>
+      <span class="label label-sm label-secondary text-wrap">{{ submission.get_status_display }}</span>
+      {% if submission.eicrecommendations.active.first %}
+	<br>
+        <small class="text-muted">EIC Recommendation Status</small>
+        <br>
+        <span class="label label-sm label-secondary text-wrap">{{ submission.eicrecommendations.active.first.get_full_status_display }}</span>
+      {% endif %}
+      {% if submission.editorial_decision %}
+	<br>
+	<small class="text-muted">Editorial Decision Status</small>
+	<br>
+	<span class="label label-sm label-secondary text-wrap">{{ submission.editorial_decision.get_status_display }}</span>
+      {% endif %}
     </div>
   </div>
   {% if is_ed_admin and submission.has_inadequate_pool_composition %}
