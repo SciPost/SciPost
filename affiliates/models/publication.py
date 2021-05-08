@@ -22,7 +22,7 @@ class AffiliatePublication(models.Model):
     )
     _metadata_crossref = JSONField(
         default=dict,
-
+        blank=True
     )
 
     journal = models.ForeignKey(

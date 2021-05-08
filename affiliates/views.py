@@ -12,7 +12,7 @@ from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
 from .models import AffiliateJournal, AffiliatePublication
-from .forms import AddAffiliateJournalManagerForm
+from .forms import AffiliateJournalAddManagerForm, AffiliateJournalAddPublicationForm
 
 
 class AffiliateJournalListView(ListView):
@@ -28,7 +28,9 @@ class AffiliateJournalDetailView(DetailView):
             self.object,
             with_superusers=False
         )
-        context['add_manager_form'] = AddAffiliateJournalManagerForm()
+        context['add_manager_form'] = AffiliateJournalAddManagerForm()
+        context['add_publication_form'] = AffiliateJournalAddPublicationForm(
+            initial={'journal': self.object})
         return context
 
 
@@ -49,6 +51,16 @@ def affiliatejournal_remove_manager(request, slug, user_id):
     journal = get_object_or_404(AffiliateJournal, slug=slug)
     user = get_object_or_404(User, pk=user_id)
     remove_perm('manage_journal_content', user, journal)
+    return redirect(reverse('affiliates:journal_detail',
+                            kwargs={'slug': slug}))
+
+
+@permission_required_or_403('affiliates.manage_journal_content',
+                            (AffiliateJournal, 'slug', 'slug'))
+def affiliatejournal_add_publication(request, slug):
+    form = AffiliateJournalAddPublicationForm(request.POST or None)
+    if form.is_valid():
+        form.save()
     return redirect(reverse('affiliates:journal_detail',
                             kwargs={'slug': slug}))
 

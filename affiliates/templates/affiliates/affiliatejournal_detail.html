@@ -1,5 +1,7 @@
 {% extends 'affiliates/base.html' %}
 
+{% load guardian_tags %}
+
 {% block pagetitle %}: Affiliate Journal: {{ object }}{% endblock %}
 
 {% block breadcrumb_items %}
@@ -9,6 +11,8 @@
 {% endblock %}
 
 {% block content %}
+
+  {% get_obj_perms request.user for object as "user_perms" %}
 
   <h2 class="highlight">Affiliate Journal: {{ object }}</h2>
 
@@ -41,20 +45,36 @@
   {% endif %}
 
   <h3 class="highlight">Publications</h3>
-  <table class="table">
-    {% for pub in object.publications.all %}
-      <tr>
-	<td><a href="{{ pub.get_absolute_url }}">{{ pub }}</a></td>
-      </tr>
-    {% empty %}
-      <tr>
-	<td>No publications yet</td>
-      </tr>
-    {% endfor %}
-  </table>
-
+  {% if 'manage_journal_content' in user_perms %}
+    <div class="row">
+      <div class="col">
+	<strong>Add a publication</strong>
+	<form action="{% url 'affiliates:journal_add_publication' slug=object.slug %}" method="post">
+	  {% csrf_token %}
+	  {{ add_publication_form }}
+	  <input type="submit" value="Submit" class="btn btn-primary">
+	</form>
+      </div>
+    </div>
+  {% endif %}
+  <div class="row">
+    <div class="col">
+      <table class="table">
+	{% for pub in object.publications.all %}
+	  <tr>
+	    <td><a href="{{ pub.get_absolute_url }}">{{ pub }}</a></td>
+	  </tr>
+	{% empty %}
+	  <tr>
+	    <td>No publications yet</td>
+	  </tr>
+	{% endfor %}
+      </table>
+    </div>
+  </div>
 {% endblock content %}
 
 {% block footer_script %}
   {{ add_manager_form.media }}
+  {{ add_publication_form.media }}
 {% endblock footer_script %}
