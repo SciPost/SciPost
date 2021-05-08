@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'django_countries',
     'django_extensions',
     'haystack',
+    'affiliates',
     'api',
     'apimail',
     'careers',

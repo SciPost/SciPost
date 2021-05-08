@@ -1,0 +1,23 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Publication: {{ object }}{% endblock %}
+
+{% block content %}
+
+  <h2 class="highlight">Publication: {{ object }} </h2>
+  <p>(in affiliate journal {{ object.journal }})</p>
+
+  <h3 class="highlight">PubFractions</h3>
+  <table class="table">
+    {% for pubfrac in object.pufractions.all %}
+      <tr>
+	<td>{{ pubfrac }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+	<td>No PubFractions yet</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+{% endblock content %}

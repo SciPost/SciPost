@@ -28,6 +28,10 @@ urlpatterns = [
     url(r'^sitemap.xml$', scipost_views.sitemap_xml, name='sitemap_xml'),
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', admin.site.urls),
+    path(
+        'affiliates/',
+        include('affiliates.urls', namespace='affiliates')
+    ),
     url(r'^api/', include('api.urls', namespace='api')),
     path(
         'mail/',

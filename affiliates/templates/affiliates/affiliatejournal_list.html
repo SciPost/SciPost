@@ -1,0 +1,17 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: Affiliate Journals{% endblock %}
+
+{% block content %}
+
+  <h2 class="highlight">Affiliate Journals</h2>
+
+  <ul>
+    {% for journal in object_list %}
+      <li><a href="{{ journal.get_absolute_url }}">{{ journal }}</a></li>
+    {% empty %}
+      <li>There are no affiliate journals at this moment</li>
+    {% endfor %}
+  </ul>
+
+{% endblock content %}
