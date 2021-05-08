@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -61,6 +62,9 @@ def affiliatejournal_add_publication(request, slug):
     form = AffiliateJournalAddPublicationForm(request.POST or None)
     if form.is_valid():
         form.save()
+    else:
+        for error_messages in form.errors.values():
+            messages.warning(request, *error_messages)
     return redirect(reverse('affiliates:journal_detail',
                             kwargs={'slug': slug}))
 

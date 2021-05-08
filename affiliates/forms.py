@@ -40,6 +40,19 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
         self.crossref_data = None
         super().__init__(*args, **kwargs)
 
+    def clean(self, *args, **kwargs):
+        cleaned_data = super().clean(*args, **kwargs)
+
+        # Check that the journal specified in the DOI data is
+        # the same as in the form
+        print(self.crossref_data)
+        print(self.cleaned_data['journal'])
+        if (self.crossref_data['journal'] !=
+            self.cleaned_data['journal'].name):
+            raise forms.ValidationError(
+                'The journal specified in the DOI is different.')
+        return cleaned_data
+
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
 
