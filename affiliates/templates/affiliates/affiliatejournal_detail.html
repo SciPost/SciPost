@@ -1,6 +1,12 @@
-{% extends 'scipost/base.html' %}
+{% extends 'affiliates/base.html' %}
 
 {% block pagetitle %}: Affiliate Journal: {{ object }}{% endblock %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item">Journals</span>
+  <span class="breadcrumb-item">{{ object }}</span>
+{% endblock %}
 
 {% block content %}
 
