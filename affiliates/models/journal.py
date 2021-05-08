@@ -22,8 +22,6 @@ class AffiliateJournal(models.Model):
         max_length=256
     )
 
-    # Note that the short name can be just as long as the full name. This is because not all
-    # journals have abbreviated names in Crossref, and instead return the full journal name.
     short_name = models.CharField(
         max_length=256,
         default=""
@@ -40,6 +38,9 @@ class AffiliateJournal(models.Model):
             'publisher',
             'name'
         ]
+        permissions = (
+            ('manage_journal_content', 'Manage Journal content'),
+        )
 
     def __str__(self):
         return self.name

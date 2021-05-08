@@ -12,6 +12,34 @@
 
   <h2 class="highlight">Affiliate Journal: {{ object }}</h2>
 
+  {% if perms.affiliates.can_edit_affiliatedjournal %}
+    <h3 class="highlight">Journal managers</h3>
+    <div class="row">
+      <div class="col-lg-6">
+	<h4>Add manager</h4>
+	<form action="{% url 'affiliates:journal_add_manager' slug=object.slug %}" method="post">
+	  {% csrf_token %}
+	  {{ add_manager_form }}
+	  <input type="submit" value="Submit" class="btn btn-primary">
+	</form>
+      </div>
+      <div class="col-lg-6">
+	<h4>Current list of managers</h4>
+	<ul>
+	  {% for manager in journal_managers.all %}
+	    <li>{{ manager.last_name }}, {{ manager.first_name }}&emsp;
+	      <a href="{% url 'affiliates:journal_remove_manager' slug=object.slug user_id=manager.pk %}">
+		<span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+	      </a>
+	    </li>
+	  {% empty %}
+	    <li>No managers found</li>
+	  {% endfor %}
+	</ul>
+      </div>
+    </div>
+  {% endif %}
+
   <h3 class="highlight">Publications</h3>
   <table class="table">
     {% for pub in object.publications.all %}
@@ -26,3 +54,7 @@
   </table>
 
 {% endblock content %}
+
+{% block footer_script %}
+  {{ add_manager_form.media }}
+{% endblock footer_script %}
