@@ -1,0 +1,37 @@
+{% extends 'affiliates/base.html' %}
+
+{% block pagetitle %}: Affiliate Journals: Organizations{% endblock %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journals' %}">Journals</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journal_detail' slug=journal.slug %}">{{ journal }}</a></span>
+  <span class="breadcrumb-item">Organizations</span>
+{% endblock %}
+
+{% block content %}
+
+  <h2 class="highlight">{{ journal }}: benefitting Organizations</h2>
+
+  <table class="table">
+    <thead>
+      <tr>
+	<th>Organization</th>
+	<th>Summed<br>PubFractions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for organization in object_list %}
+	<tr>
+	  <td>{{ organization }}</td>
+	  <td>{{ organization.sum_affiliate_pubfractions }}</td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td>No items at this time</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock content %}

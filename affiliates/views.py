@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
@@ -13,6 +14,7 @@ from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
 from scipost.mixins import PaginationMixin
+from organizations.models import Organization
 
 from .models import AffiliateJournal, AffiliatePublication, AffiliatePubFraction
 from .forms import (
@@ -122,3 +124,33 @@ def delete_pubfraction(request, slug, doi, pubfrac_id):
     AffiliatePubFraction.objects.filter(pk=pubfrac_id).delete()
     return redirect(reverse('affiliates:publication_detail',
                             kwargs={'doi': doi}))
+
+
+class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
+    template_name = 'affiliates/affiliatejournal_organization_list.html'
+
+    class Meta:
+        model = Organization
+
+    def get_queryset(self):
+        # First, get all the relevant AffiliatePubFractions
+        journal = get_object_or_404(
+            AffiliateJournal,
+            slug=self.kwargs['slug'])
+        pubfractions = AffiliatePubFraction.objects.filter(
+            publication__journal=journal)
+        organization_id_list = [p.organization.id for p in pubfractions.all()]
+        organizations = Organization.objects.filter(
+            id__in=organization_id_list).distinct()
+        organizations = organizations.annotate(
+            sum_affiliate_pubfractions=Sum(
+                'affiliate_pubfractions__fraction',
+                filter=Q(affiliate_pubfractions__publication__journal=journal))
+            ).order_by('-sum_affiliate_pubfractions')
+        return organizations
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['journal'] = get_object_or_404(
+            AffiliateJournal, slug=self.kwargs['slug'])
+        return context
