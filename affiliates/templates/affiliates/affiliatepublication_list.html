@@ -1,5 +1,7 @@
 {% extends 'affiliates/base.html' %}
 
+{% load guardian_tags %}
+
 {% block pagetitle %}: Affiliate Publications{% endblock %}
 
 {% block breadcrumb_items %}
@@ -9,6 +11,10 @@
 
 {% block content %}
 
+  {% if journal %}
+    {% get_obj_perms request.user for journal as "user_perms" %}
+  {% endif %}
+
   <h2 class="highlight">
     {% if journal %}
       Publications in Affiliate Journal: <a href="{% url 'affiliates:journal_detail' slug=journal.slug %}"><strong>{{ journal }}</strong></a>
@@ -17,7 +23,11 @@
     {% endif %}
   </h2>
 
-  {% include 'affiliates/_affiliatepublication_table.html' with publications=object_list %}
+  {% if 'manage_journal_content' in user_perms %}
+    {% include 'affiliates/_affiliatepublication_table.html' with publications=object_list can_manage_journal_content=True %}
+  {% else %}
+    {% include 'affiliates/_affiliatepublication_table.html' with publications=object_list %}
+  {% endif %}
 
   {% if is_paginated %}
     <div class="col-12">

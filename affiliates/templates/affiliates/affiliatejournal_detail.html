@@ -20,7 +20,7 @@
 
   {% if perms.affiliates.can_edit_affiliatedjournal %}
     <h3 class="highlight">Journal managers</h3>
-    <div class="row">
+    <div class="row p-2">
       <div class="col-lg-6">
 	<h4>Add manager</h4>
 	<form action="{% url 'affiliates:journal_add_manager' slug=object.slug %}" method="post">
@@ -48,7 +48,7 @@
 
   <h3 class="highlight">Publications</h3>
   {% if 'manage_journal_content' in user_perms %}
-    <div class="row">
+    <div class="row p-2">
       <div class="col">
 	<h4>Add a publication</h4>
 	<form action="{% url 'affiliates:journal_add_publication' slug=object.slug %}" method="post">
@@ -59,14 +59,18 @@
       </div>
     </div>
   {% endif %}
-  <div class="row">
+  <div class="row p-2">
     <div class="col">
       <h3>Recent publications
 	&emsp;
 	<a class="btn btn-sm btn-primary" href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
-	{% include 'bi/arrow-right.html' %}&nbsp;View all publications in this Journal</a>
+	  {% include 'bi/arrow-right.html' %}&nbsp;View all publications in this Journal</a>
       </h3>
-      {% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
+      {% if 'manage_journal_content' in user_perms %}
+	{% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" can_manage_journal_content=True %}
+      {% else %}
+	{% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
+      {% endif %}
     </div>
   </div>
 {% endblock content %}

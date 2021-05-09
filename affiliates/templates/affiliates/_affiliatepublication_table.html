@@ -6,6 +6,11 @@
       <td>Publication</td>
       <td>Publication date</td>
       <td>DOI</td>
+      {% if can_manage_journal_content %}
+	<td>Sum PubFracs<br>
+	  <span class="text-secondary">[for managers]</span>
+	</td>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -26,6 +31,22 @@
 	</td>
 	<td>{{ pub.get_publication_date }}</td>
 	<td>{{ pub.doi }}</td>
+	{% if can_manage_journal_content %}
+	  <td>
+	    {% with pub.get_sum_pubfractions as sum_pubfracs %}
+	      {{ sum_pubfracs }}&nbsp;
+	      {% if sum_pubfracs == 1 %}
+		<span class="bg-white text-success">
+		  {% include 'bi/check-square-fill.html' %}
+		</span>
+	      {% else %}
+		<span class="bg-white text-danger">
+		  {% include 'bi/exclamation-square-fill.html' %}
+		</span>
+	      {% endif %}
+	    {% endwith %}
+	  </td>
+	{% endif %}
       </tr>
     {% empty %}
       <tr>
