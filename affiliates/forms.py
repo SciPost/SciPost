@@ -4,12 +4,14 @@ __license__ = "AGPL v3"
 
 from django import forms
 from django.contrib.auth.models import User
+from django.forms import BaseModelFormSet, modelformset_factory
 
 from dal import autocomplete
 
 from scipost.services import DOICaller
+from organizations.models import Organization
 
-from .models import AffiliatePublication
+from .models import AffiliatePublication, AffiliatePubFraction
 from .regexes import DOI_AFFILIATEPUBLICATION_REGEX
 
 
@@ -75,3 +77,24 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
         self.instance._metadata_crossref = self.crossref_data
         self.instance.journal = self.cleaned_data['journal']
         return super().save()
+
+
+class AffiliatePublicationAddPubFractionForm(forms.ModelForm):
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        ),
+        required=True
+    )
+    class Meta:
+        model = AffiliatePubFraction
+        fields = [
+            'organization',
+            'publication',
+            'fraction'
+        ]
+        widgets = {
+            'publication': forms.HiddenInput()
+        }

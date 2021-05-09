@@ -33,7 +33,7 @@ class AffiliatePubFraction(models.Model):
         )
 
     def __str__(self):
-        return 'PubFraction of %s for %s: %d' % (
+        return 'PubFraction of %s for %s: %s' % (
             self.organization,
             self.publication,
             self.fraction

@@ -42,4 +42,9 @@ urlpatterns = [
         views.AffiliatePublicationDetailView.as_view(),
         name='publication_detail'
     ),
+    path( # /affiliates/journals/<slug:slug>/publications/<doi:doi>/pubfractions/add
+        'journals/<slug:slug>/publications/<doi:doi>/pubfractions/add',
+        views.add_pubfraction,
+        name='add_pubfraction'
+    ),
 ]

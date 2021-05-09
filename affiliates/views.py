@@ -13,7 +13,9 @@ from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
 from .models import AffiliateJournal, AffiliatePublication
-from .forms import AffiliateJournalAddManagerForm, AffiliateJournalAddPublicationForm
+from .forms import (
+    AffiliateJournalAddManagerForm, AffiliateJournalAddPublicationForm,
+    AffiliatePublicationAddPubFractionForm)
 
 
 class AffiliateJournalListView(ListView):
@@ -73,3 +75,22 @@ class AffiliatePublicationDetailView(DetailView):
     model = AffiliatePublication
     slug_field = 'doi'
     slug_url_kwarg = 'doi'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context['add_pubfraction_form'] = AffiliatePublicationAddPubFractionForm(
+            initial={'publication': self.object})
+        return context
+
+
+@permission_required_or_403('affiliates.manage_journal_content',
+                            (AffiliateJournal, 'slug', 'slug'))
+def add_pubfraction(request, slug, doi):
+    form = AffiliatePublicationAddPubFractionForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+    else:
+        for error_messages in form.errors.values():
+            messages.warning(request, *error_messages)
+    return redirect(reverse('affiliates:publication_detail',
+                            kwargs={'doi': doi}))

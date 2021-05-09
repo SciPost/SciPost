@@ -76,3 +76,9 @@ class AffiliatePublication(models.Model):
         else:
             pub_date = ''
         return pub_date
+
+    def get_sum_pubfractions(self):
+        sum = 0
+        for pubfrac in self.pubfractions.all():
+            sum += pubfrac.fraction
+        return sum

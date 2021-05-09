@@ -1,5 +1,7 @@
 {% extends 'affiliates/base.html' %}
 
+{% load bootstrap %}
+
 {% block pagetitle %}: Publication: {{ object }}{% endblock %}
 
 {% block breadcrumb_items %}
@@ -15,7 +17,7 @@
 {% block content %}
 
   <h2 class="highlight">Publication: {{ object }} </h2>
-  <p>(in affiliate journal {{ object.journal }})</p>
+  <p>(in affiliate journal <a href="{{ object.journal.get_absolute_url}}">{{ object.journal }}</a>)</p>
 
   <table class="table">
     <tr><td>Title</td><td>{{ object.get_title }}</td></tr>
@@ -27,16 +29,52 @@
   </table>
 
   <h3 class="highlight">PubFractions</h3>
-  <table class="table">
-    {% for pubfrac in object.pufractions.all %}
-      <tr>
-	<td>{{ pubfrac }}</td>
-      </tr>
-    {% empty %}
-      <tr>
-	<td>No PubFractions yet</td>
-      </tr>
-    {% endfor %}
-  </table>
-
+  <div class="row">
+    <div class="col">
+      <h4>Add a PubFraction</h4>
+      <form action="{% url 'affiliates:add_pubfraction' slug=object.journal.slug doi=object.doi %}" method="post">
+	{% csrf_token %}
+	{{ add_pubfraction_form }}
+	<input type="submit" value="Add PubFraction" class="btn btn-sm btn-primary">
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <h4>PubFractions for this publication</h4>
+      <table class="table">
+	<thead>
+	  <tr>
+	    <td>Organization</td>
+	    <td>Fraction</td>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for pubfrac in object.pubfractions.all %}
+	    <tr>
+	      <td>{{ pubfrac.organization }}</td>
+	      <td>{{ pubfrac.fraction }}</td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td>No PubFractions have been defined.</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+      {% with sum_pubfractions=object.get_sum_pubfractions %}
+	<p>Sum of PubFractions: {{ sum_pubfractions }}.&emsp;
+	{% if sum_pubfractions != 1 %}
+	  <span class="bg-danger text-white p-2">WARNING: the PubFractions do not sum up to 1!</span>
+	{% else %}
+	  <span class="bg-success text-white p-2">All good, PubFractions sum up to 1.</span>
+	{% endif %}
+	</p>
+      {% endwith %}
+    </div>
+  </div>
 {% endblock content %}
+
+{% block footer_script %}
+  {{ add_pubfraction_form.media }}
+{% endblock footer_script %}
