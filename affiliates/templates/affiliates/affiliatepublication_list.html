@@ -19,4 +19,10 @@
 
   {% include 'affiliates/_affiliatepublication_table.html' with publications=object_list %}
 
+  {% if is_paginated %}
+    <div class="col-12">
+      {% include 'partials/pagination.html' with page_obj=page_obj %}
+    </div>
+  {% endif %}
+
 {% endblock content %}
