@@ -23,12 +23,12 @@
   <p>(in affiliate journal <a href="{{ object.journal.get_absolute_url}}">{{ object.journal }}</a>)</p>
 
   <table class="table">
-    <tr><td>Title</td><td>{{ object.get_title }}</td></tr>
-    <tr><td>Author list</td><td>{{ object.get_author_list }}</td></tr>
-    <tr><td>Volume</td><td>{{ object.get_volume }}</td></tr>
-    <tr><td>Pages</td><td>{{ object.get_pages }}</td></tr>
-    <tr><td>Publication date</td><td>{{ object.publication_date }}</td></tr>
-    <tr><td>DOI</td><td><a href="https://doi.org/{{ object.doi }}" rel="nofollow" target="_blank">{{ object.doi }}</a></td></tr>
+    <tr><td><strong>Title</strong></td><td>{{ object.get_title }}</td></tr>
+    <tr><td><strong>Author list</strong></td><td>{{ object.get_author_list }}</td></tr>
+    <tr><td><strong>Volume</strong></td><td>{{ object.get_volume }}</td></tr>
+    <tr><td><strong>Pages</strong></td><td>{{ object.get_pages }}</td></tr>
+    <tr><td><strong>Publication date</strong></td><td>{{ object.publication_date }}</td></tr>
+    <tr><td><strong>DOI</strong></td><td><a href="https://doi.org/{{ object.doi }}" rel="nofollow" target="_blank">{{ object.doi }}</a></td></tr>
   </table>
 
   <h3 class="highlight">PubFractions</h3>
@@ -50,9 +50,9 @@
       <table class="table">
 	<thead>
 	  <tr>
-	    <td>Organization</td>
-	    <td>Fraction</td>
-	    <td></td>
+	    <th>Organization</th>
+	    <th>Fraction</th>
+	    <th></th>
 	  </tr>
 	</thead>
 	<tbody>
