@@ -60,19 +60,16 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
 
     def clean_doi(self):
         input_doi = self.cleaned_data['doi']
-
         if AffiliatePublication.objects.filter(
                 doi=input_doi).exists():
             raise forms.ValidationError(
                 'This publication has already been added.')
-
         caller = DOICaller(input_doi)
         if caller.is_valid:
             self.crossref_data = DOICaller(input_doi).data['crossref_data']
         else:
             error_message = 'Could not find a resource for that DOI.'
             raise forms.ValidationError(error_message)
-
         return input_doi
 
     def save(self, *args, **kwargs):
@@ -102,3 +99,27 @@ class AffiliatePublicationAddPubFractionForm(forms.ModelForm):
         widgets = {
             'publication': forms.HiddenInput()
         }
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = super().clean(*args, **kwargs)
+        # Verify that the organization does not already
+        # have a PubFraction for this AffiliatePublication
+        organization = cleaned_data['organization']
+        publication = cleaned_data['publication']
+        if publication.pubfractions.filter(
+                organization=organization).exists():
+            raise forms.ValidationError(
+                'This Organization already has a PubFraction '
+                'for this Publication.\nIf you want to change it, '
+                'delete the existing one and re-add a new one.')
+        return cleaned_data
+
+    def clean_fraction(self):
+        input_fraction = self.cleaned_data['fraction']
+        if input_fraction < 0:
+            raise forms.ValidationError(
+                'The PubFraction cannot be negative!')
+        elif input_fraction > 1:
+            raise forms.ValidationError(
+                'An individual PubFraction cannot exceed 1!')
+        return input_fraction
