@@ -12,7 +12,7 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
-from .models import AffiliateJournal, AffiliatePublication
+from .models import AffiliateJournal, AffiliatePublication, AffiliatePubFraction
 from .forms import (
     AffiliateJournalAddManagerForm, AffiliateJournalAddPublicationForm,
     AffiliatePublicationAddPubFractionForm)
@@ -92,5 +92,12 @@ def add_pubfraction(request, slug, doi):
     else:
         for error_messages in form.errors.values():
             messages.warning(request, *error_messages)
+    return redirect(reverse('affiliates:publication_detail',
+                            kwargs={'doi': doi}))
+
+@permission_required_or_403('affiliates.manage_journal_content',
+                            (AffiliateJournal, 'slug', 'slug'))
+def delete_pubfraction(request, slug, doi, pubfrac_id):
+    AffiliatePubFraction.objects.filter(pk=pubfrac_id).delete()
     return redirect(reverse('affiliates:publication_detail',
                             kwargs={'doi': doi}))

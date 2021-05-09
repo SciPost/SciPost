@@ -47,6 +47,7 @@
 	  <tr>
 	    <td>Organization</td>
 	    <td>Fraction</td>
+	    <td></td>
 	  </tr>
 	</thead>
 	<tbody>
@@ -54,6 +55,11 @@
 	    <tr>
 	      <td>{{ pubfrac.organization }}</td>
 	      <td>{{ pubfrac.fraction }}</td>
+	      <td>
+		<a href="{% url 'affiliates:delete_pubfraction' slug=object.journal.slug doi=object.doi pubfrac_id=pubfrac.id %}">
+			 <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+		</a>
+	      </td>
 	    </tr>
 	  {% empty %}
 	    <tr>

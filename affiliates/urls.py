@@ -47,4 +47,9 @@ urlpatterns = [
         views.add_pubfraction,
         name='add_pubfraction'
     ),
+    path( # /affiliates/journals/<slug:slug>/publications/<doi:doi>/pubfractions/<int:pk>/delete
+        'journals/<slug:slug>/publications/<doi:doi>/pubfractions/<int:pubfrac_id>/delete',
+        views.delete_pubfraction,
+        name='delete_pubfraction'
+    ),
 ]
