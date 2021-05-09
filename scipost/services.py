@@ -18,6 +18,19 @@ figshare_logger = logging.getLogger('scipost.services.figshare')
 osfpreprints_logger = logging.getLogger('scipost.services.osfpreprints')
 
 
+def extract_publication_date_from_Crossref_data(data):
+    date_parts = data.get('issued', {}).get('date-parts', {})
+    if date_parts:
+        date_parts = date_parts[0]
+        year = date_parts[0]
+        month = date_parts[1] if len(date_parts) > 1 else 1
+        day = date_parts[2] if len(date_parts) > 2 else 1
+        pub_date = datetime.date(year, month, day).isoformat()
+    else:
+        pub_date = ''
+    return pub_date
+
+
 class DOICaller:
     def __init__(self, doi_string):
         self.doi_string = doi_string
@@ -64,7 +77,7 @@ class DOICaller:
         journal = data.get('container-title', [])[0]
         volume = data.get('volume', '')
         pages = self._get_pages(data)
-        pub_date = self._get_pub_date(data)
+        pub_date = extract_publication_date_from_Crossref_data(data)
 
         self.data = {
             'title': title,
@@ -88,19 +101,6 @@ class DOICaller:
         if not pages:
             pages = data.get('page', '')
         return pages
-
-    def _get_pub_date(self, data):
-        date_parts = data.get('issued', {}).get('date-parts', {})
-        if date_parts:
-            date_parts = date_parts[0]
-            year = date_parts[0]
-            month = date_parts[1] if len(date_parts) > 1 else 1
-            day = date_parts[2] if len(date_parts) > 2 else 1
-            pub_date = datetime.date(year, month, day).isoformat()
-        else:
-            pub_date = ''
-
-        return pub_date
 
 
 class ArxivCaller:

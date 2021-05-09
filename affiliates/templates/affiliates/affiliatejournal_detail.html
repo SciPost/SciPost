@@ -61,7 +61,7 @@
   {% endif %}
   <div class="row p-2">
     <div class="col">
-      <h3>Recent publications
+      <h3>Recent publications <small>(ten most recent)</small>
 	&emsp;
 	<a class="btn btn-sm btn-primary" href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
 	  {% include 'bi/arrow-right.html' %}&nbsp;View all publications in this Journal</a>

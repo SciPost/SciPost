@@ -28,10 +28,15 @@ class AffiliatePubFractionInline(admin.TabularInline):
     ]
 
 class AffiliatePublicationAdmin(admin.ModelAdmin):
-    search_fields = ['doi', 'journal',]
+    search_fields = [
+        'doi',
+        'journal',
+        'publication_date'
+    ]
     list_display = [
         'doi',
         'journal',
+        'publication_date'
     ]
     inlines = [AffiliatePubFractionInline,]
 

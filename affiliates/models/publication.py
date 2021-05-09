@@ -26,12 +26,19 @@ class AffiliatePublication(models.Model):
         default=dict,
         blank=True
     )
-
     journal = models.ForeignKey(
         'affiliates.AffiliateJournal',
         on_delete=models.CASCADE,
         related_name='publications'
     )
+    publication_date = models.DateField(
+        blank=True, null=True
+    )
+
+    class Meta:
+        ordering = [
+            '-publication_date',
+        ]
 
     def __str__(self):
         return self.doi
@@ -64,18 +71,6 @@ class AffiliatePublication(models.Model):
         if not pages:
             pages = self._metadata_crossref.get('page', '')
         return pages
-
-    def get_publication_date(self):
-        date_parts = self._metadata_crossref.get('issued', {}).get('date-parts', {})
-        if date_parts:
-            date_parts = date_parts[0]
-            year = date_parts[0]
-            month = date_parts[1] if len(date_parts) > 1 else 1
-            day = date_parts[2] if len(date_parts) > 2 else 1
-            pub_date = datetime.date(year, month, day).isoformat()
-        else:
-            pub_date = ''
-        return pub_date
 
     def get_sum_pubfractions(self):
         sum = 0

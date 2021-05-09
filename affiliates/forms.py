@@ -8,7 +8,10 @@ from django.forms import BaseModelFormSet, modelformset_factory
 
 from dal import autocomplete
 
-from scipost.services import DOICaller
+from scipost.services import (
+    DOICaller,
+    extract_publication_date_from_Crossref_data)
+
 from organizations.models import Organization
 
 from .models import AffiliatePublication, AffiliatePubFraction
@@ -40,6 +43,7 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.crossref_data = {}
+        self.publication_date = None
         super().__init__(*args, **kwargs)
 
     def clean(self, *args, **kwargs):
@@ -75,6 +79,7 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
         self.instance.doi = self.cleaned_data['doi']
         self.instance._metadata_crossref = self.crossref_data
         self.instance.journal = self.cleaned_data['journal']
+        self.instance.publication_date = extract_publication_date_from_Crossref_data(self.crossref_data)
         return super().save()
 
 
