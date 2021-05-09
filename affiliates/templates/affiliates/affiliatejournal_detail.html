@@ -61,34 +61,12 @@
   {% endif %}
   <div class="row">
     <div class="col">
-      <table class="table table-hover">
-	<thead>
-	  <tr>
-	    <td>Title</td>
-	    <td>Author list</td>
-	    <td>Volume</td>
-	    <td>Pages</td>
-	    <td>Publication date</td>
-	    <td>DOI</td>
-	  </tr>
-	</thead>
-	<tbody>
-	  {% for pub in object.publications.all %}
-	    <tr class="table-row" data-href="{{ pub.get_absolute_url }}">
-	      <td>{{ pub.get_title }}</td>
-	      <td>{{ pub.get_author_list }}</td>
-	      <td>{{ pub.get_volume }}</td>
-	      <td>{{ pub.get_pages }}</td>
-	      <td>{{ pub.get_publication_date }}</td>
-	      <td>{{ pub.doi }}</td>
-	    </tr>
-	  {% empty %}
-	    <tr>
-	      <td>No publications yet</td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
-      </table>
+      <h3>Recent publications
+	&emsp;
+	<a class="btn btn-sm btn-primary" href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
+	{% include 'bi/arrow-right.html' %}&nbsp;View all publications in this Journal</a>
+      </h3>
+      {% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
     </div>
   </div>
 {% endblock content %}
@@ -96,5 +74,4 @@
 {% block footer_script %}
   {{ add_manager_form.media }}
   {{ add_publication_form.media }}
-  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
 {% endblock footer_script %}

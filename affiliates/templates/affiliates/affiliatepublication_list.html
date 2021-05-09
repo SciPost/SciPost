@@ -1,0 +1,22 @@
+{% extends 'affiliates/base.html' %}
+
+{% block pagetitle %}: Affiliate Publications{% endblock %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item">Publications</span>
+{% endblock %}
+
+{% block content %}
+
+  <h2 class="highlight">
+    {% if journal %}
+      Publications in Affiliate Journal: <a href="{% url 'affiliates:journal_detail' slug=journal.slug %}"><strong>{{ journal }}</strong></a>
+    {% else %}
+      Affiliate Publication
+    {% endif %}
+  </h2>
+
+  {% include 'affiliates/_affiliatepublication_table.html' with publications=object_list %}
+
+{% endblock content %}

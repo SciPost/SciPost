@@ -1,6 +1,7 @@
 {% extends 'affiliates/base.html' %}
 
 {% load bootstrap %}
+{% load guardian_tags %}
 
 {% block pagetitle %}: Publication: {{ object }}{% endblock %}
 
@@ -16,6 +17,8 @@
 {% endblock %}
 {% block content %}
 
+  {% get_obj_perms request.user for object.journal as "user_perms" %}
+
   <h2 class="highlight">Publication: {{ object }} </h2>
   <p>(in affiliate journal <a href="{{ object.journal.get_absolute_url}}">{{ object.journal }}</a>)</p>
 
@@ -29,16 +32,18 @@
   </table>
 
   <h3 class="highlight">PubFractions</h3>
-  <div class="row">
-    <div class="col">
-      <h4>Add a PubFraction</h4>
-      <form action="{% url 'affiliates:add_pubfraction' slug=object.journal.slug doi=object.doi %}" method="post">
-	{% csrf_token %}
-	{{ add_pubfraction_form }}
-	<input type="submit" value="Add PubFraction" class="btn btn-sm btn-primary">
-      </form>
+  {% if 'manage_journal_content' in user_perms %}
+    <div class="row">
+      <div class="col">
+	<h4>Add a PubFraction</h4>
+	<form action="{% url 'affiliates:add_pubfraction' slug=object.journal.slug doi=object.doi %}" method="post">
+	  {% csrf_token %}
+	  {{ add_pubfraction_form }}
+	  <input type="submit" value="Add PubFraction" class="btn btn-sm btn-primary">
+	</form>
+      </div>
     </div>
-  </div>
+  {% endif %}
   <div class="row">
     <div class="col">
       <h4>PubFractions for this publication</h4>
@@ -53,13 +58,15 @@
 	<tbody>
 	  {% for pubfrac in object.pubfractions.all %}
 	    <tr>
-	      <td>{{ pubfrac.organization }}</td>
+	      <td><a href="{% url 'organizations:organization_details' pk=pubfrac.organization.id %}">{{ pubfrac.organization }}</a></td>
 	      <td>{{ pubfrac.fraction }}</td>
-	      <td>
-		<a href="{% url 'affiliates:delete_pubfraction' slug=object.journal.slug doi=object.doi pubfrac_id=pubfrac.id %}">
-			 <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
-		</a>
-	      </td>
+	      {% if 'manage_journal_content' in user_perms %}
+		<td>
+		  <a href="{% url 'affiliates:delete_pubfraction' slug=object.journal.slug doi=object.doi pubfrac_id=pubfrac.id %}">
+		    <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+		  </a>
+		</td>
+	      {% endif %}
 	    </tr>
 	  {% empty %}
 	    <tr>
@@ -68,15 +75,17 @@
 	  {% endfor %}
 	</tbody>
       </table>
-      {% with sum_pubfractions=object.get_sum_pubfractions %}
-	<p>Sum of PubFractions: {{ sum_pubfractions }}.&emsp;
-	{% if sum_pubfractions != 1 %}
-	  <span class="bg-danger text-white p-2">WARNING: the PubFractions do not sum up to 1!</span>
-	{% else %}
-	  <span class="bg-success text-white p-2">All good, PubFractions sum up to 1.</span>
-	{% endif %}
-	</p>
-      {% endwith %}
+      {% if 'manage_journal_content' in user_perms %}
+	{% with sum_pubfractions=object.get_sum_pubfractions %}
+	  <p>Sum of PubFractions: {{ sum_pubfractions }}.&emsp;
+	    {% if sum_pubfractions != 1 %}
+	      <span class="bg-danger text-white p-2">WARNING: the PubFractions do not sum up to 1!</span>
+	    {% else %}
+	      <span class="bg-success text-white p-2">All good, PubFractions sum up to 1.</span>
+	    {% endif %}
+	  </p>
+	{% endwith %}
+      {% endif %}
     </div>
   </div>
 {% endblock content %}

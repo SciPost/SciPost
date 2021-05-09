@@ -1,0 +1,40 @@
+{% load static %}
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <td>Publication</td>
+      <td>Publication date</td>
+      <td>DOI</td>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pub in publications %}
+      <tr class="table-row" data-href="{{ pub.get_absolute_url }}">
+	<td>
+	  <strong>{{ pub.get_title }}</strong>
+	  <br>
+	  by {{ pub.get_author_list }}
+	  <br>
+	  {{ pub.journal }}
+	  {% if pub.get_volume %}
+	    &nbsp;Vol. {{ pub.get_volume }}
+	  {% endif %}
+	  {% if pub.get_pages %}
+	    ,&nbsp;p.{{ pub.get_pages }}
+	  {% endif %}
+	</td>
+	<td>{{ pub.get_publication_date }}</td>
+	<td>{{ pub.doi }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+	<td>No publications yet</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+{% endblock footer_script %}

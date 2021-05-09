@@ -12,6 +12,8 @@ from django.views.generic.list import ListView
 from guardian.decorators import permission_required_or_403
 from guardian.shortcuts import assign_perm, remove_perm, get_users_with_perms
 
+from scipost.mixins import PaginationMixin
+
 from .models import AffiliateJournal, AffiliatePublication, AffiliatePubFraction
 from .forms import (
     AffiliateJournalAddManagerForm, AffiliateJournalAddPublicationForm,
@@ -69,6 +71,25 @@ def affiliatejournal_add_publication(request, slug):
             messages.warning(request, *error_messages)
     return redirect(reverse('affiliates:journal_detail',
                             kwargs={'slug': slug}))
+
+
+class AffiliatePublicationListView(PaginationMixin, ListView):
+    class Meta:
+        model = AffiliatePublication
+
+    def get_queryset(self):
+        queryset = AffiliatePublication.objects.all()
+        if self.request.GET.get('journal', None):
+            queryset = queryset.filter(journal__slug=self.request.GET['journal'])
+        return queryset
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        if self.request.GET.get('journal', None):
+            context['journal'] = get_object_or_404(
+                AffiliateJournal,
+                slug=self.request.GET['journal'])
+        return context
 
 
 class AffiliatePublicationDetailView(DetailView):

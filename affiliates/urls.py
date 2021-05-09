@@ -12,6 +12,9 @@ app_name='affiliates'
 register_converter(Crossref_DOI_converter, 'doi')
 
 urlpatterns = [
+
+    # AffiliateJournals
+
     path( # /affiliates/journals
         'journals',
         views.AffiliateJournalListView.as_view(),
@@ -37,11 +40,6 @@ urlpatterns = [
         views.affiliatejournal_add_publication,
         name='journal_add_publication'
     ),
-    path( # /affiliates/publications/<doi:doi>
-        'publications/<doi:doi>',
-        views.AffiliatePublicationDetailView.as_view(),
-        name='publication_detail'
-    ),
     path( # /affiliates/journals/<slug:slug>/publications/<doi:doi>/pubfractions/add
         'journals/<slug:slug>/publications/<doi:doi>/pubfractions/add',
         views.add_pubfraction,
@@ -51,5 +49,18 @@ urlpatterns = [
         'journals/<slug:slug>/publications/<doi:doi>/pubfractions/<int:pubfrac_id>/delete',
         views.delete_pubfraction,
         name='delete_pubfraction'
+    ),
+
+    # AffiliatePublications
+
+    path( # /affiliates/publications
+        'publications',
+        views.AffiliatePublicationListView.as_view(),
+        name='publication_list'
+    ),
+    path( # /affiliates/publications/<doi:doi>
+        'publications/<doi:doi>',
+        views.AffiliatePublicationDetailView.as_view(),
+        name='publication_detail'
     ),
 ]
