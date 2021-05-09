@@ -47,7 +47,7 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
         # the same as in the form
         print(self.crossref_data)
         print(self.cleaned_data['journal'])
-        if (self.crossref_data['journal'] !=
+        if (self.crossref_data.get('container-title', [])[0] !=
             self.cleaned_data['journal'].name):
             raise forms.ValidationError(
                 'The journal specified in the DOI is different.')
@@ -63,7 +63,7 @@ class AffiliateJournalAddPublicationForm(forms.ModelForm):
 
         caller = DOICaller(input_doi)
         if caller.is_valid:
-            self.crossref_data = DOICaller(input_doi).data
+            self.crossref_data = DOICaller(input_doi).data['crossref_data']
         else:
             error_message = 'Could not find a resource for that DOI.'
             raise forms.ValidationError(error_message)

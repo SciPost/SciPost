@@ -73,6 +73,7 @@ class DOICaller:
             'volume': volume,
             'pages': pages,
             'pub_date': pub_date,
+            'crossref_data': self._crossref_data
         }
 
         doi_logger.info('GET [{doi}] [formatted data] | {data}'.format(

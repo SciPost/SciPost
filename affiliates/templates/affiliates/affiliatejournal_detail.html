@@ -1,12 +1,14 @@
 {% extends 'affiliates/base.html' %}
 
+{% load static %}
+{% load bootstrap %}
 {% load guardian_tags %}
 
 {% block pagetitle %}: Affiliate Journal: {{ object }}{% endblock %}
 
 {% block breadcrumb_items %}
   <span class="breadcrumb-item">Affiliates</span>
-  <span class="breadcrumb-item">Journals</span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journals' %}">Journals</a></span>
   <span class="breadcrumb-item">{{ object }}</span>
 {% endblock %}
 
@@ -48,7 +50,7 @@
   {% if 'manage_journal_content' in user_perms %}
     <div class="row">
       <div class="col">
-	<strong>Add a publication</strong>
+	<h4>Add a publication</h4>
 	<form action="{% url 'affiliates:journal_add_publication' slug=object.slug %}" method="post">
 	  {% csrf_token %}
 	  {{ add_publication_form }}
@@ -59,16 +61,33 @@
   {% endif %}
   <div class="row">
     <div class="col">
-      <table class="table">
-	{% for pub in object.publications.all %}
+      <table class="table table-hover">
+	<thead>
 	  <tr>
-	    <td><a href="{{ pub.get_absolute_url }}">{{ pub }}</a></td>
+	    <td>Title</td>
+	    <td>Author list</td>
+	    <td>Volume</td>
+	    <td>Pages</td>
+	    <td>Publication date</td>
+	    <td>DOI</td>
 	  </tr>
-	{% empty %}
-	  <tr>
-	    <td>No publications yet</td>
-	  </tr>
-	{% endfor %}
+	</thead>
+	<tbody>
+	  {% for pub in object.publications.all %}
+	    <tr class="table-row" data-href="{{ pub.get_absolute_url }}">
+	      <td>{{ pub.get_title }}</td>
+	      <td>{{ pub.get_author_list }}</td>
+	      <td>{{ pub.get_volume }}</td>
+	      <td>{{ pub.get_pages }}</td>
+	      <td>{{ pub.get_publication_date }}</td>
+	      <td>{{ pub.doi }}</td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td>No publications yet</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
       </table>
     </div>
   </div>
@@ -77,4 +96,5 @@
 {% block footer_script %}
   {{ add_manager_form.media }}
   {{ add_publication_form.media }}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
 {% endblock footer_script %}
