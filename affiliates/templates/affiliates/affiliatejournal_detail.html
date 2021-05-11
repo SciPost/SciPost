@@ -47,8 +47,14 @@
   {% endif %}
 
   <h3 class="highlight">Publications</h3>
-  {% if 'manage_journal_content' in user_perms %}
-    <div class="row p-2">
+  <div class="row p-2">
+    {% if perms.affiliates.can_edit_affiliatedjournal %}
+      <div class="col">
+	<h4>Update publications from Crossref</h4>
+	<a class="btn btn-primary" href="{% url 'affiliates:journal_update_publications_from_Crossref' slug=object.slug %}">Run full update</a>
+      </div>
+    {% endif %}
+    {% if 'manage_journal_content' in user_perms %}
       <div class="col">
 	<h4>Add a publication</h4>
 	<form action="{% url 'affiliates:journal_add_publication' slug=object.slug %}" method="post">
@@ -57,23 +63,23 @@
 	  <input type="submit" value="Submit" class="btn btn-primary">
 	</form>
       </div>
-    </div>
-  {% endif %}
-  <div class="row p-2">
-    <div class="col">
-      <h4>Recent publications <small>(ten most recent)</small>
-	&emsp;
-	<a class="btn btn-sm btn-primary" href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
-	  {% include 'bi/arrow-right.html' %}&nbsp;View all publications in this Journal</a>
-      </h4>
-      {% if 'manage_journal_content' in user_perms %}
-	{% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" can_manage_journal_content=True %}
-      {% else %}
-	{% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
-      {% endif %}
-    </div>
+    {% endif %}
   </div>
-  <h3 class="highlight">Benefitting Organizations</h3>
+    <div class="row p-2">
+      <div class="col">
+	<h4>Recent publications <small>(ten most recent)</small>
+	  &emsp;
+	  <a class="btn btn-sm btn-primary" href="{% url 'affiliates:publication_list' %}?journal={{ object.slug }}">
+	    {% include 'bi/arrow-right.html' %}&nbsp;View all publications in this Journal</a>
+	</h4>
+	{% if 'manage_journal_content' in user_perms %}
+	  {% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" can_manage_journal_content=True %}
+	{% else %}
+	  {% include 'affiliates/_affiliatepublication_table.html' with publications=object.publications.all|slice:":10" %}
+	{% endif %}
+      </div>
+    </div>
+    <h3 class="highlight">Benefitting Organizations</h3>
     <div class="row p-2">
       <div class="col">
 	<a class="btn btn-sm btn-primary" href="{% url 'affiliates:journal_organizations' slug=object.slug %}">

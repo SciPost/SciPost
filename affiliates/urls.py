@@ -40,6 +40,11 @@ urlpatterns = [
         views.affiliatejournal_add_publication,
         name='journal_add_publication'
     ),
+    path( # /affiliates/journals/<slug>/update_publications_from_Crossref
+        'journals/<slug:slug>/update_publications_from_Crossref',
+        views.affiliatejournal_update_publications_from_Crossref,
+        name='journal_update_publications_from_Crossref'
+    ),
     path( # /affiliates/journals/<slug:slug>/publications/<doi:doi>/pubfractions/add
         'journals/<slug:slug>/publications/<doi:doi>/pubfractions/add',
         views.add_pubfraction,

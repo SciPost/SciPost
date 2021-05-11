@@ -20,6 +20,7 @@ from .models import AffiliateJournal, AffiliatePublication, AffiliatePubFraction
 from .forms import (
     AffiliateJournalAddManagerForm, AffiliateJournalAddPublicationForm,
     AffiliatePublicationAddPubFractionForm)
+from .services import get_affiliatejournal_publications_from_Crossref
 
 
 class AffiliateJournalListView(ListView):
@@ -75,7 +76,19 @@ def affiliatejournal_add_publication(request, slug):
                             kwargs={'slug': slug}))
 
 
+@permission_required_or_403('affiliates.change_affiliatejournal',
+                            (AffiliateJournal, 'slug', 'slug'))
+def affiliatejournal_update_publications_from_Crossref(request, slug):
+    journal = get_object_or_404(AffiliateJournal, slug=slug)
+    total_nr_created = get_affiliatejournal_publications_from_Crossref(journal)
+    messages.success(request, 'Created %d entries.' % total_nr_created)
+    return redirect(reverse('affiliates:journal_detail',
+                            kwargs={'slug': slug}))
+
+
 class AffiliatePublicationListView(PaginationMixin, ListView):
+    paginate_by = 10
+
     class Meta:
         model = AffiliatePublication
 
