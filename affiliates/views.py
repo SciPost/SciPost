@@ -46,7 +46,7 @@ class AffiliateJournalDetailView(DetailView):
                             (AffiliateJournal, 'slug', 'slug'))
 def affiliatejournal_add_manager(request, slug):
     journal = get_object_or_404(AffiliateJournal, slug=slug)
-    form = AddAffiliateJournalManagerForm(request.POST or None)
+    form = AffiliateJournalAddManagerForm(request.POST or None)
     if form.is_valid():
         assign_perm('manage_journal_content',
                     form.cleaned_data['user'], journal)
