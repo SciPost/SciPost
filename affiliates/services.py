@@ -66,4 +66,4 @@ def get_affiliatejournal_publications_from_Crossref(journal):
             offset += rows
         except KeyError:
             pass
-        return total_nr_created
+    return total_nr_created
