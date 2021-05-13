@@ -7,29 +7,20 @@
 
 <div class="commentid" id="comment_id{{ comment.id }}">
 
-  {% if request.user.contributor and request.user.contributor == comment.core_content_object.editor_in_charge or is_ed_admin %}
-    {% if request.user|is_possible_author_of_submission:comment.core_content_object %}
-      <h3>Anonymous on {{ comment.date_submitted|date:'Y-m-d' }}</h3>
+  <h3>
+    {% if comment.anonymous %}
+      Anonymous on {{ comment.date_submitted|date:'Y-m-d' }}
     {% else %}
       <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
       on {{ comment.date_submitted|date:'Y-m-d' }}
-      {% if comment.anonymous %}
-	<small class="text-danger py-2">Chose public anonymity</small>{% endif %}
     {% endif %}
-  {% elif comment.anonymous %}
-    Anonymous on {{ comment.date_submitted|date:'Y-m-d' }}
-  {% else %}
-    {% if comment.is_author_reply %}Author {% endif %}
-    <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
-    on {{ comment.date_submitted|date:'Y-m-d' }}
-  {% endif %}
+    {% if user.is_authenticated %}
+      {% with type_id=comment|content_type_id %}
+	{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=comment.id model="Comment" %}
+      {% endwith %}
+    {% endif %}
+  </h3>
   {% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}
-
-  {% if user.is_authenticated %}
-    {% with type_id=comment|content_type_id %}
-      {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=comment.id model="Comment" %}
-    {% endwith %}
-  {% endif %}
 
   {% if comment|is_reply_to_comment %}
     <br>
@@ -41,4 +32,25 @@
 
     on {{ comment.content_object.date_submitted|date:'Y-m-d' }})
   {% endif %}
+
+  {% if request.user.contributor and request.user.contributor == comment.core_content_object.editor_in_charge or is_ed_admin %}
+    <button class="btn btn-sm btn-danger text-white my-2" data-toggle="modal" data-target="#modalCommentAuthor{{ comment.id }}" aria-expanded="false" aria-controls="modalCommentAuthor">
+      Display Comment Author's Identity
+    </button>
+    <div class="modal" id="modalCommentAuthor{{ comment.id }}">
+      <div class="modal-dialog modal-dialog-centered">
+	<div class="modal-content">
+	  <div class="modal-body">
+	    {% if comment.is_author_reply %}<strong>Author:</strong>&emsp;{% endif %}
+	    <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.profile }}</a>
+	    {% if perms.scipost.can_view_profiles %}
+	      &emsp;(<a href="{% url 'profiles:profile_detail' pk=comment.author.profile.id %}">view Profile</a>)
+	    {% endif %}
+	    <button type="button" class="btn btn-secondary float-right" data-dismiss="modal">Close</button>
+	  </div>
+	</div>
+      </div>
+    </div>
+  {% endif %}
+
 </div>
