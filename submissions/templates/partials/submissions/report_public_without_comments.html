@@ -3,124 +3,108 @@
 
 <div class="row">
   <div class="col-12">
-    <div class="report" id="report_{{report.report_nr}}">
-      {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
-
-        <div class="reportid">
-          <h3>
-            {% if report.anonymous %}
-              (chose public anonymity)
-            {% endif %}
-
-            Report {{report.report_nr}} by <a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
-            on {{ report.date_submitted|date:'Y-n-j' }}
-            {% if report.report_type == 'report_post_edrec' %}
-              <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
-            {% endif %}
-
-            {% if report.invited %}
-              <span class="report-label">Invited Report</span>
-            {% else %}
-              <span class="report-label">Contributed Report</span>
-            {% endif %}
-
-	    {% if user.is_authenticated %}
-	      {% with type_id=report|content_type_id %}
-		{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=report.id model="Report" %}
-	      {% endwith %}
-	    {% endif %}
-          </h3>
-          {% if report.doi_string or report.pdf_report %}
-            <ul class="clickables">
-              {% if report.doi_string %}
-                <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
-              {% endif %}
-              {% if report.pdf_report %}
-                <li>
-                  <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank">{% include 'bi/download.html' %} Download as PDF</a>
-                </li>
-              {% endif %}
-            </ul>
+    <div class="report" id="report_{{ report.report_nr }}">
+      <div class="reportid">
+        <h3>
+          {% if report.anonymous %}
+            Anonymous Report {{ report.report_nr }}
+          {% else %}
+            Report {{ report.report_nr }} by <a href="{{ report.author.get_absolute_url }}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
           {% endif %}
-          {% if perms.scipost.can_manage_reports %}
-            <h3 class="mt-3">Administration</h3>
-            <ul class="mb-0">
-              <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
-              <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
-              <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
-            </ul>
-          {% endif %}
-        </div>
 
-        {% if report.flagged %}
-          <h4 class="text-danger font-weight-bold">CAUTION: check if this referee has been flagged by the authors</h4>
+          on {{ report.date_submitted|date:'Y-n-j' }}
+          {% if report.report_type == 'report_post_edrec' %}
+            <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
+          {% endif %}
+
+          {% if report.invited %}
+            <em class="ml-4">(Invited Report)</em>
+          {% else %}
+            <em class="ml-4">(Contributed Report)</em>
+          {% endif %}
+
+
+	  {% if user.is_authenticated %}
+	    {% with type_id=report|content_type_id %}
+	      {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=report.id model="Report" %}
+	    {% endwith %}
+	  {% endif %}
+        </h3>
+	{% if report.anonymous and user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
+	  <button class="btn btn-sm btn-danger text-white my-2" data-toggle="modal" data-target="#modalReportAuthor{{ report.id }}" aria-expanded="false" aria-controls="modalReportAuthor">
+	    Display Referee's Identity
+	  </button>
+          {% if report.flagged %}
+            <span class="ml-4 text-danger font-weight-bold">CAUTION: check if this referee has been flagged by the authors</span>
+          {% endif %}
+	  <div class="modal" id="modalReportAuthor{{ report.id }}">
+	    <div class="modal-dialog modal-dialog-centered">
+	      <div class="modal-content">
+		<div class="modal-body">
+		  <a href="{{ report.author.get_absolute_url }}">{{ report.author.profile }}</a>
+		  {% if perms.scipost.can_view_profiles %}
+		    &emsp;(<a href="{% url 'profiles:profile_detail' pk=report.author.profile.id %}">view Profile</a>)
+		  {% endif %}
+		  <button type="button" class="btn btn-secondary float-right" data-dismiss="modal">Close</button>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	{% endif %}
+        {% if report.doi_string or report.pdf_report %}
+          <ul class="clickables">
+            {% if report.doi_string %}
+              <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
+            {% endif %}
+            {% if report.pdf_report %}
+              <li>
+                <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank">{% include 'bi/download.html' %} Download as PDF</a>
+              </li>
+            {% endif %}
+          </ul>
         {% endif %}
+        {% if perms.scipost.can_manage_reports %}
+          <h3 class="mt-2">Administration</h3>
+          <ul>
+            <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
+            <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
+            <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
+          </ul>
+        {% endif %}
+      </div>
 
-        <div class="row">
+      {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
+        <div class="row mt-3">
           <div class="col-12">
+            <em class="text-danger">N.B.: sections boxed in red are visible only to Editor-in-charge and EdAdmin</em>
+          </div>
+        </div>
+        <div class="row border border-danger">
+          <div class="col-12 pb-2">
             <h3 class="highlight tight">Qualification</h3>
             <div class="pl-md-4">{{ report.get_qualification_display}}</div>
           </div>
         </div>
+      {% endif %}
 
-        {% include 'partials/submissions/report_content.html' with report=report %}
+      {% include 'partials/submissions/report_content.html' with report=report %}
 
-        <div class="row mt-3">
-          <div class="col-12">
-            <h3>Remarks for editors</h3>
+      {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
+        <div class="row mt-3 border border-danger">
+          <div class="col-12 pb-2">
+            <h3 class="highlight tight">Remarks for editors</h3>
             <div class="pl-md-4">{{ report.remarks_for_editors|default:'-' }}</div>
           </div>
         </div>
+      {% endif %}
 
-        <div class="row">
-          <div class="col-12">
-            <h3>Recommendation</h3>
-            <div class="pl-md-4">{{report.get_recommendation_display}}</div>
+      {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
+	<div class="row border border-danger">
+          <div class="col-12 pb-2">
+            <h3 class="highlight tight">Recommendation</h3>
+	    <div class="pl-md-4">{{ report.get_recommendation_display }}</div>
           </div>
-        </div>
-      {% else %}
-        <div class="reportid">
-          <h3>
-            {% if report.anonymous %}
-              Anonymous Report {{report.report_nr}}
-            {% else %}
-              Report {{report.report_nr}} by <a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>
-            {% endif %}
-
-            on {{ report.date_submitted|date:'Y-n-j' }}
-            {% if report.report_type == 'report_post_edrec' %}
-              <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
-            {% endif %}
-
-            {% if report.invited %}
-              <span class="report-label">Invited Report</span>
-            {% else %}
-              <span class="report-label">Contributed Report</span>
-            {% endif %}
-          </h3>
-          {% if report.doi_string or report.pdf_report %}
-            <ul class="clickables">
-              {% if report.doi_string %}
-                <li>Cite as: <span class="citation">{{ report|citation }}</span></li>
-              {% endif %}
-              {% if report.pdf_report %}
-                <li>
-                  <a href="{% url 'submissions:report_detail_pdf' report.submission.preprint.identifier_w_vn_nr report.report_nr %}" target="_blank">{% include 'bi/download.html' %} Download as PDF</a>
-                </li>
-              {% endif %}
-            </ul>
-          {% endif %}
-          {% if perms.scipost.can_manage_reports %}
-            <h3 class="mt-2">Administration</h3>
-            <ul>
-              <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
-              <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
-              <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
-            </ul>
-          {% endif %}
-        </div>
-
-        {% include 'partials/submissions/report_content.html' with report=report %}
+	</div>
       {% endif %}
 
       {% block single_report_footer %}{% endblock %}
