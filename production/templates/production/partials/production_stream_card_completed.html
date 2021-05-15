@@ -44,7 +44,7 @@
     {% include 'production/partials/production_events.html' with events=stream.events.all_without_duration non_editable=1 %}
 
     <h3>Work Log</h3>
-    {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
+    {% include 'finances/_logs.html' with logs=stream.work_logs.all %}
 
     {% if stream.total_duration %}
       <hr class="sm">

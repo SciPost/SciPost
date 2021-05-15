@@ -32,7 +32,7 @@
     </ul>
   {% endif %}
 
-  {% include 'partials/finances/logs.html' with logs=stream.work_logs.all %}
+  {% include 'finances/_logs.html' with logs=stream.work_logs.all %}
 
   {% if stream.total_duration %}
     <hr>
