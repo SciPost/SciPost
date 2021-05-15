@@ -67,7 +67,7 @@
               {% elif result.content_type == 'commentaries.commentary' %}
 		{% include 'partials/commentaries/search_card.html' with commentary=result.object %}
               {% elif result.content_type == 'theses.thesislink' %}
-		{% include 'partials/theses/search_card.html' with thesislink=result.object %}
+		{% include 'theses/_search_card.html' with thesislink=result.object %}
               {% elif result.content_type == 'comments.comment' %}
 		<div class="py-2">
                   {% include 'partials/comments/search_card.html' with comment=result.object %}
