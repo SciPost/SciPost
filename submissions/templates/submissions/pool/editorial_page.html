@@ -358,7 +358,7 @@
         {% with submission.reports.awaiting_vetting as reports %}
           {% if reports %}
             <li>
-              Vet submitted Report{{reports|pluralize}}:
+              Vet submitted Report{{ reports|pluralize }}:
               <ul class="mb-1">
                 {% for report in reports %}
                   <li><a href="{% url 'submissions:vet_submitted_report' report.id %}">Report {{ report.report_nr }} by {{ report.author }} ({{ report.get_report_type_display }})</a></li>
@@ -373,7 +373,7 @@
         {% with submission.comments_set_complete.awaiting_vetting as comments %}
           {% if comments %}
             <li>
-              Vet submitted Comment{{comments|pluralize}}:
+              Vet submitted Comment{{ comments|pluralize }}:
               <ul class="mb-1">
                 {% for comment in comments %}
                   <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>

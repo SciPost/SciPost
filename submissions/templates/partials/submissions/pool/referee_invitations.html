@@ -15,15 +15,20 @@
     {% for invitation in invitations %}
       <tr{% if invitation.needs_attention %} class="table-warning"{% endif %}>
         <td>
-          {% if invitation.needs_response %}
-            <div class="text-center" data-toggle="tooltip" data-title="This referee has not responded in over three days.<br>Consider sending a reminder or cancelling the invitation." data-html="true">
+          {% if invitation.needs_sending %}
+            <div class="text-center" data-toggle="tooltip" data-title="The invitation email has not been sent.<br>Please click on the Resend button." data-html="true">
               {% include 'bi/info-circle-fill.html' %}
               {% include 'bi/arrow-right.html' %}
             </div>
+          {% elif invitation.needs_response %}
+            <div class="text-center" data-toggle="tooltip" data-title="This referee has not responded in over three days.<br>Consider sending a reminder or cancelling the invitation." data-html="true">
+	      {% include 'bi/info-circle-fill.html' %}
+	      {% include 'bi/arrow-right.html' %}
+            </div>
           {% elif invitation.needs_fulfillment_reminder %}
             <div class="text-center" data-toggle="tooltip" data-title="This referee has accepted to send a Report, but not yet delivered it.<br>Consider sending a reminder." data-html="true">
-              {% include 'bi/info-circle-fill.html' %}
-              {% include 'bi/arrow-right.html' %}
+	      {% include 'bi/info-circle-fill.html' %}
+	      {% include 'bi/arrow-right.html' %}
             </div>
           {% endif %}
           {% if invitation.is_overdue %}
@@ -32,7 +37,15 @@
         </td>
         <td class="py-3">{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}</td>
         <td>
-          {{ invitation.date_invited }}
+	  {% if not invitation.date_invited %}
+	    <span class="text-danger">Invitation email not sent!!</span>
+	    <br>
+	    <a class="btn btn-sm btn-danger text-white" href="{% url 'submissions:invite_referee' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr profile_id=invitation.profile.id auto_reminders_allowed=invitation.auto_reminders_allowed|yesno:"1,0" %}">
+	      {% include 'bi/arrow-right.html' %}&nbsp;Resend
+	    </a>
+	  {% else %}
+            {{ invitation.date_invited }}
+	  {% endif %}
         </td>
         <td>
           {% if invitation.fulfilled %}
