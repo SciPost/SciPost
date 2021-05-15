@@ -74,7 +74,7 @@
 		</div>
               {% elif result.content_type == 'journals.publication' %}
 		<div class="card card-publication">
-                  {% include 'partials/journals/search_card.html' with publication=result.object %}
+                  {% include 'journals/_search_card.html' with publication=result.object %}
 		</div>
               {% else %}
 		<a href="{{ result.object.get_absolute_url }}">{{ result.object.title }}</a>

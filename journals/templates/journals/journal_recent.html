@@ -22,7 +22,7 @@
       <ul class="list-unstyled">
         {% for paper in journal.get_publications.published|slice:':20' %}
           <li>
-            {% include 'partials/journals/publication_card.html' with publication=paper %}
+            {% include 'journals/_publication_card.html' with publication=paper %}
           </li>
         {% empty %}
           <li><h3>Sorry, no recent publications were found.</h3></li>

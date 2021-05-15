@@ -25,12 +25,12 @@
 
     <div class="col-md-6">
       {% if publication.status == 'draft' %}
-	{% include 'partials/journals/publication_preparation.html' with publication=publication %}
+	{% include 'journals/_publication_preparation.html' with publication=publication %}
 	<hr>
       {% endif %}
 
       <h2 class="x">Actions</h2>
-      {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
+      {% include 'journals/_publication_actions.html' with publication=publication %}
     </div>
 
     <div class="col-md-6">

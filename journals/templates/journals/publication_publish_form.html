@@ -8,7 +8,7 @@
 
 
   <h1 class="highlight">Publish Publication</h1>
-  {% include 'partials/journals/publication_summary.html' with publication=form.instance %}
+  {% include 'journals/_publication_summary.html' with publication=form.instance %}
 
   <h3>Authors</h3>
   <ul>
@@ -31,7 +31,7 @@
     {% endfor %}
   </ul>
 
-  {% include 'partials/journals/references.html' with publication=form.instance %}
+  {% include 'journals/_references.html' with publication=form.instance %}
 
   <hr class="divider">
   <h3>Publishing will do the following:</h3>

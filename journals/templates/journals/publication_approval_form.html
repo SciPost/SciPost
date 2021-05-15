@@ -8,7 +8,7 @@
 
 
   <h1 class="highlight">Send Publication for approval</h1>
-  {% include 'partials/journals/publication_summary.html' with publication=form.instance %}
+  {% include 'journals/_publication_summary.html' with publication=form.instance %}
 
   <h3>Authors</h3>
   <ul>
@@ -31,7 +31,7 @@
     {% endfor %}
   </ul>
 
-  {% include 'partials/journals/references.html' with publication=form.instance %}
+  {% include 'journals/_references.html' with publication=form.instance %}
 
   <br>
   <form method="post" enctype="multipart/form-data">

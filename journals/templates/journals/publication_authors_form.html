@@ -23,7 +23,7 @@
   <h1 class="highlight">Author Ordering</h1>
 
   <div class="mb-4">
-    {% include 'partials/journals/publication_li_content.html' with publication=publication %}
+    {% include 'journals/_publication_li_content.html' with publication=publication %}
   </div>
   <a href="{% url 'journals:add_author' publication.doi_label %}">Add missing author</a>
   <h3 class="highlight">Ordering</h3>

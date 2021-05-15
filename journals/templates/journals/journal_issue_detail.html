@@ -34,7 +34,7 @@
       <ul class="list-unstyled">
         {% for paper in papers %}
           <li>
-            {% include 'partials/journals/publication_card.html' with publication=paper %}
+            {% include 'journals/_publication_card.html' with publication=paper %}
           </li>
         {% endfor %}
       </ul>

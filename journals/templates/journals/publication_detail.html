@@ -57,7 +57,7 @@
     </div>
   {% endif %}
 
-  {% include 'partials/journals/publication_summary.html' with publication=publication %}
+  {% include 'journals/_publication_summary.html' with publication=publication %}
 
   {% if publication.commentary and publication.commentary.comments.vetted.exists %}
     <h3>Post-publication commentaries</h3>
@@ -174,7 +174,7 @@
     <hr class="divider">
     <div class="row">
       <div class="col-12">
-        {% include 'partials/journals/publication_preparation.html' with publication=publication %}
+        {% include 'journals/_publication_preparation.html' with publication=publication %}
       </div>
     </div>
   {% endif %}
@@ -183,7 +183,7 @@
     <div class="row">
       <div class="col-12">
         <h3>Editorial Administration tools</h3>
-        {% include 'partials/journals/admin/publication_actions.html' with publication=publication %}
+        {% include 'journals/_publication_actions.html' with publication=publication %}
       </div>
     </div>
   {% endif %}
