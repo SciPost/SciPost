@@ -23,7 +23,7 @@
           <li>
             <a href="{{ issue.get_absolute_url }}">{{ issue }}</a>
             {% if issue.proceedings %}
-              {% include 'partials/proceedings/proceedings_li.html' with proceedings=issue.proceedings %}
+              {% include 'proceedings/_proceedings_li.html' with proceedings=issue.proceedings %}
             {% endif %}
           </li>
         {% empty %}

@@ -26,7 +26,7 @@
   </div>
 
   {% if issue.proceedings %}
-    {% include 'partials/proceedings/description.html' with proceedings=issue.proceedings %}
+    {% include 'proceedings/_description.html' with proceedings=issue.proceedings %}
   {% endif %}
 
   <div class="row">

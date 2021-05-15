@@ -15,21 +15,12 @@
   <a href="{% url 'proceedings:proceedings_edit' proceedings.id %}" class="breadcrumb-item">Edit Proceedings</a>
   <br>
 
-  {% include 'partials/proceedings/summary.html' with proceedings=proceedings %}
-
-  {% comment %}
-  <form method="post" action="{% url 'colleges:fellowship_terminate' fellowship.id %}" class="d-inline">
-  {% csrf_token %}
-  <button type="submit" class="btn btn-danger">Terminate Fellowship</button>
-  </form>
-  <a href="{% url 'colleges:fellowship_edit' fellowship.id %}" class="btn btn-info ml-2">Edit Fellowship</a>
-  {% endcomment %}
+  {% include 'proceedings/_summary.html' with proceedings=proceedings %}
 
   <h3>Table of contents</h3>
   <p>
     View the table of contents in <a href="javascript:;" data-toggle="modal" data-target="#textocmodal">TeX format</a>
   </p>
-
 
   <h3 class="mt-3">All Guest Fellowships of this Proceedings</h3>
 
