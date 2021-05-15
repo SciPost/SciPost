@@ -18,7 +18,7 @@
   <br>
 
   <h3>Choose one of the following (active) Fellowships to add to the Submission's Voting Fellows:</h3>
-  {% include 'partials/colleges/conflicts_of_interests.html' with submission=submission %}
+  {% include 'colleges/_conflicts_of_interest.html' with submission=submission %}
   <br>
   <form method="post">
     {% csrf_token %}
