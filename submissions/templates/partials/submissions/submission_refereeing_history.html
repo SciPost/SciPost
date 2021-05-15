@@ -17,12 +17,12 @@
       <ul class="my-2 pl-4">
 	{% for report in sibling.reports.accepted %}
           <li><a href="{{ report.get_absolute_url }}"{% if target_blank %} target="_blank"{% endif %}>Report {{ report.report_nr }} submitted on {{ report.date_submitted }} by {% if report.anonymous %}<em>Anonymous</em>{% else %}{{ report.author.profile.get_title_display }} {{ report.author.user.last_name }}{% endif %}</a></li>
-          {% include 'partials/comments/comments_list.html' with comments=report.comments.vetted css_class='my-1 pl-4' target_blank=target_blank %}
+          {% include 'comments/_comments_list.html' with comments=report.comments.vetted css_class='my-1 pl-4' target_blank=target_blank %}
 	{% endfor %}
       </ul>
     </div>
 
-    {% include 'partials/comments/comments_list.html' with comments=sibling.comments.vetted css_class='my-2 pl-4' target_blank=target_blank %}
+    {% include 'comments/_comments_list.html' with comments=sibling.comments.vetted css_class='my-2 pl-4' target_blank=target_blank %}
   {% empty %}
     <em>There are no publicly visible links available yet.</em>
   {% endfor %}

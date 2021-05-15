@@ -70,7 +70,7 @@
 		{% include 'theses/_search_card.html' with thesislink=result.object %}
               {% elif result.content_type == 'comments.comment' %}
 		<div class="py-2">
-                  {% include 'partials/comments/search_card.html' with comment=result.object %}
+                  {% include 'comments/_search_card.html' with comment=result.object %}
 		</div>
               {% elif result.content_type == 'journals.publication' %}
 		<div class="card card-publication">

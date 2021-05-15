@@ -2,7 +2,7 @@
   <ul class="{{ css_class|default:'' }}">
     {% for comment in comments %}
       <li><a href="{{ comment.get_absolute_url }}"{% if target_blank %} target="_blank"{% endif %}>{% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} by {{ comment.get_author_str }} on {{ comment.date_submitted|date:'DATE_FORMAT' }}</a></li>
-      {% include 'partials/comments/comments_list.html' with comments=comment.nested_comments.vetted css_class='m-0 pl-4' %}
+      {% include 'comments/_comments_list.html' with comments=comment.nested_comments.vetted css_class='m-0 pl-4' %}
     {% endfor %}
   </ul>
 {% endif %}
