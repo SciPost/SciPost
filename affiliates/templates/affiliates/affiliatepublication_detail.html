@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load guardian_tags %}
+{% load scipost_extras %}
 
 {% block pagetitle %}: Publication: {{ object }}{% endblock %}
 
@@ -15,6 +16,7 @@
   </span>
   <span class="breadcrumb-item">{{ object }}</span>
 {% endblock %}
+
 {% block content %}
 
   {% get_obj_perms request.user for object.journal as "user_perms" %}
@@ -36,11 +38,19 @@
     <div class="row">
       <div class="col">
 	<h4>Add a PubFraction</h4>
-	<form action="{% url 'affiliates:add_pubfraction' slug=object.journal.slug doi=object.doi %}" method="post">
-	  {% csrf_token %}
-	  {{ add_pubfraction_form }}
-	  <input type="submit" value="Add PubFraction" class="btn btn-sm btn-primary">
-	</form>
+	<div class="m-2">
+	  {% with type_id=object|content_type_id %}
+	    <em>Can't find the Organization you need?</em>&emsp;
+	    {% include 'bi/arrow-right.html' %}<a href="{% url 'helpdesk:ticket_create' concerning_type_id=type_id concerning_object_id=object.id %}">create a support ticket</a>
+	  {% endwith %}
+	</div>
+	<div>
+	  <form action="{% url 'affiliates:add_pubfraction' slug=object.journal.slug doi=object.doi %}" method="post">
+	    {% csrf_token %}
+	    {{ add_pubfraction_form }}
+	    <input type="submit" value="Add PubFraction" class="btn btn-sm btn-primary">
+	  </form>
+	</div>
       </div>
     </div>
   {% endif %}
