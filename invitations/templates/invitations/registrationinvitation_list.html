@@ -62,7 +62,7 @@
     {% endif %}
     <div class="col-12">
       <br>
-      {% include 'partials/invitations/registrationinvitation_table.html' with invitations=object_list %}
+      {% include 'invitations/_registrationinvitation_table.html' with invitations=object_list %}
       {% if search_form.is_bound %}
         <a href="{% url 'invitations:list' %}" class="btn btn-link">Reset filter</a>
       {% endif %}

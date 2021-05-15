@@ -19,7 +19,7 @@
 
       <h3>All related unprocessed Citation Notifications</h3>
       {% for related_notification in form.get_all_notifications %}
-        {% include 'partials/invitations/citationnotification_summary.html' with notification=related_notification %}
+        {% include 'invitations/_citationnotification_summary.html' with notification=related_notification %}
         <br>
       {% endfor %}
     </div>
