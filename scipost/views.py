@@ -639,7 +639,7 @@ def _personal_page_account(request):
         'unavailability_form': UnavailabilityPeriodForm(),
         'unavailabilities': contributor.unavailability_periods.future().order_by('start')
     }
-    return render(request, 'partials/scipost/personal_page/account.html', context)
+    return render(request, 'scipost/_personal_page_account.html', context)
 
 
 @login_required
@@ -661,7 +661,7 @@ def _personal_page_admin_actions(request):
         context['nr_reg_to_vet'] = Contributor.objects.awaiting_vetting().count()
         context['nr_reg_awaiting_validation'] = Contributor.objects.awaiting_validation().count()
 
-    return render(request, 'partials/scipost/personal_page/admin_actions.html', context)
+    return render(request, 'scipost/_personal_page_admin_actions.html', context)
 
 
 @is_contributor_user()
@@ -707,7 +707,7 @@ def _personal_page_editorial_actions(request):
         context['nr_treated_submissions_without_pdf'] = Submission.objects.treated().public().filter(
             pdf_refereeing_pack='').count()
 
-    return render(request, 'partials/scipost/personal_page/editorial_actions.html', context)
+    return render(request, 'scipost/_personal_page_editorial_actions.html', context)
 
 
 @permission_required('scipost.can_referee', return_403=True)
@@ -719,7 +719,7 @@ def _personal_page_refereeing(request):
     context = {
         'contributor': request.user.contributor
     }
-    return render(request, 'partials/scipost/personal_page/refereeing.html', context)
+    return render(request, 'scipost/_personal_page_refereeing.html', context)
 
 
 @login_required
@@ -734,7 +734,7 @@ def _personal_page_publications(request):
         'own_publications': contributor.profile.publications().published(
         ).order_by('-publication_date')
     }
-    return render(request, 'partials/scipost/personal_page/publications.html', context)
+    return render(request, 'scipost/_personal_page_publications.html', context)
 
 
 @login_required
@@ -753,7 +753,7 @@ def _personal_page_submissions(request):
         authors_false_claims=contributor).count()
     context['own_submissions'] = contributor.submissions.filter(
         is_current=True).order_by('-submission_date')
-    return render(request, 'partials/scipost/personal_page/submissions.html', context)
+    return render(request, 'scipost/_personal_page_submissions.html', context)
 
 
 @login_required
@@ -771,7 +771,7 @@ def _personal_page_commentaries(request):
         authors_claims=contributor).exclude(
         authors_false_claims=contributor).count()
     context['own_submissions'] = contributor.commentaries.order_by('-latest_activity')
-    return render(request, 'partials/scipost/personal_page/commentaries.html', context)
+    return render(request, 'scipost/_personal_page_commentaries.html', context)
 
 
 @login_required
@@ -789,7 +789,7 @@ def _personal_page_theses(request):
         author_claims=contributor).exclude(
         author_false_claims=contributor).count()
     context['own_thesislinks'] = contributor.theses.all()
-    return render(request, 'partials/scipost/personal_page/theses.html', context)
+    return render(request, 'scipost/_personal_page_theses.html', context)
 
 
 @login_required
@@ -804,7 +804,7 @@ def _personal_page_comments(request):
         'own_comments': contributor.comments.regular_comments().order_by('-date_submitted')
     }
 
-    return render(request, 'partials/scipost/personal_page/comments.html', context)
+    return render(request, 'scipost/_personal_page_comments.html', context)
 
 
 @login_required
@@ -819,7 +819,7 @@ def _personal_page_author_replies(request):
         'own_authorreplies': contributor.comments.author_replies().order_by('-date_submitted'),
     }
 
-    return render(request, 'partials/scipost/personal_page/author_replies.html', context)
+    return render(request, 'scipost/_personal_page_author_replies.html', context)
 
 
 @login_required
