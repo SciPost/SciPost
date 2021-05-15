@@ -65,7 +65,7 @@
               {% if result.content_type == 'submissions.submission' %}
 		{% include 'partials/submissions/search_card.html' with submission=result.object %}
               {% elif result.content_type == 'commentaries.commentary' %}
-		{% include 'partials/commentaries/search_card.html' with commentary=result.object %}
+		{% include 'commentaries/_search_card.html' with commentary=result.object %}
               {% elif result.content_type == 'theses.thesislink' %}
 		{% include 'theses/_search_card.html' with thesislink=result.object %}
               {% elif result.content_type == 'comments.comment' %}
