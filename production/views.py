@@ -130,7 +130,7 @@ def stream(request, stream_id):
     }
 
     if request.GET.get('json'):
-        return render(request, 'production/partials/production_stream_card.html', context)
+        return render(request, 'production/_production_stream_card.html', context)
     else:
         return render(request, 'production/stream.html', context)
 

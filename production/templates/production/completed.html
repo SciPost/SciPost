@@ -21,7 +21,7 @@
       <ul class="list-group list-group-flush">
 	{% for stream in streams %}
           <li class="list-group-item">
-            {% include 'production/partials/production_stream_card_completed.html' with stream=stream %}
+            {% include 'production/_production_stream_card_completed.html' with stream=stream %}
           </li>
 	{% empty %}
           <li class="list-group-item">No completed production streams found.</li>

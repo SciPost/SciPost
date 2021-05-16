@@ -1,13 +1,13 @@
-{% extends 'production/partials/production_stream_card_completed.html' %}
+{% extends 'production/_production_stream_card_completed.html' %}
 
 {% load bootstrap %}
 {% load scipost_extras %}
 
 {% block actions %}
-  {% include 'production/partials/stream_status_changes.html' with form=status_form stream=stream %}
+  {% include 'production/_stream_status_changes.html' with form=status_form stream=stream %}
 
   <h3>Events</h3>
-  {% include 'production/partials/production_events.html' with events=stream.events.all_without_duration %}
+  {% include 'production/_production_events.html' with events=stream.events.all_without_duration %}
 
   {% if "can_work_for_stream" in sub_perms and prodevent_form %}
     <h3>Add message to the Stream</h3>
