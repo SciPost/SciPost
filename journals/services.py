@@ -105,7 +105,10 @@ def update_citedby(doi_label):
         if link_el.find(prefix + 'contributors') is not None:
             for author in link_el.find(prefix + 'contributors').iter(prefix + 'contributor'):
                 if author.get('sequence') == 'first':
-                    citation['first_author_given_name'] = author.find(prefix + 'given_name').text
+                    if author.find(prefix + 'given_name'):
+                        citation['first_author_given_name'] = author.find(prefix + 'given_name').text
+                    else:
+                        citation['first_author_given_name'] = ''
                     citation['first_author_surname'] = author.find(prefix + 'surname').text
                 else:
                     multiauthors = True
