@@ -48,7 +48,7 @@
         <ul class="list-group list-group-flush px-3 mb-3">
           {% for submission in submissions %}
             <li class="list-group-item py-2">
-              {% include 'partials/submissions/submission_card_content_homepage.html' with submission=submission %}
+              {% include 'submissions/_submission_card_content_homepage.html' with submission=submission %}
             </li>
           {% endfor %}
         </ul>

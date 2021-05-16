@@ -18,7 +18,7 @@
   <h4>by {{ submission.author_list }}</h4>
 
   <h3 class="mt-4">Submission summary</h3>
-  {% include 'partials/submissions/pool/submission_info_table_extended.html' with submission=submission %}
+  {% include 'submissions/pool/_submission_info_table_extended.html' with submission=submission %}
 
   <h3 class="mt-4">Abstract</h3>
   <p>{{ submission.abstract }}</p>

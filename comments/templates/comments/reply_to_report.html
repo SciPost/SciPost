@@ -18,12 +18,12 @@
         {% else %}
           <h2>The Submission concerned:</h2>
 
-          {% include 'partials/submissions/submission_summary.html' with submission=report.submission show_abstract=1 %}
+          {% include 'submissions/_submission_summary.html' with submission=report.submission show_abstract=1 %}
 
       </div>
     </div>
 
-    {% include 'partials/submissions/report_public_without_comments.html' with report=report %}
+    {% include 'submissions/_report_public_without_comments.html' with report=report %}
 
     <div class="row">
       <div class="col-12">

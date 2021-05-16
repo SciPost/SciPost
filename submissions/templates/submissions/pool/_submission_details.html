@@ -12,10 +12,10 @@
   <div class="card-body px-0">
     <div class="row">
       <div class="col-md-8">
-        {% include 'partials/submissions/pool/submission_info_table.html' with submission=submission %}
+        {% include 'submissions/pool/_submission_info_table.html' with submission=submission %}
       </div>
       <div class="col-md-4">
-        {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission target_blank=1 %}
+        {% include 'submissions/_submission_refereeing_history.html' with submission=submission target_blank=1 %}
       </div>
     </div>
   </div>
@@ -23,7 +23,7 @@
   <div>
     <h3>Remarks on this submission:</h3>
     {% if remark_form %}
-      {% include 'partials/submissions/remark_form.html' with submission=submission form=remark_form auto_show=1 %}
+      {% include 'submissions/_remark_form.html' with submission=submission form=remark_form auto_show=1 %}
     {% endif %}
     <p class="mb-1">Current remarks:</p>
     <ul>
@@ -68,7 +68,7 @@
           <li>EIC Assignment requests:</li>
           <ul class="pl-3">
             {% for assignment in submission.editorial_assignments.all %}
-              {% include 'partials/submissions/pool/assignment_info.html' with assignment=assignment %}
+              {% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
             {% empty %}
               <li>No assignment requests have been selected</li>
             {% endfor %}
@@ -115,7 +115,7 @@
 
       <h3>Events</h3>
       <div id="eventslist">
-        {% include 'partials/submissions/submission_events.html' with events=submission.events.for_eic %}
+        {% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
       </div>
     {% endif %}
   </div>

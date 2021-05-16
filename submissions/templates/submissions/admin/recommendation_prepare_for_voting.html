@@ -15,11 +15,11 @@
 
   <h1 class="highlight">Prepare Editorial Recommendation for Voting</h1>
 
-  {% include 'partials/submissions/submission_li.html' with submission=recommendation.submission %}
-  {% include 'partials/submissions/pool/submission_info_table.html' with submission=recommendation.submission %}
+  {% include 'submissions/_submission_li.html' with submission=recommendation.submission %}
+  {% include 'submissions/pool/_submission_info_table.html' with submission=recommendation.submission %}
 
   <br>
-  {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
+  {% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
 
   {% if recommendation.submission.referees_flagged %}
     <br>
@@ -86,7 +86,7 @@
               </td>
               <td>
                 {% with fellow.conflict_of_interests.non_deprecated|filter_for_submission:recommendation.submission as conflicts %}
-                  {% include 'partials/submissions/admin/conflicts.html' with conflicts=conflicts submission=recommendation.submission %}
+                  {% include 'submissions/admin/_conflicts.html.html' with conflicts=conflicts submission=recommendation.submission %}
                 {% endwith %}
               </td>
             </tr>
@@ -115,7 +115,7 @@
                 </li>
                 {% for entry in entries %}
                   <li class="list-group-item">
-                    {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=forloop.parentloop.counter %}
+                    {% include 'submissions/_arxiv_queryresult.html' with item=entry id=forloop.counter id2=forloop.parentloop.counter %}
                   </li>
                 {% endfor %}
               {% endfor %}

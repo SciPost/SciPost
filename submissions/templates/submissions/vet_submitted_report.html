@@ -21,10 +21,10 @@
         <h1 class="highlight">SciPost Report to vet</h1>
 
         <h3 class="mt-4">Submission associated to Report</h3>
-        {% include 'partials/submissions/submission_summary.html' with submission=report_to_vet.submission %}
+        {% include 'submissions/_submission_summary.html' with submission=report_to_vet.submission %}
 
         <h3 class="mt-4">Report to vet</h3>
-        {% include 'partials/submissions/report_public_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
+        {% include 'submissions/_report_public_without_comments.html' with submission=report_to_vet.submission report=report_to_vet %}
 
         <hr class="lg">
 

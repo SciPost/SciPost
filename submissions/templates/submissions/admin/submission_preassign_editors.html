@@ -25,7 +25,7 @@
   <br>
 
   <h3>Submission summary</h3>
-  {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
+  {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
 
   <br>
 
@@ -184,7 +184,7 @@
               </td>
               <td>
                 {% with submission.conflict_of_interests.non_deprecated|filter_for_contributor:form.get_fellow as conflicts %}
-                  {% include 'partials/submissions/admin/conflicts.html' with conflicts=conflicts %}
+                  {% include 'submissions/admin/_conflicts.html.html' with conflicts=conflicts %}
                 {% endwith %}
               </td>
             </tr>

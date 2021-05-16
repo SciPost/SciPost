@@ -41,7 +41,7 @@
       <h4>Communications</h4>
       <a href="{% url 'submissions:communication' invitation.submission.preprint.identifier_w_vn_nr 'RtoE' %}">Write to the Editor-in-charge</a>
 
-      {% include 'partials/submissions/communication_thread.html' with communication=communication %}
+      {% include 'submissions/_communication_thread.html' with communication=communication %}
     {% endif %}
   {% elif not invitation.accepted %}
     <h3>Your Referee Invitation</h3>

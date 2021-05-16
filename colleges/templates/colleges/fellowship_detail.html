@@ -141,8 +141,8 @@
         {% for assignment in fellowship.contributor.editorial_assignments.ongoing %}
           <li class="list-group-item">
             <div class="card-body px-0">
-              {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
-              {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
+              {% include 'submissions/_submission_card_content.html' with submission=assignment.submission %}
+              {% include 'submissions/_submission_status.html' with submission=assignment.submission %}
             </div>
           </li>
         {% empty %}
@@ -160,8 +160,8 @@
         {% for assignment in fellowship.contributor.editorial_assignments.completed %}
           <li class="list-group-item">
             <div class="card-body px-0">
-              {% include 'partials/submissions/submission_card_content.html' with submission=assignment.submission %}
-              {% include 'partials/submissions/submission_status.html' with submission=assignment.submission %}
+              {% include 'submissions/_submission_card_content.html' with submission=assignment.submission %}
+              {% include 'submissions/_submission_status.html' with submission=assignment.submission %}
             </div>
           </li>
         {% empty %}

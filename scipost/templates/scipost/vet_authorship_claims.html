@@ -37,7 +37,7 @@
             <h4>Contributor {{ claim.claimant.user.first_name }} {{ claim.claimant.user.last_name }} claims to be an author of Submission:</h4>
           </div>
           <div class="card-body">
-            {% include 'partials/submissions/submission_card_content.html' with submission=claim.submission %}
+            {% include 'submissions/_submission_card_content.html' with submission=claim.submission %}
           </div>
         {% elif claim.commentary %}
           <div class="card-header">

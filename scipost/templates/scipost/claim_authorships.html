@@ -55,7 +55,7 @@
       <div class="col-12">
         {% for sub in submission_authorships_to_claim %}
           <div class="card">
-            {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
+            {% include 'submissions/_submission_card_content.html' with submission=sub %}
             <div class="card-footer">
               <form class="d-inline-block" action="{% url 'scipost:claim_sub_authorship' submission_id=sub.id claim=1 %}" method="post">
                 {% csrf_token %}

@@ -47,7 +47,7 @@
             {% for sub in contributor_submissions %}
               <li class="list-group-item">
                 <div class="card-body px-0">
-                  {% include 'partials/submissions/submission_card_content.html' with submission=sub %}
+                  {% include 'submissions/_submission_card_content.html' with submission=sub %}
                 </div>
               </li>
             {% endfor %}

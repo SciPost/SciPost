@@ -28,7 +28,7 @@
   <div class="row">
     <div class="col-12">
       <h2>Submission:</h2>
-      {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
+      {% include 'submissions/_submission_summary.html' with submission=submission show_abstract=1 %}
 
       {% if submission.referees_flagged %}
         <h3>Referees flagged upon submission (treat reports with caution):</h3>
@@ -60,7 +60,7 @@
             <ul class="list-group list-group-flush px-0">
               {% for entry in queryresults.entries %}
                 <li class="list-group-item">
-                  {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=0 %}
+                  {% include 'submissions/_arxiv_queryresult.html' with item=entry id=forloop.counter id2=0 %}
                 </li>
               {% endfor %}
             </ul>
@@ -110,7 +110,7 @@
             	<td>
                   {% if profile.accepts_refereeing_requests %}
                     {% if profile.email %}
-                      Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders. {% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}
+                      Send refereeing invitation <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=1 %}">with</a> or <a href="{% url 'submissions:invite_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr profile_id=profile.id auto_reminders_allowed=0 %}">without</a> auto-reminders. {% include 'submissions/_refinv_auto_reminders_tooltip.html' %}
                     {% else %}
                       <span class="text-danger">Cannot send an invitation without an email</span> {% include 'bi/arrow-right.html' %} Add one:
                       <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">

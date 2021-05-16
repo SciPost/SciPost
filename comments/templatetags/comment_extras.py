@@ -25,7 +25,7 @@ class CommentTemplateNode(template.Node):
         """Find and render the correct template."""
         content_object = self.content_object.resolve(context)
         if isinstance(content_object, Submission):
-            t = context.template.engine.get_template('partials/submissions/submission_summary.html')
+            t = context.template.engine.get_template('submissions/_submission_summary.html')
             return t.render(template.Context({'submission': content_object}))
         elif isinstance(content_object, Commentary):
             t = context.template.engine.get_template('commentaries/_commentary_summary.html')

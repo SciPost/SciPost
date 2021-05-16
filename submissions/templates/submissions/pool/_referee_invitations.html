@@ -7,7 +7,7 @@
       <th>Referee</th>
       <th>Invitation date</th>
       <th>Task status</th>
-      <th>Auto reminders <small>{% include 'partials/submissions/refinv_auto_reminders_tooltip.html' %}</small></th>
+      <th>Auto reminders <small>{% include 'submissions/_refinv_auto_reminders_tooltip.html' %}</small></th>
       <th colspan="4">Actions</th>
     </tr>
   </thead>
@@ -122,7 +122,7 @@
         <tr style="display: none;" class="pt-1 table-info" id="comm-row-{{ invitation.id }}">
           <td></td>
           <td colspan="8">
-            {% include 'partials/submissions/communication_thread.html' with communication=invitation.referee.editorial_communications|filter_for_submission:submission css_class='wide' %}
+            {% include 'submissions/_communication_thread.html' with communication=invitation.referee.editorial_communications|filter_for_submission:submission css_class='wide' %}
             <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-toggle="toggle" data-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
           </td>
         </tr>

@@ -4,7 +4,7 @@
 {% is_ed_admin request.user as is_ed_admin %}
 
 <div class="icons">
-  {% include 'partials/submissions/pool/submission_tooltip.html' with submission=submission %}
+  {% include 'submissions/pool/_submission_tooltip.html' with submission=submission %}
 
   {% if submission.status == 'unassigned' %}
     <span class="mt-1 px-1 text-danger" data-toggle="tooltip" data-html="true" title="You can volunteer to become Editor-in-charge">{% include 'bi/exclamation-circle-fill.html' %}</span>
@@ -88,7 +88,7 @@
   {% if submission.cycle.has_required_actions %}
     <div class="card-text bg-danger text-white mt-1 py-1 px-2">
       <button type="button" class="btn btn-link p-0" data-href="{% url 'submissions:pool' submission.preprint.identifier_w_vn_nr %}" data-toggle="modal" data-target="#modal_{{ submission.id }}" data-target-body="#modal_{{ submission.id }}_body"><small class="text-white">This Submission contains required actions, click here to see details.</small></button>
-      {% if is_ed_admin %}{% include 'partials/submissions/pool/required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
+      {% if is_ed_admin %}{% include 'submissions/pool/_required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
     </div>
   {% endif %}
 

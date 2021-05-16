@@ -727,7 +727,7 @@ def pool(request, identifier_w_vn_nr=None):
 
     # Pool gets Submission details via ajax request
     if context['submission'] and request.is_ajax():
-        template = 'partials/submissions/pool/submission_details.html'
+        template = 'submissions/pool/_submission_details.html'
     else:
         template = 'submissions/pool/pool.html'
     return render(request, template, context)
@@ -930,7 +930,7 @@ def prescreening_failed(request, identifier_w_vn_nr):
 
     mail_editor_view = MailEditorSubview(
         request, mail_code='prescreening_failed', instance=submission,
-        header_template='partials/submissions/admin/prescreening_failed.html')
+        header_template='submissions/admin/prescreening_failed.html')
     if mail_editor_view.is_valid():
         # Deprecate old Editorial Assignments
         EditorialAssignment.objects.filter(submission=submission).invited().update(
@@ -989,7 +989,7 @@ def assignment_failed(request, identifier_w_vn_nr):
 
     mail_editor_view = MailEditorSubview(
         request, mail_code='authors/submissions_assignment_failed', instance=submission,
-        header_template='partials/submissions/admin/editorial_assignment_failed.html')
+        header_template='submissions/admin/editorial_assignment_failed.html')
     if mail_editor_view.is_valid():
         # Deprecate old Editorial Assignments
         EditorialAssignment.objects.filter(submission=submission).invited().update(

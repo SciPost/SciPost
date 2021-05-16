@@ -1,4 +1,4 @@
-{% extends 'partials/submissions/recommendation_author_content.html' %}
+{% extends 'submissions/_recommendation_author_content.html' %}
 
 {% load scipost_extras %}
 
@@ -105,7 +105,7 @@
       <h3 class="card-title">Remarks:</h3>
       <ul>
         {% for rem in recommendation.remarks.all %}
-          <li>{% include 'partials/submissions/remark_small.html' with remark=rem %}</li>
+          <li>{% include 'submissions/_remark_small.html' with remark=rem %}</li>
         {% empty %}
           <li><em>No remarks</em></li>
         {% endfor %}

@@ -3,14 +3,14 @@
   {% for sub in submissions %}
     <li class="submission py-2{% if sub == submission %} active{% endif %}" id="submission_{{ submission.id }}">
       {% if sub == submission %}
-        {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=1 %}
+        {% include 'submissions/pool/_submission_li.html' with submission=sub is_current=1 %}
       {% else %}
-        {% include 'partials/submissions/pool/submission_li.html' with submission=sub is_current=0 %}
+        {% include 'submissions/pool/_submission_li.html' with submission=sub is_current=0 %}
       {% endif %}
 
       <div class="loading-container" id="container_{{ sub.id }}">
         {% if submission and submission == sub %}
-          {% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+          {% include 'submissions/pool/_submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
         {% endif %}
       </div>
       <div class="modal" id="modal_{{ sub.id }}" tabindex="-1" role="dialog">
@@ -26,7 +26,7 @@
 	    </div>
 	    <div class="modal-body" id="modal_{{ sub.id }}_body">
               {% if submission and submission == sub %}
-		{% include 'partials/submissions/pool/submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
+		{% include 'submissions/pool/_submission_details.html' with submission=submission remark_form=remark_form is_ECAdmin=is_ECAdmin user=request.user %}
               {% endif %}
 	    </div>
 	    <div class="modal-footer">

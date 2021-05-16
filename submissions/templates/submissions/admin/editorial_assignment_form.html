@@ -19,7 +19,7 @@
     </div>
   </div>
 
-  {% include 'partials/submissions/submission_summary.html' with submission=submission_to_assign show_abstract=1 %}
+  {% include 'submissions/_submission_summary.html' with submission=submission_to_assign show_abstract=1 %}
 
   <div class="row">
     <div class="col-12">
@@ -33,7 +33,7 @@
         <p>{{ submission_to_assign.referees_flagged }}</p>
       {% endif %}
 
-      {% include 'partials/submissions/submission_status.html' with submission=submission_to_assign %}
+      {% include 'submissions/_submission_status.html' with submission=submission_to_assign %}
     </div>
   </div>
 
@@ -44,7 +44,7 @@
         <h3>If more than 5 Fellows have declined an assignment for a red-marked reason, the Submission should be rejected.</h3>
         <ul>
           {% for assignment in sub.editorial_assignments.all %}
-            {% include 'partials/submissions/pool/assignment_info.html' with assignment=assignment %}
+            {% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
           {% endfor %}
         </ul>
       {% endif %}
@@ -83,7 +83,7 @@
                 </li>
                 {% for entry in entries %}
                   <li class="list-group-item">
-                    {% include 'partials/submissions/arxiv_queryresult.html' with item=entry id=forloop.counter id2=forloop.parentloop.counter %}
+                    {% include 'submissions/_arxiv_queryresult.html' with item=entry id=forloop.counter id2=forloop.parentloop.counter %}
                   </li>
                 {% endfor %}
               {% endfor %}

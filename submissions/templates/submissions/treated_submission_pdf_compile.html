@@ -16,7 +16,7 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">Upload Submission Refereeing PDF</h1>
-      {% include 'partials/submissions/submission_summary.html' with submission=submission %}
+      {% include 'submissions/_submission_summary.html' with submission=submission %}
       <p class="my-2"><a href="{{submission.get_absolute_url}}">Go to Submission page</a></p>
     </div>
   </div>
@@ -35,7 +35,7 @@
         Number of Reports: {{submission.reports.accepted.count}}<br>
         Number of Comments <small>(nested comments not counted)</small>: {{submission.comments.vetted.count}}
       </p>
-      <pre class="clickfocus border" style="max-height: 200px;"><code>{% include 'partials/submissions/refereeing_pack_tex_template.html' with submission=submission %}</code></pre>
+      <pre class="clickfocus border" style="max-height: 200px;"><code>{% include 'submissions/_refereeing_pack_tex_template.html' with submission=submission %}</code></pre>
     </div>
   </div>
 

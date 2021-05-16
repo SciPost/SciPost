@@ -26,10 +26,10 @@
   {% for assignment in current_assignments %}
     {% if not forloop.first %}<hr class="small">{% endif %}
 
-    {% include 'partials/submissions/submission_li.html' with submission=assignment.submission %}
-    {% include 'partials/submissions/pool/submission_info_table.html' with submission=assignment.submission %}
+    {% include 'submissions/_submission_li.html' with submission=assignment.submission %}
+    {% include 'submissions/pool/_submission_info_table.html' with submission=assignment.submission %}
 
-    {% include 'partials/submissions/pool/required_actions_block.html' with submission=submission %}
+    {% include 'submissions/pool/_required_actions_block.html' with submission=submission %}
     <h4 class="d-block mt-2">
       <a href="{% url 'submissions:editorial_page' identifier_w_vn_nr=assignment.submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
     </h4>

@@ -22,7 +22,7 @@
     <div class="row">
       <div class="col-12">
         <h3>Submission</h3>
-        {% include 'partials/submissions/submission_summary.html' with submission=submission show_abstract=1 %}
+        {% include 'submissions/_submission_summary.html' with submission=submission show_abstract=1 %}
       </div>
     </div>
 
@@ -132,7 +132,7 @@
           </div>
           <div class="col-md-6">
             <br>
-            {% include 'partials/submissions/report_preview.html' %}
+            {% include 'submissions/_report_preview.html' %}
           </div>
         </div>
       </div>

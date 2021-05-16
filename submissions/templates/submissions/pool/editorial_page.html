@@ -26,7 +26,7 @@
       <h4 class="ml-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
 
       <h3 class="mt-4">Submission summary</h3>
-      {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 %}
+      {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
 
       <br>
       {% if submission.author_comments %}
@@ -57,8 +57,8 @@
       <br>
       {% if submission.eicrecommendations %}
 	<h3 class="highlight" id="editorial-recommendation">Editorial Recommendation</h3>
-	{% include 'partials/submissions/_previous_recommendations_card_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
-        {% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
+	{% include 'submissions/_previous_recommendations_card_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
+        {% include 'submissions/_recommendation_fellow_content.html' with recommendation=submission.eicrecommendations.last %}
       {% endif %}
 
       {% if submission.eic_recommendation_required %}
@@ -77,7 +77,7 @@
       {% endif %}
     </div>
     <div class="col-md-4">
-      {% include 'partials/submissions/submission_refereeing_history.html' with submission=submission %}
+      {% include 'submissions/_submission_refereeing_history.html' with submission=submission %}
 
       <div class="submission-contents">
         <h3>On this Editorial Page:</h3>
@@ -305,7 +305,7 @@
     {% if full_access %}
       <div class="row">
         <div class="col-12">
-          {% include 'partials/submissions/pool/submission_cycle_choice_form.html' with form=cycle_choice_form submission=submission %}
+          {% include 'submissions/pool/_submission_cycle_choice_form.html' with form=cycle_choice_form submission=submission %}
         </div>
       </div>
     {% else %}
@@ -438,7 +438,7 @@
         {% endif %}
 
 
-        {% include 'partials/submissions/pool/referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all submission=submission %}
+        {% include 'submissions/pool/_referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all submission=submission %}
       {% endif %}
 
       <hr class="lg my-5">
@@ -468,7 +468,7 @@
         {% endif %}
       {% endif %}
 
-      {% include 'partials/submissions/pool/submission_reports_summary_table.html' with submission=submission %}
+      {% include 'submissions/pool/_submission_reports_summary_table.html' with submission=submission %}
 
 
       <h3 class="mt-4 mb-2" id="comments-summary">Comments</h3>
@@ -480,7 +480,7 @@
       {% else %}
         <p>There are no Comments yet. When a Comment is submitted, you can take further action from here.</p>
       {% endif %}
-      {% include 'partials/submissions/pool/submission_comments_summary_table.html' with submission=submission %}
+      {% include 'submissions/pool/_submission_comments_summary_table.html' with submission=submission %}
     {% endif %}
   {% endif %}
 
@@ -499,13 +499,13 @@
     </ul>
 
     {% if submission.editor_in_charge == request.user.contributor %}
-      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=1 %}
+      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=1 %}
     {% else %}
-      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=0 %}
+      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.all css_class='wide' reader_is_editor=0 %}
     {% endif %}
 
     <h2 class="mt-3" id="events">Events</h2>
-    {% include 'partials/submissions/submission_events.html' with events=submission.events.for_eic %}
+    {% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
 
   {% endif %}
 

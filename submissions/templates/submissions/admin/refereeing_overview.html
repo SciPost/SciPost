@@ -27,11 +27,11 @@
           Refereeing deadline: {{ submission.reporting_deadline }}<br>
           <br>
           Refereeing status summary:<br>
-          {% include 'partials/submissions/pool/referee_invitations_status.html' with submission=submission %}
+          {% include 'submissions/pool/_referee_invitations_status.html' with submission=submission %}
         </div>
 
         <p class="mb-2">Detail of refereeing invitations:</p>
-        {% include 'partials/submissions/pool/referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
+        {% include 'submissions/pool/_referee_invitations.html' with submission=submission invitations=submission.referee_invitations.all %}
         <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}" target="_blank">Send a communication to the Editor-in-charge</a>
       </div>
     </div>

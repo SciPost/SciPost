@@ -63,7 +63,7 @@
           {% for result in object_list %}
             <li class="list-group-item{% if result.content_type == 'journals.publication' %} border-0{% endif %}">
               {% if result.content_type == 'submissions.submission' %}
-		{% include 'partials/submissions/search_card.html' with submission=result.object %}
+		{% include 'submissions/_search_card.html' with submission=result.object %}
               {% elif result.content_type == 'commentaries.commentary' %}
 		{% include 'commentaries/_search_card.html' with commentary=result.object %}
               {% elif result.content_type == 'theses.thesislink' %}

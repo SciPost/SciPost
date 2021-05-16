@@ -85,10 +85,10 @@
     <h3 class="mb-2">Editorial Recommendation:</h3>
     {% for recommendation in submission.eicrecommendations.active %}
       {% if is_ed_admin or request.user.contributor in recommendation.eligible_to_vote.all %}
-	{% include 'partials/submissions/_previous_recommendations_card_fellow_content.html' with recommendation=recommendation %}
-	{% include 'partials/submissions/recommendation_fellow_content.html' with recommendation=recommendation %}
+	{% include 'submissions/_previous_recommendations_card_fellow_content.html' with recommendation=recommendation %}
+	{% include 'submissions/_recommendation_fellow_content.html' with recommendation=recommendation %}
       {% else %}
-	{% include 'partials/submissions/recommendation_author_content.html' with recommendation=recommendation %}
+	{% include 'submissions/_recommendation_author_content.html' with recommendation=recommendation %}
       {% endif %}
     {% empty %}
       No Editorial Recommendation has yet been formulated.
@@ -98,14 +98,14 @@
   <div class="mb-4">
     <h4>Communications</h4>
     <div id="communications">
-      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
+      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
     </div>
   </div>
 
   <div class="mb-4">
     <h3>Events:</h3>
     <div id="eventslist">
-      {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
+      {% include 'submissions/_submission_events.html' with events=submission.events.for_author %}
     </div>
   </div>
 

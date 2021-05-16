@@ -19,7 +19,7 @@
         {% for report in contributor.reports.in_draft.all %}
           <li class="list-group-item">
             <div class="card-body px-0">
-              {% include 'partials/submissions/submission_li.html' with submission=report.submission %}
+              {% include 'submissions/_submission_li.html' with submission=report.submission %}
               <a class="btn btn-outline-primary my-2" href="{% url 'submissions:submit_report' report.submission.preprint.identifier_w_vn_nr %}">Finish report</a>
             </div>
           </li>
@@ -39,7 +39,7 @@
         <ul class="list-group list-group-flush">
           {% for invitation in contributor.referee_invitations.in_process.all %}
             <li class="list-group-item py-2">
-              {% include 'partials/submissions/submission_li.html' with submission=invitation.submission %}
+              {% include 'submissions/_submission_li.html' with submission=invitation.submission %}
               <table>
                 <tr>
                   <th style='min-width: 100px;'>Due:</th>
@@ -74,7 +74,7 @@
       <ul class="list-group list-group-flush ml-md-4" id="all-invitations" style="display: none;">
         {% for invitation in contributor.referee_invitations.all %}
           <li class="list-group-item py-2">
-            {% include 'partials/submissions/submission_li.html' with submission=invitation.submission %}
+            {% include 'submissions/_submission_li.html' with submission=invitation.submission %}
             <table>
               <tr>
                 <th style='min-width: 100px;'>Status:</th>

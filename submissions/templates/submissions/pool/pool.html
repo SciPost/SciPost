@@ -75,7 +75,7 @@
               <ul>
                 {% for recommendation in recommendations.put_to_voting %}
                   <li>
-                    {% include 'partials/submissions/admin/recommendation_tooltip.html' with recommendation=recommendation %}
+                    {% include 'submissions/admin/_recommendation_tooltip.html' with recommendation=recommendation %}
                     On Editorial Recommendation: {{ recommendation }}<br>
                     <a href="{% url 'submissions:eic_recommendation_detail' recommendation.submission.preprint.identifier_w_vn_nr %}">See Editorial Recommendation</a>
                   </li>
@@ -85,7 +85,7 @@
             {% if latest_submission_events %}
               <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#lastest_events_list">{% include 'bi/chat-right-text-fill.html' %} View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</button>
               <div id="lastest_events_list" style="display: none;">
-                {% include 'partials/submissions/submission_events_explicit.html' with events=latest_submission_events %}
+                {% include 'submissions/_submission_events_explicit.html' with events=latest_submission_events %}
               </div>
             {% endif %}
           </div>
@@ -139,22 +139,22 @@
 
       {% if search_form.status.value %}
         <h3>All Submissions with status: <span class="text-primary">{{ search_form.status_verbose }}</span></h3>
-        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions %}
+        {% include 'submissions/pool/_submissions_list.html' with submissions=submissions %}
       {% else %}
         <h3>Submissions currently unassigned</h3>
-        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.unassigned %}
+        {% include 'submissions/pool/_submissions_list.html' with submissions=submissions.unassigned %}
 
         <h3>Submissions currently in active refereeing phase</h3>
-        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.actively_refereeing %}
+        {% include 'submissions/pool/_submissions_list.html' with submissions=submissions.actively_refereeing %}
 
         <h3>Submissions awaiting resubmission</h3>
-        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.revision_requested %}
+        {% include 'submissions/pool/_submissions_list.html' with submissions=submissions.revision_requested %}
 
         <h3>Submissions accepted</h3>
-        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.accepted %}
+        {% include 'submissions/pool/_submissions_list.html' with submissions=submissions.accepted %}
 
 	<h3>Submissions accepted, publication offer awaiting author acceptance</h3>
-        {% include 'partials/submissions/pool/submissions_list.html' with submissions=submissions.awaiting_puboffer_acceptance %}
+        {% include 'submissions/pool/_submissions_list.html' with submissions=submissions.awaiting_puboffer_acceptance %}
 
       {% endif %}
 

@@ -18,11 +18,11 @@
       <h1 class="highlight">Editorial Decision</h1>
 
       <h2>Concerning Submission:</h2>
-      {% include 'partials/submissions/submission_li.html' with submission=submission %}
+      {% include 'submissions/_submission_li.html' with submission=submission %}
 
       <a class="d-inline-block mb-3" href="{{ submission.get_absolute_url }}" target="_blank">View Reports and Submission details</a>
 
-      {% include 'partials/submissions/pool/submission_info_table.html' with submission=submission %}
+      {% include 'submissions/pool/_submission_info_table.html' with submission=submission %}
 
       <h2 class="highlight">Set the Editorial Decision</h2>
 

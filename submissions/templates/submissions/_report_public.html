@@ -1,4 +1,4 @@
-{% extends 'partials/submissions/report_public_without_comments.html' %}
+{% extends 'submissions/_report_public_without_comments.html' %}
 
 {% block single_report_footer %}
   {% if user.is_authenticated and perms.scipost.can_submit_comments %}

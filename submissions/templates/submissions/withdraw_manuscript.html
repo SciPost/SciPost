@@ -20,9 +20,9 @@
         <h3>by {{submission.author_list}}</h3>
       </div>
       <h3 class="mt-2">Submission summary</h3>
-      {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
+      {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=0 %}
       <br>
-      {% include 'partials/submissions/submission_status.html' with submission=submission %}
+      {% include 'submissions/_submission_status.html' with submission=submission %}
     </div>
   </div>
 

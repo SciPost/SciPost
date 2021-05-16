@@ -89,7 +89,7 @@
         </div>
       {% endif %}
 
-      {% include 'partials/submissions/report_content.html' with report=report %}
+      {% include 'submissions/_report_content.html' with report=report %}
 
       {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
         <div class="row mt-3 border border-danger">

@@ -12,9 +12,9 @@
 
 {% block content %}
   <h1>Add Fellowship to Submission's Pool</h1>
-  <h2 class="text-primary">{{submission.title}}</h2>
-  <h3 class="mb-3">by {{submission.author_list}}</h3>
-  {% include 'partials/submissions/submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
+  <h2 class="text-primary">{{ submission.title }}</h2>
+  <h3 class="mb-3">by {{ submission.author_list }}</h3>
+  {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 show_abstract=1 %}
   <br>
 
   <h3>Choose one of the following (active) Fellowships to add to the Pool:</h3>

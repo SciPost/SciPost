@@ -25,7 +25,7 @@
     </div>
     {% if is_paginated %}
       <div class="col-12">
-        {% include 'partials/pagination.html' with page_obj=page_obj %}
+        {% include '_pagination.html' with page_obj=page_obj %}
       </div>
     {% endif %}
     <div class="col-12">
@@ -38,7 +38,7 @@
     </div>
     {% if is_paginated %}
       <div class="col-12">
-        {% include 'partials/pagination.html' with page_obj=page_obj %}
+        {% include '_pagination.html' with page_obj=page_obj %}
       </div>
     {% endif %}
   </div>

@@ -84,7 +84,7 @@
     {% if submission.eicrecommendations and submission.eicrecommendations.last|is_viewable_by_authors %}
     <div class="mb-4">
       <h4 class="mb-2">Editorial Recommendation:</h4>
-      {% include 'partials/submissions/recommendation_author_content.html' with recommendation=submission.eicrecommendations.last %}
+      {% include 'submissions/_recommendation_author_content.html' with recommendation=submission.eicrecommendations.last %}
     </div>
   {% endif %}
 
@@ -94,14 +94,14 @@
       {% if submission.editor_in_charge %}
         <a href="{% url 'submissions:communication' submission.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a>
       {% endif %}
-      {% include 'partials/submissions/communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
+      {% include 'submissions/_communication_thread.html' with communication=submission.editorial_communications.for_authors css_class='wide' %}
     </div>
   </div>
 
   <div class="mb-4">
     <h4>Events</h4>
     <div id="eventslist">
-      {% include 'partials/submissions/submission_events.html' with events=submission.events.for_author %}
+      {% include 'submissions/_submission_events.html' with events=submission.events.for_author %}
     </div>
   </div>
 
