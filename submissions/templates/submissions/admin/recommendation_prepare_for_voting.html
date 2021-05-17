@@ -86,7 +86,7 @@
               </td>
               <td>
                 {% with fellow.conflict_of_interests.non_deprecated|filter_for_submission:recommendation.submission as conflicts %}
-                  {% include 'submissions/admin/_conflicts.html.html' with conflicts=conflicts submission=recommendation.submission %}
+                  {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts submission=recommendation.submission %}
                 {% endwith %}
               </td>
             </tr>

@@ -184,7 +184,7 @@
               </td>
               <td>
                 {% with submission.conflict_of_interests.non_deprecated|filter_for_contributor:form.get_fellow as conflicts %}
-                  {% include 'submissions/admin/_conflicts.html.html' with conflicts=conflicts %}
+                  {% include 'submissions/admin/_conflicts.html' with conflicts=conflicts %}
                 {% endwith %}
               </td>
             </tr>
