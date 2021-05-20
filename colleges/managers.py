@@ -70,11 +70,9 @@ class FellowQuerySet(models.QuerySet):
             author_list = submission.author_list.lower()
             fellowships = []
             for fellowship in qs:
-                contributor = fellowship.contributor
-                user = contributor.user
-                if user.last_name.lower() in author_list and contributor not in false_claims:
+                if (fellowship.contributor.user.last_name.lower() in author_list and
+                    fellowship.contributor not in false_claims):
                     continue
-
                 fellowships.append(fellowship)
             return fellowships
         except AttributeError:
