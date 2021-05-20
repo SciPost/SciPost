@@ -79,5 +79,5 @@ CSP_REPORT_ONLY = False
 
 # CORS headers
 CORS_ALLOWED_ORIGINS = [
-    'https://scipost-codebases.org'
+    'https://git.scipost.org',
 ]

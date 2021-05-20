@@ -510,5 +510,5 @@ DISCOURSE_SSO_SECRET = get_secret('DISCOURSE_SSO_SECRET')
 
 # CORS headers
 CORS_ALLOWED_ORIGINS = [
-    'https://scipost-codebases.org'
+    'https://git.scipost.org',
 ]
