@@ -19,8 +19,14 @@ class FellowQuerySet(models.QuerySet):
         return self.filter(status=Fellowship.STATUS_REGULAR)
 
     def senior(self):
-        from.models import Fellowship
+        from .models import Fellowship
         return self.filter(status=Fellowship.STATUS_SENIOR)
+
+    def regular_or_senior(self):
+        from .models import Fellowship
+        return self.filter(
+            Q(status=Fellowship.STATUS_REGULAR) |
+            Q(status=Fellowship.STATUS_SENIOR))
 
     def active(self):
         today = timezone.now().date()
