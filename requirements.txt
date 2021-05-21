@@ -6,7 +6,7 @@ feedparser==5.2.1		# Check: not updated since 2016
 psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
 pytz==2017.2			# Timezone package
 djangorestframework==3.9.3	# 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
-requests==2.18.3
+requests==2.25.1		# 2021-05-21
 pyotp==2.2.7
 mock==2.0.0
 
@@ -63,7 +63,7 @@ html2text
 mongoengine==0.15.0
 
 Markdown==3.1.1
-Bleach==3.1.0
+Bleach==3.3.0			# 2021-05-21
 
 # Possibly dead
 imagesize==0.7.1
