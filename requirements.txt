@@ -1,7 +1,7 @@
 # Core
 argon2-cffi==16.3.0		# Password hashing algorithm
 Babel==2.4
-Django==2.2.16			# 2020-09-19
+Django==2.2.23			# 2021-05-21
 feedparser==5.2.1		# Check: not updated since 2016
 psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
 pytz==2017.2			# Timezone package
@@ -15,7 +15,7 @@ mock==2.0.0
 django-autocomplete-light==3.5.1 # 2020-05-03
 django-cors-headers==3.5.0	# 2020-09-11, for enabling OAuth2 with django-oauth-toolkit
 django-countries==5.3.3
-django-debug-toolbar==1.8
+django-debug-toolbar==3.2.1     # 2021-05-21
 django-extensions==2.2.8	# 2020-02-14 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
 django-filter==1.0.4
 django-guardian==1.5.1		# 2019-05-11
@@ -55,7 +55,7 @@ Whoosh==2.7.4
 ithenticate-api-python==0.8
 mailchimp3==2.0.15
 python-dateutil==2.6.0
-Pillow==8.0.0			# 2020-10-19
+Pillow==8.2.0			# 2021-05-21
 html2text
 
 
@@ -67,7 +67,7 @@ Bleach==3.1.0
 
 # Possibly dead
 imagesize==0.7.1
-Jinja2==2.8
+Jinja2==3.0.1			# 2021-05-21
 pep8==1.7.0
 six==1.10.0
 snowballstemmer==1.2.1
