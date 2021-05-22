@@ -9,12 +9,10 @@
 {% block pagetitle %}Homepage{% endblock pagetitle %}
 
 {% block headsup %}
-  {% render_bundle 'vendors~homepage~main~qr' 'css' %}
   {% render_bundle 'homepage' 'css' %}
 {% endblock headsup %}
 
 {% block footer_script %}
-  {% render_bundle 'vendors~homepage~main~qr' 'js' %}
   {% render_bundle 'homepage' 'js' %}
 {% endblock %}
 

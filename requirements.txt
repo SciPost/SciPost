@@ -23,7 +23,7 @@ django-mathjax==0.0.8
 django-mptt==0.8.6  # Dead
 django-oauth-toolkit==1.3.2	# 2020-09-03
 django-silk==2.0.0
-django-webpack-loader==0.5
+django-webpack-loader==1.0.0    # 2021-05-22, enables implicitly loading vendor bundles
 django-maintenancemode-2==1.1.11
 djangorestframework-csv		# 2020-10-13
 

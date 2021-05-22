@@ -4,8 +4,6 @@
 {% load static %}
 
 {% block headsup %}
-  {% render_bundle 'vendors~apimail~main' 'css' %}
-  {% render_bundle 'vendors~apimail' 'css' %}
   {% render_bundle 'apimail' 'css' %}
 {% endblock headsup %}
 
@@ -18,7 +16,5 @@
 {% endblock content %}
 
 {% block footer_script %}
-  {% render_bundle 'vendors~apimail~main' 'js' %}
-  {% render_bundle 'vendors~apimail' 'js' %}
   {% render_bundle 'apimail' 'js' %}
 {% endblock footer_script %}
