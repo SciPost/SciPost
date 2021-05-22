@@ -51,18 +51,42 @@
 
   <h1 class="highlight">SciPost {% if acad_field %}{{ acad_field.name }} {% endif %}Journals</h1>
 
-  <div class="row">
-    <div class="col-lg-5">
-      <p><em>We are hard at work on our <a href="{% url 'scipost:PlanSciPost' %}">expansion plans</a>! Help us in our mission to reform academic publishing.</em></p>
-      <p>All our Journals focus on top-quality science, and implement <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a>. Publishing with SciPost means that you automatically fulfil (and even surpass) your mandated Open Access requirements, being relieved of any author-facing charges or other administrative burdens while encouraging our <a href="{% url 'finances:business_model' %}">healthier business model</a> for scientific publishing.</p>
-      {% if acad_field %}
-	<p>Click on a Journal title to view Journal-specific further information (including preparation and submission instructions).</p>
-      {% endif %}
+  {% if acad_field %}
+    <div class="card-columns">
+      {% for journal in object_list %}
+	{% if journal.active or perms.scipost.can_view_pool %}
+	  <div class="card">
+	    <div class="card-header {{ journal.doi_label }}">
+	      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+	      {% if journal.has_DOAJ_Seal %}
+		<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+	      {% endif %}
+	    </div>
+	    <div class="card-body">
+	      {{ journal.blurb|automarkup }}
+	    </div>
+	    {% if journal.series_set.all|length > 0 %}
+	      <div class="card-footer">
+		Series hosted in this Journal:
+		<ul>
+		  {% for series in journal.series_set.all %}
+		    <li>
+		      <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
+		    </li>
+		  {% endfor %}
+	      </div>
+	    {% endif %}
+	  </div>
+	{% endif %}
+      {% empty %}
+	<p>
+	  There are no Journals yet in this branch of academia.
+	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
+	</p>
+      {% endfor %}
     </div>
-    <div class="col-lg-7">
-      {% include 'submissions/_guidelines_dl.html' with journal=journal %}
-    </div>
-  </div>
+
+  {% endif %}
 
   {% if not acad_field %}
     <div class="row">
@@ -122,42 +146,12 @@
       {% endfor %}
     </table>
 
-  {% else %}
-
-    <div class="card-columns">
-      {% for journal in object_list %}
-	{% if journal.active or perms.scipost.can_view_pool %}
-	  <div class="card">
-	    <div class="card-header {{ journal.doi_label }}">
-	      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-	      {% if journal.has_DOAJ_Seal %}
-		<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
-	      {% endif %}
-	    </div>
-	    <div class="card-body">
-	      {{ journal.blurb|automarkup }}
-	    </div>
-	    {% if journal.series_set.all|length > 0 %}
-	      <div class="card-footer">
-		Series hosted in this Journal:
-		<ul>
-		  {% for series in journal.series_set.all %}
-		    <li>
-		      <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
-		    </li>
-		  {% endfor %}
-	      </div>
-	    {% endif %}
-	  </div>
-	{% endif %}
-      {% empty %}
-	<p>
-	  There are no Journals yet in this branch of academia.
-	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
-	</p>
-      {% endfor %}
-    </div>
-
   {% endif %}
+
+  <div class="row">
+    <div class="col-lg-7">
+      {% include 'submissions/_guidelines_dl.html' with journal=journal %}
+    </div>
+  </div>
 
 {% endblock content %}
