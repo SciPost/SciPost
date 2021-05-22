@@ -1,8 +1,8 @@
 {
     "bootstrapVersion": 4,
-    "bootstrapCustomizations": "./scipost/static/scipost/assets/config/config.scss",
-    "preBootstrapCustomizations": "./scipost/static/scipost/assets/config/preconfig.scss",
-    "appStyles": "./scipost/static/scipost/assets/css/style.scss",
+    "bootstrapCustomizations": "./scipost_django/scipost/static/scipost/assets/config/config.scss",
+    "preBootstrapCustomizations": "./scipost_django/scipost/static/scipost/assets/config/preconfig.scss",
+    "appStyles": "./scipost_django/scipost/static/scipost/assets/css/style.scss",
     "useFlexbox": true,
     "styleLoaders": [
         "style-loader",

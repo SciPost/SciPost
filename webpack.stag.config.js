@@ -12,17 +12,17 @@ module.exports = {
         main: [
 	    "tether",
             "bootstrap-loader",
-            "./scipost/static/scipost/assets/js/scripts.js",
+            "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
         ],
         homepage: [
-            "./scipost/static/scipost/assets/js/fader.js",
-            "./scipost/static/scipost/assets/js/newsticker.js",
+            "./scipost_django/scipost/static/scipost/assets/js/fader.js",
+            "./scipost_django/scipost/static/scipost/assets/js/newsticker.js",
 	],
 	apimail: [
-            "./apimail/static/apimail/assets/vue/messages_table.js",
+            "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
         ],
 	qr: [
-	    "./scipost/static/scipost/assets/js/activate_qr.js",
+	    "./scipost_django/scipost/static/scipost/assets/js/activate_qr.js",
 	],
     },
     output: {
