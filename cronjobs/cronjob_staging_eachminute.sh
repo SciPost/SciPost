@@ -2,8 +2,8 @@
 
 # Per minute cronjobs for staging area
 
-cd /home/scipost/SciPost
-source venv3.8/bin/activate
+cd /home/scipost/SciPost/scipost_django
+source ../venv3.8/bin/activate
 
 # Mails waiting in the database
 #python manage.py send_mails
