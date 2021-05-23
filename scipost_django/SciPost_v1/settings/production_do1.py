@@ -16,6 +16,9 @@ MEDIA_ROOT = '/home/scipost/SciPost_media/media/'
 MEDIA_ROOT_SECURE = '/home/scipost/local_files/secure/media/'
 JOURNALS_DIR = 'SCIPOST_JOURNALS'
 
+# Secure storage for apimail
+APIMAIL_MEDIA_ROOT_SECURE = '/home/scipost/local_files/secure/apimail/'
+
 # Recaptcha
 RECAPTCHA_PUBLIC_KEY = get_secret("GOOGLE_RECAPTCHA_PUBLIC_KEY")
 RECAPTCHA_PRIVATE_KEY = get_secret("GOOGLE_RECAPTCHA_PRIVATE_KEY")
