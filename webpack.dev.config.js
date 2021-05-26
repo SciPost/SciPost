@@ -1,7 +1,7 @@
 var webpack = require("webpack");
 var BundleTracker = require('webpack-bundle-tracker');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const { VueLoaderPlugin } = require('vue-loader')
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
@@ -10,17 +10,17 @@ module.exports = {
     devtool: "source-map", // to ensure no eval() (breaking CSP) in development
     entry: {
         main: [
-	    "tether",
-            "bootstrap-loader",
+	    // "tether",
+            // "bootstrap-loader",
             "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
         ],
         homepage: [
             "./scipost_django/scipost/static/scipost/assets/js/fader.js",
             "./scipost_django/scipost/static/scipost/assets/js/newsticker.js",
         ],
-	apimail: [
-            "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
-	],
+	// apimail: [
+        //     "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
+	// ],
 	qr: [
 	    "./scipost_django/scipost/static/scipost/assets/js/activate_qr.js",
 	],
@@ -32,19 +32,19 @@ module.exports = {
     },
     module: {
 	rules: [
-	    {
-	    	test: require.resolve('jquery'),
-	    	use: [
-		    {
-	    		loader: 'expose-loader',
-	    		options: 'jQuery'
-	    	    },
-		    {
-	    		loader: 'expose-loader',
-	    		options: '$'
-	    	    }
-		]
-	    },
+	    // {
+	    // 	test: require.resolve('jquery'),
+	    // 	use: [
+	    // 	    {
+	    // 		loader: 'expose-loader',
+	    // 		options: 'jQuery'
+	    // 	    },
+	    // 	    {
+	    // 		loader: 'expose-loader',
+	    // 		options: '$'
+	    // 	    }
+	    // 	]
+	    // },
             {
                 test: /\.css$/,
 	    	use: [
@@ -60,7 +60,18 @@ module.exports = {
 		    'vue-style-loader',
 		    'style-loader',
 		    'css-loader',
-		    'postcss-loader',
+		    {
+			loader: 'postcss-loader',
+			options: {
+			    postcssOptions: {
+				plugins: function() {
+				    return [
+					require('autoprefixer')
+				    ];
+				}
+			    }
+			}
+		    },
 		    'sass-loader'
 		],
             },
@@ -79,11 +90,11 @@ module.exports = {
 	    filename: './webpack-stats.json'
 	}),
         new webpack.ProvidePlugin({
-            $: 'jquery',
-            jQuery: 'jquery',
-	    'window.jQuery': 'jquery',
-            Tether: 'tether',
-            'window.Tether': 'tether',
+            // $: 'jquery',
+            // jQuery: 'jquery',
+	    // 'window.jQuery': 'jquery',
+            // Tether: 'tether',
+            // 'window.Tether': 'tether',
             Popper: ['popper.js', 'default'],
 	    Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
 	    Button: "exports-loader?Button!bootstrap/js/dist/button",
@@ -98,7 +109,6 @@ module.exports = {
             Util: 'exports-loader?Util!bootstrap/js/dist/util',
         }),
         new CleanWebpackPlugin(),
-        new webpack.optimize.OccurrenceOrderPlugin(),
         new webpack.optimize.AggressiveMergingPlugin(),
 	new VueLoaderPlugin()
     ],
