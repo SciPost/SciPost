@@ -11,7 +11,7 @@
 
 <nav class="navbar navbar-expand-lg main-nav">
   <div class="container">
-    <button class="navbar-toggler p-0 border-0" type="button" data-toggle="collapse" data-target="#main-navbar" aria-label="Navbar toggler">
+    <button class="navbar-toggler p-0 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar" aria-label="Navbar toggler">
       <span class="navbar-toggler-icon">{% include 'bi/list.html' %}</span>
     </button>
     <div class="collapse navbar-collapse mt-lg-0 mt-3" id="main-navbar">
@@ -25,7 +25,7 @@
         </li>
 
 	<li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="JournalsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Journals</a>
+          <a class="nav-link dropdown-toggle" href="#" id="JournalsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Journals</a>
           <div class="dropdown-menu mega-menu mega-menu-2" aria-labelledby="JournalsDropdown">
             <div class="row">
               <div class="col-md-6">
@@ -72,7 +72,7 @@
 
 	<li class="nav-item{% if '/submissions/' in request.path %} active{% endif %} dropdown">
           <!-- <a class="nav-link" href="{% url 'submissions:submissions' %}">Submissions</a> -->
-          <a class="nav-link dropdown-toggle" href="#" id="SubmissionsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">Submissions</a>
+          <a class="nav-link dropdown-toggle" href="#" id="SubmissionsDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">Submissions</a>
           <div class="dropdown-menu mega-menu mega-menu-2" aria-labelledby="SubmissionsDropdown">
             <div class="row">
               <div class="col-md-6">
@@ -116,7 +116,7 @@
         </li>
 
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="MoreDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">More</a>
+          <a class="nav-link dropdown-toggle" href="#" id="MoreDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">More</a>
           <div class="dropdown-menu" aria-labelledby="MoreDropdown">
             <div class="dropdown-item">
               <a href="{% url 'commentaries:commentaries' %}">Commentaries</a>
@@ -128,7 +128,7 @@
         </li>
 
         <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="AboutDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">About SciPost</a>
+          <a class="nav-link dropdown-toggle" href="#" id="AboutDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">About SciPost</a>
           <div class="dropdown-menu" aria-labelledby="AboutDropdown">
 	    <div class="dropdown-item">
 	      <a href="{% url 'scipost:contact' %}">Contact us</a>
@@ -187,11 +187,11 @@
       <ul class="navbar-nav mr-0">
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
+            <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
               Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
 
             {% if request.user.contributor and not request.user.contributor.is_currently_available %}
-              <button type="button" class="btn btn-link p-0 text-warning" data-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true">{% include 'bi/exclamation-triangle-fill.html' %}</button>
+              <button type="button" class="btn btn-link p-0 text-warning" data-bs-toggle="tooltip" data-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-html="true">{% include 'bi/exclamation-triangle-fill.html' %}</button>
               &nbsp;
             {% endif %}
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="PersonalDropdown">
@@ -231,7 +231,7 @@
           </li>
 
 	  <li class="nav-item">
-	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
+	    &emsp;<a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-bs-toggle="tooltip" data-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
 	  </li>
 
         {% else %}

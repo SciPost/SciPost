@@ -8,14 +8,6 @@
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
 {% block pagetitle %}Homepage{% endblock pagetitle %}
 
-{% block headsup %}
-  {% render_bundle 'homepage' 'css' %}
-{% endblock headsup %}
-
-{% block footer_script %}
-  {% render_bundle 'homepage' 'js' %}
-{% endblock %}
-
 {% block content %}
   <div class="row">
     <div class="col-lg-6">

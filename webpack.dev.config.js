@@ -9,15 +9,16 @@ module.exports = {
     context: __dirname,
     devtool: "source-map", // to ensure no eval() (breaking CSP) in development
     entry: {
-        main: [
+        base: [
 	    // "tether",
             // "bootstrap-loader",
-            "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
+            // "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
+            "./scipost_django/scipost/static/scipost/assets/js/base.js",
         ],
-        homepage: [
-            "./scipost_django/scipost/static/scipost/assets/js/fader.js",
-            "./scipost_django/scipost/static/scipost/assets/js/newsticker.js",
-        ],
+        // homepage: [
+        //     "./scipost_django/scipost/static/scipost/assets/js/fader.js",
+        //     "./scipost_django/scipost/static/scipost/assets/js/newsticker.js",
+        // ],
 	// apimail: [
         //     "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
 	// ],
@@ -45,19 +46,19 @@ module.exports = {
 	    // 	    }
 	    // 	]
 	    // },
+            // {
+            //     test: /\.css$/,
+	    // 	use: [
+	    // 	    'vue-style-loader',
+	    // 	    'style-loader',
+	    // 	    'css-loader',
+	    // 	    'postcss-loader'
+	    // 	],
+            // },
             {
-                test: /\.css$/,
+                test: /\.(scss|css)$/,
 	    	use: [
-		    'vue-style-loader',
-		    'style-loader',
-		    'css-loader',
-		    'postcss-loader'
-		],
-            },
-            {
-                test: /\.scss$/,
-	    	use: [
-		    'vue-style-loader',
+		    // 'vue-style-loader',
 		    'style-loader',
 		    'css-loader',
 		    {
@@ -89,25 +90,25 @@ module.exports = {
 	new BundleTracker({
 	    filename: './webpack-stats.json'
 	}),
-        new webpack.ProvidePlugin({
-            // $: 'jquery',
-            // jQuery: 'jquery',
-	    // 'window.jQuery': 'jquery',
-            // Tether: 'tether',
-            // 'window.Tether': 'tether',
-            Popper: ['popper.js', 'default'],
-	    Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
-	    Button: "exports-loader?Button!bootstrap/js/dist/button",
-	    Carousel: "exports-loader?Carousel!bootstrap/js/dist/carousel",
-	    Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
-	    Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
-	    Modal: "exports-loader?Modal!bootstrap/js/dist/modal",
-	    Popover: "exports-loader?Popover!bootstrap/js/dist/popover",
-	    Scrollspy: "exports-loader?Scrollspy!bootstrap/js/dist/scrollspy",
-	    Tab: "exports-loader?Tab!bootstrap/js/dist/tab",
-            Tooltip: "exports-loader?Tooltip!bootstrap/js/dist/tooltip",
-            Util: 'exports-loader?Util!bootstrap/js/dist/util',
-        }),
+        // new webpack.ProvidePlugin({
+        //     // $: 'jquery',
+        //     // jQuery: 'jquery',
+	//     // 'window.jQuery': 'jquery',
+        //     // Tether: 'tether',
+        //     // 'window.Tether': 'tether',
+        //     Popper: ['popper.js', 'default'],
+	//     Alert: "exports-loader?Alert!bootstrap/js/dist/alert",
+	//     Button: "exports-loader?Button!bootstrap/js/dist/button",
+	//     Carousel: "exports-loader?Carousel!bootstrap/js/dist/carousel",
+	//     Collapse: "exports-loader?Collapse!bootstrap/js/dist/collapse",
+	//     Dropdown: "exports-loader?Dropdown!bootstrap/js/dist/dropdown",
+	//     Modal: "exports-loader?Modal!bootstrap/js/dist/modal",
+	//     Popover: "exports-loader?Popover!bootstrap/js/dist/popover",
+	//     Scrollspy: "exports-loader?Scrollspy!bootstrap/js/dist/scrollspy",
+	//     Tab: "exports-loader?Tab!bootstrap/js/dist/tab",
+        //     Tooltip: "exports-loader?Tooltip!bootstrap/js/dist/tooltip",
+        //     Util: 'exports-loader?Util!bootstrap/js/dist/util',
+        // }),
         new CleanWebpackPlugin(),
         new webpack.optimize.AggressiveMergingPlugin(),
 	new VueLoaderPlugin()

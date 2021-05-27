@@ -11,7 +11,7 @@
 .alert .close {
     box-shadow: none;
 
-    @include hover-focus() {
-        box-shadow: none;
-    }
+    // @include hover-focus() {
+    //     box-shadow: none;
+    // }
 }

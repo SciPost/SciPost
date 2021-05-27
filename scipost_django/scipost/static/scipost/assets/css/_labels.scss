@@ -69,7 +69,7 @@ $label-transition:                 all .2s ease-in-out !default;
     border: $label-border-width solid transparent;
     box-shadow: $label-box-shadow;
 
-    @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-line-height, $label-border-radius);
+    // @include button-size($label-padding-y, $label-padding-x, $label-font-size, $label-line-height, $label-border-radius);
     @include transition($label-transition);
 }
 
@@ -93,10 +93,10 @@ a.label-default,
     @include label-variant($label-default-color, $label-default-bg, $label-default-border);
 
     &[href] {
-        @include hover-focus {
-            border-color: #999;
-            background-color: #999;
-        }
+        // @include hover-focus {
+        //     border-color: #999;
+        //     background-color: #999;
+        // }
     }
 }
 a.label-success,
@@ -116,10 +116,10 @@ a.label-danger,
     @include label-variant($label-danger-color, $label-danger-bg, $label-danger-border);
 
     &[href] {
-        @include hover-focus {
-            border-color: #F44336;
-            background-color: #F44336;
-        }
+        // @include hover-focus {
+        //     border-color: #F44336;
+        //     background-color: #F44336;
+        // }
     }
 }
 
@@ -152,11 +152,11 @@ a.label-danger,
 
 .label-lg {
   // line-height: ensure even-numbered height of button next to large input
-  @include button-size($label-padding-y-lg, $label-padding-x-lg, $label-font-size, $label-line-height-lg, $label-border-radius-lg);
+  // @include button-size($label-padding-y-lg, $label-padding-x-lg, $label-font-size, $label-line-height-lg, $label-border-radius-lg);
 }
 .label-sm {
   // line-height: ensure proper height of button next to small input
-  @include button-size($label-padding-y-sm, $label-padding-x-sm, $label-font-size, $label-line-height-sm, $label-border-radius-sm);
+  // @include button-size($label-padding-y-sm, $label-padding-x-sm, $label-font-size, $label-line-height-sm, $label-border-radius-sm);
 }
 
 
