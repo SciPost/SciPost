@@ -92,136 +92,137 @@
   </div>
 </div>
 
-<div class="card-columns">
-
-  <div class="card">
-    <div class="card-header">
-      Publications
+<div class="row">
+  <div class="col-md-6 col-lg-4 mb-2">
+    <div class="card">
+      <div class="card-header">
+	Publications
+      </div>
+      <div class="card-body">
+	<ul>
+	  {% for pub in profile.publications.all %}
+	    <li><a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a></li>
+	  {% empty %}
+	    <li>No Publication found</li>
+	  {% endfor %}
+	</ul>
+      </div>
     </div>
-    <div class="card-body">
-      <ul>
-	{% for pub in profile.publications.all %}
-	  <li><a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a></li>
+  </div>
+  <div class="col-md-6 col-lg-4 mb-2">
+    <div class="card">
+      <div class="card-header">
+	Comments
+      </div>
+      <div class="card-body">
+	{% for comment in profile.comments.all %}
+	  <li><a href="{{ comment.get_absolute_url }}">{{ comment }}</a></li>
 	{% empty %}
-	  <li>No Publication found</li>
+	  <li>No Comment found</li>
 	{% endfor %}
-      </ul>
+      </div>
     </div>
   </div>
-
-  <div class="card">
-    <div class="card-header">
-      Comments
-    </div>
-    <div class="card-body">
-      {% for comment in profile.comments.all %}
-	<li><a href="{{ comment.get_absolute_url }}">{{ comment }}</a></li>
-      {% empty %}
-	<li>No Comment found</li>
-      {% endfor %}
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      Theses
-    </div>
-    <div class="card-body">
-      {% for thesis in profile.theses.all %}
-	<li><a href="{{ thesis.get_absolute_url }}">{{ thesis }}</a></li>
-      {% empty %}
-	<li>No Thesis found</li>
-      {% endfor %}
+  <div class="col-md-6 col-lg-4 mb-2">
+    <div class="card">
+      <div class="card-header">
+	Theses
+      </div>
+      <div class="card-body">
+	{% for thesis in profile.theses.all %}
+	  <li><a href="{{ thesis.get_absolute_url }}">{{ thesis }}</a></li>
+	{% empty %}
+	  <li>No Thesis found</li>
+	{% endfor %}
+      </div>
     </div>
   </div>
-
 </div>
 
 {% if is_scipost_admin or is_ed_admin %}
   <h4 class="highlight p-2 text-danger">Admin-level info</h4>
-  <div class="card-columns">
-
-    <div class="card">
-      <div class="card-header">
-	Registration invitations
-      </div>
-      <div class="card-body">
-	<ul>
-	  {% for reginv in profile.registrationinvitation_set.all %}
-	    <li>{{ reginv }}<br/>status: {{ reginv.get_status_display }}</li>
-	  {% empty %}
-	    <li>No invitation found</li>
-	  {% endfor %}
-	</ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-	Fellowships and Potential Fellowships
-      </div>
-      <div class="card-body">
-	<h5>Fellowships</h5>
-	<ul>
-	  {% for fellowship in profile.contributor.fellowships.all %}
-	    <li><a href="{{ fellowship.get_absolute_url }}">{{ fellowship }}</a></li>
-	  {% empty %}
-	    <li>No fellowships found</li>
-	  {% endfor %}
-	</ul>
-	<h5>Potential Fellowships</h5>
-	<ul>
-	  {% for potfellowship in profile.potentialfellowship_set.all %}
-	    <li>{{ potfellowship }}</li>
-	  {% empty %}
-	    <li>No Potential Fellowships found</li>
-	  {% endfor %}
-	</ul>
+  <div class="row">
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Registration invitations
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% for reginv in profile.registrationinvitation_set.all %}
+	      <li>{{ reginv }}<br/>status: {{ reginv.get_status_display }}</li>
+	    {% empty %}
+	      <li>No invitation found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
       </div>
     </div>
-
-
-
-    <div class="card">
-      <div class="card-header">
-	Refereeing invitations
-      </div>
-      <div class="card-body">
-	<ul>
-	  {% for inv in profile.refereeinvitation_set.all %}
-	    <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
-	  {% empty %}
-	    <li>No refereeing invitation found</li>
-	  {% endfor %}
-	</ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="card-columns">
-    <div class="card">
-      <div class="card-header">
-	Actions
-      </div>
-      <div class="card-body">
-	<ul>
-    	  <li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
-    	  <li><a href="{% url 'profiles:profile_delete' pk=profile.id %}" class="text-danger">Delete</a> this Profile</li>
-          {% if email_form %}
-            <li>
-              <div>
-        	Add an email to this Profile:
-        	<form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
-        	  {% csrf_token %}
-        	  {{ email_form|bootstrap }}
-        	  <input class="btn btn-outline-secondary" type="submit" value="Add">
-        	</form>
-              </div>
-            </li>
-          {% endif %}
-	</ul>
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Fellowships and Potential Fellowships
+	</div>
+	<div class="card-body">
+	  <h5>Fellowships</h5>
+	  <ul>
+	    {% for fellowship in profile.contributor.fellowships.all %}
+	      <li><a href="{{ fellowship.get_absolute_url }}">{{ fellowship }}</a></li>
+	    {% empty %}
+	      <li>No fellowships found</li>
+	    {% endfor %}
+	  </ul>
+	  <h5>Potential Fellowships</h5>
+	  <ul>
+	    {% for potfellowship in profile.potentialfellowship_set.all %}
+	      <li>{{ potfellowship }}</li>
+	    {% empty %}
+	      <li>No Potential Fellowships found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
       </div>
     </div>
-
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Refereeing invitations
+	</div>
+	<div class="card-body">
+	  <ul>
+	    {% for inv in profile.refereeinvitation_set.all %}
+	      <li>{{ inv.submission.title }}<br/>(invited {{ inv.date_invited }}; fulfilled: {% if inv.fulfilled %}<span class="text-success">{% include 'bi/check-square-fill.html' %}</span>{% else %}{% include 'bi/x-circle-fill.html' %}{% endif %})</li>
+	    {% empty %}
+	      <li>No refereeing invitation found</li>
+	    {% endfor %}
+	  </ul>
+	</div>
+      </div>
+    </div>
+    <div class="col-md-6 col-lg-4 mb-2">
+      <div class="card">
+	<div class="card-header">
+	  Actions
+	</div>
+	<div class="card-body">
+	  <ul>
+    	    <li><a href="{% url 'profiles:profile_update' pk=profile.id %}">Update</a> this Profile</li>
+    	    <li><a href="{% url 'profiles:profile_delete' pk=profile.id %}" class="text-danger">Delete</a> this Profile</li>
+            {% if email_form %}
+              <li>
+		<div>
+        	  Add an email to this Profile:
+        	  <form class="form-inline" action="{% url 'profiles:add_profile_email' profile_id=profile.id %}" method="post">
+        	    {% csrf_token %}
+        	    {{ email_form|bootstrap }}
+        	    <input class="btn btn-outline-secondary" type="submit" value="Add">
+        	  </form>
+		</div>
+              </li>
+            {% endif %}
+	  </ul>
+	</div>
+      </div>
+    </div>
   </div>
 {% endif %}

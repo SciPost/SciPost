@@ -50,9 +50,11 @@
       {% if managed_queues.all|length > 0 %}
 	<br class="my-4">
 	<h3 class="highlight">Queues for which you are in managing group</h3>
-	<div class="card-columns p-2">
+	<div class="row p-2">
 	  {% for queue in managed_queues %}
-	    {% include 'helpdesk/queue_card.html' with queue=queue %}
+	    <div class="col-md-6 col-lg-4 mb-2">
+	      {% include 'helpdesk/queue_card.html' with queue=queue %}
+	    </div>
 	  {% endfor %}
 	</div>
       {% endif %}
@@ -60,9 +62,11 @@
       {% if visible_queues.all|length > 0 %}
 	<br class="my-4">
 	<h3 class="highlight">Queues which you can view</h3>
-	<div class="card-columns p-2">
+	<div class="row p-2">
 	  {% for queue in visible_queues %}
-	    {% include 'helpdesk/queue_card.html' with queue=queue %}
+	    <div class="col-md-6 col-lg-4 mb-2">
+	      {% include 'helpdesk/queue_card.html' with queue=queue %}
+	    </div>
 	  {% endfor %}
 	</div>
       {% endif %}

@@ -25,32 +25,34 @@
 	</ul>
       {% endif %}
 
-      <div class="card-columns">
+      <div class="row">
 	{% for forum in object_list %}
-	  <div class="card">
-	    <div class="card-header">
-	      {% if forum.meeting %}
-		{% with context_colors=forum.meeting.context_colors %}
-		  <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
-		{% endwith %}
-		<br/>
-	      {% endif %}
-	      <span class="d-flex flex-wrap justify-content-between">
-		<a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
-		<span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
-	      </span>
-	    </div>
-	    <div class="card-body">
-	      {{ forum.description|automarkup }}
-	      {% if forum.child_forums.all|length > 0 %}
-		<hr/>
-		<p>Descendants:</p>
-		<ul class="list-unstyled forumList">
-		  {% for child in forum.child_forums.all %}
-		    {% include 'forums/forum_as_li.html' with forum=child %}
-		  {% endfor %}
-		</ul>
-	      {% endif %}
+	  <div class="col-md-6 col-lg-4">
+	    <div class="card">
+	      <div class="card-header">
+		{% if forum.meeting %}
+		  {% with context_colors=forum.meeting.context_colors %}
+		    <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
+		  {% endwith %}
+		  <br/>
+		{% endif %}
+		<span class="d-flex flex-wrap justify-content-between">
+		  <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
+		  <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+		</span>
+	      </div>
+	      <div class="card-body">
+		{{ forum.description|automarkup }}
+		{% if forum.child_forums.all|length > 0 %}
+		  <hr/>
+		  <p>Descendants:</p>
+		  <ul class="list-unstyled forumList">
+		    {% for child in forum.child_forums.all %}
+		      {% include 'forums/forum_as_li.html' with forum=child %}
+		    {% endfor %}
+		  </ul>
+		{% endif %}
+	      </div>
 	    </div>
 	  </div>
 	{% empty %}

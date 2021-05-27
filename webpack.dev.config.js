@@ -1,4 +1,4 @@
-var webpack = require("webpack");
+var webpack = require('webpack');
 var BundleTracker = require('webpack-bundle-tracker');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { VueLoaderPlugin } = require('vue-loader')
@@ -12,7 +12,7 @@ module.exports = {
         base: [
 	    // "tether",
             // "bootstrap-loader",
-            // "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
+            "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
         ],
         // homepage: [
@@ -33,19 +33,13 @@ module.exports = {
     },
     module: {
 	rules: [
-	    // {
-	    // 	test: require.resolve('jquery'),
-	    // 	use: [
-	    // 	    {
-	    // 		loader: 'expose-loader',
-	    // 		options: 'jQuery'
-	    // 	    },
-	    // 	    {
-	    // 		loader: 'expose-loader',
-	    // 		options: '$'
-	    // 	    }
-	    // 	]
-	    // },
+	    {
+		test: require.resolve('jquery'),
+		loader: 'expose-loader',
+		options: {
+		    exposes: ['$', 'jQuery'],
+		},
+	    },
             // {
             //     test: /\.css$/,
 	    // 	use: [
@@ -90,10 +84,10 @@ module.exports = {
 	new BundleTracker({
 	    filename: './webpack-stats.json'
 	}),
-        // new webpack.ProvidePlugin({
-        //     // $: 'jquery',
-        //     // jQuery: 'jquery',
-	//     // 'window.jQuery': 'jquery',
+        new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery',
+	    'window.jQuery': 'jquery',
         //     // Tether: 'tether',
         //     // 'window.Tether': 'tether',
         //     Popper: ['popper.js', 'default'],
@@ -108,7 +102,7 @@ module.exports = {
 	//     Tab: "exports-loader?Tab!bootstrap/js/dist/tab",
         //     Tooltip: "exports-loader?Tooltip!bootstrap/js/dist/tooltip",
         //     Util: 'exports-loader?Util!bootstrap/js/dist/util',
-        // }),
+        }),
         new CleanWebpackPlugin(),
         new webpack.optimize.AggressiveMergingPlugin(),
 	new VueLoaderPlugin()

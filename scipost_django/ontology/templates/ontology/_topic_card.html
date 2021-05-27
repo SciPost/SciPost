@@ -66,60 +66,66 @@
       </div>
       <hr/>
     {% endif %}
-    <div class="card-columns">
-      <div class="card">
-	<div class="card-header">
-	  Publications
-	</div>
-	<div class="card-body">
-	  <ul>
-	    {% for pub in topic.publications.all %}
-	      <li>
-		<a href="{{ pub.get_absolute_url }}">{{ pub.title }}</a>
-		<br>by {{ pub.author_list }},
-		<br>{{ pub.citation }}
-	      </li>
-	    {% empty %}
-	      <li>No Publication found</li>
-	    {% endfor %}
-	  </ul>
-	</div>
-      </div>
-      <div class="card">
-	<div class="card-header">
-	  Submissions (unpublished only)
-	</div>
-	<div class="card-body">
-	  <ul>
-	    {% for sub in topic.submission_set.public_newest.unpublished %}
-    	      <li>
-    		<a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
-    		<br>by {{ sub.author_list }}
-    		<br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.submitted_to }})
-    	      </li>
-	    {% empty %}
-	      <li>No Submission found</li>
-	    {% endfor %}
-	  </ul>
+    <div class="row">
+      <div class="col-md-6 col-lg-4 mb-2">
+	<div class="card">
+	  <div class="card-header">
+	    Publications
+	  </div>
+	  <div class="card-body">
+	    <ul>
+	      {% for pub in topic.publications.all %}
+		<li>
+		  <a href="{{ pub.get_absolute_url }}">{{ pub.title }}</a>
+		  <br>by {{ pub.author_list }},
+		  <br>{{ pub.citation }}
+		</li>
+	      {% empty %}
+		<li>No Publication found</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
 	</div>
       </div>
-      <div class="card">
-	<div class="card-header">
-	  Top experts
+      <div class="col-md-6 col-lg-4 mb-2">
+	<div class="card">
+	  <div class="card-header">
+	    Submissions (unpublished only)
+	  </div>
+	  <div class="card-body">
+	    <ul>
+	      {% for sub in topic.submission_set.public_newest.unpublished %}
+    		<li>
+    		  <a href="{{ sub.get_absolute_url }}">{{ sub.title }}</a>
+    		  <br>by {{ sub.author_list }}
+    		  <br>(submitted {{ sub.submission_date|date:"Y-m-d" }} to {{ sub.submitted_to }})
+    		</li>
+	      {% empty %}
+		<li>No Submission found</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
 	</div>
-	<div class="card-body">
-	  <ul>
-	    {% get_profiles topic.slug as profiles %}
-	    {% for profile in profiles %}
-	      {% if profile.contributor %}
-		<li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
-	      {% else %}
-		<li>{{ profile }}</li>
-	      {% endif %}
-	    {% empty %}
-	      <li>No Profile found</li>
-	    {% endfor %}
-	  </ul>
+      </div>
+      <div class="col-md-6 col-lg-4 mb-2">
+	<div class="card">
+	  <div class="card-header">
+	    Top experts
+	  </div>
+	  <div class="card-body">
+	    <ul>
+	      {% get_profiles topic.slug as profiles %}
+	      {% for profile in profiles %}
+		{% if profile.contributor %}
+		  <li><a href="{{ profile.contributor.get_absolute_url }}">{{ profile }}</a></li>
+		{% else %}
+		  <li>{{ profile }}</li>
+		{% endif %}
+	      {% empty %}
+		<li>No Profile found</li>
+	      {% endfor %}
+	    </ul>
+	  </div>
 	</div>
       </div>
     </div>

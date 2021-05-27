@@ -52,30 +52,33 @@
   <h1 class="highlight">SciPost {% if acad_field %}{{ acad_field.name }} {% endif %}Journals</h1>
 
   {% if acad_field %}
-    <div class="card-columns">
+    <div class="row">
       {% for journal in object_list %}
 	{% if journal.active or perms.scipost.can_view_pool %}
-	  <div class="card">
-	    <div class="card-header {{ journal.doi_label }}">
-	      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-	      {% if journal.has_DOAJ_Seal %}
-		<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+	  <div class="col-md-6 col-lg-4 mb-2">
+	    <div class="card">
+	      <div class="card-header {{ journal.doi_label }}">
+		<a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+		{% if journal.has_DOAJ_Seal %}
+		  <a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+		{% endif %}
+	      </div>
+	      <div class="card-body">
+		{{ journal.blurb|automarkup }}
+	      </div>
+	      {% if journal.series_set.all|length > 0 %}
+		<div class="card-footer">
+		  Series hosted in this Journal:
+		  <ul>
+		    {% for series in journal.series_set.all %}
+		      <li>
+			<a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
+		      </li>
+		    {% endfor %}
+		  </ul>
+		</div>
 	      {% endif %}
 	    </div>
-	    <div class="card-body">
-	      {{ journal.blurb|automarkup }}
-	    </div>
-	    {% if journal.series_set.all|length > 0 %}
-	      <div class="card-footer">
-		Series hosted in this Journal:
-		<ul>
-		  {% for series in journal.series_set.all %}
-		    <li>
-		      <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
-		    </li>
-		  {% endfor %}
-	      </div>
-	    {% endif %}
 	  </div>
 	{% endif %}
       {% empty %}
