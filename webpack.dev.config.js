@@ -19,9 +19,9 @@ module.exports = {
         //     "./scipost_django/scipost/static/scipost/assets/js/fader.js",
         //     "./scipost_django/scipost/static/scipost/assets/js/newsticker.js",
         // ],
-	// apimail: [
-        //     "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
-	// ],
+	apimail: [
+            "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
+	],
 	qr: [
 	    "./scipost_django/scipost/static/scipost/assets/js/activate_qr.js",
 	],
