@@ -22,7 +22,7 @@
 	  {% endif %}
 	</td>
 	<td>{{ ticket.defined_on|date:"Y-m-d" }}</td>
-	<td data-toggle="tooltip" title="{{ ticket.priority }}">
+	<td data-bs-toggle="tooltip" title="{{ ticket.priority }}">
 	  {% for a in "x"|ljust:ticket.priority_level %}
 	    {% include 'bi/exclamation-square-fill.html' %}
 	  {% endfor %}
@@ -35,9 +35,9 @@
 	{% endwith %}
 	{% with level=ticket.progress_level %}
 	  <td>
-	    <i class="fa fa{{ level.1 }}-square" data-toggle="tooltip" title="Assigned?"></i>
-	    <i class="fa fa{{ level.2 }}-square" data-toggle="tooltip" title="In handling?"></i>
-	    <i class="fa fa{{ level.3 }}-square" data-toggle="tooltip" title="Handled?"></i>
+	    <i class="fa fa{{ level.1 }}-square" data-bs-toggle="tooltip" title="Assigned?"></i>
+	    <i class="fa fa{{ level.2 }}-square" data-bs-toggle="tooltip" title="In handling?"></i>
+	    <i class="fa fa{{ level.3 }}-square" data-bs-toggle="tooltip" title="Handled?"></i>
 	  </td>
 	{% endwith %}
 	<td>{% if ticket.assigned_to %}{{ ticket.assigned_to }}{% else %}-{% endif %}</td>

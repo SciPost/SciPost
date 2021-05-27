@@ -14,28 +14,28 @@
     <div class="col-12">
       <ul class="nav nav-tabs" role="tablist">
 	<li class="nav-item">
-	  <a class="nav-link" id="details-{{ org.id }}-tab" data-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
+	  <a class="nav-link" id="details-{{ org.id }}-tab" data-bs-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
+	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-bs-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="fellows-{{ org.id }}-tab" data-toggle="tab" href="#fellows-{{ org.id }}" role="tab" aria-controls="fellows-{{ org.id }}" aria-selected="true">Associated Fellows</a>
+	  <a class="nav-link" id="fellows-{{ org.id }}-tab" data-bs-toggle="tab" href="#fellows-{{ org.id }}" role="tab" aria-controls="fellows-{{ org.id }}" aria-selected="true">Associated Fellows</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link" id="support-{{ org.id }}-tab" data-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
+	  <a class="nav-link" id="support-{{ org.id }}-tab" data-bs-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
 	</li>
 	{% if perms.scipost.can_manage_organizations or perms.scipost.can_add_contactperson %}
 	  <li class="nav-item">
-	    <a class="nav-link" id="contacts-{{ org.id }}-tab" data-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
+	    <a class="nav-link" id="contacts-{{ org.id }}-tab" data-bs-toggle="tab" href="#contacts-{{ org.id }}" role="tab" aria-controls="contacts-{{ org.id }}" aria-selected="true">Contacts</a>
 	  </li>
 	{% endif %}
 	{% if perms.scipost.can_manage_organizations %}
 	  <li class="nav-item">
-	    <a class="nav-link" id="events-{{ org.id }}-tab" data-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
+	    <a class="nav-link" id="events-{{ org.id }}-tab" data-bs-toggle="tab" href="#events-{{ org.id }}" role="tab" aria-controls="events-{{ org.id }}" aria-selected="true">Events</a>
 	  </li>
 	{% endif %}
       </ul>
@@ -75,7 +75,7 @@
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization
-	    <span class="text-muted small">(with PubFractions <span data-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>:</h3>
+	    <span class="text-muted small">(with PubFractions <span data-bs-toggle="tooltip" data-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>:</h3>
 	  {% for pubyear in pubyears %}
 	    <h4>{{ pubyear }} <span class="text-muted small">(PubFractions {{ org|pubfractions_in_year:pubyear }})</span></h4>
 	    <ul>
@@ -272,7 +272,7 @@
 		{% for key, val in balance.items %}
 		  {% if year == key|add:"0" %}
 		    <tr>
-		      <td><a class="mx-1 my-0 p-0" data-toggle="collapse" href="#details{{ year }}" role="button" aria-expanded="false" aria-controls="details{{ year }}">{{ key }}</a></td>
+		      <td><a class="mx-1 my-0 p-0" data-bs-toggle="collapse" href="#details{{ year }}" role="button" aria-expanded="false" aria-controls="details{{ year }}">{{ key }}</a></td>
 		      <td class="text-right">
 			{{ val.expenditures.total }}
 		      </td>

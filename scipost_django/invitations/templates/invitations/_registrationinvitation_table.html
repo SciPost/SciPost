@@ -17,7 +17,7 @@
     {% for invitation in invitations %}
       <tr>
         <td>
-          <span data-toggle="tooltip" data-html="true" data-title="<ul style='margin-bottom:0; padding: 0 10px 0 20px; min-height: 20px;'>{% for cit in invitation.citation_notifications.all %}<li>{% if cit.submission %}{{ cit.submission.preprint.identifier_w_vn_nr }}{% endif %}{% if cit.publication %}{{ cit.publication.doi_label }}{% endif %}</li>{% endfor %}</ul>">{% include 'bi/paperclip.html' %}</span>
+          <span data-bs-toggle="tooltip" data-html="true" data-title="<ul style='margin-bottom:0; padding: 0 10px 0 20px; min-height: 20px;'>{% for cit in invitation.citation_notifications.all %}<li>{% if cit.submission %}{{ cit.submission.preprint.identifier_w_vn_nr }}{% endif %}{% if cit.publication %}{{ cit.publication.doi_label }}{% endif %}</li>{% endfor %}</ul>">{% include 'bi/paperclip.html' %}</span>
           {{ invitation.last_name }}, {{ invitation.first_name }}
         </td>
         <td>{{ invitation.email }}</td>

@@ -14,7 +14,7 @@
 
           on {{ report.date_submitted|date:'Y-n-j' }}
           {% if report.report_type == 'report_post_edrec' %}
-            <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
+            <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
           {% endif %}
 
           {% if report.invited %}
@@ -32,7 +32,7 @@
         </h3>
 	{% if report.anonymous %}
 	  {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
-	    <button class="btn btn-sm btn-danger text-white my-2" data-toggle="modal" data-target="#modalReportAuthor{{ report.id }}" aria-expanded="false" aria-controls="modalReportAuthor">
+	    <button class="btn btn-sm btn-danger text-white my-2" data-bs-toggle="modal" data-target="#modalReportAuthor{{ report.id }}" aria-expanded="false" aria-controls="modalReportAuthor">
 	      Display Referee's Identity
 	    </button>
             {% if report.flagged %}

@@ -92,7 +92,7 @@
 	{% for code in countrycodes %}
 	  {% get_country code as country_obj %}
 	  <li style="display: inline-block;">
-	    <a href="{% add_get_parameters country=code %}"><i class="{{ country_obj.flag_css }}" data-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
+	    <a href="{% add_get_parameters country=code %}"><i class="{{ country_obj.flag_css }}" data-bs-toggle="tooltip" title="{{ country_obj.name }}"></i></a>
 	  </li>
 	{% endfor %}
       </ul>
@@ -106,7 +106,7 @@
 	  <tr>
 	    <th><a href="{% add_get_parameters order_by='country' %}">Country</a></th>
 	    <th><a href="{% add_get_parameters order_by='name' %}">Name</a>&nbsp;&nbsp;<small>[acronym]</small></th>
-	    <th>NAP <span data-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab">{% include 'bi/info-circle-fill.html' %}</span>
+	    <th>NAP <span data-bs-toggle="tooltip" data-html="true" title="" data-original-title="Number of associated publications<br/>For details, click on the Organization and consult the Associated Publications tab">{% include 'bi/info-circle-fill.html' %}</span>
 	      {% if request.GET.ordering != 'asc' %}
 		<a href="{% add_get_parameters order_by='nap' ordering='asc' %}">{% include 'bi/sort-up.html' %}</a>
 	      {% else %}

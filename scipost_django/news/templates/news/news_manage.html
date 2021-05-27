@@ -20,7 +20,7 @@
       <br/>
       {% for nl in newsletters %}
         <div class="card mb-2">
-          <div class="card-header" data-toggle="collapse" href="#collapse{{ nl.id }}" aria-expanded="false" aria-controls="collapse{{ nl.id }}">
+          <div class="card-header" data-bs-toggle="collapse" href="#collapse{{ nl.id }}" aria-expanded="false" aria-controls="collapse{{ nl.id }}">
             {{ nl }}
             (status: {{ nl.published|yesno:'published,unpublished' }})
           </div>

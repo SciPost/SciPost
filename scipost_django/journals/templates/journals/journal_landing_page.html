@@ -15,22 +15,22 @@
     <div class="col-12">
       <ul class="nav nav-tabs" id="journals-about-tab" role="tablist">
         <li class="nav-item">
-          <a class="nav-link active" id="latest-tab" data-toggle="tab" href="#latest" role="tab" aria-controls="latest" aria-selected="true">Latest publications</a>
+          <a class="nav-link active" id="latest-tab" data-bs-toggle="tab" href="#latest" role="tab" aria-controls="latest" aria-selected="true">Latest publications</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" id="accepted-tab" data-toggle="tab" href="#accepted" role="tab" aria-controls="accepted" aria-selected="true">Accepted Submissions</a>
+          <a class="nav-link" id="accepted-tab" data-bs-toggle="tab" href="#accepted" role="tab" aria-controls="accepted" aria-selected="true">Accepted Submissions</a>
         </li>
 	{% if journal.series_set.all|length > 0 %}
 	  <li class="nav-item">
-	    <a class="nav-link" id="series-tab" data-toggle="tab" href="#series" role="tab" aria-controls="series" aria-selected="true">Series</a>
+	    <a class="nav-link" id="series-tab" data-bs-toggle="tab" href="#series" role="tab" aria-controls="series" aria-selected="true">Series</a>
 	  </li>
 	{% endif %}
         <li class="nav-item">
-          <a class="nav-link" id="most-cited-tab" data-toggle="tab" href="#most-cited" role="tab" aria-controls="most-cited" aria-selected="true">Most cited</a>
+          <a class="nav-link" id="most-cited-tab" data-bs-toggle="tab" href="#most-cited" role="tab" aria-controls="most-cited" aria-selected="true">Most cited</a>
         </li>
         {% if journal.has_issues %}
           <li class="nav-item">
-            <a class="nav-link" id="issues-tab" data-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="true">Issues</a>
+            <a class="nav-link" id="issues-tab" data-bs-toggle="tab" href="#issues" role="tab" aria-controls="issues" aria-selected="true">Issues</a>
           </li>
         {% endif %}
       </ul>

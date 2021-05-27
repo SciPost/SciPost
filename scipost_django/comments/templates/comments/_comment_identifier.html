@@ -34,7 +34,7 @@
   {% if comment.anonymous %}
     {% if request.user.contributor and request.user.contributor == comment.core_content_object.editor_in_charge or is_ed_admin %}
       <br>
-      <button class="btn btn-sm btn-danger text-white my-2" data-toggle="modal" data-target="#modalCommentAuthor{{ comment.id }}" aria-expanded="false" aria-controls="modalCommentAuthor">
+      <button class="btn btn-sm btn-danger text-white my-2" data-bs-toggle="modal" data-target="#modalCommentAuthor{{ comment.id }}" aria-expanded="false" aria-controls="modalCommentAuthor">
 	Display Comment Author's Identity
       </button>
       <div class="modal" id="modalCommentAuthor{{ comment.id }}">

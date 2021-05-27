@@ -49,7 +49,7 @@
 	{% for code in countrycodes %}
 	  {% get_country code as country_obj %}
 	  <li style="display: inline-block;">
-	    <i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-toggle="tooltip" title="{{ country_obj.name }}: {{ country_obj.code }}"></i>
+	    <i class="{{ country_obj.flag_css }}" aria-label="{{ country_obj.code }}" data-bs-toggle="tooltip" title="{{ country_obj.name }}: {{ country_obj.code }}"></i>
 	  </li>
 	{% endfor %}
       </ul>

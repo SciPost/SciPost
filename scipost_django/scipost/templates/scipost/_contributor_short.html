@@ -20,6 +20,6 @@
 {% endif %}
 <div>
   {% for specialty in fellowship.contributor.profile.specialties.all %}
-    <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+    <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
   {% endfor %}
 </div>

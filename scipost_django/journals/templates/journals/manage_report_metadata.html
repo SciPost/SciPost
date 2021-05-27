@@ -54,7 +54,7 @@
 
     <tbody id="accordion" role="tablist" aria-multiselectable="true">
       {% for report in reports %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
+	<tr data-bs-toggle="collapse" data-parent="#accordion" href="#collapse{{ report.id }}" aria-expanded="true" aria-controls="collapse{{ report.id }}" style="cursor: pointer;">
 	  <td>{{ report.submission.preprint.identifier_w_vn_nr }}</td>
 	  <td>{{ report.associated_published_doi }}</td>
 	  <td>{{ report.report_nr }}</td>

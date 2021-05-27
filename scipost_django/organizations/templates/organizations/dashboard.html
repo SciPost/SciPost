@@ -25,13 +25,13 @@
 	  <ul class="nav btn-group personal-page-nav" role="tablist">
 	    {% if request.user.org_contact %}
 	      <li class="nav-item btn btn-outline-secondary">
-		<a href="#account" class="nav-link" data-toggle="tab">Account</a>
+		<a href="#account" class="nav-link" data-bs-toggle="tab">Account</a>
 	      </li>
 	      <li class="nav-item btn btn-outline-secondary">
-		<a href="#own_roles" class="nav-link active" data-toggle="tab">Your roles</a>
+		<a href="#own_roles" class="nav-link active" data-bs-toggle="tab">Your roles</a>
 	      </li>
 	      <li class="nav-item btn btn-outline-secondary">
-		<a href="#subsidies" class="nav-link" data-toggle="tab">Subsidies<br/><span class="small text-muted">[from your Orgs]</span></a>
+		<a href="#subsidies" class="nav-link" data-bs-toggle="tab">Subsidies<br/><span class="small text-muted">[from your Orgs]</span></a>
 	      </li>
 	    {% endif %}
 	    <li class="nav-item btn btn-outline-secondary">
@@ -41,7 +41,7 @@
 	      <a href="{% url 'forums:forums' %}" class="nav-link" target="_blank">Forums<br/><span class="small text-muted">[discussion boards<br/>and meetings]</span></a>
 	    </li>
 	    <li class="nav-item btn btn-outline-secondary">
-	      <a href="#board" class="nav-link" data-toggle="tab">Registered<br>Contacts</a>
+	      <a href="#board" class="nav-link" data-bs-toggle="tab">Registered<br>Contacts</a>
 	    </li>
 	    <li class="nav-item btn btn-outline-secondary">
 	      <a href="{% url 'organizations:contactperson_list' %}" class="nav-link" target="_blank">Contact Persons<br/><span class="small text-muted">[unregistered contacts]</span></a>

@@ -1,5 +1,5 @@
 {% if submission.cycle.has_required_actions %}
-  <span class="{{ classes }}" data-toggle="tooltip" data-html="true" title="
+  <span class="{{ classes }}" data-bs-toggle="tooltip" data-html="true" title="
             Required Actions:
             <ul class='mb-0 pl-3 text-left'>
             {% for code, action in submission.cycle.required_actions.items %}

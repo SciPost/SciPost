@@ -6,7 +6,7 @@ function hide_all_alerts() {
 }
 
 var activate_tooltip = function() {
-    jQuery('[data-toggle="tooltip"]').tooltip({
+    jQuery('[data-bs-toggle="tooltip"]').tooltip({
         animation: false,
         fallbackPlacement: 'clockwise',
         placement: 'auto'
@@ -53,7 +53,7 @@ function init_page() {
     // Show right tab if url contains `tab` GET request
     var tab = getUrlParameter('tab')
     if (tab) {
-        $('a[href="#' + tab + '"][data-toggle="tab"]').tab('show');
+        $('a[href="#' + tab + '"][data-bs-toggle="tab"]').tab('show');
     }
 
     // Auto-submit hook for general form elements

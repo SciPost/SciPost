@@ -38,7 +38,7 @@
             {{ fellow.contributor.user.first_name }} {{ fellow.contributor.user.last_name }}
             <br>
             {% for specialty in fellow.contributor.profile.specialties.all %}
-              <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+              <div class="single d-inline" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
             {% endfor %}
           </li>
         {% endfor %}
@@ -53,7 +53,7 @@
               {{ voter.user.first_name }} {{ voter.user.last_name }}
               <br>
               {% for specialty in voter.profile.specialties.all %}
-		<div class="single d-inline" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		<div class="single d-inline" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
               {% endfor %}
             </li>
 	  {% endfor %}

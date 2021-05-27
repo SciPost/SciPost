@@ -4,7 +4,7 @@
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 {% endblock %}
 
-{% load bootstrap %}  
+{% load bootstrap %}
 
 {% block meta_description %}{{ block.super }} {{ journal.name }} Metrics{% endblock meta_description %}
 {% block pagetitle %}{{block.super}}: {{ journal.name }} Metrics{% endblock pagetitle %}
@@ -25,7 +25,7 @@
       <h1 class="highlight">
 	<span class="px-2 py-1">Metrics for {{ journal.name }}{% if specialty %} <small><em>(specialized to {{ specialty }})</em></small>{% endif %}</span>
 
-	<button class="btn btn-secondary dropdown-toggle m-0 px-2 py-0 float-right" type="button" id="dropdownMenuSpecialty" data-toggle="dropdown"><small class="py-0">Filter by specialty</small></button>
+	<button class="btn btn-secondary dropdown-toggle m-0 px-2 py-0 float-right" type="button" id="dropdownMenuSpecialty" data-bs-toggle="dropdown"><small class="py-0">Filter by specialty</small></button>
 	<div class="dropdown-menu" aria-labelledby="dropdownMenuSpecialty">
 	  <a class="dropdown-item" href="{% url 'journal:metrics' doi_label=journal.doi_label %}">View all</a>
 	  {% for spec in journal.specialties.all %}
@@ -118,7 +118,7 @@
 	  </div>
 	</div>
       </div>
-      
+
     </div>
   </div>
 {% endblock %}

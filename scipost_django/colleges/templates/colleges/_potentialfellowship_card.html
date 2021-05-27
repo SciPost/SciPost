@@ -15,7 +15,7 @@
 	<div class="card">
 	  <div class="card-header" id="potfelProfile">
 	    <h4 class="mb-0">
-	      <button class="btn btn-link" data-toggle="collapse" data-target="#collapseProfile" aria-expanded="true" aria-controls="collapseProfile">
+	      <button class="btn btn-link" data-bs-toggle="collapse" data-target="#collapseProfile" aria-expanded="true" aria-controls="collapseProfile">
 		View Profile
 	      </button>
 	    </h4>
@@ -80,7 +80,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for specialty in fellow.profile.specialties.all %}
-		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -96,7 +96,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for specialty in fellow.profile.specialties.all %}
-		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -112,7 +112,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for specialty in fellow.profile.specialties.all %}
-		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>

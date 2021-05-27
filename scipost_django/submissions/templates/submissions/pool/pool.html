@@ -83,7 +83,7 @@
               </ul>
             {% endif %}
             {% if latest_submission_events %}
-              <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#lastest_events_list">{% include 'bi/chat-right-text-fill.html' %} View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</button>
+              <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-target="#lastest_events_list">{% include 'bi/chat-right-text-fill.html' %} View/hide latest events ({{ latest_submission_events|length }}) in the last 24 hours</button>
               <div id="lastest_events_list" style="display: none;">
                 {% include 'submissions/_submission_events_explicit.html' with events=latest_submission_events %}
               </div>

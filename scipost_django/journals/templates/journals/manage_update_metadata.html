@@ -40,7 +40,7 @@
 
     <tbody id="accordion" role="tablist" aria-multiselectable="true">
       {% for update in updates %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ update.id }}" aria-expanded="true" aria-controls="collapse{{ update.id }}" style="cursor: pointer;">
+	<tr data-bs-toggle="collapse" data-parent="#accordion" href="#collapse{{ update.id }}" aria-expanded="true" aria-controls="collapse{{ update.id }}" style="cursor: pointer;">
 	  <td>{{ update }}</td>
 	  <td>{{ update|latest_successful_crossref_generic_deposit }}</td>
 	  <td>{{ update.doideposit_needs_updating|yesno:'Yes,No,-' }}</td>

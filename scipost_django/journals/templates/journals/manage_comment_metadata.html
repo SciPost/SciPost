@@ -38,7 +38,7 @@
 
     <tbody id="accordion" role="tablist" aria-multiselectable="true">
       {% for comment in comments %}
-	<tr data-toggle="collapse" data-parent="#accordion" href="#collapse{{ comment.id }}" aria-expanded="true" aria-controls="collapse{{ comment.id }}" style="cursor: pointer;">
+	<tr data-bs-toggle="collapse" data-parent="#accordion" href="#collapse{{ comment.id }}" aria-expanded="true" aria-controls="collapse{{ comment.id }}" style="cursor: pointer;">
 	  <td>{{ comment }}</td>
 	  <td>{{ comment.needs_doi }}</td>
 	  <td>{{ comment|latest_successful_crossref_deposit_comment }}</td>

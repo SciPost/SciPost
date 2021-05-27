@@ -70,7 +70,7 @@
       {% endif %}
 
       <br>
-      <h3><button type="button" class="btn btn-link p-0" data-toggle="toggle" data-target="#all-invitations"><small>+ See all Refereeing Invitations ({{ contributor.referee_invitations.all|length }})</small></button></h3>
+      <h3><button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-target="#all-invitations"><small>+ See all Refereeing Invitations ({{ contributor.referee_invitations.all|length }})</small></button></h3>
       <ul class="list-group list-group-flush ml-md-4" id="all-invitations" style="display: none;">
         {% for invitation in contributor.referee_invitations.all %}
           <li class="list-group-item py-2">

@@ -83,7 +83,7 @@
 		    <li class="list-inline-item">
 		      {% if acad_field.profiles.all|length > 0 %}
 			<div class="dropdown">
-			  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
+			  <button class="btn btn-sm btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
 			  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ acad_field.slug }}">
 			    <a class="dropdown-item" href="{% add_get_parameters field=acad_field.slug specialty='' %}">View all in {{ acad_field }}</a>
 			    {% for specialty in acad_field.specialties.all %}
@@ -157,7 +157,7 @@
 	      <td>{{ profile.acad_field }}</td>
 	      <td>
 		{% for specialty in profile.specialties.all %}
-		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
 	      <td>{% if profile.has_active_contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>

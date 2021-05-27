@@ -27,8 +27,8 @@
       <li class="publicationPDF">
         <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
       </li>
-      <li><button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#bibtextmodal">BiBTeX</button></li>
-      <li><button type="button" class="btn btn-link p-0" data-toggle="modal" data-target="#rismodal">RIS</button></li>
+      <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-target="#bibtextmodal">BiBTeX</button></li>
+      <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-target="#rismodal">RIS</button></li>
       <li><a href="{% url 'submissions:submission' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Submissions/Reports</a></li>
       <li>
     	<!-- Start Crossmark Snippet v2.0 -->

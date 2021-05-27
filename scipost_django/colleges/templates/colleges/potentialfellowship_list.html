@@ -69,7 +69,7 @@
 		{% for acad_field in branch.academic_fields.all %}
 		  <li class="list-inline-item m-1">
 		    <div class="dropdown">
-		      <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
+		      <button class="btn btn-primary dropdown-toggle py-1 px-2" type="button" id="dropdownMenuButton{{ acad_field.slug }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><small>{{ acad_field }}</small></button>
 		      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ acad_field.slug }}">
 			<a class="dropdown-item" href="{% url 'colleges:potential_fellowships' acad_field=acad_field.slug %}"><small>View all in {{ acad_field }}</small></a>
 			{% for specialty in acad_field.specialties.all %}
@@ -88,7 +88,7 @@
   </table>
 
   <div class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter by status</button>
+    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButtonStatus" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Filter by status</button>
     <div class="dropdown-menu" aria-labelledby="dropdownMenuButtonStatus">
       <a class="dropdown-item" href="">View all</a>
       {% for status in statuses %}
@@ -142,7 +142,7 @@
 	      <td>{{ potfel.profile.acad_field }}
 		<br/>
 		{% for specialty in potfel.profile.specialties.all %}
-		  <div class="single d-inline text-muted" data-specialty="{{ specialty.slug }}" data-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		  <div class="single d-inline text-muted" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
 	      <td>{{ potfel.college }}</td>

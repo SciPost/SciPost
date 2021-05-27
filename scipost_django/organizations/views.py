@@ -76,7 +76,7 @@ class OrganizationAutocompleteView(autocomplete.Select2QuerySetView):
 
     def get_result_label(self, item):
         return format_html(
-            '<span><i class="{}" data-toggle="tooltip" title="{}"></i>&emsp;{}</span>',
+            '<span><i class="{}" data-bs-toggle="tooltip" title="{}"></i>&emsp;{}</span>',
             item.country.flag_css, item.country.name, item.name)
 
 

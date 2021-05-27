@@ -22,7 +22,7 @@
   {% if "can_work_for_stream" in sub_perms and work_log_form %}
     <ul>
       <li>
-        <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#log_form">Add hours to the Stream</button>
+        <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-target="#log_form">Add hours to the Stream</button>
         <form id="log_form" style="display: none;" action="{% url 'production:add_work_log' stream_id=stream.id %}" method="post" class="mb-2">
           {% csrf_token %}
           {{ work_log_form|bootstrap }}
@@ -45,7 +45,7 @@
       {% if "can_perform_supervisory_actions" in sub_perms %}
         {% if perms.scipost.can_assign_production_supervisor and assign_supervisor_form %}
           <li>
-            <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#add_supervisor_{{stream.id}}">Assign Production Supervisor to this stream</button>
+            <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-target="#add_supervisor_{{stream.id}}">Assign Production Supervisor to this stream</button>
             <div id="add_supervisor_{{stream.id}}" style="display: none;">
               <form class="my-3" action="{% url 'production:add_supervisor' stream_id=stream.id %}" method="post">
                 {% csrf_token %}
@@ -58,7 +58,7 @@
         {% if perms.scipost.can_assign_production_officer %}
           {% if assign_officer_form %}
             <li>
-              <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#add_officer_{{stream.id}}">Assign Production Officer to this stream</button>
+              <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-target="#add_officer_{{stream.id}}">Assign Production Officer to this stream</button>
               <div id="add_officer_{{stream.id}}" style="display: none;">
                 <form class="my-3" action="{% url 'production:add_officer' stream_id=stream.id %}" method="post">
                   {% csrf_token %}
@@ -70,7 +70,7 @@
           {% endif %}
           {% if assign_officer_form %}
             <li>
-              <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#add_invs_officer_{{stream.id}}">Assign Invitations Officer to this stream</button>
+              <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-target="#add_invs_officer_{{stream.id}}">Assign Invitations Officer to this stream</button>
               <div id="add_invs_officer_{{stream.id}}" style="display: none;">
                 <form class="my-3" action="{% url 'production:add_invitations_officer' stream_id=stream.id %}" method="post">
                   {% csrf_token %}
@@ -86,7 +86,7 @@
       {% if "can_work_for_stream" in sub_perms %}
         {% if perms.scipost.can_upload_proofs and upload_proofs_form %}
           <li>
-            <button type="button" class="btn btn-link" data-toggle="toggle" data-target="#upload_proofs">Upload Proofs</button>
+            <button type="button" class="btn btn-link" data-bs-toggle="toggle" data-target="#upload_proofs">Upload Proofs</button>
             <div id="upload_proofs" style="display: none;">
               <form class="my-3" action="{% url 'production:upload_proofs' stream_id=stream.id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
