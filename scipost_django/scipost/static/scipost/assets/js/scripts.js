@@ -137,10 +137,11 @@ $(function(){
 
 
     // Change `tab` GET parameter for page-reload
-    $('.tab-nav-container.dynamic a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        dynamic_load_tab( e.target )
+    $('.tab-nav-container.dynamic a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+	dynamic_load_tab( e.target )
     })
-    $('[data-toggle="tab"][data-sp-autoload="true"]').tab('show');
+    $('[data-bs-toggle="tab"][data-sp-autoload="true"]').tab('show');
+
 
     // Backdrop for main nav dropdowns.
     $('#main-navbar .dropdown').on('shown.bs.dropdown', function () {
