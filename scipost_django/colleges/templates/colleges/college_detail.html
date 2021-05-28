@@ -58,8 +58,8 @@
 
   <div class="row search-contributors" data-contributors="{{ college.acad_field.slug }}">
     {% for fellowship in college.fellowships.active %}
-      <div class="col-sm-6 col-md-4 col-lg-3">
-	<div class="card contributor mb-1">
+      <div class="contributor col-sm-6 col-md-4 col-lg-3">
+	<div class="card mb-1">
 	  {% include 'scipost/_contributor_short.html' with fellowship=fellowship %}
 	</div>
       </div>

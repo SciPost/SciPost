@@ -8,13 +8,16 @@
 
 .contributor {
     -webkit-transition: all 0.05s ease-in-out;
-         -o-transition: all 0.05s ease-in-out;
-            transition: all 0.05s ease-in-out;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    border: 0;
+    -o-transition: all 0.05s ease-in-out;
+    transition: all 0.05s ease-in-out;
 
-    &.hover-active {
+    div.card {
+	padding-left: 0.5rem;
+	padding-right: 0.5rem;
+	border: 0;
+    }
+
+    &.hover-active div.card {
         background-color: rgba(104, 132, 194, 0.3) !important;
     }
 }

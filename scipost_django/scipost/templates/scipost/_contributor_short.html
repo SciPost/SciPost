@@ -9,10 +9,10 @@
   {{ fellowship.contributor.profile.get_title_display }} {{ fellowship.contributor.user.first_name }} {{ fellowship.contributor.user.last_name }}
   {% if fellowship.contributor.profile.webpage %}
     </a>
-    {% endif %}
-    {% if fellowship.senior %}
+  {% endif %}
+  {% if fellowship.senior %}
     [S]
-    {% endif %}
+  {% endif %}
 </p>
 
 {% if fellowship.contributor.affiliations.active.first %}
