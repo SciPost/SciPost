@@ -126,7 +126,7 @@
 		{% if role.organization.subsidy_set.all|length > 0 %}
 		  <p>List of the subsidies (in one form or another) which SciPost has received from this Organization. Click on a row to see more details.</p>
 		  <table class="table table-hover mb-5">
-		    <thead class="thead-default">
+		    <thead class="table-light">
 		      <tr>
 			<th>Type</th>
 			<th>Amount</th>
@@ -172,7 +172,7 @@
 	  <p>Do you know people who you think should appear on this list? Help us by checking if they are already on our <a href="{% url 'organizations:contactperson_list' %}" target="_blank">list of Contact Persons</a>, and if not, please add them!</p>
           <h3>Active Contacts</h3>
 	  <table class="table">
-	    <thead class="thead-default">
+	    <thead class="table-light">
 	      <tr>
 		<th>Name</th>
 		<th>Organization(s)&nbsp;/&nbsp;role(s)</th>
