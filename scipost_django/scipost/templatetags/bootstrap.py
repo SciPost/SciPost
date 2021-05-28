@@ -47,7 +47,7 @@ def bootstrap(element, args='2,10', extra_classes=''):
 def bootstrap_inline(element, args='2,10'):
     args = [arg.strip() for arg in args.split(',')]
     markup_classes = {
-        'label': 'sr-only col-md-%s' % args[0],
+        'label': 'visually-hidden col-md-%s' % args[0],
         'value': 'col-md-%s' % args[1],
         'single_value': ''
     }

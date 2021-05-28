@@ -2,7 +2,7 @@
 
 {% for form in formset %}
   <div class="formset-form form-{{ forloop.counter }}">
-    {% if classes.label == 'sr-only' %}
+    {% if classes.label == 'visually-hidden' %}
       <div class="form-inline">
         {% include "tags/bootstrap/form.html" with form=form formset=formset %}
       </div>
