@@ -6,8 +6,9 @@
   <head>
 
     {% load static %}
-
-    {% render_bundle 'base' %}
+    {% block basebundle %}
+      {% render_bundle 'base' %}
+    {% endblock basebundle %}
 
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 

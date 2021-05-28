@@ -2,9 +2,9 @@
 
 {% load render_bundle from webpack_loader %}
 
-{% block headsup %}
+{% block basebundle %}
   {% render_bundle 'qr' %}
-{% endblock headsup %}
+{% endblock basebundle %}
 
 {% block pagetitle %}: New device{% endblock pagetitle %}
 
