@@ -10,15 +10,9 @@ module.exports = {
     devtool: "source-map", // to ensure no eval() (breaking CSP) in development
     entry: {
         base: [
-	    // "tether",
-            // "bootstrap-loader",
             "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
         ],
-        // homepage: [
-        //     "./scipost_django/scipost/static/scipost/assets/js/fader.js",
-        //     "./scipost_django/scipost/static/scipost/assets/js/newsticker.js",
-        // ],
 	apimail: [
             "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
 	],
@@ -41,19 +35,10 @@ module.exports = {
 		    exposes: ['$', 'jQuery'],
 		},
 	    },
-            // {
-            //     test: /\.css$/,
-	    // 	use: [
-	    // 	    'vue-style-loader',
-	    // 	    'style-loader',
-	    // 	    'css-loader',
-	    // 	    'postcss-loader'
-	    // 	],
-            // },
             {
                 test: /\.(scss|css)$/,
 	    	use: [
-		    // 'vue-style-loader',
+		    'vue-style-loader',
 		    'style-loader',
 		    'css-loader',
 		    {
