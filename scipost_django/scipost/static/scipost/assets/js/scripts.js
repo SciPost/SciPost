@@ -62,13 +62,13 @@ function init_page() {
     });
 
     // Start general toggle
-    $('[data-toggle="toggle"]').on('click', function() {
-        $($(this).attr('data-target')).toggle();
+    $('[data-bs-toggle="toggle"]').on('click', function() {
+        $($(this).attr('data-bs-target')).toggle();
     });
 
     // Make links that could possibly hide html blocks
     $('[data-toggle="hide"]').on('click', function() {
-        $($(this).attr('data-target'))
+        $($(this).attr('data-bs-target'))
         .hide()
         .parents('.active')
         .removeClass('active');
@@ -115,7 +115,7 @@ $(function(){
         event.preventDefault();
         var self = this,
             url = $(this).attr('href'),
-            target = $(this).attr('data-target');
+            target = $(this).attr('data-bs-target');
 
         $(target)
         .show()
@@ -125,10 +125,10 @@ $(function(){
             $(target).html(data).promise().done(function() {
                 init_page();
             });
-            $('[data-target="active-list"]')
+            $('[data-bs-target="active-list"]')
                 .find('> li')
                 .removeClass('active')
-            $(self).parents('[data-target="active-list"] > li')
+            $(self).parents('[data-bs-target="active-list"] > li')
                 .addClass('active');
 
             window.history.replaceState('scipost', document.title, url);

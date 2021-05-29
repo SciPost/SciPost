@@ -32,7 +32,7 @@
         </h3>
 	{% if report.anonymous %}
 	  {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
-	    <button class="btn btn-sm btn-danger text-white my-2" data-bs-toggle="modal" data-target="#modalReportAuthor{{ report.id }}" aria-expanded="false" aria-controls="modalReportAuthor">
+	    <button class="btn btn-sm btn-danger text-white my-2" data-bs-toggle="modal" data-bs-target="#modalReportAuthor{{ report.id }}" aria-expanded="false" aria-controls="modalReportAuthor">
 	      Display Referee's Identity
 	    </button>
             {% if report.flagged %}

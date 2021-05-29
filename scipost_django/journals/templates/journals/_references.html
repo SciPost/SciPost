@@ -1,6 +1,6 @@
 {% if publication.references.all %}
   <h3>References ({{ publication.references.all|length }})</h3>
-  <button type="button" class="btn btn-link p-0 mb-2 d-block" data-bs-toggle="toggle" data-target="#reference_list"><small>Click to expand</small></button>
+  <button type="button" class="btn btn-link p-0 mb-2 d-block" data-bs-toggle="toggle" data-bs-target="#reference_list"><small>Click to expand</small></button>
   <ul class="references" id="reference_list" style="display:none;">
     {% for reference in publication.references.all %}
       <li class="mt-1">

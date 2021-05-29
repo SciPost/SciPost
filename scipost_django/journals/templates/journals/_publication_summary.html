@@ -27,13 +27,13 @@
       <li class="publicationPDF">
         <a href="{{ publication.get_absolute_url }}/pdf" target="_blank">pdf</a>
       </li>
-      <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-target="#bibtextmodal">BiBTeX</button></li>
-      <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-target="#rismodal">RIS</button></li>
+      <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#bibtextmodal">BiBTeX</button></li>
+      <li><button type="button" class="btn btn-link p-0" data-bs-toggle="modal" data-bs-target="#rismodal">RIS</button></li>
       <li><a href="{% url 'submissions:submission' publication.accepted_submission.preprint.identifier_w_vn_nr %}">Submissions/Reports</a></li>
       <li>
     	<!-- Start Crossmark Snippet v2.0 -->
     	<script src="https://crossmark-cdn.crossref.org/widget/v2.0/widget.js"></script>
-    	<a data-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
+    	<a data-bs-target="crossmark"><img src="https://crossmark-cdn.crossref.org/widget/v2.0/logos/CROSSMARK_BW_horizontal.svg" width="120" /></a>
     	<!-- End Crossmark Snippet -->
       </li>
     </ul>

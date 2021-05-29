@@ -10,7 +10,7 @@
 	  <div class="card{% if not old_rec.active %} text-secondary{% endif %}">
 	    <div class="card-header" id="recCard{{ old_rec.version }}">
 	      <h2 class="mb=0">
-		<button class="btn btn-warning collapsed" type="button" data-bs-toggle="collapse" data-target="#collapserecCard{{ old_rec.version }}" aria-expanded="false" aria-controls="collapserecCard{{ old_rec.version }}">Show/hide Editorial Recommendation {{ old_rec.version }} (status: {{ old_rec.get_status_display }}) &darr;</button>
+		<button class="btn btn-warning collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapserecCard{{ old_rec.version }}" aria-expanded="false" aria-controls="collapserecCard{{ old_rec.version }}">Show/hide Editorial Recommendation {{ old_rec.version }} (status: {{ old_rec.get_status_display }}) &darr;</button>
 	      </h2>
 	    </div>
 	    <div id="collapserecCard{{ old_rec.version }}" class="collapse" aria-labelledby="collapserecCard{{ old_rec.version }}" data-parent="#previousRecAccordion">

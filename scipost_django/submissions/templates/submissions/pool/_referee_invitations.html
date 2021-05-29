@@ -94,7 +94,7 @@
               <a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='EtoR' referee_id=invitation.referee.id %}">Write a communication</a>
               {% if invitation.referee.editorial_communications|filter_for_submission:submission %}
                 <br>
-                <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
+                <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
                   <small>Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})</small>
                 </button>
               {% endif %}
@@ -111,7 +111,7 @@
           <td colspan="3"></td>
           <td colspan="2">
             {% if invitation.referee %}
-              <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-target="#comm-row-{{ invitation.id }}">
+              <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}">
                 <small>Show communication ({{ invitation.referee.editorial_communications|filter_for_submission:submission|length }})</small>
               </button>
             {% endif %}
@@ -123,7 +123,7 @@
           <td></td>
           <td colspan="8">
             {% include 'submissions/_communication_thread.html' with communication=invitation.referee.editorial_communications|filter_for_submission:submission css_class='wide' %}
-            <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-bs-toggle="toggle" data-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
+            <button type="button" class="btn btn-link p-0 d-inline-block mb-2" data-bs-toggle="toggle" data-bs-target="#comm-row-{{ invitation.id }}"><small>Hide communication</small></button>
           </td>
         </tr>
       {% endif %}

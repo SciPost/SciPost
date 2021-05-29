@@ -1,7 +1,7 @@
 <div class="card-body">
   <h3 class="card-title">{{ item.title }}</h3>
   <div class="card-text">
-    <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-target="#arxiv_authors_{{ id }}_{{ id2 }}"><small>Toggle authors</small></button> &middot; <a href="{{ item.link }}" target="_blank">{{ item.id }}</a>
+    <button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-bs-target="#arxiv_authors_{{ id }}_{{ id2 }}"><small>Toggle authors</small></button> &middot; <a href="{{ item.link }}" target="_blank">{{ item.id }}</a>
     <div class="authors mt-2" id="arxiv_authors_{{ id }}_{{ id2 }}" style="display: none;">
       {% for author in item.authors %}
         {{ author.name }}{% if not forloop.last %},{% endif %}
