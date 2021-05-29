@@ -40,9 +40,9 @@
 	<hr>
 	<h3 class="highlight">{{ branch }}</h3>
 	{% for field in branch.academic_fields.all %}
-	  <h4 class="highlight p-1 ml-1">{{ field }}</h4>
+	  <h4 class="highlight p-1 ms-1">{{ field }}</h4>
 	  {% if field.specialties.all|length > 0 %}
-	    <table class="table ml-1">
+	    <table class="table ms-1">
     	      <thead>
 		<th>Specialty</th>
 		<th>Submissions</th>

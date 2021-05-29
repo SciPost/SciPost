@@ -26,7 +26,7 @@
           {{ suggestion_search_form|bootstrap }}
           <input type="submit" class="btn btn-primary" value="Search">
           {% if suggestion_search_form.is_bound %}
-            <a href="{% url 'invitations:new' %}" class="ml-2 btn btn-link">Cancel search</a>
+            <a href="{% url 'invitations:new' %}" class="ms-2 btn btn-link">Cancel search</a>
           {% endif %}
         </form>
 
@@ -70,9 +70,9 @@
           {% csrf_token %}
           {{ citation_form|bootstrap }}
           <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
-          <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+          <button type="submit" class="ms-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
           {% if perms.scipost.can_manage_registration_invitations %}
-            <button type="submit" class="ml-2 btn btn-outline-secondary" name="save" value="save_and_send">Save and send mail</button>
+            <button type="submit" class="ms-2 btn btn-outline-secondary" name="save" value="save_and_send">Save and send mail</button>
           {% endif %}
         </form>
 
@@ -83,7 +83,7 @@
           {% csrf_token %}
           {{ invitation_form|bootstrap }}
           <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
-          <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+          <button type="submit" class="ms-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
         </form>
       {% endif %}
     </div>

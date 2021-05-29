@@ -43,7 +43,7 @@
               <table>
                 <tr>
                   <th style='min-width: 100px;'>Due:</th>
-                  <td>{{ invitation.submission.reporting_deadline|date:'d F Y' }}{% if invitation.submission.reporting_deadline_has_passed %} <span class="label label-sm label-danger ml-2 px-3">overdue</span> {% endif %}<td>
+                  <td>{{ invitation.submission.reporting_deadline|date:'d F Y' }}{% if invitation.submission.reporting_deadline_has_passed %} <span class="label label-sm label-danger ms-2 px-3">overdue</span> {% endif %}<td>
                 </tr>
                 <tr>
                   <th>Status:</th>
@@ -71,7 +71,7 @@
 
       <br>
       <h3><button type="button" class="btn btn-link p-0" data-bs-toggle="toggle" data-target="#all-invitations"><small>+ See all Refereeing Invitations ({{ contributor.referee_invitations.all|length }})</small></button></h3>
-      <ul class="list-group list-group-flush ml-md-4" id="all-invitations" style="display: none;">
+      <ul class="list-group list-group-flush ms-md-4" id="all-invitations" style="display: none;">
         {% for invitation in contributor.referee_invitations.all %}
           <li class="list-group-item py-2">
             {% include 'submissions/_submission_li.html' with submission=invitation.submission %}

@@ -14,10 +14,10 @@
       <h3 class="highlight">Ontology</h3>
       <ul class="list-inline">
 	{% if perms.scipost.can_manage_ontology %}
-	  <li class="list-inline-item ml-2 mr-2"><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
+	  <li class="list-inline-item ms-2 me-2"><a href="{% url 'ontology:topic_create' %}">Add a Topic</a></li>
 	{% endif %}
-	<li class="list-inline-item ml-2 mr-2"><a href="{% url 'ontology:topics' %}">View list of Topics</a></li>
-	<li class="list-inline-item ml-2 mr-2">{{ select_linked_topic_form }}</li>
+	<li class="list-inline-item ms-2 me-2"><a href="{% url 'ontology:topics' %}">View list of Topics</a></li>
+	<li class="list-inline-item ms-2 me-2">{{ select_linked_topic_form }}</li>
       </ul>
       <p>
 	Welcome to SciPost's Ontology, which is a curated set of interlinked Topics

@@ -23,7 +23,7 @@
       <h1 class="text-primary">{{ submission.title }}</h1>
       <h3>by {{ submission.author_list }}</h3>
 
-      <h4 class="ml-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
+      <h4 class="ms-2 mt-4">- <a href="{% url 'submissions:submission' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Go to the Submission Page</a> to view Reports and Comments</h4>
 
       <h3 class="mt-4">Submission summary</h3>
       {% include 'submissions/_submission_summary.html' with submission=submission hide_title=1 %}
@@ -328,7 +328,7 @@
                 <a href="{% url 'submissions:select_referee' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Invite the first referee here</a>
               {% endif %}
             </li>
-            <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ml-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
+            <li>Extend the refereeing deadline (currently {{ submission.reporting_deadline|date:'Y-m-d' }}{% if submission.reporting_deadline_has_passed %} <span class="ms-1 label label-sm label-outline-danger text-uppercase">The reporting deadline has passed</span>{% endif %}) by
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=7 %}">1 week</a> or
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>

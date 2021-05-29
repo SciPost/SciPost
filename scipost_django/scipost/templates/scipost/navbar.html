@@ -15,7 +15,7 @@
       <span class="navbar-toggler-icon">{% include 'bi/list.html' %}</span>
     </button>
     <div class="collapse navbar-collapse mt-lg-0 mt-3" id="main-navbar">
-      <ul class="navbar-nav mr-auto">
+      <ul class="navbar-nav me-auto">
 
         <li class="nav-item{% if request.path == '/' %} active{% endif %}">
           <a href="{% url 'scipost:index' %}" class="nav-link" aria-label="SciPost Home">
@@ -184,7 +184,7 @@
 
       <hr class="lg d-lg-none">
 
-      <ul class="navbar-nav mr-0">
+      <ul class="navbar-nav me-0">
         {% if user.is_authenticated %}
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">

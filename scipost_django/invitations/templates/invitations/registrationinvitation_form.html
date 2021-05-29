@@ -21,9 +21,9 @@
         {% csrf_token %}
         {{ form|bootstrap }}
         <button type="submit" class="btn btn-primary" name="save" value="save">Save</button>
-        <button type="submit" class="ml-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
+        <button type="submit" class="ms-2 btn btn-primary" name="save" value="save_and_create">Save and create new</button>
         {% if perms.scipost.can_manage_registration_invitations %}
-          <button type="submit" class="ml-2 btn btn-outline-secondary" name="save" value="save_and_send">Save and send mail</button>
+          <button type="submit" class="ms-2 btn btn-outline-secondary" name="save" value="save_and_send">Save and send mail</button>
         {% endif %}
       </form>
     </div>

@@ -14,13 +14,13 @@
 
           on {{ report.date_submitted|date:'Y-n-j' }}
           {% if report.report_type == 'report_post_edrec' %}
-            <small><label class="label label-outline-primary ml-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
+            <small><label class="label label-outline-primary ms-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
           {% endif %}
 
           {% if report.invited %}
-            <em class="ml-4">(Invited Report)</em>
+            <em class="ms-4">(Invited Report)</em>
           {% else %}
-            <em class="ml-4">(Contributed Report)</em>
+            <em class="ms-4">(Contributed Report)</em>
           {% endif %}
 
 
@@ -36,7 +36,7 @@
 	      Display Referee's Identity
 	    </button>
             {% if report.flagged %}
-              <span class="ml-4 text-danger fw-bold">CAUTION: check if this referee has been flagged by the authors</span>
+              <span class="ms-4 text-danger fw-bold">CAUTION: check if this referee has been flagged by the authors</span>
             {% endif %}
 	    <div class="modal" id="modalReportAuthor{{ report.id }}">
 	      <div class="modal-dialog modal-dialog-centered">

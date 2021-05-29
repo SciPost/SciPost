@@ -126,7 +126,7 @@
 
   <ul class="list-inline my-2">
     {% for author in publication.authors.all %}
-      <li class="list-inline-item mr-1">
+      <li class="list-inline-item me-1">
 	{% with ctr=forloop.counter0 %}
 	  {% for idx in affiliation_indices|list_element:ctr %}
 	    {% if idx is not None %}

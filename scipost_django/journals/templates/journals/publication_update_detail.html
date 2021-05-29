@@ -59,7 +59,7 @@
 
   <ul class="list-inline my-2">
     {% for author in update.publication.authors.all %}
-      <li class="list-inline-item mr-1">
+      <li class="list-inline-item me-1">
         {% if author.is_registered %}
           <a href="{{ author.profile.contributor.get_absolute_url }}">{{ author.profile.first_name }} {{ author.profile.last_name }}</a>{% else %}{{ author.profile.first_name }} {{ author.profile.last_name }}{% endif %}{% if not forloop.last %},
           {% endif %}

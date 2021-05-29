@@ -39,7 +39,7 @@
         {% csrf_token %}
         {{ form|bootstrap }}
         <input class="btn btn-primary" type="submit" value="{% if publication.metadata_DOAJ %}Reproduce{% else %}Produce{% endif %}">
-        <a href="{% url 'journals:manage_metadata' %}" class="ml-3 btn btn-link">Back to Admin</a>
+        <a href="{% url 'journals:manage_metadata' %}" class="ms-3 btn btn-link">Back to Admin</a>
       </form>
     </div>
   </div>

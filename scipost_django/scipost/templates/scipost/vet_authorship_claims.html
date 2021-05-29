@@ -55,7 +55,7 @@
             {% csrf_token %}
             <input class="btn btn-outline-secondary px-3" type="submit" value="Accept" />
           </form>
-          <form class="d-inline-block ml-1" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=0%}" method="post">
+          <form class="d-inline-block ms-1" action="{% url 'scipost:vet_authorship_claim' claim_id=claim.id claim=0%}" method="post">
             {% csrf_token %}
             <input class="btn btn-danger px-3" type="submit" value="Deny" />
           </form>

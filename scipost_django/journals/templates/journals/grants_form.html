@@ -21,7 +21,7 @@
     {% csrf_token %}
     {{ form|bootstrap }}
     <input type="submit" class="btn btn-primary" value="Add">
-    <a class="btn btn-link ml-2" href="{% url 'funders:add_grant' %}">Create new Grant</a>
+    <a class="btn btn-link ms-2" href="{% url 'funders:add_grant' %}">Create new Grant</a>
   </form>
 
   <hr class="divider">

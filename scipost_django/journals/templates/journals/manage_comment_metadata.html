@@ -46,15 +46,15 @@
 	  <td colspan="5">
 	    <p><a href="{{ comment.get_absolute_url }}">{{ comment }}</a></p>
 
-	    <h2 class="ml-3">Actions</h2>
+	    <h2 class="ms-3">Actions</h2>
             <ul>
 	      <li>Mark DOI as <a href="{% url 'journals:mark_comment_doi_needed' comment_id=comment.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_comment_doi_needed' comment_id=comment.id needed=0 %}">not needed</a></li>
               <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='comment' object_id=comment.id %}">Create the metadata and deposit it to Crossref</a></li>
 	      <li><a href="{% url 'journals:email_object_made_citable' type_of_object='comment' object_id=comment.id %}">Email comment author: made citable</a>
 	    </ul>
 
-	    <h2 class="ml-3">Crossref Deposits</h2>
-	    <table class="ml-5">
+	    <h2 class="ms-3">Crossref Deposits</h2>
+	    <table class="ms-5">
 	      <thead class="table-light">
 		<th>Timestamp</th>
 		<th>batch id</th>

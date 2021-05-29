@@ -31,7 +31,7 @@
         <div class="comment">
           {% include 'comments/_comment_identifier.html' with comment=comment %}
 
-          {% include 'comments/_comment_categories.html' with comment=comment class='mr-2' %}
+          {% include 'comments/_comment_categories.html' with comment=comment class='me-2' %}
 
           <p>{{ comment.comment_text|automarkup }}</p>
         </div>
