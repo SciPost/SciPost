@@ -22,7 +22,7 @@
   <form action="{% url 'journals:update_references' publication.doi_label %}" method="get" class="mb-4">
 
     <div class="form-group row">
-      <label class="col-form-label col-md-4 text-right" for="id_email">Number of additional empty references</label>
+      <label class="col-form-label col-md-4 text-end" for="id_email">Number of additional empty references</label>
       <div class="col-md-8">
         <input class="form-control" name="extra" type="number" value="{{ request.GET.extra|default:'0' }}">
       </div>

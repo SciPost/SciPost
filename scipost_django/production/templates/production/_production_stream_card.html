@@ -36,7 +36,7 @@
 
   {% if stream.total_duration %}
     <hr>
-    <p class="text-right">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
+    <p class="text-end">Total duration for this stream: <strong>{{ stream.total_duration|duration }}</strong></p>
   {% endif %}
 
   {% if "can_perform_supervisory_actions" in sub_perms or "can_work_for_stream" in sub_perms %}

@@ -256,28 +256,28 @@
 	    <thead class="table-light">
 	      <tr>
 		<th>Year (click to toggle details)</th>
-		<th class="text-right">Total expenditures<br>by SciPost (&euro;)</th>
-		<th class="text-right">This Organization's<br>contribution to SciPost (&euro;)</th>
-		<th class="text-right">Balance (&euro;)</th>
+		<th class="text-end">Total expenditures<br>by SciPost (&euro;)</th>
+		<th class="text-end">This Organization's<br>contribution to SciPost (&euro;)</th>
+		<th class="text-end">Balance (&euro;)</th>
 	      </tr>
 	    </thead>
 	    <tbody>
 	      <tr class="table-light">
 		<td>Cumulative</td>
-		<td class="text-right">{{ balance.cumulative.expenditures }}</td>
-		<td class="text-right">{{ balance.cumulative.contribution }}</td>
-		<td class="text-right">{{ balance.cumulative.balance }}</td>
+		<td class="text-end">{{ balance.cumulative.expenditures }}</td>
+		<td class="text-end">{{ balance.cumulative.contribution }}</td>
+		<td class="text-end">{{ balance.cumulative.balance }}</td>
 	      </tr>
 	      {% for year in pubyears %}
 		{% for key, val in balance.items %}
 		  {% if year == key|add:"0" %}
 		    <tr>
 		      <td><a class="mx-1 my-0 p-0" data-bs-toggle="collapse" href="#details{{ year }}" role="button" aria-expanded="false" aria-controls="details{{ year }}">{{ key }}</a></td>
-		      <td class="text-right">
+		      <td class="text-end">
 			{{ val.expenditures.total }}
 		      </td>
-		      <td class="text-right">{{ val.contribution }}</td>
-		      <td class="text-right">{{ val.balance }}</td>
+		      <td class="text-end">{{ val.contribution }}</td>
+		      <td class="text-end">{{ val.balance }}</td>
 		    </tr>
 		    <tr class="collapse" id="details{{ year }}">
 		      <td colspan="4">
@@ -286,9 +286,9 @@
 			    <thead class="table-dark">
 			      <tr>
 				<th>Journal</th>
-				<th class="text-right">Sum of PubFractions</th>
-				<th class="text-right">Cost per publication</th>
-				<th class="text-right">Expenditures</th>
+				<th class="text-end">Sum of PubFractions</th>
+				<th class="text-end">Cost per publication</th>
+				<th class="text-end">Expenditures</th>
 			      </tr>
 			    </thead>
 			    <tbody>
@@ -296,9 +296,9 @@
 			      {% if journal != 'total' %}
 				<tr>
 				  <td>{{ journal }}</td>
-				  <td class="text-right">{{ journaldata.pubfractions }}</td>
-				  <td class="text-right">{{ journaldata.costperpaper }}</td>
-				  <td class="text-right">{{ journaldata.expenditures }}</td>
+				  <td class="text-end">{{ journaldata.pubfractions }}</td>
+				  <td class="text-end">{{ journaldata.costperpaper }}</td>
+				  <td class="text-end">{{ journaldata.expenditures }}</td>
 				</tr>
 			      {% endif %}
 			    {% endfor %}
