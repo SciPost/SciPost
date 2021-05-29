@@ -5,7 +5,7 @@
   <ul class="mt-2">
     {% for conflict in conflicts %}
       <li class="my-1" id="conflict-{{ conflict.id }}">
-        <div class="actions status font-weight-bold">
+        <div class="actions status fw-bold">
           {% if conflict.status == 'unverified' %}
             <span class="text-warning" aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span>
             Please

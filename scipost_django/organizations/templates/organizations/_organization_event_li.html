@@ -1,5 +1,5 @@
 <li id="{{ event.id }}">
-  <div class="font-weight-bold">{{ event.get_event_display }} <small class="text-muted">noted {{ event.noted_on }} {% if event.noted_by %}by {{ event.noted_by }}{% endif %}</small>
+  <div class="fw-bold">{{ event.get_event_display }} <small class="text-muted">noted {{ event.noted_on }} {% if event.noted_by %}by {{ event.noted_by }}{% endif %}</small>
   </div>
   {% if event.comments %}
     <div>{{ event.comments|linebreaks }}</div>

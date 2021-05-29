@@ -1,5 +1,5 @@
 <li id="{{ event.id }}">
-  <div class="font-weight-bold">{{ event.get_event_display }} <small class="text-muted">noted {{ event.noted_on }} {% if perms.scipost.can_manage_college_composition and event.noted_by %}by {{ event.noted_by }}{% endif %}</small></div>
+  <div class="fw-bold">{{ event.get_event_display }} <small class="text-muted">noted {{ event.noted_on }} {% if perms.scipost.can_manage_college_composition and event.noted_by %}by {{ event.noted_by }}{% endif %}</small></div>
   {% if event.comments %}
     <div>{{ event.comments|linebreaks }}</div>
   {% endif %}

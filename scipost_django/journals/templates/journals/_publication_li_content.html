@@ -10,7 +10,7 @@
 
   <p class="authors">{{ publication.author_list }}</p>
   <p class="meta mb-0">
-    {{ publication.citation }} &middot; <span class="font-weight-light">published {{ publication.publication_date|date:'j F Y' }}</span>
+    {{ publication.citation }} &middot; <span class="fw-light">published {{ publication.publication_date|date:'j F Y' }}</span>
   </p>
   {% for collection in publication.collection_set.all %}
     <p class="m-1"><em>Part of the <a href="{{ collection.get_absolute_url }}">{{ collection }}</a> Collection in the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series }}</a> Series.</em></p>

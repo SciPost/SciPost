@@ -7,7 +7,7 @@
       <p class="card-text mb-2">{{ publication.author_list }}</p>
       <p class="card-text text-muted">
         {{ publication.citation }} &middot;
-        <span class="font-weight-light">
+        <span class="fw-light">
           published {{ publication.publication_date|date:'j F Y' }}
           {% if publication.cc_license != 'CC BY 4.0' %}
             &middot; licensed under {{publication.get_cc_license_display}}
