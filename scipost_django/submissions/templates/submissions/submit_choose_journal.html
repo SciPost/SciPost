@@ -43,7 +43,7 @@
 	      <div class="card-header {{ journal.doi_label }}">
 		<h3 class="m-2"><a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
 		  {% if journal.has_DOAJ_Seal %}
-		    <a href="https://doaj.org" class="float-right" data-bs-toggle="tooltip" title="{{ journal.name }} has received the Directory of Open Access Journals Seal"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+		    <a href="https://doaj.org" class="float-end" data-bs-toggle="tooltip" title="{{ journal.name }} has received the Directory of Open Access Journals Seal"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
 		  {% endif %}
 		</h3>
 	      </div>

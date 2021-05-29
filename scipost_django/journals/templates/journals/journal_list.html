@@ -40,7 +40,7 @@
 	  <li class="list-inline-item px-2 py-1 {{ journal.doi_label }}">
 	    <a href="{{ journal.get_absolute_url }}">{{ journal.doi_label|cut:"SciPost" }}</a>
 	    {% if journal.has_DOAJ_Seal %}
-	      &emsp;<a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="16em"></a>
+	      &emsp;<a href="https://doaj.org" class="float-end"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="16em"></a>
 	    {% endif %}
 	  </li>
 	{% endif %}
@@ -60,7 +60,7 @@
 	      <div class="card-header {{ journal.doi_label }}">
 		<a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
 		{% if journal.has_DOAJ_Seal %}
-		  <a href="https://doaj.org" class="float-right"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+		  <a href="https://doaj.org" class="float-end"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
 		{% endif %}
 	      </div>
 	      <div class="card-body">

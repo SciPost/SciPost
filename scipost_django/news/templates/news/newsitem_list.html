@@ -34,7 +34,7 @@
           {% if page_obj.has_next %}
             <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
           {% endif %}
-          <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
+          <span class="float-end"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
         </p>
       {% endif %}
 
@@ -53,7 +53,7 @@
           {% if page_obj.has_next %}
             <a href="?{% url_replace page=page_obj.next_page_number %}">Next</a>
           {% endif %}
-          <span class="float-right"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
+          <span class="float-end"><a href="{% url 'scipost:index' %}">Go back to the homepage.</a></span>
         </p>
       {% endif %}
     </div>

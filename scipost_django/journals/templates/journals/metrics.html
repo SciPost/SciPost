@@ -25,7 +25,7 @@
       <h1 class="highlight">
 	<span class="px-2 py-1">Metrics for {{ journal.name }}{% if specialty %} <small><em>(specialized to {{ specialty }})</em></small>{% endif %}</span>
 
-	<button class="btn btn-secondary dropdown-toggle m-0 px-2 py-0 float-right" type="button" id="dropdownMenuSpecialty" data-bs-toggle="dropdown"><small class="py-0">Filter by specialty</small></button>
+	<button class="btn btn-secondary dropdown-toggle m-0 px-2 py-0 float-end" type="button" id="dropdownMenuSpecialty" data-bs-toggle="dropdown"><small class="py-0">Filter by specialty</small></button>
 	<div class="dropdown-menu" aria-labelledby="dropdownMenuSpecialty">
 	  <a class="dropdown-item" href="{% url 'journal:metrics' doi_label=journal.doi_label %}">View all</a>
 	  {% for spec in journal.specialties.all %}
@@ -41,7 +41,7 @@
 	  <div class="card">
 	    <div class="card-header">
 	      <h3>Publications
-		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
@@ -55,7 +55,7 @@
 	  <div class="card">
 	    <div class="card-header">
 	      <h3>Submissions
-		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
@@ -79,7 +79,7 @@
 	  <div class="card">
 	    <div class="card-header">
 	      <h3>Citations (total)
-		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
@@ -93,7 +93,7 @@
 	  <div class="card">
 	    <div class="card-header">
 	      <h3><a href="https://en.wikipedia.org/wiki/CiteScore" target="_blank">CiteScore</a>
-		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">
@@ -107,7 +107,7 @@
 	  <div class="card">
 	    <div class="card-header">
 	      <h3><a href="https://en.wikipedia.org/wiki/Impact_factor" target="_blank">Impact Factor</a>
-		{% if specialty %}&emsp;<small class="float-right"><em>({{ specialty }})</em></small>{% endif %}
+		{% if specialty %}&emsp;<small class="float-end"><em>({{ specialty }})</em></small>{% endif %}
 	      </h3>
 	    </div>
 	    <div class="card-body">

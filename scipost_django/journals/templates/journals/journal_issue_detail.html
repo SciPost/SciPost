@@ -20,7 +20,7 @@
         <h4 class="d-inline-block"><a href="{{ prev_issue.get_absolute_url }}">{% include 'bi/arrow-left.html' %} Previous issue | {{ prev_issue.short_str }}</a></h4>
       {% endif %}
       {% if next_issue %}
-        <h4 class="float-right d-inline-block"><a href="{{ next_issue.get_absolute_url }}">{{ next_issue.short_str }} | Next issue {% include 'bi/arrow-right.html' %}</a></h4>
+        <h4 class="float-end d-inline-block"><a href="{{ next_issue.get_absolute_url }}">{{ next_issue.short_str }} | Next issue {% include 'bi/arrow-right.html' %}</a></h4>
       {% endif %}
     </div>
   </div>
