@@ -53,7 +53,7 @@
 
     {% if is_ed_admin %}
       <h3>Editorial Administration</h3>
-      <ul class="pl-4 mb-3">
+      <ul class="ps-4 mb-3">
         <li><a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a></li>
         <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
         <li><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
@@ -66,7 +66,7 @@
         {# EIC Assignments #}
         {% if perms.scipost.can_assign_submissions %}
           <li>EIC Assignment requests:</li>
-          <ul class="pl-3">
+          <ul class="ps-3">
             {% for assignment in submission.editorial_assignments.all %}
               {% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
             {% empty %}
@@ -98,7 +98,7 @@
         {# EIC Recommendations #}
         {% if submission.eicrecommendations.exists %}
           <li>See Editorial Recommendations:</li>
-          <ul class="pl-3">
+          <ul class="ps-3">
             {% for rec in submission.eicrecommendations.all %}
               <li><a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_recommendation_display }}</a></li>
             {% endfor %}

@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Strengths</h3>
-      <div class="pl-md-4">{{ report.strengths|linebreaks }}</div>
+      <div class="ps-md-4">{{ report.strengths|linebreaks }}</div>
     </div>
   </div>
 {% endif %}
@@ -11,7 +11,7 @@
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Weaknesses</h3>
-      <div class="pl-md-4">{{ report.weaknesses|linebreaks }}</div>
+      <div class="ps-md-4">{{ report.weaknesses|linebreaks }}</div>
     </div>
   </div>
 {% endif %}
@@ -19,7 +19,7 @@
 <div class="row">
   <div class="col-12">
     <h3 class="highlight tight">Report</h3>
-    <div class="pl-md-4">{{ report.report|linebreaks }}</div>
+    <div class="ps-md-4">{{ report.report|linebreaks }}</div>
   </div>
 </div>
 
@@ -27,7 +27,7 @@
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Requested changes</h3>
-      <div class="pl-md-4">
+      <div class="ps-md-4">
         <p>{{ report.requested_changes|linebreaksbr }}</p>
       </div>
     </div>
@@ -38,7 +38,7 @@
   <div class="row">
     <div class="col-12">
       <h3 class="highlight tight">Attachment</h3>
-      <div class="pl-md-4">{% include 'bi/download.html' %} <a href="{{ report.get_attachment_url }}">Download attachment</a></div>
+      <div class="ps-md-4">{% include 'bi/download.html' %} <a href="{{ report.get_attachment_url }}">Download attachment</a></div>
       <br>
     </div>
   </div>

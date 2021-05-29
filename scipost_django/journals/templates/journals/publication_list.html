@@ -54,11 +54,11 @@
   <div class="row">
     <div class="col-12">
       <h2>Recent Issues</h2>
-      <div class="mb-1 pl-2">
+      <div class="mb-1 ps-2">
         <a href="?{% url_replace issue='' page='' subject='' %}" class="{% active_get_request 'issue' '' %}">All Issues</a>
       </div>
       {% for issue in recent_issues %}
-        <div class="mb-1 pl-2">
+        <div class="mb-1 ps-2">
           <a href="?{% url_replace issue=issue.id page='' subject='' %}" class="{% active_get_request 'issue' issue.id %}">{{ issue.in_volume.in_journal }} {{ issue.short_str }}</a>
           <br>{{ issue.period_as_string }}
         </div>

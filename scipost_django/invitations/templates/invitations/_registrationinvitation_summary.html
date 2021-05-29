@@ -15,7 +15,7 @@
   <tr>
     <th>Submission(s)</th>
     <td>
-      <ul class="pl-3 mb-0">
+      <ul class="ps-3 mb-0">
         {% for citation in invitation.citation_notifications.for_submissions %}
           <li>{{ citation.submission }}</li>
         {% empty %}
@@ -27,7 +27,7 @@
   <tr>
     <th>Publication(s)</th>
     <td>
-      <ul class="pl-3 mb-0">
+      <ul class="ps-3 mb-0">
         {% for citation in invitation.citation_notifications.for_publications %}
           <li>{{ citation.publication }}</li>
         {% empty %}

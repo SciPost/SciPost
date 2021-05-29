@@ -4,7 +4,7 @@
       {% for event in events %}
         <li class="list-group-item">
           <div class="d-flex flex-nowrap justify-content-start">
-            <div class="time text-muted pr-2">{{ event.created|date:'d F Y G:i' }}</div>
+            <div class="time text-muted pe-2">{{ event.created|date:'d F Y G:i' }}</div>
             <div class="content">{{ event.text }}</div>
           </div>
         </li>

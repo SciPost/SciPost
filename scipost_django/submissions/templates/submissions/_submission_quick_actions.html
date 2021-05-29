@@ -1,7 +1,7 @@
 {% if perms.scipost.can_submit_comments %}
   <div class="submission-quick-actions">
     <h3>Actions</h3>
-    <ul class="my-2 pl-4">
+    <ul class="my-2 ps-4">
       {% if submission.is_open_for_reporting and perms.scipost.can_referee %}
 	<li>
 	  <h4>
@@ -69,7 +69,7 @@
 
     {% if perms.scipost.can_manage_reports %}
       <h3 class="mt-4">Administrative actions</h3>
-      <ul class="pl-4">
+      <ul class="ps-4">
 	<li>
 	  <a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a>
 	</li>

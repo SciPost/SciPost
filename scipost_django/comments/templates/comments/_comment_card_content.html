@@ -8,7 +8,7 @@
     <a href="{{ comment.get_absolute_url }}">"{{ comment.comment_text|slice:'30' }}{% if comment.comment_text|length > 30 %}...{% endif %}"</a>
   </p>
 
-  <p class="card-text pl-md-3">
+  <p class="card-text ps-md-3">
     in {{ comment.content_type|capfirst }} on <a href="{{ comment.content_object.get_absolute_url }}" class="pubtitleli">{{ comment.title }}</a>
 
     {% if comment.content_object.author_list %}

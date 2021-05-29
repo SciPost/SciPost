@@ -14,15 +14,15 @@
       <div class="mt-3 mb-1">
 	{% if sibling.is_resubmission_of %}Resubmission{% else %}Submission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli"{% if target_blank %} target="_blank"{% endif %}>{{ sibling.preprint.identifier_w_vn_nr }}</a> on {{ sibling.submission_date|date:'j F Y' }}
       </div>
-      <ul class="my-2 pl-4">
+      <ul class="my-2 ps-4">
 	{% for report in sibling.reports.accepted %}
           <li><a href="{{ report.get_absolute_url }}"{% if target_blank %} target="_blank"{% endif %}>Report {{ report.report_nr }} submitted on {{ report.date_submitted }} by {% if report.anonymous %}<em>Anonymous</em>{% else %}{{ report.author.profile.get_title_display }} {{ report.author.user.last_name }}{% endif %}</a></li>
-          {% include 'comments/_comments_list.html' with comments=report.comments.vetted css_class='my-1 pl-4' target_blank=target_blank %}
+          {% include 'comments/_comments_list.html' with comments=report.comments.vetted css_class='my-1 ps-4' target_blank=target_blank %}
 	{% endfor %}
       </ul>
     </div>
 
-    {% include 'comments/_comments_list.html' with comments=sibling.comments.vetted css_class='my-2 pl-4' target_blank=target_blank %}
+    {% include 'comments/_comments_list.html' with comments=sibling.comments.vetted css_class='my-2 ps-4' target_blank=target_blank %}
   {% empty %}
     <em>There are no publicly visible links available yet.</em>
   {% endfor %}

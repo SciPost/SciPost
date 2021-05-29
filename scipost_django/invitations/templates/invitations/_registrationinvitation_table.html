@@ -35,7 +35,7 @@
         </td>
         {% if perms.scipost.can_manage_registration_invitations %}
           <td>
-            <ul class="pl-3 mb-0">
+            <ul class="ps-3 mb-0">
               {% if invitation.status == 'draft' %}
                 <li><a href="{% url 'invitations:update' invitation.id %}">Edit or send</a></li>
                 <li><a href="{% url 'invitations:mark' invitation.id 'sent' %}">Mark as sent</a></li>
@@ -58,7 +58,7 @@
           </td>
         {% else %}
           <td colspan="2">
-            <ul class="pl-3 mb-0">
+            <ul class="ps-3 mb-0">
               <li><a href="{% url 'invitations:add_citation' invitation.id %}">Add new Citation to Invitation</a></li>
               {% if invitation.status == 'draft' and invitation.created_by == request.user %}
                 <li><a href="{% url 'invitations:update' invitation.id %}">Edit Invitation</a></li>

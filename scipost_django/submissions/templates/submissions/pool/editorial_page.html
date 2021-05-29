@@ -31,27 +31,27 @@
       <br>
       {% if submission.author_comments %}
         <h3>Author comments upon resubmission:</h3>
-        <div class="pl-md-4">{{ submission.author_comments|linebreaks }}</div>
+        <div class="ps-md-4">{{ submission.author_comments|linebreaks }}</div>
       {% endif %}
 
       {% if submission.list_of_changes %}
         <h3>List of changes:</h3>
-        <div class="pl-md-4">{{ submission.list_of_changes|linebreaks }}</div>
+        <div class="ps-md-4">{{ submission.list_of_changes|linebreaks }}</div>
       {% endif %}
 
       {% if submission.remarks_for_editors %}
         <h3>Comments for the Editor-in-charge:</h3>
-        <div class="pl-md-4">{{ submission.remarks_for_editors|linebreaks }}</div>
+        <div class="ps-md-4">{{ submission.remarks_for_editors|linebreaks }}</div>
       {% endif %}
 
       {% if submission.referees_suggested %}
         <h3>Referees suggested by authors upon submission:</h3>
-        <div class="pl-md-4">{{ submission.referees_suggested }}</div>
+        <div class="ps-md-4">{{ submission.referees_suggested }}</div>
       {% endif %}
 
       {% if submission.referees_flagged %}
         <h3>Referees flagged upon submission (treat reports with caution):</h3>
-        <div class="pl-md-4">{{ submission.referees_flagged }}</div>
+        <div class="ps-md-4">{{ submission.referees_flagged }}</div>
       {% endif %}
 
       <br>
@@ -81,7 +81,7 @@
 
       <div class="submission-contents">
         <h3>On this Editorial Page:</h3>
-        <ul class="my-2 pl-4">
+        <ul class="my-2 ps-4">
           <li><a href="#editorial-recommendation">Editorial Recommendation</a></li>
           <li>
             <a href="#editorial-status">Editorial status</a>

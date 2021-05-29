@@ -10,33 +10,33 @@
 
     <table class="mb-2">
       <tr>
-        <td class="pr-2">Version:</td>
+        <td class="pe-2">Version:</td>
         <td>{{ recommendation.version }}</td>
       </tr>
       <tr>
-	<td class="pr-2">For Journal:</td>
+	<td class="pe-2">For Journal:</td>
 	<td>{{ recommendation.for_journal }}</td>
       </tr>
       <tr>
-        <td class="pr-2">Recommendation:</td>
+        <td class="pe-2">Recommendation:</td>
         <td>{{ recommendation.get_recommendation_display }}</td>
       </tr>
       <tr>
-        <td class="pr-2">Status:</td>
+        <td class="pe-2">Status:</td>
         <td><span class="label label-secondary">{{ recommendation.get_status_display }}</span></td>
       </tr>
     </table>
 
     <h3 class="pb-0">Remarks for authors</h3>
-    <p class="pl-md-3">{{ recommendation.remarks_for_authors|default:'-' }}</p>
+    <p class="ps-md-3">{{ recommendation.remarks_for_authors|default:'-' }}</p>
 
     <h3 class="pb-0">Requested changes</h3>
-    <p class="pl-md-3">{{ recommendation.requested_changes|default:'-' }}</p>
+    <p class="ps-md-3">{{ recommendation.requested_changes|default:'-' }}</p>
 
     {% block recommendation_remarks_for_editorial_college %}{% endblock %}
 
     <h3 class="pb-0">Recommendation</h3>
-    <p class="pl-md-3 mb-0">For Journal <em>{{ recommendation.for_journal }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
+    <p class="ps-md-3 mb-0">For Journal <em>{{ recommendation.for_journal }}:</em> <strong>{{ recommendation.get_recommendation_display }}</strong></p>
 
     {% block recommendation_reformulation %}
     {% endblock %}
