@@ -46,7 +46,7 @@
 	      {% if perms.scipost.can_view_profiles %}
 		&emsp;(<a href="{% url 'profiles:profile_detail' pk=comment.author.profile.id %}">view Profile</a>)
 	      {% endif %}
-	      <button type="button" class="btn btn-secondary float-right" data-dismiss="modal">Close</button>
+	      <button type="button" class="btn btn-secondary float-right" data-bs-dismiss="modal">Close</button>
 	    </div>
 	  </div>
 	</div>

@@ -1,7 +1,7 @@
 {% if form.non_field_errors %}
   {% for non_field_error in form.non_field_errors %}
     <div class="alert alert-danger">
-      <a class="close" data-dismiss="alert">&times;</a>
+      <a class="close" data-bs-dismiss="alert">&times;</a>
       {{ non_field_error }}
     </div>
   {% endfor %}

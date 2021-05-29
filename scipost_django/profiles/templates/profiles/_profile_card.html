@@ -46,13 +46,13 @@
 		  <td class="d-flex">
                     <form method="post" action="{% url 'profiles:toggle_email_status' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">{{ profile_mail.still_valid|yesno:'Deprecate,Mark valid' }}</button></form>
 		    <form method="post" action="{% url 'profiles:email_make_primary' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-link py-0">Make primary</button></form>
-		    <a type="button" class="btn py-0" data-bs-toggle="modal" data-target="#confirmDeleteEmailModal"><span class="text-danger">{% include 'bi/trash-fill.html' %}</span></a>
+		    <a type="button" class="btn py-0" data-bs-toggle="modal" data-bs-target="#confirmDeleteEmailModal"><span class="text-danger">{% include 'bi/trash-fill.html' %}</span></a>
 		    <div class="modal" id="confirmDeleteEmailModal" tabindex="-1" role="dialog">
 		      <div class="modal-dialog" role="document">
 			<div class="modal-content">
 			  <div class="modal-header">
 			    <h4 class="modal-title">Confirm email deletion</h4>
-			    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close">
+			    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
 			      <span aria-hidden="true">&times;</span>
 			    </button>
 			  </div>
@@ -60,7 +60,7 @@
 			    Are you sure you want to delete {{ profile_mail.email }}?
 			  </div>
 			  <div class="modal-footer">
-			    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+			    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
 			    <form method="post" action="{% url 'profiles:delete_profile_email' profile_mail.id %}">{% csrf_token %}<button type="submit" class="btn btn-danger">Confirm</button></form>
 			  </div>
 			</div>
