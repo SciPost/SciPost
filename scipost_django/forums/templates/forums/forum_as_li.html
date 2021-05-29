@@ -1,6 +1,6 @@
 <li class="d-flex flex-wrap justify-content-between">
   <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
-  <span class="badge badge-secondary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+  <span class="badge bg-secondary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
   {% if forum.child_forums.all|length > 0 %}
     <ul class="list-unstyled forumList">
       {% for child in forum.child_forums.all %}

@@ -32,13 +32,13 @@
 	      <div class="card-header">
 		{% if forum.meeting %}
 		  {% with context_colors=forum.meeting.context_colors %}
-		    <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
+		    <span class="badge bg-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">{{ context_colors.message }}</span>
 		  {% endwith %}
 		  <br/>
 		{% endif %}
 		<span class="d-flex flex-wrap justify-content-between">
 		  <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
-		  <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+		  <span class="badge bg-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
 		</span>
 	      </div>
 	      <div class="card-body">
@@ -80,7 +80,7 @@
 	      <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
 	      <td>{{ forum.latest_post }}</td>
 	      <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
-	      <td><span class="badge badge-primary badge-pill">{{ forum.nr_posts }}</span></td>
+	      <td><span class="badge bg-primary badge-pill">{{ forum.nr_posts }}</span></td>
 	    </tr>
 	  {% empty %}
 	    <tr>

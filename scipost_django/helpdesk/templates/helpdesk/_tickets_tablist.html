@@ -2,17 +2,17 @@
   <ul class="nav nav-tabs" id="ticketsTab{{ marker }}" role="tablist">
     {% if unassigned|length > 0 %}
       <li class="nav-item">
-	<a class="nav-link" id="ticketsUnassigned{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsUnassigned{{ marker }}" role="tab" aria-controls="ticketsUnassigned{{ marker }}" aria-selected="true">Unassigned&emsp;<span class="badge badge-danger">{{ unassigned|length }}</span></a>
+	<a class="nav-link" id="ticketsUnassigned{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsUnassigned{{ marker }}" role="tab" aria-controls="ticketsUnassigned{{ marker }}" aria-selected="true">Unassigned&emsp;<span class="badge bg-danger">{{ unassigned|length }}</span></a>
       </li>
     {% endif %}
     <li class="nav-item">
-      <a class="nav-link" id="ticketsAwaiting{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsAwaiting{{ marker }}" role="tab" aria-controls="ticketsAwaiting{{ marker }}" aria-selected="true">Awaiting handling&emsp;<span class="badge badge-warning">{{ tickets.awaiting_handling|length }}</span></a>
+      <a class="nav-link" id="ticketsAwaiting{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsAwaiting{{ marker }}" role="tab" aria-controls="ticketsAwaiting{{ marker }}" aria-selected="true">Awaiting handling&emsp;<span class="badge bg-warning">{{ tickets.awaiting_handling|length }}</span></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link active" id="ticketsInHandling{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsInHandling{{ marker }}" role="tab" aria-controls="ticketsInHandling{{ marker }}" aria-selected="false">In handling&emsp;<span class="badge badge-success">{{ tickets.in_handling|length }}</span></a>
+      <a class="nav-link active" id="ticketsInHandling{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsInHandling{{ marker }}" role="tab" aria-controls="ticketsInHandling{{ marker }}" aria-selected="false">In handling&emsp;<span class="badge bg-success">{{ tickets.in_handling|length }}</span></a>
     </li>
     <li class="nav-item">
-      <a class="nav-link" id="ticketsHandled{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsHandled{{ marker }}" role="tab" aria-controls="ticketsHandled{{ marker }}" aria-selected="false">Handled&emsp;<span class="badge badge-primary">{{ tickets.handled|length }}</span></a>
+      <a class="nav-link" id="ticketsHandled{{ marker }}-tab" data-bs-toggle="tab" href="#ticketsHandled{{ marker }}" role="tab" aria-controls="ticketsHandled{{ marker }}" aria-selected="false">Handled&emsp;<span class="badge bg-primary">{{ tickets.handled|length }}</span></a>
     </li>
   </ul>
   <div class="tab-content" id="ticketsTabContent{{ marker }}">

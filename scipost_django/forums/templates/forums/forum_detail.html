@@ -22,7 +22,7 @@
       <h2 class="highlight">
 	{% if forum.meeting %}
 	  {% with context_colors=forum.meeting.context_colors %}
-	    <span class="badge badge-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
+	    <span class="badge bg-{{ context_colors.bg }} mx-0 mb-2 p-2 text-{{ context_colors.text }}">
 	      {{ context_colors.message }}
 	      <span class="small text-muted"> [{{ forum.meeting.date_from|date:"Y-m-d" }} to {{ forum.meeting.date_until|date:"Y-m-d" }}]</span>
 	    </span>
@@ -32,7 +32,7 @@
 
 	<span class="d-flex flex-wrap justify-content-between">
 	  <a href="{{ forum.get_absolute_url }}">{{ forum }}</a>
-	  <span class="badge badge-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+	  <span class="badge bg-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
 	</span>
       </h2>
 
@@ -117,7 +117,7 @@
     <div class="col">
       <div class="card">
 	<div class="card-header">
-	  <button class="btn btn-primary btn-small" data-bs-toggle="collapse" data-target="#recentPostsLinks">
+	  <button class="btn btn-primary btn-small" data-bs-toggle="collapse" data-bs-target="#recentPostsLinks">
 	    Quick links: posts and motions (click to toggle)
 	  </button>
 	</div>

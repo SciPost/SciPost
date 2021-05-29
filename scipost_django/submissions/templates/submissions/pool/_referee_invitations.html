@@ -32,7 +32,7 @@
             </div>
           {% endif %}
           {% if invitation.is_overdue %}
-            <div class="badge badge-danger">overdue</div>
+            <div class="badge bg-danger">overdue</div>
           {% endif %}
         </td>
         <td class="py-3">{{ invitation.get_title_display }} {{ invitation.first_name }} {{ invitation.last_name }}</td>
