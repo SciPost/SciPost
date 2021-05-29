@@ -18,7 +18,7 @@
     <div class="d-flex flex-wrap justify-content-end align-items-center">
       <div class="flex-grow-1">
 	{% if post.followup_posts.all|length > 0 %}
-	  <span class="badge bg-primary badge-pill">{% with nr_followups=post.nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span>
+	  <span class="badge bg-primary rounded-pill">{% with nr_followups=post.nr_followups %}{{ nr_followups }} repl{{ nr_followups|pluralize:"y,ies" }}{% endwith %}</span>
 	{% endif %}&nbsp;
 	{% if post.post_ptr %}
 	  <a href="{% url 'forums:post_create' slug=forum.slug parent_model='post' parent_id=post.post_ptr.id %}">{% if post.motion %}Post a Comment on this Motion{% else %}Reply to the above post{% endif %}</a>

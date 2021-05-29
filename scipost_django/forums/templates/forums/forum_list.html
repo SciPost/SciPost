@@ -38,7 +38,7 @@
 		{% endif %}
 		<span class="d-flex flex-wrap justify-content-between">
 		  <a href="{{ forum.get_absolute_url }}">{{ forum|truncatechars:30 }}</a>
-		  <span class="badge bg-primary badge-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
+		  <span class="badge bg-primary rounded-pill">{% with nr_posts=forum.nr_posts %}{{ nr_posts }} post{{ nr_posts|pluralize }}{% endwith %}</span>
 		</span>
 	      </div>
 	      <div class="card-body">
@@ -80,7 +80,7 @@
 	      <td><a href="{{ forum.get_absolute_url }}">{{ forum }}</a></td>
 	      <td>{{ forum.latest_post }}</td>
 	      <td>{{ forum.latest_post.posted_on|date:"Y-m-d" }}</td>
-	      <td><span class="badge bg-primary badge-pill">{{ forum.nr_posts }}</span></td>
+	      <td><span class="badge bg-primary rounded-pill">{{ forum.nr_posts }}</span></td>
 	    </tr>
 	  {% empty %}
 	    <tr>
