@@ -13,6 +13,10 @@ module.exports = {
             "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
         ],
+	api: [
+            "./scipost_django/scipost/static/scipost/assets/js/base.js",
+            "./scipost_django/scipost/static/scipost/assets/js/api.js",
+	],
 	apimail: [
             "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
 	],
