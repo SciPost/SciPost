@@ -39,7 +39,7 @@
       {% block style %}
 	<link rel="stylesheet" href="{% static 'flags/sprite-hq.css' %}">
 
-	{% render_bundle 'api' %}
+	{% render_bundle 'api' 'css' %}
 
 	<link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
@@ -94,7 +94,7 @@
 			  <div class="btn-group">
 			    <button class="btn btn-primary" data-bs-toggle="tooltip" href="{{ request.get_full_path }}" rel="nofollow" title="Make a GET request on the {{ name }} resource">GET</button>
 			    <button class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-			      <span class="sr-only" data-bs-toggle="tooltip" title="Specify a format for the GET request">Toggle Dropdown</span>
+			      <span class="sr-only" data-bs-toggle="tooltip" title="Specify a format for the GET request"></span>
 			    </button>
 			    <ul class="dropdown-menu">
 			      {% for format in available_formats %}
@@ -305,11 +305,11 @@
 	<script type="text/plain" id="drf_csrf_token">
 	 {% if request %}{{ csrf_token }}{% endif %}
 	</script>
-	<script src="{% static "rest_framework/js/csrf.js" %}"></script>
+	<!-- <script src="{% static "rest_framework/js/csrf.js" %}"></script> Moved to api.js -->
 	<script src="{% static "rest_framework/js/prettify-min.js" %}"></script>
-	<script src="{% static "rest_framework/js/default.js" %}"></script>
-	<script src="{% static "rest_framework/js/load-ajax-form.js" %}"></script>
+	<!-- <script src="{% static "rest_framework/js/default.js" %}"></script> Moved to api.js-->
       {% endblock %}
+      {% render_bundle 'api' 'js' %}
 
     </body>
   {% endblock %}
