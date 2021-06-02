@@ -5,9 +5,7 @@ const { VueLoaderPlugin } = require('vue-loader')
 var path_bundles = __dirname + '/static_bundles/bundles';
 
 module.exports = {
-    mode: 'development',
     context: __dirname,
-    devtool: "source-map", // to ensure no eval() (breaking CSP) in development
     entry: {
         base: [
             "./scipost_django/scipost/static/scipost/assets/js/scripts.js",

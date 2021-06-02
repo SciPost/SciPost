@@ -7,11 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "webpack-test": "./node_modules/.bin/webpack --config webpack.test.config.js",
-    "webpack-dev": "./node_modules/.bin/webpack --config webpack.dev.config.js",
-    "webpack-dev-live": "./node_modules/.bin/webpack --config webpack.dev.config.js --watch",
-    "webpack-stag": "./node_modules/.bin/webpack --config webpack.stag.config.js",
-    "webpack-prod": "./node_modules/.bin/webpack --config webpack.prod.config.js"
+    "webpack-dev": "./node_modules/.bin/webpack --config webpack.dev.js",
+    "webpack-dev-live": "./node_modules/.bin/webpack --config webpack.dev.js --watch",
+    "webpack-stag": "./node_modules/.bin/webpack --config webpack.stag.js",
+    "webpack-prod": "./node_modules/.bin/webpack --config webpack.prod.js"
   },
   "private": true,
   "repository": {
@@ -72,7 +71,8 @@
     "tiptap-extensions": "^1.35.2",
     "vue": "^2.6.12",
     "vue-sanitize": "^0.2.1",
-    "vue-select": "^3.11.2"
+    "vue-select": "^3.11.2",
+    "webpack-merge": "^5.7.3"
   },
   "resolutions": {
     "prosemirror-model": "1.8.2"
