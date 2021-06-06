@@ -89,7 +89,7 @@
 {% block content_footer %}
   <div class="container-fluid text-start secondary pt-4 mt-5 border-top border-primary">
     <div class="row">
-      <div class="col-lg-8">
+      <div class="col-md-8">
         <h1>Sponsors</h1>
 	<p>
 	  SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Sponsors provide operating funds to SciPost through a cost-slashing consortial model.
@@ -101,7 +101,7 @@
 	  <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
 	</p>
       </div>
-      <div class="col-lg-4">
+      <div class="col-md-4">
         <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
 	<br>
         <ul class="list list-unstyled">
@@ -117,10 +117,10 @@
     <hr>
 
     <div class="row">
-      <div class="col-lg-4">
+      <div class="col-md-4">
         <h1>SciPost participates in</h1>
       </div>
-      <div class="col-lg-8 logos">
+      <div class="col-md-8 logos">
         <a href="//www.crossref.org" target="_blank" rel="noopener"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
         <a href="//www.doaj.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
         <a href="//www.clockss.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
