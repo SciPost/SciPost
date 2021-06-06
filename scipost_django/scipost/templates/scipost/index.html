@@ -1,4 +1,4 @@
-{% extends 'scipost/base_for_sidebar.html' %}
+{% extends 'scipost/base.html' %}
 
 {% load render_bundle from webpack_loader %}
 {% load static %}
@@ -10,7 +10,7 @@
 
 {% block content %}
   <div class="row">
-    <div class="col-lg-6">
+    <div class="col-md-4">
       <!-- Latest publications -->
       <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
         <div class="card-body pb-0">
@@ -28,7 +28,7 @@
       </div><!-- End latest publications -->
     </div>
 
-    <div class="col-lg-6">
+    <div class="col-md-4">
       <!-- Latest submissions -->
       <div class="card card-submissions bg-light px-1 mb-2 scipost-bar">
         <div class="card-body pb-0">
@@ -45,33 +45,82 @@
         <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>
       </div><!-- End latest submissions -->
     </div>
+
+    <div class="col-md-4">
+      {% if not user.is_authenticated %}
+	<!-- Register -->
+	<div id="register">
+	  <h2>Register</h2>
+	  <p class="mb-1">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
+	</div><!-- End Register -->
+
+	<hr class="lg">
+      {% endif %}
+
+      <!-- News -->
+      <div id="news">
+	<h2 class="title">
+	  News
+	  <button class="btn btn-link btn-sm m-0 mb-1" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</button>
+	</h2>
+	<ul class="news-list">
+	  {% for news in news_items %}
+	    <li>
+              <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
+              <div class="text-muted">{{ news.date|date:'j F Y' }}</div>
+              <p>
+		{{ news.blurb_short }}
+		<br>
+		<br>
+		<a href="{% url 'news:news' %}#news_{{ news.id }}" class="my-1">Read more &rarr;</a>
+              </p>
+	    </li>
+	  {% endfor %}
+	</ul>
+	<a href="{% url 'news:news' %}" class="my-1">See complete News list</a>
+      </div><!-- End news -->
+
+    </div>
+
   </div>
 {% endblock %}
 
-{% block sidebar %}
-  {% include 'scipost/index_sidebar_2.html' %}
-{% endblock %}
 
 {% block content_footer %}
   <div class="container-fluid text-start secondary pt-4 mt-5 border-top border-primary">
     <div class="row">
-      <div class="col-lg-6">
+      <div class="col-lg-8">
         <h1>Sponsors</h1>
-        <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
-        <div class="sponsors mt-3">
-          <ul id="fader">
-            {% for sponsor in current_sponsors %}
-              {% if sponsor.logo %}
-                <li class="item"><img class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
+	<p>
+	  SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Sponsors provide operating funds to SciPost through a cost-slashing consortial model.
+	</p>
+	<p>
+	  We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
+	</p>
+	<p>
+	  <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
+	</p>
       </div>
-      <br/>
-      <div class="col-lg-6 logos">
+      <div class="col-lg-4">
+        <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
+	<br>
+        <ul class="list list-unstyled">
+          {% for sponsor in current_sponsors %}
+            {% if sponsor.logo %}
+              <li class="p-2"><img class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+      <div class="col-lg-4">
         <h1>SciPost participates in</h1>
-        <br/>
+      </div>
+      <div class="col-lg-8 logos">
         <a href="//www.crossref.org" target="_blank" rel="noopener"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
         <a href="//www.doaj.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
         <a href="//www.clockss.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
