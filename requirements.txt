@@ -75,9 +75,9 @@ snowballstemmer==1.2.1
 
 
 # Scheduled tasks
-celery==4.4.7			# 2020-09-19
-django-celery-results==1.2.1	# 2020-09-19
-django-celery-beat==2.0.0	# 2020-09-19
+celery==5.1.0			# 2021-06-06
+django-celery-results==2.0.1	# 2021-06-06
+django-celery-beat==2.2.0	# 2021-06-06
 flower==0.9.4 			# 2020-09-19  Bug (404 error) in 0.9.5: see https://github.com/mher/flower/issues/1015
 
 
