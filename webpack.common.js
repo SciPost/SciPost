@@ -22,6 +22,9 @@ module.exports = {
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
 	    "./scipost_django/scipost/static/scipost/assets/js/activate_qr.js",
 	],
+	vue: [
+	    "./scipost_vue/search.js",
+	],
     },
     output: {
         path: path_bundles,
