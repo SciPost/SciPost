@@ -142,7 +142,7 @@
 	      <td>{{ potfel.profile.acad_field }}
 		<br/>
 		{% for specialty in potfel.profile.specialties.all %}
-		  <div class="single d-inline text-muted" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		  <div class="single d-inline text-muted" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
 	      <td>{{ potfel.college }}</td>

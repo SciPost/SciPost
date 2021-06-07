@@ -157,7 +157,7 @@
 	      <td>{{ profile.acad_field }}</td>
 	      <td>
 		{% for specialty in profile.specialties.all %}
-		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		  <div class="single d-inline" data-specialty="{{ specialty.code }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 		{% endfor %}
 	      </td>
 	      <td>{% if profile.has_active_contributor %}<span class="text-success">{% include 'bi/check-circle-fill.html' %}</span>{% else %}<span class="text-danger">{% include 'bi/x-circle-fill.html' %}</span>{% endif %}</td>

@@ -113,7 +113,7 @@
             <strong>{{ assignment.to }}</strong>
             <br>
             {% for specialty in assignment.to.profile.specialties.all %}
-              <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+              <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
             {% endfor %}
           </td>
           <td>
@@ -179,7 +179,7 @@
                 </strong>
                 <br>
                 {% for specialty in form.get_fellow.profile.specialties.all %}
-                  <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+                  <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
                 {% endfor %}
               </td>
               <td>
