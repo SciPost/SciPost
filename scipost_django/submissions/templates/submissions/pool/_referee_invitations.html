@@ -16,17 +16,17 @@
       <tr{% if invitation.needs_attention %} class="table-warning"{% endif %}>
         <td>
           {% if invitation.needs_sending %}
-            <div class="text-center" data-bs-toggle="tooltip" data-title="The invitation email has not been sent.<br>Please click on the Resend button." data-bs-html="true">
+            <div class="text-center" data-bs-toggle="tooltip" data-bs-title="The invitation email has not been sent.<br>Please click on the Resend button." data-bs-html="true">
               {% include 'bi/info-circle-fill.html' %}
               {% include 'bi/arrow-right.html' %}
             </div>
           {% elif invitation.needs_response %}
-            <div class="text-center" data-bs-toggle="tooltip" data-title="This referee has not responded in over three days.<br>Consider sending a reminder or cancelling the invitation." data-bs-html="true">
+            <div class="text-center" data-bs-toggle="tooltip" data-bs-title="This referee has not responded in over three days.<br>Consider sending a reminder or cancelling the invitation." data-bs-html="true">
 	      {% include 'bi/info-circle-fill.html' %}
 	      {% include 'bi/arrow-right.html' %}
             </div>
           {% elif invitation.needs_fulfillment_reminder %}
-            <div class="text-center" data-bs-toggle="tooltip" data-title="This referee has accepted to send a Report, but not yet delivered it.<br>Consider sending a reminder." data-bs-html="true">
+            <div class="text-center" data-bs-toggle="tooltip" data-bs-title="This referee has accepted to send a Report, but not yet delivered it.<br>Consider sending a reminder." data-bs-html="true">
 	      {% include 'bi/info-circle-fill.html' %}
 	      {% include 'bi/arrow-right.html' %}
             </div>

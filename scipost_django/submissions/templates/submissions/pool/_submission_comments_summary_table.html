@@ -14,7 +14,7 @@
       <tr{% if comment.is_unvetted %} class="table-warning"{% endif %}>
         <td class="text-center">
           {% if comment.is_unvetted %}
-            <div class="text-center" data-bs-toggle="tooltip" data-title="This Comment has not yet been vetted." data-bs-html="true">
+            <div class="text-center" data-bs-toggle="tooltip" data-bs-title="This Comment has not yet been vetted." data-bs-html="true">
               {% include 'bi/info-circle-fill.html' %}
               {% include 'bi/arrow-right.html' %}
             </div>
