@@ -14,7 +14,7 @@
 
           on {{ report.date_submitted|date:'Y-n-j' }}
           {% if report.report_type == 'report_post_edrec' %}
-            <small><label class="label label-outline-primary ms-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-placement="auto" data-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
+            <small><label class="label label-outline-primary ms-2">Post-Editorial Recommendation Report</label> <span class="text-primary" data-bs-toggle="tooltip" data-placement="auto" data-bs-html="true" title="Post-Editorial Reports are submitted after the Editorial Recommendation has been formulated.<br>Hence, they have not been part of the College's decision to Publish the Submission." aria-hidden="true">{% include 'bi/question-circle-fill.html' %}</span></small>
           {% endif %}
 
           {% if report.invited %}
