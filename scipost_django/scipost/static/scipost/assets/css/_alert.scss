@@ -34,12 +34,13 @@
 
 
 @mixin scipost-alert-variant($background, $border, $color) {
-  background-color: $white;
+  background-color: $background;
   border: 1px solid $color;
+  color: $color;
 }
 
 @each $color, $value in $theme-colors {
   .alert-#{$color} {
-    @include scipost-alert-variant(theme-color-level($color, -10), theme-color-level($color, -9), theme-color-level($color, 6));
+    @include scipost-alert-variant(tint-color($value, 10%), tint-color($value, 50%), tint-color($value, 90%));
   }
 }

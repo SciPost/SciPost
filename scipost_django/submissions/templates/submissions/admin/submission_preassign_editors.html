@@ -70,7 +70,7 @@
           <td>{{ submission.get_status_display }}</td>
         </tr>
         <tr>
-          <td>Number of <u data-bs-toggle="tooltip" data-title="Red-label declines are declines with reason: 'Not interested enough' or 'SciPost should not even consider this paper'.">red-label declines</u>:</td>
+          <td>Number of <u data-bs-toggle="tooltip" data-bs-title="Red-label declines are declines with reason: 'Not interested enough' or 'SciPost should not even consider this paper'.">red-label declines</u>:</td>
           <td>
             {% if submission.editorial_assignments.declined_red.count >= 3 %}
               <span class="text-danger">{% include 'bi/exclamation-circle-fill.html' %} {{ submission.editorial_assignments.declined_red.count }}</span>
@@ -113,7 +113,7 @@
             <strong>{{ assignment.to }}</strong>
             <br>
             {% for specialty in assignment.to.profile.specialties.all %}
-              <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+              <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
             {% endfor %}
           </td>
           <td>
@@ -174,12 +174,12 @@
                 <strong>
                   {{ form.get_fellow }}
                   {% if form.instance.status != 'preassigned' %}
-                    <span data-bs-toggle="tooltip" data-title="This fellow has already been invited. Therefore, this invitation will not be removed."><span class="text-danger" aria-hidden="true">{% include 'bi/exclamation-circle-fill.html' %}</span></span>
+                    <span data-bs-toggle="tooltip" data-bs-title="This fellow has already been invited. Therefore, this invitation will not be removed."><span class="text-danger" aria-hidden="true">{% include 'bi/exclamation-circle-fill.html' %}</span></span>
                   {% endif %}
                 </strong>
                 <br>
                 {% for specialty in form.get_fellow.profile.specialties.all %}
-                  <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+                  <div class="single d-inline specialty" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
                 {% endfor %}
               </td>
               <td>

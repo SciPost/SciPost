@@ -169,8 +169,7 @@ def index(request):
         # 'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
-        'current_sponsors': (Organization.objects.with_subsidy_above_and_up_to(5000, 1000000000)
-                             | Organization.objects.current_sponsors()),
+        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
     }
     return render(request, 'scipost/index.html', context)
 

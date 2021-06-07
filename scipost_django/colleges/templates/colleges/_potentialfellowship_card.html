@@ -80,7 +80,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for specialty in fellow.profile.specialties.all %}
-		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code}}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -96,7 +96,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for specialty in fellow.profile.specialties.all %}
-		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>
@@ -112,7 +112,7 @@
 	    <tr>
 	      <td>{{ fellow }}</td>
 	      <td>{% for specialty in fellow.profile.specialties.all %}
-		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		<div class="single d-inline{% if specialty in potfel.profile.specialties.all %} px-1 bg-success{% endif %}" data-specialty="{{ specialty.slug }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
 	      {% endfor %}
 	      </td>
 	    </tr>

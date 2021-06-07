@@ -46,22 +46,22 @@
 	</div>
 	<div>
 	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='Y' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-success" data-bs-toggle="tooltip" data-placement="top" data-html="true" title="Agree{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_agreement.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_agreement.all|length }}">
+	    <input type="submit" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Agree{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_agreement.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_agreement.all|length }}">
 	  </form>
 	</div>
 	<div>
 	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='M' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-warning" data-bs-toggle="tooltip" data-placement="top" data-html="true" title="Doubt{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_doubt.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_doubt.all|length }}">
+	    <input type="submit" class="btn btn-warning" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Doubt{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_doubt.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_doubt.all|length }}">
 	  </form>
 	</div>
 	<div>
 	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='N' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-danger" data-bs-toggle="tooltip" data-placement="top" data-html="true" title="Disagree{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_disagreement.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_disagreement.all|length }}">
+	    <input type="submit" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Disagree{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_disagreement.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_disagreement.all|length }}">
 	  </form>
 	</div>
 	<div>
 	  <form action="{% url 'forums:motion_vote' slug=forum.slug motion_id=post.motion.id vote='A' %}" method="post">{% csrf_token %}
-	    <input type="submit" class="btn btn-secondary" data-bs-toggle="tooltip" data-placement="top" data-html="true" title="Abstain{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_abstain.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_abstain.all|length }}">
+	    <input type="submit" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-html="true" title="Abstain{% if perms.forums.can_change_forum %}<ul>{% for f in post.motion.in_abstain.all %}<li>{{ f.last_name }}, {{ f.first_name }}</li>{% endfor %}</ul>{% endif %}" value="{{ post.motion.in_abstain.all|length }}">
 	  </form>
 	</div>
 	<div class="align-self-center px-2">
