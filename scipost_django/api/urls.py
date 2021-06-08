@@ -7,16 +7,24 @@ from django.urls import include, path
 
 from rest_framework import routers
 
+from journals.viewsets import PublicationViewSet
+
+# Next two: old style, to be deprecated:
 from conflicts.viewsets import ConflictOfInterestViewSet
 from news.viewsets import NewsItemViewSet
 
 from . import views
 
+app_name = 'api'
+
+
 router = routers.SimpleRouter()
+
+router.register('publications', PublicationViewSet)
+
+# Next two: old style, to be deprecated:
 router.register(r'news', NewsItemViewSet)
 router.register(r'conflicts', ConflictOfInterestViewSet)
-
-app_name = 'api'
 
 
 urlpatterns = router.urls

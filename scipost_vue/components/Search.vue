@@ -21,10 +21,15 @@
 	  <li
 	    v-for="publication in publications"
 	    :key="publication.doi"
+	    class="mb-3"
 	    >
-	    {{ publication.title }}
-	    {{ publication.authors }}
-	    {{ publication.doi }}
+	    <ul class="list list-unstyled">
+	      <li>{{ publication.title }}</li>
+	      <li>{{ publication.author_list }}</li>
+	      <li>{{ publication.abstract }}</li>
+	      <li>{{ publication.doi_label }}</li>
+	      <li>{{ publication.url }}</li>
+	    </ul>
 	  </li>
 	</ul>
       </div>
@@ -57,7 +62,7 @@ export default {
 	    async () => {
 		fetching.value = true
 		try {
-		    const response = await fetch(`/api/journals/publications?doi=${searchQuery.value}`)
+		    const response = await fetch(`/api/publications?doi_label__icontains=${searchQuery.value}`)
 		    const json = await response.json()
 		    publications.value = json.results
 		} catch (errors) {
