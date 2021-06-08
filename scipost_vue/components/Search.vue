@@ -1,6 +1,12 @@
 <template>
   <div>
-    <h1>Vue Search</h1>
+    <h1>Search</h1>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Basic</span>
+      <input v-model="searchQuery" type="text" class="form-control">
+    </div>
+    <hr>
     <ul class="nav nav-tabs" id="myTab" role="tablist">
       <li class="nav-item" role="presentation">
 	<button class="nav-link active" id="publications-tab" data-bs-toggle="tab" data-bs-target="#publications" type="button" role="tab" aria-controls="publications" aria-selected="true">Publications</button>
@@ -13,9 +19,11 @@
       <div class="tab-pane fade show active" id="publications" role="tabpanel" aria-labelledby="publications-tab">
       	<ul>
 	  <li
-	    v-for="publication in publicationslist"
+	    v-for="publication in publications"
 	    :key="publication.doi"
 	    >
+	    {{ publication.title }}
+	    {{ publication.authors }}
 	    {{ publication.doi }}
 	  </li>
 	</ul>
@@ -28,23 +36,48 @@
 </template>
 
 <script>
+import { ref, watch, onMounted } from '@vue/composition-api'
+
+var debounce = require('lodash.debounce')
+
 export default {
     name: "search",
-    data() {
+
+    setup() {
+
+	const searchQuery = ref('')
+
+	const publications = ref([])
+
+	const fetching = ref(false)
+
+	const error = ref(null)
+
+	const getPublications = debounce(
+	    async () => {
+		fetching.value = true
+		try {
+		    const response = await fetch(`/api/journals/publications?doi=${searchQuery.value}`)
+		    const json = await response.json()
+		    publications.value = json.results
+		} catch (errors) {
+		    error.value = errors
+		} finally {
+		    fetching.value = false
+		}
+	    },
+	    300)
+
+	onMounted(getPublications)
+
+	watch(searchQuery, getPublications)
+
 	return {
-	    publicationslist: [],
+	    searchQuery,
+	    publications,
+	    fetching,
+	    error,
 	}
-    },
-    methods: {
-	fetchPublications () {
-	    fetch('/api/journals/publications')
-		.then(stream => stream.json())
-		.then(data => this.publicationslist = data.results)
-		.catch(error => console.error(error))
-	},
-    },
-    mounted() {
-	this.fetchPublications()
     },
 }
 </script>

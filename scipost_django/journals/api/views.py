@@ -11,10 +11,15 @@ from .serializers import PublicationSerializer, OrgPubFractionSerializer
 
 
 class PublicationListAPIView(ListAPIView):
-    queryset = Publication.objects.published().order_by('-publication_date')
     serializer_class = PublicationSerializer
     lookup_field = 'doi_label'
 
+    def get_queryset(self):
+        queryset = Publication.objects.published().order_by('-publication_date')
+        doi = self.request.query_params.get('doi', None)
+        if doi:
+            queryset = queryset.filter(doi_label__icontains=doi)
+        return queryset
 
 class PublicationRetrieveAPIView(RetrieveAPIView):
     queryset = Publication.objects.published()
