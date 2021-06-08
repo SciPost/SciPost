@@ -18,7 +18,7 @@ django-cors-headers==3.5.0	# 2020-09-11, for enabling OAuth2 with django-oauth-t
 django-countries==5.3.3
 django-debug-toolbar==3.2.1     # 2021-05-21
 django-extensions==2.2.8	# 2020-02-14 for e.g. runserver_plus (usage: python3 manage.py runserver_plus --cert [certificate .crt file])
-django-filter==1.0.4
+django-filter==2.4.0		# 2021-06-08
 django-guardian==1.5.1		# 2019-05-11
 django-mathjax==0.0.8
 django-mptt==0.8.6  # Dead
