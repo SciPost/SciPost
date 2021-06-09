@@ -8,6 +8,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from journals.viewsets import PublicationViewSet
+from submissions.viewsets import SubmissionViewSet
 
 # Next two: old style, to be deprecated:
 from conflicts.viewsets import ConflictOfInterestViewSet
@@ -21,6 +22,7 @@ app_name = 'api'
 router = routers.SimpleRouter()
 
 router.register('publications', PublicationViewSet)
+router.register('submissions', SubmissionViewSet)
 
 # Next two: old style, to be deprecated:
 router.register(r'news', NewsItemViewSet)
