@@ -29,7 +29,7 @@ class SubmissionViewSet(FilteringOptionsActionMixin,
                          viewsets.ReadOnlyModelViewSet):
     queryset = Submission.objects.public_newest()
     serializer_class = SubmissionSerializer
-    search_fields = ['title', 'authors_list', 'abstract']
+    search_fields = ['title', 'author_list', 'abstract']
     filterset_class = SubmissionFilterSet
     default_filtering_fields = [
         'title__icontains',

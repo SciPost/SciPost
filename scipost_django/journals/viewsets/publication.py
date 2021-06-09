@@ -31,10 +31,11 @@ class PublicationViewSet(FilteringOptionsActionMixin,
                          viewsets.ReadOnlyModelViewSet):
     queryset = Publication.objects.published().order_by('-publication_date')
     serializer_class = PublicationSerializer
-    search_fields = ['title', 'authors_list', 'abstract']
+    search_fields = ['title', 'author_list', 'abstract', 'doi_label']
     filterset_class = PublicationFilterSet
     default_filtering_fields = [
         'title__icontains',
         'author_list__icontains',
-        'abstract__icontains'
+        'abstract__icontains',
+        'doi_label__icontains'
     ]
