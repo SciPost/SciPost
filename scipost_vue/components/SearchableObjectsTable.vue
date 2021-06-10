@@ -89,11 +89,34 @@
       </table>
     </div>
   </div>
-  <sp-pagination :totalRows="totalRows"
-		 :perPage="perPage"
-		 :currentPage="currentPage"
-		 v-on:set-current-page="currentPage = $event">
-  </sp-pagination>
+
+  <div class="row">
+    <div class="col-8">
+      <nav aria-label="navigation">
+	<ul class="pagination justify-content-center">
+	  <li v-for="pagenr in paginatorButtonData" class="page-item">
+	    <span v-if="pagenr > 0">
+	      <a class="page-link" :class="{ 'bg-primary text-white': pagenr === currentPage }" @click="currentPage = pagenr">{{ pagenr }}</a>
+	    </span>
+	    <span v-else>
+	      <a class="page-link" disabled>&hellip;</a>
+	    </span>
+	  </li>
+	</ul>
+      </nav>
+    </div>
+    <div class="col-4">
+      Per&nbsp;page:
+      <div class="form-check form-check-inline">
+	<div class="btn-group" role="group">
+	  <div v-for="option in perPageOptions">
+	    <input v-model="perPage" class="btn-check" type="radio" name="btnRadioperPage" :id="'btnRadioperPage-' + option" :value="option">
+	    <label class="btn btn-sm" :class="perPage === option ? 'btn-primary text-white' : 'btn-outline-primary'" :for="'btnRadioperPage-' + option">{{ option }}</label>
+	  </div>
+	</div>
+    </div>
+  </div>
+</div>
 </div>
 </template>
 
@@ -103,7 +126,6 @@ headers.append('Accept', 'application/json; version=0')
 
 import { ref, computed, watch, onMounted } from '@vue/composition-api'
 
-import SpPagination from './Pagination.vue'
 import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
 
 var debounce = require('lodash.debounce')
@@ -111,7 +133,6 @@ var debounce = require('lodash.debounce')
 export default {
     name: 'searchable-objects-table',
     components: {
-	SpPagination,
 	ObjectRowDetails,
     },
     props: {
@@ -142,6 +163,7 @@ export default {
 	const newClauseLookup = ref('')
 	const newClauseValue = ref('')
 	const totalRows = ref(0)
+	const perPageOptions = ref([8, 16, 32, 64])
 	const perPage = ref(16)
 	const currentPage = ref(1)
 	const objects = ref([])
@@ -219,6 +241,20 @@ export default {
 	    },
 	    300)
 
+	const paginatorButtonData = computed(() => {
+	    var maxPageNr = Math.max(1, Math.ceil(totalRows.value/perPage.value))
+	    let buttonData = [1,]
+	    if (currentPage.value > 4) buttonData.push(0)
+	    if (currentPage.value > 3) buttonData.push(currentPage.value - 2)
+	    if (currentPage.value > 2) buttonData.push(currentPage.value - 1)
+	    if (currentPage.value > 1) buttonData.push(currentPage.value)
+	    if (currentPage.value < maxPageNr - 2) buttonData.push(currentPage.value + 1)
+	    if (currentPage.value < maxPageNr - 3) buttonData.push(currentPage.value + 2)
+	    if (currentPage.value < maxPageNr - 4) buttonData.push(0)
+	    if (currentPage.value < maxPageNr) buttonData.push(maxPageNr)
+	    return buttonData
+	})
+
 	onMounted(getObjects)
 	onMounted(fetchFilteringFields)
 
@@ -235,7 +271,9 @@ export default {
 	    newClauseLookup,
 	    newClauseValue,
 	    totalRows,
+	    perPageOptions,
 	    perPage,
+	    paginatorButtonData,
 	    currentPage,
 	    objects,
 	    fetchingObjects,
