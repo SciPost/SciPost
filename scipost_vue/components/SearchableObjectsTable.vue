@@ -2,14 +2,27 @@
 <div>
   <div class="d-flex align-items-start">
     <div class="nav flex-column nav-pills me-3" role="tablist" aria-orientation="vertical">
-      <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#basic-search" type="button" role="tab" @click="advancedSearchIsOn = false" aria-controls="basic-search" aria-selected="true">Basic Search</button>
-      <button class="nav-link" data-bs-toggle="pill" data-bs-target="#advanced-search" type="button" role="tab" @click="advancedSearchIsOn = true" aria-controls="advanced-search" aria-selected="true">Advanced Search</button>
+      <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#basic-search"
+	      type="button" role="tab" @click="advancedSearchIsOn = false"
+	      aria-controls="basic-search" aria-selected="true"
+	      >Basic Search</button>
+      <button class="nav-link" data-bs-toggle="pill" data-bs-target="#advanced-search"
+	      type="button" role="tab" @click="advancedSearchIsOn = true"
+	      aria-controls="advanced-search" aria-selected="true"
+	      >Advanced Search</button>
     </div>
-    <div class="tab-content" id="tabContent">
+    <div class="tab-content flex-fill" id="tabContent">
       <div class="tab-pane fade show active" id="basic-search" role="tabpanel" aria-labelledby="basic-search-tab">
-	<div class="input-group mb-3">
-	  <input v-model="basicSearchQuery" type="text" class="form-control" :placeholder="basicSearchPlaceholder">
-	  <button class="btn btn-secondary" type="button" @click="basicSearchQuery = ''">Clear</button>
+	<div class="row">
+	  <div class="col-9">
+	    <div class="form-floating">
+	      <input v-model="basicSearchQuery" type="text" class="form-control" id="basicSearchInput" :placeholder="basicSearchInputLabel">
+	      <label for="basicSearchInput">{{ basicSearchInputLabel }}</label>
+	    </div>
+	  </div>
+	  <div class="col-3 align-self-center">
+	    <button class="btn btn-secondary" type="button" @click="basicSearchQuery = ''">Clear</button>
+	  </div>
 	</div>
       </div>
       <div class="tab-pane fade" id="advanced-search" role="tabpanel" aria-labelledby="advanced-search-tab">
@@ -46,7 +59,6 @@
       {{ errorFetchingObjects }}
       {{ url }}
     </div>
-
     <table class="table">
       <thead>
 	<tr>
@@ -123,19 +135,19 @@ export default {
 		.catch(error => console.error(error))
 	}
 
-        const basicSearchPlaceholder = computed(() => {
-            var placeholder = 'Search in: '
+        const basicSearchInputLabel = computed(() => {
+            var label = 'Search in: '
             var counter = 0
             filteringFieldsBasic.value.forEach(
                 (filteringField) => {
                     if (counter > 0) {
-                        placeholder += ', '
+                        label += ', '
                     }
                     counter += 1
-                    placeholder += filteringField
+                    label += filteringField
                 }
             )
-            return placeholder
+            return label
 	})
 
 	const getAllowedLookups = () => {
@@ -186,7 +198,7 @@ export default {
 
 	return {
 	    advancedSearchIsOn,
-	    basicSearchPlaceholder,
+	    basicSearchInputLabel,
 	    basicSearchQuery,
 	    newClauseField,
 	    allowedLookups,

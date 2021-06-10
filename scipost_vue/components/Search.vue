@@ -14,7 +14,7 @@
     <div class="tab-pane fade show active" id="publications" role="tabpanel" aria-labelledby="publications-tab">
       <searchable-objects-table
 	:object_type="'publication'"
-	:displayfields="[{ key: 'doi_label', label: 'DOI label' }, { key: 'url', label: 'URL' }]"
+	:displayfields="[{ field: 'doi_label', label: 'DOI label' }, { field: 'url', label: 'URL' }]"
 	:url="'publications'"
 	>
       </searchable-objects-table>
@@ -22,7 +22,7 @@
     <div class="tab-pane fade" id="submissions" role="tabpanel" aria-labelledby="submissions-tab">
       <searchable-objects-table
 	:object_type="'submission'"
-	:displayfields="[{ key: 'title', label: 'Title'}, { key: 'identifier', label: 'Identifier' }]"
+	:displayfields="[{ field: 'title', label: 'Title'}, { field: 'identifier', label: 'Identifier' }]"
 	:url="'submissions'"
 	>
       </searchable-objects-table>
