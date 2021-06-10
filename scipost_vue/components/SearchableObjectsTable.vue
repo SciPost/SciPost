@@ -2,17 +2,17 @@
 <div>
   <div class="d-flex align-items-start">
     <div class="nav flex-column nav-pills me-3" role="tablist" aria-orientation="vertical">
-      <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#basic-search"
+      <button class="nav-link active" data-bs-toggle="pill" :data-bs-target="'#basicSearchTab-' + object_type"
 	      type="button" role="tab" @click="advancedSearchIsOn = false"
 	      aria-controls="basic-search" aria-selected="true"
 	      >Basic Search</button>
-      <button class="nav-link" data-bs-toggle="pill" data-bs-target="#advanced-search"
+      <button class="nav-link" data-bs-toggle="pill" :data-bs-target="'#advancedSearchTab-' + object_type"
 	      type="button" role="tab" @click="advancedSearchIsOn = true"
 	      aria-controls="advanced-search" aria-selected="true"
 	      >Advanced Search</button>
     </div>
-    <div class="tab-content flex-fill" id="tabContent">
-      <div class="tab-pane fade show active" id="basic-search" role="tabpanel" aria-labelledby="basic-search-tab">
+    <div class="tab-content p-2 flex-fill" :id="'tabContent-' + object_type">
+      <div class="tab-pane fade show active" :id="'basicSearchTab-' + object_type" role="tabpanel" aria-labelledby="basic-search-tab">
 	<div class="row">
 	  <div class="col-9">
 	    <div class="form-floating">
@@ -25,30 +25,42 @@
 	  </div>
 	</div>
       </div>
-      <div class="tab-pane fade" id="advanced-search" role="tabpanel" aria-labelledby="advanced-search-tab">
-	<div class="input-group mb-3">
-	  <select
-	    class="form-select input-group-text"
-	    v-model="newClauseField"
-	    placeholder="Choose a field"
-	    >
-	    <option v-for="filteringField in filteringFieldsAdvanced" :value="filteringField.field">
-	      <strong>{{ filteringField.label }}</strong>
-	    </option>
-	  </select>
-	  <select class="form-select input-group-text" v-model="newClauseLookup">
-	    <option v-for="lookup in allowedLookups" value="lookup">
-	      <em>{{ lookup }}</em>
-	    </option>
-	  </select>
-	  <input type="text" class="form-control" v-model="newClauseValue">
-	  <button class="btn btn-secondary" type="button" @click="newClauseValue = ''">Clear</button>
-	</div>
-	<div class="input-group mb-3" v-for="filteringField in filteringFieldsAdvanced">
-	  <span class="input-group-text"><strong>{{ filteringField.label }}</strong></span>
-	  <span class="input-group-text"><strong>{{ filteringField.lookup }}</strong></span>
-	  <input type="text" class="form-control" v-model="filteringField.filter">
-	  <button class="btn btn-secondary" type="button" @click="filteringField.filter = ''">Clear</button>
+      <div class="tab-pane fade" :id="'advancedSearchTab-' + object_type" role="tabpanel" aria-labelledby="advanced-search-tab">
+	<div class="row">
+	  <div class="col-3 g-0">
+	    <div class="form-floating">
+	      <select class="form-select input-group-text"
+		      id="selectNewClauseField"
+		      v-model="newClauseField"
+		>
+		<option v-for="filteringField in filteringFieldsAdvanced" :value="filteringField.field">
+		  <strong>{{ filteringField.label }}</strong>
+		</option>
+	      </select>
+	      <label for="selectNewClauseField">Search field</label>
+	    </div>
+	  </div>
+	  <div class="col-3 g-0">
+	    <div class="form-floating">
+	      <select class="form-select input-group-text"
+		      id="selectNewClauseLookup"
+		      v-model="newClauseLookup">
+		<option v-for="(lookup, index) in allowedLookups" :value="lookup">
+		  <em>{{ lookup }}</em>
+		</option>
+	      </select>
+	      <label for="selectNewClauseLookup">Lookup function</label>
+	    </div>
+	  </div>
+	  <div class="col-5 g-0">
+	    <div class="form-floating">
+	      <input type="text" class="form-control" id="inputNewClauseValue" v-model="newClauseValue">
+	      <label for="inputNewClauseValue">Value</label>
+	    </div>
+	  </div>
+	  <div class="col-1 align-self-center">
+	    <button class="btn btn-secondary" type="button" @click="newClauseValue = ''">Clear</button>
+	  </div>
 	</div>
       </div>
     </div>
@@ -153,6 +165,8 @@ export default {
 	const getAllowedLookups = () => {
 	    allowedLookups.value = filteringFieldsAdvanced.value.find(
 		el => el.field == newClauseField.value).lookups
+	    // Set choice to first value by default
+	    newClauseLookup.value = allowedLookups.value[0]
 	}
 
 	const queryParameters = computed(() => {
@@ -160,14 +174,9 @@ export default {
 	    if (!advancedSearchIsOn.value) { // basic search
 		parameters += '&search=' + basicSearchQuery.value
 	    }
-            else {
-                filteringFieldsAdvanced.value.forEach((filteringField) => {
-                    if (filteringField.filter) {
-                        parameters += ('&' + filteringField.field + '__'
-                                       + filteringField.lookup + '=' + filteringField.filter)
-                    }
-                })
-            }
+	    else {
+		parameters += `&${newClauseField.value}__${newClauseLookup.value}=${newClauseValue.value}`
+	    }
             if (props.initial_filter) {
                 parameters += ('&' + props.initial_filter)
             }
@@ -194,7 +203,7 @@ export default {
 
 	watch(basicSearchQuery, getObjects)
 	watch(newClauseField, getAllowedLookups)
-	watch(filteringFieldsAdvanced, getObjects)
+	watch(queryParameters, getObjects)
 
 	return {
 	    advancedSearchIsOn,
