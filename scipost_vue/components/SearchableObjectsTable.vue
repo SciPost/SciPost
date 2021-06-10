@@ -32,7 +32,7 @@
 	      <select class="form-select input-group-text"
 		      id="selectNewClauseField"
 		      v-model="newClauseField"
-		>
+		      >
 		<option v-for="filteringField in filteringFieldsAdvanced" :value="filteringField.field">
 		  <strong>{{ filteringField.label }}</strong>
 		</option>
@@ -67,23 +67,34 @@
   </div>
 
   <div class="row">
-    <div v-if="errorFetchingObjects">
-      {{ errorFetchingObjects }}
-      {{ url }}
+    <div class="col">
+      <div v-if="errorFetchingObjects">
+	{{ errorFetchingObjects }}
+	{{ url }}
+      </div>
     </div>
-    <table class="table table-bordered">
-      <tbody>
-	<tr v-for="object in objects">
-	  <object-row-details
-	    :object_type="object_type"
-	    :object="object"
-	    >
-	  </object-row-details>
-	</tr>
-      </tbody>
-    </table>
   </div>
+  <div class="row">
+    <div class="col">
+      <table class="table table-bordered">
+	<tbody>
+	  <tr v-for="object in objects">
+	    <object-row-details
+	      :object_type="object_type"
+	      :object="object"
+	      >
+	    </object-row-details>
+	  </tr>
+	</tbody>
+      </table>
+    </div>
   </div>
+  <sp-pagination :totalRows="totalRows"
+		 :perPage="perPage"
+		 :currentPage="currentPage"
+		 v-on:set-current-page="currentPage = $event">
+  </sp-pagination>
+</div>
 </template>
 
 <script>
@@ -92,6 +103,7 @@ headers.append('Accept', 'application/json; version=0')
 
 import { ref, computed, watch, onMounted } from '@vue/composition-api'
 
+import SpPagination from './Pagination.vue'
 import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
 
 var debounce = require('lodash.debounce')
@@ -99,6 +111,7 @@ var debounce = require('lodash.debounce')
 export default {
     name: 'searchable-objects-table',
     components: {
+	SpPagination,
 	ObjectRowDetails,
     },
     props: {
@@ -128,6 +141,9 @@ export default {
 	const allowedLookups = ref([])
 	const newClauseLookup = ref('')
 	const newClauseValue = ref('')
+	const totalRows = ref(0)
+	const perPage = ref(16)
+	const currentPage = ref(1)
 	const objects = ref([])
 	const fetchingObjects = ref(false)
 	const errorFetchingObjects = ref(null)
@@ -174,9 +190,9 @@ export default {
 	}
 
 	const queryParameters = computed(() => {
-	    var parameters = '?limit=20&offset=0'
+	    var parameters = `?limit=${perPage.value}&offset=${perPage.value * (currentPage.value - 1)}`
 	    if (!advancedSearchIsOn.value) { // basic search
-		parameters += '&search=' + basicSearchQuery.value
+		if (basicSearchQuery.value) parameters += '&search=' + basicSearchQuery.value
 	    }
 	    else {
 		parameters += `&${newClauseField.value}__${newClauseLookup.value}=${newClauseValue.value}`
@@ -194,6 +210,7 @@ export default {
 		    const response = await fetch(`/api/${props.url}/${queryParameters.value}`)
 		    const json = await response.json()
 		    objects.value = json.results
+		    totalRows.value = json.count
 		} catch (errors) {
 		    errorFetchingObjects.value = errors
 		} finally {
@@ -217,6 +234,9 @@ export default {
 	    allowedLookups,
 	    newClauseLookup,
 	    newClauseValue,
+	    totalRows,
+	    perPage,
+	    currentPage,
 	    objects,
 	    fetchingObjects,
 	    errorFetchingObjects,
