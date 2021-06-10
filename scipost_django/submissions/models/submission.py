@@ -282,6 +282,11 @@ class Submission(models.Model):
         return self.open_for_reporting and not self.reporting_deadline_has_passed
 
     @property
+    def submission_date_ymd(self):
+        """Return the submission date in YYYY-MM-DD format."""
+        return self.submission_date.date()
+
+    @property
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(

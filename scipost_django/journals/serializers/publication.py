@@ -17,5 +17,6 @@ class PublicationSerializer(serializers.ModelSerializer):
             'author_list',
             'abstract',
             'doi_label',
+            'publication_date',
             'url'
         ]

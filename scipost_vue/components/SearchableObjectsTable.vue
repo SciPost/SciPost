@@ -71,15 +71,14 @@
       {{ errorFetchingObjects }}
       {{ url }}
     </div>
-    <table class="table">
-      <thead>
-	<tr>
-	  <th v-for="field in displayfields">{{ field.label }}</th>
-	</tr>
-      </thead>
+    <table class="table table-bordered">
       <tbody>
 	<tr v-for="object in objects">
-	  <td v-for="field in displayfields">{{ object[field.field] }}</td>
+	  <object-row-details
+	    :object_type="object_type"
+	    :object="object"
+	    >
+	  </object-row-details>
 	</tr>
       </tbody>
     </table>
@@ -93,10 +92,15 @@ headers.append('Accept', 'application/json; version=0')
 
 import { ref, computed, watch, onMounted } from '@vue/composition-api'
 
+import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
+
 var debounce = require('lodash.debounce')
 
 export default {
     name: 'searchable-objects-table',
+    components: {
+	ObjectRowDetails,
+    },
     props: {
 	object_type: {
 	    type: String,
