@@ -75,13 +75,13 @@
     </div>
   </div>
 
-  <div class="row">
+  <div class="row mb-4">
     <div class="col-lg-2 align-self-center d-flex justify-content-center">
-      <span class="badge bg-primary mb-2">{{ totalRows }} result<span v-if="totalRows != 1">s</span></span>
+      <span class="badge bg-primary">{{ totalRows }} result<span v-if="totalRows != 1">s</span></span>
     </div>
     <div class="col-lg-6">
       <nav aria-label="navigation">
-	<ul class="pagination justify-content-center">
+	<ul class="mb-0 pagination justify-content-center align-self-center">
 	  <li v-for="pagenr in paginatorButtonData" class="page-item">
 	    <span v-if="pagenr > 0">
 	      <a class="page-link" :class="{ 'bg-primary text-white': pagenr === currentPage }" @click="currentPage = pagenr">{{ pagenr }}</a>
@@ -93,9 +93,9 @@
 	</ul>
       </nav>
     </div>
-    <div class="col-lg-4 mb-2 d-flex justify-content-center">
+    <div class="col-lg-4 d-flex justify-content-center">
       <div class="align-self-center">Per&nbsp;page:</div>
-      <div class="form-check form-check-inline">
+      <div class="form-check form-check-inline align-self-center">
 	<div class="btn-group" role="group">
 	  <div v-for="option in perPageOptions">
 	    <input v-model="perPage" class="btn-check" type="radio" name="btnRadioperPage" :id="'btnRadioperPage-' + option" :value="option">
@@ -104,21 +104,20 @@
 	</div>
       </div>
     </div>
-
-    <div class="row">
-      <div class="col">
-	<table class="table table-bordered">
-	  <tbody>
-	    <tr v-for="object in objects">
-	      <object-row-details
-		:object_type="object_type"
-		:object="object"
-		>
-	      </object-row-details>
-	    </tr>
-	  </tbody>
-	</table>
-      </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <table class="table table-bordered">
+	<tbody>
+	  <tr v-for="object in objects">
+	    <object-row-details
+	      :object_type="object_type"
+	      :object="object"
+	      >
+	    </object-row-details>
+	  </tr>
+	</tbody>
+      </table>
     </div>
 
   </div>
