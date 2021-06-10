@@ -32,6 +32,7 @@ class PublicationViewSet(FilteringOptionsActionMixin,
     queryset = Publication.objects.published().order_by('-publication_date')
     serializer_class = PublicationSerializer
     search_fields = ['title', 'author_list', 'abstract', 'doi_label']
+    ordering_fields = ['publication_date',]
     filterset_class = PublicationFilterSet
     default_filtering_fields = [
         'title__icontains',

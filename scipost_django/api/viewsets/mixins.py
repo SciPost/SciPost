@@ -18,18 +18,11 @@ class FilteringOptionsActionMixin:
         Translate the filterset base filters into list of filtering options.
         """
         filtering_options = {
+            'ordering': self.ordering_fields,
             'basic': [
                 field.replace('__', ':').replace('_', ' ').title() for field in self.search_fields
             ],
-            # 'advanced': [
-            #     {
-            #         'label': key.rpartition('__')[0].replace('__', ':').replace('_', ' ').title(),
-            #         'field': key.rpartition('__')[0],
-            #         'lookup': key.rpartition('__')[2],
-            #         'default': key in self.default_filtering_fields
-            #     } for key in self.filterset_class.base_filters.keys()
-            # ]
-            'advanced': []
+            'advanced': [],
         }
         advanced_as_dict = {}
         for key in self.filterset_class.base_filters.keys():
@@ -41,7 +34,6 @@ class FilteringOptionsActionMixin:
         for key in self.filterset_class.base_filters.keys():
             label = key.rpartition('__')[0].replace('__', ':').replace('_', ' ').title()
             advanced_as_dict[label]['lookups'].append(key.rpartition('__')[2])
-
         for key, val in advanced_as_dict.items():
             filtering_options['advanced'].append({
                 'label': key,

@@ -30,6 +30,7 @@ class SubmissionViewSet(FilteringOptionsActionMixin,
     queryset = Submission.objects.public_newest()
     serializer_class = SubmissionSerializer
     search_fields = ['title', 'author_list', 'abstract']
+    ordering_fields = ['submission_date',]
     filterset_class = SubmissionFilterSet
     default_filtering_fields = [
         'title__icontains',
