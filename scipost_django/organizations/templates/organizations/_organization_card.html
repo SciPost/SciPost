@@ -17,7 +17,7 @@
 	  <a class="nav-link" id="details-{{ org.id }}-tab" data-bs-toggle="tab" href="#details-{{ org.id }}" role="tab" aria-controls="details-{{ org.id }}" aria-selected="true">Details</a>
 	</li>
 	<li class="nav-item">
-	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications & PubFractions</a>
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations %} & PubFractions{% endif %}</a>
 	</li>
 	<li class="nav-item">
 	  <a class="nav-link" id="authors-{{ org.id }}-tab" data-bs-toggle="tab" href="#authors-{{ org.id }}" role="tab" aria-controls="authors-{{ org.id }}" aria-selected="true">Associated Authors</a>
@@ -75,9 +75,10 @@
 
 	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
 	  <h3>Publications associated to this Organization
-	    <span class="text-muted small">(with PubFractions <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>:</h3>
+	    {% if perms.scipost.can_manage_organizations %}
+	      <span class="text-muted small">(with PubFractions <span data-bs-toggle="tooltip" data-bs-html="true" title="" data-original-title="Fraction of a publication's funding/institutional support associated to a given Organization">{% include 'bi/info-circle-fill.html' %}</span>)</span>{% endif %}:</h3>
 	  {% for pubyear in pubyears %}
-	    <h4>{{ pubyear }} <span class="text-muted small">(PubFractions {{ org|pubfractions_in_year:pubyear }})</span></h4>
+	    <h4>{{ pubyear }}{% if perms.scipost.can_manage_organizations %} <span class="text-muted small">(PubFractions {{ org|pubfractions_in_year:pubyear }})</span>{% endif %}</h4>
 	    <ul>
 	      {% for publication in org.get_publications %}
 		{% if publication.publication_date|date:'Y'|add:"0" == pubyear %}
