@@ -16,9 +16,9 @@ class SubmissionFilterSet(df_filters.FilterSet):
     class Meta:
         model = Submission
         fields = {
-            'title': ['icontains', 'startswith',],
-            'author_list': ['icontains',],
-            'abstract': ['icontains',],
+            'title': ['icontains', 'istartswith', 'iregex'],
+            'author_list': ['icontains', 'iregex'],
+            'abstract': ['icontains', 'iregex'],
             'acad_field__name': ['icontains',],
             'specialties__name': ['icontains',],
             'topics__name': ['icontains',],

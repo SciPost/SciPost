@@ -17,13 +17,14 @@ class PublicationFilterSet(df_filters.FilterSet):
         model = Publication
         fields = {
             'in_journal__name': ['icontains', 'startswith'],
-            'title': ['icontains', 'startswith',],
-            'author_list': ['icontains',],
-            'abstract': ['icontains',],
+            'title': ['icontains', 'istartswith', 'iregex'],
+            'author_list': ['icontains', 'iregex'],
+            'abstract': ['icontains', 'iregex'],
+            'publication_date__year': ['exact', 'gte', 'lte'],
+            'doi_label': ['icontains',],
             'acad_field__name': ['icontains',],
             'specialties__name': ['icontains',],
             'topics__name': ['icontains',],
-            'doi_label': ['icontains',],
         }
 
 
