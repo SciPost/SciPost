@@ -237,7 +237,13 @@ export default {
 	const getAllowedLookups = () => {
 	    if (newQueryField.value) {
 		allowedLookups.value = filteringFieldsAdvanced.value.find(
-		    el => el.field == newQueryField.value).lookups
+		    el => el.field == newQueryField.value
+		).lookups.filter( // remove already-used lookups
+		    item => !queriesList.value.some( el => {
+			return (el.field === newQueryField.value &&
+				el.lookup === item)
+			})
+		)
 		// Set choice to first value by default
 		newQueryLookup.value = allowedLookups.value[0]
 	    }
@@ -324,6 +330,7 @@ export default {
 	watch(basicSearchQuery, getObjects)
 	watch(perPage, () => currentPage.value = 1)
 	watch(newQueryField, getAllowedLookups)
+	watch(queriesList, () => { if (newQueryField.value) getAllowedLookups()}) // to cover binning a query
 	watch(queryParameters, getObjects)
 
 	return {

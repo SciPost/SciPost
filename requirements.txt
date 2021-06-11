@@ -5,7 +5,7 @@ Django==2.2.24			# 2021-06-11
 feedparser==5.2.1		# Check: not updated since 2016
 psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
 pytz==2017.2			# Timezone package
-# djangorestframework==3.9.3	# 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
+# djangorestframework==3.9.3	# DEPREC, see next entry -- 2019-12-05  IMPORTANT: update templates/rest_framework/base.html if corresponding file rest_framework/templates/rest_framework/base.html has changed
 git+git://github.com/SciPost/django-rest-framework.git@bootstrap-v5
 requests==2.25.1		# 2021-05-21
 pyotp==2.2.7
