@@ -1,7 +1,7 @@
 # Core
 argon2-cffi==16.3.0		# Password hashing algorithm
 Babel==2.4
-Django==2.2.23			# 2021-05-21
+Django==2.2.24			# 2021-06-11
 feedparser==5.2.1		# Check: not updated since 2016
 psycopg2==2.8.6	  		# 2020-09-19 PostgreSQL engine
 pytz==2017.2			# Timezone package
