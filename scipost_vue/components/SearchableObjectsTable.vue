@@ -1,97 +1,96 @@
 <template>
 <div>
-  <div class="d-flex align-items-start">
-    <div class="nav flex-column nav-pills me-3" role="tablist" aria-orientation="vertical">
-      <button class="nav-link active" data-bs-toggle="pill" :data-bs-target="'#basicSearchTab-' + object_type"
-	      type="button" role="tab" @click="advancedSearchIsOn = false"
-	      aria-controls="basic-search" aria-selected="true"
-	      >Basic Search</button>
-      <button class="nav-link" data-bs-toggle="pill" :data-bs-target="'#advancedSearchTab-' + object_type"
-	      type="button" role="tab" @click="advancedSearchIsOn = true"
-	      aria-controls="advanced-search" aria-selected="true"
-	      >Advanced Search</button>
-    </div>
-    <div class="tab-content p-2 flex-fill" :id="'tabContent-' + object_type">
-      <div class="tab-pane fade show active" :id="'basicSearchTab-' + object_type" role="tabpanel" aria-labelledby="basic-search-tab">
-	<div class="row">
-	  <div class="col-9">
-	    <div class="form-floating">
-	      <input v-model="basicSearchQuery" type="text" class="form-control" id="basicSearchInput" :placeholder="basicSearchInputLabel">
-	      <label for="basicSearchInput">{{ basicSearchInputLabel }}</label>
-	    </div>
+  <div class="nav nav-tabs nav-justified me-3 mb-3 justify-content-center" role="tablist">
+    <button class="nav-link active" data-bs-toggle="pill" :data-bs-target="'#basicSearchTab-' + object_type"
+	    type="button" role="tab" @click="advancedSearchIsOn = false"
+	    aria-controls="basic-search" aria-selected="true"
+	    >Basic Search</button>
+    <button class="nav-link" data-bs-toggle="pill" :data-bs-target="'#advancedSearchTab-' + object_type"
+	    type="button" role="tab" @click="advancedSearchIsOn = true"
+	    aria-controls="advanced-search" aria-selected="true"
+	    >Advanced Search</button>
+  </div>
+  <div class="tab-content p-2 flex-fill" :id="'tabContent-' + object_type">
+    <div class="tab-pane fade show active" :id="'basicSearchTab-' + object_type" role="tabpanel" aria-labelledby="basic-search-tab">
+      <div class="row">
+	<div class="col-9">
+	  <div class="form-floating">
+	    <input v-model="basicSearchQuery" type="text" class="form-control" id="basicSearchInput" :placeholder="basicSearchInputLabel">
+	    <label for="basicSearchInput">{{ basicSearchInputLabel }}</label>
 	  </div>
-	  <div class="col-3 align-self-center">
-	    <button class="btn btn-sm btn-outline-secondary" type="button" @click="basicSearchQuery = ''">Clear</button>
-	  </div>
+	</div>
+	<div class="col-3 align-self-center">
+	  <button class="btn btn-sm btn-outline-secondary" type="button" @click="basicSearchQuery = ''">Clear</button>
 	</div>
       </div>
-      <div class="tab-pane fade" :id="'advancedSearchTab-' + object_type" role="tabpanel" aria-labelledby="advanced-search-tab">
-	<div class="row">
-	  <div class="col-sm-6 col-md-3 g-0">
-	    <div class="form-floating">
-	      <select class="form-select input-group-text"
-		      id="selectNewQueryField"
-		      v-model="newQueryField"
-		      >
-		<option v-for="filteringField in filteringFieldsAdvanced" :value="filteringField.field">
-		  <strong>{{ filteringField.label }}</strong>
-		</option>
-	      </select>
-	      <label for="selectNewQueryField">Search field</label>
-	    </div>
-	  </div>
-	  <div class="col-sm-6 col-md-3 g-0">
-	    <div class="form-floating">
-	      <select class="form-select input-group-text"
-		      id="selectNewQueryLookup"
-		      v-model="newQueryLookup">
-		<option v-for="(lookup, index) in allowedLookups" :value="lookup">
-		  <em>{{ lookup }}</em>
-		</option>
-	      </select>
-	      <label for="selectNewQueryLookup">Lookup function</label>
-	    </div>
-	  </div>
-	  <div class="col-sm-10 col-md-5 g-0">
-	    <div class="form-floating">
-	      <input type="text" class="form-control" id="inputNewQueryValue" v-model="newQueryValue">
-	      <label for="inputNewQueryValue">Value</label>
-	    </div>
-	  </div>
-	  <div class="col-sm-2 col-md-1 align-self-center">
-	    <button class="btn btn-sm btn-outline-secondary" type="button" @click="newQueryValue = ''"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
-  <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-</svg></button>
-	    <button v-if="newQueryIsValid" class="btn btn-sm btn-success text-white" type="button" @click="addNewQueryToList"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
-  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-</svg></button>
+    </div>
+    <div class="tab-pane fade" :id="'advancedSearchTab-' + object_type" role="tabpanel" aria-labelledby="advanced-search-tab">
+      <div class="row">
+	<div class="col-sm-6 col-md-3 g-0">
+	  <div class="form-floating">
+	    <select class="form-select input-group-text"
+		    id="selectNewQueryField"
+		    v-model="newQueryField"
+		    >
+	      <option v-for="filteringField in filteringFieldsAdvanced" :value="filteringField.field">
+		<strong>{{ filteringField.label }}</strong>
+	      </option>
+	    </select>
+	    <label for="selectNewQueryField">Search field</label>
 	  </div>
 	</div>
-	<div v-if="queriesList.length > 0" class="row">
-	  <div class="col">
-	    <h3 class="mb-2">Further&nbsp;applied&nbsp;queries <small class="text-muted">(combined with <em>AND</em>)</small>:</h3>
-	    <table class="table">
-	      <thead>
-		<th scope="col">Field</th>
-		<th scope="col">Lookup</th>
-		<th scope="col">Value</th>
-	      </thead>
-	      <tbody>
-		<tr v-for="query in queriesList">
-		  <td>{{ query.field }}</td>
-		  <td>{{ query.lookup }}</td>
-		  <td>{{ query.value }}</td>
-		  <td><button class="btn btn-sm btn-danger p-1" type="button" @click="discardQuery(query)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-			<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-		  </svg></button></td>
-		</tr>
-	      </tbody>
-	    </table>
+	<div class="col-sm-6 col-md-3 g-0">
+	  <div class="form-floating">
+	    <select class="form-select input-group-text"
+		    id="selectNewQueryLookup"
+		    v-model="newQueryLookup">
+	      <option v-for="(lookup, index) in allowedLookups" :value="lookup">
+		<em>{{ lookup }}</em>
+	      </option>
+	    </select>
+	    <label for="selectNewQueryLookup">Lookup function</label>
 	  </div>
+	</div>
+	<div class="col-sm-10 col-md-5 g-0">
+	  <div class="form-floating">
+	    <input type="text" class="form-control" id="inputNewQueryValue" v-model="newQueryValue">
+	    <label for="inputNewQueryValue">Value</label>
+	  </div>
+	</div>
+	<div class="col-sm-2 col-md-1 align-self-center">
+	  <button class="btn btn-sm btn-outline-secondary" type="button" @click="newQueryValue = ''"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+	      <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+	  </svg></button>
+	  <button v-if="newQueryIsValid" class="btn btn-sm btn-success text-white" type="button" @click="addNewQueryToList"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+	      <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+	  </svg></button>
+	</div>
+      </div>
+      <div v-if="queriesList.length > 0" class="row">
+	<div class="col">
+	  <h3 class="mb-2">Applied&nbsp;queries <small class="text-muted">(combined with <em>AND</em>)</small>:</h3>
+	  <table class="table">
+	    <thead>
+	      <th scope="col">Field</th>
+	      <th scope="col">Lookup</th>
+	      <th scope="col">Value</th>
+	    </thead>
+	    <tbody>
+	      <tr v-for="query in queriesList">
+		<td>{{ query.field }}</td>
+		<td>{{ query.lookup }}</td>
+		<td>{{ query.value }}</td>
+		<td><button class="btn btn-sm btn-danger p-1" type="button" @click="discardQuery(query)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+		      <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+		</svg></button></td>
+	      </tr>
+	    </tbody>
+	  </table>
 	</div>
       </div>
     </div>
   </div>
+
 
   <div class="row">
     <div class="col">
