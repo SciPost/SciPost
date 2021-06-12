@@ -16,7 +16,7 @@ class PublicationFilterSet(df_filters.FilterSet):
     class Meta:
         model = Publication
         fields = {
-            'in_journal__name': ['icontains', 'startswith'],
+            'in_journal__name': ['icontains', 'istartswith', 'exact'],
             'title': ['icontains', 'istartswith', 'iregex'],
             'author_list': ['icontains', 'iregex'],
             'abstract': ['icontains', 'iregex'],
