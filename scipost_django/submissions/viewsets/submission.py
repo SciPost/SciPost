@@ -19,6 +19,11 @@ class SubmissionFilterSet(df_filters.FilterSet):
             'title': ['icontains', 'istartswith', 'iregex'],
             'author_list': ['icontains', 'iregex'],
             'abstract': ['icontains', 'iregex'],
+            'submission_date': [
+                'date__year', 'date__month', 'date__exact',
+                'date__year__gte', 'date__year__lte', 'date__year__range',
+                'date__gte', 'date__lte', 'date__range'
+            ],
             'acad_field__name': ['icontains',],
             'specialties__name': ['icontains',],
             'topics__name': ['icontains',],

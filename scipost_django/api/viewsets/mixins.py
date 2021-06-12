@@ -20,24 +20,14 @@ class FilteringOptionsActionMixin:
         filtering_options = {
             'ordering': self.ordering_fields,
             'basic': [
-                field.replace('__', ':').replace('_', ' ').title() for field in self.search_fields
+                field.replace('__', '/').replace('_', ' ').title() for field in self.search_fields
             ],
-            'advanced': [],
+            'advanced': [
+                {
+                    'label': key.replace('__', '/').replace('_', ' ').title(),
+                    'field': key,
+                    'lookups': val
+                } for (key, val) in self.filterset_class.get_fields().items()
+            ]
         }
-        advanced_as_dict = {}
-        for key in self.filterset_class.base_filters.keys():
-            label = key.rpartition('__')[0].replace('__', ':').replace('_', ' ').title()
-            advanced_as_dict[label] = {
-                'field':  key.rpartition('__')[0],
-                'lookups': []
-            }
-        for key in self.filterset_class.base_filters.keys():
-            label = key.rpartition('__')[0].replace('__', ':').replace('_', ' ').title()
-            advanced_as_dict[label]['lookups'].append(key.rpartition('__')[2])
-        for key, val in advanced_as_dict.items():
-            filtering_options['advanced'].append({
-                'label': key,
-                'field': val['field'],
-                'lookups': val['lookups']
-            })
         return Response(filtering_options)

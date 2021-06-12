@@ -2,7 +2,7 @@
 <div>
   <h1>Search</h1>
 
-  <ul class="nav nav-tabs mb-3 justify-content-center" role="tablist">
+  <ul class="nav nav-pills mb-3 justify-content-center" role="tablist">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="publications-tab" data-bs-toggle="pill" data-bs-target="#publications" type="button" role="tab" aria-controls="publications" aria-selected="true">Publications</button>
     </li>

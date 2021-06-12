@@ -20,7 +20,11 @@ class PublicationFilterSet(df_filters.FilterSet):
             'title': ['icontains', 'istartswith', 'iregex'],
             'author_list': ['icontains', 'iregex'],
             'abstract': ['icontains', 'iregex'],
-            'publication_date__year': ['exact', 'gte', 'lte'],
+            'publication_date': [
+                'year', 'month', 'exact',
+                'year__gte', 'year__lte', 'year__range',
+                'gte', 'lte', 'range'
+            ],
             'doi_label': ['icontains',],
             'acad_field__name': ['icontains',],
             'specialties__name': ['icontains',],
