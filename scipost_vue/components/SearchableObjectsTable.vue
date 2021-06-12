@@ -74,15 +74,31 @@
 	      <th scope="col">Field</th>
 	      <th scope="col">Lookup</th>
 	      <th scope="col">Value</th>
+	      <th scope="col">Actions</th>
 	    </thead>
 	    <tbody>
-	      <tr v-for="query in queriesList">
+	      <tr v-for="query in queriesList" :class="query.active ? '' : 'text-muted text-decoration-line-through'">
 		<td>{{ query.field }}</td>
 		<td>{{ query.lookup }}</td>
 		<td>{{ query.value }}</td>
-		<td><button class="btn btn-sm btn-danger p-1" type="button" @click="discardQuery(query)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
-		      <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-		</svg></button></td>
+		<td>
+		  <div class="btn-group" role="group" aria-label="query action buttons">
+		    <button class="btn btn-sm btn-outline-warning" type="button" data-bs-toggle="tooltip" title="Toggle on/off" @click="query.active = !query.active">
+		      <span v-if="query.active">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+			</svg>
+		      </span>
+		      <span v-else>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-off" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/>
+			</svg>
+		      </span>
+		    </button>
+		    <button class="btn btn-sm btn-outline-danger" type="button" data-bs-toggle="tooltip" title="Discard" @click="discardQuery(query)"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16">
+			<path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+		      </svg>
+		    </button>
+		  </div>
+		</td>
 	      </tr>
 	    </tbody>
 	  </table>
@@ -264,7 +280,8 @@ export default {
 	    queriesList.value.push({
 		field: newQueryField.value,
 		lookup: newQueryLookup.value,
-		value: newQueryValue.value
+		value: newQueryValue.value,
+		active: true
 	    })
 	    newQueryField.value = null
 	    newQueryLookup.value = ''
@@ -285,7 +302,9 @@ export default {
 		    parameters += `&${newQueryField.value}__${newQueryLookup.value}=${newQueryValue.value}`
 		}
 		queriesList.value.forEach( (query) => {
-		    parameters += `&${query.field}__${query.lookup}=${query.value}`
+		    if (query.active) {
+			parameters += `&${query.field}__${query.lookup}=${query.value}`
+		    }
 		})
 	    }
             if (props.initial_filter) {
