@@ -105,15 +105,6 @@
     </div>
   </div>
 
-
-  <div class="row">
-    <div class="col">
-      <div v-if="errorFetchingObjects" class="text-danger">
-	{{ errorFetchingObjects }}
-      </div>
-    </div>
-  </div>
-
   <div class="row mb-4">
     <div class="col-md-2 align-self-center d-flex justify-content-center">
       <span class="badge bg-primary mb-2">{{ totalRows }} result<span v-if="totalRows != 1">s</span></span>
@@ -144,21 +135,32 @@
       </div>
     </div>
   </div>
+
   <div class="row">
     <div class="col">
-      <table class="table table-bordered">
-	<tbody>
-	  <tr v-for="object in objects">
-	    <object-row-details
-	      :object_type="object_type"
-	      :object="object"
-	      >
-	    </object-row-details>
-	  </tr>
-	</tbody>
-      </table>
+      <div v-if="errorFetchingObjects" class="text-danger">
+	{{ errorFetchingObjects }}
+      </div>
+      <div v-if="fetchingObjects" class="text-center">
+	<button class="btn btn-outline-primary" type="button" disabled>
+	  <span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span>
+	  Loading...
+	</button>
+      </div>
+      <div v-else>
+	<table class="table table-bordered">
+	  <tbody>
+	    <tr v-for="object in objects">
+	      <object-row-details
+		:object_type="object_type"
+		:object="object"
+		>
+	      </object-row-details>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
     </div>
-
   </div>
 </div>
 </template>
@@ -322,6 +324,7 @@ export default {
 	const getObjects = debounce(
 	    async () => {
 		fetchingObjects.value = true
+		errorFetchingObjects.value = null
 		try {
 		    const response = await fetch(`/api/${props.url}${queryParameters.value}`, {headers: headers})
 		    const json = await response.json()
