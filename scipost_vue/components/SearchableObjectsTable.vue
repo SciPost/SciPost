@@ -297,11 +297,19 @@ export default {
 	    }
 	    else {
 		if (newQueryIsValid.value) {
-		    parameters += `&${newQueryField.value}__${newQueryLookup.value}=${newQueryValue.value}`
+		    parameters += `&${newQueryField.value}__${newQueryLookup.value}=`
+		    if (newQueryLookup.value.includes('regex')) { // careful with regex (also below)
+			parameters += encodeURIComponent(`${newQueryValue.value}`).replace('%20', '+')
+		    }
+		    else parameters += `${newQueryValue.value}`
 		}
 		queriesList.value.forEach( (query) => {
 		    if (query.active) {
-			parameters += `&${query.field}__${query.lookup}=${query.value}`
+			parameters += `&${query.field}__${query.lookup}=`
+			if (query.lookup.includes('regex')) { // careful with regex (also above)
+			    parameters += encodeURIComponent(`${query.value}`).replace('%20', '+')
+			}
+			else parameters += `${query.value}`
 		    }
 		})
 	    }
@@ -315,7 +323,7 @@ export default {
 	    async () => {
 		fetchingObjects.value = true
 		try {
-		    const response = await fetch(`/api/${props.url}/${queryParameters.value}`)
+		    const response = await fetch(`/api/${props.url}${queryParameters.value}`, {headers: headers})
 		    const json = await response.json()
 		    objects.value = json.results
 		    totalRows.value = json.count

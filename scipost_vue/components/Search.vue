@@ -1,11 +1,11 @@
 <template>
 <div>
   <div class="row mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <h1>Search</h1>
       <p><a href="mailto:techsupport@scipost.org" rel="nofollow">Feedback</a></p>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-9">
       <div class="accordion" id="searchTipsAccordion">
 	<div class="accordion-item">
 	  <h2 class="accordion-header" id="basicSearchTipsAccordionHeading">
