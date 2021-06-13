@@ -30,11 +30,11 @@
   </div>
   <div
     class="tab-content p-2 flex-fill"
-    :id="'tabContent-' + object_type"
+    :id="'tabContent-' + object_type + '-' + uId"
     >
     <div
       class="tab-pane fade show active"
-      :id="'basicSearchTab-' + object_type"
+      :id="'basicSearchTab-' + object_type + '-' + uId"
       role="tabpanel"
       aria-labelledby="basic-search-tab"
       >
@@ -45,7 +45,7 @@
 	      v-model="basicSearchQuery"
 	      type="text"
 	      class="form-control"
-	      id="basicSearchInput"
+	      :id="'basicSearchInput-' + uId"
 	      :placeholder="basicSearchInputLabel"
 	      >
 	    <label for="basicSearchInput">
@@ -70,7 +70,7 @@
     </div>
     <div
       class="tab-pane fade"
-      :id="'advancedSearchTab-' + object_type"
+      :id="'advancedSearchTab-' + object_type + '-' + uId"
       role="tabpanel"
       aria-labelledby="advanced-search-tab"
       >
@@ -140,7 +140,7 @@
 	  <div class="form-floating">
 	    <select
 	      class="form-select input-group-text"
-	      id="selectNewQueryField"
+	      :id="'selectNewQueryField' + uId"
 	      v-model="newQueryField"
 	      >
 	      <option
@@ -159,7 +159,7 @@
 	  <div class="form-floating">
 	    <select
 	      class="form-select input-group-text"
-	      id="selectNewQueryLookup"
+	      :id="'selectNewQueryLookup-' + uId"
 	      v-model="newQueryLookup"
 	      >
 	      <option
@@ -180,7 +180,7 @@
 	      v-model="newQueryValue"
 	      type="text"
 	      class="form-control"
-	      id="inputNewQueryValue"
+	      :id="'inputNewQueryValue-' + uId"
 	      >
 	    <label for="inputNewQueryValue">
 	      Value
@@ -255,7 +255,7 @@
 	      class="btn-check"
 	      type="radio"
 	      name="btnRadioperPage"
-	      :id="'btnRadioperPage-' + option"
+	      :id="'btnRadioperPage-' + option + '-' + uId"
 	      :value="option"
 	      >
 	    <label
@@ -322,7 +322,8 @@ import { ref, computed, watch, onMounted } from '@vue/composition-api'
 
 import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
 
-var debounce = require('lodash.debounce')
+const debounce = require('lodash.debounce')
+const uniqueId = require('lodash.uniqueid')
 
 const XRegExp = require('xregexp')
 
@@ -352,6 +353,7 @@ export default {
         },
     },
     setup(props) {
+	const uId = ref(uniqueId())
 	const advancedSearchIsOn = ref(false)
 	const basicSearchQuery = ref('')
 	const newQueryField = ref(null)
@@ -523,6 +525,7 @@ export default {
 	watch(queryParameters, getObjects)
 
 	return {
+	    uId,
 	    advancedSearchIsOn,
 	    basicSearchInputLabel,
 	    basicSearchQuery,

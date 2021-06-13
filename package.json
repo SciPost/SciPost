@@ -58,6 +58,7 @@
     "fibers": "^4.0.2",
     "js-cookie": "^2.2.1",
     "lodash.debounce": "^4.0.8",
+    "lodash.uniqueid": "^4.0.1",
     "mem": "^6.0.0",
     "mini-css-extract-plugin": "^1.6.0",
     "nan": "^2.14.0",
