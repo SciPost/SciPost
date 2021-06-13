@@ -73,7 +73,8 @@
     "vue": "^2.6.12",
     "vue-sanitize": "^0.2.1",
     "vue-select": "^3.11.2",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "^5.8.0",
+    "xregexp": "^5.0.2"
   },
   "resolutions": {
     "prosemirror-model": "1.8.2"

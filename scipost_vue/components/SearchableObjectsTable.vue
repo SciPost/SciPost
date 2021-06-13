@@ -61,7 +61,7 @@
 	<div class="col-sm-2 col-md-1 align-self-center">
 	  <button v-if="newQueryValue" class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="tooltip" title="Clear value" @click="newQueryValue = ''"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
 	  </svg></button>
-	  <button v-if="newQueryIsValid" class="btn btn-sm btn-success text-white" type="button" @click="addNewQueryToList"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+	  <button v-if="newQueryIsValid" class="btn btn-sm btn-outline-success" type="button" data-bs-toggle="tooltip" title="Add query to list" @click="addNewQueryToList"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
 	  </svg></button>
 	</div>
       </div>
@@ -175,6 +175,8 @@ import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
 
 var debounce = require('lodash.debounce')
 
+const XRegExp = require('xregexp')
+
 export default {
     name: 'searchable-objects-table',
     components: {
@@ -267,13 +269,23 @@ export default {
 	}
 
 	const newQueryIsValid = computed(() => {
-	    return (newQueryField.value && newQueryLookup.value && newQueryValue.value
-		    && !queriesList.value.some( el => {
-			return (el.field === newQueryField.value &&
-				el.lookup === newQueryLookup.value &&
-				el.value === newQueryValue.value)
-		    })
-		   )
+	    if (newQueryField.value && newQueryLookup.value && newQueryValue.value  // newQuery exists
+		// and newQuery's field/lookup combination is not already in queriesList:
+		&& !queriesList.value.some( el => {
+		    return (el.field === newQueryField.value &&
+			    el.lookup === newQueryLookup.value)
+		})
+	       ) { // Validation checks per lookup type
+		if (newQueryLookup.value.includes('regex')) {
+		    try { // check if the regex is a valid regular expression
+			const test = RegExp(newQueryValue.value)
+		    } catch (error) {
+			return false
+		    }
+		}
+		return true  // All checks passed
+	    }
+	    return false
 	})
 
 	const addNewQueryToList = () => {
