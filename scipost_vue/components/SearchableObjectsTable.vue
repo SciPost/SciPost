@@ -261,7 +261,7 @@
 	    <label
 	      class="btn btn-sm"
 	      :class="perPage === option ? 'btn-primary text-white' : 'btn-outline-primary'"
-	      :for="'btnRadioperPage-' + option"
+	      :for="'btnRadioperPage-' + option + '-' + uId"
 	      >
 	      {{ option }}
 	    </label>
