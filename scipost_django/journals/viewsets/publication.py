@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django_filters import rest_framework as df_filters
 
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
@@ -35,6 +36,7 @@ class PublicationFilterSet(df_filters.FilterSet):
 class PublicationViewSet(FilteringOptionsActionMixin,
                          viewsets.ReadOnlyModelViewSet):
     queryset = Publication.objects.published().order_by('-publication_date')
+    permission_classes = [AllowAny,]
     serializer_class = PublicationSerializer
     search_fields = ['title', 'author_list', 'abstract', 'doi_label']
     ordering_fields = ['publication_date',]
