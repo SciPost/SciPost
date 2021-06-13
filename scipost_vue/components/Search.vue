@@ -3,17 +3,41 @@
   <div class="row mb-4">
     <div class="col-md-3">
       <h1>Search</h1>
-      <p><a href="mailto:techsupport@scipost.org" rel="nofollow">Feedback</a></p>
+      <p>
+	<a
+	  href="mailto:techsupport@scipost.org"
+	  rel="nofollow"
+	  >
+	  Feedback
+	</a>
+      </p>
     </div>
     <div class="col-md-9">
-      <div class="accordion" id="searchTipsAccordion">
+      <div
+	class="accordion"
+	id="searchTipsAccordion"
+	>
 	<div class="accordion-item">
-	  <h2 class="accordion-header" id="basicSearchTipsAccordionHeading">
-	    <button class="accordion-button p-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBasicSearchTips" aria-controls="collapseBasicSearchTips">
+	  <h2
+	    class="accordion-header"
+	    id="basicSearchTipsAccordionHeading"
+	    >
+	    <button
+	      class="accordion-button p-2"
+	      type="button"
+	      data-bs-toggle="collapse"
+	      data-bs-target="#collapseBasicSearchTips"
+	      aria-controls="collapseBasicSearchTips"
+	      >
 	      Tips: Basic search
 	    </button>
 	  </h2>
-	  <div id="collapseBasicSearchTips" class="accordion-collapse collapse" aria-labelledby="basicSearchTipsAccordionHeading" data-bs-parent="#searchTipsAccordion">
+	  <div
+	    id="collapseBasicSearchTips"
+	    class="accordion-collapse collapse"
+	    aria-labelledby="basicSearchTipsAccordionHeading"
+	    data-bs-parent="#searchTipsAccordion"
+	    >
 	    <div class="accordion-body">
 	      <p>Basic search performs a case-insensitive containment search in the fields listed in the search form placeholder.</p>
 	      <p>Things which Basic Search does <strong>not</strong> enable you to do:
@@ -26,12 +50,26 @@
 	  </div>
 	</div>
 	<div class="accordion-item">
-	  <h2 class="accordion-header" id="advancedSearchTipsAccordionHeading">
-	    <button class="accordion-button p-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdvancedSearchTips" aria-controls="collapseAdvancedSearchTips">
+	  <h2
+	    class="accordion-header"
+	    id="advancedSearchTipsAccordionHeading"
+	    >
+	    <button
+	      class="accordion-button p-2"
+	      type="button"
+	      data-bs-toggle="collapse"
+	      data-bs-target="#collapseAdvancedSearchTips"
+	      aria-controls="collapseAdvancedSearchTips"
+	      >
 	      Tips: Advanced search
 	    </button>
 	  </h2>
-	  <div id="collapseAdvancedSearchTips" class="accordion-collapse collapse" aria-labelledby="advancedSearchTipsAccordionHeading" data-bs-parent="#searchTipsAccordion">
+	  <div
+	    id="collapseAdvancedSearchTips"
+	    class="accordion-collapse collapse"
+	    aria-labelledby="advancedSearchTipsAccordionHeading"
+	    data-bs-parent="#searchTipsAccordion"
+	    >
 	    <div class="accordion-body">
 	      <h3>Basics</h3>
 	      <p>Advanced search is based on (combinations of) search queries in the form</p>
@@ -88,16 +126,55 @@
     </div>
   </div>
   <hr>
-  <ul class="nav nav-pills mb-3 justify-content-center" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="publications-tab" data-bs-toggle="pill" data-bs-target="#publications" type="button" role="tab" aria-controls="publications" aria-selected="true">Publications</button>
+  <ul
+    class="nav nav-pills nav-justified flex-column flex-sm-row mb-3 justify-content-center"
+    role="tablist"
+    >
+    <li
+      class="flex-sm-fill text-sm-center nav-item"
+      role="presentation"
+      >
+      <button
+	class="nav-link mx-auto active"
+	id="publications-tab"
+	data-bs-toggle="pill"
+	data-bs-target="#publications"
+	type="button"
+	role="tab"
+	aria-controls="publications"
+	aria-selected="true"
+	>
+	Publications
+      </button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="submissions-tab" data-bs-toggle="pill" data-bs-target="#submissions" type="button" role="tab" aria-controls="submissions" aria-selected="true">Submissions</button>
+    <li
+      class="flex-sm-fill text-sm-center nav-item"
+      role="presentation"
+      >
+      <button
+	class="nav-link mx-auto"
+	id="submissions-tab"
+	data-bs-toggle="pill"
+	data-bs-target="#submissions"
+	type="button"
+	role="tab"
+	aria-controls="submissions"
+	aria-selected="true"
+	>
+	Submissions
+      </button>
     </li>
   </ul>
-  <div class="tab-content" id="tabContent">
-    <div class="tab-pane fade show active" id="publications" role="tabpanel" aria-labelledby="publications-tab">
+  <hr>
+  <div
+    class="tab-content"
+    id="tabContent">
+    <div
+      class="tab-pane fade show active"
+      id="publications"
+      role="tabpanel"
+      aria-labelledby="publications-tab"
+      >
       <searchable-objects-table
 	:object_type="'publication'"
 	:displayfields="[{ field: 'doi_label', label: 'DOI label' }, { field: 'url', label: 'URL' }]"
@@ -105,7 +182,12 @@
 	>
       </searchable-objects-table>
     </div>
-    <div class="tab-pane fade" id="submissions" role="tabpanel" aria-labelledby="submissions-tab">
+    <div
+      class="tab-pane fade"
+      id="submissions"
+      role="tabpanel"
+      aria-labelledby="submissions-tab"
+      >
       <searchable-objects-table
 	:object_type="'submission'"
 	:displayfields="[{ field: 'title', label: 'Title'}, { field: 'identifier', label: 'Identifier' }]"
