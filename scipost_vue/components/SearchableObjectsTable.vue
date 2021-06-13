@@ -74,6 +74,67 @@
       role="tabpanel"
       aria-labelledby="advanced-search-tab"
       >
+      <div
+	v-if="queriesList.length > 0"
+	class="row"
+	>
+	<div class="col">
+	  <h3 class="mb-2">Currently applied&nbsp;queries <small class="text-muted">(combined with <em>AND</em>)</small>:</h3>
+	  <table class="table">
+	    <thead>
+	      <th scope="col">Field</th>
+	      <th scope="col">Lookup</th>
+	      <th scope="col">Value</th>
+	      <th scope="col">Actions</th>
+	    </thead>
+	    <tbody>
+	      <tr
+		v-for="query in queriesList"
+		:class="query.active ? '' : 'text-muted text-decoration-line-through'"
+		>
+		<td>{{ query.field }}</td>
+		<td>{{ query.lookup }}</td>
+		<td>{{ query.value }}</td>
+		<td>
+		  <div
+		    class="btn-group"
+		    role="group"
+		    aria-label="query action buttons"
+		    >
+		    <button
+		      class="btn btn-sm btn-outline-warning"
+		      type="button"
+		      data-bs-toggle="tooltip"
+		      title="Toggle on/off"
+		      @click="query.active = !query.active"
+		      >
+		      <span v-if="query.active">
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
+			</svg>
+		      </span>
+		      <span v-else>
+			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-off" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/>
+			</svg>
+		      </span>
+		    </button>
+		    <button
+		      class="btn btn-sm btn-outline-danger"
+		      type="button"
+		      data-bs-toggle="tooltip"
+		      title="Discard"
+		      @click="discardQuery(query)"
+		      >
+		      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
+		      </svg>
+		    </button>
+		  </div>
+		</td>
+	      </tr>
+	    </tbody>
+	  </table>
+	</div>
+      </div>
+
       <div class="row">
 	<div class="col-sm-6 col-md-3 g-0">
 	  <div class="form-floating">
@@ -151,66 +212,7 @@
 	  </button>
 	</div>
       </div>
-      <div
-	v-if="queriesList.length > 0"
-	class="row"
-	>
-	<div class="col">
-	  <h3 class="mb-2">Applied&nbsp;queries <small class="text-muted">(combined with <em>AND</em>)</small>:</h3>
-	  <table class="table">
-	    <thead>
-	      <th scope="col">Field</th>
-	      <th scope="col">Lookup</th>
-	      <th scope="col">Value</th>
-	      <th scope="col">Actions</th>
-	    </thead>
-	    <tbody>
-	      <tr
-		v-for="query in queriesList"
-		:class="query.active ? '' : 'text-muted text-decoration-line-through'"
-		>
-		<td>{{ query.field }}</td>
-		<td>{{ query.lookup }}</td>
-		<td>{{ query.value }}</td>
-		<td>
-		  <div
-		    class="btn-group"
-		    role="group"
-		    aria-label="query action buttons"
-		    >
-		    <button
-		      class="btn btn-sm btn-outline-warning"
-		      type="button"
-		      data-bs-toggle="tooltip"
-		      title="Toggle on/off"
-		      @click="query.active = !query.active"
-		      >
-		      <span v-if="query.active">
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-on" viewBox="0 0 16 16"><path d="M5 3a5 5 0 0 0 0 10h6a5 5 0 0 0 0-10H5zm6 9a4 4 0 1 1 0-8 4 4 0 0 1 0 8z"/>
-			</svg>
-		      </span>
-		      <span v-else>
-			<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-toggle-off" viewBox="0 0 16 16"><path d="M11 4a4 4 0 0 1 0 8H8a4.992 4.992 0 0 0 2-4 4.992 4.992 0 0 0-2-4h3zm-6 8a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM0 8a5 5 0 0 0 5 5h6a5 5 0 0 0 0-10H5a5 5 0 0 0-5 5z"/>
-			</svg>
-		      </span>
-		    </button>
-		    <button
-		      class="btn btn-sm btn-outline-danger"
-		      type="button"
-		      data-bs-toggle="tooltip"
-		      title="Discard"
-		      @click="discardQuery(query)"
-		      >
-		      <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash-fill" viewBox="0 0 16 16"><path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z"/>
-		      </svg>
-		    </button>
-		  </div>
-		</td>
-	      </tr>
-	    </tbody>
-	  </table>
-	</div>
-      </div>
+
     </div>
   </div>
 
