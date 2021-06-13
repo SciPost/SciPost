@@ -7,7 +7,7 @@
     <button
       class="nav-link active"
       data-bs-toggle="pill"
-      :data-bs-target="'#basicSearchTab-' + object_type"
+      :data-bs-target="'#basicSearchTab-' + object_type + '-' + uId"
       type="button" role="tab"
       @click="advancedSearchIsOn = false"
       aria-controls="basic-search"
@@ -18,7 +18,7 @@
     <button
       class="nav-link"
       data-bs-toggle="pill"
-      :data-bs-target="'#advancedSearchTab-' + object_type"
+      :data-bs-target="'#advancedSearchTab-' + object_type + '-' + uId"
       type="button"
       role="tab"
       @click="advancedSearchIsOn = true"
