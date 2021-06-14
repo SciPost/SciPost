@@ -71,7 +71,7 @@
 	    data-bs-parent="#searchTipsAccordion"
 	    >
 	    <div class="accordion-body">
-	      <h3>Basics</h3>
+	      <h3>Fundamentals</h3>
 	      <p>Advanced search is based on (combinations of) search queries in the form</p>
 	      <p class="text-center">[ field ] - [ lookup ] - [ value ]</p>
 	      <p>in which <em>field</em> is one of the enabled search fields (typically one of the model's database fields), <em>lookup</em> is a lookup function (see details below), and <em>value</em> is the query string. Which field/lookup combinations are available depends on which model is being searched.</p>
@@ -87,9 +87,9 @@
 		<tr><td><em>month</em></td><td>MM format</td></tr>
 		<tr><td><em>gte</em></td><td>greater than or equal</td></tr>
 		<tr><td><em>lte</em></td><td>less than or equal</td></tr>
-		<tr><td><em>range</em></td><td>inclusive begin to end interval; format: being,end</td></tr>
-		<tr><td><em>iregex</em></td><td>case-insensitive regex pattern match</td></tr>
-		<tr><td><em>regex</em></td><td>case-sensitive regex pattern match</td></tr>
+		<tr><td><em>range</em></td><td>inclusive begin to end interval; format: begin,end</td></tr>
+		<tr><td><em>iregex</em></td><td>case-insensitive <a href="https://en.wikipedia.org/wiki/Regular_expression" class="p-0" target="_blank" rel="nofollow">regular expression</a> pattern match</td></tr>
+		<tr><td><em>regex</em></td><td>case-sensitive <a href="https://en.wikipedia.org/wiki/Regular_expression" class="p-0" target="_blank" rel="nofollow">regular expression</a> pattern match</td></tr>
 	      </table>
 
 	      <h3>Limitations</h3>
