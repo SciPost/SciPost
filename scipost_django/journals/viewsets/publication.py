@@ -18,9 +18,9 @@ class PublicationFilterSet(df_filters.FilterSet):
         model = Publication
         fields = {
             'in_journal__name': ['icontains', 'istartswith', 'exact'],
-            'title': ['icontains', 'istartswith', 'iregex'],
-            'author_list': ['icontains', 'iregex'],
-            'abstract': ['icontains', 'iregex'],
+            'title': ['icontains', 'contains', 'istartswith', 'iregex', 'regex'],
+            'author_list': ['icontains', 'contains', 'iregex', 'regex'],
+            'abstract': ['icontains', 'contains', 'iregex', 'regex'],
             'publication_date': [
                 'year', 'month', 'exact',
                 'year__gte', 'year__lte', 'year__range',

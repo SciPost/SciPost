@@ -77,16 +77,19 @@
 	      <p>in which <em>field</em> is one of the enabled search fields (typically one of the model's database fields), <em>lookup</em> is a lookup function (see details below), and <em>value</em> is the query string. Which field/lookup combinations are available depends on which model is being searched.</p>
 
 	      <h3>Lookup functions</h3>
+	      <p><em>N.B.: which lookup functions are available depends on which field is being queried.</em></p>
 	      <table class="table">
 		<tr><td><em>icontains</em></td><td>case-insensitive containment</td></tr>
+		<tr><td><em>contains</em></td><td>case-sensitive containment</td></tr>
 		<tr><td><em>istartswith</em></td><td>case-insensitive start match</td></tr>
-		<tr><td><em>exact</em></td><td>exact match (full field value; case sensitive)</td></tr>
+		<tr><td><em>exact</em></td><td>exact match (full field value from beginning to end; case sensitive)</td></tr>
 		<tr><td><em>year</em></td><td>YYYY format</td></tr>
 		<tr><td><em>month</em></td><td>MM format</td></tr>
 		<tr><td><em>gte</em></td><td>greater than or equal</td></tr>
 		<tr><td><em>lte</em></td><td>less than or equal</td></tr>
 		<tr><td><em>range</em></td><td>inclusive begin to end interval; format: being,end</td></tr>
 		<tr><td><em>iregex</em></td><td>case-insensitive regex pattern match</td></tr>
+		<tr><td><em>regex</em></td><td>case-sensitive regex pattern match</td></tr>
 	      </table>
 
 	      <h3>Limitations</h3>
@@ -115,7 +118,7 @@
 		    <td>All with "quantum" followed by "chain" in abstract</td>
 		    <td>Abstract</td>
 		    <td><em>iregex</em></td>
-		    <td>quantum[&nbsp;a-z]+chain</td>
+		    <td>quantum[&nbsp;\w]+chain</td>
 		  </tr>
 		</tbody>
 	      </table>
