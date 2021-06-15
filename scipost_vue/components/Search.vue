@@ -23,7 +23,7 @@
 	    id="basicSearchTipsAccordionHeading"
 	    >
 	    <button
-	      class="accordion-button p-2"
+	      class="accordion-button collapsed p-2"
 	      type="button"
 	      data-bs-toggle="collapse"
 	      data-bs-target="#collapseBasicSearchTips"
@@ -55,7 +55,7 @@
 	    id="advancedSearchTipsAccordionHeading"
 	    >
 	    <button
-	      class="accordion-button p-2"
+	      class="accordion-button collapsed p-2"
 	      type="button"
 	      data-bs-toggle="collapse"
 	      data-bs-target="#collapseAdvancedSearchTips"

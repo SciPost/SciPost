@@ -2,6 +2,15 @@
     color: $scipost-blue50;
 }
 
+.nav-pills .nav-link {
+    color: $scipost-blue50;
+
+    &.active {
+	background-color: $scipost-blue50;
+	color: white;
+    }
+}
+
 .nav-tabs .nav-link {
     background-color: #f8f8f8;
     border-radius: 0;
