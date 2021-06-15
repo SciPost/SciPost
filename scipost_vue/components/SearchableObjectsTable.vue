@@ -319,7 +319,7 @@
 const headers = new Headers();
 headers.append('Accept', 'application/json; version=0')
 
-import { ref, computed, watch, onMounted } from '@vue/composition-api'
+import { ref, toRef, computed, watch, onMounted } from '@vue/composition-api'
 
 import ObjectRowDetails from './ObjectRowDetails/ObjectRowDetails.vue'
 
@@ -350,13 +350,13 @@ export default {
         },
         initial_filter: {
             type: String,
-            required: false
+            default: ''
         },
     },
     setup(props) {
 	const uId = ref(uniqueId())
 	const advancedSearchIsOn = ref(false)
-	const basicSearchQuery = ref('')
+	const basicSearchQuery = toRef(props, 'initial_filter')
 	const newQueryField = ref(null)
 	const allowedLookups = ref([])
 	const newQueryLookup = ref('')
@@ -479,9 +479,6 @@ export default {
 		    }
 		})
 	    }
-            if (props.initial_filter) {
-                parameters += ('&' + props.initial_filter)
-            }
 	    return parameters
 	})
 

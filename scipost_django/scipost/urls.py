@@ -53,11 +53,11 @@ urlpatterns = [
     ),
 
     # Search
-    url(r'^search$', views.SearchView.as_view(), name='search'),
+    url(r'^search_old$', views.SearchView.as_view(), name='search_old'),
     url(
-        r'^search_vue$',
-        TemplateView.as_view(template_name='search/search_vue.html'),
-        name='search_vue'
+        r'^search$',
+        TemplateView.as_view(template_name='search/search.html'),
+        name='search'
     ),
     url(r'^$', views.index, name='index'),
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),

@@ -178,10 +178,12 @@
       role="tabpanel"
       aria-labelledby="publications-tab"
       >
+      Initial query: {{ initialQuery }}
       <searchable-objects-table
 	:object_type="'publication'"
 	:displayfields="[{ field: 'doi_label', label: 'DOI label' }, { field: 'url', label: 'URL' }]"
 	:url="'publications'"
+	:initial_filter="initialQuery"
 	>
       </searchable-objects-table>
     </div>
@@ -203,6 +205,8 @@
 </template>
 
 <script>
+import { ref, onMounted } from '@vue/composition-api'
+
 import SearchableObjectsTable from './SearchableObjectsTable.vue'
 
 export default {
@@ -210,7 +214,22 @@ export default {
     components: {
 	SearchableObjectsTable,
     },
-    setup() {
+    props: {
+        initial_filter: {
+            type: String,
+            required: false
+        },
+    },
+    setup(props, context) {
+	const initialQuery = ref('')
+
+	onMounted( () => {
+	    initialQuery.value = JSON.parse(document.getElementById('json_q').textContent)
+	})
+
+	return {
+	    initialQuery
+	}
     },
 }
 </script>
