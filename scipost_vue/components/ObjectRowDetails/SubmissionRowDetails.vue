@@ -8,10 +8,19 @@
 	  target="_blank"
 	  rel="nofollow"
 	  >
-	  {{ submission.title }}
+	  <highlight-text
+	    :text="submission.title"
+	    :queries="queries"
+	    >
+	  </highlight-text>
 	</a>
       </li>
-      <li>{{ submission.author_list }}</li>
+      <li>
+	<highlight-text
+	  :text="submission.author_list"
+	  :queries="queries"
+	  >
+	</highlight-text>
       <li>
 	<ul class="list-inline">
 	  <li class="list-inline-item">
@@ -35,7 +44,11 @@
 	      class="collapse m-1"
 	      :id="'abstract-' + submission.identifier.replaceAll('.', '-')"
 	      >
-	      {{ submission.abstract }}
+	      <highlight-text
+		:text="submission.abstract"
+		:queries="queries"
+		>
+	      </highlight-text>
 	    </div>
 	  </li>
 	</ul>
@@ -46,13 +59,22 @@
 </template>
 
 <script>
+import HighlightText from './../HighlightText.vue'
+
 export default {
     name: "submission-row-details",
+    components: {
+	HighlightText,
+    },
     props: {
         submission: {
             type: Object,
             required: true
-        }
+        },
+	queries: {
+	    type: Array,
+	    required: false
+	}
     },
 }
 </script>

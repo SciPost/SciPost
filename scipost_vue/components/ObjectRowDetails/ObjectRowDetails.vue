@@ -3,12 +3,14 @@
   <div v-if="object_type == 'publication'">
     <publication-row-details
       :publication="object"
+      :queries="queries"
       >
     </publication-row-details>
   </div>
   <div v-if="object_type == 'submission'">
     <submission-row-details
       :submission="object"
+      :queries="queries"
       >
     </submission-row-details>
   </div>
@@ -33,7 +35,11 @@ export default {
         object: {
             type: Object,
             required: true
-        }
+        },
+	queries: {
+	    type: Array,
+	    required: false
+	}
     }
 }
 </script>

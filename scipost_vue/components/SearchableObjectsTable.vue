@@ -303,6 +303,7 @@
 	      <object-row-details
 		:object_type="object_type"
 		:object="object"
+		:queries="queriesToHighlight"
 		>
 	      </object-row-details>
 	    </tr>
@@ -501,6 +502,35 @@ export default {
 	    },
 	    300)
 
+	const isCaseSensitiveLookup = (lookup) => {
+	    return ['contains', 'regex', 'exact'].includes(lookup)
+	}
+
+	const queriesToHighlight = computed(() => {
+	    let list = []
+	    if (!advancedSearchIsOn.value) {
+		list.push({
+		    query: basicSearchQuery.value,
+		    caseSensitive: false
+		})
+	    }
+	    if (newQueryIsValid.value) {
+		list.push({
+		    query: newQueryValue.value,
+		    caseSensitive: isCaseSensitiveLookup(newQueryLookup.value)
+		})
+	    }
+	    queriesList.value.forEach( (query) => {
+		if (query.active) {
+		    list.push({
+			query: query.value,
+			caseSensitive: isCaseSensitiveLookup(query.lookup)
+		    })
+		}
+	    })
+	    return list
+	})
+
 	const paginatorButtonData = computed(() => {
 	    var maxPageNr = Math.max(1, Math.ceil(totalRows.value/perPage.value))
 	    let buttonData = [1,]
@@ -537,6 +567,7 @@ export default {
 	    addNewQueryToList,
 	    discardQuery,
 	    queriesList,
+	    queriesToHighlight,
 	    totalRows,
 	    perPageOptions,
 	    perPage,

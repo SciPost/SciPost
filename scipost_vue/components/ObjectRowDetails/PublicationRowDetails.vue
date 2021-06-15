@@ -8,10 +8,20 @@
 	  target="_blank"
 	  rel="nofollow"
 	  >
-	  {{ publication.title }}
+	  <highlight-text
+	    :text="publication.title"
+	    :queries="queries"
+	    >
+	  </highlight-text>
 	</a>
       </li>
-      <li>{{ publication.author_list }}</li>
+      <li>
+	<highlight-text
+	  :text="publication.author_list"
+	  :queries="queries"
+	  >
+	</highlight-text>
+      </li>
       <li>
 	<ul class="list-inline">
 	  <li class="list-inline-item">
@@ -35,7 +45,11 @@
 	      class="collapse m-1"
 	      :id="'abstract-' + publication.doi_label.replaceAll('.', '-')"
 	      >
-	      {{ publication.abstract }}
+	      <highlight-text
+		:text="publication.abstract"
+		:queries="queries"
+		>
+	      </highlight-text>
 	    </div>
 	  </li>
 	</ul>
@@ -46,13 +60,22 @@
 </template>
 
 <script>
+import HighlightText from './../HighlightText.vue'
+
 export default {
     name: "publication-row-details",
+    components: {
+	HighlightText,
+    },
     props: {
         publication: {
             type: Object,
             required: true
-        }
+        },
+	queries: {
+	    type: Array,
+	    required: false
+	}
     },
 }
 </script>
