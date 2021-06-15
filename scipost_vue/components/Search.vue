@@ -178,7 +178,6 @@
       role="tabpanel"
       aria-labelledby="publications-tab"
       >
-      Initial query: {{ initialQuery }}
       <searchable-objects-table
 	:object_type="'publication'"
 	:displayfields="[{ field: 'doi_label', label: 'DOI label' }, { field: 'url', label: 'URL' }]"
