@@ -33,7 +33,7 @@ class SubmissionFilterSet(df_filters.FilterSet):
 
 class SubmissionViewSet(FilteringOptionsActionMixin,
                          viewsets.ReadOnlyModelViewSet):
-    queryset = Submission.objects.public_newest()
+    queryset = Submission.objects.public_newest().unpublished()
     permission_classes = [AllowAny,]
     serializer_class = SubmissionSerializer
     search_fields = ['title', 'author_list', 'abstract']
