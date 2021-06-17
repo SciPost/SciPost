@@ -26,7 +26,7 @@
 	<tr>
 	  <td><img src="{{ organization.country.flag }}" alt="{{ organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ organization.country }}]</small></span>&nbsp;&nbsp;{{ organization.get_country_display }}</td>
 	  <td>
-	    <a href="{% url 'organizations:organization_details' pk=organization.id %}">{{ organization }}</a>
+	    <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization }}</a>
 	    {% if organization.parent %}
 	      <p><small class="text-muted">Parent: {{ organization.parent }}</small></p>
 	    {% endif %}

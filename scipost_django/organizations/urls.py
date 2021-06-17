@@ -38,7 +38,7 @@ urlpatterns = [
     url(
         r'^(?P<pk>[0-9]+)/$',
         views.OrganizationDetailView.as_view(),
-        name='organization_details'
+        name='organization_detail'
     ),
     url(
         r'^get_organization_detail$',

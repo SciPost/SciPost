@@ -28,7 +28,7 @@
 	<tbody>
 	  {% for event in object_list %}
 	    <tr>
-	      <td><a href="{% url 'organizations:organization_details' pk=event.organization.id %}">{{ event.organization }}</a></td>
+	      <td><a href="{% url 'organizations:organization_detail' pk=event.organization.id %}">{{ event.organization }}</a></td>
 	      <td>{{ event.get_event_display }}</td>
 	      <td>{{ event.comments|linebreaks }}</td>
 	      <td>{{ event.noted_on }}</td>

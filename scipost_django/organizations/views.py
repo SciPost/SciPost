@@ -147,7 +147,7 @@ class OrganizationListView(PaginationMixin, ListView):
 def get_organization_detail(request):
     org_id = request.GET.get('organization', None)
     if org_id:
-        return redirect(reverse('organizations:organization_details',
+        return redirect(reverse('organizations:organization_detail',
                                 kwargs={'pk': org_id}))
     return redirect(reverse('organizations:organizations'))
 
@@ -184,7 +184,7 @@ class OrganizationEventCreateView(PermissionsMixin, CreateView):
                 'noted_by': self.request.user}
 
     def get_success_url(self):
-        return reverse_lazy('organizations:organization_details',
+        return reverse_lazy('organizations:organization_detail',
                             kwargs={'pk': self.object.organization.id})
 
 
@@ -219,7 +219,7 @@ class ContactPersonCreateView(PermissionsMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('organizations:organization_details',
+        return reverse_lazy('organizations:organization_detail',
                             kwargs={'pk': self.object.organization.id})
 
 
@@ -241,7 +241,7 @@ class ContactPersonUpdateView(PermissionsMixin, UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('organizations:organization_details',
+        return reverse_lazy('organizations:organization_detail',
                             kwargs={'pk': self.object.organization.id})
 
 
@@ -258,7 +258,7 @@ class ContactPersonDeleteView(UserPassesTestMixin, DeleteView):
         return self.request.user.has_perm('can_view_org_contacts', contactperson.organization)
 
     def get_success_url(self):
-        return reverse_lazy('organizations:organization_details',
+        return reverse_lazy('organizations:organization_detail',
                             kwargs={'pk': self.object.organization.id})
 
 
@@ -329,7 +329,7 @@ def organization_add_contact(request, organization_id, contactperson_id=None):
             event.save()
         messages.success(request, '<h3>Created contact: %s</h3>Email has been sent.'
                          % str(contact))
-        return redirect(reverse('organizations:organization_details',
+        return redirect(reverse('organizations:organization_detail',
                                 kwargs={'pk': organization.id}))
     context = {
         'organization': organization,
@@ -409,7 +409,7 @@ class ContactRoleUpdateView(UserPassesTestMixin,  UpdateView):
         return self.request.user.has_perm('can_view_org_contacts', contactrole.organization)
 
     def get_success_url(self):
-        return reverse_lazy('organizations:organization_details',
+        return reverse_lazy('organizations:organization_detail',
                             kwargs={'pk': self.object.organization.id})
 
 
@@ -421,7 +421,7 @@ class ContactRoleDeleteView(PermissionsMixin, DeleteView):
     model = ContactRole
 
     def get_success_url(self):
-        return reverse_lazy('organizations:organization_details',
+        return reverse_lazy('organizations:organization_detail',
                             kwargs={'pk': self.object.organization.id})
 
 

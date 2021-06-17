@@ -123,7 +123,7 @@
 	</thead>
 	<tbody>
 	  {% for org in object_list %}
-	    <tr class="table-row" data-href="{% url 'organizations:organization_details' pk=org.id %}" style="cursor: pointer;">
+	    <tr class="table-row" data-href="{% url 'organizations:organization_detail' pk=org.id %}" style="cursor: pointer;">
 	      <td><img src="{{ org.country.flag }}" alt="{{ org.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ org.country }}]</small></span>&nbsp;&nbsp;{{ org.get_country_display }}</td>
 	      <td>
 		{{ org.full_name }}&nbsp;&nbsp;<small>{% if org.acronym %}[{{ org.acronym }}]{% endif %}</small>

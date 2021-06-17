@@ -102,16 +102,22 @@ class Organization(models.Model):
         return full_name_str
 
     def get_absolute_url(self):
-        return reverse('organizations:organization_details', kwargs = {'pk': self.id})
+        return reverse('organizations:organization_detail', kwargs = {'pk': self.id})
 
     @property
     def details_publicly_viewable(self):
         return self.orgtype != ORGTYPE_PRIVATE_BENEFACTOR
 
-    def get_publications(self):
+    def get_publications(self, year=None, journal=None):
         org_and_children_ids = [k['id'] for k in list(self.children.all().values('id'))]
         org_and_children_ids += [self.id]
-        return Publication.objects.filter(
+        if journal and isinstance(journal, Journal):
+            publications = journal.get_publications()
+        else:
+            publications = Publication.objects.published()
+        if year:
+            publications = publications.filter(publication_date__year=year)
+        return publications.filter(
             models.Q(authors__affiliations__pk__in=org_and_children_ids) |
             models.Q(grants__funder__organization__pk__in=org_and_children_ids) |
             models.Q(funders_generic__organization__pk__in=org_and_children_ids)).distinct()
