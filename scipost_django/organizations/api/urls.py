@@ -4,21 +4,24 @@ __license__ = "AGPL v3"
 
 from django.urls import path
 
-from organizations.api import views as api_views
+from rest_framework import routers
+
+#from organizations.api import views as api_views
+from . import views as api_views
+from . import viewsets as api_viewsets
 
 
-urlpatterns = [
+router = routers.SimpleRouter()
 
-    path( # /api/organizations/
-        '',
-        api_views.OrganizationListAPIView.as_view(),
-        name='organizations'
-    ),
-    path( # /api/organizations/<int:pk>
-        '<int:pk>',
-        api_views.OrganizationRetrieveAPIView.as_view(),
-        name='organization-detail'
-    ),
+# OrganizationNAPViewSet before OrganizationViewSet, to prevent 404
+router.register('nap', api_viewsets.OrganizationNAPViewSet)
+router.register('', api_viewsets.OrganizationViewSet)
+
+
+urlpatterns = router.urls
+
+urlpatterns += [
+
     path( # /api/organizations/<int:pk>/balance
         '<int:pk>/balance',
         api_views.OrganizationBalanceAPIView.as_view(),

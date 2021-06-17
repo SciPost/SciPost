@@ -8,6 +8,7 @@ from django.urls import include, path
 from rest_framework import routers
 
 from journals.viewsets import PublicationViewSet
+from organizations.api.viewsets import OrganizationViewSet, OrganizationNAPViewSet
 from submissions.viewsets import SubmissionViewSet
 
 # Next two: old style, to be deprecated:
@@ -21,7 +22,14 @@ app_name = 'api'
 
 router = routers.SimpleRouter()
 
+# journals
 router.register('publications', PublicationViewSet)
+
+# organizations
+router.register('organizations', OrganizationViewSet)
+router.register('nap/organizations', OrganizationNAPViewSet)
+
+# submissions
 router.register('submissions', SubmissionViewSet)
 
 # Next two: old style, to be deprecated:
