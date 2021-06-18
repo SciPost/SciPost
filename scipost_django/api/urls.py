@@ -27,7 +27,7 @@ router.register('publications', PublicationViewSet)
 
 # organizations
 router.register('organizations', OrganizationViewSet)
-router.register('nap/organizations', OrganizationNAPViewSet)
+router.register('nap', OrganizationNAPViewSet)
 
 # submissions
 router.register('submissions', SubmissionViewSet)
@@ -49,6 +49,5 @@ urlpatterns += [
     ),
     path('finances/', include('finances.api.urls')),
     path('journals/', include('journals.api.urls')),
-    path('organizations/', include('organizations.api.urls')),
 
 ]

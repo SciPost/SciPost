@@ -16,7 +16,12 @@ from rest_framework_csv import renderers as r
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
 from ..models import Organization
-from .serializers import OrganizationSerializer, OrganizationNAPSerializer
+from journals.api.serializers import OrgPubFractionSerializer
+from .serializers import (
+    OrganizationSerializer,
+    OrganizationNAPSerializer,
+    OrganizationBalanceSerializer
+)
 
 
 class OrganizationFilterSet(df_filters.FilterSet):
@@ -44,6 +49,21 @@ class OrganizationViewSet(FilteringOptionsActionMixin,
         'name_original__icontains',
         'acronym__icontains'
     ]
+
+    @action(detail=True)
+    def pubfractions(self, request, pk=None):
+        pubfractions = self.get_object().pubfractions.all()
+        serializer = OrgPubFractionSerializer(
+            pubfractions,
+            many=True,
+            context={'request': self.request}
+        )
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def balance(self, request, pk=None):
+        serializer = OrganizationBalanceSerializer(self.get_object())
+        return Response(serializer.data)
 
 
 class OrganizationNAPViewSet(OrganizationViewSet):

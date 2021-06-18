@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from rest_framework import serializers
 
+from organizations.api.serializers import OrganizationSerializer
 from ..models import Publication, OrgPubFraction
 
 
@@ -54,6 +55,7 @@ class OrgPubFractionSerializer(serializers.ModelSerializer):
 
     Takes optional `fields` argument specifying which fields should be displayed.
     """
+    organization = OrganizationSerializer()
     publication = PublicationSerializer()
 
     class Meta:
