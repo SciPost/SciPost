@@ -356,7 +356,8 @@ export default {
     setup(props) {
 	const uId = ref(uniqueId())
 	const advancedSearchIsOn = ref(false)
-	const basicSearchQuery = toRef(props, 'initial_filter')
+	// const basicSearchQuery = toRef(props, 'initial_filter')
+	const basicSearchQuery = ref('')
 	const newQueryField = ref(null)
 	const allowedLookups = ref([])
 	const newQueryLookup = ref('')
@@ -459,6 +460,7 @@ export default {
 	const queryParameters = computed(() => {
 	    var parameters = `?limit=${perPage.value}&offset=${perPage.value * (currentPage.value - 1)}`
 	    if (!advancedSearchIsOn.value) { // basic search
+		if (!basicSearchQuery.value) basicSearchQuery.value = props.initial_filter
 		if (basicSearchQuery.value) parameters += '&search=' + basicSearchQuery.value
 	    }
 	    else {

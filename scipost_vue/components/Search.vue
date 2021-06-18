@@ -196,6 +196,7 @@
 	:object_type="'submission'"
 	:displayfields="[{ field: 'title', label: 'Title'}, { field: 'identifier', label: 'Identifier' }]"
 	:url="'submissions'"
+	:initial_filter="initialQuery"
 	>
       </searchable-objects-table>
     </div>
