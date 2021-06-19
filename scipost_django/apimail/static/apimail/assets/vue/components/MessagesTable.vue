@@ -370,10 +370,18 @@
       @row-clicked="onMessageRowClicked"
       >
       <template v-slot:table-busy>
-      	<div class="text-center text-primary my-2">
-      	  <b-spinner class="align-middle"></b-spinner>
-      	  <strong>Loading...</strong>
-      	</div>
+	<button
+	  class="btn btn-outline-primary"
+	  type="button" disabled
+	  >
+	  <span
+	    class="spinner-grow spinner-grow-sm"
+	    role="status"
+	    aria-hidden="true"
+	    >
+	  </span>
+	  Loading...
+	</button>
       </template>
       <template v-slot:head(tab)="row">
 	<span v-if="tabbedMessages.length > 0">

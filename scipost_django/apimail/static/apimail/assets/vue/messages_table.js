@@ -63,8 +63,6 @@ Vue.component('b-input-group-append', BInputGroupAppend)
 Vue.use(ModalPlugin)
 // Pagination
 Vue.component('b-pagination', BPagination)
-// Spinner
-Vue.component('b-spinner', BSpinner)
 // Tables
 Vue.use(TablePlugin)
 // Tabs

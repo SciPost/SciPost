@@ -16,6 +16,7 @@ module.exports = {
             "./scipost_django/scipost/static/scipost/assets/js/api.js",
 	],
 	apimail: [
+            "./scipost_django/scipost/static/scipost/assets/js/base.js",
             "./scipost_django/apimail/static/apimail/assets/vue/messages_table.js",
 	],
 	qr: [
