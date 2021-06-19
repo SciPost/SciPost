@@ -69,8 +69,7 @@ Vue.use(TablePlugin)
 Vue.use(TabsPlugin)
 // Toggle
 Vue.directive('b-toggle', VBToggle)
-// Tooltips
-Vue.directive('b-tooltip', VBTooltip)
+
 
 // Style
 //import 'bootstrap/dist/css/bootstrap.css';
