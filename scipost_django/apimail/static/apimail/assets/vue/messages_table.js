@@ -35,8 +35,6 @@ import {
     VBTooltip,
 } from 'bootstrap-vue';
 
-// Badges
-Vue.component('b-badge', BBadge)
 // Cards
 Vue.use(CardPlugin)
 // Collapse

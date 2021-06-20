@@ -237,14 +237,12 @@
       <div class="row mb-0">
 	<div class="col col-lg-6">
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
-	  <b-badge
-	    class="p-2"
-	    size="sm"
-	    variant="primary"
+	  <span
+	    class="badge bg-primary p-2"
 	    @click="refreshMessages"
 	    >
 	    Refresh now
-	  </b-badge>
+	  </span>
 	  <div v-if="loadError">
 	    <small class="bg-danger text-white mx-2 my-1 p-1">
 	      A network problem occurred on {{ lastFetched }}
@@ -471,7 +469,7 @@ col-lg-4">
       </template>
       <template v-slot:cell(read)="row">
 	<span v-if="!row.item.read">
-	  <b-badge variant="primary">&emsp;</b-badge>
+	  <span class="badge bg-primary">&emsp;</span>
 	</span>
       </template>
       <template v-slot:cell(tags)="row">
