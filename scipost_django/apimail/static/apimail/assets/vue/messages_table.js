@@ -7,8 +7,6 @@ import {
     BInputGroup, BInputGroupAppend,
     // Pagination,
     BPagination,
-    // Tabs
-    TabsPlugin,
     // Tables
     TablePlugin,
 } from 'bootstrap-vue';
@@ -28,8 +26,6 @@ Vue.component('b-input-group-append', BInputGroupAppend)
 Vue.component('b-pagination', BPagination)
 // Tables
 Vue.use(TablePlugin)
-// Tabs
-Vue.use(TabsPlugin)
 
 
 // Style

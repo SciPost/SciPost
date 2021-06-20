@@ -535,31 +535,48 @@
       </div>
     </div>
 
-    <b-tabs
+    <ul
+      class="nav nav-tabs mt-4"
+      role="tablist"
       id="message-tabs"
-      v-model="tabIndex"
-      class="mt-4"
-      :key="tabsKey"
-      lazy
       >
-      <b-tab
+      <li
 	v-for="(message, index) in tabbedMessages"
-	:key="'tab-' + message.uuid"
+	class="nav-item"
+	role="presentation"
+	:key="'li-' + message.uuid"
 	>
-	<template v-slot:title>
+	<button
+	  class="nav-link"
+	  :class="tabIndex === index ? 'active' : ''"
+	  data-bs-toggle="tab"
+	  :data-bs-target="'#tab-' + message.uuid"
+	  type="button"
+	  role="tab"
+	  >
 	  {{ tabbedMessages.length - index }}
-	  <button
-	    v-if="!threadOf"
-	    type="button"
-	    class="btn btn-sm btn-light float-right ms-2 p-0"
-	    @click="closeTab(message.uuid)"
-	    >
-	    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-	      <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
-	    </svg>
-	  </button>
-	  <br>
-	</template>
+	</button>
+	<button
+	  v-if="!threadOf"
+	  type="button"
+	  class="btn btn-sm btn-light float-right ms-2 p-0"
+	  @click="closeTab(message.uuid)"
+	  >
+	  <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+	    <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+	  </svg>
+	</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      <div
+	v-for="(message, index) in tabbedMessages"
+	class="tab-pane fade"
+	:class="tabIndex === index ? 'show active' : ''"
+	:id="'tab-' + message.uuid"
+	role="tabpanel"
+	>
 	<div v-if="!threadOf">
 	  <button
 	    type="button"
@@ -575,8 +592,9 @@
 	  :accountSelected="accountSelected"
 	  class="m-2 mb-4">
 	</message-content>
-      </b-tab>
-    </b-tabs>
+      </div>
+    </div>
+
   </div>
 </div>
 </template>
@@ -656,7 +674,6 @@ export default {
 	    refreshMinutes: 1,
 	    refreshMinutesOptions: [ 1, 5, 15 ],
 	    tabIndex: 0,
-	    tabsKey: 0,
 	    tags: null,
 	    tagsRequired: [],
 	    resumeDraftModal: null
@@ -809,7 +826,6 @@ export default {
 	    	this.tabbedMessages.push(item)
 	    }
 	    this.tabIndex = this.indexInTabbedMessages(item.uuid)
-	    this.tabsKey = 1 - this.tabsKey // force re-render of b-tabs id="message-tabs"
 	},
 	focusOnThread (uuid) {
 	    this.threadOf = uuid
@@ -890,7 +906,6 @@ export default {
 	tabbedMessages: function () {
 	    if (this.threadOf) {
 		this.tabIndex = this.indexInTabbedMessages(this.threadOf)
-		this.tabsKey = 1 - this.tabsKey // force re-render of b-tabs id="message-tabs"
 	    }
 	},
 	refreshMinutes: function () {
