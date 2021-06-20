@@ -40,10 +40,6 @@ Vue.component('b-row', BRow)
 Vue.component('b-col', BCol)
 // Badges
 Vue.component('b-badge', BBadge)
-// Buttons
-Vue.component('b-button', BButton)
-Vue.component('b-button-toolbar', BButtonToolbar)
-Vue.component('b-button-group', BButtonGroup)
 // Cards
 Vue.use(CardPlugin)
 // Collapse
@@ -59,8 +55,6 @@ Vue.component('b-form-select', BFormSelect)
 // Input
 Vue.component('b-input-group', BInputGroup)
 Vue.component('b-input-group-append', BInputGroupAppend)
-// Modals
-Vue.use(ModalPlugin)
 // Pagination
 Vue.component('b-pagination', BPagination)
 // Tables

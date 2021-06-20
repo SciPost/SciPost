@@ -575,11 +575,13 @@ export default {
     },
     mounted () {
 	this.fetchCurrentAccounts()
-	if (this.accountSelected) {
+    },
+    watch: {
+	accountSelected: function () {
 	    this.form.from_account = this.accountSelected.pk
 	    this.form.headers_added['Reply-To'] = this.accountSelected.email
-	}
-	if (this.draftmessage) {
+	},
+	draftmessage: function () {
 	    this.currentdraft_uuid = this.draftmessage.uuid
 	    this.form.from_account = this.draftmessage.from_account
 	    this.form.to_recipient = this.draftmessage.to_recipient
@@ -588,8 +590,10 @@ export default {
 	    this.form.subject = this.draftmessage.subject
 	    this.form.body_html = this.draftmessage.body_html
 	    this.form.attachments = this.draftmessage.attachment_files
-	}
-      	else if (this.originalmessage) {
+
+	    this.editor.setContent(this.form.body_html)
+	},
+	originalmessage: function () {
       	    this.form.body_html = ('<br><br><blockquote>')
 	    this.form.headers_added['In-Reply-To'] = this.originalmessage.data['Message-Id']
 	    if (this.originalmessage.data['References']) {
@@ -605,17 +609,17 @@ export default {
 		this.form.cc_recipients = this.originalmessage.data.recipients.split(',')
 		this.form.subject = 'Re: ' + this.originalmessage.data.subject
 		this.form.body_html += ('<p>On ' + this.originalmessage.datetimestamp +
-				   ', ' + this.originalmessage.data.from +
-				   ' wrote:</p>')
+					', ' + this.originalmessage.data.from +
+					' wrote:</p>')
 	    }
 	    if (this.action == 'forward') {
 		this.form.subject = 'Fwd: ' + this.originalmessage.data.subject
 		this.form.body_html += ('<p>Begin forwarded message:' +
-				   '<br>From: ' + this.originalmessage.data.sender +
-				   '<br>Subject: ' + this.originalmessage.subject +
-				   '<br>Date: ' + this.originalmessage.datetimestamp +
-				   '<br>To: ' + this.originalmessage.data.To +
-				   '</p>')
+					'<br>From: ' + this.originalmessage.data.sender +
+					'<br>Subject: ' + this.originalmessage.subject +
+					'<br>Date: ' + this.originalmessage.datetimestamp +
+					'<br>To: ' + this.originalmessage.data.To +
+					'</p>')
 		this.form.attachments = this.originalmessage.attachment_files
 	    }
 	    if (this.originalmessage.data.hasOwnProperty("body-html")) {
@@ -625,14 +629,9 @@ export default {
 		this.form.body_html += (this.$sanitize(this.originalmessage.data["body-plain"]))
 	    }
 	    this.form.body_html += '</blockquote>'
-      	}
-	else {
-	    // Fill with a couple of blank lines to debug prosemirror
-	    this.form.body_html = '<br><br>'
-	}
-	this.editor.setContent(this.form.body_html)
-    },
-    watch: {
+
+	    this.editor.setContent(this.form.body_html)
+	},
 	"form.to_recipient": function () {
 	    this.emailValidationHasRun = false
 	    this.allEmailsValid = false

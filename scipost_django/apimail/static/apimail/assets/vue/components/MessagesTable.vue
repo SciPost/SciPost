@@ -2,84 +2,102 @@
 <template>
 <div>
   <div v-if="currentSendingAccesses && currentSendingAccesses.length > 0" class="mb-4">
-    <b-button-toolbar aria-label="apimail button toolbar">
-      <b-button-group class="mx-1">
-	<b-button
-	  v-b-modal.modal-newdraft
-	  variant="primary"
+    <div class="btn-toolbar" role="toolbar" aria-label="apimail button toolbar">
+      <div class="btn-group mx-1">
+	<button
+	  type="button"
+	  class="btn btn-primary"
+	  data-bs-toggle="modal"
+	  data-bs-target="#modal-newdraft"
 	  >
 	  New message
-	</b-button>
-      </b-button-group>
-      <b-button-group class="mx-1">
-	<b-button
-	  @click="showManageTagsModal"
-	  variant="primary"
+	</button>
+      </div>
+      <div class="btn-group mx-1">
+	<button
+	  type="button"
+	  class="btn btn-primary"
+	  data-bs-toggle="modal"
+	  data-bs-target="#modal-manage-tags"
 	  >
 	  Manage your tags
-	</b-button>
-      </b-button-group>
-    </b-button-toolbar>
-    <b-modal
+	</button>
+      </div>
+    </div>
+    <div
+      class="modal fade"
       id="modal-newdraft"
-      size="xl"
-      title="New message"
-      hide-header-close
-      no-close-on-escape
-      no-close-on-backdrop
       >
-      <message-composer
-	:accountSelected="accountSelected"
-	>
-      </message-composer>
-      <template v-slot:modal-header="{ close, }">
-	<h1>Compose a new email message</h1>
-	<b-button variant="danger" class="px-2 py-1" @click="close()">
-	  Discard/Close
-	</b-button>
-      </template>
-      <template v-slot:modal-footer="{ close, }">
-	<b-button variant="danger" class="px-2 py-1" @click="close()">
-	  Discard/Close
-	</b-button>
-      </template>
-    </b-modal>
+      <div class="modal-dialog modal-xl">
+	<div class="modal-content">
+	  <div class="modal-header">
+	    <h1 class="modal-title">
+	      Compose a new email message
+	    </h1>
+	    <button
+	      type="button"
+	      class="btn-close"
+	      data-bs-dismiss="modal"
+	      aria-label="Close">
+	    </button>
+	  </div>
+	  <div class="modal-body">
+	    <message-composer
+	      :accountSelected="accountSelected"
+	      >
+	    </message-composer>
+	  </div>
+	  <div class="modal-footer">
+	    <button
+	      type="button"
+	      class="btn btn-danger px-2 py-1"
+	      data-bs-dismiss="modal"
+	      >
+	      Discard/Close
+	    </button>
+	  </div>
+	</div>
+      </div>
+    </div>
   </div>
 
-  <b-modal
-    id="modal-resumedraft"
-    size="xl"
-    title="Rework draft"
-    hide-header-close
-    no-close-on-escape
-    no-close-on-backdrop
-    >
-    <message-composer :draftmessage="draftMessageSelected"></message-composer>
-    <template v-slot:modal-header="{ close, }">
-      <h1>Message draft</h1>
-      <b-button variant="danger" class="px-2 py-1" @click="close()">
-	Discard/Close
-      </b-button>
-    </template>
-    <template v-slot:modal-footer="{ close, }">
-      <b-button variant="danger" class="px-2 py-1" @click="close()">
-	Discard/Close
-      </b-button>
-    </template>
-  </b-modal>
-
-  <b-modal
+  <div
+    class="modal fade"
     id="modal-manage-tags"
-    title="Manage your Tags"
-    hide-header-close
     >
-    <tag-list-editable :tags="tags" @fetchtags="fetchTags"></tag-list-editable>
-    <template v-slot:modal-footer="{ close, }">
-      <b-button size="sm" variant="danger" @click="close()">
-	Done
-      </b-button>
-    </template>
-  </b-modal>
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+	<div class="modal-header">
+	  <h1 class="modal-title">
+	    Manage your Tags
+	  </h1>
+	  <button
+	    type="button"
+	    class="btn-close"
+	    data-bs-dismiss="modal"
+	    aria-label="Close">
+	  </button>
+	</div>
+	<div class="modal-body">
+	  <tag-list-editable
+	    :tags="tags"
+	    @fetchtags="fetchTags"
+	    >
+	  </tag-list-editable>
+	</div>
+	<div class="modal-footer">
+	  <button
+	    type="button"
+	    class="btn btn-danger px-2 py-1"
+	    data-bs-dismiss="modal"
+	    >
+	    Discard/Close
+	  </button>
+	</div>
+      </div>
+    </div>
+  </div>
+
 
 
   <div v-if="draftMessages && draftMessages.length > 0" class="m-2 mb-4">
@@ -94,31 +112,68 @@
       </tr>
       <tr
 	v-for="draftmsg in draftMessages"
+	:key="draftmsg.uuid"
 	>
 	<td>{{ draftmsg.from_email }}</td>
 	<td>{{ draftmsg.to_recipient }}</td>
 	<td>{{ draftmsg.subject }}</td>
 	<td>{{ draftmsg.status }}</td>
 	<td>
-	  <b-button
+	  <button
+	    type="button"
+	    class="btn btn-sm btn-warning"
 	    @click="showReworkDraftModal(draftmsg)"
-	    size="sm"
-	    class="text-white"
-	    variant="warning"
 	    >
 	    Rework draft
-	  </b-button>
-	  <b-button
+	  </button>
+	  <button
+	    type="button"
+	    class="btn btn-sm btn-danger"
 	    @click="deleteDraft(draftmsg.uuid)"
-	    size="sm"
-	    variant="danger"
 	    >
 	    Delete
-	  </b-button>
+	  </button>
 	</td>
       </tr>
     </table>
   </div>
+
+  <div
+    class="modal fade"
+    id="modal-resumedraft"
+    >
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+	<div class="modal-header">
+	  <h1 class="modal-title">
+	    Message draft
+	  </h1>
+	  <button
+	    type="button"
+	    class="btn-close"
+	    data-bs-dismiss="modal"
+	    aria-label="Close">
+	  </button>
+	</div>
+	<div class="modal-body">
+	  <message-composer
+	    :draftmessage="draftMessageSelected"
+	    >
+	  </message-composer>
+	</div>
+	<div class="modal-footer">
+	  <button
+	    type="button"
+	    class="btn btn-danger px-2 py-1"
+	    data-bs-dismiss="modal"
+	    >
+	    Discard/Close
+	  </button>
+	</div>
+      </div>
+    </div>
+  </div>
+
 
   <div v-if="queuedMessages && queuedMessages.length > 0" class="m-2 mb-4">
     <h2>Messages in sending queue</h2>
@@ -161,9 +216,9 @@
       </tr>
       <tr
 	v-for="access in accesses"
-	v-bind:class="{'highlight': isSelected(access.account.email)}"
-	v-on:click="accountSelected = access.account"
-	v-on:change=""
+	:class="{'highlight': isSelected(access.account.email)}"
+	@click="accountSelected = access.account"
+	@change=""
 	class="p-2 m-0"
 	>
 	<td>{{ access.account.name }}</td>
@@ -191,7 +246,9 @@
 	    Refresh now
 	  </b-badge>
 	  <div v-if="loadError">
-	    <small class="bg-danger text-white mx-2 my-1 p-1">A network problem occurred on {{ lastFetched }}</small>
+	    <small class="bg-danger text-white mx-2 my-1 p-1">
+	      A network problem occurred on {{ lastFetched }}
+	    </small>
 	  </div>
 	</b-col>
 	<b-col class="col-lg-6">
@@ -286,22 +343,28 @@
 	    >
 	    <b-form-checkbox-group>
 	      <b-form-checkbox v-model="tagsRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
-		<b-button size="sm" class="p-1" :style="'background-color: ' + tag.bg_color">
-		  <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
-		</b-button>
+		<button
+		  type="button"
+		  class="btn btn-sm p-1"
+		  :style="'background-color: ' + tag.bg_color"
+		  >
+		  <small :style="'color: ' + tag.text_color">
+		    {{ tag.label }}
+		  </small>
+		</button>
 	      </b-form-checkbox>
 	    </b-form-checkbox-group>
 	  </b-form-group>
 	</b-col>
 	<b-col class="col-lg-2">
-	  <b-button
-	    size="sm"
-	    class="pb-2"
-	    @click="showManageTagsModal"
-	    variant="primary"
+	  <button
+	    type="button"
+	    class="btn btn-sm btn-primary pb-2"
+	    data-bs-toggle="modal"
+	    data-bs-target="#modal-manage-tags"
 	    >
 	    <small>Manage your tags</small>
-	  </b-button>
+	  </button>
 	</b-col>
       </b-row>
       <hr class="hr-lightweight mt-1 mb-2">
@@ -318,7 +381,12 @@
 		>
 	      </b-form-input>
 	      <b-input-group-append>
-		<b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
+		<button
+		  :disabled="!filter"
+		  @click="filter = ''"
+		  >
+		  Clear
+		</button>
 	      </b-input-group-append>
 	    </b-input-group>
 	  </b-form-group>
@@ -349,9 +417,13 @@
       <b-row class="mt-2 p-2">
 	<b-col class="my-auto"><h2 class="my-0 px-2">Thread focusing is active</h2></b-col>
 	<b-col class="mx-auto">
-	  <b-button class="text-white float-right" variant="warning" @click="unfocusThread()">
+	  <button
+	    type="button"
+	    class="btn btn-warning text-white float-right"
+	    @click="unfocusThread()"
+	    >
 	    <strong>Turn off</strong>
-	  </b-button>
+	  </button>
 	</b-col>
       </b-row>
     </div>
@@ -404,13 +476,13 @@
       <template v-slot:cell(tags)="row">
 	<ul class="list-inline">
 	  <li class="list-inline-item m-0" v-for="tag in row.item.tags">
-	    <b-button
-	      size="sm"
-	      class="p-1"
+	    <button
+	      type="button"
+	      class="btn btn-sm p-1"
 	      :style="'background-color: ' + tag.bg_color"
 	      >
 	      <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
-	    </b-button>
+	    </button>
 	  </li>
 	</ul>
       </template>
@@ -419,7 +491,12 @@
       <b-row class="mb-0">
 	<b-col class="col-lg-4">
 	  <div class="text-center">
-	    <b-button size="sm" variant="info" class="p-2">{{ totalRows }} messages</b-button>
+	    <button
+	      type="button"
+	      class="btn btn-sm btn-info p-2"
+	      >
+	      {{ totalRows }} messages
+	    </button>
 	  </div>
 	</b-col>
 	<b-col class="col-lg-4">
@@ -464,17 +541,26 @@
 	>
 	<template v-slot:title>
 	  {{ tabbedMessages.length - index }}
-	  <b-button v-if="!threadOf" size="sm" variant="light" class="float-right ms-2 p-0" @click="closeTab(message.uuid)">
+	  <button
+	    v-if="!threadOf"
+	    type="button"
+	    class="btn btn-sm btn-light float-right ms-2 p-0"
+	    @click="closeTab(message.uuid)"
+	    >
 	    <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
 	      <path fill-rule="evenodd" d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
 	    </svg>
-	  </b-button>
+	  </button>
 	  <br>
 	</template>
 	<div v-if="!threadOf">
-	  <b-button class="m-2" size="sm" variant="primary" @click="focusOnThread(message.uuid)">
+	  <button
+	    type="button"
+	    class="btn btn-sm btn-primary m-2"
+	    @click="focusOnThread(message.uuid)"
+	    >
 	    Focus on this message's thread
-	  </b-button>
+	  </button>
 	</div>
 	<message-content
 	  :message="message"
@@ -490,6 +576,7 @@
 
 
 <script>
+import { Modal } from 'bootstrap'
 import Cookies from 'js-cookie'
 
 //import MessageContent from './MessageContent.vue'
@@ -565,6 +652,7 @@ export default {
 	    tabsKey: 0,
 	    tags: null,
 	    tagsRequired: [],
+	    resumeDraftModal: null
 	}
     },
     methods: {
@@ -598,12 +686,12 @@ export default {
 		.then(data => this.queuedMessages = data.results)
 		.catch(error => console.error(error))
 	},
-	showManageTagsModal () {
-	    this.$bvModal.show('modal-manage-tags')
-	},
+	// showManageTagsModal () {
+	//     this.$bvModal.show('modal-manage-tags')
+	// },
 	showReworkDraftModal (draftmsg) {
 	    this.draftMessageSelected = draftmsg
-	    this.$bvModal.show('modal-resumedraft')
+	    this.resumeDraftModal.show()
 	},
 	deleteDraft (uuid) {
 	    if (confirm("Are you sure you want to delete this draft?")) {
@@ -739,15 +827,20 @@ export default {
 	this.fetchTags()
 	this.fetchDrafts()
 	this.fetchQueued()
-	this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
-	    if (bvEvent.componentId === 'modal-newdraft' ||
-		bvEvent.componentId === 'modal-resumedraft' ||
-		bvEvent.componentId === 'modal-reply' ||
-		bvEvent.componentId === 'modal-forward') {
-		this.fetchDrafts()
-	    }
-	})
+
+	// To move to non-BootstrapVue JS
+	// this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
+	//     if (bvEvent.componentId === 'modal-newdraft' ||
+	// 	bvEvent.componentId === 'modal-resumedraft' ||
+	// 	bvEvent.componentId === 'modal-reply' ||
+	// 	bvEvent.componentId === 'modal-forward') {
+	// 	this.fetchDrafts()
+	//     }
+	// })
  	this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 60000)
+
+	this.resumeDraftModal = new Modal(document.getElementById('modal-resumedraft'))
+
     },
     beforeDestroy() {
     	clearInterval(this.refreshInterval)

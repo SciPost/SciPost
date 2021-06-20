@@ -4,18 +4,20 @@
   <table class="table">
     <tr v-for="tag in tags" class="mb-4">
       <td>
-	<b-button
-	  size="sm"
-	  class="p-1"
+	<button
+	  class="btn btn-sm p-1"
 	  :style="'background-color: ' + tag.bg_color"
 	  >
 	  <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
-	</b-button>
+	</button>
       </td>
       <td>
-	<b-button class="float-right bg-danger text-white px-1 py-0" @click.stop="deleteTag(tag.pk)">
+	<button
+	  class="float-right bg-danger text-white px-1 py-0"
+	  @click.stop="deleteTag(tag.pk)"
+	  >
 	  <small>Delete</small>
-	</b-button>
+	</button>
       </td>
     </tr>
   </table>
@@ -70,13 +72,12 @@
       </b-form-input>
     </b-form-group>
   </b-form>
-  <b-button
-    variant="success"
-    class="text-white"
+  <button
+    class="btn btn-success text-white"
     @click.stop.prevent="createNewTag"
     >
     Create new Tag
-  </b-button>
+  </button>
 </div>
 </template>
 

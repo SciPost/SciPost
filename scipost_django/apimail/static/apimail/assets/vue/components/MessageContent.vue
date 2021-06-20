@@ -10,104 +10,150 @@
 
       <ul class="list-inline m-2">
 	<li class="list-inline-item">
-	  <b-button
-	    v-b-modal="'modal-reply-' + message.uuid"
-	    variant="primary"
+	  <button
+	    type="button"
+	    class="btn btn-primary"
+	    data-bs-toggle="modal"
+	    :data-bs-target="'#modal-reply-' + message.uuid"
 	    >
 	    Reply
-	  </b-button>
-	  <b-modal
+	  </button>
+	  <div
+	    class="modal fade"
 	    :id="'modal-reply-' + message.uuid"
-	    size="xl"
-	    title="Reply"
-	    hide-header-close
-	    no-close-on-escape
-	    no-close-on-backdrop
 	    >
-	    <message-composer
-	      :originalmessage="message"
-	      action="reply"
-	      :accountSelected="accountSelected"
-	      ></message-composer>
-	    <template v-slot:modal-footer="{ close, }">
-	      <b-button size="sm" variant="danger" @click="close()">
-		Close
-	      </b-button>
-	    </template>
-	  </b-modal>
+	    <div class="modal-dialog modal-xl">
+	      <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title">
+		    Reply
+		  </h1>
+		  <button
+		    type="button"
+		    class="btn-close"
+		    data-bs-dismiss="modal"
+		    aria-label="Close">
+		  </button>
+		</div>
+		<div class="modal-body">
+		  <message-composer
+		    :originalmessage="message"
+		    action="reply"
+		    :accountSelected="accountSelected"
+		    ></message-composer>
+		</div>
+		<div class="modal-footer">
+		  <button
+		    type="button"
+		    class="btn btn-danger px-2 py-1"
+		    data-bs-dismiss="modal"
+		    >
+		    Discard/Close
+		  </button>
+		</div>
+	      </div>
+	    </div>
+	  </div>
 	</li>
 	<li class="list-inline-item">
-	  <b-button
-	    v-b-modal="'modal-forward-' + message.uuid"
-	    variant="dark"
-	    text-variant="white"
+	  <button
+	    type="button"
+	    class="btn btn-dark"
+	    data-bs-toggle="modal"
+	    :data-bs-target="'#modal-forward-' + message.uuid"
 	    >
 	    Forward
-	  </b-button>
-	  <b-modal
+	  </button>
+	  <div
+	    class="modal fade"
 	    :id="'modal-forward-' + message.uuid"
-	    size="xl"
-	    title="Forward"
-	    hide-header-close
-	    no-close-on-escape
-	    no-close-on-backdrop
 	    >
-	    <message-composer
-	      :originalmessage="message"
-	      action="forward"
-	      :accountSelected="accountSelected"
-	      ></message-composer>
-	    <template v-slot:modal-footer="{ close, }">
-	      <b-button variant="danger" @click="close()">
-		Close
-	      </b-button>
-	    </template>
-	  </b-modal>
+	    <div class="modal-dialog modal-xl">
+	      <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title">
+		    Forward
+		  </h1>
+		</div>
+		<div class="modal-body">
+		  <message-composer
+		    :originalmessage="message"
+		    action="forward"
+		    :accountSelected="accountSelected"
+		    ></message-composer>
+		</div>
+		<div class="modal-footer">
+		  <button
+		    type="button"
+		    class="btn btn-danger px-2 py-1"
+		    data-bs-dismiss="modal"
+		    >
+		    Close
+		  </button>
+		</div>
+	      </div>
+	    </div>
+	  </div>
 	</li>
 	<li class="list-inline-item float-right">
 	  <ul class="list-inline">
 	    <li class="list-inline-item m-0" v-for="tag in message.tags">
-	      <b-button
-		size="sm"
-		class="p-1"
+	      <button
+		type="button"
+		class="btn btn-sm p-1"
 		@click.shift="tagMessage(message, tag, 'remove')"
 		:style="'background-color: ' + tag.bg_color"
 		>
 		<small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
-	      </b-button>
+	      </button>
 	    </li>
 	    <li class="list-inline-item float-right mx-2">
-	      <b-button
-		size="sm"
-		v-b-modal="'modal-tags' + message.uuid"
-		variant="secondary"
+	      <button
+		type="button"
+		class="btn btn-sm btn-secondary"
+		data-bs-toggle="modal"
+		:data-bs-target="'#modal-tags' + message.uuid"
 		>
 		Add&nbsp;tag
-	      </b-button>
+	      </button>
 	      <br><small class="text-muted">Shift-click on tag to remove it</small>
-	      <b-modal
+	      <div
+		class="modal fade"
 		:id="'modal-tags' + message.uuid"
-		hide-header-close
 		>
-		Add tag(s):
-		<ul class="list-unstyled">
-		  <li v-for="tag in tags" class="m-1">
-		    <b-button
-		      size="sm"
-		      class="p-1"
-		      @click="tagMessage(message, tag, 'add')"
-		      :style="'background-color: ' + tag.bg_color"
-		      >
-		      <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
-		    </b-button>
-		  </li>
-		</ul>
-		<template v-slot:modal-footer="{ close, }">
-		  <b-button size="sm" variant="success" @click="close()">
-		    Done
-		  </b-button>
-		</template>
-	      </b-modal>
+		<div class="modal-dialog">
+		  <div class="modal-content">
+		    <div class="modal-header">
+		      <h1 class="modal-title">
+			Add tag(s):
+		      </h1>
+		    </div>
+		    <div class="modal-body">
+		      <ul class="list-unstyled">
+			<li v-for="tag in tags" class="m-1">
+			  <button
+			    type="button"
+			    class="btn btn-sm p-1"
+			    @click="tagMessage(message, tag, 'add')"
+			    :style="'background-color: ' + tag.bg_color"
+			    >
+			    <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
+			  </button>
+			</li>
+		      </ul>
+		    </div>
+		    <div class="modal-footer">
+		      <button
+			type="button"
+			class="btn btn-danger px-2 py-1"
+			data-bs-dismiss="modal"
+			>
+			Close
+		      </button>
+		    </div>
+		  </div>
+		</div>
+	      </div>
 	    </li>
 	  </ul>
 	</li>
@@ -125,32 +171,48 @@
 	    Recipients: {{ message.data.recipients }}
 	  </b-col>
 	  <b-col class="col-lg-2">
-	    <b-button
-	      v-b-modal="'message-events-modal' + message.uuid"
-	      variant="secondary"
+	    <button
+	      type="button"
+	      class="btn btn-secondary"
+	      data-bs-toggle="modal"
+	      :data-bs-target="'#message-events-modal' + message.uuid"
 	      >
 	      <small>View all events</small>
-	    </b-button>
-	    <b-modal
+	    </button>
+	    <div
+	      class="modal fade"
 	      :id="'message-events-modal' + message.uuid"
-	      centered
-	      hide-header-close
 	      >
-	      <ul class="list-unstyled">
-	    	<li v-for="event in message.event_set">
-	    	  <small>
-	    	    {{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
-	    	    <span v-if="event.data.recipient">&emsp;
-	    	      [{{ event.data.recipient }}]</span>
-	    	  </small>
-	    	</li>
-	      </ul>
-	      <template v-slot:modal-footer="{ close, }">
-		<b-button size="sm" variant="info" @click="close()">
-		  Close
-		</b-button>
-	      </template>
-	    </b-modal>
+	      <div class="modal-dialog">
+		<div class="modal-content">
+		  <div class="modal-header">
+		    <h1 class="modal-title">
+		      Events
+		    </h1>
+		  </div>
+		  <div class="modal-body">
+		    <ul class="list-unstyled">
+	    	      <li v-for="event in message.event_set">
+	    		<small>
+	    		  {{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
+	    		  <span v-if="event.data.recipient">&emsp;
+	    		    [{{ event.data.recipient }}]</span>
+	    		</small>
+	    	      </li>
+		    </ul>
+		  </div>
+		  <div class="modal-footer">
+		    <button
+		      type="button"
+		      class="btn btn-danger px-2 py-1"
+		      data-bs-dismiss="modal"
+		      >
+		      Close
+		    </button>
+		  </div>
+		</div>
+	      </div>
+	    </div>
 	  </b-col>
 	</b-row>
       </div>
@@ -169,12 +231,20 @@
 	    </li>
 	  </ul>
 	</div>
-	<b-button v-b-toggle="'message-json' + message.uuid" class="mt-2 px-2 py-0">
+	<button
+	  type="button"
+	  class="btn mt-2 px-2 py-0"
+	  data-bs-toggle="collapse"
+	  :data-bs-target="'#message-json' + message.uuid"
+	  >
 	  <small>View message JSON</small>
-	</b-button>
-	<b-collapse :id="'message-json' + message.uuid" class="m-2">
+	</button>
+	<div
+	  class="collapse m-2"
+	  :id="'message-json' + message.uuid"
+	  >
 	  {{ message }}
-	</b-collapse>
+	</div>
       </div>
     </template>
   </b-card>

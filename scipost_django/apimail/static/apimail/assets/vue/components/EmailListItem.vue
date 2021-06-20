@@ -1,9 +1,11 @@
 <template>
   <li>
     {{ email }}&emsp;
-    <b-button class="bg-danger px-1 py-0 text-white" size="sm" @click.stop="$emit('remove')">
+    <button
+      class="btn btn-sm btn-danger px-1 py-0"
+      @click.stop="$emit('remove')">
       X
-    </b-button>
+    </button>
   </li>
 </template>
 

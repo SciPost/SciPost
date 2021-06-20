@@ -8,13 +8,12 @@
 	>
       </b-form-file>
       <div v-if="newAttachment">
-	<b-button
-	  class="m-1 p-1"
-	  variant="secondary"
+	<button
+	  class="btn btn-secondary m-1 p-1"
 	  @click="addNewAttachment"
 	  >
 	  Upload this attachment and add it to your message
-	</b-button>
+	</button>
       </div>
     </b-col>
     <b-col class="col-lg-6">
