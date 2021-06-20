@@ -35,9 +35,6 @@ import {
     VBTooltip,
 } from 'bootstrap-vue';
 
-// Layout
-Vue.component('b-row', BRow)
-Vue.component('b-col', BCol)
 // Badges
 Vue.component('b-badge', BBadge)
 // Cards
@@ -61,8 +58,6 @@ Vue.component('b-pagination', BPagination)
 Vue.use(TablePlugin)
 // Tabs
 Vue.use(TabsPlugin)
-// Toggle
-Vue.directive('b-toggle', VBToggle)
 
 
 // Style

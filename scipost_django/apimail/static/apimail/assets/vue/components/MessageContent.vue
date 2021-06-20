@@ -160,8 +160,8 @@
       </ul>
       <hr>
       <div class="text-dark">
-	<b-row>
-	  <b-col class="col-lg-10">
+	<div class="row">
+	  <div class="col col-lg-10">
 	    On: {{ message.datetimestamp }}
 	    <br>
 	    Subject: <strong>{{ message.data.subject }}</strong>
@@ -169,8 +169,8 @@
 	    From: {{ message.data.from }}
 	    <br>
 	    Recipients: {{ message.data.recipients }}
-	  </b-col>
-	  <b-col class="col-lg-2">
+	  </div>
+	  <div class="col col-lg-2">
 	    <button
 	      type="button"
 	      class="btn btn-secondary"
@@ -213,8 +213,8 @@
 		</div>
 	      </div>
 	    </div>
-	  </b-col>
-	</b-row>
+	  </div>
+	</div>
       </div>
     </template>
     <b-card-text>

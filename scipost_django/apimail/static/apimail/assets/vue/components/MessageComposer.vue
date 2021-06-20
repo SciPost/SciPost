@@ -106,8 +106,8 @@
   </div>
   <hr>
   <b-form>
-    <b-row>
-      <b-col class="col-lg-6">
+    <div class="row">
+      <div class="col col-lg-6">
 	<b-form-group
 	  id="from_account"
 	  label="From:"
@@ -123,8 +123,8 @@
 	    >
 	  </b-form-select>
 	</b-form-group>
-      </b-col>
-      <b-col class="col-lg-6">
+      </div>
+      <div class="col col-lg-6">
 	<b-form-group
 	  id="to-recipient"
 	  label="To:"
@@ -135,26 +135,26 @@
 	  </ul>
 	  <select-from-address-book @selected="onToRecipientSelected"></select-from-address-book>
 	</b-form-group>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col class="col-lg-6">
+      </div>
+    </div>
+    <div class="row">
+      <div class="col col-lg-6">
 	<b-form-group
 	  id="cc"
 	  label="cc:"
 	  >
 	  <email-list-editable :emails="form.cc_recipients" keyword="cc"></email-list-editable>
 	</b-form-group>
-      </b-col>
-      <b-col class="col-lg-6">
+      </div>
+      <div class="col col-lg-6">
 	<b-form-group
 	  id="bcc"
 	  label="bcc:"
 	  >
 	  <email-list-editable :emails="form.bcc_recipients" keyword="bcc"></email-list-editable>
 	</b-form-group>
-      </b-col>
-    </b-row>
+      </div>
+    </div>
     <b-form-group
       id="attachments"
       label="Attachments:"

@@ -234,8 +234,8 @@
     <b-card bg-variant="light">
       <h2 class="text-center mb-2">Messages&nbsp;for&emsp;<strong>{{ accountSelected.email }}</strong></h2>
       <hr class="my-2">
-      <b-row class="mb-0">
-	<b-col class="col-lg-6">
+      <div class="row mb-0">
+	<div class="col col-lg-6">
 	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	  <b-badge
 	    class="p-2"
@@ -250,8 +250,8 @@
 	      A network problem occurred on {{ lastFetched }}
 	    </small>
 	  </div>
-	</b-col>
-	<b-col class="col-lg-6">
+	</div>
+	<div class="col col-lg-6">
 	  <b-form-group
 	    label="Refresh interval: "
 	    label-cols-sm="6"
@@ -269,14 +269,15 @@
 	      &nbsp;mins
 	    </b-form-radio-group>
 	  </b-form-group>
-	</b-col>
-      </b-row>
+	</div>
+      </div>
       <hr class="hr-lightweight mt-1 mb-2">
-      <b-row class="mb-0">
-	<b-col class="col-lg-1">
+      <div class="row mb-0">
+	<div class="col col-lg-1">
 	  <strong>Restrict:</strong>
-	</b-col>
-	<b-col class="col-lg-4">
+	</div>
+	<div class="col
+col-lg-4">
 	  <b-form-group
 	    label="Last: "
 	    label-cols-sm="3"
@@ -293,8 +294,8 @@
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
-	</b-col>
-	<b-col class="col-lg-4">
+	</div>
+	<div class="col col-lg-4">
 	  <b-form-group
 	    label="Status:"
 	    label-cols-sm="3"
@@ -311,8 +312,8 @@
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
-	</b-col>
-	<b-col class="col-lg-3">
+	</div>
+	<div class="col col-lg-3">
 	  <b-form-group
 	    label="Flow:"
 	    label-cols-sm="3"
@@ -329,14 +330,14 @@
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
-	</b-col>
-      </b-row>
+	</div>
+      </div>
       <hr class="hr-lightweight mt-1 mb-2">
-      <b-row class="mb-0">
-	<b-col class="col-lg-1">
+      <div class="row mb-0">
+	<div class="col col-lg-1">
 	  <strong>Tags:</strong>
-	</b-col>
-	<b-col class="col-lg-9">
+	</div>
+	<div class="col col-lg-9">
 	  <b-form-group
 	    label-align-sm="right"
 	    label-size="sm"
@@ -355,8 +356,8 @@
 	      </b-form-checkbox>
 	    </b-form-checkbox-group>
 	  </b-form-group>
-	</b-col>
-	<b-col class="col-lg-2">
+	</div>
+	<div class="col col-lg-2">
 	  <button
 	    type="button"
 	    class="btn btn-sm btn-primary pb-2"
@@ -365,11 +366,11 @@
 	    >
 	    <small>Manage your tags</small>
 	  </button>
-	</b-col>
-      </b-row>
+	</div>
+      </div>
       <hr class="hr-lightweight mt-1 mb-2">
-      <b-row class="mb-0">
-	<b-col class="col-lg-6">
+      <div class="row mb-0">
+	<div class="col col-lg-6">
 	  <b-form-group>
 	    <b-input-group size="sm">
 	      <b-form-input
@@ -390,8 +391,8 @@
 	      </b-input-group-append>
 	    </b-input-group>
 	  </b-form-group>
-	</b-col>
-	<b-col class="col-lg-6 mb-0">
+	</div>
+	<div class="col col-lg-6 mb-0">
 	  <b-form-group
             description="Leave all unchecked to filter on all fields"
 	    class="mb-0"
@@ -410,13 +411,13 @@
               <b-form-checkbox value="attachment">Attachments</b-form-checkbox>
             </b-form-checkbox-group>
 	  </b-form-group>
-	</b-col>
-      </b-row>
+	</div>
+      </div>
     </b-card>
     <div v-if="threadOf" class="bg-primary text-white">
-      <b-row class="mt-2 p-2">
-	<b-col class="my-auto"><h2 class="my-0 px-2">Thread focusing is active</h2></b-col>
-	<b-col class="mx-auto">
+      <div class="row mt-2 p-2">
+	<div class="col my-auto"><h2 class="my-0 px-2">Thread focusing is active</h2></div>
+	<div class="col mx-auto">
 	  <button
 	    type="button"
 	    class="btn btn-warning text-white float-right"
@@ -424,8 +425,8 @@
 	    >
 	    <strong>Turn off</strong>
 	  </button>
-	</b-col>
-      </b-row>
+	</div>
+      </div>
     </div>
     <b-table
       id="my-table"
@@ -488,8 +489,8 @@
       </template>
     </b-table>
     <b-card bg-variant="light" class="pb-0">
-      <b-row class="mb-0">
-	<b-col class="col-lg-4">
+      <div class="row mb-0">
+	<div class="col col-lg-4">
 	  <div class="text-center">
 	    <button
 	      type="button"
@@ -498,8 +499,8 @@
 	      {{ totalRows }} messages
 	    </button>
 	  </div>
-	</b-col>
-	<b-col class="col-lg-4">
+	</div>
+	<div class="col col-lg-4">
 	  <b-pagination
 	    v-model="currentPage"
 	    :total-rows="totalRows"
@@ -510,8 +511,8 @@
 	    aria-controls="my-table"
 	    >
 	  </b-pagination>
-	</b-col>
-	<b-col class="col-lg-4">
+	</div>
+	<div class="col col-lg-4">
 	  <b-form-group
 	    label="Per page:"
 	    label-cols-sm="3"
@@ -525,8 +526,8 @@
 	      >
 	    </b-form-radio-group>
 	  </b-form-group>
-	</b-col>
-      </b-row>
+	</div>
+      </div>
     </b-card>
     <b-tabs
       id="message-tabs"

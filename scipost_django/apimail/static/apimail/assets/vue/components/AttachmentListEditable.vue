@@ -1,6 +1,6 @@
 <template>
-  <b-row>
-    <b-col class="col-lg-6">
+  <div class="row">
+    <div class="col col-lg-6">
       <b-form-file
 	v-model="newAttachment"
 	placeholder="Select a file, or drop it here"
@@ -15,8 +15,8 @@
 	  Upload this attachment and add it to your message
 	</button>
       </div>
-    </b-col>
-    <b-col class="col-lg-6">
+    </div>
+    <div class="col col-lg-6">
       <div v-if="attachments.length > 0">
 	<h3>Current attachments to this message:</h3>
 	<ul>
@@ -30,8 +30,8 @@
 	  </li>
 	</ul>
       </div>
-    </b-col>
-  </b-row>
+    </div>
+  </div>
 </template>
 
 <script>
