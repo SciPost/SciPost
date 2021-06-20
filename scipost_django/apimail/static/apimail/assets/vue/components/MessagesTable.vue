@@ -231,187 +231,192 @@
   </div>
 
   <div v-if="accountSelected" :key="accountSelected.pk">
-    <b-card bg-variant="light">
-      <h2 class="text-center mb-2">Messages&nbsp;for&emsp;<strong>{{ accountSelected.email }}</strong></h2>
-      <hr class="my-2">
-      <div class="row mb-0">
-	<div class="col col-lg-6">
-	  <small class="p-2">Last loaded: {{ lastLoaded }}</small>
-	  <span
-	    class="badge bg-primary p-2"
-	    @click="refreshMessages"
-	    >
-	    Refresh now
-	  </span>
-	  <div v-if="loadError">
-	    <small class="bg-danger text-white mx-2 my-1 p-1">
-	      A network problem occurred on {{ lastFetched }}
-	    </small>
+    <div class="card text-dark bg-light">
+      <div class="card-header">
+	<h2 class="text-center mb-2">Messages&nbsp;for&emsp;<strong>{{ accountSelected.email }}</strong></h2>
+      </div>
+      <div class="card-body">
+	<div class="row mb-0">
+	  <div class="col col-lg-6">
+	    <small class="p-2">Last loaded: {{ lastLoaded }}</small>
+	    <span
+	      class="badge bg-primary p-2"
+	      @click="refreshMessages"
+	      >
+	      Refresh now
+	    </span>
+	    <div v-if="loadError">
+	      <small class="bg-danger text-white mx-2 my-1 p-1">
+		A network problem occurred on {{ lastFetched }}
+	      </small>
+	    </div>
+	  </div>
+	  <div class="col col-lg-6">
+	    <b-form-group
+	      label="Refresh interval: "
+	      label-cols-sm="6"
+	      label-align-sm="right"
+	      label-size="sm"
+	      >
+	      <b-form-radio-group
+		v-model="refreshMinutes"
+		buttons
+		button-variant="outline-primary"
+		size="sm"
+		:options="refreshMinutesOptions"
+		class="float-center"
+		>
+		&nbsp;mins
+	      </b-form-radio-group>
+	    </b-form-group>
 	  </div>
 	</div>
-	<div class="col col-lg-6">
-	  <b-form-group
-	    label="Refresh interval: "
-	    label-cols-sm="6"
-	    label-align-sm="right"
-	    label-size="sm"
-	    >
-	    <b-form-radio-group
-	      v-model="refreshMinutes"
-	      buttons
-	      button-variant="outline-primary"
-	      size="sm"
-	      :options="refreshMinutesOptions"
-	      class="float-center"
+	<hr class="hr-lightweight mt-1 mb-2">
+	<div class="row mb-0">
+	  <div class="col col-lg-1">
+	    <strong>Restrict:</strong>
+	  </div>
+	  <div class="col
+		      col-lg-4">
+	    <b-form-group
+	      label="Last: "
+	      label-cols-sm="3"
+	      label-align-sm="right"
+	      label-size="sm"
+	      class="mb-0"
 	      >
-	      &nbsp;mins
-	    </b-form-radio-group>
-	  </b-form-group>
-	</div>
-      </div>
-      <hr class="hr-lightweight mt-1 mb-2">
-      <div class="row mb-0">
-	<div class="col col-lg-1">
-	  <strong>Restrict:</strong>
-	</div>
-	<div class="col
-col-lg-4">
-	  <b-form-group
-	    label="Last: "
-	    label-cols-sm="3"
-	    label-align-sm="right"
-	    label-size="sm"
-	    class="mb-0"
-	    >
-	    <b-form-radio-group
-	      v-model="timePeriod"
-	      buttons
-	      button-variant="outline-primary"
-	      size="sm"
-	      :options="timePeriodOptions"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
-	</div>
-	<div class="col col-lg-4">
-	  <b-form-group
-	    label="Status:"
-	    label-cols-sm="3"
-	    label-align-sm="right"
-	    label-size="sm"
-	    class="mb-0"
-	    >
-	    <b-form-radio-group
-	      v-model="readStatus"
-	      buttons
-	      button-variant="outline-primary"
-	      size="sm"
-	      :options="readStatusOptions"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
-	</div>
-	<div class="col col-lg-3">
-	  <b-form-group
-	    label="Flow:"
-	    label-cols-sm="3"
-	    label-align-sm="right"
-	    label-size="sm"
-	    class="mb-0"
-	    >
-	    <b-form-radio-group
-	      v-model="flowDirection"
-	      buttons
-	      button-variant="outline-primary"
-	      size="sm"
-	      :options="flowDirectionOptions"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
-	</div>
-      </div>
-      <hr class="hr-lightweight mt-1 mb-2">
-      <div class="row mb-0">
-	<div class="col col-lg-1">
-	  <strong>Tags:</strong>
-	</div>
-	<div class="col col-lg-9">
-	  <b-form-group
-	    label-align-sm="right"
-	    label-size="sm"
-	    >
-	    <b-form-checkbox-group>
-	      <b-form-checkbox v-model="tagsRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
-		<button
-		  type="button"
-		  class="btn btn-sm p-1"
-		  :style="'background-color: ' + tag.bg_color"
-		  >
-		  <small :style="'color: ' + tag.text_color">
-		    {{ tag.label }}
-		  </small>
-		</button>
-	      </b-form-checkbox>
-	    </b-form-checkbox-group>
-	  </b-form-group>
-	</div>
-	<div class="col col-lg-2">
-	  <button
-	    type="button"
-	    class="btn btn-sm btn-primary pb-2"
-	    data-bs-toggle="modal"
-	    data-bs-target="#modal-manage-tags"
-	    >
-	    <small>Manage your tags</small>
-	  </button>
-	</div>
-      </div>
-      <hr class="hr-lightweight mt-1 mb-2">
-      <div class="row mb-0">
-	<div class="col col-lg-6">
-	  <b-form-group>
-	    <b-input-group size="sm">
-	      <b-form-input
-		v-model="filter"
-		debounce="250"
-		type="search"
-		id="filterInput"
-		placeholder="Type to filter"
+	      <b-form-radio-group
+		v-model="timePeriod"
+		buttons
+		button-variant="outline-primary"
+		size="sm"
+		:options="timePeriodOptions"
 		>
-	      </b-form-input>
-	      <b-input-group-append>
-		<button
-		  :disabled="!filter"
-		  @click="filter = ''"
-		  >
-		  Clear
-		</button>
-	      </b-input-group-append>
-	    </b-input-group>
-	  </b-form-group>
-	</div>
-	<div class="col col-lg-6 mb-0">
-	  <b-form-group
-            description="Leave all unchecked to filter on all fields"
-	    class="mb-0"
-	    >
-            <b-form-checkbox-group
-	      v-model="filterOn"
-	      buttons
-	      button-variant="outline-primary"
-	      class="mt-1 mb-0"
-	      size="sm"
+	      </b-form-radio-group>
+	    </b-form-group>
+	  </div>
+	  <div class="col col-lg-4">
+	    <b-form-group
+	      label="Status:"
+	      label-cols-sm="3"
+	      label-align-sm="right"
+	      label-size="sm"
+	      class="mb-0"
 	      >
-              <b-form-checkbox value="from">From</b-form-checkbox>
-              <b-form-checkbox value="recipients">Recipients</b-form-checkbox>
-              <b-form-checkbox value="subject">Subject</b-form-checkbox>
-              <b-form-checkbox value="body">Body</b-form-checkbox>
-              <b-form-checkbox value="attachment">Attachments</b-form-checkbox>
-            </b-form-checkbox-group>
-	  </b-form-group>
+	      <b-form-radio-group
+		v-model="readStatus"
+		buttons
+		button-variant="outline-primary"
+		size="sm"
+		:options="readStatusOptions"
+		>
+	      </b-form-radio-group>
+	    </b-form-group>
+	  </div>
+	  <div class="col col-lg-3">
+	    <b-form-group
+	      label="Flow:"
+	      label-cols-sm="3"
+	      label-align-sm="right"
+	      label-size="sm"
+	      class="mb-0"
+	      >
+	      <b-form-radio-group
+		v-model="flowDirection"
+		buttons
+		button-variant="outline-primary"
+		size="sm"
+		:options="flowDirectionOptions"
+		>
+	      </b-form-radio-group>
+	    </b-form-group>
+	  </div>
+	</div>
+	<hr class="hr-lightweight mt-1 mb-2">
+	<div class="row mb-0">
+	  <div class="col col-lg-1">
+	    <strong>Tags:</strong>
+	  </div>
+	  <div class="col col-lg-9">
+	    <b-form-group
+	      label-align-sm="right"
+	      label-size="sm"
+	      >
+	      <b-form-checkbox-group>
+		<b-form-checkbox v-model="tagsRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
+		  <button
+		    type="button"
+		    class="btn btn-sm p-1"
+		    :style="'background-color: ' + tag.bg_color"
+		    >
+		    <small :style="'color: ' + tag.text_color">
+		      {{ tag.label }}
+		    </small>
+		  </button>
+		</b-form-checkbox>
+	      </b-form-checkbox-group>
+	    </b-form-group>
+	  </div>
+	  <div class="col col-lg-2">
+	    <button
+	      type="button"
+	      class="btn btn-sm btn-primary pb-2"
+	      data-bs-toggle="modal"
+	      data-bs-target="#modal-manage-tags"
+	      >
+	      <small>Manage your tags</small>
+	    </button>
+	  </div>
+	</div>
+	<hr class="hr-lightweight mt-1 mb-2">
+	<div class="row mb-0">
+	  <div class="col col-lg-6">
+	    <b-form-group>
+	      <b-input-group size="sm">
+		<b-form-input
+		  v-model="filter"
+		  debounce="250"
+		  type="search"
+		  id="filterInput"
+		  placeholder="Type to filter"
+		  >
+		</b-form-input>
+		<b-input-group-append>
+		  <button
+		    :disabled="!filter"
+		    @click="filter = ''"
+		    >
+		    Clear
+		  </button>
+		</b-input-group-append>
+	      </b-input-group>
+	    </b-form-group>
+	  </div>
+	  <div class="col col-lg-6 mb-0">
+	    <b-form-group
+              description="Leave all unchecked to filter on all fields"
+	      class="mb-0"
+	      >
+              <b-form-checkbox-group
+		v-model="filterOn"
+		buttons
+		button-variant="outline-primary"
+		class="mt-1 mb-0"
+		size="sm"
+		>
+		<b-form-checkbox value="from">From</b-form-checkbox>
+		<b-form-checkbox value="recipients">Recipients</b-form-checkbox>
+		<b-form-checkbox value="subject">Subject</b-form-checkbox>
+		<b-form-checkbox value="body">Body</b-form-checkbox>
+		<b-form-checkbox value="attachment">Attachments</b-form-checkbox>
+              </b-form-checkbox-group>
+	    </b-form-group>
+	  </div>
 	</div>
       </div>
-    </b-card>
+    </div>
+
+
     <div v-if="threadOf" class="bg-primary text-white">
       <div class="row mt-2 p-2">
 	<div class="col my-auto"><h2 class="my-0 px-2">Thread focusing is active</h2></div>
@@ -486,47 +491,50 @@ col-lg-4">
 	</ul>
       </template>
     </b-table>
-    <b-card bg-variant="light" class="pb-0">
-      <div class="row mb-0">
-	<div class="col col-lg-4">
-	  <div class="text-center">
-	    <button
-	      type="button"
-	      class="btn btn-sm btn-info p-2"
+    <div class="card text-dark bg-light pb-0">
+      <div class="card-body">
+	<div class="row mb-0">
+	  <div class="col col-lg-4">
+	    <div class="text-center">
+	      <button
+		type="button"
+		class="btn btn-sm btn-info p-2"
+		>
+		{{ totalRows }} messages
+	      </button>
+	    </div>
+	  </div>
+	  <div class="col col-lg-4">
+	    <b-pagination
+	      v-model="currentPage"
+	      :total-rows="totalRows"
+	      :per-page="perPage"
+	      class="m-1"
+	      size="sm"
+	      align="center"
+	      aria-controls="my-table"
 	      >
-	      {{ totalRows }} messages
-	    </button>
+	    </b-pagination>
+	  </div>
+	  <div class="col col-lg-4">
+	    <b-form-group
+	      label="Per page:"
+	      label-cols-sm="3"
+	      label-align-sm="right"
+	      label-size="sm"
+	      >
+	      <b-form-radio-group
+		v-model="perPage"
+		:options="perPageOptions"
+		class="float-center"
+		>
+	      </b-form-radio-group>
+	    </b-form-group>
 	  </div>
 	</div>
-	<div class="col col-lg-4">
-	  <b-pagination
-	    v-model="currentPage"
-	    :total-rows="totalRows"
-	    :per-page="perPage"
-	    class="m-1"
-	    size="sm"
-	    align="center"
-	    aria-controls="my-table"
-	    >
-	  </b-pagination>
-	</div>
-	<div class="col col-lg-4">
-	  <b-form-group
-	    label="Per page:"
-	    label-cols-sm="3"
-	    label-align-sm="right"
-	    label-size="sm"
-	    >
-	    <b-form-radio-group
-	      v-model="perPage"
-	      :options="perPageOptions"
-	      class="float-center"
-	      >
-	    </b-form-radio-group>
-	  </b-form-group>
-	</div>
       </div>
-    </b-card>
+    </div>
+
     <b-tabs
       id="message-tabs"
       v-model="tabIndex"

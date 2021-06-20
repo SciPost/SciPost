@@ -1,44 +1,18 @@
 import Vue from 'vue';
 
-// import BootstrapVue from 'bootstrap-vue';
-// Vue.use(BootstrapVue);
-
-
 import {
-    // Layout
-    BRow, BCol,
-    // Badges
-    BBadge,
-    // Buttons
-    BButton, BButtonGroup, BButtonToolbar,
-    // Cards
-    CardPlugin,
-    // Collapse
-    BCollapse,
     // Forms
     FormPlugin, FormCheckboxPlugin, BFormFile, BFormGroup, BFormInput, FormRadioPlugin, BFormSelect,
     // Input
     BInputGroup, BInputGroupAppend,
-    // Modal
-    ModalPlugin,
     // Pagination,
     BPagination,
-    // Spinner
-    BSpinner,
     // Tabs
     TabsPlugin,
     // Tables
     TablePlugin,
-    // Toggle
-    VBToggle,
-    // Tooltips
-    VBTooltip,
 } from 'bootstrap-vue';
 
-// Cards
-Vue.use(CardPlugin)
-// Collapse
-Vue.component('b-collapse', BCollapse)
 // Forms
 Vue.use(FormPlugin)
 Vue.use(FormCheckboxPlugin)

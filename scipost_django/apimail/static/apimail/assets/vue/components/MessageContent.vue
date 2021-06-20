@@ -1,13 +1,7 @@
 <template>
 <div>
-  <b-card
-    border-variant="primary"
-    class="overflow-x-auto"
-    header-tag="header"
-    footer-tag="footer"
-    >
-    <template v-slot:header>
-
+  <div class="card border-primary overflow-x-auto">
+    <div class="card-header">
       <ul class="list-inline m-2">
 	<li class="list-inline-item">
 	  <button
@@ -158,69 +152,69 @@
 	  </ul>
 	</li>
       </ul>
-      <hr>
-      <div class="text-dark">
-	<div class="row">
-	  <div class="col col-lg-10">
-	    On: {{ message.datetimestamp }}
-	    <br>
-	    Subject: <strong>{{ message.data.subject }}</strong>
-	    <br>
-	    From: {{ message.data.from }}
-	    <br>
-	    Recipients: {{ message.data.recipients }}
-	  </div>
-	  <div class="col col-lg-2">
-	    <button
-	      type="button"
-	      class="btn btn-secondary"
-	      data-bs-toggle="modal"
-	      :data-bs-target="'#message-events-modal' + message.uuid"
-	      >
-	      <small>View all events</small>
-	    </button>
-	    <div
-	      class="modal fade"
-	      :id="'message-events-modal' + message.uuid"
-	      >
-	      <div class="modal-dialog">
-		<div class="modal-content">
-		  <div class="modal-header">
-		    <h1 class="modal-title">
-		      Events
-		    </h1>
-		  </div>
-		  <div class="modal-body">
-		    <ul class="list-unstyled">
-	    	      <li v-for="event in message.event_set">
-	    		<small>
-	    		  {{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
-	    		  <span v-if="event.data.recipient">&emsp;
-	    		    [{{ event.data.recipient }}]</span>
-	    		</small>
-	    	      </li>
-		    </ul>
-		  </div>
-		  <div class="modal-footer">
-		    <button
-		      type="button"
-		      class="btn btn-danger px-2 py-1"
-		      data-bs-dismiss="modal"
-		      >
-		      Close
-		    </button>
-		  </div>
+    </div>
+    <div class="card-body text-dark">
+      <div class="row">
+	<div class="col col-lg-10">
+	  On: {{ message.datetimestamp }}
+	  <br>
+	  Subject: <strong>{{ message.data.subject }}</strong>
+	  <br>
+	  From: {{ message.data.from }}
+	  <br>
+	  Recipients: {{ message.data.recipients }}
+	</div>
+	<div class="col col-lg-2">
+	  <button
+	    type="button"
+	    class="btn btn-secondary"
+	    data-bs-toggle="modal"
+	    :data-bs-target="'#message-events-modal' + message.uuid"
+	    >
+	    <small>View all events</small>
+	  </button>
+	  <div
+	    class="modal fade"
+	    :id="'message-events-modal' + message.uuid"
+	    >
+	    <div class="modal-dialog">
+	      <div class="modal-content">
+		<div class="modal-header">
+		  <h1 class="modal-title">
+		    Events
+		  </h1>
+		</div>
+		<div class="modal-body">
+		  <ul class="list-unstyled">
+	    	    <li v-for="event in message.event_set">
+	    	      <small>
+	    		{{ event.data.timestamp|toDatestring }}&emsp;{{ event.data.event }}
+	    		<span v-if="event.data.recipient">&emsp;
+	    		  [{{ event.data.recipient }}]</span>
+	    	      </small>
+	    	    </li>
+		  </ul>
+		</div>
+		<div class="modal-footer">
+		  <button
+		    type="button"
+		    class="btn btn-danger px-2 py-1"
+		    data-bs-dismiss="modal"
+		    >
+		    Close
+		  </button>
 		</div>
 	      </div>
 	    </div>
 	  </div>
 	</div>
       </div>
-    </template>
-    <b-card-text>
-      <span v-html="sanitized_html"></span>
-    </b-card-text>
-    <template v-slot:footer>
+      <div>
+	<span v-html="sanitized_html"></span>
+      </div>
+    </div>
+
+    <div class="card-footer">
       <div class="text-dark">
 	<div v-if="message.attachment_files.length > 0">
 	  <h3>Attachments:</h3>
@@ -246,8 +240,9 @@
 	  {{ message }}
 	</div>
       </div>
-    </template>
-  </b-card>
+    </div>
+
+  </div>
 </div>
 </template>
 
