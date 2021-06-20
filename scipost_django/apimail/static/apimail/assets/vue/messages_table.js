@@ -5,10 +5,6 @@ import {
     FormPlugin, FormCheckboxPlugin, BFormFile, BFormGroup, BFormInput, FormRadioPlugin, BFormSelect,
     // Input
     BInputGroup, BInputGroupAppend,
-    // Pagination,
-    BPagination,
-    // Tables
-    TablePlugin,
 } from 'bootstrap-vue';
 
 // Forms
@@ -22,10 +18,6 @@ Vue.component('b-form-select', BFormSelect)
 // Input
 Vue.component('b-input-group', BInputGroup)
 Vue.component('b-input-group-append', BInputGroupAppend)
-// Pagination
-Vue.component('b-pagination', BPagination)
-// Tables
-Vue.use(TablePlugin)
 
 
 // Style

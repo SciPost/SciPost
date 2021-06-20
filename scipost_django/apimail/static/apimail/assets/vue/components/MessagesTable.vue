@@ -202,11 +202,7 @@
       <h1 class="p-2 mb-0 text-center">Your email accounts</h1>
       <div class="text-center"><em>(click on a row to see messages)</em></div>
     </div>
-    <table
-      class="table mb-4"
-      selectable
-      select-mode="single"
-      >
+    <table class="table mb-4">
       <tr>
 	<th>Account</th>
 	<th>Address</th>
@@ -241,7 +237,7 @@
 	    <small class="p-2">Last loaded: {{ lastLoaded }}</small>
 	    <span
 	      class="badge bg-primary p-2"
-	      @click="refreshMessages"
+	      @click="fetchMessages"
 	      >
 	      Refresh now
 	    </span>
@@ -431,66 +427,58 @@
 	</div>
       </div>
     </div>
-    <b-table
-      id="my-table"
-      class="mb-0"
-      responsive
-      show-empty
-      :items="messagesProvider"
-      :fields="fields"
-      :filter="filter"
-      :filterIncludedFields="filterOn"
-      @filtered="onFiltered"
-      :per-page="perPage"
-      :current-page="currentPage"
-      @row-clicked="onMessageRowClicked"
-      >
-      <template v-slot:table-busy>
-	<button
-	  class="btn btn-outline-primary"
-	  type="button" disabled
+
+    <table class="table mb-0">
+      <thead>
+	<tr>
+	  <th v-if="tabbedMessages.length > 0" scope="col">
+	    Tab
+	  </th>
+	  <th scope="col"></th>
+	  <th scope="col">On</th>
+	  <th scope="col">Subject</th>
+	  <th scope="col">From</th>
+	  <th scope="col">Recipients</th>
+	  <th scope="col">Tags</th>
+	</tr>
+      </thead>
+      <tbody>
+	<tr
+	  v-for="message in messages"
+	  :key="message.uuid"
+	  @click="onMessageRowClicked(message)"
 	  >
-	  <span
-	    class="spinner-grow spinner-grow-sm"
-	    role="status"
-	    aria-hidden="true"
-	    >
-	  </span>
-	  Loading...
-	</button>
-      </template>
-      <template v-slot:head(tab)="row">
-	<span v-if="tabbedMessages.length > 0">
-	  Tab
-	</span>
-      </template>
-      <template v-slot:head(tags)="row">
-	Tags
-      </template>
-      <template v-slot:cell(tab)="row">
-	<span v-if="isInTabbedMessages(row.item.uuid)">
-	  {{ tabbedMessages.length - indexInTabbedMessages(row.item.uuid) }}
-	</span>
-      </template>
-      <template v-slot:cell(read)="row">
-	<span v-if="!row.item.read">
-	  <span class="badge bg-primary">&emsp;</span>
-	</span>
-      </template>
-      <template v-slot:cell(tags)="row">
-	<ul class="list-inline">
-	  <li class="list-inline-item m-0" v-for="tag in row.item.tags">
-	    <button
-	      type="button"
-	      class="btn btn-sm p-1"
-	      :style="'background-color: ' + tag.bg_color"
-	      >
-	      <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
-	    </button>
-	  </li>
-	</ul>
-      </template>
-    </b-table>
+	  <td v-if="tabbedMessages.length > 0">
+	    <span v-if="isInTabbedMessages(message.uuid)">
+	      {{ tabbedMessages.length - indexInTabbedMessages(message.uuid) }}
+	    </span>
+	  </td>
+	  <td>
+	    <span v-if="!message.read">
+	      <span class="badge bg-primary">&emsp;</span>
+	    </span>
+	  </td>
+	  <td>{{ message.datetimestamp }}</td>
+	  <td>{{ message.data.subject }}</td>
+	  <td>{{ message.data.from }}</td>
+	  <td>{{ message.data.recipients }}</td>
+	  <td>
+	    <ul class="list-inline">
+	      <li class="list-inline-item m-0" v-for="tag in message.tags">
+		<button
+		  type="button"
+		  class="btn btn-sm p-1"
+		  :style="'background-color: ' + tag.bg_color"
+		  >
+		  <small :style="'color: ' + tag.text_color">{{ tag.label }}</small>
+		</button>
+	      </li>
+	    </ul>
+	  </td>
+	</tr>
+      </tbody>
+    </table>
+
     <div class="card text-dark bg-light pb-0">
       <div class="card-body">
 	<div class="row mb-0">
@@ -505,16 +493,10 @@
 	    </div>
 	  </div>
 	  <div class="col col-lg-4">
-	    <b-pagination
+	    <b-form-input
 	      v-model="currentPage"
-	      :total-rows="totalRows"
-	      :per-page="perPage"
-	      class="m-1"
-	      size="sm"
-	      align="center"
-	      aria-controls="my-table"
 	      >
-	    </b-pagination>
+	    </b-form-input>
 	  </div>
 	  <div class="col col-lg-4">
 	    <b-form-group
@@ -631,6 +613,7 @@ export default {
 	    draftMessageSelected: null,
 	    queuedMessages: null,
 	    tabbedMessages: [],
+	    messages: [],
 	    perPage: 8,
 	    perPageOptions: [ 8, 16, 32 ],
 	    currentPage: 1,
@@ -638,15 +621,6 @@ export default {
 	    lastFetched: null,
 	    lastLoaded: null,
 	    loadError: false,
-	    fields: [
-		{ key: 'tab', label: '' },
-		{ key: 'read', label: '' },
-		{ key: 'datetimestamp', label: 'On' },
-		{ key: 'data.subject', label: 'Subject' },
-		{ key: 'data.from', label: 'From' },
-		{ key: 'data.recipients', label: 'Recipients' },
-		{ key: 'tags', },
-	    ],
 	    filter: null,
 	    filterOn: [],
 	    threadOf: null,
@@ -741,74 +715,60 @@ export default {
 	    }
 	    return false
 	},
-	messagesProvider (ctx) {
-	    if (!this.accountSelected) return []
-
-	    var params = '?account=' + this.accountSelected.email
-	    // Our API uses limit/offset pagination
-	    params += '&limit=' + ctx.perPage + '&offset=' + ctx.perPage * (ctx.currentPage - 1)
-	    if (this.threadOf) {
-		params += '&thread_of_uuid=' + this.threadOf
+	fetchMessages () {
+	    if (!this.accountSelected) {
+		this.messages = []
 	    }
-	    // Add flow direction
-	    if (this.flowDirection) {
-		params += '&flow=' + this.flowDirection
-	    }
-	    // Add search time period
-	    params += '&period=' + this.timePeriod
-	    if (this.readStatus !== null) {
-		params += '&read=' + this.readStatus
-	    }
-	    this.tagsRequired.forEach((tag) => {
-		params += '&tag=' + tag
-	    })
-	    // Add search query (if it exists)
-	    if (this.filter) {
-		var filterlist = ['from', 'recipients', 'subject', 'body', 'attachment']
-		if (this.filterOn.length > 0) {
-		    filterlist = this.filterOn
+	    else {
+		var params = '?account=' + this.accountSelected.email
+		// Our API uses limit/offset pagination
+		params += '&limit=' + this.perPage + '&offset=' + this.perPage * (this.currentPage - 1)
+		if (this.threadOf) {
+		    params += '&thread_of_uuid=' + this.threadOf
 		}
-
-		filterlist.forEach((filterfield) => {
-		    params += '&' + filterfield + '=' + this.filter
-		});
-	    }
-	    const promise = fetch('/mail/api/stored_messages' + params)
-
-	    var now = new Date()
-
-	    return promise.then(response => {
-		if (response.ok) {
-		    this.lastLoaded = now.toISOString()
-		    this.loadError = false
+		// Add flow direction
+		if (this.flowDirection) {
+		    params += '&flow=' + this.flowDirection
 		}
-		return response.json()
-	    })
-		.then(data => {
-		    const items = data.results
-		    this.totalRows = data.count
-		    if (this.threadOf) {
-			this.tabbedMessages = items
+		// Add search time period
+		params += '&period=' + this.timePeriod
+		if (this.readStatus !== null) {
+		    params += '&read=' + this.readStatus
+		}
+		this.tagsRequired.forEach((tag) => {
+		    params += '&tag=' + tag
+		})
+		// Add search query (if it exists)
+		if (this.filter) {
+		    var filterlist = ['from', 'recipients', 'subject', 'body', 'attachment']
+		    if (this.filterOn.length > 0) {
+			filterlist = this.filterOn
 		    }
-		    return items || []
-		})
-		.catch(error => {
-		    this.lastFetched = now.toISOString()
-		    this.loadError = true
-		    console.error(error)
-		})
-	},
-	refreshMessages () {
-	    this.messagesProvider({
-		'perPage': this.perPage,
-		'currentPage': this.currentPage
-	    })
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+
+		    filterlist.forEach((filterfield) => {
+			params += '&' + filterfield + '=' + this.filter
+		    });
+		}
+
+		var now = new Date()
+
+		fetch('/mail/api/stored_messages' + params)
+		    .then(stream => stream.json())
+		    .then(data => {
+			this.lastLoaded = now.toISOString()
+			this.loadError = false
+			this.messages = data.results
+			this.totalRows = data.results.length
+			if (this.threadOf) {
+			    this.tabbedMessages = this.messages
+			}
+		    }).catch(error => {
+			this.lastFetched = now.toISOString()
+			this.loadError = true
+			console.error(error)
+		    })
+	    }
 	    this.fetchQueued()
-	},
-	onFiltered(filteredItems) {
-            this.totalRows = filteredItems.length
-            this.currentPage = 1
 	},
 	indexInTabbedMessages (uuid) {
 	    for (let i = 0; i < this.tabbedMessages.length; i++) {
@@ -850,6 +810,7 @@ export default {
 	this.fetchTags()
 	this.fetchDrafts()
 	this.fetchQueued()
+	this.fetchMessages()
 
 	// To move to non-BootstrapVue JS
 	// this.$root.$on('bv::modal::hide', (bvEvent, modalId) => {
@@ -860,17 +821,19 @@ export default {
 	// 	this.fetchDrafts()
 	//     }
 	// })
- 	this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 60000)
+ 	this.fetchMessagesInterval = setInterval(this.fetchMessages, this.refreshMinutes * 60000)
 
 	this.resumeDraftModal = new Modal(document.getElementById('modal-resumedraft'))
 
     },
     beforeDestroy() {
     	clearInterval(this.refreshInterval)
+	clearInterval(this.fetchMessagesInterval)
     },
     watch: {
 	accountSelected: function () {
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+	    this.tabbedMessages = []
+	    this.fetchMessages()
 	},
 	threadOf: function () {
 	    if (this.threadOf == null) {
@@ -880,37 +843,43 @@ export default {
 		this.flowDirectionLastNotNull = this.flowDirection
 		this.flowDirection = null
 	    }
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+	    this.fetchMessages()
 	},
 	timePeriod: function () {
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+	    this.fetchMessages()
+	},
+	currentPage: function () {
+	    this.fetchMessages()
+	},
+	filter: function () {
+	    this.fetchMessages()
 	},
 	filterOn: function () {
-	    this.$root.$emit('bv::refresh::table', 'my-table')
-	},
-	readStatus: function () {
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+	    this.fetchMessages()
 	},
 	flowDirection: function () {
 	    if (this.flowDirection != null) {
 		this.flowDirectionLastNotNull = this.flowDirection
 	    }
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+	    this.fetchMessages()
 	},
-	tagsRequired: function () {
-	    this.$root.$emit('bv::refresh::table', 'my-table')
+	perPage: function () {
+	    this.fetchMessages()
 	},
-	accountSelected: function () {
-	    this.tabbedMessages = []
+	readStatus: function () {
+	    this.fetchMessages()
+	},
+	refreshMinutes: function () {
+	    clearInterval(this.fetchMessagesInterval)
+	    this.fetchMessagesInterval = setInterval(this.fetchMessages, this.refreshMinutes * 60000)
 	},
 	tabbedMessages: function () {
 	    if (this.threadOf) {
 		this.tabIndex = this.indexInTabbedMessages(this.threadOf)
 	    }
 	},
-	refreshMinutes: function () {
-	    clearInterval(this.refreshInterval)
-	    this.refreshInterval = setInterval(this.refreshMessages, this.refreshMinutes * 60000)
+	tagsRequired: function () {
+	    this.fetchMessages()
 	},
     }
 }

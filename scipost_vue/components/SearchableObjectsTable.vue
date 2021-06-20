@@ -82,10 +82,12 @@
 	  <h3 class="mb-2">Currently applied&nbsp;queries <small class="text-muted">(combined with <em>AND</em>)</small>:</h3>
 	  <table class="table">
 	    <thead>
-	      <th scope="col">Field</th>
-	      <th scope="col">Lookup</th>
-	      <th scope="col">Value</th>
-	      <th scope="col">Actions</th>
+	      <tr>
+		<th scope="col">Field</th>
+		<th scope="col">Lookup</th>
+		<th scope="col">Value</th>
+		<th scope="col">Actions</th>
+	      </tr>
 	    </thead>
 	    <tbody>
 	      <tr
