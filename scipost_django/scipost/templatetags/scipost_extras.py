@@ -67,19 +67,3 @@ def is_in_group(user, group_name):
 def associated_contributors(draft):
     return Contributor.objects.filter(
         user__last_name__icontains=draft.last_name).order_by('user__last_name')
-
-
-def is_modulo(counter, total, modulo):
-    q = max(1, int(total / modulo))
-    counter -= 1
-    return (counter % q) == (q - 1)
-
-
-@register.filter(name='is_modulo_one_half')
-def is_modulo_one_half(counter, total):
-    return is_modulo(counter, total, 2)
-
-
-@register.filter(name='is_modulo_one_third')
-def is_modulo_one_third(counter, total):
-    return is_modulo(counter, total, 3)
