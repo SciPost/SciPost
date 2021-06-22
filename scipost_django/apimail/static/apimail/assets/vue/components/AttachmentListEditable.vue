@@ -1,16 +1,21 @@
 <template>
   <div class="row">
     <div class="col col-lg-6">
-      <b-form-file
-	v-model="newAttachment"
-	placeholder="Select a file, or drop it here"
-	drop-placeholder="Drop file here"
-	>
-      </b-form-file>
+      <div class="mb-3">
+	<label for="newAttachmentInput" class="form-label">
+	  Select a file
+	</label>
+	<input
+	  class="form-control"
+	  type="file"
+	  id="newAttachmentInput"
+	  @change="chooseAttachment"
+	  >
+      </div>
       <div v-if="newAttachment">
 	<button
 	  class="btn btn-secondary m-1 p-1"
-	  @click="addNewAttachment"
+	  @click.prevent="addNewAttachment"
 	  >
 	  Upload this attachment and add it to your message
 	</button>
@@ -42,48 +47,52 @@ import AttachmentListItem from './AttachmentListItem.vue'
 var csrftoken = Cookies.get('csrftoken');
 
 export default {
-      name: "attachment-list-editable",
-      components: {
-	  AttachmentListItem,
-      },
-      props: {
-	  attachments: {
-	      type: Array,
-	      required: true,
-	  },
-      },
-      data () {
-	  return {
-	      newAttachment: null
-	  }
-      },
-      methods: {
-	  addNewAttachment () {
-	      if (this.newAttachment) {
-		  let formData = new FormData();
-		  formData.append('data', JSON.stringify({
-		      'size': this.newAttachment.size,
-		      'name': this.newAttachment.name,
-		      'content-type': this.newAttachment.type,
-		      'url': null
-		  }))
-		  formData.append('file', this.newAttachment)
-		  fetch('/mail/api/attachment_file/create',
-			{
-			    method: 'POST',
-			    headers: {
-				"X-CSRFToken": csrftoken,
-			    },
-			    body: formData
-			})
-		      .then(response => response.json())
-		      .then(data => {
-			  this.attachments.push(data)
-			  this.newAttachment = null
+    name: "attachment-list-editable",
+    components: {
+	AttachmentListItem,
+    },
+    props: {
+	attachments: {
+	    type: Array,
+	    required: true,
+	},
+    },
+    data () {
+	return {
+	    newAttachment: null
+	}
+    },
+    methods: {
+	chooseAttachment (event) {
+	    this.newAttachment = event.target.files[0]
+	},
+	addNewAttachment () {
+	    if (this.newAttachment) {
+		let formData = new FormData();
+		formData.append('data', JSON.stringify({
+		    'size': this.newAttachment.size,
+		    'name': this.newAttachment.name,
+		    'content-type': this.newAttachment.type,
+		    'url': null
+		}))
+		formData.append('file', this.newAttachment)
+		fetch('/mail/api/attachment_file/create',
+		      {
+			  method: 'POST',
+			  headers: {
+			      "X-CSRFToken": csrftoken,
+			  },
+			  body: formData
 		      })
-		      .catch(error => console.error(error))
-	      }
-	  }
+		    .then(response => response.json())
+		    .then(data => {
+			this.attachments.push(data)
+			document.getElementById('newAttachmentInput').value = null;
+			this.newAttachment = null
+		    })
+		    .catch(error => console.error(error))
+	    }
+	}
       },
   }
 
