@@ -34,44 +34,33 @@
       </ul>
     </div>
   </template>
-  <b-form
-    >
-    <b-form-group
-      id="label"
-      label="Label:"
-      label-for="input-label"
-      >
-      <b-form-input
-	id="input-label"
+  <form>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Label</span>
+      <input
+	type="text"
+	class="form-control"
 	v-model="newTagForm.label"
-	required
 	placeholder="Up to 16 characters"
 	>
-      </b-form-input>
-    </b-form-group>
-    <b-form-group
-      id="text-color"
-      label="Text color:"
-      label-for="input-text-color"
-      >
-      <b-form-input
-	id="input-text-color"
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Text color</span>
+      <input
+	type="color"
+	class="form-control"
 	v-model="newTagForm.textColor"
-	type="color">
-      </b-form-input>
-    </b-form-group>
-    <b-form-group
-      id="bg-color"
-      label="Background color:"
-      label-for="input-bg-color"
-      >
-      <b-form-input
-	id="input-bg-color"
+	>
+    </div>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Background color</span>
+      <input
+	type="color"
+	class="form-control"
 	v-model="newTagForm.bgColor"
-	type="color">
-      </b-form-input>
-    </b-form-group>
-  </b-form>
+	>
+    </div>
+  </form>
   <button
     class="btn btn-success text-white"
     @click.stop.prevent="createNewTag"

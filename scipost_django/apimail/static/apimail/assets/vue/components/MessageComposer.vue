@@ -71,32 +71,32 @@
       <span
 	class="my-1 p-1 bg-info"
 	>Add an email address to your address book</span>
-      <b-form
+      <form
 	@submit.prevent="addNewEmailToAddressBook(newEmail, newEmailDescription)"
 	>
-	<b-input-group>
-	  <b-form-input
-    	    v-model="newEmail"
-	    id="new-email-form"
-    	    type="email"
+	<div class="input-group input-group-sm">
+	  <input
+	    v-model="newEmail"
+	    type="text"
+	    class="form-control"
 	    placeholder="email"
-    	    size="sm"
-    	    >
-	  </b-form-input>
-	  <b-input-group-append>
-	    <button type="submit" class="btn btn-sm btn-primary">Add</button>
-	  </b-input-group-append>
-	</b-input-group>
-	<b-input-group>
-	  <b-form-input
-    	    v-model="newEmailDescription"
-	    id="new-email-description"
+	    >
+	  <button
+	    type="submit"
+	    class="btn btn-sm btn-primary"
+	    >
+	    Add
+	  </button>
+	</div>
+	<div class="input-group input-group-sm mb-3">
+	  <input
+	    v-model="newEmailDescription"
+	    type="text"
+	    class="form-control"
 	    placeholder="description (optional)"
-    	    size="sm"
-    	    >
-	  </b-form-input>
-	</b-input-group>
-      </b-form>
+	    >
+	</div>
+      </form>
       <div v-if="addNewEmailResponse">
 	<ul class="mb-0">
 	  <li>Added:&emsp;{{ addNewEmailResponse.address }}&emsp;<span v-if="addNewEmailResponse.can_send" class="text-success">Can send</span><span v-else><strong class="text-danger">Cannot send: {{ addNewEmailResponse.result }}</strong></span></li>
