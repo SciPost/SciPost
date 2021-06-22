@@ -248,84 +248,110 @@
 	    </div>
 	  </div>
 	  <div class="col col-lg-6">
-	    <b-form-group
-	      label="Refresh interval: "
-	      label-cols-sm="6"
-	      label-align-sm="right"
-	      label-size="sm"
-	      >
-	      <b-form-radio-group
-		v-model="refreshMinutes"
-		buttons
-		button-variant="outline-primary"
-		size="sm"
-		:options="refreshMinutesOptions"
-		class="float-center"
-		>
-		&nbsp;mins
-	      </b-form-radio-group>
-	    </b-form-group>
+	    <div class="row">
+	      <div class="col">
+		Refresh interval:
+	      </div>
+	      <div class="col">
+		<div
+		  v-for="refreshOption in refreshMinutesOptions"
+		  class="form-check form-check-inline"
+		  >
+		  <input
+		    class="form-check-input"
+		    type="radio"
+		    name="refreshMinutesRadio"
+		    v-model="refreshMinutes"
+		    :value="refreshOption"
+		    :id="'refreshOption' + refreshOption"
+		    >
+		  <label
+		    class="form-check-label"
+		    for="'refreshOption' + refreshOption"
+		    >
+		    {{ refreshOption }}
+		  </label>
+		</div>
+	      </div>
+	      <div class="col">
+		minutes
+	      </div>
+	    </div>
 	  </div>
 	</div>
 	<hr class="hr-lightweight mt-1 mb-2">
 	<div class="row mb-0">
-	  <div class="col col-lg-1">
-	    <strong>Restrict:</strong>
-	  </div>
-	  <div class="col
-		      col-lg-4">
-	    <b-form-group
-	      label="Last: "
-	      label-cols-sm="3"
-	      label-align-sm="right"
-	      label-size="sm"
-	      class="mb-0"
+	  <div class="col col-lg-4">
+	    <div>
+	      <strong>Last:</strong>
+	    </div>
+	    <div
+	      v-for="timePeriodOption in timePeriodOptions"
+	      class="form-check form-check-inline"
 	      >
-	      <b-form-radio-group
+	      <input
+		class="form-check-input"
+		type="radio"
+		name="timePeriodRadio"
 		v-model="timePeriod"
-		buttons
-		button-variant="outline-primary"
-		size="sm"
-		:options="timePeriodOptions"
+		:value="timePeriodOption.value"
+		:id="'timePeriodOption' + timePeriodOption.value"
 		>
-	      </b-form-radio-group>
-	    </b-form-group>
+	      <label
+		class="form-check-label"
+		for="'timePeriodOption' + timePeriodOption.value"
+		>
+		{{ timePeriodOption.text }}
+	      </label>
+	    </div>
 	  </div>
 	  <div class="col col-lg-4">
-	    <b-form-group
-	      label="Status:"
-	      label-cols-sm="3"
-	      label-align-sm="right"
-	      label-size="sm"
-	      class="mb-0"
+	    <div>
+	      <strong>Status:</strong>
+	    </div>
+	    <div
+	      v-for="readStatusOption in readStatusOptions"
+	      class="form-check form-check-inline"
 	      >
-	      <b-form-radio-group
+	      <input
+		class="form-check-input"
+		type="radio"
+		name="readStatusRadio"
 		v-model="readStatus"
-		buttons
-		button-variant="outline-primary"
-		size="sm"
-		:options="readStatusOptions"
+		:value="readStatusOption.value"
+		:id="'readStatusOption' + readStatusOption.value"
 		>
-	      </b-form-radio-group>
-	    </b-form-group>
+	      <label
+		class="form-check-label"
+		for="'readStatusOption' + readStatusOption.value"
+		>
+		{{ readStatusOption.text }}
+	      </label>
+	    </div>
 	  </div>
-	  <div class="col col-lg-3">
-	    <b-form-group
-	      label="Flow:"
-	      label-cols-sm="3"
-	      label-align-sm="right"
-	      label-size="sm"
-	      class="mb-0"
+	  <div class="col col-lg-4">
+	    <div>
+	      <strong>Flow:</strong>
+	    </div>
+	    <div
+	      v-for="flowDirectionOption in flowDirectionOptions"
+	      class="form-check form-check-inline"
 	      >
-	      <b-form-radio-group
+	      <input
+		class="form-check-input"
+		type="radio"
+		name="flowDirectionRadio"
 		v-model="flowDirection"
-		buttons
-		button-variant="outline-primary"
-		size="sm"
-		:options="flowDirectionOptions"
+		:value="flowDirectionOption.value"
+		:id="'flowDirectionOption' + flowDirectionOption.value"
 		>
-	      </b-form-radio-group>
-	    </b-form-group>
+	      <label
+		class="form-check-label"
+		for="'flowDirectionOption' + flowDirectionOption.value"
+		>
+		{{ flowDirectionOption.text }}
+	      </label>
+	    </div>
 	  </div>
 	</div>
 	<hr class="hr-lightweight mt-1 mb-2">
@@ -334,24 +360,27 @@
 	    <strong>Tags:</strong>
 	  </div>
 	  <div class="col col-lg-9">
-	    <b-form-group
-	      label-align-sm="right"
-	      label-size="sm"
+	    <div
+	      v-for="tag in tags"
+	      class="form-check form-check-inline"
 	      >
-	      <b-form-checkbox-group>
-		<b-form-checkbox v-model="tagsRequired" v-for="tag in tags" :value="tag.pk" :key="tag.pk">
-		  <button
-		    type="button"
-		    class="btn btn-sm p-1"
-		    :style="'background-color: ' + tag.bg_color"
-		    >
-		    <small :style="'color: ' + tag.text_color">
-		      {{ tag.label }}
-		    </small>
-		  </button>
-		</b-form-checkbox>
-	      </b-form-checkbox-group>
-	    </b-form-group>
+	      <input
+		class="form-check-input"
+		type="checkbox"
+		v-model="tagsRequired"
+		:value="tag.pk"
+		:key="tag.pk"
+		>
+	      <button
+		type="button"
+		class="btn btn-sm p-1"
+		:style="'background-color: ' + tag.bg_color"
+		>
+		<small :style="'color: ' + tag.text_color">
+		  {{ tag.label }}
+		</small>
+	      </button>
+	    </div>
 	  </div>
 	  <div class="col col-lg-2">
 	    <button
@@ -367,46 +396,43 @@
 	<hr class="hr-lightweight mt-1 mb-2">
 	<div class="row mb-0">
 	  <div class="col col-lg-6">
-	    <b-form-group>
-	      <b-input-group size="sm">
-		<b-form-input
-		  v-model="filter"
-		  debounce="250"
-		  type="search"
-		  id="filterInput"
-		  placeholder="Type to filter"
-		  >
-		</b-form-input>
-		<b-input-group-append>
-		  <button
-		    :disabled="!filter"
-		    @click="filter = ''"
-		    >
-		    Clear
-		  </button>
-		</b-input-group-append>
-	      </b-input-group>
-	    </b-form-group>
+	    <div class="input-group mb-3">
+	      <input
+		type="text"
+		class="form-control"
+		v-model="filter"
+		placeholder="Type to filter"
+		>
+	      <button
+		:disabled="!filter"
+		@click="filter = ''"
+		>
+		Clear
+	      </button>
+	    </div>
 	  </div>
 	  <div class="col col-lg-6 mb-0">
-	    <b-form-group
-              description="Leave all unchecked to filter on all fields"
-	      class="mb-0"
+	    <div
+	      v-for="filterOnOption in filterOnOptions"
+	      class="form-check form-check-inline"
 	      >
-              <b-form-checkbox-group
+	      <input
+		class="form-check-input"
+		type="checkbox"
 		v-model="filterOn"
-		buttons
-		button-variant="outline-primary"
-		class="mt-1 mb-0"
-		size="sm"
+		:value="filterOnOption.value"
+		id="'filterOnOption' + filterOnOption.value"
 		>
-		<b-form-checkbox value="from">From</b-form-checkbox>
-		<b-form-checkbox value="recipients">Recipients</b-form-checkbox>
-		<b-form-checkbox value="subject">Subject</b-form-checkbox>
-		<b-form-checkbox value="body">Body</b-form-checkbox>
-		<b-form-checkbox value="attachment">Attachments</b-form-checkbox>
-              </b-form-checkbox-group>
-	    </b-form-group>
+	      <label
+		class="form-check-label"
+		for="'filterOnOption' + filterOnOption.value"
+		>
+		{{ filterOnOption.text }}
+	      </label>
+	    </div>
+	    <div>
+	      Leave all unchecked to filter on all fields
+	    </div>
 	  </div>
 	</div>
       </div>
@@ -493,25 +519,38 @@
 	    </div>
 	  </div>
 	  <div class="col col-lg-4">
-	    <b-form-input
-	      v-model="currentPage"
-	      >
-	    </b-form-input>
+	    <div class="input-group mb-3">
+	      <span class="input-group-text">Page</span>
+	      <input
+		type="text"
+		class="form-control"
+		v-model="currentPage"
+		>
+	    </div>
 	  </div>
 	  <div class="col col-lg-4">
-	    <b-form-group
-	      label="Per page:"
-	      label-cols-sm="3"
-	      label-align-sm="right"
-	      label-size="sm"
+	    <div>
+	      <strong>Per page:</strong>
+	    </div>
+	    <div
+	      v-for="perPageOption in perPageOptions"
+	      class="form-check form-check-inline"
 	      >
-	      <b-form-radio-group
+	      <input
+		class="form-check-input"
+		type="radio"
+		name="perPageRadio"
 		v-model="perPage"
-		:options="perPageOptions"
-		class="float-center"
+		:value="perPageOption"
+		:id="'perPageOption' + perPageOption"
 		>
-	      </b-form-radio-group>
-	    </b-form-group>
+	      <label
+		class="form-check-label"
+		for="'perPageOption' + perPageOption"
+		>
+		{{ perPageOption }}
+	      </label>
+	    </div>
 	  </div>
 	</div>
       </div>
@@ -623,6 +662,13 @@ export default {
 	    loadError: false,
 	    filter: null,
 	    filterOn: [],
+	    filterOnOptions: [
+		{ text: 'From', value: 'from'},
+		{ text: 'Recipients', value: 'recipients'},
+		{ text: 'Subject', value: 'subject'},
+		{ text: 'Body', value: 'body'},
+		{ text: 'Attachment', value: 'attachment'},
+	    ],
 	    threadOf: null,
 	    timePeriod: 'any',
 	    timePeriodOptions: [

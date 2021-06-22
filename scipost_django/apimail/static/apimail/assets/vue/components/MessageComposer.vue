@@ -105,77 +105,72 @@
     </div>
   </div>
   <hr>
-  <b-form>
+  <form>
     <div class="row">
       <div class="col col-lg-6">
-	<b-form-group
-	  id="from_account"
-	  label="From:"
-	  label-for="input-from-account"
-	  >
-	  <b-form-select
-	    id="input-from-account"
+	<div class="input-group mb-3">
+	  <span class="input-group-text">From</span>
+	  <select
 	    v-model="form.from_account"
-	    :options="from_account_accesses"
-	    type="int"
-	    value-field="account.pk"
-	    text-field="account.email"
+	    class="form-select"
 	    >
-	  </b-form-select>
-	</b-form-group>
+	    <option
+	      v-for="access in from_account_accesses"
+	      :key="access.account.pk"
+	      :value="access.account.pk"
+	      >
+	      {{ access.account.email }}
+	    </option>
+	  </select>
+	</div>
       </div>
       <div class="col col-lg-6">
-	<b-form-group
-	  id="to-recipient"
-	  label="To:"
-	  label-for="input-to-recipient"
-	  >
+	<div class="input-group mb-3">
+	  <span class="input-group-text">To</span>
 	  <ul v-if="form.to_recipient">
 	    <li>{{ form.to_recipient }}</li>
 	  </ul>
-	  <select-from-address-book @selected="onToRecipientSelected"></select-from-address-book>
-	</b-form-group>
+	  <select-from-address-book
+	    @selected="onToRecipientSelected">
+	  </select-from-address-book>
+	</div>
       </div>
     </div>
     <div class="row">
       <div class="col col-lg-6">
-	<b-form-group
-	  id="cc"
-	  label="cc:"
-	  >
-	  <email-list-editable :emails="form.cc_recipients" keyword="cc"></email-list-editable>
-	</b-form-group>
+	<div class="input-group mb-3">
+	  <span class="input-group-text">CC</span>
+	  <email-list-editable
+	    :emails="form.cc_recipients"
+	    keyword="cc"
+	    >
+	  </email-list-editable>
+	</div>
       </div>
       <div class="col col-lg-6">
-	<b-form-group
-	  id="bcc"
-	  label="bcc:"
-	  >
-	  <email-list-editable :emails="form.bcc_recipients" keyword="bcc"></email-list-editable>
-	</b-form-group>
+	<div class="input-group mb-3">
+	  <span class="input-group-text">BCC</span>
+	  <email-list-editable
+	    :emails="form.bcc_recipients"
+	    keyword="bcc"
+	    >
+	  </email-list-editable>
+	</div>
       </div>
     </div>
-    <b-form-group
-      id="attachments"
-      label="Attachments:"
-      class="mb-4"
-      >
-      <attachment-list-editable
-	:attachments="form.attachments">
-      </attachment-list-editable>
-    </b-form-group>
-    <b-form-group
-      id="subject"
-      label="Subject:"
-      label-for="input-subject"
-      class="mb-4"
-      >
-      <b-form-input
-	id="input-subject"
+  </form>
+  <form>
+    <attachment-list-editable
+      :attachments="form.attachments">
+    </attachment-list-editable>
+    <div class="input-group mb-3">
+      <span class="input-group-text">Subject</span>
+      <input
+	type="text"
+	class="form-control"
 	v-model="form.subject"
 	>
-      </b-form-input>
-    </b-form-group>
+    </div>
 
     <editor-menu-bar :editor="editor" v-slot="{ commands, isActive }">
       <div class="menubar">
@@ -335,7 +330,7 @@
       </div>
     </editor-menu-bar>
     <editor-content class="editor__content m-1 p-1" :editor="editor" />
-  </b-form>
+  </form>
 </div>
 </template>
 
