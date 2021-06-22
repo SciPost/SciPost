@@ -1,30 +1,5 @@
 import Vue from 'vue';
 
-import {
-    // Forms
-    FormPlugin, FormCheckboxPlugin, BFormFile, BFormGroup, BFormInput, FormRadioPlugin, BFormSelect,
-    // Input
-    BInputGroup, BInputGroupAppend,
-} from 'bootstrap-vue';
-
-// Forms
-Vue.use(FormPlugin)
-Vue.use(FormCheckboxPlugin)
-Vue.component('b-form-file', BFormFile)
-Vue.component('b-form-group', BFormGroup)
-Vue.component('b-form-input', BFormInput)
-Vue.use(FormRadioPlugin)
-Vue.component('b-form-select', BFormSelect)
-// Input
-Vue.component('b-input-group', BInputGroup)
-Vue.component('b-input-group-append', BInputGroupAppend)
-
-
-// Style
-//import 'bootstrap/dist/css/bootstrap.css';
-import 'bootstrap-vue/dist/bootstrap-vue.css';
-
-
 import vSelect from 'vue-select'
 Vue.component('v-select', vSelect)
 import 'vue-select/dist/vue-select.css';
