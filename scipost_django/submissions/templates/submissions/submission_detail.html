@@ -1,6 +1,7 @@
 {% extends 'submissions/base.html' %}
 
 {% load scipost_extras %}
+{% load user_groups %}
 {% load submissions_extras %}
 {% load bootstrap %}
 {% load automarkup %}
@@ -24,6 +25,8 @@
 
 
 {% block content %}
+
+  {% is_ed_admin request.user as is_ed_admin %}
 
   <div class="row">
     {% if is_author_unchecked %}
@@ -151,7 +154,7 @@
 
   {% if is_author %}
     {% include 'submissions/_submission_author_information.html' with submission=submission %}
-  {% elif can_read_editorial_information %}
+  {% elif is_ed_admin or can_read_editorial_information %}
     {% include 'submissions/_submission_editorial_information.html' with submission=submission %}
   {% endif %}
 
