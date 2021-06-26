@@ -5,35 +5,35 @@
 {% block pagetitle %}: plagiarism report ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   <span class="breadcrumb-item">Plagiarism Report ({{ submission.preprint.identifier_w_vn_nr }})</span>
 {% endblock %}
 
 {% block content %}
-  <h1>Plagiarism Report for <a href="{{submission.get_absolute_url}}">{{submission.preprint.identifier_w_vn_nr}}</a></h1>
-  <h2>{{submission.title}}</h2>
-  <h3 class="mb-4">by {{submission.author_list}}</h3>
+  <h1>Plagiarism Report for <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h1>
+  <h2>{{  submission.title }}</h2>
+  <h3 class="mb-4">by {{ submission.author_list }}</h3>
   {% if submission.plagiarism_report %}
     <table>
       <tr>
         <td style="min-width: 150px;">iThenticate document</td>
-        <td>{{submission.plagiarism_report.doc_id}}</td>
+        <td>{{ submission.plagiarism_report.doc_id }}</td>
       </tr>
       <tr>
         <td>Percent match</td>
-        <td>{{submission.plagiarism_report.percent_match}}%</td>
+        <td>{{ submission.plagiarism_report.percent_match }}%</td>
       </tr>
       <tr>
         <td>Processed</td>
-        <td>{{submission.plagiarism_report.processed_time}}</td>
+        <td>{{ submission.plagiarism_report.processed_time }}</td>
       </tr>
       <tr>
         <td>Uploaded</td>
-        <td>{{submission.plagiarism_report.uploaded_time}}</td>
+        <td>{{ submission.plagiarism_report.uploaded_time }}</td>
       </tr>
       <tr>
         <td>Latest update</td>
-        <td>{{submission.plagiarism_report.latest_activity}}</td>
+        <td>{{ submission.plagiarism_report.latest_activity }}</td>
       </tr>
     </table>
   {% else %}
@@ -42,7 +42,7 @@
 
   <form method="post" class="mt-3" enctype="multipart/form-data">
     {% csrf_token %}
-    {{form|bootstrap}}
+    {{ form|bootstrap }}
     <input type="submit" class="btn btn-primary" value="{% if submission.plagiarism_report %}Update report status{% else %}Submit submission for plagiarism check{% endif %}">
     {% if submission.plagiarism_report %}
       <a href="{% url 'submissions:plagiarism_report' submission.preprint.identifier_w_vn_nr %}" class="ms-2 btn btn-default">Download report pdf</a>

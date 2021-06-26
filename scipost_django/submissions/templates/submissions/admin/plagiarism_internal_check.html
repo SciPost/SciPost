@@ -1,0 +1,72 @@
+{% extends 'submissions/admin/base.html' %}
+
+{% block pagetitle %}: plagiarism internal check ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <span class="breadcrumb-item"><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a></span>
+  <span class="breadcrumb-item">Plagiarism internal check ({{ submission.preprint.identifier_w_vn_nr }})</span>
+{% endblock %}
+
+{% block content %}
+  <h1>Plagiarism internal check for <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h1>
+  <h2>{{  submission.title }}</h2>
+  <h3 class="mb-4">by {{ submission.author_list }}</h3>
+
+  <h1 class="highlight">Submission matches</h1>
+  <table class="table">
+    <thead>
+      <tr>
+	<th>Submission</th>
+	<th>Title&nbsp;match&nbsp;&#37;</th>
+	<th>Authors&nbsp;match&nbsp;&#37;</th>
+	<th>Abstract&nbsp;match&nbsp;&#37;</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match in submission_matches %}
+	<tr>
+	  <td>
+	    {{ match.submission.preprint.identifier_w_vn_nr }}<br>
+	    <a href="{{ match.submission.get_absolute_url }}" target="_blank">{{ match.submission.title }}</a><br>
+	    {{ match.submission.author_list }}
+	  </td>
+	  <td>{{ match.ratio_title|floatformat:2 }}</td>
+	  <td>{{ match.ratio_authors|floatformat:2 }}</td>
+	  <td>{{ match.ratio_abstract|floatformat:2 }}</td>
+	</tr>
+      {% empty %}
+	<tr><td>No matching Submissions</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h1 class="highlight">Publication matches</h1>
+  <table class="table">
+    <thead>
+      <tr>
+	<th>Publication</th>
+	<th>Title&nbsp;match&nbsp;&#37;</th>
+	<th>Authors&nbsp;match&nbsp;&#37;</th>
+	<th>Abstract&nbsp;match&nbsp;&#37;</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for match in publication_matches %}
+	<tr>
+	  <td>
+	    {{ match.publication.doi_label }}<br>
+	    <a href="{{ match.publication.get_absolute_url }}" target="_blank">{{ match.publication.title }}</a><br>
+	    {{ match.publication.author_list }}
+	  </td>
+	  <td>{{ match.ratio_title|floatformat:2 }}</td>
+	  <td>{{ match.ratio_authors|floatformat:2 }}</td>
+	  <td>{{ match.ratio_abstract|floatformat:2 }}</td>
+	</tr>
+      {% empty %}
+	<tr><td>No matching Publications</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock content %}

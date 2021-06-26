@@ -68,7 +68,7 @@ class SubmissionFormViewMixin:
 class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin):
     """
     This mixin will provide all basic methods and checks required for Submission
-    administrational actions regarding Submissions.
+    administration actions regarding Submissions.
 
     :editorial_page: Submission is element of the set pool() if False,
                      else Submission is element of the subset: editorial_page()

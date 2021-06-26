@@ -75,6 +75,8 @@ urlpatterns = [
         views.PlagiarismView.as_view(), name='plagiarism'),
     url(r'^admin/{regex}/plagiarism/report$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
         views.PlagiarismReportPDFView.as_view(), name='plagiarism_report'),
+url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.PlagiarismInternalView.as_view(), name='plagiarism_internal'),
     url(
         r'^admin/{regex}/recommendation$'.format(
         regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationDetailView.as_view(),

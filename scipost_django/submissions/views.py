@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 import datetime
+from difflib import SequenceMatcher
 import feedparser
 import strings
 
@@ -63,7 +64,7 @@ from common.helpers import get_new_secrets_key
 from common.utils import workdays_between
 from invitations.constants import STATUS_SENT
 from invitations.models import RegistrationInvitation
-from journals.models import Journal
+from journals.models import Journal, Publication
 from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
 from ontology.models import Topic
@@ -2333,6 +2334,52 @@ class PlagiarismReportPDFView(SubmissionAdminViewMixin, SingleObjectMixin, Redir
         if not url:
             raise Http404
         return url
+
+
+class PlagiarismInternalView(
+        SubmissionAdminViewMixin, DetailView):
+    """
+    Check for matching title, author, abstract in Submissions and Publications.
+    """
+    permission_required = 'scipost.can_run_pre_screening'
+    template_name = 'submissions/admin/plagiarism_internal_check.html'
+    editorial_page = True
+    success_url = reverse_lazy('submissions:pool')
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        submission = self.get_object()
+
+        # Submissions:
+        submission_matches = []
+        for sub in Submission.objects.exclude(pk=submission.id):
+            ratio_title = SequenceMatcher(None, submission.title, sub.title).ratio()
+            ratio_authors = SequenceMatcher(None, submission.author_list, sub.author_list).ratio()
+            ratio_abstract = SequenceMatcher(None, submission.abstract, sub.abstract).ratio()
+            if (ratio_title >= 0.8 or ratio_abstract > 0.8):
+                submission_matches.append({
+                    'submission': sub,
+                    'ratio_title': ratio_title,
+                    'ratio_authors': ratio_authors,
+                    'ratio_abstract': ratio_abstract
+                })
+        context['submission_matches'] = submission_matches
+
+        # Publications:
+        publication_matches = []
+        for pub in Publication.objects.all():
+            ratio_title = SequenceMatcher(None, submission.title, pub.title).ratio()
+            ratio_authors = SequenceMatcher(None, submission.author_list, pub.author_list).ratio()
+            ratio_abstract = SequenceMatcher(None, submission.abstract, pub.abstract).ratio()
+            if (ratio_title >= 0.8 or ratio_abstract > 0.8):
+                publication_matches.append({
+                    'publication': pub,
+                    'ratio_title': ratio_title,
+                    'ratio_authors': ratio_authors,
+                    'ratio_abstract': ratio_abstract
+                })
+        context['publication_matches'] = publication_matches
+        return context
 
 
 ##############
