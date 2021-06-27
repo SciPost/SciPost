@@ -837,8 +837,8 @@ class SubmissionForm(forms.ModelForm):
         submission.fellows.set(fellows)
 
         if submission.proceedings:
-            # Add Guest Fellowships if the Submission is a Proceedings manuscript
-            guest_fellows = qs.guests().filter(
+            # Add (Regular or Guest) Fellowships if the Submission is a Proceedings manuscript
+            guest_fellows = qs.filter(
                 proceedings=submission.proceedings
             ).return_active_for_submission(submission)
             submission.fellows.add(*guest_fellows)
