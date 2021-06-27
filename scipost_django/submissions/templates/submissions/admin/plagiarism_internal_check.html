@@ -1,16 +1,17 @@
 {% extends 'submissions/admin/base.html' %}
 
-{% block pagetitle %}: plagiarism internal check ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
+{% block pagetitle %}: plagiarism (internal check) ({{ submission.preprint.identifier_w_vn_nr }}){% endblock pagetitle %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item"><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening {{ submission.preprint.identifier_w_vn_nr }}</a></span>
-  <span class="breadcrumb-item">Plagiarism internal check ({{ submission.preprint.identifier_w_vn_nr }})</span>
+  <span class="breadcrumb-item">Plagiarism (internal check) {{ submission.preprint.identifier_w_vn_nr }}</span>
 {% endblock %}
 
 {% block content %}
-  <h1>Plagiarism internal check for <a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h1>
-  <h2>{{  submission.title }}</h2>
+  <h1>Plagiarism (internal check)</h1>
+  <h2><a href="{{ submission.get_absolute_url }}">{{ submission.preprint.identifier_w_vn_nr }}</a></h2>
+  <h3>{{  submission.title }}</h3>
   <h3 class="mb-4">by {{ submission.author_list }}</h3>
 
   <h1 class="highlight">Submission matches</h1>

@@ -2344,7 +2344,6 @@ class PlagiarismInternalView(
     permission_required = 'scipost.can_run_pre_screening'
     template_name = 'submissions/admin/plagiarism_internal_check.html'
     editorial_page = True
-    success_url = reverse_lazy('submissions:pool')
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)

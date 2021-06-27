@@ -30,6 +30,7 @@
       <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this submission's Fellowship ({{ submission.fellows.count }} fellows)</a><br>
     </li>
     <li>
+      <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
       <a href="{% url 'submissions:plagiarism_internal' submission.preprint.identifier_w_vn_nr %}">Check internal plagiarism</a>
     </li>
     <li>
@@ -60,7 +61,7 @@
         </table>
       {% else %}
         {% include 'bi/square.html' %}
-        <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run plagiarism check</a>
+        <a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Run iThenticate plagiarism check</a>
       {% endif %}
     </li>
     <li>
