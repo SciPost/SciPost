@@ -3,3 +3,5 @@ __license__ = "AGPL v3"
 
 
 from .publication import PublicationSerializer
+
+from .pubfraction import PubFractionSerializer

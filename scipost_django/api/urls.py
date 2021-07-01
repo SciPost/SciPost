@@ -7,7 +7,7 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from journals.viewsets import PublicationViewSet
+from journals.viewsets import PublicationViewSet, PubFractionViewSet
 from organizations.api.viewsets import OrganizationViewSet, OrganizationNAPViewSet
 from submissions.viewsets import SubmissionViewSet
 
@@ -24,6 +24,7 @@ router = routers.SimpleRouter()
 
 # journals
 router.register('publications', PublicationViewSet)
+router.register('pubfractions', PubFractionViewSet)
 
 # organizations
 router.register('organizations', OrganizationViewSet)

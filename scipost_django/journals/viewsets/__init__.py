@@ -3,3 +3,4 @@ __license__ = "AGPL v3"
 
 
 from .publication import PublicationViewSet
+from .pubfraction import PubFractionViewSet
