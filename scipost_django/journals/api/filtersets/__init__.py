@@ -2,6 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from .publication import PublicationPublicFilterSet
+from .publication import PublicationPublicAPIFilterSet
 
-from .pubfraction import PubFractionPublicFilterSet
+from .pubfraction import PubFractionPublicAPIFilterSet

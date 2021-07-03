@@ -12,7 +12,7 @@ from api.viewsets.mixins import FilteringOptionsActionMixin
 from journals.models import OrgPubFraction
 from journals.api.serializers import PubFractionPublicSerializer
 
-from journals.api.filtersets import PubFractionPublicFilterSet
+from journals.api.filtersets import PubFractionPublicAPIFilterSet
 
 
 class PubFractionPublicAPIViewSet(
@@ -26,7 +26,7 @@ class PubFractionPublicAPIViewSet(
         'publication__publication_date__year'
     ]
     ordering_fields = ['-publication_date',]
-    filterset_class = PubFractionPublicFilterSet
+    filterset_class = PubFractionPublicAPIFilterSet
     default_filtering_fields = [
         'organization__name__icontains',
         'publication__publication_date__year__exact',

@@ -7,7 +7,7 @@ from django_filters import rest_framework as df_filters
 from journals.models import OrgPubFraction
 
 
-class PubFractionPublicFilterSet(df_filters.FilterSet):
+class PubFractionPublicAPIFilterSet(df_filters.FilterSet):
     class Meta:
         model = OrgPubFraction
         fields = {
