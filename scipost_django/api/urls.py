@@ -55,6 +55,4 @@ urlpatterns += [
         name='omniauth_userinfo'
     ),
     path('finances/', include('finances.api.urls')),
-    path('deprec/journals/', include('journals.api.urls')), # TODO remove
-
 ]

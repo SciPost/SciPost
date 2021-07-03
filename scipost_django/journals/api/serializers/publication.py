@@ -14,10 +14,10 @@ class PublicationPublicSerializer(DynamicFieldsModelSerializer):
     class Meta:
         model = Publication
         fields = [
+            'url',
             'title',
             'author_list',
             'abstract',
             'doi_label',
             'publication_date',
-            'url'
         ]
