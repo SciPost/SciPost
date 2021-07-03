@@ -6,11 +6,11 @@ from rest_framework import serializers
 
 from journals.models import OrgPubFraction
 from journals.api.serializers import PublicationPublicSerializer
-from organizations.api.serializers import OrganizationSerializer
+from organizations.api.serializers import OrganizationPublicSerializer
 
 
 class PubFractionPublicSerializer(serializers.ModelSerializer):
-    organization = OrganizationSerializer(
+    organization = OrganizationPublicSerializer(
         fields=['url', 'name', 'acronym', 'country']
     )
     publication = PublicationPublicSerializer(

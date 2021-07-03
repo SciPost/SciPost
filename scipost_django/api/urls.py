@@ -12,7 +12,7 @@ from journals.api.viewsets import (
     PubFractionPublicAPIViewSet
 )
 from organizations.api.viewsets import (
-    OrganizationViewSet,
+    OrganizationPublicAPIViewSet,
     OrganizationNAPViewSet
 )
 # The non-api viewsets below should be deprecated:
@@ -34,7 +34,7 @@ router.register('publications', PublicationPublicAPIViewSet)
 router.register('pubfractions', PubFractionPublicAPIViewSet)
 
 # organizations
-router.register('organizations', OrganizationViewSet)
+router.register('organizations', OrganizationPublicAPIViewSet)
 router.register('nap', OrganizationNAPViewSet)
 
 # submissions

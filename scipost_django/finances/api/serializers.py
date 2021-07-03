@@ -4,8 +4,6 @@ __license__ = "AGPL v3"
 
 from rest_framework import serializers
 
-from organizations.api.serializers import OrganizationSerializer
-
 from ..models import Subsidy
 
 

@@ -4,8 +4,6 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django_filters import rest_framework as df_filters
-
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -15,35 +13,25 @@ from rest_framework_csv import renderers as r
 
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
-from ..models import Organization
 from journals.api.serializers import PubFractionPublicSerializer
-from .serializers import (
-    OrganizationSerializer,
+from organizations.models import Organization
+from organizations.api.filtersets import OrganizationPublicAPIFilterSet
+from organizations.api.serializers import (
+    OrganizationPublicSerializer,
     OrganizationNAPSerializer,
     OrganizationBalanceSerializer
 )
 
 
-class OrganizationFilterSet(df_filters.FilterSet):
-    class Meta:
-        model = Organization
-        fields = {
-            'name': ['icontains',],
-            'name_original': ['icontains',],
-            'acronym': ['icontains',],
-            'country': ['exact',],
-            'cf_nr_associated_publications': ['gte', 'lte',]
-        }
-
-
-class OrganizationViewSet(FilteringOptionsActionMixin,
-                             viewsets.ReadOnlyModelViewSet):
+class OrganizationPublicAPIViewSet(
+        FilteringOptionsActionMixin,
+        viewsets.ReadOnlyModelViewSet):
     queryset = Organization.objects.all()
     permission_classes = [AllowAny,]
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.PaginatedCSVRenderer, )
-    serializer_class = OrganizationSerializer
+    serializer_class = OrganizationPublicSerializer
     search_fields = ['name', 'name_original', 'acronym',]
-    filterset_class = OrganizationFilterSet
+    filterset_class = OrganizationPublicAPIFilterSet
     default_filtering_fields = [
         'name__icontains',
         'name_original__icontains',
@@ -66,7 +54,7 @@ class OrganizationViewSet(FilteringOptionsActionMixin,
         return Response(serializer.data)
 
 
-class OrganizationNAPViewSet(OrganizationViewSet):
+class OrganizationNAPViewSet(OrganizationPublicAPIViewSet):
     serializer_class = OrganizationNAPSerializer
     ordering_fields = ['name', 'cf_nr_associated_publications']
 
