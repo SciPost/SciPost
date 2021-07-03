@@ -15,8 +15,7 @@ from organizations.api.viewsets import (
     OrganizationPublicAPIViewSet,
     OrganizationNAPViewSet
 )
-# The non-api viewsets below should be deprecated:
-from submissions.viewsets import SubmissionViewSet
+from submissions.api.viewsets import SubmissionPublicAPIViewSet
 
 # Next two: old style, to be deprecated:
 from conflicts.viewsets import ConflictOfInterestViewSet
@@ -38,7 +37,7 @@ router.register('organizations', OrganizationPublicAPIViewSet)
 router.register('nap', OrganizationNAPViewSet)
 
 # submissions
-router.register('submissions', SubmissionViewSet)
+router.register('submissions', SubmissionPublicAPIViewSet)
 
 # Next two: old style, to be deprecated:
 router.register(r'news', NewsItemViewSet)
