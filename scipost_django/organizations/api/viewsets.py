@@ -16,7 +16,7 @@ from rest_framework_csv import renderers as r
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
 from ..models import Organization
-from journals.api.serializers import OrgPubFractionSerializer
+from journals.api.serializers import PubFractionPublicSerializer
 from .serializers import (
     OrganizationSerializer,
     OrganizationNAPSerializer,
@@ -53,7 +53,7 @@ class OrganizationViewSet(FilteringOptionsActionMixin,
     @action(detail=True)
     def pubfractions(self, request, pk=None):
         pubfractions = self.get_object().pubfractions.all()
-        serializer = OrgPubFractionSerializer(
+        serializer = PubFractionPublicSerializer(
             pubfractions,
             many=True,
             context={'request': self.request}

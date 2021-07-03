@@ -7,8 +7,15 @@ from django.urls import include, path
 
 from rest_framework import routers
 
-from journals.viewsets import PublicationViewSet, PubFractionViewSet
-from organizations.api.viewsets import OrganizationViewSet, OrganizationNAPViewSet
+from journals.api.viewsets import (
+    PublicationPublicAPIViewSet,
+    PubFractionPublicAPIViewSet
+)
+from organizations.api.viewsets import (
+    OrganizationViewSet,
+    OrganizationNAPViewSet
+)
+# The non-api viewsets below should be deprecated:
 from submissions.viewsets import SubmissionViewSet
 
 # Next two: old style, to be deprecated:
@@ -23,8 +30,8 @@ app_name = 'api'
 router = routers.SimpleRouter()
 
 # journals
-router.register('publications', PublicationViewSet)
-router.register('pubfractions', PubFractionViewSet)
+router.register('publications', PublicationPublicAPIViewSet)
+router.register('pubfractions', PubFractionPublicAPIViewSet)
 
 # organizations
 router.register('organizations', OrganizationViewSet)
@@ -49,6 +56,6 @@ urlpatterns += [
         name='omniauth_userinfo'
     ),
     path('finances/', include('finances.api.urls')),
-    path('journals/', include('journals.api.urls')),
+    path('deprec/journals/', include('journals.api.urls')), # TODO remove
 
 ]

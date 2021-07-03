@@ -4,22 +4,12 @@ __license__ = "AGPL v3"
 
 from rest_framework import serializers
 
-from ..models import Publication
 
-
-class PublicationSerializer(serializers.ModelSerializer):
-    url = serializers.URLField(source='get_absolute_url')
-
-    class Meta:
-        model = Publication
-        fields = [
-            'title',
-            'author_list',
-            'abstract',
-            'doi_label',
-            'publication_date',
-            'url'
-        ]
+class DynamicFieldsModelSerializer(serializers.ModelSerializer):
+    """
+    A ModelSerializer that takes an additional `fields` argument that
+    controls which fields should be displayed (from DRF docs).
+    """
 
     def __init__(self, *args, **kwargs):
         # Don't pass the 'fields' arg up to the superclass

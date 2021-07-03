@@ -7,7 +7,7 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from django.db.models import Sum
 
 from ..models import Publication, OrgPubFraction
-from .serializers import PublicationSerializer, OrgPubFractionSerializer
+from .serializers_deprec import PublicationSerializer, OrgPubFractionSerializer
 
 
 class PublicationListAPIView(ListAPIView):
