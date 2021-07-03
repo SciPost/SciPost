@@ -2,11 +2,11 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django_filters import rest_framework as df_filters
+from django.db.models import Q
 
-from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
+from api.viewsets.base import ExtraFilteredReadOnlyModelViewSet
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
 from journals.models import Publication
@@ -17,7 +17,7 @@ from journals.api.serializers import PublicationPublicSerializer
 
 class PublicationPublicAPIViewSet(
         FilteringOptionsActionMixin,
-        viewsets.ReadOnlyModelViewSet):
+        ExtraFilteredReadOnlyModelViewSet):
     queryset = Publication.objects.published()
     permission_classes = [AllowAny,]
     serializer_class = PublicationPublicSerializer
@@ -26,6 +26,16 @@ class PublicationPublicAPIViewSet(
     search_fields = ['title', 'author_list', 'abstract', 'doi_label']
     ordering_fields = ['publication_date',]
     filterset_class = PublicationPublicAPIFilterSet
+    extra_filters = {
+        'journal__name': {
+            'fields': [
+                'in_journal__name',
+                'in_issue__in_journal__name',
+                'in_issue__in_volume__in_journal__name'
+            ],
+            'lookups': ['icontains', 'istartswith', 'iexact', 'exact'],
+        }
+    }
     default_filtering_fields = [
         'title__icontains',
         'author_list__icontains',

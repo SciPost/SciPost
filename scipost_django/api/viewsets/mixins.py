@@ -17,6 +17,11 @@ class FilteringOptionsActionMixin:
         """
         Translate the filterset base filters into list of filtering options.
         """
+        advanced_fields_dict = { **self.filterset_class.get_fields() }
+        if hasattr(self, 'extra_filters'):
+            for (label, queryspec) in self.extra_filters.items():
+                advanced_fields_dict[label] = queryspec['lookups']
+
         filtering_options = {
             'ordering': self.ordering_fields,
             'basic': [
@@ -27,7 +32,7 @@ class FilteringOptionsActionMixin:
                     'label': key.replace('__', '/').replace('_', ' ').title(),
                     'field': key,
                     'lookups': val
-                } for (key, val) in self.filterset_class.get_fields().items()
+                } for (key, val) in advanced_fields_dict.items()
             ]
         }
         return Response(filtering_options)
