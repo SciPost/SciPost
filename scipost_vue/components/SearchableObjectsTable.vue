@@ -340,10 +340,6 @@ export default {
 	    type: String,
 	    required: true
 	},
-        displayfields: {
-            type: Array,
-            required: true
-        },
         paginated: true,
         numbered: false,
         url: {
@@ -358,7 +354,6 @@ export default {
     setup(props) {
 	const uId = ref(uniqueId())
 	const advancedSearchIsOn = ref(false)
-	// const basicSearchQuery = toRef(props, 'initial_filter')
 	const basicSearchQuery = ref('')
 	const newQueryField = ref(null)
 	const allowedLookups = ref([])

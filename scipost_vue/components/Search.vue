@@ -134,37 +134,22 @@
     role="tablist"
     >
     <li
-      class="flex-sm-fill text-sm-center nav-item"
-      role="presentation"
-      >
-      <button
-	class="nav-link mx-auto active"
-	id="publications-tab"
-	data-bs-toggle="pill"
-	data-bs-target="#publications"
-	type="button"
-	role="tab"
-	aria-controls="publications"
-	aria-selected="true"
-	>
-	Publications
-      </button>
-    </li>
-    <li
+      v-for="(availableTab, index) in availableTabs"
       class="flex-sm-fill text-sm-center nav-item"
       role="presentation"
       >
       <button
 	class="nav-link mx-auto"
-	id="submissions-tab"
+	:class="index == 0 ? 'active' : ''"
+	:id="availableTab.label + '-tab'"
 	data-bs-toggle="pill"
-	data-bs-target="#submissions"
+	:data-bs-target="'#' + availableTab.label"
 	type="button"
 	role="tab"
-	aria-controls="submissions"
+	aria-controls="availableTab.label"
 	aria-selected="true"
 	>
-	Submissions
+	{{ availableTab.label }}
       </button>
     </li>
   </ul>
@@ -173,29 +158,16 @@
     class="tab-content"
     id="tabContent">
     <div
-      class="tab-pane fade show active"
-      id="publications"
+      v-for="(availableTab, index) in availableTabs"
+      class="tab-pane fade show"
+      :class="index == 0 ? 'active' : ''"
+      :id="availableTab.label"
       role="tabpanel"
-      aria-labelledby="publications-tab"
+      :aria-labelledby="availableTab.label + '-tab'"
       >
       <searchable-objects-table
-	:object_type="'publication'"
-	:displayfields="[{ field: 'doi_label', label: 'DOI label' }, { field: 'url', label: 'URL' }]"
-	:url="'publications'"
-	:initial_filter="initialQuery"
-	>
-      </searchable-objects-table>
-    </div>
-    <div
-      class="tab-pane fade"
-      id="submissions"
-      role="tabpanel"
-      aria-labelledby="submissions-tab"
-      >
-      <searchable-objects-table
-	:object_type="'submission'"
-	:displayfields="[{ field: 'title', label: 'Title'}, { field: 'identifier', label: 'Identifier' }]"
-	:url="'submissions'"
+	:object_type="availableTab.objectType"
+	:url="availableTab.url"
 	:initial_filter="initialQuery"
 	>
       </searchable-objects-table>
@@ -221,6 +193,20 @@ export default {
         },
     },
     setup(props, context) {
+	const availableTabs = ref(
+	    [
+		{
+		    objectType: 'publication',
+		    label: 'publications',
+		    url: 'publications'
+		},
+		{
+		    objectType: 'submission',
+		    label: 'submissions',
+		    url: 'submissions'
+		},
+	    ]
+	)
 	const initialQuery = ref('')
 
 	onMounted( () => {
@@ -230,6 +216,7 @@ export default {
 	onMounted(() => document.getElementById('header-search-close-btn').click())
 
 	return {
+	    availableTabs,
 	    initialQuery
 	}
     },
