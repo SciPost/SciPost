@@ -13,15 +13,16 @@ class ExtraFilteredReadOnlyModelViewSet(
         Filter queryset according to `extra_filterset_fields` attribute.
         """
         queryset = super().get_queryset()
-        for (label, queryspec) in self.extra_filters.items():
-            for lookup in queryspec['lookups']:
-                param = self.request.query_params.get(
-                    '%s__%s' % (label, lookup), None)
-                if param:
-                    query = Q()
-                    for field in queryspec['fields']:
-                        querydict = {}
-                        querydict['%s__%s' % (field, lookup)] = param
-                        query = query | Q(**querydict)
-                    queryset = queryset.filter(query)
+        if hasattr(self, 'extra_filters'):
+            for (label, queryspec) in self.extra_filters.items():
+                for lookup in queryspec['lookups']:
+                    param = self.request.query_params.get(
+                        '%s__%s' % (label, lookup), None)
+                    if param:
+                        query = Q()
+                        for field in queryspec['fields']:
+                            querydict = {}
+                            querydict['%s__%s' % (field, lookup)] = param
+                            query = query | Q(**querydict)
+                        queryset = queryset.filter(query)
         return queryset

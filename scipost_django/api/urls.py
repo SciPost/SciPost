@@ -7,20 +7,30 @@ from django.urls import include, path
 
 from rest_framework import routers
 
+# journals
 from journals.api.viewsets import (
     PublicationPublicAPIViewSet,
     PubFractionPublicAPIViewSet
 )
+
+# submissions
+from submissions.api.viewsets import SubmissionPublicAPIViewSet
+
+# organizations
 from organizations.api.viewsets import (
     OrganizationPublicAPIViewSet,
     OrganizationNAPViewSet
 )
-from submissions.api.viewsets import SubmissionPublicAPIViewSet
+
+# finances
+from finances.api.viewsets import SubsidyFinAdminAPIViewSet
+
 
 # Next two: old style, to be deprecated:
 from conflicts.viewsets import ConflictOfInterestViewSet
 from news.viewsets import NewsItemViewSet
 
+# Utilities
 from api.views.omniauth import OmniAuthUserInfoView
 import api.views.search as search_views
 
@@ -34,12 +44,15 @@ router = routers.SimpleRouter()
 router.register('publications', PublicationPublicAPIViewSet)
 router.register('pubfractions', PubFractionPublicAPIViewSet)
 
+# submissions
+router.register('submissions', SubmissionPublicAPIViewSet)
+
 # organizations
 router.register('organizations', OrganizationPublicAPIViewSet)
 router.register('nap', OrganizationNAPViewSet)
 
-# submissions
-router.register('submissions', SubmissionPublicAPIViewSet)
+# finances
+router.register('finadmin/subsidies', SubsidyFinAdminAPIViewSet)
 
 # Next two: old style, to be deprecated:
 router.register(r'news', NewsItemViewSet)
@@ -61,5 +74,4 @@ urlpatterns += [
         search_views.available_search_tabs,
         name='available_search_tabs'
     ),
-    path('finances/', include('finances.api.urls')),
 ]

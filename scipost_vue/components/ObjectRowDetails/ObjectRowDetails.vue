@@ -14,18 +14,26 @@
       >
     </submission-row-details>
   </div>
+  <div v-if="object_type == 'subsidy-finadmin'">
+    <subsidy-fin-admin-row-details
+      :subsidy="object"
+      >
+    </subsidy-fin-admin-row-details>
+  </div>
 </div>
 </template>
 
 <script>
 import PublicationRowDetails from './PublicationRowDetails.vue'
 import SubmissionRowDetails from './SubmissionRowDetails.vue'
+import SubsidyFinAdminRowDetails from './SubsidyFinAdminRowDetails.vue'
 
 export default {
     name: "object-row-details",
     components: {
         PublicationRowDetails,
-	SubmissionRowDetails
+	SubmissionRowDetails,
+	SubsidyFinAdminRowDetails
     },
     props: {
         object_type: {

@@ -141,12 +141,12 @@
       <button
 	class="nav-link mx-auto"
 	:class="index == 0 ? 'active' : ''"
-	:id="availableTab.label + '-tab'"
+	:id="availableTab.object_type + '-tab'"
 	data-bs-toggle="pill"
-	:data-bs-target="'#' + availableTab.label"
+	:data-bs-target="'#' + availableTab.object_type"
 	type="button"
 	role="tab"
-	aria-controls="availableTab.label"
+	aria-controls="availableTab.object_type"
 	aria-selected="true"
 	>
 	{{ availableTab.label }}
@@ -161,12 +161,12 @@
       v-for="(availableTab, index) in availableTabs"
       class="tab-pane fade show"
       :class="index == 0 ? 'active' : ''"
-      :id="availableTab.label"
+      :id="availableTab.object_type"
       role="tabpanel"
-      :aria-labelledby="availableTab.label + '-tab'"
+      :aria-labelledby="availableTab.object_type + '-tab'"
       >
       <searchable-objects-table
-	:object_type="availableTab.objectType"
+	:object_type="availableTab.object_type"
 	:url="availableTab.url"
 	:initial_filter="initialQuery"
 	>
