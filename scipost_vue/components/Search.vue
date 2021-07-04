@@ -177,6 +177,9 @@
 </template>
 
 <script>
+const headers = new Headers();
+headers.append('Accept', 'application/json; version=0')
+
 import { ref, onMounted } from '@vue/composition-api'
 
 import SearchableObjectsTable from './SearchableObjectsTable.vue'
@@ -193,23 +196,20 @@ export default {
         },
     },
     setup(props, context) {
-	const availableTabs = ref(
-	    [
-		{
-		    objectType: 'publication',
-		    label: 'publications',
-		    url: 'publications'
-		},
-		{
-		    objectType: 'submission',
-		    label: 'submissions',
-		    url: 'submissions'
-		},
-	    ]
-	)
+	const availableTabs = ref([])
 	const initialQuery = ref('')
 
+	const fetchAvailableTabs = async () => {
+	    fetch('/api/available_search_tabs/', {headers: headers})
+		.then(stream => stream.json())
+		.then(data => {
+		    availableTabs.value = data
+		})
+	    .catch(error => console.error(error))
+	}
+
 	onMounted( () => {
+	    fetchAvailableTabs()
 	    initialQuery.value = JSON.parse(document.getElementById('json_q').textContent)
 	})
 	// Close search form in header in case it is open

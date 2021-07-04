@@ -21,7 +21,9 @@ from submissions.api.viewsets import SubmissionPublicAPIViewSet
 from conflicts.viewsets import ConflictOfInterestViewSet
 from news.viewsets import NewsItemViewSet
 
-from . import views
+from api.views.omniauth import OmniAuthUserInfoView
+import api.views.search as search_views
+
 
 app_name = 'api'
 
@@ -51,8 +53,13 @@ urlpatterns += [
 
     path( # /api/omniauth/userinfo/, for SciPost as GitLab/OmniAuth authorization server
         'omniauth/userinfo/',
-        views.OmniAuthUserInfoView.as_view(),
+        OmniAuthUserInfoView.as_view(),
         name='omniauth_userinfo'
+    ),
+    path( # /api/available_search_tabs/
+        'available_search_tabs/',
+        search_views.available_search_tabs,
+        name='available_search_tabs'
     ),
     path('finances/', include('finances.api.urls')),
 ]
