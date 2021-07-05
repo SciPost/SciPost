@@ -371,7 +371,7 @@ export default {
 	const filteringFieldsAdvanced = ref([])
 
 	const fetchFilteringFields = async () => {
-            fetch(`/api/${props.url}/filtering_options`, {headers: headers})
+            fetch(`/api/${props.url}/filtering_options/`, {headers: headers})
                 .then(stream => stream.json())
                 .then(data => {
 		    filteringFieldsBasic.value = data.basic
@@ -486,7 +486,7 @@ export default {
 		fetchingObjects.value = true
 		errorFetchingObjects.value = null
 		try {
-		    const response = await fetch(`/api/${props.url}${queryParameters.value}`, {headers: headers})
+		    const response = await fetch(`/api/${props.url}/${queryParameters.value}`, {headers: headers})
 		    const json = await response.json()
 		    objects.value = json.results
 		    totalRows.value = json.count
