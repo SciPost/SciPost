@@ -88,7 +88,6 @@ class Forum(models.Model):
     @property
     def latest_post(self):
         id_list = self.posts_hierarchy_id_list()
-        print ('forum post id_list: %s' % id_list)
         try:
             return Post.objects.filter(id__in=id_list).order_by('-posted_on').first()
         except:
@@ -222,7 +221,6 @@ class Post(models.Model):
         id_list = [self.id]
         for post in self.followup_posts.all():
             id_list += post.posts_hierarchy_id_list()
-        print ('post %s id_list: %s' % (self.id, id_list))
         return id_list
 
     def get_anchor_forum_or_meeting(self):

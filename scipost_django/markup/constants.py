@@ -44,7 +44,10 @@ BLEACH_ALLOWED_TAGS = [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'hr', 'i', 'li', 'ol',
     'p', 'pre', 'strong', 'table', 'td', 'th', 'tr', 'ul'
 ]
-
+BLEACH_ALLOWED_ATTRIBUTES = {
+    '*': ['id'],
+    'a': ['href', 'rel'],
+}
 
 PlainTextSuggestedFormatting = (
     {

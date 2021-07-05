@@ -12,7 +12,7 @@ from django.template.defaultfilters import linebreaksbr
 from django.utils.encoding import force_text
 from django.utils.safestring import mark_safe
 
-from .constants import ReST_HEADER_REGEX_DICT, ReST_ROLES, ReST_DIRECTIVES, BLEACH_ALLOWED_TAGS
+from .constants import ReST_HEADER_REGEX_DICT, ReST_ROLES, ReST_DIRECTIVES, BLEACH_ALLOWED_TAGS, BLEACH_ALLOWED_ATTRIBUTES
 
 
 # Inline or displayed math
@@ -318,7 +318,11 @@ def apply_markdown_preserving_displayed_maths_bracket(text):
     part = text.partition(r'\[')
     part2 = part[2].partition(r'\]')
     return '%s%s%s%s%s' % (
-        markdown.markdown(part[0], output_format='html5'),
+        markdown.markdown(
+            part[0],
+            extensions=['attr_list'],
+            output_format='html5'
+        ),
         part[1],
         part2[0],
         part2[1],
@@ -400,7 +404,8 @@ def process_markup(text, language_forced=None, fallback=False):
         markup['processed'] = mark_safe(
             bleach.clean(
                 apply_markdown_preserving_displayed_maths(text),
-                tags=BLEACH_ALLOWED_TAGS
+                tags=BLEACH_ALLOWED_TAGS,
+                attributes=BLEACH_ALLOWED_ATTRIBUTES
             )
         )
 
