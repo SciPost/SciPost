@@ -321,7 +321,19 @@ which you need to cite [again][md] and [again][md] and [again][md].
 
 The reference will be resolved provided you define the link label somewhere in your text.
 
-[md]: https://daringfireball.net/projects/markdown/syntax""",},
+[md]: https://daringfireball.net/projects/markdown/syntax
+
+### In-text hyperlinks
+
+You can also give ids to elements, and then hyperlink to them. For example,
+the headline
+
+#### You haff to vork feery feeery haaaaart { #work-like-bethe }
+
+can be linked to as follows:
+
+[Work like Bethe](#work-like-bethe).
+""",},
 
     {
         'id': 'mathematics',
