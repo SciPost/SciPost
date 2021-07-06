@@ -1364,7 +1364,7 @@ class ReportForm(forms.ModelForm):
             'cols': 100
         })
 
-        self.fields['file_attachment'].label = 'File attachment (2MB limit; for a figure or similar - please avoid annotated pdfs with ballooned file size)'
+        self.fields['file_attachment'].label = 'File attachment (2MB limit; for a figure or similar - please avoid annotated pdfs)'
 
         # Required fields on submission; optional on save as draft
         if 'save_submit' in self.data:
