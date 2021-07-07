@@ -55,10 +55,10 @@
   </div>
 {% endif %}
 
-{% if proceedings.fellowships.guests.exists %}
-  <h3>Guest Fellows responsible for this Issue</h3>
+{% if proceedings.fellowships.all.exists %}
+  <h3>(Guest) Fellows responsible for this Issue</h3>
   <ul>
-    {% for fellow in proceedings.fellowships.guests %}
+    {% for fellow in proceedings.fellowships.all %}
       <li>{{ fellow.contributor.profile.get_title_display }} {{ fellow.contributor.user.first_name }} {{ fellow.contributor.user.last_name }}{% if fellow.contributor.affiliation.name %}, {{ fellow.contributor.affiliation.name }}{% endif %}</li>
     {% endfor %}
   </ul>
