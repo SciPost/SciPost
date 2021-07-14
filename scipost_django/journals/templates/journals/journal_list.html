@@ -104,14 +104,14 @@
 	  </thead>
 	  <tbody>
 	    {% for branch in branches %}
-	      {% if branch.journals.all|length > 0 %}
+	      {% if branch.journals.active.all|length > 0 %}
 		<tr>
 		  <td class="align-middle">
 		    <small>{{ branch.name }}</small>
 		  </td>
 		  <td>
 		    {% for acad_field in branch.academic_fields.all %}
-		      {% if acad_field.journals.all|length > 0 %}
+		      {% if acad_field.journals.active.all|length > 0 %}
 			<a href={% url 'journals:journals' %}?field={{ acad_field.slug }} class="btn btn-primary btn-sm"><small>{{ acad_field.name }}</small></a>
 		      {% else %}
 			<button type="button" class="btn btn-sm btn-outline-secondary m-1"><small><em>{{ acad_field.name }}</em></small></button>
@@ -131,12 +131,12 @@
     <table class="table table-borderless">
       {% for branch in branches %}
 	{% for acad_field in branch.academic_fields.all %}
-	  {% if acad_field.journals.all|length > 0 %}
+	  {% if acad_field.journals.active.all|length > 0 %}
 	    <tr>
 	      <td class="align-middle"><strong>{{ acad_field.name }}</strong></td>
 	      <td>
 		<ul class="list-group m-2">
-		  {% for journal in acad_field.journals.all %}
+		  {% for journal in acad_field.journals.active.all %}
 		    <li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
 		      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
 		    </li>
