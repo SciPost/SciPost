@@ -19,7 +19,7 @@ from theses.models import ThesisLink
 
 from .constants import (PROFILE_NON_DUPLICATE_REASONS,
                         AFFILIATION_CATEGORIES, AFFILIATION_CATEGORY_UNSPECIFIED)
-from .managers import ProfileQuerySet
+from .managers import ProfileQuerySet, AffiliationQuerySet
 
 
 class Profile(models.Model):
@@ -204,6 +204,8 @@ class Affiliation(models.Model):
     description = models.CharField(max_length=256, blank=True, null=True)
     date_from = models.DateField(blank=True, null=True)
     date_until = models.DateField(blank=True, null=True)
+
+    objects = AffiliationQuerySet.as_manager()
 
     class Meta:
         default_related_name = 'affiliations'

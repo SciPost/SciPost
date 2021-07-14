@@ -3,8 +3,9 @@ __license__ = "AGPL v3"
 
 
 from django.db import models
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.db.models.functions import Concat, Lower
+from django.utils import timezone
 
 
 class ProfileQuerySet(models.QuerySet):
@@ -52,3 +53,18 @@ class ProfileQuerySet(models.QuerySet):
         This method is also separately implemented for Contributor and PotentialFellowship objects.
         """
         return self.filter(specialties__slug__in=specialties_slug_list)
+
+
+
+class AffiliationQuerySet(models.QuerySet):
+
+    def current(self):
+        """
+        Return affiliations which are currently valid.
+        """
+        today = timezone.now().date()
+        return self.filter(
+            Q(date_from__lte=today, date_until__isnull=True) |
+            Q(date_from__isnull=True, date_until__gte=today) |
+            Q(date_from__lte=today, date_until__gte=today) |
+            Q(date_from__isnull=True, date_until__isnull=True))

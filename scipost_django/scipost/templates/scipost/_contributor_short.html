@@ -15,8 +15,10 @@
   {% endif %}
 </p>
 
-{% if fellowship.contributor.affiliations.active.first %}
-  <span class="text-muted">({{ fellowship.contributor.affiliations.active.first.institution.name }})</span>
+{% if fellowship.contributor.profile.affiliations.current.first %}
+  <span class="text-muted">
+    <img src="{{ fellowship.contributor.profile.affiliations.current.first.organization.country.flag }}" alt="{{ org.country }} flag"/>
+    &nbsp;{{ fellowship.contributor.profile.affiliations.current.first.organization.name }}  </span>
 {% endif %}
 <div>
   {% for specialty in fellowship.contributor.profile.specialties.all %}
