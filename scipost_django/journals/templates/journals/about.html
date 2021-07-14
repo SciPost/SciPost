@@ -27,7 +27,7 @@
 	<li><a href="#content">Content</a></li>
 	<li><a href="#criteria">Acceptance Criteria</a></li>
 	<li><a href="#sub_and_ed">Submission and Editorial Process</a></li>
-	<li><a href="{% url 'colleges:colleges' %}">{{ journal.college }}</a></li>
+	<li><a href="{{ journal.college.get_absolute_url }}">{{ journal.college }}</a></li>
 	<li><a href="#genuineOA">Genuine Open Access</a></li>
       </ul>
 
@@ -137,7 +137,7 @@
       {% if journal.minimal_nr_of_reports > 0 %}
 	<p><strong>Minimal number of reports</strong>: at least {{ journal.minimal_nr_of_reports }} substantial report{{ journal.minimal_nr_of_reports|pluralize }} must have been received; all points raised must have been addressed either in resubmissions or in author replies before a recommendation for publication can be formulated.</p>
       {% endif %}
-      <p>All publication decisions are taken by the <a href="{% url 'colleges:colleges' %}">{{ journal.college }}</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
+      <p>All publication decisions are taken by the <a href="{{ journal.college.get_absolute_url }}">{{ journal.college }}</a>, following the rules set out in the <a href="{% url 'scipost:EdCol_by-laws' %}">Editorial College by-laws</a>.</p>
       <p>Accepted submissions benefit from our top-quality production process, and from our <a href="{% url 'news:news' %}#news_51" target="_blank">industry-leading metadata handling facilities</a>.</p>
 
 
