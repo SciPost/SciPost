@@ -29,7 +29,6 @@ from django.shortcuts import redirect
 from django.template import Context, Template
 from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
-from django.views.debug import cleanse_setting
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
@@ -1377,26 +1376,7 @@ def EdCol_bylaws_Changes_2021_04(request):
 #################
 
 def csrf_failure(request, reason=''):
-    """CSRF Failure page with an admin mailing action."""
-    # Filter out privacy data
-    post_data = {}
-    for key in request.POST.keys():
-        if key:
-            post_data[key] = cleanse_setting(key, request.POST[key])
-
-    # Email content
-    body = {
-        'ERROR': str(reason),
-        'USER': str(request.user),
-        'GET': dict(request.GET),
-        'POST': post_data,
-        'META': {k: str(v) for k, v in request.META.items()},
-        'COOKIES': {k: str(v) for k, v in request.COOKIES.items()},
-    }
-
-    body = json.dumps(body, indent=4)
-
-    mail.mail_admins('CSRF Failure', body)
+    """CSRF Failure page."""
     return render(request, 'csrf-failure.html')
 
 
