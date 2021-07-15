@@ -16,7 +16,7 @@ import strings
 
 
 class DOIToQueryForm(forms.Form):
-    VALID_DOI_REGEXP = r'^(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
+    VALID_DOI_REGEXP = r'(?i)10.\d{4,9}/[-._;()/:A-Z0-9]+$'
     doi = forms.RegexField(
         regex=VALID_DOI_REGEXP, strip=True, help_text=strings.doi_query_help_text,
         error_messages={'invalid': strings.doi_query_invalid},
