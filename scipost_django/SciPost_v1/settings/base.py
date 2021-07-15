@@ -17,7 +17,7 @@ import json
 
 from datetime import timedelta
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django.core.exceptions import ImproperlyConfigured
 from django.contrib.messages import constants as message_constants
