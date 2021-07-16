@@ -135,6 +135,7 @@ INSTALLED_APPS = (
 
 SITE_ID = 1
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
