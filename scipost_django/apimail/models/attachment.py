@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import uuid as uuid_lib
 
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import FieldError
 from django.db import models
 from django.urls import reverse
@@ -36,7 +35,7 @@ class AttachmentFile(models.Model):
         unique=True,
         editable=False)
 
-    data = JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     file = models.FileField(
         upload_to=get_attachment_upload_path,

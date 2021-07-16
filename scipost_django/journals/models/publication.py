@@ -4,7 +4,7 @@ __license__ = "AGPL v3"
 
 from decimal import Decimal
 
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Min, Sum
@@ -122,14 +122,14 @@ class Publication(models.Model):
     pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
-    metadata = JSONField(default=dict, blank=True, null=True)
+    metadata = models.JSONField(default=dict, blank=True, null=True)
     metadata_xml = models.TextField(blank=True)  # for Crossref deposit
-    metadata_DOAJ = JSONField(default=dict, blank=True, null=True)
+    metadata_DOAJ = models.JSONField(default=dict, blank=True, null=True)
     doi_label = models.CharField(max_length=200, unique=True, db_index=True,
                                  validators=[doi_publication_validator])
     BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
-    citedby = JSONField(default=dict, blank=True, null=True)
+    citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
 
     # Date fields

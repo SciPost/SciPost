@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 
@@ -22,7 +21,7 @@ class AffiliatePublication(models.Model):
         db_index=True,
         validators=[doi_affiliatepublication_validator]
     )
-    _metadata_crossref = JSONField(
+    _metadata_crossref = models.JSONField(
         default=dict,
         blank=True
     )

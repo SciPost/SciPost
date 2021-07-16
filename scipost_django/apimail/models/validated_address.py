@@ -6,7 +6,6 @@ import datetime
 import requests
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 
@@ -70,7 +69,7 @@ class AddressValidation(models.Model):
         'apimail.ValidatedAddress',
         related_name='validations',
         on_delete=models.CASCADE)
-    data = JSONField(default=dict)
+    data = models.JSONField(default=dict)
     datestamp = models.DateField(default=datetime.date.today)
 
     class Meta:

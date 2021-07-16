@@ -5,7 +5,6 @@ import pytz
 import uuid as uuid_lib
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -37,7 +36,7 @@ class StoredMessage(models.Model):
         default=uuid_lib.uuid4,
         editable=False)
 
-    data = JSONField(default=dict)
+    data = models.JSONField(default=dict)
 
     datetimestamp = models.DateTimeField(default=timezone.now)
 

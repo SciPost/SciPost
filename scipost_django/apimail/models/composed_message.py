@@ -6,7 +6,7 @@ import pytz
 import uuid as uuid_lib
 
 from django.conf import settings
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -67,7 +67,7 @@ class ComposedMessage(models.Model):
     body_text = models.TextField(blank=True)
     body_html = models.TextField(blank=True)
 
-    headers_added = JSONField(default=dict)
+    headers_added = models.JSONField(default=dict)
 
     attachment_files = models.ManyToManyField(
         'apimail.AttachmentFile',
@@ -97,7 +97,7 @@ class ComposedMessageAPIResponse(models.Model):
         related_name='api_responses')
     datetime = models.DateTimeField(default=timezone.now)
     status_code = models.PositiveSmallIntegerField()
-    json = JSONField(default=dict)
+    json = models.JSONField(default=dict)
 
     class Meta:
         ordering = ['-datetime']

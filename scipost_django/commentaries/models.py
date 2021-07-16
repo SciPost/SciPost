@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 from django.db import models
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.postgres.fields import JSONField
 from django.urls import reverse
 
 from scipost.behaviors import TimeStampedModel
@@ -56,7 +55,7 @@ class Commentary(TimeStampedModel):
     pub_DOI_link = models.URLField(
         verbose_name='DOI link to the original publication',
         blank=True)
-    metadata = JSONField(default=dict, blank=True, null=True)
+    metadata = models.JSONField(default=dict, blank=True, null=True)
     arxiv_or_DOI_string = models.CharField(max_length=100,
                                            verbose_name='string form of arxiv nr or'
                                                         ' DOI for commentary url')

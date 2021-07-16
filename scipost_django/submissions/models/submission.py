@@ -6,7 +6,6 @@ import datetime
 import feedparser
 import uuid
 
-from django.contrib.postgres.fields import JSONField
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
@@ -133,7 +132,7 @@ class Submission(models.Model):
                                            max_length=200, blank=True)
 
     # Metadata
-    metadata = JSONField(default=dict, blank=True, null=True)
+    metadata = models.JSONField(default=dict, blank=True, null=True)
     submission_date = models.DateTimeField(
         verbose_name='submission date',
         default=timezone.now)

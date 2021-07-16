@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import datetime
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.db.models import Avg, F
 from django.urls import reverse
@@ -95,10 +94,10 @@ class Journal(models.Model):
         upload_to='UPLOADS/TEMPLATES/docx/%Y/', max_length=256, blank=True)
 
     # Cost per publication information
-    cost_info = JSONField(default=cost_default_value)
+    cost_info = models.JSONField(default=cost_default_value)
 
     # Calculated fields (to save CPU; field name always starts with cf_)
-    cf_metrics = JSONField(default=dict)
+    cf_metrics = models.JSONField(default=dict)
 
     objects = JournalQuerySet.as_manager()
 

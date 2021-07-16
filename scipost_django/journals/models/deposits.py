@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 from journals.models import Publication
@@ -42,7 +41,7 @@ class DOAJDeposit(models.Model):
     """
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     timestamp = models.CharField(max_length=40)
-    metadata_DOAJ = JSONField()
+    metadata_DOAJ = models.JSONField()
     metadata_DOAJ_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True, null=True)

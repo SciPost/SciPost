@@ -4,7 +4,6 @@ __license__ = "AGPL v3"
 
 import uuid as uuid_lib
 
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.urls import reverse
 
@@ -31,7 +30,7 @@ class Event(models.Model):
         db_index=True,
         default=uuid_lib.uuid4,
         editable=False)
-    data = JSONField(default=dict)
+    data = models.JSONField(default=dict)
     stored_message = models.ForeignKey(
         'apimail.StoredMessage',
         blank=True, null=True,
