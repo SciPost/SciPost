@@ -45,7 +45,9 @@ class Subsidy(models.Model):
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     date = models.DateField()
     date_until = models.DateField(blank=True, null=True)
-    renewable = models.NullBooleanField()
+    renewable = models.BooleanField(
+        null=True
+    )
     renewal_of = models.ManyToManyField('self', related_name='renewed_by',
                                         symmetrical=False, blank=True)
 

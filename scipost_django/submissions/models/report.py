@@ -72,7 +72,7 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     recommendation = models.SmallIntegerField(null=True, blank=True, choices=REPORT_REC)
     remarks_for_editors = models.TextField(blank=True,
                                            verbose_name='optional remarks for the Editors only')
-    needs_doi = models.NullBooleanField(default=None)
+    needs_doi = models.BooleanField(null=True, default=None)
     doideposit_needs_updating = models.BooleanField(default=False)
     genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
                                         related_query_name='genericdoideposit')

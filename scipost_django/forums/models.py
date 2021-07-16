@@ -254,6 +254,8 @@ class Motion(Post):
     in_abstain = models.ManyToManyField('auth.User', blank=True,
                                         related_name='abstain_with_motion')
     voting_deadline = models.DateField()
-    accepted = models.NullBooleanField()
+    accepted = models.BooleanField(
+        null=True
+    )
 
     objects = models.Manager()

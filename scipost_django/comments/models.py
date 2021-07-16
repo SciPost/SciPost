@@ -70,7 +70,10 @@ class Comment(TimeStampedModel):
                                            verbose_name='optional remarks for the Editors only')
     date_submitted = models.DateTimeField('date submitted', default=timezone.now)
 
-    needs_doi = models.NullBooleanField(default=None)
+    needs_doi = models.BooleanField(
+        null=True,
+        default=None
+    )
     doideposit_needs_updating = models.BooleanField(default=False)
     genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
                                         related_query_name='genericdoideposit')

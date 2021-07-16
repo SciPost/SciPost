@@ -23,7 +23,10 @@ class Deposit(models.Model):
     metadata_xml_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True)
-    deposit_successful = models.NullBooleanField(default=None)
+    deposit_successful = models.BooleanField(
+        null=True,
+        default=None
+    )
 
     class Meta:
         ordering = ['-timestamp']
@@ -45,7 +48,10 @@ class DOAJDeposit(models.Model):
     metadata_DOAJ_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True, null=True)
-    deposit_successful = models.NullBooleanField(default=None)
+    deposit_successful = models.BooleanField(
+        null=True,
+        default=None
+    )
 
     class Meta:
         verbose_name = 'DOAJ deposit'
@@ -67,7 +73,10 @@ class GenericDOIDeposit(models.Model):
     metadata_xml = models.TextField(blank=True, null=True)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response = models.TextField(blank=True, null=True)
-    deposit_successful = models.NullBooleanField(default=None)
+    deposit_successful = models.BooleanField(
+        null=True,
+        default=None
+    )
 
     class Meta:
         ordering = ['-timestamp']
