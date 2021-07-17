@@ -2,19 +2,36 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'stats'
 
 urlpatterns = [
-    url(r'^statistics/(?P<journal_doi_label>[a-zA-Z]+)/(?P<volume_nr>[0-9]+)/(?P<issue_nr>[0-9]+)$',
-        views.statistics, name='statistics'),
-    url(r'^statistics/(?P<journal_doi_label>[a-zA-Z]+)/(?P<volume_nr>[0-9]+)$',
-        views.statistics, name='statistics'),
-    url(r'^statistics/(?P<journal_doi_label>[a-zA-Z]+)$', views.statistics, name='statistics'),
-    url(r'^statistics/(?P<journal_doi_label>[a-zA-Z]+)/year/(?P<year>[0-9]{4,})$',
-        views.statistics, name='statistics'),
-    url(r'^statistics$', views.statistics, name='statistics'),
+    path(
+        'statistics/<journal_doi_label:journal_doi_label>/<int:volume_nr>/<int:issue_nr>',
+        views.statistics,
+        name='statistics'
+    ),
+    path(
+        'statistics/<journal_doi_label:journal_doi_label>/<int:volume_nr>',
+        views.statistics,
+        name='statistics'
+    ),
+    path(
+        '<journal_doi_label:journal_doi_label>',
+        views.statistics,
+        name='statistics'
+    ),
+    path(
+        'statistics/<journal_doi_label:journal_doi_label>/year/<int:year>',
+        views.statistics,
+        name='statistics'
+    ),
+    path(
+        'statistics',
+        views.statistics,
+        name='statistics'
+    ),
 ]

@@ -8,11 +8,35 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path, register_converter
 
-from journals.converters import JournalDOILabelConverter
 from scipost import views as scipost_views
 from organizations.views import OrganizationListView
 
+from affiliates.converters import Crossref_DOI_converter
+from colleges.converters import CollegeSlugConverter
+from journals.converters import JournalDOILabelConverter
+from ontology.converters import (
+    AcademicFieldSlugConverter,
+    SpecialtySlugConverter
+)
+
+
+######################################
+# Register all custom converters here:
+######################################
+
+# affiliates
+register_converter(Crossref_DOI_converter, 'doi')
+# colleges
+register_converter(CollegeSlugConverter, 'college')
+# journals
 register_converter(JournalDOILabelConverter, 'journal_doi_label')
+# ontology
+register_converter(AcademicFieldSlugConverter, 'acad_field')
+register_converter(SpecialtySlugConverter, 'specialty')
+
+######################################
+# End of custom converter registration
+######################################
 
 
 # Disable admin login view which is essentially a 2FA workaround.

@@ -3,13 +3,10 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path, register_converter
-
-from ontology.converters import SpecialtySlugConverter
+from django.urls import path
 
 from journals import views as journals_views
 
-register_converter(SpecialtySlugConverter, 'specialty')
 
 app_name = 'urls.journals'
 

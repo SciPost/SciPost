@@ -3,17 +3,12 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path, register_converter
+from django.urls import path
 
-from ontology.converters import AcademicFieldSlugConverter, SpecialtySlugConverter
 from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
 
 from . import views
-from .converters import CollegeSlugConverter
 
-register_converter(AcademicFieldSlugConverter, 'acad_field')
-register_converter(SpecialtySlugConverter, 'specialty')
-register_converter(CollegeSlugConverter, 'college')
 
 app_name = 'colleges'
 

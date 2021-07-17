@@ -6,7 +6,7 @@ from django.conf.urls import url
 from django.contrib.auth.decorators import permission_required
 from django.views.generic import TemplateView
 from django.views.generic.base import RedirectView
-from django.urls import include, path, re_path, register_converter
+from django.urls import include, path, re_path
 
 from . import views, sso
 from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
@@ -14,18 +14,14 @@ from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
                    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
 
 from journals import views as journals_views
-from journals.converters import JournalDOILabelConverter
 from journals.regexes import ISSUE_DOI_LABEL_REGEX,\
     PUBLICATION_DOI_LABEL_REGEX, DOI_DISPATCH_PATTERN
-from ontology.converters import SpecialtySlugConverter
 from submissions import views as submission_views
 
 
 favicon_view = RedirectView.as_view(
     url='/static/scipost/images/scipost_favicon.png', permanent=True)
 
-register_converter(JournalDOILabelConverter, 'journal_doi_label')
-register_converter(SpecialtySlugConverter, 'specialty')
 
 app_name = 'scipost'
 
