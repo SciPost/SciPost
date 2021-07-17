@@ -12,23 +12,7 @@
   </thead>
   <tbody>
     {% for aff in profile.affiliations.all %}
-      <tr>
-	<td>
-	  {{ aff.organization }}
-	  {% if aff.description %}<br/>&nbsp;<em>{{ aff.description }}</em>{% endif %}
-	</td>
-	<td>{{ aff.get_category_display }}</td>
-	<td>{% if aff.date_from %}{{ aff.date_from|date:'Y-m-d' }}{% else %}Undefined{% endif %}</td>
-	<td>{% if aff.date_until %}{{ aff.date_until|date:'Y-m-d' }}{% else %}Undefined{% endif %}</td>
-	{% if actions %}
-	  <td>
-	    <ul class="list-unstyled">
-	      <li><a href="{% url 'profiles:affiliation_update' profile_id=profile.id pk=aff.id %}" class="text-warning">Update</a></li>
-	      <li><a href="{% url 'profiles:affiliation_delete' profile_id=profile.id pk=aff.id %}" class="text-danger">Delete</a></li>
-	    </ul>
-	  </td>
-	{% endif %}
-      </tr>
+      {% include 'profiles/_affiliations_table_row.html' with affiliation=aff actions=actions %}
     {% empty %}
       <tr><td colspan="4">No Affiliation has been defined</td></tr>
     {% endfor %}

@@ -13,7 +13,22 @@
   <div class="row">
     <div class="col-12">
       <h1 class="highlight">Delete Affiliation</h1>
-      {% include 'profiles/_affiliations_table.html' with contributor=affiliation.profile.contributor actions=False %}
+      <table class="table">
+	<thead class="table-light">
+	  <tr>
+	    <th>Organization</th>
+	    <th>Category</th>
+	    <th>From</th>
+	    <th>Until</th>
+	    {% if actions %}
+	      <td>Actions</td>
+	    {% endif %}
+	  </tr>
+	</thead>
+	<tbody>
+	  {% include 'profiles/_affiliations_table_row.html' with affiliation=affiliation actions=False %}
+	</tbody>
+      </table>
     </div>
   </div>
   <div class="row">

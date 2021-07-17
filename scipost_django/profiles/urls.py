@@ -2,97 +2,127 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
 app_name = 'profiles'
 
 urlpatterns = [
+    # Autocomplete for Select2
     path(
         'profile-autocomplete',
         views.ProfileAutocompleteView.as_view(),
         name='profile-autocomplete'
     ),
-    url(
-        r"^add/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$",
+
+    # Create
+    path(
+        'add/<from_type>/<int:pk>',
         views.ProfileCreateView.as_view(),
         name='profile_create'
     ),
-    url(
-        r"^add/$",
+    path(
+        'add/',
         views.ProfileCreateView.as_view(),
         name='profile_create'
     ),
-    url(
-        r'^match/(?P<profile_id>[0-9]+)/(?P<from_type>[a-z]+)/(?P<pk>[0-9]+)$',
+
+    # Match to existing
+    path(
+        'match/<int:profile_id>/<from_type>/<int:pk>',
         views.profile_match,
         name='profile_match'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/update/$',
-        views.ProfileUpdateView.as_view(),
-        name='profile_update'
-    ),
-    url(
-        r'^(?P<pk>[0-9]+)/delete/$',
-        views.ProfileDeleteView.as_view(),
-        name='profile_delete'
-    ),
-    url(
-        r'^$',
+
+    # List CBV
+    path(
+        '',
         views.ProfileListView.as_view(),
         name='profiles'
     ),
-    url(
-        r'^(?P<pk>[0-9]+)/$',
-        views.ProfileDetailView.as_view(),
-        name='profile_detail'
+
+    # Instance CBVs
+    path(
+        '<int:pk>/', include([
+            path(
+                'update/',
+                views.ProfileUpdateView.as_view(),
+                name='profile_update'
+            ),
+            path(
+                'delete/',
+                views.ProfileDeleteView.as_view(),
+                name='profile_delete'
+            ),
+            path(
+                '',
+                views.ProfileDetailView.as_view(),
+                name='profile_detail'
+            ),
+        ])
     ),
-    url(
-        r'^merge/$',
-        views.profile_merge,
-        name='merge'
-    ),
-    url(
-        r'^duplicates/$',
+
+    # Duplicates and merging
+    path(
+        'duplicates/',
         views.ProfileDuplicateListView.as_view(),
         name='duplicates'
     ),
-    url(
-        r'^(?P<profile_id>[0-9]+)/add_email$',
+    path(
+        'merge/',
+        views.profile_merge,
+        name='merge'
+    ),
+
+    # Emails
+    path(
+        '<int:profile_id>/add_email',
         views.add_profile_email,
         name='add_profile_email'
     ),
-    url(
-        r'^emails/(?P<email_id>[0-9]+)/make_primary$',
-        views.email_make_primary,
-        name='email_make_primary'
+    path(
+        'emails/<int:email_id>/', include([
+            path(
+                'make_primary',
+                views.email_make_primary,
+                name='email_make_primary'
+            ),
+            path(
+                'toggle',
+                views.toggle_email_status,
+                name='toggle_email_status'
+            ),
+            path(
+                'delete',
+                views.delete_profile_email,
+                name='delete_profile_email'
+            ),
+        ])
     ),
-    url(
-        r'^emails/(?P<email_id>[0-9]+)/toggle$',
-        views.toggle_email_status,
-        name='toggle_email_status'
-    ),
-    url(
-        r'^emails/(?P<email_id>[0-9]+)/delete$',
-        views.delete_profile_email,
-        name='delete_profile_email'
-    ),
-    url(
-        r'^(?P<profile_id>[0-9]+)/affiliation/add/$',
-        views.AffiliationCreateView.as_view(),
-        name='affiliation_create'
-    ),
-    url(
-        r'^(?P<profile_id>[0-9]+)/affiliation/(?P<pk>[0-9]+)/update/$',
-        views.AffiliationUpdateView.as_view(),
-        name='affiliation_update'
-    ),
-    url(
-        r'^(?P<profile_id>[0-9]+)/affiliation/(?P<pk>[0-9]+)/delete/$',
-        views.AffiliationDeleteView.as_view(),
-        name='affiliation_delete'
+
+    # Affiliations
+    path(
+        '<int:profile_id>/affiliation/', include([
+            path(
+                'add/',
+                views.AffiliationCreateView.as_view(),
+                name='affiliation_create'
+            ),
+            path(
+                '<int:pk>/', include([
+                    path(
+                        'update/',
+                        views.AffiliationUpdateView.as_view(),
+                        name='affiliation_update'
+                    ),
+                    path(
+                        'delete/',
+                        views.AffiliationDeleteView.as_view(),
+                        name='affiliation_delete'
+                    ),
+                ])
+            ),
+        ])
     ),
 ]

@@ -1,0 +1,17 @@
+<tr>
+  <td>
+    {{ affiliation.organization }}
+    {% if affiliation.description %}<br/>&nbsp;<em>{{ affiliation.description }}</em>{% endif %}
+  </td>
+  <td>{{ affiliation.get_category_display }}</td>
+  <td>{% if affiliation.date_from %}{{ affiliation.date_from|date:'Y-m-d' }}{% else %}Undefined{% endif %}</td>
+  <td>{% if affiliation.date_until %}{{ affiliation.date_until|date:'Y-m-d' }}{% else %}Undefined{% endif %}</td>
+  {% if actions %}
+    <td>
+      <ul class="list-unstyled">
+	<li><a href="{% url 'profiles:affiliation_update' profile_id=affiliation.profile.id pk=affiliation.id %}" class="text-warning">Update</a></li>
+	<li><a href="{% url 'profiles:affiliation_delete' profile_id=affiliation.profile.id pk=affiliation.id %}" class="text-danger">Delete</a></li>
+      </ul>
+    </td>
+  {% endif %}
+</tr>
