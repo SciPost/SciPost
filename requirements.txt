@@ -1,5 +1,5 @@
 # Core
-argon2-cffi==16.3.0		# Password hashing algorithm
+argon2-cffi==20.1.0		# 2021-07-18 Password hashing algorithm
 Babel==2.4
 Django==3.2.5			# 2021-07-15
 feedparser==5.2.1		# Check: not updated since 2016
@@ -77,7 +77,8 @@ snowballstemmer==1.2.1
 celery==5.1.0			# 2021-06-06
 django-celery-results==2.0.1	# 2021-06-06
 django-celery-beat==2.2.0	# 2021-06-06
-flower==0.9.4 			# 2020-09-19  Bug (404 error) in 0.9.5: see https://github.com/mher/flower/issues/1015
+#flower==0.9.4 			# 2020-09-19  Bug (404 error) in 0.9.5: see https://github.com/mher/flower/issues/1015
+flower==1.0.0 			# 2021-07-18
 
 
 # Security-related packages
