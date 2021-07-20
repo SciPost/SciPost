@@ -24,6 +24,9 @@ class SubsidyFinAdminAPIFilterSet(df_filters.FilterSet):
             'organization__country': [
                 'icontains',
             ],
+            'description': [
+                'icontains',
+            ],
             'amount': [
                 'gte', 'lte', 'range'
             ],
