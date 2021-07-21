@@ -181,8 +181,8 @@ urlpatterns = [
         views.SciPostPasswordResetView.as_view(),
         name='password_reset'
     ),
-    url(
-        r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+    path(
+        'reset/<uidb64>/<token>',
         views.SciPostPasswordResetConfirmView.as_view(),
         name='password_reset_confirm'
     ),
