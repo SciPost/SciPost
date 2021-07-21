@@ -22,8 +22,10 @@ from guardian.decorators import permission_required
 
 from .constants import ORGTYPE_PRIVATE_BENEFACTOR,\
     ORGANIZATION_EVENT_COMMENT, ORGANIZATION_EVENT_EMAIL_SENT
-from .forms import SelectOrganizationForm, OrganizationEventForm, ContactPersonForm,\
-    NewContactForm, ContactActivationForm, ContactRoleForm
+from .forms import (
+    SelectOrganizationForm, OrganizationForm, OrganizationEventForm,
+    ContactPersonForm, NewContactForm, ContactActivationForm, ContactRoleForm
+)
 from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
 
 from funders.models import Funder
@@ -85,8 +87,7 @@ class OrganizationCreateView(PermissionsMixin, CreateView):
     Create a new Organization.
     """
     permission_required = 'scipost.can_manage_organizations'
-    model = Organization
-    fields = '__all__'
+    form_class = OrganizationForm
     template_name = 'organizations/organization_create.html'
     success_url = reverse_lazy('organizations:organizations')
 
@@ -96,8 +97,7 @@ class OrganizationUpdateView(PermissionsMixin, UpdateView):
     Update an Organization.
     """
     permission_required = 'scipost.can_manage_organizations'
-    model = Organization
-    fields = '__all__'
+    form_class = OrganizationForm
     template_name = 'organizations/organization_update.html'
     success_url = reverse_lazy('organizations:organizations')
 

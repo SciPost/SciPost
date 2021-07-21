@@ -32,6 +32,28 @@ class SelectOrganizationForm(forms.Form):
     )
 
 
+class OrganizationForm(forms.ModelForm):
+    parent = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Parent',
+    )
+    superseded_by = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/organizations/organization-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Superseded by',
+    )
+    class Meta:
+        model = Organization
+        fields = '__all__'
+
+
 class OrganizationEventForm(forms.ModelForm):
     class Meta:
         model = OrganizationEvent
