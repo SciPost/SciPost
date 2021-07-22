@@ -40,6 +40,7 @@ class OrganizationForm(forms.ModelForm):
             attrs={'data-html': True}
         ),
         label='Parent',
+        required=False,
     )
     superseded_by = forms.ModelChoiceField(
         queryset=Organization.objects.all(),
@@ -48,6 +49,7 @@ class OrganizationForm(forms.ModelForm):
             attrs={'data-html': True}
         ),
         label='Superseded by',
+        required=False,
     )
     class Meta:
         model = Organization
