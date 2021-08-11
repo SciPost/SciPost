@@ -19,6 +19,9 @@ from colleges.models import Fellowship
 def submission_short_title(obj):
     return obj.submission.title[:30]
 
+def submission_short_authors(obj):
+    return obj.submission.author_list[:20]
+
 
 class PreprintServerAdmin(admin.ModelAdmin):
     autocomplete_fields = [
@@ -244,8 +247,15 @@ class AlternativeRecommendationInline(admin.StackedInline):
 class EICRecommendationAdmin(admin.ModelAdmin):
     search_fields = ['submission__title']
     list_filter = ('status',)
-    list_display = (submission_short_title, 'for_journal', 'recommendation',
-                    'status', 'active', 'version')
+    list_display = (
+        submission_short_title,
+        submission_short_authors,
+        'for_journal',
+        'recommendation',
+        'status',
+        'active',
+        'version'
+    )
     inlines = [
         AlternativeRecommendationInline,
     ]
