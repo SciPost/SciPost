@@ -81,7 +81,7 @@ class PublicationUpdate(models.Model):
     def create_doi_label(self):
         """Create a doi in the default format."""
         PublicationUpdate.objects.filter(id=self.id
-        ).update(doi_label='{}-{}'.format(self.publication.doi_label, self.number))
+        ).update(doi_label='{}-update-{}'.format(self.publication.doi_label, self.number))
 
     @property
     def doi_string(self):
