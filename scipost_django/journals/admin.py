@@ -7,16 +7,23 @@ from django import forms
 
 from journals.models import Journal, Volume, Issue, Publication, \
     Deposit, DOAJDeposit, GenericDOIDeposit, Reference, PublicationAuthorsTable,\
-    OrgPubFraction, PublicationUpdate
+    OrgPubFraction, PublicationUpdate, SubmissionTemplate
 
 from scipost.models import Contributor
 from submissions.models import Submission
 
 
+class SubmissionTemplateInline(admin.TabularInline):
+    model = SubmissionTemplate
+    extra = 0
+
+
 class JournalAdmin(admin.ModelAdmin):
     search_fields = ['name']
     list_display = ['__str__', 'doi_string', 'active']
-
+    inlines = [
+        SubmissionTemplateInline,
+    ]
 
 admin.site.register(Journal, JournalAdmin)
 

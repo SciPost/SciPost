@@ -1,4 +1,5 @@
 {% load static %}
+{% load automarkup %}
 
 <div class="row">
   <div class="col-12">
@@ -32,38 +33,23 @@
       <hr>
       <h2 class="highlight" id="manuprep">Manuscript preparation</h2>
 
-      {% if journal.doi_label == 'MigPol' %}
-	<p>Authors can prepare their manuscript in Word or LaTeX.</p>
-	<p>
-	  For Word, please use this <a href="{{ journal.template_docx.url }}">template</a>.
-	  Manuscripts should be <strong>submitted as pdf files.</strong>
-	</p>
-	<p>For LaTeX, we prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
-	  as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
-	  composed of the following individual files:
-	</p>
-      {% else %}
-	<p>We prefer authors to prepare their manuscript using the SciPost LaTeX2e style, which you can download
-	  as a <a href="{% static 'submissions/latex/SciPost_LaTeX_Style_v1e.tar.gz' %}">gzipped tarball</a>,
-	  composed of the following individual files:
-	</p>
-      {% endif %}
+      <h3>Available template formats</h3>
       <ul>
-	<li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.tex' %}">LaTeX2e template (.tex)</a></li>
-	  <li><a href="{% static 'submissions/latex/SciPost_LaTeX_Template.pdf' %}">LaTeX2e template (.pdf)</a></li>
-	  <li><a href="{% static 'submissions/latex/SciPost.cls' %}">class file (.cls)</a></li>
-	  <li><a href="{% static 'submissions/latex/SciPost_bibstyle.bst' %}">BiBTeX style file (.bst)</a></li>
-	</ul>
-	<p>While we also accept submissions in general LaTeX formats, using the SciPost style will simplify and accelerate
-	  production of the published version of your article in case of acceptance. If you are not using our template,
-	  please ensure the following:</p>
-	<ul>
-	  <li>use 10pt font size</li>
-	  <li>include the DOI in your citations (using the <em>doi</em> package)</li>
-	  <li>to ease navigation within your text, use hyperlinking for your equations and references (using the <em>hyperref</em> package)</li>
-	</ul>
-	<p>Including the DOI is particularly important: the paper can only be published if references are externally linked.</p>
-      </p>
+      {% for template in journal.templates.all %}
+	<li class="mb-2">
+	  <p>
+	    <strong>{{ template.get_template_type_display }}</strong>
+	    &emsp;{% include 'bi/arrow-right.html' %}
+	    <a href="{{ template.template_file.url }}">click here to download the template</a>
+	  </p>
+	  {% if template.instructions %}
+	    {{ template.instructions|automarkup }}
+	  {% endif %}
+	</li>
+      {% empty %}
+	<li>No templates are available at this time</li>
+      {% endfor %}
+      </ul>
 
       <h3 class="mb-2">The article should contain the following elements:</h3>
       <dl class="row">
@@ -81,11 +67,11 @@
 	<dt class="col-sm-3 col-md-2">Bulk Sections</dt>
 	<dd class="col-sm-9 col-md-10">The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</dd>
 
-	<dt class="col-sm-3 col-md-2">Figures</dt>
-	<dd class="col-sm-9 col-md-10">If figures are included, they should only occupy the strictly necessary space, in any case individually fitting on a single page.
-	  Each figure item should be appropriately labeled and accompanied by a descriptive caption.
-	  SciPost does not accept creative figures or artist's impressions;
-	  on the other hand, technical drawings and scientifically accurate representations are encouraged.</dd>
+	<dt class="col-sm-3 col-md-2">Figures, images and tables</dt>
+	<dd class="col-sm-9 col-md-10">If figures/images/tables are included, they should
+	  be appropriately labeled and accompanied by a descriptive caption.
+	  Creative figures/artist's impressions are to be avoided;
+	  technical drawings and scientifically accurate representations are on the other hand most welcome.</dd>
 
 	<dt class="col-sm-3 col-md-2">Acknowledgements</dt>
 	<dd class="col-sm-9 col-md-10">Acknowledgements should follow immediately after the conclusion.</dd>
@@ -102,8 +88,8 @@
 
         <dt class="col-sm-3 col-md-2">Supplementary Material</dt>
 	<dd class="col-sm-9 col-md-10">
-	  You should make supplementary material (data, code and similar) openly available,
-	  most simply by depositing those in institutional repositories.
+	  You should make supplementary material (data, experimental details, analyses, code and similar)
+	  openly available, most appropriately by depositing those in institutional or public repositories.
 	  In your paper, please list the items together with the link pointing to where they are hosted.
 	</dd>
 
@@ -142,7 +128,6 @@
 	      <em>Notes:</em>
 	      <ul>
 		<li><em>Please include a statement as "Submission to SciPost" in the Comments</em></li>
-		<li><em>For non-arXiv servers, there is no API integration yet through which we can automatically extract preprint metadata. You will thus have to provide all data upon submission.</em></li>
 	      </ul>
               After appearance on the preprint server, fill the SciPost <a href="{% url 'submissions:submit_manuscript' %}">Submission</a> form (most fields will be auto-filled if the preprint server has an API integration with SciPost), selecting which SciPost Journal to submit to (and providing additional info such as domain and speciality specifications).
 	    </li>
