@@ -52,60 +52,7 @@
       </ul>
 
       <h3 class="mb-2">The article should contain the following elements:</h3>
-      <dl class="row">
-	<dt class="col-sm-3 col-md-2">Title</dt>
-	<dd class="col-sm-9 col-md-10">The title should ideally fit in two lines (approximately 150 characters) or less,
-	  and be descriptive of the research reported.</dd>
-
-	<dt class="col-sm-3 col-md-2">Authors</dt>
-	<dd class="col-sm-9 col-md-10">Authors should be listed by initials and last name, with superscript reference to their affiliation.
-	  The corresponding author should be indicated with a superscript asterisk.</dd>
-
-	<dt class="col-sm-3 col-md-2">Abstract</dt>
-	<dd class="col-sm-9 col-md-10">The abstract should preferably fit within 8 lines of the template (about 200 words).</dd>
-
-	<dt class="col-sm-3 col-md-2">Bulk Sections</dt>
-	<dd class="col-sm-9 col-md-10">The bulk of the paper should be clearly divided into sections with short descriptive titles, including an introduction and a conclusion.</dd>
-
-	<dt class="col-sm-3 col-md-2">Figures, images and tables</dt>
-	<dd class="col-sm-9 col-md-10">If figures/images/tables are included, they should
-	  be appropriately labeled and accompanied by a descriptive caption.
-	  Creative figures/artist's impressions are to be avoided;
-	  technical drawings and scientifically accurate representations are on the other hand most welcome.</dd>
-
-	<dt class="col-sm-3 col-md-2">Acknowledgements</dt>
-	<dd class="col-sm-9 col-md-10">Acknowledgements should follow immediately after the conclusion.</dd>
-
-	<dt class="col-sm-3 col-md-2">Author contributions</dt>
-	<dd class="col-sm-9 col-md-10">This is optional. If desired, contributions should be succinctly described using author initials.</dd>
-
-	<dt class="col-sm-3 col-md-2">Funding information</dt>
-	<dd class="col-sm-9 col-md-10">Authors are required to provide funding information, including relevant agencies and grant numbers with linked author's initials.</dd>
-
-	<dt class="col-sm-3 col-md-2">Appendices</dt>
-	<dd class="col-sm-9 col-md-10">Extra material which goes beyond the paper's bulk contents can be provided in appendices, which should be
-	  labeled using capital letters.</dd>
-
-        <dt class="col-sm-3 col-md-2">Supplementary Material</dt>
-	<dd class="col-sm-9 col-md-10">
-	  You should make supplementary material (data, experimental details, analyses, code and similar)
-	  openly available, most appropriately by depositing those in institutional or public repositories.
-	  In your paper, please list the items together with the link pointing to where they are hosted.
-	</dd>
-
-	<dt class="col-sm-3 col-md-2">References</dt>
-	<dd class="col-sm-9 col-md-10">Items in the list of references should include authors, title, journal reference and most importantly
-	  <b>** include the DOI link **</b> (see the template above for an example).</dd>
-      </dl>
-
-      <p>All elements in your paper (equations, references, tables, figures etc)
-	should be hyperlinked to ensure ease of navigation.</p>
-      {% if journal.doi_label == 'MigPol' %}
-	<p>Articles should be 6000 to 12000 words in length.</p>
-      {% else %}
-	<p>There is no strict length limitation, but the authors are strongly encouraged to keep contents to the
-	  strict minimum necessary for peers to reproduce the research described in the paper.</p>
-      {% endif %}
+      {{ journal.required_article_elements|automarkup:'reStructuredText' }}
 
       <hr>
       <h2 class="highlight" id="manusub">Manuscript submission</h2>

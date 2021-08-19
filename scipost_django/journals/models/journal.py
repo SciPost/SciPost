@@ -69,6 +69,10 @@ class Journal(models.Model):
     )
     blurb = models.TextField(default='[To be filled in; you can use markup]')
     list_order = models.PositiveSmallIntegerField(default=100)
+
+    # For manuscript preparation: templates are given by the SubmissionTemplate related objects
+    # For the author guidelines page:
+    required_article_elements = models.TextField(default='[To be filled in; you can use markup]')
     # For about page:
     description = models.TextField(default='[To be filled in; you can use markup]')
     scope = models.TextField(default='[To be filled in; you can use markup]')
