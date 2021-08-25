@@ -347,7 +347,7 @@ def apply_markdown_preserving_displayed_maths(text):
         apply_markdown_preserving_displayed_maths(part2[2]) if len(part2[2]) > 0 else '')
 
 
-def process_markup(text, language_forced=None, fallback=False):
+def process_markup(text, language_forced=None):
     """
     Process a text in a markup language into HTML.
 
@@ -356,7 +356,6 @@ def process_markup(text, language_forced=None, fallback=False):
 
     Parameters:
     * `language_forced=None`: override language auto-detection
-    * `fallback=False`: whether the processor should fall back to plain text if errors are detected
     """
     markup_detector = detect_markup_language(text)
 
@@ -376,10 +375,16 @@ def process_markup(text, language_forced=None, fallback=False):
     markup['language'] = language
     markup['errors'] = markup_detector['errors']
 
+    print("Language: ", markup['language'])
+    print("Errors: ", markup['errors'])
+
     if markup['errors']:
-        # if language wasn't plain text and fallback is True, return as plain text:
-        if markup['language'] != 'plain' and fallback:
-            markup['processed'] = linebreaksbr(text)
+        markup['processed'] = (
+            mark_safe(
+                '<span style="color: red;">%s<br><br>'
+                'For submitted/published material: please contact techsupport@scipost.org '
+                'to point out this error</span><br><br>' % linebreaksbr(markup['errors']))
+            + linebreaksbr(text))
         return markup
 
     if language == 'reStructuredText':
