@@ -6,6 +6,8 @@ from django_filters import rest_framework as df_filters
 
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
+from rest_framework.settings import api_settings
+from rest_framework_csv import renderers as r
 
 from api.viewsets.mixins import FilteringOptionsActionMixin
 
@@ -21,6 +23,7 @@ class PubFractionPublicAPIViewSet(
     queryset = OrgPubFraction.objects.all()
     permission_classes = [AllowAny,]
     serializer_class = PubFractionPublicSerializer
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer, )
     search_fields = [
         'organization__name',
         'publication__publication_date__year'
