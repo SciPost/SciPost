@@ -45,7 +45,7 @@ class ProfileAutocompleteView(autocomplete.Select2QuerySetView):
             qs = qs.filter(Q(first_name__icontains=self.q) |
                            Q(last_name__icontains=self.q) |
                            Q(emails__email__icontains=self.q) |
-                           Q(orcid_id__icontains=self.q))
+                           Q(orcid_id__icontains=self.q)).distinct()
         return qs
 
 
