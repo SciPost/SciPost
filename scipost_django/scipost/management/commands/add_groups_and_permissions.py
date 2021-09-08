@@ -438,6 +438,7 @@ class Command(BaseCommand):
         ])
 
         ProductionSupervisors.permissions.set([
+            can_view_profiles,
             can_assign_production_officer,
             can_take_decisions_related_to_proofs,
             # can_draft_publication,

@@ -5,7 +5,7 @@
   <tr><td>ORCID id: </td><td>{{ contributor.profile.orcid_id|default:'-' }}</td></tr>
   <tr><td>Personal web page: </td><td>{{ contributor.profile.webpage|default:'-' }}</td></tr>
 
-  {% if perms.scipost.can_vet_registration_requests %}
+  {% if perms.scipost.can_vet_registration_requests or perms.scipost.can_view_profiles %}
     <tr class="text-muted"><td>Username</td><td>{{ contributor.user.username }}</td></tr>
     <tr class="text-muted"><td>Email (from User)</td><td>{{ contributor.user.email }}</td></tr>
     <tr class="text-muted"><td>Date joined / last login</td><td>{{ contributor.user.date_joined }} / {{ contributor.user.last_login }}</td></tr>
