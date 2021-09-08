@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import AllowAny, BasePermission
 from rest_framework.settings import api_settings
 from rest_framework_csv import renderers as r
 
@@ -40,3 +40,8 @@ class SubsidyFinAdminAPIViewSet(
         'organization__name__icontains',
         'organization__acronym__icontains'
     ]
+
+
+class SubsidyPublicAPIViewSet(SubsidyFinAdminAPIViewSet):
+    queryset = Subsidy.objects.filter(amount_publicly_shown=True)
+    permission_classes = [AllowAny,]

@@ -23,7 +23,10 @@ from organizations.api.viewsets import (
 )
 
 # finances
-from finances.api.viewsets import SubsidyFinAdminAPIViewSet
+from finances.api.viewsets import (
+    SubsidyFinAdminAPIViewSet,
+    SubsidyPublicAPIViewSet
+)
 
 
 # Next two: old style, to be deprecated:
@@ -53,6 +56,7 @@ router.register('nap', OrganizationNAPViewSet)
 
 # finances
 router.register('finadmin/subsidies', SubsidyFinAdminAPIViewSet)
+router.register('subsidies', SubsidyPublicAPIViewSet)
 
 # Next two: old style, to be deprecated:
 router.register(r'news', NewsItemViewSet)
