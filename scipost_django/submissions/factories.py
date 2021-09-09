@@ -11,7 +11,7 @@ from scipost.constants import SCIPOST_APPROACHES
 from scipost.models import Contributor
 from journals.models import Journal
 from common.helpers import random_scipost_report_doi_label
-from ontology.models import Specialty
+from ontology.models import Specialty, AcademicField
 
 from .constants import (
     STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED,
@@ -29,11 +29,11 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
 
     author_list = factory.Faker('name')
     submitted_by = factory.SubFactory('scipost.factories.ContributorFactory')
-    submitted_to = factory.SubFactory('journals.factories.JournalFactory')
+    submitted_to = factory.Iterator(Journal.objects.all())
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
     list_of_changes = factory.Faker('paragraph', nb_sentences=10)
-    acad_field = factory.SubFactory('ontology.factories.AcademicFieldFactory')
+    acad_field = factory.Iterator(AcademicField.objects.all())
     approaches = factory.Iterator(SCIPOST_APPROACHES, getter=lambda c: [c[0],])
     abstract = factory.Faker('paragraph')
     author_comments = factory.Faker('paragraph')
@@ -56,6 +56,9 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
         if Journal.objects.count() < 3:
             from journals.factories import JournalFactory
             JournalFactory.create_batch(3)
+        if AcademicField.objects.count() < 10:
+            from ontology.factories import AcademicFieldFactory
+            AcademicFieldFactory.create_batch(10)
         if Specialty.objects.count() < 5:
             from ontology.factories import SpecialtyFactory
             SpecialtyFactory.create_batch(5)
@@ -315,7 +318,7 @@ class RefereeInvitationFactory(factory.django.DjangoModelFactory):
     referee = factory.lazy_attribute(lambda o: Contributor.objects.exclude(
         id__in=o.submission.authors.all()).order_by('?').first())
 
-    title = factory.lazy_attribute(lambda o: o.referee.title)
+    title = factory.lazy_attribute(lambda o: o.referee.profile.title)
     first_name = factory.lazy_attribute(lambda o: o.referee.user.first_name)
     last_name = factory.lazy_attribute(lambda o: o.referee.user.last_name)
     email_address = factory.lazy_attribute(lambda o: o.referee.user.email)

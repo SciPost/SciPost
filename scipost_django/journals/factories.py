@@ -37,8 +37,8 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 class JournalFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory('colleges.factories.CollegeFactory')
-    name = 'Fake Journal'
-    doi_label = 'SciPostFakeJournal'
+    name = factory.Sequence(lambda n: 'Fake Journal %s' % n)
+    doi_label = factory.Sequence(lambda n: 'SciPostFakeJournal%s' % n)
     issn = factory.lazy_attribute(lambda n: random_digits(8))
     structure = factory.Iterator(JOURNAL_STRUCTURE, getter=lambda c: c[0])
 
