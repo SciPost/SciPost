@@ -6,7 +6,7 @@
   <br><br>
   {{ invitation.submission.title }}
   <br>by {{ invitation.submission.author_list }}<br>
-  (see https://{{ request.get_host }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
+  (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   Thank you in advance,

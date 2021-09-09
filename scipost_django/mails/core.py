@@ -7,6 +7,7 @@ import re
 import inspect
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import get_template
@@ -52,6 +53,8 @@ class MailEngine:
             'recipient_list': recipient_list,
         }
         self.template_variables = kwargs
+        # Add the 'domain' template variable to all templates using the Sites framework:
+        self.template_variables['domain'] = Site.objects.get_current().domain
 
     def __repr__(self):
         return '<%(cls)s code="%(code)s", validated=%(validated)s sent=%(sent)s>' % {

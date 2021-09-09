@@ -5,7 +5,7 @@
   Your request for registration to the SciPost publication portal has been received. You now need to validate your email by visiting this link within the next 48 hours:
 </p>
 <p>
-  <a href="https://{{ request.get_host }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
+  <a href="https://{{ domain }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
 </p>
 <h3>What happens now?</h3>
 <ul>

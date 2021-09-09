@@ -5,13 +5,13 @@
 {% if nr_potfels_to_vote_on > 0 %}
 <br/>
 <h3>Nominations to the Editorial College</h3>
-<p>You have {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }} to vote on, please visit the <a href="https://{{ request.get_host }}{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page to cast your vote{{ nr_potfels_to_vote_on|pluralize }}.</p>
+<p>You have {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }} to vote on, please visit the <a href="https://{{ domain }}{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page to cast your vote{{ nr_potfels_to_vote_on|pluralize }}.</p>
 {% endif %}
 
 {% if recs_to_vote_on %}
     <br/>
     <h3>Recommendations for you to vote on</h3>
-    <p>Please go to the <a href="https://{{ request.get_host }}{% url 'submissions:pool' %}">pool</a> to cast your vote on:</p>
+    <p>Please go to the <a href="https://{{ domain }}{% url 'submissions:pool' %}">pool</a> to cast your vote on:</p>
     <ul>
       {% for rec in recs_to_vote_on %}
           <li>{{ rec.submission.title }}</li>
@@ -26,7 +26,7 @@
     {% for assignment in assignments_to_consider %}
         <li>
             On submission: {{ assignment.submission }}<br>
-            <a href="https://{{ request.get_host }}{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+            <a href="https://{{ domain }}{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
         </li>
     {% endfor %}
     </ul>
@@ -38,12 +38,12 @@
     <ul>
       {% for assignment in assignments_ongoing %}
           <li>
-            <h3><a href="https://{{ request.get_host }}{% url 'submissions:submission' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
+            <h3><a href="https://{{ domain }}{% url 'submissions:submission' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>
             {% if assignment.submission.cycle.has_required_actions %}
-                <h3>Required actions (go to the <a href="https://{{ request.get_host }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a> to carry them out):</h3>
+                <h3>Required actions (go to the <a href="https://{{ domain }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a> to carry them out):</h3>
                 <ul>
                   {% for code, action in assignment.submission.cycle.required_actions.items %}
                       <li>{{ action|safe }}</li>
@@ -65,12 +65,12 @@
     <ul>
       {% for assignment in assignments_upcoming_deadline %}
           <li>
-            <h3><a href="https://{{ request.get_host }}{% url 'submissions:pool' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
+            <h3><a href="https://{{ domain }}{% url 'submissions:pool' assignment.submission.preprint.identifier_w_vn_nr %}">{{ assignment.submission.title }}</a></h3>
             <p>
               <em>by {{ assignment.submission.author_list }}</em>
             </p>
             <p>Refereeing deadline: {{ assignment.submission.reporting_deadline|date:"Y-m-d" }}.</p>
-            <p><em>You can manage this Submission from its </em><a href="https://{{ request.get_host }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.</p>
+            <p><em>You can manage this Submission from its </em><a href="https://{{ domain }}{% url 'submissions:editorial_page' assignment.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.</p>
           </li>
       {% endfor %}
     </ul>

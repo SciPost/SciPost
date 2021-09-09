@@ -1,3 +1,4 @@
+{% load static %}
 <p>
   Dear {% if contactperson %}{{ contactperson.get_title_display }} {{ contactperson.last_name }}{% else %}colleagues{% endif %},
 </p>
@@ -5,13 +6,13 @@
   We recently contacted you concerning SciPost, to probe your organization's interest in becoming a Sponsor. With this follow-up email, I would simply like to check whether you got the original message.
 </p>
 <p>
-  <a href="https://scipost.org">SciPost</a> is a next-generation publication portal aiming to transform the business of scientific publishing. You can find a one-page summary in <a href="https://scipost.org/static/sponsors/SciPost_Sponsors_Board_Prospectus.pdf">our online prospectus</a> outlining the reasons why joining would be beneficial for your institution.
+  <a href="https://{% url 'scipost:index' %}">SciPost</a> is a next-generation publication portal aiming to transform the business of scientific publishing. You can find a one-page summary in <a href="https://{{ domain }}{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">our online prospectus</a> outlining the reasons why joining would be beneficial for your institution.
 </p>
 <p>
-  You can also find a summary of how your organization has benefitted from our activities at <a href="https://{{ request.get_host }}{{ contactperson.organization.get_absolute_url }}">this link</a>.
+  You can also find a summary of how your organization has benefitted from our activities at <a href="https://{{ domain }}{{ contactperson.organization.get_absolute_url }}">this link</a>.
 </p>
 <p>
-  I will be happy to provide any required further details. If you are interested, you can simply get in touch via this address (sponsors@scipost.org). I sincerely hope that SciPost will be able to count on your support.
+  I will be happy to provide any required further details. If you are interested, you can simply get in touch via this address (sponsors@{{ domain }}). I sincerely hope that SciPost will be able to count on your support.
 </p>
 <p>
   If you not the right representative to get in touch with, could you please forward this to the right person, or let us know?

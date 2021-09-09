@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.template import loader
@@ -101,14 +102,16 @@ def workdays_between(date_from, date_until):
     return workdays
 
 
+# MARKED FOR DEPRECATION
 class BaseMailUtil(object):
-    mail_sender = 'no-reply@scipost.org'
+    mail_sender = 'no-reply@%s' % Site.objects.get_current().domain
     mail_sender_title = ''
 
     @classmethod
     def load(cls, _dict, request=None):
         cls._context = _dict
         cls._context['request'] = request
+        cls._context['domain'] = Site.objects.get_current().domain
         for var_name in _dict:
             setattr(cls, var_name, _dict[var_name])
 
@@ -134,7 +137,7 @@ class BaseMailUtil(object):
         if extra_bcc:
             bcc_list += extra_bcc
         email = EmailMultiAlternatives(
-            'SciPost: ' + subject,  # message,
+            subject,
             message,
             '%s <%s>' % (cls.mail_sender_title, cls.mail_sender),
             recipients,

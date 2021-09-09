@@ -17,7 +17,7 @@ Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ objec
     {# Referee invite #}
     <p>
         We would hereby like to cordially invite you to become a Contributor on SciPost (this is required in order to deliver reports; our records show that you are not yet registered);
-        for your convenience, we have prepared a pre-filled <a href="https://scipost.org/invitation/{{ object.invitation_key }}">registration form</a> for you.
+        for your convenience, we have prepared a pre-filled <a href="https://{{ domain }}/invitation/{{ object.invitation_key }}">registration form</a> for you.
         After activation of your registration, you will be allowed to contribute, in particular by providing referee reports.
     </p>
     <p>
@@ -25,7 +25,7 @@ Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ objec
         we would appreciate a quick accept/decline response from you, ideally within the next 2 days.
     </p>
     <p>
-        If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://scipost.org/submissions/decline_ref_invitation/{{ object.invitation_key }}"> clicking here</a>.
+        If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://{{ domain }}/submissions/decline_ref_invitation/{{ object.invitation_key }}"> clicking here</a>.
     </p>
     <p>
         If you are able to provide a Report, you can confirm this after registering and logging in (you will automatically be prompted for a confirmation).
@@ -74,7 +74,7 @@ Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ objec
                     <br>
                     <i>by {{ notification.submission.author_list }}</i>
                     <br>
-                    <a href="https://{{ request.get_host }}/{{ notification.submission.get_absolute_url }}">View the submission's page</a>
+                    <a href="https://{{ domain }}/{{ notification.submission.get_absolute_url }}">View the submission's page</a>
                 </li>
             {% endfor %}
         </ul>
@@ -91,18 +91,18 @@ Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ objec
         international scientific community.
     </p>
     <p>
-        The site is anchored at <a href="https://scipost.org">scipost.org</a>.
+        The site is anchored at <a href="https://{{ domain }}{% url 'scipost:index' %}">{{ domain }}</a>.
         Many further details about SciPost, its principles, ideals and implementation can be found at
-        the <a href="https://scipost.org/about">about</a>
-        and <a href="https://scipost.org/FAQ">FAQ</a> pages.</p>
+        the <a href="https://{{ domain }}{% url 'scipost:about' %}">about</a>
+        and <a href="https://{{ domain }}{% url 'scipost:FAQ' %}">FAQ</a> pages.</p>
         <p>As a professional academic, you can register at the
-        <a href="https://scipost.org/register">registration page</a>,
+        <a href="https://{{ domain }}{% url 'scipost:register' %}">registration page</a>,
         enabling you to contribute to the site's contents, for example by offering submissions, reports and comments.
     </p>
     <p>
-        For your convenience, a partly pre-filled <a href="https://scipost.org/invitation/{{ object.invitation_key }}">registration form</a>
+        For your convenience, a partly pre-filled <a href="https://{{ domain }}/invitation/{{ object.invitation_key }}">registration form</a>
         has been prepared for you (you can in any case still register at the
-        <a href="https://scipost.org/register">registration page</a>).
+        <a href="https://{{ domain }}{% url 'scipost:register' %}">registration page</a>).
     </p>
     <p>
         If you do develop sympathy for the initiative, besides participating in the
@@ -156,18 +156,18 @@ Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ objec
     </p>
     <p>
         To help you in considering this, it would be best if you were to take
-        the time to look at the website itself, which is anchored at scipost.org.
+        the time to look at the website itself, which is anchored at {{ domain }}.
         Besides looking around the site, you can also personally register
         (to become a Contributor, without necessarily committing to membership
         of the Editorial College, this to be discussed separately) by visiting
-        the following <a href="https://scipost.org/invitation/{{ object.invitation_key }}">
+        the following <a href="https://{{ domain }}/invitation/{{ object.invitation_key }}">
         single-use link</a>, containing a partly pre-filled form for your convenience.
     </p>
     <p>
         Many details about the initiative
-        can then be found at scipost.org/about and at scipost.org/FAQ.
+        can then be found at {{ domain }}{% url 'scipost:about' %} and at {{ domain }}{% url 'scipost:FAQ' %}.
         Functioning of the College will proceed according to the by-laws set
-        out in scipost.org/EdCol_by-laws.
+        out in {{ domain }}{% url 'scipost:EdCol_by-laws' %}.
     </p>
     <p>
         Since the success of this initiative is dependent on the involvement of

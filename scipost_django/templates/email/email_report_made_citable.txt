@@ -15,5 +15,5 @@ We thank you again very much for your contribution.
 The SciPost Team
 
 {% if report.anonymous %}
-P.S.: When submitting your Report, you chose to remain anonymous. We generally encourage (but in no way require) our referees to sign their contributions, in order to foster greater transparency and allow you to get full recognition for your valuable refereeing work. Should you wish to sign your Report (even post-facto; this can be done at any time), simply navigate to your <a href="https://scipost.org/personal_page">personal page</a> under the Refereeing tab, where you will find a link allowing you to do so (after which we will update your Report's DOI metadata, and make your signature publicly visible).
+P.S.: When submitting your Report, you chose to remain anonymous. We generally encourage (but in no way require) our referees to sign their contributions, in order to foster greater transparency and allow you to get full recognition for your valuable refereeing work. Should you wish to sign your Report (even post-facto; this can be done at any time), simply navigate to your <a href="https://{{ domain }}{% url 'scipost:personal_page' %}">personal page</a> under the Refereeing tab, where you will find a link allowing you to do so (after which we will update your Report's DOI metadata, and make your signature publicly visible).
 {% endif %}

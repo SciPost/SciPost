@@ -5,14 +5,14 @@
   For your recent SciPost publication,
 </p>
 <p>
-  <a href="https://{{ request.get_host }}/{{ publication.get_absolute_url }}">{{ publication.title }}</a><br>
+  <a href="https://{{ domain }}/{{ publication.get_absolute_url }}">{{ publication.title }}</a><br>
   by {{ publication.author_list }}
 </p>
 <p>
   we would like you to help us determine who supported the research contained in this publication. This info is of great use for our sustainability efforts. One or two minutes of your attention are all that is required.
 </p>
 <p>
-  Could we beg you to navigate (login required) to <a href="https://{{ request.get_host }}{% url 'journals:allocate_orgpubfractions' doi_label=publication.doi_label %}">this page</a> and check/correct the data we have prepared?
+  Could we beg you to navigate (login required) to <a href="https://{{ domain }}{% url 'journals:allocate_orgpubfractions' doi_label=publication.doi_label %}">this page</a> and check/correct the data we have prepared?
 </p>
 <p>
   Many thanks in advance,
