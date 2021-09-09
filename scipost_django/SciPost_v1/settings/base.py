@@ -114,7 +114,6 @@ INSTALLED_APPS = (
     'oauth2_provider',
     'ontology',
     'organizations',
-    'partners',
     'petitions',
     'preprints',
     'proceedings',
