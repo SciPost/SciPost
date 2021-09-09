@@ -6,11 +6,11 @@
   <br><br>
   {{ report.submission.title }}
   <br>by {{ report.submission.author_list }}<br>
-  (see https://scipost.org{{ report.submission.get_absolute_url }} - first submitted {{ report.submission.original_submission_date|date:"d M Y" }}).
+  (see https://{{ request.get_host }}{{ report.submission.get_absolute_url }} - first submitted {{ report.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   You can view your Report and the associated Comment directly at
-  <a href="https://scipost.org{{ report.get_absolute_url }}">this link</a>.
+  <a href="https://{{ request.get_host }}{{ report.get_absolute_url }}">this link</a>.
 </p>
 <p>
   We thank you very much for your contribution.<br/><br/>The SciPost Team.

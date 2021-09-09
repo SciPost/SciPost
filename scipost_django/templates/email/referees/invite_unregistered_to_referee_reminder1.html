@@ -6,7 +6,7 @@
   Recently, on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely<br><br>
   {{ invitation.submission.title }}<br>
   by {{ invitation.submission.author_list }}<br>
-  (see https://scipost.org{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
+  (see https://{{ request.get_host }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   We are still awaiting your response to this invitation.
@@ -25,7 +25,7 @@
   After activation of your registration, you will be allowed to contribute, in particular by providing referee reports.
 </p>
 <p>
-  You might want to make sure you are familiar with our <a href="https://scipost.org{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>, <a href="https://scipost.org{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://scipost.org{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+  You might want to make sure you are familiar with our <a href="https://{{ request.get_host }}{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>, <a href="https://{{ request.get_host }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ request.get_host }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
   We very much hope that we can count on your expertise,

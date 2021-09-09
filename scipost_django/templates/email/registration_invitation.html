@@ -74,7 +74,7 @@ Dear {% if object.message_style == 'F' %}{{ object.get_title_display }} {{ objec
                     <br>
                     <i>by {{ notification.submission.author_list }}</i>
                     <br>
-                    <a href="https://scipost.org/{{ notification.submission.get_absolute_url }}">View the submission's page</a>
+                    <a href="https://{{ request.get_host }}/{{ notification.submission.get_absolute_url }}">View the submission's page</a>
                 </li>
             {% endfor %}
         </ul>

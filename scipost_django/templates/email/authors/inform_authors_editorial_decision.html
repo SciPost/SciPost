@@ -65,7 +65,7 @@
     </p>
     <p>
       You can view more details at the Submission's page at
-      <a href="https://scipost.org{{ decision.submission.get_absolute_url }}">https://scipost.org{{ decision.submission.get_absolute_url }}</a> .
+      <a href="https://{{ request.get_host }}{{ decision.submission.get_absolute_url }}">https://{{ request.get_host }}{{ decision.submission.get_absolute_url }}</a> .
       Note that these details are viewable only by the registered authors of the submission.
     </p>
     <p>

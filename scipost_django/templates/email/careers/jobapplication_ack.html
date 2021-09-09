@@ -13,8 +13,8 @@
   verification link (to certify your email):
 </p>
 <p>
-  <a href="https://scipost.org{% url 'careers:jobapplication_verify' uuid=jobapplication.uuid %}">
-    https://scipost.org{% url 'careers:jobapplication_verify' uuid=jobapplication.uuid %}</a>
+  <a href="https://{{ request.get_host }}{% url 'careers:jobapplication_verify' uuid=jobapplication.uuid %}">
+    https://{{ request.get_host }}{% url 'careers:jobapplication_verify' uuid=jobapplication.uuid %}</a>
 </p>
 <p>
   We thank you very much for your interest, and will keep you updated on the

@@ -4,7 +4,7 @@
 <p>
   The {% if comment.is_author_reply %}Author Reply{% else %}Comment{% endif %} you have submitted, concerning
   <br/>
-  {{ comment.core_content_object.title }} by {% if comment.core_content_object.author_list %}{{ comment.core_content_object.author_list }}{% elif comment.core_content_object.author %}{{ comment.core_content_object.author }}{% endif %} (<a href="https://scipost.org{{ comment.get_absolute_url }}">see on SciPost.org</a>)
+  {{ comment.core_content_object.title }} by {% if comment.core_content_object.author_list %}{{ comment.core_content_object.author_list }}{% elif comment.core_content_object.author %}{{ comment.core_content_object.author }}{% endif %} (<a href="https://{{ request.get_host }}{{ comment.get_absolute_url }}">see on SciPost.org</a>)
   <br/>
   has been rejected for the following reason: {{ comment.get_status_display }}.
 </p>

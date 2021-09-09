@@ -2,7 +2,7 @@
     The following Publication is drafted and ready for publication.
 </p>
 <p>
-    <a href="https://scipost.org/{{ object.get_absolute_url }}">{{ object.title }}</a><br>
+    <a href="https://{{ request.get_host }}/{{ object.get_absolute_url }}">{{ object.title }}</a><br>
     by {{ object.author_list }}
 </p>
 <p>

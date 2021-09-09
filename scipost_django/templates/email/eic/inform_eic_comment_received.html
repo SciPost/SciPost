@@ -9,7 +9,7 @@
     by {{ comment.core_content_object.author_list }}.
 </p>
 <p>
-  This Comment now requires vetting, which you can perform from <a href="https://scipost.org{% url 'submissions:editorial_page' comment.core_content_object.preprint.identifier_w_vn_nr %}">the editorial page</a> (please be careful when doing this, avoiding for example to vet doubly-submitted comments, or comments with improper language etc; in case you have any doubt, please contact our <a href="mailto:edadmin@scipost.org">editorial administration</a>).
+  This Comment now requires vetting, which you can perform from <a href="https://{{ request.get_host }}{% url 'submissions:editorial_page' comment.core_content_object.preprint.identifier_w_vn_nr %}">the editorial page</a> (please be careful when doing this, avoiding for example to vet doubly-submitted comments, or comments with improper language etc; in case you have any doubt, please contact our <a href="mailto:edadmin@scipost.org">editorial administration</a>).
 </p>
 <p>
   Many thanks in advance for your collaboration,<br>

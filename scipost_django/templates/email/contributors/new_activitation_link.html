@@ -4,7 +4,7 @@
     Your request for a new email activation link for registration to the SciPost publication portal has been received. You now need to visit this link within the next 48 hours:
 </p>
 <p>
-    <a href="https://scipost.org{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
+    <a href="https://{{ request.get_host }}{% url 'scipost:activation' contributor.id contributor.activation_key %}">Activate your account</a>
 </p>
 
 <p>

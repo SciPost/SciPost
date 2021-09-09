@@ -7,7 +7,7 @@
   <br>
   by {{ invitation.submission.author_list }}
   <br>
-  (<a href="https://scipost.org{{ invitation.submission.get_absolute_url }}">see on SciPost.org</a>)
+  (<a href="https://{{ request.get_host }}{{ invitation.submission.get_absolute_url }}">see on SciPost.org</a>)
 </p>
 <p>
   have resubmitted their manuscript to SciPost. On behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we would like to invite you to quickly review this new version.
