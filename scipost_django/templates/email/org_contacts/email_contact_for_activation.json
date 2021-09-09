@@ -4,8 +4,8 @@
         "user.email"
     ],
     "bcc": [
-        "sponsors@scipost.org"
+        "sponsors@"
     ],
     "from_name": "SciPost Sponsors Admin",
-    "from_email": "sponsors@scipost.org"
+    "from_email": "sponsors@"
 }

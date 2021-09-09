@@ -5,8 +5,8 @@
     ],
     "bcc": [
         "invited_by.email",
-        "admin@scipost.org"
+        "admin@"
     ],
     "from_name": "SciPost Registration",
-    "from_email": "registration@scipost.org"
+    "from_email": "registration@"
 }

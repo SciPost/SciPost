@@ -4,9 +4,9 @@
 	"submitted_by.user.email"
     ],
     "bcc": [
-	"edadmin@scipost.org",
+	"edadmin@",
 	"editor_in_charge.user.email"
     ],
     "from_name": "SciPost Editorial Administration",
-    "from_email": "edadmin@scipost.org"
+    "from_email": "edadmin@"
 }
