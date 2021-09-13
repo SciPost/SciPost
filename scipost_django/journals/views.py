@@ -16,6 +16,7 @@ from plotly.graph_objs import Bar
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
@@ -1273,6 +1274,8 @@ def generic_metadata_xml_deposit(request, **kwargs):
     For PublicationUpdates, the deposit type is `journal_article` and
     the journal is used as container.
     """
+    domain = Site.objects.get_current().domain
+
     type_of_object = kwargs['type_of_object']
     object_id = int(kwargs['object_id'])
 
@@ -1342,9 +1345,9 @@ def generic_metadata_xml_deposit(request, **kwargs):
                 )
 
             if isinstance(_object, Publication):
-                url_to_declare = 'https://scipost.org{}'.format(_object.get_absolute_url())
+                url_to_declare = 'https://{domain}{doi}'.format(domain=domain, doi=_object.get_absolute_url())
             else:
-                url_to_declare = 'https://scipost.org/{}'.format(_object.doi_label)
+                url_to_declare = 'https://{domain}/{doi}'.format(domain=domain, doi=_object.doi_label)
 
             metadata_xml += (
                 '</contributors>\n'
@@ -1377,7 +1380,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
                 '</database_metadata>\n'
                 '<dataset dataset_type="collection">\n'
                 '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-                '<resource>https://scipost.org' + _object.get_absolute_url() +
+                '<resource>https://' + domain + _object.get_absolute_url() +
                 '</resource></doi_data>\n'
                 '</dataset></database>\n'
                 '</body></doi_batch>'

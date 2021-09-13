@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.db import models
 from django.http import Http404
@@ -46,7 +47,7 @@ class Preprint(models.Model):
     def citation_pdf_url(self):
         """Return the absolute URL of the pdf for the meta tag for Google Scholar."""
         if self._file: # means this is a SciPost-hosted preprint
-            return "https://scipost.org%s" % self.get_absolute_url()
+            return "https://%s%s" % (Site.objects.get_current().domain, self.get_absolute_url())
         elif self.is_arXiv:
             return self.get_absolute_url().replace("/abs/", "/pdf/")
         else:
