@@ -6,9 +6,9 @@
 	<li>
 	  <h4>
 	    {% if not is_author and not is_author_unchecked %}
-              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a>
+              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@{{ request.get_host }}">Invite an expert you know to contribute a Report</a>
 	    {% else %}
-              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/author_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a>
+              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/author_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@{{ request.get_host }}">Invite an expert you know to contribute a Report</a>
 	    {% endif %}
 	  </h4>
 	</li>

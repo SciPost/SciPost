@@ -1,14 +1,15 @@
 {% extends 'scipost/base.html' %}
+{% load static %}
 
 {% block pagetitle %}: CSRF Failure{% endblock pagetitle %}
 
 {% block content %}
 
-<div style="text-align: center;">
-    <img src="//scipost.org/static/scipost/images/logo_scipost_RGB_HTML_groot.png" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
+  <div style="text-align: center;">
+    <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
     <h2>We are sorry, your security token seem to have expired. Please refresh your page and try again.</h2>
     <h3>The SciPost administrators have been informed.</h3>
-    <p style="margin-top: 20px;">Go back to <a href="//scipost.org">the homepage</a>.</p>
-</div>
+    <p style="margin-top: 20px;">Go back to <a href="{% url 'scipost:index' %}">the homepage</a>.</p>
+  </div>
 
 {% endblock %}

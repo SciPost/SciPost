@@ -59,7 +59,7 @@
           <td style="min-width: 200px;">Conflict of interests:</td>
           <td>
             {% if submission.needs_conflicts_update %}
-              Conflict of interest awaiting update. <a href="mailto:techsupport@scipost.org">Contact techsupport</a> if this is not automatically resolved soon.
+              Conflict of interest awaiting update. <a href="mailto:techsupport@{{ request.get_host }}">Contact techsupport</a> if this is not automatically resolved soon.
             {% else %}
               Conflict of interest updated
             {% endif %}

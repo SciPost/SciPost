@@ -1,4 +1,5 @@
 {% extends 'scipost/base.html' %}
+{% load static %}
 
 {% block pagetitle %}: 403{% endblock pagetitle %}
 
@@ -7,8 +8,8 @@
 <div class="row">
     <div class="col-12">
       <div style="text-align: center;">
-          <img src="//scipost.org/static/scipost/images/logo_scipost_RGB_HTML_groot.png" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
-          <h1>You are not authorized to view the requested page.</h1>
+        <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
+        <h1>You are not authorized to view the requested page.</h1>
           <h2>403</h2>
           {% if request.user.is_anonymous %}
             <p style="margin-top: 20px;">Please <a href="{% url 'scipost:login' %}">login</a> first, and try again.</p>

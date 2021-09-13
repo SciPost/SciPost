@@ -98,7 +98,7 @@ class Submission(models.Model):
                                     help_text=(
                                         'Don\'t find the Proceedings you are looking for? '
                                         'Ask the conference organizers to contact our admin '
-                                        'at admin@scipost.org to set things up.'))
+                                        'to set things up.'))
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:

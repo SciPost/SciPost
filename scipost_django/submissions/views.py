@@ -1606,8 +1606,7 @@ def eic_recommendation(request, identifier_w_vn_nr):
     if not form.has_assignment():
         messages.warning(request, ('You cannot formulate an Editorial Recommendation,'
                                    ' because the Editorial Assignment has not been set properly.'
-                                   ' Please '
-                                   '<a href="mailto:admin@scipost.org">report the problem</a>.'))
+                                   ' Please contact EdAdmin to report the problem.'))
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.preprint.identifier_w_vn_nr]))
 

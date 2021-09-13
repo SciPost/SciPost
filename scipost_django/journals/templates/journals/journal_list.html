@@ -84,7 +84,7 @@
       {% empty %}
 	<p>
 	  There are no Journals yet in this branch of academia.
-	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
+	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@{{ request.get_host }}">emailing us</a> with your suggestions!</strong>
 	</p>
       {% endfor %}
     </div>

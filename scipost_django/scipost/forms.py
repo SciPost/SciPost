@@ -12,6 +12,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.contrib.sites.models import Site
 from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.utils import timezone
@@ -45,6 +46,7 @@ from submissions.models import Submission, EditorialAssignment, RefereeInvitatio
     EditorialCommunication, EICRecommendation
 from theses.models import ThesisLink
 
+domain = Site.objects.get_current().domain
 
 REGISTRATION_REFUSAL_CHOICES = (
     (None, '-'),
@@ -162,7 +164,7 @@ class RegistrationForm(forms.Form):
             if profile and profile.contributor:
                 raise forms.ValidationError(
                     'There is already a registered Contributor with your email address. '
-                    'Please contact techsupport@scipost.org to clarify this issue.'
+                    f'Please contact techsupport@{domain} to clarify this issue.'
                 )
         except Contributor.DoesNotExist:
             pass
@@ -805,7 +807,7 @@ class EmailUsersForm(forms.Form):
                 html_version = html_template.render(Context(email_context))
                 message = mail.EmailMultiAlternatives(
                     self.cleaned_data['email_subject'],
-                    email_text, 'SciPost Admin <admin@scipost.org>',
+                    email_text, f'SciPost Admin <admin@{domain}>',
                     [user.email], connection=connection)
                 message.attach_alternative(html_version, 'text/html')
                 message.send()

@@ -54,7 +54,7 @@
 <li>Recompile the LaTeX, and CAREFULLY CHECK EVERYTHING.</li>
 </ol>
 </blockquote>
-<h3 id="uploading-to-scipost.org">Uploading to <code>scipost.org</code></h3>
+<h3 id="uploading-to-{{ request.get_host }}">Uploading to <code>{{ request.get_host }}</code></h3>
 <blockquote>
 <ol>
 <li>From the Submissions Pool, click on the link to initiate the publication process.</li>
@@ -104,8 +104,8 @@
 <h3 id="metadata-testing-and-deposit">Metadata testing and deposit</h3>
 <blockquote>
 <p>At this stage, the metadata is ready for uploading to Crossref. This occurs via a POST query to either the test or live Crossref server.</p>
-<p>Clicking on <code>Test metadata deposit</code> immediately posts the metadata to the test server, and takes you to a page where the server's response headers are displayed. The server also sends a more detailed response via email (to <code>admin@scipost.org</code>; if you do not have access to this mailbox, ask SciPost Administration) with the success status.</p>
-<p>Similarly, the actual deposit is immediately performed upon clicking on the <code>Deposit the metadata to Crossref</code>. The response headers are displayed, and a detailed email response is sent by Crossref to <code>admin@scipost.org</code>.</p>
+<p>Clicking on <code>Test metadata deposit</code> immediately posts the metadata to the test server, and takes you to a page where the server's response headers are displayed. The server also sends a more detailed response via email (to <code>admin@{{ request.get_host }}</code>; if you do not have access to this mailbox, ask SciPost Administration) with the success status.</p>
+<p>Similarly, the actual deposit is immediately performed upon clicking on the <code>Deposit the metadata to Crossref</code>. The response headers are displayed, and a detailed email response is sent by Crossref to <code>admin@{{ request.get_host }}</code>.</p>
 <p><strong>This completes the publication process.</strong></p>
 </blockquote>
 
