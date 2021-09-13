@@ -19,7 +19,7 @@
                     {% if publication.in_issue.in_volume.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_issue.in_volume.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_issue.in_volume.in_journal.doi_string }}</doi>
-                        <resource>https://scipost.org/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
+                        <resource>https://{{ domain }}/{{ publication.in_issue.in_volume.in_journal.doi_string }}</resource>
                     </doi_data>
                 </journal_metadata>
                 <journal_issue>
@@ -38,7 +38,7 @@
                     {% if publication.in_issue.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_issue.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_issue.in_journal.doi_string }}</doi>
-                        <resource>https://scipost.org/{{ publication.in_issue.in_journal.doi_string }}</resource>
+                        <resource>https://{{ domain }}/{{ publication.in_issue.in_journal.doi_string }}</resource>
                     </doi_data>
                 </journal_metadata>
                 <journal_issue>
@@ -54,7 +54,7 @@
                     {% if publication.in_journal.issn %}<issn media_type='electronic'>{{ publication.in_journal.issn }}</issn>{% endif %}
                     <doi_data>
                         <doi>{{ publication.in_journal.doi_string }}</doi>
-                        <resource>https://scipost.org/{{ publication.in_journal.doi_string }}</resource>
+                        <resource>https://{{ domain }}/{{ publication.in_journal.doi_string }}</resource>
                     </doi_data>
                 </journal_metadata>
             {% endif %}
@@ -94,7 +94,7 @@
                 <crossmark>
                     <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
                     <crossmark_domains>
-                        <crossmark_domain><domain>scipost.org</domain></crossmark_domain>
+                        <crossmark_domain><domain>{{ domain }}</domain></crossmark_domain>
                     </crossmark_domains>
                     <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
                     <custom_metadata>
@@ -127,15 +127,15 @@
                 </archive_locations>
                 <doi_data>
                     <doi>{{ publication.doi_string }}</doi>
-                    <resource>https://scipost.org/{{ publication.doi_string }}</resource>
+                    <resource>https://{{ domain }}/{{ publication.doi_string }}</resource>
                     <collection property='crawler-based'>
                         <item crawler='iParadigms'>
-                            <resource>https://scipost.org/{{ publication.doi_string }}/pdf</resource>
+                            <resource>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
                         </item>
                     </collection>
                     <collection property='text-mining'>
                         <item>
-                            <resource mime_type='application/pdf'>https://scipost.org/{{ publication.doi_string }}/pdf</resource>
+                            <resource mime_type='application/pdf'>https://{{ domain }}/{{ publication.doi_string }}/pdf</resource>
                         </item>
                     </collection>
                 </doi_data>

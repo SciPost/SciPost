@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.mixins import (
     LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin)
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.db import transaction, IntegrityError
 from django.db.models import Q
@@ -608,6 +609,7 @@ def report_pdf_compile(request, report_id):
         messages.success(request, 'Upload complete.')
         return redirect(reverse('submissions:reports_accepted_list'))
     context = {
+        'domain': Site.objects.get_current().domain,
         'report': report,
         'form': form
     }
@@ -639,6 +641,7 @@ def treated_submission_pdf_compile(request, identifier_w_vn_nr):
         messages.success(request, 'Upload complete.')
         return redirect(reverse('submissions:treated_submissions_list'))
     context = {
+        'domain': Site.objects.get_current().domain,
         'submission': submission,
         'form': form
     }

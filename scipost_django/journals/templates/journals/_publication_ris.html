@@ -6,7 +6,7 @@
       <span>DO  - {{ publication.doi_string }}</span><br>
       <span>TI  - {{ publication.title }}</span><br>
       <span>PY  - {{ publication.publication_date|date:'Y/m/d' }}</span><br>
-      <span>UR  - https://scipost.org{{ publication.get_absolute_url }}</span><br>
+      <span>UR  - https://{{ request.get_host }}{{ publication.get_absolute_url }}</span><br>
       <span>JF  - {{ publication.get_journal.name }}</span><br>
       <span>JA  - {{ publication.get_journal.name_abbrev }}</span><br>
       {% if publication.in_issue %}

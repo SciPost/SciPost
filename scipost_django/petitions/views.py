@@ -7,6 +7,7 @@ import random
 import string
 
 from django.contrib import messages
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Context, Template
@@ -41,6 +42,7 @@ def petition(request, slug):
     form = SignPetitionForm(request.POST or None, initial=initial, petition=petition,
                             current_user=request.user)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         signature = form.save(commit=False)
         signature.petition = petition
         message = ('<h3>Many thanks for signing!</h3>'
@@ -65,12 +67,12 @@ def petition(request, slug):
             message += '\n<p>You will receive an email with a verification link.</p>'
             email_text = ('Please click on the link below to confirm '
                           'your signature of the petition: \n'
-                          'https://scipost.org/petitions/'
+                          'https://' + domain + '/petitions/'
                           + petition.slug + '/verify_signature/' + verification_key + '.\n')
             email_text_html = (
                 '<p>Please click on the link below to confirm '
                 'your signature of the petition:</p>'
-                '<p><a href="https://scipost.org/petitions/{{ slug }}/verify_signature'
+                '<p><a href="https://' + domain + '/petitions/{{ slug }}/verify_signature'
                 '/{{ key }}">confirm your signature</a></p>')
             html_template = Template(email_text_html)
             html_version = html_template.render(Context({'slug': petition.slug,
@@ -78,9 +80,9 @@ def petition(request, slug):
             emailmessage = EmailMultiAlternatives(
                 'Petition signature verification',
                 email_text,
-                'SciPost petitions<petitions@scipost.org>',
+                'SciPost petitions<petitions@%s>' % domain,
                 [form.cleaned_data['email']],
-                bcc=['petitions@scipost.org'])
+                bcc=['petitions@%s' % domain])
             emailmessage.attach_alternative(html_version, 'text/html')
             emailmessage.send()
         messages.success(request, message)

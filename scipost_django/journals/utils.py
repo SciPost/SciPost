@@ -2,18 +2,20 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 
 from common.utils import BaseMailUtil
 
 
 class JournalUtils(BaseMailUtil):
-    mail_sender = 'edadmin@scipost.org'
+    mail_sender = 'edadmin@%s' % Site.objects.get_current().domain
     mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
     def send_authors_paper_published_email(cls):
         """ Requires loading 'publication' attribute. """
+        domain = Site.objects.get_current().domain
         email_text = ('Dear '
                       + cls.publication.accepted_submission.submitted_by.profile.get_title_display()
                       + ' ' +
@@ -24,7 +26,7 @@ class JournalUtils(BaseMailUtil):
                       '\n\nhas been published online with reference '
                       + cls.publication.citation + '.'
                       '\n\nThe publication page is located at the permanent link '
-                      'https://scipost.org/' + cls.publication.doi_label + '.'
+                      'https://' + domain + '/' + cls.publication.doi_label + '.'
                       '\n\nThe permanent DOI for your publication is 10.21468/'
                       + cls.publication.doi_label + '.'
                       '\n\nTo facilitate dissemination of your paper, we will also automatically '
@@ -36,10 +38,10 @@ class JournalUtils(BaseMailUtil):
                       '\n\nThe SciPost Team.')
         emailmessage = EmailMessage(
             'SciPost: paper published', email_text,
-            'SciPost Editorial Admin <edadmin@scipost.org>',
+            'SciPost Editorial Admin <edadmin@%s>' % domain,
             [cls.publication.accepted_submission.submitted_by.user.email,
-             'edadmin@scipost.org'],
-            reply_to=['edadmin@scipost.org'])
+             'edadmin@%s' % domain],
+            reply_to=['edadmin@%s' % domain])
         emailmessage.send(fail_silently=False)
 
     @classmethod

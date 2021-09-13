@@ -19,7 +19,7 @@
           {% if update.publication.in_issue.in_volume.in_journal.issn %}<issn media_type='electronic'>{{ update.publication.in_issue.in_volume.in_journal.issn }}</issn>{% endif %}
           <doi_data>
             <doi>{{ update.publication.in_issue.in_volume.in_journal.doi_string }}</doi>
-            <resource>https://scipost.org/{{ update.publication.in_issue.in_volume.in_journal.doi_string }}</resource>
+            <resource>https://{{ domain }}/{{ update.publication.in_issue.in_volume.in_journal.doi_string }}</resource>
           </doi_data>
         </journal_metadata>
       {% elif update.publication.in_issue.in_journal %}
@@ -29,7 +29,7 @@
           {% if update.publication.in_issue.in_journal.issn %}<issn media_type='electronic'>{{ update.publication.in_issue.in_journal.issn }}</issn>{% endif %}
           <doi_data>
             <doi>{{ update.publication.in_issue.in_journal.doi_string }}</doi>
-            <resource>https://scipost.org/{{ update.publication.in_issue.in_journal.doi_string }}</resource>
+            <resource>https://{{ domain }}/{{ update.publication.in_issue.in_journal.doi_string }}</resource>
           </doi_data>
         </journal_metadata>
       {% else %}
@@ -39,7 +39,7 @@
           {% if update.publication.in_journal.issn %}<issn media_type='electronic'>{{ update.publication.in_journal.issn }}</issn>{% endif %}
           <doi_data>
             <doi>{{ update.publication.in_journal.doi_string }}</doi>
-            <resource>https://scipost.org/{{ update.publication.in_journal.doi_string }}</resource>
+            <resource>https://{{ domain }}/{{ update.publication.in_journal.doi_string }}</resource>
           </doi_data>
         </journal_metadata>
       {% endif %}
@@ -75,7 +75,7 @@
         <crossmark>
           <crossmark_policy>10.21468/SciPost.CrossmarkPolicy</crossmark_policy>
           <crossmark_domains>
-            <crossmark_domain><domain>scipost.org</domain></crossmark_domain>
+            <crossmark_domain><domain>{{ domain }}</domain></crossmark_domain>
           </crossmark_domains>
           <crossmark_domain_exclusive>false</crossmark_domain_exclusive>
 	  <updates>
@@ -84,7 +84,7 @@
         </crossmark>
         <doi_data>
           <doi>{{ update.doi_string }}</doi>
-          <resource>https://scipost.org/{{ update.doi_string }}</resource>
+          <resource>https://{{ domain }}/{{ update.doi_string }}</resource>
         </doi_data>
       </journal_article>
     </journal>

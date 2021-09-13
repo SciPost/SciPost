@@ -12,6 +12,7 @@ from datetime import datetime
 
 from django import forms
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
@@ -166,6 +167,7 @@ class CreateMetadataXMLForm(forms.ModelForm):
         # Render from template
         template = loader.get_template('xml/publication_crossref.html')
         context = {
+            'domain': Site.objects.get_current().domain,
             'publication': publication,
             'doi_batch_id': doi_batch_id,
             'deposit_email': settings.CROSSREF_DEPOSIT_EMAIL,
@@ -514,13 +516,14 @@ class DraftPublicationForm(forms.ModelForm):
             '\tyear={%s},\n'
             '\tpublisher={SciPost},\n'
             '\tdoi={%s},\n'
-            '\turl={https://scipost.org/%s},\n'
+            '\turl={https://%s/%s},\n'
             '}'
         ) % (
             issue.number,
             paper_nr,
             issue.until_date.strftime('%Y'),
             doi_string,
+            Site.objects.get_current().domain,
             doi_string)
 
         self.fields['BiBTeX_entry'].initial = bibtex_entry
@@ -546,7 +549,7 @@ class DraftPublicationForm(forms.ModelForm):
             '\tyear={%s},\n'
             '\tpublisher={SciPost},\n'
             '\tdoi={%s},\n'
-            '\turl={https://scipost.org/%s},\n'
+            '\turl={https://%s/%s},\n'
             '}'
         ) % (
             doi_string,
@@ -556,6 +559,7 @@ class DraftPublicationForm(forms.ModelForm):
             paper_nr,
             timezone.now().year,
             doi_string,
+            Site.objects.get_current().domain,
             doi_string)
         self.fields['BiBTeX_entry'].initial = bibtex_entry
         if not self.instance.BiBTeX_entry:

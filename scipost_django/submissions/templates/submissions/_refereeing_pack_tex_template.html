@@ -16,10 +16,10 @@ urlcolor={blue!80!black}
 
 \fancypagestyle{SPstyle}{
 \fancyhf{}
-\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://{{ domain }}}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
 
 {% if report.doi_string %}
-  \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
+  \rhead{\small \href{https://{{ domain }}{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
 {% endif %}
 
 \renewcommand{\headrulewidth}{1pt}
@@ -33,14 +33,14 @@ urlcolor={blue!80!black}
 \begin{center}
 \Large\color{scipostdeepblue}{\textbf{
 %%%%%%%%%% TITLE + AUTHORS
-Refereeing Package of\href{https://scipost.org{{submission.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{submission.title}} }}by {{submission.author_list}}
+Refereeing Package of\href{https://{{ domain }}{{submission.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{submission.title}} }}by {{submission.author_list}}
 }}
 \end{center}
 
 \begin{center}
 \Large\color{scipostdeepblue}{\textbf{
 %%%%%%%%%% ARXIV CODE
-\href{https://scipost.org{{submission.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{ submission.preprint.identifier_w_vn_nr }} }}
+\href{https://{{ domain }}{{submission.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{ submission.preprint.identifier_w_vn_nr }} }}
 }}
 \end{center}
 
@@ -71,10 +71,10 @@ Submitted to {{submission.submitted_to}}
 
   \fancypagestyle{SPstylereport{{report.id}} }{
   \fancyhf{}
-  \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+  \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://{{ domain }}}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
 
   {% if report.doi_string %}
-    \rhead{\small \href{https://scipost.org{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
+    \rhead{\small \href{https://{{ domain }}{{report.doi_string|safe_tex_url}} }{ {{report.doi_string|safe_tex_url}} ({{report.date_submitted|date:'Y'}})}}
   {% endif %}
 
   \renewcommand{\headrulewidth}{1pt}
@@ -85,7 +85,7 @@ Submitted to {{submission.submitted_to}}
   \begin{center}
   \Large\color{scipostdeepblue}{\textbf{
   %%%%%%%%%% TITLE
-  Report {{report.report_nr}} on\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
+  Report {{report.report_nr}} on\href{https://{{ domain }}{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.submission.title}} }}by {{report.submission.author_list}}
   }}
   \end{center}
 
@@ -93,7 +93,7 @@ Submitted to {{submission.submitted_to}}
     \begin{center}
     \Large\color{scipostdeepblue}{\textbf{
     %%%%%%%%%% TITLE
-    doi:\href{https://scipost.org{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.doi_string|safe_tex_url}} }}
+    doi:\href{https://{{ domain }}{{report.get_absolute_url|safe_tex_url}} }{\color{scipostdeepblue}{ {{report.doi_string|safe_tex_url}} }}
     }}
     \end{center}
   {% endif %}

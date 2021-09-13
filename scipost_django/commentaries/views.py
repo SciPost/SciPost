@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.shortcuts import get_object_or_404, render
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.urls import reverse, reverse_lazy
 from django.db import transaction
@@ -123,10 +124,13 @@ def vet_commentary_requests(request, commentary_id=None):
 
     form = VetCommentaryForm(request.POST or None, user=request.user, commentary_id=commentary_id)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
+
         # Get commentary
         commentary = form.get_commentary()
         email_context = {
-            'commentary': commentary
+            'commentary': commentary,
+            'domain': domain
         }
 
         # Retrieve email_template for action
@@ -147,9 +151,9 @@ def vet_commentary_requests(request, commentary_id=None):
             'SciPost Commentary Page activated',
             email_text,
             commentary.requested_by.user.email,
-            ['commentaries@scipost.org']
+            ['commentaries@%s' % domain]
         )
-        emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])
+        emailmessage = EmailMessage(*email_args, reply_to=['commentaries@%s' % domain])
         emailmessage.send(fail_silently=False)
         commentary = form.process_commentary()
 
@@ -171,6 +175,8 @@ def modify_commentary_request(request, commentary_id):
                                     id=commentary_id)
     form = RequestCommentaryForm(request.POST or None, instance=commentary)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
+
         # Process commentary data
         commentary = form.save(commit=False)
         commentary.vetted = True
@@ -178,14 +184,17 @@ def modify_commentary_request(request, commentary_id):
 
         # Send email and process form
         email_template = 'commentaries/vet_commentary_email_modified.html'
-        email_text = render_to_string(email_template, {'commentary': commentary})
+        email_text = render_to_string(
+            email_template,
+            {'commentary': commentary, 'domain': domain}
+        )
         email_args = (
             'SciPost Commentary Page activated',
             email_text,
             commentary.requested_by.user.email,
-            ['commentaries@scipost.org']
+            ['commentaries@%s' % domain]
         )
-        emailmessage = EmailMessage(*email_args, reply_to=['commentaries@scipost.org'])
+        emailmessage = EmailMessage(*email_args, reply_to=['commentaries@%s' % domain])
         emailmessage.send(fail_silently=False)
 
         messages.success(request, 'SciPost Commentary request modified and vetted.')

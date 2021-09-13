@@ -353,6 +353,7 @@ def vet_registration_request_ack(request, contributor_id):
     form = VetRegistrationForm(request.POST or None)
     contributor = Contributor.objects.get(pk=contributor_id)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         if form.promote_to_registered_contributor():
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
@@ -374,18 +375,18 @@ def vet_registration_request_ack(request, contributor_id):
                 'Dear ' + contributor.profile.get_title_display() + ' ' +
                 contributor.user.last_name +
                 ', \n\nYour registration to the SciPost publication portal has been accepted. '
-                'You can now login at https://scipost.org and contribute. \n\n')
+                'You can now login at https://' + domain + ' and contribute. \n\n')
             if pending_ref_inv_exists:
                 email_text += (
                     'Note that you have pending refereeing invitations; please navigate to '
-                    'https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                    'https://' + domain + '/submissions/accept_or_decline_ref_invitations '
                     '(login required) to accept or decline them.\n\n')
             email_text += 'Thank you very much in advance, \nThe SciPost Team.'
             emailmessage = EmailMessage('SciPost registration accepted', email_text,
-                                        'SciPost registration <registration@scipost.org>',
+                                        'SciPost registration <registration@%s>' % domain,
                                         [contributor.user.email],
-                                        bcc=['registration@scipost.org'],
-                                        reply_to=['registration@scipost.org'])
+                                        bcc=['registration@%s' % domain],
+                                        reply_to=['registration@%s' % domain])
             emailmessage.send(fail_silently=False)
         else:
             ref_reason = form.cleaned_data['refusal_reason']
@@ -401,10 +402,10 @@ def vet_registration_request_ack(request, contributor_id):
                     '\n\nFurther explanations: ' + form.cleaned_data['email_response_field'])
             emailmessage = EmailMessage('SciPost registration: unsuccessful',
                                         email_text,
-                                        'SciPost registration <registration@scipost.org>',
+                                        'SciPost registration <registration@%s>' % domain,
                                         [contributor.user.email],
-                                        bcc=['registration@scipost.org'],
-                                        reply_to=['registration@scipost.org'])
+                                        bcc=['registration@%s' % domain],
+                                        reply_to=['registration@%s' % domain])
             emailmessage.send(fail_silently=False)
             contributor.status = form.cleaned_data['refusal_reason']
             contributor.save()
@@ -1229,6 +1230,7 @@ def email_group_members(request):
     """
     form = EmailGroupMembersForm(request.POST or None)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         group_members = form.cleaned_data['group'].user_set.filter(
             contributor__isnull=False).order_by('last_name') # to make pagination consistent
         p = Paginator(group_members, 32)
@@ -1268,7 +1270,7 @@ def email_group_members(request):
                         html_version = html_template.render(Context(email_context))
                         message = EmailMultiAlternatives(
                             form.cleaned_data['email_subject'],
-                            email_text, 'SciPost Admin <admin@scipost.org>',
+                            email_text, 'SciPost Admin <admin@%s>' % domain,
                             [member.email], connection=connection)
                         message.attach_alternative(html_version, 'text/html')
                         message.send()
@@ -1290,6 +1292,7 @@ def email_particular(request):
     if request.method == 'POST':
         form = EmailParticularForm(request.POST)
         if form.is_valid():
+            domain = Site.objects.get_current().domain
             email_text = form.cleaned_data['email_text']
             email_text_html = '{{ email_text|linebreaks }}'
             email_context = {'email_text': form.cleaned_data['email_text']}
@@ -1302,9 +1305,9 @@ def email_particular(request):
             html_version = html_template.render(Context(email_context))
             message = EmailMultiAlternatives(
                 form.cleaned_data['email_subject'],
-                email_text, 'SciPost Admin <admin@scipost.org>',
+                email_text, 'SciPost Admin <admin@%s>' % domain,
                 [form.cleaned_data['email_address']],
-                bcc=['admin@scipost.org'])
+                bcc=['admin@%s' % domain])
             message.attach_alternative(html_version, 'text/html')
             message.send()
             context = {'ack_header': 'The email has been sent.',
@@ -1324,6 +1327,7 @@ def send_precooked_email(request):
     """
     form = SendPrecookedEmailForm(request.POST or None)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         precookedEmail = form.cleaned_data['email_option']
         if form.cleaned_data['email_address'] in precookedEmail.emailed_to:
             errormessage = 'This message has already been sent to this address'
@@ -1347,7 +1351,7 @@ def send_precooked_email(request):
             email_text,
             SciPost_from_addresses_dict[form.cleaned_data['from_address']],
             [form.cleaned_data['email_address']],
-            bcc=['admin@scipost.org'])
+            bcc=['admin@%s' % domain])
         message.attach_alternative(html_version, 'text/html')
         message.send()
         context = {'ack_header': 'The email has been sent.',
