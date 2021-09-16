@@ -43,7 +43,8 @@ from .models import (
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    SciPostPrefillForm, ArXivPrefillForm, FigsharePrefillForm, OSFPreprintsPrefillForm,
+    SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
+    FigsharePrefillForm, OSFPreprintsPrefillForm,
     SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
@@ -174,6 +175,16 @@ def submit_choose_preprint_server(request, journal_doi_label):
         preprint_server_list.append({
             'server': preprint_servers.get(name='arXiv'),
             'prefill_form': ArXivPrefillForm(
+                requested_by=request.user,
+                journal_doi_label=journal_doi_label,
+                thread_hash=thread_hash)
+        })
+
+    # ChemRxiv
+    if preprint_servers.filter(name='ChemRxiv').exists():
+        preprint_server_list.append({
+            'server': preprint_servers.get(name='ChemRxiv'),
+            'prefill_form': ChemRxivPrefillForm(
                 requested_by=request.user,
                 journal_doi_label=journal_doi_label,
                 thread_hash=thread_hash)
@@ -324,6 +335,21 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
         """
         self.prefill_form = ArXivPrefillForm(
+            request.GET or None,
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
+
+
+class RequestSubmissionUsingChemRxivView(RequestSubmissionView):
+    """Formview to submit a new Submission using ChemRxiv."""
+
+    def get(self, request, journal_doi_label):
+        """
+        Redirect to `submit_choose_preprint_server` if ChemRxiv identifier is not known.
+        """
+        self.prefill_form = ChemRxivPrefillForm(
             request.GET or None,
             requested_by=self.request.user,
             journal_doi_label=journal_doi_label,

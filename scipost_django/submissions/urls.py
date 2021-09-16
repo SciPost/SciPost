@@ -149,6 +149,11 @@ url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REG
         views.RequestSubmissionUsingArXivView.as_view(),
         name='submit_manuscript_arxiv'
     ),
+    path( # Submit using ChemRxiv (thread_hash as GET param if resubmission)
+        'submit_manuscript/<journal_doi_label:journal_doi_label>/chemrxiv',
+        views.RequestSubmissionUsingChemRxivView.as_view(),
+        name='submit_manuscript_chemrxiv'
+    ),
     path( # Submit using a Figshare-related preprint server (thread_hash as GET param if resubmission)
         'submit_manuscript/<journal_doi_label:journal_doi_label>/figshare',
         views.RequestSubmissionUsingFigshareView.as_view(),

@@ -70,6 +70,16 @@
 	            {% include 'bi/arrow-right.html' %}
 		    <input type="submit" class="btn btn-primary text-white" value="Query arXiv"/>
 		  </form>
+		{% elif preprint_server.server.name == 'ChemRxiv' %}
+		  <h3>Please provide the ChemRxiv DOI for your Submission</h3>
+		  <form action="{% url 'submissions:submit_manuscript_chemrxiv' journal_doi_label=journal.doi_label %}" method="get">
+		    {{ preprint_server.prefill_form }}
+		    {% if thread_hash %}
+		      <input type="hidden" name="thread_hash" value="{{ thread_hash }}"/>
+		    {% endif %}
+	            {% include 'bi/arrow-right.html' %}
+		    <input type="submit" class="btn btn-primary text-white" value="Query ChemRxiv DOI"/>
+		  </form>
 		{% elif preprint_server.server.served_by and preprint_server.server.served_by.name == 'OSFPreprints' %}
 		  <h3>Please provide the {{ preprint_server.server.name }} identifier for your Submission</h3>
 		  <p><em>just a few lowercase alphanumeric characters, e.g. #####</em></p>

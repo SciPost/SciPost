@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 import datetime
-import re
 
 from django import forms
 from django.conf import settings
@@ -52,6 +51,7 @@ import strings
 import iThenticate
 
 ARXIV_IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
+CHEMRXIV_DOI_PATTERN = r'10.3374/chemrxiv-[0-9]{4,}-[\w]+(-v[0-9]+)?'
 FIGSHARE_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
 OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 
@@ -171,6 +171,39 @@ def check_arxiv_identifier_w_vn_nr(identifier):
     return arxiv_data, metadata, identifier
 
 
+def check_chemrxiv_doi(doi):
+    """
+    Call Crossref to get ChemRxiv preprint data.
+    """
+    caller = DOICaller(doi)
+    if caller.is_valid:
+        crossref_data = caller.data
+        metadata = caller.metadata
+    else:
+        error_message = 'A preprint associated to this DOI does not exist.'
+        raise forms.ValidationError(error_message)
+
+    # Check if the type of this resource is indeed a preprint
+    if 'subtype' in metadata:
+        if metadata['subtype'] != 'preprint':
+            error_message = ('This does not seem to be a preprint: the type '
+                             'returned by Crossref on behalf of '
+                             '%(preprint_server) is %(subtype). '
+                             'Please contact techsupport.')
+            raise forms.ValidationError(
+                error_message, code='wrong_subtype',
+                params={
+                    'preprint_server': preprint_server.name,
+                    'subtype': metadata['subtype']
+                })
+    else:
+        raise forms.ValidationError(
+            'Crossref failed to return a subtype. Please contact techsupport.',
+            code='wrong_subtype')
+    identifier = doi.partition('/')[2]
+    return crossref_data, metadata, identifier
+
+
 def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_nr):
     """
     Call Figshare to retrieve submission prefill data and perform basic checks.
@@ -218,7 +251,8 @@ def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_
     return figshare_data, metadata, identifier
 
 
-def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
+# DEPRECATED
+def check_chemrxiv_figshare_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
     """
     Call `check_figshare_identifier_w_vn_nr` but correct identifier
     by substituting `chemrxiv` for `figshare`.
@@ -424,11 +458,56 @@ class ArXivPrefillForm(SubmissionPrefillForm):
         return form_data
 
 
+class ChemRxivPrefillForm(SubmissionPrefillForm):
+    """
+    Provide initial data for SubmissionForm from ChemRxiv
+    (metadata actually collected from Crossref API, not ChemRxiv).
+
+    This form is used by the ChemRxiv route (post-2021-07 style).
+    """
+    chemrxiv_doi = forms.RegexField(
+        label='',
+        regex=CHEMRXIV_DOI_PATTERN, strip=True,
+        error_messages={'invalid': 'Invalid ChemRxiv DOI'},
+        widget=forms.TextInput()
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.crossref_data = {}
+        self.metadata = {}
+        super().__init__(*args, **kwargs)
+
+    def clean_chemrxiv_doi(self):
+        # To get the identifier, strip the DOI prefix
+        identifier = self.cleaned_data.get('chemrxiv_doi', None).partition('/')[2]
+
+        check_identifier_is_unused(identifier)
+        self.crossref_data, self.metadata, identifier = check_chemrxiv_doi(self.cleaned_data['chemrxiv_doi'])
+        return identifier
+
+    def get_prefill_data(self):
+        """
+        Return dictionary to prefill `SubmissionForm`.
+        """
+        form_data = super().get_prefill_data()
+        form_data.update(self.crossref_data)
+
+        if self.is_resubmission():
+            form_data.update({
+                'approaches': self.latest_submission.approaches,
+                'referees_flagged': self.latest_submission.referees_flagged,
+                'referees_suggested': self.latest_submission.referees_suggested,
+                'acad_field': self.latest_submission.acad_field,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()]
+            })
+        return form_data
+
+
 class FigsharePrefillForm(SubmissionPrefillForm):
     """
     Provide initial data for SubmissionForm from Figshare.
 
-    This form is used by the ChemRxiv, TechRxiv and Advance routes.
+    This form is used by the ChemRxiv (pre-2021-07), TechRxiv and Advance routes.
     """
     figshare_preprint_server = forms.ModelChoiceField(
         queryset=PreprintServer.objects.filter(served_by__name='Figshare'),
