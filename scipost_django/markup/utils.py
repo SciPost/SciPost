@@ -375,9 +375,6 @@ def process_markup(text, language_forced=None):
     markup['language'] = language
     markup['errors'] = markup_detector['errors']
 
-    print("Language: ", markup['language'])
-    print("Errors: ", markup['errors'])
-
     if markup['errors']:
         markup['processed'] = (
             mark_safe(
