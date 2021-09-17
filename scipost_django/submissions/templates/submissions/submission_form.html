@@ -37,6 +37,22 @@
 
         {% if form %}
 	  <h2>Please provide these last bits of information, and carefully check all prefilled fields</h2>
+
+	  {% if form.errors %}
+	    {% for field in form %}
+	      {% for error in field.errors %}
+		<div class="alert alert-danger">
+		  <strong>{{ field.name }} - {{ error|escape }}</strong>
+		</div>
+	      {% endfor %}
+	    {% endfor %}
+	    {% for error in form.non_field_errors %}
+	      <div class="alert alert-danger">
+		<strong>{{ error|escape }}</strong>
+	      </div>
+	    {% endfor %}
+	  {% endif %}
+
           <form class="mt-4" id="full_submission_form" method="post" enctype="multipart/form-data">
             {% csrf_token %}
             {{ form|bootstrap }}

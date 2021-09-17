@@ -27,7 +27,9 @@ from .constants import (
     STATUS_EIC_ASSIGNED,
     STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED,
-    STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
+    STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN,
+    CHEMRXIV_DOI_PATTERN
+)
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
@@ -44,14 +46,13 @@ from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
 from profiles.models import Profile
-from scipost.services import ArxivCaller, FigshareCaller, OSFPreprintsCaller
+from scipost.services import DOICaller, ArxivCaller, FigshareCaller, OSFPreprintsCaller
 from scipost.models import Contributor, Remark
 import strings
 
 import iThenticate
 
 ARXIV_IDENTIFIER_PATTERN_NEW = r'^[0-9]{4,}\.[0-9]{4,5}v[0-9]{1,2}$'
-CHEMRXIV_DOI_PATTERN = r'10.3374/chemrxiv-[0-9]{4,}-[\w]+(-v[0-9]+)?'
 FIGSHARE_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
 OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 
@@ -177,8 +178,8 @@ def check_chemrxiv_doi(doi):
     """
     caller = DOICaller(doi)
     if caller.is_valid:
-        crossref_data = caller.data
-        metadata = caller.metadata
+        data = caller.data
+        metadata = caller.data['crossref_data']
     else:
         error_message = 'A preprint associated to this DOI does not exist.'
         raise forms.ValidationError(error_message)
@@ -200,8 +201,14 @@ def check_chemrxiv_doi(doi):
         raise forms.ValidationError(
             'Crossref failed to return a subtype. Please contact techsupport.',
             code='wrong_subtype')
-    identifier = doi.partition('/')[2]
-    return crossref_data, metadata, identifier
+
+    # Explicitly add ChemRxiv as the preprint server:
+    data['preprint_server'] = PreprintServer.objects.get(name='ChemRxiv')
+    data['preprint_link'] = 'https://doi.org/%s' % doi
+    # Build the identifier by stripping the DOI prefix:
+    identifier = doi
+    data['identifier_w_vn_nr'] = identifier
+    return data, metadata, identifier
 
 
 def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_nr):
@@ -473,6 +480,7 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
     )
 
     def __init__(self, *args, **kwargs):
+        print(kwargs)
         self.crossref_data = {}
         self.metadata = {}
         super().__init__(*args, **kwargs)
@@ -809,8 +817,7 @@ class SubmissionForm(forms.ModelForm):
                 check_arxiv_identifier_w_vn_nr(identifier)
         elif self.preprint_server.name == 'ChemRxiv':
             self.preprint_data, self.metadata, identifier = \
-                check_chemrxiv_identifier_w_vn_nr(
-                    identifier.replace('chemrxiv_', ''))
+                check_chemrxiv_doi(identifier)
         elif self.preprint_server.name == 'TechRxiv':
             self.preprint_data, self.metadata, identifier = \
                 check_techrxiv_identifier_w_vn_nr(
