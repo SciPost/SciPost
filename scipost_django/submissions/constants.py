@@ -302,7 +302,7 @@ SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s|%s|%s|%s|%s|%s))' % 
     scipost_regex_w_vn,
     arxiv_regex_w_vn,
     chemrxiv_regex_w_vn,
-    #CHEMRXIV_DOI_PATTERN,
+    CHEMRXIV_DOI_PATTERN,
     techrxiv_regex_w_vn,
     advance_regex_w_vn,
     socarxiv_regex
