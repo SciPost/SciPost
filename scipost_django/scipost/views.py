@@ -17,6 +17,7 @@ from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordChangeView,
     PasswordResetView, PasswordResetConfirmView)
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
