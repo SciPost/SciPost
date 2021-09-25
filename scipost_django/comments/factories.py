@@ -19,9 +19,9 @@ from faker import Faker
 
 class CommentFactory(factory.django.DjangoModelFactory):
     status = STATUS_VETTED
-    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
+    vetted_by = factory.Iterator(Contributor.objects.all())
 
-    author = factory.SubFactory('scipost.factories.ContributorFactory')
+    author = factory.Iterator(Contributor.objects.all())
     comment_text = factory.Faker('paragraph')
     remarks_for_editors = factory.Faker('paragraph')
     file_attachment = Faker().file_name(extension='pdf')

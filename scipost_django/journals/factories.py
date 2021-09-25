@@ -6,10 +6,11 @@ import factory
 import datetime
 import pytz
 import random
+\
+from string import ascii_lowercase
 
 from common.helpers import random_digits, random_external_doi, random_external_journal_abbrev
 from journals.constants import JOURNAL_STRUCTURE, PUBLICATION_PUBLISHED
-from submissions.factories import PublishedSubmissionFactory
 
 from .models import Journal, Volume, Issue, Publication, Reference
 
@@ -37,8 +38,8 @@ class ReferenceFactory(factory.django.DjangoModelFactory):
 
 class JournalFactory(factory.django.DjangoModelFactory):
     college = factory.SubFactory('colleges.factories.CollegeFactory')
-    name = factory.Sequence(lambda n: 'Fake Journal %s' % n)
-    doi_label = factory.Sequence(lambda n: 'SciPostFakeJournal%s' % n)
+    name = factory.Sequence(lambda n: 'Fake Journal %s' % ascii_lowercase[n])
+    doi_label = factory.Sequence(lambda n: 'SciPost%s' % ascii_lowercase[n])
     issn = factory.lazy_attribute(lambda n: random_digits(8))
     structure = factory.Iterator(JOURNAL_STRUCTURE, getter=lambda c: c[0])
 
@@ -62,7 +63,7 @@ class VolumeFactory(factory.django.DjangoModelFactory):
 class IssueFactory(factory.django.DjangoModelFactory):
     in_volume = factory.Iterator(Volume.objects.all())
     number = factory.LazyAttribute(lambda o: o.in_volume.issues.count() + 1)
-    doi_label = factory.LazyAttribute(lambda o: '%s.%i' % (o.in_volume.doi_label, o.number))
+    doi_label = factory.LazyAttribute(lambda o: '%s.%i.format() % (o.in_volume.doi_label, o.number))
 
     start_date = factory.LazyAttribute(lambda o: Faker().date_time_between(
         start_date=o.in_volume.start_date, end_date=o.in_volume.until_date, tzinfo=pytz.UTC))
@@ -75,7 +76,7 @@ class IssueFactory(factory.django.DjangoModelFactory):
 
 class PublicationFactory(factory.django.DjangoModelFactory):
     accepted_submission = factory.SubFactory(
-        PublishedSubmissionFactory, generate_publication=False)
+        'submissions.factories.PublishedSubmissionFactory', generate_publication=False)
     paper_nr = 9999
     pdf_file = factory.Faker('file_name', extension='pdf')
     status = PUBLICATION_PUBLISHED
@@ -83,11 +84,10 @@ class PublicationFactory(factory.django.DjangoModelFactory):
     acceptance_date = factory.Faker('date_this_year')
     publication_date = factory.Faker('date_this_year')
 
-    acad_field = factory.LazyAttribute(lambda o: o.accepted_submission.acad_field)
-    specialties = factory.LazyAttribute(lambda o: o.accepted_submission.specialties)
-    approaches = factory.LazyAttribute(lambda o: o.accepted_submission.approaches)
-    title = factory.LazyAttribute(lambda o: o.accepted_submission.title)
-    abstract = factory.LazyAttribute(lambda o: o.accepted_submission.abstract)
+    acad_field = factory.SelfAttribute('accepted_submission.acad_field')
+
+    title = factory.SelfAttribute('accepted_submission.title')
+    abstract = factory.SelfAttribute('accepted_submission.abstract')
 
     # Dates
     submission_date = factory.LazyAttribute(lambda o: o.accepted_submission.submission_date)
@@ -109,7 +109,7 @@ class PublicationFactory(factory.django.DjangoModelFactory):
     def in_issue(self):
         # Make sure Issues, Journals and doi are correct.
         if self.journal:
-            journal = Journal.objects.get(name=self.journal)
+            journal = Journal.objects.get(doi_label=self.journal)
         else:
             journal = Journal.objects.order_by('?').first()
 
@@ -121,7 +121,7 @@ class PublicationFactory(factory.django.DjangoModelFactory):
     def in_journal(self):
         # Make sure Issues, Journals and doi are correct.
         if self.journal:
-            journal = Journal.objects.get(name=self.journal)
+            journal = Journal.objects.get(doi_label=self.journal)
         elif not self.in_issue:
             journal = Journal.objects.has_individual_publications().order_by('?').first()
         else:
@@ -138,6 +138,18 @@ class PublicationFactory(factory.django.DjangoModelFactory):
             return self.in_issue.publications.count() + 1
         elif self.in_journal:
             return self.in_journal.publications.count() + 1
+
+    @factory.post_generation
+    def specialties(self, create, extracted, **kwargs):
+        if not create:
+            return
+        self.specialties.add(*self.accepted_submission.specialties.all())
+
+    @factory.post_generation
+    def approaches(self, create, extracted, **kwargs):
+        if not create:
+            return
+        self.approaches = self.accepted_submission.approaches
 
     @factory.lazy_attribute
     def doi_label(self):
@@ -166,7 +178,7 @@ class PublicationFactory(factory.django.DjangoModelFactory):
             ReferenceFactory(publication=self)
 
         # Copy author data from Submission
-        for author in self.accepted_submission.authors.all():
-            self.authors.create(publication=self, contributor=author)
-        self.authors_claims.add(*self.accepted_submission.authors_claims.all())
-        self.authors_false_claims.add(*self.accepted_submission.authors_false_claims.all())
+        # for author in self.accepted_submission.authors.all():
+        #     self.authors.create(publication=self, profile=author)
+        # self.authors_claims.add(*self.accepted_submission.authors_claims.all())
+        # self.authors_false_claims.add(*self.accepted_submission.authors_false_claims.all())

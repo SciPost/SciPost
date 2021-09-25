@@ -16,7 +16,7 @@ from ontology.models import Specialty, AcademicField
 from .constants import (
     STATUS_UNASSIGNED, STATUS_EIC_ASSIGNED, STATUS_INCOMING, STATUS_PUBLISHED,
     STATUS_RESUBMITTED, STATUS_VETTED, REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC,
-    REPORT_REC, REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT, ASSIGNMENT_STATUSES)
+    REPORT_REC, REPORT_STATUSES, STATUS_UNVETTED, STATUS_DRAFT, ASSIGNMENT_STATUSES, STATUS_COMPLETED)
 from .models import Submission, Report, RefereeInvitation, EICRecommendation, EditorialAssignment
 
 from faker import Faker
@@ -28,7 +28,7 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     """
 
     author_list = factory.Faker('name')
-    submitted_by = factory.SubFactory('scipost.factories.ContributorFactory')
+    submitted_by = factory.Iterator(Contributor.objects.all())
     submitted_to = factory.Iterator(Journal.objects.all())
     title = factory.Faker('sentence')
     abstract = factory.Faker('paragraph', nb_sentences=10)
@@ -44,6 +44,9 @@ class SubmissionFactory(factory.django.DjangoModelFactory):
     latest_activity = factory.LazyAttribute(lambda o: Faker().date_time_between(
         start_date=o.submission_date, end_date="now", tzinfo=pytz.UTC))
     preprint = factory.SubFactory('preprints.factories.PreprintFactory')
+
+    visible_public = True
+    visible_pool = False
 
     class Meta:
         model = Submission
@@ -93,6 +96,8 @@ class UnassignedSubmissionFactory(SubmissionFactory):
     A new incoming Submission without any EIC assigned.
     """
     status = STATUS_UNASSIGNED
+    visible_public = False
+    visible_pool = True
 
 
 class EICassignedSubmissionFactory(SubmissionFactory):
@@ -102,7 +107,9 @@ class EICassignedSubmissionFactory(SubmissionFactory):
     status = STATUS_EIC_ASSIGNED
     open_for_commenting = True
     open_for_reporting = True
-    editor_in_charge = factory.SubFactory('scipost.factories.ContributorFactory')
+    visible_public = True
+    visible_pool = True
+    editor_in_charge = factory.Iterator(Contributor.objects.all())
     # @factory.lazy_attribute
     # def editor_in_charge(self):
     #     return Contributor.objects.order_by('?').first()
@@ -144,6 +151,8 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
     open_for_commenting = False
     open_for_reporting = False
     is_current = False
+    visible_public = True
+    visible_pool = False
 
     @factory.post_generation
     def successive_submission(self, create, extracted, **kwargs):
@@ -153,7 +162,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         if create and extracted is not False:
             # Prevent infinite loops by checking the extracted argument
             ResubmissionFactory(thread_hash=self.thread_hash,
-                                previous_submission=False)
+                                previous_submission=False, visible_pool=True)
 
     @factory.post_generation
     def gather_successor_data(self, create, extracted, **kwargs):
@@ -173,7 +182,7 @@ class ResubmittedSubmissionFactory(EICassignedSubmissionFactory):
         self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.acad_field = submission.acad_field
-        self.specialties = submission.specialties
+        self.specialties.add(*submission.specialties.all())
         self.approaches = submission.approaches
         self.title = submission.title
         self.authors.set(self.authors.all())
@@ -198,7 +207,8 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
     status = STATUS_INCOMING
     open_for_commenting = True
     open_for_reporting = True
-    vn_nr = 2
+    visible_public = False
+    visible_pool = True
 
     @factory.post_generation
     def previous_submission(self, create, extracted, **kwargs):
@@ -206,7 +216,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
             # Prevent infinite loops by checking the extracted argument
             ResubmittedSubmissionFactory(
                 thread_hash=self.thread_hash,
-                successive_submission=False)
+                successive_submission=False, visible_pool=False, visible_public=True)
 
     @factory.post_generation
     def gather_predecessor_data(self, create, extracted, **kwargs):
@@ -226,7 +236,7 @@ class ResubmissionFactory(EICassignedSubmissionFactory):
         self.submitted_to = submission.submitted_to
         self.title = submission.title
         self.acad_field = submission.acad_field
-        self.specialties = submission.specialties
+        self.specialties.add(*submission.specialties.all())
         self.approaches = submission.approaches
         self.title = submission.title
         self.authors.set(self.authors.all())
@@ -243,6 +253,8 @@ class PublishedSubmissionFactory(EICassignedSubmissionFactory):
     status = STATUS_PUBLISHED
     open_for_commenting = False
     open_for_reporting = False
+    visible_public = True
+    visible_pool = False
 
     @factory.post_generation
     def generate_publication(self, create, extracted, **kwargs):
@@ -255,7 +267,7 @@ class PublishedSubmissionFactory(EICassignedSubmissionFactory):
     @factory.post_generation
     def eic_assignment(self, create, extracted, **kwargs):
         if create:
-            EditorialAssignmentFactory(submission=self, to=self.editor_in_charge, completed=True)
+            EditorialAssignmentFactory(submission=self, to=self.editor_in_charge, status=STATUS_COMPLETED)
 
     @factory.post_generation
     def referee_invites(self, create, extracted, **kwargs):
@@ -271,8 +283,8 @@ class ReportFactory(factory.django.DjangoModelFactory):
     submission = factory.SubFactory('submissions.factories.SubmissionFactory')
     report_nr = factory.LazyAttribute(lambda o: o.submission.reports.count() + 1)
     date_submitted = factory.Faker('date_time_this_decade', tzinfo=pytz.utc)
-    vetted_by = factory.SubFactory('scipost.factories.ContributorFactory')
-    author = factory.SubFactory('scipost.factories.ContributorFactory')
+    vetted_by = factory.Iterator(Contributor.objects.all())
+    author = factory.Iterator(Contributor.objects.all())
     strengths = factory.Faker('paragraph')
     weaknesses = factory.Faker('paragraph')
     report = factory.Faker('paragraph')
@@ -293,6 +305,13 @@ class ReportFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Report
+
+    @classmethod
+    def create(cls, **kwargs):
+        if Contributor.objects.count() < 5:
+            from scipost.factories import ContributorFactory
+            ContributorFactory.create_batch(5)
+        return super().create(**kwargs)
 
 
 class DraftReportFactory(ReportFactory):
@@ -383,7 +402,7 @@ class EditorialAssignmentFactory(factory.django.DjangoModelFactory):
     mostly be done using the post_generation hook in any SubmissionFactory.
     """
     submission = None
-    to = factory.SubFactory('scipost.factories.ContributorFactory')
+    to = factory.Iterator(Contributor.objects.all())
     status = factory.Iterator(ASSIGNMENT_STATUSES, getter=lambda c: c[0])
     date_created = factory.lazy_attribute(lambda o: o.submission.latest_activity)
     date_answered = factory.lazy_attribute(lambda o: o.submission.latest_activity)
