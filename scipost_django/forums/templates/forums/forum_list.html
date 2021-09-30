@@ -16,6 +16,13 @@
 
   <div class="row">
     <div class="col-12">
+      <h3 class="highlight">Public-facing discussions</h3>
+      <p>You will find our public-facing discussion server at <a href="https://disc.{{ request.get_host }}" target="_blank" rel="noopener">disc.{{ request.get_host }}</a>.</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
 
       <h3 class="highlight">Forums</h3>
       {% if perms.forums.can_add_forum %}
