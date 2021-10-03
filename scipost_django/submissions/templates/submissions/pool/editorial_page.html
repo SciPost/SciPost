@@ -376,7 +376,7 @@
               Vet submitted Comment{{ comments|pluralize }}:
               <ul class="mb-1">
                 {% for comment in comments %}
-                  <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
+                  <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{ comment }}</a></li>
                 {% endfor %}
               </ul>
             </li>
