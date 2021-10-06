@@ -118,6 +118,16 @@ class Comment(TimeStampedModel):
             else:
                 raise Exception
 
+    def all_nested_comments(self):
+        """
+        Returns a queryset of all nested comments (recursive).
+        """
+        qs = self.nested_comments.all()
+        for c in qs:
+            if c.nested_comments:
+                qs = qs | c.all_nested_comments().all()
+        return qs
+
     @property
     def is_vetted(self):
         """Check if Comment is vetted."""

@@ -3,6 +3,6 @@
 {% block comment_footer %}
   {% if user.is_authenticated and perms.scipost.can_submit_comments %}
     <hr class="small">
-    <h3 class="mb-3"><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to this comment</a></h3>
+    <h3 class="mb-3"><a href="{% url 'comments:reply_to_comment' comment_id=comment.id %}">Reply to comment <small>[id {{ comment.id }}]</small></a></h3>
   {% endif %}
 {% endblock %}

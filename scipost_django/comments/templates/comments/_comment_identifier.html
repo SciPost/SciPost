@@ -15,6 +15,7 @@
       <a href="{{ comment.author.get_absolute_url }}">{{ comment.author.user.first_name }} {{ comment.author.user.last_name }}</a>
       &nbsp;on&nbsp;{{ comment.date_submitted|date:'Y-m-d' }}
     {% endif %}
+    &nbsp;<small>[id {{ comment.id }}]</small>
     {% if user.is_authenticated %}
       {% with type_id=comment|content_type_id %}
 	{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=comment.id model="Comment" %}
@@ -24,7 +25,7 @@
   {% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}
 
   {% if comment|is_reply_to_comment %}
-    (in reply to <a href="{{ comment.content_object.get_absolute_url }}">{% if comment.content_object.anonymous %}Anonymous Comment{% else %}{{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a> on {{ comment.content_object.date_submitted|date:'Y-m-d' }})
+    (in reply to <a href="{{ comment.content_object.get_absolute_url }}">{% if comment.content_object.anonymous %}Anonymous Comment{% else %}{{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a> on {{ comment.content_object.date_submitted|date:'Y-m-d' }}&nbsp;<small>[id {{ comment.content_object.id }}])
   {% elif comment|is_reply_to_report %}
     (in reply to
     <a href="{{ comment.content_object.get_absolute_url }}">Report {{ comment.content_object.report_nr }}{% if not comment.content_object.anonymous %} by {{ comment.content_object.author.user.first_name }} {{ comment.content_object.author.user.last_name }}{% endif %}</a>

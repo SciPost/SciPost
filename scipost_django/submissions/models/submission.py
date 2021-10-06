@@ -191,9 +191,14 @@ class Submission(models.Model):
 
     def comments_set_complete(self):
         """Return Comments on Submissions, Reports and other Comments."""
-        return Comment.objects.filter(
+        qs = Comment.objects.filter(
             Q(submissions=self) | Q(reports__submission=self) |
-            Q(comments__reports__submission=self) | Q(comments__submissions=self)).distinct()
+            Q(comments__reports__submission=self) | Q(comments__submissions=self))
+        # Add recursive comments:
+        for c in qs:
+            if c.nested_comments:
+                qs = qs | c.all_nested_comments().all()
+        return qs.distinct()
 
     @property
     def cycle(self):

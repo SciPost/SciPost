@@ -43,7 +43,7 @@
   {% endif %}
 
   {% for reply in comment.nested_comments.vetted %}
-    {% include 'comments/_single_comment.html' with comment=reply perms=perms user=user %}
+    {% include 'comments/_single_comment_with_link.html' with comment=reply perms=perms user=user %}
   {% endfor %}
 
   {% block comment_footer %}{% endblock %}

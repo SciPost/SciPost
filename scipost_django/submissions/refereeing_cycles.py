@@ -241,8 +241,8 @@ class BaseCycle:
                 action.needs_referees = not self._submission.reports.non_draft().exists()
                 self.add_action(action)
 
-        # Submission is a resubmission: EIC has to determine which cycle to proceed with.
-        comments_to_vet = self._submission.comments.awaiting_vetting()
+        # Comments requiring vetting (including replies and recursive comments)
+        comments_to_vet = self._submission.comments_set_complete().awaiting_vetting()
         for comment in comments_to_vet:
             self.add_action(VettingAction(comment))
 
