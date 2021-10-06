@@ -17,6 +17,11 @@ def filter_for_submission(qs, submission):
 
 
 @register.filter
+def is_in_submission_fellowship(user, submission):
+    return submission.fellows.filter(contributor__user=user).exists()
+
+
+@register.filter
 def is_possible_author_of_submission(user, submission):
     """Check if User may be related to the Submission as author."""
     if not isinstance(submission, Submission):

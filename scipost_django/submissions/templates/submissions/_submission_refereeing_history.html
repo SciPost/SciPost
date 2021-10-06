@@ -1,29 +1,29 @@
+{% load submissions_extras %}
 {% load request_filters %}
 
 <div class="submission-contents">
   <h3>Submission & Refereeing History</h3>
   {% if perms.scipost.can_oversee_refereeing %}
     <small class="text-muted">Thread {{ submission.thread_hash }}
-    <br/>(all emails concerning this stream contain this uuid)</small>
+      <br/>(all emails concerning this stream contain this uuid)</small>
   {% endif %}
-  {% for sibling in submission.thread.public %}
-    <div class="p-2{% if sibling.preprint.identifier_w_vn_nr in request.path %} border border-secondary{% endif %}">
-      {% if sibling.preprint.identifier_w_vn_nr in request.path %}
-	<p class="text-center bg-info"><em>You are currently on this page</em></p>
-      {% endif %}
-      <div class="mt-3 mb-1">
-	{% if sibling.is_resubmission_of %}Resubmission{% else %}Submission{% endif %} <a href="{{ sibling.get_absolute_url }}" class="pubtitleli"{% if target_blank %} target="_blank"{% endif %}>{{ sibling.preprint.identifier_w_vn_nr }}</a> on {{ sibling.submission_date|date:'j F Y' }}
+  {% if perms.scipost.can_oversee_refereeing or request.user|is_in_submission_fellowship:submission   %}
+    {% for sibling in submission.thread_full %}
+      <div class="p-2{% if sibling.preprint.identifier_w_vn_nr in request.path %} border border-secondary{% endif %}">
+	{% include 'submissions/_submission_refereeing_history_entry.html' with sibling=sibling %}
+	{% include 'comments/_comments_list.html' with comments=sibling.comments.vetted css_class='my-2 ps-4' target_blank=target_blank %}
       </div>
-      <ul class="my-2 ps-4">
-	{% for report in sibling.reports.accepted %}
-          <li><a href="{{ report.get_absolute_url }}"{% if target_blank %} target="_blank"{% endif %}>Report {{ report.report_nr }} submitted on {{ report.date_submitted }} by {% if report.anonymous %}<em>Anonymous</em>{% else %}{{ report.author.profile.get_title_display }} {{ report.author.user.last_name }}{% endif %}</a></li>
-          {% include 'comments/_comments_list.html' with comments=report.comments.vetted css_class='my-1 ps-4' target_blank=target_blank %}
-	{% endfor %}
-      </ul>
-    </div>
-
-    {% include 'comments/_comments_list.html' with comments=sibling.comments.vetted css_class='my-2 ps-4' target_blank=target_blank %}
-  {% empty %}
-    <em>There are no publicly visible links available yet.</em>
-  {% endfor %}
+    {% empty %}
+      <em>There are no visible links available yet.</em>
+    {% endfor %}
+  {% else %}
+    {% for sibling in submission.thread %}
+      <div class="p-2{% if sibling.preprint.identifier_w_vn_nr in request.path %} border border-secondary{% endif %}">
+	{% include 'submissions/_submission_refereeing_history_entry.html' with sibling=sibling %}
+	{% include 'comments/_comments_list.html' with comments=sibling.comments.vetted css_class='my-2 ps-4' target_blank=target_blank %}
+      </div>
+    {% empty %}
+      <em>There are no publicly visible links available yet.</em>
+    {% endfor %}
+  {% endif %}
 </div>

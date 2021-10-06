@@ -337,6 +337,12 @@ class Submission(models.Model):
         return self.editor_in_charge is not None
 
     @property
+    def thread_full(self):
+        """Return all Submissions in the database in this thread."""
+        return Submission.objects.filter(thread_hash=self.thread_hash).order_by(
+            '-submission_date', '-preprint')
+
+    @property
     def thread(self):
         """Return all (public) Submissions in the database in this thread."""
         return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
