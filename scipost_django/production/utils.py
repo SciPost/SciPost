@@ -29,7 +29,7 @@ def get_or_create_production_stream(submission):
 
 
 class ProductionUtils(BaseMailUtil):
-    mail_sender = 'no-reply@%s' % Site.objects.get_current().domain
+    mail_sender = 'proofs@%s' % Site.objects.get_current().domain
     mail_sender_title = 'SciPost Production'
 
     @classmethod
