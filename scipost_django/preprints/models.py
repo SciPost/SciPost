@@ -56,7 +56,7 @@ class Preprint(models.Model):
             url = 'https://%s%s' % (Site.objects.get_current().domain, url)
         response = requests.get(url)
         if response.status_code != 200:
-            raise PreprintDocumentNotFoundError(self.get_absolute_url())
+            raise PreprintDocumentNotFoundError(url)
         return response.content
 
     @property
