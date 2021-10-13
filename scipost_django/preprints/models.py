@@ -2,10 +2,14 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import requests
+
 from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.db import models
 from django.http import Http404
+
+from submissions.exceptions import PreprintDocumentNotFoundError
 
 
 class Preprint(models.Model):
@@ -42,6 +46,18 @@ class Preprint(models.Model):
         if self._file:
             return reverse('preprints:pdf', args=(self.identifier_w_vn_nr,))
         raise Http404
+
+    def get_document(self):
+        """
+        Retrieve the preprint document itself, calling preprint server if necessary.
+        """
+        url = self.get_absolute_url()
+        if url[0] == '/': # SciPost-hosted, add base url
+            url = 'https://%s%s' % (Site.objects.get_current().domain, url)
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise PreprintDocumentNotFoundError(self.get_absolute_url())
+        return response.content
 
     @property
     def citation_pdf_url(self):

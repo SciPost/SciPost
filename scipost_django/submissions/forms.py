@@ -1919,12 +1919,13 @@ class iThenticateReportForm(forms.ModelForm):
         doc_id = self.instance.doc_id
         if not doc_id and not self.fields.get('file'):
             try:
-                cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
-                    self.submission.preprint.identifier_w_vn_nr)
-            except exceptions.ArxivPDFNotFound:
+                # cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
+                #     self.submission.preprint.identifier_w_vn_nr)
+                cleaned_data['document'] = self.submission.preprint.get_document()
+            except exceptions.PreprintDocumentNotFoundError:
                 self.add_error(
-                    None, 'The pdf could not be found at arXiv. Please upload the pdf manually.')
-                self.fields['file'] = forms.FileField()
+                    None, 'Preprint document not found. Please upload the pdf manually.')
+                self.fields['file'] = forms.FileField() # Add this field now it's needed
         elif not doc_id and cleaned_data.get('file'):
             cleaned_data['document'] = cleaned_data['file'].read()
         elif doc_id:
@@ -1944,12 +1945,12 @@ class iThenticateReportForm(forms.ModelForm):
             except AttributeError:
                 if not self.fields.get('file'):
                     # The document is invalid.
-                    self.add_error(None, ('A valid pdf could not be found at arXiv.'
+                    self.add_error(None, ('A valid pdf could not be found.'
                                           ' Please upload the pdf manually.'))
+                    self.fields['file'] = forms.FileField()
                 else:
                     self.add_error(None, ('The uploaded file is not valid.'
                                           ' Please upload a valid pdf.'))
-                self.fields['file'] = forms.FileField()
         elif hasattr(self, 'document_id'):
             self.response = self.call_ithenticate()
 

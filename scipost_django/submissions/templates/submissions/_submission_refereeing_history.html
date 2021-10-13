@@ -7,7 +7,7 @@
     <small class="text-muted">Thread {{ submission.thread_hash }}
       <br/>(all emails concerning this stream contain this uuid)</small>
   {% endif %}
-  {% if perms.scipost.can_oversee_refereeing or request.user|is_in_submission_fellowship:submission   %}
+  {% if perms.scipost.can_oversee_refereeing or request.user|is_in_submission_fellowship:submission %}
     {% for sibling in submission.thread_full %}
       <div class="p-2{% if sibling.preprint.identifier_w_vn_nr in request.path %} border border-secondary{% endif %}">
 	{% include 'submissions/_submission_refereeing_history_entry.html' with sibling=sibling %}
