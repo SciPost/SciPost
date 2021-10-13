@@ -52,8 +52,9 @@ class Preprint(models.Model):
         Retrieve the preprint document itself, calling preprint server if necessary.
         """
         url = self.get_absolute_url()
-        if url[0] == '/': # SciPost-hosted, add base url
-            url = 'https://%s%s' % (Site.objects.get_current().domain, url)
+        if url[0] == '/': # SciPost-hosted,
+            # return file directly since the url isn't yet publicly accessible
+            return self._file.read()
         response = requests.get(url)
         if response.status_code != 200:
             raise PreprintDocumentNotFoundError(url)
