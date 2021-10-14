@@ -5,6 +5,7 @@ __license__ = "AGPL v3"
 from django.conf import settings
 
 from .exceptions import InvalidDocumentError
+from common.utils import unaccent
 
 import iThenticate as iThenticateAPI
 
@@ -87,9 +88,9 @@ class iThenticate:
         response = self.client.documents.add(
             document,
             folder_id,
-            author.user.first_name,
-            author.user.last_name,
-            submission.title,
+            unaccent(author.user.first_name),
+            unaccent(author.user.last_name),
+            unaccent(submission.title),
         )
 
         if response['status'] == 200:
