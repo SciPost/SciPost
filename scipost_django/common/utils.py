@@ -9,7 +9,17 @@ from django.core.mail import EmailMultiAlternatives
 from django.db.models import Q
 from django.template import loader
 
-from .constants import CHARACTER_ALTERNATIVES
+from .constants import CHARACTER_ALTERNATIVES, CHARACTER_UNACCENTED
+
+
+def unaccent(text):
+    """
+    Replace accented characters by unaccented ones.
+    """
+    unaccented = text
+    for key, val in CHARACTER_UNACCENTED.items():
+        unaccented = unaccented.replace(key, val)
+    return unaccented
 
 
 def alternative_spellings(text):
