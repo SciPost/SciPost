@@ -1123,9 +1123,17 @@ class SubmissionPrescreeningForm(forms.ModelForm):
                 status=STATUS_UNASSIGNED, visible_pool=True, visible_public=False)
             self.instance.add_general_event('Submission passed pre-screening.')
         elif self.cleaned_data['decision'] == self.FAIL:
+            EditorialAssignment.objects.filter(submission=self.instance).invited().update(
+                status=STATUS_DEPRECATED)
             Submission.objects.filter(id=self.instance.id).update(
                 status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
             self.instance.add_general_event('Submission failed pre-screening.')
+            mail_sender = DirectMailUtil(
+                'prescreening_failed',
+                instance=self.instance,
+                header_template='submissions/admin/prescreening_failed.html'
+            )
+            mail_sender.send_mail()
 
         if self.cleaned_data['remark_for_pool']:
             Remark.objects.create(
