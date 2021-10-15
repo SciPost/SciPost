@@ -1948,19 +1948,8 @@ class iThenticateReportForm(forms.ModelForm):
         # Document (id) is found
         if cleaned_data.get('document'):
             self.document = cleaned_data['document']
-            try:
-                self.response = self.call_ithenticate()
-            except AttributeError:
-                if not self.fields.get('file'):
-                    # The document is invalid.
-                    self.add_error(None, ('A valid pdf could not be found.'
-                                          ' Please upload the pdf manually.'))
-                    self.fields['file'] = forms.FileField()
-                else:
-                    self.add_error(None, ('The uploaded file is not valid.'
-                                          ' Please upload a valid pdf.'))
-        elif hasattr(self, 'document_id'):
-            self.response = self.call_ithenticate()
+
+        self.response = self.call_ithenticate()
 
         if hasattr(self, 'response') and self.response:
             return cleaned_data
