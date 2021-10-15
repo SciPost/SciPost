@@ -950,38 +950,6 @@ def assignment_request(request, assignment_id):
 
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
-@transaction.atomic
-def prescreening_failed(request, identifier_w_vn_nr):
-    """
-    Reject a Submission because pre-screening has failed.
-    """
-    submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
-                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
-    mail_editor_view = MailEditorSubview(
-        request, mail_code='prescreening_failed', instance=submission,
-        header_template='submissions/admin/prescreening_failed.html')
-    if mail_editor_view.is_valid():
-        # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).invited().update(
-            status=STATUS_DEPRECATED)
-
-        # Update status of Submission
-        submission.touch()
-        Submission.objects.filter(id=submission.id).update(
-            status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
-
-        messages.success(
-            request, 'Submission {identifier} has failed pre-screening and been rejected.'.format(
-                identifier=submission.preprint.identifier_w_vn_nr))
-        messages.success(request, 'Authors have been informed by email.')
-        mail_editor_view.send_mail()
-        return redirect(reverse('submissions:pool'))
-    return mail_editor_view.interrupt()
-
-
-@login_required
-@permission_required('scipost.can_assign_submissions', raise_exception=True)
 def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
     """
     Send an email to the authors, informing them that screening is still ongoing after one week.

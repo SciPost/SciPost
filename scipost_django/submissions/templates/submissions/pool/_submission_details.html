@@ -74,7 +74,6 @@
             {% endfor %}
 
             {% if not submission.editor_in_charge %}
-              <li><a href="{% url 'submissions:prescreening_failed' submission.preprint.identifier_w_vn_nr %}">Close: pre-screening failed</a></li>
 	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
 	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
               <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
