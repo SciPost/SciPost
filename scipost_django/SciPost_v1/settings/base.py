@@ -83,6 +83,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'django_countries',
     'django_extensions',
     'django_filters',
@@ -135,6 +137,9 @@ INSTALLED_APPS = (
 SITE_ID = 1
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 OAUTH2_PROVIDER = {
     'SCOPES': {

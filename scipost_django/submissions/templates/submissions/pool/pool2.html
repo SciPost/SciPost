@@ -1,0 +1,49 @@
+{% extends 'scipost/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block headsup %}
+  <script src="https://unpkg.com/htmx.org@1.6.0" integrity="sha384-G4dtlRlMBrk5fEiRXDsLjriPo8Qk5ZeHVVxS8KhX6D7I9XXJlNqbdvRlp9/glk5D" crossorigin="anonymous"></script>
+{% endblock headsup %}
+
+{% block body_class %}{{ block.super }} pool{% endblock %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'submissions:pool2' %}" class="breadcrumb-item">Pool2</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block content %}
+
+  <div class="card">
+    <div class="card-header">
+      Search / filter
+    </div>
+    <div class="card-body">
+      <form
+	  hx-post="{% url 'submissions:pool_hx_submissions_list' %}"
+	  hx-trigger="load, keyup delay: 500ms, change"
+	  hx-target="#search-results"
+	  hx-indicator=".htmx-indicator"
+      >
+	{% csrf_token %}
+	{% crispy form %}
+      </form>
+    </div>
+  </div>
+  <div class="htmx-indicator">
+    <button class="btn btn-primary p-2" type="button" disabled>
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Loading...
+    </button>
+  </div>
+  <div id="search-results"></div>
+
+{% endblock content %}

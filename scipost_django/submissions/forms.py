@@ -57,6 +57,25 @@ FIGSHARE_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
 OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 
 
+class SubmissionPoolSearchForm(forms.Form):
+    """Filter a Submission queryset using basic search fields."""
+
+    author = forms.CharField(max_length=100, required=False, label="Author(s)")
+    title = forms.CharField(max_length=100, required=False)
+    status = forms.ChoiceField(choices=SUBMISSION_STATUS, required=False)
+
+    def search_results(self, user):
+        """Return all Submission objects according to search."""
+        submissions = Submission.objects.pool(user)
+        if self.cleaned_data.get('author'):
+            submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
+        if self.cleaned_data.get('title'):
+            submissions = submissions.filter(title__icontains=self.cleaned_data.get('title'))
+        if self.cleaned_data.get('status'):
+            submissions = submissions.filter(status=self.cleaned_data.get('status'))
+        return submissions
+
+
 class SubmissionSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 

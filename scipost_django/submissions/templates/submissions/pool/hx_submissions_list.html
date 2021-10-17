@@ -1,0 +1,9 @@
+<ul class="list-unstyled pool-list mt-2">
+  {% for submission in submissions %}
+    <li class="submission py-2" id="submission_{{ submission.id }}">
+      {% include 'submissions/pool/_hx_submission_li.html' with submission=submission %}
+    </li>
+  {% empty %}
+    <li>No Submission could be found</li>
+  {% endfor %}
+</ul>

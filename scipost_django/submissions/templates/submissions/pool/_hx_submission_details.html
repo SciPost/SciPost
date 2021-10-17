@@ -1,0 +1,132 @@
+{% load scipost_extras %}
+{% load submissions_extras %}
+{% load user_groups %}
+
+{% is_editor_in_charge request.user submission as is_editor_in_charge %}
+{% is_ed_admin request.user as is_ed_admin %}
+
+
+<button type="button" class="btn btn-primary px-1 py-0"
+	data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
+	aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
+  <small>Toggle details visibility</small>
+</button>
+
+<div class="collapse show bg-light submission-detail mt-1 p-2" id="collapse_{{ submission.id }}">
+  <div class="card-body px-0">
+    <div class="row">
+      <div class="col-md-8">
+        {% include 'submissions/pool/_submission_info_table.html' with submission=submission %}
+      </div>
+      <div class="col-md-4">
+        {% include 'submissions/_submission_refereeing_history.html' with submission=submission target_blank=1 %}
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h3>Remarks on this submission:</h3>
+    {% if remark_form %}
+      {% include 'submissions/_remark_form.html' with submission=submission form=remark_form auto_show=1 %}
+    {% endif %}
+    <p class="mb-1">Current remarks:</p>
+    <ul>
+      {% for rem in submission.remarks.all %}
+        {% include 'scipost/_remark_li.html' with remark=rem %}
+      {% empty %}
+        <li>No Remarks found.</li>
+      {% endfor %}
+    </ul>
+
+    {% if is_editor_in_charge or is_ed_admin %}
+      <div class="my-4 p-3 border{% if submission.cycle.has_required_actions %} border-danger bg-light{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
+	<h3>
+          {% if submission.cycle.has_required_actions %}
+            <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+          {% else %}
+            {% include 'bi/check-circle-fill.html' %}
+          {% endif %}
+          Required actions
+	</h3>
+	{{ submission.cycle.required_actions }}
+      </div>
+      <h4>
+	<a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+      </h4>
+    {% endif %}
+
+    {% if is_ed_admin %}
+      <h3>Editorial Administration</h3>
+      <ul class="ps-4 mb-3">
+        <li><a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a></li>
+        <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
+        <li><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
+        {% if not submission.editor_in_charge %}
+          <li><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
+        {% elif perms.scipost.can_reassign_submissions %}
+          <li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
+        {% endif %}
+
+        {# EIC Assignments #}
+        {% if perms.scipost.can_assign_submissions %}
+          <li>EIC Assignment requests:</li>
+          <ul class="ps-3">
+            {% for assignment in submission.editorial_assignments.all %}
+              {% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
+            {% empty %}
+              <li>No assignment requests have been selected</li>
+            {% endfor %}
+
+            {% if not submission.editor_in_charge %}
+	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
+	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
+              <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+            {% endif %}
+          </ul>
+        {% endif %}
+
+        {# Plagiarism #}
+        <li><a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Manage plagiarism report</a></li>
+
+        {# Compile pdfs #}
+        {% if submission.reports.accepted.exists %}
+          <li><a href="{% url 'submissions:reports_accepted_list' %}?submission={{ submission.preprint.identifier_w_vn_nr }}">Compile accepted reports</a></li>
+        {% endif %}
+
+        {# Communication #}
+        {% if submission.editor_in_charge %}
+          <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
+        {% endif %}
+
+        {# EIC Recommendations #}
+        {% if submission.eicrecommendations.exists %}
+          <li>See Editorial Recommendations:</li>
+          <ul class="ps-3">
+            {% for rec in submission.eicrecommendations.all %}
+              <li><a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_recommendation_display }}</a></li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        {# Accepted submission actions #}
+        {% if submission.status == 'accepted' %}
+          <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
+          <li><a href="{% url 'journals:update_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
+        {% endif %}
+
+      </ul>
+
+      <h3>Events</h3>
+      <div id="eventslist">
+        {% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
+      </div>
+    {% endif %}
+  </div>
+
+  <button type="button" class="btn btn-dark px-1 py-0"
+		data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
+		aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
+    <small>Close</small>
+  </button>
+
+</div>

@@ -45,7 +45,7 @@ from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
     SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
     FigsharePrefillForm, OSFPreprintsPrefillForm,
-    SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
+    SubmissionForm, SubmissionPoolSearchForm, SubmissionSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
@@ -77,7 +77,7 @@ from profiles.models import Profile
 from profiles.forms import SimpleProfileForm, ProfileEmailForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
-from scipost.forms import RemarkForm
+from scipost.forms import RemarkForm, SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
 
@@ -704,6 +704,7 @@ def pool(request, identifier_w_vn_nr=None):
         submissions = search_form.search(Submission.objects.all(), request.user)
     else:
         submissions = Submission.objects.pool(request.user)
+    print('dj: %d' % len(submissions))
 
     # Query optimization
     submissions = submissions.select_related(
@@ -761,6 +762,38 @@ def pool(request, identifier_w_vn_nr=None):
     else:
         template = 'submissions/pool/pool.html'
     return render(request, template, context)
+
+
+@login_required
+@fellowship_or_admin_required()
+def pool2(request):
+    """
+    Listing of Submissions for purposes of editorial handling.
+    """
+    context = {
+        'form': SubmissionPoolSearchForm()
+    }
+    return render(request, 'submissions/pool/pool2.html', context)
+
+
+def pool_hx_submissions_list(request):
+    form = SubmissionPoolSearchForm(request.POST or None)
+    if form.is_valid():
+        submissions = form.search_results(request.user)
+    else:
+        submissions = Submission.objects.pool(request.user)[:10]
+    context = { 'submissions': submissions }
+    return render(request, 'submissions/pool/hx_submissions_list.html', context)
+
+
+def pool_hx_submission_details(request, identifier_w_vn_nr):
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    context = {
+        'remark_form': RemarkForm(),
+        'submission': submission
+    }
+    return render(request, 'submissions/pool/_hx_submission_details.html', context)
 
 
 @login_required

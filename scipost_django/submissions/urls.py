@@ -3,7 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.conf.urls import url
-from django.urls import path
+from django.urls import path, re_path
 from django.views.generic import TemplateView
 
 from . import views
@@ -172,6 +172,21 @@ url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REG
     ),
 
     # Pool
+    path(
+        'pool2',
+        views.pool2,
+        name='pool2'
+    ),
+    path(
+        'pool/submissions',
+        views.pool_hx_submissions_list,
+        name='pool_hx_submissions_list'
+    ),
+    re_path(
+        'pool/submissions/{regex}'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        views.pool_hx_submission_details,
+        name='pool_hx_submission_details'
+    ),
     url(r'^pool/$', views.pool, name='pool'),
     url(r'^pool/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX), views.pool, name='pool'),
     url(r'^add_remark/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
