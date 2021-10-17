@@ -6,7 +6,7 @@
 {% is_ed_admin request.user as is_ed_admin %}
 
 
-<button type="button" class="btn btn-primary px-1 py-0"
+<button type="button" class="btn btn-primary p-1"
 	data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
 	aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
   <small>Toggle details visibility</small>
@@ -123,7 +123,7 @@
     {% endif %}
   </div>
 
-  <button type="button" class="btn btn-dark px-1 py-0"
+  <button type="button" class="btn btn-dark p-1"
 		data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
 		aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
     <small>Close</small>

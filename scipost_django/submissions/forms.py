@@ -12,6 +12,10 @@ from django.db.models import Q
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div
+from crispy_bootstrap5.bootstrap5 import FloatingField
+
 from dal import autocomplete
 
 from .constants import (
@@ -63,6 +67,26 @@ class SubmissionPoolSearchForm(forms.Form):
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     status = forms.ChoiceField(choices=SUBMISSION_STATUS, required=False)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    FloatingField('author'),
+                    css_class='col-lg-6'
+                    ),
+                Div(
+                    FloatingField('title'),
+                    css_class='col-lg-6'
+                ),
+                css_class='row'
+            ),
+            Div(
+                Div('status')
+            )
+        )
 
     def search_results(self, user):
         """Return all Submission objects according to search."""

@@ -1,3 +1,4 @@
+{% load static %}
 {% load submissions_pool %}
 {% load user_groups %}
 
@@ -102,12 +103,19 @@
   {% endif %}
 
   <div id="details_{{ submission.id }}">
-    <button type="button" class="btn btn-primary px-1 py-0"
+    <button type="button" class="btn btn-primary p-1"
 	    hx-get="{% url 'submissions:pool_hx_submission_details' submission.preprint.identifier_w_vn_nr %}"
 	    hx-target="#details_{{ submission.id }}"
+	    hx-indicator="#indicator-details-{{ submission.id }}"
     >
       <small>View details</small>
     </button>
+    <span id="indicator-details-{{ submission.id }}" class="htmx-indicator p-1">
+      <button class="btn btn-sm btn-warning p-2" type="button" disabled>
+	<small><strong>Loading...</strong></small>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </span>
   </div>
 
 </div>
