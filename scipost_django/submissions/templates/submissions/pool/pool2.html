@@ -31,14 +31,14 @@
 	  hx-post="{% url 'submissions:pool_hx_submissions_list' %}"
 	  hx-trigger="load, keyup delay: 500ms, change"
 	  hx-target="#search-results"
-	  hx-indicator=".htmx-indicator"
+	  hx-indicator="#indicator-search"
       >
 	{% csrf_token %}
 	{% crispy form %}
       </form>
     </div>
   </div>
-  <div class="htmx-indicator p-2">
+  <div id="indicator-search" class="htmx-indicator p-2">
     <button class="btn btn-warning" type="button" disabled>
       <strong>Loading...</strong>
       <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
