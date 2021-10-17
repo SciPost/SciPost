@@ -64,6 +64,19 @@ OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 class SubmissionPoolSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        required=False
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        required=False
+    )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     identifier = forms.CharField(
@@ -76,6 +89,17 @@ class SubmissionPoolSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Div(
+                Div(
+                    FloatingField('acad_field'),
+                    css_class='col-lg-6'
+                ),
+                Div(
+                    FloatingField('specialties'),
+                    css_class='col-lg-6'
+                ),
+                css_class='row mb-0'
+            ),
             Div(
                 Div(
                     FloatingField('author'),
@@ -103,6 +127,14 @@ class SubmissionPoolSearchForm(forms.Form):
     def search_results(self, user):
         """Return all Submission objects according to search."""
         submissions = Submission.objects.pool(user)
+        if self.cleaned_data.get('acad_field'):
+            submissions = submissions.filter(
+                acad_field=self.cleaned_data.get('acad_field')
+            )
+        if self.cleaned_data.get('specialties'):
+            submissions = submissions.filter(
+                specialties__in=self.cleaned_data.get('specialties')
+            )
         if self.cleaned_data.get('author'):
             submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
         if self.cleaned_data.get('title'):
