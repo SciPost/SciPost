@@ -244,7 +244,9 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
                   'www.recaptcha.net', 'www.gstatic.com', 'www.gstatic.cn',
                   'code.jquery.com',
                   'static.mendeley.com',
-                  'cdn.plot.ly')
+                  'cdn.plot.ly',
+                  'unpkg.com/htmx.org@1.6.0'
+                  )
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark-cdn.crossref.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
