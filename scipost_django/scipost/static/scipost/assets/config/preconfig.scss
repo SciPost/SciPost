@@ -198,3 +198,5 @@ $theme-colors: (
   "light": $gray-100,
   "dark": $gray-800
 );
+
+$theme-colors-rgb: map-loop($theme-colors, to-rgb, "$value");
