@@ -66,6 +66,10 @@ class SubmissionPoolSearchForm(forms.Form):
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
+    identifier = forms.CharField(
+        max_length=128,
+        required=False
+    )
     status = forms.ChoiceField(choices=SUBMISSION_STATUS, required=False)
 
     def __init__(self, *args, **kwargs):
@@ -81,11 +85,19 @@ class SubmissionPoolSearchForm(forms.Form):
                     FloatingField('title'),
                     css_class='col-lg-6'
                 ),
-                css_class='row'
+                css_class='row mb-0'
             ),
             Div(
-                Div('status')
-            )
+                Div(
+                    FloatingField('identifier'),
+                    css_class='col-lg-6'
+                ),
+                Div(
+                    FloatingField('status'),
+                    css_class='col-lg-6'
+                ),
+                css_class='row mb-0'
+            ),
         )
 
     def search_results(self, user):
@@ -95,6 +107,10 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
         if self.cleaned_data.get('title'):
             submissions = submissions.filter(title__icontains=self.cleaned_data.get('title'))
+        if self.cleaned_data.get('identifier'):
+            submissions = submissions.filter(
+                preprint__identifie_w_vn_nr__icontains=self.cleaned_data.get('identifier')
+            )
         if self.cleaned_data.get('status'):
             submissions = submissions.filter(status=self.cleaned_data.get('status'))
         return submissions
