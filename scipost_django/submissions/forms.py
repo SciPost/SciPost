@@ -84,6 +84,10 @@ class SubmissionPoolSearchForm(forms.Form):
         required=False
     )
     status = forms.ChoiceField(choices=SUBMISSION_STATUS, required=False)
+    editor_in_charge = forms.ModelChoiceField(
+        queryset=Fellowship.objects.active(),
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,11 +118,15 @@ class SubmissionPoolSearchForm(forms.Form):
             Div(
                 Div(
                     FloatingField('identifier'),
-                    css_class='col-lg-6'
+                    css_class='col-lg-4'
                 ),
                 Div(
                     FloatingField('status'),
-                    css_class='col-lg-6'
+                    css_class='col-lg-4'
+                ),
+                Div(
+                    FloatingField('editor_in_charge'),
+                    css_class='col-lg-4'
                 ),
                 css_class='row mb-0'
             ),
@@ -145,6 +153,10 @@ class SubmissionPoolSearchForm(forms.Form):
             )
         if self.cleaned_data.get('status'):
             submissions = submissions.filter(status=self.cleaned_data.get('status'))
+        if self.cleaned_data.get('editor_in_charge'):
+            submissions = submissions.filter(
+                editor_in_charge=self.cleaned_data.get('editor_in_charge').contributor
+            )
         return submissions
 
 
