@@ -109,6 +109,9 @@ class SubmissionPoolSearchForm(forms.Form):
             ('Voting', (
                 ('voting_prepare', 'Voting in preparation'),
                 ('voting_ongoing', 'Voting ongoing'),
+                ('voting_4', 'In voting for > 4 weeks'),
+                ('voting_2', 'In voting for > 2 weeks'),
+                ('voting_1', 'In voting for > 1 week'),
             )),
             ('Decided', (
                 (STATUS_ACCEPTED, 'Accepted'),
@@ -194,6 +197,12 @@ class SubmissionPoolSearchForm(forms.Form):
                 submissions = submissions.voting_in_preparation()
             elif status == 'voting_ongoing':
                 submissions = submissions.undergoing_voting()
+            elif status == 'voting_4':
+                submissions = submissions.undergoing_voting(longer_than_days=28)
+            elif status == 'voting_2':
+                submissions = submissions.undergoing_voting(longer_than_days=14)
+            elif status == 'voting_1':
+                submissions = submissions.undergoing_voting(longer_than_days=7)
             else:
                 submissions = submissions.filter(status=self.cleaned_data.get('status'))
         if self.cleaned_data.get('editor_in_charge'):

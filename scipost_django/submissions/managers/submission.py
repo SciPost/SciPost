@@ -234,9 +234,9 @@ class SubmissionQuerySet(models.QuerySet):
         ids_list = [r.submission.id for r in EICRecommendation.objects.voting_in_preparation()]
         return self.filter(id__in=ids_list)
 
-    def undergoing_voting(self):
+    def undergoing_voting(self, longer_than_days=None):
         from submissions.models import EICRecommendation
-        ids_list = [r.submission.id for r in EICRecommendation.objects.put_to_voting()]
+        ids_list = [r.submission.id for r in EICRecommendation.objects.put_to_voting(longer_than_days)]
         return self.filter(id__in=ids_list)
 
 class SubmissionEventQuerySet(models.QuerySet):
