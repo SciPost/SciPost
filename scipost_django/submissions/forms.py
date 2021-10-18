@@ -22,7 +22,9 @@ from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
-    SUBMISSION_STATUS, PUT_TO_VOTING,
+    SUBMISSION_STATUS,
+    STATUS_ASSIGNMENT_FAILED, STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_PUBLISHED,
+    PUT_TO_VOTING,
     SUBMISSION_CYCLE_CHOICES, CYCLE_UNDETERMINED,
     CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,
     EIC_REC_PUBLISH, EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION, EIC_REC_REJECT,
@@ -68,6 +70,10 @@ class SubmissionPoolSearchForm(forms.Form):
         queryset=AcademicField.objects.all(),
         required=False
     )
+    submitted_to = forms.ModelChoiceField(
+        queryset=Journal.objects.active(),
+        required=False
+    )
     specialties = forms.ModelMultipleChoiceField(
         queryset=Specialty.objects.all(),
         widget=autocomplete.ModelSelect2Multiple(
@@ -77,10 +83,6 @@ class SubmissionPoolSearchForm(forms.Form):
         label='Specialties',
         required=False
     )
-    submitted_to = forms.ModelChoiceField(
-        queryset=Journal.objects.active(),
-        required=False
-    )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     identifier = forms.CharField(
@@ -88,7 +90,32 @@ class SubmissionPoolSearchForm(forms.Form):
         required=False
     )
     status = forms.ChoiceField(
-        choices=((None, 'All submissions currently under evaluation'),) + SUBMISSION_STATUS,
+        choices=(
+            ('All', (
+                (None, 'All submissions currently under evaluation'),
+            )),
+            ('Pre-screening', (
+                (STATUS_INCOMING, 'In pre-screening'),
+            )),
+            ('Screening', (
+                (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
+                (STATUS_FAILED_PRESCREENING, 'Failed pre-screening'),
+                (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
+                (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
+            )),
+            ('Voting', (
+                ('voting_prepare', 'Voting in preparation'),
+                ('voting_ongoing', 'Voting ongoing'),
+            )),
+            ('Decided', (
+                (STATUS_ACCEPTED, 'Accepted'),
+                (STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+                 'Accepted in other journal; awaiting puboffer acceptance'),
+                (STATUS_REJECTED, 'Rejected'),
+                (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
+                (STATUS_PUBLISHED, 'Published'),
+            )),
+        ),
         required=False
     )
     editor_in_charge = forms.ModelChoiceField(
@@ -102,11 +129,11 @@ class SubmissionPoolSearchForm(forms.Form):
         self.helper.layout = Layout(
             Div(
                 Div(FloatingField('acad_field'), css_class='col-lg-6'),
-                Div(FloatingField('specialties'), css_class='col-lg-6'),
                 css_class='row mb-0'
             ),
             Div(
                 Div(FloatingField('submitted_to'), css_class='col-lg-6'),
+                Div(FloatingField('specialties'), css_class='col-lg-6'),
                 css_class='row mb-0'
             ),
             Div(
@@ -144,7 +171,13 @@ class SubmissionPoolSearchForm(forms.Form):
                 preprint__identifie_w_vn_nr__icontains=self.cleaned_data.get('identifier')
             )
         if self.cleaned_data.get('status'):
-            submissions = submissions.filter(status=self.cleaned_data.get('status'))
+            status = self.cleaned_data.get('status')
+            if status == 'voting_prepare':
+                submissions = submissions.voting_in_preparation()
+            elif status == 'voting_ongoing':
+                submissions = submissions.undergoing_voting()
+            else:
+                submissions = submissions.filter(status=self.cleaned_data.get('status'))
         if self.cleaned_data.get('editor_in_charge'):
             submissions = submissions.filter(
                 editor_in_charge=self.cleaned_data.get('editor_in_charge').contributor

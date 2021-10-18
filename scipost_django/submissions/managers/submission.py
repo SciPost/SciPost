@@ -229,6 +229,15 @@ class SubmissionQuerySet(models.QuerySet):
             constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED, constants.STATUS_EIC_ASSIGNED,
             ], authors=user.contributor)
 
+    def voting_in_preparation(self):
+        from submissions.models import EICRecommendation
+        ids_list = [r.submission.id for r in EICRecommendation.objects.voting_in_preparation()]
+        return self.filter(id__in=ids_list)
+
+    def undergoing_voting(self):
+        from submissions.models import EICRecommendation
+        ids_list = [r.submission.id for r in EICRecommendation.objects.put_to_voting()]
+        return self.filter(id__in=ids_list)
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_author(self):
