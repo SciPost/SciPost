@@ -96,18 +96,22 @@ class SubmissionPoolSearchForm(forms.Form):
             )),
             ('Screening', (
                 (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
-                ('unassigned_4', 'Unassigned for > 4 weeks'),
-                ('unassigned_2', 'Unassigned for > 2 weeks'),
-                ('unassigned_1', 'Unassigned for > 1 week'),
+                ('unassigned_4', '... unassigned for > 4 weeks'),
+                ('unassigned_2', '... unassigned for > 2 weeks'),
+                ('unassigned_1', '... unassigned for > 1 week'),
                 (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
                 (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
+            )),
+            ('Refereeing', (
+                (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
+                ('unvetted_reports', '... with unvetted Reports'),
             )),
             ('Voting', (
                 ('voting_prepare', 'Voting in preparation'),
                 ('voting_ongoing', 'Voting ongoing'),
-                ('voting_4', 'In voting for > 4 weeks'),
-                ('voting_2', 'In voting for > 2 weeks'),
-                ('voting_1', 'In voting for > 1 week'),
+                ('voting_4', '... in voting for > 4 weeks'),
+                ('voting_2', '... in voting for > 2 weeks'),
+                ('voting_1', '... in voting for > 1 week'),
             )),
             ('Decided', (
                 (STATUS_ACCEPTED, 'Accepted'),
@@ -186,6 +190,10 @@ class SubmissionPoolSearchForm(forms.Form):
                     status=STATUS_UNASSIGNED,
                     submission_date__lt=timezone.now() - datetime.timedelta(days=7)
                 )
+            elif status == 'unvetted_reports':
+                reports_to_vet = Report.objects.awaiting_vetting()
+                id_list = [r.submission.id for r in reports_to_vet.all()]
+                submissions = submissions.filter(id__in=id_list)
             elif status == 'voting_prepare':
                 submissions = submissions.voting_in_preparation()
             elif status == 'voting_ongoing':
