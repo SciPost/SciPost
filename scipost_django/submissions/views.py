@@ -1081,8 +1081,6 @@ def editorial_page(request, identifier_w_vn_nr):
         if submission.editor_in_charge != request.user.contributor:
             # The current user is not EIC of the Submission!
             full_access = False
-            if not submission.voting_fellows.filter(contributor__user=request.user).exists():
-                raise Http404
 
     context = {
         'submission': submission,

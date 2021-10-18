@@ -83,30 +83,6 @@ class FellowshipRemoveSubmissionForm(forms.ModelForm):
         return fellowship
 
 
-class FellowVotingRemoveSubmissionForm(forms.ModelForm):
-    """
-    Use this form in admin-accessible views only! It could possibly reveal the
-    identity of the Editor-in-charge!
-    """
-    class Meta:
-        model = Fellowship
-        fields = []
-
-    def __init__(self, *args, **kwargs):
-        self.submission = kwargs.pop('submission')
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        if self.submission.editor_in_charge == self.instance.contributor:
-            self.add_error(None, ('Submission cannot be removed as the Fellow is'
-                                  ' Editor-in-charge of this Submission.'))
-
-    def save(self):
-        fellowship = self.instance
-        fellowship.voting_pool.remove(self.submission)
-        return fellowship
-
-
 class FellowshipAddSubmissionForm(forms.ModelForm):
     submission = forms.ModelChoiceField(
         queryset=Submission.objects.none(),
@@ -131,7 +107,7 @@ class FellowshipAddSubmissionForm(forms.ModelForm):
 class SubmissionAddFellowshipForm(forms.ModelForm):
     fellowship = forms.ModelChoiceField(
         queryset=None, to_field_name='id',
-        empty_label="Please choose the Fellow to add to the Pool")
+        empty_label="Please choose the Fellow to add to this Submission's Fellowship")
 
     class Meta:
         model = Submission
@@ -146,28 +122,6 @@ class SubmissionAddFellowshipForm(forms.ModelForm):
         fellowship = self.cleaned_data['fellowship']
         submission = self.instance
         submission.fellows.add(fellowship)
-        return submission
-
-
-class SubmissionAddVotingFellowForm(forms.ModelForm):
-    fellowship = forms.ModelChoiceField(
-        queryset=None, to_field_name='id',
-        empty_label="Please choose the Fellow to add to the Submission's Voting Fellows")
-
-    class Meta:
-        model = Submission
-        fields = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        pool = self.instance.voting_fellows.values_list('id', flat=True)
-        self.fields['fellowship'].queryset = Fellowship.objects.active().exclude(id__in=pool)
-
-    def save(self):
-        fellowship = self.cleaned_data['fellowship']
-        submission = self.instance
-        submission.fellows.add(fellowship)
-        submission.voting_fellows.add(fellowship)
         return submission
 
 

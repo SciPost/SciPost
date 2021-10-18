@@ -60,7 +60,6 @@
       <ul class="ps-4 mb-3">
         <li><a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a></li>
         <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
-        <li><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">Manage Voting Fellows</a></li>
         {% if not submission.editor_in_charge %}
           <li><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
         {% elif perms.scipost.can_reassign_submissions %}

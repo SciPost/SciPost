@@ -24,8 +24,7 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
 from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, SubmissionAddFellowshipForm,\
-    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, SubmissionAddVotingFellowForm,\
-    FellowVotingRemoveSubmissionForm,\
+    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, \
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
@@ -199,70 +198,10 @@ def submission_fellowships(request, identifier_w_vn_nr):
 
 
 @login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_voting_fellows(request, identifier_w_vn_nr):
-    """
-    List all Fellowships selected for voting on the EIC related to Submission.
-    """
-    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
-    context = {
-        'submission': submission
-    }
-    return render(request, 'colleges/submission_voting_fellows.html', context)
-
-
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def submission_add_fellowship_voting(request, identifier_w_vn_nr):
-    """Add Fellowship to the Fellows voting on the EICRecommendation of a Submission."""
-    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    form = SubmissionAddVotingFellowForm(request.POST or None, instance=submission)
-
-    if form.is_valid():
-        form.save()
-        messages.success(request, 'Fellowship {fellowship} ({id}) added to voting Fellows.'.format(
-            fellowship=form.cleaned_data['fellowship'].contributor,
-            id=form.cleaned_data['fellowship'].id))
-        return redirect(reverse('colleges:submission_voting_fellows',
-                                args=(submission.preprint.identifier_w_vn_nr,)))
-
-    context = {
-        'submission': submission,
-        'form': form,
-    }
-    return render(request, 'colleges/submission_add_for_voting.html', context)
-
-
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
-def fellowship_remove_submission_voting(request, id, identifier_w_vn_nr):
-    """Remove Fellow from the EICRecommendation voting group for the Submission."""
-    fellowship = get_object_or_404(Fellowship, id=id)
-    submission = get_object_or_404(
-        fellowship.voting_pool.all(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    form = FellowVotingRemoveSubmissionForm(request.POST or None,
-                                            submission=submission, instance=fellowship)
-
-    if form.is_valid() and request.POST:
-        form.save()
-        messages.success(request, 'Submission {submission_id} removed from Fellowship.'.format(
-            submission_id=identifier_w_vn_nr))
-        return redirect(reverse('colleges:submission_voting_fellows',
-                                args=(submission.preprint.identifier_w_vn_nr,)))
-
-    context = {
-        'fellowship': fellowship,
-        'form': form,
-        'submission': submission
-    }
-    return render(request, 'colleges/fellowship_submission_remove_voting.html', context)
-
-
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def submission_add_fellowship(request, identifier_w_vn_nr):
-    """Add Fellowship to the pool of a Submission."""
+    """Add Fellowship to a Submission's Fellowship."""
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
     form = SubmissionAddFellowshipForm(request.POST or None, instance=submission)
 

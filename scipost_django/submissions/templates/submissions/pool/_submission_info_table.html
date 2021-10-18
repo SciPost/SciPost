@@ -101,11 +101,6 @@
       <td>This Submission's Fellowship</td>
       <td><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.fellows.count }} Fellowship{{ submission.fellows.count|pluralize }}</a></td>
     </tr>
-    <tr>
-      <td>Fellows voting</td>
-      <td><a href="{% url 'colleges:submission_voting_fellows' submission.preprint.identifier_w_vn_nr %}">{{ submission.voting_fellows.count }} Fellowship{{ submission.voting_fellows.count|pluralize }}</a></td>
-    </tr>
-
   {% endif %}
 
   {% block extended_info_table %}{% endblock %}
