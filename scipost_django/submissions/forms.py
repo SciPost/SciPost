@@ -96,10 +96,13 @@ class SubmissionPoolSearchForm(forms.Form):
             )),
             ('Pre-screening', (
                 (STATUS_INCOMING, 'In pre-screening'),
+                (STATUS_FAILED_PRESCREENING, 'Failed pre-screening'),
             )),
             ('Screening', (
                 (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
-                (STATUS_FAILED_PRESCREENING, 'Failed pre-screening'),
+                ('unassigned_4', 'Unassigned for > 4 weeks'),
+                ('unassigned_2', 'Unassigned for > 2 weeks'),
+                ('unassigned_1', 'Unassigned for > 1 week'),
                 (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
                 (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
             )),
@@ -172,7 +175,22 @@ class SubmissionPoolSearchForm(forms.Form):
             )
         if self.cleaned_data.get('status'):
             status = self.cleaned_data.get('status')
-            if status == 'voting_prepare':
+            if status == 'unassigned_4':
+                submissions = submissions.filter(
+                    status=STATUS_UNASSIGNED,
+                    submission_date__lt=timezone.now() - datetime.timedelta(days=28)
+                )
+            if status == 'unassigned_2':
+                submissions = submissions.filter(
+                    status=STATUS_UNASSIGNED,
+                    submission_date__lt=timezone.now() - datetime.timedelta(days=14)
+                )
+            elif status == 'unassigned_1':
+                submissions = submissions.filter(
+                    status=STATUS_UNASSIGNED,
+                    submission_date__lt=timezone.now() - datetime.timedelta(days=7)
+                )
+            elif status == 'voting_prepare':
                 submissions = submissions.voting_in_preparation()
             elif status == 'voting_ongoing':
                 submissions = submissions.undergoing_voting()
