@@ -171,7 +171,7 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.filter(title__icontains=self.cleaned_data.get('title'))
         if self.cleaned_data.get('identifier'):
             submissions = submissions.filter(
-                preprint__identifie_w_vn_nr__icontains=self.cleaned_data.get('identifier')
+                preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get('identifier')
             )
         if self.cleaned_data.get('status'):
             status = self.cleaned_data.get('status')
