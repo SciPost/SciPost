@@ -99,11 +99,10 @@ class SubmissionPoolSearchForm(forms.Form):
                 ('unassigned_4', '... unassigned for > 4 weeks'),
                 ('unassigned_2', '... unassigned for > 2 weeks'),
                 ('unassigned_1', '... unassigned for > 1 week'),
-                (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
                 (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
             )),
             ('Refereeing', (
-                (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned'),
+                (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned; in refereeing'),
                 ('unvetted_reports', '... with unvetted Reports'),
             )),
             ('Voting', (
