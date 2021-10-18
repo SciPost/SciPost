@@ -14,6 +14,7 @@ from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Div
+from crispy_forms.bootstrap import InlineRadios
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
@@ -66,6 +67,11 @@ OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 class SubmissionPoolSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
+    search_set = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(('current', 'Currently in processing'), ('historical', 'All accessible history')),
+        initial='current'
+    )
     submitted_to = forms.ModelChoiceField(
         queryset=Journal.objects.active(),
         required=False
@@ -153,11 +159,18 @@ class SubmissionPoolSearchForm(forms.Form):
                 Div(FloatingField('editor_in_charge'), css_class='col-lg-4'),
                 css_class='row mb-0'
             ),
+            Div(
+                Div(InlineRadios('search_set'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
         )
 
     def search_results(self, user):
         """Return all Submission objects according to search."""
-        submissions = Submission.objects.pool(user)
+        if self.cleaned_data.get('search_set') == 'current':
+            submissions = Submission.objects.pool(user)
+        else: # include historical items
+            submissions = Submission.objects.pool_editable(user)
         if self.cleaned_data.get('specialties'):
             submissions = submissions.filter(
                 specialties__in=self.cleaned_data.get('specialties')
