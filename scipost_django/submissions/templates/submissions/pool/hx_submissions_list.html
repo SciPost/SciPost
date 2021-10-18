@@ -1,9 +1,22 @@
-<ul class="list-unstyled pool-list mt-2">
-  {% for submission in submissions %}
-    <li class="submission py-2" id="submission_{{ submission.id }}">
-      {% include 'submissions/pool/_hx_submission_li.html' with submission=submission %}
-    </li>
-  {% empty %}
-    <li>No Submission could be found</li>
-  {% endfor %}
-</ul>
+{% for submission in page_obj %}
+  <li class="submission py-2" id="submission_{{ submission.id }}">
+    {% include 'submissions/pool/_hx_submission_li.html' with submission=submission %}
+  </li>
+{% empty %}
+  <li>No Submission could be found</li>
+{% endfor %}
+{% if page_obj.has_next %}
+  <li hx-post="{% url 'submissions:pool_hx_submissions_list' %}?page={{ page_obj.next_page_number }}"
+      hx-include="#search-form"
+      hx-trigger="revealed"
+      hx-swap="afterend"
+      hx-indicator="#indicator-search-page-{{ page_obj.number }}"
+  >
+    <div id="indicator-search-page-{{ page_obj.number }}" class="htmx-indicator p-2">
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </div>
+  </li>
+{% endif %}

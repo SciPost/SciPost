@@ -33,7 +33,7 @@
 	  hx-target="#search-results"
 	  hx-indicator="#indicator-search"
       >
-	{% crispy form %}
+	<div id="search-form">{% crispy form %}</div>
       </form>
     </div>
   </div>
@@ -43,6 +43,6 @@
       <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
     </button>
   </div>
-  <div id="search-results"></div>
+  <ul id="search-results" class="list-unstyled pool-list mt-2"></ul>
 
 {% endblock content %}

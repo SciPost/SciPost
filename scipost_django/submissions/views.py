@@ -14,6 +14,7 @@ from django.contrib.auth.mixins import (
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -785,8 +786,12 @@ def pool_hx_submissions_list(request):
     if form.is_valid():
         submissions = form.search_results(request.user)
     else:
-        submissions = Submission.objects.pool(request.user)[:10]
+        submissions = Submission.objects.pool(request.user)[:16]
+    paginator = Paginator(submissions, 16)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
     context = { 'submissions': submissions }
+    context = { 'page_obj': page_obj }
     return render(request, 'submissions/pool/hx_submissions_list.html', context)
 
 
