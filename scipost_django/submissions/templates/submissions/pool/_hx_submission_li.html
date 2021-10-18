@@ -85,7 +85,7 @@
 
   {% if submission.cycle.has_required_actions %}
     <div class="card-text bg-danger text-white mt-1 py-1 px-2">
-      <button type="button" class="btn p-0">
+      <button type="button" class="btn p-0" disabled>
 	<small class="text-white">This Submission contains required actions.</small>
       </button>
       {% if is_ed_admin %}{% include 'submissions/pool/_required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}

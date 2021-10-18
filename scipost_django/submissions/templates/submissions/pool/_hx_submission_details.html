@@ -25,6 +25,7 @@
   </div>
 
   <div>
+    <hr>
     <h3>Remarks on this submission:</h3>
     {% if remark_form %}
       {% include 'submissions/_remark_form.html' with submission=submission form=remark_form auto_show=1 %}
@@ -58,35 +59,44 @@
     {% if is_ed_admin %}
       <h3>Editorial Administration</h3>
       <ul class="ps-4 mb-3">
-        <li><a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a></li>
-        <li><a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this Submission's Fellowship</a></li>
-        {% if not submission.editor_in_charge %}
-          <li><a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
-        {% elif perms.scipost.can_reassign_submissions %}
-          <li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
-        {% endif %}
+	<li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening</a></li>
 
         {# EIC Assignments #}
         {% if perms.scipost.can_assign_submissions %}
-          <li>EIC Assignment requests:</li>
-          <ul class="ps-3">
-            {% for assignment in submission.editorial_assignments.all %}
-              {% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
-            {% empty %}
-              <li>No assignment requests have been selected</li>
-            {% endfor %}
+          <li>Screening:
+            <ul class="ps-3">
+              {% if not submission.editor_in_charge %}
+		<li>
+		  <span class="text-danger">
+		    There is no Editor-in-charge yet {% include 'bi/arrow-right.html' %}
+		  </span>
+		  <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
+	      {% endif %}
+              {% for assignment in submission.editorial_assignments.all %}
+		{% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
+              {% empty %}
+		<li>No assignment requests have been sent</li>
+              {% endfor %}
 
-            {% if not submission.editor_in_charge %}
-	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
-	      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
-              <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
-            {% endif %}
-          </ul>
+              {% if not submission.editor_in_charge %}
+		<li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">
+		  No EIC yet, update authors by email (1 week into screening)
+		</a></li>
+		<li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">
+		  No EIC yet, update authors by email (2 weeks into screening)
+		</a></li>
+		<li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+              {% endif %}
+            </ul>
+	  </li>
         {% endif %}
-
-        {# Plagiarism #}
-        <li><a href="{% url 'submissions:plagiarism' submission.preprint.identifier_w_vn_nr %}">Manage plagiarism report</a></li>
-
+	<li>Refereeing:
+	  <ul class="ps-3">
+            {% if submission.editor_in_charge and perms.scipost.can_reassign_submissions %}
+              <li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
+            {% endif %}
+	  </ul>
+	</li>
         {# Compile pdfs #}
         {% if submission.reports.accepted.exists %}
           <li><a href="{% url 'submissions:reports_accepted_list' %}?submission={{ submission.preprint.identifier_w_vn_nr }}">Compile accepted reports</a></li>
@@ -119,18 +129,23 @@
         {% endif %}
 
       </ul>
-
-      <h3>Events</h3>
-      <div id="eventslist">
-        {% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
-      </div>
     {% endif %}
+    <hr>
+    <h3 class="mt-3">Events</h3>
+    <div id="eventslist">
+      {% if is_editor_in_charge or is_ed_admin %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
+      {% else %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_author %}
+      {% endif %}
+    </div>
+
   </div>
 
-  <button type="button" class="btn btn-dark p-1"
+  <button type="button" class="btn btn-primary p-1"
 		data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
 		aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
-    <small>Close</small>
+    <small>Toggle details visibility</small>
   </button>
 
 </div>

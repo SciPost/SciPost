@@ -26,7 +26,11 @@
   <h3 class="mt-4">Pre-screening steps</h3>
   <ul>
     <li>
-      <span class="text-success">{% include 'bi/check-square-fill.html' %}</span>
+      <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
+      <a href="{% url 'submissions:conflicts' submission.preprint.identifier_w_vn_nr %}">See conflicts of interests</a>
+    </li>
+    <li>
+      <span class="text-success">{% include 'bi/arrow-right.html' %}</span>
       <a href="{% url 'colleges:submission' submission.preprint.identifier_w_vn_nr %}">Manage this submission's Fellowship ({{ submission.fellows.count }} fellows)</a><br>
     </li>
     <li>
