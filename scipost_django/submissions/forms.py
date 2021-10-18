@@ -77,6 +77,10 @@ class SubmissionPoolSearchForm(forms.Form):
         label='Specialties',
         required=False
     )
+    submitted_to = forms.ModelChoiceField(
+        queryset=Journal.objects.active(),
+        required=False
+    )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     identifier = forms.CharField(
@@ -99,6 +103,10 @@ class SubmissionPoolSearchForm(forms.Form):
             Div(
                 Div(FloatingField('acad_field'), css_class='col-lg-6'),
                 Div(FloatingField('specialties'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('submitted_to'), css_class='col-lg-6'),
                 css_class='row mb-0'
             ),
             Div(
@@ -125,6 +133,8 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.filter(
                 specialties__in=self.cleaned_data.get('specialties')
             )
+        if self.cleaned_data.get('submitted_to'):
+            submissions = submissions.filter(submitted_to=self.cleaned_data.get('submitted_to'))
         if self.cleaned_data.get('author'):
             submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
         if self.cleaned_data.get('title'):
