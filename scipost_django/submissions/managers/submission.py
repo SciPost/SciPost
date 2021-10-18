@@ -67,11 +67,15 @@ class SubmissionQuerySet(models.QuerySet):
 
     def pool(self, user):
         """Return the user-dependent pool of Submissions in active referee phase."""
-        return self.pool_editable(user).filter(is_current=True, status__in=[
+        allowed_statuses = [
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
             constants.STATUS_ACCEPTED,
-            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE])
+            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+        ]
+        if user.has_perm('scipost.can_oversee_refereeing'):
+            allowed_statuses.append(constants.STATUS_INCOMING)
+        return self.pool_editable(user).filter(is_current=True, status__in=allowed_statuses)
 
     def pool_editable(self, user):
         """Return the editable pool for a certain user.

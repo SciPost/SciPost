@@ -83,7 +83,10 @@ class SubmissionPoolSearchForm(forms.Form):
         max_length=128,
         required=False
     )
-    status = forms.ChoiceField(choices=SUBMISSION_STATUS, required=False)
+    status = forms.ChoiceField(
+        choices=((None, 'All submissions currently under evaluation'),) + SUBMISSION_STATUS,
+        required=False
+    )
     editor_in_charge = forms.ModelChoiceField(
         queryset=Fellowship.objects.active(),
         required=False
@@ -94,40 +97,19 @@ class SubmissionPoolSearchForm(forms.Form):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                Div(
-                    FloatingField('acad_field'),
-                    css_class='col-lg-6'
-                ),
-                Div(
-                    FloatingField('specialties'),
-                    css_class='col-lg-6'
-                ),
+                Div(FloatingField('acad_field'), css_class='col-lg-6'),
+                Div(FloatingField('specialties'), css_class='col-lg-6'),
                 css_class='row mb-0'
             ),
             Div(
-                Div(
-                    FloatingField('author'),
-                    css_class='col-lg-6'
-                    ),
-                Div(
-                    FloatingField('title'),
-                    css_class='col-lg-6'
-                ),
+                Div(FloatingField('author'), css_class='col-lg-6'),
+                Div(FloatingField('title'), css_class='col-lg-6'),
                 css_class='row mb-0'
             ),
             Div(
-                Div(
-                    FloatingField('identifier'),
-                    css_class='col-lg-4'
-                ),
-                Div(
-                    FloatingField('status'),
-                    css_class='col-lg-4'
-                ),
-                Div(
-                    FloatingField('editor_in_charge'),
-                    css_class='col-lg-4'
-                ),
+                Div(FloatingField('identifier'), css_class='col-lg-3'),
+                Div(FloatingField('status'), css_class='col-lg-5'),
+                Div(FloatingField('editor_in_charge'), css_class='col-lg-4'),
                 css_class='row mb-0'
             ),
         )

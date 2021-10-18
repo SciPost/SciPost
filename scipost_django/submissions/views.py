@@ -31,7 +31,8 @@ from dal import autocomplete
 
 from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
-    STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING, STATUS_ASSIGNMENT_FAILED,
+    STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING,
+    STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
     EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED,
     FIGSHARE_PREPRINT_SERVERS)
@@ -771,7 +772,7 @@ def pool2(request):
     Listing of Submissions for purposes of editorial handling.
     """
     context = {
-        'form': SubmissionPoolSearchForm()
+        'form': SubmissionPoolSearchForm(initial={ 'status': STATUS_UNASSIGNED })
     }
     return render(request, 'submissions/pool/pool2.html', context)
 
