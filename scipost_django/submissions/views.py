@@ -706,7 +706,6 @@ def pool(request, identifier_w_vn_nr=None):
         submissions = search_form.search(Submission.objects.all(), request.user)
     else:
         submissions = Submission.objects.pool(request.user)
-    print('dj: %d' % len(submissions))
 
     # Query optimization
     submissions = submissions.select_related(
@@ -772,7 +771,19 @@ def pool2(request):
     """
     Listing of Submissions for purposes of editorial handling.
     """
+    nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
+        request.user.contributor).count()
+    recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user)
+    recs_current_voted = EICRecommendation.objects.user_current_voted(request.user)
+    assignments_to_consider = EditorialAssignment.objects.invited().filter(
+        to=request.user.contributor)
+
     context = {
+        'nr_potfels_to_vote_on': nr_potfels_to_vote_on,
+        'recs_to_vote_on': recs_to_vote_on,
+        'recs_current_voted': recs_current_voted,
+        'assignments_to_consider': assignments_to_consider,
+
         'form': SubmissionPoolSearchForm(
             initial={ 'status': STATUS_UNASSIGNED },
             user=request.user
