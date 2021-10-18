@@ -104,6 +104,10 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
             return self.submission.eicrecommendations.last() == self
         return self.status != DECISION_FIXED
 
+    @property
+    def voting_in_preparation(self):
+        return self.status == VOTING_IN_PREP
+
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""
         return self.submission.eicrecommendations.exclude(id=self.id)
