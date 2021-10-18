@@ -772,13 +772,16 @@ def pool2(request):
     Listing of Submissions for purposes of editorial handling.
     """
     context = {
-        'form': SubmissionPoolSearchForm(initial={ 'status': STATUS_UNASSIGNED })
+        'form': SubmissionPoolSearchForm(
+            initial={ 'status': STATUS_UNASSIGNED },
+            user=request.user
+        )
     }
     return render(request, 'submissions/pool/pool2.html', context)
 
 
 def pool_hx_submissions_list(request):
-    form = SubmissionPoolSearchForm(request.POST or None)
+    form = SubmissionPoolSearchForm(request.POST or None, user=request.user)
     if form.is_valid():
         submissions = form.search_results(request.user)
     else:

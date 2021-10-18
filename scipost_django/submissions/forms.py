@@ -66,10 +66,6 @@ OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 class SubmissionPoolSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
-    acad_field = forms.ModelChoiceField(
-        queryset=AcademicField.objects.all(),
-        required=False
-    )
     submitted_to = forms.ModelChoiceField(
         queryset=Journal.objects.active(),
         required=False
@@ -130,13 +126,14 @@ class SubmissionPoolSearchForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
+        if not user.has_perm('scipost.can_oversee_refereeing'):
+            # restrict journals to those of Colleges of user's Fellowships
+            college_id_list = [f.college.id for f in user.contributor.fellowships.active()]
+            self.fields['submitted_to'].queryset = Journal.objects.filter(college__in=college_id_list)
         self.helper = FormHelper()
         self.helper.layout = Layout(
-            Div(
-                Div(FloatingField('acad_field'), css_class='col-lg-6'),
-                css_class='row mb-0'
-            ),
             Div(
                 Div(FloatingField('submitted_to'), css_class='col-lg-6'),
                 Div(FloatingField('specialties'), css_class='col-lg-6'),
@@ -158,10 +155,6 @@ class SubmissionPoolSearchForm(forms.Form):
     def search_results(self, user):
         """Return all Submission objects according to search."""
         submissions = Submission.objects.pool(user)
-        if self.cleaned_data.get('acad_field'):
-            submissions = submissions.filter(
-                acad_field=self.cleaned_data.get('acad_field')
-            )
         if self.cleaned_data.get('specialties'):
             submissions = submissions.filter(
                 specialties__in=self.cleaned_data.get('specialties')
