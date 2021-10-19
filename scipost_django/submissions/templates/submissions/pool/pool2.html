@@ -105,3 +105,16 @@
   <ul id="search-results" class="list-unstyled pool-list mt-2"></ul>
 
 {% endblock content %}
+{% block footer_script %}
+  <script nonce="{{ requeest.csp_nonce }}">
+   document.getElementById("id_submitted_to").addEventListener("change", () => {
+       var e = document.getElementById("id_submitted_to")
+       if (e.options[e.selectedIndex].text == 'SciPost Physics Proceedings') {
+	   document.getElementById("row_proceedings").style.display = 'block'
+       } else {
+	   document.getElementById("row_proceedings").style.display = 'none'
+	   document.getElementById("id_proceedings").value = null
+       }
+   })
+  </script>
+{% endblock %}

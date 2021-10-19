@@ -52,6 +52,7 @@ from mails.utils import DirectMailUtil
 from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
+from proceedings.models import Proceedings
 from profiles.models import Profile
 from scipost.services import DOICaller, ArxivCaller, FigshareCaller, OSFPreprintsCaller
 from scipost.models import Contributor, Remark
@@ -85,6 +86,10 @@ class SubmissionPoolSearchForm(forms.Form):
         label='Specialties',
         required=False
     )
+    proceedings = forms.ModelChoiceField(
+        queryset=Proceedings.objects.order_by('-submissions_close'),
+        required=False
+    )
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False)
     identifier = forms.CharField(
@@ -94,7 +99,7 @@ class SubmissionPoolSearchForm(forms.Form):
     status = forms.ChoiceField(
         choices=(
             ('All', (
-                (None, 'All submissions currently under evaluation'),
+                ('all', 'All submissions currently under evaluation'),
             )),
             ('Pre-screening', (
                 (STATUS_INCOMING, 'In pre-screening'),
@@ -129,7 +134,6 @@ class SubmissionPoolSearchForm(forms.Form):
                 (STATUS_PUBLISHED, 'Published'),
             )),
         ),
-        required=False
     )
     editor_in_charge = forms.ModelChoiceField(
         queryset=Fellowship.objects.active(),
@@ -151,6 +155,12 @@ class SubmissionPoolSearchForm(forms.Form):
                 css_class='row mb-0'
             ),
             Div(
+                Div(FloatingField('proceedings'), css_class='col-lg-6'),
+                css_class='row mb-0',
+                css_id='row_proceedings',
+                style='display: none'
+            ),
+            Div(
                 Div(FloatingField('author'), css_class='col-lg-6'),
                 Div(FloatingField('title'), css_class='col-lg-6'),
                 css_class='row mb-0'
@@ -168,7 +178,9 @@ class SubmissionPoolSearchForm(forms.Form):
         )
 
     def search_results(self, user):
-        """Return all Submission objects according to search."""
+        """
+        Return all Submission objects according to search.
+        """
         if self.cleaned_data.get('search_set') == 'current':
             submissions = Submission.objects.pool(user)
         else: # include historical items
@@ -179,6 +191,8 @@ class SubmissionPoolSearchForm(forms.Form):
             )
         if self.cleaned_data.get('submitted_to'):
             submissions = submissions.filter(submitted_to=self.cleaned_data.get('submitted_to'))
+        if self.cleaned_data.get('proceedings'):
+            submissions = submissions.filter(proceedings=self.cleaned_data.get('proceedings'))
         if self.cleaned_data.get('author'):
             submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
         if self.cleaned_data.get('title'):
@@ -187,39 +201,44 @@ class SubmissionPoolSearchForm(forms.Form):
             submissions = submissions.filter(
                 preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get('identifier')
             )
-        if self.cleaned_data.get('status'):
-            status = self.cleaned_data.get('status')
-            if status == 'unassigned_1':
-                submissions = submissions.filter(
-                    status=STATUS_UNASSIGNED,
-                    submission_date__lt=timezone.now() - datetime.timedelta(days=7)
-                )
-            elif status == 'unassigned_2':
-                submissions = submissions.filter(
-                    status=STATUS_UNASSIGNED,
-                    submission_date__lt=timezone.now() - datetime.timedelta(days=14)
-                )
-            elif status == 'unassigned_4':
-                submissions = submissions.filter(
-                    status=STATUS_UNASSIGNED,
-                    submission_date__lt=timezone.now() - datetime.timedelta(days=28)
-                )
-            elif status == 'unvetted_reports':
-                reports_to_vet = Report.objects.awaiting_vetting()
-                id_list = [r.submission.id for r in reports_to_vet.all()]
-                submissions = submissions.filter(id__in=id_list)
-            elif status == 'voting_prepare':
-                submissions = submissions.voting_in_preparation()
-            elif status == 'voting_ongoing':
-                submissions = submissions.undergoing_voting()
-            elif status == 'voting_1':
-                submissions = submissions.undergoing_voting(longer_than_days=7)
-            elif status == 'voting_2':
-                submissions = submissions.undergoing_voting(longer_than_days=14)
-            elif status == 'voting_4':
-                submissions = submissions.undergoing_voting(longer_than_days=28)
-            else:
-                submissions = submissions.filter(status=self.cleaned_data.get('status'))
+
+        # filter by status
+        status = self.cleaned_data.get('status')
+        if status == 'all':
+            pass
+        elif status == 'unassigned_1':
+            submissions = submissions.filter(
+                status=STATUS_UNASSIGNED,
+                submission_date__lt=timezone.now() - datetime.timedelta(days=7)
+            )
+        elif status == 'unassigned_2':
+            submissions = submissions.filter(
+                status=STATUS_UNASSIGNED,
+                submission_date__lt=timezone.now() - datetime.timedelta(days=14)
+            )
+        elif status == 'unassigned_4':
+            submissions = submissions.filter(
+                status=STATUS_UNASSIGNED,
+                submission_date__lt=timezone.now() - datetime.timedelta(days=28)
+            )
+        elif status == 'unvetted_reports':
+            reports_to_vet = Report.objects.awaiting_vetting()
+            id_list = [r.submission.id for r in reports_to_vet.all()]
+            submissions = submissions.filter(id__in=id_list)
+        elif status == 'voting_prepare':
+            submissions = submissions.voting_in_preparation()
+        elif status == 'voting_ongoing':
+            submissions = submissions.undergoing_voting()
+        elif status == 'voting_1':
+            submissions = submissions.undergoing_voting(longer_than_days=7)
+        elif status == 'voting_2':
+            submissions = submissions.undergoing_voting(longer_than_days=14)
+        elif status == 'voting_4':
+            submissions = submissions.undergoing_voting(longer_than_days=28)
+        else:
+            submissions = submissions.filter(status=status)
+
+        # filter by EIC
         if self.cleaned_data.get('editor_in_charge'):
             submissions = submissions.filter(
                 editor_in_charge=self.cleaned_data.get('editor_in_charge').contributor
