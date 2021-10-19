@@ -102,9 +102,9 @@ class SubmissionPoolSearchForm(forms.Form):
             )),
             ('Screening', (
                 (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
-                ('unassigned_4', '... unassigned for > 4 weeks'),
-                ('unassigned_2', '... unassigned for > 2 weeks'),
                 ('unassigned_1', '... unassigned for > 1 week'),
+                ('unassigned_2', '... unassigned for > 2 weeks'),
+                ('unassigned_4', '... unassigned for > 4 weeks'),
                 (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
             )),
             ('Refereeing', (
@@ -114,9 +114,9 @@ class SubmissionPoolSearchForm(forms.Form):
             ('Voting', (
                 ('voting_prepare', 'Voting in preparation'),
                 ('voting_ongoing', 'Voting ongoing'),
-                ('voting_4', '... in voting for > 4 weeks'),
-                ('voting_2', '... in voting for > 2 weeks'),
                 ('voting_1', '... in voting for > 1 week'),
+                ('voting_2', '... in voting for > 2 weeks'),
+                ('voting_4', '... in voting for > 4 weeks'),
             )),
             ('Decided', (
                 (STATUS_ACCEPTED, 'Accepted'),
@@ -124,6 +124,8 @@ class SubmissionPoolSearchForm(forms.Form):
                  'Accepted in other journal; awaiting puboffer acceptance'),
                 (STATUS_REJECTED, 'Rejected'),
                 (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
+            )),
+            ('Processed', (
                 (STATUS_PUBLISHED, 'Published'),
             )),
         ),
@@ -187,20 +189,20 @@ class SubmissionPoolSearchForm(forms.Form):
             )
         if self.cleaned_data.get('status'):
             status = self.cleaned_data.get('status')
-            if status == 'unassigned_4':
+            if status == 'unassigned_1':
                 submissions = submissions.filter(
                     status=STATUS_UNASSIGNED,
-                    submission_date__lt=timezone.now() - datetime.timedelta(days=28)
+                    submission_date__lt=timezone.now() - datetime.timedelta(days=7)
                 )
-            if status == 'unassigned_2':
+            elif status == 'unassigned_2':
                 submissions = submissions.filter(
                     status=STATUS_UNASSIGNED,
                     submission_date__lt=timezone.now() - datetime.timedelta(days=14)
                 )
-            elif status == 'unassigned_1':
+            elif status == 'unassigned_4':
                 submissions = submissions.filter(
                     status=STATUS_UNASSIGNED,
-                    submission_date__lt=timezone.now() - datetime.timedelta(days=7)
+                    submission_date__lt=timezone.now() - datetime.timedelta(days=28)
                 )
             elif status == 'unvetted_reports':
                 reports_to_vet = Report.objects.awaiting_vetting()
@@ -210,12 +212,12 @@ class SubmissionPoolSearchForm(forms.Form):
                 submissions = submissions.voting_in_preparation()
             elif status == 'voting_ongoing':
                 submissions = submissions.undergoing_voting()
-            elif status == 'voting_4':
-                submissions = submissions.undergoing_voting(longer_than_days=28)
-            elif status == 'voting_2':
-                submissions = submissions.undergoing_voting(longer_than_days=14)
             elif status == 'voting_1':
                 submissions = submissions.undergoing_voting(longer_than_days=7)
+            elif status == 'voting_2':
+                submissions = submissions.undergoing_voting(longer_than_days=14)
+            elif status == 'voting_4':
+                submissions = submissions.undergoing_voting(longer_than_days=28)
             else:
                 submissions = submissions.filter(status=self.cleaned_data.get('status'))
         if self.cleaned_data.get('editor_in_charge'):
