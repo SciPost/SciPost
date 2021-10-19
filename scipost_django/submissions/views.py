@@ -886,35 +886,6 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
 
 
 @login_required
-@permission_required('scipost.can_assign_submissions', raise_exception=True)
-def assign_submission(request, identifier_w_vn_nr):
-    """Assign Editor-in-charge to Submission.
-
-    Action done by SciPost Administration or Editorial College Administration.
-    """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
-                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    form = InviteEditorialAssignmentForm(request.POST or None, submission=submission)
-
-    if form.is_valid():
-        ed_assignment = form.save()
-        SubmissionUtils.load({'assignment': ed_assignment})
-        SubmissionUtils.send_assignment_request_email()
-        messages.success(request, 'Your assignment request has been sent successfully.')
-        return redirect('submissions:pool')
-
-    context = {
-        'submission_to_assign': submission,
-        'form': form
-    }
-
-    if request.GET.get('flag'):
-        fellows_with_expertise = submission.fellows.all()
-        context['coauthorships'] = submission.flag_coauthorships_arxiv(fellows_with_expertise)
-    return render(request, 'submissions/admin/editorial_assignment_form.html', context)
-
-
-@login_required
 @fellowship_required()
 @transaction.atomic
 def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
@@ -992,7 +963,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
 def assignment_request(request, assignment_id):
     """Redirect to Editorial Assignment form view.
 
-    Exists for historical reasons; email are send with this url construction.
+    Exists for historical reasons; email are sent with this url construction.
     """
     assignment = get_object_or_404(EditorialAssignment.objects.invited(),
                                    to=request.user.contributor, pk=assignment_id)

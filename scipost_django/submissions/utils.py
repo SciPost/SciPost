@@ -22,59 +22,6 @@ class SubmissionUtils(BaseMailUtil):
     mail_sender_title = 'SciPost Editorial Admin'
 
     @classmethod
-    def send_assignment_request_email(cls):
-        """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + cls.assignment.to.profile.get_title_display() + ' ' +
-                      cls.assignment.to.user.last_name +
-                      ', \n\nWe have received a Submission to SciPost ' +
-                      'for which we would like you to consider becoming Editor-in-charge:\n\n' +
-                      cls.assignment.submission.title + ' by '
-                      + cls.assignment.submission.author_list + '.' +
-                      f'\n\nPlease visit https://{domain}/submissions/pool ' +
-                      'in order to accept or decline (it is important for you to inform us '
-                      'even if you decline, since this affects the result '
-                      'of the pre-screening process). '
-                      'Note that this assignment request is automatically '
-                      'deprecated if another Fellow '
-                      'takes charge of this Submission or if pre-screening '
-                      'fails in the meantime.'
-                      '\n\nMany thanks in advance for your collaboration,' +
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>We have received a Submission to SciPost ' +
-            'for which we would like you to consider becoming Editor-in-charge:</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
-            '\n<p>Please visit the '
-            f'<a href="https://{domain}/submissions/pool">Submissions Pool</a> '
-            'in order to accept or decline (it is important for you to inform us '
-            'even if you decline, since this affects the result '
-            'of the pre-screening process).</p>'
-            '<p>Note that this assignment request is automatically '
-            'deprecated if another Fellow '
-            'takes charge of this Submission or if pre-screening '
-            'fails in the meantime.</p>'
-            '\n<p>Many thanks in advance for your collaboration,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = {
-            'title': cls.assignment.to.profile.get_title_display(),
-            'last_name': cls.assignment.to.user.last_name,
-            'sub_title': cls.assignment.submission.title,
-            'author_list': cls.assignment.submission.author_list,
-        }
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(Context(email_context))
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: potential Submission assignment', email_text,
-            f'SciPost Editorial Admin <submissions@{domain}>',
-            [cls.assignment.to.user.email],
-            bcc=[f'submissions@{domain}'],
-            reply_to=[f'submissions@{domain}'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
-
-    @classmethod
     def send_EIC_appointment_email(cls):
         """ Requires loading 'assignment' attribute. """
         r = cls.assignment
