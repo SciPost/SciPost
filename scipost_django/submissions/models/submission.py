@@ -294,6 +294,10 @@ class Submission(models.Model):
             thread_hash=self.thread_hash, is_resubmission_of__isnull=True).first().submission_date
 
     @property
+    def in_prescreening(self):
+        return self.status == STATUS_INCOMING
+
+    @property
     def in_refereeing_phase(self):
         """Check if Submission is in active refereeing phase.
 

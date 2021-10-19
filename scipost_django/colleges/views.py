@@ -6,7 +6,7 @@ import datetime
 
 from django.contrib import messages
 from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -16,6 +16,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from submissions.models import Submission
+from submissions.permissions import is_edadmin_or_senior_fellow
 
 from .constants import (
     POTENTIAL_FELLOWSHIP_STATUSES, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
@@ -184,7 +185,7 @@ def email_College_Fellows(request, college):
 
 
 @login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+@user_passes_test(is_edadmin_or_senior_fellow)
 def submission_fellowships(request, identifier_w_vn_nr):
     """
     List all Fellowships related to Submission.
@@ -198,8 +199,7 @@ def submission_fellowships(request, identifier_w_vn_nr):
 
 
 @login_required
-@login_required
-@permission_required('scipost.can_manage_college_composition', raise_exception=True)
+@user_passes_test(is_edadmin_or_senior_fellow)
 def submission_add_fellowship(request, identifier_w_vn_nr):
     """Add Fellowship to a Submission's Fellowship."""
     submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
@@ -223,7 +223,7 @@ def submission_add_fellowship(request, identifier_w_vn_nr):
 @login_required
 @permission_required('scipost.can_manage_college_composition', raise_exception=True)
 def fellowship_remove_submission(request, id, identifier_w_vn_nr):
-    """Remove Submission from the pool of a Fellowship."""
+    """Remove Submission from the Fellowship."""
     fellowship = get_object_or_404(Fellowship, id=id)
     submission = get_object_or_404(
         fellowship.pool.all(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)

@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load scipost_extras %}
+{% load user_groups %}
 {% load conflict_tags %}
 
 {% block pagetitle %}: Submission Editors{% endblock pagetitle %}
@@ -18,6 +19,7 @@
 
 {% block content %}
 
+  {% is_ed_admin request.user as is_ed_admin %}
 
   <h1 class="highlight">Submission editor invitations</h1>
   <h3><a href="{{ submission.get_absolute_url }}">{{ submission.title }}</a></h3>
@@ -29,17 +31,21 @@
 
   <br>
 
-  <ul>
-    <li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
-    {% if submission.status == 'incoming' %}
-      <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
-    {% else %}
-      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
-      <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
-      <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
-    {% endif %}
-  </ul>
-
+  {% if is_ed_admin %}
+    <div class="border border-danger mt-3 p-2">
+      <h3>Editorial Administration</h3>
+      <ul>
+	<li><a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to editorial page</a></li>
+	{% if submission.status == 'incoming' %}
+	  <li><a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Go to pre-screening page</a></li>
+	{% else %}
+	  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">Update authors by email (1 week into screening)</a></li>
+	  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">Update authors by email (2 weeks into screening)</a></li>
+	  <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+	{% endif %}
+      </ul>
+    </div>
+  {% endif %}
 
   <h3 class="highlight">Current invitations</h3>
   <table class="submission" id="current-status">
@@ -126,7 +132,7 @@
           </td>
           <td>
             {{ assignment.date_invited|default:'<i>Not invited (yet)</i>' }}
-            {% if assignment.status == 'preassigned' %}
+            {% if is_ed_admin and assignment.status == 'preassigned' %}
               <br>
               <a href="{% url 'submissions:send_editorial_assignment_invitation' submission.preprint.identifier_w_vn_nr assignment.id %}">Send invitation now</a>
             {% endif %}

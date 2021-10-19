@@ -144,6 +144,10 @@ class Contributor(models.Model):
         return self.fellowships.active().exists() or self.user.is_superuser
 
     @property
+    def is_active_senior_fellow(self):
+        return self.fellowships.active().senior().exists()
+
+    @property
     def is_vetting_editor(self):
         """Check if Contributor is a Vetting Editor."""
         return (self.user.groups.filter(name='Vetting Editors').exists()

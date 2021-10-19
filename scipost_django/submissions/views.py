@@ -8,7 +8,7 @@ import feedparser
 import strings
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
 from django.contrib.auth.mixins import (
     LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin)
 from django.contrib.messages.views import SuccessMessageMixin
@@ -59,9 +59,10 @@ from .forms import (
     EditorialDecisionForm,
     SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
+from .permissions import is_edadmin_or_senior_fellow
 from .utils import SubmissionUtils
 
-from colleges.models import PotentialFellowship
+from colleges.models import PotentialFellowship, Fellowship
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
@@ -2059,12 +2060,14 @@ def remind_Fellows_to_vote(request, rec_id):
     return render(request, 'scipost/acknowledgement.html', context)
 
 
-@permission_required('scipost.can_run_pre_screening', raise_exception=True)
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
 def editor_invitations(request, identifier_w_vn_nr):
-    """Update/show invitations of editors for incoming Submission."""
+    """
+    Update/show invitations of editors for incoming Submission.
+    """
     submission = get_object_or_404(
         Submission.objects.without_eic(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
     assignments = submission.editorial_assignments.order_by('invitation_order')
     context = {
         'submission': submission,

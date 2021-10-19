@@ -1,15 +1,19 @@
 {% extends 'submissions/admin/base.html' %}
 
 {% load bootstrap %}
+{% load user_groups %}
 
 {% block breadcrumb_items %}
   {{ block.super }}
   <span class="breadcrumb-item">Submission Fellowships</span>
 {% endblock %}
 
-{% block pagetitle %}: Submission Felloswhips{% endblock pagetitle %}
+{% block pagetitle %}: Submission Fellowships{% endblock pagetitle %}
 
 {% block content %}
+
+  {% is_ed_admin request.user as is_ed_admin %}
+
   <h1>Submission Fellowships</h1>
   <h2 class="text-primary">{{ submission.title }}</h2>
   <h3 class="mb-3">by {{ submission.author_list }}</h3>
@@ -24,7 +28,7 @@
         <th>Fellowship ID</th>
         <th>Fellow</th>
         <th>Type</th>
-        <th colspan="2">Date range</th>
+        <th colspan="2"></th>
       </tr>
     </thead>
     <tbody>
@@ -34,7 +38,9 @@
           <td>{{ fellowship.contributor }}</td>
           <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
           <td>
-            <a class="text-danger" href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.preprint.identifier_w_vn_nr %}">Remove this Fellow from Submission's fellowhship</a>
+	    {% if is_ed_admin %}
+              <a class="text-danger" href="{% url 'colleges:fellowship_remove_submission' fellowship.id submission.preprint.identifier_w_vn_nr %}">Remove this Fellow from Submission's fellowhship</a>
+	    {% endif %}
           </td>
         </tr>
       {% endfor %}
