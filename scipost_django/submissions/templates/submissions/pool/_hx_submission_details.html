@@ -72,14 +72,13 @@
 
           {# EIC Assignments #}
           <li>Screening: invitations to take charge
-            <ul class="ps-3">
-	      {% if not submission.editor_in_charge %}
-		<li>
-		  <span class="text-danger">
-		    There is no Editor-in-charge yet {% include 'bi/arrow-right.html' %}
-		  </span>
-		  <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a></li>
-	      {% endif %}
+	    {% if not submission.editor_in_charge %}
+	      <span class="border border-danger text-danger ms-2 p-1">
+		There is no Editor-in-charge yet {% include 'bi/arrow-right.html' %}
+		<a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a>
+	      </span>
+	    {% endif %}
+            <ul class="mt-2 ps-3">
 	      {% for assignment in submission.editorial_assignments.all %}
 		{% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
 	      {% empty %}

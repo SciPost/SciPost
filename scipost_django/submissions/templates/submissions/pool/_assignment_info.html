@@ -1,20 +1,20 @@
 <li class="py-1">
-  {{ assignment.to.user.first_name }} {{ assignment.to.user.last_name }}
+  {{ assignment.to.user.first_name }} {{ assignment.to.user.last_name }}&nbsp;
 
   {% if assignment.invited %}
-    <span class="label label-sm label-info">invited</span>
+    <span class="label label-sm label-info p-1">invited</span>
   {% endif %}
   {% if assignment.accepted %}
-    <span class="label label-sm label-outline-success">accepted</span>
+    <span class="label label-sm label-outline-success p-1">accepted</span>
   {% endif %}
   {% if assignment.deprecated %}
-    <span class="label label-sm label-outline-info">deprecated</span>
+    <span class="label label-sm label-outline-info p-1">deprecated</span>
   {% endif %}
   {% if assignment.replaced %}
-    <span class="label label-sm label-outline-warning">replaced</span>
+    <span class="label label-sm label-outline-warning p-1">replaced</span>
   {% endif %}
   {% if assignment.refusal_reason %}
-    <span class="label label-sm label-outline-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">declined
+    <span class="label label-sm p-1 label-outline-{% if assignment.refusal_reason == 'NIE' or assignment.refusal_reason == 'DNP' %}danger{% else %}warning{% endif %}">declined
       | Reason: {{ assignment.get_refusal_reason_display }}
     </span>
   {% endif %}
