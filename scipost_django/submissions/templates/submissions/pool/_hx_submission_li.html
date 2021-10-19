@@ -62,7 +62,7 @@
       <span class="label label-sm label-secondary text-wrap">{{ submission.get_status_display }}</span>
       {% if submission.eicrecommendations.active.first %}
 	<br>
-        <small class="text-muted">EIC Recommendation Status</small>
+        <small class="text-muted">EIC Recommendation &amp; Status</small>
         <br>
         <span class="label label-sm label-secondary text-wrap">{{ submission.eicrecommendations.active.first.get_full_status_display }}</span>
       {% endif %}

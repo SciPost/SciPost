@@ -51,6 +51,11 @@ def is_viewable_by_authors(recommendation):
 
 
 @register.filter
+def user_can_vote(recommendation, user):
+    return recommendation.eligible_to_vote.filter(user=user).exists()
+
+
+@register.filter
 def user_is_referee(submission, user):
     """Check if the User is invited to be Referee of the Submission."""
     if not user.is_authenticated:

@@ -9,7 +9,7 @@ from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
     STATUS_EIC_ASSIGNED,
     EIC_REC_CHOICES, EIC_REC_STATUSES, DECISION_FIXED, DEPRECATED,
-    VOTING_IN_PREP, ALT_REC_CHOICES)
+    VOTING_IN_PREP, PUT_TO_VOTING, ALT_REC_CHOICES)
 from ..managers import EICRecommendationQuerySet
 
 
@@ -108,17 +108,24 @@ class EICRecommendation(SubmissionRelatedObjectMixin, models.Model):
     def voting_in_preparation(self):
         return self.status == VOTING_IN_PREP
 
+    @property
+    def undergoing_voting(self):
+        return self.status == PUT_TO_VOTING
+
+    @property
+    def decision_fixed(self):
+        return self.status == DECISION_FIXED
+
     def get_other_versions(self):
         """Return other versions of EICRecommendations for this Submission."""
         return self.submission.eicrecommendations.exclude(id=self.id)
 
     def get_full_status_display(self):
-        """Return `status` field display plus possible `recommendation` display."""
-        _str = self.get_status_display()
-        if self.status == DECISION_FIXED and self.submission.status == STATUS_EIC_ASSIGNED:
-            return '{} ({})'.format(_str, self.get_recommendation_display())
-        return _str
-
+        """Return `recommendation` and `status` field display."""
+        return '{} ({})'.format(
+            self.get_recommendation_display(),
+            self.get_status_display(),
+        )
 
 
 class AlternativeRecommendation(models.Model):

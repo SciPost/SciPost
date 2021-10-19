@@ -46,6 +46,7 @@
 	  <a href="{% url 'submissions:pool2' %}">new pool page</a>
 	</strong>
       </div>
+
       {% if is_ed_admin %}
 
         {% if recommendations.voting_in_preparation or recommendations.put_to_voting or latest_submission_events or pre_screening_subs %}

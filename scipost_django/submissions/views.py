@@ -540,7 +540,7 @@ def submission_detail(request, identifier_w_vn_nr):
             # their permission level is.
             context['can_read_editorial_information'] = False
         else:
-            # User may read eg. Editorial Recommendations if they are in the Pool.
+            # User may read eg. Editorial Recommendations if they are in the Fellowship.
             context['can_read_editorial_information'] = submission.fellows.filter(
                 contributor__user=request.user).exists()
 
@@ -1912,6 +1912,19 @@ def prepare_for_voting(request, rec_id):
 
 @login_required
 @fellowship_or_admin_required()
+def claim_voting_right(request, rec_id):
+    """Claim voting right on EICRecommendation."""
+    rec = get_object_or_404(EICRecommendation, pk=rec_id)
+    granted = False
+    if rec.submission.fellows.filter(contributor=request.user.contributor).exists():
+        rec.eligible_to_vote.add(request.user.contributor)
+        granted = True
+    context = { 'rec': rec, 'granted': granted }
+    return render(request, 'submissions/pool/_hx_recommendation_claim_voting_right.html', context)
+
+
+@login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
@@ -2129,19 +2142,20 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
 
 class EICRecommendationDetailView(SubmissionMixin, LoginRequiredMixin,
                                   UserPassesTestMixin, DetailView):
-    """EICRecommendation detail page, visible to EdAdmin, voting Fellows (but NOT authors)."""
+    """
+    EICRecommendation detail, visible to EdAdmin.
+    """
 
     model = EICRecommendation
     template_name = 'submissions/pool/recommendation.html'
     context_object_name = 'recommendation'
 
     def test_func(self):
-        """Grants access to EdAdmin, voting Fellows and authors."""
+        """Grants access to EdAdmin."""
         if self.request.user.has_perm('scipost.can_fix_College_decision'):
             return True
-        # eicrec = get_object_or_404(EICRecommendation, pk=self.kwargs.get('rec_id'))
         submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+            Submission, preprint__identifier_w_vn_nr=self.kwargs.get('identifier_w_vn_nr'))
         eicrec = submission.eicrecommendations.last()
         if eicrec.eligible_to_vote.filter(user=self.request.user).exists():
             return True

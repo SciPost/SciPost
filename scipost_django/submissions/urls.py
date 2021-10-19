@@ -268,6 +268,11 @@ url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REG
     url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting,
         name='prepare_for_voting'),
     url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
+    path(
+        'claim_voting_right/<int:rec_id>',
+        views.claim_voting_right,
+        name='claim_voting_right'
+    ),
     url(r'^remind_Fellows_to_vote/(?P<rec_id>[0-9]+)$', views.remind_Fellows_to_vote,
         name='remind_Fellows_to_vote'),
 
