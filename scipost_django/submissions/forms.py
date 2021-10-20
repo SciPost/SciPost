@@ -1402,27 +1402,6 @@ class WithdrawSubmissionForm(forms.Form):
 # Editorial workflow #
 ######################
 
-class InviteEditorialAssignmentForm(forms.ModelForm):
-    """Invite new Fellow; create EditorialAssignment for Submission."""
-
-    class Meta:
-        model = EditorialAssignment
-        fields = ('to',)
-        labels = {
-            'to': 'Fellow',
-        }
-
-    def __init__(self, *args, **kwargs):
-        """Add related submission as argument."""
-        self.submission = kwargs.pop('submission')
-        super().__init__(*args, **kwargs)
-        self.fields['to'].queryset = Contributor.objects.available().filter(
-            fellowships__pool=self.submission).distinct().order_by('user__last_name')
-
-    def save(self, commit=True):
-        self.instance.submission = self.submission
-        return super().save(commit)
-
 
 class EditorialAssignmentForm(forms.ModelForm):
     """Create and/or process new EditorialAssignment for Submission."""

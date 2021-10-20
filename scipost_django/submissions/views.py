@@ -48,7 +48,7 @@ from .forms import (
     SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
     FigsharePrefillForm, OSFPreprintsPrefillForm,
     SubmissionForm, SubmissionPoolSearchForm, SubmissionSearchForm, RecommendationVoteForm,
-    ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
+    ConsiderAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
     ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
