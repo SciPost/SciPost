@@ -73,7 +73,8 @@ class SubmissionQuerySet(models.QuerySet):
             constants.STATUS_ACCEPTED,
             constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
         ]
-        if user.has_perm('scipost.can_oversee_refereeing'):
+        if (user.has_perm('scipost.can_oversee_refereeing') or
+            user.contributor.is_active_senior_fellow):
             allowed_statuses.append(constants.STATUS_INCOMING)
         return self.pool_editable(user).filter(is_current=True, status__in=allowed_statuses)
 
