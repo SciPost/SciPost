@@ -94,7 +94,7 @@ class SubmissionPoolSearchForm(forms.Form):
     status = forms.ChoiceField(
         choices=(
             ('All', (
-                ('all', 'All submissions currently under evaluation'),
+                ('all', 'All Submissions'),
             )),
             ('Pre-screening', (
                 (STATUS_INCOMING, 'In pre-screening'),
@@ -136,17 +136,27 @@ class SubmissionPoolSearchForm(forms.Form):
     )
     search_set = forms.ChoiceField(
         widget=forms.RadioSelect,
-        choices=(('current', 'Currently in processing'), ('historical', 'All accessible history')),
+        choices=(
+            ('eic', 'I am Editor-in-charge'),
+            ('current', 'All currently in processing'),
+            ('historical', 'All accessible history')
+        ),
         initial='current'
     )
 
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user')
         super().__init__(*args, **kwargs)
-        if not user.has_perm('scipost.can_oversee_refereeing'):
+        if not user.contributor.is_ed_admin:
             # restrict journals to those of Colleges of user's Fellowships
             college_id_list = [f.college.id for f in user.contributor.fellowships.active()]
             self.fields['submitted_to'].queryset = Journal.objects.filter(college__in=college_id_list)
+        if user.contributor.is_ed_admin:
+            # Remove 'I am Editor-in-charge' choice
+            self.fields['search_set'].choices = (
+                ('current', 'All currently in processing'),
+                ('historical', 'All accessible history')
+            )
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
@@ -168,11 +178,11 @@ class SubmissionPoolSearchForm(forms.Form):
             Div(
                 Div(FloatingField('identifier'), css_class='col-lg-3'),
                 Div(FloatingField('status'), css_class='col-lg-5'),
-                Div(FloatingField('editor_in_charge'), css_class='col-lg-4'),
+                Div(FloatingField('editor_in_charge'), css_class='col-lg-4', css_id='col_eic'),
                 css_class='row mb-0'
             ),
             Div(
-                Div(InlineRadios('search_set'), css_class='col-lg-6'),
+                Div(InlineRadios('search_set'), css_class='col'),
                 css_class='row mb-0'
             ),
         )
@@ -181,7 +191,9 @@ class SubmissionPoolSearchForm(forms.Form):
         """
         Return all Submission objects according to search.
         """
-        if self.cleaned_data.get('search_set') == 'current':
+        if self.cleaned_data.get('search_set') == 'eic':
+            submissions = Submission.objects.filter_for_eic(user)
+        elif self.cleaned_data.get('search_set') == 'current':
             submissions = Submission.objects.pool(user)
         else: # include historical items
             submissions = Submission.objects.pool_editable(user)

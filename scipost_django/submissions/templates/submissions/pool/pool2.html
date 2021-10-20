@@ -107,6 +107,7 @@
 {% endblock content %}
 {% block footer_script %}
   <script nonce="{{ requeest.csp_nonce }}">
+   /* If Proceedings is chosen as Journal, display Proceedings selector */
    document.getElementById("id_submitted_to").addEventListener("change", () => {
        var e = document.getElementById("id_submitted_to")
        if (e.options[e.selectedIndex].text == 'SciPost Physics Proceedings') {
@@ -115,6 +116,18 @@
 	   document.getElementById("row_proceedings").style.display = 'none'
 	   document.getElementById("id_proceedings").value = null
        }
+   })
+   /* If user opts for viewing submissions for which they are EIC, toggle
+      editor_in_charge selector */
+   document.getElementsByName("search_set").forEach(e => {
+	e.addEventListener("change", () => {
+	    if (e.checked && e.value == 'eic') {
+		document.getElementById("id_editor_in_charge").value = null
+		document.getElementById("col_eic").style.display = 'none'
+	    } else {
+		document.getElementById("col_eic").style.display = 'block'
+	    }
+	})
    })
   </script>
 {% endblock %}
