@@ -10,20 +10,6 @@ from django.utils import timezone
 from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, DOUBLE_ACCOUNT, AUTHORSHIP_CLAIM_PENDING
 
 
-class FellowManager(models.Manager):
-    """Custom defined filters for the Fellow model."""
-
-    def active(self):
-        """Filter Fellows active within its set date ranges."""
-        today = timezone.now().date()
-        return self.filter(
-            Q(start_date__lte=today, until_date__isnull=True) |
-            Q(start_date__isnull=True, until_date__gte=today) |
-            Q(start_date__lte=today, until_date__gte=today) |
-            Q(start_date__isnull=True, until_date__isnull=True)
-            ).order_by('contributor__user__last_name')
-
-
 class ContributorQuerySet(models.QuerySet):
     """Custom defined filters for the Contributor model."""
 

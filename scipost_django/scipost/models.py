@@ -21,7 +21,7 @@ from .constants import (
     AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
 from .fields import ChoiceArrayField
 from .managers import (
-    FellowManager, ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
+    ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
 
 from conflicts.models import ConflictOfInterest
 
