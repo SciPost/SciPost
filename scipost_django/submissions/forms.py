@@ -68,11 +68,6 @@ OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 class SubmissionPoolSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
-    search_set = forms.ChoiceField(
-        widget=forms.RadioSelect,
-        choices=(('current', 'Currently in processing'), ('historical', 'All accessible history')),
-        initial='current'
-    )
     submitted_to = forms.ModelChoiceField(
         queryset=Journal.objects.active(),
         required=False
@@ -138,6 +133,11 @@ class SubmissionPoolSearchForm(forms.Form):
     editor_in_charge = forms.ModelChoiceField(
         queryset=Fellowship.objects.active(),
         required=False
+    )
+    search_set = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(('current', 'Currently in processing'), ('historical', 'All accessible history')),
+        initial='current'
     )
 
     def __init__(self, *args, **kwargs):
