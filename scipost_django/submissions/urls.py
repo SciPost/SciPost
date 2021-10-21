@@ -2,12 +2,10 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
 from django.urls import path, re_path
 from django.views.generic import TemplateView
 
 from . import views
-from .constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'submissions'
 
@@ -20,105 +18,169 @@ urlpatterns = [
         name='submission-autocomplete'
     ),
     # Submissions
-    url(r'^$', views.SubmissionListView.as_view(), name='submissions'),
-    url(r'^author_guidelines$',
-        TemplateView.as_view(template_name='submissions/author_guidelines.html'),
-        name='author_guidelines'),
-    url(r'^refereeing_procedure$',
-        TemplateView.as_view(template_name='submissions/refereeing_procedure.html'),
-        name='refereeing_procedure'),
-    url(r'^referee_guidelines$',
-        TemplateView.as_view(template_name='submissions/referee_guidelines.html'),
-        name='referee_guidelines'),
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_WO_VN_REGEX), views.submission_detail_wo_vn_nr,
-        name='submission_wo_vn_nr'),
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.submission_detail, name='submission'),
-    url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.report_detail_pdf, name='report_detail_pdf'),
-    url(r'^{regex}/reports/(?P<report_nr>[0-9]+)/attachment$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.report_attachment, name='report_attachment'),
-    url(r'^{regex}/reports/pdf$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.submission_refereeing_package_pdf, name='refereeing_package_pdf'),
+    path(
+        '',
+        views.SubmissionListView.as_view(),
+        name='submissions'
+    ),
+    path(
+        'author_guidelines',
+        TemplateView.as_view(
+            template_name='submissions/author_guidelines.html'),
+        name='author_guidelines'
+    ),
+    path(
+        'refereeing_procedure',
+        TemplateView.as_view(
+            template_name='submissions/refereeing_procedure.html'),
+        name='refereeing_procedure'
+    ),
+    path(
+        'referee_guidelines',
+        TemplateView.as_view(
+            template_name='submissions/referee_guidelines.html'),
+        name='referee_guidelines'
+    ),
+    path(
+        '<identifier_wo_vn_nr:identifier_wo_vn_nr>/',
+        views.submission_detail_wo_vn_nr,
+        name='submission_wo_vn_nr'
+    ),
+    path(
+        '<identifier:identifier_w_vn_nr>/',
+        views.submission_detail,
+        name='submission'
+    ),
+    path(
+        '<identifier:identifier_w_vn_nr>/reports/<int:report_nr>/pdf',
+        views.report_detail_pdf,
+        name='report_detail_pdf'
+    ),
+    path(
+        '<identifier:identifier_w_vn_nr>/reports/<int:report_nr>/attachment',
+        views.report_attachment,
+        name='report_attachment'
+    ),
+    path(
+        '<identifier:identifier_w_vn_nr>/reports/pdf',
+        views.submission_refereeing_package_pdf,
+        name='refereeing_package_pdf'
+    ),
 
     # Topics
-    url(r'^submission_add_topic/{regex}/'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'submission_add_topic/<identifier:identifier_w_vn_nr>/',
         views.submission_add_topic,
-        name='submission_add_topic'),
-    url(r'^submission_remove_topic/{regex}/(?P<slug>[-\w]+)/'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        name='submission_add_topic'
+    ),
+    path(
+        'submission_remove_topic/<identifier:identifier_w_vn_nr>/<slug:slug>/',
         views.submission_remove_topic,
-        name='submission_remove_topic'),
+        name='submission_remove_topic'
+    ),
 
     # Editorial Administration
-    url(r'^admin/treated$', views.treated_submissions_list, name='treated_submissions_list'),
-    url(r'^admin/{regex}/prescreening$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.PreScreeningView.as_view(), name='do_prescreening'),
-    url(r'^admin/{regex}/conflicts$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.SubmissionConflictsView.as_view(), name='conflicts'),
-    url(r'^admin/{regex}/editor_invitations$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.editor_invitations, name='editor_invitations'),
-    url(r'^admin/{regex}/editor_invitations/(?P<assignment_id>[0-9]+)$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.send_editorial_assignment_invitation,
-        name='send_editorial_assignment_invitation'),
-    url(r'^admin/{regex}/reassign_editor$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.SubmissionReassignmentView.as_view(),
-        name='reassign_submission'),
-    url(r'^admin/{regex}/reports/compile$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.treated_submission_pdf_compile, name='treated_submission_pdf_compile'),
-    url(r'^admin/{regex}/plagiarism$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.PlagiarismView.as_view(), name='plagiarism'),
-    url(r'^admin/{regex}/plagiarism/report$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.PlagiarismReportPDFView.as_view(), name='plagiarism_report'),
-url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.PlagiarismInternalView.as_view(), name='plagiarism_internal'),
-    url(
-        r'^admin/{regex}/recommendation$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.EICRecommendationDetailView.as_view(),
+    path(
+        'admin/treated',
+        views.treated_submissions_list,
+        name='treated_submissions_list'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/prescreening',
+        views.PreScreeningView.as_view(),
+        name='do_prescreening'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/conflicts',
+        views.SubmissionConflictsView.as_view(),
+        name='conflicts'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/editor_invitations',
+        views.editor_invitations,
+        name='editor_invitations'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/editor_invitations/<int:assignment_id>',
+        views.send_editorial_assignment_invitation,
+        name='send_editorial_assignment_invitation'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/reassign_editor',
+        views.SubmissionReassignmentView.as_view(),
+        name='reassign_submission'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/reports/compile',
+        views.treated_submission_pdf_compile,
+        name='treated_submission_pdf_compile'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/plagiarism',
+        views.PlagiarismView.as_view(),
+        name='plagiarism'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/plagiarism/report',
+        views.PlagiarismReportPDFView.as_view(),
+        name='plagiarism_report'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/plagiarism/internal',
+        views.PlagiarismInternalView.as_view(),
+        name='plagiarism_internal'
+    ),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/recommendation',
+        views.EICRecommendationDetailView.as_view(),
         name='eic_recommendation_detail'
     ),
-    url(
-        r'^admin/{regex}/editorial_decision/create$'.format(
-            regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/editorial_decision/create',
         views.EditorialDecisionCreateView.as_view(),
         name='editorial_decision_create'
         ),
-    url(
-        r'^admin/{regex}/editorial_decision$'.format(
-            regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/editorial_decision',
         views.EditorialDecisionDetailView.as_view(),
         name='editorial_decision_detail'
         ),
-    url(
-        r'^admin/{regex}/editorial_decision/update$'.format(
-            regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/editorial_decision/update',
         views.EditorialDecisionUpdateView.as_view(),
         name='editorial_decision_update'
         ),
-    url(
-        r'^admin/{regex}/editorial_decision/fix$'.format(
-            regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/editorial_decision/fix',
         views.fix_editorial_decision,
         name='fix_editorial_decision'
         ),
-    url(
-        r'^{regex}/accept_puboffer$'.format(
-            regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        '<identifier:identifier_w_vn_nr>/accept_puboffer',
         views.accept_puboffer,
         name='accept_puboffer'
         ),
-    url(
-        r'admin/{regex}/restart_refereeing$'.format(
-            regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'admin/<identifier:identifier_w_vn_nr>/restart_refereeing',
         views.restart_refereeing,
         name='restart_refereeing'
     ),
 
-
-    url(r'^admin/reports$', views.reports_accepted_list, name='reports_accepted_list'),
-    url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
-        views.report_pdf_compile, name='report_pdf_compile'),
-    url(r'^admin/reports/(?P<report_id>[0-9]+)/compile$',
-        views.report_pdf_compile, name='report_pdf_compile'),
+    path(
+        'admin/reports',
+        views.reports_accepted_list,
+        name='reports_accepted_list'
+    ),
+    path(
+        'admin/reports/<int:report_id>/compile',
+        views.report_pdf_compile,
+        name='report_pdf_compile'
+    ),
+    path(
+        'admin/reports/<int:report_id>/compile',
+        views.report_pdf_compile,
+        name='report_pdf_compile'
+    ),
 
 
     # Submission, resubmission, withdrawal
@@ -165,8 +227,8 @@ url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REG
         name='submit_manuscript_osfpreprints'
     ),
 
-    url(
-        r'^withdraw_manuscript/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'withdraw_manuscript/<identifier:identifier_w_vn_nr>/',
         views.withdraw_manuscript,
         name='withdraw_manuscript'
     ),
@@ -182,97 +244,199 @@ url(r'^admin/{regex}/plagiarism/internal$'.format(regex=SUBMISSIONS_COMPLETE_REG
         views.pool_hx_submissions_list,
         name='pool_hx_submissions_list'
     ),
-    re_path(
-        'pool/submissions/{regex}'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'pool/submissions/<identifier:identifier_w_vn_nr>',
         views.pool_hx_submission_details,
         name='pool_hx_submission_details'
     ),
-    url(r'^pool/$', views.pool, name='pool'),
-    url(r'^pool/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX), views.pool, name='pool'),
-    url(r'^add_remark/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.add_remark, name='add_remark'),
+    path(
+        'pool/',
+        views.pool,
+        name='pool'
+    ),
+    path(
+        'pool/<identifier:identifier_w_vn_nr>/',
+        views.pool,
+        name='pool'
+    ),
+    path(
+        'add_remark/<identifier:identifier_w_vn_nr>',
+        views.add_remark,
+        name='add_remark'
+    ),
 
     # Assignment of Editor-in-charge
-    url(r'^pool/assignment_request/(?P<assignment_id>[0-9]+)$',
-        views.assignment_request, name='assignment_request'),
-    url(r'^pool/{regex}/editorial_assignment/$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
-        name='editorial_assignment'),
-    url(r'^pool/{regex}/editorial_assignment/(?P<assignment_id>[0-9]+)/$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX), views.editorial_assignment,
-        name='editorial_assignment'),
-    url(r'^update_authors_screening/{regex}/(?P<nrweeks>[1-2])$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.update_authors_screening, name='update_authors_screening'),
-    url(r'^assignment_failed/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.assignment_failed, name='assignment_failed'),
+    path(
+        'pool/assignment_request/<int:assignment_id>',
+        views.assignment_request,
+        name='assignment_request'
+    ),
+    path(
+        'pool/<identifier:identifier_w_vn_nr>/editorial_assignment/',
+        views.editorial_assignment,
+        name='editorial_assignment'
+    ),
+    path(
+        'pool/<identifier:identifier_w_vn_nr>/editorial_assignment/<int:assignment_id>/',
+        views.editorial_assignment,
+        name='editorial_assignment'
+    ),
+    path(
+        'update_authors_screening/<identifier:identifier_w_vn_nr>/<int:nrweeks>',
+        views.update_authors_screening,
+        name='update_authors_screening'
+    ),
+    path(
+        'assignment_failed/<identifier:identifier_w_vn_nr>',
+        views.assignment_failed,
+        name='assignment_failed'
+    ),
 
     # Editorial workflow and refereeing
-    url(r'^editorial_workflow$', views.editorial_workflow, name='editorial_workflow'),
-    url(r'^assignments$', views.assignments, name='assignments'),
-    url(r'^editorial_page/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.editorial_page, name='editorial_page'),
-    url(r'^select_referee/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.select_referee, name='select_referee'),
-    url(r'^add_referee_profile/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.add_referee_profile, name='add_referee_profile'),
-    url(r'^invite_referee/{regex}/(?P<profile_id>[0-9]+)'
-        '/(?P<auto_reminders_allowed>[0-1])$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.invite_referee, name='invite_referee'),
-    url(r'^set_refinv_auto_reminder/(?P<invitation_id>[0-9]+)/(?P<auto_reminders>[0-1])$',
-        views.set_refinv_auto_reminder, name='set_refinv_auto_reminder'),
-    url(r'^accept_or_decline_ref_invitations/$',
-        views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
-    url(r'^accept_or_decline_ref_invitations/(?P<invitation_id>[0-9]+)$',
-        views.accept_or_decline_ref_invitations, name='accept_or_decline_ref_invitations'),
-    url(r'^decline_ref_invitation/(?P<invitation_key>.+)$',
-        views.decline_ref_invitation, name='decline_ref_invitation'),
-    url(r'^ref_invitation_reminder/{regex}/(?P<invitation_id>[0-9]+)$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.ref_invitation_reminder, name='ref_invitation_reminder'),
-    url(r'^cancel_ref_invitation/{regex}/(?P<invitation_id>[0-9]+)$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.cancel_ref_invitation, name='cancel_ref_invitation'),
-    url(r'^extend_refereeing_deadline/{regex}/(?P<days>[0-9]+)$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.extend_refereeing_deadline, name='extend_refereeing_deadline'),
-    url(r'^set_refereeing_deadline/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.set_refereeing_deadline, name='set_refereeing_deadline'),
-    url(r'^close_refereeing_round/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.close_refereeing_round, name='close_refereeing_round'),
-    url(r'^refereeing_overview$', views.refereeing_overview, name='refereeing_overview'),
-    url(r'^communication/{regex}/(?P<comtype>[a-zA-Z]{{4,}})$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.communication, name='communication'),
-    url(r'^communication/{regex}/(?P<comtype>[a-zA-Z]{{4,}})/(?P<referee_id>[0-9]+)$'.format(
-        regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.communication, name='communication'),
-    url(r'^eic_recommendation/{regex}$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.eic_recommendation, name='eic_recommendation'),
-    url(r'^eic_recommendation/{regex}/reformulate$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.reformulate_eic_recommendation, name='reformulate_eic_recommendation'),
-    url(r'^cycle/{regex}/submit$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.cycle_form_submit, name='cycle_confirmation'),
+    path(
+        'editorial_workflow',
+        views.editorial_workflow,
+        name='editorial_workflow'
+    ),
+    path(
+        'assignments',
+        views.assignments,
+        name='assignments'
+    ),
+    path(
+        'editorial_page/<identifier:identifier_w_vn_nr>',
+        views.editorial_page,
+        name='editorial_page'
+    ),
+    path(
+        'select_referee/<identifier:identifier_w_vn_nr>',
+        views.select_referee,
+        name='select_referee'
+    ),
+    path(
+        'add_referee_profile/<identifier:identifier_w_vn_nr>',
+        views.add_referee_profile,
+        name='add_referee_profile'
+    ),
+    path(
+        'invite_referee/<identifier:identifier_w_vn_nr>/<int:profile_id>/<int:auto_reminders_allowed>',
+        views.invite_referee,
+        name='invite_referee'
+    ),
+    path(
+        'set_refinv_auto_reminder/<int:invitation_id>/<int:auto_reminders>',
+        views.set_refinv_auto_reminder,
+        name='set_refinv_auto_reminder'
+    ),
+    path(
+        'accept_or_decline_ref_invitations/',
+        views.accept_or_decline_ref_invitations,
+        name='accept_or_decline_ref_invitations'
+    ),
+    path(
+        'accept_or_decline_ref_invitations/<int:invitation_id>',
+        views.accept_or_decline_ref_invitations,
+        name='accept_or_decline_ref_invitations'
+    ),
+    path(
+        'decline_ref_invitation/<str:invitation_key>',
+        views.decline_ref_invitation,
+        name='decline_ref_invitation'
+    ),
+    path(
+        'ref_invitation_reminder/<identifier:identifier_w_vn_nr>/<int:invitation_id>',
+        views.ref_invitation_reminder,
+        name='ref_invitation_reminder'
+    ),
+    path(
+        'cancel_ref_invitation/<identifier:identifier_w_vn_nr>/<int:invitation_id>',
+        views.cancel_ref_invitation,
+        name='cancel_ref_invitation'
+    ),
+    path(
+        'extend_refereeing_deadline/<identifier:identifier_w_vn_nr>/<int:days>',
+        views.extend_refereeing_deadline,
+        name='extend_refereeing_deadline'
+    ),
+    path(
+        'set_refereeing_deadline/<identifier:identifier_w_vn_nr>',
+        views.set_refereeing_deadline,
+        name='set_refereeing_deadline'
+    ),
+    path(
+        'close_refereeing_round/<identifier:identifier_w_vn_nr>',
+        views.close_refereeing_round,
+        name='close_refereeing_round'
+    ),
+    path(
+        'refereeing_overview',
+        views.refereeing_overview,
+        name='refereeing_overview'
+    ),
+    path(
+        'communication/<identifier:identifier_w_vn_nr>/<str:comtype>',
+        views.communication,
+        name='communication'
+    ),
+    path(
+        'communication/<identifier:identifier_w_vn_nr>/<str:comtype>/<int:referee_id>',
+        views.communication,
+        name='communication'
+    ),
+    path(
+        'eic_recommendation/<identifier:identifier_w_vn_nr>',
+        views.eic_recommendation,
+        name='eic_recommendation'
+    ),
+    path(
+        'eic_recommendation/<identifier:identifier_w_vn_nr>/reformulate',
+        views.reformulate_eic_recommendation,
+        name='reformulate_eic_recommendation'
+    ),
+    path(
+        'cycle/<identifier:identifier_w_vn_nr>/submit',
+        views.cycle_form_submit,
+        name='cycle_confirmation'
+    ),
 
     # Reports
-    url(r'^{regex}/reports/submit$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
-        views.submit_report, name='submit_report'),
-    url(r'^reports/vet$', views.vet_submitted_reports_list, name='vet_submitted_reports_list'),
-    url(r'^reports/(?P<report_id>[0-9]+)/vet$', views.vet_submitted_report,
-        name='vet_submitted_report'),
+    path(
+        '<identifier:identifier_w_vn_nr>/reports/submit',
+        views.submit_report,
+        name='submit_report'
+    ),
+    path(
+        'reports/vet',
+        views.vet_submitted_reports_list,
+        name='vet_submitted_reports_list'
+    ),
+    path(
+        'reports/<int:report_id>/vet',
+        views.vet_submitted_report,
+        name='vet_submitted_report'
+    ),
 
     # Voting
-    url(r'^prepare_for_voting/(?P<rec_id>[0-9]+)$', views.prepare_for_voting,
-        name='prepare_for_voting'),
-    url(r'^vote_on_rec/(?P<rec_id>[0-9]+)$', views.vote_on_rec, name='vote_on_rec'),
+    path(
+        'prepare_for_voting/<int:rec_id>',
+        views.prepare_for_voting,
+        name='prepare_for_voting'
+    ),
+    path(
+        'vote_on_rec/<int:rec_id>',
+        views.vote_on_rec,
+        name='vote_on_rec'
+    ),
     path(
         'claim_voting_right/<int:rec_id>',
         views.claim_voting_right,
         name='claim_voting_right'
     ),
-    url(r'^remind_Fellows_to_vote/(?P<rec_id>[0-9]+)$', views.remind_Fellows_to_vote,
-        name='remind_Fellows_to_vote'),
+    path(
+        'remind_Fellows_to_vote/<int:rec_id>',
+        views.remind_Fellows_to_vote,
+        name='remind_Fellows_to_vote'
+    ),
 
     # Monitoring
     path(

@@ -6,9 +6,6 @@ from django.conf.urls import url
 from django.urls import path, re_path, reverse_lazy
 from django.views.generic import TemplateView, RedirectView
 
-from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
-
-from journals.regexes import PUBLICATION_DOI_LABEL_REGEX
 from journals import views as journals_views
 
 
@@ -23,8 +20,8 @@ urlpatterns = [
         name='publication-autocomplete',
     ),
     # Journals
-    url(
-        r'^$',
+    path(
+        '',
         journals_views.JournalListView.as_view(),
         name='journals'
     ),
@@ -33,197 +30,273 @@ urlpatterns = [
         journals_views.JournalListView.as_view(),
         name='journals_in_acad_spec'
     ),
-    url(r'^publications$', journals_views.PublicationListView.as_view(), name='publications'),
-    url(r'scipost_physics', RedirectView.as_view(url=reverse_lazy('scipost:landing_page',
-                                                 args=['SciPostPhys']))),
-    url(r'^journals_terms_and_conditions$',
-        TemplateView.as_view(template_name='journals/journals_terms_and_conditions.html'),
-        name='journals_terms_and_conditions'),
-    url(r'^crossmark_policy$',
-        TemplateView.as_view(template_name='journals/crossmark_policy.html'),
-        name='crossmark_policy'),
+    path(
+        'publications',
+        journals_views.PublicationListView.as_view(),
+        name='publications'
+    ),
+    path(
+        'scipost_physics',
+        RedirectView.as_view(
+            url=reverse_lazy('scipost:landing_page', args=['SciPostPhys']))
+    ),
+    path(
+        'journals_terms_and_conditions',
+        TemplateView.as_view(
+            template_name='journals/journals_terms_and_conditions.html'),
+        name='journals_terms_and_conditions'
+    ),
+    path(
+        'crossmark_policy',
+        TemplateView.as_view(
+            template_name='journals/crossmark_policy.html'),
+        name='crossmark_policy'
+    ),
 
     # Publication creation
-    url(r'^admin/publications/{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+    path(
+        'admin/publications/<identifier:identifier_w_vn_nr>/',
         journals_views.DraftPublicationUpdateView.as_view(),
-        name='update_publication'),
-    url(r'^admin/publications/(?P<doi_label>{regex})/publish$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='update_publication'
+    ),
+    path(
+        'admin/publications/<publication_doi_label:doi_label>/publish',
         journals_views.PublicationPublishView.as_view(),
-        name='publish_publication'),
-    url(r'^admin/publications/(?P<doi_label>{regex})/approval$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='publish_publication'
+    ),
+    path(
+        'admin/publications/<publication_doi_label:doi_label>/approval',
         journals_views.DraftPublicationApprovalView.as_view(),
-        name='send_publication_for_approval'),
-    url(r'^admin/publications/(?P<doi_label>{regex})/authors$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
-        # journals_views.PublicationAuthorOrderingView.as_view(),
+        name='send_publication_for_approval'
+    ),
+    path(
+        'admin/publications/<publication_doi_label:doi_label>/authors',
         journals_views.publication_authors_ordering,
-        name='update_author_ordering'),
-    url(r'^admin/publications/(?P<doi_label>{regex})/grants$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='update_author_ordering'
+    ),
+    path(
+        'admin/publications/<publication_doi_label:doi_label>/grants',
         journals_views.PublicationGrantsView.as_view(),
-        name='update_grants'),
-    url(r'^admin/publications/(?P<doi_label>{regex})/grants/(?P<grant_id>[0-9]+)/remove$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='update_grants'
+    ),
+    path(
+        'admin/publications/<publication_doi_label:doi_label>/grants/<int:grant_id>/remove',
         journals_views.PublicationGrantsRemovalView.as_view(),
-        name='remove_grant'),
+        name='remove_grant'
+    ),
 
     # Editorial and Administrative Workflow
-    url(r'^admin/(?P<doi_label>{regex})/authors/add$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+    path(
+        'admin/<publication_doi_label:doi_label>/authors/add',
         journals_views.add_author,
-        name='add_author'),
-    url(r'^admin/(?P<doi_label>{regex})/manage_metadata/$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='add_author'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/manage_metadata/',
         journals_views.manage_metadata,
-        name='manage_metadata'),
-    url(r'^admin/manage_metadata/$',
+        name='manage_metadata'
+    ),
+    path(
+        'admin/manage_metadata/',
         journals_views.manage_metadata,
-        name='manage_metadata'),
-    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='manage_metadata'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/authoraffiliations/',
         journals_views.AuthorAffiliationView.as_view(),
-        name='author_affiliations'),
-    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/(?P<pk>[0-9]+)/add/$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
-        #journals_views.AddAffiliationView.as_view(),
+        name='author_affiliations'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/authoraffiliations/<int:pk>/add/',
         journals_views.add_affiliation,
-        name='author_affiliation_update'),
-    url(r'^admin/(?P<doi_label>{regex})/authoraffiliations/(?P<pk>[0-9]+)/remove/(?P<organization_id>[0-9]+)/$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
-        #journals_views.AddAffiliationView.as_view(),
+        name='author_affiliation_update'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/authoraffiliations/<int:pk>/remove/<int:organization_id>/',
         journals_views.remove_affiliation,
-        name='author_affiliation_remove'),
-    url(r'^admin/(?P<doi_label>{regex})/citation_list_metadata$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='author_affiliation_remove'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/citation_list_metadata',
         journals_views.CitationUpdateView.as_view(),
-        name='create_citation_list_metadata'),
-    url(r'^admin/(?P<doi_label>{regex})/abstract_jats$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='create_citation_list_metadata'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/abstract_jats',
         journals_views.AbstractJATSUpdateView.as_view(),
-        name='abstract_jats'),
-    url(r'^admin/(?P<doi_label>{regex})/update_references$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
-        journals_views.update_references, name='update_references'),
-    url(r'^admin/(?P<doi_label>{regex})/funders/create_metadata$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='abstract_jats'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/update_references',
+        journals_views.update_references,
+        name='update_references'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/funders/create_metadata',
         journals_views.FundingInfoView.as_view(),
-        name='create_funding_info_metadata'),
-    url(r'^admin/(?P<doi_label>{regex})/funders/add_generic$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='create_funding_info_metadata'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/funders/add_generic',
         journals_views.add_generic_funder,
-        name='add_generic_funder'),
-    url(r'^admin/(?P<doi_label>{regex})/grants/add$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='add_generic_funder'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/grants/add',
         journals_views.add_associated_grant,
-        name='add_associated_grant'),
+        name='add_associated_grant'
+    ),
 
     # Admin: Volumes and Issues
-    url(r'^admin/volumes/$',
+    path(
+        'admin/volumes/',
         journals_views.VolumesAdminListView.as_view(),
-        name='admin_volumes_list'),
-    url(r'^admin/volumes/add$',
+        name='admin_volumes_list'
+    ),
+    path(
+        'admin/volumes/add',
         journals_views.VolumesAdminAddView.as_view(),
-        name='add_volume'),
-    url(r'^admin/volumes/(?P<pk>[0-9]+)/$',
+        name='add_volume'
+    ),
+    path(
+        'admin/volumes/<int:pk>/',
         journals_views.VolumesAdminUpdateView.as_view(),
-        name='update_volume'),
-    url(r'^admin/issues/$',
+        name='update_volume'
+    ),
+    path(
+        'admin/issues/',
         journals_views.IssuesAdminListView.as_view(),
-        name='admin_issue_list'),
-    url(r'^admin/issues/add$',
+        name='admin_issue_list'
+    ),
+    path(
+        'admin/issues/add',
         journals_views.IssuesAdminAddView.as_view(),
-        name='add_issue'),
-    url(r'^admin/issues/(?P<pk>[0-9]+)/$',
+        name='add_issue'
+    ),
+    path(
+        'admin/issues/<int:pk>/',
         journals_views.IssuesAdminUpdateView.as_view(),
-        name='update_issue'),
+        name='update_issue'
+    ),
 
 
     # Metadata handling
-    url(r'^admin/(?P<doi_label>{regex})/metadata/crossref/create$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+    path(
+        'admin/<publication_doi_label:doi_label>/metadata/crossref/create',
         journals_views.CreateMetadataXMLView.as_view(),
-        name='create_metadata_xml'),
-    url(r'^admin/(?P<doi_label>{regex})/metadata/crossref/deposit/(?P<option>[a-z]+)$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='create_metadata_xml'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/metadata/crossref/deposit/<str:option>',
         journals_views.metadata_xml_deposit,
-        name='metadata_xml_deposit'),
-    url(r'^admin/(?P<doi_label>{regex})/metadata/DOAJ$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='metadata_xml_deposit'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/metadata/DOAJ',
         journals_views.produce_metadata_DOAJ,
-        name='produce_metadata_DOAJ'),
-    url(r'^admin/(?P<doi_label>{regex})/metadata/DOAJ/deposit$'.format(
-            regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='produce_metadata_DOAJ'
+    ),
+    path(
+        'admin/<publication_doi_label:doi_label>/metadata/DOAJ/deposit',
         journals_views.metadata_DOAJ_deposit,
-        name='metadata_DOAJ_deposit'),
-    url(r'^admin/metadata/crossref/(?P<deposit_id>[0-9]+)/mark/(?P<success>[0-1])$',
+        name='metadata_DOAJ_deposit'
+    ),
+    path(
+        'admin/metadata/crossref/<int:deposit_id>/mark/<int:success>',
         journals_views.mark_deposit_success,
-        name='mark_deposit_success'),
-    url(r'^admin/metadata/DOAJ/(?P<deposit_id>[0-9]+)/mark/(?P<success>[0-1])$',
+        name='mark_deposit_success'
+    ),
+    path(
+        'admin/metadata/DOAJ/<int:deposit_id>/mark/<int:success>',
         journals_views.mark_doaj_deposit_success,
-        name='mark_doaj_deposit_success'),
-    url(r'^admin/metadata/generic/(?P<type_of_object>[a-z]+)/(?P<object_id>[0-9]+)/metadata$',
+        name='mark_doaj_deposit_success'
+    ),
+    path(
+        'admin/metadata/generic/<str:type_of_object>/<int:object_id>/metadata',
         journals_views.generic_metadata_xml_deposit,
-        name='generic_metadata_xml_deposit'),
-    url(r'^admin/metadata/generic/(?P<deposit_id>[0-9]+)/mark/(?P<success>[0-1])$',
+        name='generic_metadata_xml_deposit'
+    ),
+    path(
+        'admin/metadata/generic/<int:deposit_id>/mark/<int:success>',
         journals_views.mark_generic_deposit_success,
-        name='mark_generic_deposit_success'),
-    url(r'^admin/generic/(?P<type_of_object>[a-z]+)/(?P<object_id>[0-9]+)/email_made_citable$',
+        name='mark_generic_deposit_success'
+    ),
+    path(
+        'admin/generic/<str:type_of_object>/<int:object_id>/email_made_citable',
         journals_views.email_object_made_citable,
-        name='email_object_made_citable'),
+        name='email_object_made_citable'
+    ),
 
     # Topics:
-    url(r'^publication_add_topic/(?P<doi_label>{regex})$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+    path(
+        'publication_add_topic/<publication_doi_label:doi_label>',
         journals_views.publication_add_topic,
-        name='publication_add_topic'),
-    url(r'^publication_remove_topic/(?P<doi_label>{regex})/(?P<slug>[-\w]+)/$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='publication_add_topic'
+    ),
+    path(
+        'publication_remove_topic/<publication_doi_label:doi_label>/<slug:slug>/',
         journals_views.publication_remove_topic,
-        name='publication_remove_topic'),
+        name='publication_remove_topic'
+    ),
 
     # PubFraction allocation:
-    url(r'^allocate_orgpubfractions/(?P<doi_label>{regex})$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+    path(
+        'allocate_orgpubfractions/<publication_doi_label:doi_label>',
         journals_views.allocate_orgpubfractions,
-        name='allocate_orgpubfractions'),
-    url(r'^request_pubfrac_check/(?P<doi_label>{regex})$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='allocate_orgpubfractions'
+    ),
+    path(
+        'request_pubfrac_check/<publication_doi_label:doi_label>',
         journals_views.request_pubfrac_check,
-        name='request_pubfrac_check'),
+        name='request_pubfrac_check'
+    ),
 
     # Citedby
-    url(r'^admin/citedby/$',
+    path(
+        'admin/citedby/',
         journals_views.harvest_citedby_list,
-        name='harvest_citedby_list'),
-    url(r'^admin/citedby/(?P<doi_label>{regex})/harvest$'.format(
-        regex=PUBLICATION_DOI_LABEL_REGEX),
+        name='harvest_citedby_list'
+    ),
+    path(
+        'admin/citedby/<publication_doi_label:doi_label>/harvest',
         journals_views.harvest_citedby_links,
-        name='harvest_citedby_links'),
+        name='harvest_citedby_links'
+    ),
 
     # Reports
-    url(r'^reports/$',
+    path(
+        'reports/',
         journals_views.manage_report_metadata,
-        name='manage_report_metadata'),
-    url(r'^reports/(?P<report_id>[0-9]+)/sign$',
+        name='manage_report_metadata'
+    ),
+    path(
+        'reports/<int:report_id>/sign',
         journals_views.sign_existing_report,
-        name='sign_existing_report'),
-    url(r'^reports/(?P<report_id>[0-9]+)/mark_doi_needed/(?P<needed>[0-1])$',
+        name='sign_existing_report'
+    ),
+    path(
+        'reports/<int:report_id>/mark_doi_needed/<int:needed>',
         journals_views.mark_report_doi_needed,
-        name='mark_report_doi_needed'),
+        name='mark_report_doi_needed'
+    ),
 
     # Comments
-    url(r'^comments/$',
+    path(
+        'comments/',
         journals_views.manage_comment_metadata,
-        name='manage_comment_metadata'),
-    url(r'^comments/(?P<comment_id>[0-9]+)/mark_doi_needed/(?P<needed>[0-1])$',
+        name='manage_comment_metadata'
+    ),
+    path(
+        'comments/<int:comment_id>/mark_doi_needed/<int:needed>',
         journals_views.mark_comment_doi_needed,
-        name='mark_comment_doi_needed'),
+        name='mark_comment_doi_needed'
+    ),
 
     # PublicationUpdates
-    url(r'^updates/$',
+    path(
+        'updates/',
         journals_views.manage_update_metadata,
-        name='manage_update_metadata'),
+        name='manage_update_metadata'
+    ),
 
 ]

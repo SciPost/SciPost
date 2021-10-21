@@ -21,7 +21,7 @@ socarxiv_regex = 'socarxiv_[a-z0-9]+'
 # Preprints with structurally no version number
 # (like OSFPreprints-based ones: SocArXiv, ...)
 # must not match SUBMISSIONS_WO_VN_REGEX to avoid ambiguities.
-SUBMISSIONS_WO_VN_REGEX = '|'.join([
+IDENTIFIER_WO_VN_NR_REGEX = '|'.join([
     scipost_regex_wo_vn,
     arxiv_regex_wo_vn,
     chemrxiv_regex_wo_vn,

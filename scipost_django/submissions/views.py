@@ -980,10 +980,12 @@ def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
     """
     submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    mail_code = 'authors/update_authors_screening_1week'
-    if nrweeks == '2':
+    if nrweeks == 1:
+        mail_code = 'authors/update_authors_screening_1week'
+    elif nrweeks == 2:
         mail_code = 'authors/update_authors_screening_2weeks'
-
+    else:
+        raise Http404
     mail_editor_view = MailEditorSubview(
         request, mail_code=mail_code, instance=submission)
     if mail_editor_view.is_valid():

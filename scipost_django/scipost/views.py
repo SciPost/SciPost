@@ -1017,12 +1017,14 @@ def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
         submission = get_object_or_404(Submission, pk=submission_id)
-        if claim == '1':
+        if claim == 1:
             submission.authors_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, submission=submission)
             newclaim.save()
-        elif claim == '0':
+        elif claim == 0:
             submission.authors_false_claims.add(contributor)
+        else:
+            raise Http404
         submission.save()
     return redirect('scipost:claim_authorships')
 
@@ -1033,12 +1035,14 @@ def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
         commentary = get_object_or_404(Commentary, pk=commentary_id)
-        if claim == '1':
+        if claim == 1:
             commentary.authors_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, commentary=commentary)
             newclaim.save()
-        elif claim == '0':
+        elif claim == 0:
             commentary.authors_false_claims.add(contributor)
+        else:
+            raise Http404
         commentary.save()
     return redirect('scipost:claim_authorships')
 
@@ -1049,12 +1053,14 @@ def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
         thesislink = get_object_or_404(ThesisLink, pk=thesis_id)
-        if claim == '1':
+        if claim == 1:
             thesislink.author_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, thesislink=thesislink)
             newclaim.save()
-        elif claim == '0':
+        elif claim == 0:
             thesislink.author_false_claims.add(contributor)
+        else:
+            raise Http404
         thesislink.save()
     return redirect('scipost:claim_authorships')
 
