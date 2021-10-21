@@ -2,85 +2,85 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'helpdesk'
 
 urlpatterns = [
-    url(
-        r'^$',
+    path(
+        '',
         views.HelpdeskView.as_view(),
         name='helpdesk'
     ),
-    url(
-        r'^queue/(?P<parent_slug>[\w-]+)/add/$',
+    path(
+        'queue/<slug:parent_slug>/add/',
         views.QueueCreateView.as_view(),
         name='queue_create'
     ),
-    url(
-        r'^queue/add/$',
+    path(
+        'queue/add/',
         views.QueueCreateView.as_view(),
         name='queue_create'
     ),
-    url(
-        r'^queue/(?P<slug>[\w-]+)/update/$',
+    path(
+        'queue/<slug:slug>/update/',
         views.QueueUpdateView.as_view(),
         name='queue_update'
     ),
-    url(
-        r'^queue/(?P<slug>[\w-]+)/delete/$',
+    path(
+        'queue/<slug:slug>/delete/',
         views.QueueDeleteView.as_view(),
         name='queue_delete'
     ),
-    url(
-        r'^queue/(?P<slug>[\w-]+)/$',
+    path(
+        'queue/<slug:slug>/',
         views.QueueDetailView.as_view(),
         name='queue_detail'
     ),
-    url(
-        r'^ticket/add/(?P<concerning_type_id>[0-9]+)/(?P<concerning_object_id>[0-9]+)/$',
+    path(
+        'ticket/add/<int:concerning_type_id>/<int:concerning_object_id>/',
         views.TicketCreateView.as_view(),
         name='ticket_create'
     ),
-    url(
-        r'^ticket/add/$',
+    path(
+        'ticket/add/',
         views.TicketCreateView.as_view(),
         name='ticket_create'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/update/$',
+    path(
+        'ticket/<int:pk>/update/',
         views.TicketUpdateView.as_view(),
         name='ticket_update'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/delete/$',
+    path(
+        'ticket/<int:pk>/delete/',
         views.TicketDeleteView.as_view(),
         name='ticket_delete'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/assign/$',
+    path(
+        'ticket/<int:pk>/assign/',
         views.TicketAssignView.as_view(),
         name='ticket_assign'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/$',
+    path(
+        'ticket/<int:pk>/',
         views.TicketDetailView.as_view(),
         name='ticket_detail'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/followup/$',
+    path(
+        'ticket/<int:pk>/followup/',
         views.TicketFollowupView.as_view(),
         name='ticket_followup'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/resolved/$',
+    path(
+        'ticket/<int:pk>/resolved/',
         views.TicketMarkResolved.as_view(),
         name='ticket_mark_resolved'
     ),
-    url(
-        r'^ticket/(?P<pk>[0-9]+)/closed/$',
+    path(
+        'ticket/<int:pk>/closed/',
         views.TicketMarkClosed.as_view(),
         name='ticket_mark_closed'
     ),
