@@ -118,16 +118,17 @@
        }
    })
    /* If user opts for viewing submissions for which they are EIC, toggle
-      editor_in_charge selector */
+      editor_in_charge selector and set status to 'all' */
    document.getElementsByName("search_set").forEach(e => {
-	e.addEventListener("change", () => {
-	    if (e.checked && e.value == 'eic') {
-		document.getElementById("id_editor_in_charge").value = null
-		document.getElementById("col_eic").style.display = 'none'
-	    } else {
-		document.getElementById("col_eic").style.display = 'block'
-	    }
-	})
+       e.addEventListener("change", () => {
+	   if (e.checked && e.value == 'eic') {
+	       document.getElementById("id_editor_in_charge").value = null
+	       document.getElementById("col_eic").style.display = 'none'
+	       document.getElementById("id_status").value = 'all'
+	   } else {
+	       document.getElementById("col_eic").style.display = 'block'
+	   }
+       })
    })
   </script>
 {% endblock %}
