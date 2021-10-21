@@ -18,6 +18,7 @@ from ontology.converters import (
     AcademicFieldSlugConverter,
     SpecialtySlugConverter
 )
+from submissions.converters import IdentifierConverter
 
 
 ######################################
@@ -33,6 +34,8 @@ register_converter(JournalDOILabelConverter, 'journal_doi_label')
 # ontology
 register_converter(AcademicFieldSlugConverter, 'acad_field')
 register_converter(SpecialtySlugConverter, 'specialty')
+# submissions
+register_converter(IdentifierConverter, 'identifier')
 
 ######################################
 # End of custom converter registration
