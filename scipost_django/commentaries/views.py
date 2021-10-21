@@ -223,21 +223,10 @@ class CommentaryListView(PaginationMixin, ListView):
     def get_context_data(self, **kwargs):
         # Call the base implementation first to get a context
         context = super().get_context_data(**kwargs)
-
         # Get newest comments
         context['comment_list'] = Comment.objects.vetted().order_by('-date_submitted')[:10]
-
         # Form into the context!
         context['form'] = self.form
-
-        # To customize display in the template
-        if 'acad_field' in self.kwargs:
-            context['acad_field'] = self.kwargs['acad_field']
-            context['nrweeksback'] = self.kwargs['nrweeksback']
-            context['browse'] = True
-        elif not any(self.request.GET[field] for field in self.request.GET):
-            context['recent'] = True
-
         return context
 
 

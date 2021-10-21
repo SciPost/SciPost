@@ -46,3 +46,14 @@ class VetCommentForm(forms.Form):
             if data['refusal_reason'] == str(COMMENT_REFUSAL_EMPTY):
                 self.add_error(None, 'Please choose a valid refusal reason')
         return data
+
+
+class CommentSearchForm(forms.Form):
+    """Search for Comment"""
+    text = forms.CharField(max_length=1000, required=False, label="Text")
+
+    def search_results(self):
+        """Return all Comment objects according to search"""
+        return Comment.objects.vetted().filter(
+            comment_text__icontains=self.cleaned_data['text'],
+        ).order_by('-date_submitted')

@@ -3,26 +3,20 @@
 {% load bootstrap %}
 {% load request_filters %}
 
-{% block meta_description %}{{ block.super }} Commentaries list{% endblock meta_description %}
-{% block pagetitle %}: Commentaries{% endblock pagetitle %}
+{% block meta_description %}{{ block.super }} Comments list{% endblock meta_description %}
+{% block pagetitle %}: Comments{% endblock pagetitle %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-6">
       <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
-        <h1 class="mb-3">SciPost Commentaries</h1>
-        <h4>
-          <a href="{% url 'commentaries:howto' %}">SciPost Commentaries how-to</a>
-        </h4>
-        <h3>
-          <a href="{% url 'commentaries:request_commentary' %}">Request a new Commentary Page</a>
-        </h3>
+        <h1 class="mb-3">SciPost Comments</h1>
       </div>
     </div>
     <div class="col-md-6">
       <div class="p-3 mb-3 bg-light scipost-bar border min-height-190">
-        <h2>Search SciPost Commentaries:</h2>
-        <form action="{% url 'commentaries:commentaries' %}" class="small" method="get">
+        <h2>Search SciPost Comments:</h2>
+        <form action="{% url 'comments:comments' %}" class="small" method="get">
           {{ form|bootstrap:'4,8,sm' }}
           <input class="btn btn-outline-secondary" type="submit"  value="Search"/>
         </form>
@@ -33,7 +27,7 @@
   <hr>
   <div class="row">
     <div class="col-12">
-      <h2>Commentaries</h2>
+      <h2>Comments</h2>
     </div>
     {% if is_paginated %}
       <div class="col-12">
@@ -42,9 +36,9 @@
     {% endif %}
     <div class="col-12">
       <ul class="list-group list-group-flush">
-        {% for object in commentary_list %}
+        {% for object in comment_list %}
           <li class="list-group-item">
-            {% include 'commentaries/_commentary_card_content.html' with commentary=object %}
+            {% include 'comments/_comment_card_content.html' with comment=object %}
           </li>
         {% empty %}
           <h3><em>No match found.</em></h3>
