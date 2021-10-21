@@ -240,14 +240,23 @@ class SubmissionQuerySet(models.QuerySet):
         ids_list = [r.submission.id for r in EICRecommendation.objects.put_to_voting(longer_than_days)]
         return self.filter(id__in=ids_list)
 
+
 class SubmissionEventQuerySet(models.QuerySet):
-    def for_author(self):
-        """Return all events that are meant to be for the author(s) of a submission."""
-        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
+    def for_edadmin(self):
+        """Return all events that are visible to EdAdmin."""
+        return self.filter(event__in=[
+            constants.EVENT_FOR_EDADMIN,
+            constants.EVENT_FOR_EIC,
+            constants.EVENT_GENERAL
+        ])
 
     def for_eic(self):
-        """Return all events that are meant to be for the Editor-in-charge of a submission."""
+        """Return all events that are visible to Editor-in-charge of a submission."""
         return self.filter(event__in=[constants.EVENT_FOR_EIC, constants.EVENT_GENERAL])
+
+    def for_author(self):
+        """Return all events that are visible to author(s) of a submission."""
+        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
 
     def last_hours(self, hours=24):
         """Return all events of the last `hours` hours."""

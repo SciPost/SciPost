@@ -27,7 +27,7 @@ from ..constants import (
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
     STATUS_REJECTED, STATUS_WITHDRAWN, STATUS_PUBLISHED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,
-    EVENT_TYPES, EVENT_GENERAL, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,
+    EVENT_TYPES, EVENT_GENERAL, EVENT_FOR_EDADMIN, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,
     SUBMISSION_TIERS)
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
@@ -367,32 +367,25 @@ class Submission(models.Model):
         """Return the latest known version in the thread of this Submission."""
         return self.thread.first()
 
-    def add_general_event(self, message):
-        """Generate message meant for EIC and authors."""
-        event = SubmissionEvent(
-            submission=self,
-            event=EVENT_GENERAL,
-            text=message,
-        )
+    def _add_event(self, sort, message):
+        event = SubmissionEvent(submission=self, event=sort, text=message)
         event.save()
 
-    def add_event_for_author(self, message):
-        """Generate message meant for authors only."""
-        event = SubmissionEvent(
-            submission=self,
-            event=EVENT_FOR_AUTHOR,
-            text=message,
-        )
-        event.save()
+    def add_general_event(self, message):
+        """Generate message meant for EdAdmin, EIC and authors."""
+        self._add_event(EVENT_GENERAL, message)
+
+    def add_event_for_edadmin(self, message):
+        """Generate message meant for EdAdmin only."""
+        self._add_event(EVENT_FOR_EDADMIN, message)
 
     def add_event_for_eic(self, message):
         """Generate message meant for EIC and Editorial Administration only."""
-        event = SubmissionEvent(
-            submission=self,
-            event=EVENT_FOR_EIC,
-            text=message,
-        )
-        event.save()
+        self._add_event(EVENT_FOR_EIC, message)
+
+    def add_event_for_author(self, message):
+        """Generate message meant for authors only."""
+        self._add_event(EVENT_FOR_AUTHOR, message)
 
     def flag_coauthorships_arxiv(self, fellows):
         """Identify coauthorships from arXiv, using author surname matching."""

@@ -187,10 +187,12 @@ SUBMISSION_CYCLE_CHOICES = (
 SUBMISSION_CYCLES = ((CYCLE_UNDETERMINED, 'Cycle undetermined'),) + SUBMISSION_CYCLE_CHOICES
 
 EVENT_GENERAL = 'gen'
+EVENT_FOR_EDADMIN = 'edad'
 EVENT_FOR_EIC = 'eic'
 EVENT_FOR_AUTHOR = 'auth'
 EVENT_TYPES = (
     (EVENT_GENERAL, 'General comment'),
+    (EVENT_FOR_EDADMIN, 'Comment for EdAdmin'),
     (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
     (EVENT_FOR_AUTHOR, 'Comment for author'),
 )

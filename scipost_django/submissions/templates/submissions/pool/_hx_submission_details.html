@@ -159,7 +159,7 @@
 	    {% if rec.undergoing_voting %}
 	      {% if rec|user_can_vote:request.user %}
 		<a href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}">
-		See Recommendation, view votes and/or revise your vote
+		  See Recommendation, view votes and/or revise your vote
 		</a>
 	      {% elif not is_ed_admin %}
 		<div id="rights-{{ rec.id }}">
@@ -176,7 +176,7 @@
 	    {% elif rec.decision_fixed %}
 	      {% if is_ed_admin or rec|user_can_vote:request.user %}
 		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=rec.submission.preprint.identifier_w_vn_nr %}">
-		See Recommendation
+		  See Recommendation
 		</a>
 	      {% endif %}
 	    {% endif %}
@@ -188,7 +188,9 @@
     <hr>
     <h3 class="mt-3">Events</h3>
     <div id="eventslist">
-      {% if is_editor_in_charge or is_ed_admin %}
+      {% if is_ed_admin %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
+      {% elif is_editor_in_charge %}
 	{% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
       {% else %}
 	{% include 'submissions/_submission_events.html' with events=submission.events.for_author %}

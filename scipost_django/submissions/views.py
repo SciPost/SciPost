@@ -293,8 +293,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     def form_valid(self, form):
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
-        submission.add_general_event('The manuscript has been submitted to %s.'
-                                     % str(submission.submitted_to))
+        submission.add_general_event('Submitted to %s.' % str(submission.submitted_to))
 
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
@@ -2054,6 +2053,9 @@ def editor_invitations(request, identifier_w_vn_nr):
 
         if formset.is_valid():
             formset.save()
+            submission.add_event_for_edadmin(
+                f'{request.user.first_name} {request.user.last_name} has edited the assignments.'
+            )
             messages.success(request, 'Editor pre-assignments saved.')
             return redirect(
                 reverse('submissions:editor_invitations', args=(submission.preprint.identifier_w_vn_nr,)))
@@ -2262,11 +2264,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         else: # paper is accepted, but in subsidiary journal
             decision.status = EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         decision.save()
-        submission.add_event_for_author(
-            'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
-                str(decision.for_journal), decision.get_decision_display(),
-                decision.get_status_display()))
-        submission.add_event_for_eic(
+        submission.add_general_event_for_author(
             'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
                 str(decision.for_journal), decision.get_decision_display(),
                 decision.get_status_display()))
