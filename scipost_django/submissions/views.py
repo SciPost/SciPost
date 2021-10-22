@@ -2266,7 +2266,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         else: # paper is accepted, but in subsidiary journal
             decision.status = EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         decision.save()
-        submission.add_general_event_for_author(
+        submission.add_general_event(
             'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
                 str(decision.for_journal), decision.get_decision_display(),
                 decision.get_status_display()))
