@@ -35,7 +35,6 @@ from .constants import (
     STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED,
     STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN,
-    CHEMRXIV_DOI_PATTERN
 )
 from . import exceptions, helpers
 from .helpers import to_ascii_only
@@ -44,6 +43,7 @@ from .models import (
     RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
+from .regexes import CHEMRXIV_DOI_PATTERN
 
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings

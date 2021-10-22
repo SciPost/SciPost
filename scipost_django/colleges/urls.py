@@ -4,8 +4,6 @@ __license__ = "AGPL v3"
 
 from django.urls import path
 
-from submissions.constants import SUBMISSIONS_COMPLETE_REGEX
-
 from . import views
 
 
