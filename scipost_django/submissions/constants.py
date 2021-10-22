@@ -74,9 +74,11 @@ ASSIGNMENT_REFUSAL_REASONS = (
     ('DNP', 'SciPost should not even consider this paper'),
 )
 
-STATUS_PREASSIGNED, STATUS_INVITED = 'preassigned', 'invited'
+STATUS_PREASSIGNED = 'preassigned'
+STATUS_INVITED = 'invited'
 STATUS_DECLINED = 'declined'
-STATUS_DEPRECATED, STATUS_COMPLETED = 'deprecated', 'completed'
+STATUS_COMPLETED = 'completed'
+STATUS_DEPRECATED = 'deprecated'
 STATUS_REPLACED = 'replaced'
 ASSIGNMENT_STATUSES = (
     (STATUS_PREASSIGNED, 'Pre-assigned'),

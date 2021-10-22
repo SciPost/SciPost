@@ -7,13 +7,13 @@
   <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
   <a href="{% url 'colleges:fellowships' %}" class="breadcrumb-item">Fellowships</a>
   <a href="{{ fellowship.get_absolute_url }}" class="breadcrumb-item">Fellowship details</a>
-  <span class="breadcrumb-item">Remove Submission from Fellow's Pool</span>
+  <span class="breadcrumb-item">Remove Submission</span>
 {% endblock %}
 
 {% block pagetitle %}: Remove Submission from Fellowship{% endblock pagetitle %}
 
 {% block content %}
-  <h1>Remove Submission from Pool</h1>
+  <h1>Remove Submission from this Fellowship</h1>
   <h2 class="text-primary">Fellowship {{ fellowship }}</h2>
 
   <h3>Submission details</h3>
@@ -23,7 +23,7 @@
   <form method="post">
     {% csrf_token %}
     {{ form|bootstrap }}
-    <input class="btn btn-danger px-3" type="submit" value="Remove from Pool">
+    <input class="btn btn-danger px-3" type="submit" value="Remove">
   </form>
 
 
