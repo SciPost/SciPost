@@ -2,6 +2,13 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.urls.converters import StringConverter
+
+
+class UnicodeSlugConverter(StringConverter):
+    regex = '[-\w_]+'
+
+
 class FourDigitYearConverter:
     regex = '[0-9]{4}'
 

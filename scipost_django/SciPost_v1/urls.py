@@ -17,6 +17,7 @@ from comments.converters import (
     CommentDOILabelConverter, AuthorReplyDOILabelConverter
 )
 from common.converters import (
+    UnicodeSlugConverter,
     FourDigitYearConverter, TwoDigitMonthConverter, TwoDigitDayConverter
 )
 from journals.converters import (
@@ -45,6 +46,7 @@ register_converter(CollegeSlugConverter, 'college')
 register_converter(CommentDOILabelConverter, 'comment_doi_label')
 register_converter(AuthorReplyDOILabelConverter, 'author_reply_doi_label')
 # common
+register_converter(UnicodeSlugConverter, 'slug')
 register_converter(FourDigitYearConverter, 'YYYY')
 register_converter(TwoDigitMonthConverter, 'MM')
 register_converter(TwoDigitDayConverter, 'DD')
