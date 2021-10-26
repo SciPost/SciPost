@@ -34,7 +34,7 @@
           <hr class="sm mb-0 mt-2">
         </div>
 	<div hx-get="{% url 'scipost:_index_publications' %}"
-	     hx-trigger="load"
+	     hx-trigger="load, session-acad-field-set from:body"
 	>
 	</div>
         <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications</a></p>
@@ -49,7 +49,7 @@
           <hr class="sm mb-0 mt-2">
         </div>
 	<div hx-get="{% url 'scipost:_index_submissions' %}"
-	     hx-trigger="load"
+	     hx-trigger="load, session-acad-field-set from:body"
 	>
 	</div>
         <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>

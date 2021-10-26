@@ -3,5 +3,9 @@
     <li class="list-group-item py-2">
       {% include 'submissions/_submission_card_content_homepage.html' with submission=submission %}
     </li>
+  {% empty %}
+    <li class="list-group-item py-2">
+      No submissions yet
+    </li>
   {% endfor %}
 </ul>

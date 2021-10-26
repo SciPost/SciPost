@@ -1,7 +1,9 @@
 __copyright__ = "Copyright 2016-2018, Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
+
 from .models import Branch, AcademicField, Specialty
+from .forms import SessionAcademicFieldForm
 
 
 def ontology_processor(request):
@@ -13,10 +15,13 @@ def ontology_processor(request):
         'branches': Branch.objects.all(),
         'acad_fields': AcademicField.objects.all(),
     }
-    if request.session.get('acad_field_slug', None):
+    initial = {}
+    if request.session.get('session_acad_field_slug', None):
         context['session_acad_field'] = AcademicField.objects.get(
-            slug=request.session.get('acad_field_slug'))
-    if request.session.get('specialty_slug', None):
+            slug=request.session.get('session_acad_field_slug'))
+        initial['acad_field'] = context['session_acad_field']
+    if request.session.get('session_specialty_slug', None):
         context['session_specialty'] = Specialty.objects.get(
-            slug=request.session.get('specialty_slug'))
+            slug=request.session.get('session_specialty_slug'))
+    context['session_acad_field_form'] = SessionAcademicFieldForm(initial=initial)
     return context

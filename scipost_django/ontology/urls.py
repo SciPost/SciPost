@@ -35,6 +35,11 @@ urlpatterns = [
         name='topic-linked-autocomplete',
     ),
     path(
+        'set_session_acad_field',
+        views.set_session_acad_field,
+        name='set_session_acad_field'
+    ),
+    path(
         '',
         views.ontology,
         name='ontology'

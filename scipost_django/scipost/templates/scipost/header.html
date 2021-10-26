@@ -1,4 +1,5 @@
 {% load static %}
+{% load crispy_forms_tags %}
 
 <header>
   <div class="container">
@@ -7,6 +8,17 @@
         <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="180" /></a>
       </div>
 
+      <ul class="navbar-nav">
+	<li class="nav-item">
+	  <form id="session_acad_field_form"
+		hx-get="{% url 'ontology:set_session_acad_field' %}"
+		hx-trigger="change"
+		hx-swap="outerHTML"
+	  >
+	    {% crispy session_acad_field_form %}
+	  </form>
+	</li>
+      </ul>
       <ul class="navbar-nav">
         <li class="nav-item">
           <a class="nav-link" id="header-search-button" href="{% url 'scipost:search' %}">

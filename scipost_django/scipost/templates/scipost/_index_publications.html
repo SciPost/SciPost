@@ -3,5 +3,9 @@
     <li class="list-group-item py-2">
       {% include 'journals/_publication_li_content.html' with publication=publication %}
     </li>
+  {% empty %}
+    <li class="list-group-item py-2">
+      No publications yet
+    </li>
   {% endfor %}
 </ul>

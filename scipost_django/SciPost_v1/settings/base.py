@@ -278,6 +278,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'journals.context_processors.journals_processor',
+                'ontology.context_processors.ontology_processor',
             ],
         },
     },

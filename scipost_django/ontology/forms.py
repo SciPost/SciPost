@@ -4,10 +4,29 @@ __license__ = "AGPL v3"
 
 from django import forms
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from .constants import TOPIC_RELATIONS_ASYM
-from .models import Tag, Topic
+from .models import AcademicField, Tag, Topic
+
+
+class SessionAcademicFieldForm(forms.Form):
+    acad_field = forms.ModelChoiceField(
+        queryset=AcademicField.objects.all(),
+        label='Academic Field'
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.disable_csrf = True
+        self.helper.show_errors = True
+        self.helper.layout = Layout(
+            Div(FloatingField('acad_field'))
+        )
 
 
 class SelectTagsForm(forms.Form):

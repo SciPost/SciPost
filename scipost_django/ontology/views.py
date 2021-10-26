@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
+from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,10 +16,31 @@ from dal import autocomplete
 from guardian.decorators import permission_required
 
 from .models import AcademicField, Specialty, Tag, Topic, RelationAsym
-from .forms import SelectTagsForm, SelectLinkedTopicForm, AddRelationAsymForm
+from .forms import (
+    SessionAcademicFieldForm,
+    SelectTagsForm, SelectLinkedTopicForm,
+    AddRelationAsymForm
+)
 
 from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
+
+
+def set_session_acad_field(request):
+    """Set the Academic Field to be viewed in the current user session."""
+    form = SessionAcademicFieldForm(request.GET or None)
+    if form.is_valid():
+        request.session['session_acad_field_slug'] = form.cleaned_data['acad_field'].slug
+    form = SessionAcademicFieldForm(initial={
+        'acad_field': AcademicField.objects.get(slug=request.session['session_acad_field_slug'])
+    })
+    response = render(
+        request,
+        'ontology/session_acad_field_form.html',
+        context={ 'session_acad_field_form': form}
+    )
+    response['HX-Trigger'] = 'session-acad-field-set'
+    return response
 
 
 def ontology(request):
