@@ -1,3 +1,5 @@
+{% load journals_extras %}
+
 <ul class="list-group list-group-flush px-3 mb-3">
   {% for publication in publications %}
     <li class="list-group-item py-2">
@@ -9,3 +11,20 @@
     </li>
   {% endfor %}
 </ul>
+
+{% if not session_acad_field.journals.active|length > 0 %}
+  <div class="card m-2">
+    <div class="card-header text-center">
+      <h2 class="p-2 text-white bg-danger">We are not yet active in<br>{{ session_acad_field }}</h2>
+    </div>
+    <div class="card-body">
+      <h3>Interested in helping us set things up?</h3>
+      <p>
+	<a href="mailto:admin@{{ request.get_host }}">Email us</a>
+	your suggestions for Editorial Fellows.
+      </p>
+    </div>
+  </div>
+{% else %}
+  <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications</a></p>
+{% endif %}

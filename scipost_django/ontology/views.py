@@ -30,10 +30,15 @@ def set_session_acad_field(request):
     """Set the Academic Field to be viewed in the current user session."""
     form = SessionAcademicFieldForm(request.GET or None)
     if form.is_valid():
-        request.session['session_acad_field_slug'] = form.cleaned_data['acad_field'].slug
-    form = SessionAcademicFieldForm(initial={
-        'acad_field': AcademicField.objects.get(slug=request.session['session_acad_field_slug'])
-    })
+        request.session['session_acad_field_slug'] = form.cleaned_data['acad_field_slug']
+    try:
+        initial = {
+            'acad_field_slug': AcademicField.objects.get(
+                slug=request.session['session_acad_field_slug']).slug
+        }
+    except AcademicField.DoesNotExist:
+        initial = {}
+    form = SessionAcademicFieldForm(initial=initial)
     response = render(
         request,
         'ontology/session_acad_field_form.html',

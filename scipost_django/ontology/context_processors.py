@@ -17,11 +17,11 @@ def ontology_processor(request):
     }
     initial = {}
     if request.session.get('session_acad_field_slug', None):
-        context['session_acad_field'] = AcademicField.objects.get(
-            slug=request.session.get('session_acad_field_slug'))
-        initial['acad_field'] = context['session_acad_field']
-    if request.session.get('session_specialty_slug', None):
-        context['session_specialty'] = Specialty.objects.get(
-            slug=request.session.get('session_specialty_slug'))
+        try:
+            context['session_acad_field'] = AcademicField.objects.get(
+                slug=request.session.get('session_acad_field_slug'))
+            initial['acad_field_slug'] = request.session.get('session_acad_field_slug')
+        except AcademicField.DoesNotExist:
+            context['session_acad_field'] = None
     context['session_acad_field_form'] = SessionAcademicFieldForm(initial=initial)
     return context

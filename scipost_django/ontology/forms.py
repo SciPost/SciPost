@@ -10,13 +10,39 @@ from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from .constants import TOPIC_RELATIONS_ASYM
-from .models import AcademicField, Tag, Topic
+from .models import Branch, AcademicField, Tag, Topic
+
+
+def academic_field_slug_choices():
+    choices = (
+        ('All', (
+            ('all', 'All'),
+        )),
+    )
+    for branch in Branch.objects.all():
+        if branch.name == 'Multidisciplinary':
+            continue
+        subchoices = ()
+        for acad_field in branch.academic_fields.all():
+            subchoices += (
+                (acad_field.slug, acad_field.name),
+            )
+        choices += (
+            (branch.name, subchoices),
+        )
+    return choices
 
 
 class SessionAcademicFieldForm(forms.Form):
-    acad_field = forms.ModelChoiceField(
-        queryset=AcademicField.objects.all(),
-        label='Academic Field'
+    # acad_field = forms.ModelChoiceField(
+    #     queryset=AcademicField.objects.all(),
+    #     label='Academic Field',
+    #     empty_label=None
+    #     choices=academic_field_choices()
+    # )
+    acad_field_slug = forms.ChoiceField(
+        label='Academic Field',
+        choices=academic_field_slug_choices()
     )
 
     def __init__(self, *args, **kwargs):
@@ -25,7 +51,7 @@ class SessionAcademicFieldForm(forms.Form):
         self.helper.disable_csrf = True
         self.helper.show_errors = True
         self.helper.layout = Layout(
-            Div(FloatingField('acad_field'))
+            Div(FloatingField('acad_field_slug'))
         )
 
 

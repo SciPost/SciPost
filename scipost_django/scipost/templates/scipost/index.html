@@ -3,6 +3,7 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
+
 {% block headsup %}
   {{ block.super }}
   <style>
@@ -25,6 +26,7 @@
 {% block pagetitle %}Homepage{% endblock pagetitle %}
 
 {% block content %}
+
   <div class="row">
     <div class="col-md-4">
       <!-- Latest publications -->
@@ -37,7 +39,6 @@
 	     hx-trigger="load, session-acad-field-set from:body"
 	>
 	</div>
-        <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications</a></p>
       </div><!-- End latest publications -->
     </div>
 
