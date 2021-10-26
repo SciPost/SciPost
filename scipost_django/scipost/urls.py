@@ -72,6 +72,32 @@ urlpatterns = [
         name='index'
     ),
     path(
+        '_index_publications',
+        views._index_publications,
+        name='_index_publications'
+    ),
+    path(
+        '_index_submissions',
+        views._index_submissions,
+        name='_index_submissions'
+    ),
+    path(
+        '_index_news.html',
+        views._index_news,
+        name='_index_news'
+    ),
+    path(
+        '_index_participates_in',
+        TemplateView.as_view(template_name='scipost/_index_participates_in.html'),
+        name='_index_participates_in'
+    ),
+    path(
+        '_index_sponsors',
+        views._index_sponsors,
+        name='_index_sponsors'
+    ),
+
+    path(
         'files/secure/<path:path>',
         views.protected_serve,
         name='secure_file'

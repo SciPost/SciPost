@@ -163,15 +163,41 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
-        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
-        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        # 'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
-        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
     }
     return render(request, 'scipost/index.html', context)
+
+
+def _index_submissions(request):
+    context = {
+        'submissions': Submission.objects.public().order_by('-submission_date')[:3],
+    }
+    return render(request, 'scipost/_index_submissions.html', context)
+
+
+def _index_publications(request):
+    context = {
+        'publications': Publication.objects.published().order_by('-publication_date',
+                                                                 '-paper_nr')[:3],
+    }
+    return render(request, 'scipost/_index_publications.html', context)
+
+
+def _index_news(request):
+    context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
+    }
+    return render(request, 'scipost/_index_news.html', context)
+
+
+def _index_sponsors(request):
+    context = {
+        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:1]
+    }
+    return render(request, 'scipost/_index_sponsors.html', context)
 
 
 def protected_serve(request, path, show_indexes=False):

@@ -1,0 +1,7 @@
+<ul class="list-group list-group-flush px-3 mb-3">
+  {% for publication in publications %}
+    <li class="list-group-item py-2">
+      {% include 'journals/_publication_li_content.html' with publication=publication %}
+    </li>
+  {% endfor %}
+</ul>

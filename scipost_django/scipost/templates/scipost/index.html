@@ -3,6 +3,22 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
+{% block headsup %}
+  {{ block.super }}
+  <style>
+   #sponsor-logos.htmx-added {
+       opacity: 0;
+   }
+   #sponsor-logos.htmx-swapping {
+       opacity: 0;
+   }
+   #sponsor-logos {
+       opacity: 1;
+       transition: opacity 1s;
+   }
+  </style>
+{% endblock %}
+
 {% block body_class %}{{ block.super }} homepage{% endblock %}
 
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
@@ -17,13 +33,10 @@
           <h2 class="title mb-3">Latest Publications</h2>
           <hr class="sm mb-0 mt-2">
         </div>
-        <ul class="list-group list-group-flush px-3 mb-3">
-          {% for publication in publications %}
-            <li class="list-group-item py-2">
-              {% include 'journals/_publication_li_content.html' with publication=publication %}
-            </li>
-          {% endfor %}
-        </ul>
+	<div hx-get="{% url 'scipost:_index_publications' %}"
+	     hx-trigger="load"
+	>
+	</div>
         <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications</a></p>
       </div><!-- End latest publications -->
     </div>
@@ -35,13 +48,10 @@
           <h2 class="title mb-3">Latest Submissions</h2>
           <hr class="sm mb-0 mt-2">
         </div>
-        <ul class="list-group list-group-flush px-3 mb-3">
-          {% for submission in submissions %}
-            <li class="list-group-item py-2">
-              {% include 'submissions/_submission_card_content_homepage.html' with submission=submission %}
-            </li>
-          {% endfor %}
-        </ul>
+	<div hx-get="{% url 'scipost:_index_submissions' %}"
+	     hx-trigger="load"
+	>
+	</div>
         <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>
       </div><!-- End latest submissions -->
     </div>
@@ -57,28 +67,10 @@
 	<hr class="lg">
       {% endif %}
 
-      <!-- News -->
-      <div id="news">
-	<h2 class="title">
-	  News
-	  <button class="btn btn-link btn-sm m-0 mb-1" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</button>
-	</h2>
-	<ul class="news-list">
-	  {% for news in news_items %}
-	    <li>
-              <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
-              <div class="text-muted">{{ news.date|date:'j F Y' }}</div>
-              <p>
-		{{ news.blurb_short }}
-		<br>
-		<br>
-		<a href="{% url 'news:news' %}#news_{{ news.id }}" class="my-1">Read more &rarr;</a>
-              </p>
-	    </li>
-	  {% endfor %}
-	</ul>
-	<a href="{% url 'news:news' %}" class="my-1">See complete News list</a>
-      </div><!-- End news -->
+      <div hx-get="{% url 'scipost:_index_news' %}"
+	   hx-trigger="load"
+      >
+      </div>
 
     </div>
 
@@ -90,7 +82,7 @@
   <div class="container-fluid text-start secondary pt-4 mt-5 border-top border-primary">
     <div class="row">
       <div class="col-md-8">
-        <h1>Sponsors</h1>
+	<h1>Sponsors</h1>
 	<p>
 	  SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Sponsors provide operating funds to SciPost through a cost-slashing consortial model.
 	</p>
@@ -102,31 +94,23 @@
 	</p>
       </div>
       <div class="col-md-4">
-        <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
+	<a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
 	<br>
-        <ul class="list list-unstyled">
-          {% for sponsor in current_sponsors %}
-            {% if sponsor.logo %}
-              <li class="p-2"><img class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
-            {% endif %}
-          {% endfor %}
-        </ul>
+	<div id="sponsor-logos"
+	     hx-get="{% url 'scipost:_index_sponsors' %}"
+	     hx-trigger="load"
+	     hx-swap="outerHTML swap:1s"
+	>
+	</div>
       </div>
     </div>
 
     <hr>
 
-    <div class="row">
-      <div class="col-md-4">
-        <h1>SciPost participates in</h1>
-      </div>
-      <div class="col-md-8 logos">
-        <a href="//www.crossref.org" target="_blank" rel="noopener"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
-        <a href="//www.doaj.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
-        <a href="//www.clockss.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
-        <a href="//i4oc.org/" target="_blank" rel="noopener"><img width="100" src="{% static 'scipost/images/I4OC.png' %}" alt="I4OC logo"></a>
-        <a href="//freejournals.org" target="_blank" rel="noopener"><img width="100" src="{% static 'scipost/images/FJN-logo-long.png' %}" alt="FJN logo"></a>
-      </div>
+    <div hx-get="{% url 'scipost:_index_participates_in' %}"
+	 hx-trigger="load"
+    >
     </div>
+
   </div>
 {% endblock %}

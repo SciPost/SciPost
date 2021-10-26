@@ -134,11 +134,9 @@ ul.news-list {
             overflow: hidden;
             padding: 0;
             margin: 0.5rem 0;
-            transition: max-height 0.3s ease-in-out;
         }
 
-        &:first-child p,
-        &:hover p {
+        &:first-child p {
             max-height: 1000px;
         }
     }
