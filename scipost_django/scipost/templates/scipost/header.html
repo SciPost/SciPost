@@ -1,49 +1,34 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-<header>
+<header class="py-2">
   <div class="container">
-    <div class="d-md-flex justify-content-between">
+    <div class="d-lg-flex justify-content-between">
       <div class="logobox">
         <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="180" /></a>
       </div>
 
-      <ul class="navbar-nav">
-	<li class="nav-item">
-	  <form id="session_acad_field_form"
-		hx-get="{% url 'ontology:set_session_acad_field' %}"
-		hx-trigger="change"
-		hx-swap="outerHTML"
-	  >
-	    {% crispy session_acad_field_form %}
-	  </form>
-	</li>
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" id="header-search-button" href="{% url 'scipost:search' %}">
-            {% include 'bi/search.html' %}
-            Search
-          </a>
+      <div class="mx-auto my-4 my-lg-auto">
+	<form id="session_acad_field_form"
+	      hx-get="{% url 'ontology:set_session_acad_field' %}"
+	      hx-trigger="change"
+	      hx-swap="outerHTML"
+	>
+	  {% crispy session_acad_field_form %}
+	</form>
+      </div>
 
-          <div id="header-search-form"{% if not request.GET.q %} style="display: none;"{% endif %}>
-            <form method="get" action="{% url 'scipost:search' %}">
-              <input type="text" name="q" placeholder="Search term" value="{{ request.GET.q }}">
-              <div class="btn-group">
-                <button type="submit" class="btn btn-link">
-                  {% include 'bi/search.html' %}
-                </button>
-                <a class="btn btn-link close-form" id="header-search-close-btn">
-                  {% include 'bi/x-circle-fill.html' %}
-                </a>
-              </div>
-            </form>
-          </div>
-        </li>
-      </ul>
+      <div class="ms-auto me-0 my-4 my-lg-auto">
+	<form id="header-search-form" method="get" action="{% url 'scipost:search' %}">
+          <div class="form-floating">
+            <input type="text" id="headerSearchInput" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}">
+	    <label for="headerSearchInput" class="text-white">
+	      Quick search&emsp;{% include 'bi/search.html' %}
+	    </label>
+	  </div>
+	</form>
+      </div>
+
     </div>
-
-    <script src="{% static 'scipost/search-header.js' %}"></script>
-
   </div>
 </header>

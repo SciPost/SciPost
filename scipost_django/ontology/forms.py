@@ -34,12 +34,6 @@ def academic_field_slug_choices():
 
 
 class SessionAcademicFieldForm(forms.Form):
-    # acad_field = forms.ModelChoiceField(
-    #     queryset=AcademicField.objects.all(),
-    #     label='Academic Field',
-    #     empty_label=None
-    #     choices=academic_field_choices()
-    # )
     acad_field_slug = forms.ChoiceField(
         label='Academic Field',
         choices=academic_field_slug_choices()
