@@ -16,11 +16,11 @@ class FourDigitYearConverter:
         return int(value)
 
     def to_url(self, value):
-        return '%04d' % value
+        return '%04d' % int(value)
 
 
 class TwoDigitMonthConverter:
-    regex = '(0[1-9]{1})|(1[1-2]{1})'
+    regex = '0[1-9]|1[0-2]'
 
     def to_python(self, value):
         return int(value)
@@ -30,7 +30,7 @@ class TwoDigitMonthConverter:
 
 
 class TwoDigitDayConverter:
-    regex = '([0-2]{1}[1-9])|30|31'
+    regex = '0[1-9]|[1-2][0-9]|3[0-1]'
 
     def to_python(self, value):
         return int(value)
