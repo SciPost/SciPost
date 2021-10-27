@@ -1,3 +1,5 @@
+{% load journals_extras %}
+
 <ul class="list-group list-group-flush px-3 mb-3">
   {% for submission in submissions %}
     <li class="list-group-item py-2">
@@ -9,3 +11,7 @@
     </li>
   {% endfor %}
 </ul>
+
+{% if session_acad_field.journals.active|length > 0 %}
+  <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>
+{% endif %}

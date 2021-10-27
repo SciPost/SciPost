@@ -43,7 +43,6 @@
     {% block footer_script %}
       <script nonce="{{ request.csp_nonce }}">
        document.body.addEventListener('htmx:afterSettle', function () {
-	   console.log('session-acad-field-set event')
 	   MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
        })
       </script>
