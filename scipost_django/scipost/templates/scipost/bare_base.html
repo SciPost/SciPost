@@ -41,6 +41,12 @@
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
 
     {% block footer_script %}
+      <script nonce="{{ request.csp_nonce }}">
+       document.body.addEventListener('htmx:afterSettle', function () {
+	   console.log('session-acad-field-set event')
+	   MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+       })
+      </script>
     {% endblock footer_script %}
 
   </body>
