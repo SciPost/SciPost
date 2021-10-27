@@ -173,7 +173,7 @@ def index(request):
 def _index_submissions(request):
     submissions = Submission.objects.public()
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
-    if session_acad_field_slug and session_acad_field_slug != 'multidisciplinary':
+    if session_acad_field_slug and session_acad_field_slug != 'all':
         submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
     context = {
         'submissions': submissions.order_by('-submission_date')[:3],
@@ -184,7 +184,7 @@ def _index_submissions(request):
 def _index_publications(request):
     publications = Publication.objects.published()
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
-    if session_acad_field_slug and session_acad_field_slug != 'multidisciplinary':
+    if session_acad_field_slug and session_acad_field_slug != 'all':
         publications = publications.filter(acad_field__slug=session_acad_field_slug)
     context = {
         'publications': publications.order_by('-publication_date', '-paper_nr')[:3],

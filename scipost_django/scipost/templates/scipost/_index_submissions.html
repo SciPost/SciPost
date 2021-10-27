@@ -12,6 +12,6 @@
   {% endfor %}
 </ul>
 
-{% if session_acad_field.journals.active|length > 0 %}
+{% if not session_acad_field or session_acad_field.journals.active|length > 0 %}
   <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>
 {% endif %}
