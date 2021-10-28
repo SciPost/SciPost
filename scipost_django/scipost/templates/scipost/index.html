@@ -7,13 +7,13 @@
 {% block headsup %}
   {{ block.super }}
   <style>
-   #sponsor-logos.htmx-added {
+   .sp-swap.htmx-added {
        opacity: 0;
    }
-   #sponsor-logos.htmx-swapping {
+   .sp-swap.htmx-swapping {
        opacity: 0;
    }
-   #sponsor-logos {
+   .sp-swap {
        opacity: 1;
        transition: opacity 1s;
    }
@@ -27,58 +27,141 @@
 
 {% block content %}
 
-  <div class="row">
+  <div class="row gx-4">
     <div class="col-md-4">
-      <!-- Latest publications -->
-      <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
-        <div class="card-body pb-0">
-          <h2 class="title mb-3">Latest Publications</h2>
-          <hr class="sm mb-0 mt-2">
-        </div>
-	<div hx-get="{% url 'scipost:_index_publications' %}"
-	     hx-trigger="load, session-acad-field-set from:body"
-	>
+      <h2 class="highlight text-center mt-0">Portals</h2>
+      <div class="d-flex justify-content-center">
+	<div class="btn-group-vertical w-100" role="group">
+	  {% for branch in branches %}
+	    {% if branch.name != 'Multidisciplinary' and branch.journals.all|length > 0 %}
+	      {% for acad_field in branch.academic_fields.all %}
+		{% if acad_field.journals.active.all|length > 0 %}
+		  <a type="button" class="btn-primary w-100 m-1 p-2 text-center" href={% url 'scipost:portal' %}?field={{ acad_field.slug }}><strong>{{ acad_field.name }}</strong></a>
+		{% endif %}
+	      {% endfor %}
+	    {% endif %}
+	  {% endfor %}
 	</div>
-      </div><!-- End latest publications -->
-    </div>
-
-    <div class="col-md-4">
-      <!-- Latest submissions -->
-      <div class="card card-submissions bg-light px-1 mb-2 scipost-bar">
-        <div class="card-body pb-0">
-          <h2 class="title mb-3">Latest Submissions</h2>
-          <hr class="sm mb-0 mt-2">
-        </div>
-	<div hx-get="{% url 'scipost:_index_submissions' %}"
-	     hx-trigger="load, session-acad-field-set from:body"
-	>
-	</div>
-      </div><!-- End latest submissions -->
-    </div>
-
-    <div class="col-md-4">
-      {% if not user.is_authenticated %}
-	<!-- Register -->
-	<div id="register">
-	  <h2>Register</h2>
-	  <p class="mb-1">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
-	</div><!-- End Register -->
-
-	<hr class="lg">
-      {% endif %}
-
-      <div hx-get="{% url 'scipost:_index_news' %}"
-	   hx-trigger="load"
-      >
       </div>
-
     </div>
 
+    <div class="col-md-8">
+      <div class="card">
+	<div class="card-header">
+	  <h1>Genuinely Open Publishing</h1>
+	</div>
+	<div class="card-body">
+	  <p>SciPost is a complete publishing infrastructure serving professional scientists worldwide.</p>
+	  <div class="row g-2">
+	    <div class="col-lg-6">
+	      <div class="card">
+		<div class="card-header">
+		  <h3>We implement<br><a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a></h3>
+		</div>
+		<div class="card-body">
+		  <ul>
+		    <li>Community Ownership</li>
+		    <li>Open Infrastructure</li>
+		    <li>Copyright to Authors</li>
+		    <li>Open Access</li>
+		    <li>Open Citations</li>
+		    <li>Fee Free</li>
+		    <li>Non Profit</li>
+		    <li>Open Finances</li>
+		    <li>Academic Editing</li>
+		  </ul>
+		</div>
+	      </div>
+	    </div>
+	    <div class="col-lg-6">
+	      <div class="card mb-2">
+		<div class="card-header">
+		  <h3>Info</h3>
+		</div>
+		<div class="card-body">
+		  <ul>
+		    <li><a href="{% url 'scipost:contact' %}">Contact us</a></li>
+		    <li><a href="{% url 'scipost:about' %}">About SciPost</a></li>
+		    <li><a href="{% url 'scipost:foundation' %}">The Foundation</a></li>
+		    <li><a href="{% url 'careers:jobopenings' %}">Careers&#64;SciPost</a></li>
+		    <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
+		  </ul>
+		</div>
+	      </div>
+
+	      {% if not user.is_authenticated %}
+		<!-- Register -->
+		<div class="card border border-danger">
+		  <div class="card-header">
+		    <h3>Register</h3>
+		  </div>
+		  <div class="card-body">
+		    <p class="mb-1">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
+		  </div><!-- End Register -->
+		</div>
+	      {% endif %}
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
   </div>
+
 {% endblock %}
 
 
 {% block content_footer %}
+
+  <div class="container-fluid text-start secondary pt-4 mt-5 border-top border-primary">
+    <div class="row">
+      <div class="col">
+	<h1 class="title">
+	  News
+	  <button class="btn btn-link btn-sm m-0 mb-1" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</button>
+	</h1>
+      </div>
+      <div class="col">
+	<a href="{% url 'news:news' %}" class="my-1 float-right">See complete News list</a>
+      </div>
+    </div>
+
+    <div class="row g-2">
+      <div class="col-md-6">
+	<div class="card">
+	  <div class="card-header">
+	    <h3>Latest</h3>
+	  </div>
+	  <div class="card-body">
+            <h3><a href="{% url 'news:news' %}#news_{{ latest_newsitem.id }}">{{ latest_newsitem.headline }}</a></h3>
+            <div class="text-muted">{{ latest_newsitem.date|date:'j F Y' }}</div>
+            <p>
+	      {{ latest_newsitem.blurb_short }}
+	      <br>
+	      <br>
+	      <a href="{% url 'news:news' %}#news_{{ latest_newsitem.id }}" class="my-1">Read more &rarr;</a>
+            </p>
+	  </div>
+	</div>
+      </div>
+
+      <div class="col-md-6">
+	<div class="card">
+	  <div class="card-header">
+	    <h3>Further news</h3>
+	  </div>
+	  <div class="card-body">
+	    <div id="further-news" class="sp-swap"
+		 hx-get="{% url 'scipost:_hx_news' %}"
+		 hx-trigger="load"
+		 hx-swap="outerHTML swap:1s"
+	    >
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
   <div class="container-fluid text-start secondary pt-4 mt-5 border-top border-primary">
     <div class="row">
       <div class="col-md-8">
@@ -96,8 +179,8 @@
       <div class="col-md-4">
 	<a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
 	<br>
-	<div id="sponsor-logos"
-	     hx-get="{% url 'scipost:_index_sponsors' %}"
+	<div id="sponsor-logos" class="sp-swap"
+	     hx-get="{% url 'scipost:_hx_sponsors' %}"
 	     hx-trigger="load"
 	     hx-swap="outerHTML swap:1s"
 	>
@@ -107,7 +190,7 @@
 
     <hr>
 
-    <div hx-get="{% url 'scipost:_index_participates_in' %}"
+    <div hx-get="{% url 'scipost:_hx_participates_in' %}"
 	 hx-trigger="load"
     >
     </div>

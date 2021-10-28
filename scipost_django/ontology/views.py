@@ -17,7 +17,7 @@ from guardian.decorators import permission_required
 
 from .models import AcademicField, Specialty, Tag, Topic, RelationAsym
 from .forms import (
-    SessionAcademicFieldForm,
+    SessionAcademicFieldForm, SessionSpecialtyForm,
     SelectTagsForm, SelectLinkedTopicForm,
     AddRelationAsymForm
 )
@@ -31,6 +31,7 @@ def set_session_acad_field(request):
     form = SessionAcademicFieldForm(request.GET or None)
     if form.is_valid():
         request.session['session_acad_field_slug'] = form.cleaned_data['acad_field_slug']
+        request.session['session_specialty_slug'] = ''
     try:
         initial = {
             'acad_field_slug': AcademicField.objects.get(
@@ -45,6 +46,45 @@ def set_session_acad_field(request):
         context={ 'session_acad_field_form': form}
     )
     response['HX-Trigger'] = 'session-acad-field-set'
+    return response
+
+
+def _hx_session_specialty_form(request):
+    """Serve the session Specialty choice form."""
+    context = {
+        'session_specialty_form': SessionSpecialtyForm(
+            acad_field_slug=request.session.get('session_acad_field_slug', None),
+            initial={ 'specialty_slug': request.session.get('session_specialty_slug', None)}
+        )
+    }
+    return render(request, 'ontology/session_specialty_form.html', context)
+
+
+def set_session_specialty(request):
+    """Set the Specialty to be viewed in the current user session."""
+    form = SessionSpecialtyForm(
+        request.GET or None,
+        acad_field_slug=request.session.get('session_acad_field_slug', ''),
+    )
+    if form.is_valid():
+        request.session['session_specialty_slug'] = form.cleaned_data['specialty_slug']
+    try:
+        initial = {
+            'specialty_slug': Specialty.objects.get(
+                slug=request.session['session_specialty_slug']).slug
+        }
+    except (KeyError, Specialty.DoesNotExist):
+        initial = {}
+    form = SessionSpecialtyForm(
+        acad_field_slug=request.session['session_acad_field_slug'],
+        initial=initial
+    )
+    response = render(
+        request,
+        'ontology/session_specialty_form.html',
+        context={ 'session_specialty_form': form}
+    )
+    response['HX-Trigger'] = 'session-specialty-set'
     return response
 
 

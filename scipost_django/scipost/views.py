@@ -163,48 +163,63 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
-        'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        'publications': Publication.objects.published().order_by('-publication_date',
-                                                                 '-paper_nr')[:3],
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
     }
     return render(request, 'scipost/index.html', context)
 
 
-def _index_submissions(request):
+def portal(request):
+    """
+    Academic portal entryway.
+    """
+    if request.GET.get('field', None):
+        request.session['session_acad_field_slug'] = request.GET.get('field', None)
+    request.session['session_specialty_slug'] = ''
+    return render(request, 'scipost/portal.html')
+
+
+def _hx_submissions(request):
     submissions = Submission.objects.public()
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
     if session_acad_field_slug and session_acad_field_slug != 'all':
         submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    if session_specialty_slug:
+        submissions = submissions.filter(specialties__slug=session_specialty_slug)
     context = {
         'submissions': submissions.order_by('-submission_date')[:3],
     }
-    return render(request, 'scipost/_index_submissions.html', context)
+    return render(request, 'scipost/_hx_submissions.html', context)
 
 
-def _index_publications(request):
+def _hx_publications(request):
     publications = Publication.objects.published()
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
     if session_acad_field_slug and session_acad_field_slug != 'all':
         publications = publications.filter(acad_field__slug=session_acad_field_slug)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    if session_specialty_slug:
+        publications = publications.filter(specialties__slug=session_specialty_slug)
     context = {
         'publications': publications.order_by('-publication_date', '-paper_nr')[:3],
     }
-    return render(request, 'scipost/_index_publications.html', context)
+    return render(request, 'scipost/_hx_publications.html', context)
 
 
-def _index_news(request):
+def _hx_news(request):
+    latest_newsitem_id = NewsItem.objects.homepage().order_by('-date').first().id
     context = {
-        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
-        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
+        'news': NewsItem.objects.homepage().exclude(
+            pk=latest_newsitem_id).order_by('?').first(),
     }
-    return render(request, 'scipost/_index_news.html', context)
+    return render(request, 'scipost/_hx_news.html', context)
 
 
-def _index_sponsors(request):
+def _hx_sponsors(request):
     context = {
         'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:1]
     }
-    return render(request, 'scipost/_index_sponsors.html', context)
+    return render(request, 'scipost/_hx_sponsors.html', context)
 
 
 def protected_serve(request, path, show_indexes=False):

@@ -40,6 +40,16 @@ urlpatterns = [
         name='set_session_acad_field'
     ),
     path(
+        '_hx_session_specialty_form',
+        views._hx_session_specialty_form,
+        name='_hx_session_specialty_form'
+    ),
+    path(
+        'set_session_specialty',
+        views.set_session_specialty,
+        name='set_session_specialty'
+    ),
+    path(
         '',
         views.ontology,
         name='ontology'

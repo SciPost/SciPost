@@ -1,5 +1,7 @@
 {% load journals_extras %}
 
+<p class="mb-0 px-3 text-muted">{{ session_acad_field }}{% if session_specialty %}: {{ session_specialty }}{% endif %}</p>
+<hr>
 <ul class="list-group list-group-flush px-3 mb-3">
   {% for publication in publications %}
     <li class="list-group-item py-2">
@@ -26,5 +28,6 @@
     </div>
   </div>
 {% else %}
+  <hr>
   <p class="mb-3 px-3"><a href="{% url 'journals:publications' %}">View all Publications</a></p>
 {% endif %}

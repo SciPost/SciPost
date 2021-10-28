@@ -1,0 +1,52 @@
+{% extends 'scipost/base.html' %}
+
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+
+{% block body_class %}{{ block.super }} homepage{% endblock %}
+
+{% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
+{% block pagetitle %}Homepage{% endblock pagetitle %}
+
+{% block header %}
+  {% include 'scipost/header_with_acad_field_and_spec.html' %}
+{% endblock %}
+
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-md-4">
+      <!-- Latest publications -->
+      <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
+        <div class="card-body pb-0">
+          <h2 class="title mb-3">Latest Publications</h2>
+          <hr class="sm mb-0 mt-2">
+        </div>
+	<div hx-get="{% url 'scipost:_hx_publications' %}"
+	     hx-trigger="load, session-acad-field-set from:body, session-specialty-set from:body"
+	>
+	</div>
+      </div><!-- End latest publications -->
+    </div>
+
+    <div class="col-md-4">
+      <!-- Latest submissions -->
+      <div class="card card-submissions bg-light px-1 mb-2 scipost-bar">
+        <div class="card-body pb-0">
+          <h2 class="title mb-3">Latest Submissions</h2>
+          <hr class="sm mb-0 mt-2">
+        </div>
+	<div hx-get="{% url 'scipost:_hx_submissions' %}"
+	     hx-trigger="load, session-acad-field-set from:body, session-specialty-set from:body"
+	>
+	</div>
+      </div><!-- End latest submissions -->
+    </div>
+
+    <div class="col-md-4">
+    </div>
+
+  </div>
+{% endblock %}

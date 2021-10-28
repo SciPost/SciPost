@@ -25,7 +25,9 @@
   </head>
 
   <body class="{% block body_class %}{% endblock %}">
-    {% include 'scipost/header.html' %}
+    {% block header %}
+      {% include 'scipost/header.html' %}
+    {% endblock header %}
     {% include 'scipost/navbar.html' %}
     {% block breadcrumb %}{% endblock breadcrumb %}
 

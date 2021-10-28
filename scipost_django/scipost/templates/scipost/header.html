@@ -8,16 +8,6 @@
         <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="180" /></a>
       </div>
 
-      <div class="mx-auto my-4 my-lg-auto">
-	<form id="session_acad_field_form"
-	      hx-get="{% url 'ontology:set_session_acad_field' %}"
-	      hx-trigger="change"
-	      hx-swap="outerHTML"
-	>
-	  {% crispy session_acad_field_form %}
-	</form>
-      </div>
-
       <div class="ms-auto me-0 my-4 my-lg-auto">
 	<form id="header-search-form" method="get" action="{% url 'scipost:search' %}">
           <div class="form-floating">
@@ -28,7 +18,10 @@
 	  </div>
 	</form>
       </div>
-
     </div>
+
+    {% block header_sup %}
+    {% endblock header_sup %}
+
   </div>
 </header>

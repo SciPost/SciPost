@@ -1,0 +1,14 @@
+<div id="further-news" class="sp-swap"
+     hx-get="{% url 'scipost:_hx_news' %}"
+     hx-trigger="every 15s"
+     hx-swap="outerHTML swap:1s"
+>
+  <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
+  <div class="text-muted">{{ news.date|date:'j F Y' }}</div>
+  <p>
+    {{ news.blurb_short }}
+    <br>
+    <br>
+    <a href="{% url 'news:news' %}#news_{{ news.id }}" class="my-1">Read more &rarr;</a>
+  </p>
+</div>

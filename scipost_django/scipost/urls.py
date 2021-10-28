@@ -66,35 +66,46 @@ urlpatterns = [
         TemplateView.as_view(template_name='search/search.html'),
         name='search'
     ),
+
+    # Homepage
     path(
         '',
         views.index,
         name='index'
     ),
+
+    # Portal
     path(
-        '_index_publications',
-        views._index_publications,
-        name='_index_publications'
+        'portal',
+        views.portal,
+        name='portal'
+    ),
+
+    # HTMX-delivered fragments
+    path(
+        '_hx_publications',
+        views._hx_publications,
+        name='_hx_publications'
     ),
     path(
-        '_index_submissions',
-        views._index_submissions,
-        name='_index_submissions'
+        '_hx_submissions',
+        views._hx_submissions,
+        name='_hx_submissions'
     ),
     path(
-        '_index_news.html',
-        views._index_news,
-        name='_index_news'
+        '_hx_news.html',
+        views._hx_news,
+        name='_hx_news'
     ),
     path(
-        '_index_participates_in',
-        TemplateView.as_view(template_name='scipost/_index_participates_in.html'),
-        name='_index_participates_in'
+        '_hx_participates_in',
+        TemplateView.as_view(template_name='scipost/_hx_participates_in.html'),
+        name='_hx_participates_in'
     ),
     path(
-        '_index_sponsors',
-        views._index_sponsors,
-        name='_index_sponsors'
+        '_hx_sponsors',
+        views._hx_sponsors,
+        name='_hx_sponsors'
     ),
 
     path(
