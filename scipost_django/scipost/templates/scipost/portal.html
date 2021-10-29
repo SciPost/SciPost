@@ -16,37 +16,43 @@
 
 {% block content %}
 
-  <div class="row">
-    <div class="col-md-4">
-      <!-- Latest publications -->
-      <div class="card card-publications bg-light px-1 mb-2 scipost-bar">
-        <div class="card-body pb-0">
-          <h2 class="title mb-3">Latest Publications</h2>
-          <hr class="sm mb-0 mt-2">
-        </div>
-	<div hx-get="{% url 'scipost:_hx_publications' %}"
-	     hx-trigger="load, session-acad-field-set from:body, session-specialty-set from:body"
-	>
-	</div>
-      </div><!-- End latest publications -->
-    </div>
+  <ul class="nav nav-pills"
+      role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="publications-tab"
+	      data-bs-toggle="tab" data-bs-target="#publications"
+	      type="button" role="tab"
+	      aria-controls="publications" aria-selected="true">
+	Publications
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="submissions-tab"
+	      data-bs-toggle="tab" data-bs-target="#submissions"
+	      type="button" role="tab"
+	      aria-controls="submissions" aria-selected="true">
+	Submissions
+      </button>
+    </li>
+  </ul>
 
-    <div class="col-md-4">
-      <!-- Latest submissions -->
-      <div class="card card-submissions bg-light px-1 mb-2 scipost-bar">
-        <div class="card-body pb-0">
-          <h2 class="title mb-3">Latest Submissions</h2>
-          <hr class="sm mb-0 mt-2">
-        </div>
-	<div hx-get="{% url 'scipost:_hx_submissions' %}"
-	     hx-trigger="load, session-acad-field-set from:body, session-specialty-set from:body"
-	>
-	</div>
-      </div><!-- End latest submissions -->
-    </div>
+  <hr>
 
-    <div class="col-md-4">
+  <div class="tab-content mt-4" id="portalTabContent">
+    <div class="tab-pane fade show active" id="publications"
+	 role="tabpanel" aria-labelledby="publications-tab">
+      <div hx-get="{% url 'scipost:_hx_publications' %}"
+	   hx-trigger="load, clicked from:#publications-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
     </div>
-
+    <div class="tab-pane fade" id="submissions"
+	 role="tabpanel" aria-labelledby="submissions-tab">
+      <div hx-get="{% url 'scipost:_hx_submissions' %}"
+	   hx-trigger="load, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
   </div>
+
 {% endblock %}

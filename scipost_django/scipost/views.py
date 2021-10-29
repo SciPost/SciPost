@@ -178,21 +178,7 @@ def portal(request):
     return render(request, 'scipost/portal.html')
 
 
-def _hx_submissions(request):
-    submissions = Submission.objects.public()
-    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
-    if session_acad_field_slug and session_acad_field_slug != 'all':
-        submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
-    session_specialty_slug = request.session.get('session_specialty_slug', None)
-    if session_specialty_slug:
-        submissions = submissions.filter(specialties__slug=session_specialty_slug)
-    context = {
-        'submissions': submissions.order_by('-submission_date')[:3],
-    }
-    return render(request, 'scipost/_hx_submissions.html', context)
-
-
-def _hx_publications(request):
+def _hx_publications_page(request):
     publications = Publication.objects.published()
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
     if session_acad_field_slug and session_acad_field_slug != 'all':
@@ -200,10 +186,26 @@ def _hx_publications(request):
     session_specialty_slug = request.session.get('session_specialty_slug', None)
     if session_specialty_slug:
         publications = publications.filter(specialties__slug=session_specialty_slug)
-    context = {
-        'publications': publications.order_by('-publication_date', '-paper_nr')[:3],
-    }
-    return render(request, 'scipost/_hx_publications.html', context)
+    paginator = Paginator(publications, 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/_hx_publications_page.html', context)
+
+
+def _hx_submissions_page(request):
+    submissions = Submission.objects.public()
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    if session_acad_field_slug and session_acad_field_slug != 'all':
+        submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    if session_specialty_slug:
+        submissions = submissions.filter(specialties__slug=session_specialty_slug)
+    paginator = Paginator(submissions, 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/_hx_submissions_page.html', context)
 
 
 def _hx_news(request):

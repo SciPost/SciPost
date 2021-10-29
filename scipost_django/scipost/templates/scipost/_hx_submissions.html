@@ -1,20 +1,12 @@
 {% load journals_extras %}
 
-<p class="mb-0 px-3 text-muted">{{ session_acad_field }}{% if session_specialty %}: {{ session_specialty }}{% endif %}</p>
-<hr>
-<ul class="list-group list-group-flush px-3 mb-3">
-  {% for submission in submissions %}
-    <li class="list-group-item py-2">
-      {% include 'submissions/_submission_card_content_homepage.html' with submission=submission %}
-    </li>
-  {% empty %}
-    <li class="list-group-item py-2">
-      No submissions yet
-    </li>
-  {% endfor %}
-</ul>
+<h2 class="mb-0 px-3">Submissions in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
 
-{% if not session_acad_field or session_acad_field.journals.active|length > 0 %}
-  <hr>
-  <p class="mb-3 px-3"><a href="{% url 'submissions:submissions' %}">View all Submissions</a></p>
-{% endif %}
+<hr>
+<div hx-get="{% url 'scipost:_hx_submissions_page' %}?page=1"
+     hx-trigger="load"
+     hx-target="#submissions-list"
+>
+</div>
+<ul id="submissions-list"
+    class="list-group list-group-flush list-unstyled px-3 mb-3"></ul>

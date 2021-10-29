@@ -84,13 +84,23 @@ urlpatterns = [
     # HTMX-delivered fragments
     path(
         '_hx_publications',
-        views._hx_publications,
+        TemplateView.as_view(template_name='scipost/_hx_publications.html'),
         name='_hx_publications'
     ),
     path(
+        '_hx_publications_page',
+        views._hx_publications_page,
+        name='_hx_publications_page'
+    ),
+    path(
         '_hx_submissions',
-        views._hx_submissions,
+        TemplateView.as_view(template_name='scipost/_hx_submissions.html'),
         name='_hx_submissions'
+    ),
+    path(
+        '_hx_submissions_page',
+        views._hx_submissions_page,
+        name='_hx_submissions_page'
     ),
     path(
         '_hx_news.html',

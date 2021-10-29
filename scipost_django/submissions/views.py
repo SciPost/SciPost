@@ -801,7 +801,6 @@ def pool_hx_submissions_list(request):
     paginator = Paginator(submissions, 16)
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)
-    context = { 'submissions': submissions }
     context = { 'page_obj': page_obj }
     return render(request, 'submissions/pool/hx_submissions_list.html', context)
 

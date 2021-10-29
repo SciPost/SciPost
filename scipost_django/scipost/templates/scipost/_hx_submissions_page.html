@@ -1,0 +1,26 @@
+{% for submission in page_obj %}
+  <li class="list-group-item py-2">
+    {% include 'submissions/_submission_card_content_homepage.html' with submission=submission %}
+  </li>
+{% empty %}
+  <li class="list-group-item py-2">
+    No submissions yet
+  </li>
+{% endfor %}
+{% if page_obj.has_next %}
+  <li id="next-submissions-{{ page_obj.number }}">
+    <button class="btn btn-primary m-2" type="button"
+	    hx-get="{% url 'scipost:_hx_submissions_page' %}?page={{ page_obj.next_page_number }}"
+	    hx-target="#next-submissions-{{ page_obj.number }}"
+	    hx-indicator="#indicator-submissions-page-{{ page_obj.number }}"
+    >
+      Load page {{ page_obj.next_page_number }} (out of {{ page_obj.paginator.num_pages }})
+    </button>
+    <span id="indicator-submissions-page-{{ page_obj.number }}" class="htmx-indicator p-2">
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </span>
+  </li>
+{% endif %}

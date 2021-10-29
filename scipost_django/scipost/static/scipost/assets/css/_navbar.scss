@@ -234,7 +234,8 @@ header .nav-item {
 
 #headerSearchInput {
     background-color: $scipost-darkblue;
-    border: 1px solid $scipost-orange;
+    // border: 1px solid $scipost-orange;
+    border: 0px;
     color: $white;
 }
 
@@ -249,6 +250,7 @@ header .nav-item {
 	    border: 2px solid $scipost-lightblue;
 	    border-radius: 2px;
 	    color: $white;
+	    min-width: 16em;
 	}
     }
 }
@@ -264,6 +266,7 @@ header .nav-item {
 	    border: 2px solid $scipost-lightblue;
 	    border-radius: 2px;
 	    color: $white;
+	    min-width: 30rem;
 	}
     }
 }
