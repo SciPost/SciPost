@@ -223,17 +223,25 @@ def _hx_submissions_page(request):
 
 
 def _hx_news(request):
-    latest_newsitem_id = NewsItem.objects.homepage().order_by('-date').first().id
+    if NewsItem.objects.homepage().exists():
+        latest_newsitem_id = NewsItem.objects.homepage().order_by('-date').first().id
+        news = NewsItem.objects.homepage().exclude(
+            pk=latest_newsitem_id).order_by('?').first()
+    else:
+        news = NewsItem.objects.none()
     context = {
-        'news': NewsItem.objects.homepage().exclude(
-            pk=latest_newsitem_id).order_by('?').first(),
+        'news': news
     }
     return render(request, 'scipost/_hx_news.html', context)
 
 
 def _hx_sponsors(request):
+    if Organization.objects.current_sponsors().exists():
+        current_sponsors = Organization.objects.current_sponsors().order_by('?')[:1]
+    else:
+        current_sponsors = Organization.objects.none()
     context = {
-        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:1]
+        'current_sponsors': current_sponsors
     }
     return render(request, 'scipost/_hx_sponsors.html', context)
 
