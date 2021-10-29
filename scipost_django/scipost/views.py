@@ -175,7 +175,7 @@ def portal(request):
     if request.GET.get('field', None):
         request.session['session_acad_field_slug'] = request.GET.get('field', None)
     request.session['session_specialty_slug'] = ''
-    return render(request, 'scipost/portal.html')
+    return render(request, 'scipost/portal/portal.html')
 
 
 def _hx_publications_page(request):
@@ -190,7 +190,7 @@ def _hx_publications_page(request):
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)
     context = { 'page_obj': page_obj }
-    return render(request, 'scipost/_hx_publications_page.html', context)
+    return render(request, 'scipost/portal/_hx_publications_page.html', context)
 
 
 def _hx_submissions_page(request):
@@ -205,7 +205,7 @@ def _hx_submissions_page(request):
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)
     context = { 'page_obj': page_obj }
-    return render(request, 'scipost/_hx_submissions_page.html', context)
+    return render(request, 'scipost/portal/_hx_submissions_page.html', context)
 
 
 def _hx_news(request):

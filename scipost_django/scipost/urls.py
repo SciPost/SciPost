@@ -84,7 +84,7 @@ urlpatterns = [
     # HTMX-delivered fragments
     path(
         '_hx_publications',
-        TemplateView.as_view(template_name='scipost/_hx_publications.html'),
+        TemplateView.as_view(template_name='scipost/portal/_hx_publications.html'),
         name='_hx_publications'
     ),
     path(
@@ -94,7 +94,7 @@ urlpatterns = [
     ),
     path(
         '_hx_submissions',
-        TemplateView.as_view(template_name='scipost/_hx_submissions.html'),
+        TemplateView.as_view(template_name='scipost/portal/_hx_submissions.html'),
         name='_hx_submissions'
     ),
     path(
