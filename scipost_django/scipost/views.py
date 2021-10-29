@@ -176,8 +176,12 @@ def index(request):
 
 def index2(request):
     """Homepage view of SciPost."""
+    if NewsItem.objects.homepage().exists():
+        latest_newsitem = NewsItem.objects.homepage().order_by('-date').first()
+    else:
+        latest_newsitem = NewsItem.objects.none()
     context = {
-        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
+        'latest_newsitem': latest_newsitem
     }
     return render(request, 'scipost/index2.html', context)
 
