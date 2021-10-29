@@ -26,7 +26,7 @@ def ontology_processor(request):
     context['session_acad_field_form'] = SessionAcademicFieldForm(initial=initial_acad_field)
     initial_specialty = {}
     # If AcademicField is set, deal with Specialty
-    if context['session_acad_field']:
+    if 'session_acad_field' in context:
         if request.session.get('session_specialty_slug', None):
             try:
                 context['session_specialty'] = Specialty.objects.get(
