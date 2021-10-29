@@ -12,6 +12,7 @@
     <button class="btn btn-primary m-2" type="button"
 	    hx-get="{% url 'scipost:_hx_publications_page' %}?page={{ page_obj.next_page_number }}"
 	    hx-target="#next-publications-{{ page_obj.number }}"
+	    hx-swap="outerHTML"
 	    hx-indicator="#indicator-publications-page-{{ page_obj.number }}"
     >
       Load page {{ page_obj.next_page_number }} (out of {{ page_obj.paginator.num_pages }})
