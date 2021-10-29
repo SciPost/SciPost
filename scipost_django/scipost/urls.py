@@ -74,6 +74,12 @@ urlpatterns = [
         name='index'
     ),
 
+    path(
+        'home2',
+        views.index2,
+        name='index2'
+    ),
+
     # Portal
     path(
         'portal',

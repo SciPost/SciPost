@@ -107,6 +107,44 @@ li,
 }
 
 
+ul.news-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    h3 {
+        margin: 0.25rem 0;
+
+        a {
+            color: $scipost-darkblue;
+        }
+    }
+
+    li {
+        margin-right: 0.5rem;
+        padding: 0.35rem 0;
+        border-top: 1px solid #bbb;
+
+        &:first-child {
+            border-top: 0;
+        }
+
+        p {
+            max-height: 0;
+            overflow: hidden;
+            padding: 0;
+            margin: 0.5rem 0;
+            transition: max-height 0.3s ease-in-out;
+        }
+
+        &:first-child p,
+        &:hover p {
+            max-height: 1000px;
+        }
+    }
+}
+
+
 ul.communications {
     list-style: none;
     padding: 0;

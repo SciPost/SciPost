@@ -163,9 +163,23 @@ class SearchView(SearchView):
 def index(request):
     """Homepage view of SciPost."""
     context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
+        'submissions': Submission.objects.public().order_by('-submission_date')[:3],
+        # 'journals': Journal.objects.order_by('name'),
+        'publications': Publication.objects.published().order_by('-publication_date',
+                                                                 '-paper_nr')[:3],
+        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
     }
     return render(request, 'scipost/index.html', context)
+
+
+def index2(request):
+    """Homepage view of SciPost."""
+    context = {
+        'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
+    }
+    return render(request, 'scipost/index2.html', context)
 
 
 def portal(request):
