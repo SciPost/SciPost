@@ -10,7 +10,8 @@
 {% if page_obj.has_next %}
   <li id="next-publications-{{ page_obj.number }}">
     <button class="btn btn-primary m-2" type="button"
-	    hx-get="{% url 'scipost:_hx_publications_page' %}?page={{ page_obj.next_page_number }}"
+	    hx-post="{% url 'scipost:portal_hx_publications_page' %}?page={{ page_obj.next_page_number }}"
+	    hx-include="#publications-search-form"
 	    hx-target="#next-publications-{{ page_obj.number }}"
 	    hx-swap="outerHTML"
 	    hx-indicator="#indicator-publications-page-{{ page_obj.number }}"

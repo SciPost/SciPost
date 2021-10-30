@@ -3,12 +3,12 @@
 
 <header class="py-2">
   <div class="container">
-    <div class="d-lg-flex justify-content-between">
+    <div class="d-md-flex justify-content-between">
       <div class="logobox">
         <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="180" /></a>
       </div>
 
-      <div class="ms-auto me-0 my-4 my-lg-auto">
+      <div class="ms-auto me-0 my-4 my-md-auto">
 	<form id="header-search-form" method="get" action="{% url 'scipost:search' %}">
           <div class="form-floating">
             <input type="text" id="headerSearchInput" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}">

@@ -106,7 +106,7 @@
    /* If Proceedings is chosen as Journal, display Proceedings selector */
    document.getElementById("id_submitted_to").addEventListener("change", () => {
        var e = document.getElementById("id_submitted_to")
-       if (e.options[e.selectedIndex].text == 'SciPost Physics Proceedings') {
+       if (e.options[e.selectedIndex].text.includes('Proceedings') {
 	   document.getElementById("row_proceedings").style.display = 'block'
        } else {
 	   document.getElementById("row_proceedings").style.display = 'none'

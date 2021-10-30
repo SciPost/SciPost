@@ -59,6 +59,7 @@ from comments.models import Comment
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
+from journals.forms import PublicationSearchForm
 from mails.utils import DirectMailUtil
 from news.models import NewsItem
 from organizations.decorators import has_contact
@@ -196,14 +197,33 @@ def portal(request):
     return render(request, 'scipost/portal/portal.html')
 
 
-def _hx_publications_page(request):
-    publications = Publication.objects.published()
+def portal_hx_publications(request):
+    form = PublicationSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None)
+    )
+    context = {
+        'publications_search_form': form
+    }
+    return render(request, 'scipost/portal/_hx_publications.html', context)
+
+
+def portal_hx_publications_page(request):
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
-    if session_acad_field_slug and session_acad_field_slug != 'all':
-        publications = publications.filter(acad_field__slug=session_acad_field_slug)
     session_specialty_slug = request.session.get('session_specialty_slug', None)
-    if session_specialty_slug:
-        publications = publications.filter(specialties__slug=session_specialty_slug)
+    form = PublicationSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+    )
+    if form.is_valid():
+        publications = form.search_results()
+    else:
+        publications = Publication.objects.published()
+        if session_acad_field_slug and session_acad_field_slug != 'all':
+            publications = publications.filter(acad_field__slug=session_acad_field_slug)
+        if session_specialty_slug:
+            publications = publications.filter(specialties__slug=session_specialty_slug)
     paginator = Paginator(publications, 10)
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)

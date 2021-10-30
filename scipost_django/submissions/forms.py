@@ -85,8 +85,15 @@ class SubmissionPoolSearchForm(forms.Form):
         queryset=Proceedings.objects.order_by('-submissions_close'),
         required=False
     )
-    author = forms.CharField(max_length=100, required=False, label="Author(s)")
-    title = forms.CharField(max_length=100, required=False)
+    author = forms.CharField(
+        max_length=100,
+        required=False,
+        label="Author(s)"
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False
+    )
     identifier = forms.CharField(
         max_length=128,
         required=False
@@ -189,7 +196,7 @@ class SubmissionPoolSearchForm(forms.Form):
 
     def search_results(self, user):
         """
-        Return all Submission objects according to search.
+        Return all Submission objects fitting search criteria.
         """
         if self.cleaned_data.get('search_set') == 'eic':
             submissions = Submission.objects.filter_for_eic(user)

@@ -86,7 +86,7 @@
 
     <div class="tab-pane fade show active" id="publications"
 	 role="tabpanel" aria-labelledby="publications-tab">
-      <div hx-get="{% url 'scipost:_hx_publications' %}"
+      <div hx-get="{% url 'scipost:portal_hx_publications' %}"
 	   hx-trigger="load, clicked from:#publications-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>

@@ -17,6 +17,9 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from .constants import STATUS_DRAFT, STATUS_PUBLICLY_OPEN,\
@@ -32,12 +35,92 @@ from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
 from organizations.models import Organization
+from proceedings.models import Proceedings
 from production.constants import PROOFS_PUBLISHED
 from production.models import ProductionEvent
 from scipost.forms import RequestFormMixin
 from scipost.services import DOICaller
 from submissions.constants import STATUS_PUBLISHED
 from submissions.models import Submission
+
+
+class PublicationSearchForm(forms.Form):
+    """Simple search form to filter a Publication queryset."""
+
+    author = forms.CharField(
+        max_length=100,
+        required=False,
+        label="Author(s)"
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    doi_label = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    journal = forms.ModelChoiceField(
+        queryset=Journal.objects.all(),
+        required=False
+    )
+    proceedings = forms.ModelChoiceField(
+        queryset=Proceedings.objects.all(),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop('acad_field_slug')
+        self.specialty_slug = kwargs.pop('specialty_slug')
+        super().__init__(*args, **kwargs)
+        if self.acad_field_slug:
+            self.fields['journal'].queryset = Journal.objects.filter(
+                college__acad_field__slug=self.acad_field_slug
+            )
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('author'), css_class="col-lg-6"),
+                Div(FloatingField('title'), css_class="col-lg-6"),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('journal'), css_class="col-lg-6"),
+                Div(FloatingField('doi_label'), css_class="col-lg-6"),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('proceedings'), css_class='col-lg-6'),
+                css_class='row mb-0',
+                css_id='row_proceedings',
+                style='display: none'
+            ),
+        )
+
+    def search_results(self):
+        """
+        Return all public Publication objects fitting search criteria.
+        """
+        publications = Publication.objects.published()
+        if self.acad_field_slug != 'all':
+            publications = publications.filter(acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug:
+                publications = publications.filter(specialties__slug=self.specialty_slug)
+        if self.cleaned_data.get('author'):
+            publications = publications.filter(author_list__icontains=self.cleaned_data.get('author'))
+        if self.cleaned_data.get('title'):
+            publications = publications.filter(title__icontains=self.cleaned_data.get('title'))
+        if self.cleaned_data.get('doi_label'):
+            publications = publications.filter(
+                doi_label__icontains=self.cleaned_data.get('doi_label')
+            )
+        if self.cleaned_data.get('journal'):
+            publications = publications.for_journal(self.cleaned_data.get('journal').name)
+            if self.cleaned_data.get('proceedings'):
+                publications = publications.filter(
+                    in_issue__proceedings=self.cleaned_data.get('proceedings')
+                )
+        return publications
 
 
 class CitationListBibitemsForm(forms.ModelForm):

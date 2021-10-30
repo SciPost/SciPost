@@ -2,8 +2,8 @@
 {% load crispy_forms_tags %}
 
 {% block header_sup %}
-  <div class="d-lg-flex justify-content-center mb-2">
-    <div class="my-4 my-lg-auto">
+  <div class="d-md-flex justify-content-center mb-2">
+    <div class="my-4 my-md-auto">
       <form id="session_acad_field_form"
 	    hx-get="{% url 'ontology:set_session_acad_field' %}"
 	    hx-trigger="change"
@@ -12,7 +12,7 @@
 	{% crispy session_acad_field_form %}
       </form>
     </div>
-    <div class="ms-2 my-4 my-lg-auto"
+    <div class="ms-md-2 my-4 my-md-auto"
 	 hx-get="{% url 'ontology:_hx_session_specialty_form' %}"
 	 hx-trigger="load, session-acad-field-set from:body"
     >
