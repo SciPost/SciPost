@@ -56,6 +56,7 @@ urlpatterns = [
         name='search'
     ),
     url(r'^$', views.index, name='index'),
+    url(r'^home_alt/$', views.index_alt, name='index-alt'),
     url(r'^files/secure/(?P<path>.*)$', views.protected_serve, name='secure_file'),
 
     # General use pages

@@ -1,0 +1,20 @@
+<div class="publication">
+  <h3 class="title"><a href="{{ publication.get_absolute_url }}">{{ publication.title }}</a></h3>
+
+
+  <div class="authors">{{ publication.author_list }}</div>
+
+  <div class="specialties">
+    {% for specialty in publication.specialties.all %}
+      <span>
+        <a href="{% url 'journals:publications' %}?specialty={{ specialty.slug }}" class="muted-link p-1">{{ specialty }}</a>
+        {% if not forloop.last %}&bullet;{% endif %}
+      </span>
+    {% endfor %}
+  </div>
+  <div class="citation">{{ publication.citation }}</div> <span class="">published {{ publication.publication_date|date:'j F Y' }}</span>
+
+  {% for collection in publication.collection_set.all %}
+    <p class="m-1"><em>Part of the <a href="{{ collection.get_absolute_url }}">{{ collection }}</a> Collection in the <a href="{{ collection.series.get_absolute_url }}">{{ collection.series }}</a> Series.</em></p>
+  {% endfor %}
+</div>

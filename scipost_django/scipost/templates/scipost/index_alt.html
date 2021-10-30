@@ -1,0 +1,138 @@
+{% extends 'scipost/base.html' %}
+
+{% block headsup %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+{% endblock headsup %}
+
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+{% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
+
+{% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
+{% block pagetitle %}Homepage{% endblock pagetitle %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <ul class="domains">
+        <li class="active">Physics</li>
+        <li>Chemistry</li>
+        <li>Political Science</li>
+        <li>Mathematics</li>
+        <li>Astronomy</li>
+      </ul>
+
+      <ul class="subdomains">  <li value="phys-ae">Atomic, Molecular and Optical Physics - Experiment</li> <li value="phys-at" class="active">Atomic, Molecular and Optical Physics - Theory</li> <li value="phys-bi">Biophysics</li> <li value="phys-ce">Condensed Matter Physics - Experiment</li> <li value="phys-ct">Condensed Matter Physics - Theory</li> <li value="phys-cc">Condensed Matter Physics - Computational</li> <li value="phys-fd">Fluid Dynamics</li> <li value="phys-gr">Gravitation, Cosmology and Astroparticle Physics</li> <li value="phys-he">High-Energy Physics - Experiment</li> <li value="phys-ht">High-Energy Physics - Theory</li> <li value="phys-hp">High-Energy Physics - Phenomenology</li> <li value="phys-mp">Mathematical Physics</li> <li value="phys-ne">Nuclear Physics - Experiment</li> <li value="phys-nt">Nuclear Physics - Theory</li> <li value="phys-qp">Quantum Physics</li> <li value="phys-sm">Statistical and Soft Matter Physics</li>
+
+      </ul>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+
+      <div class="publications">
+        <ul class="header-list">
+          <li><h2>Journals</h2></li>
+          <li class="active"><h2>Publications</h2></li>
+          <li><h2>Submissions</h2></li>
+          <li><h2>Reports</h2></li>
+          <li><h2>Comments</h2></li>
+        </ul>
+
+        <div class="publication-list">
+            {% for publication in publications %}
+              {% include 'journals/_publication_li_content-alt.html' with publication=publication %}
+            {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+
+      <!-- News -->
+      <div class="news">
+    	  <h2 class="header">News
+    	    <a class="btn btn-link btn-sm" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</a>
+        </h2>
+      	<ul>
+      	  {% for news in news_items %}
+      	    <li>
+              <div class="date">{{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span></div>
+              <div>
+                <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
+                <p>{{ news.blurb_short }}</p>
+              </div>
+      	    </li>
+      	  {% endfor %}
+      	</ul>
+      </div><!-- End news -->
+
+
+      <div>
+        <ul class="link-cloud">
+          <li>About</li>
+          <li>Contact Us</li>
+          <li>The Foundation</li>
+          <li>Careers</li>
+          <li>FAQ</li>
+          <li>News</li>
+          <li>Feeds</li>
+          <li>Our Business model</li>
+          <li>Organizations</li>
+          <li>Sponsors</li>
+          <li>Finances</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}
+
+
+{% block content_footer %}
+    <div class="row">
+      <div class="col-12"><h1 class="header">Sponsors</h1></div>
+      <div class="col-md-8">
+
+	<p>
+	  SciPost guarantees free online access to all publications in all its Journals and does not charge any article processing fees for publishing. Sponsors provide operating funds to SciPost through a cost-slashing consortial model.
+	</p>
+	<p>
+	  We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
+	</p>
+	<p>
+	  <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
+	</p>
+      </div>
+      <div class="col-md-4">
+        <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
+	<br>
+        <ul class="list list-unstyled">
+          {% for sponsor in current_sponsors %}
+            {% if sponsor.logo %}
+              <li class="p-2"><img class="rounded" src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo"></li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+
+    <div class="row">
+      <div class="col-12">
+        <h1 class="header mt-3">SciPost participates in</h1>
+
+          <div class="logos text-center">
+            <a href="//www.crossref.org" target="_blank" rel="noopener"><img src="//assets.crossref.org/logo/crossref-logo-200.svg" width="100" alt="Crossref logo"></a>
+            <a href="//www.doaj.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/doaj_logo_200.jpg' %}" width="90" alt="DOAJ logo"></a>
+            <a href="//www.clockss.org" target="_blank" rel="noopener"><img src="{% static 'scipost/images/clockss_original_logo_boxed_ai-cropped-90.png' %}" width="80" alt="Clockss logo"></a>
+            <a href="//i4oc.org/" target="_blank" rel="noopener"><img width="100" src="{% static 'scipost/images/I4OC.png' %}" alt="I4OC logo"></a>
+            <a href="//freejournals.org" target="_blank" rel="noopener"><img width="100" src="{% static 'scipost/images/FJN-logo-long.png' %}" alt="FJN logo"></a>
+          </div>
+        </div>
+    </div>
+{% endblock %}

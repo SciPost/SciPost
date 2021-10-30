@@ -173,6 +173,21 @@ def index(request):
     return render(request, 'scipost/index.html', context)
 
 
+def index_alt(request):
+    """Homepage view of SciPost."""
+    if not request.user.is_authenticated or not request.user.is_superuser:
+        # Only superusers may get to see secure files without an explicit serve method!
+        raise Http404
+
+    context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
+        'publications': Publication.objects.published().order_by('-publication_date',
+                                                                 '-paper_nr')[:10],
+        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
+    }
+    return render(request, 'scipost/index_alt.html', context)
+
+
 def protected_serve(request, path, show_indexes=False):
     """
     Serve media files from outside the public MEDIA_ROOT folder.
