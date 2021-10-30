@@ -15,16 +15,17 @@
       </p>
     </div>
   </div>
-{% endif %}
 
-<hr>
+  <hr>
+
+{% endif %}
 
 <div class="d-flex justify-content-between">
   <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#publicationsSearch" aria-expanded="false" aria-controls="publicationsSearch">
-    Simple search / filter
+    {% include 'bi/search.html' %}&emsp;Simple search / filter
   </button>
   <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
-    ... or use our advanced search API {% include 'bi/arrow-right.html' %}
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
   </a>
 </div>
 <div class="collapse" id="publicationsSearch">

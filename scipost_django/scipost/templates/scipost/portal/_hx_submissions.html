@@ -4,19 +4,19 @@
 
 <div class="d-flex justify-content-between">
   <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#submissionsSearch" aria-expanded="false" aria-controls="submissionsSearch">
-    Simple search / filter
+    {% include 'bi/search.html' %}&emsp;Simple search / filter
   </button>
   <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
-    ... or use our advanced search API {% include 'bi/arrow-right.html' %}
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
   </a>
 </div>
 <div class="collapse" id="submissionsSearch">
   <div class="card card-body">
     <form
-      hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1"
-	       hx-trigger="load, keyup delay: 500ms, change"
-	       hx-target="#submissions-search-results"
-	       hx-indicator="#indicator-submissions-search"
+	hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1"
+	hx-trigger="load, keyup delay: 500ms, change"
+	hx-target="#submissions-search-results"
+	hx-indicator="#indicator-submissions-search"
     >
       <div id="submissions-search-form">{% crispy submissions_search_form %}</div>
     </form>
