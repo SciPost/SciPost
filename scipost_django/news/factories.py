@@ -14,5 +14,7 @@ class NewsItemFactory(factory.django.DjangoModelFactory):
     date = factory.Faker('date_this_year')
     headline = factory.Faker('sentence')
     blurb = factory.Faker('paragraph', nb_sentences=8)
+    blurb_short = factory.Faker('paragraph', nb_sentences=3)
     followup_link = factory.Faker('uri')
     followup_link_text = factory.Faker('sentence', nb_words=4)
+    published = True

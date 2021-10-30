@@ -79,6 +79,10 @@ urlpatterns = [
         views.index2,
         name='index2'
     ),
+    path(
+        'home_alt',
+        views.index_alt, name='index-alt'
+    ),
 
     # Portal
     path(
