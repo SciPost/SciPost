@@ -94,8 +94,8 @@
 
     <div class="tab-pane fade" id="submissions"
 	 role="tabpanel" aria-labelledby="submissions-tab">
-      <div hx-get="{% url 'scipost:_hx_submissions' %}"
-	   hx-trigger="load, session-acad-field-set from:body, session-specialty-set from:body"
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
+	   hx-trigger="load, clicked from:#submissions-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>
     </div>

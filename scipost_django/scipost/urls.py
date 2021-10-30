@@ -99,14 +99,14 @@ urlpatterns = [
         name='portal_hx_publications_page'
     ),
     path(
-        '_hx_submissions',
-        TemplateView.as_view(template_name='scipost/portal/_hx_submissions.html'),
-        name='_hx_submissions'
+        'portal/_hx_submissions',
+        views.portal_hx_submissions,
+        name='portal_hx_submissions'
     ),
     path(
-        '_hx_submissions_page',
-        views._hx_submissions_page,
-        name='_hx_submissions_page'
+        'portal/_hx_submissions_page',
+        views.portal_hx_submissions_page,
+        name='portal_hx_submissions_page'
     ),
     path(
         '_hx_news.html',

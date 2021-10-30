@@ -65,6 +65,80 @@ FIGSHARE_IDENTIFIER_PATTERN = r'^[0-9]+\.v[0-9]{1,2}$'
 OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 
 
+class SubmissionSearchForm(forms.Form):
+    author = forms.CharField(
+        max_length=100,
+        required=False,
+        label="Author(s)"
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    submitted_to = forms.ModelChoiceField(
+        queryset=Journal.objects.active(),
+        required=False
+    )
+    identifier = forms.CharField(
+        max_length=128,
+        required=False
+    )
+    proceedings = forms.ModelChoiceField(
+        queryset=Proceedings.objects.order_by('-submissions_close'),
+        required=False
+    )
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop('acad_field_slug')
+        self.specialty_slug = kwargs.pop('specialty_slug')
+        super().__init__(*args, **kwargs)
+        if self.acad_field_slug:
+            self.fields['submitted_to'].queryset = Journal.objects.filter(
+                college__acad_field__slug=self.acad_field_slug
+            )
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('author'), css_class='col-lg-6'),
+                Div(FloatingField('title'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('submitted_to'), css_class='col-lg-6'),
+                Div(FloatingField('identifier'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('proceedings'), css_class='col-lg-6'),
+                css_class='row mb-0',
+                css_id='row_proceedings',
+                style='display: none'
+            ),
+        )
+
+    def search_results(self):
+        """
+        Return all Submission objects fitting search criteria.
+        """
+        submissions = Submission.objects.public_newest()
+        if self.acad_field_slug != 'all':
+            submissions = submissions.filter(acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug:
+                submissions = submissions.filter(specialties__slug=self.specialty_slug)
+        if self.cleaned_data.get('submitted_to'):
+            submissions = submissions.filter(submitted_to=self.cleaned_data.get('submitted_to'))
+        if self.cleaned_data.get('proceedings'):
+            submissions = submissions.filter(proceedings=self.cleaned_data.get('proceedings'))
+        if self.cleaned_data.get('author'):
+            submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
+        if self.cleaned_data.get('title'):
+            submissions = submissions.filter(title__icontains=self.cleaned_data.get('title'))
+        if self.cleaned_data.get('identifier'):
+            submissions = submissions.filter(
+                preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get('identifier')
+            )
+        return submissions
+
+
 class SubmissionPoolSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
@@ -265,7 +339,8 @@ class SubmissionPoolSearchForm(forms.Form):
         return submissions
 
 
-class SubmissionSearchForm(forms.Form):
+# Marked for deprecation
+class SubmissionOldSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")

@@ -47,7 +47,7 @@ from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
     SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
     FigsharePrefillForm, OSFPreprintsPrefillForm,
-    SubmissionForm, SubmissionPoolSearchForm, SubmissionSearchForm, RecommendationVoteForm,
+    SubmissionForm, SubmissionPoolSearchForm, SubmissionOldSearchForm, RecommendationVoteForm,
     ConsiderAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
@@ -443,11 +443,12 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
     return render(request, 'submissions/withdraw_manuscript.html', context)
 
 
+# Marked for deprecation
 class SubmissionListView(PaginationMixin, ListView):
     """List all publicly available Submissions."""
 
     model = Submission
-    form = SubmissionSearchForm
+    form = SubmissionOldSearchForm
     submission_search_list = []
     paginate_by = 10
 

@@ -1,12 +1,50 @@
 {% load journals_extras %}
 
-<h2 class="mb-0 px-3">Submissions in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
+{% load crispy_forms_tags %}
 
-<hr>
-<div hx-get="{% url 'scipost:_hx_submissions_page' %}?page=1"
-     hx-trigger="load"
-     hx-target="#submissions-list"
->
+<div class="d-flex justify-content-between">
+  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#submissionsSearch" aria-expanded="false" aria-controls="submissionsSearch">
+    Simple search / filter
+  </button>
+  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
+    ... or use our advanced search API {% include 'bi/arrow-right.html' %}
+  </a>
 </div>
-<ul id="submissions-list"
-    class="list-group list-group-flush list-unstyled px-3 mb-3"></ul>
+<div class="collapse" id="submissionsSearch">
+  <div class="card card-body">
+    <form
+      hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1"
+	       hx-trigger="load, keyup delay: 500ms, change"
+	       hx-target="#submissions-search-results"
+	       hx-indicator="#indicator-submissions-search"
+    >
+      <div id="submissions-search-form">{% crispy submissions_search_form %}</div>
+    </form>
+  </div>
+  <div id="indicator-submissions-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+</div>
+
+<h2 class="highlight mb-0">Submissions in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
+
+<ul id="submissions-search-results" class="list-unstyled pool-list mt-2"></ul>
+
+
+
+{% block footer_script %}
+  <script nonce="{{ requeest.csp_nonce }}">
+    /* If Proceedings is chosen as Journal, display Proceedings selector */
+    document.getElementById("id_submitted_to").addEventListener("change", () => {
+    var e = document.getElementById("id_submitted_to")
+    if (e.options[e.selectedIndex].text.includes('Proceedings')) {
+    document.getElementById("row_proceedings").style.display = 'block'
+    } else {
+    document.getElementById("row_proceedings").style.display = 'none'
+    document.getElementById("id_proceedings").value = null
+    }
+    })
+{% endblock footer_script %}
