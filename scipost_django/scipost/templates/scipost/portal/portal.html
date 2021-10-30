@@ -81,27 +81,30 @@
 
     <div class="tab-pane fade" id="journals"
 	 role="tabpanel" aria-labelledby="journals-tab">
-      Journals
+      <div hx-get="{% url 'scipost:portal_hx_journals' %}"
+	   hx-trigger="click from:#journals-tab, session-acad-field-set[document.getElementById('journals').classList.contains('active')] from:body"
+      >
+      </div>
     </div>
 
     <div class="tab-pane fade show active" id="publications"
 	 role="tabpanel" aria-labelledby="publications-tab">
       <div hx-get="{% url 'scipost:portal_hx_publications' %}"
 	   hx-trigger="load, click from:#publications-tab, session-acad-field-set[document.getElementById('publications').classList.contains('active')] from:body, session-specialty-set[document.getElementById('publications').classList.contains('active')] from:body"
-      >
+	>
+	</div>
       </div>
-    </div>
 
-    <div class="tab-pane fade" id="submissions"
-	 role="tabpanel" aria-labelledby="submissions-tab">
-      <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
-	   hx-trigger="click from:#submissions-tab, session-acad-field-set[document.getElementById('submissions').classList.contains('active')] from:body, session-specialty-set[document.getElementById('submissions').classList.contains('active')] from:body"
-      >
+      <div class="tab-pane fade" id="submissions"
+	   role="tabpanel" aria-labelledby="submissions-tab">
+	<div hx-get="{% url 'scipost:portal_hx_submissions' %}"
+	     hx-trigger="click from:#submissions-tab, session-acad-field-set[document.getElementById('submissions').classList.contains('active')] from:body, session-specialty-set[document.getElementById('submissions').classList.contains('active')] from:body"
+	>
+	</div>
       </div>
-    </div>
 
-    <div class="tab-pane fade" id="reports-needed"
-	 role="tabpanel" aria-labelledby="reports-needed-tab">
+      <div class="tab-pane fade" id="reports-needed"
+	   role="tabpanel" aria-labelledby="reports-needed-tab">
       Reports needed!
     </div>
 

@@ -20,6 +20,8 @@
 
     <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
 
+    <style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
+
     {% block headsup %}
     {% endblock headsup %}
   </head>
