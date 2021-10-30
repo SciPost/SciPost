@@ -56,6 +56,7 @@ from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
+from comments.forms import CommentSearchForm
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
@@ -67,7 +68,7 @@ from organizations.models import Organization, Contact
 from organizations.forms import UpdateContactDataForm
 from profiles.models import Profile
 from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
-from submissions.forms import SubmissionSearchForm
+from submissions.forms import SubmissionSearchForm, ReportSearchForm
 from theses.models import ThesisLink
 
 
@@ -264,6 +265,82 @@ def portal_hx_submissions_page(request):
     page_obj = paginator.get_page(page_nr)
     context = { 'page_obj': page_obj }
     return render(request, 'scipost/portal/_hx_submissions_page.html', context)
+
+
+def portal_hx_reports(request):
+    form = ReportSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None)
+    )
+    context = {
+        'reports_search_form': form
+    }
+    return render(request, 'scipost/portal/_hx_reports.html', context)
+
+
+def portal_hx_reports_page(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    form = ReportSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+    )
+    if form.is_valid():
+        reports = form.search_results()
+    else:
+        reports = Report.objects.accepted()
+    if session_acad_field_slug and session_acad_field_slug != 'all':
+        reports = reports.filter(submission__acad_field__slug=session_acad_field_slug)
+        if session_specialty_slug:
+            reports = reports.filter(submission__specialties__slug=session_specialty_slug)
+    paginator = Paginator(reports, 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/portal/_hx_reports_page.html', context)
+
+
+def portal_hx_comments(request):
+    form = CommentSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None)
+    )
+    context = {
+        'comments_search_form': form
+    }
+    return render(request, 'scipost/portal/_hx_comments.html', context)
+
+
+def portal_hx_comments_page(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    form = CommentSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+    )
+    if form.is_valid():
+        comments = form.search_results()
+    else:
+        comments = Comment.objects.vetted()
+    if session_acad_field_slug and session_acad_field_slug != 'all':
+        comments = comments.filter(
+            Q(submissions__acad_field__slug=session_acad_field_slug) |
+            Q(reports__submission__acad_field__slug=session_acad_field_slug) |
+            Q(commentaries__acad_field__slug=session_acad_field_slug)
+        )
+        if session_specialty_slug:
+            comments = comments.filter(
+                Q(submissions__specialties__slug=session_specialty_slug) |
+                Q(reports__submission__specialties__slug=session_specialty_slug) |
+                Q(commentaries__specialties__slug=session_specialty_slug)
+            )
+    paginator = Paginator(comments.distinct(), 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/portal/_hx_comments_page.html', context)
 
 
 def _hx_news(request):

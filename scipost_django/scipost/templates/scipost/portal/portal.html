@@ -91,31 +91,37 @@
 	 role="tabpanel" aria-labelledby="publications-tab">
       <div hx-get="{% url 'scipost:portal_hx_publications' %}"
 	   hx-trigger="load, click from:#publications-tab, session-acad-field-set[document.getElementById('publications').classList.contains('active')] from:body, session-specialty-set[document.getElementById('publications').classList.contains('active')] from:body"
-	>
-	</div>
+      >
       </div>
+    </div>
 
-      <div class="tab-pane fade" id="submissions"
-	   role="tabpanel" aria-labelledby="submissions-tab">
-	<div hx-get="{% url 'scipost:portal_hx_submissions' %}"
-	     hx-trigger="click from:#submissions-tab, session-acad-field-set[document.getElementById('submissions').classList.contains('active')] from:body, session-specialty-set[document.getElementById('submissions').classList.contains('active')] from:body"
-	>
-	</div>
+    <div class="tab-pane fade" id="submissions"
+	 role="tabpanel" aria-labelledby="submissions-tab">
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
+	   hx-trigger="click from:#submissions-tab, session-acad-field-set[document.getElementById('submissions').classList.contains('active')] from:body, session-specialty-set[document.getElementById('submissions').classList.contains('active')] from:body"
+      >
       </div>
+    </div>
 
-      <div class="tab-pane fade" id="reports-needed"
-	   role="tabpanel" aria-labelledby="reports-needed-tab">
+    <div class="tab-pane fade" id="reports-needed"
+	 role="tabpanel" aria-labelledby="reports-needed-tab">
       Reports needed!
     </div>
 
     <div class="tab-pane fade" id="reports"
 	 role="tabpanel" aria-labelledby="reports-tab">
-      Reports
+      <div hx-get="{% url 'scipost:portal_hx_reports' %}"
+	   hx-trigger="click from:#reports-tab, session-acad-field-set[document.getElementById('reports').classList.contains('active')] from:body, session-specialty-set[document.getElementById('reports').classList.contains('active')] from:body"
+      >
+      </div>
     </div>
 
     <div class="tab-pane fade" id="comments"
 	 role="tabpanel" aria-labelledby="comments-tab">
-      Comments
+      <div hx-get="{% url 'scipost:portal_hx_comments' %}"
+	   hx-trigger="click from:#comments-tab, session-acad-field-set[document.getElementById('comments').classList.contains('active')] from:body, session-specialty-set[document.getElementById('comments').classList.contains('active')] from:body"
+      >
+      </div>
     </div>
 
   </div>

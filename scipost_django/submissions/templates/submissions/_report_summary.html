@@ -1,5 +1,5 @@
 <div class="card-body {% block cardblock_class_block %}{% endblock %}">
-  <h3>{{report.get_status_display}} Report {{report.report_nr}} by {% if report.anonymous %}<em>anonymous</em>{% else %}<a href="{{report.author.get_absolute_url}}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}</h3>
+  <h3>{{ report.get_status_display }} Report {{ report.report_nr }} by {% if report.anonymous %}<em>anonymous</em>{% else %}<a href="{{ report.author.get_absolute_url }}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}</h3>
   <h4>Received: {{ report.date_submitted|date:'Y-n-j' }}</h4>
-  On Submission: <a href="{{report.submission.get_absolute_url}}">{{report.submission}}</a>
+  On Submission: <a href="{{ report.submission.get_absolute_url }}">{{ report.submission }}</a>
 </div>

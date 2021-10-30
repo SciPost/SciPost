@@ -81,6 +81,7 @@ class Comment(TimeStampedModel):
     objects = CommentQuerySet.as_manager()
 
     class Meta:
+        ordering = ['-date_submitted']
         permissions = (
             ('can_vet_comments', 'Can vet submitted Comments'),
         )

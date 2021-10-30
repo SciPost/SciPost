@@ -339,6 +339,35 @@ class SubmissionPoolSearchForm(forms.Form):
         return submissions
 
 
+class ReportSearchForm(forms.Form):
+    submission_title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop('acad_field_slug')
+        self.specialty_slug = kwargs.pop('specialty_slug')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('submission_title'), css_class='col-lg-6'),
+            ),
+        )
+
+    def search_results(self):
+        reports = Report.objects.accepted()
+        if self.acad_field_slug != 'all':
+            reports = reports.filter(submission__acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug:
+                reports = reports.filter(submission__specialties__slug=self.specialty_slug)
+        if self.cleaned_data.get('submission_title'):
+            reports = reports.filter(
+                submission__title__icontains=self.cleaned_data.get('submission_title'))
+        return reports
+
+
 # Marked for deprecation
 class SubmissionOldSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
@@ -382,6 +411,8 @@ class SubmissionPoolFilterForm(forms.Form):
             return dict(SUBMISSION_STATUS)[self.cleaned_data['status']]
         except KeyError:
             return ''
+
+
 
 
 ######################################################################

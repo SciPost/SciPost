@@ -114,6 +114,26 @@ urlpatterns = [
         name='portal_hx_submissions_page'
     ),
     path(
+        'portal/_hx_reports',
+        views.portal_hx_reports,
+        name='portal_hx_reports'
+    ),
+    path(
+        'portal/_hx_reports_page',
+        views.portal_hx_reports_page,
+        name='portal_hx_reports_page'
+    ),
+    path(
+        'portal/_hx_comments',
+        views.portal_hx_comments,
+        name='portal_hx_comments'
+    ),
+    path(
+        'portal/_hx_comments_page',
+        views.portal_hx_comments_page,
+        name='portal_hx_comments_page'
+    ),
+    path(
         '_hx_news',
         views._hx_news,
         name='_hx_news'

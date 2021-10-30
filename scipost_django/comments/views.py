@@ -16,7 +16,7 @@ import strings
 
 from .constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
 from .models import Comment
-from .forms import CommentForm, VetCommentForm, CommentSearchForm
+from .forms import CommentForm, VetCommentForm, CommentTextSearchForm
 from .utils import validate_file_extention
 
 from commentaries.models import Commentary
@@ -28,7 +28,7 @@ from theses.models import ThesisLink
 
 class CommentListView(PaginationMixin, ListView):
     model = Comment
-    form = CommentSearchForm
+    form = CommentTextSearchForm
     paginate_by = 10
     context_object_name = 'comment_list'
 
