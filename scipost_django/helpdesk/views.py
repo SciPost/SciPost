@@ -275,7 +275,6 @@ class TicketFollowupView(UserPassesTestMixin, CreateView):
         bcc_emails = [k['email'] for k in list(queue_managers.all().values('email'))]
         if ticket.assigned_to and ticket.assigned_to.email not in bcc_emails:
             bcc_emails.append(ticket.assigned_to.email)
-        print(bcc_emails)
         mail_sender = DirectMailUtil(
             'helpdesk/followup_on_ticket',
             delayed_processing=False,

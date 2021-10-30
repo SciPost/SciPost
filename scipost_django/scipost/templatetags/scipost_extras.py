@@ -2,6 +2,8 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import random
+
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
@@ -52,6 +54,17 @@ def content_type_id(obj):
     if not obj:
         return None
     return ContentType.objects.get_for_model(obj).id
+
+
+@register.filter(name='increment_dt')
+def increment_dt(dt):
+    try:
+        delta = abs(int(dt))
+        if delta >= 4:
+            return random.randint(delta, int(1.25*delta))
+    except:
+        pass
+    return random.randint(4, 8)
 
 
 #######################

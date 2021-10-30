@@ -17,7 +17,6 @@ def preprint_pdf_wo_vn_nr(request, identifier_wo_vn_nr):
     """
     submissions = get_list_or_404(
         Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr)
-    print(submissions)
     latest = submissions[0].get_latest_version()
     return redirect(reverse(
         'preprints:pdf',

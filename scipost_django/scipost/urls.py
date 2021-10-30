@@ -114,7 +114,7 @@ urlpatterns = [
         name='portal_hx_submissions_page'
     ),
     path(
-        '_hx_news.html',
+        '_hx_news',
         views._hx_news,
         name='_hx_news'
     ),

@@ -210,10 +210,7 @@ def landing_page(request, doi_label):
     The landing page of a Journal lists either the latest and the current issue of a Journal
     or paginates its individual Publications.
     """
-    print(doi_label)
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    print(journal)
-    print(len(Submission.objects.accepted()))
     accepted_submission_ids = [sub.id for sub in Submission.objects.accepted() \
                                if sub.editorial_decision.for_journal==journal]
     context = {

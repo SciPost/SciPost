@@ -430,7 +430,6 @@ class ContactRoleDeleteView(PermissionsMixin, DeleteView):
 def email_contactrole(request, contactrole_id, mail=None):
     contactrole = get_object_or_404(ContactRole, pk=contactrole_id)
 
-    print(f'mail = {mail}')
     suffix = ''
     if mail == 'renewal':
         mail_code = 'org_contacts/contactrole_subsidy_renewal_mail'

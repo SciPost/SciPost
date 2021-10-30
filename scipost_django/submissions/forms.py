@@ -763,7 +763,6 @@ class ChemRxivPrefillForm(SubmissionPrefillForm):
     )
 
     def __init__(self, *args, **kwargs):
-        print(kwargs)
         self.crossref_data = {}
         self.metadata = {}
         super().__init__(*args, **kwargs)

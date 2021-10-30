@@ -185,8 +185,6 @@ class RegistrationInvitationsUpdateView(RequestArgumentMixin, PermissionsMixin, 
 
     def get_mail_config(self):
         config = super().get_mail_config()
-        print('Config', config)
-        print(self.object)
         if self.object.invitation_type == INVITATION_EDITORIAL_FELLOW:
             domain = Site.objects.get_current().domain
             config['from_email'] = f'jscaux@{domain}'
