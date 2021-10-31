@@ -177,6 +177,7 @@ def index(request):
     return render(request, 'scipost/index.html', context)
 
 
+@login_required
 def index2(request):
     """Homepage view of SciPost."""
     if NewsItem.objects.homepage().exists():
@@ -189,6 +190,7 @@ def index2(request):
     return render(request, 'scipost/index2.html', context)
 
 
+@login_required
 def portal(request):
     """
     Academic portal entryway.
@@ -375,11 +377,9 @@ def _hx_sponsors(request):
     return render(request, 'scipost/_hx_sponsors.html', context)
 
 
+@login_required
 def index_alt(request):
     """Homepage view of SciPost."""
-    if not request.user.is_authenticated:
-        raise Http404
-
     context = {
         'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'publications': Publication.objects.published().order_by('-publication_date',
