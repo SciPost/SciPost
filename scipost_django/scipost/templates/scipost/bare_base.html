@@ -30,7 +30,9 @@
     {% block header %}
       {% include 'scipost/header.html' %}
     {% endblock header %}
-    {% include 'scipost/navbar.html' %}
+    {% block navbar %}
+      {% include 'scipost/navbar.html' %}
+    {% endblock navbar %}
     {% block breadcrumb %}{% endblock breadcrumb %}
 
     {% block secondary_navbar %}{% endblock secondary_navbar %}

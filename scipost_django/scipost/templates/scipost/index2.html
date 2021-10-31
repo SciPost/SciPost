@@ -3,6 +3,9 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
+{% block navbar %}
+  {% include 'scipost/navbar2.html' %}
+{% endblock %}
 
 {% block headsup %}
   {{ block.super }}
