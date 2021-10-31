@@ -278,7 +278,7 @@ class Submission(models.Model):
         return timezone.now() > self.reporting_deadline - datetime.timedelta(days=7)
 
     @property
-    def is_open_for_reporting(self):
+    def is_open_for_reporting_within_deadline(self):
         """Check if Submission is open for reporting and within deadlines."""
         return self.open_for_reporting and not self.reporting_deadline_has_passed
 
@@ -320,7 +320,7 @@ class Submission(models.Model):
             return True
 
         # Maybe: Check for unvetted Reports?
-        return self.status == STATUS_EIC_ASSIGNED and self.is_open_for_reporting
+        return self.status == STATUS_EIC_ASSIGNED and self.is_open_for_reporting_within_deadline
 
     @property
     def can_reset_reporting_deadline(self):

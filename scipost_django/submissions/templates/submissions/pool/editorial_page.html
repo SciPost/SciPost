@@ -196,7 +196,7 @@
     <tr id="reporting-deadline">
       <td>Open for refereeing:</td>
       <td>
-        {% if submission.is_open_for_reporting %}
+        {% if submission.is_open_for_reporting_within_deadline %}
           <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
           <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.</span>
         {% else %}
@@ -224,7 +224,7 @@
         {% endif %}
 
         {% if submission.can_reset_reporting_deadline %}
-          {% if submission.is_open_for_reporting %}
+          {% if submission.is_open_for_reporting_within_deadline %}
             <div class="my-1">
               You may extend the refereeing deadline by
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
@@ -354,7 +354,7 @@
             </li>
           {% endif %}
 
-          {% if submission.is_open_for_reporting %}
+          {% if submission.is_open_for_reporting_within_deadline %}
             <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
           {% endif %}
         {% endif %}

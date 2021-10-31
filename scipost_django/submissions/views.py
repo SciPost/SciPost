@@ -1121,7 +1121,7 @@ def select_referee(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    if not submission.is_open_for_reporting:
+    if not submission.is_open_for_reporting_within_deadline:
         txt = (
             'The refereeing deadline has passed. You cannot invite a referee anymore.'
             ' Please, first extend the deadline of the refereeing to invite a referee.')
@@ -1482,12 +1482,12 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
     if form.is_valid():
         Submission.objects.filter(pk=submission.id).update(
             reporting_deadline=form.cleaned_data['deadline'],
-            open_for_reporting=(form.cleaned_data['deadline'] >= timezone.now().date()),
+            open_for_reporting=True,
             latest_activity = timezone.now())
         submission.add_general_event('A new refereeing deadline is set.')
-        messages.success(request, 'New reporting deadline set.')
+        messages.success(request, 'New reporting deadline set to %s.' % submission.reporting_deadline.date())
     else:
-        messages.error(request, 'The deadline has not been set. Please try again.')
+        messages.error(request, 'The deadline has not been set: %s Please try again.' % form.errors)
 
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
@@ -1720,10 +1720,11 @@ def submit_report(request, identifier_w_vn_nr):
                         ' to clarify this.')
     elif not invitation:
         # User is going to contribute a Report. Check deadlines for doing so.
-        if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
-            errormessage = ('The reporting deadline has passed. You cannot submit'
-                            ' a Report anymore.')
-        elif not submission.open_for_reporting:
+        # Allow post-deadline reporting:
+        # if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
+        #     errormessage = ('The reporting deadline has passed. You cannot submit'
+        #                     ' a Report anymore.')
+        if not submission.open_for_reporting:
             errormessage = ('Reporting for this submission has closed. You cannot submit'
                             ' a Report anymore.')
 
