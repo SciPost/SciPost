@@ -47,7 +47,7 @@
     </li>
 
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="reports-needed-tab"
+      <button class="nav-link border border-warning" id="reports-needed-tab"
 	      data-bs-toggle="tab" data-bs-target="#reports-needed"
 	      type="button" role="tab"
 	      aria-controls="reports-needed" aria-selected="true">
@@ -105,7 +105,10 @@
 
     <div class="tab-pane fade" id="reports-needed"
 	 role="tabpanel" aria-labelledby="reports-needed-tab">
-      Reports needed!
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
+	   hx-trigger="click from:#reports-needed-tab, session-acad-field-set[document.getElementById('reports-needed').classList.contains('active')] from:body, session-specialty-set[document.getElementById('reports-needed').classList.contains('active')] from:body"
+      >
+      </div>
     </div>
 
     <div class="tab-pane fade" id="reports"

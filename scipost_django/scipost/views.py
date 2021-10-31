@@ -234,12 +234,15 @@ def portal_hx_publications_page(request):
 
 
 def portal_hx_submissions(request):
+    reports_needed = request.GET.get('reports_needed', False)
     form = SubmissionSearchForm(
         acad_field_slug=request.session.get('session_acad_field_slug', None),
-        specialty_slug=request.session.get('session_specialty_slug', None)
+        specialty_slug=request.session.get('session_specialty_slug', None),
+        reports_needed=reports_needed
     )
     context = {
-        'submissions_search_form': form
+        'submissions_search_form': form,
+        'reports_needed': reports_needed
     }
     return render(request, 'scipost/portal/_hx_submissions.html', context)
 
@@ -247,10 +250,12 @@ def portal_hx_submissions(request):
 def portal_hx_submissions_page(request):
     session_acad_field_slug = request.session.get('session_acad_field_slug', None)
     session_specialty_slug = request.session.get('session_specialty_slug', None)
+    reports_needed = request.GET.get('reports_needed', False)
     form = SubmissionSearchForm(
         request.POST or None,
         acad_field_slug=session_acad_field_slug,
         specialty_slug=session_specialty_slug,
+        reports_needed=reports_needed
     )
     if form.is_valid():
         submissions = form.search_results()
@@ -263,7 +268,10 @@ def portal_hx_submissions_page(request):
     paginator = Paginator(submissions, 10)
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)
-    context = { 'page_obj': page_obj }
+    context = {
+        'page_obj': page_obj,
+        'reports_needed': reports_needed
+    }
     return render(request, 'scipost/portal/_hx_submissions_page.html', context)
 
 

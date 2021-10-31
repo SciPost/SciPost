@@ -1,0 +1,66 @@
+{% load journals_extras %}
+
+{% load crispy_forms_tags %}
+
+<div class="d-flex justify-content-between">
+  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#{{ name }}Search" aria-expanded="false" aria-controls="{{ name }}Search">
+    {% include 'bi/search.html' %}&emsp;Simple search / filter
+  </button>
+  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
+  </a>
+</div>
+<div class="collapse" id="{{ name }}Search">
+  <div class="card card-body">
+    <form
+	hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1{% if reports_needed %}&reports_needed=1{% endif %}"
+	hx-trigger="load, keyup delay: 500ms, change"
+	hx-target="#{{ name }}-search-results"
+	hx-indicator="#indicator-{{ name }}-search"
+    >
+      <div id="{{ name }}-search-form">{% crispy form %}</div>
+    </form>
+  </div>
+  <div id="indicator-{{ name }}-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+</div>
+
+<h2 class="highlight mb-0">Submissions in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
+
+{% if reports_needed %}
+  <div class="card m-2 border-2 text-center">
+    <div class="card-header m-0 p-0">
+      <h2 class="m-0 p-2 text-white bg-danger">
+	{% include 'bi/alarm-fill.html' %}&nbsp;Reports are needed on these Submissions
+      </h2>
+    </div>
+    <div class="card-body">
+      <h3>Please consider contributing a Report so we can minimize delays in editorial processing.</h3>
+      <p>To do so, please navigate to the Submission's page and click on the <strong>Contribute a Report</strong> link {% if not user.is_authenticated %}(login required){% endif %}
+    </div>
+  </div>
+
+  <hr>
+{% endif %}
+
+<ul id="{{ name }}-search-results" class="list-unstyled pool-list mt-2"></ul>
+
+
+
+{% block footer_script %}
+  <script nonce="{{ requeest.csp_nonce }}">
+    /* If Proceedings is chosen as Journal, display Proceedings selector */
+    document.getElementById("id_submitted_to").addEventListener("change", () => {
+    var e = document.getElementById("id_submitted_to")
+    if (e.options[e.selectedIndex].text.includes('Proceedings')) {
+    document.getElementById("row_proceedings").style.display = 'block'
+    } else {
+    document.getElementById("row_proceedings").style.display = 'none'
+    document.getElementById("id_proceedings").value = null
+    }
+    })
+{% endblock footer_script %}

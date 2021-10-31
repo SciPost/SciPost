@@ -90,6 +90,7 @@ class SubmissionSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.acad_field_slug = kwargs.pop('acad_field_slug')
         self.specialty_slug = kwargs.pop('specialty_slug')
+        self.reports_needed = kwargs.pop('reports_needed')
         super().__init__(*args, **kwargs)
         if self.acad_field_slug:
             self.fields['submitted_to'].queryset = Journal.objects.filter(
@@ -136,6 +137,9 @@ class SubmissionSearchForm(forms.Form):
             submissions = submissions.filter(
                 preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get('identifier')
             )
+        if self.reports_needed:
+            submissions = submissions.actively_refereeing(
+            ).open_for_reporting().order_by('submission_date')
         return submissions
 
 

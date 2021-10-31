@@ -1,50 +1,7 @@
-{% load journals_extras %}
-
 {% load crispy_forms_tags %}
 
-<div class="d-flex justify-content-between">
-  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#submissionsSearch" aria-expanded="false" aria-controls="submissionsSearch">
-    {% include 'bi/search.html' %}&emsp;Simple search / filter
-  </button>
-  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
-    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
-  </a>
-</div>
-<div class="collapse" id="submissionsSearch">
-  <div class="card card-body">
-    <form
-	hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1"
-	hx-trigger="load, keyup delay: 500ms, change"
-	hx-target="#submissions-search-results"
-	hx-indicator="#indicator-submissions-search"
-    >
-      <div id="submissions-search-form">{% crispy submissions_search_form %}</div>
-    </form>
-  </div>
-  <div id="indicator-submissions-search" class="htmx-indicator p-2">
-    <button class="btn btn-warning" type="button" disabled>
-      <strong>Loading...</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-    </button>
-  </div>
-</div>
-
-<h2 class="highlight mb-0">Submissions in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
-
-<ul id="submissions-search-results" class="list-unstyled pool-list mt-2"></ul>
-
-
-
-{% block footer_script %}
-  <script nonce="{{ requeest.csp_nonce }}">
-    /* If Proceedings is chosen as Journal, display Proceedings selector */
-    document.getElementById("id_submitted_to").addEventListener("change", () => {
-    var e = document.getElementById("id_submitted_to")
-    if (e.options[e.selectedIndex].text.includes('Proceedings')) {
-    document.getElementById("row_proceedings").style.display = 'block'
-    } else {
-    document.getElementById("row_proceedings").style.display = 'none'
-    document.getElementById("id_proceedings").value = null
-    }
-    })
-{% endblock footer_script %}
+{% if reports_needed %}
+  {% include 'scipost/portal/_hx_submissions_base.html' with form=submissions_search_form name='reports_needed' reports_needed=reports_needed %}
+{% else %}
+  {% include 'scipost/portal/_hx_submissions_base.html' with form=submissions_search_form name='submissions' reports_needed=reports_needed %}
+{% endif %}
