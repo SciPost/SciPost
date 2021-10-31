@@ -54,7 +54,7 @@
 
 
 {% block footer_script %}
-  <script nonce="{{ requeest.csp_nonce }}">
+  <script nonce="{{ request.csp_nonce }}">
     /* If Proceedings is chosen as Journal, display Proceedings selector */
     document.getElementById("id_journal").addEventListener("change", () => {
     var e = document.getElementById("id_journal")

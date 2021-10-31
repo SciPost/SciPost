@@ -1,5 +1,18 @@
 {% extends 'scipost/base.html' %}
 
+{% block headsup %}
+
+  <script nonce="{{ request.csp_nonce }}">
+    function isElementByIdActive(id)  {
+    if (e = document.getElementById(id)) {
+    return e.classList.contains('active')
+    }
+    return false
+    }
+  </script>
+
+{% endblock headsup %}
+
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
@@ -85,7 +98,7 @@
     <div class="tab-pane fade" id="journals"
 	 role="tabpanel" aria-labelledby="journals-tab">
       <div hx-get="{% url 'scipost:portal_hx_journals' %}"
-	   hx-trigger="click from:#journals-tab, session-acad-field-set[document.getElementById('journals').classList.contains('active')] from:body"
+	   hx-trigger="click from:#journals-tab, session-acad-field-set[isElementByIdActive('journals')] from:body"
       >
       </div>
     </div>
@@ -93,7 +106,7 @@
     <div class="tab-pane fade show active" id="publications"
 	 role="tabpanel" aria-labelledby="publications-tab">
       <div hx-get="{% url 'scipost:portal_hx_publications' %}"
-	   hx-trigger="load, click from:#publications-tab, session-acad-field-set[document.getElementById('publications').classList.contains('active')] from:body, session-specialty-set[document.getElementById('publications').classList.contains('active')] from:body"
+	   hx-trigger="load, click from:#publications-tab, session-acad-field-set[isElementByIdActive('publications')] from:body, session-specialty-set[isElementByIdActive('publications')] from:body"
       >
       </div>
     </div>
@@ -101,7 +114,7 @@
     <div class="tab-pane fade" id="submissions"
 	 role="tabpanel" aria-labelledby="submissions-tab">
       <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
-	   hx-trigger="click from:#submissions-tab, session-acad-field-set[document.getElementById('submissions').classList.contains('active')] from:body, session-specialty-set[document.getElementById('submissions').classList.contains('active')] from:body"
+	   hx-trigger="click from:#submissions-tab, session-acad-field-set[isElementByIdActive('submissions')] from:body, session-specialty-set[isElementByIdActive('submissions')] from:body"
       >
       </div>
     </div>
@@ -109,7 +122,7 @@
     <div class="tab-pane fade" id="reports-needed"
 	 role="tabpanel" aria-labelledby="reports-needed-tab">
       <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
-	   hx-trigger="click from:#reports-needed-tab, session-acad-field-set[document.getElementById('reports-needed').classList.contains('active')] from:body, session-specialty-set[document.getElementById('reports-needed').classList.contains('active')] from:body"
+	   hx-trigger="click from:#reports-needed-tab, session-acad-field-set[isElementByIdActive('reports-needed')] from:body, session-specialty-set[isElementByIdActive('reports-needed')] from:body"
       >
       </div>
     </div>
@@ -117,7 +130,7 @@
     <div class="tab-pane fade" id="reports"
 	 role="tabpanel" aria-labelledby="reports-tab">
       <div hx-get="{% url 'scipost:portal_hx_reports' %}"
-	   hx-trigger="click from:#reports-tab, session-acad-field-set[document.getElementById('reports').classList.contains('active')] from:body, session-specialty-set[document.getElementById('reports').classList.contains('active')] from:body"
+	   hx-trigger="click from:#reports-tab, session-acad-field-set[isElementByIdActive('reports')] from:body, session-specialty-set[isElementByIdActive('reports')] from:body"
       >
       </div>
     </div>
@@ -125,7 +138,7 @@
     <div class="tab-pane fade" id="comments"
 	 role="tabpanel" aria-labelledby="comments-tab">
       <div hx-get="{% url 'scipost:portal_hx_comments' %}"
-	   hx-trigger="click from:#comments-tab, session-acad-field-set[document.getElementById('comments').classList.contains('active')] from:body, session-specialty-set[document.getElementById('comments').classList.contains('active')] from:body"
+	   hx-trigger="click from:#comments-tab, session-acad-field-set[isElementByIdActive('comments')] from:body, session-specialty-set[isElementByIdActive('comments')] from:body"
       >
       </div>
     </div>

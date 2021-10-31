@@ -25,9 +25,10 @@
         </li>
 
 	<li class="nav-item{% if 'portal' in request.path %} active{% endif %}">
-          <a href="{% url 'scipost:portal' %}" class="nav-link" aria-label="Portal">
+          <a href="{% url 'scipost:portal' %}" class="nav-link" aria-label="Portal"
+	  data-bs-toggle="tooltip" title="Academic Portal">
             <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/person-workspace.html' %}</span>
-            <span class="d-lg-none d-inline-block">Academic portal</span>
+            <span class="d-lg-none d-inline-block">Academic Portal</span>
           </a>
         </li>
 
