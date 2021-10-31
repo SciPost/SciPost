@@ -377,8 +377,7 @@ def _hx_sponsors(request):
 
 def index_alt(request):
     """Homepage view of SciPost."""
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        # Only superusers may get to see secure files without an explicit serve method!
+    if not request.user.is_authenticated:
         raise Http404
 
     context = {
