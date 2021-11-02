@@ -10,8 +10,6 @@
       {% render_bundle 'base' %}
     {% endblock basebundle %}
 
-    <script src="https://unpkg.com/htmx.org@1.6.0" integrity="sha384-G4dtlRlMBrk5fEiRXDsLjriPo8Qk5ZeHVVxS8KhX6D7I9XXJlNqbdvRlp9/glk5D" crossorigin="anonymous"></script>
-
     <link rel="shortcut icon" href="{% static 'scipost/images/scipost_favicon.png' %}"/>
 
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -43,7 +41,7 @@
 
 
     <div class="backdrop" id="backdrop"></div>
-    <script src="{% static 'scipost/mathjax-config.js' %}"></script>
+    <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/mathjax-config.js' %}"></script>
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
 
     {% block footer_script %}

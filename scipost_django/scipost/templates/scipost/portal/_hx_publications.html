@@ -1,3 +1,4 @@
+{% load static %}
 {% load journals_extras %}
 
 {% load crispy_forms_tags %}
@@ -32,7 +33,7 @@
   <div class="card card-body">
     <form
 	hx-post="{% url 'scipost:portal_hx_publications_page' %}?page=1"
-	hx-trigger="load, keyup delay: 500ms, change"
+	hx-trigger="load, keyup delay:500ms, change"
 	hx-target="#publications-search-results"
 	hx-indicator="#indicator-publications-search"
     >
@@ -54,16 +55,6 @@
 
 
 {% block footer_script %}
-  <script nonce="{{ request.csp_nonce }}">
-    /* If Proceedings is chosen as Journal, display Proceedings selector */
-    document.getElementById("id_journal").addEventListener("change", () => {
-    var e = document.getElementById("id_journal")
-    if (e.options[e.selectedIndex].text.includes('Proceedings')) {
-    document.getElementById("row_proceedings").style.display = 'block'
-    } else {
-    document.getElementById("row_proceedings").style.display = 'none'
-    document.getElementById("id_proceedings").value = null
-    }
-    })
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
   </script>
 {% endblock footer_script %}

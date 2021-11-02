@@ -1,17 +1,5 @@
 {% extends 'scipost/base.html' %}
-
-{% block headsup %}
-
-  <script nonce="{{ request.csp_nonce }}">
-    function isElementByIdActive(id)  {
-    if (e = document.getElementById(id)) {
-    return e.classList.contains('active')
-    }
-    return false
-    }
-  </script>
-
-{% endblock headsup %}
+{% load static %}
 
 {% load render_bundle from webpack_loader %}
 {% load static %}
@@ -95,50 +83,50 @@
 
   <div class="tab-content mt-4" id="portalTabContent">
 
-    <div class="tab-pane fade" id="journals"
+    <div class="tab-pane portal-tab fade" id="journals"
 	 role="tabpanel" aria-labelledby="journals-tab">
       <div hx-get="{% url 'scipost:portal_hx_journals' %}"
-	   hx-trigger="click from:#journals-tab, session-acad-field-set[isElementByIdActive('journals')] from:body"
+	   hx-trigger="click delay:200ms from:#journals-tab, session-acad-field-set from:body"
       >
       </div>
     </div>
 
-    <div class="tab-pane fade show active" id="publications"
+    <div class="tab-pane portal-tab fade show active" id="publications"
 	 role="tabpanel" aria-labelledby="publications-tab">
       <div hx-get="{% url 'scipost:portal_hx_publications' %}"
-	   hx-trigger="load, click from:#publications-tab, session-acad-field-set[isElementByIdActive('publications')] from:body, session-specialty-set[isElementByIdActive('publications')] from:body"
+	   hx-trigger="load, click delay:200ms from:#publications-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>
     </div>
 
-    <div class="tab-pane fade" id="submissions"
+    <div class="tab-pane portal-tab fade" id="submissions"
 	 role="tabpanel" aria-labelledby="submissions-tab">
       <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
-	   hx-trigger="click from:#submissions-tab, session-acad-field-set[isElementByIdActive('submissions')] from:body, session-specialty-set[isElementByIdActive('submissions')] from:body"
+	   hx-trigger="click delay:200ms from:#submissions-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>
     </div>
 
-    <div class="tab-pane fade" id="reports-needed"
+    <div class="tab-pane portal-tab fade" id="reports-needed"
 	 role="tabpanel" aria-labelledby="reports-needed-tab">
       <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
-	   hx-trigger="click from:#reports-needed-tab, session-acad-field-set[isElementByIdActive('reports-needed')] from:body, session-specialty-set[isElementByIdActive('reports-needed')] from:body"
+	   hx-trigger="click delay:200ms from:#reports-needed-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>
     </div>
 
-    <div class="tab-pane fade" id="reports"
+    <div class="tab-pane portal-tab fade" id="reports"
 	 role="tabpanel" aria-labelledby="reports-tab">
       <div hx-get="{% url 'scipost:portal_hx_reports' %}"
-	   hx-trigger="click from:#reports-tab, session-acad-field-set[isElementByIdActive('reports')] from:body, session-specialty-set[isElementByIdActive('reports')] from:body"
+	   hx-trigger="click delay:200ms from:#reports-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>
     </div>
 
-    <div class="tab-pane fade" id="comments"
+    <div class="tab-pane portal-tab fade" id="comments"
 	 role="tabpanel" aria-labelledby="comments-tab">
       <div hx-get="{% url 'scipost:portal_hx_comments' %}"
-	   hx-trigger="click from:#comments-tab, session-acad-field-set[isElementByIdActive('comments')] from:body, session-specialty-set[isElementByIdActive('comments')] from:body"
+	   hx-trigger="click delay:200ms from:#comments-tab, session-acad-field-set from:body, session-specialty-set from:body"
       >
       </div>
     </div>
@@ -146,3 +134,9 @@
   </div>
 
 {% endblock %}
+
+{% block footer_script %}
+  {{ block.super }}
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
+  </script>
+{% endblock footer_script %}

@@ -12,7 +12,7 @@
   <div class="card card-body">
     <form
       hx-post="{% url 'scipost:portal_hx_reports_page' %}?page=1"
-	       hx-trigger="load, keyup delay: 500ms, change"
+	       hx-trigger="load, keyup delay:500ms, change"
 	       hx-target="#reports-search-results"
 	       hx-indicator="#indicator-reports-search"
     >

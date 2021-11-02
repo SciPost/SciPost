@@ -11,10 +11,10 @@
 <div class="collapse" id="commentsSearch">
   <div class="card card-body">
     <form
-	hx-post="{% url 'scipost:portal_hx_comments_page' %}?page=1"
-	hx-trigger="load, keyup delay: 500ms, change"
-	hx-target="#comments-search-results"
-	hx-indicator="#indicator-comments-search"
+      hx-post="{% url 'scipost:portal_hx_comments_page' %}?page=1"
+	       hx-trigger="load, keyup delay:500ms, change"
+	       hx-target="#comments-search-results"
+	       hx-indicator="#indicator-comments-search"
     >
       <div id="comments-search-form">{% crispy comments_search_form %}</div>
     </form>

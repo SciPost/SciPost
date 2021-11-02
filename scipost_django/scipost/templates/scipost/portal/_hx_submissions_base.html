@@ -14,7 +14,7 @@
   <div class="card card-body">
     <form
 	hx-post="{% url 'scipost:portal_hx_submissions_page' %}?page=1{% if reports_needed %}&reports_needed=1{% endif %}"
-	hx-trigger="load, keyup delay: 500ms, change"
+	hx-trigger="load, keyup delay:500ms, change"
 	hx-target="#{{ name }}-search-results"
 	hx-indicator="#indicator-{{ name }}-search"
     >
@@ -48,20 +48,3 @@
 {% endif %}
 
 <ul id="{{ name }}-search-results" class="list-unstyled pool-list mt-2"></ul>
-
-
-
-{% block footer_script %}
-  <script nonce="{{ request.csp_nonce }}">
-    /* If Proceedings is chosen as Journal, display Proceedings selector */
-    document.getElementById("id_submitted_to").addEventListener("change", () => {
-    var e = document.getElementById("id_submitted_to")
-    if (e.options[e.selectedIndex].text.includes('Proceedings')) {
-    document.getElementById("row_proceedings").style.display = 'block'
-    } else {
-    document.getElementById("row_proceedings").style.display = 'none'
-    document.getElementById("id_proceedings").value = null
-    }
-    })
-  </script>
-{% endblock footer_script %}

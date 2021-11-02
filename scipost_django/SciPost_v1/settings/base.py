@@ -237,7 +237,7 @@ CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org',
                'www.paypalobjects.com')
-CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
+CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'", "'unsafe-inline'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
                   'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org',
