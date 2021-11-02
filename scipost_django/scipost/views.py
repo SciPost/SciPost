@@ -201,6 +201,17 @@ def portal(request):
     return render(request, 'scipost/portal/portal.html')
 
 
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def portal2p2(request):
+    """
+    Academic portal entryway.
+    """
+    if request.GET.get('field', None):
+        request.session['session_acad_field_slug'] = request.GET.get('field', None)
+    request.session['session_specialty_slug'] = ''
+    return render(request, 'scipost/portal/portal2p2.html')
+
+
 def portal_hx_publications(request):
     form = PublicationSearchForm(
         acad_field_slug=request.session.get('session_acad_field_slug', None),
