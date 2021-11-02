@@ -17,6 +17,26 @@
     <div class="collapse navbar-collapse mt-lg-0 mt-3" id="main-navbar">
       <ul class="navbar-nav me-auto">
 
+	{% if perms.scipost.can_preview_new_features %}
+	  <li class="nav-item dropdown border border-warning">
+            <a class="nav-link dropdown-toggle" href="#" id="HomepagesDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
+              <span class="d-none d-lg-inline-block text-warning" aria-hidden="true" style="min-width: 16px;">{% include 'bi/house-fill.html' %}</span>
+              <span class="d-lg-none d-inline-block text-warning">Homepages</span>
+	    </a>
+	    <div class="dropdown-menu" aria-labelledby="HomepagesDropdown">
+	      <div class="dropdown-item">
+		<a href="{% url 'scipost:index' %}">Current homepage</a>
+	      </div>
+	      <div class="dropdown-item">
+		<a href="{% url 'scipost:index2' %}">2: home + portal</a>
+	      </div>
+	      <div class="dropdown-item">
+		<a href="{% url 'scipost:index3' %}">3: homepage, restyled</a>
+	      </div>
+	    </div>
+	  </li>
+	{% endif %}
+
         <li class="nav-item{% if request.path == '/home2' %} active{% endif %}">
           <a href="{% url 'scipost:index2' %}" class="nav-link" aria-label="SciPost Home">
             <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/house-fill.html' %}</span>

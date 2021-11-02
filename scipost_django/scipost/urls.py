@@ -80,8 +80,8 @@ urlpatterns = [
         name='index2'
     ),
     path(
-        'home_alt',
-        views.index_alt, name='index-alt'
+        'home3',
+        views.index3, name='index3'
     ),
 
     # Portal

@@ -177,7 +177,7 @@ def index(request):
     return render(request, 'scipost/index.html', context)
 
 
-@login_required
+@permission_required('scipost.can_preview_new_features', return_403=True)
 def index2(request):
     """Homepage view of SciPost."""
     if NewsItem.objects.homepage().exists():
@@ -190,7 +190,7 @@ def index2(request):
     return render(request, 'scipost/index2.html', context)
 
 
-@login_required
+@permission_required('scipost.can_preview_new_features', return_403=True)
 def portal(request):
     """
     Academic portal entryway.
@@ -377,8 +377,8 @@ def _hx_sponsors(request):
     return render(request, 'scipost/_hx_sponsors.html', context)
 
 
-@login_required
-def index_alt(request):
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def index3(request):
     """Homepage view of SciPost."""
     context = {
         'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
@@ -386,7 +386,7 @@ def index_alt(request):
                                                                  '-paper_nr')[:10],
         'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
     }
-    return render(request, 'scipost/index_alt.html', context)
+    return render(request, 'scipost/index3.html', context)
 
 
 def protected_serve(request, path, show_indexes=False):
