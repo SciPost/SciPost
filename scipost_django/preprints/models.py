@@ -51,10 +51,10 @@ class Preprint(models.Model):
         """
         Retrieve the preprint document itself, calling preprint server if necessary.
         """
-        url = self.get_absolute_url()
-        if url[0] == '/': # SciPost-hosted,
+        if self._file:  # SciPost-hosted,
             # return file directly since the url isn't yet publicly accessible
             return self._file.read()
+        url = self.citation_pdf_url
         response = requests.get(url)
         if response.status_code != 200:
             raise PreprintDocumentNotFoundError(url)
@@ -66,7 +66,7 @@ class Preprint(models.Model):
         if self._file: # means this is a SciPost-hosted preprint
             return "https://%s%s" % (Site.objects.get_current().domain, self.get_absolute_url())
         elif self.is_arXiv:
-            return self.get_absolute_url().replace("/abs/", "/pdf/")
+            return '%s.pdf' % self.get_absolute_url().replace("/abs/", "/pdf/")
         else:
             return self.get_absolute_url()
 
