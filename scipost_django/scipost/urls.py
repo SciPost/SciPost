@@ -83,6 +83,10 @@ urlpatterns = [
         'home3',
         views.index3, name='index3'
     ),
+    path(
+        'home4',
+        views.index4, name='index4'
+    ),
 
     # Portal
     path(
@@ -97,6 +101,11 @@ urlpatterns = [
     ),
 
     # HTMX-delivered fragments
+    path(
+        'portal/_hx_home',
+        views.portal_hx_home,
+        name='portal_hx_home'
+    ),
     path(
         'portal/_hx_journals',
         TemplateView.as_view(template_name='scipost/portal/_hx_journals.html'),

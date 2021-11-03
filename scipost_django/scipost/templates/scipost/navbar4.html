@@ -41,76 +41,11 @@
 	  </li>
 	{% endif %}
 
-        <li class="nav-item{% if request.path == '/home2' %} active{% endif %}">
+        <li class="nav-item{% if request.path == '/home4' %} active{% endif %}">
           <a href="{% url 'scipost:index2' %}" class="nav-link" aria-label="SciPost Home">
             <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/house-fill.html' %}</span>
             <span class="d-lg-none d-inline-block">Home</span>
           </a>
-        </li>
-
-	<li class="nav-item{% if 'portal' in request.path %} active{% endif %}">
-          <a href="{% url 'scipost:portal' %}" class="nav-link" aria-label="Portal"
-	  data-bs-toggle="tooltip" title="Academic Portal">
-            <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/person-workspace.html' %}</span>
-            <span class="d-lg-none d-inline-block">Academic Portal</span>
-          </a>
-        </li>
-
-
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="AboutDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
-            <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/question-square.html' %}</span>
-            <span class="d-lg-none d-inline-block">About Scipost</span>
-	  </a>
-          <div class="dropdown-menu" aria-labelledby="AboutDropdown">
-	    <div class="dropdown-item">
-	      <a href="{% url 'scipost:contact' %}">Contact us</a>
-	    </div>
-            <div class="dropdown-item">
-              <a href="{% url 'scipost:about' %}">About SciPost</a>
-            </div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'scipost:foundation' %}">The Foundation</a>
-            </div>
-
-            <div class="dropdown-item">
-	      <a href="{% url 'careers:jobopenings' %}">Careers&#64;SciPost</a>
-            </div>
-
-            <div class="dropdown-divider"></div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'scipost:FAQ' %}">FAQ</a>
-            </div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'news:news' %}">News</a>
-            </div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'scipost:feeds' %}">Feeds</a>
-            </div>
-
-            <div class="dropdown-divider"></div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'finances:business_model' %}">Our Business Model</a>
-            </div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'organizations:organizations' %}">Organizations<br/><span class="small">benefitting from our activities</span></a>
-            </div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'sponsors:sponsors' %}">Sponsors</a>
-            </div>
-
-            <div class="dropdown-item">
-              <a href="{% url 'finances:finances' %}">Finances</a>
-            </div>
-
-          </div>
         </li>
 
       </ul>
