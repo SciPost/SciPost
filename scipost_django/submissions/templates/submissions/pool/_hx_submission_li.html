@@ -66,12 +66,16 @@
       <small class="text-muted">Submission Status</small>
       <br>
       <span class="label label-sm label-secondary text-wrap">{{ submission.get_status_display }}</span>
-      {% if submission.eicrecommendations.active.first %}
-	<br>
-        <small class="text-muted">EIC Recommendation &amp; Status</small>
-        <br>
-        <span class="label label-sm label-secondary text-wrap">{{ submission.eicrecommendations.active.first.get_full_status_display }}</span>
-      {% endif %}
+      {% with recommendation=submission.eicrecommendations.active.first %}
+	{% if recommendation %}
+	  <br>
+          <small class="text-muted">EIC Recommendation &amp; Status</small>
+          <br>
+	  <span class="label label-sm label-secondary text-wrap">{{ recommendation.get_full_status_display }}</span>
+	  <br>
+	  <small class="text-muted">{{ recommendation.eligible_to_vote.count }} voting: {{ recommendation.voted_for.count }} agreed, {{ recommendation.voted_against.count }} disagreed, {{ recommendation.voted_abstain.count }} abstained</small>
+	{% endif %}
+      {% endwith %}
       {% if submission.editorial_decision %}
 	<br>
 	<small class="text-muted">Editorial Decision Status</small>
