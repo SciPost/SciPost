@@ -238,7 +238,7 @@
     }
   }
 
-  .link-cloud {
+  .news .link-cloud {
     list-style: none;
     padding: 0;
     text-align: center;
@@ -258,6 +258,11 @@
         text-decoration: underline;
       }
     }
+  }
+
+  .news {
+    position: sticky;
+    top: 0;
   }
 
   .news h3 > a { color: initial; }
