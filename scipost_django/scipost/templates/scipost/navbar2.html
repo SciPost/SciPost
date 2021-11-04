@@ -37,6 +37,9 @@
 	      <div class="dropdown-item">
 		<a href="{% url 'scipost:index4' %}">4: home + portal, into one</a>
 	      </div>
+	      <div class="dropdown-item">
+		<a href="{% url 'scipost:index5' %}">5: hybrid; selections on home</a>
+	      </div>
 	    </div>
 	  </li>
 	{% endif %}
@@ -50,7 +53,7 @@
 
 	<li class="nav-item{% if 'portal' in request.path %} active{% endif %}">
           <a href="{% url 'scipost:portal' %}" class="nav-link" aria-label="Portal"
-	  data-bs-toggle="tooltip" title="Academic Portal">
+	     data-bs-toggle="tooltip" title="Academic Portal">
             <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/person-workspace.html' %}</span>
             <span class="d-lg-none d-inline-block">Academic Portal</span>
           </a>

@@ -191,11 +191,37 @@ def index2(request):
 
 
 @permission_required('scipost.can_preview_new_features', return_403=True)
+def index3(request):
+    """Homepage view of SciPost."""
+    context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
+        'publications': Publication.objects.published().order_by('-publication_date',
+                                                                 '-paper_nr')[:10],
+        # 'submissions': Submission.objects.public().order_by('-submission_date')[:10],
+        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
+    }
+    return render(request, 'scipost/index3.html', context)
+
+
+@permission_required('scipost.can_preview_new_features', return_403=True)
 def index4(request):
     if request.GET.get('field', None):
         request.session['session_acad_field_slug'] = request.GET.get('field', None)
     request.session['session_specialty_slug'] = ''
     return render(request, 'scipost/portal/portal4.html')
+
+
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def index5(request):
+    if request.GET.get('field', None):
+        request.session['session_acad_field_slug'] = request.GET.get('field', None)
+    request.session['session_specialty_slug'] = ''
+    context = {
+        'news_items': NewsItem.objects.homepage().order_by('-date')[:3],
+        'publications': Publication.objects.published().order_by('-publication_date',
+                                                                 '-paper_nr')[:3],
+    }
+    return render(request, 'scipost/portal/portal5.html', context)
 
 
 @permission_required('scipost.can_preview_new_features', return_403=True)
@@ -406,19 +432,6 @@ def _hx_sponsors(request):
         'current_sponsors': current_sponsors
     }
     return render(request, 'scipost/_hx_sponsors.html', context)
-
-
-@permission_required('scipost.can_preview_new_features', return_403=True)
-def index3(request):
-    """Homepage view of SciPost."""
-    context = {
-        'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
-        'publications': Publication.objects.published().order_by('-publication_date',
-                                                                 '-paper_nr')[:10],
-        # 'submissions': Submission.objects.public().order_by('-submission_date')[:10],
-        'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
-    }
-    return render(request, 'scipost/index3.html', context)
 
 
 def protected_serve(request, path, show_indexes=False):

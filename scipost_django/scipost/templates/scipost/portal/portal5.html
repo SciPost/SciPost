@@ -1,0 +1,272 @@
+{% extends 'scipost/base.html' %}
+{% load static %}
+
+{% block headsup %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+{% endblock headsup %}
+
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+{% block navbar %}
+  {% include 'scipost/navbar4.html' %}
+{% endblock %}
+
+{% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
+
+{% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
+{% block pagetitle %}Homepage{% endblock pagetitle %}
+
+{% block header %}
+  {% include 'scipost/header_with_acad_field_and_spec2p2.html' %}
+{% endblock %}
+
+
+{% block content %}
+
+
+  <ul class="nav nav-pills flex-wrap flex-sm-row mb-3 justify-content-center"
+      id="portal-tablist"
+      role="tablist">
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="home-tab"
+	      data-bs-toggle="tab" data-bs-target="#home"
+	      type="button" role="tab"
+	      aria-controls="home" aria-selected="true">
+	Home
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="journals-tab"
+	      data-bs-toggle="tab" data-bs-target="#journals"
+	      type="button" role="tab"
+	      aria-controls="journals" aria-selected="true">
+	Journals
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="publications-tab"
+	      data-bs-toggle="tab" data-bs-target="#publications"
+	      type="button" role="tab"
+	      aria-controls="publications" aria-selected="true">
+	Publications
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="submissions-tab"
+	      data-bs-toggle="tab" data-bs-target="#submissions"
+	      type="button" role="tab"
+	      aria-controls="submissions" aria-selected="true">
+	Submissions
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link border border-warning" id="reports-needed-tab"
+	      data-bs-toggle="tab" data-bs-target="#reports-needed"
+	      type="button" role="tab"
+	      aria-controls="reports-needed" aria-selected="true">
+	Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="reports-tab"
+	      data-bs-toggle="tab" data-bs-target="#reports"
+	      type="button" role="tab"
+	      aria-controls="reports" aria-selected="true">
+	Reports
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="comments-tab"
+	      data-bs-toggle="tab" data-bs-target="#comments"
+	      type="button" role="tab"
+	      aria-controls="comments" aria-selected="true">
+	Comments
+      </button>
+    </li>
+
+    <li class="nav-item" role="presentation">
+      <a class="btn btn-outline-success border-2 ms-4"
+	 href="{% url 'submissions:submit_manuscript' %}">
+	{% include 'bi/arrow-right.html' %}<strong>Submit</strong>
+      </a>
+    </li>
+
+  </ul>
+
+  <hr>
+
+  <div class="tab-content mt-4" id="portalTabContent">
+
+    <div class="tab-pane portal-tab fade show active" id="home"
+	 role="tabpanel" aria-labelledby="home-tab">
+
+      <!-- Plug the content of home3 here, without the fields etc -->
+
+      <div class="row">
+	<div class="col-md-8">
+
+	  <h1 class="highlight">The Home of Genuine Open Publishing</h1>
+
+	  <div class="publications">
+            <ul class="header-list">
+              <li class="active"><h2>Selections</h2></li>
+            </ul>
+
+            <div class="publication-list">
+              {% for publication in publications %}
+		{% include 'journals/_publication_li_content-alt.html' with publication=publication %}
+              {% endfor %}
+            </div>
+	  </div>
+	</div>
+
+	<div class="col-md-4">
+
+	  <!-- News -->
+	  <div class="news">
+    	    <h2 class="header">News
+    	      <a class="btn btn-link btn-sm" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</a>
+            </h2>
+      	    <ul>
+      	      {% for news in news_items %}
+      		<li>
+		  <div class="date">{{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span></div>
+		  <div>
+                    <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
+                    <p>{{ news.blurb_short }}</p>
+		  </div>
+      		</li>
+      	      {% endfor %}
+      	    </ul>
+
+            <ul class="link-cloud">
+              <li>About</li>
+              <li>Contact Us</li>
+              <li>The Foundation</li>
+              <li>Careers</li>
+              <li>FAQ</li>
+              <li>News</li>
+              <li>Feeds</li>
+              <li>Our Business model</li>
+              <li>Organizations</li>
+              <li>Sponsors</li>
+              <li>Finances</li>
+            </ul>
+	  </div><!-- End news -->
+
+
+	</div>
+
+      </div>
+
+
+
+      <div class="col-lg-12">
+	<div class="card">
+	  <div class="card-header">
+	    <h1>Sponsors</h1>
+	  </div>
+	  <div class="card-body">
+	    <div class="row">
+	      <div class="col">
+		<p>
+		  We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
+		</p>
+		<p>
+		  <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
+		</p>
+	      </div>
+	      <div class="col-md-4">
+		<a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
+		<br>
+		<div id="sponsor-logos" class="sp-swap"
+		     hx-get="{% url 'scipost:_hx_sponsors' %}"
+		     hx-trigger="load"
+		     hx-swap="outerHTML swap:1s"
+		>
+		</div>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+      </div>
+
+      <div class="col-lg-12"
+	   hx-get="{% url 'scipost:_hx_participates_in' %}"
+	   hx-trigger="load"
+      >
+      </div>
+
+
+
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="journals"
+	 role="tabpanel" aria-labelledby="journals-tab">
+      <div hx-get="{% url 'scipost:portal_hx_journals' %}"
+	   hx-trigger="click delay:200ms from:#journals-tab, session-acad-field-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="publications"
+	 role="tabpanel" aria-labelledby="publications-tab">
+      <div hx-get="{% url 'scipost:portal_hx_publications' %}"
+	   hx-trigger="load, click delay:200ms from:#publications-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="submissions"
+	 role="tabpanel" aria-labelledby="submissions-tab">
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
+	   hx-trigger="click delay:200ms from:#submissions-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="reports-needed"
+	 role="tabpanel" aria-labelledby="reports-needed-tab">
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
+	   hx-trigger="click delay:200ms from:#reports-needed-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="reports"
+	 role="tabpanel" aria-labelledby="reports-tab">
+      <div hx-get="{% url 'scipost:portal_hx_reports' %}"
+	   hx-trigger="click delay:200ms from:#reports-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="comments"
+	 role="tabpanel" aria-labelledby="comments-tab">
+      <div hx-get="{% url 'scipost:portal_hx_comments' %}"
+	   hx-trigger="click delay:200ms from:#comments-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}
+
+{% block footer_script %}
+  {{ block.super }}
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
+  </script>
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-header-forms.js' %}">
+  </script>
+{% endblock footer_script %}

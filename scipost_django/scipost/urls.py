@@ -81,11 +81,18 @@ urlpatterns = [
     ),
     path(
         'home3',
-        views.index3, name='index3'
+        views.index3,
+        name='index3'
     ),
     path(
         'home4',
-        views.index4, name='index4'
+        views.index4,
+        name='index4'
+    ),
+    path(
+        'home5',
+        views.index5,
+        name='index5'
     ),
 
     # Portal
