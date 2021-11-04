@@ -14,10 +14,6 @@
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
 {% block pagetitle %}Homepage{% endblock pagetitle %}
 
-{% block navbar %}
-  {% include 'scipost/navbar2.html' %}
-{% endblock %}
-
 {% block content %}
   <div class="row">
     <div class="col-12">
@@ -43,8 +39,6 @@
           <li><h2>Journals</h2></li>
           <li class="active"><h2>Publications</h2></li>
           <li><h2>Submissions</h2></li>
-          <li><h2>Reports</h2></li>
-          <li><h2>Comments</h2></li>
         </ul>
 
         <div class="publication-list">
@@ -73,10 +67,7 @@
       	    </li>
       	  {% endfor %}
       	</ul>
-      </div><!-- End news -->
 
-
-      <div>
         <ul class="link-cloud">
           <li>About</li>
           <li>Contact Us</li>
@@ -90,7 +81,9 @@
           <li>Sponsors</li>
           <li>Finances</li>
         </ul>
-      </div>
+      </div><!-- End news -->
+
+
     </div>
 
   </div>
