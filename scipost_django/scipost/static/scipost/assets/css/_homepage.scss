@@ -82,6 +82,12 @@
     }
   }
 
+  .domains:hover + .subdomains,
+  .subdomains:hover {
+    max-height: 300px;
+    margin-bottom: 0;
+  }
+
   .domains {
     list-style: none;
     padding: 0 0 20px 0;
@@ -118,7 +124,10 @@
 
       list-style: none;
       padding: 0;
-      margin-bottom: 20px;
+      margin-bottom: 0;
+      transition: 100ms;
+      max-height: 0;
+      overflow: hidden;
 
     li {
       font-size: 0.825rem;
@@ -163,12 +172,18 @@
   }
 
   .citation {
-    background-color: #f6a125;
+//     background-color: #f6a125;
     display: inline-block;
-    padding: 0 10px;
+//     padding: 0 10px;
     border-radius: 99px;
     margin-right: 5px;
     margin-top: 3px;
+    font-weight: 600;
+
+    &:after {
+        content: "•";
+        margin-left: 8px;
+    }
   }
 
   .header {

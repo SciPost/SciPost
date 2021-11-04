@@ -183,6 +183,7 @@ def index_alt(request):
         'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:10],
+        'submissions': Submission.objects.public().order_by('-submission_date')[:10],
         'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
     }
     return render(request, 'scipost/index_alt.html', context)
