@@ -138,27 +138,6 @@ class VetCommentaryRequestsTest(TestCase):
         self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
 
 
-class BrowseCommentariesTest(TestCase):
-    """Test cases for `browse` view."""
-
-    def setUp(self):
-        add_groups_and_permissions()
-        CommentaryFactory(requested_by=ContributorFactory())
-        self.view_url = reverse('commentaries:browse', kwargs={
-            'nrweeksback': '1'
-            })
-
-    def test_response_list(self):
-        '''Test if the browse view is passing commentaries to anonymous users.'''
-        response = self.client.get(self.view_url)
-        self.assertEqual(response.status_code, 200)
-
-        # The created vetted Commentary is found!
-        self.assertTrue(response.context['commentary_list'].count() >= 1)
-        # The search form is passed trough the view...
-        self.assertTrue(type(response.context['form']) is CommentarySearchForm)
-
-
 class CommentaryDetailTest(TestCase):
     def setUp(self):
         add_groups_and_permissions()

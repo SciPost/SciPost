@@ -48,7 +48,7 @@
 		<li>At least 3 field-specific Advisory Board members</li>
 		<li>A field-specific Editorial College with at least 25 committed Fellows</li>
 	      </ul>
-	      Do you know somebody appropriate? Send us your suggestions at <a href="mailto:admin@scipost.org?subject=Fellow suggestion">admin@scipost.org</a>.
+	      Do you know somebody appropriate? Send us your suggestions at <a href="mailto:admin@{{ request.get_host }}?subject=Fellow suggestion">admin@{{ request.get_host }}</a>.
 	    </div>
 	  </div>
 	</div>
@@ -75,7 +75,7 @@
 
   {% if perms.scipost.can_attend_VGMs %}
     <div class="container border border-danger">
-      <span class="text-danger">DRAFT (POOLVIEW ONLY) - <a href="mailto:admin@scipost.org">COMMENTS WELCOME</a></span>
+      <span class="text-danger">DRAFT (POOLVIEW ONLY) - <a href="mailto:admin@{{ request.get_host }}">COMMENTS WELCOME</a></span>
 
       <h2 class="highlight">Launch schedule <span class="small text-muted"></span></h2>
 

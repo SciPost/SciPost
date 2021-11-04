@@ -1,0 +1,19 @@
+{% load static %}
+{% load scipost_extras %}
+
+<div id="sponsor-logos" class="sp-swap"
+     hx-get="{% url 'scipost:_hx_sponsors' %}?dt={{ request.GET.dt|increment_dt }}"
+     hx-trigger="every {{ request.GET.dt|increment_dt }}s"
+     hx-swap="outerHTML swap:1s"
+>
+  <ul class="list list-unstyled">
+    {% for sponsor in current_sponsors %}
+      {% if sponsor.logo %}
+	<li class="p-2">
+	  <img class="rounded" style="max-height: 10em;"
+	       src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo">
+	</li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>

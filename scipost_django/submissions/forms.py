@@ -3,7 +3,6 @@ __license__ = "AGPL v3"
 
 
 import datetime
-import re
 
 from django import forms
 from django.conf import settings
@@ -13,13 +12,20 @@ from django.db.models import Q
 from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div
+from crispy_forms.bootstrap import InlineRadios
+from crispy_bootstrap5.bootstrap5 import FloatingField
+
 from dal import autocomplete
 
 from .constants import (
     ASSIGNMENT_BOOL, ASSIGNMENT_REFUSAL_REASONS, STATUS_RESUBMITTED, REPORT_ACTION_CHOICES,
     REPORT_REFUSAL_CHOICES, STATUS_REJECTED, STATUS_INCOMING, REPORT_POST_EDREC, REPORT_NORMAL,
     STATUS_DRAFT, STATUS_UNVETTED, REPORT_ACTION_ACCEPT, REPORT_ACTION_REFUSE, STATUS_UNASSIGNED,
-    SUBMISSION_STATUS, PUT_TO_VOTING,
+    SUBMISSION_STATUS,
+    STATUS_ASSIGNMENT_FAILED, STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_PUBLISHED,
+    PUT_TO_VOTING,
     SUBMISSION_CYCLE_CHOICES, CYCLE_UNDETERMINED,
     CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,
     EIC_REC_PUBLISH, EIC_REC_MINOR_REVISION, EIC_REC_MAJOR_REVISION, EIC_REC_REJECT,
@@ -28,7 +34,8 @@ from .constants import (
     STATUS_EIC_ASSIGNED,
     STATUS_PREASSIGNED, STATUS_REPLACED,
     STATUS_FAILED_PRESCREENING, STATUS_DEPRECATED,
-    STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN)
+    STATUS_ACCEPTED, STATUS_DECLINED, STATUS_WITHDRAWN,
+)
 from . import exceptions, helpers
 from .helpers import to_ascii_only
 from .models import (
@@ -36,6 +43,7 @@ from .models import (
     RefereeInvitation, Report, EICRecommendation, EditorialAssignment,
     SubmissionTiering, EditorialDecision,
     iThenticateReport, EditorialCommunication)
+from .regexes import CHEMRXIV_DOI_PATTERN
 
 from colleges.models import Fellowship
 from common.utils import Q_with_alternative_spellings
@@ -44,8 +52,9 @@ from mails.utils import DirectMailUtil
 from ontology.models import AcademicField, Specialty
 from preprints.helpers import get_new_scipost_identifier
 from preprints.models import Preprint
+from proceedings.models import Proceedings
 from profiles.models import Profile
-from scipost.services import ArxivCaller, FigshareCaller, OSFPreprintsCaller
+from scipost.services import DOICaller, ArxivCaller, FigshareCaller, OSFPreprintsCaller
 from scipost.models import Contributor, Remark
 import strings
 
@@ -57,6 +66,314 @@ OSFPREPRINTS_IDENTIFIER_PATTERN = r'^[a-z0-9]+$'
 
 
 class SubmissionSearchForm(forms.Form):
+    author = forms.CharField(
+        max_length=100,
+        required=False,
+        label="Author(s)"
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    submitted_to = forms.ModelChoiceField(
+        queryset=Journal.objects.active(),
+        required=False
+    )
+    identifier = forms.CharField(
+        max_length=128,
+        required=False
+    )
+    proceedings = forms.ModelChoiceField(
+        queryset=Proceedings.objects.order_by('-submissions_close'),
+        required=False
+    )
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop('acad_field_slug')
+        self.specialty_slug = kwargs.pop('specialty_slug')
+        self.reports_needed = kwargs.pop('reports_needed')
+        super().__init__(*args, **kwargs)
+        if self.acad_field_slug:
+            self.fields['submitted_to'].queryset = Journal.objects.filter(
+                college__acad_field__slug=self.acad_field_slug
+            )
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('author'), css_class='col-lg-6'),
+                Div(FloatingField('title'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('submitted_to'), css_class='col-lg-6'),
+                Div(FloatingField('identifier'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('proceedings'), css_class='col-lg-6'),
+                css_class='row mb-0',
+                css_id='row_proceedings',
+                style='display: none'
+            ),
+        )
+
+    def search_results(self):
+        """
+        Return all Submission objects fitting search criteria.
+        """
+        submissions = Submission.objects.public_newest().unpublished()
+        if self.acad_field_slug != 'all':
+            submissions = submissions.filter(acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug:
+                submissions = submissions.filter(specialties__slug=self.specialty_slug)
+        if self.cleaned_data.get('submitted_to'):
+            submissions = submissions.filter(submitted_to=self.cleaned_data.get('submitted_to'))
+        if self.cleaned_data.get('proceedings'):
+            submissions = submissions.filter(proceedings=self.cleaned_data.get('proceedings'))
+        if self.cleaned_data.get('author'):
+            submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
+        if self.cleaned_data.get('title'):
+            submissions = submissions.filter(title__icontains=self.cleaned_data.get('title'))
+        if self.cleaned_data.get('identifier'):
+            submissions = submissions.filter(
+                preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get('identifier')
+            )
+        if self.reports_needed:
+            submissions = submissions.actively_refereeing(
+            ).open_for_reporting().order_by('submission_date')
+        return submissions
+
+
+class SubmissionPoolSearchForm(forms.Form):
+    """Filter a Submission queryset using basic search fields."""
+
+    submitted_to = forms.ModelChoiceField(
+        queryset=Journal.objects.active(),
+        required=False
+    )
+    specialties = forms.ModelMultipleChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2Multiple(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialties',
+        required=False
+    )
+    proceedings = forms.ModelChoiceField(
+        queryset=Proceedings.objects.order_by('-submissions_close'),
+        required=False
+    )
+    author = forms.CharField(
+        max_length=100,
+        required=False,
+        label="Author(s)"
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+    identifier = forms.CharField(
+        max_length=128,
+        required=False
+    )
+    status = forms.ChoiceField(
+        choices=(
+            ('All', (
+                ('all', 'All Submissions'),
+            )),
+            ('Pre-screening', (
+                (STATUS_INCOMING, 'In pre-screening'),
+                (STATUS_FAILED_PRESCREENING, 'Failed pre-screening'),
+            )),
+            ('Screening', (
+                (STATUS_UNASSIGNED, 'Unassigned, awaiting editor assignment'),
+                ('unassigned_1', '... unassigned for > 1 week'),
+                ('unassigned_2', '... unassigned for > 2 weeks'),
+                ('unassigned_4', '... unassigned for > 4 weeks'),
+                (STATUS_ASSIGNMENT_FAILED, 'Failed to assign Editor-in-charge; manuscript rejected'),
+            )),
+            ('Refereeing', (
+                (STATUS_EIC_ASSIGNED, 'Editor-in-charge assigned; in refereeing'),
+                ('unvetted_reports', '... with unvetted Reports'),
+            )),
+            ('Voting', (
+                ('voting_prepare', 'Voting in preparation'),
+                ('voting_ongoing', 'Voting ongoing'),
+                ('voting_1', '... in voting for > 1 week'),
+                ('voting_2', '... in voting for > 2 weeks'),
+                ('voting_4', '... in voting for > 4 weeks'),
+            )),
+            ('Decided', (
+                (STATUS_ACCEPTED, 'Accepted'),
+                (STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
+                 'Accepted in other journal; awaiting puboffer acceptance'),
+                (STATUS_REJECTED, 'Rejected'),
+                (STATUS_WITHDRAWN, 'Withdrawn by the Authors'),
+            )),
+            ('Processed', (
+                (STATUS_PUBLISHED, 'Published'),
+            )),
+        ),
+    )
+    editor_in_charge = forms.ModelChoiceField(
+        queryset=Fellowship.objects.active(),
+        required=False
+    )
+    search_set = forms.ChoiceField(
+        widget=forms.RadioSelect,
+        choices=(
+            ('eic', 'I am Editor-in-charge'),
+            ('current', 'All currently in processing'),
+            ('historical', 'All accessible history')
+        ),
+        initial='current'
+    )
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        if not user.contributor.is_ed_admin:
+            # restrict journals to those of Colleges of user's Fellowships
+            college_id_list = [f.college.id for f in user.contributor.fellowships.active()]
+            self.fields['submitted_to'].queryset = Journal.objects.filter(college__in=college_id_list)
+        if user.contributor.is_ed_admin:
+            # Remove 'I am Editor-in-charge' choice
+            self.fields['search_set'].choices = (
+                ('current', 'All currently in processing'),
+                ('historical', 'All accessible history')
+            )
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('submitted_to'), css_class='col-lg-6'),
+                Div(FloatingField('specialties'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('proceedings'), css_class='col-lg-6'),
+                css_class='row mb-0',
+                css_id='row_proceedings',
+                style='display: none'
+            ),
+            Div(
+                Div(FloatingField('author'), css_class='col-lg-6'),
+                Div(FloatingField('title'), css_class='col-lg-6'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(FloatingField('identifier'), css_class='col-lg-3'),
+                Div(FloatingField('status'), css_class='col-lg-5'),
+                Div(FloatingField('editor_in_charge'), css_class='col-lg-4', css_id='col_eic'),
+                css_class='row mb-0'
+            ),
+            Div(
+                Div(InlineRadios('search_set'), css_class='col'),
+                css_class='row mb-0'
+            ),
+        )
+
+    def search_results(self, user):
+        """
+        Return all Submission objects fitting search criteria.
+        """
+        if self.cleaned_data.get('search_set') == 'eic':
+            submissions = Submission.objects.filter_for_eic(user)
+        elif self.cleaned_data.get('search_set') == 'current':
+            submissions = Submission.objects.pool(user)
+        else: # include historical items
+            submissions = Submission.objects.pool_editable(user)
+        if self.cleaned_data.get('specialties'):
+            submissions = submissions.filter(
+                specialties__in=self.cleaned_data.get('specialties')
+            )
+        if self.cleaned_data.get('submitted_to'):
+            submissions = submissions.filter(submitted_to=self.cleaned_data.get('submitted_to'))
+        if self.cleaned_data.get('proceedings'):
+            submissions = submissions.filter(proceedings=self.cleaned_data.get('proceedings'))
+        if self.cleaned_data.get('author'):
+            submissions = submissions.filter(author_list__icontains=self.cleaned_data.get('author'))
+        if self.cleaned_data.get('title'):
+            submissions = submissions.filter(title__icontains=self.cleaned_data.get('title'))
+        if self.cleaned_data.get('identifier'):
+            submissions = submissions.filter(
+                preprint__identifier_w_vn_nr__icontains=self.cleaned_data.get('identifier')
+            )
+
+        # filter by status
+        status = self.cleaned_data.get('status')
+        if status == 'all':
+            pass
+        elif status == 'unassigned_1':
+            submissions = submissions.filter(
+                status=STATUS_UNASSIGNED,
+                submission_date__lt=timezone.now() - datetime.timedelta(days=7)
+            )
+        elif status == 'unassigned_2':
+            submissions = submissions.filter(
+                status=STATUS_UNASSIGNED,
+                submission_date__lt=timezone.now() - datetime.timedelta(days=14)
+            )
+        elif status == 'unassigned_4':
+            submissions = submissions.filter(
+                status=STATUS_UNASSIGNED,
+                submission_date__lt=timezone.now() - datetime.timedelta(days=28)
+            )
+        elif status == 'unvetted_reports':
+            reports_to_vet = Report.objects.awaiting_vetting()
+            id_list = [r.submission.id for r in reports_to_vet.all()]
+            submissions = submissions.filter(id__in=id_list)
+        elif status == 'voting_prepare':
+            submissions = submissions.voting_in_preparation()
+        elif status == 'voting_ongoing':
+            submissions = submissions.undergoing_voting()
+        elif status == 'voting_1':
+            submissions = submissions.undergoing_voting(longer_than_days=7)
+        elif status == 'voting_2':
+            submissions = submissions.undergoing_voting(longer_than_days=14)
+        elif status == 'voting_4':
+            submissions = submissions.undergoing_voting(longer_than_days=28)
+        else:
+            submissions = submissions.filter(status=status)
+
+        # filter by EIC
+        if self.cleaned_data.get('editor_in_charge'):
+            submissions = submissions.filter(
+                editor_in_charge=self.cleaned_data.get('editor_in_charge').contributor
+            )
+        return submissions
+
+
+class ReportSearchForm(forms.Form):
+    submission_title = forms.CharField(
+        max_length=100,
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop('acad_field_slug')
+        self.specialty_slug = kwargs.pop('specialty_slug')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('submission_title'), css_class='col-lg-6'),
+            ),
+        )
+
+    def search_results(self):
+        reports = Report.objects.accepted()
+        if self.acad_field_slug != 'all':
+            reports = reports.filter(submission__acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug:
+                reports = reports.filter(submission__specialties__slug=self.specialty_slug)
+        if self.cleaned_data.get('submission_title'):
+            reports = reports.filter(
+                submission__title__icontains=self.cleaned_data.get('submission_title'))
+        return reports
+
+
+# Marked for deprecation
+class SubmissionOldSearchForm(forms.Form):
     """Filter a Submission queryset using basic search fields."""
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
@@ -98,6 +415,8 @@ class SubmissionPoolFilterForm(forms.Form):
             return dict(SUBMISSION_STATUS)[self.cleaned_data['status']]
         except KeyError:
             return ''
+
+
 
 
 ######################################################################
@@ -171,6 +490,45 @@ def check_arxiv_identifier_w_vn_nr(identifier):
     return arxiv_data, metadata, identifier
 
 
+def check_chemrxiv_doi(doi):
+    """
+    Call Crossref to get ChemRxiv preprint data.
+    """
+    caller = DOICaller(doi)
+    if caller.is_valid:
+        data = caller.data
+        metadata = caller.data['crossref_data']
+    else:
+        error_message = 'A preprint associated to this DOI does not exist.'
+        raise forms.ValidationError(error_message)
+
+    # Check if the type of this resource is indeed a preprint
+    if 'subtype' in metadata:
+        if metadata['subtype'] != 'preprint':
+            error_message = ('This does not seem to be a preprint: the type '
+                             'returned by Crossref on behalf of '
+                             '%(preprint_server) is %(subtype). '
+                             'Please contact techsupport.')
+            raise forms.ValidationError(
+                error_message, code='wrong_subtype',
+                params={
+                    'preprint_server': preprint_server.name,
+                    'subtype': metadata['subtype']
+                })
+    else:
+        raise forms.ValidationError(
+            'Crossref failed to return a subtype. Please contact techsupport.',
+            code='wrong_subtype')
+
+    # Explicitly add ChemRxiv as the preprint server:
+    data['preprint_server'] = PreprintServer.objects.get(name='ChemRxiv')
+    data['preprint_link'] = 'https://doi.org/%s' % doi
+    # Build the identifier by stripping the DOI prefix:
+    identifier = doi
+    data['identifier_w_vn_nr'] = identifier
+    return data, metadata, identifier
+
+
 def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_nr):
     """
     Call Figshare to retrieve submission prefill data and perform basic checks.
@@ -218,7 +576,8 @@ def check_figshare_identifier_w_vn_nr(preprint_server, figshare_identifier_w_vn_
     return figshare_data, metadata, identifier
 
 
-def check_chemrxiv_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
+# DEPRECATED
+def check_chemrxiv_figshare_identifier_w_vn_nr(chemrxiv_identifier_w_vn_nr):
     """
     Call `check_figshare_identifier_w_vn_nr` but correct identifier
     by substituting `chemrxiv` for `figshare`.
@@ -424,11 +783,56 @@ class ArXivPrefillForm(SubmissionPrefillForm):
         return form_data
 
 
+class ChemRxivPrefillForm(SubmissionPrefillForm):
+    """
+    Provide initial data for SubmissionForm from ChemRxiv
+    (metadata actually collected from Crossref API, not ChemRxiv).
+
+    This form is used by the ChemRxiv route (post-2021-07 style).
+    """
+    chemrxiv_doi = forms.RegexField(
+        label='',
+        regex=CHEMRXIV_DOI_PATTERN, strip=True,
+        error_messages={'invalid': 'Invalid ChemRxiv DOI'},
+        widget=forms.TextInput()
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.crossref_data = {}
+        self.metadata = {}
+        super().__init__(*args, **kwargs)
+
+    def clean_chemrxiv_doi(self):
+        # To get the identifier, strip the DOI prefix
+        identifier = self.cleaned_data.get('chemrxiv_doi', None).partition('/')[2]
+
+        check_identifier_is_unused(identifier)
+        self.crossref_data, self.metadata, identifier = check_chemrxiv_doi(self.cleaned_data['chemrxiv_doi'])
+        return identifier
+
+    def get_prefill_data(self):
+        """
+        Return dictionary to prefill `SubmissionForm`.
+        """
+        form_data = super().get_prefill_data()
+        form_data.update(self.crossref_data)
+
+        if self.is_resubmission():
+            form_data.update({
+                'approaches': self.latest_submission.approaches,
+                'referees_flagged': self.latest_submission.referees_flagged,
+                'referees_suggested': self.latest_submission.referees_suggested,
+                'acad_field': self.latest_submission.acad_field,
+                'specialties': [s.id for s in self.latest_submission.specialties.all()]
+            })
+        return form_data
+
+
 class FigsharePrefillForm(SubmissionPrefillForm):
     """
     Provide initial data for SubmissionForm from Figshare.
 
-    This form is used by the ChemRxiv, TechRxiv and Advance routes.
+    This form is used by the ChemRxiv (pre-2021-07), TechRxiv and Advance routes.
     """
     figshare_preprint_server = forms.ModelChoiceField(
         queryset=PreprintServer.objects.filter(served_by__name='Figshare'),
@@ -730,8 +1134,7 @@ class SubmissionForm(forms.ModelForm):
                 check_arxiv_identifier_w_vn_nr(identifier)
         elif self.preprint_server.name == 'ChemRxiv':
             self.preprint_data, self.metadata, identifier = \
-                check_chemrxiv_identifier_w_vn_nr(
-                    identifier.replace('chemrxiv_', ''))
+                check_chemrxiv_doi(identifier)
         elif self.preprint_server.name == 'TechRxiv':
             self.preprint_data, self.metadata, identifier = \
                 check_techrxiv_identifier_w_vn_nr(
@@ -1037,9 +1440,17 @@ class SubmissionPrescreeningForm(forms.ModelForm):
                 status=STATUS_UNASSIGNED, visible_pool=True, visible_public=False)
             self.instance.add_general_event('Submission passed pre-screening.')
         elif self.cleaned_data['decision'] == self.FAIL:
+            EditorialAssignment.objects.filter(submission=self.instance).invited().update(
+                status=STATUS_DEPRECATED)
             Submission.objects.filter(id=self.instance.id).update(
                 status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
             self.instance.add_general_event('Submission failed pre-screening.')
+            mail_sender = DirectMailUtil(
+                'prescreening_failed',
+                instance=self.instance,
+                header_template='submissions/admin/prescreening_failed.html'
+            )
+            mail_sender.send_mail()
 
         if self.cleaned_data['remark_for_pool']:
             Remark.objects.create(
@@ -1106,27 +1517,6 @@ class WithdrawSubmissionForm(forms.Form):
 ######################
 # Editorial workflow #
 ######################
-
-class InviteEditorialAssignmentForm(forms.ModelForm):
-    """Invite new Fellow; create EditorialAssignment for Submission."""
-
-    class Meta:
-        model = EditorialAssignment
-        fields = ('to',)
-        labels = {
-            'to': 'Fellow',
-        }
-
-    def __init__(self, *args, **kwargs):
-        """Add related submission as argument."""
-        self.submission = kwargs.pop('submission')
-        super().__init__(*args, **kwargs)
-        self.fields['to'].queryset = Contributor.objects.available().filter(
-            fellowships__pool=self.submission).distinct().order_by('user__last_name')
-
-    def save(self, commit=True):
-        self.instance.submission = self.submission
-        return super().save(commit)
 
 
 class EditorialAssignmentForm(forms.ModelForm):
@@ -1262,6 +1652,8 @@ class SetRefereeingDeadlineForm(forms.Form):
     def clean_deadline(self):
         if not self.cleaned_data.get('deadline'):
             self.add_error('deadline', 'Please use a valid date.')
+        if not (self.cleaned_data.get('deadline') >= timezone.now().date()):
+            self.add_error('deadline', 'Please choose a future date!')
         return self.cleaned_data.get('deadline')
 
 
@@ -1833,12 +2225,13 @@ class iThenticateReportForm(forms.ModelForm):
         doc_id = self.instance.doc_id
         if not doc_id and not self.fields.get('file'):
             try:
-                cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
-                    self.submission.preprint.identifier_w_vn_nr)
-            except exceptions.ArxivPDFNotFound:
+                # cleaned_data['document'] = helpers.retrieve_pdf_from_arxiv(
+                #     self.submission.preprint.identifier_w_vn_nr)
+                cleaned_data['document'] = self.submission.preprint.get_document()
+            except exceptions.PreprintDocumentNotFoundError:
                 self.add_error(
-                    None, 'The pdf could not be found at arXiv. Please upload the pdf manually.')
-                self.fields['file'] = forms.FileField()
+                    None, 'Preprint document not found. Please upload the pdf manually.')
+                self.fields['file'] = forms.FileField() # Add this field now it's needed
         elif not doc_id and cleaned_data.get('file'):
             cleaned_data['document'] = cleaned_data['file'].read()
         elif doc_id:
@@ -1853,19 +2246,8 @@ class iThenticateReportForm(forms.ModelForm):
         # Document (id) is found
         if cleaned_data.get('document'):
             self.document = cleaned_data['document']
-            try:
-                self.response = self.call_ithenticate()
-            except AttributeError:
-                if not self.fields.get('file'):
-                    # The document is invalid.
-                    self.add_error(None, ('A valid pdf could not be found at arXiv.'
-                                          ' Please upload the pdf manually.'))
-                else:
-                    self.add_error(None, ('The uploaded file is not valid.'
-                                          ' Please upload a valid pdf.'))
-                self.fields['file'] = forms.FileField()
-        elif hasattr(self, 'document_id'):
-            self.response = self.call_ithenticate()
+
+        self.response = self.call_ithenticate()
 
         if hasattr(self, 'response') and self.response:
             return cleaned_data

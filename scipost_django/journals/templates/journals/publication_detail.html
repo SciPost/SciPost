@@ -35,7 +35,7 @@
     <meta name="citation_issue" content="{{ publication.in_issue.number }}"/>
   {% endif %}
   <meta name="citation_firstpage" content="{{ publication.paper_nr|paper_nr_string_filter }}"/>
-  <meta name="citation_pdf_url" content="https://scipost.org/{{ publication.doi_string }}/pdf"/>
+  <meta name="citation_pdf_url" content="https://{{ request.get_host }}/{{ publication.doi_string }}/pdf"/>
   <meta name="dc.identifier" content="doi:{{ publication.doi_string }}"/>
 
 {% endblock headsup %}

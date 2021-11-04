@@ -5,9 +5,6 @@
 {% load journals_extras %}
 {% load scipost_extras %}
 
-{% block headsup %}
-  <style>{% for journal in object_list %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
-{% endblock headsup %}
 
 {% block meta_description %}{{ block.super }} {% if acad_field %} in {{ acad_field.name }}{% endif %}{% endblock meta_description %}
 {% block pagetitle %}: Journals{% if acad_field %} in {{ acad_field.name }}{% endif %}{% endblock pagetitle %}
@@ -84,7 +81,7 @@
       {% empty %}
 	<p>
 	  There are no Journals yet in this branch of academia.
-	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@scipost.org">emailing us</a> with your suggestions!</strong>
+	  <strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@{{ request.get_host }}">emailing us</a> with your suggestions!</strong>
 	</p>
       {% endfor %}
     </div>

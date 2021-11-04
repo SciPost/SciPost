@@ -1,0 +1,109 @@
+{% extends 'scipost/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block body_class %}{{ block.super }} pool{% endblock %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb-container">
+    <div class="container">
+      <nav class="breadcrumb hidden-sm-down">
+        {% block breadcrumb_items %}
+          <a href="{% url 'submissions:pool2' %}" class="breadcrumb-item">Pool2</a>
+        {% endblock %}
+      </nav>
+    </div>
+  </div>
+{% endblock %}
+
+{% block pagetitle %}: Submissions Pool{% endblock pagetitle %}
+
+{% block content %}
+
+  <div class="row">
+    <div class="col-6">
+      <h1>SciPost Submissions Pool</h1>
+    </div>
+    <div class="col-6">
+      <div class="border border-danger p-2">
+	Do you know qualified candidates who could serve as Fellow in a College?<br/>
+	Nominate them by <a href="{% url 'colleges:potential_fellowship_create' %}">adding a Potential Fellowship</a>.
+	{% if nr_potfels_to_vote_on > 0 %}
+          <br/>
+          <span class="text-danger">You can vote on {{ nr_potfels_to_vote_on }} nomination{{ nr_potfels_to_vote_on|pluralize }}: please go to the <a href="{% url 'colleges:potential_fellowships' %}">Potential Fellowships</a> page.</span>
+	{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="border border-danger my-4 p-2">
+    <strong><a href="{% url 'submissions:pool' %}">Take me back to the old pool...</a></strong>
+  </div>
+
+  {% if assignments_to_consider or recs_to_vote_on or recs_current_voted %}
+    {% if assignments_to_consider %}
+      <h3>Your open Assignment Requests <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
+      <ul>
+        {% for assignment in assignments_to_consider %}
+          <li>On submission: {{ assignment.submission }}<br>
+            <a href="{% url 'submissions:assignment_request' assignment.id %}">Accept or decline here</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if recs_to_vote_on %}
+      <h3>Recommendations to vote on <span class="text-warning">{% include 'bi/exclamation-circle-fill.html' %}</span></h3>
+      <ul>
+        {% for recommendation in recs_to_vote_on %}
+          <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+            <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    {% if recs_current_voted %}
+      <h3>Current recommendations you have voted on:</h3>
+      <ul>
+        {% for recommendation in recs_current_voted %}
+          <li>On Editorial Recommendation of: {{ recommendation.submission }}<br>
+            <a href="{% url 'submissions:vote_on_rec' rec_id=recommendation.id %}">See the Editorial Recommendation, view votes and/or revise your vote</a>
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <hr>
+  {% endif %}
+
+  <div class="card">
+    <div class="card-header">
+      Search / filter
+    </div>
+    <div class="card-body">
+      <form
+	  hx-post="{% url 'submissions:pool_hx_submissions_list' %}"
+	  hx-trigger="load, keyup delay:500ms, change"
+	  hx-target="#search-results"
+	  hx-indicator="#indicator-search"
+      >
+	<div id="search-form">{% crispy form %}</div>
+      </form>
+    </div>
+  </div>
+  <div id="indicator-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+  <ul id="search-results" class="list-unstyled pool-list mt-2"></ul>
+
+{% endblock content %}
+{% block footer_script %}
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
+  </script>
+{% endblock %}

@@ -76,7 +76,7 @@
       <p class="mb-1">If it is not listed on our
 	<a href="{% url 'sponsors:sponsors' %}" target="_blank">Sponsors page</a>,
 	please encourage your institution (through a librarian, director, ...) to join.
-	You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.</p>
+	You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.</p>
     </div>
     <hr>
 

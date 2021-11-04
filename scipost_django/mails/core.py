@@ -7,6 +7,7 @@ import re
 import inspect
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMultiAlternatives
 from django.db import models
 from django.template.loader import get_template
@@ -52,6 +53,8 @@ class MailEngine:
             'recipient_list': recipient_list,
         }
         self.template_variables = kwargs
+        # Add the 'domain' template variable to all templates using the Sites framework:
+        self.template_variables['domain'] = Site.objects.get_current().domain
 
     def __repr__(self):
         return '<%(cls)s code="%(code)s", validated=%(validated)s sent=%(sent)s>' % {
@@ -107,11 +110,11 @@ class MailEngine:
             self.mail_data.get('message', ''),
             '%s <%s>' % (
                 self.mail_data.get('from_name', 'SciPost'),
-                self.mail_data.get('from_email', 'noreply@scipost.org')),
+                self.mail_data.get('from_email', 'noreply@%s' % Site.objects.get_current().domain)),
             self.mail_data['recipient_list'],
             bcc=self.mail_data['bcc'],
             reply_to=[
-                self.mail_data.get('from_email', 'noreply@scipost.org')
+                self.mail_data.get('from_email', 'noreply@%s' % Site.objects.get_current().domain)
             ],
             headers={
                 'delayed_processing': not self._processed_template,
@@ -222,10 +225,15 @@ class MailEngine:
                     self.mail_data[email_key] = self._validate_email_addresses(self.mail_data[email_key])
 
     def _validate_email_addresses(self, entry):
-        """Return email address given raw email or database relation given in `entry`."""
+        """
+        Return email address given raw email, email prefix or database relation given in `entry`.
+        """
         if re.match("[^@]+@[^@]+\.[^@]+", entry):
             # Email string
             return entry
+        # if the email address is given as a prefix of the form `[recipient]@`, add domain name:
+        elif re.match("[^@]+@$", entry):
+            return '%s%s' % (entry, Site.objects.get_current().domain)
         elif self.template_variables['object']:
             mail_to = self.template_variables['object']
             for attr in entry.split('.'):

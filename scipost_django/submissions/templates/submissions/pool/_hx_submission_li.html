@@ -1,0 +1,131 @@
+{% load static %}
+{% load submissions_pool %}
+{% load user_groups %}
+
+{% is_ed_admin request.user as is_ed_admin %}
+
+
+<div class="pool-item">
+  <div class="row">
+    <div class="col-md-7">
+      <a href="{% url 'submissions:submission' submission.preprint.identifier_w_vn_nr %}">{{ submission.title }}</a>
+      <br>
+      <em>by {{ submission.author_list }}</em>
+      <br>
+      <div class="my-2">
+	<span class="text-secondary">{% include 'bi/bullseye.html' %}:&nbsp;</span>
+	{{ submission.submitted_to }}
+      </div>
+    </div>
+    <div class="col-md-5">
+      <ul class="bg-secondary py-1">
+	{% for specialty in submission.specialties.all %}
+	  <li><small>{{ specialty }}</small></li>
+	{% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="row mb-0">
+    <div class="col-md-3">
+      <small class="text-muted">Editor-in-charge</small>
+      <br>
+      <ul class="list list-unstyled">
+	{% if submission.status == 'unassigned' %}
+	  {% if is_ed_admin %}
+	    <li>Unassigned</li>
+	  {% else %}
+            <li>You can
+	      <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">volunteer to become Editor-in-charge</strong></a>
+	    </li>
+	  {% endif %}
+	  {% if request.user.contributor.is_active_senior_fellow %}
+	    <li>As Senior Fellow: <a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}"><strong class="text-danger">view/update editor invitations</strong></a></li>
+	  {% endif %}
+	{% elif submission.editor_in_charge == request.user.contributor %}
+          <li>
+	    <strong>You are the EIC</strong>
+            <a role="button" class="btn btn-info px-1 py-0" href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}"><small>{% include 'bi/arrow-right.html' %} Editorial&nbsp;page</small></a>
+	  </li>
+	{% else %}
+          <li>{{ submission.editor_in_charge }}</li>
+	{% endif %}
+      </ul>
+    </div>
+    <div class="col-md-3">
+      <small class="text-muted">Original submission date</small>
+      <br>
+      {{ submission.original_submission_date|date:'Y-m-d' }}
+    </div>
+    <div class="col-md-2">
+      <small class="text-muted">Latest activity</small>
+      <br>
+      {{ submission.latest_activity }}
+    </div>
+    <div class="col-md-4">
+      <small class="text-muted">Submission Status</small>
+      <br>
+      <span class="label label-sm label-secondary text-wrap">{{ submission.get_status_display }}</span>
+      {% with recommendation=submission.eicrecommendations.active.first %}
+	{% if recommendation %}
+	  <br>
+          <small class="text-muted">EIC Recommendation &amp; Status</small>
+          <br>
+	  <span class="label label-sm label-secondary text-wrap">{{ recommendation.get_full_status_display }}</span>
+	  <br>
+	  <small class="text-muted">{{ recommendation.eligible_to_vote.count }} voting: {{ recommendation.voted_for.count }} agreed, {{ recommendation.voted_against.count }} disagreed, {{ recommendation.voted_abstain.count }} abstained</small>
+	{% endif %}
+      {% endwith %}
+      {% if submission.editorial_decision %}
+	<br>
+	<small class="text-muted">Editorial Decision Status</small>
+	<br>
+	<span class="label label-sm label-secondary text-wrap">{{ submission.editorial_decision.get_status_display }}</span>
+      {% endif %}
+    </div>
+  </div>
+  {% if is_ed_admin and submission.has_inadequate_pool_composition %}
+    <div class="border border-danger text-danger mt-1 py-1 px-2">
+      <strong>
+        {% include 'bi/exclamation-triangle-fill.html' %}
+        Notice to admin: The current editor is not assigned to the pool. Therefore, the editor will not be able to reach the editorial page.
+      </strong>
+    </div>
+  {% endif %}
+
+  {% if submission.cycle.has_required_actions %}
+    <div class="card-text bg-danger text-white mt-1 py-1 px-2">
+      <button type="button" class="btn p-0" disabled>
+	<small class="text-white">This Submission contains required actions.</small>
+      </button>
+      {% if is_ed_admin %}{% include 'submissions/pool/_required_actions_tooltip.html' with submission=submission classes='text-white' %}{% endif %}
+    </div>
+  {% endif %}
+
+  {% if submission.status == 'unassigned' %}
+    {% get_editor_invitations submission request.user as invitations %}
+    {% if invitations %}
+      <div class="border border-warning mt-1 py-1 px-2">
+        <span class="mt-1 px-1 text-danger">{% include 'bi/exclamation.html' %}</i>
+          You are invited to become Editor-in-charge of this Submission. <a href="{% url 'submissions:editorial_assignment' submission.preprint.identifier_w_vn_nr %}">You can reply to this invitation here</a>.
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <div id="details_{{ submission.id }}" class="mt-2">
+    <button type="button" class="btn btn-primary p-1 mx-auto"
+	    hx-get="{% url 'submissions:pool_hx_submission_details' submission.preprint.identifier_w_vn_nr %}"
+	    hx-target="#details_{{ submission.id }}"
+	    hx-indicator="#indicator-details-{{ submission.id }}"
+    >
+      <small>View details</small>
+    </button>
+    <span id="indicator-details-{{ submission.id }}" class="htmx-indicator p-1">
+      <button class="btn btn-sm btn-warning p-2" type="button" disabled>
+	<small><strong>Loading...</strong></small>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </span>
+  </div>
+
+</div>

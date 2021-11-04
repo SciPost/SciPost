@@ -36,5 +36,9 @@ CSP_REPORT_ONLY = True
 # Mailgun credentials
 MAILGUN_API_KEY = get_secret('MAILGUN_API_KEY')
 
+# iThenticate
+ITHENTICATE_USERNAME = get_secret('ITHENTICATE_USERNAME')
+ITHENTICATE_PASSWORD = get_secret('ITHENTICATE_PASSWORD')
+
 # CORS headers
 CORS_ALLOW_ALL_ORIGINS = True # Dev only!

@@ -1,0 +1,5 @@
+{% if granted %}
+  <p>Voting right granted. You can go <a href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}">cast your vote</a>.</p>
+{% else %}
+  <p>Voting rights could not be granted.</p>
+{% endif %}

@@ -89,16 +89,16 @@ urlcolor={blue!80!black}
 \fancypagestyle{SPtitlepage}{%
 			    \fancyhf{}
 			    \fancyfoot[C]{\textbf{\thepage}}
-			    \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+			    \lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://{{ request.get_host }}}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
 			    \chead{}
-			    \rhead{\small \href{https://scipost.org/SciPostPhys.1.1.???}{SciPost Phys. 1, ??? (2016)}}
+			    \rhead{\small \href{https://{{ request.get_host }}/SciPostPhys.1.1.???}{SciPost Phys. 1, ??? (2016)}}
 			    \renewcommand{\headrulewidth}{1pt}
 			    }
 
 			    \fancypagestyle{SPbulk}{
 				\fancyhf{}
-				\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://scipost.org}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
-				\rhead{\small \href{https://scipost.org/SciPostPhys.1.1.???}{SciPost Phys. 1, ??? (2016)}}
+				\lhead{\raisebox{-1.5mm}[0pt][0pt]{\href{https://{{ request.get_host }}}{\includegraphics[width=20mm]{logo_scipost_with_bgd.pdf}}}}
+				\rhead{\small \href{https://{{ request.get_host }}/SciPostPhys.1.1.???}{SciPost Phys. 1, ??? (2016)}}
 				\fancyfoot[C]{\textbf{\thepage}}
 				\renewcommand{\headrulewidth}{1pt}
 			    }

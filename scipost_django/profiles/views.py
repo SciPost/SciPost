@@ -283,8 +283,8 @@ class ProfileDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
 
         if len(context['object_list']) > 1:
             initial = {
-                'to_merge': context['object_list'][0].id,
-                'to_merge_into': context['object_list'][1].id
+                'to_merge': context['object_list'][1].id,
+                'to_merge_into': context['object_list'][0].id
             }
             context['merge_form'] = ProfileMergeForm(initial=initial)
         return context

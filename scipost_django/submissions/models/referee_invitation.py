@@ -56,7 +56,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.BooleanField(
-        null=True,
+        blank=True, null=True,
         choices=ASSIGNMENT_NULLBOOL,
         default=None
     )

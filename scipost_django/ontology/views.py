@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django.contrib import messages
+from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -15,10 +16,76 @@ from dal import autocomplete
 from guardian.decorators import permission_required
 
 from .models import AcademicField, Specialty, Tag, Topic, RelationAsym
-from .forms import SelectTagsForm, SelectLinkedTopicForm, AddRelationAsymForm
+from .forms import (
+    SessionAcademicFieldForm, SessionSpecialtyForm,
+    SelectTagsForm, SelectLinkedTopicForm,
+    AddRelationAsymForm
+)
 
 from scipost.forms import SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
+
+
+def set_session_acad_field(request):
+    """Set the Academic Field to be viewed in the current user session."""
+    form = SessionAcademicFieldForm(request.GET or None)
+    if form.is_valid():
+        request.session['session_acad_field_slug'] = form.cleaned_data['acad_field_slug']
+        request.session['session_specialty_slug'] = ''
+    try:
+        initial = {
+            'acad_field_slug': AcademicField.objects.get(
+                slug=request.session['session_acad_field_slug']).slug
+        }
+    except AcademicField.DoesNotExist:
+        initial = {}
+    form = SessionAcademicFieldForm(initial=initial)
+    response = render(
+        request,
+        'ontology/session_acad_field_form.html',
+        context={ 'session_acad_field_form': form}
+    )
+    response['HX-Trigger'] = 'session-acad-field-set'
+    return response
+
+
+def _hx_session_specialty_form(request):
+    """Serve the session Specialty choice form."""
+    context = {
+        'session_specialty_form': SessionSpecialtyForm(
+            acad_field_slug=request.session.get('session_acad_field_slug', None),
+            initial={ 'specialty_slug': request.session.get('session_specialty_slug', None)}
+        )
+    }
+    return render(request, 'ontology/session_specialty_form.html', context)
+
+
+def set_session_specialty(request):
+    """Set the Specialty to be viewed in the current user session."""
+    form = SessionSpecialtyForm(
+        request.GET or None,
+        acad_field_slug=request.session.get('session_acad_field_slug', ''),
+    )
+    if form.is_valid():
+        request.session['session_specialty_slug'] = form.cleaned_data['specialty_slug']
+    try:
+        initial = {
+            'specialty_slug': Specialty.objects.get(
+                slug=request.session['session_specialty_slug']).slug
+        }
+    except (KeyError, Specialty.DoesNotExist):
+        initial = {}
+    form = SessionSpecialtyForm(
+        acad_field_slug=request.session['session_acad_field_slug'],
+        initial=initial
+    )
+    response = render(
+        request,
+        'ontology/session_specialty_form.html',
+        context={ 'session_specialty_form': form}
+    )
+    response['HX-Trigger'] = 'session-specialty-set'
+    return response
 
 
 def ontology(request):

@@ -1,0 +1,70 @@
+{% load static %}
+{% load automarkup %}
+{% load journals_extras %}
+{% load scipost_extras %}
+
+
+{% if session_acad_field %}
+
+  <div class="row">
+    {% for journal in session_acad_field.journals %}
+      {% if journal.active or perms.scipost.can_view_pool %}
+	<div class="col-md-6 col-lg-4 mb-2" style="{{ journal.style }}">
+	  <div class="card">
+	    <div class="card-header {{ journal.doi_label }}">
+	      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+	      {% if journal.has_DOAJ_Seal %}
+		<a href="https://doaj.org" class="float-end"><img src="{% static 'scipost/images/DOAJ_Seal_logo_big.png' %}" alt="DOAJ Seal" width="20em"></a>
+	      {% endif %}
+	    </div>
+	    <div class="card-body">
+	      {{ journal.blurb|automarkup }}
+	    </div>
+	    {% if journal.series_set.all|length > 0 %}
+	      <div class="card-footer">
+		Series hosted in this Journal:
+		<ul>
+		  {% for series in journal.series_set.all %}
+		    <li>
+		      <a href="{{ series.get_absolute_url }}" target="_blank">{{ series }}</a>
+		    </li>
+		  {% endfor %}
+		</ul>
+	      </div>
+	    {% endif %}
+	  </div>
+	</div>
+      {% endif %}
+    {% empty %}
+      <p>
+	There are no Journals yet in this branch of academia.
+	<strong>Help us to get started: nominate potential Fellows by <a href="mailto:admin@{{ request.get_host }}">emailing us</a> with your suggestions!</strong>
+      </p>
+    {% endfor %}
+
+{% else %}
+
+    <h2 class="highlight">Full list of our Journals</h2>
+    <table class="table table-borderless">
+      {% for branch in branches %}
+	{% for acad_field in branch.academic_fields.all %}
+	  {% if acad_field.journals.active.all|length > 0 %}
+	    <tr>
+	      <td class="align-middle"><strong>{{ acad_field.name }}</strong></td>
+	      <td>
+		<ul class="list-group m-2">
+		  {% for journal in acad_field.journals.active.all %}
+		    <li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
+		      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+		    </li>
+		  {% endfor %}
+		</ul>
+	      </td>
+	    </tr>
+	  {% endif %}
+	{% endfor %}
+      {% endfor %}
+    </table>
+
+
+{% endif %}

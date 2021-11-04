@@ -5,13 +5,13 @@
   Referee {{ invitation.get_title_display }} {{ invitation.last_name }}, whom you invited to referee
   Submission
   <br><br>
-  <a href="https://scipost.org{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
+  <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">{{ invitation.submission.title }}</a>
   <br>by {{ invitation.submission.author_list }}<br>
-  (see https://scipost.org{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}),<br>
+  (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}),<br>
   has failed to respond to the invitation (after being sent {{ invitation.nr_reminders }} reminders).
 </p>
 <p>
-  Unless you are confident that this referee will really deliver a Report, and to ensure that this Submission does not suffer from unnecessary delays in processing, you should ideally invite a replacement referee using the tools on the <a href="https://scipost.org{% url 'submissions:editorial_page' invitation.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.
+  Unless you are confident that this referee will really deliver a Report, and to ensure that this Submission does not suffer from unnecessary delays in processing, you should ideally invite a replacement referee using the tools on the <a href="https://{{ domain }}{% url 'submissions:editorial_page' invitation.submission.preprint.identifier_w_vn_nr %}">Editorial page</a>.
 </p>
 <p>
   We are very grateful for your prompt action.

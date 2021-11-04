@@ -78,6 +78,7 @@ class Comment(TimeStampedModel):
     objects = CommentQuerySet.as_manager()
 
     class Meta:
+        ordering = ['-date_submitted']
         permissions = (
             ('can_vet_comments', 'Can vet submitted Comments'),
         )
@@ -114,6 +115,16 @@ class Comment(TimeStampedModel):
                 to_object = to_object.content_object
             else:
                 raise Exception
+
+    def all_nested_comments(self):
+        """
+        Returns a queryset of all nested comments (recursive).
+        """
+        qs = self.nested_comments.all()
+        for c in qs:
+            if c.nested_comments:
+                qs = qs | c.all_nested_comments().all()
+        return qs
 
     @property
     def is_vetted(self):

@@ -84,36 +84,6 @@ def newsletter_update_ordering(request, pk):
     return render(request, 'news/newsletter_update_ordering.html', context)
 
 
-class NewsLetterNewsItemsOrderingUpdateView(PermissionsMixin, UpdateView):
-    """
-    Update the ordering of News Items within a Newsletter.
-    """
-    permission_required = 'scipost.can_manage_news'
-    model = NewsLetterNewsItemsTable
-    fields = ['order']
-    template_name = 'news/newsletter_update_ordering.html'
-    success_url = reverse_lazy('news:news')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        newsletter = get_object_or_404(NewsLetter, id=self.kwargs['pk'])
-        context['ni_formset'] = NewsLetterNewsItemsOrderingFormSet(
-            self.request.POST or None,
-            queryset=newsletter.newsletternewsitemstable_set.order_by('order'))
-        return context
-
-    # def form_valid(self, form):
-    #     context = self.get_context_data()
-    #     ni_formset = context['ni_formset']
-    #     if ni_formset.is_valid():
-    #         # self.object = form.save()
-    #         # ni_formset.instance = self.object
-    #         ni_formset.save()
-    #         return redirect(self.success_url)
-    #     else:
-    #         return self.render_to_response(self.get_context_data(form=form))
-
-
 class NewsLetterDeleteView(PermissionsMixin, DeleteView):
     """
     Delete a NewsLetter.

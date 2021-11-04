@@ -2,13 +2,16 @@
   <div class="submission-quick-actions">
     <h3>Actions</h3>
     <ul class="my-2 ps-4">
-      {% if submission.is_open_for_reporting and perms.scipost.can_referee %}
+      {% if unfinished_report_for_user %}
+	<li>{% include 'bi/exclamation-circle-fill.html' %} You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
+      {% endif %}
+      {% if submission.open_for_reporting and perms.scipost.can_referee %}
 	<li>
 	  <h4>
 	    {% if not is_author and not is_author_unchecked %}
-              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a>
+              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/contributor_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@{{ request.get_host }}">Invite an expert you know to contribute a Report</a>
 	    {% else %}
-              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/author_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@scipost.org">Invite an expert you know to contribute a Report</a>
+              <a href="mailto:?subject=Contribute a Report on a Submission to SciPost?&body={% autoescape on %}{% include 'submissions/author_referee_invitation_email.html' %}{% endautoescape %}&cc=edadmin@{{ request.get_host }}">Invite an expert you know to contribute a Report</a>
 	    {% endif %}
 	  </h4>
 	</li>
@@ -44,8 +47,6 @@
 	    </div>
 	  </li>
 	{% endif %}
-      {% elif unfinished_report_for_user %}
-	<li>{% include 'bi/exclamation-circle-fill.html' %} You have an unfinished report for this submission. You can <a href="{% url 'submissions:submit_report' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">finish your report here</a>.</li>
       {% else %}
 	<li class="py-1">Reporting for this Submission is closed.</li>
       {% endif %}

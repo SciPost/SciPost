@@ -74,9 +74,11 @@ ASSIGNMENT_REFUSAL_REASONS = (
     ('DNP', 'SciPost should not even consider this paper'),
 )
 
-STATUS_PREASSIGNED, STATUS_INVITED = 'preassigned', 'invited'
+STATUS_PREASSIGNED = 'preassigned'
+STATUS_INVITED = 'invited'
 STATUS_DECLINED = 'declined'
-STATUS_DEPRECATED, STATUS_COMPLETED = 'deprecated', 'completed'
+STATUS_COMPLETED = 'completed'
+STATUS_DEPRECATED = 'deprecated'
 STATUS_REPLACED = 'replaced'
 ASSIGNMENT_STATUSES = (
     (STATUS_PREASSIGNED, 'Pre-assigned'),
@@ -187,10 +189,12 @@ SUBMISSION_CYCLE_CHOICES = (
 SUBMISSION_CYCLES = ((CYCLE_UNDETERMINED, 'Cycle undetermined'),) + SUBMISSION_CYCLE_CHOICES
 
 EVENT_GENERAL = 'gen'
+EVENT_FOR_EDADMIN = 'edad'
 EVENT_FOR_EIC = 'eic'
 EVENT_FOR_AUTHOR = 'auth'
 EVENT_TYPES = (
     (EVENT_GENERAL, 'General comment'),
+    (EVENT_FOR_EDADMIN, 'Comment for EdAdmin'),
     (EVENT_FOR_EIC, 'Comment for Editor-in-charge'),
     (EVENT_FOR_AUTHOR, 'Comment for author'),
 )
@@ -270,36 +274,4 @@ FIGSHARE_PREPRINT_SERVERS = (
     'ChemRxiv',
     'TechRxiv',
     'Advance'
-)
-
-# Preprint-related regexes
-scipost_regex_wo_vn = 'scipost_[0-9]{4,}_[0-9]{4,}'
-scipost_regex_w_vn = 'scipost_[0-9]{4,}_[0-9]{4,}v[0-9]{1,2}'
-arxiv_regex_wo_vn = '[0-9]{4,}.[0-9]{4,}'
-arxiv_regex_w_vn = '[0-9]{4,}.[0-9]{4,}v[0-9]{1,2}'
-chemrxiv_regex_wo_vn = 'chemrxiv_[0-9]+'
-chemrxiv_regex_w_vn = 'chemrxiv_[0-9]+.v[0-9]{1,2}'
-techrxiv_regex_wo_vn = 'techrxiv_[0-9]+'
-techrxiv_regex_w_vn = 'techrxiv_[0-9]+.v[0-9]{1,2}'
-advance_regex_wo_vn = 'advance_[0-9]+'
-advance_regex_w_vn = 'advance_[0-9]+.v[0-9]{1,2}'
-socarxiv_regex = 'socarxiv_[a-z0-9]+'
-
-# Preprints with structurally no version number
-# (like OSFPreprints-based ones: SocArXiv, ...)
-# must not match SUBMISSIONS_WO_VN_REGEX to avoid ambiguities.
-SUBMISSIONS_WO_VN_REGEX = '(?P<identifier_wo_vn_nr>(%s|%s|%s|%s|%s))' % (
-    scipost_regex_wo_vn,
-    arxiv_regex_wo_vn,
-    chemrxiv_regex_wo_vn,
-    techrxiv_regex_wo_vn,
-    advance_regex_wo_vn,
-)
-SUBMISSIONS_COMPLETE_REGEX = '(?P<identifier_w_vn_nr>(%s|%s|%s|%s|%s|%s))' % (
-    scipost_regex_w_vn,
-    arxiv_regex_w_vn,
-    chemrxiv_regex_w_vn,
-    techrxiv_regex_w_vn,
-    advance_regex_w_vn,
-    socarxiv_regex
 )

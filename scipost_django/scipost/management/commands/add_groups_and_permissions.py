@@ -26,6 +26,7 @@ class Command(BaseCommand):
                                                             name='Registered Contributors')
         Developers, created = Group.objects.get_or_create(name='Developers')
         Testers, created = Group.objects.get_or_create(name='Testers')
+        Previewers, created = Group.objects.get_or_create(name='Previewers')
         NewsAdmin, created = Group.objects.get_or_create(name='News Administrators')
         Ambassadors, created = Group.objects.get_or_create(name='Ambassadors')
         JuniorAmbassadors, created = Group.objects.get_or_create(name='Junior Ambassadors')
@@ -311,6 +312,11 @@ class Command(BaseCommand):
             name='Can manage ontology',
             content_type=content_type)
 
+        # Previewing new features
+        can_preview_new_features, created = Permission.objects.get_or_create(
+            codename='can_preview_new_features',
+            name='Can preview new features',
+            content_type=content_type)
 
         # Assign permissions to groups
         SciPostAdmin.permissions.set([
@@ -426,6 +432,10 @@ class Command(BaseCommand):
 
         Developers.permissions.set([
             can_view_docs_scipost,
+        ])
+
+        Previewers.permissions.set([
+            can_preview_new_features,
         ])
 
         Ambassadors.permissions.set([

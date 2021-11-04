@@ -2,9 +2,14 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import requests
+
+from django.contrib.sites.models import Site
 from django.urls import reverse
 from django.db import models
 from django.http import Http404
+
+from submissions.exceptions import PreprintDocumentNotFoundError
 
 
 class Preprint(models.Model):
@@ -15,7 +20,7 @@ class Preprint(models.Model):
     """
 
     # (arXiv) identifiers with/without version number
-    identifier_w_vn_nr = models.CharField(max_length=25, unique=True, db_index=True)
+    identifier_w_vn_nr = models.CharField(max_length=128, unique=True, db_index=True)
     url = models.URLField(blank=True)
 
     # SciPost preprints only
@@ -42,13 +47,26 @@ class Preprint(models.Model):
             return reverse('preprints:pdf', args=(self.identifier_w_vn_nr,))
         raise Http404
 
+    def get_document(self):
+        """
+        Retrieve the preprint document itself, calling preprint server if necessary.
+        """
+        if self._file:  # SciPost-hosted,
+            # return file directly since the url isn't yet publicly accessible
+            return self._file.read()
+        url = self.citation_pdf_url
+        response = requests.get(url)
+        if response.status_code != 200:
+            raise PreprintDocumentNotFoundError(url)
+        return response.content
+
     @property
     def citation_pdf_url(self):
         """Return the absolute URL of the pdf for the meta tag for Google Scholar."""
         if self._file: # means this is a SciPost-hosted preprint
-            return "https://scipost.org%s" % self.get_absolute_url()
+            return "https://%s%s" % (Site.objects.get_current().domain, self.get_absolute_url())
         elif self.is_arXiv:
-            return self.get_absolute_url().replace("/abs/", "/pdf/")
+            return '%s.pdf' % self.get_absolute_url().replace("/abs/", "/pdf/")
         else:
             return self.get_absolute_url()
 

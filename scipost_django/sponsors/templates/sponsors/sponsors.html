@@ -29,9 +29,9 @@
 	Is your organization benefitting from SciPost's activities (check our <a href="{% url 'organizations:organizations' %}">organizations page</a>), and does it not appear in our list of Sponsors below? Then consider helping SciPost:
 	<br/>
 	<strong>Are you a scientist?</strong><br/>
-	Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
+	Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
 	<strong>Are you a librarian, funding agency representative or other potential supporter?</strong><br/>
-	Take a look at our <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template, and contact us at <a href="mailto:sponsors@scipost.org?subject=Sponsors enquiry">sponsors@scipost.org</a> to enquire about further details or initiate your sponsorship.
+	Take a look at our <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement</a> template, and contact us at <a href="mailto:sponsors@{{ request.get_host }}?subject=Sponsors enquiry">sponsors@{{ request.get_host }}</a> to enquire about further details or initiate your sponsorship.
       </p>
     </div>
   </div>

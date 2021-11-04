@@ -1,0 +1,158 @@
+{% extends 'scipost/base.html' %}
+{% load static %}
+
+{% load render_bundle from webpack_loader %}
+{% load static %}
+
+{% block navbar %}
+  {% include 'scipost/navbar2.html' %}
+{% endblock %}
+
+{% block body_class %}{{ block.super }} homepage{% endblock %}
+
+{% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
+{% block pagetitle %}Homepage{% endblock pagetitle %}
+
+{% block header %}
+  {% include 'scipost/header_with_acad_field_and_spec2p2.html' %}
+{% endblock %}
+
+
+{% block content %}
+
+
+  <div class="row">
+    <div class="col-lg-3">
+      <ul class="list list-unstyled list-horizontal text-center">
+	<li class="list-item">
+	  <a class="btn text-white" style="background-color: #338844;"
+	     href="{% url 'submissions:submit_manuscript' %}">
+	    Submit a paper
+	  </a>
+	</li>
+      </ul>
+    </div>
+
+    <div class="col-lg-9">
+      <ul class="nav nav-pills flex-wrap flex-sm-row mb-3 justify-content-center"
+	  role="tablist">
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="journals-tab"
+		  data-bs-toggle="tab" data-bs-target="#journals"
+		  type="button" role="tab"
+		  aria-controls="journals" aria-selected="true">
+	    Journals
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link active" id="publications-tab"
+		  data-bs-toggle="tab" data-bs-target="#publications"
+		  type="button" role="tab"
+		  aria-controls="publications" aria-selected="true">
+	    Publications
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="submissions-tab"
+		  data-bs-toggle="tab" data-bs-target="#submissions"
+		  type="button" role="tab"
+		  aria-controls="submissions" aria-selected="true">
+	    Submissions
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link border border-warning" id="reports-needed-tab"
+		  data-bs-toggle="tab" data-bs-target="#reports-needed"
+		  type="button" role="tab"
+		  aria-controls="reports-needed" aria-selected="true">
+	    Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="reports-tab"
+		  data-bs-toggle="tab" data-bs-target="#reports"
+		  type="button" role="tab"
+		  aria-controls="reports" aria-selected="true">
+	    Reports
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="comments-tab"
+		  data-bs-toggle="tab" data-bs-target="#comments"
+		  type="button" role="tab"
+		  aria-controls="comments" aria-selected="true">
+	    Comments
+	  </button>
+	</li>
+
+      </ul>
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="tab-content mt-4" id="portalTabContent">
+
+    <div class="tab-pane portal-tab fade" id="journals"
+	 role="tabpanel" aria-labelledby="journals-tab">
+      <div hx-get="{% url 'scipost:portal_hx_journals' %}"
+	   hx-trigger="click delay:200ms from:#journals-tab, session-acad-field-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade show active" id="publications"
+	 role="tabpanel" aria-labelledby="publications-tab">
+      <div hx-get="{% url 'scipost:portal_hx_publications' %}"
+	   hx-trigger="load, click delay:200ms from:#publications-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="submissions"
+	 role="tabpanel" aria-labelledby="submissions-tab">
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}"
+	   hx-trigger="click delay:200ms from:#submissions-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="reports-needed"
+	 role="tabpanel" aria-labelledby="reports-needed-tab">
+      <div hx-get="{% url 'scipost:portal_hx_submissions' %}?reports_needed=1"
+	   hx-trigger="click delay:200ms from:#reports-needed-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="reports"
+	 role="tabpanel" aria-labelledby="reports-tab">
+      <div hx-get="{% url 'scipost:portal_hx_reports' %}"
+	   hx-trigger="click delay:200ms from:#reports-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade" id="comments"
+	 role="tabpanel" aria-labelledby="comments-tab">
+      <div hx-get="{% url 'scipost:portal_hx_comments' %}"
+	   hx-trigger="click delay:200ms from:#comments-tab, session-acad-field-set from:body, session-specialty-set from:body"
+      >
+      </div>
+    </div>
+
+  </div>
+
+{% endblock %}
+
+{% block footer_script %}
+  {{ block.super }}
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
+  </script>
+{% endblock footer_script %}

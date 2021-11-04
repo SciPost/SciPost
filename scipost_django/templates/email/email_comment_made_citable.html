@@ -3,7 +3,7 @@
 <p>
     The Comment you have submitted, concerning publication with title
 
-    {{ comment.core_content_object.title }} by {% if comment.core_content_object.author_list %}{{ comment.core_content_object.author_list }}{% elif comment.core_content_object.author %}{{ comment.core_content_object.author }}{% endif %} (<a href="https://scipost.org{{ comment.get_absolute_url }}">see on SciPost.org</a>)
+    {{ comment.core_content_object.title }} by {% if comment.core_content_object.author_list %}{{ comment.core_content_object.author_list }}{% elif comment.core_content_object.author %}{{ comment.core_content_object.author }}{% endif %} (<a href="https://{{ domain }}{{ comment.get_absolute_url }}">see on SciPost.org</a>)
     has been ascribed DOI <a href="//doi.org/{{ comment.doi_string }}">{{ comment.doi_string }}</a> (https://doi.org/{{ comment.doi_string }}), and is thus now citable in the form:
 </p>
 <p>

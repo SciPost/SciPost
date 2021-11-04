@@ -8,7 +8,7 @@ from django.db.models.functions import Concat
 from django.shortcuts import get_object_or_404
 
 from scipost.behaviors import orcid_validator
-from scipost.constants import TITLE_CHOICES
+from scipost.constants import TITLE_CHOICES, TITLE_DR
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
 
@@ -47,7 +47,11 @@ class Profile(models.Model):
        * mark somebody as a non-referee (if that person does not want to referee for SciPost)
     """
 
-    title = models.CharField(max_length=4, choices=TITLE_CHOICES, blank=True, null=True)
+    title = models.CharField(
+        max_length=4,
+        choices=TITLE_CHOICES,
+        default=TITLE_DR
+    )
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
 

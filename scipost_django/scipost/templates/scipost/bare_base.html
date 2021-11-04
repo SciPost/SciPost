@@ -18,13 +18,19 @@
 
     <title>SciPost{% block pagetitle %}{% endblock pagetitle %}</title>
 
+    <style>{% for journal in journals %}{% if journal.style %}{{ journal.style }}{% endif %}{% endfor %}</style>
+
     {% block headsup %}
     {% endblock headsup %}
   </head>
 
   <body class="{% block body_class %}{% endblock %}">
-    {% include 'scipost/header.html' %}
-    {% include 'scipost/navbar.html' %}
+    {% block header %}
+      {% include 'scipost/header.html' %}
+    {% endblock header %}
+    {% block navbar %}
+      {% include 'scipost/navbar.html' %}
+    {% endblock navbar %}
     {% block breadcrumb %}{% endblock breadcrumb %}
 
     {% block secondary_navbar %}{% endblock secondary_navbar %}
@@ -35,10 +41,15 @@
 
 
     <div class="backdrop" id="backdrop"></div>
-    <script src="{% static 'scipost/mathjax-config.js' %}"></script>
+    <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/mathjax-config.js' %}"></script>
     <script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML,Safe"></script>
 
     {% block footer_script %}
+      <script nonce="{{ request.csp_nonce }}">
+       document.body.addEventListener('htmx:afterSettle', function () {
+	   MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+       })
+      </script>
     {% endblock footer_script %}
 
   </body>

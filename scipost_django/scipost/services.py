@@ -73,8 +73,8 @@ class DOICaller:
             except KeyError:
                 author_list.append(author['name'])
         author_list = ', '.join(author_list)
-
-        journal = data.get('container-title', [])[0]
+        abstract = data.get('abstract', '')
+        journal = data.get('container-title', [])[0] if len(data.get('container-title', [])) > 0 else ''
         volume = data.get('volume', '')
         pages = self._get_pages(data)
         pub_date = extract_publication_date_from_Crossref_data(data)
@@ -82,6 +82,7 @@ class DOICaller:
         self.data = {
             'title': title,
             'author_list': author_list,
+            'abstract': abstract,
             'journal': journal,
             'volume': volume,
             'pages': pages,

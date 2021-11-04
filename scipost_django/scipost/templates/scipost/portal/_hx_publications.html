@@ -1,0 +1,60 @@
+{% load static %}
+{% load journals_extras %}
+
+{% load crispy_forms_tags %}
+
+{% if session_acad_field and not session_acad_field.journals.active|length > 0 %}
+  <div class="card m-2 border-2">
+    <div class="card-header m-0 p-0">
+      <h2 class="m-0 p-4 text-white text-center bg-danger">We are not yet active in<br>{{ session_acad_field }}</h2>
+    </div>
+    <div class="card-body">
+      <h3>Interested in helping us set things up?</h3>
+      <p>
+	<a href="mailto:admin@{{ request.get_host }}">Email us</a>
+	your suggestions for Editorial Fellows.
+      </p>
+    </div>
+  </div>
+
+  <hr>
+
+{% endif %}
+
+<div class="d-flex justify-content-between">
+  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#publicationsSearch" aria-expanded="false" aria-controls="publicationsSearch">
+    {% include 'bi/search.html' %}&emsp;Simple search / filter
+  </button>
+  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
+  </a>
+</div>
+<div class="collapse" id="publicationsSearch">
+  <div class="card card-body">
+    <form
+	hx-post="{% url 'scipost:portal_hx_publications_page' %}?page=1"
+	hx-trigger="load, keyup delay:500ms, change"
+	hx-target="#publications-search-results"
+	hx-indicator="#indicator-publications-search"
+    >
+      <div id="publications-search-form">{% crispy publications_search_form %}</div>
+    </form>
+  </div>
+  <div id="indicator-publications-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+</div>
+
+<h2 class="highlight mb-0">Publications in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
+
+<ul id="publications-search-results" class="list-unstyled pool-list mt-2"></ul>
+
+
+
+{% block footer_script %}
+  <script nonce="{{ request.csp_nonce }}" src="{% static 'scipost/toggle-proceedings.js' %}">
+  </script>
+{% endblock footer_script %}

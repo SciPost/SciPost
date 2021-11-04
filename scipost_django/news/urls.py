@@ -2,43 +2,64 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'news'
 
 urlpatterns = [
-    url(r'^manage/$',
+    path(
+        'manage/',
         views.NewsManageView.as_view(),
-        name='manage'),
-    url(r'^newsletter/(?P<year>[0-9]{4,})-(?P<month>[0-9]{2,})-(?P<day>[0-9]{2,})/$',
+        name='manage'
+    ),
+    path(
+        'newsletter/<YYYY:year>-<MM:month>-<DD:day>/',
         views.NewsLetterView.as_view(),
-        name='newsletter_detail'),
-    url(r'^newsletter/add/$',
+        name='newsletter_detail'
+    ),
+    path(
+        'newsletter/add/',
         views.NewsLetterCreateView.as_view(),
-        name='newsletter_create'),
-    url(r'^newsletter/(?P<pk>[0-9]+)/update/$',
+        name='newsletter_create'
+    ),
+    path(
+        'newsletter/<int:pk>/update/',
         views.NewsLetterUpdateView.as_view(),
-        name='newsletter_update'),
-    url(r'^newsletter/(?P<pk>[0-9]+)/update_ordering/$',
-        #views.NewsLetterNewsItemsOrderingUpdateView.as_view(),
+        name='newsletter_update'
+    ),
+    path(
+        'newsletter/<int:pk>/update_ordering/',
         views.newsletter_update_ordering,
-        name='newsletter_update_ordering'),
-    url(r'^newsletter/(?P<pk>[0-9]+)/delete/$',
+        name='newsletter_update_ordering'
+    ),
+    path(
+        'newsletter/<int:pk>/delete/',
         views.NewsLetterDeleteView.as_view(),
-        name='newsletter_delete'),
-    url(r'^newsitem/add/$',
+        name='newsletter_delete'
+    ),
+    path(
+        'newsitem/add/',
         views.NewsItemCreateView.as_view(),
-        name='newsitem_create'),
-    url(r'^newsitem/(?P<pk>[0-9]+)/update/$',
+        name='newsitem_create'
+    ),
+    path(
+        'newsitem/<int:pk>/update/',
         views.NewsItemUpdateView.as_view(),
-        name='newsitem_update'),
-    url(r'^newsitem/(?P<pk>[0-9]+)/delete/$',
+        name='newsitem_update'
+    ),
+    path(
+        'newsitem/<int:pk>/delete/',
         views.NewsItemDeleteView.as_view(),
-        name='newsitem_delete'),
-    url(r'^add_newsitem_to_newsletter/(?P<nlpk>[0-9]+)/$',
+        name='newsitem_delete'
+    ),
+    path(
+        'add_newsitem_to_newsletter/<int:nlpk>/',
         views.NewsLetterNewsItemsTableCreateView.as_view(),
-        name='add_newsitem_to_newsletter'),
-    url(r'^$', views.NewsListView.as_view(), name='news'),
+        name='add_newsitem_to_newsletter'
+    ),
+    path(
+        '', views.NewsListView.as_view(), name='news'
+    ),
 ]

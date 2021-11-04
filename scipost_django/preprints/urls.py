@@ -2,19 +2,22 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
-from submissions.constants import SUBMISSIONS_WO_VN_REGEX, SUBMISSIONS_COMPLETE_REGEX
 
 app_name = 'preprints'
 
 urlpatterns = [
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_WO_VN_REGEX),
+    path(
+        '<identifier_wo_vn_nr:identifier_wo_vn_nr>/',
         views.preprint_pdf_wo_vn_nr,
-        name='preprint_wo_vn_nr'),
-    url(r'^{regex}/$'.format(regex=SUBMISSIONS_COMPLETE_REGEX),
+        name='preprint_wo_vn_nr'
+    ),
+    path(
+        '<identifier:identifier_w_vn_nr>/',
         views.preprint_pdf,
-        name='pdf'),
+        name='pdf'
+    ),
 ]

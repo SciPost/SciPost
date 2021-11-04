@@ -14,23 +14,23 @@
       <h2>News feeds</h2>
       <p>
         We provide both RSS (2.0) and Atom feeds for latest news and announcements.
-        The URL of the RSS feed is <a href="{% url 'scipost:feeds_rss_news' %}">https://scipost.org/rss/news/</a>.
-        The URL of the Atom feed is <a href="{% url 'scipost:feeds_atom_news' %}">https://scipost.org/atom/news/</a>.
+        The URL of the RSS feed is <a href="{% url 'scipost:feeds_rss_news' %}">https://{{ request.get_host }}{% url 'scipost:feeds_rss_news' %}</a>.
+        The URL of the Atom feed is <a href="{% url 'scipost:feeds_atom_news' %}">https://{{ request.get_host }}{% url 'scipost:feeds_atom_news' %}</a>.
       </p>
 
       <h2>Publications feeds</h2>
       <p>
         Similarly, we provide feeds for the latest publications.
-        The URL of the general RSS feed is <a href="{% url 'scipost:feeds_rss_publications' %}">https://scipost.org/rss/publications</a>.
-        The URL of the general Atom feed is <a href="{% url 'scipost:feeds_atom_publications' %}">https://scipost.org/atom/publications/</a>.
+        The URL of the general RSS feed is <a href="{% url 'scipost:feeds_rss_publications' %}">https://{{ request.get_host }}{% url 'scipost:feeds_rss_publications' %}</a>.
+        The URL of the general Atom feed is <a href="{% url 'scipost:feeds_atom_publications' %}">https://{{ request.get_host }}{% url 'scipost:feeds_atom_publications' %}</a>.
       </p>
       <p>You can also obtain feeds only for any specific specialization by using the links in the table below.</p>
 
       <h2>Submissions feeds</h2>
       <p>
         We also provide feeds for the latest submissions.
-        The URL of the general RSS feed is <a href="{% url 'scipost:feeds_rss_submissions' %}">https://scipost.org/rss/submissions</a>.
-        The URL of the general Atom feed is <a href="{% url 'scipost:feeds_atom_submissions' %}">https://scipost.org/atom/submissions/</a>.
+        The URL of the general RSS feed is <a href="{% url 'scipost:feeds_rss_submissions' %}">https://{{ request.get_host }}{% url 'scipost:feeds_rss_submissions' %}</a>.
+        The URL of the general Atom feed is <a href="{% url 'scipost:feeds_atom_submissions' %}">https://{{ request.get_host }}{% url 'scipost:feeds_atom_submissions' %}</a>.
       </p>
       <p>You can also obtain feeds only for any specific specialty by using the links in the table below.</p>
 

@@ -1,19 +1,20 @@
 {% extends 'scipost/base.html' %}
+{% load static %}
 
 {% block pagetitle %}: 404{% endblock pagetitle %}
 
 
 {% block content %}
 
-<div class="row">
+  <div class="row">
     <div class="col-12">
       <div style="text-align: center;">
-          <img src="//scipost.org/static/scipost/images/logo_scipost_RGB_HTML_groot.png" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
-          <h1>The page you requested could not be found.</h1>
-          <h2>404</h2>
-          <p style="margin-top: 20px;">Continue to the <a href="{% url 'submissions:submissions' %}">submissions</a>, <a href="{% url 'commentaries:commentaries' %}">commentaries</a> or <a href="{% url 'theses:theses' %}">theses</a> page.</p>
+        <img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" alt="SciPost logo" width="240" style="margin-top: 20px; margin-bottom: 20px" />
+        <h1>The page you requested could not be found.</h1>
+        <h2>404</h2>
+        <p style="margin-top: 20px;">Continue to the <a href="{% url 'submissions:submissions' %}">submissions</a>, <a href="{% url 'commentaries:commentaries' %}">commentaries</a> or <a href="{% url 'theses:theses' %}">theses</a> page.</p>
       </div>
     </div>
-</div>
+  </div>
 
 {% endblock %}

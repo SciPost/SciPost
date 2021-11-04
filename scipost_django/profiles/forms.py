@@ -172,6 +172,8 @@ class ProfileEmailForm(forms.ModelForm):
 
     def save(self):
         """Save to a profile."""
+        if self.cleaned_data['primary']:
+            self.profile.emails.update(primary=False)
         self.instance.profile = self.profile
         return super().save()
 

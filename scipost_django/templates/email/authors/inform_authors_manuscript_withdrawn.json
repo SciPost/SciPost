@@ -4,8 +4,8 @@
         "submitted_by.user.email"
     ],
     "bcc": [
-        "edadmin@scipost.org"
+        "edadmin@"
     ],
     "from_name": "SciPost Submissions",
-    "from_email": "submissions@scipost.org"
+    "from_email": "submissions@"
 }

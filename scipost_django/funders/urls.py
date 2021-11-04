@@ -2,7 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
 from django.urls import path
 
 from . import views
@@ -20,14 +19,39 @@ urlpatterns = [
         views.GrantAutocompleteView.as_view(),
         name='grant-autocomplete'
     ),
-    url(r'^$', views.funders, name='funders'),
-    url(r'^dashboard$', views.funders_dashboard, name='funders_dashboard'),
-    url(r'^query_crossref_for_funder$', views.query_crossref_for_funder,
-        name='query_crossref_for_funder'),
-    url(r'^add$', views.add_funder, name='add_funder'),
-    url(r'^(?P<funder_id>[0-9]+)/$', views.funder_publications, name='funder_publications'),
-    url(r'^grants/add$', views.CreateGrantView.as_view(), name='add_grant'),
-    url(r'^(?P<pk>[0-9]+)/link_to_organization/$',
+    path(
+        '',
+        views.funders,
+        name='funders'
+    ),
+    path(
+        'dashboard',
+        views.funders_dashboard,
+        name='funders_dashboard'
+    ),
+    path(
+        'query_crossref_for_funder',
+        views.query_crossref_for_funder,
+        name='query_crossref_for_funder'
+    ),
+    path(
+        'add',
+        views.add_funder,
+        name='add_funder'
+    ),
+    path(
+        '<int:funder_id>/',
+        views.funder_publications,
+        name='funder_publications'
+    ),
+    path(
+        'grants/add',
+        views.CreateGrantView.as_view(),
+        name='add_grant'
+    ),
+    path(
+        '<int:pk>/link_to_organization/',
         views.LinkFunderToOrganizationView.as_view(),
-        name='link_to_organization'),
+        name='link_to_organization'
+    ),
 ]

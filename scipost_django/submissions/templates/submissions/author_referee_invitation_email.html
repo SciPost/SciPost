@@ -1,4 +1,4 @@
-[PLEASE FILL IN THE &quot;TO&quot; FIELD ABOVE (keeping edadmin@scipost.org in cc)]%0D%0A
+[PLEASE FILL IN THE &quot;TO&quot; FIELD ABOVE (keeping edadmin@{{ request.get_host }} in cc)]%0D%0A
 %0D%0A
 Dear ...,
 %0D%0A
@@ -9,13 +9,13 @@ I would like to bring your attention to a manuscript of mine which was recently 
 {{ submission.title }}
 %0D%0A
 by {{ submission.author_list }}%0D%0A
-(see https://scipost.org{{ submission.get_absolute_url }} ).
+(see https://{{ request.get_host }}{{ submission.get_absolute_url }} ).
 %0D%0A
 %0D%0A
 The refereeing deadline is currently set at {{ submission.reporting_deadline|date:"d M Y" }}.
 %0D%0A
 %0D%0A
-Since SciPost runs an open peer-witnessed refereeing process, your input could help in the evaluation of this manuscript. To provide your expert opinion, after logging in, you can simply follow the &quot;Contribute a Report&quot; link on the submission page linked above. You will find refereeing guidelines at https://scipost.org/submissions/referee_guidelines and further links therein.
+Since SciPost runs an open peer-witnessed refereeing process, your input could help in the evaluation of this manuscript. To provide your expert opinion, after logging in, you can simply follow the &quot;Contribute a Report&quot; link on the submission page linked above. You will find refereeing guidelines at https://{{ request.get_host }}{% url 'submissions:referee_guidelines' %} and further links therein.
 %0D%0A
 %0D%0A
 [YOUR SIGNATURE]

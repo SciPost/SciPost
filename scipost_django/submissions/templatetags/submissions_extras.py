@@ -17,6 +17,11 @@ def filter_for_submission(qs, submission):
 
 
 @register.filter
+def is_in_submission_fellowship(user, submission):
+    return submission.fellows.filter(contributor__user=user).exists()
+
+
+@register.filter
 def is_possible_author_of_submission(user, submission):
     """Check if User may be related to the Submission as author."""
     if not isinstance(submission, Submission):
@@ -43,6 +48,11 @@ def is_viewable_by_authors(recommendation):
     if not isinstance(recommendation, EICRecommendation):
         return False
     return recommendation.status == DECISION_FIXED
+
+
+@register.filter
+def user_can_vote(recommendation, user):
+    return recommendation.eligible_to_vote.filter(user=user).exists()
 
 
 @register.filter

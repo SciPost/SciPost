@@ -196,7 +196,7 @@
     <tr id="reporting-deadline">
       <td>Open for refereeing:</td>
       <td>
-        {% if submission.is_open_for_reporting %}
+        {% if submission.is_open_for_reporting_within_deadline %}
           <span class="text-success" aria-hidden="true">{% include 'bi/check-circle-fill.html' %}</span>
           <span class="text-muted">Open for refereeing. Deadline: {{ submission.reporting_deadline|date:"SHORT_DATE_FORMAT" }}.</span>
         {% else %}
@@ -224,7 +224,7 @@
         {% endif %}
 
         {% if submission.can_reset_reporting_deadline %}
-          {% if submission.is_open_for_reporting %}
+          {% if submission.is_open_for_reporting_within_deadline %}
             <div class="my-1">
               You may extend the refereeing deadline by
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=2 %}">2 days</a>,
@@ -232,33 +232,35 @@
               <a href="{% url 'submissions:extend_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr days=14 %}">2 weeks</a>,
 
               or set a refereeing deadline:
-              <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+              <form class="d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
-                <div class="d-inline-block mx-2">
+                <div class="row mx-2">
                   {% for field in set_deadline_form.visible_fields %}
-                    {{ field|add_css_class:'form-control' }}
+                    {{ field|add_css_class:'form-control col' }}
                     {{ field }}
                   {% endfor %}
+                  <div class="col">
+		    <input class="btn btn-secondary" type="submit" value="Set deadline"/>
+		  </div>
                 </div>
-
-                <input class="btn btn-outline-secondary" type="submit" value="Set deadline"/>
-              </form>.
+              </form>
             </div>
           {% else %}
             <div class="mt-1">
               Open the refereeing round by setting a refereeing deadline:
-              <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+              <form class="d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
-                <div class="d-inline-block mx-2">
+                <div class="row mx-2">
                   {% for field in set_deadline_form.visible_fields %}
-                    {{ field|add_css_class:'form-control' }}
+                    {{ field|add_css_class:'form-control col' }}
                     {{ field }}
                   {% endfor %}
-                </div>
-
-                <input class="btn btn-outline-secondary" type="submit" value="Set deadline"/>
+                  <div class="col">
+                    <input class="btn btn-secondary" type="submit" value="Set deadline"/>
+                  </div>
+		</div>
               </form>
-            </div>
+	    </div>
           {% endif %}
         {% endif %}
 
@@ -337,21 +339,22 @@
           {% if submission.can_reset_reporting_deadline %}
             <li>
               Set refereeing deadline:
-              <form class="form-inline d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
+              <form class="d-inline-block" action="{% url 'submissions:set_refereeing_deadline' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}" method="post">
                 {% csrf_token %}
-                <div class="d-inline-block mx-2">
+                <div class="row mx-2">
                   {% for field in set_deadline_form.visible_fields %}
-                    {{ field|add_css_class:'form-control' }}
+                    {{ field|add_css_class:'form-control col' }}
                     {{ field }}
                   {% endfor %}
+                  <div class="col">
+		    <input class="btn btn-secondary" type="submit" value="Set deadline"/>
+		  </div>
                 </div>
-
-                <input class="btn btn-outline-secondary btn-sm" type="submit" value="Set deadline"/>
               </form>
             </li>
           {% endif %}
 
-          {% if submission.is_open_for_reporting %}
+          {% if submission.is_open_for_reporting_within_deadline %}
             <li><a href="{% url 'submissions:close_refereeing_round' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">Close the refereeing round</a> &nbsp;(deactivates submission of new Reports and Comments)</li>
           {% endif %}
         {% endif %}
@@ -376,7 +379,7 @@
               Vet submitted Comment{{ comments|pluralize }}:
               <ul class="mb-1">
                 {% for comment in comments %}
-                  <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{comment}}</a></li>
+                  <li><a href="{% url 'comments:vet_submitted_comment' comment.id %}">{{ comment }}</a></li>
                 {% endfor %}
               </ul>
             </li>

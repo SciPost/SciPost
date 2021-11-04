@@ -253,7 +253,7 @@ def add_officer(request, stream_id):
 
         # Temp fix.
         # TODO: Implement proper email
-        ProductionUtils.load({'stream': stream})
+        ProductionUtils.load({'request': request, 'stream': stream})
         ProductionUtils.email_assigned_production_officer()
         return redirect(stream.get_absolute_url())
     else:
@@ -288,7 +288,7 @@ def add_invitations_officer(request, stream_id):
 
         # Temp fix.
         # TODO: Implement proper email
-        ProductionUtils.load({'stream': stream})
+        ProductionUtils.load({'request': request, 'stream': stream})
         ProductionUtils.email_assigned_invitation_officer()
     else:
         for key, error in form.errors.items():
@@ -363,7 +363,7 @@ def add_supervisor(request, stream_id):
 
         # Temp fix.
         # TODO: Implement proper email
-        ProductionUtils.load({'stream': stream})
+        ProductionUtils.load({'request': request, 'stream': stream})
         ProductionUtils.email_assigned_supervisor()
         return redirect(stream.get_absolute_url())
     else:

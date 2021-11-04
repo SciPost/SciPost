@@ -13,10 +13,24 @@ from organizations.views import OrganizationListView
 
 from affiliates.converters import Crossref_DOI_converter
 from colleges.converters import CollegeSlugConverter
-from journals.converters import JournalDOILabelConverter
+from comments.converters import (
+    CommentDOILabelConverter, AuthorReplyDOILabelConverter
+)
+from common.converters import (
+    UnicodeSlugConverter,
+    FourDigitYearConverter, TwoDigitMonthConverter, TwoDigitDayConverter
+)
+from journals.converters import (
+    JournalDOILabelConverter,
+    IssueDOILabelConverter,
+    PublicationDOILabelConverter
+)
 from ontology.converters import (
-    AcademicFieldSlugConverter,
-    SpecialtySlugConverter
+    AcademicFieldSlugConverter, SpecialtySlugConverter
+)
+from submissions.converters import (
+    IdentifierWithoutVersionNumberConverter, IdentifierConverter,
+    ReportDOILabelConverter
 )
 
 
@@ -28,11 +42,25 @@ from ontology.converters import (
 register_converter(Crossref_DOI_converter, 'doi')
 # colleges
 register_converter(CollegeSlugConverter, 'college')
+# comments
+register_converter(CommentDOILabelConverter, 'comment_doi_label')
+register_converter(AuthorReplyDOILabelConverter, 'author_reply_doi_label')
+# common
+register_converter(UnicodeSlugConverter, 'slug')
+register_converter(FourDigitYearConverter, 'YYYY')
+register_converter(TwoDigitMonthConverter, 'MM')
+register_converter(TwoDigitDayConverter, 'DD')
 # journals
 register_converter(JournalDOILabelConverter, 'journal_doi_label')
+register_converter(IssueDOILabelConverter, 'issue_doi_label')
+register_converter(PublicationDOILabelConverter, 'publication_doi_label')
 # ontology
 register_converter(AcademicFieldSlugConverter, 'acad_field')
 register_converter(SpecialtySlugConverter, 'specialty')
+# submissions
+register_converter(IdentifierWithoutVersionNumberConverter, 'identifier_wo_vn_nr')
+register_converter(IdentifierConverter, 'identifier')
+register_converter(ReportDOILabelConverter, 'report_doi_label')
 
 ######################################
 # End of custom converter registration

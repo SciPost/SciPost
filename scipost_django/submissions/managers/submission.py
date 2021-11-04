@@ -67,11 +67,16 @@ class SubmissionQuerySet(models.QuerySet):
 
     def pool(self, user):
         """Return the user-dependent pool of Submissions in active referee phase."""
-        return self.pool_editable(user).filter(is_current=True, status__in=[
+        allowed_statuses = [
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
             constants.STATUS_ACCEPTED,
-            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE])
+            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+        ]
+        if (user.has_perm('scipost.can_oversee_refereeing') or
+            user.contributor.is_active_senior_fellow):
+            allowed_statuses.append(constants.STATUS_INCOMING)
+        return self.pool_editable(user).filter(is_current=True, status__in=allowed_statuses)
 
     def pool_editable(self, user):
         """Return the editable pool for a certain user.
@@ -225,15 +230,33 @@ class SubmissionQuerySet(models.QuerySet):
             constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED, constants.STATUS_EIC_ASSIGNED,
             ], authors=user.contributor)
 
+    def voting_in_preparation(self):
+        from submissions.models import EICRecommendation
+        ids_list = [r.submission.id for r in EICRecommendation.objects.voting_in_preparation()]
+        return self.filter(id__in=ids_list)
+
+    def undergoing_voting(self, longer_than_days=None):
+        from submissions.models import EICRecommendation
+        ids_list = [r.submission.id for r in EICRecommendation.objects.put_to_voting(longer_than_days)]
+        return self.filter(id__in=ids_list)
+
 
 class SubmissionEventQuerySet(models.QuerySet):
-    def for_author(self):
-        """Return all events that are meant to be for the author(s) of a submission."""
-        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
+    def for_edadmin(self):
+        """Return all events that are visible to EdAdmin."""
+        return self.filter(event__in=[
+            constants.EVENT_FOR_EDADMIN,
+            constants.EVENT_FOR_EIC,
+            constants.EVENT_GENERAL
+        ])
 
     def for_eic(self):
-        """Return all events that are meant to be for the Editor-in-charge of a submission."""
+        """Return all events that are visible to Editor-in-charge of a submission."""
         return self.filter(event__in=[constants.EVENT_FOR_EIC, constants.EVENT_GENERAL])
+
+    def for_author(self):
+        """Return all events that are visible to author(s) of a submission."""
+        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
 
     def last_hours(self, hours=24):
         """Return all events of the last `hours` hours."""

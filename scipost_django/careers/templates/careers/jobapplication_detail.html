@@ -27,7 +27,7 @@
 	</p>
 	<p>
 	  If you have not received the email, please check your spam box;
-	  if you still cannot find it, <a href="mailto:admin@scipost.org">contact SciPost admin</a>.
+	  if you still cannot find it, <a href="mailto:admin@{{ request.get_host }}">contact SciPost admin</a>.
 	</p>
       {% elif jobapplication.status == jobapplication.VERIFIED %}
 	<p>
@@ -45,7 +45,7 @@
 	carefully save its URL, which is the following:
       </p>
       <p>
-	https://scipost.org{{ jobapplication.get_absolute_url }}
+	https://{{ request.get_host }}{{ jobapplication.get_absolute_url }}
       </p>
 
 

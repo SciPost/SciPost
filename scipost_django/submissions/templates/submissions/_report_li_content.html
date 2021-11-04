@@ -1,0 +1,6 @@
+{% include 'submissions/_submission_li.html' with submission=report.submission %}
+
+<div class="card-body {% block cardblock_class_block %}{% endblock %}">
+  <h3><a href="{{ report.get_absolute_url }}">Report {{ report.report_nr }}</a> by {% if report.anonymous %}<em>anonymous</em>{% else %}<a href="{{ report.author.get_absolute_url }}">{{ report.author.user.first_name }} {{ report.author.user.last_name }}</a>{% endif %}</h3>
+  <h4>Received: {{ report.date_submitted|date:'Y-n-j' }}</h4>
+</div>

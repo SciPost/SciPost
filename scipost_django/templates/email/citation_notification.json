@@ -4,8 +4,8 @@
         "email"
     ],
     "bcc": [
-        "admin@scipost.org"
+        "admin@"
     ],
     "from_name": "SciPost Admin",
-    "from_email": "admin@scipost.org"
+    "from_email": "admin@"
 }

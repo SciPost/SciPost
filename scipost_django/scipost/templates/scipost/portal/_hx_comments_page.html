@@ -1,0 +1,28 @@
+{% for comment in page_obj %}
+  <li class="list-group-item py-2">
+    {% include 'comments/_comment_card_content.html' with comment=comment %}
+  </li>
+{% empty %}
+  <li class="list-group-item py-2">
+    No comments yet
+  </li>
+{% endfor %}
+{% if page_obj.has_next %}
+  <li id="next-comments-{{ page_obj.number }}">
+    <button class="btn btn-primary m-2" type="button"
+	    hx-post="{% url 'scipost:portal_hx_comments_page' %}?page={{ page_obj.next_page_number }}"
+	    hx-include="#comments-search-form"
+	    hx-target="#next-comments-{{ page_obj.number }}"
+	    hx-swap="outerHTML"
+	    hx-indicator="#indicator-comments-page-{{ page_obj.number }}"
+    >
+      Load page {{ page_obj.next_page_number }} (out of {{ page_obj.paginator.num_pages }})
+    </button>
+    <span id="indicator-comments-page-{{ page_obj.number }}" class="htmx-indicator p-2">
+      <button class="btn btn-warning" type="button" disabled>
+	<strong>Loading page {{ page_obj.next_page_number }} out of {{ page_obj.paginator.num_pages }}</strong>
+	<div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+      </button>
+    </span>
+  </li>
+{% endif %}

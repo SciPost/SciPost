@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template import Context, Template
 
@@ -13,63 +14,12 @@ from .constants import (
 from scipost.utils import EMAIL_FOOTER
 from common.utils import BaseMailUtil
 
+domain = Site.objects.get_current().domain
+
 
 class SubmissionUtils(BaseMailUtil):
-    mail_sender = 'submissions@scipost.org'
+    mail_sender = f'submissions@{domain}'
     mail_sender_title = 'SciPost Editorial Admin'
-
-    @classmethod
-    def send_assignment_request_email(cls):
-        """ Requires loading 'assignment' attribute. """
-        email_text = ('Dear ' + cls.assignment.to.profile.get_title_display() + ' ' +
-                      cls.assignment.to.user.last_name +
-                      ', \n\nWe have received a Submission to SciPost ' +
-                      'for which we would like you to consider becoming Editor-in-charge:\n\n' +
-                      cls.assignment.submission.title + ' by '
-                      + cls.assignment.submission.author_list + '.' +
-                      '\n\nPlease visit https://scipost.org/submissions/pool ' +
-                      'in order to accept or decline (it is important for you to inform us '
-                      'even if you decline, since this affects the result '
-                      'of the pre-screening process). '
-                      'Note that this assignment request is automatically '
-                      'deprecated if another Fellow '
-                      'takes charge of this Submission or if pre-screening '
-                      'fails in the meantime.'
-                      '\n\nMany thanks in advance for your collaboration,' +
-                      '\n\nThe SciPost Team.')
-        email_text_html = (
-            '<p>Dear {{ title }} {{ last_name }},</p>'
-            '<p>We have received a Submission to SciPost ' +
-            'for which we would like you to consider becoming Editor-in-charge:</p>'
-            '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
-            '\n<p>Please visit the '
-            '<a href="https://scipost.org/submissions/pool">Submissions Pool</a> '
-            'in order to accept or decline (it is important for you to inform us '
-            'even if you decline, since this affects the result '
-            'of the pre-screening process).</p>'
-            '<p>Note that this assignment request is automatically '
-            'deprecated if another Fellow '
-            'takes charge of this Submission or if pre-screening '
-            'fails in the meantime.</p>'
-            '\n<p>Many thanks in advance for your collaboration,</p>'
-            '<p>The SciPost Team.</p>')
-        email_context = {
-            'title': cls.assignment.to.profile.get_title_display(),
-            'last_name': cls.assignment.to.user.last_name,
-            'sub_title': cls.assignment.submission.title,
-            'author_list': cls.assignment.submission.author_list,
-        }
-        email_text_html += '<br/>' + EMAIL_FOOTER
-        html_template = Template(email_text_html)
-        html_version = html_template.render(Context(email_context))
-        emailmessage = EmailMultiAlternatives(
-            'SciPost: potential Submission assignment', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
-            [cls.assignment.to.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
-        emailmessage.attach_alternative(html_version, 'text/html')
-        emailmessage.send(fail_silently=False)
 
     @classmethod
     def send_EIC_appointment_email(cls):
@@ -82,15 +32,15 @@ class SubmissionUtils(BaseMailUtil):
                       + cls.assignment.submission.title + ' by '
                       + cls.assignment.submission.author_list + '.'
                       '\n\nYou can take your editorial actions from the editorial page '
-                      'https://scipost.org/submission/editorial_page/'
+                      f'https://{domain}/submission/editorial_page/'
                       + cls.assignment.submission.preprint.identifier_w_vn_nr
                       + ' (also accessible from your personal page '
-                      'https://scipost.org/personal_page under the Editorial Actions tab). '
+                      f'https://{domain}/personal_page under the Editorial Actions tab). '
                       'In particular, unless you choose to directly formulate a Recommendation, '
                       'you should now start a refereeing round and invite at least 3 referees; '
                       'you might want to make sure you are aware of the '
                       'detailed procedure described in the Editorial College by-laws at '
-                      'https://scipost.org/EdCol_by-laws.'
+                      f'https://{domain}/EdCol_by-laws.'
                       '\n\nMany thanks in advance for your collaboration,'
                       '\n\nThe SciPost Team.')
         email_text_html = (
@@ -100,16 +50,16 @@ class SubmissionUtils(BaseMailUtil):
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}.</p>'
             '\n<p>You can take your editorial actions from the '
-            '<a href="https://scipost.org/submission/editorial_page/'
+            f'<a href="https://{domain}/submission/editorial_page/'
             '{{ identifier_w_vn_nr }}">editorial page</a> '
             '(also accessible from your '
-            '<a href="https://scipost.org/personal_page">personal page</a> '
+            f'<a href="https://{domain}/personal_page">personal page</a> '
             'under the Editorial Actions tab).</p>'
             '\n<p>In particular, unless you choose to directly formulate a Recommendation, '
             'you should now start a refereeing round and invite at least 3 referees; '
             'you might want to make sure you are aware of the '
             'detailed procedure described in the '
-            '<a href="https://scipost.org/EdCol_by-laws">Editorial College by-laws</a>.</p>'
+            f'<a href="https://{domain}/EdCol_by-laws">Editorial College by-laws</a>.</p>'
             '<p>Many thanks in advance for your collaboration,</p>'
             '<p>The SciPost Team.</p>')
         email_context = {
@@ -124,10 +74,10 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: assignment as EIC', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            f'SciPost Editorial Admin <submissions@{domain}>',
             [cls.assignment.to.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+            bcc=[f'submissions@{domain}'],
+            reply_to=[f'submissions@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -140,7 +90,7 @@ class SubmissionUtils(BaseMailUtil):
                       + cls.assignment.submission.title + ' by ' + cls.assignment.submission.author_list
                       + '\n\nhas successfully passed the pre-screening stage. '
                       '\n\nA Submission Page has been activated at '
-                      'https://scipost.org/submission/'
+                      f'https://{domain}/submission/'
                       + cls.assignment.submission.preprint.identifier_w_vn_nr
                       + ' and a refereeing round has been started, with deadline '
                       'currently set at '
@@ -167,7 +117,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>{{ sub_title }}</p>'
             '\n<p>by {{ author_list }}</p>'
             '\n<p>has successfully passed the pre-screening stage.</p>'
-            '\n<p>A <a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
+            f'\n<p>A <a href="https://{domain}/submission/' + '{{ identifier_w_vn_nr }}">'
             'Submission Page</a> has been activated '
             'and a refereeing round has been started, with deadline '
             'currently set at {{ deadline }}.</p>'
@@ -202,10 +152,10 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: pre-screening passed', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            f'SciPost Editorial Admin <submissions@{domain}>',
             [cls.assignment.submission.submitted_by.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+            bcc=[f'submissions@{domain}'],
+            reply_to=[f'submissions@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -236,7 +186,7 @@ class SubmissionUtils(BaseMailUtil):
             'our invitation to become a Contributor on SciPost '
             '(our records show that you are not yet registered); '
             'your partially pre-filled registration form is still available at\n\n'
-            'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
+            f'https://{domain}/invitation/' + cls.invitation.invitation_key + '\n\n'
             'after which your registration will be activated, giving you full access to '
             'the portal\'s facilities (in particular allowing you to '
             'provide referee reports).\n\n'
@@ -244,20 +194,20 @@ class SubmissionUtils(BaseMailUtil):
             'we would appreciate a quick accept/decline response from you, '
             'ideally within the next 2 days.\n\n'
             'If you are not able to provide a Report, you can quickly let us know by simply '
-            'navigating to \n\nhttps://scipost.org/submissions/decline_ref_invitation/'
+            f'navigating to \n\nhttps://{domain}/submissions/decline_ref_invitation/'
             + cls.invitation.invitation_key + '\n\n'
             'If you are able to provide a Report, you can confirm this after registering '
             'and logging in (you will automatically be prompted for a confirmation). '
             'Your report can thereafter be submitted by simply clicking on '
             'the "Contribute a Report" link at '
-            'https://scipost.org/submission/'
+            f'https://{domain}/submission/'
             + cls.invitation.submission.preprint.identifier_w_vn_nr
             + ' before the reporting deadline (currently set at '
             + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
             + '; your report will be automatically recognized as an invited report). '
             'You might want to make sure you are familiar with our refereeing code of conduct '
-            'https://scipost.org/journals/journals_terms_and_conditions and with the '
-            'refereeing procedure https://scipost.org/submissions/refereeing_procedure.'
+            f'https://{domain}/journals/journals_terms_and_conditions and with the '
+            f'refereeing procedure https://{domain}/submissions/refereeing_procedure.'
             '\n\nWe very much hope we can count on your expertise,'
             '\n\nMany thanks in advance,\n\nThe SciPost Team'
         )
@@ -266,7 +216,7 @@ class SubmissionUtils(BaseMailUtil):
             'our invitation to become a Contributor on SciPost '
             '(our records show that you are not yet registered); '
             'your partially pre-filled '
-            '<a href="https://scipost.org/invitation/{{ invitation_key }}">'
+            f'<a href="https://{domain}' + '/invitation/{{ invitation_key }}">'
             'registration form</a> is still available, '
             'after which your registration will be activated, giving you full access to '
             'the portal\'s facilities (in particular allowing you to provide referee reports).</p>'
@@ -275,19 +225,19 @@ class SubmissionUtils(BaseMailUtil):
             'ideally within the next 2 days.</p>'
             '<p>If you are <strong>not</strong> able to provide a Report, '
             'you can quickly let us know by simply '
-            '<a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation_key }}">'
+            f'<a href="https://{domain}' + '/submissions/decline_ref_invitation/{{ invitation_key }}">'
             'clicking here</a>.</p>'
             '<p>If you are able to provide a Report, you can confirm this after registering '
             'and logging in (you will automatically be prompted for a confirmation). '
             'Your report can thereafter be submitted by simply clicking on '
             'the "Contribute a Report" link at '
-            'the <a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
+            f'the <a href="https://{domain}' + '/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a> before the reporting deadline (currently set at '
             '{{ deadline }}; your report will be automatically recognized as an invited report).</p>'
             '\n<p>You might want to make sure you are familiar with our '
-            '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
+            f'<a href="https://{domain}/journals/journals_terms_and_conditions">'
             'refereeing code of conduct</a> and with the '
-            '<a href="https://scipost.org/submissions/refereeing_procedure">'
+            f'<a href="https://{domain}/submissions/refereeing_procedure">'
             'refereeing procedure</a>.</p>'
             '<p>We very much hope we can count on your expertise,</p>'
             '<p>Many thanks in advance,</p>'
@@ -309,11 +259,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
-            'SciPost Refereeing <refereeing@scipost.org>',
+            f'SciPost Refereeing <refereeing@{domain}>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'refereeing@scipost.org'],
-            reply_to=['refereeing@scipost.org'])
+                 f'refereeing@{domain}'],
+            reply_to=[f'refereeing@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -342,38 +292,38 @@ class SubmissionUtils(BaseMailUtil):
         if cls.invitation.accepted is None:
             email_text += (
                 '\n\nPlease visit '
-                'https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                f'https://{domain}/submissions/accept_or_decline_ref_invitations '
                 '(login required) as soon as possible (ideally within the next 2 days) '
                 'in order to accept or decline this invitation.')
             email_text_html += (
                 '\n<p>Please '
-                '<a href="https://scipost.org/submissions/accept_or_decline_ref_invitations">'
+                f'<a href="https://{domain}/submissions/accept_or_decline_ref_invitations">'
                 'accept or decline the invitation</a> '
                 '(login required) as soon as possible (ideally within the next 2 days) '
                 'in order to ensure rapid processing of the submission.')
         email_text += (
             '\n\nYour report can be submitted by simply clicking on '
             'the "Contribute a Report" link at '
-            'https://scipost.org/submission/'
+            f'https://{domain}/submission/'
             + cls.invitation.submission.preprint.identifier_w_vn_nr
             + ' before the reporting deadline (currently set at '
             + datetime.datetime.strftime(cls.invitation.submission.reporting_deadline, "%Y-%m-%d")
             + '; your report will be automatically recognized as an invited report). '
             'You might want to make sure you are familiar with our refereeing code of conduct '
-            'https://scipost.org/journals/journals_terms_and_conditions and with the '
-            'refereeing procedure https://scipost.org/submissions/refereeing_procedure.'
+            f'https://{domain}/journals/journals_terms_and_conditions and with the '
+            f'refereeing procedure https://{domain}/submissions/refereeing_procedure.'
             '\n\nWe very much hope we can count on your expertise,'
             '\n\nMany thanks in advance,\n\nThe SciPost Team')
         email_text_html += (
             '\n<p>Your report can be submitted by simply clicking on '
             'the "Contribute a Report" link at '
-            'the <a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
+            f'the <a href="https://{domain}' + '/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a> before the reporting deadline (currently set at '
             '{{ deadline }}; your report will be automatically recognized as an invited report).</p>'
             '\n<p>You might want to make sure you are familiar with our '
-            '<a href="https://scipost.org/journals/journals_terms_and_conditions">'
+            f'<a href="https://{domain}/journals/journals_terms_and_conditions">'
             'refereeing code of conduct</a> and with the '
-            '<a href="https://scipost.org/submissions/refereeing_procedure">'
+            f'<a href="https://{domain}/submissions/refereeing_procedure">'
             'refereeing procedure</a>.</p>'
             '<p>We very much hope we can count on your expertise,</p>'
             '<p>Many thanks in advance,</p>'
@@ -395,11 +345,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: reminder (refereeing request and registration invitation)', email_text,
-            'SciPost Refereeing <refereeing@scipost.org>',
+            f'SciPost Refereeing <refereeing@{domain}>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'refereeing@scipost.org'],
-            reply_to=['refereeing@scipost.org'])
+                 f'refereeing@{domain}'],
+            reply_to=[f'refereeing@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -437,7 +387,7 @@ class SubmissionUtils(BaseMailUtil):
                            'our invitation to become a Contributor on SciPost '
                            '(our records show that you are not yet registered); '
                            'your partially pre-filled registration form is still available at\n\n'
-                           'https://scipost.org/invitation/' + cls.invitation.invitation_key + '\n\n'
+                           f'https://{domain}/invitation/' + cls.invitation.invitation_key + '\n\n'
                            'after which your registration will be activated, giving you full access to '
                            'the portal\'s facilities (in particular allowing you to provide referee reports).')
             email_text_html += (
@@ -445,7 +395,7 @@ class SubmissionUtils(BaseMailUtil):
                 'our invitation to become a Contributor on SciPost '
                 '(our records show that you are not yet registered); '
                 'your partially pre-filled '
-                '<a href="https://scipost.org/invitation/{{ invitation_key }}">'
+                f'<a href="https://{domain}' + '/invitation/{{ invitation_key }}">'
                 'registration form</a> is still available '
                 'after which your registration will be activated, giving you full access to '
                 'the portal\'s facilities (in particular allowing you to provide referee reports).</p>')
@@ -463,11 +413,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: report no longer needed', email_text,
-            'SciPost Refereeing <refereeing@scipost.org>',
+            f'SciPost Refereeing <refereeing@{domain}>',
             [cls.invitation.email_address],
             bcc=[cls.invitation.submission.editor_in_charge.user.email,
-                 'refereeing@scipost.org'],
-            reply_to=['refereeing@scipost.org'])
+                 f'refereeing@{domain}'],
+            reply_to=[f'refereeing@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -485,11 +435,11 @@ class SubmissionUtils(BaseMailUtil):
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>')
         if cls.report.status == STATUS_VETTED:
             email_text += ('\n\nYour Report has been vetted through and is viewable at '
-                           'https://scipost.org/submissions/'
+                           f'https://{domain}/submissions/'
                            + cls.report.submission.preprint.identifier_w_vn_nr + '.')
             email_text_html += (
                 '\n<p>Your Report has been vetted through and is viewable at '
-                'the <a href="https://scipost.org/submissions/'
+                f'the <a href="https://{domain}/submissions/'
                 '{{ identifier_w_vn_nr }}">Submission\'s page</a>.</p>')
         else:
             email_text += ('\n\nYour Report has been reviewed by the Editor-in-charge of the Submission, '
@@ -546,11 +496,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report acknowledgement', email_text,
-            'SciPost Refereeing <refereeing@scipost.org>',
+            f'SciPost Refereeing <refereeing@{domain}>',
             [cls.report.author.user.email],
             bcc=[cls.report.submission.editor_in_charge.user.email,
-                 'refereeing@scipost.org'],
-            reply_to=['refereeing@scipost.org'])
+                 f'refereeing@{domain}'],
+            reply_to=[f'refereeing@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -562,7 +512,7 @@ class SubmissionUtils(BaseMailUtil):
                       ', \n\nA Report has been posted on your recent Submission to SciPost,\n\n' +
                       cls.report.submission.title + ' by ' + cls.report.submission.author_list + '.'
                       '\n\nYou can view it at the Submission Page '
-                      'https://scipost.org/submission/'
+                      f'https://{domain}/submission/'
                       + cls.report.submission.preprint.identifier_w_vn_nr + '.'
                       '\n\nWe remind you that you can provide an author reply '
                       '(only if you wish, to clarify points raised '
@@ -577,7 +527,7 @@ class SubmissionUtils(BaseMailUtil):
             '<p>A Report has been posted on your recent Submission to SciPost,</p>'
             '<p>{{ sub_title }}</p>\n<p>by {{ author_list }}.</p>'
             '\n<p>You can view it at the '
-            '<a href="https://scipost.org/submission/{{ identifier_w_vn_nr }}">'
+            f'<a href="https://{domain}' + '/submission/{{ identifier_w_vn_nr }}">'
             'Submission\'s page</a>.</p>'
             '<p>We remind you that you can provide an author reply '
             '(only if you wish, to clarify points raised '
@@ -599,10 +549,10 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: Report received on your Submission', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            f'SciPost Editorial Admin <submissions@{domain}>',
             [cls.report.submission.submitted_by.user.email],
-            bcc=['submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+            bcc=[f'submissions@{domain}'],
+            reply_to=[f'submissions@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -622,30 +572,30 @@ class SubmissionUtils(BaseMailUtil):
             recipient_greeting = ('Dear ' +
                                   cls.communication.submission.editor_in_charge.profile.get_title_display() + ' ' +
                                   cls.communication.submission.editor_in_charge.user.last_name)
-            further_action_page = ('https://scipost.org/submission/editorial_page/'
+            further_action_page = (f'https://{domain}/submission/editorial_page/'
                                    + cls.communication.submission.preprint.identifier_w_vn_nr)
             if cls.communication.comtype == 'RtoE':
                 bcc_emails.append(cls.communication.referee.user.email)
-            bcc_emails.append('submissions@scipost.org')
+            bcc_emails.append(f'submissions@{domain}')
         elif cls.communication.comtype in ['EtoA']:
             recipient_email.append(cls.communication.submission.submitted_by.user.email)
             recipient_greeting = ('Dear ' +
                                   cls.communication.submission.submitted_by.profile.get_title_display() + ' ' +
                                   cls.communication.submission.submitted_by.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            bcc_emails.append('submissions@scipost.org')
+            bcc_emails.append(f'submissions@{domain}')
         elif cls.communication.comtype in ['EtoR']:
             recipient_email.append(cls.communication.referee.user.email)
             recipient_greeting = ('Dear ' +
                                   cls.communication.referee.profile.get_title_display() + ' ' +
                                   cls.communication.referee.user.last_name)
             bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            bcc_emails.append('submissions@scipost.org')
+            bcc_emails.append(f'submissions@{domain}')
         elif cls.communication.comtype in ['EtoS']:
-            recipient_email.append('submissions@scipost.org')
+            recipient_email.append(f'submissions@{domain}')
             recipient_greeting = 'Dear Editorial Administrators'
             bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            further_action_page = 'https://scipost.org/submissions/pool'
+            further_action_page = f'https://{domain}/submissions/pool'
 
         email_text = (recipient_greeting +
                       ', \n\nPlease find here a communication (' +
@@ -663,10 +613,10 @@ class SubmissionUtils(BaseMailUtil):
         emailmessage = EmailMessage(
             'SciPost: communication (' + cls.communication.get_comtype_display() + ')',
             email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            f'SciPost Editorial Admin <submissions@{domain}>',
             recipient_email,
             bcc_emails,
-            reply_to=['submissions@scipost.org'])
+            reply_to=[f'submissions@{domain}'])
         emailmessage.send(fail_silently=False)
 
     @classmethod
@@ -690,13 +640,13 @@ class SubmissionUtils(BaseMailUtil):
             email_text_html += 'major'
         email_text += (' revision.'
                        '\n\nYou can view it at the Submission Page '
-                       'https://scipost.org/submission/'
+                       f'https://{domain}/submission/'
                        + cls.submission.preprint.identifier_w_vn_nr + '. '
                        'Note that the recommendation is viewable only by '
                        'the registered authors of the submission.'
                        'To resubmit your paper, please first update the version '
                        'on the arXiv; after appearance, go to the submission page '
-                       'https://scipost.org/submissions/submit_manuscript and fill '
+                       f'https://{domain}/submissions/submit_manuscript and fill '
                        'in the forms. Your submission will be automatically recognized '
                        'as a resubmission.'
                        '\n\nWe thank you very much for your contribution.'
@@ -705,13 +655,13 @@ class SubmissionUtils(BaseMailUtil):
         email_text_html += (
             ' revision.</p>'
             '\n<p>You can view it at the '
-            '<a href="https://scipost.org/submission/'
+            f'<a href="https://{domain}/submission/'
             '{{ identifier_w_vn_nr }}">Submission\'s Page</a>.</p>'
             '<p>Note that the recommendation is viewable only by '
             'the registered authors of the submission.</p>'
             '<p>To resubmit your paper, please first update the version '
             'on the arXiv; after appearance, go to the '
-            '<a href="https://scipost.org/submissions/submit_manuscript">'
+            f'<a href="https://{domain}/submissions/submit_manuscript">'
             'submission page</a> and fill '
             'the forms in. Your submission will be automatically recognized '
             'as a resubmission.</p>'
@@ -730,11 +680,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: revision requested', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            f'SciPost Editorial Admin <submissions@{domain}>',
             [cls.submission.submitted_by.user.email],
             bcc=[cls.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 f'submissions@{domain}'],
+            reply_to=[f'submissions@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -782,7 +732,7 @@ class SubmissionUtils(BaseMailUtil):
             email_text += ('We are sorry to inform you that your Submission '
                            'has not been accepted for publication. '
                            '\n\nYou can view more details at the Submission Page '
-                           'https://scipost.org/submission/'
+                           f'https://{domain}/submission/'
                            + cls.submission.preprint.identifier_w_vn_nr + '. '
                            'Note that these details are viewable only by '
                            'the registered authors of the submission.'
@@ -793,7 +743,7 @@ class SubmissionUtils(BaseMailUtil):
                 '<p>We are sorry to inform you that your Submission '
                 'has not been accepted for publication.</p>'
                 '\n<p>You can view more details at the '
-                '<a href="https://scipost.org/submission/'
+                f'<a href="https://{domain}/submission/'
                 '{{ identifier_w_vn_nr }}">Submission\'s Page</a>. '
                 'Note that these details are viewable only by '
                 'the registered authors of the submission.</p>'
@@ -820,11 +770,11 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: College decision', email_text,
-            'SciPost Editorial Admin <submissions@scipost.org>',
+            f'SciPost Editorial Admin <submissions@{domain}>',
             [cls.submission.submitted_by.user.email],
             bcc=[cls.submission.editor_in_charge.user.email,
-                 'submissions@scipost.org'],
-            reply_to=['submissions@scipost.org'])
+                 f'submissions@{domain}'],
+            reply_to=[f'submissions@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)
 
@@ -835,9 +785,9 @@ class SubmissionUtils(BaseMailUtil):
         """
         email_text = ('Dear Fellow,'
                       '\n\nYou have pending voting duties in the SciPost '
-                      'submissions pool at https://scipost.org/submissions/pool'
+                      f'submissions pool at https://{domain}/submissions/pool'
                       ' (also accessible from your personal page '
-                      'https://scipost.org/personal_page under the Editorial Actions tab). '
+                      f'https://{domain}/personal_page under the Editorial Actions tab). '
                       'Could you please have a quick look within the next couple of days, '
                       'so we can finish processing these submissions?'
                       '\n\nMany thanks in advance,'
@@ -845,9 +795,9 @@ class SubmissionUtils(BaseMailUtil):
         email_text_html = (
             '<p>Dear Fellow,</p>'
             '<p>You have pending voting duties in the SciPost '
-            'submissions pool https://scipost.org/submissions/pool'
+            f'submissions pool https://{domain}/submissions/pool'
             ' (also accessible from your personal page '
-            'https://scipost.org/personal_page under the Editorial Actions tab).</p>'
+            f'https://{domain}/personal_page under the Editorial Actions tab).</p>'
             '<p>Could you please have a quick look within the next couple of days, '
             'so we can finish processing these submissions?</p>'
             '<p>Many thanks in advance,</p>'
@@ -857,9 +807,9 @@ class SubmissionUtils(BaseMailUtil):
         html_version = html_template.render(Context(email_context))
         emailmessage = EmailMultiAlternatives(
             'SciPost: voting duties', email_text,
-            'SciPost Editorial Admin <edadmin@scipost.org>',
-            to=['edadmin@scipost.org'],
+            f'SciPost Editorial Admin <edadmin@{domain}>',
+            to=[f'edadmin@{domain}'],
             bcc=cls.Fellow_emails,
-            reply_to=['edadmin@scipost.org'])
+            reply_to=[f'edadmin@{domain}'])
         emailmessage.attach_alternative(html_version, 'text/html')
         emailmessage.send(fail_silently=False)

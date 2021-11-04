@@ -6,10 +6,10 @@
   <br><br>
   {{ submission.title }}
   <br>by {{ submission.author_list }}<br>
-  (see https://scipost.org{{ submission.get_absolute_url }} - first submitted {{ submission.original_submission_date|date:"d M Y" }}).
+  (see https://{{ domain }}{{ submission.get_absolute_url }} - first submitted {{ submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
-  You can view it <a href="https://scipost.org{{ comment.get_absolute_url }}">here</a>, embedded within your <a href="https://scipost.org/submission/{{ submission.get_absolute_url }}">Submission\'s Page</a>.
+  You can view it <a href="https://{{ domain }}{{ comment.get_absolute_url }}">here</a>, embedded within your <a href="https://{{ domain }}/submission/{{ submission.get_absolute_url }}">Submission\'s Page</a>.
 </p>
 <p>Sincerely,</p>
 <p>The SciPost Team</p>

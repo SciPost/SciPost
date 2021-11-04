@@ -1,0 +1,208 @@
+{% load scipost_extras %}
+{% load submissions_extras %}
+{% load user_groups %}
+
+{% is_editor_in_charge request.user submission as is_editor_in_charge %}
+{% is_ed_admin request.user as is_ed_admin %}
+
+
+<button type="button" class="btn btn-primary p-1"
+	data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
+	aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
+  <small>Toggle details visibility</small>
+</button>
+
+<div class="collapse show bg-light submission-detail mt-1 p-2" id="collapse_{{ submission.id }}">
+  <div class="card-body px-0">
+    <div class="row">
+      <div class="col-md-8">
+        {% include 'submissions/pool/_submission_info_table.html' with submission=submission %}
+      </div>
+      <div class="col-md-4">
+        {% include 'submissions/_submission_refereeing_history.html' with submission=submission target_blank=1 %}
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <hr>
+    <h3>Remarks on this submission:</h3>
+    {% if remark_form %}
+      {% include 'submissions/_remark_form.html' with submission=submission form=remark_form auto_show=1 %}
+    {% endif %}
+    <p class="mb-1">Current remarks:</p>
+    <ul>
+      {% for rem in submission.remarks.all %}
+        {% include 'scipost/_remark_li.html' with remark=rem %}
+      {% empty %}
+        <li>No Remarks found.</li>
+      {% endfor %}
+    </ul>
+
+    {% if is_editor_in_charge or is_ed_admin %}
+      <div class="my-4 p-3 border{% if submission.cycle.has_required_actions %} border-danger bg-light{% endif %}" id="required-actions" {% if submission.cycle.has_required_actions %}style="border-width: 2px !important;"{% endif %}>
+	<h3>
+          {% if submission.cycle.has_required_actions %}
+            <span class="text-danger">{% include 'bi/exclamation-triangle-fill.html' %}</span>
+          {% else %}
+            {% include 'bi/check-circle-fill.html' %}
+          {% endif %}
+          Required actions
+	</h3>
+	{{ submission.cycle.required_actions }}
+      </div>
+      <h4>
+	<a href="{% url 'submissions:editorial_page' submission.preprint.identifier_w_vn_nr %}">Go to this Submission's Editorial Page</a>
+      </h4>
+    {% endif %}
+
+    {% if is_ed_admin or request.user.contributor.is_active_senior_fellow %}
+      <div class="border border-danger mt-3 p-2">
+	<h3>Editorial Administration</h3>
+	<ul class="ps-4 mb-3">
+	  {% if is_ed_admin %}
+	    <li>
+	      {% if submission.in_prescreening %}
+		<a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening</a>
+	      {% else %}
+		Pre-screening completed
+	      {% endif %}
+	    </li>
+	  {% endif %}
+
+          {# EIC Assignments #}
+          <li>Screening: invitations to take charge
+	    {% if not submission.editor_in_charge %}
+	      <span class="border border-danger text-danger ms-2 p-1">
+		There is no Editor-in-charge yet {% include 'bi/arrow-right.html' %}
+		<a href="{% url 'submissions:editor_invitations' submission.preprint.identifier_w_vn_nr %}">Manage editor invitations</a>
+	      </span>
+	    {% endif %}
+            <ul class="mt-2 ps-3">
+	      {% for assignment in submission.editorial_assignments.all %}
+		{% include 'submissions/pool/_assignment_info.html' with assignment=assignment %}
+	      {% empty %}
+		<li>No assignment requests have been sent</li>
+	      {% endfor %}
+
+	      {% if is_ed_admin %}
+		{% if not submission.editor_in_charge %}
+		  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 1 %}">
+		    No EIC yet, update authors by email (1 week into screening)
+		  </a></li>
+		  <li><a href="{% url 'submissions:update_authors_screening' submission.preprint.identifier_w_vn_nr 2 %}">
+		    No EIC yet, update authors by email (2 weeks into screening)
+		  </a></li>
+		  <li><a href="{% url 'submissions:assignment_failed' submission.preprint.identifier_w_vn_nr %}">Close: screening failed (failure to find EIC)</a></li>
+		{% endif %}
+	      {% endif %}
+            </ul>
+	  </li>
+
+	  <li>Refereeing:
+	    <ul class="ps-3">
+              {% if submission.editor_in_charge and perms.scipost.can_reassign_submissions %}
+		<li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
+              {% endif %}
+	    </ul>
+	  </li>
+
+          {# Compile pdfs #}
+          {% if submission.reports.accepted.exists %}
+            <li><a href="{% url 'submissions:reports_accepted_list' %}?submission={{ submission.preprint.identifier_w_vn_nr }}">Compile accepted reports</a></li>
+          {% endif %}
+
+          {# Communication #}
+	  {% if is_ed_admin %}
+            {% if submission.editor_in_charge %}
+              <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
+            {% endif %}
+	  {% endif %}
+
+          {# EIC Recommendations #}
+          {% if submission.eicrecommendations.exists %}
+            <li>See Editorial Recommendations:</li>
+            <ul class="ps-3">
+              {% for rec in submission.eicrecommendations.all %}
+		<li>
+		  <a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_full_status_display }}</a>
+		  {% if is_ed_admin %}
+		    {% if rec.voting_in_preparation %}
+		      <a class="btn btn-sm btn-primary ms-4 px-1 py-0" role="button" href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
+		    {% endif %}
+		  {% endif %}
+		</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+
+          {# Accepted submission actions #}
+	  {% if is_ed_admin %}
+            {% if submission.status == 'accepted' %}
+              <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
+              <li><a href="{% url 'journals:update_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
+            {% endif %}
+	  {% endif %}
+
+	</ul>
+      </div>
+    {% endif %}
+
+    {# EIC Recommendations #}
+    {% if submission.eicrecommendations.exists %}
+      <hr>
+      <h3 class="mt-3">Editorial Recommendations:</h3>
+      <ul class="ps-3">
+        {% for rec in submission.eicrecommendations.all %}
+	  <li>
+	    {{ rec.get_full_status_display }}&emsp;
+	    {% if rec.undergoing_voting %}
+	      {% if rec|user_can_vote:request.user %}
+		<a href="{% url 'submissions:vote_on_rec' rec_id=rec.id %}">
+		  See Recommendation, view votes and/or revise your vote
+		</a>
+	      {% elif not is_ed_admin %}
+		<div id="rights-{{ rec.id }}">
+		  <button type="button" class="btn btn-outline-danger px-1 py-0"
+			  hx-get="{% url 'submissions:claim_voting_right' rec_id=rec.id %}"
+			  hx-target="#rights-{{ rec.id }}">
+		    <strong>Claim visibility and voting right</strong>&emsp;
+		    <em><small>only if you can certify that you have no conflict of interest</small></em>
+		  </button>
+		</div>
+	      {% else %}
+		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">See Recommendation</a>
+	      {% endif %}
+	    {% elif rec.decision_fixed %}
+	      {% if is_ed_admin or rec|user_can_vote:request.user %}
+		<a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=rec.submission.preprint.identifier_w_vn_nr %}">
+		  See Recommendation
+		</a>
+	      {% endif %}
+	    {% endif %}
+	  </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
+    <hr>
+    <h3 class="mt-3">Events</h3>
+    <div id="eventslist">
+      {% if is_ed_admin %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_edadmin %}
+      {% elif is_editor_in_charge %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_eic %}
+      {% else %}
+	{% include 'submissions/_submission_events.html' with events=submission.events.for_author %}
+      {% endif %}
+    </div>
+
+  </div>
+
+  <button type="button" class="btn btn-primary p-1"
+		data-bs-toggle="collapse" data-bs-target="#collapse_{{ submission.id }}"
+		aria-expanded="true" aria-controls="collapse_{{ submission.id }}">
+    <small>Toggle details visibility</small>
+  </button>
+
+</div>

@@ -1,0 +1,41 @@
+{% load static %}
+{% load crispy_forms_tags %}
+
+<header>
+
+    <div class="d-lg-flex justify-content-between p-4 w-100">
+
+      <div class="me-2 my-4 my-md-auto" style="flex: 200px">
+        <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" class="m-0 p-0" alt="SciPost logo" style="max-width: unset;" width="180" /></a>
+      </div>
+
+      <div class="mx-2 my-4 my-lg-auto">
+	<form id="session_acad_field_form"
+	      hx-get="{% url 'ontology:set_session_acad_field' %}"
+	      hx-trigger="change"
+	      hx-swap="outerHTML"
+	>
+	  {% crispy session_acad_field_form %}
+	</form>
+      </div>
+      <div class="mx-2 my-4 my-lg-auto"
+	   hx-get="{% url 'ontology:_hx_session_specialty_form' %}"
+	   hx-trigger="load, session-acad-field-set from:body"
+      >
+      </div>
+
+      <div class="ms-2 my-4 my-lg-auto">
+	<form id="header-search-form" method="get" action="{% url 'scipost:search' %}">
+          <div class="form-floating">
+            <input type="text" id="headerSearchInput" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}">
+	    <label for="headerSearchInput" class="text-white">
+	      Quick search&emsp;{% include 'bi/search.html' %}
+	    </label>
+	  </div>
+	</form>
+      </div>
+    </div>
+
+
+
+</header>

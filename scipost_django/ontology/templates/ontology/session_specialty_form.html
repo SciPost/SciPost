@@ -1,0 +1,8 @@
+{% load crispy_forms_tags %}
+<form id="session_specialty_form"
+      hx-get="{% url 'ontology:set_session_specialty' %}"
+      hx-trigger="change"
+      hx-swap="outerHTML"
+>
+  {% crispy session_specialty_form %}
+</form>

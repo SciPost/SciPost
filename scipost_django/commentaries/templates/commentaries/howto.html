@@ -17,7 +17,7 @@
       <br/>
       <h3>Standardized URLs</h3>
       <p>In order to facilitate localization of commentaries on particular publications, within SciPost, all Commentary Pages have a standardized URL of the form</p>
-      <p class="text-blue">https://scipost.org/commentary/IDENTIFIER</p>
+      <p class="text-blue">https://{{ request.get_host }}/commentary/IDENTIFIER</p>
       <p>where IDENTIFIER is either the (by definition unique and stable) DOI of the published paper, or the arXiv identifier in new (arXiv:####.#####v#) or old (cond-mat/#######v#) style. NOTE: for arXiv, we systematically require the presence of the version number in order to avoid confusion (and yes, we do so even if there exists only one version).</p>
     </div>
   </div>

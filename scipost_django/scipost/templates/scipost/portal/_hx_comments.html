@@ -1,0 +1,32 @@
+{% load crispy_forms_tags %}
+
+<div class="d-flex justify-content-between">
+  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#commentsSearch" aria-expanded="false" aria-controls="commentsSearch">
+    {% include 'bi/search.html' %}&emsp;Simple search / filter
+  </button>
+  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
+  </a>
+</div>
+<div class="collapse" id="commentsSearch">
+  <div class="card card-body">
+    <form
+      hx-post="{% url 'scipost:portal_hx_comments_page' %}?page=1"
+	       hx-trigger="load, keyup delay:500ms, change"
+	       hx-target="#comments-search-results"
+	       hx-indicator="#indicator-comments-search"
+    >
+      <div id="comments-search-form">{% crispy comments_search_form %}</div>
+    </form>
+  </div>
+  <div id="indicator-comments-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+</div>
+
+<h2 class="highlight mb-0">Comments on objects in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
+
+<ul id="comments-search-results" class="list-unstyled pool-list mt-2"></ul>

@@ -8,11 +8,13 @@ import feedparser
 import strings
 
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import user_passes_test, login_required, permission_required
 from django.contrib.auth.mixins import (
     LoginRequiredMixin, PermissionRequiredMixin, UserPassesTestMixin)
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
@@ -30,7 +32,8 @@ from dal import autocomplete
 
 from .constants import (
     STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE, STATUS_ACCEPTED, STATUS_REJECTED,
-    STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING, STATUS_ASSIGNMENT_FAILED,
+    STATUS_VETTED, SUBMISSION_STATUS, STATUS_FAILED_PRESCREENING,
+    STATUS_UNASSIGNED, STATUS_ASSIGNMENT_FAILED,
     STATUS_DRAFT, CYCLE_DIRECT_REC, STATUS_COMPLETED, STATUS_DEPRECATED,
     EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED,
     FIGSHARE_PREPRINT_SERVERS)
@@ -42,9 +45,10 @@ from .models import (
     EditorialAssignment, RefereeInvitation, Report, SubmissionEvent)
 from .mixins import SubmissionMixin, SubmissionAdminViewMixin
 from .forms import (
-    SciPostPrefillForm, ArXivPrefillForm, FigsharePrefillForm, OSFPreprintsPrefillForm,
-    SubmissionForm, SubmissionSearchForm, RecommendationVoteForm,
-    ConsiderAssignmentForm, InviteEditorialAssignmentForm, EditorialAssignmentForm, VetReportForm,
+    SciPostPrefillForm, ArXivPrefillForm, ChemRxivPrefillForm,
+    FigsharePrefillForm, OSFPreprintsPrefillForm,
+    SubmissionForm, SubmissionPoolSearchForm, SubmissionOldSearchForm, RecommendationVoteForm,
+    ConsiderAssignmentForm, EditorialAssignmentForm, VetReportForm,
     SetRefereeingDeadlineForm, RefereeSearchForm,
     iThenticateReportForm, VotingEligibilityForm, WithdrawSubmissionForm,
     ConsiderRefereeInvitationForm, EditorialCommunicationForm, ReportForm,
@@ -55,9 +59,10 @@ from .forms import (
     EditorialDecisionForm,
     SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
+from .permissions import is_edadmin_or_senior_fellow
 from .utils import SubmissionUtils
 
-from colleges.models import PotentialFellowship
+from colleges.models import PotentialFellowship, Fellowship
 from colleges.permissions import fellowship_required, fellowship_or_admin_required
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
@@ -75,7 +80,7 @@ from profiles.models import Profile
 from profiles.forms import SimpleProfileForm, ProfileEmailForm
 from scipost.constants import TITLE_DR, INVITATION_REFEREEING
 from scipost.decorators import is_contributor_user
-from scipost.forms import RemarkForm
+from scipost.forms import RemarkForm, SearchTextForm
 from scipost.mixins import PaginationMixin, PermissionsMixin
 from scipost.models import Contributor, Remark
 
@@ -173,6 +178,16 @@ def submit_choose_preprint_server(request, journal_doi_label):
         preprint_server_list.append({
             'server': preprint_servers.get(name='arXiv'),
             'prefill_form': ArXivPrefillForm(
+                requested_by=request.user,
+                journal_doi_label=journal_doi_label,
+                thread_hash=thread_hash)
+        })
+
+    # ChemRxiv
+    if preprint_servers.filter(name='ChemRxiv').exists():
+        preprint_server_list.append({
+            'server': preprint_servers.get(name='ChemRxiv'),
+            'prefill_form': ChemRxivPrefillForm(
                 requested_by=request.user,
                 journal_doi_label=journal_doi_label,
                 thread_hash=thread_hash)
@@ -278,8 +293,7 @@ class RequestSubmissionView(LoginRequiredMixin, PermissionRequiredMixin, CreateV
     def form_valid(self, form):
         """Redirect and send out mails if all data is valid."""
         submission = form.save()
-        submission.add_general_event('The manuscript has been submitted to %s.'
-                                     % str(submission.submitted_to))
+        submission.add_general_event('Submitted to %s.' % str(submission.submitted_to))
 
         text = ('<h3>Thank you for your Submission to SciPost</h3>'
                 'Your Submission will soon be handled by an Editor.')
@@ -323,6 +337,21 @@ class RequestSubmissionUsingArXivView(RequestSubmissionView):
         Redirect to `submit_choose_preprint_server` if arXiv identifier is not known.
         """
         self.prefill_form = ArXivPrefillForm(
+            request.GET or None,
+            requested_by=self.request.user,
+            journal_doi_label=journal_doi_label,
+            thread_hash=request.GET.get('thread_hash'))
+        return super().get(request, journal_doi_label)
+
+
+class RequestSubmissionUsingChemRxivView(RequestSubmissionView):
+    """Formview to submit a new Submission using ChemRxiv."""
+
+    def get(self, request, journal_doi_label):
+        """
+        Redirect to `submit_choose_preprint_server` if ChemRxiv identifier is not known.
+        """
+        self.prefill_form = ChemRxivPrefillForm(
             request.GET or None,
             requested_by=self.request.user,
             journal_doi_label=journal_doi_label,
@@ -414,11 +443,12 @@ def withdraw_manuscript(request, identifier_w_vn_nr):
     return render(request, 'submissions/withdraw_manuscript.html', context)
 
 
+# Marked for deprecation
 class SubmissionListView(PaginationMixin, ListView):
     """List all publicly available Submissions."""
 
     model = Submission
-    form = SubmissionSearchForm
+    form = SubmissionOldSearchForm
     submission_search_list = []
     paginate_by = 10
 
@@ -511,7 +541,7 @@ def submission_detail(request, identifier_w_vn_nr):
             # their permission level is.
             context['can_read_editorial_information'] = False
         else:
-            # User may read eg. Editorial Recommendations if they are in the Pool.
+            # User may read eg. Editorial Recommendations if they are in the Fellowship.
             context['can_read_editorial_information'] = submission.fellows.filter(
                 contributor__user=request.user).exists()
 
@@ -608,6 +638,7 @@ def report_pdf_compile(request, report_id):
         messages.success(request, 'Upload complete.')
         return redirect(reverse('submissions:reports_accepted_list'))
     context = {
+        'domain': Site.objects.get_current().domain,
         'report': report,
         'form': form
     }
@@ -639,6 +670,7 @@ def treated_submission_pdf_compile(request, identifier_w_vn_nr):
         messages.success(request, 'Upload complete.')
         return redirect(reverse('submissions:treated_submissions_list'))
     context = {
+        'domain': Site.objects.get_current().domain,
         'submission': submission,
         'form': form
     }
@@ -736,6 +768,56 @@ def pool(request, identifier_w_vn_nr=None):
 
 @login_required
 @fellowship_or_admin_required()
+def pool2(request):
+    """
+    Listing of Submissions for purposes of editorial handling.
+    """
+    nr_potfels_to_vote_on = PotentialFellowship.objects.to_vote_on(
+        request.user.contributor).count()
+    recs_to_vote_on = EICRecommendation.objects.user_must_vote_on(request.user)
+    recs_current_voted = EICRecommendation.objects.user_current_voted(request.user)
+    assignments_to_consider = EditorialAssignment.objects.invited().filter(
+        to=request.user.contributor)
+
+    context = {
+        'nr_potfels_to_vote_on': nr_potfels_to_vote_on,
+        'recs_to_vote_on': recs_to_vote_on,
+        'recs_current_voted': recs_current_voted,
+        'assignments_to_consider': assignments_to_consider,
+
+        'form': SubmissionPoolSearchForm(
+            initial={ 'status': STATUS_UNASSIGNED },
+            user=request.user
+        )
+    }
+    return render(request, 'submissions/pool/pool2.html', context)
+
+
+def pool_hx_submissions_list(request):
+    form = SubmissionPoolSearchForm(request.POST or None, user=request.user)
+    if form.is_valid():
+        submissions = form.search_results(request.user)
+    else:
+        submissions = Submission.objects.pool(request.user)[:16]
+    paginator = Paginator(submissions, 16)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'submissions/pool/hx_submissions_list.html', context)
+
+
+def pool_hx_submission_details(request, identifier_w_vn_nr):
+    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    context = {
+        'remark_form': RemarkForm(),
+        'submission': submission
+    }
+    return render(request, 'submissions/pool/_hx_submission_details.html', context)
+
+
+@login_required
+@fellowship_or_admin_required()
 def add_remark(request, identifier_w_vn_nr):
     """Form view to add a Remark to a Submission.
 
@@ -800,35 +882,6 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
         pass
     messages.success(request, 'Successfully removed Topic')
     return redirect(submission.get_absolute_url())
-
-
-@login_required
-@permission_required('scipost.can_assign_submissions', raise_exception=True)
-def assign_submission(request, identifier_w_vn_nr):
-    """Assign Editor-in-charge to Submission.
-
-    Action done by SciPost Administration or Editorial College Administration.
-    """
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
-                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    form = InviteEditorialAssignmentForm(request.POST or None, submission=submission)
-
-    if form.is_valid():
-        ed_assignment = form.save()
-        SubmissionUtils.load({'assignment': ed_assignment})
-        SubmissionUtils.send_assignment_request_email()
-        messages.success(request, 'Your assignment request has been sent successfully.')
-        return redirect('submissions:pool')
-
-    context = {
-        'submission_to_assign': submission,
-        'form': form
-    }
-
-    if request.GET.get('flag'):
-        fellows_with_expertise = submission.fellows.all()
-        context['coauthorships'] = submission.flag_coauthorships_arxiv(fellows_with_expertise)
-    return render(request, 'submissions/admin/editorial_assignment_form.html', context)
 
 
 @login_required
@@ -909,7 +962,7 @@ def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
 def assignment_request(request, assignment_id):
     """Redirect to Editorial Assignment form view.
 
-    Exists for historical reasons; email are send with this url construction.
+    Exists for historical reasons; email are sent with this url construction.
     """
     assignment = get_object_or_404(EditorialAssignment.objects.invited(),
                                    to=request.user.contributor, pk=assignment_id)
@@ -921,48 +974,18 @@ def assignment_request(request, assignment_id):
 
 @login_required
 @permission_required('scipost.can_assign_submissions', raise_exception=True)
-@transaction.atomic
-def prescreening_failed(request, identifier_w_vn_nr):
-    """
-    Reject a Submission because pre-screening has failed.
-    """
-    submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
-                                   preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
-    mail_editor_view = MailEditorSubview(
-        request, mail_code='prescreening_failed', instance=submission,
-        header_template='submissions/admin/prescreening_failed.html')
-    if mail_editor_view.is_valid():
-        # Deprecate old Editorial Assignments
-        EditorialAssignment.objects.filter(submission=submission).invited().update(
-            status=STATUS_DEPRECATED)
-
-        # Update status of Submission
-        submission.touch()
-        Submission.objects.filter(id=submission.id).update(
-            status=STATUS_FAILED_PRESCREENING, visible_pool=False, visible_public=False)
-
-        messages.success(
-            request, 'Submission {identifier} has failed pre-screening and been rejected.'.format(
-                identifier=submission.preprint.identifier_w_vn_nr))
-        messages.success(request, 'Authors have been informed by email.')
-        mail_editor_view.send_mail()
-        return redirect(reverse('submissions:pool'))
-    return mail_editor_view.interrupt()
-
-
-@login_required
-@permission_required('scipost.can_assign_submissions', raise_exception=True)
 def update_authors_screening(request, identifier_w_vn_nr, nrweeks):
     """
     Send an email to the authors, informing them that screening is still ongoing after one week.
     """
     submission = get_object_or_404(Submission.objects.pool(request.user).unassigned(),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-    mail_code = 'authors/update_authors_screening_1week'
-    if nrweeks == '2':
+    if nrweeks == 1:
+        mail_code = 'authors/update_authors_screening_1week'
+    elif nrweeks == 2:
         mail_code = 'authors/update_authors_screening_2weeks'
-
+    else:
+        raise Http404
     mail_editor_view = MailEditorSubview(
         request, mail_code=mail_code, instance=submission)
     if mail_editor_view.is_valid():
@@ -1047,8 +1070,6 @@ def editorial_page(request, identifier_w_vn_nr):
         if submission.editor_in_charge != request.user.contributor:
             # The current user is not EIC of the Submission!
             full_access = False
-            if not submission.voting_fellows.filter(contributor__user=request.user).exists():
-                raise Http404
 
     context = {
         'submission': submission,
@@ -1100,7 +1121,7 @@ def select_referee(request, identifier_w_vn_nr):
     submission = get_object_or_404(Submission.objects.filter_for_eic(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
-    if not submission.is_open_for_reporting:
+    if not submission.is_open_for_reporting_within_deadline:
         txt = (
             'The refereeing deadline has passed. You cannot invite a referee anymore.'
             ' Please, first extend the deadline of the refereeing to invite a referee.')
@@ -1461,12 +1482,12 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
     if form.is_valid():
         Submission.objects.filter(pk=submission.id).update(
             reporting_deadline=form.cleaned_data['deadline'],
-            open_for_reporting=(form.cleaned_data['deadline'] >= timezone.now().date()),
+            open_for_reporting=True,
             latest_activity = timezone.now())
         submission.add_general_event('A new refereeing deadline is set.')
-        messages.success(request, 'New reporting deadline set.')
+        messages.success(request, 'New reporting deadline set to %s.' % submission.reporting_deadline.date())
     else:
-        messages.error(request, 'The deadline has not been set. Please try again.')
+        messages.error(request, 'The deadline has not been set: %s Please try again.' % form.errors)
 
     return redirect(reverse('submissions:editorial_page',
                             kwargs={'identifier_w_vn_nr': identifier_w_vn_nr}))
@@ -1603,8 +1624,7 @@ def eic_recommendation(request, identifier_w_vn_nr):
     if not form.has_assignment():
         messages.warning(request, ('You cannot formulate an Editorial Recommendation,'
                                    ' because the Editorial Assignment has not been set properly.'
-                                   ' Please '
-                                   '<a href="mailto:admin@scipost.org">report the problem</a>.'))
+                                   ' Please contact EdAdmin to report the problem.'))
         return redirect(reverse('submissions:editorial_page',
                                 args=[submission.preprint.identifier_w_vn_nr]))
 
@@ -1700,10 +1720,11 @@ def submit_report(request, identifier_w_vn_nr):
                         ' to clarify this.')
     elif not invitation:
         # User is going to contribute a Report. Check deadlines for doing so.
-        if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
-            errormessage = ('The reporting deadline has passed. You cannot submit'
-                            ' a Report anymore.')
-        elif not submission.open_for_reporting:
+        # Allow post-deadline reporting:
+        # if timezone.now() > submission.reporting_deadline + datetime.timedelta(days=1):
+        #     errormessage = ('The reporting deadline has passed. You cannot submit'
+        #                     ' a Report anymore.')
+        if not submission.open_for_reporting:
             errormessage = ('Reporting for this submission has closed. You cannot submit'
                             ' a Report anymore.')
 
@@ -1865,6 +1886,19 @@ def prepare_for_voting(request, rec_id):
 
 @login_required
 @fellowship_or_admin_required()
+def claim_voting_right(request, rec_id):
+    """Claim voting right on EICRecommendation."""
+    rec = get_object_or_404(EICRecommendation, pk=rec_id)
+    granted = False
+    if rec.submission.fellows.filter(contributor=request.user.contributor).exists():
+        rec.eligible_to_vote.add(request.user.contributor)
+        granted = True
+    context = { 'rec': rec, 'granted': granted }
+    return render(request, 'submissions/pool/_hx_recommendation_claim_voting_right.html', context)
+
+
+@login_required
+@fellowship_or_admin_required()
 @transaction.atomic
 def vote_on_rec(request, rec_id):
     """Form view for Fellows to cast their vote on EICRecommendation."""
@@ -1999,12 +2033,14 @@ def remind_Fellows_to_vote(request, rec_id):
     return render(request, 'scipost/acknowledgement.html', context)
 
 
-@permission_required('scipost.can_run_pre_screening', raise_exception=True)
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
 def editor_invitations(request, identifier_w_vn_nr):
-    """Update/show invitations of editors for incoming Submission."""
+    """
+    Update/show invitations of editors for incoming Submission.
+    """
     submission = get_object_or_404(
         Submission.objects.without_eic(), preprint__identifier_w_vn_nr=identifier_w_vn_nr)
-
     assignments = submission.editorial_assignments.order_by('invitation_order')
     context = {
         'submission': submission,
@@ -2020,6 +2056,9 @@ def editor_invitations(request, identifier_w_vn_nr):
 
         if formset.is_valid():
             formset.save()
+            submission.add_event_for_edadmin(
+                f'{request.user.first_name} {request.user.last_name} has edited the assignments.'
+            )
             messages.success(request, 'Editor pre-assignments saved.')
             return redirect(
                 reverse('submissions:editor_invitations', args=(submission.preprint.identifier_w_vn_nr,)))
@@ -2082,19 +2121,20 @@ class SubmissionConflictsView(SubmissionAdminViewMixin, DetailView):
 
 class EICRecommendationDetailView(SubmissionMixin, LoginRequiredMixin,
                                   UserPassesTestMixin, DetailView):
-    """EICRecommendation detail page, visible to EdAdmin, voting Fellows (but NOT authors)."""
+    """
+    EICRecommendation detail, visible to EdAdmin.
+    """
 
     model = EICRecommendation
     template_name = 'submissions/pool/recommendation.html'
     context_object_name = 'recommendation'
 
     def test_func(self):
-        """Grants access to EdAdmin, voting Fellows and authors."""
+        """Grants access to EdAdmin."""
         if self.request.user.has_perm('scipost.can_fix_College_decision'):
             return True
-        # eicrec = get_object_or_404(EICRecommendation, pk=self.kwargs.get('rec_id'))
         submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+            Submission, preprint__identifier_w_vn_nr=self.kwargs.get('identifier_w_vn_nr'))
         eicrec = submission.eicrecommendations.last()
         if eicrec.eligible_to_vote.filter(user=self.request.user).exists():
             return True
@@ -2227,11 +2267,7 @@ def fix_editorial_decision(request, identifier_w_vn_nr):
         else: # paper is accepted, but in subsidiary journal
             decision.status = EditorialDecision.AWAITING_PUBOFFER_ACCEPTANCE
         decision.save()
-        submission.add_event_for_author(
-            'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
-                str(decision.for_journal), decision.get_decision_display(),
-                decision.get_status_display()))
-        submission.add_event_for_eic(
+        submission.add_general_event(
             'The Editorial Decision has been fixed for Journal %s: %s (with status: %s).' % (
                 str(decision.for_journal), decision.get_decision_display(),
                 decision.get_status_display()))

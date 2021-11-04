@@ -33,7 +33,7 @@
           <div class="card-body">
             <h2>Your {% if form.instance.is_followup_report %}followup {% endif %}report:</h2>
             <p>A preview of text areas will appear below as you type (you can use $\LaTeX$ \$...\$ for in-text equations or \ [ ... \ ] for on-line equations).</p>
-	    <p>Before you get started, please make sure you are familiar with our <a href="https://scipost.org{% url 'submissions:referee_guidelines' %}" target="_blank">referee guidelines</a>, <a href="https://scipost.org{% url 'submissions:refereeing_procedure' %}" target="_blank">refereeing procedure</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</p>
+	    <p>Before you get started, please make sure you are familiar with our <a href="https://{{ request.get_host }}{% url 'submissions:referee_guidelines' %}" target="_blank">referee guidelines</a>, <a href="https://{{ request.get_host }}{% url 'submissions:refereeing_procedure' %}" target="_blank">refereeing procedure</a> and <a href="{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct" target="_blank">referee code of conduct</a>.</p>
 
 	    <div class="card border-danger mx-1 mt-2 mb-4">
 	      <div class="card-header text-white bg-danger">

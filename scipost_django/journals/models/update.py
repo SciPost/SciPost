@@ -7,6 +7,7 @@ import random
 import string
 
 from django.conf import settings
+from django.contrib.sites.models import Site
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import JSONField
 from django.db import models
@@ -106,6 +107,7 @@ class PublicationUpdate(models.Model):
         # Render from template
         template = loader.get_template('xml/publication_update_crossref.html')
         context = {
+            'domain': Site.objects.get_current().domain,
             'update': self,
             'doi_batch_id': doi_batch_id,
             'deposit_email': settings.CROSSREF_DEPOSIT_EMAIL,

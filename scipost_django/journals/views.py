@@ -16,6 +16,7 @@ from plotly.graph_objs import Bar
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.sites.models import Site
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
@@ -906,10 +907,12 @@ def metadata_xml_deposit(request, doi_label, option='test'):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(Deposit, pk=deposit_id)
-    if success == '1':
+    if success == 1:
         deposit.deposit_successful = True
-    elif success == '0':
+    elif success == 0:
         deposit.deposit_successful = False
+    else:
+        return Http404
     deposit.save()
     return redirect('journals:manage_metadata')
 
@@ -1096,10 +1099,12 @@ def request_pubfrac_check(request, doi_label):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_doaj_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
-    if success == '1':
+    if success == 1:
         deposit.deposit_successful = True
-    elif success == '0':
+    elif success == 0:
         deposit.deposit_successful = False
+    else:
+        raise Http404
     deposit.save()
     return redirect('journals:manage_metadata')
 
@@ -1233,10 +1238,12 @@ def manage_update_metadata(request):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_report_doi_needed(request, report_id, needed):
     report = get_object_or_404(Report, pk=report_id)
-    if needed == '1':
+    if needed == 1:
         report.needs_doi = True
-    elif needed == '0':
+    elif needed == 0:
         report.needs_doi = False
+    else:
+        raise Http404
     report.save()
     return redirect(reverse('journals:manage_report_metadata'))
 
@@ -1244,10 +1251,12 @@ def mark_report_doi_needed(request, report_id, needed):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_comment_doi_needed(request, comment_id, needed):
     comment = get_object_or_404(Comment, pk=comment_id)
-    if needed == '1':
+    if needed == 1:
         comment.needs_doi = True
-    elif needed == '0':
+    elif needed == 0:
         comment.needs_doi = False
+    else:
+        raise Http404
     comment.save()
     return redirect(reverse('journals:manage_comment_metadata'))
 
@@ -1273,6 +1282,8 @@ def generic_metadata_xml_deposit(request, **kwargs):
     For PublicationUpdates, the deposit type is `journal_article` and
     the journal is used as container.
     """
+    domain = Site.objects.get_current().domain
+
     type_of_object = kwargs['type_of_object']
     object_id = int(kwargs['object_id'])
 
@@ -1342,9 +1353,9 @@ def generic_metadata_xml_deposit(request, **kwargs):
                 )
 
             if isinstance(_object, Publication):
-                url_to_declare = 'https://scipost.org{}'.format(_object.get_absolute_url())
+                url_to_declare = 'https://{domain}{doi}'.format(domain=domain, doi=_object.get_absolute_url())
             else:
-                url_to_declare = 'https://scipost.org/{}'.format(_object.doi_label)
+                url_to_declare = 'https://{domain}/{doi}'.format(domain=domain, doi=_object.doi_label)
 
             metadata_xml += (
                 '</contributors>\n'
@@ -1377,7 +1388,7 @@ def generic_metadata_xml_deposit(request, **kwargs):
                 '</database_metadata>\n'
                 '<dataset dataset_type="collection">\n'
                 '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-                '<resource>https://scipost.org' + _object.get_absolute_url() +
+                '<resource>https://' + domain + _object.get_absolute_url() +
                 '</resource></doi_data>\n'
                 '</dataset></database>\n'
                 '</body></doi_batch>'
@@ -1415,12 +1426,14 @@ def generic_metadata_xml_deposit(request, **kwargs):
 @permission_required('scipost.can_publish_accepted_submission', return_403=True)
 def mark_generic_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(GenericDOIDeposit, pk=deposit_id)
-    if success == '1':
+    if success == 1:
         deposit.deposit_successful = True
         deposit.content_object.doideposit_needs_updating = False
         deposit.content_object.save()
-    elif success == '0':
+    elif success == 0:
         deposit.deposit_successful = False
+    else:
+        raise Http404
     deposit.save()
     if deposit.content_type.name == 'report':
         return redirect(reverse('journals:manage_report_metadata'))

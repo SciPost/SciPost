@@ -18,6 +18,10 @@ class InvalidReportVettingValue(BaseCustomException):
     pass
 
 
+class PreprintDocumentNotFoundError(BaseCustomException):
+    pass
+
+
 class ArxivPDFNotFound(Exception):
     pass
 

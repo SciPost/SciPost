@@ -6,7 +6,7 @@
   Recently, on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely<br><br>
   {{ invitation.submission.title }}<br>
   by {{ invitation.submission.author_list }}<br>
-  (see https://scipost.org{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
+  (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   We are still awaiting your response to this invitation.
@@ -14,18 +14,18 @@
   could you please let us know whether we can count on your expertise?
 </p>
 <p>
-  If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://scipost.org/submissions/decline_ref_invitation/{{ invitation.invitation_key }}"> clicking here</a>.
+  If you are <strong>not</strong> able to provide a Report, you can let us know by simply <a href="https://{{ domain }}/submissions/decline_ref_invitation/{{ invitation.invitation_key }}"> clicking here</a>.
 </p>
 <p>
   If you are able to provide a Report, you can confirm this after registering and logging in (you will automatically be prompted for a confirmation).
 </p>
 <p>
   We would thus hereby like to cordially invite you to become a Contributor on SciPost (this is required in order to deliver reports; our records show that you are not yet registered);
-  for your convenience, we have prepared a pre-filled <a href="https://scipost.org/invitation/{{ invitation.invitation_key }}">registration form</a> for you.
+  for your convenience, we have prepared a pre-filled <a href="https://{{ domain }}/invitation/{{ invitation.invitation_key }}">registration form</a> for you.
   After activation of your registration, you will be allowed to contribute, in particular by providing referee reports.
 </p>
 <p>
-  You might want to make sure you are familiar with our <a href="https://scipost.org{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>, <a href="https://scipost.org{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://scipost.org{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+  You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
   We very much hope that we can count on your expertise,

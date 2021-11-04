@@ -17,6 +17,7 @@ from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordChangeView,
     PasswordResetView, PasswordResetConfirmView)
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.sites.models import Site
 from django.core import mail
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage, EmailMultiAlternatives
@@ -55,9 +56,11 @@ from .utils import EMAIL_FOOTER, SCIPOST_SUMMARY_FOOTER, SCIPOST_SUMMARY_FOOTER_
 from colleges.permissions import fellowship_or_admin_required
 from commentaries.models import Commentary
 from comments.models import Comment
+from comments.forms import CommentSearchForm
 from invitations.constants import STATUS_REGISTERED
 from invitations.models import RegistrationInvitation
 from journals.models import Journal, Publication, PublicationAuthorsTable
+from journals.forms import PublicationSearchForm
 from mails.utils import DirectMailUtil
 from news.models import NewsItem
 from organizations.decorators import has_contact
@@ -65,6 +68,7 @@ from organizations.models import Organization, Contact
 from organizations.forms import UpdateContactDataForm
 from profiles.models import Profile
 from submissions.models import Submission, RefereeInvitation, Report, EICRecommendation
+from submissions.forms import SubmissionSearchForm, ReportSearchForm
 from theses.models import ThesisLink
 
 
@@ -173,12 +177,240 @@ def index(request):
     return render(request, 'scipost/index.html', context)
 
 
-def index_alt(request):
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def index2(request):
     """Homepage view of SciPost."""
-    if not request.user.is_authenticated or not request.user.is_superuser:
-        # Only superusers may get to see secure files without an explicit serve method!
-        raise Http404
+    if NewsItem.objects.homepage().exists():
+        latest_newsitem = NewsItem.objects.homepage().order_by('-date').first()
+    else:
+        latest_newsitem = NewsItem.objects.none()
+    context = {
+        'latest_newsitem': latest_newsitem
+    }
+    return render(request, 'scipost/index2.html', context)
 
+
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def index4(request):
+    if request.GET.get('field', None):
+        request.session['session_acad_field_slug'] = request.GET.get('field', None)
+    request.session['session_specialty_slug'] = ''
+    return render(request, 'scipost/portal/portal4.html')
+
+
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def portal(request):
+    """
+    Academic portal entryway.
+    """
+    if request.GET.get('field', None):
+        request.session['session_acad_field_slug'] = request.GET.get('field', None)
+    request.session['session_specialty_slug'] = ''
+    return render(request, 'scipost/portal/portal.html')
+
+
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def portal2p2(request):
+    """
+    Academic portal entryway.
+    """
+    if request.GET.get('field', None):
+        request.session['session_acad_field_slug'] = request.GET.get('field', None)
+    request.session['session_specialty_slug'] = ''
+    return render(request, 'scipost/portal/portal2p2.html')
+
+
+def portal_hx_home(request):
+    """Homepage view of SciPost."""
+    if NewsItem.objects.homepage().exists():
+        latest_newsitem = NewsItem.objects.homepage().order_by('-date').first()
+    else:
+        latest_newsitem = NewsItem.objects.none()
+    context = {
+        'latest_newsitem': latest_newsitem
+    }
+    return render(request, 'scipost/portal/_hx_home.html', context)
+
+
+def portal_hx_publications(request):
+    form = PublicationSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None)
+    )
+    context = {
+        'publications_search_form': form
+    }
+    return render(request, 'scipost/portal/_hx_publications.html', context)
+
+
+def portal_hx_publications_page(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    form = PublicationSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+    )
+    if form.is_valid():
+        publications = form.search_results()
+    else:
+        publications = Publication.objects.published()
+        if session_acad_field_slug and session_acad_field_slug != 'all':
+            publications = publications.filter(acad_field__slug=session_acad_field_slug)
+            if session_specialty_slug:
+                publications = publications.filter(specialties__slug=session_specialty_slug)
+    paginator = Paginator(publications, 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/portal/_hx_publications_page.html', context)
+
+
+def portal_hx_submissions(request):
+    reports_needed = request.GET.get('reports_needed', False)
+    form = SubmissionSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None),
+        reports_needed=reports_needed
+    )
+    context = {
+        'submissions_search_form': form,
+        'reports_needed': reports_needed
+    }
+    return render(request, 'scipost/portal/_hx_submissions.html', context)
+
+
+def portal_hx_submissions_page(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    reports_needed = request.GET.get('reports_needed', False)
+    form = SubmissionSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+        reports_needed=reports_needed
+    )
+    if form.is_valid():
+        submissions = form.search_results()
+    else:
+        submissions = Submission.objects.public()
+        if session_acad_field_slug and session_acad_field_slug != 'all':
+            submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
+            if session_specialty_slug:
+                submissions = submissions.filter(specialties__slug=session_specialty_slug)
+    paginator = Paginator(submissions, 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = {
+        'page_obj': page_obj,
+        'reports_needed': reports_needed
+    }
+    return render(request, 'scipost/portal/_hx_submissions_page.html', context)
+
+
+def portal_hx_reports(request):
+    form = ReportSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None)
+    )
+    context = {
+        'reports_search_form': form
+    }
+    return render(request, 'scipost/portal/_hx_reports.html', context)
+
+
+def portal_hx_reports_page(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    form = ReportSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+    )
+    if form.is_valid():
+        reports = form.search_results()
+    else:
+        reports = Report.objects.accepted()
+    if session_acad_field_slug and session_acad_field_slug != 'all':
+        reports = reports.filter(submission__acad_field__slug=session_acad_field_slug)
+        if session_specialty_slug:
+            reports = reports.filter(submission__specialties__slug=session_specialty_slug)
+    paginator = Paginator(reports, 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/portal/_hx_reports_page.html', context)
+
+
+def portal_hx_comments(request):
+    form = CommentSearchForm(
+        acad_field_slug=request.session.get('session_acad_field_slug', None),
+        specialty_slug=request.session.get('session_specialty_slug', None)
+    )
+    context = {
+        'comments_search_form': form
+    }
+    return render(request, 'scipost/portal/_hx_comments.html', context)
+
+
+def portal_hx_comments_page(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    session_specialty_slug = request.session.get('session_specialty_slug', None)
+    form = CommentSearchForm(
+        request.POST or None,
+        acad_field_slug=session_acad_field_slug,
+        specialty_slug=session_specialty_slug,
+    )
+    if form.is_valid():
+        comments = form.search_results()
+    else:
+        comments = Comment.objects.vetted()
+    if session_acad_field_slug and session_acad_field_slug != 'all':
+        comments = comments.filter(
+            Q(submissions__acad_field__slug=session_acad_field_slug) |
+            Q(reports__submission__acad_field__slug=session_acad_field_slug) |
+            Q(commentaries__acad_field__slug=session_acad_field_slug)
+        )
+        if session_specialty_slug:
+            comments = comments.filter(
+                Q(submissions__specialties__slug=session_specialty_slug) |
+                Q(reports__submission__specialties__slug=session_specialty_slug) |
+                Q(commentaries__specialties__slug=session_specialty_slug)
+            )
+    paginator = Paginator(comments.distinct(), 10)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'scipost/portal/_hx_comments_page.html', context)
+
+
+def _hx_news(request):
+    if NewsItem.objects.homepage().exists():
+        latest_newsitem_id = NewsItem.objects.homepage().order_by('-date').first().id
+        news = NewsItem.objects.homepage().exclude(
+            pk=latest_newsitem_id).order_by('?').first()
+    else:
+        news = NewsItem.objects.none()
+    context = {
+        'news': news
+    }
+    return render(request, 'scipost/_hx_news.html', context)
+
+
+def _hx_sponsors(request):
+    if Organization.objects.current_sponsors().exists():
+        current_sponsors = Organization.objects.current_sponsors().order_by('?')[:1]
+    else:
+        current_sponsors = Organization.objects.none()
+    context = {
+        'current_sponsors': current_sponsors
+    }
+    return render(request, 'scipost/_hx_sponsors.html', context)
+
+
+@permission_required('scipost.can_preview_new_features', return_403=True)
+def index3(request):
+    """Homepage view of SciPost."""
     context = {
         'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'publications': Publication.objects.published().order_by('-publication_date',
@@ -186,7 +418,7 @@ def index_alt(request):
         'submissions': Submission.objects.public().order_by('-submission_date')[:10],
         'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
     }
-    return render(request, 'scipost/index_alt.html', context)
+    return render(request, 'scipost/index3.html', context)
 
 
 def protected_serve(request, path, show_indexes=False):
@@ -369,6 +601,7 @@ def vet_registration_request_ack(request, contributor_id):
     form = VetRegistrationForm(request.POST or None)
     contributor = Contributor.objects.get(pk=contributor_id)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         if form.promote_to_registered_contributor():
             contributor.status = NORMAL_CONTRIBUTOR
             contributor.vetted_by = request.user.contributor
@@ -390,18 +623,18 @@ def vet_registration_request_ack(request, contributor_id):
                 'Dear ' + contributor.profile.get_title_display() + ' ' +
                 contributor.user.last_name +
                 ', \n\nYour registration to the SciPost publication portal has been accepted. '
-                'You can now login at https://scipost.org and contribute. \n\n')
+                'You can now login at https://' + domain + ' and contribute. \n\n')
             if pending_ref_inv_exists:
                 email_text += (
                     'Note that you have pending refereeing invitations; please navigate to '
-                    'https://scipost.org/submissions/accept_or_decline_ref_invitations '
+                    'https://' + domain + '/submissions/accept_or_decline_ref_invitations '
                     '(login required) to accept or decline them.\n\n')
             email_text += 'Thank you very much in advance, \nThe SciPost Team.'
             emailmessage = EmailMessage('SciPost registration accepted', email_text,
-                                        'SciPost registration <registration@scipost.org>',
+                                        'SciPost registration <registration@%s>' % domain,
                                         [contributor.user.email],
-                                        bcc=['registration@scipost.org'],
-                                        reply_to=['registration@scipost.org'])
+                                        bcc=['registration@%s' % domain],
+                                        reply_to=['registration@%s' % domain])
             emailmessage.send(fail_silently=False)
         else:
             ref_reason = form.cleaned_data['refusal_reason']
@@ -417,10 +650,10 @@ def vet_registration_request_ack(request, contributor_id):
                     '\n\nFurther explanations: ' + form.cleaned_data['email_response_field'])
             emailmessage = EmailMessage('SciPost registration: unsuccessful',
                                         email_text,
-                                        'SciPost registration <registration@scipost.org>',
+                                        'SciPost registration <registration@%s>' % domain,
                                         [contributor.user.email],
-                                        bcc=['registration@scipost.org'],
-                                        reply_to=['registration@scipost.org'])
+                                        bcc=['registration@%s' % domain],
+                                        reply_to=['registration@%s' % domain])
             emailmessage.send(fail_silently=False)
             contributor.status = form.cleaned_data['refusal_reason']
             contributor.save()
@@ -482,6 +715,13 @@ class SciPostLoginView(LoginView):
 
     def get_initial(self):
         return self.request.GET
+
+    def get_success_url(self):
+        """Add the `acad_field_view` item to session."""
+        self.request.session['session_acad_field_slug'] = \
+            self.request.user.contributor.profile.acad_field.slug if \
+            self.request.user.contributor.profile.acad_field else ''
+        return super().get_success_url()
 
     def get_redirect_url(self):
         """Redirect to the requested url if safe, otherwise to personal page or org dashboard."""
@@ -1031,12 +1271,14 @@ def claim_sub_authorship(request, submission_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
         submission = get_object_or_404(Submission, pk=submission_id)
-        if claim == '1':
+        if claim == 1:
             submission.authors_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, submission=submission)
             newclaim.save()
-        elif claim == '0':
+        elif claim == 0:
             submission.authors_false_claims.add(contributor)
+        else:
+            raise Http404
         submission.save()
     return redirect('scipost:claim_authorships')
 
@@ -1047,12 +1289,14 @@ def claim_com_authorship(request, commentary_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
         commentary = get_object_or_404(Commentary, pk=commentary_id)
-        if claim == '1':
+        if claim == 1:
             commentary.authors_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, commentary=commentary)
             newclaim.save()
-        elif claim == '0':
+        elif claim == 0:
             commentary.authors_false_claims.add(contributor)
+        else:
+            raise Http404
         commentary.save()
     return redirect('scipost:claim_authorships')
 
@@ -1063,12 +1307,14 @@ def claim_thesis_authorship(request, thesis_id, claim):
     if request.method == 'POST':
         contributor = Contributor.objects.get(user=request.user)
         thesislink = get_object_or_404(ThesisLink, pk=thesis_id)
-        if claim == '1':
+        if claim == 1:
             thesislink.author_claims.add(contributor)
             newclaim = AuthorshipClaim(claimant=contributor, thesislink=thesislink)
             newclaim.save()
-        elif claim == '0':
+        elif claim == 0:
             thesislink.author_false_claims.add(contributor)
+        else:
+            raise Http404
         thesislink.save()
     return redirect('scipost:claim_authorships')
 
@@ -1245,6 +1491,7 @@ def email_group_members(request):
     """
     form = EmailGroupMembersForm(request.POST or None)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         group_members = form.cleaned_data['group'].user_set.filter(
             contributor__isnull=False).order_by('last_name') # to make pagination consistent
         p = Paginator(group_members, 32)
@@ -1284,7 +1531,7 @@ def email_group_members(request):
                         html_version = html_template.render(Context(email_context))
                         message = EmailMultiAlternatives(
                             form.cleaned_data['email_subject'],
-                            email_text, 'SciPost Admin <admin@scipost.org>',
+                            email_text, 'SciPost Admin <admin@%s>' % domain,
                             [member.email], connection=connection)
                         message.attach_alternative(html_version, 'text/html')
                         message.send()
@@ -1306,6 +1553,7 @@ def email_particular(request):
     if request.method == 'POST':
         form = EmailParticularForm(request.POST)
         if form.is_valid():
+            domain = Site.objects.get_current().domain
             email_text = form.cleaned_data['email_text']
             email_text_html = '{{ email_text|linebreaks }}'
             email_context = {'email_text': form.cleaned_data['email_text']}
@@ -1318,9 +1566,9 @@ def email_particular(request):
             html_version = html_template.render(Context(email_context))
             message = EmailMultiAlternatives(
                 form.cleaned_data['email_subject'],
-                email_text, 'SciPost Admin <admin@scipost.org>',
+                email_text, 'SciPost Admin <admin@%s>' % domain,
                 [form.cleaned_data['email_address']],
-                bcc=['admin@scipost.org'])
+                bcc=['admin@%s' % domain])
             message.attach_alternative(html_version, 'text/html')
             message.send()
             context = {'ack_header': 'The email has been sent.',
@@ -1340,6 +1588,7 @@ def send_precooked_email(request):
     """
     form = SendPrecookedEmailForm(request.POST or None)
     if form.is_valid():
+        domain = Site.objects.get_current().domain
         precookedEmail = form.cleaned_data['email_option']
         if form.cleaned_data['email_address'] in precookedEmail.emailed_to:
             errormessage = 'This message has already been sent to this address'
@@ -1363,7 +1612,7 @@ def send_precooked_email(request):
             email_text,
             SciPost_from_addresses_dict[form.cleaned_data['from_address']],
             [form.cleaned_data['email_address']],
-            bcc=['admin@scipost.org'])
+            bcc=['admin@%s' % domain])
         message.attach_alternative(html_version, 'text/html')
         message.send()
         context = {'ack_header': 'The email has been sent.',

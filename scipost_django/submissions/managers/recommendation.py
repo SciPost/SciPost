@@ -2,7 +2,10 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+import datetime
+
 from django.db import models
+from django.utils import timezone
 
 from .. import constants
 
@@ -38,9 +41,12 @@ class EICRecommendationQuerySet(models.QuerySet):
                     constants.STATUS_PUBLISHED,
                     constants.STATUS_WITHDRAWN]).distinct()
 
-    def put_to_voting(self):
+    def put_to_voting(self, longer_than_days=None):
         """Return the subset of EICRecommendation currently undergoing voting."""
-        return self.filter(status=constants.PUT_TO_VOTING)
+        qs = self.filter(status=constants.PUT_TO_VOTING)
+        if longer_than_days:
+            qs = qs.filter(date_submitted__lt=timezone.now() - datetime.timedelta(days=longer_than_days))
+        return qs
 
     def voting_in_preparation(self):
         """Return the subset of EICRecommendation currently undergoing preparation for voting."""

@@ -2,7 +2,6 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
 from django.urls import path
 
 from . import views
@@ -35,48 +34,63 @@ urlpatterns = [
         views.TopicLinkedAutocompleteView.as_view(),
         name='topic-linked-autocomplete',
     ),
-    url(
-        r'^$',
+    path(
+        'set_session_acad_field',
+        views.set_session_acad_field,
+        name='set_session_acad_field'
+    ),
+    path(
+        '_hx_session_specialty_form',
+        views._hx_session_specialty_form,
+        name='_hx_session_specialty_form'
+    ),
+    path(
+        'set_session_specialty',
+        views.set_session_specialty,
+        name='set_session_specialty'
+    ),
+    path(
+        '',
         views.ontology,
         name='ontology'
     ),
-    url(
-        r'^topic/add/$',
+    path(
+        'topic/add/',
         views.TopicCreateView.as_view(),
         name='topic_create'
     ),
-    url(
-        r'^topic/(?P<slug>[-\w]+)/add_tags/$',
+    path(
+        'topic/<slug:slug>/add_tags/',
         views.topic_add_tags,
         name='topic_add_tags'
     ),
-    url(
-        r'^topic/(?P<slug>[-\w]+)/remove_tag/(?P<tag_id>[0-9]+)/$',
+    path(
+        'topic/<slug:slug>/remove_tag/<int:tag_id>/',
         views.topic_remove_tag,
         name='topic_remove_tag'
     ),
-    url(
-        r'^topic/(?P<slug>[-\w]+)/update/$',
+    path(
+        'topic/<slug:slug>/update/',
         views.TopicUpdateView.as_view(),
         name='topic_update'
     ),
-    url(
-        r'^topic/(?P<slug>[-\w]+)/$',
+    path(
+        'topic/<slug:slug>/',
         views.TopicDetailView.as_view(),
         name='topic_details'
     ),
-    url(
-        r'^topics/$',
+    path(
+        'topics/',
         views.TopicListView.as_view(),
         name='topics'
     ),
-    url(
-        r'^add_relation_asym/(?P<slug>[-\w]+)/$',
+    path(
+        'add_relation_asym/<slug:slug>/',
         views.add_relation_asym,
         name='add_relation_asym'
     ),
-    url(
-        r'^delete_relation_asym/(?P<relation_id>[0-9]+)/(?P<slug>[-\w]+)/$',
+    path(
+        'delete_relation_asym/<int:relation_id>/<slug:slug>/',
         views.delete_relation_asym,
         name='delete_relation_asym'
     ),

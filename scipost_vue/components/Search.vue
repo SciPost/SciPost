@@ -212,8 +212,6 @@ export default {
 	    fetchAvailableTabs()
 	    initialQuery.value = JSON.parse(document.getElementById('json_q').textContent)
 	})
-	// Close search form in header in case it is open
-	onMounted(() => document.getElementById('header-search-close-btn').click())
 
 	return {
 	    availableTabs,

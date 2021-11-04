@@ -6,7 +6,7 @@
 <hr>
 {{ followup.text|automarkup }}
 <hr>
-<p>You can view details (and optionally take further steps) by navigating to the <a href="https://scipost.org{{ followup.ticket.get_absolute_url }}">ticket's page</a> (login required). You can also see this ticket on your personal list at our online <a href="https://scipost.org/helpdesk/">helpdesk</a>.</p>
+<p>You can view details (and optionally take further steps) by navigating to the <a href="https://{{ domain }}{{ followup.ticket.get_absolute_url }}">ticket's page</a> (login required). You can also see this ticket on your personal list at our online <a href="https://{{ domain }}{% url 'helpdesk:helpdesk' %}"</a>.</p>
 <p>
     Many thanks,<br>
     The SciPost Team.

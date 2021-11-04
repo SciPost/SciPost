@@ -354,6 +354,8 @@ def motion_vote(request, slug, motion_id, vote):
             motion.in_disagreement.add(request.user)
         elif vote == 'A':
             motion.in_abstain.add(request.user)
+        else:
+            raise Http404
         motion.save()
     else:
         messages.warning(request, 'You do not have voting rights on this Motion.')

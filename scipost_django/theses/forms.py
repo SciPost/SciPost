@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
@@ -96,13 +97,14 @@ class VetThesisLinkForm(BaseRequestThesisLinkForm):
 
             thesislink.delete()
 
+        domain = Site.objects.get_current().domain
         email = EmailMessage(
             subject_line,
             message_plain,
-            'SciPost Theses <theses@scipost.org>',
+            f'SciPost Theses <theses@{domain}>',
             [thesislink.requested_by.user.email],
-            ['theses@scipost.org'],
-            reply_to=['theses@scipost.org']
+            [f'theses@{domain}'],
+            reply_to=[f'theses@{domain}']
         ).send(fail_silently=False)
 
 

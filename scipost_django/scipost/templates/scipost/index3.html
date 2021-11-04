@@ -1,9 +1,9 @@
 {% extends 'scipost/base.html' %}
 
 {% block headsup %}
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 {% endblock headsup %}
 
 {% load render_bundle from webpack_loader %}
@@ -13,6 +13,10 @@
 
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
 {% block pagetitle %}Homepage{% endblock pagetitle %}
+
+{% block navbar %}
+  {% include 'scipost/navbar2.html' %}
+{% endblock %}
 
 {% block content %}
   <div class="row">

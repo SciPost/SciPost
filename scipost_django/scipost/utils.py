@@ -2,6 +2,9 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib.sites.models import Site
+domain = Site.objects.get_current().domain
+
 from common.utils import BaseMailUtil
 
 
@@ -9,9 +12,7 @@ def build_absolute_uri_using_site(path):
     """
     In cases where request is not available, build absolute uri from Sites framework.
     """
-    from django.contrib.sites.models import Site
-    site = Site.objects.get_current()
-    return 'https://{domain}{path}'.format(domain=site.domain, path=path)
+    return 'https://{domain}{path}'.format(domain=domain, path=path)
 
 
 SCIPOST_SUMMARY_FOOTER = (
@@ -25,10 +26,10 @@ SCIPOST_SUMMARY_FOOTER = (
     'means of commenting on all existing literature. SciPost is established as '
     'a not-for-profit foundation devoted to serving the interests of the '
     'international scientific community.'
-    '\n\nThe site is anchored at https://scipost.org. Many further details '
+    f'\n\nThe site is anchored at https://{domain}. Many further details '
     'about SciPost, its principles, ideals and implementation can be found at '
-    'https://scipost.org/about and https://scipost.org/FAQ.\n'
-    'Professional scientists can register at https://scipost.org/register.'
+    f'https://{domain}/about and https://{domain}/FAQ.\n'
+    f'Professional scientists can register at https://{domain}/register.'
 )
 
 SCIPOST_SUMMARY_FOOTER_HTML = (
@@ -42,42 +43,42 @@ SCIPOST_SUMMARY_FOOTER_HTML = (
     'means of commenting on all existing literature. SciPost is established as '
     'a not-for-profit foundation devoted to serving the interests of the '
     'international scientific community.</p>'
-    '<p>The site is anchored at https://scipost.org. Many further details '
+    f'<p>The site is anchored at https://{domain}. Many further details '
     'about SciPost, its principles, ideals and implementation can be found at '
-    'https://scipost.org/about and https://scipost.org/FAQ.\n'
-    'Professional scientists can register at https://scipost.org/register.</p>'
+    f'https://{domain}/about and https://{domain}/FAQ.\n'
+    f'Professional scientists can register at https://{domain}/register.</p>'
 )
 
 
 EMAIL_FOOTER = (
     '\n{% load static %}'
-    '<a href="https://scipost.org"><img src="{% static '
-    '\'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px"></a><br/>'
+    f'<a href="https://{domain}">'
+    '<img src="{% static \'scipost/images/logo_scipost_with_bgd_small.png\' %}" width="64px"></a><br/>'
     '<div style="background-color: #f0f0f0; color: #002B49; align-items: center;">'
     '<div style="display: inline-block; padding: 8px;">'
-    '<a href="https://scipost.org/journals/">Journals</a></div>'
+    f'<a href="https://{domain}/journals/">Journals</a></div>'
     '<div style="display: inline-block; padding: 8px;">'
-    '<a href="https://scipost.org/submissions/">Submissions</a></div>'
+    f'<a href="https://{domain}/submissions/">Submissions</a></div>'
     '<div style="display: inline-block; padding: 8px;">'
-    '<a href="https://scipost.org/commentaries/">Commentaries</a></div>'
+    f'<a href="https://{domain}/commentaries/">Commentaries</a></div>'
     '<div style="display: inline-block; padding: 8px;">'
-    '<a href="https://scipost.org/theses/">Theses</a></div>'
+    f'<a href="https://{domain}/theses/">Theses</a></div>'
     '<div style="display: inline-block; padding: 8px;">'
-    '<a href="https://scipost.org/login/">Login</a></div>'
+    f'<a href="https://{domain}/login/">Login</a></div>'
     '</div>'
 )
 
 EMAIL_UNSUBSCRIBE_LINK_PLAIN = (
     '\n\nDon\'t want to receive such emails? Unsubscribe by '
-    'updating your personal data at https://scipost.org/update_personal_data.'
+    f'updating your personal data at https://{domain}/update_personal_data.'
 )
 
 EMAIL_UNSUBSCRIBE_LINK_HTML = (
     '\n\n<p style="font-size: 10px;">Don\'t want to receive such emails? Unsubscribe by '
-    '<a href="https://scipost.org/update_personal_data">updating your personal data</a>.</p>'
+    f'<a href="https://{domain}/update_personal_data">updating your personal data</a>.</p>'
 )
 
 
 class Utils(BaseMailUtil):
-    mail_sender = 'registration@scipost.org'
+    mail_sender = f'registration@{domain}'
     mail_sender_title = 'SciPost registration'

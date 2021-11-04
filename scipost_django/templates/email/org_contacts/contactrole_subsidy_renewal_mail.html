@@ -2,7 +2,7 @@
   Dear {{ object.contact.get_title_display }} {{ object.contact.user.last_name }},
 </p>
 <p>
-  Your organization ({{ object.organization }}) has been sponsoring SciPost (see details at <a href="https://scipost.org{{ object.organization.get_absolute_url }}">this link</a>), for which we are extremely grateful.
+  Your organization ({{ object.organization }}) has been sponsoring SciPost (see details at <a href="https://{{ domain }}{{ object.organization.get_absolute_url }}">this link</a>), for which we are extremely grateful.
 </p>
 <p>
   Your latest sponsorship period ends on {{ object.organization.latest_subsidy_date_until }}. We would be extremely grateful for your continued support, and would hereby like to enquire whether we can start the renewal procedure.

@@ -21,7 +21,7 @@ from .constants import (
     AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
 from .fields import ChoiceArrayField
 from .managers import (
-    FellowManager, ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
+    ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
 
 from conflicts.models import ConflictOfInterest
 
@@ -142,6 +142,10 @@ class Contributor(models.Model):
     def is_active_fellow(self):
         """Check if Contributor is a member of the Editorial College."""
         return self.fellowships.active().exists() or self.user.is_superuser
+
+    @property
+    def is_active_senior_fellow(self):
+        return self.fellowships.active().senior().exists()
 
     @property
     def is_vetting_editor(self):

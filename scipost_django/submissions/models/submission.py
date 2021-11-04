@@ -27,7 +27,7 @@ from ..constants import (
     STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
     STATUS_REJECTED, STATUS_WITHDRAWN, STATUS_PUBLISHED,
     SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,
-    EVENT_TYPES, EVENT_GENERAL, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,
+    EVENT_TYPES, EVENT_GENERAL, EVENT_FOR_EDADMIN, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,
     SUBMISSION_TIERS)
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
@@ -89,16 +89,13 @@ class Submission(models.Model):
 
     submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
                                      related_name='submitted_submissions')
-    voting_fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
-                                            related_name='voting_pool')
-
     submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
     proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
                                     on_delete=models.SET_NULL, related_name='submissions',
                                     help_text=(
                                         'Don\'t find the Proceedings you are looking for? '
                                         'Ask the conference organizers to contact our admin '
-                                        'at admin@scipost.org to set things up.'))
+                                        'to set things up.'))
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
@@ -191,9 +188,14 @@ class Submission(models.Model):
 
     def comments_set_complete(self):
         """Return Comments on Submissions, Reports and other Comments."""
-        return Comment.objects.filter(
+        qs = Comment.objects.filter(
             Q(submissions=self) | Q(reports__submission=self) |
-            Q(comments__reports__submission=self) | Q(comments__submissions=self)).distinct()
+            Q(comments__reports__submission=self) | Q(comments__submissions=self))
+        # Add recursive comments:
+        for c in qs:
+            if c.nested_comments:
+                qs = qs | c.all_nested_comments().all()
+        return qs.distinct()
 
     @property
     def cycle(self):
@@ -276,7 +278,7 @@ class Submission(models.Model):
         return timezone.now() > self.reporting_deadline - datetime.timedelta(days=7)
 
     @property
-    def is_open_for_reporting(self):
+    def is_open_for_reporting_within_deadline(self):
         """Check if Submission is open for reporting and within deadlines."""
         return self.open_for_reporting and not self.reporting_deadline_has_passed
 
@@ -290,6 +292,10 @@ class Submission(models.Model):
         """Return the submission_date of the first Submission in the thread."""
         return Submission.objects.filter(
             thread_hash=self.thread_hash, is_resubmission_of__isnull=True).first().submission_date
+
+    @property
+    def in_prescreening(self):
+        return self.status == STATUS_INCOMING
 
     @property
     def in_refereeing_phase(self):
@@ -314,7 +320,7 @@ class Submission(models.Model):
             return True
 
         # Maybe: Check for unvetted Reports?
-        return self.status == STATUS_EIC_ASSIGNED and self.is_open_for_reporting
+        return self.status == STATUS_EIC_ASSIGNED and self.is_open_for_reporting_within_deadline
 
     @property
     def can_reset_reporting_deadline(self):
@@ -330,6 +336,12 @@ class Submission(models.Model):
             return False
 
         return self.editor_in_charge is not None
+
+    @property
+    def thread_full(self):
+        """Return all Submissions in the database in this thread."""
+        return Submission.objects.filter(thread_hash=self.thread_hash).order_by(
+            '-submission_date', '-preprint')
 
     @property
     def thread(self):
@@ -355,32 +367,25 @@ class Submission(models.Model):
         """Return the latest known version in the thread of this Submission."""
         return self.thread.first()
 
-    def add_general_event(self, message):
-        """Generate message meant for EIC and authors."""
-        event = SubmissionEvent(
-            submission=self,
-            event=EVENT_GENERAL,
-            text=message,
-        )
+    def _add_event(self, sort, message):
+        event = SubmissionEvent(submission=self, event=sort, text=message)
         event.save()
 
-    def add_event_for_author(self, message):
-        """Generate message meant for authors only."""
-        event = SubmissionEvent(
-            submission=self,
-            event=EVENT_FOR_AUTHOR,
-            text=message,
-        )
-        event.save()
+    def add_general_event(self, message):
+        """Generate message meant for EdAdmin, EIC and authors."""
+        self._add_event(EVENT_GENERAL, message)
+
+    def add_event_for_edadmin(self, message):
+        """Generate message meant for EdAdmin only."""
+        self._add_event(EVENT_FOR_EDADMIN, message)
 
     def add_event_for_eic(self, message):
         """Generate message meant for EIC and Editorial Administration only."""
-        event = SubmissionEvent(
-            submission=self,
-            event=EVENT_FOR_EIC,
-            text=message,
-        )
-        event.save()
+        self._add_event(EVENT_FOR_EIC, message)
+
+    def add_event_for_author(self, message):
+        """Generate message meant for authors only."""
+        self._add_event(EVENT_FOR_AUTHOR, message)
 
     def flag_coauthorships_arxiv(self, fellows):
         """Identify coauthorships from arXiv, using author surname matching."""

@@ -4,24 +4,47 @@ __license__ = "AGPL v3"
 import time
 from django.contrib.auth.decorators import permission_required, login_required
 from django.contrib import messages
-from django.urls import reverse
 from django.db import transaction
 from django.http import HttpResponse, Http404
-from django.utils import timezone
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
+from django.utils import timezone
+from django.views.generic.list import ListView
 
 from guardian.shortcuts import get_objects_for_user
 import strings
 
 from .constants import EXTENTIONS_IMAGES, EXTENTIONS_PDF
 from .models import Comment
-from .forms import CommentForm, VetCommentForm
+from .forms import CommentForm, VetCommentForm, CommentTextSearchForm
 from .utils import validate_file_extention
 
 from commentaries.models import Commentary
 from mails.utils import DirectMailUtil
+from scipost.mixins import PaginationMixin
 from submissions.models import Submission, Report
 from theses.models import ThesisLink
+
+
+class CommentListView(PaginationMixin, ListView):
+    model = Comment
+    form = CommentTextSearchForm
+    paginate_by = 10
+    context_object_name = 'comment_list'
+
+    def get_queryset(self):
+        '''Perform search form here already to get the right pagination numbers.'''
+        self.form = self.form(self.request.GET)
+        if self.form.is_valid() and self.form.has_changed():
+            return self.form.search_results()
+        return self.model.objects.vetted().order_by('-date_submitted')
+
+    def get_context_data(self, **kwargs):
+        # Call the base implementation first to get a context
+        context = super().get_context_data(**kwargs)
+        # Form into the context!
+        context['form'] = self.form
+        return context
 
 
 @login_required

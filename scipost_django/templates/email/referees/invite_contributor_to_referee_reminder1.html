@@ -6,7 +6,7 @@
   Recently, on behalf of the Editor-in-charge {{ invitation.submission.editor_in_charge.profile.get_title_display }} {{ invitation.submission.editor_in_charge.user.last_name }}, we invited you to consider refereeing a Submission to {{ invitation.submission.submitted_to }}, namely<br><br>
   {{ invitation.submission.title }}<br>
   by {{ invitation.submission.author_list }}<br>
-  (see https://scipost.org{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
+  (see https://{{ domain }}{{ invitation.submission.get_absolute_url }} - first submitted {{ invitation.submission.original_submission_date|date:"d M Y" }}).
 </p>
 <p>
   We are still awaiting your response to this invitation.
@@ -14,13 +14,13 @@
   could you please let us know whether we can count on your expertise?
 </p>
 <p>
-  Please <a href="https://scipost.org/submissions/accept_or_decline_ref_invitations">accept or decline</a> (login required) this invitation.
+  Please <a href="https://{{ domain }}{% url 'submissions:accept_or_decline_ref_invitations' %}">accept or decline</a> (login required) this invitation.
 </p>
 <p>
-  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://scipost.org{{ invitation.submission.get_absolute_url }}">the Submission Page</a> before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'d M Y' }}; your report will be automatically recognized as an invited report).
+  If you accept, your report can be submitted by simply clicking on the "Contribute a Report" link on <a href="https://{{ domain }}{{ invitation.submission.get_absolute_url }}">the Submission Page</a> before the reporting deadline (currently set at {{ invitation.submission.reporting_deadline|date:'d M Y' }}; your report will be automatically recognized as an invited report).
 </p>
 <p>
-  You might want to make sure you are familiar with our <a href="https://scipost.org{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>, <a href="https://scipost.org{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://scipost.org{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
+  You might want to make sure you are familiar with our <a href="https://{{ domain }}{% url 'submissions:refereeing_procedure' %}">refereeing procedure</a>, <a href="https://{{ domain }}{% url 'submissions:referee_guidelines' %}">referee guidelines</a> and <a href="https://{{ domain }}{% url 'journals:journals_terms_and_conditions' %}#referee_code_of_conduct">referee code of conduct</a>.
 </p>
 <p>
   We would be extremely grateful for your contribution, and thank you in advance for your consideration.

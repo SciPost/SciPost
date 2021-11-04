@@ -86,7 +86,6 @@ class SubmissionAdmin(GuardedModelAdmin):
         'is_resubmission_of',
         'fellows',
         'submitted_by',
-        'voting_fellows',
         'submitted_to',
         'proceedings',
         'authors',
@@ -157,8 +156,7 @@ class SubmissionAdmin(GuardedModelAdmin):
                 'submitted_to',
                 'pdf_refereeing_pack',
                 'plagiarism_report',
-                'fellows',
-                'voting_fellows'),
+                'fellows'),
         }),
         ('Meta', {
             'classes': ('collapse',),

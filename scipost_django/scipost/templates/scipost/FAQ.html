@@ -25,7 +25,7 @@
     all the way to post-publication commenting, is offered by SciPost.
   </p>
   <p>
-    Thus, simply stated: share your preprint on <a target="_blank" rel="noopener" href="https://www.arxiv.org">arXiv</a>, publish it in <a href="https://scipost.org">SciPost</a>.
+    Thus, simply stated: share your preprint on <a target="_blank" rel="noopener" href="https://www.arxiv.org">arXiv</a>, publish it in <a href="https://{{ request.get_host }}{% url 'scipost:index' %}">SciPost</a>.
   </p><!-- End SciPost -->
 
   <!-- SciPost Journals -->
@@ -288,7 +288,7 @@
       </a>
       <div id="scipost_funded" class="collapse" role="tabpanel">
         <p>SciPost operates non-commercially and purely not-for-profit, incurring minimal costs. Contributors, who are by definition all academically employed, provide all the content and perform all editorial tasks as part of their normal institutional academic duties. Operations are kept running by a team of volunteer officers, themselves academically employed.</p>
-        <p>The startup phase was supported by a grant from the <a target="_blank" rel="noopener" href="https://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. More information on our cost-slashing consortial scheme can be found on our <a href="{% url 'sponsors:sponsors' %}">sponsors page</a>. You can also take a look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a> for more information. You might even consider petitioning your local librarian/director/... to consider sponsoring us, which you can easily do using this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@scipost.org">template</a>.
+        <p>The startup phase was supported by a grant from the <a target="_blank" rel="noopener" href="https://www.nwo.nl/en">NWO</a> in the Netherlands. Long-term operations will be financed by donations from national funding agencies, universities, societies, foundations and individuals. More information on our cost-slashing consortial scheme can be found on our <a href="{% url 'sponsors:sponsors' %}">sponsors page</a>. You can also take a look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a> for more information. You might even consider petitioning your local librarian/director/... to consider sponsoring us, which you can easily do using this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
 	</p>
       </div>
     </div>

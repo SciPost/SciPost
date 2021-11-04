@@ -2,85 +2,85 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.conf.urls import url
+from django.urls import path
 
 from . import views
 
 app_name = 'forums'
 
 urlpatterns = [
-    url(
-        r'^forum/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+    path(
+        'forum/<str:parent_model>/<int:parent_id>/add/',
         views.ForumCreateView.as_view(),
         name='forum_create'
     ),
-    url(
-        r'^add/$',
+    path(
+        'add/',
         views.ForumCreateView.as_view(),
         name='forum_create'
     ),
-    url(
-        r'^meeting/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+    path(
+        'meeting/<str:parent_model>/<int:parent_id>/add/',
         views.MeetingCreateView.as_view(),
         name='meeting_create'
     ),
-    url(
-        r'^meeting/add/$',
+    path(
+        'meeting/add/',
         views.MeetingCreateView.as_view(),
         name='meeting_create'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/$',
+    path(
+        '<slug:slug>/',
         views.ForumDetailView.as_view(),
         name='forum_detail'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/update/$',
+    path(
+        '<slug:slug>/update/',
         views.ForumUpdateView.as_view(),
         name='forum_update'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/delete/$',
+    path(
+        '<slug:slug>/delete/',
         views.ForumDeleteView.as_view(),
         name='forum_delete'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/permissions/(?P<group_id>[0-9]+)/$',
+    path(
+        '<slug:slug>/permissions/<int:group_id>/',
         views.ForumPermissionsView.as_view(),
         name='forum_permissions'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/permissions/$',
+    path(
+        '<slug:slug>/permissions/',
         views.ForumPermissionsView.as_view(),
         name='forum_permissions'
     ),
-    url(
-        r'^$',
+    path(
+        '',
         views.ForumListView.as_view(),
         name='forums'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/post/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+    path(
+        '<slug:slug>/post/<str:parent_model>/<int:parent_id>/add/',
         views.PostCreateView.as_view(),
         name='post_create'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/motion/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/$',
+    path(
+        '<slug:slug>/motion/<str:parent_model>/<int:parent_id>/add/',
         views.MotionCreateView.as_view(),
         name='motion_create'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/post/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/confirm/$',
+    path(
+        '<slug:slug>/post/<str:parent_model>/<int:parent_id>/add/confirm/',
         views.PostConfirmCreateView.as_view(),
         name='post_confirm_create'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/motion/(?P<parent_model>[a-z]+)/(?P<parent_id>[0-9]+)/add/confirm/$',
+    path(
+        '<slug:slug>/motion/<str:parent_model>/<int:parent_id>/add/confirm/',
         views.MotionConfirmCreateView.as_view(),
         name='motion_confirm_create'
     ),
-    url(
-        r'^(?P<slug>[\w-]+)/motion/(?P<motion_id>[0-9]+)/(?P<vote>[YMNA])/$',
+    path(
+        '<slug:slug>/motion/<int:motion_id>/<str:vote>/',
         views.motion_vote,
         name='motion_vote'
     ),

@@ -83,6 +83,8 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'django_countries',
     'django_extensions',
     'django_filters',
@@ -114,7 +116,6 @@ INSTALLED_APPS = (
     'oauth2_provider',
     'ontology',
     'organizations',
-    'partners',
     'petitions',
     'preprints',
     'proceedings',
@@ -136,6 +137,9 @@ INSTALLED_APPS = (
 SITE_ID = 1
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
@@ -233,14 +237,16 @@ CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org',
                'www.paypalobjects.com')
-CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'",
+CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'", "'unsafe-inline'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
                   'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org',
                   'www.recaptcha.net', 'www.gstatic.com', 'www.gstatic.cn',
                   'code.jquery.com',
                   'static.mendeley.com',
-                  'cdn.plot.ly')
+                  'cdn.plot.ly',
+                  'unpkg.com/htmx.org@1.6.0'
+                  )
 CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
                  'crossmark-cdn.crossref.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
@@ -272,6 +278,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'journals.context_processors.journals_processor',
+                'ontology.context_processors.ontology_processor',
             ],
         },
     },

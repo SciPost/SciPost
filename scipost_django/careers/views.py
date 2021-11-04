@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.sites.models import Site
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic.detail import DetailView
@@ -77,7 +78,7 @@ class JobOpeningApplyView(CreateView):
         mail_sender = DirectMailUtil(
             'careers/jobapplication_ack',
             delayed_processing=False,
-            bcc=['admin@scipost.org',],
+            bcc=['admin@{domain}'.format(domain=Site.objects.get_current().domain),],
             jobapplication=self.object)
         mail_sender.send_mail()
         return redirect(self.get_success_url())
