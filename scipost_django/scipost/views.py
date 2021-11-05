@@ -258,6 +258,20 @@ def portal_hx_home(request):
     return render(request, 'scipost/portal/_hx_home.html', context)
 
 
+def portal_hx_home5(request):
+    """Homepage view of SciPost."""
+    if NewsItem.objects.homepage().exists():
+        news_items = NewsItem.objects.homepage().order_by('-date')[:3]
+    else:
+        news_item = NewsItem.objects.none()
+    context = {
+        'news_items': news_items,
+        'publications': Publication.objects.published().order_by(
+            '-publication_date', '-paper_nr')[:3],
+    }
+    return render(request, 'scipost/portal/_hx_home5.html', context)
+
+
 def portal_hx_publications(request):
     form = PublicationSearchForm(
         acad_field_slug=request.session.get('session_acad_field_slug', None),

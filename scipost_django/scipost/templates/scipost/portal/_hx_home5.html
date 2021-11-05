@@ -1,0 +1,142 @@
+{% load static %}
+
+<div class="row">
+  <div class="col-md-8">
+
+    <h1 class="highlight mt-0">The Home of Genuine Open Publishing</h1>
+    <h4 class="m-2 mb-4">SciPost is a complete publishing infrastructure serving professional scientists worldwide.</h4>
+
+    <div class="publications">
+      <h2 class="highlight">Selected publications</h2>
+
+      <div class="publication-list">
+        {% for publication in publications %}
+	  {% include 'journals/_publication_li_content-alt.html' with publication=publication %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+
+    <!-- News -->
+    <div class="news">
+      <h2 class="highlight mt-0">News
+    	<a class="btn btn-link btn-sm" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</a>
+      </h2>
+      <ul>
+      	{% for news in news_items %}
+      	  <li>
+	    <div class="date">{{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span></div>
+	    <div>
+              <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
+              <p>{{ news.blurb_short }}</p>
+	    </div>
+      	  </li>
+      	{% endfor %}
+      </ul>
+
+    </div><!-- End news -->
+
+  </div>
+
+</div>
+
+
+<div class="row">
+  <div class="col-md-4 mb-4">
+    <div class="card">
+      <div class="card-header">
+	<h2 class="my-2">Our purpose: <a href="{% url 'scipost:about' %}#GOA">Genuine Open Access</a></h2>
+      </div>
+      <div class="card-body">
+	<div class="row">
+	  <div class="col">
+	    <ul class="list list-unstyled">
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Community Ownership</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Infrastructure</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Copyright to Authors</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Access</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Citations</li>
+	    </ul>
+	  </div>
+	  <div class="col">
+	    <ul class="list list-unstyled">
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Fee Free</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Non Profit</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Open Finances</li>
+	      <li>{% include 'bi/check-square.html' %}&nbsp;Academic Editing</li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8 mb-4">
+    <div class="card">
+      <div class="card-header">
+	<h2 class="my-2">Sponsors</h2>
+      </div>
+      <div class="card-body">
+	<div class="row">
+	  <div class="col-md-6">
+	    <p>
+	      We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
+	    </p>
+	    <p>
+	      <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
+	    </p>
+	  </div>
+	  <div class="col-md-6">
+	    <a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
+	    <br>
+	    <div id="sponsor-logos" class="sp-swap"
+		 hx-get="{% url 'scipost:_hx_sponsors' %}"
+		 hx-trigger="load"
+		 hx-swap="outerHTML swap:1s"
+	    >
+	    </div>
+	  </div>
+	</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card mb-2">
+      <div class="card-header">
+	<h2 class="my-2">Further info</h2>
+      </div>
+      <div class="card-body">
+	<div class="row">
+	  <div class="col">
+	    <ul class="list list-unstyled">
+	      <li><a href="{% url 'scipost:about' %}">About SciPost</a></li>
+	      <li><a href="{% url 'scipost:foundation' %}">The Foundation</a></li>
+	      <li><a href="{% url 'scipost:FAQ' %}">FAQ</a></li>
+	      <li><a href="{% url 'scipost:contact' %}">Contact us</a></li>
+	      <li><a href="{% url 'careers:jobopenings' %}">Careers&#64;SciPost</a></li>
+	    </ul>
+	  </div>
+	  <div class="col">
+	    <ul class="list list-unstyled">
+	      <li><a href="https://disc.{{ request.get_host }}" target="_blank" rel="noopener">{% include 'bi/chat-right-text.html' %} Community</a></li>
+	      <li><a href="https://git.{{ request.get_host }}" target="_blank" rel="noopener">{% include 'bi/code-square.html' %} git.{{ request.get_host }}</a></li>
+	      <li class="mt-2">	<a href="{% url 'finances:business_model' %}">Our Business Model</a></li>
+	      <li><a href="{% url 'organizations:organizations' %}">Organizations <span class="small">benefitting from our activities</span></a></li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="col-md-8"
+       hx-get="{% url 'scipost:_hx_participates_in' %}"
+       hx-trigger="load"
+  >
+  </div>
+
+</div>

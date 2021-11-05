@@ -20,15 +20,15 @@
 {% block pagetitle %}Homepage{% endblock pagetitle %}
 
 {% block header %}
-  {% include 'scipost/header_with_acad_field_and_spec2p2.html' %}
+  {% include 'scipost/header_with_acad_field_and_spec5.html' %}
 {% endblock %}
 
 
 {% block content %}
 
 
-  <ul class="nav nav-pills flex-wrap flex-sm-row mb-3 justify-content-center"
-      id="portal-tablist"
+  <ul class="nav nav-pills flex-wrap flex-sm-row mb-0 justify-content-center"
+      id="portal-tablist-home5"
       role="tablist">
 
     <li class="nav-item" role="presentation">
@@ -68,7 +68,7 @@
     </li>
 
     <li class="nav-item" role="presentation">
-      <button class="nav-link border border-warning" id="reports-needed-tab"
+      <button class="nav-link border border-2 border-warning" id="reports-needed-tab"
 	      data-bs-toggle="tab" data-bs-target="#reports-needed"
 	      type="button" role="tab"
 	      aria-controls="reports-needed" aria-selected="true">
@@ -95,120 +95,24 @@
     </li>
 
     <li class="nav-item" role="presentation">
-      <a class="btn btn-outline-success border-2 ms-4"
+      <button class="btn btn-outline-success border-2 ms-4"
 	 href="{% url 'submissions:submit_manuscript' %}">
 	{% include 'bi/arrow-right.html' %}<strong>Submit</strong>
-      </a>
+      </button>
     </li>
 
   </ul>
 
-  <hr>
+  <hr class="mt-0">
 
   <div class="tab-content mt-4" id="portalTabContent">
 
     <div class="tab-pane portal-tab fade show active" id="home"
 	 role="tabpanel" aria-labelledby="home-tab">
-
-      <!-- Plug the content of home3 here, without the fields etc -->
-
-      <div class="row">
-	<div class="col-md-8">
-
-	  <h1 class="highlight">The Home of Genuine Open Publishing</h1>
-
-	  <div class="publications">
-            <ul class="header-list">
-              <li class="active"><h2>Selections</h2></li>
-            </ul>
-
-            <div class="publication-list">
-              {% for publication in publications %}
-		{% include 'journals/_publication_li_content-alt.html' with publication=publication %}
-              {% endfor %}
-            </div>
-	  </div>
-	</div>
-
-	<div class="col-md-4">
-
-	  <!-- News -->
-	  <div class="news">
-    	    <h2 class="header">News
-    	      <a class="btn btn-link btn-sm" href="{% url 'scipost:feeds' %}" aria-label="RSS feeds">{% include 'bi/rss-fill.html' %}</a>
-            </h2>
-      	    <ul>
-      	      {% for news in news_items %}
-      		<li>
-		  <div class="date">{{ news.date|date:'d' }}<span class="month">{{ news.date|date:'M' }}</span></div>
-		  <div>
-                    <h3><a href="{% url 'news:news' %}#news_{{ news.id }}">{{ news.headline }}</a></h3>
-                    <p>{{ news.blurb_short }}</p>
-		  </div>
-      		</li>
-      	      {% endfor %}
-      	    </ul>
-
-            <ul class="link-cloud">
-              <li>About</li>
-              <li>Contact Us</li>
-              <li>The Foundation</li>
-              <li>Careers</li>
-              <li>FAQ</li>
-              <li>News</li>
-              <li>Feeds</li>
-              <li>Our Business model</li>
-              <li>Organizations</li>
-              <li>Sponsors</li>
-              <li>Finances</li>
-            </ul>
-	  </div><!-- End news -->
-
-
-	</div>
-
-      </div>
-
-
-
-      <div class="col-lg-12">
-	<div class="card">
-	  <div class="card-header">
-	    <h1>Sponsors</h1>
-	  </div>
-	  <div class="card-body">
-	    <div class="row">
-	      <div class="col">
-		<p>
-		  We invite <a href="{% url 'organizations:organizations' %}">organizations benefitting from SciPost's activities</a> to join our growing <a href="{% url 'sponsors:sponsors' %}">list of Sponsors</a>. Look at our <a href="{% static 'sponsors/SciPost_Sponsors_Board_Prospectus.pdf' %}">one-page Prospectus</a> and at our full <a href="{% static 'sponsors/SciPost_Sponsorship_Agreement.pdf' %}">Sponsorship Agreement template</a>.
-		</p>
-		<p>
-		  <strong>Scientists, please help us out:</strong> Please petition your local librarian/director/... to consider sponsoring us. You can use this email <a href="mailto:?subject=Petition to support SciPost&body={% autoescape on %}{% include 'sponsors/sponsor_petition_email.html' %}{% endautoescape %}&cc=sponsors@{{ request.get_host }}">template</a>.
-		</p>
-	      </div>
-	      <div class="col-md-4">
-		<a href="{% url 'sponsors:sponsors' %}">See all sponsors</a>
-		<br>
-		<div id="sponsor-logos" class="sp-swap"
-		     hx-get="{% url 'scipost:_hx_sponsors' %}"
-		     hx-trigger="load"
-		     hx-swap="outerHTML swap:1s"
-		>
-		</div>
-	      </div>
-	    </div>
-	  </div>
-	</div>
-      </div>
-
-      <div class="col-lg-12"
-	   hx-get="{% url 'scipost:_hx_participates_in' %}"
-	   hx-trigger="load"
+      <div hx-get="{% url 'scipost:portal_hx_home5' %}"
+	   hx-trigger="load, click delay:200ms from:#home-tab"
       >
       </div>
-
-
-
     </div>
 
     <div class="tab-pane portal-tab fade" id="journals"

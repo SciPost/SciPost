@@ -291,3 +291,40 @@
   }
 
 }
+
+#portal-tablist-home5 {
+
+    list-style: none;
+    padding: 0 0 4px 0;
+    margin: 0;
+
+    li button {
+	color: black;
+	font-size: 0.8rem;
+	font-weight: 800;
+	display: inline-block;
+	// background-color: #d3e3f6;
+	padding: 5px 15px;
+	margin-right: 8px;
+	margin-bottom: 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: 100ms;
+    }
+
+    li button.active {
+	background-color: #496bb6;
+	color: #fff;
+	text-decoration: underline;
+    }
+
+    li button:hover {
+	background-color: #b8c8db;
+	text-decoration: underline;
+    }
+
+    li button.active:hover {
+        background-color: #3e5c9d;
+    }
+
+}

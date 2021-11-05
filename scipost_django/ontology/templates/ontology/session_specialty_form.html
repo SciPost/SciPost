@@ -1,5 +1,5 @@
 {% load crispy_forms_tags %}
-<form id="session_specialty_form"
+<form id="session_specialty_form" style="display: none;"
       hx-get="{% url 'ontology:set_session_specialty' %}"
       hx-trigger="change"
       hx-swap="outerHTML"

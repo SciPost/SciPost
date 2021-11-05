@@ -114,6 +114,11 @@ urlpatterns = [
         name='portal_hx_home'
     ),
     path(
+        'portal/_hx_home5',
+        views.portal_hx_home5,
+        name='portal_hx_home5'
+    ),
+    path(
         'portal/_hx_journals',
         TemplateView.as_view(template_name='scipost/portal/_hx_journals.html'),
         name='portal_hx_journals'
