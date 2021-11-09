@@ -349,7 +349,7 @@ class Submission(models.Model):
         return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
             '-submission_date', '-preprint')
 
-    @property
+    @cached_property
     def thread_sequence_order(self):
         """Return the ordering of this Submission within its thread."""
         return self.thread.filter(submission_date__lt=self.submission_date).count() + 1
