@@ -73,7 +73,7 @@ class MailLogRelation(models.Model):
     mail = models.ForeignKey('mails.MailLog', on_delete=models.CASCADE, related_name='context')
 
     name = models.CharField(max_length=254)
-    value = models.CharField(max_length=254, blank=True)
+    value = models.TextField(blank=True)
 
     content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(blank=True, null=True)
