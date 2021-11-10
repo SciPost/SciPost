@@ -3,6 +3,9 @@
 <p>{{ object.title }}</p>
 <p>by {{ object.author_list }}</p>
 <p>has unfortunately not passed the pre-screening stage.</p>
+{% if message_for_authors %}
+  {{ message_for_authors|linebreaks }}
+{% endif %}
 <p>In view of this, we are unable to proceed further with the handling of your manuscript. We hope you can easily find an alternative publishing venue.</p>
 <p>Despite this unsuccessful outcome, we thank you very much for your contribution, and hope to be able to be of service to you in the future.</p>
 <p>Sincerely,</p>

@@ -1448,17 +1448,22 @@ class SubmissionPrescreeningForm(forms.ModelForm):
             mail_sender = DirectMailUtil(
                 'prescreening_failed',
                 instance=self.instance,
+                message_for_authors=self.cleaned_data['message_for_authors'],
                 header_template='submissions/admin/prescreening_failed.html'
             )
             mail_sender.send_mail()
 
+        if self.cleaned_data['message_for_authors']:
+            Remark.objects.create(
+                submission=self.instance,
+                contributor=self.current_user.contributor,
+                remark=self.cleaned_data['message_for_authors'])
         if self.cleaned_data['remark_for_pool']:
             Remark.objects.create(
                 submission=self.instance,
                 contributor=self.current_user.contributor,
                 remark=self.cleaned_data['remark_for_pool'])
-        if self.cleaned_data['message_for_authors']:
-            pass
+
 
 
 class WithdrawSubmissionForm(forms.Form):
