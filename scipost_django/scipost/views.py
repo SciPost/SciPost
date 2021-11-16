@@ -1361,28 +1361,28 @@ def vet_authorship_claim(request, claim_id, claim):
 
         if claim_to_vet.submission:
             claim_to_vet.submission.authors_claims.remove(claim_to_vet.claimant)
-            if claim == '1':
+            if claim == 1:
                 claim_to_vet.submission.authors.add(claim_to_vet.claimant)
                 claim_to_vet.status = '1'
-            elif claim == '0':
+            elif claim == 0:
                 claim_to_vet.submission.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.submission.save()
         if claim_to_vet.commentary:
             claim_to_vet.commentary.authors_claims.remove(claim_to_vet.claimant)
-            if claim == '1':
+            if claim == 1:
                 claim_to_vet.commentary.authors.add(claim_to_vet.claimant)
                 claim_to_vet.status = '1'
-            elif claim == '0':
+            elif claim == 0:
                 claim_to_vet.commentary.authors_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.commentary.save()
         if claim_to_vet.thesislink:
             claim_to_vet.thesislink.author_claims.remove(claim_to_vet.claimant)
-            if claim == '1':
+            if claim == 1:
                 claim_to_vet.thesislink.author_as_cont.add(claim_to_vet.claimant)
                 claim_to_vet.status = '1'
-            elif claim == '0':
+            elif claim == 0:
                 claim_to_vet.thesislink.author_false_claims.add(claim_to_vet.claimant)
                 claim_to_vet.status = '-1'
             claim_to_vet.thesislink.save()
