@@ -84,8 +84,11 @@ class Comment(TimeStampedModel):
         )
 
     def __str__(self):
-        return ('by ' + self.author.user.first_name + ' ' + self.author.user.last_name +
-                ' on ' + self.date_submitted.strftime('%Y-%m-%d') + ', ' + self.comment_text[:30])
+        text = "Anonymous"
+        if not self.anonymous:
+            text = self.author.user.first_name + ' ' + self.author.user.last_name
+        return (text + ' on '
+                + self.date_submitted.strftime('%Y-%m-%d') + ', ' + self.comment_text[:30])
 
     @property
     def title(self):
