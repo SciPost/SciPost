@@ -99,7 +99,10 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     def __str__(self):
         """Summarize the RefereeInvitation's basic information."""
-        return (self.author.user.first_name + ' ' + self.author.user.last_name + ' on ' +
+        text = "Anonymous"
+        if not self.anonymous:
+            text = self.author.user.first_name + ' ' + self.author.user.last_name
+        return (text + ' on ' +
                 self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
 
     def save(self, *args, **kwargs):
