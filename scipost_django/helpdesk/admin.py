@@ -25,7 +25,11 @@ class FollowupInline(admin.TabularInline):
 
 
 class TicketAdmin(admin.ModelAdmin):
-    search_fields = ['description', 'defined_by']
+    search_fields = [
+        'title',
+        'description',
+        'defined_by__last_name'
+    ]
     inlines = [FollowupInline]
     autocomplete_fields = [
         'defined_by',
