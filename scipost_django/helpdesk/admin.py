@@ -28,7 +28,8 @@ class TicketAdmin(admin.ModelAdmin):
     search_fields = [
         'title',
         'description',
-        'defined_by__last_name'
+        'defined_by__last_name',
+        'concerning_object_id'
     ]
     inlines = [FollowupInline]
     autocomplete_fields = [
