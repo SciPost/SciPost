@@ -57,6 +57,7 @@ from .forms import (
     SubmissionPoolFilterForm,
     # FixCollegeDecisionForm,
     EditorialDecisionForm,
+    SubmissionTargetJournalForm, SubmissionTargetProceedingsForm, SubmissionPreprintFileForm,
     SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
 from .permissions import is_edadmin_or_senior_fellow
@@ -74,6 +75,7 @@ from mails.utils import DirectMailUtil
 from mails.views import MailEditorSubview
 from ontology.models import Topic
 from ontology.forms import SelectTopicForm
+from preprints.models import Preprint
 from production.forms import ProofsDecisionForm
 from production.utils import get_or_create_production_stream
 from profiles.models import Profile
@@ -2092,6 +2094,66 @@ class SubmissionReassignmentView(SuccessMessageMixin, SubmissionAdminViewMixin, 
     editorial_page = True
     success_url = reverse_lazy('submissions:pool')
     success_message = 'Editor successfully replaced.'
+
+
+@permission_required('scipost.can_fix_College_decision')
+def _hx_submission_update_target_journal(request, identifier_w_vn_nr):
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    form = SubmissionTargetJournalForm(
+        request.POST or None,
+        instance=submission
+    )
+    if form.is_valid():
+        form.save()
+        return redirect(reverse('submissions:pool_hx_submission_details',
+                                args=(submission.preprint.identifier_w_vn_nr,)))
+    context = {
+        'form': form
+    }
+    return render(request, 'submissions/admin/_hx_submission_update_target_journal.html', context)
+
+
+@permission_required('scipost.can_fix_College_decision')
+def _hx_submission_update_target_proceedings(request, identifier_w_vn_nr):
+    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    form = SubmissionTargetProceedingsForm(
+        request.POST or None,
+        instance=submission
+    )
+    if form.is_valid():
+        form.save()
+        return redirect(reverse('submissions:pool_hx_submission_details',
+                                args=(submission.preprint.identifier_w_vn_nr,)))
+    context = {
+        'form': form
+    }
+    return render(request, 'submissions/admin/_hx_submission_update_target_proceedings.html', context)
+
+
+@permission_required('scipost.can_fix_College_decision')
+def _hx_submission_update_preprint_file(request, identifier_w_vn_nr):
+    preprint = get_object_or_404(Preprint, identifier_w_vn_nr=identifier_w_vn_nr)
+    if request.method == 'POST':
+        form = SubmissionPreprintFileForm(
+            request.POST,
+            request.FILES,
+            instance=preprint
+        )
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('submissions:pool_hx_submission_details',
+                                    args=(preprint.identifier_w_vn_nr,)))
+        else:
+            print("Alert! Form is not valid.")
+    else:
+        form = SubmissionPreprintFileForm(
+            instance=preprint
+        )
+    context = {
+        'submission': preprint.submission,
+        'form': form
+    }
+    return render(request, 'submissions/admin/_hx_submission_update_preprint_file.html', context)
 
 
 class PreScreeningView(SubmissionAdminViewMixin, UpdateView):

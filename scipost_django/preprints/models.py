@@ -71,6 +71,12 @@ class Preprint(models.Model):
             return self.get_absolute_url()
 
     @property
+    def has_file(self):
+        if self._file:
+            return True
+        return False
+
+    @property
     def is_arXiv(self):
         """Return True if this preprint is hosted on arXiv."""
         return 'arxiv.org' in self.url

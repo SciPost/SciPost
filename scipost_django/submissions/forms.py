@@ -13,7 +13,7 @@ from django.forms.formsets import ORDERING_FIELD_NAME
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div
+from crispy_forms.layout import Layout, Div, Fieldset, ButtonHolder, Submit
 from crispy_forms.bootstrap import InlineRadios
 from crispy_bootstrap5.bootstrap5 import FloatingField
 
@@ -1393,6 +1393,81 @@ class SubmissionReassignmentForm(forms.ModelForm):
             'fellows/email_fellow_assigned_submission',
             assignment=assignment)
         mail_sender.send_mail()
+
+
+class SubmissionTargetJournalForm(forms.ModelForm):
+    """Change the target journal for the Submission."""
+
+    class Meta:
+        model = Submission
+        fields = [
+            'submitted_to',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['submitted_to'].queryset = Journal.objects.active()
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FloatingField('submitted_to'),
+            ButtonHolder(
+                Submit('submit', 'Update', css_class='btn btn-danger')
+            )
+        )
+
+
+class SubmissionTargetProceedingsForm(forms.ModelForm):
+    """Change the target Proceedings for the Submission."""
+
+    class Meta:
+        model = Submission
+        fields = [
+            'proceedings'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['proceedings'].queryset = Proceedings.objects.order_by('-submissions_close')
+        self.fields['proceedings'].help_text = None
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FloatingField('proceedings'),
+            ButtonHolder(
+                Submit('submit', 'Update', css_class='btn btn-danger')
+            )
+        )
+
+
+class SubmissionPreprintFileForm(forms.ModelForm):
+    """Change the submitted pdf for the Submission."""
+    # preprint_file = forms.FileField()
+
+    class Meta:
+        model = Preprint
+        fields = [
+            # 'preprint_file',
+            '_file'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        # self.submission = kwargs.pop('submission')
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            '_file',
+            ButtonHolder(
+                Submit('submit', 'Update', css_class='btn btn-danger')
+            )
+        )
+
+    # def save(self):
+        # print("File")
+        # print(self.cleaned_data['preprint_file'])
+        # self.submission.preprint._file = self.cleaned_data['preprint_file']
+        # self.submission.preprint.save()
+        # return self.submission
+        # Preprint.objects.get(pk=self.instance.id).update(_file=self.cleaned_data.get('preprint_file'))
+        # self.submission.preprint._file.save(self.cleaned_data['_file'].name, self.cleaned_data['_file'])
 
 
 class SubmissionPrescreeningForm(forms.ModelForm):

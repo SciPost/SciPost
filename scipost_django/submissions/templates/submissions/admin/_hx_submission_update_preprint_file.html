@@ -1,0 +1,19 @@
+{% load crispy_forms_tags %}
+<div class="m-2 p-2 border border-warning">
+  <p><strong>Update the preprint pdf</strong>
+    <button
+	type="button" class="ms-2 px-1 py-0 btn btn-sm btn-outline-danger"
+	hx-get="{% url 'submissions:pool_hx_submission_details' submission.preprint.identifier_w_vn_nr %}"
+	hx-target="#details_{{ submission.id }}"
+    >
+      cancel
+    </button>
+  </p>
+  <form id="submission_{{ submission.id }}_update_preprint_form"
+	hx-encoding="multipart/form-data"
+	hx-post="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
+	hx-target="#details_{{ submission.id }}"
+  >
+    {% crispy form %}
+  </form>
+</div>

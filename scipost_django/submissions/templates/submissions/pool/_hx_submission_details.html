@@ -61,7 +61,42 @@
 	<h3>Editorial Administration</h3>
 	<ul class="ps-4 mb-3">
 	  {% if is_ed_admin %}
-	    <li>
+	    <li class="pb-2">Maintenance:
+	      <ul class="ps-3">
+		<li>
+		  <a
+		      hx-get="{% url 'submissions:_hx_submission_update_target_journal' submission.preprint.identifier_w_vn_nr %}"
+		      hx-target="this"
+		      hx-swap="outerHTML"
+		  >
+		    Update the target Journal&emsp;<em>(currently:&emsp;{{ submission.submitted_to }})</em>
+		  </a>
+		</li>
+		{% if 'Proceedings' in submission.submitted_to.name %}
+		  <li>
+		    <a
+		      hx-get="{% url 'submissions:_hx_submission_update_target_proceedings' submission.preprint.identifier_w_vn_nr %}"
+			      hx-target="this"
+			      hx-swap="outerHTML"
+		    >
+		      Update the target Proceedings&emsp;<em>(currently:&emsp;{{ submission.proceedings }})</em>
+		    </a>
+		  </li>
+		{% endif %}
+		{% if submission.preprint.has_file %}
+		  <li>
+		    <a
+			hx-get="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
+			hx-target="this"
+			hx-swap="outerHTML"
+		    >
+		      Update the submitted pdf
+		    </a>
+		  </li>
+		{% endif %}
+	      </ul>
+	    </li>
+	    <li class="pb-2">
 	      {% if submission.in_prescreening %}
 		<a href="{% url 'submissions:do_prescreening' submission.preprint.identifier_w_vn_nr %}">Pre-screening</a>
 	      {% else %}
@@ -71,7 +106,7 @@
 	  {% endif %}
 
           {# EIC Assignments #}
-          <li>Screening: invitations to take charge
+          <li class="pb-2">Screening: invitations to take charge
 	    {% if not submission.editor_in_charge %}
 	      <span class="border border-danger text-danger ms-2 p-1">
 		There is no Editor-in-charge yet {% include 'bi/arrow-right.html' %}
@@ -99,7 +134,7 @@
             </ul>
 	  </li>
 
-	  <li>Refereeing:
+	  <li class="pb-2">Refereeing:
 	    <ul class="ps-3">
               {% if submission.editor_in_charge and perms.scipost.can_reassign_submissions %}
 		<li><a href="{% url 'submissions:reassign_submission' submission.preprint.identifier_w_vn_nr %}">Reassign Editor-in-charge</a></li>
@@ -109,38 +144,39 @@
 
           {# Compile pdfs #}
           {% if submission.reports.accepted.exists %}
-            <li><a href="{% url 'submissions:reports_accepted_list' %}?submission={{ submission.preprint.identifier_w_vn_nr }}">Compile accepted reports</a></li>
+            <li class="pb-2"><a href="{% url 'submissions:reports_accepted_list' %}?submission={{ submission.preprint.identifier_w_vn_nr }}">Compile accepted reports</a></li>
           {% endif %}
 
           {# Communication #}
 	  {% if is_ed_admin %}
             {% if submission.editor_in_charge %}
-              <li><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
+              <li class="pb-2"><a href="{% url 'submissions:communication' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr comtype='StoE' %}">Send a communication to the Editor-in-charge</a></li>
             {% endif %}
 	  {% endif %}
 
           {# EIC Recommendations #}
           {% if submission.eicrecommendations.exists %}
-            <li>See Editorial Recommendations:</li>
-            <ul class="ps-3">
-              {% for rec in submission.eicrecommendations.all %}
-		<li>
-		  <a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_full_status_display }}</a>
-		  {% if is_ed_admin %}
-		    {% if rec.voting_in_preparation %}
-		      <a class="btn btn-sm btn-primary ms-4 px-1 py-0" role="button" href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
+            <li class="pb-2">See Editorial Recommendations:
+              <ul class="ps-3">
+		{% for rec in submission.eicrecommendations.all %}
+		  <li>
+		    <a href="{% url 'submissions:eic_recommendation_detail' identifier_w_vn_nr=submission.preprint.identifier_w_vn_nr %}">{{ rec.get_full_status_display }}</a>
+		    {% if is_ed_admin %}
+		      {% if rec.voting_in_preparation %}
+			<a class="btn btn-sm btn-primary ms-4 px-1 py-0" role="button" href="{% url 'submissions:prepare_for_voting' rec_id=rec.id %}">Prepare for voting</a>
+		      {% endif %}
 		    {% endif %}
-		  {% endif %}
-		</li>
-              {% endfor %}
-            </ul>
+		  </li>
+		{% endfor %}
+              </ul>
+	    </li>
           {% endif %}
 
           {# Accepted submission actions #}
 	  {% if is_ed_admin %}
             {% if submission.status == 'accepted' %}
-              <li><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
-              <li><a href="{% url 'journals:update_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
+              <li class="pb-2"><a href="{% url 'submissions:treated_submission_pdf_compile' submission.preprint.identifier_w_vn_nr %}">Update the Refereeing Package pdf</a></li>
+              <li class="pb-2"><a href="{% url 'journals:update_publication' submission.preprint.identifier_w_vn_nr %}">Draft Publication</a></li>
             {% endif %}
 	  {% endif %}
 
