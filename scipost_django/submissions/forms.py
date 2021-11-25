@@ -1440,17 +1440,14 @@ class SubmissionTargetProceedingsForm(forms.ModelForm):
 
 class SubmissionPreprintFileForm(forms.ModelForm):
     """Change the submitted pdf for the Submission."""
-    # preprint_file = forms.FileField()
 
     class Meta:
         model = Preprint
         fields = [
-            # 'preprint_file',
             '_file'
         ]
 
     def __init__(self, *args, **kwargs):
-        # self.submission = kwargs.pop('submission')
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -1459,15 +1456,6 @@ class SubmissionPreprintFileForm(forms.ModelForm):
                 Submit('submit', 'Update', css_class='btn btn-danger')
             )
         )
-
-    # def save(self):
-        # print("File")
-        # print(self.cleaned_data['preprint_file'])
-        # self.submission.preprint._file = self.cleaned_data['preprint_file']
-        # self.submission.preprint.save()
-        # return self.submission
-        # Preprint.objects.get(pk=self.instance.id).update(_file=self.cleaned_data.get('preprint_file'))
-        # self.submission.preprint._file.save(self.cleaned_data['_file'].name, self.cleaned_data['_file'])
 
 
 class SubmissionPrescreeningForm(forms.ModelForm):

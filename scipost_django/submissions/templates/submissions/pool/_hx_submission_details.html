@@ -64,20 +64,20 @@
 	    <li class="pb-2">Maintenance:
 	      <ul class="ps-3">
 		<li>
-		  <a
-		      hx-get="{% url 'submissions:_hx_submission_update_target_journal' submission.preprint.identifier_w_vn_nr %}"
-		      hx-target="this"
-		      hx-swap="outerHTML"
+		  <a class="a-hx-get"
+		     hx-get="{% url 'submissions:_hx_submission_update_target_journal' submission.preprint.identifier_w_vn_nr %}"
+		     hx-target="this"
+		     hx-swap="outerHTML"
 		  >
 		    Update the target Journal&emsp;<em>(currently:&emsp;{{ submission.submitted_to }})</em>
 		  </a>
 		</li>
 		{% if 'Proceedings' in submission.submitted_to.name %}
 		  <li>
-		    <a
-		      hx-get="{% url 'submissions:_hx_submission_update_target_proceedings' submission.preprint.identifier_w_vn_nr %}"
-			      hx-target="this"
-			      hx-swap="outerHTML"
+		    <a class="a-hx-get"
+		       hx-get="{% url 'submissions:_hx_submission_update_target_proceedings' submission.preprint.identifier_w_vn_nr %}"
+		       hx-target="this"
+		       hx-swap="outerHTML"
 		    >
 		      Update the target Proceedings&emsp;<em>(currently:&emsp;{{ submission.proceedings }})</em>
 		    </a>
@@ -85,10 +85,10 @@
 		{% endif %}
 		{% if submission.preprint.has_file %}
 		  <li>
-		    <a
-			hx-get="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
-			hx-target="this"
-			hx-swap="outerHTML"
+		    <a class="a-hx-get"
+		       hx-get="{% url 'submissions:_hx_submission_update_preprint_file' submission.preprint.identifier_w_vn_nr %}"
+		       hx-target="this"
+		       hx-swap="outerHTML"
 		    >
 		      Update the submitted pdf
 		    </a>
