@@ -44,6 +44,16 @@
         {% endfor %}
       </ul>
     </div>
+    {% if recommendation.submission.editorial_assignments %}
+      <div class="col-md-3">
+	<p>Fellows who were originally sent an assignment request:</p>
+	<ul>
+	  {% for assignment in recommendation.submission.editorial_assignments.all %}
+	    <li>{{ assignment.to }} <small class="text-muted">({{ assignment.get_status_display }})</small></li>
+	  {% endfor %}
+	</ul>
+      </div>
+    {% endif %}
     {% if previously_eligible_for_voting %}
       <div class="col-md-3">
 	<p>Fellows who were eligible to vote in previous versions of this recommendation:</p>
