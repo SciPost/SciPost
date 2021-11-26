@@ -595,7 +595,8 @@ class SubmissionUtils(BaseMailUtil):
             recipient_email.append(f'submissions@{domain}')
             recipient_greeting = 'Dear Editorial Administrators'
             bcc_emails.append(cls.communication.submission.editor_in_charge.user.email)
-            further_action_page = f'https://{domain}/submissions/pool'
+            further_action_page = (f'https://{domain}/submission/editorial_page/'
+                                   + cls.communication.submission.preprint.identifier_w_vn_nr)
 
         email_text = (recipient_greeting +
                       ', \n\nPlease find here a communication (' +
