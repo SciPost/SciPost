@@ -1456,6 +1456,7 @@ def extend_refereeing_deadline(request, identifier_w_vn_nr, days):
         open_for_reporting=True,
         open_for_commenting=True,
         latest_activity=timezone.now())
+    submission.refresh_from_db()
 
     messages.success(request, 'Refereeing deadline set to {0}.'.format(
         submission.reporting_deadline.strftime('%Y-%m-%d')))
@@ -1486,6 +1487,7 @@ def set_refereeing_deadline(request, identifier_w_vn_nr):
             reporting_deadline=form.cleaned_data['deadline'],
             open_for_reporting=True,
             latest_activity = timezone.now())
+        submission.refresh_from_db()
         submission.add_general_event('A new refereeing deadline is set.')
         messages.success(request, 'New reporting deadline set to %s.' % submission.reporting_deadline.date())
     else:
