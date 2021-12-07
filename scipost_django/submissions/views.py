@@ -891,7 +891,7 @@ def submission_remove_topic(request, identifier_w_vn_nr, slug):
 @transaction.atomic
 def editorial_assignment(request, identifier_w_vn_nr, assignment_id=None):
     """Editorial Assignment form view."""
-    submission = get_object_or_404(Submission.objects.pool_editable(request.user),
+    submission = get_object_or_404(Submission.objects.unassigned().pool_editable(request.user),
                                    preprint__identifier_w_vn_nr=identifier_w_vn_nr)
 
     # Check if Submission is still valid for a new assignment.
