@@ -31,6 +31,7 @@ from .models import (
 from .utils import JournalUtils
 
 
+from common.utils import jatsify_tags
 from funders.models import Grant, Funder
 from journals.models import Journal
 from mails.utils import DirectMailUtil
@@ -167,7 +168,7 @@ class AbstractJATSForm(forms.ModelForm):
         self.fields['abstract_jats'].initial = self.instance.abstract_jats
 
     def save(self, *args, **kwargs):
-        self.instance.abstract_jats = self.cleaned_data['abstract_jats']
+        self.instance.abstract_jats = jatsify_tags(self.cleaned_data['abstract_jats'])
         return super().save(*args, **kwargs)
 
 

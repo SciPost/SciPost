@@ -112,6 +112,17 @@ def workdays_between(date_from, date_until):
     return workdays
 
 
+def jatsify_tags(text):
+    """
+    Adds the `jats:` prefix to basic HTML tags. Nilpotent.
+    """
+    tags = ['alternatives', 'p', 'inline-formula', 'tex-math']
+    jatsified = text
+    for tag in tags:
+        jatsified = jatsified.replace(f'<{tag}>', f'<jats:{tag}>').replace(f'</{tag}>', f'</jats:{tag}>')
+    return jatsified
+
+
 # MARKED FOR DEPRECATION
 class BaseMailUtil(object):
     mail_sender = 'no-reply@%s' % Site.objects.get_current().domain
