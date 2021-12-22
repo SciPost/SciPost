@@ -280,6 +280,10 @@ class Publication(models.Model):
         return False
 
     @property
+    def has_abstract_jats(self):
+        return self.abstract_jats != ''
+
+    @property
     def has_xml_metadata(self):
         return self.metadata_xml != ''
 
