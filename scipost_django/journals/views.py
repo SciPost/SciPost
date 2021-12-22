@@ -664,6 +664,8 @@ def add_affiliation(request, doi_label, pk):
     if form.is_valid():
         table.affiliations.add(form.cleaned_data['organization'])
         table.save()
+        Publication.objects.filter(id=table.publication.id).update(
+            cf_author_affiliation_indices_list=[]) # force recompute it
         return redirect(reverse('journals:author_affiliations',
                                 kwargs={'doi_label': doi_label}))
     context = {'table': table, 'add_affiliation_form': form}
@@ -680,6 +682,8 @@ def remove_affiliation(request, doi_label, pk, organization_id):
     org = get_object_or_404(Organization, pk=organization_id)
     table.affiliations.remove(org)
     table.save()
+    Publication.objects.filter(id=table.publication.id).update(
+        cf_author_affiliation_indices_list=[]) # force recompute it
     return redirect(reverse('journals:author_affiliations',
                             kwargs={'doi_label': doi_label}))
 
