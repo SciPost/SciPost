@@ -535,7 +535,7 @@ class DraftPublicationForm(forms.ModelForm):
             self.fields['acad_field'].initial = self.submission.acad_field.id
             self.fields['specialties'].initial = [s.id for s in self.submission.specialties.all()]
             self.fields['approaches'].initial = self.submission.approaches
-            self.fields['submission_date'].initial = self.submission.submission_date
+            self.fields['submission_date'].initial = self.submission.original_submission_date
             self.fields['acceptance_date'].initial = self.submission.acceptance_date
             self.fields['publication_date'].initial = timezone.now()
 
