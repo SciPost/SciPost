@@ -78,7 +78,7 @@ class BaseAction:
         timedelta = datetime.timedelta()
         deadline = datetime.timedelta()
 
-        if hasattr(obj, 'date_invited'):
+        if hasattr(obj, 'date_invited') and obj.date_invited:
             timedelta = timezone.now() - obj.date_invited
         if hasattr(obj, 'submission'):
             print
