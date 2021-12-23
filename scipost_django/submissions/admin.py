@@ -172,7 +172,10 @@ admin.site.register(Submission, SubmissionAdmin)
 
 
 class EditorialAssignmentAdmin(admin.ModelAdmin):
-    search_fields = ['submission__title', 'submission__author_list', 'to__user__last_name']
+    search_fields = [
+        'submission__title', 'submission__author_list', 'submission__preprint__identifier_w_vn_nr',
+        'to__user__last_name'
+    ]
     list_display = (
         'to', submission_short_title, 'status', 'date_created', 'date_invited', 'invitation_order')
     date_hierarchy = 'date_created'
