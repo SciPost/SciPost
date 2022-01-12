@@ -106,7 +106,7 @@
 	  <h2>Add a grant</h2>
           <form action="{% url 'funders:add_grant' %}" method="post">
             {% csrf_token %}
-            {{grant_form|bootstrap}}
+            {{ grant_form|bootstrap }}
             <input class="btn btn-outline-secondary" type="submit" value="Add">
           </form>
 	  <br/>
@@ -146,3 +146,8 @@
 
 
 {% endblock content %}
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ grant_form.media }}
+{% endblock footer_script %}

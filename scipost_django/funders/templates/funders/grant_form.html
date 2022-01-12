@@ -23,3 +23,8 @@
   </div>
 
 {% endblock content %}
+
+{% block footer_script %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock footer_script %}

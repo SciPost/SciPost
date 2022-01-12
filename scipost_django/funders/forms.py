@@ -30,7 +30,8 @@ class FunderSelectForm(forms.Form):
         queryset=Funder.objects.all(),
         widget=autocomplete.ModelSelect2(
             url='/funders/funder-autocomplete',
-            attrs={'data-html': True})
+            attrs={'data-html': True}
+        )
     )
 
 class FunderOrganizationSelectForm(forms.ModelForm):
@@ -54,6 +55,13 @@ class GrantForm(HttpRefererFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['funder'] = forms.ModelChoiceField(
+            queryset=Funder.objects.all(),
+            widget=autocomplete.ModelSelect2(
+                url='/funders/funder-autocomplete',
+                attrs={'data-html': True}
+            )
+        )
         self.fields['recipient'] = forms.ModelChoiceField(
             queryset=Contributor.objects.select_related('user').order_by('user__last_name'),
             required=False)
