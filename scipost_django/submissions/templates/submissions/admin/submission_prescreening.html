@@ -18,6 +18,9 @@
   <h4>by {{ submission.author_list }}</h4>
 
   <h3 class="mt-4">Submission summary</h3>
+  {% if user.is_superuser %}
+    <p><a href="{% url 'admin:submissions_submission_change' submission.id %}" target="_blank" class="p-1 border border-danger text-danger">Edit in admin (superusers only)</a></p>
+  {% endif %}
   {% include 'submissions/pool/_submission_info_table_extended.html' with submission=submission %}
 
   <h3 class="mt-4">Abstract</h3>
