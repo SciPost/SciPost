@@ -97,6 +97,7 @@ class OrganizationUpdateView(PermissionsMixin, UpdateView):
     Update an Organization.
     """
     permission_required = 'scipost.can_manage_organizations'
+    model = Organization
     form_class = OrganizationForm
     template_name = 'organizations/organization_update.html'
     success_url = reverse_lazy('organizations:organizations')
