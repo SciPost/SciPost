@@ -194,7 +194,7 @@ class RefereeInvitationAdmin(admin.ModelAdmin):
         'referee__user__last_name',
         'first_name', 'last_name', 'email_address'
     ]
-    list_display = ('__str__', 'accepted', )
+    list_display = ('__str__', 'accepted', 'fulfilled', 'cancelled')
     list_filter = ('accepted', 'fulfilled', 'cancelled',)
     date_hierarchy = 'date_invited'
     autocomplete_fields = [

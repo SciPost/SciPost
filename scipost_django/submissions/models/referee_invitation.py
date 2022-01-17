@@ -72,7 +72,7 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     objects = RefereeInvitationQuerySet.as_manager()
 
     class Meta:
-        ordering = ['cancelled', 'date_invited']
+        ordering = ['-date_invited',]
 
     def __str__(self):
         """Summarize the RefereeInvitation's basic information."""
