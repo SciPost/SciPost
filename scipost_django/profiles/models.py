@@ -85,10 +85,19 @@ class Profile(models.Model):
     class Meta:
         ordering = ['last_name']
 
+    @property
+    def roles(self):
+        try:
+            return self.contributor.roles
+        except Contributor.DoesNotExist:
+            return None
+
     def __str__(self):
-        return '%s, %s %s' % (self.last_name,
-                              self.get_title_display() if self.title != None else '',
-                              self.first_name)
+        r = self.roles
+        return '%s, %s %s%s' % (self.last_name,
+                                self.get_title_display() if self.title != None else '',
+                                self.first_name,
+                                f' ({",".join(r)})' if r else '')
 
     @property
     def email(self):

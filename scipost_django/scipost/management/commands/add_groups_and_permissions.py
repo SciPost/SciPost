@@ -187,6 +187,9 @@ class Command(BaseCommand):
             codename='can_take_charge_of_submissions',
             name='Can take charge (become Editor-in-charge) of submissions',
             content_type=content_type)
+        can_manage_series, created = Permission.objects.get_or_create(
+            codename='can_manage_series',
+            name='Can manage Series and Collections')
 
         # Refereeing
         can_referee, created = Permission.objects.get_or_create(
@@ -374,6 +377,7 @@ class Command(BaseCommand):
             can_oversee_refereeing,
             can_reassign_submissions,
             can_run_pre_screening,
+            can_manage_series,
             can_prepare_recommendations_for_voting,
             can_manage_college_composition,
             can_fix_College_decision,

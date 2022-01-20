@@ -56,6 +56,11 @@ class Collection(models.Model):
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
     image = models.ImageField(upload_to='series/collections/images/', blank=True)
+
+    expected_authors = models.ManyToManyField(
+        'profiles.Profile',
+        blank=True
+    )
     submissions = models.ManyToManyField(
         'submissions.Submission',
         blank=True

@@ -86,8 +86,20 @@ class Contributor(models.Model):
     class Meta:
         ordering = ['user__last_name', 'user__first_name']
 
+    @property
+    def roles(self):
+        r = []
+        if self.user.is_superuser:
+            r.append('su')
+        if self.user.is_staff:
+            r.append('st')
+        return r if len(r) > 0 else None
+
     def __str__(self):
-        return '%s, %s' % (self.user.last_name, self.user.first_name)
+        val = '%s, %s' % (self.user.last_name, self.user.first_name)
+        if self.user.is_superuser:
+            val += ' (su)'
+        return val
 
     def save(self, *args, **kwargs):
         """Generate new activitation key if not set."""
