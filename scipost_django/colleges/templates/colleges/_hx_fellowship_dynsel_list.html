@@ -1,0 +1,16 @@
+{% load colleges_extras %}
+
+<ul class="list list-unstyled">
+  {% for fellowship in fellowships %}
+    <li>
+      <form
+	  hx-post="{% fellowship_dynsel_action_url fellowship %}"
+	  hx-target="#fellowships"
+      >
+	{% csrf_token %}
+	<button class="btn btn-sm btn-primary">Add</button>
+      </form>
+      {{ fellowship }}
+    </li>
+  {% endfor %}
+</ul>

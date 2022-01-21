@@ -4,6 +4,8 @@ __license__ = "AGPL v3"
 
 import datetime
 
+from dal import autocomplete
+
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
@@ -23,7 +25,7 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE,
     potential_fellowship_statuses_dict,
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
-from .forms import FellowshipForm, FellowshipRemoveSubmissionForm,\
+from .forms import FellowshipDynSelForm, FellowshipForm, FellowshipRemoveSubmissionForm,\
     FellowshipAddSubmissionForm, SubmissionAddFellowshipForm,\
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, \
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
@@ -57,6 +59,18 @@ class CollegeDetailView(DetailView):
         since CollegeSlugConverter already found the College as a kwarg, just pass that object on.
         """
         return self.kwargs['college']
+
+
+class FellowshipAutocompleteView(autocomplete.Select2QuerySetView):
+    """
+    View to feed the Select2 widget.
+    """
+    def get_queryset(self):
+        qs = Fellowship.objects.all()
+        if self.q:
+            qs = qs.filter(Q(contributor__profile__first_name__icontains=self.q) |
+                           Q(contributor__profile__last_name__icontains=self.q)).distinct()
+        return qs
 
 
 class FellowshipCreateView(PermissionsMixin, CreateView):
@@ -154,6 +168,21 @@ class FellowshipListView(PermissionsMixin, PaginationMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['searchform'] = SearchTextForm(initial={'text': self.request.GET.get('text')})
         return context
+
+
+@permission_required('scipost.can_draft_publication')
+def _hx_fellowship_dynsel_list(request):
+    form = FellowshipDynSelForm(request.POST or None)
+    if form.is_valid():
+        fellowships = form.search_results()
+    else:
+        fellowships = Fellowship.objects.none()
+    context = {
+        'fellowships': fellowships,
+        'action_url_name': form.cleaned_data['action_url_name'],
+        'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+    }
+    return render(request, 'colleges/_hx_fellowship_dynsel_list.html', context)
 
 
 class FellowshipStartEmailView(PermissionsMixin, MailView):

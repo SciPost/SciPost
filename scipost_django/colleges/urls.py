@@ -29,6 +29,16 @@ urlpatterns = [
 
     # Fellowships
     path(
+        'fellowship-autocomplete',
+        views.FellowshipAutocompleteView.as_view(),
+        name='fellowship-autocomplete'
+    ),
+    path(
+        '_hx_fellowship_dynsel_list',
+        views._hx_fellowship_dynsel_list,
+        name='_hx_fellowship_dynsel_list'
+    ),
+    path(
         'fellowships/<int:contributor_id>/add/',
         views.FellowshipCreateView.as_view(),
         name='fellowship_create'),
