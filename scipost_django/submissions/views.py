@@ -2459,14 +2459,16 @@ class PlagiarismInternalView(
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         submission = self.get_object()
+        ratio_threshold = 0.7
 
         # Submissions:
         submission_matches = []
         for sub in Submission.objects.exclude(pk=submission.id):
-            ratio_title = SequenceMatcher(None, submission.title, sub.title).ratio()
+            sub_title_sm = SequenceMatcher(None, submission.title, sub.title)
+            ratio_title = sub_title_sm.ratio()
             ratio_authors = SequenceMatcher(None, submission.author_list, sub.author_list).ratio()
             ratio_abstract = SequenceMatcher(None, submission.abstract, sub.abstract).ratio()
-            if (ratio_title >= 0.8 or ratio_abstract > 0.8):
+            if (ratio_title > ratio_threshold or ratio_abstract > ratio_threshold):
                 submission_matches.append({
                     'submission': sub,
                     'ratio_title': ratio_title,
@@ -2481,7 +2483,7 @@ class PlagiarismInternalView(
             ratio_title = SequenceMatcher(None, submission.title, pub.title).ratio()
             ratio_authors = SequenceMatcher(None, submission.author_list, pub.author_list).ratio()
             ratio_abstract = SequenceMatcher(None, submission.abstract, pub.abstract).ratio()
-            if (ratio_title >= 0.8 or ratio_abstract > 0.8):
+            if (ratio_title > ratio_threshold or ratio_abstract > ratio_threshold):
                 publication_matches.append({
                     'publication': pub,
                     'ratio_title': ratio_title,

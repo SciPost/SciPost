@@ -1,0 +1,59 @@
+{% load crispy_forms_tags %}
+
+<div class="row">
+  <div class="col-md-8">
+    {% include 'scipost/messages.html' %}
+    <table class="table">
+      <thead>
+	<tr>
+	  <th>Fellow</th>
+	  <th>Status</th>
+	  <th>Date range</th>
+	  <th>Actions</th>
+	</tr>
+      </thead>
+      {% for fellowship in proceedings.fellowships.all %}
+	<tr>
+	  <td><a href="{{ fellowship.get_absolute_url }}">{{ fellowship.contributor }}</a></td>
+	  <td>{{ fellowship.get_status_display }}</td>
+          <td>
+            {% if fellowship.start_date %}
+              from {{ fellowship.start_date }}
+            {% endif %}
+	    <br>
+            {% if fellowship.until_date %}
+              until {{ fellowship.until_date }}
+            {% endif %}
+            {% if not fellowship.start_date and not fellowship.until_date %}
+              <i>Unlimited</i>
+            {% endif %}
+          </td>
+	  <td>
+	    <a
+		class="btn btn-sm btn-outline-danger"
+		hx-get="{% url 'proceedings:_hx_proceedings_fellowship_action' id=proceedings.id fellowship_id=fellowship.id action='remove' %}"
+		hx-target="#fellowships"
+		hx-confirm="Are you sure you want to remove Fellow {{ fellowship.contributor }} from these Proceedings?"
+	    ><small>Remove</small></a>
+	  </td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="4">No Fellowships yet</td>
+	</tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col-md-4 p-4">
+    <h4>Add a Fellowship to these Proceedings</h4>
+    <form
+      hx-post="{% url 'colleges:_hx_fellowship_dynsel_list' %}"
+	       hx-trigger="keyup delay:200ms, change"
+	       hx-target="#fellowship_search_results"
+    >
+      {% csrf_token %}
+      <div id="fellowship_search_form">{% crispy fellowship_search_form %}</div>
+    </form>
+    <div id="fellowship_search_results" class="border border-light m-2 p-1"></div>
+  </div>
+</div>

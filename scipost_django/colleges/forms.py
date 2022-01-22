@@ -5,6 +5,11 @@ __license__ = "AGPL v3"
 import datetime
 
 from django import forms
+from django.db.models import Q
+
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
+from crispy_bootstrap5.bootstrap5 import FloatingField
 
 from dal import autocomplete
 
@@ -17,6 +22,39 @@ from scipost.models import Contributor
 from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
 from .constants import POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,\
     POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
+
+
+class FellowshipSelectForm(forms.Form):
+    fellowship = forms.ModelChoiceField(
+        queryset=Fellowship.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/colleges/fellowship-autocomplete'),
+        help_text=('Start typing, and select from the popup.'),
+    )
+
+
+class FellowshipDynSelForm(forms.Form):
+    q = forms.CharField(max_length=32, label='Search (by name)')
+    action_url_name = forms.CharField()
+    action_url_base_kwargs = forms.JSONField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FloatingField('q', autocomplete='off'),
+            Field('action_url_name', type='hidden'),
+            Field('action_url_base_kwargs', type='hidden'),
+        )
+
+    def search_results(self):
+        if self.cleaned_data['q']:
+            fellowships = Fellowship.objects.filter(
+                Q(contributor__profile__last_name__icontains=self.cleaned_data['q']) |
+                Q(contributor__profile__first_name__icontains=self.cleaned_data['q'])
+            ).distinct()
+            return fellowships
+        else:
+            return Fellowship.objects.none()
 
 
 class FellowshipForm(forms.ModelForm):

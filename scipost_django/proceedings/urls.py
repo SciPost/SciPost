@@ -32,6 +32,16 @@ urlpatterns = [
                 views.ProceedingsUpdateView.as_view(),
                 name='proceedings_edit'
             ),
+            path(
+                '_hx_proceedings_fellowships',
+                views._hx_proceedings_fellowships,
+                name="_hx_proceedings_fellowships"
+            ),
+            path(
+                '_hx_proceedings_fellowship_action/<int:fellowship_id>/<str:action>',
+                views._hx_proceedings_fellowship_action,
+                name='_hx_proceedings_fellowship_action'
+            ),
         ])
     ),
 ]
