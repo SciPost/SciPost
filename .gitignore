@@ -42,6 +42,7 @@ UPLOADS
 /scipost/fixtures
 /htmlcov
 /local_files/
+/scipost_django/local_files/
 /static/
 static_bundles/
 
