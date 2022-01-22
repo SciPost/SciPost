@@ -40,31 +40,20 @@
       {% if is_ed_admin %}
 	<div class="border border-danger mt-1 p-1">
 	  <h3>Editorial Administration</h3>
-	  <ul>
-	    <li>Expected authors for this Collection
-	      <div class="row">
-		<div class="col-md-6">
-		  <ul>
-		    {% for author in collection.expected_authors.all %}
-		      <li>{{ author }}&emsp;
-			<a href="{% url 'series:collection_remove_expected_author' slug=collection.slug profile_id=author.id %}"><span class="text-danger">{% include 'bi/x-square-fill.html' %}</span></a>
-		      </li>
-		    {% empty %}
-		      <li>None yet defined</li>
-		    {% endfor %}
-		  </ul>
-		</div>
-		<div class="col-md-6">
-		  <h4>Add an expected author</h4>
-		  <form action="{% url 'series:collection_add_expected_author' slug=collection.slug %}" method="post">
-		    {% csrf_token %}
-		    {{ expected_author_form }}
-		    <input type="submit" class="btn btn-sm btn-primary text-white m-1 p-1" value="Add"/>
-		  </form>
-		</div>
+
+	  <div class="card my-4">
+	    <div class="card-header">
+	      Expected authors for this Collection
+	    </div>
+	    <div class="card-body">
+	      <div
+		  id="profiles"
+		  hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
+		  hx-trigger="load"
+	      >
 	      </div>
-	    </li>
-	  </ul>
+	    </div>
+	  </div>
 	</div>
       {% endif %}
       <h2 class="highlight">

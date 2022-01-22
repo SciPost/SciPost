@@ -26,7 +26,7 @@ from invitations.models import RegistrationInvitation
 from submissions.models import RefereeInvitation
 
 from .models import Profile, ProfileEmail, Affiliation
-from .forms import ProfileForm, ProfileMergeForm, ProfileEmailForm, AffiliationForm
+from .forms import ProfileForm, ProfileDynSelForm, ProfileMergeForm, ProfileEmailForm, AffiliationForm
 
 
 ################
@@ -288,6 +288,21 @@ class ProfileDuplicateListView(PermissionsMixin, PaginationMixin, ListView):
             }
             context['merge_form'] = ProfileMergeForm(initial=initial)
         return context
+
+
+@permission_required('scipost.can_create_profiles')
+def _hx_profile_dynsel_list(request):
+    form = ProfileDynSelForm(request.POST or None)
+    if form.is_valid():
+        profiles = form.search_results()
+    else:
+        profiles = Profile.objects.none()
+    context = {
+        'profiles': profiles,
+        'action_url_name': form.cleaned_data['action_url_name'],
+        'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+    }
+    return render(request, 'profiles/_hx_profile_dynsel_list.html', context)
 
 
 @transaction.atomic

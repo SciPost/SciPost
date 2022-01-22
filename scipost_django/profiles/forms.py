@@ -3,7 +3,11 @@ __license__ = "AGPL v3"
 
 
 from django import forms
+from django.db.models import Q
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Field
+from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
 from common.forms import ModelChoiceFieldwithid
@@ -184,6 +188,32 @@ class ProfileSelectForm(forms.Form):
         widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
         help_text=('Start typing, and select from the popup.'),
     )
+
+
+class ProfileDynSelForm(forms.Form):
+    q = forms.CharField(max_length=32, label='Search (by name)')
+    action_url_name = forms.CharField()
+    action_url_base_kwargs = forms.JSONField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FloatingField('q', autocomplete='off'),
+            Field('action_url_name', type='hidden'),
+            Field('action_url_base_kwargs', type='hidden'),
+        )
+
+    def search_results(self):
+        if self.cleaned_data['q']:
+            profiles = Profile.objects.filter(
+                Q(last_name__icontains=self.cleaned_data['q']) |
+                Q(first_name__icontains=self.cleaned_data['q'])
+            ).distinct()
+            return profiles
+        else:
+            return Profile.objects.none()
+
 
 class AffiliationForm(forms.ModelForm):
     organization = forms.ModelChoiceField(

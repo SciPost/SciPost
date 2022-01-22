@@ -4,10 +4,12 @@ __license__ = "AGPL v3"
 
 from django.contrib.auth.decorators import permission_required
 from django.shortcuts import get_object_or_404, render, redirect
+from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 
-from profiles.forms import ProfileSelectForm
+from profiles.models import Profile
+from profiles.forms import ProfileSelectForm, ProfileDynSelForm
 
 from .models import Series, Collection
 
@@ -39,18 +41,35 @@ class CollectionDetailView(DetailView):
 
 
 @permission_required('scipost.can_manage_series')
-def collection_add_expected_author(request, slug):
+def _hx_collection_expected_authors(request, slug):
     collection = get_object_or_404(Collection, slug=slug)
-    expected_author_form=ProfileSelectForm(request.POST or None)
-    if expected_author_form.is_valid():
-        collection.expected_authors.add(expected_author_form.cleaned_data['profile'])
-        collection.save()
-    return redirect(collection.get_absolute_url())
+    form = ProfileDynSelForm(
+        initial={
+            'action_url_name': 'series:_hx_collection_expected_author_action',
+            'action_url_base_kwargs': {'slug': collection.slug, 'action': 'add'}
+        }
+    )
+    context = {
+        'collection': collection,
+        'profile_search_form': form
+    }
+    return render(request, 'series/_hx_collection_expected_authors.html', context)
 
 
 @permission_required('scipost.can_manage_series')
-def collection_remove_expected_author(request, slug, profile_id):
+def _hx_collection_expected_author_action(request, slug, profile_id, action):
     collection = get_object_or_404(Collection, slug=slug)
-    collection.expected_authors.remove(profile_id)
-    collection.save()
-    return redirect(collection.get_absolute_url())
+    profile = get_object_or_404(Profile, pk=profile_id)
+    if action == 'add':
+        collection.expected_authors.add(profile)
+    if action == 'remove':
+        # If this person already has a Publication, abort
+        if collection.publications.filter(authors__profile=profile).exists():
+            messages.error(
+                request,
+                f'{profile} is author of a Publication; removal aborted.'
+            )
+        else:
+            collection.expected_authors.remove(profile)
+    return redirect(reverse('series:_hx_collection_expected_authors',
+                            kwargs={'slug': collection.slug}))

@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -21,18 +21,22 @@ urlpatterns = [
         name='series_detail'
     ),
     path(
-        'collection/<slug:slug>',
-         views.CollectionDetailView.as_view(),
-         name='collection_detail'
-    ),
-    path(
-        'collection/<slug:slug>/add_expected_author',
-        views.collection_add_expected_author,
-        name='collection_add_expected_author'
-    ),
-    path(
-        'collection/<slug:slug>/remove_expected_author/<int:profile_id>',
-        views.collection_remove_expected_author,
-        name='collection_remove_expected_author'
+        'collection/<slug:slug>/', include([
+            path(
+                '',
+                views.CollectionDetailView.as_view(),
+                name='collection_detail'
+            ),
+            path(
+                '_hx_collection_expected_authors',
+                views._hx_collection_expected_authors,
+                name='_hx_collection_expected_authors'
+            ),
+            path(
+                '_hx_collection_expected_author_action/<int:profile_id>/<str:action>',
+                views._hx_collection_expected_author_action,
+                name='_hx_collection_expected_author_action'
+            ),
+        ])
     ),
 ]

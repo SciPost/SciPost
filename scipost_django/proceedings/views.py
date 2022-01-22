@@ -88,7 +88,7 @@ def _hx_proceedings_fellowship_action(request, id, fellowship_id, action):
         if proceedings.submissions.filter(editor_in_charge=fellowship.contributor).exists():
             messages.error(
                 request,
-                f"Fellow {fellowship.contributor} is EiC for some Submissions; removal aborted."
+                f'Fellow {fellowship.contributor} is EiC for some Submissions; removal aborted.'
             )
         else:
             proceedings.fellowships.remove(fellowship)

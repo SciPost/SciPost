@@ -1,0 +1,44 @@
+{% load crispy_forms_tags %}
+
+<div class="row">
+  <div class="col-md-8">
+    {% include 'scipost/messages.html' %}
+    <table class="table">
+      <thead>
+	<tr>
+	  <th>Profile</th>
+	  <th>Actions</th>
+	</tr>
+      </thead>
+      {% for profile in collection.expected_authors.all %}
+	<tr>
+	  <td><a href="{{ profile.get_absolute_url }}">{{ profile }}</a></td>
+	  <td>
+	    <a
+	      class="btn btn-sm btn-outline-danger"
+		hx-get="{% url 'series:_hx_collection_expected_author_action' slug=collection.slug profile_id=profile.id action='remove' %}"
+		hx-target="#profiles"
+		hx-confirm="Are you sure you want to remove {{ profile }} from expected authors in this Collection?"
+	    ><small>Remove</small></a>
+	  </td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="4">No expected authors yet</td>
+	</tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col-md-4 p-4">
+    <h4>Add an expected author</h4>
+    <form
+	hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
+	hx-trigger="keyup delay:200ms, change"
+	hx-target="#profile_search_results"
+    >
+      {% csrf_token %}
+      <div id="profile_search_form">{% crispy profile_search_form %}</div>
+    </form>
+    <div id="profile_search_results" class="border border-light m-2 p-1"></div>
+  </div>
+</div>

@@ -10,7 +10,6 @@ from django.db.models import Q
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 from crispy_bootstrap5.bootstrap5 import FloatingField
-
 from dal import autocomplete
 
 from proceedings.models import Proceedings

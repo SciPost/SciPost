@@ -1,0 +1,18 @@
+{% load profiles_extras %}
+
+<ul class="list list-unstyled">
+  {% for profile in profiles|slice:":11" %}
+    {% if forloop.counter == 11 %}
+      <li>&emsp;...</li>
+    {% else  %}
+      <li class="m-1">
+	<a
+	    hx-get="{% profile_dynsel_action_url profile %}"
+	    hx-target="#profiles"
+	>
+	  {{ profile }}
+	</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>

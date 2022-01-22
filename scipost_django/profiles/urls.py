@@ -42,6 +42,12 @@ urlpatterns = [
         name='profiles'
     ),
 
+    path(
+        '_hx_profile_dynsel_list',
+        views._hx_profile_dynsel_list,
+        name='_hx_profile_dynsel_list'
+    ),
+
     # Instance CBVs
     path(
         '<int:pk>/', include([
