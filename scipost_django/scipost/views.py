@@ -39,7 +39,6 @@ from django.views.static import serve
 
 from dal import autocomplete
 from guardian.decorators import permission_required
-from haystack.generic_views import SearchView
 
 from .constants import SciPost_from_addresses_dict, NORMAL_CONTRIBUTOR
 from .decorators import has_contributor, is_contributor_user
@@ -47,7 +46,7 @@ from .models import Contributor, UnavailabilityPeriod, AuthorshipClaim
 from .forms import (
     SciPostAuthenticationForm, UserAuthInfoForm, TOTPDeviceForm,
     UnavailabilityPeriodForm, RegistrationForm, AuthorshipClaimForm,
-    SearchForm, VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
+    VetRegistrationForm, reg_ref_dict, UpdatePersonalDataForm, UpdateUserDataForm,
     ContributorMergeForm,
     EmailGroupMembersForm, EmailParticularForm, SendPrecookedEmailForm)
 from .mixins import PermissionsMixin, PaginationMixin
@@ -144,19 +143,6 @@ class UserAutocompleteView(autocomplete.Select2QuerySetView):
 @staff_member_required
 def trigger_error(request):
     division_by_zero = 1/0
-
-
-class SearchView(SearchView):
-    """Search CBV inherited from Haystack."""
-
-    template_name = 'search/search.html'
-    form_class = SearchForm
-
-    def get_context_data(self, *args, **kwargs):
-        """Update context with some additional information."""
-        ctx = super().get_context_data(*args, **kwargs)
-        ctx['results_count'] = kwargs['object_list'].count()
-        return ctx
 
 
 #############

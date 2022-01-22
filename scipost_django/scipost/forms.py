@@ -19,7 +19,6 @@ from django.utils import timezone
 from django.utils.dates import MONTHS
 
 from dal import autocomplete
-from haystack.forms import ModelSearchForm as HayStackSearchForm
 
 from .behaviors import orcid_validator
 from .constants import (
@@ -691,38 +690,6 @@ class SearchTextForm(forms.Form):
     Simple text-based search form.
     """
     text = forms.CharField(label='')
-
-
-class SearchForm(HayStackSearchForm):
-    # The date filters don't function well...
-    start = forms.DateField(widget=MonthYearWidget(), required=False)  # Month
-    end = forms.DateField(widget=MonthYearWidget(end=True), required=False)  # Month
-
-    def clean_q(self):
-        q = self.cleaned_data.get('q', '')
-        # Block queries matching flagged regex to avoid gunicorn worker timeout
-        if re.search(r'\w+.cn', q):
-            raise Http404
-        return q
-
-    def search(self):
-        if not self.is_valid():
-            return self.no_query_found()
-
-        if not self.cleaned_data.get("q"):
-            return self.no_query_found()
-
-        sqs = self.searchqueryset.auto_query(self.cleaned_data["q"])
-
-        if self.load_all:
-            sqs = sqs.load_all()
-
-        if self.cleaned_data['start']:
-            sqs = sqs.filter(date__gte=self.cleaned_data['start'])
-
-        if self.cleaned_data['end']:
-            sqs = sqs.filter(date__lte=self.cleaned_data['end'])
-        return sqs
 
 
 class EmailGroupMembersForm(forms.Form):
