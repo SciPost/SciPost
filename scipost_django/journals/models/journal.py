@@ -9,6 +9,8 @@ from django.db.models import Avg, F
 from django.urls import reverse
 from django.utils import timezone
 
+from series.models import Collection
+
 from ..constants import JOURNAL_STRUCTURE, ISSUES_AND_VOLUMES, ISSUES_ONLY
 from ..managers import JournalQuerySet
 from ..validators import doi_journal_validator
@@ -127,6 +129,11 @@ class Journal(models.Model):
     @property
     def has_volumes(self):
         return self.structure in (ISSUES_AND_VOLUMES)
+
+    @property
+    def has_collections(self):
+        return Collection.objects.filter(
+            series__container_journals=self).exists()
 
     def get_issues(self):
         from journals.models import Issue
