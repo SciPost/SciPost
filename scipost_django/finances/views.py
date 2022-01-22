@@ -22,7 +22,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
-from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilter
+from .forms import SubsidyForm, SubsidyAttachmentForm, LogsFilterForm
 from .models import Subsidy, SubsidyAttachment, WorkLog
 from .utils import slug_to_id
 
@@ -311,7 +311,7 @@ def timesheets(request):
     """
     Overview of all timesheets including comments and related objects.
     """
-    form = LogsFilter(request.GET or None)
+    form = LogsFilterForm(request.GET or None)
     context = {'form': form}
     return render(request, 'finances/timesheets.html', context)
 
@@ -319,7 +319,7 @@ def timesheets(request):
 @permission_required('scipost.can_view_timesheets', raise_exception=True)
 def timesheets_detailed(request):
     """Overview of all timesheets. """
-    form = LogsFilter(request.GET or None)
+    form = LogsFilterForm(request.GET or None)
     context = {'form': form}
     return render(request, 'finances/timesheets_detailed.html', context)
 

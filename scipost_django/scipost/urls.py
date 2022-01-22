@@ -57,11 +57,6 @@ urlpatterns = [
 
     # Search
     path(
-        'search_old',
-        views.SearchView.as_view(),
-        name='search_old'
-    ),
-    path(
         'search',
         TemplateView.as_view(template_name='search/search.html'),
         name='search'
