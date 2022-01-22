@@ -4,6 +4,7 @@ __license__ = "AGPL v3"
 
 from django import template
 from django.utils.html import format_html, mark_safe
+from django.urls import reverse
 
 from ..constants import (
     POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,
@@ -94,3 +95,10 @@ def voting_results_display(potfel):
                            mark_safe(election_text),
                            nr_Fellows, nr_agree, nr_abstain, nr_disagree)
     return ''
+
+
+@register.simple_tag(takes_context=True)
+def fellowship_dynsel_action_url(context, fellowship):
+    kwargs = context['action_url_base_kwargs']
+    kwargs['fellowship_id'] = fellowship.id
+    return reverse(context['action_url_name'], kwargs=kwargs)

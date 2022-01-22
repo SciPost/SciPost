@@ -22,39 +22,19 @@
     View the table of contents in <a href="javascript:;" data-bs-toggle="modal" data-bs-target="#textocmodal">TeX format</a>
   </p>
 
-  <h3 class="mt-3">All Guest Fellowships of this Proceedings</h3>
-
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Fellowship ID</th>
-        <th>Fellow</th>
-        <th>Type</th>
-        <th colspan="2">Date range</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for fellowship in proceedings.fellowships.all %}
-        <tr>
-          <td>{{ fellowship.id }}</td>
-          <td>{{ fellowship.contributor }}</td>
-          <td>{{ fellowship.guest|yesno:"Guest fellowship,Regular fellowship"|safe }}</td>
-          <td>
-            {% if fellowship.start_date %}
-              from {{ fellowship.start_date }}
-            {% endif %}
-            {% if fellowship.until_date %}
-              until {{ fellowship.until_date }}
-            {% endif %}
-            {% if not fellowship.start_date and not fellowship.until_date %}
-              <i>Unlimited</i>
-            {% endif %}
-          </td>
-          <td><a href="{{ fellowship.get_absolute_url }}">See details</a></td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <div class="card my-4">
+    <div class="card-header">
+      Fellowships for these Proceedings
+    </div>
+    <div class="card-body">
+      <div
+	  id="fellowships"
+	  hx-get="{% url 'proceedings:_hx_proceedings_fellowships' id=proceedings.id %}"
+	  hx-trigger="load"
+      >
+      </div>
+    </div>
+  </div>
 
   <h3>All Submissions for this Proceedings Issue</h3>
 
