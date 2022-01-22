@@ -6,7 +6,6 @@ import datetime
 
 from django import forms
 from django.conf import settings
-# from django.contrib.postgres.search import TrigramSimilarity
 from django.db import transaction
 from django.db.models import Q
 from django.forms.formsets import ORDERING_FIELD_NAME
@@ -1698,10 +1697,8 @@ class RefereeSearchForm(forms.Form):
     def search(self):
         query = Q_with_alternative_spellings(
             last_name__icontains=self.cleaned_data['last_name'])
-        return Profile.objects.filter(query)
-        # return Profile.objects.annotate(
-        #     similarity=TrigramSimilarity('last_name', self.cleaned_data['last_name']),
-        # ).filter(similarity__gt=0.3).order_by('-similarity')
+        return Profile.objects.filter(query).exclude(
+            contributor__user__is_superuser=True).exclude(contributor__user__is_staff=True)
 
 
 class ConsiderRefereeInvitationForm(forms.Form):
