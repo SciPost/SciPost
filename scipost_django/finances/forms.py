@@ -12,7 +12,6 @@ from django.utils import timezone
 from dal import autocomplete
 from dateutil.rrule import rrule, MONTHLY
 
-from common.forms import MonthYearWidget
 from organizations.models import Organization
 from scipost.fields import UserModelChoiceField
 
@@ -70,7 +69,7 @@ class WorkLogForm(forms.ModelForm):
         }
 
 
-class LogsFilter(forms.Form):
+class LogsFilterForm(forms.Form):
     """
     Filter work logs given the requested date range and users.
     """
@@ -78,8 +77,14 @@ class LogsFilter(forms.Form):
     employee = UserModelChoiceField(
         queryset=get_user_model().objects.filter(work_logs__isnull=False).distinct(),
         required=False, empty_label='Show all')
-    start = forms.DateField(widget=MonthYearWidget(required=True), required=True)  # Month
-    end = forms.DateField(widget=MonthYearWidget(required=True, end=True), required=True)  # Month
+    start = forms.DateField(
+        required=True,
+        widget=forms.SelectDateWidget()
+    )
+    end = forms.DateField(
+        required=True,
+        widget=forms.SelectDateWidget()
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

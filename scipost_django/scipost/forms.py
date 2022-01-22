@@ -29,7 +29,7 @@ from .models import Contributor, UnavailabilityPeriod, \
     Remark, AuthorshipClaim, PrecookedEmail, TOTPDevice
 from .totp import TOTPVerification
 
-from common.forms import MonthYearWidget, ModelChoiceFieldwithid
+from common.forms import ModelChoiceFieldwithid
 
 from colleges.models import Fellowship, PotentialFellowshipEvent
 from commentaries.models import Commentary
