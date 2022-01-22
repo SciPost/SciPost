@@ -2,6 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -62,8 +63,8 @@ def _hx_proceedings_fellowships(request, id):
     proceedings = get_object_or_404(Proceedings, pk=id)
     form = FellowshipDynSelForm(
         initial={
-            'action_url_name': 'proceedings:_hx_proceedings_add_fellowship',
-            'action_url_base_kwargs': {'id': proceedings.id,}
+            'action_url_name': 'proceedings:_hx_proceedings_fellowship_action',
+            'action_url_base_kwargs': {'id': proceedings.id, 'action': 'add'}
         }
     )
     context = {
@@ -74,23 +75,24 @@ def _hx_proceedings_fellowships(request, id):
 
 
 @permission_required('scipost.can_draft_publication')
-def _hx_proceedings_add_fellowship(request, id, fellowship_id):
+def _hx_proceedings_fellowship_action(request, id, fellowship_id, action):
     proceedings = get_object_or_404(Proceedings, pk=id)
     fellowship = get_object_or_404(Fellowship, pk=fellowship_id)
-    proceedings.fellowships.add(fellowship)
-    # Also add to all existing Submissions
-    for submission in proceedings.submissions.all():
-        submission.fellows.add(fellowship)
+    if action == 'add':
+        proceedings.fellowships.add(fellowship)
+        # Also add to all existing Submissions
+        for submission in proceedings.submissions.all():
+            submission.fellows.add(fellowship)
+    if action == 'remove':
+        # If this Fellow is EiC of any submission, abort
+        if proceedings.submissions.filter(editor_in_charge=fellowship.contributor).exists():
+            messages.error(
+                request,
+                f"Fellow {fellowship.contributor} is EiC for some Submissions; removal aborted."
+            )
+        else:
+            proceedings.fellowships.remove(fellowship)
+            for submission in proceedings.submissions.all():
+                submission.fellows.remove(fellowship)
     return redirect(reverse('proceedings:_hx_proceedings_fellowships',
                             kwargs={ 'id': proceedings.id}))
-
-
-@permission_required('scipost.can_draft_publication')
-def remove_fellowship(request, id):
-    proceedings = get_object_or_404(Proceedings, pk=id)
-    form = FellowshipSelectForm(request.POST or None)
-    if form.is_valid():
-        proceedings.fellowships.remove(form.cleaned_data['fellowship'])
-        # Also remove from all Submissions
-        proceedings.submissions.fellows.remove(form.cleaned_data['fellowship'])
-    return redirect(proceedings.get_absolute_url())

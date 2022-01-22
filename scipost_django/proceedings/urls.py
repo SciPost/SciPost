@@ -38,9 +38,9 @@ urlpatterns = [
                 name="_hx_proceedings_fellowships"
             ),
             path(
-                '_hx_proceedings_add_fellowship/<int:fellowship_id>',
-                views._hx_proceedings_add_fellowship,
-                name='_hx_proceedings_add_fellowship'
+                '_hx_proceedings_fellowship_action/<int:fellowship_id>/<str:action>',
+                views._hx_proceedings_fellowship_action,
+                name='_hx_proceedings_fellowship_action'
             ),
         ])
     ),
