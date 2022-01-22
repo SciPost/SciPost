@@ -36,8 +36,6 @@ def proceedings_details(request, id):
     proceedings = get_object_or_404(Proceedings, id=id)
     context = {
         'proceedings': proceedings,
-        'add_fellowship_form': FellowshipSelectForm(),
-        'fellowship_search_form': FellowshipDynSelForm()
     }
     return render(request, 'proceedings/proceedings_details.html', context)
 

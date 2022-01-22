@@ -1,18 +1,6 @@
 {% load crispy_forms_tags %}
 
 <div class="row">
-  <div class="col-md-4">
-    <h3>Add a Fellow to these Proceedings</h3>
-    <form
-	hx-post="{% url 'colleges:_hx_fellowship_dynsel_list' %}"
-	hx-trigger="keyup delay:200ms, change"
-	hx-target="#fellowship_search_results"
-    >
-      {% csrf_token %}
-      <div id="fellowship_search_form">{% crispy fellowship_search_form %}</div>
-    </form>
-    <div id="fellowship_search_results" class="border border-light bg-light m-2 p-1"></div>
-  </div>
   <div class="col-md-8">
     <table class="table">
       <thead>
@@ -39,7 +27,7 @@
               <i>Unlimited</i>
             {% endif %}
           </td>
-	  <td>Remove from these Proceedings</td>
+	  <td>Remove</td>
 	</tr>
       {% empty %}
 	<tr>
@@ -47,5 +35,17 @@
 	</tr>
       {% endfor %}
     </table>
+  </div>
+  <div class="col-md-4">
+    <p>Add a Fellow to these Proceedings</p>
+    <form
+      hx-post="{% url 'colleges:_hx_fellowship_dynsel_list' %}"
+	       hx-trigger="keyup delay:200ms, change"
+	       hx-target="#fellowship_search_results"
+    >
+      {% csrf_token %}
+      <div id="fellowship_search_form">{% crispy fellowship_search_form %}</div>
+    </form>
+    <div id="fellowship_search_results" class="border border-light m-2 p-1"></div>
   </div>
 </div>
