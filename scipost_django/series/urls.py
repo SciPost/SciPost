@@ -37,6 +37,16 @@ urlpatterns = [
                 views._hx_collection_expected_author_action,
                 name='_hx_collection_expected_author_action'
             ),
+            path(
+                '_hx_collection_publications',
+                views._hx_collection_publications,
+                name='_hx_collection_publications'
+            ),
+            path(
+                '_hx_collection_publication_action/<publication_doi_label:doi_label>/<str:action>',
+                views._hx_collection_publication_action,
+                name='_hx_collection_publication_action'
+            ),
         ])
     ),
 ]

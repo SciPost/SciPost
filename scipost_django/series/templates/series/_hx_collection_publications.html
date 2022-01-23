@@ -1,0 +1,47 @@
+{% load crispy_forms_tags %}
+
+<div class="row">
+  <div class="col-md-8">
+    {% include 'scipost/messages.html' %}
+    <table class="table">
+      <thead>
+	<tr>
+	  <th>Order</th>
+	  <th>Publication</th>
+	  <th>Actions</th>
+	</tr>
+      </thead>
+      {% for publicationtablerow in collection.collectionpublicationstable_set.all %}
+	<tr>
+	  <td>{{ publicationtablerow.order }}</td>
+	  <td><a href="{{ publicationtablerow.publication..get_absolute_url }}">
+	    {{ publicationtablerow.publication }}</a></td>
+	  <td>
+	    <a
+		class="btn btn-sm btn-outline-danger"
+		hx-get="{% url 'series:_hx_collection_publication_action' slug=collection.slug doi_label=publicationtablerow.publication.doi_label action='remove' %}"
+		hx-target="#publications"
+		hx-confirm="Are you sure you want to remove {{ publicationtablerow.publication }} from this Collection?"
+	    ><small>Remove</small></a>
+	  </td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td colspan="4">No publications yet</td>
+	</tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col-md-4 p-4">
+    <h4>Add a publication</h4>
+    <form
+      hx-post="{% url 'journals:_hx_publication_dynsel_list' %}"
+	       hx-trigger="keyup delay:200ms, change"
+	       hx-target="#publication_search_results"
+    >
+      {% csrf_token %}
+      <div id="publication_search_form">{% crispy publication_search_form %}</div>
+    </form>
+    <div id="publication_search_results" class="border border-light m-2 p-1"></div>
+  </div>
+</div>

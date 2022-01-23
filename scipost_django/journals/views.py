@@ -46,7 +46,9 @@ from .forms import (
     AuthorsTableOrganizationSelectForm, CreateMetadataXMLForm, CitationListBibitemsForm,
     ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm, PublicationGrantsForm,
     DraftPublicationApprovalForm, PublicationPublishForm, PublicationAuthorOrderingFormSet,
-    OrgPubFractionsFormSet)
+    OrgPubFractionsFormSet,
+    PublicationDynSelForm
+)
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .services import update_citedby
 from .utils import JournalUtils
@@ -88,6 +90,20 @@ class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
         return format_html(
             '<strong>{}</strong><br>{}<br><span class="text-muted">by {}</span>',
             item.doi_label, item.title, item.author_list)
+
+
+def _hx_publication_dynsel_list(request):
+    form = PublicationDynSelForm(request.POST or None)
+    if form.is_valid():
+        publications = form.search_results()
+    else:
+        publications = Publication.objects.none()
+    context = {
+        'publications': publications,
+        'action_url_name': form.cleaned_data['action_url_name'],
+        'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+    }
+    return render(request, 'journals/_hx_publication_dynsel_list.html', context)
 
 
 ################

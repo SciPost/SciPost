@@ -19,6 +19,13 @@ urlpatterns = [
         journals_views.PublicationAutocompleteView.as_view(),
         name='publication-autocomplete',
     ),
+
+    path(
+        '_hx_publication_dynsel_list',
+        journals_views._hx_publication_dynsel_list,
+        name='_hx_publication_dynsel_list'
+    ),
+
     # Journals
     path(
         '',

@@ -1,0 +1,18 @@
+{% load journals_extras %}
+
+<ul class="list list-unstyled">
+  {% for publication in publications|slice:":11" %}
+    {% if forloop.counter == 11 %}
+      <li>&emsp;...</li>
+    {% else  %}
+      <li class="m-1">
+	<a
+	    hx-get="{% publication_dynsel_action_url publication %}"
+	    hx-target="#publications"
+	>
+	  {{ publication }}
+	</a>
+      </li>
+    {% endif %}
+  {% endfor %}
+</ul>

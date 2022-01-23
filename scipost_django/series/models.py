@@ -77,6 +77,12 @@ class Collection(models.Model):
     def get_absolute_url(self):
         return reverse('series:collection_detail', kwargs={'slug': self.slug})
 
+    def cleanup_ordering(self):
+        """Ensure that order takes values 1, 2, ... [nr publications]."""
+        for counter, cpt in enumerate(self.collectionpublicationstable_set.all()):
+            cpt.order = counter + 1
+            cpt.save()
+
 
 class CollectionPublicationsTable(models.Model):
     collection = models.ForeignKey(
@@ -96,3 +102,9 @@ class CollectionPublicationsTable(models.Model):
     def __str__(self):
         return 'In Collection %s: publication %s' % (
             str(self.collection), str(self.publication))
+
+    def save(self, *args, **kwargs):
+        """Auto increment order number if not explicitly set."""
+        if not self.order:
+            self.order = self.collection.publications.count() + 1
+        return super().save(*args, **kwargs)

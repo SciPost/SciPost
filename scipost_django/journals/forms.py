@@ -13,12 +13,13 @@ from datetime import datetime
 from django import forms
 from django.conf import settings
 from django.contrib.sites.models import Site
+from django.db.models import Q
 from django.forms import BaseModelFormSet, modelformset_factory
 from django.template import loader
 from django.utils import timezone
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div
+from crispy_forms.layout import Layout, Div, Field
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
@@ -868,3 +869,28 @@ OrgPubFractionsFormSet = modelformset_factory(OrgPubFraction,
                                               fields=('publication', 'organization', 'fraction'),
                                               formset=BaseOrgPubFractionsFormSet,
                                               form=SetOrgPubFractionForm, extra=0)
+
+
+class PublicationDynSelForm(forms.Form):
+    q = forms.CharField(max_length=32, label='Search (by title, author names)')
+    action_url_name = forms.CharField()
+    action_url_base_kwargs = forms.JSONField()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            FloatingField('q', autocomplete='off'),
+            Field('action_url_name', type='hidden'),
+            Field('action_url_base_kwargs', type='hidden'),
+        )
+
+    def search_results(self):
+        if self.cleaned_data['q']:
+            publications = Publication.objects.filter(
+                Q(title__icontains=self.cleaned_data['q']) |
+                Q(author_list__icontains=self.cleaned_data['q'])
+            ).distinct()
+            return publications
+        else:
+            return Publication.objects.none()

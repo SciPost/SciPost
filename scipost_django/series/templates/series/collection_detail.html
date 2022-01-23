@@ -37,25 +37,7 @@
 	  </em></small>
 	{% endif %}
       </h1>
-      {% if is_ed_admin %}
-	<div class="border border-danger mt-1 p-1">
-	  <h3>Editorial Administration</h3>
 
-	  <div class="card my-4">
-	    <div class="card-header">
-	      Expected authors for this Collection
-	    </div>
-	    <div class="card-body">
-	      <div
-		  id="profiles"
-		  hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
-		  hx-trigger="load"
-	      >
-	      </div>
-	    </div>
-	  </div>
-	</div>
-      {% endif %}
       <h2 class="highlight">
 	Collection&emsp;{{ collection.name }}
       </h2>
@@ -78,6 +60,40 @@
       {% endif %}
     </div>
   </div>
+
+  {% if is_ed_admin %}
+    <div class="border border-danger mt-2 p-2">
+      <h3>Editorial Administration</h3>
+
+      <div class="card my-4">
+	<div class="card-header">
+	  Expected authors for this Collection
+	</div>
+	<div class="card-body">
+	  <div
+	      id="profiles"
+	      hx-get="{% url 'series:_hx_collection_expected_authors' slug=collection.slug %}"
+	      hx-trigger="load"
+	  >
+	  </div>
+	</div>
+      </div>
+
+      <div class="card my-4">
+	<div class="card-header">
+	  Publications
+	</div>
+	<div class="card-body">
+	  <div
+	      id="publications"
+	      hx-get="{% url 'series:_hx_collection_publications' slug=collection.slug %}"
+	      hx-trigger="load"
+	  >
+	  </div>
+	</div>
+      </div>
+    </div>
+  {% endif %}
 
   {% with active_submissions=collection.submissions.actively_refereeing %}
     {% if active_submissions|length > 0 %}

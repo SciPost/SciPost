@@ -3,6 +3,7 @@ __license__ = "AGPL v3"
 
 
 from django import template
+from django.urls import reverse
 
 from journals.helpers import paper_nr_string
 
@@ -68,3 +69,10 @@ def latest_successful_crossref_generic_deposit(_object):
 @register.filter(name='pubfracs_fixed')
 def pubfracs_fixed(publication):
     return publication.pubfractions_confirmed_by_authors and publication.pubfractions_sum_to_1
+
+
+@register.simple_tag(takes_context=True)
+def publication_dynsel_action_url(context, publication):
+    kwargs = context['action_url_base_kwargs']
+    kwargs['doi_label'] = publication.doi_label
+    return reverse(context['action_url_name'], kwargs=kwargs)
