@@ -189,7 +189,8 @@ class Command(BaseCommand):
             content_type=content_type)
         can_manage_series, created = Permission.objects.get_or_create(
             codename='can_manage_series',
-            name='Can manage Series and Collections')
+            name='Can manage Series and Collections',
+            content_type=content_type)
 
         # Refereeing
         can_referee, created = Permission.objects.get_or_create(
