@@ -889,7 +889,8 @@ class PublicationDynSelForm(forms.Form):
         if self.cleaned_data['q']:
             publications = Publication.objects.filter(
                 Q(title__icontains=self.cleaned_data['q']) |
-                Q(author_list__icontains=self.cleaned_data['q'])
+                Q(author_list__icontains=self.cleaned_data['q']) |
+                Q(doi_label__icontains=self.cleaned_data['q'])
             ).distinct()
             return publications
         else:
