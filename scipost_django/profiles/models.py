@@ -89,7 +89,7 @@ class Profile(models.Model):
     def roles(self):
         try:
             return self.contributor.roles
-        except KeyError, Contributor.DoesNotExist:
+        except (KeyError, Contributor.DoesNotExist):
             return None
 
     def __str__(self):
