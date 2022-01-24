@@ -92,8 +92,16 @@ class SimpleProfileForm(ProfileForm):
 
 
 class ProfileMergeForm(forms.Form):
-    to_merge = ModelChoiceFieldwithid(queryset=Profile.objects.all(), empty_label=None)
-    to_merge_into = ModelChoiceFieldwithid(queryset=Profile.objects.all(), empty_label=None)
+    to_merge = ModelChoiceFieldwithid(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+        empty_label=None
+    )
+    to_merge_into = ModelChoiceFieldwithid(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+        empty_label=None
+    )
 
     def clean(self):
         """
