@@ -364,7 +364,11 @@ class Submission(models.Model):
         return Submission.objects.filter(thread_hash=self.thread_hash).exclude(pk=self.id)
 
     def get_latest_version(self):
-        """Return the latest known version in the thread of this Submission."""
+        """Return the latest version in the thread of this Submission."""
+        return self.thread_full.first()
+
+    def get_latest_public_version(self):
+        """Return the latest publicly-visible version in the thread of this Submission."""
         return self.thread.first()
 
     def _add_event(self, sort, message):
