@@ -16,7 +16,12 @@ class RefereeInvitationQuerySet(models.QuerySet):
 
     def awaiting_response(self):
         """Filter sent invitations awaiting response by referee."""
-        return self.filter(date_invited__isnull=False, accepted=None, cancelled=False)
+        return self.filter(
+            date_invited__isnull=False,
+            accepted=None,
+            cancelled=False,
+            fulfilled=False
+        )
 
     def accepted(self):
         """Filter invitations (non-cancelled) accepted by referee."""
