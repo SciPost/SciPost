@@ -8,7 +8,7 @@ from django import forms
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Layout, Div, Field
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
@@ -18,9 +18,15 @@ from submissions.models import Submission
 from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
 
-from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
-from .constants import POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,\
+from .models import (
+    College, Fellowship,
+    PotentialFellowship, PotentialFellowshipEvent,
+    FellowshipNomination,
+)
+from .constants import (
+    POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,
     POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
+)
 
 
 class FellowshipSelectForm(forms.Form):
@@ -270,3 +276,42 @@ class PotentialFellowshipEventForm(forms.ModelForm):
         self.fields['comments'].widget.attrs.update({
             'placeholder': 'NOTA BENE: careful, will be visible to all who have voting rights'
             })
+
+
+###############
+# Nominations #
+###############
+
+class FellowshipNominationSearchForm(forms.Form):
+    """Filter a FellowshipNomination queryset using basic search fields."""
+
+    college = forms.ModelChoiceField(
+        queryset=College.objects.all(),
+        required=False
+    )
+    profile = forms.ModelChoiceField(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('college'), css_class='col-lg-6'),
+                Div(FloatingField('profile'), css_class='col-lg-6'),
+                css_class='row'
+            )
+        )
+
+    def search_results(self):
+        if self.cleaned_data.get('profile'):
+            nominations = FellowshipNomination.objects.filter(
+                profile=self.cleaned_data.get('profile'))
+        else:
+            nominations = FellowshipNomination.objects.all()
+        if self.cleaned_data.get('college'):
+            nominations = nominations.filter(college=self.cleaned_data.get('college'))
+        return nominations

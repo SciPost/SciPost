@@ -158,4 +158,16 @@ urlpatterns = [
         views.PotentialFellowshipListView.as_view(),
         name='potential_fellowships'
     ),
+
+    # Nominations
+    path(
+        'nominations',
+        views.nominations,
+        name='nominations'
+    ),
+    path(
+        '_hx_nominations',
+        views._hx_nominations,
+        name='_hx_nominations'
+    ),
 ]

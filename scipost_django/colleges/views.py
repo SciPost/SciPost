@@ -9,6 +9,7 @@ from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render, redirect
@@ -25,10 +26,14 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE,
     potential_fellowship_statuses_dict,
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
-from .forms import FellowshipDynSelForm, FellowshipForm, FellowshipRemoveSubmissionForm,\
-    FellowshipAddSubmissionForm, SubmissionAddFellowshipForm,\
-    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, \
-    PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
+from .forms import (
+    FellowshipDynSelForm, FellowshipForm,
+    FellowshipRemoveSubmissionForm, FellowshipAddSubmissionForm,
+    SubmissionAddFellowshipForm,
+    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm,
+    PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm,
+    FellowshipNominationSearchForm,
+)
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
 from scipost.forms import EmailUsersForm, SearchTextForm
@@ -513,3 +518,33 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
         form.instance.noted_by = self.request.user.contributor
         messages.success(self.request, 'Event added successfully')
         return super().form_valid(form)
+
+
+###############
+# Nominations #
+###############
+
+
+@login_required
+@user_passes_test(is_edadmin_or_senior_fellow)
+def nominations(request):
+    """
+    List Nominations.
+    """
+    context = {
+        'form': FellowshipNominationSearchForm()
+    }
+    return render(request, 'colleges/nominations.html', context)
+
+
+def _hx_nominations(request):
+    form = FellowshipNominationSearchForm(request.POST or None)
+    if form.is_valid():
+        nominations = form.search_results()
+    else:
+        nominations = FellowshipNomination.objects.all()
+    paginator = Paginator(nominations, 16)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'colleges/_hx_nominations.html', context)

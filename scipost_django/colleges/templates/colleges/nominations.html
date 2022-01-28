@@ -1,0 +1,42 @@
+{% extends 'colleges/base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block breadcrumb_items %}
+  {{ block.super }}
+  <a href="{% url 'colleges:colleges' %}" class="breadcrumb-item">Colleges</a>
+  <span class="breadcrumb-item">Nominations</span>
+{% endblock %}
+
+{% block meta_description %}{{ block.super }} Nominations{% endblock meta_description %}
+{% block pagetitle %}: Nominations{% endblock pagetitle %}
+
+{% block content %}
+
+  <h1 class="highlight">Fellowship Nominations</h1>
+
+  <div class="card">
+    <div class="card-header">
+      Search / filter
+    </div>
+    <div class="card-body">
+      <form
+	  hx-post="{% url 'colleges:_hx_nominations' %}"
+	  hx-trigger="load, keyup delay:500ms, change"
+	  hx-target="#search-results"
+	  hx-indicator="#indicator-search"
+      >
+	<div id="search-form">{% crispy form %}</div>
+      </form>
+    </div>
+  </div>
+  <div id="indicator-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+  <ul id="search-results" class="list-unstyled mt-2"></ul>
+
+
+{% endblock content %}
