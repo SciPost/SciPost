@@ -4,7 +4,13 @@ __license__ = "AGPL v3"
 
 from django.contrib import admin
 
-from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .models import (
+    College, Fellowship,
+    PotentialFellowship, PotentialFellowshipEvent,
+    FellowshipNomination, FellowshipNominationEvent,
+    FellowshipNominationVotingRound, FellowshipNominationVote,
+    FellowshipNominationDecision, FellowshipInvitation
+)
 
 
 admin.site.register(College)
@@ -57,3 +63,64 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
     ]
 
 admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)
+
+
+class FellowshipNominationEventInline(admin.TabularInline):
+    model = FellowshipNominationEvent
+    extra = 0
+
+class FellowshipNominationVotingRoundInline(admin.TabularInline):
+    model = FellowshipNominationVotingRound
+    extra = 0
+
+
+class FellowshipNominationDecisionInline(admin.TabularInline):
+    model = FellowshipNominationDecision
+    extra = 0
+
+
+class FellowshipInvitationInline(admin.TabularInline):
+    model = FellowshipInvitation
+    extra = 0
+
+
+class FellowshipNominationAdmin(admin.ModelAdmin):
+    inlines = [
+        FellowshipNominationEventInline,
+        FellowshipNominationVotingRoundInline,
+        FellowshipNominationDecisionInline,
+        FellowshipInvitationInline,
+    ]
+    list_display = [
+        'college',
+        'profile',
+        'nominated_on'
+    ]
+    search_fields = [
+        'college',
+        'profile'
+    ]
+    autocomplete_fields = [
+        'profile',
+        'nominated_by',
+        'fellowship'
+    ]
+
+admin.site.register(FellowshipNomination, FellowshipNominationAdmin)
+
+
+class FellowshipNominationVoteInline(admin.TabularInline):
+    model = FellowshipNominationVote
+    extra = 0
+
+class FellowshipNominationVotingRoundAdmin(admin.ModelAdmin):
+    model = FellowshipNominationVotingRound
+    inlines = [
+        FellowshipNominationVoteInline,
+    ]
+    autocomplete_fields = [
+        'nomination',
+        'eligible_to_vote',
+    ]
+
+admin.site.register(FellowshipNominationVotingRound, FellowshipNominationVotingRoundAdmin)
