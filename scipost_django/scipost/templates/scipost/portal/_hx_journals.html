@@ -18,7 +18,7 @@
 	      {% endif %}
 	    </div>
 	    <div class="card-body">
-	      {{ journal.blurb|automarkup }}
+	      {% automarkup journal.blurb %}
 	    </div>
 	    {% if journal.series_set.all|length > 0 %}
 	      <div class="card-footer">

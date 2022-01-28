@@ -11,7 +11,7 @@
       <h1 class="highlight">Delete Forum</h1>
 
       <h3 class="highlight">Description</h3>
-      {{ object.description|automarkup }}
+      {% automarkup object.description %}
 
       <h3 class="highlight">Posts</h3>
       {% for post in object.posts.all %}

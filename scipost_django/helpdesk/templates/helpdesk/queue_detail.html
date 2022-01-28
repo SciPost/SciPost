@@ -85,7 +85,7 @@
       {% endif %}
 
       <h3 class="highlight">Description</h3>
-      {{ queue.description|automarkup }}
+      {% automarkup queue.description %}
 
       <h3 class="highlight">Tickets in this Queue</h3>
       {% include 'helpdesk/tickets_table.html' with tickets=queue.tickets.all %}

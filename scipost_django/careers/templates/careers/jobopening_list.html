@@ -43,7 +43,7 @@
 	    </h3>
 	  </div>
 	  <div class="card-body">
-	    {{ job.short_description|automarkup }}
+	    {% automarkup job.short_description %}
 	  </div>
 	  <div class="card-footer">
 	    {% include 'bi/arrow-right.html' %}&emsp;<a href="{{ job.get_absolute_url }}">View full description/apply for this job</a>

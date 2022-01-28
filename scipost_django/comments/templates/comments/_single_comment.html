@@ -13,7 +13,7 @@
   {% include 'comments/_comment_categories.html' with comment=comment %}
 
   <p class="my-2 pb-1">
-    {{ comment.comment_text|automarkup }}
+    {% automarkup comment.comment_text %}
   </p>
 
   {% if comment.file_attachment %}
@@ -36,7 +36,7 @@
 	  Remarks for editors (not publicly visible)
 	</div>
 	<div class="card-content p-2">
-	  {{ comment.remarks_for_editors|automarkup }}
+	  {% automarkup comment.remarks_for_editors %}
 	</div>
       </div>
     {% endif %}

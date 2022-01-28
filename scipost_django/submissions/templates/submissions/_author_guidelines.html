@@ -43,7 +43,7 @@
 	    <a href="{{ template.template_file.url }}">click here to download the template</a>
 	  </p>
 	  {% if template.instructions %}
-	    {{ template.instructions|automarkup }}
+	    {% automarkup template.instructions %}
 	  {% endif %}
 	</li>
       {% empty %}
@@ -52,7 +52,7 @@
       </ul>
 
       <h3 class="mb-2">The article should contain the following elements:</h3>
-      {{ journal.required_article_elements|automarkup:'reStructuredText' }}
+      {% automarkup journal.required_article_elements language_forced='reStructuredText' %}
 
       <hr>
       <h2 class="highlight" id="manusub">Manuscript submission</h2>

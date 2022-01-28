@@ -11,7 +11,7 @@
       <h1 class="highlight">Delete Queue {{ object.name }}</h1>
 
       <h3 class="highlight">Description</h3>
-      {{ object.description|automarkup }}
+      {% automarkup object.description %}
 
       <h3 class="highlight">Tickets</h3>
       {% include 'helpdesk/tickets_table.html' with queue=object %}

@@ -128,7 +128,7 @@
       {% if submission.author_comments %}
 	<h3>Author comments upon resubmission</h3>
 	<div class="blockquote">
-	  {{ submission.author_comments|automarkup }}
+	  {% automarkup submission.author_comments %}
 	</div>
       {% endif %}
 

@@ -9,7 +9,7 @@
     </div>
   </div>
   <div class="card-body">
-    {{ queue.description|automarkup }}
+    {% automarkup queue.description %}
     {% if queue.sub_queues.all|length > 0 %}
       <hr/>
       <p>Sub-Queues:</p>

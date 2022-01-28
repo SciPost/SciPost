@@ -80,7 +80,7 @@
 {% if decision.remarks_for_authors %}
   <p><strong>Further remarks from Editorial Administration:</strong></p>
   <div class="mx-2 mb-4">
-    {{ decision.remarks_for_authors|automarkup }}
+    {% automarkup decision.remarks_for_authors %}
   </div>
 {% endif %}
 <p>We thank you very much for your contribution.</p>

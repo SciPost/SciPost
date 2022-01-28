@@ -23,7 +23,7 @@
 	</div>
 	<div class="card-body">
 	  {% if form.initial.text %}
-	    {{ form.initial.text|automarkup }}
+	    {% automarkup form.initial.text %}
 	  {% else %}
 	    <span class="text-danger">No text given</span>
 	  {% endif %}

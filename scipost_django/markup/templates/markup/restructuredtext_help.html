@@ -38,7 +38,7 @@
 	  </div>
 	  <div class="col-6">
 	    <h3><strong>You will get:</strong></h3>
-	    {{ snippet.raw|automarkup:'reStructuredText' }}
+	    {% automarkup snippet.raw language_forced='reStructuredText' %}
 	  </div>
 	</div>
       {% endfor %}

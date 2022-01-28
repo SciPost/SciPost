@@ -24,6 +24,6 @@
     {% endif %}
   </div>
   <div class="card-body">
-    {{ jobopening.description|automarkup }}
+    {% automarkup jobopening.description %}
   </div>
 </div>

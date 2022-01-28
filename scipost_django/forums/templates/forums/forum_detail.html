@@ -142,7 +142,7 @@
     <div class="col-12">
       <h2 class="highlight" id="Description">Description</h2>
       <div class="m-2">
-	{{ forum.description|automarkup }}
+	{% automarkup forum.description %}
       </div>
     </div>
   </div>
@@ -152,7 +152,7 @@
       <div class="col-12">
 	<h2 class="highlight" id="Preamble">Preamble</h2>
 	<div class="m-2">
-	  {{ forum.meeting.preamble|automarkup }}
+	  {% automarkup forum.meeting.preamble %}
 	</div>
       </div>
     </div>
@@ -195,7 +195,7 @@
       <div class="col-12">
 	<h2 class="highlight" id="Minutes">Minutes</h2>
 	<div class="m-2">
-	  {{ forum.meeting.minutes|automarkup }}
+	  {% automarkup forum.meeting.minutes %}
 	</div>
       </div>
     </div>

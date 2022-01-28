@@ -46,7 +46,7 @@
   <div class="row">
     <div class="col-12">
       <div class="p-2">
-	{{ collection.description|automarkup }}
+	{% automarkup collection.description %}
       </div>
       {% if collection.event_start_date and collection.event_end_date %}
 	<p class="p-2">

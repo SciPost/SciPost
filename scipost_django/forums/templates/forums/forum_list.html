@@ -49,7 +49,7 @@
 		</span>
 	      </div>
 	      <div class="card-body">
-		{{ forum.description|automarkup }}
+		{% automarkup forum.description %}
 		{% if forum.child_forums.all|length > 0 %}
 		  <hr/>
 		  <p>Descendants:</p>

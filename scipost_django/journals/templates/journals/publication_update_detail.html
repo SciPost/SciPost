@@ -48,7 +48,7 @@
   </div>
 
   <h3>{{ update.get_update_type_display }} to <a href="{{ update.publication.get_absolute_url }}">{{ update.publication.doi_label }}</a></h3>
-  <p>{{ update.text|automarkup }}</p>
+  <p>{% automarkup update.text %}</p>
 
 
   <h3 class="mt-4">

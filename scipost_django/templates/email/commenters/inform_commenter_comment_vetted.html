@@ -20,6 +20,6 @@
   <br>
   Comment:
   <br>
-  {{ comment.comment_text|automarkup }}
+  {% automarkup comment.comment_text %}
 </p>
 {% include 'email/_footer.html' %}

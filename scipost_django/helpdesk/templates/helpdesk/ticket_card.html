@@ -23,7 +23,7 @@
       <tbody>
 	<tr>
 	  <th>Description</th>
-	  <td>{{ ticket.description|automarkup }}</td>
+	  <td>{% automarkup ticket.description %}</td>
 	</tr>
 	<tr>
 	  <th>Defined on</th>
@@ -67,7 +67,7 @@
 		      {{ followup.by.get_full_name }} on {{ followup.timestamp }}
 		    </div>
 		    <div class="card-body">
-		      {{ followup.text|automarkup }}
+		      {% automarkup followup.text %}
 		    </div>
 		  </div>
 		</li>

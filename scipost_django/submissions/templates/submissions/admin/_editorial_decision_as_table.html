@@ -22,11 +22,11 @@
       <td>Version</td><td>{{ decision.version }}</td>
     </tr>
     <tr>
-      <td>Remarks for authors</td><td>{{ decision.remarks_for_authors|automarkup }}</td>
+      <td>Remarks for authors</td><td>{% automarkup decision.remarks_for_authors %}</td>
     </tr>
     <tr>
       <td>Remarks for the Editorial College</td>
-      <td>{{ decision.remarks_for_editorial_college|automarkup }}</td>
+      <td>{% automarkup decision.remarks_for_editorial_college %}</td>
     </tr>
   </tbody>
 </table>

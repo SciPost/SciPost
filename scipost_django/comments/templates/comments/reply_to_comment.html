@@ -33,7 +33,7 @@
 
           {% include 'comments/_comment_categories.html' with comment=comment class='me-2' %}
 
-          <p>{{ comment.comment_text|automarkup }}</p>
+          <p>{% automarkup comment.comment_text %}</p>
         </div>
       </div>
     </div>

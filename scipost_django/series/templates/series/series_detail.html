@@ -45,7 +45,7 @@
     <div class="col-lg-6">
       <h3 class="highlight" id="description">Description</h3>
       <div class="p-2">
-	{{ series.description|automarkup }}
+	{% automarkup series.description %}
       </div>
     </div>
 
@@ -68,7 +68,7 @@
 	<a data-bs-toggle="collapse" href="#series-information" aria-expanded="false" aria-controls="series-information">(show/hide)</a>
       </h3>
       <div id="series-information" class="p-2 collapse">
-	{{ series.information|automarkup }}
+	{% automarkup series.information %}
       </div>
     </div>
   </div>

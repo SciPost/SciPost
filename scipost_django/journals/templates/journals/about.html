@@ -88,12 +88,12 @@
       <h2 class="highlight" id="description">
 	Description
       </h2>
-      {{ journal.description|automarkup }}
+      {% automarkup journal.description %}
 
       <h2 class="highlight" id="scope">
 	Scope
       </h2>
-      {{ journal.scope|automarkup }}
+      {% automarkup journal.scope %}
       <br><br>
       <h4>Specialties covered by this Journal</h4>
       <ul>
@@ -111,7 +111,7 @@
       <h2 class="highlight" id="content">
 	Content
       </h2>
-      {{ journal.content|automarkup }}
+      {% automarkup journal.content %}
       {% if journal.series_set.all|length > 0 %}
 	Series hosted in this Journal:
 	<ul>
@@ -126,12 +126,12 @@
       <h2 class="highlight" id="criteria">
 	Acceptance criteria
       </h2>
-      {{ journal.acceptance_criteria|automarkup }}
+      {% automarkup journal.acceptance_criteria %}
 
       <h2 class="highlight" id="sub_and_ed">
 	Submission and Editorial Process
       </h2>
-      {{ journal.submission_insert|automarkup }}
+      {% automarkup journal.submission_insert %}
       <p>Authors should follow the <a href="{% url 'journal:authoring' doi_label=journal.doi_label %}">authoring guidelines</a> to ensure seamless processing of their manuscript. The <a href="{% url 'journals:journals_terms_and_conditions' %}">SciPost Journals Terms and Conditions</a> apply to all Submissions to {{ journal }}.</p>
       <p>All incoming Submissions are thoroughly checked for plagiarism, and follow the peer-witnessed refereeing procedures outlined in <a href="{% url 'submissions:refereeing_procedure' %}">Refereeing procedure</a>.</p>
       {% if journal.minimal_nr_of_reports > 0 %}
