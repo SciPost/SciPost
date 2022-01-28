@@ -12,6 +12,7 @@ from crispy_forms.layout import Layout, Div, Field
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
+from ontology.models import Specialty
 from proceedings.models import Proceedings
 from profiles.models import Profile
 from submissions.models import Submission
@@ -289,9 +290,19 @@ class FellowshipNominationSearchForm(forms.Form):
         queryset=College.objects.all(),
         required=False
     )
+    specialty = forms.ModelChoiceField(
+        queryset=Specialty.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url='/ontology/specialty-autocomplete',
+            attrs={'data-html': True}
+        ),
+        label='Specialty',
+        required=False
+    )
     profile = forms.ModelChoiceField(
         queryset=Profile.objects.all(),
         widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+        label='Name (through Profile)',
         required=False
     )
 
@@ -301,9 +312,13 @@ class FellowshipNominationSearchForm(forms.Form):
         self.helper.layout = Layout(
             Div(
                 Div(FloatingField('college'), css_class='col-lg-6'),
+                Div(FloatingField('specialty'), css_class='col-lg-6'),
+                css_class='row'
+            ),
+            Div(
                 Div(FloatingField('profile'), css_class='col-lg-6'),
                 css_class='row'
-            )
+            ),
         )
 
     def search_results(self):

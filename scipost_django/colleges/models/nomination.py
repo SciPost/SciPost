@@ -43,7 +43,7 @@ class FellowshipNomination(models.Model):
         verbose_name_plural = 'Fellowship Nominations'
 
     def __str__(self):
-        return (f'Nomination of {self.profile} to {self.college} '
+        return (f'{self.profile} to {self.college} '
                 f'on {self.nominated_on.strftime("%Y-%m-%d")}')
 
 

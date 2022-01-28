@@ -18,8 +18,10 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from colleges.permissions import (
+    is_edadmin_or_senior_fellow, is_edadmin_or_active_regular_or_senior_fellow
+)
 from submissions.models import Submission
-from submissions.permissions import is_edadmin_or_senior_fellow
 
 from .constants import (
     POTENTIAL_FELLOWSHIP_STATUSES, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
@@ -526,7 +528,7 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
 
 
 @login_required
-@user_passes_test(is_edadmin_or_senior_fellow)
+@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
 def nominations(request):
     """
     List Nominations.
@@ -537,6 +539,8 @@ def nominations(request):
     return render(request, 'colleges/nominations.html', context)
 
 
+@login_required
+@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
 def _hx_nominations(request):
     form = FellowshipNominationSearchForm(request.POST or None)
     if form.is_valid():
