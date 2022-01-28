@@ -6,6 +6,7 @@ import random
 
 from django import template
 from django.contrib.contenttypes.models import ContentType
+from django.urls import reverse
 
 from ..models import Contributor
 
@@ -54,6 +55,17 @@ def content_type_id(obj):
     if not obj:
         return None
     return ContentType.objects.get_for_model(obj).id
+
+
+@register.filter
+def object_name(obj):
+    return obj._meta.object_name if obj else None
+
+
+@register.filter
+def get_admin_url(obj):
+    return reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change',
+                   args=(obj.pk,))
 
 
 @register.filter(name='increment_dt')

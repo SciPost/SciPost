@@ -16,9 +16,7 @@
     {% endfor %}
 
     {% if user.is_authenticated %}
-      {% with type_id=publication|content_type_id %}
-	{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=publication.id model="Publication" %}
-      {% endwith %}
+      {% include 'helpdesk/_ticket_for_object_link.html' with object=publication %}
     {% endif %}
     </p>
 

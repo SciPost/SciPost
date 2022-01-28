@@ -17,9 +17,7 @@
     {% endif %}
     &nbsp;<small>[id {{ comment.id }}]</small>
     {% if user.is_authenticated %}
-      {% with type_id=comment|content_type_id %}
-	{% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=comment.id model="Comment" %}
-      {% endwith %}
+      {% include 'helpdesk/_ticket_for_object_link.html' with object=comment %}
     {% endif %}
   </h3>
   {% if comment.doi_string %}&nbsp; <small>{{ comment|citation }}</small>{% endif %}

@@ -32,9 +32,7 @@
       <p class="text-muted mb-0">
 	{{ update.citation }} &middot; published {{ update.publication_date|date:'j F Y' }}
 	{% if user.is_authenticated %}
-	  {% with type_id=update|content_type_id %}
-	    {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=update.id model="PublicationUpdate" %}
-	  {% endwith %}
+	  {% include 'helpdesk/_ticket_for_object_link.html' with object=update %}
 	{% endif %}
       </p>
       <ul class="publicationClickables mt-3">

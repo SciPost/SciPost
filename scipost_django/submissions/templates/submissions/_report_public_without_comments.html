@@ -25,9 +25,7 @@
 
 
 	  {% if user.is_authenticated %}
-	    {% with type_id=report|content_type_id %}
-	      {% include 'helpdesk/_ticket_for_object_link.html' with type_id=type_id id=report.id model="Report" %}
-	    {% endwith %}
+	    {% include 'helpdesk/_ticket_for_object_link.html' with object=report %}
 	  {% endif %}
         </h3>
 	{% if report.anonymous %}
@@ -68,9 +66,6 @@
         {% if perms.scipost.can_manage_reports %}
           <h3 class="mt-2">Administration</h3>
           <ul>
-	    {% if user.is_superuser %}
-	      <li><a href="{% url 'admin:submissions_report_change' report.id %}" target="_blank">Edit in admin (superusers only)</a></li>
-	    {% endif %}
             <li><a href="{% url 'submissions:report_pdf_compile' report.id %}">Update/Compile the Report pdf</a></li>
             <li>Mark DOI as <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=1 %}">needed</a> / <a href="{% url 'journals:mark_report_doi_needed' report_id=report.id needed=0 %}">not needed</a></li>
             <li><a href="{% url 'journals:generic_metadata_xml_deposit' type_of_object='report' object_id=report.id %}">Create the metadata and deposit it to Crossref</a></li>
