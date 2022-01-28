@@ -163,6 +163,10 @@ class FellowshipNominationDecision(models.Model):
     def __str__(self):
         return f'Decision for {nomination}: {self.get_outcome_display()}'
 
+    @property
+    def elected(self):
+        return self.outcome == self.OUTCOME_ELECTED
+
 
 class FellowshipInvitation(models.Model):
 
@@ -206,3 +210,7 @@ class FellowshipInvitation(models.Model):
 
     def __str__(self):
         return f'Invitation for {nomination}'
+
+    @property
+    def declined(self):
+        return self.response == self.RESPONSE_DECLINED

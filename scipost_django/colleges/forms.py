@@ -283,6 +283,67 @@ class PotentialFellowshipEventForm(forms.ModelForm):
 # Nominations #
 ###############
 
+class FellowshipNominationForm(forms.Form):
+
+    college = forms.ModelChoiceField(
+        queryset=College.objects.all(),
+    )
+    nominee = forms.ModelChoiceField(
+        queryset=Profile.objects.all(),
+        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('college'), css_class='col-lg-6'),
+                Div(FloatingField('nominee'), css_class='col-lg-6'),
+                css_class='row'
+            )
+        )
+
+    def clean_nominee(self):
+        """
+        Requirements:
+
+        - no current Fellowship exists
+        - no current FellowshipNomination exists
+        - no 'not elected' decision in last 2 years
+        - no invitation was turned down in the last 2 years
+        """
+        nominee = self.cleaned_data['nominee']
+        if Fellowship.objects.active().regular_or_senior().filter(
+                contributor__profile=nominee).exists():
+            self.add_error('This Profile is associated to an active Fellowship.')
+        latest_nomination = FellowshipNomination.objects.filter(
+            profile=self.cleaned_data.get('nominee')).first()
+        try:
+            if (latest_nomination.decision.fixed_on +
+                datetime.timedelta(days=730)) > timezone.now():
+                if latest_nomination.decision.elected:
+                    try:
+                        if latest_nomination.invitation.declined:
+                            self.add_error('Invitation declined less that 2 years ago. '
+                                           'Wait to try again.')
+                        else:
+                            self.add_error('Already elected, invitation in process.')
+                    except AttributeError:
+                        self.add_error('Already elected, invitation pending.')
+
+                self.add_error('Election failed less that 2 years ago. Must wait.')
+        except AttributeError: # no decision yet
+            self.add_error('This Profile is associated to an ongoing Nomination process.')
+        return nominee
+
+    def clean(self):
+        data = super().clean()
+        if data['college'].acad_field != data['nominee'].acad_field:
+            self.add_error('Mismatch between college.acad_field and nominee.acad_field.')
+        return data
+
+
 class FellowshipNominationSearchForm(forms.Form):
     """Filter a FellowshipNomination queryset using basic search fields."""
 
@@ -305,6 +366,10 @@ class FellowshipNominationSearchForm(forms.Form):
         label='Name (through Profile)',
         required=False
     )
+    # name = forms.CharField(
+    #     max_length=128,
+    #     required=False
+    # )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -316,7 +381,8 @@ class FellowshipNominationSearchForm(forms.Form):
                 css_class='row'
             ),
             Div(
-                Div(FloatingField('profile'), css_class='col-lg-6'),
+                Div(FloatingField('profile'), css_id='search-profile', css_class='col-lg-6'),
+                #Div(FloatingField('name'), css_class='col-lg-6'),
                 css_class='row'
             ),
         )
@@ -325,6 +391,10 @@ class FellowshipNominationSearchForm(forms.Form):
         if self.cleaned_data.get('profile'):
             nominations = FellowshipNomination.objects.filter(
                 profile=self.cleaned_data.get('profile'))
+        # if self.cleaned_data.get('name'):
+        #     nominations = FellowshipNomination.objects.filter(
+        #         Q(profile__last_name__icontains=self.cleaned_data.get('profile')) |
+        #         Q(profile__first_name__icontains=self.cleaned_data.get('profile')))
         else:
             nominations = FellowshipNomination.objects.all()
         if self.cleaned_data.get('college'):

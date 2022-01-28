@@ -34,7 +34,7 @@ from .forms import (
     SubmissionAddFellowshipForm,
     FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm,
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm,
-    FellowshipNominationSearchForm,
+    FellowshipNominationForm, FellowshipNominationSearchForm,
 )
 from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
 
@@ -534,7 +534,8 @@ def nominations(request):
     List Nominations.
     """
     context = {
-        'form': FellowshipNominationSearchForm()
+        'form': FellowshipNominationSearchForm(),
+        'nomination_form': FellowshipNominationForm()
     }
     return render(request, 'colleges/nominations.html', context)
 
@@ -552,3 +553,12 @@ def _hx_nominations(request):
     page_obj = paginator.get_page(page_nr)
     context = { 'page_obj': page_obj }
     return render(request, 'colleges/_hx_nominations.html', context)
+
+
+# @login_required
+# @user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+# def _hx_nominate(request):
+#     form = FellowshipNominationForm(request.POST or None)
+#     if form.is_valid():
+#         nomination = form.save()
+#         return render(reverse('colleges/_hx_nominations.html
