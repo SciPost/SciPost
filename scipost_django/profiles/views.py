@@ -300,7 +300,9 @@ def _hx_profile_dynsel_list(request):
     context = {
         'profiles': profiles,
         'action_url_name': form.cleaned_data['action_url_name'],
-        'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+        'action_url_base_kwargs': (form.cleaned_data['action_url_base_kwargs']
+                                   if 'action_url_base_kwargs' in form.cleaned_data else {}),
+        'action_target_element_id': form.cleaned_data['action_target_element_id'],
     }
     return render(request, 'profiles/_hx_profile_dynsel_list.html', context)
 

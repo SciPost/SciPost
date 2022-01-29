@@ -8,7 +8,7 @@
       <li class="m-1">
 	<a
 	    hx-get="{% profile_dynsel_action_url profile %}"
-	    hx-target="#profiles"
+	    hx-target="#{{ action_target_element_id }}"
 	>
 	  {{ profile }}
 	</a>

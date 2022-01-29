@@ -85,6 +85,11 @@ class Profile(models.Model):
     class Meta:
         ordering = ['last_name']
 
+    def __str__(self):
+        return '%s, %s %s' % (self.last_name,
+                              self.get_title_display() if self.title != None else '',
+                              self.first_name)
+
     @property
     def roles(self):
         try:
@@ -92,7 +97,7 @@ class Profile(models.Model):
         except (KeyError, Contributor.DoesNotExist):
             return None
 
-    def __str__(self):
+    def str_with_roles(self):
         r = self.roles
         return '%s, %s %s%s' % (self.last_name,
                                 self.get_title_display() if self.title != None else '',

@@ -166,6 +166,11 @@ urlpatterns = [
         name='nominations'
     ),
     path(
+        '_hx_nomination_form/<int:profile_id>',
+        views._hx_nomination_form,
+        name='_hx_nomination_form'
+    ),
+    path(
         '_hx_nominations',
         views._hx_nominations,
         name='_hx_nominations'

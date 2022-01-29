@@ -28,6 +28,12 @@ class FellowshipNomination(models.Model):
 
     nominated_on = models.DateTimeField(default=timezone.now)
 
+    nominator_comments = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'),
+        blank=True
+    )
+
     fellowship = models.OneToOneField(
         'colleges.Fellowship',
         on_delete=models.CASCADE,
@@ -63,7 +69,7 @@ class FellowshipNominationEvent(models.Model):
         ordering = [
             '-on'
             ]
-        verbose_name_plural = 'Fellowhips Nomination Events'
+        verbose_name_plural = 'Fellowhip Nomination Events'
 
     def __str__(self):
         return f'Event for {nomination}'
@@ -128,7 +134,11 @@ class FellowshipNominationVote(models.Model):
 
     on = models.DateTimeField(blank=True, null=True)
 
-    comments = models.TextField(blank=True)
+    comments = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'),
+        blank=True
+    )
 
     class Meta:
         ordering = ['voting_round',]
@@ -155,6 +165,12 @@ class FellowshipNominationDecision(models.Model):
     )
 
     fixed_on = models.DateTimeField(default=timezone.now)
+
+    comments = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'),
+        blank=True
+    )
 
     class Meta:
         ordering = ['nomination',]
@@ -203,6 +219,12 @@ class FellowshipInvitation(models.Model):
     )
 
     postpone_start_to = models.DateField(blank=True)
+
+    comments = models.TextField(
+        help_text=('You can use plain text, Markdown or reStructuredText; see our '
+                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'),
+        blank=True
+    )
 
     class Meta:
         ordering = ['nomination',]

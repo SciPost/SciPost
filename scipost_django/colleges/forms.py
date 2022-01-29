@@ -8,7 +8,7 @@ from django import forms
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Div, Field
+from crispy_forms.layout import Layout, Div, Field, Hidden, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
@@ -41,7 +41,8 @@ class FellowshipSelectForm(forms.Form):
 class FellowshipDynSelForm(forms.Form):
     q = forms.CharField(max_length=32, label='Search (by name)')
     action_url_name = forms.CharField()
-    action_url_base_kwargs = forms.JSONField()
+    action_url_base_kwargs = forms.JSONField(required=False)
+    action_target_element_id = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -50,6 +51,7 @@ class FellowshipDynSelForm(forms.Form):
             FloatingField('q', autocomplete='off'),
             Field('action_url_name', type='hidden'),
             Field('action_url_base_kwargs', type='hidden'),
+            Field('action_target_element_id', type='hidden'),
         )
 
     def search_results(self):
@@ -283,28 +285,50 @@ class PotentialFellowshipEventForm(forms.ModelForm):
 # Nominations #
 ###############
 
-class FellowshipNominationForm(forms.Form):
+class FellowshipNominationForm(forms.ModelForm):
 
-    college = forms.ModelChoiceField(
-        queryset=College.objects.all(),
-    )
-    nominee = forms.ModelChoiceField(
-        queryset=Profile.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
-    )
+    # college = forms.ModelChoiceField(
+    #     queryset=College.objects.all(),
+    # )
+    # nominee = forms.ModelChoiceField(
+    #     queryset=Profile.objects.none(),
+    #     #widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+    # )
+    # nominator_comments = forms.CharField(
+    #     required=False,
+    #     widget=forms.Textarea()
+    # )
+
+    class Meta:
+        model = FellowshipNomination
+        fields = [ 'college', 'profile', 'nominated_by', 'nominator_comments' ]
+        # widgets = {
+        #     'nominated_by': forms.HiddenInput()
+        # }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        #self.fields['profile'].queryset = Profile.objects.none()
+        self.fields['profile'].widget.attrs['readonly'] = True
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Field('nominated_by', type='hidden'),
             Div(
                 Div(FloatingField('college'), css_class='col-lg-6'),
-                Div(FloatingField('nominee'), css_class='col-lg-6'),
+                Div(FloatingField('profile'), css_class='col-lg-6'),
                 css_class='row'
-            )
+            ),
+            Div(
+                Div(Field('nominator_comments'), css_class='col-lg-8'),
+                Div(
+                    ButtonHolder(Submit('submit', 'Submit', css_class='btn btn-danger')),
+                    css_class="col-lg-4"
+                ),
+                css_class='row'
+            ),
         )
 
-    def clean_nominee(self):
+    def clean_profile(self):
         """
         Requirements:
 
@@ -313,34 +337,50 @@ class FellowshipNominationForm(forms.Form):
         - no 'not elected' decision in last 2 years
         - no invitation was turned down in the last 2 years
         """
-        nominee = self.cleaned_data['nominee']
+        profile = self.cleaned_data['profile']
         if Fellowship.objects.active().regular_or_senior().filter(
-                contributor__profile=nominee).exists():
-            self.add_error('This Profile is associated to an active Fellowship.')
+                contributor__profile=profile).exists():
+            self.add_error(
+                'profile',
+                'This Profile is associated to an active Fellowship.'
+            )
         latest_nomination = FellowshipNomination.objects.filter(
-            profile=self.cleaned_data.get('nominee')).first()
-        try:
-            if (latest_nomination.decision.fixed_on +
-                datetime.timedelta(days=730)) > timezone.now():
-                if latest_nomination.decision.elected:
-                    try:
-                        if latest_nomination.invitation.declined:
-                            self.add_error('Invitation declined less that 2 years ago. '
-                                           'Wait to try again.')
-                        else:
-                            self.add_error('Already elected, invitation in process.')
-                    except AttributeError:
-                        self.add_error('Already elected, invitation pending.')
-
-                self.add_error('Election failed less that 2 years ago. Must wait.')
-        except AttributeError: # no decision yet
-            self.add_error('This Profile is associated to an ongoing Nomination process.')
-        return nominee
+            profile=self.cleaned_data.get('profile')).first()
+        if latest_nomination:
+            try:
+                if (latest_nomination.decision.fixed_on +
+                    datetime.timedelta(days=730)) > timezone.now():
+                    if latest_nomination.decision.elected:
+                        try:
+                            if latest_nomination.invitation.declined:
+                                self.add_error(
+                                    'profile',
+                                    'Invitation declined less that 2 years ago. '
+                                    'Wait to try again.')
+                            else:
+                                self.add_error(
+                                    'profile',
+                                    'Already elected, invitation in process.')
+                        except AttributeError:
+                            self.add_error(
+                                'profile',
+                                'Already elected, invitation pending.')
+                    self.add_error(
+                        'profile',
+                        'Election failed less that 2 years ago. Must wait.')
+            except AttributeError: # no decision yet
+                self.add_error(
+                    'profile',
+                    'This Profile is associated to an ongoing Nomination process.')
+        return profile
 
     def clean(self):
         data = super().clean()
-        if data['college'].acad_field != data['nominee'].acad_field:
-            self.add_error('Mismatch between college.acad_field and nominee.acad_field.')
+        if data['college'].acad_field != data['profile'].acad_field:
+            self.add_error(
+                'college',
+                'Mismatch between college.acad_field and profile.acad_field.'
+            )
         return data
 
 
@@ -360,16 +400,16 @@ class FellowshipNominationSearchForm(forms.Form):
         label='Specialty',
         required=False
     )
-    profile = forms.ModelChoiceField(
-        queryset=Profile.objects.all(),
-        widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
-        label='Name (through Profile)',
-        required=False
-    )
-    # name = forms.CharField(
-    #     max_length=128,
+    # profile = forms.ModelChoiceField(
+    #     queryset=Profile.objects.all(),
+    #     widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
+    #     label='Name (through Profile)',
     #     required=False
     # )
+    name = forms.CharField(
+        max_length=128,
+        required=False
+    )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -381,20 +421,20 @@ class FellowshipNominationSearchForm(forms.Form):
                 css_class='row'
             ),
             Div(
-                Div(FloatingField('profile'), css_id='search-profile', css_class='col-lg-6'),
-                #Div(FloatingField('name'), css_class='col-lg-6'),
+                # Div(FloatingField('profile'), css_id='search-profile', css_class='col-lg-6'),
+                Div(FloatingField('name'), css_class='col-lg-6'),
                 css_class='row'
             ),
         )
 
     def search_results(self):
-        if self.cleaned_data.get('profile'):
-            nominations = FellowshipNomination.objects.filter(
-                profile=self.cleaned_data.get('profile'))
-        # if self.cleaned_data.get('name'):
+        # if self.cleaned_data.get('profile'):
         #     nominations = FellowshipNomination.objects.filter(
-        #         Q(profile__last_name__icontains=self.cleaned_data.get('profile')) |
-        #         Q(profile__first_name__icontains=self.cleaned_data.get('profile')))
+        #         profile=self.cleaned_data.get('profile'))
+        if self.cleaned_data.get('name'):
+            nominations = FellowshipNomination.objects.filter(
+                Q(profile__last_name__icontains=self.cleaned_data.get('name')) |
+                Q(profile__first_name__icontains=self.cleaned_data.get('name')))
         else:
             nominations = FellowshipNomination.objects.all()
         if self.cleaned_data.get('college'):

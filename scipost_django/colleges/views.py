@@ -11,7 +11,7 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
-from django.http import Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.views.generic.detail import DetailView
@@ -45,6 +45,8 @@ from scipost.models import Contributor
 from common.utils import Q_with_alternative_spellings
 from mails.views import MailView
 from ontology.models import Branch
+from profiles.models import Profile
+from profiles.forms import ProfileDynSelForm
 
 
 class CollegeListView(ListView):
@@ -188,6 +190,7 @@ def _hx_fellowship_dynsel_list(request):
         'fellowships': fellowships,
         'action_url_name': form.cleaned_data['action_url_name'],
         'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+        'action_target_element_id': form.cleaned_data['action_target_element_id'],
     }
     return render(request, 'colleges/_hx_fellowship_dynsel_list.html', context)
 
@@ -522,6 +525,7 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
         return super().form_valid(form)
 
 
+
 ###############
 # Nominations #
 ###############
@@ -533,11 +537,37 @@ def nominations(request):
     """
     List Nominations.
     """
+    profile_dynsel_form = ProfileDynSelForm(
+        initial={
+            'action_url_name': 'colleges:_hx_nomination_form',
+            'action_url_base_kwargs': { },
+            'action_target_element_id': 'nomination_form_response'
+        }
+    )
     context = {
+        'profile_dynsel_form': profile_dynsel_form,
         'form': FellowshipNominationSearchForm(),
-        'nomination_form': FellowshipNominationForm()
     }
     return render(request, 'colleges/nominations.html', context)
+
+
+@login_required
+@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+def _hx_nomination_form(request, profile_id):
+    nomination_form = FellowshipNominationForm(request.POST or None)
+    if nomination_form.is_valid():
+        nomination = nomination_form.save()
+        return HttpResponse(
+            f'<div class="bg-success text-white p-2 ">{nomination.profile} '
+            f'successfully nominated to {nomination.college}.</div>')
+    profile = get_object_or_404(Profile, pk=profile_id)
+    nomination_form.fields['profile'].initial = profile
+    nomination_form.fields['nominated_by'].initial = request.user.contributor
+    context = {
+        'profile': profile,
+        'nomination_form': nomination_form,
+    }
+    return render(request, 'colleges/_hx_nomination_form.html', context)
 
 
 @login_required

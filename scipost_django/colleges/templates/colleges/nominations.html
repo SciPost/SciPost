@@ -20,9 +20,23 @@
       Nominate somebody for a Fellowship
     </div>
     <div class="card-body">
-      <form>
-	{% crispy nomination_form %}
-      </form>
+      <div class="row">
+	<div class="col-lg-6">
+	  <form
+	      hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
+	      hx-trigger="keyup delay:200ms, change"
+	      hx-target="#profile_dynsel_results"
+	  >
+	    {% csrf_token %}
+	    <div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
+	  </form>
+	</div>
+	<div class="col-lg-6">
+	  <div id="profile_dynsel_results" class="border border-light m-2 p-1"></div>
+	</div>
+      </div>
+      <div id="nomination_form_response">
+      </div>
     </div>
   </div>
 
