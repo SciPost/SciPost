@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from .models import Fellowship, FellowshipNomination
+from .models import College, Fellowship, FellowshipNomination
 
 
 def check_profile_eligibility_for_fellowship(profile):
@@ -11,12 +11,20 @@ def check_profile_eligibility_for_fellowship(profile):
 
     Requirements:
 
+    - Profile has a known acad_field
+    - There is an active College in the Profile's acad_field
     - no current Fellowship exists
     - no current FellowshipNomination exists
     - no 'not elected' decision in last 2 years
     - no invitation was turned down in the last 2 years
     """
     blocks = []
+    if not profile.acad_field:
+        blocks.append('No academic field is specified for this profile. '
+                      'Contact EdAdmin or techsupport.')
+    if not College.objects.filter(acad_field=profile.acad_field).exists():
+        blocks.append('There is currently no College in {profile.acad_field}. '
+                      'Contact EdAdmin or techsupport to get one started.')
     if Fellowship.objects.active().regular_or_senior().filter(
             contributor__profile=profile).exists():
         blocks.append('This Profile is associated to an active Fellowship.')

@@ -288,12 +288,9 @@ class PotentialFellowshipEventForm(forms.ModelForm):
 
 class FellowshipNominationForm(forms.ModelForm):
 
-    #profile_id = forms.IntegerField()
-
     class Meta:
         model = FellowshipNomination
         fields = [
-            #'profile_id',
             'nominated_by',    # hidden
             'college', 'nominator_comments'  # visible
         ]
@@ -301,6 +298,9 @@ class FellowshipNominationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.profile = kwargs.pop('profile')
         super().__init__(*args, **kwargs)
+        self.fields['college'].queryset = College.objects.filter(
+            acad_field=self.profile.acad_field)
+        self.fields['college'].empty_label = None
         self.fields['nominator_comments'].widget.attrs['rows'] = 4
         self.helper = FormHelper()
         self.helper.layout = Layout(
