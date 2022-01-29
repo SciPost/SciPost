@@ -309,19 +309,16 @@ class FellowshipNominationForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.fields['profile'].widget.attrs['readonly'] = True
-        self.profile = None
+        self.fields['nominator_comments'].widget.attrs['rows'] = 4
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('profile_id', type='hidden'),
             Field('nominated_by', type='hidden'),
             Div(
-                Field('nominator_comments')
-            ),
-            Div(
-                Div(FloatingField('college'), css_class='col-lg-8'),
+                Div(Field('nominator_comments'), css_class='col-lg-8'),
                 Div(
-                    ButtonHolder(Submit('submit', 'Submit', css_class='btn btn-danger')),
+                    FloatingField('college'),
+                    ButtonHolder(Submit('submit', 'Submit', css_class='btn btn-primary')),
                     css_class="col-lg-4"
                 ),
                 css_class='row'

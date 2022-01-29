@@ -583,12 +583,3 @@ def _hx_nominations(request):
     page_obj = paginator.get_page(page_nr)
     context = { 'page_obj': page_obj }
     return render(request, 'colleges/_hx_nominations.html', context)
-
-
-# @login_required
-# @user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
-# def _hx_nominate(request):
-#     form = FellowshipNominationForm(request.POST or None)
-#     if form.is_valid():
-#         nomination = form.save()
-#         return render(reverse('colleges/_hx_nominations.html
