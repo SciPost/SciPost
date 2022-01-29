@@ -301,7 +301,10 @@ class FellowshipNominationForm(forms.ModelForm):
         self.fields['college'].queryset = College.objects.filter(
             acad_field=self.profile.acad_field)
         self.fields['college'].empty_label = None
+        self.fields['nominator_comments'].label = False
         self.fields['nominator_comments'].widget.attrs['rows'] = 4
+        self.fields['nominator_comments'].widget.attrs[
+            'placeholder'] = 'Optional comments and/or recommendations'
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Field('profile_id', type='hidden'),
@@ -310,10 +313,10 @@ class FellowshipNominationForm(forms.ModelForm):
                 Div(Field('nominator_comments'), css_class='col-lg-8'),
                 Div(
                     FloatingField('college'),
-                    ButtonHolder(Submit('submit', 'Submit', css_class='btn btn-primary')),
+                    ButtonHolder(Submit('submit', 'Nominate', css_class='btn btn-success float-end')),
                     css_class="col-lg-4"
                 ),
-                css_class='row'
+                css_class='row pt-1'
             ),
         )
 

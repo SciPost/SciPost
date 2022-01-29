@@ -1,4 +1,14 @@
 
+.dynsel-list {
+    border: 2px gray;
+    background-color: #e8e8e8;
+    padding: 1rem;
+}
+
+.dynsel-list > li > a {
+    padding: 0.2rem;
+}
+
 .dynsel-list > li > a:hover {
-    background-color: #d0d0d0;
+    background-color: #c0c0c0;
 }

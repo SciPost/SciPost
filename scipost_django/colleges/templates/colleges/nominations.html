@@ -31,17 +31,19 @@
 	    <li>If eligible, fill the form in (comments are optional)</li>
 	    <li>Submit! (the vote will be arranged by EdAdmin)</li>
 	  </ul>
-	  <form
-	      hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
-	      hx-trigger="keyup delay:200ms, change"
-	      hx-target="#profile_dynsel_results"
-	      hx-indicator="#profile_dynsel_results-indicator"
-	  >
-	    {% csrf_token %}
-	    <div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
-	  </form>
 	  <div class="row">
-	    <div class="col">
+	    <div class="col-8">
+	      <form
+		  hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
+		  hx-trigger="keyup delay:200ms, change"
+		  hx-target="#profile_dynsel_results"
+		  hx-indicator="#profile_dynsel_results-indicator"
+	      >
+		{% csrf_token %}
+		<div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
+	      </form>
+	    </div>
+	    <div class="col-2">
 	      <div id="nomination_form_response-indicator" class="htmx-indicator">
 		<button class="btn btn-sm btn-warning" type="button" disabled>
 		  <strong>Loading form...</strong>
@@ -49,7 +51,7 @@
 		</button>
 	      </div>
 	    </div>
-	    <div class="col">
+	    <div class="col-2">
 	      <div id="profile_dynsel_results-indicator" class="htmx-indicator">
 		<button class="btn btn-sm btn-warning" type="button" disabled>
 		  <strong>Loading results...</strong>
