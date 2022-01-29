@@ -28,6 +28,7 @@ from .constants import (
     POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,
     POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
 )
+from .utils import check_profile_eligibility_for_fellowship
 
 
 class FellowshipSelectForm(forms.Form):
@@ -287,27 +288,18 @@ class PotentialFellowshipEventForm(forms.ModelForm):
 
 class FellowshipNominationForm(forms.ModelForm):
 
-    # college = forms.ModelChoiceField(
-    #     queryset=College.objects.all(),
-    # )
-    # nominee = forms.ModelChoiceField(
-    #     queryset=Profile.objects.none(),
-    #     #widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
-    # )
-    # nominator_comments = forms.CharField(
-    #     required=False,
-    #     widget=forms.Textarea()
-    # )
-    profile_id = forms.IntegerField()
+    #profile_id = forms.IntegerField()
 
     class Meta:
         model = FellowshipNomination
         fields = [
-            'profile_id', 'nominated_by',    # hidden
+            #'profile_id',
+            'nominated_by',    # hidden
             'college', 'nominator_comments'  # visible
         ]
 
     def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
         super().__init__(*args, **kwargs)
         self.fields['nominator_comments'].widget.attrs['rows'] = 4
         self.helper = FormHelper()
@@ -325,60 +317,12 @@ class FellowshipNominationForm(forms.ModelForm):
             ),
         )
 
-    def clean_profile_id(self):
-        """
-        Requirements:
-
-        - no current Fellowship exists
-        - no current FellowshipNomination exists
-        - no 'not elected' decision in last 2 years
-        - no invitation was turned down in the last 2 years
-        """
-        profile_id = self.cleaned_data['profile_id']
-        try:
-            self.profile = Profile.objects.get(pk=profile_id)
-        except Profile.DoesNotExist:
-            self.add_error(
-                'profile_id',
-                'Profile not found')
-        if Fellowship.objects.active().regular_or_senior().filter(
-                contributor__profile=self.profile).exists():
-            self.add_error(
-                'profile_id',
-                'This Profile is associated to an active Fellowship.'
-            )
-        latest_nomination = FellowshipNomination.objects.filter(
-            profile=self.profile).first()
-        if latest_nomination:
-            try:
-                if (latest_nomination.decision.fixed_on +
-                    datetime.timedelta(days=730)) > timezone.now():
-                    if latest_nomination.decision.elected:
-                        try:
-                            if latest_nomination.invitation.declined:
-                                self.add_error(
-                                    'profile_id',
-                                    'Invitation declined less that 2 years ago. '
-                                    'Wait to try again.')
-                            else:
-                                self.add_error(
-                                    'profile_id',
-                                    'Already elected, invitation in process.')
-                        except AttributeError:
-                            self.add_error(
-                                'profile_id',
-                                'Already elected, invitation pending.')
-                    self.add_error(
-                        'profile_id',
-                        'Election failed less that 2 years ago. Must wait.')
-            except AttributeError: # no decision yet
-                self.add_error(
-                    'profile_id',
-                    'This Profile is associated to an ongoing Nomination process.')
-        return profile_id
-
     def clean(self):
         data = super().clean()
+        failed_eligibility_criteria = check_profile_eligibility(self.profile)
+        if failed_eligibility_criteria:
+            for critetion in failed_eligibility_criteria:
+                self.add_error(None, criterion)
         if data['college'].acad_field != self.profile.acad_field:
             self.add_error(
                 'college',

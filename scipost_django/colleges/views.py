@@ -21,6 +21,7 @@ from django.views.generic.list import ListView
 from colleges.permissions import (
     is_edadmin_or_senior_fellow, is_edadmin_or_active_regular_or_senior_fellow
 )
+from colleges.utils import check_profile_eligibility_for_fellowship
 from submissions.models import Submission
 
 from .constants import (
@@ -554,14 +555,26 @@ def nominations(request):
 @login_required
 @user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
 def _hx_nomination_form(request, profile_id):
-    nomination_form = FellowshipNominationForm(request.POST or None)
+    profile = get_object_or_404(Profile, pk=profile_id)
+    failed_eligibility_criteria = check_profile_eligibility_for_fellowship(profile)
+    if failed_eligibility_criteria:
+        return render(
+            request,
+            'colleges/_hx_failed_eligibility_criteria.html',
+            {
+                'profile': profile,
+                'failed_eligibility_criteria': failed_eligibility_criteria
+            }
+        )
+    nomination_form = FellowshipNominationForm(
+        request.POST or None,
+        profile=profile
+    )
     if nomination_form.is_valid():
         nomination = nomination_form.save()
         return HttpResponse(
             f'<div class="bg-success text-white p-2 ">{nomination.profile} '
             f'successfully nominated to {nomination.college}.</div>')
-    profile = get_object_or_404(Profile, pk=profile_id)
-    nomination_form.fields['profile_id'].initial = profile.pk
     nomination_form.fields['nominated_by'].initial = request.user.contributor
     context = {
         'profile': profile,

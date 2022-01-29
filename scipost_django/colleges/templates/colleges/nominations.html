@@ -25,9 +25,11 @@
 	  <h3>Procedure</h3>
 	  <ul>
 	    <li>Type your search query in the search form</li>
-	    <li>When you see the name you're looking for in the list of matches, double-click on it</li>
+	    <li>When the name you're looking for appears in the list of matches, double-click on it</li>
 	    <li>The nomination form will appear below</li>
-	    <li>Fill it in and submit!</li>
+	    <li>Non-eligibility flags (if any) will appear</li>
+	    <li>If eligible, fill the form in (comments are optional)</li>
+	    <li>Submit! (the vote will be arranged by EdAdmin)</li>
 	  </ul>
 	  <form
 	      hx-post="{% url 'profiles:_hx_profile_dynsel_list' %}"
@@ -38,17 +40,23 @@
 	    {% csrf_token %}
 	    <div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
 	  </form>
-	  <div id="profile_dynsel_results-indicator" class="htmx-indicator p-2">
-	    <button class="btn btn-warning" type="button" disabled>
-	      <strong>Loading results...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
-	  </div>
-	  <div id="nomination_form_response-indicator" class="htmx-indicator p-2">
-	    <button class="btn btn-warning" type="button" disabled>
-	      <strong>Loading form...</strong>
-	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	    </button>
+	  <div class="row">
+	    <div class="col">
+	      <div id="nomination_form_response-indicator" class="htmx-indicator">
+		<button class="btn btn-sm btn-warning" type="button" disabled>
+		  <strong>Loading form...</strong>
+		  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+		</button>
+	      </div>
+	    </div>
+	    <div class="col">
+	      <div id="profile_dynsel_results-indicator" class="htmx-indicator">
+		<button class="btn btn-sm btn-warning" type="button" disabled>
+		  <strong>Loading results...</strong>
+		  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+		</button>
+	      </div>
+	    </div>
 	  </div>
 	</div>
 	<div class="col-lg-6">
