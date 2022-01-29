@@ -298,28 +298,28 @@ class FellowshipNominationForm(forms.ModelForm):
     #     required=False,
     #     widget=forms.Textarea()
     # )
+    profile_id = forms.IntegerField()
 
     class Meta:
         model = FellowshipNomination
-        fields = [ 'college', 'profile', 'nominated_by', 'nominator_comments' ]
-        # widgets = {
-        #     'nominated_by': forms.HiddenInput()
-        # }
+        fields = [
+            'profile_id', 'nominated_by',    # hidden
+            'college', 'nominator_comments'  # visible
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        #self.fields['profile'].queryset = Profile.objects.none()
-        self.fields['profile'].widget.attrs['readonly'] = True
+        #self.fields['profile'].widget.attrs['readonly'] = True
+        self.profile = None
         self.helper = FormHelper()
         self.helper.layout = Layout(
+            Field('profile_id', type='hidden'),
             Field('nominated_by', type='hidden'),
             Div(
-                Div(FloatingField('college'), css_class='col-lg-6'),
-                Div(FloatingField('profile'), css_class='col-lg-6'),
-                css_class='row'
+                Field('nominator_comments')
             ),
             Div(
-                Div(Field('nominator_comments'), css_class='col-lg-8'),
+                Div(FloatingField('college'), css_class='col-lg-8'),
                 Div(
                     ButtonHolder(Submit('submit', 'Submit', css_class='btn btn-danger')),
                     css_class="col-lg-4"
@@ -328,7 +328,7 @@ class FellowshipNominationForm(forms.ModelForm):
             ),
         )
 
-    def clean_profile(self):
+    def clean_profile_id(self):
         """
         Requirements:
 
@@ -337,15 +337,21 @@ class FellowshipNominationForm(forms.ModelForm):
         - no 'not elected' decision in last 2 years
         - no invitation was turned down in the last 2 years
         """
-        profile = self.cleaned_data['profile']
-        if Fellowship.objects.active().regular_or_senior().filter(
-                contributor__profile=profile).exists():
+        profile_id = self.cleaned_data['profile_id']
+        try:
+            self.profile = Profile.objects.get(pk=profile_id)
+        except Profile.DoesNotExist:
             self.add_error(
-                'profile',
+                'profile_id',
+                'Profile not found')
+        if Fellowship.objects.active().regular_or_senior().filter(
+                contributor__profile=self.profile).exists():
+            self.add_error(
+                'profile_id',
                 'This Profile is associated to an active Fellowship.'
             )
         latest_nomination = FellowshipNomination.objects.filter(
-            profile=self.cleaned_data.get('profile')).first()
+            profile=self.profile).first()
         if latest_nomination:
             try:
                 if (latest_nomination.decision.fixed_on +
@@ -354,34 +360,40 @@ class FellowshipNominationForm(forms.ModelForm):
                         try:
                             if latest_nomination.invitation.declined:
                                 self.add_error(
-                                    'profile',
+                                    'profile_id',
                                     'Invitation declined less that 2 years ago. '
                                     'Wait to try again.')
                             else:
                                 self.add_error(
-                                    'profile',
+                                    'profile_id',
                                     'Already elected, invitation in process.')
                         except AttributeError:
                             self.add_error(
-                                'profile',
+                                'profile_id',
                                 'Already elected, invitation pending.')
                     self.add_error(
-                        'profile',
+                        'profile_id',
                         'Election failed less that 2 years ago. Must wait.')
             except AttributeError: # no decision yet
                 self.add_error(
-                    'profile',
+                    'profile_id',
                     'This Profile is associated to an ongoing Nomination process.')
-        return profile
+        return profile_id
 
     def clean(self):
         data = super().clean()
-        if data['college'].acad_field != data['profile'].acad_field:
+        if data['college'].acad_field != self.profile.acad_field:
             self.add_error(
                 'college',
                 'Mismatch between college.acad_field and profile.acad_field.'
             )
         return data
+
+    def save(self):
+        nomination = super().save(commit=False)
+        nomination.profile = self.profile
+        nomination.save()
+        return nomination
 
 
 class FellowshipNominationSearchForm(forms.Form):

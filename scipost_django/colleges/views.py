@@ -561,7 +561,7 @@ def _hx_nomination_form(request, profile_id):
             f'<div class="bg-success text-white p-2 ">{nomination.profile} '
             f'successfully nominated to {nomination.college}.</div>')
     profile = get_object_or_404(Profile, pk=profile_id)
-    nomination_form.fields['profile'].initial = profile
+    nomination_form.fields['profile_id'].initial = profile.pk
     nomination_form.fields['nominated_by'].initial = request.user.contributor
     context = {
         'profile': profile,
