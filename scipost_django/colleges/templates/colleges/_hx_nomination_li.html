@@ -1,7 +1,16 @@
 <div class="border border-dark">
   <details>
     <summary class="bg-light p-2">
-      {{ nomination.profile }}<span class="float-end">{{ nomination.college }}</span>
+      {{ nomination.profile }}
+      <span class="float-end">
+	{{ nomination.college }}
+	<span class="ms-4">Outcome:</span>
+	{% if nomination.decision %}
+	  {{ nomination.decision.get_outcome_display }}
+	{% else %}
+	  pending
+	{% endif %}
+      </span>
     </summary>
     <div class="p-2">
       <p>Nominated by {{ nomination.nominated_by }} on {{ nomination.nominated_on|date:"Y-m-d" }}</p>

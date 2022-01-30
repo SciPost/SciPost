@@ -1,0 +1,9 @@
+<ul>
+  {% for round in voting_rounds %}
+    <li class="p-2 mb-2" id="voting_round_{{ round.id }}">
+      {{ round }}
+    </li>
+  {% empty %}
+    <li>No voting round found</li>
+  {% endfor %}
+</ul>

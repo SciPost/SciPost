@@ -175,4 +175,9 @@ urlpatterns = [
         views._hx_nominations,
         name='_hx_nominations'
     ),
+    path(
+        '_hx_nomination_voting_rounds',
+        views._hx_nomination_voting_rounds,
+        name='_hx_nomination_voting_rounds'
+    ),
 ]

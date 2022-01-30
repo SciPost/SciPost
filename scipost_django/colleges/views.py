@@ -37,7 +37,11 @@ from .forms import (
     PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm,
     FellowshipNominationForm, FellowshipNominationSearchForm,
 )
-from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .models import (
+    College, Fellowship,
+    PotentialFellowship, PotentialFellowshipEvent,
+    FellowshipNominationVotingRound
+)
 
 from scipost.forms import EmailUsersForm, SearchTextForm
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
@@ -532,7 +536,6 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
 ###############
 
 
-@login_required
 @user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
 def nominations(request):
     """
@@ -552,7 +555,6 @@ def nominations(request):
     return render(request, 'colleges/nominations.html', context)
 
 
-@login_required
 @user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
 def _hx_nomination_form(request, profile_id):
     profile = get_object_or_404(Profile, pk=profile_id)
@@ -583,7 +585,6 @@ def _hx_nomination_form(request, profile_id):
     return render(request, 'colleges/_hx_nomination_form.html', context)
 
 
-@login_required
 @user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
 def _hx_nominations(request):
     form = FellowshipNominationSearchForm(request.POST or None)
@@ -596,3 +597,32 @@ def _hx_nominations(request):
     page_obj = paginator.get_page(page_nr)
     context = { 'page_obj': page_obj }
     return render(request, 'colleges/_hx_nominations.html', context)
+
+
+@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+def _hx_nomination_voting_rounds(request):
+    fellowship = request.user.contributor.session_fellowship(request)
+    filters = request.GET.get('filters', None)
+    if filters:
+        filters = filters.split(',')
+    if not filters: # if no filters present, return empty response
+        voting_rounds = FellowshipNominationVotingRound.objects.none()
+    else:
+        voting_rounds = FellowshipNominationVotingRound.objects.all()
+        for filter in filters:
+            if filter == 'ongoing':
+                voting_rounds = voting_rounds.ongoing()
+            if filter == 'closed':
+                voting_rounds = voting_rounds.closed()
+            if filter == 'vote_required':
+                # show all voting rounds to edadmin; for Fellow, filter
+                if not request.user.contributor.is_ed_admin:
+                    voting_rounds = voting_rounds.filter(
+                        eligible_to_vote=fellowship
+                    ).exclude(votes__fellow=fellowship)
+            if filter == 'voted':
+                voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
+    context = {
+        'voting_rounds': voting_rounds,
+    }
+    return render(request, 'colleges/_hx_nomination_voting_rounds.html', context)

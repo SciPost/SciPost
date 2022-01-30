@@ -5,6 +5,8 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.utils import timezone
 
+from ..managers import FellowshipNominationVotingRoundQuerySet
+
 
 class FellowshipNomination(models.Model):
 
@@ -72,7 +74,7 @@ class FellowshipNominationEvent(models.Model):
         verbose_name_plural = 'Fellowhip Nomination Events'
 
     def __str__(self):
-        return f'Event for {nomination}'
+        return f'Event for {self.nomination}'
 
 
 class FellowshipNominationVotingRound(models.Model):
@@ -93,6 +95,8 @@ class FellowshipNominationVotingRound(models.Model):
 
     voting_deadline = models.DateTimeField()
 
+    objects = FellowshipNominationVotingRoundQuerySet.as_manager()
+
     class Meta:
         ordering = [
             'nomination__profile__last_name'
@@ -100,8 +104,8 @@ class FellowshipNominationVotingRound(models.Model):
         verbose_name_plural = 'Fellowship Nomination Voting Rounds'
 
     def __str__(self):
-        return (f'Voting round ({voting_opens.strftime("%Y-%m-%d")} -'
-                f' {voting_deadline.strftime("%Y-%m-%d")}) for {nomination}')
+        return (f'Voting round ({self.voting_opens.strftime("%Y-%m-%d")} -'
+                f' {self.voting_deadline.strftime("%Y-%m-%d")}) for {self.nomination}')
 
 
 class FellowshipNominationVote(models.Model):
@@ -177,7 +181,7 @@ class FellowshipNominationDecision(models.Model):
         verbose_name_plural = 'Fellowship Nomination Decisions'
 
     def __str__(self):
-        return f'Decision for {nomination}: {self.get_outcome_display()}'
+        return f'Decision for {self.nomination}: {self.get_outcome_display()}'
 
     @property
     def elected(self):
@@ -231,7 +235,7 @@ class FellowshipInvitation(models.Model):
         verbose_name_plural = 'Fellowship Invitations'
 
     def __str__(self):
-        return f'Invitation for {nomination}'
+        return f'Invitation for {self.nomination}'
 
     @property
     def declined(self):

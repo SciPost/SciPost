@@ -159,6 +159,22 @@ class Contributor(models.Model):
     def is_active_senior_fellow(self):
         return self.fellowships.active().senior().exists()
 
+    def session_fellowship(self, request):
+        """Return session's fellowship, if any; if Fellow, set session_fellowship_id if not set."""
+        fellowships = self.fellowships.active()
+        if fellowships.exists():
+            if request.session['session_fellowship_id']:
+                from colleges.models import Fellowship
+                try:
+                    return self.fellowships.active().get(pk=request.session['session_fellowship_id'])
+                except Fellowship.DoesNotExist:
+                    return None
+            # set the session's fellowship_id to default
+            fellowship = fellowships.first()
+            request.session['session_fellowship_id'] = fellowship.id
+            return fellowship
+        return None
+
     @property
     def is_vetting_editor(self):
         """Check if Contributor is a Vetting Editor."""
