@@ -371,16 +371,12 @@ class FellowshipNominationSearchForm(forms.Form):
                 css_class='row'
             ),
             Div(
-                # Div(FloatingField('profile'), css_id='search-profile', css_class='col-lg-6'),
                 Div(FloatingField('name', autocomplete='off'), css_class='col-lg-6'),
                 css_class='row'
             ),
         )
 
     def search_results(self):
-        # if self.cleaned_data.get('profile'):
-        #     nominations = FellowshipNomination.objects.filter(
-        #         profile=self.cleaned_data.get('profile'))
         if self.cleaned_data.get('name'):
             nominations = FellowshipNomination.objects.filter(
                 Q(profile__last_name__icontains=self.cleaned_data.get('name')) |

@@ -15,11 +15,11 @@
 
   <h1 class="highlight">Fellowship Nominations</h1>
 
-  <div class="card">
-    <div class="card-header">
+  <details class="border border-success border-2 mt-4">
+    <summary class="bg-success bg-opacity-10 p-2">
       <h2>Nominate</h2>
-    </div>
-    <div class="card-body">
+    </summary>
+    <div class="p-2">
       <div class="row">
 	<div class="col-lg-6">
 	  <h3>Procedure</h3>
@@ -68,13 +68,13 @@
       </div>
       <div id="nomination_form_response"></div>
     </div>
-  </div>
+  </details>
 
-  <div class="card mt-4">
-    <div class="card-header">
-      <h2>Search / filter</h2>
-    </div>
-    <div class="card-body">
+  <details class="border border-2 mt-4">
+    <summary class="bg-light p-2">
+      <h2>List / filter</h2>
+    </summary>
+    <div class="p-2 mt-2">
       <form
 	  hx-post="{% url 'colleges:_hx_nominations' %}"
 	  hx-trigger="load, keyup delay:500ms, change"
@@ -83,22 +83,22 @@
       >
 	<div id="search-form">{% crispy form %}</div>
       </form>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <h3>Nominations list</h3>
-    </div>
-    <div class="col">
-      <div id="indicator-search" class="htmx-indicator">
-	<button class="btn btn-sm btn-warning" type="button" disabled>
-	  <strong>Loading...</strong>
-	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-	</button>
-      </div>
-    </div>
-  </div>
-  <ul id="search-results" class="list-unstyled mt-2"></ul>
 
+      <div class="row">
+	<div class="col">
+	  <h3>Nominations list</h3>
+	</div>
+	<div class="col">
+	  <div id="indicator-search" class="htmx-indicator">
+	    <button class="btn btn-sm btn-warning" type="button" disabled>
+	      <strong>Loading...</strong>
+	      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	    </button>
+	  </div>
+	</div>
+      </div>
+      <ul id="search-results" class="list-unstyled mt-2"></ul>
+    </div>
+  </details>
 
 {% endblock content %}

@@ -5,6 +5,16 @@
     </summary>
     <div class="p-2">
       <p>Nominated by {{ nomination.nominated_by }} on {{ nomination.nominated_on|date:"Y-m-d" }}</p>
+      {% if nomination.nominator_comments %}
+	<div class="row">
+	  <div class="col-lg-2">
+	    Nominator comments:
+	  </div>
+	  <div class="col-lg-10">
+	    <em>{{ nomination.nominator_comments }}</em>
+	  </div>
+	</div>
+      {% endif %}
       <div class="row">
 	<div class="col">
 	  <div class="card">
