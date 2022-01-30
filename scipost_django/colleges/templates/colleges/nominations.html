@@ -18,6 +18,11 @@
 
   <h1 class="highlight">Fellowship Nominations</h1>
 
+  <p>Consult the
+    <a href="{% url 'submissions:monitor' %}" target="_blank">Submissions Monitor</a>
+    &emsp;{% include 'bi/arrow-right.html' %}&emsp;any <span class="text-danger">red-highlighted</span>
+    specialty is in need of more Fellows</p>
+
   <details class="border border-success border-2 mt-4">
     <summary class="bg-success bg-opacity-10 p-2">
       <h2 class="ms-2">Nominate</h2>
@@ -63,6 +68,8 @@
 	      </div>
 	    </div>
 	  </div>
+	  <h3 class="mb-2">Not found?</h3>
+	  <p>Then add to our database by <a href="{% url 'profiles:profile_create' %}" target="_blank">creating a new Profile</a> (opens in new window).</p>
 	</div>
 	<div class="col-lg-6">
 	  <h3>Matching profiles</h3>
