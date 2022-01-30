@@ -322,7 +322,7 @@ class FellowshipNominationForm(forms.ModelForm):
 
     def clean(self):
         data = super().clean()
-        failed_eligibility_criteria = check_profile_eligibility(self.profile)
+        failed_eligibility_criteria = check_profile_eligibility_for_fellowship(self.profile)
         if failed_eligibility_criteria:
             for critetion in failed_eligibility_criteria:
                 self.add_error(None, criterion)
@@ -356,12 +356,6 @@ class FellowshipNominationSearchForm(forms.Form):
         label='Specialty',
         required=False
     )
-    # profile = forms.ModelChoiceField(
-    #     queryset=Profile.objects.all(),
-    #     widget=autocomplete.ModelSelect2(url='/profiles/profile-autocomplete'),
-    #     label='Name (through Profile)',
-    #     required=False
-    # )
     name = forms.CharField(
         max_length=128,
         required=False
@@ -378,7 +372,7 @@ class FellowshipNominationSearchForm(forms.Form):
             ),
             Div(
                 # Div(FloatingField('profile'), css_id='search-profile', css_class='col-lg-6'),
-                Div(FloatingField('name'), css_class='col-lg-6'),
+                Div(FloatingField('name', autocomplete='off'), css_class='col-lg-6'),
                 css_class='row'
             ),
         )

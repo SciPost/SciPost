@@ -17,7 +17,7 @@
 
   <div class="card">
     <div class="card-header">
-      Nominate somebody for a Fellowship
+      <h2>Nominate</h2>
     </div>
     <div class="card-body">
       <div class="row">
@@ -70,9 +70,9 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card mt-4">
     <div class="card-header">
-      Search / filter
+      <h2>Search / filter</h2>
     </div>
     <div class="card-body">
       <form
@@ -85,11 +85,18 @@
       </form>
     </div>
   </div>
-  <div id="indicator-search" class="htmx-indicator p-2">
-    <button class="btn btn-warning" type="button" disabled>
-      <strong>Loading...</strong>
-      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
-    </button>
+  <div class="row">
+    <div class="col">
+      <h3>Nominations list</h3>
+    </div>
+    <div class="col">
+      <div id="indicator-search" class="htmx-indicator">
+	<button class="btn btn-sm btn-warning" type="button" disabled>
+	  <strong>Loading...</strong>
+	  <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+	</button>
+      </div>
+    </div>
   </div>
   <ul id="search-results" class="list-unstyled mt-2"></ul>
 
