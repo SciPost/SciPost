@@ -201,7 +201,8 @@ class ProfileSelectForm(forms.Form):
 class ProfileDynSelForm(forms.Form):
     q = forms.CharField(max_length=32, label='Search (by name)')
     action_url_name = forms.CharField()
-    action_url_base_kwargs = forms.JSONField()
+    action_url_base_kwargs = forms.JSONField(required=False)
+    action_target_element_id = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -210,6 +211,7 @@ class ProfileDynSelForm(forms.Form):
             FloatingField('q', autocomplete='off'),
             Field('action_url_name', type='hidden'),
             Field('action_url_base_kwargs', type='hidden'),
+            Field('action_target_element_id', type='hidden')
         )
 
     def search_results(self):

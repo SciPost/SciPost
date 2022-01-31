@@ -98,3 +98,14 @@ class PotentialFellowshipQuerySet(models.QuerySet):
             Q(in_agreement__in=[contributor]) |
             Q(in_abstain__in=[contributor]) |
             Q(in_disagreement__in=[contributor]))
+
+
+class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
+
+    def ongoing(self):
+        now = timezone.now()
+        return self.filter(voting_opens__lte=now, voting_deadline__gte=now)
+
+    def closed(self):
+        now = timezone.now()
+        return self.filter(voting_deadline__lte=now)

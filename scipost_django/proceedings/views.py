@@ -64,7 +64,8 @@ def _hx_proceedings_fellowships(request, id):
     form = FellowshipDynSelForm(
         initial={
             'action_url_name': 'proceedings:_hx_proceedings_fellowship_action',
-            'action_url_base_kwargs': {'id': proceedings.id, 'action': 'add'}
+            'action_url_base_kwargs': {'id': proceedings.id, 'action': 'add'},
+            'action_target_element_id': 'fellowships',
         }
     )
     context = {

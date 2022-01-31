@@ -49,7 +49,8 @@ def _hx_collection_expected_authors(request, slug):
     form = ProfileDynSelForm(
         initial={
             'action_url_name': 'series:_hx_collection_expected_author_action',
-            'action_url_base_kwargs': {'slug': collection.slug, 'action': 'add'}
+            'action_url_base_kwargs': {'slug': collection.slug, 'action': 'add'},
+            'action_target_element_id': 'profiles'
         }
     )
     context = {
@@ -84,7 +85,8 @@ def _hx_collection_publications(request, slug):
     form = PublicationDynSelForm(
         initial={
             'action_url_name': 'series:_hx_collection_publication_action',
-            'action_url_base_kwargs': {'slug': collection.slug, 'action': 'add'}
+            'action_url_base_kwargs': {'slug': collection.slug, 'action': 'add'},
+            'action_target_element_id': 'publications'
         }
     )
     context = {

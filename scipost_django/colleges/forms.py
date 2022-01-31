@@ -8,19 +8,27 @@ from django import forms
 from django.db.models import Q
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field
+from crispy_forms.layout import Layout, Div, Field, Hidden, ButtonHolder, Submit
 from crispy_bootstrap5.bootstrap5 import FloatingField
 from dal import autocomplete
 
+from ontology.models import Specialty
 from proceedings.models import Proceedings
 from profiles.models import Profile
 from submissions.models import Submission
 from scipost.forms import RequestFormMixin
 from scipost.models import Contributor
 
-from .models import Fellowship, PotentialFellowship, PotentialFellowshipEvent
-from .constants import POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,\
+from .models import (
+    College, Fellowship,
+    PotentialFellowship, PotentialFellowshipEvent,
+    FellowshipNomination,
+)
+from .constants import (
+    POTENTIAL_FELLOWSHIP_IDENTIFIED, POTENTIAL_FELLOWSHIP_NOMINATED,
     POTENTIAL_FELLOWSHIP_EVENT_DEFINED, POTENTIAL_FELLOWSHIP_EVENT_NOMINATED
+)
+from .utils import check_profile_eligibility_for_fellowship
 
 
 class FellowshipSelectForm(forms.Form):
@@ -34,7 +42,8 @@ class FellowshipSelectForm(forms.Form):
 class FellowshipDynSelForm(forms.Form):
     q = forms.CharField(max_length=32, label='Search (by name)')
     action_url_name = forms.CharField()
-    action_url_base_kwargs = forms.JSONField()
+    action_url_base_kwargs = forms.JSONField(required=False)
+    action_target_element_id = forms.CharField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,6 +52,7 @@ class FellowshipDynSelForm(forms.Form):
             FloatingField('q', autocomplete='off'),
             Field('action_url_name', type='hidden'),
             Field('action_url_base_kwargs', type='hidden'),
+            Field('action_target_element_id', type='hidden'),
         )
 
     def search_results(self):
@@ -270,3 +280,113 @@ class PotentialFellowshipEventForm(forms.ModelForm):
         self.fields['comments'].widget.attrs.update({
             'placeholder': 'NOTA BENE: careful, will be visible to all who have voting rights'
             })
+
+
+###############
+# Nominations #
+###############
+
+class FellowshipNominationForm(forms.ModelForm):
+
+    class Meta:
+        model = FellowshipNomination
+        fields = [
+            'nominated_by',    # hidden
+            'college', 'nominator_comments'  # visible
+        ]
+
+    def __init__(self, *args, **kwargs):
+        self.profile = kwargs.pop('profile')
+        super().__init__(*args, **kwargs)
+        self.fields['college'].queryset = College.objects.filter(
+            acad_field=self.profile.acad_field)
+        self.fields['college'].empty_label = None
+        self.fields['nominator_comments'].label = False
+        self.fields['nominator_comments'].widget.attrs['rows'] = 4
+        self.fields['nominator_comments'].widget.attrs[
+            'placeholder'] = 'Optional comments and/or recommendations'
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('profile_id', type='hidden'),
+            Field('nominated_by', type='hidden'),
+            Div(
+                Div(Field('nominator_comments'), css_class='col-lg-8'),
+                Div(
+                    FloatingField('college'),
+                    ButtonHolder(Submit('submit', 'Nominate', css_class='btn btn-success float-end')),
+                    css_class="col-lg-4"
+                ),
+                css_class='row pt-1'
+            ),
+        )
+
+    def clean(self):
+        data = super().clean()
+        failed_eligibility_criteria = check_profile_eligibility_for_fellowship(self.profile)
+        if failed_eligibility_criteria:
+            for critetion in failed_eligibility_criteria:
+                self.add_error(None, criterion)
+        if data['college'].acad_field != self.profile.acad_field:
+            self.add_error(
+                'college',
+                'Mismatch between college.acad_field and profile.acad_field.'
+            )
+        return data
+
+    def save(self):
+        nomination = super().save(commit=False)
+        nomination.profile = self.profile
+        nomination.save()
+        return nomination
+
+
+class FellowshipNominationSearchForm(forms.Form):
+    """Filter a FellowshipNomination queryset using basic search fields."""
+
+    college = forms.ModelChoiceField(
+        queryset=College.objects.all(),
+        required=False
+    )
+    specialty = forms.ModelChoiceField(
+        queryset=Specialty.objects.all(),
+        # widget=autocomplete.ModelSelect2(
+        #     url='/ontology/specialty-autocomplete',
+        #     attrs={'data-html': True}
+        # ),
+        label='Specialty',
+        required=False
+    )
+    name = forms.CharField(
+        max_length=128,
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                Div(FloatingField('college'), css_class='col-lg-6'),
+                Div(FloatingField('specialty'), css_class='col-lg-6'),
+                css_class='row'
+            ),
+            Div(
+                Div(FloatingField('name', autocomplete='off'), css_class='col-lg-6'),
+                css_class='row'
+            ),
+        )
+
+    def search_results(self):
+        if self.cleaned_data.get('name'):
+            nominations = FellowshipNomination.objects.filter(
+                Q(profile__last_name__icontains=self.cleaned_data.get('name')) |
+                Q(profile__first_name__icontains=self.cleaned_data.get('name')))
+        else:
+            nominations = FellowshipNomination.objects.all()
+        if self.cleaned_data.get('college'):
+            nominations = nominations.filter(
+                college=self.cleaned_data.get('college'))
+        if self.cleaned_data.get('specialty'):
+            nominations = nominations.filter(
+                profile__specialties__in=[self.cleaned_data.get('specialty'),])
+        return nominations

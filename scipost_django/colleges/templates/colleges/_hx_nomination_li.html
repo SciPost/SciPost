@@ -1,0 +1,97 @@
+<div class="border border-dark">
+  <details>
+    <summary class="bg-light p-2">
+      {{ nomination.profile }}
+      <span class="float-end">
+	{{ nomination.college }}
+	<span class="ms-4">Outcome:</span>
+	{% if nomination.decision %}
+	  {{ nomination.decision.get_outcome_display }}
+	{% else %}
+	  pending
+	{% endif %}
+      </span>
+    </summary>
+    <div class="p-2">
+      <p>Nominated by {{ nomination.nominated_by }} on {{ nomination.nominated_on|date:"Y-m-d" }}</p>
+      {% if nomination.nominator_comments %}
+	<div class="row">
+	  <div class="col-lg-2">
+	    Nominator comments:
+	  </div>
+	  <div class="col-lg-10">
+	    <em>{{ nomination.nominator_comments }}</em>
+	  </div>
+	</div>
+      {% endif %}
+      <div class="row">
+	<div class="col">
+	  <div class="card">
+	    <div class="card-header">
+	      Details
+	    </div>
+	    <div class="card-body">
+	      <table class="table">
+		<tr>
+		  <td>Field</td><td>{{ nomination.profile.acad_field }}</td>
+		</tr>
+		<tr>
+		  <td>Specialties</td>
+		  <td>
+		    {% for specialty in nomination.profile.specialties.all %}
+    		      <div class="single d-inline" data-specialty="{{ specialty }}" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ specialty }}">{{ specialty.code }}</div>
+		    {% empty %}
+		      undefined
+		    {% endfor %}
+		  </td>
+		</tr>
+		<tr>
+		  <td>ORCID ID</td>
+		  <td>
+		    {% if nomination.profile.orcid_id %}
+		      <a href="//orcid.org/{{ nomination.profile.orcid_id }}" target="_blank" rel="noopener">{{ nomination.profile.orcid_id }}</a>
+		    {% else %}
+		      unknown
+		    {% endif %}
+		  </td>
+		</tr>
+		<tr><td>Webpage</td>
+		  <td>
+		    {% if profile.webpage %}
+		      <a href="{{ profile.webpage }}" target="_blank" rel="noopener">{{ profile.webpage }}</a>
+		    {% else %}
+		      unknown
+		    {% endif %}
+		  </td>
+		</tr>
+	      </table>
+	    </div>
+	  </div>
+	</div>
+	<div class="col">
+	  <div class="card">
+	    <div class="card-header">
+	      Publications in SciPost Journals
+	    </div>
+	    <div class="card-body">
+	      <ul>
+		{% for pub in profile.publications.all|slice:":10" %}
+		  <li><a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a></li>
+		{% empty %}
+		  <li>No Publication found</li>
+		{% endfor %}
+	      </ul>
+	    </div>
+	  </div>
+	</div>
+      </div>
+      <table class="table">
+	<tr>
+	  <td>Affiliations</td>
+	  <td>
+	    {% include 'profiles/_affiliations_table.html' with profile=nomination.profile actions=False %}</td>
+	</tr>
+      </table>
+    </div>
+  </details>
+</div>

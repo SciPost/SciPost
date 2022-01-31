@@ -9,27 +9,39 @@ from dal import autocomplete
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
+from django.core.paginator import Paginator
 from django.urls import reverse, reverse_lazy
-from django.http import Http404
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render, redirect
 from django.utils import timezone
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
+from colleges.permissions import (
+    is_edadmin_or_senior_fellow, is_edadmin_or_advisory_or_active_regular_or_senior_fellow
+)
+from colleges.utils import check_profile_eligibility_for_fellowship
 from submissions.models import Submission
-from submissions.permissions import is_edadmin_or_senior_fellow
 
 from .constants import (
     POTENTIAL_FELLOWSHIP_STATUSES, POTENTIAL_FELLOWSHIP_EVENT_STATUSUPDATED,
     POTENTIAL_FELLOWSHIP_INVITED, POTENTIAL_FELLOWSHIP_ACTIVE_IN_COLLEGE,
     potential_fellowship_statuses_dict,
     POTENTIAL_FELLOWSHIP_EVENT_VOTED_ON, POTENTIAL_FELLOWSHIP_EVENT_EMAILED)
-from .forms import FellowshipDynSelForm, FellowshipForm, FellowshipRemoveSubmissionForm,\
-    FellowshipAddSubmissionForm, SubmissionAddFellowshipForm,\
-    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm, \
-    PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm
-from .models import College, Fellowship, PotentialFellowship, PotentialFellowshipEvent
+from .forms import (
+    FellowshipDynSelForm, FellowshipForm,
+    FellowshipRemoveSubmissionForm, FellowshipAddSubmissionForm,
+    SubmissionAddFellowshipForm,
+    FellowshipRemoveProceedingsForm, FellowshipAddProceedingsForm,
+    PotentialFellowshipForm, PotentialFellowshipStatusForm, PotentialFellowshipEventForm,
+    FellowshipNominationForm, FellowshipNominationSearchForm,
+)
+from .models import (
+    College, Fellowship,
+    PotentialFellowship, PotentialFellowshipEvent,
+    FellowshipNominationVotingRound
+)
 
 from scipost.forms import EmailUsersForm, SearchTextForm
 from scipost.mixins import PermissionsMixin, PaginationMixin, RequestViewMixin
@@ -38,6 +50,8 @@ from scipost.models import Contributor
 from common.utils import Q_with_alternative_spellings
 from mails.views import MailView
 from ontology.models import Branch
+from profiles.models import Profile
+from profiles.forms import ProfileDynSelForm
 
 
 class CollegeListView(ListView):
@@ -181,6 +195,7 @@ def _hx_fellowship_dynsel_list(request):
         'fellowships': fellowships,
         'action_url_name': form.cleaned_data['action_url_name'],
         'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+        'action_target_element_id': form.cleaned_data['action_target_element_id'],
     }
     return render(request, 'colleges/_hx_fellowship_dynsel_list.html', context)
 
@@ -513,3 +528,101 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
         form.instance.noted_by = self.request.user.contributor
         messages.success(self.request, 'Event added successfully')
         return super().form_valid(form)
+
+
+
+###############
+# Nominations #
+###############
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def nominations(request):
+    """
+    List Nominations.
+    """
+    profile_dynsel_form = ProfileDynSelForm(
+        initial={
+            'action_url_name': 'colleges:_hx_nomination_form',
+            'action_url_base_kwargs': { },
+            'action_target_element_id': 'nomination_form_response'
+        }
+    )
+    context = {
+        'profile_dynsel_form': profile_dynsel_form,
+        'search_nominations_form': FellowshipNominationSearchForm(),
+    }
+    return render(request, 'colleges/nominations.html', context)
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_form(request, profile_id):
+    profile = get_object_or_404(Profile, pk=profile_id)
+    failed_eligibility_criteria = check_profile_eligibility_for_fellowship(profile)
+    if failed_eligibility_criteria:
+        return render(
+            request,
+            'colleges/_hx_failed_eligibility_criteria.html',
+            {
+                'profile': profile,
+                'failed_eligibility_criteria': failed_eligibility_criteria
+            }
+        )
+    nomination_form = FellowshipNominationForm(
+        request.POST or None,
+        profile=profile
+    )
+    if nomination_form.is_valid():
+        nomination = nomination_form.save()
+        return HttpResponse(
+            f'<div class="bg-success text-white p-2 ">{nomination.profile} '
+            f'successfully nominated to {nomination.college}.</div>')
+    nomination_form.fields['nominated_by'].initial = request.user.contributor
+    context = {
+        'profile': profile,
+        'nomination_form': nomination_form,
+    }
+    return render(request, 'colleges/_hx_nomination_form.html', context)
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nominations(request):
+    form = FellowshipNominationSearchForm(request.POST or None)
+    if form.is_valid():
+        nominations = form.search_results()
+    else:
+        nominations = FellowshipNomination.objects.all()
+    paginator = Paginator(nominations, 16)
+    page_nr = request.GET.get('page')
+    page_obj = paginator.get_page(page_nr)
+    context = { 'page_obj': page_obj }
+    return render(request, 'colleges/_hx_nominations.html', context)
+
+
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
+def _hx_nomination_voting_rounds(request):
+    fellowship = request.user.contributor.session_fellowship(request)
+    filters = request.GET.get('filters', None)
+    if filters:
+        filters = filters.split(',')
+    if not filters: # if no filters present, return empty response
+        voting_rounds = FellowshipNominationVotingRound.objects.none()
+    else:
+        voting_rounds = FellowshipNominationVotingRound.objects.all()
+        for filter in filters:
+            if filter == 'ongoing':
+                voting_rounds = voting_rounds.ongoing()
+            if filter == 'closed':
+                voting_rounds = voting_rounds.closed()
+            if filter == 'vote_required':
+                # show all voting rounds to edadmin; for Fellow, filter
+                if not request.user.contributor.is_ed_admin:
+                    voting_rounds = voting_rounds.filter(
+                        eligible_to_vote=fellowship
+                    ).exclude(votes__fellow=fellowship)
+            if filter == 'voted':
+                voting_rounds = voting_rounds.filter(votes__fellow=fellowship)
+    context = {
+        'voting_rounds': voting_rounds,
+    }
+    return render(request, 'colleges/_hx_nomination_voting_rounds.html', context)

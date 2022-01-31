@@ -60,11 +60,13 @@ from .forms import (
     SubmissionTargetJournalForm, SubmissionTargetProceedingsForm, SubmissionPreprintFileForm,
     SubmissionPrescreeningForm,
     PreassignEditorsFormSet, SubmissionReassignmentForm)
-from .permissions import is_edadmin_or_senior_fellow
 from .utils import SubmissionUtils
 
 from colleges.models import PotentialFellowship, Fellowship
-from colleges.permissions import fellowship_required, fellowship_or_admin_required
+from colleges.permissions import (
+    fellowship_required, fellowship_or_admin_required,
+    is_edadmin_or_senior_fellow
+)
 from comments.forms import CommentForm
 from common.helpers import get_new_secrets_key
 from common.utils import workdays_between

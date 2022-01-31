@@ -1,0 +1,8 @@
+<div class="border border-danger text-danger bg-danger bg-opacity-10 mb-2 p-2">
+  <p><strong>{{ profile }}</strong>&emsp;cannot be nominated at this time:</p>
+  <ul>
+    {% for criterion in failed_eligibility_criteria %}
+      <li class="text-danger">{{ criterion }}</li>
+    {% endfor %}
+  </ul>
+</div>

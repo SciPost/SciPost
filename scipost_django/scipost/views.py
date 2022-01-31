@@ -730,10 +730,13 @@ class SciPostLoginView(LoginView):
         return self.request.GET
 
     def get_success_url(self):
-        """Add the `acad_field_view` item to session."""
+        """Add items to session variables."""
         self.request.session['session_acad_field_slug'] = \
             self.request.user.contributor.profile.acad_field.slug if \
             self.request.user.contributor.profile.acad_field else ''
+        if self.request.user.contributor.fellowships.active():
+            self.request.session['session_fellowship_id'] = \
+                self.request.user.contributor.fellowships.active().first().id
         return super().get_success_url()
 
     def get_redirect_url(self):

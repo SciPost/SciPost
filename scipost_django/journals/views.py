@@ -102,6 +102,7 @@ def _hx_publication_dynsel_list(request):
         'publications': publications,
         'action_url_name': form.cleaned_data['action_url_name'],
         'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
+        'action_target_element_id': form.cleaned_data['action_target_element_id'],
     }
     return render(request, 'journals/_hx_publication_dynsel_list.html', context)
 
