@@ -1515,13 +1515,13 @@ def email_group_members(request):
                     if (member.contributor.profile.accepts_SciPost_emails or
                         member.groups.filter(name='Editorial College').exists()): # bypass for Fellows
                         email_text = ''
-                        email_text_html = ''
+                        email_text_html = '{% load automarkup %}\n'
                         if form.cleaned_data['personalize']:
                             email_text = ('Dear ' + member.contributor.profile.get_title_display()
                                           + ' ' + member.last_name + ', \n\n')
-                            email_text_html = 'Dear {{ title }} {{ last_name }},<br/>'
+                            email_text_html += 'Dear {{ title }} {{ last_name }},<br/>'
                         email_text += form.cleaned_data['email_text']
-                        email_text_html += '{{ email_text|linebreaks }}'
+                        email_text_html += '{% automarkup email_text %}'
                         if form.cleaned_data['include_scipost_summary']:
                             email_text += SCIPOST_SUMMARY_FOOTER
                             email_text_html += SCIPOST_SUMMARY_FOOTER_HTML
@@ -1529,11 +1529,11 @@ def email_group_members(request):
                         url_unsubscribe = reverse('scipost:unsubscribe',
                                                   args=[member.contributor.id,
                                                         member.contributor.activation_key])
-                        email_text += ('\n\nDon\'t want to receive such emails? '
-                                       'Unsubscribe by visiting %s.' % url_unsubscribe)
-                        email_text_html += (
-                            '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
-                            'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
+                        # email_text += ('\n\nDon\'t want to receive such emails? '
+                        #                'Unsubscribe by visiting %s.' % url_unsubscribe)
+                        # email_text_html += (
+                        #     '<br/>\n<p style="font-size: 10px;">Don\'t want to receive such '
+                        #     'emails? <a href="%s">Unsubscribe</a>.</p>' % url_unsubscribe)
                         email_context = {
                             'title': member.contributor.profile.get_title_display(),
                             'last_name': member.last_name,
