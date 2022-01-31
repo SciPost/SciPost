@@ -57,8 +57,8 @@
 		</tr>
 		<tr><td>Webpage</td>
 		  <td>
-		    {% if profile.webpage %}
-		      <a href="{{ profile.webpage }}" target="_blank" rel="noopener">{{ profile.webpage }}</a>
+		    {% if nomination.profile.webpage %}
+		      <a href="{{ nomination.profile.webpage }}" target="_blank" rel="noopener">{{ nomination.profile.webpage }}</a>
 		    {% else %}
 		      unknown
 		    {% endif %}
@@ -75,7 +75,7 @@
 	    </div>
 	    <div class="card-body">
 	      <ul>
-		{% for pub in profile.publications.all|slice:":10" %}
+		{% for pub in nomination.profile.publications.all %}
 		  <li><a href="{{ pub.get_absolute_url }}">{{ pub.citation }}</a></li>
 		{% empty %}
 		  <li>No Publication found</li>
