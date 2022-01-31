@@ -550,7 +550,7 @@ def nominations(request):
     )
     context = {
         'profile_dynsel_form': profile_dynsel_form,
-        'form': FellowshipNominationSearchForm(),
+        'search_nominations_form': FellowshipNominationSearchForm(),
     }
     return render(request, 'colleges/nominations.html', context)
 

@@ -3,6 +3,7 @@
 <form
     hx-post="{% url 'colleges:_hx_nomination_form' profile_id=profile.pk %}"
     hx-target="#nomination_form_response"
+    hx-indicator="#nomination_form_response-indicator"
 >
   {% csrf_token %}
   {% crispy nomination_form %}

@@ -349,10 +349,10 @@ class FellowshipNominationSearchForm(forms.Form):
     )
     specialty = forms.ModelChoiceField(
         queryset=Specialty.objects.all(),
-        widget=autocomplete.ModelSelect2(
-            url='/ontology/specialty-autocomplete',
-            attrs={'data-html': True}
-        ),
+        # widget=autocomplete.ModelSelect2(
+        #     url='/ontology/specialty-autocomplete',
+        #     attrs={'data-html': True}
+        # ),
         label='Specialty',
         required=False
     )
@@ -384,5 +384,9 @@ class FellowshipNominationSearchForm(forms.Form):
         else:
             nominations = FellowshipNomination.objects.all()
         if self.cleaned_data.get('college'):
-            nominations = nominations.filter(college=self.cleaned_data.get('college'))
+            nominations = nominations.filter(
+                college=self.cleaned_data.get('college'))
+        if self.cleaned_data.get('specialty'):
+            nominations = nominations.filter(
+                profile__specialties__in=[self.cleaned_data.get('specialty'),])
         return nominations
