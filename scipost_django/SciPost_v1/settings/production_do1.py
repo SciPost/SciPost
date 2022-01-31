@@ -6,7 +6,7 @@ from .base import *
 
 # THE MAIN THING HERE
 DEBUG = False
-ALLOWED_HOSTS = ['www.scipost.org', 'scipost.org', 'localhost', '142.93.224.252']
+ALLOWED_HOSTS = ['scipost.org', 'www.scipost.org', 'localhost', '142.93.224.252']
 
 # Static and media
 STATIC_URL = 'https://scipost.org/static/'

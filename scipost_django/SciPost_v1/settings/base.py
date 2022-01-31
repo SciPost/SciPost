@@ -226,18 +226,18 @@ SECURE_HSTS_PRELOAD = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = 'DENY'
 REFERRER_POLICY = 'same-origin'
-CSP_FONT_SRC = ("'self'", 'scipost.org', "'report-sample'",
+CSP_FONT_SRC = ("'self'", 'scipost.org', 'www.scipost.org', "'report-sample'",
                 'data:', 'fonts.gstatic.com', 'cdnjs.cloudflare.com',
                 'www.google.com', 'themes.googleusercontent.com')
-CSP_FRAME_SRC = ("'self'", 'scipost.org', "'report-sample'",
+CSP_FRAME_SRC = ("'self'", 'scipost.org', 'www.scipost.org', "'report-sample'",
                  'crossmark.crossref.org',
                  'www.google.com', 'player.vimeo.com', 'www.youtube-nocookie.com',
                  'www.recaptcha.net', 'www.mendeley.com', 'plaudit.pub')
-CSP_IMG_SRC = ("'self'", 'scipost.org', "'report-sample'",
+CSP_IMG_SRC = ("'self'", 'scipost.org', 'www.scipost.org', "'report-sample'",
                'data:', 'ajax.googleapis.com', 'assets.crossref.org',
                'licensebuttons.net', 'crossmark-cdn.crossref.org',
                'www.paypalobjects.com')
-CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'", "'unsafe-inline'",
+CSP_SCRIPT_SRC = ("'self'", 'scipost.org', 'www.scipost.org', "'report-sample'", "'unsafe-inline'",
                   'ajax.googleapis.com', 'cdn.mathjax.org',
                   'cdnjs.cloudflare.com',
                   'crossmark-cdn.crossref.org',
@@ -247,7 +247,7 @@ CSP_SCRIPT_SRC = ("'self'", 'scipost.org', "'report-sample'", "'unsafe-inline'",
                   'cdn.plot.ly',
                   'unpkg.com/htmx.org@1.6.0'
                   )
-CSP_STYLE_SRC = ("'self'", 'scipost.org', "'report-sample'",
+CSP_STYLE_SRC = ("'self'", 'scipost.org', 'www.scipost.org', "'report-sample'",
                  'crossmark-cdn.crossref.org',
                  "'unsafe-inline'", 'ajax.googleapis.com', 'code.jquery.com',
                  'fonts.googleapis.com',
