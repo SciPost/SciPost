@@ -7,7 +7,7 @@
 {% endfor %}
 {% if page_obj.has_next %}
   <li hx-post="{% url 'colleges:_hx_nominations' %}?page={{ page_obj.next_page_number }}"
-      hx-include="#search-form"
+      hx-include="#search-nominations-form"
       hx-trigger="revealed"
       hx-swap="afterend"
       hx-indicator="#indicator-search-page-{{ page_obj.number }}"

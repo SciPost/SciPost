@@ -35,18 +35,20 @@ def fellowship_or_admin_required():
     return user_passes_test(test)
 
 
+def is_edadmin_or_advisory_or_active_regular_or_senior_fellow(user):
+    return (user.groups.filter(name='Editorial Administrators').exists() or
+            user.groups.filter(name='Advisory Board').exists() or
+            Fellowship.objects.active().regular_or_senior().filter(
+                contributor__user=user).exists())
+
+
 def is_edadmin_or_active_regular_or_senior_fellow(user):
-    if not user.has_perm('scipost.can_run_pre_screening'):
-        return Fellowship.objects.active().regular_or_senior(
-        ).filter(contributor__user=user).exists()
-    return True
+    return (user.groups.filter(name='Editorial Administrators').exists() or
+            Fellowship.objects.active().regular_or_senior().filter(
+                contributor__user=user).exists())
 
 
 def is_edadmin_or_senior_fellow(user):
-    if not user.has_perm('scipost.can_run_pre_screening'):
-        try:
-            fellow = Fellowship.objects.active().get(contributor__user=user)
-            return fellow.senior
-        except:
-            return False
-    return True
+    return (user.groups.filter(name='Editorial Administrators').exists() or
+            Fellowship.objects.active().senior().filter(
+                contributor__user=user).exists())

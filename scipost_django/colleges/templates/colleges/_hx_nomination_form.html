@@ -1,10 +1,12 @@
 {% load crispy_forms_tags %}
-<h3>Nomination to Fellowship:&emsp;<span class="bg-success bg-opacity-25 p-2"><em>{{ profile }}</em></span></h3>
-<form
-    hx-post="{% url 'colleges:_hx_nomination_form' profile_id=profile.pk %}"
-    hx-target="#nomination_form_response"
-    hx-indicator="#nomination_form_response-indicator"
->
-  {% csrf_token %}
-  {% crispy nomination_form %}
-</form>
+<div class="m-2 p-4 border border-warning">
+  <h3>Nomination to Fellowship:&emsp;<span class="bg-success bg-opacity-25 p-2"><em>{{ profile }}</em></span></h3>
+  <form
+      hx-post="{% url 'colleges:_hx_nomination_form' profile_id=profile.pk %}"
+      hx-target="#nomination_form_response"
+      hx-indicator="#nomination_form_response-indicator"
+  >
+    {% csrf_token %}
+    {% crispy nomination_form %}
+  </form>
+</div>

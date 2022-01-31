@@ -19,7 +19,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 
 from colleges.permissions import (
-    is_edadmin_or_senior_fellow, is_edadmin_or_active_regular_or_senior_fellow
+    is_edadmin_or_senior_fellow, is_edadmin_or_advisory_or_active_regular_or_senior_fellow
 )
 from colleges.utils import check_profile_eligibility_for_fellowship
 from submissions.models import Submission
@@ -536,7 +536,7 @@ class PotentialFellowshipEventCreateView(PermissionsMixin, CreateView):
 ###############
 
 
-@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def nominations(request):
     """
     List Nominations.
@@ -555,7 +555,7 @@ def nominations(request):
     return render(request, 'colleges/nominations.html', context)
 
 
-@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_form(request, profile_id):
     profile = get_object_or_404(Profile, pk=profile_id)
     failed_eligibility_criteria = check_profile_eligibility_for_fellowship(profile)
@@ -585,7 +585,7 @@ def _hx_nomination_form(request, profile_id):
     return render(request, 'colleges/_hx_nomination_form.html', context)
 
 
-@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nominations(request):
     form = FellowshipNominationSearchForm(request.POST or None)
     if form.is_valid():
@@ -599,7 +599,7 @@ def _hx_nominations(request):
     return render(request, 'colleges/_hx_nominations.html', context)
 
 
-@user_passes_test(is_edadmin_or_active_regular_or_senior_fellow)
+@user_passes_test(is_edadmin_or_advisory_or_active_regular_or_senior_fellow)
 def _hx_nomination_voting_rounds(request):
     fellowship = request.user.contributor.session_fellowship(request)
     filters = request.GET.get('filters', None)

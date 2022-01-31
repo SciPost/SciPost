@@ -16,7 +16,7 @@
 
   {% is_ed_admin request.user as is_ed_admin %}
 
-  <h1 class="highlight">Fellowship Nominations<span class="text-danger ms-4">{% include 'bi/cone-striped.html' %}[in construction]</span></h1>
+  <h1 class="highlight">Fellowship Nominations<span class="text-danger ms-4">{% include 'bi/cone-striped.html' %}<em>in construction</em>&nbsp;{% include 'bi/cone-striped.html' %}</span></h1>
 
   <p>Consult the
     <a href="{% url 'submissions:monitor' %}" target="_blank">Submissions Monitor</a> page.
@@ -36,7 +36,8 @@
 	  <h3>Procedure</h3>
 	  <ul>
 	    <li>Type your search query in the search form</li>
-	    <li>When the name you're looking for appears in the list of matches, double-click on it</li>
+	    <li>When the name you're looking for appears in the
+	      <em>Matching profiles</em> list, double-click on it</li>
 	    <li>The nomination form will appear below</li>
 	    <li>Non-eligibility flags (if any) will appear</li>
 	    <li>If eligible, fill the form in (comments are optional)</li>
@@ -50,7 +51,6 @@
 		  hx-target="#profile_dynsel_results"
 		  hx-indicator="#profile_dynsel_results-indicator"
 	      >
-		{% csrf_token %}
 		<div id="profile_dynsel_form">{% crispy profile_dynsel_form %}</div>
 	      </form>
 	    </div>
