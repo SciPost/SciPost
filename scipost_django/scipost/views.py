@@ -155,7 +155,6 @@ def index(request):
         'news_items': NewsItem.objects.homepage().order_by('-date')[:4],
         'latest_newsitem': NewsItem.objects.homepage().order_by('-date').first(),
         'submissions': Submission.objects.public().order_by('-submission_date')[:3],
-        # 'journals': Journal.objects.order_by('name'),
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
         'current_sponsors': Organization.objects.current_sponsors().order_by('?')[:2]
@@ -219,17 +218,6 @@ def portal(request):
         request.session['session_acad_field_slug'] = request.GET.get('field', None)
     request.session['session_specialty_slug'] = ''
     return render(request, 'scipost/portal/portal.html')
-
-
-@permission_required('scipost.can_preview_new_features', return_403=True)
-def portal2p2(request):
-    """
-    Academic portal entryway.
-    """
-    if request.GET.get('field', None):
-        request.session['session_acad_field_slug'] = request.GET.get('field', None)
-    request.session['session_specialty_slug'] = ''
-    return render(request, 'scipost/portal/portal2p2.html')
 
 
 def portal_hx_home(request):

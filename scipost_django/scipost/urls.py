@@ -96,11 +96,6 @@ urlpatterns = [
         views.portal,
         name='portal'
     ),
-    path(
-        'portal2p2',
-        views.portal2p2,
-        name='portal2p2'
-    ),
 
     # HTMX-delivered fragments
     path(

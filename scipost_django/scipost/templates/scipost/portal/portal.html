@@ -20,64 +20,80 @@
 
 {% block content %}
 
-  <ul class="nav nav-pills flex-wrap flex-sm-row mb-3 justify-content-center"
-      role="tablist">
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="journals-tab"
-	      data-bs-toggle="tab" data-bs-target="#journals"
-	      type="button" role="tab"
-	      aria-controls="journals" aria-selected="true">
-	Journals
-      </button>
-    </li>
+  <div class="row">
+    <div class="col-lg-3">
+      <ul class="list list-unstyled list-horizontal text-center">
+	<li class="list-item">
+	  <a class="btn btn-outline-success border-2"
+	     href="{% url 'submissions:submit_manuscript' %}">
+	    <strong>Submit a paper</strong>
+	  </a>
+	</li>
+      </ul>
+    </div>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="publications-tab"
-	      data-bs-toggle="tab" data-bs-target="#publications"
-	      type="button" role="tab"
-	      aria-controls="publications" aria-selected="true">
-	Publications
-      </button>
-    </li>
+    <div class="col-lg-9">
+      <ul class="nav nav-pills flex-wrap flex-sm-row mb-3 justify-content-center"
+	  role="tablist">
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="submissions-tab"
-	      data-bs-toggle="tab" data-bs-target="#submissions"
-	      type="button" role="tab"
-	      aria-controls="submissions" aria-selected="true">
-	Submissions
-      </button>
-    </li>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="journals-tab"
+		  data-bs-toggle="tab" data-bs-target="#journals"
+		  type="button" role="tab"
+		  aria-controls="journals" aria-selected="true">
+	    Journals
+	  </button>
+	</li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link border border-warning" id="reports-needed-tab"
-	      data-bs-toggle="tab" data-bs-target="#reports-needed"
-	      type="button" role="tab"
-	      aria-controls="reports-needed" aria-selected="true">
-	Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
-      </button>
-    </li>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link active" id="publications-tab"
+		  data-bs-toggle="tab" data-bs-target="#publications"
+		  type="button" role="tab"
+		  aria-controls="publications" aria-selected="true">
+	    Publications
+	  </button>
+	</li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="reports-tab"
-	      data-bs-toggle="tab" data-bs-target="#reports"
-	      type="button" role="tab"
-	      aria-controls="reports" aria-selected="true">
-	Reports
-      </button>
-    </li>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="submissions-tab"
+		  data-bs-toggle="tab" data-bs-target="#submissions"
+		  type="button" role="tab"
+		  aria-controls="submissions" aria-selected="true">
+	    Submissions
+	  </button>
+	</li>
 
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="comments-tab"
-	      data-bs-toggle="tab" data-bs-target="#comments"
-	      type="button" role="tab"
-	      aria-controls="comments" aria-selected="true">
-	Comments
-      </button>
-    </li>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link border border-warning" id="reports-needed-tab"
+		  data-bs-toggle="tab" data-bs-target="#reports-needed"
+		  type="button" role="tab"
+		  aria-controls="reports-needed" aria-selected="true">
+	    Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+	  </button>
+	</li>
 
-  </ul>
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="reports-tab"
+		  data-bs-toggle="tab" data-bs-target="#reports"
+		  type="button" role="tab"
+		  aria-controls="reports" aria-selected="true">
+	    Reports
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="comments-tab"
+		  data-bs-toggle="tab" data-bs-target="#comments"
+		  type="button" role="tab"
+		  aria-controls="comments" aria-selected="true">
+	    Comments
+	  </button>
+	</li>
+
+      </ul>
+    </div>
+  </div>
 
   <hr>
 
