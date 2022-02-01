@@ -353,6 +353,7 @@ class Command(BaseCommand):
             can_manage_organizations,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
+            can_preview_new_features,
         ])
 
         FinancialAdmin.permissions.set([
@@ -368,6 +369,7 @@ class Command(BaseCommand):
             can_view_statistics,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
+            can_preview_new_features,
         ])
 
         EditorialAdmin.permissions.set([
@@ -404,6 +406,7 @@ class Command(BaseCommand):
             can_manage_organizations,
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
+            can_preview_new_features,
         ])
 
         EditorialCollege.permissions.set([
@@ -417,6 +420,7 @@ class Command(BaseCommand):
             can_view_potentialfellowship_list,
             can_add_potentialfellowship,
             can_vote_on_potentialfellowship,
+            can_preview_new_features,
         ])
 
         VettingEditors.permissions.set([
