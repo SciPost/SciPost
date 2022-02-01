@@ -15,6 +15,13 @@
     <div class="collapse navbar-collapse mt-lg-0 mt-3" id="main-navbar">
       <ul class="navbar-nav me-auto">
 
+        <li class="nav-item{% if request.path == '/home3' %} active{% endif %}">
+          <a href="{% url 'scipost:index3' %}" class="nav-link" aria-label="SciPost Home">
+            <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/house-fill.html' %}</span>
+            <span class="d-lg-none d-inline-block">Home</span>
+          </a>
+        </li>
+
 	{% if perms.scipost.can_preview_new_features %}
 	  <li class="nav-item dropdown border border-warning">
             <a class="nav-link dropdown-toggle" href="#" id="HomepagesDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
@@ -29,24 +36,11 @@
 		<a href="{% url 'scipost:index2' %}">2: home + portal</a>
 	      </div>
 	      <div class="dropdown-item">
-		<a href="{% url 'scipost:index3' %}">3: homepage, restyled</a>
-	      </div>
-	      <div class="dropdown-item">
-		<a href="{% url 'scipost:index4' %}">4: home + portal, into one</a>
-	      </div>
-	      <div class="dropdown-item">
-		<a href="{% url 'scipost:index5' %}">5: hybrid 3/4</a>
+		<a href="{% url 'scipost:index3' %}">3: all tabbed</a>
 	      </div>
 	    </div>
 	  </li>
 	{% endif %}
-
-        <li class="nav-item{% if request.path == '/home4' %} active{% endif %}">
-          <a href="{% url 'scipost:index2' %}" class="nav-link" aria-label="SciPost Home">
-            <span class="d-none d-lg-inline-block" aria-hidden="true" style="min-width: 16px;">{% include 'bi/house-fill.html' %}</span>
-            <span class="d-lg-none d-inline-block">Home</span>
-          </a>
-        </li>
 
       </ul>
 

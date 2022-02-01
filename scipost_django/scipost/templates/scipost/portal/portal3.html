@@ -11,7 +11,7 @@
 {% load static %}
 
 {% block navbar %}
-  {% include 'scipost/navbar4.html' %}
+  {% include 'scipost/navbar3.html' %}
 {% endblock %}
 
 {% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
@@ -20,7 +20,7 @@
 {% block pagetitle %}Homepage{% endblock pagetitle %}
 
 {% block header %}
-  {% include 'scipost/header_with_acad_field_and_spec5.html' %}
+  {% include 'scipost/header_with_acad_field_and_spec3.html' %}
 {% endblock %}
 
 
@@ -28,7 +28,7 @@
 
 
   <ul class="nav nav-pills flex-wrap flex-sm-row mb-0 justify-content-center"
-      id="portal-tablist-home5"
+      id="portal-tablist-home3"
       role="tablist">
 
     <li class="nav-item" role="presentation">
@@ -95,10 +95,10 @@
     </li>
 
     <li class="nav-item" role="presentation">
-      <button class="btn btn-outline-success border-2 ms-4"
+      <a class="btn btn-outline-success border-2 ms-4"
 	 href="{% url 'submissions:submit_manuscript' %}">
 	{% include 'bi/arrow-right.html' %}<strong>Submit</strong>
-      </button>
+      </a>
     </li>
 
   </ul>
@@ -109,7 +109,7 @@
 
     <div class="tab-pane portal-tab fade show active" id="home"
 	 role="tabpanel" aria-labelledby="home-tab">
-      <div hx-get="{% url 'scipost:portal_hx_home5' %}"
+      <div hx-get="{% url 'scipost:portal_hx_home3' %}"
 	   hx-trigger="load, click delay:200ms from:#home-tab"
       >
       </div>

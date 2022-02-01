@@ -79,16 +79,6 @@ urlpatterns = [
         views.index3,
         name='index3'
     ),
-    path(
-        'home4',
-        views.index4,
-        name='index4'
-    ),
-    path(
-        'home5',
-        views.index5,
-        name='index5'
-    ),
 
     # Portal
     path(
@@ -104,9 +94,9 @@ urlpatterns = [
         name='portal_hx_home'
     ),
     path(
-        'portal/_hx_home5',
-        views.portal_hx_home5,
-        name='portal_hx_home5'
+        'portal/_hx_home3',
+        views.portal_hx_home3,
+        name='portal_hx_home3'
     ),
     path(
         'portal/_hx_journals',

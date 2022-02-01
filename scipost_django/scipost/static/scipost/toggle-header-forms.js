@@ -5,5 +5,4 @@ document.getElementById('home-tab').addEventListener('show.bs.tab', () => {
 })
 document.getElementById('home-tab').addEventListener('hide.bs.tab', () => {
     document.getElementById('session_acad_field_form').style.display = 'block'
-    document.getElementById('session_specialty_form').style.display = 'block'
 })

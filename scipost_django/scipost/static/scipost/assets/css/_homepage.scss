@@ -61,7 +61,7 @@
   background-color: #fff;
 
   .main-nav .nav-item { padding: 0 5px; }
-  .main-nav .nav-item .dropdown-toggle::after { content: none; }
+  //.main-nav .nav-item .dropdown-toggle::after { content: none; }
 
   .container { max-width: 1440px; }
 
@@ -292,13 +292,13 @@
 
 }
 
-#portal-tablist-home5 {
+#portal-tablist-home3 {
 
     list-style: none;
     padding: 0 0 4px 0;
     margin: 0;
 
-    li button {
+    li button, li a {
 	color: black;
 	font-size: 0.8rem;
 	font-weight: 800;
@@ -318,8 +318,8 @@
 	text-decoration: underline;
     }
 
-    li button:hover {
-	background-color: #b8c8db;
+    li button:hover, li a:hover {
+	background-color: $scipost-lightestblue;//#b8c8db;
 	text-decoration: underline;
     }
 
