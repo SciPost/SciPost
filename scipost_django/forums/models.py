@@ -217,11 +217,20 @@ class Post(models.Model):
             nr += self.followup_posts.all().count()
         return nr
 
+    @property
+    def latest_followup(self):
+        return self.followup_posts.last()
+
     def posts_hierarchy_id_list(self):
         id_list = [self.id]
         for post in self.followup_posts.all():
             id_list += post.posts_hierarchy_id_list()
         return id_list
+
+    @property
+    def latest_followup_in_hierarchy(self):
+        id_list = self.posts_hierarchy_id_list()
+        return Post.objects.filter(pk__in=id_list).exclude(pk=self.id).last()
 
     def get_anchor_forum_or_meeting(self):
         """
