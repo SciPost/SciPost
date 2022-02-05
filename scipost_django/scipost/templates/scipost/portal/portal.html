@@ -10,18 +10,10 @@
 {% load render_bundle from webpack_loader %}
 {% load static %}
 
-{% block navbar %}
-  {% include 'scipost/portal/navbar.html' %}
-{% endblock %}
-
 {% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
 
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
 {% block pagetitle %}Homepage{% endblock pagetitle %}
-
-{% block header %}
-  {% include 'scipost/header_with_acad_field_and_spec3.html' %}
-{% endblock %}
 
 
 {% block content %}
@@ -30,7 +22,7 @@
 
     <div class="tab-pane portal-tab fade show active" id="home"
 	 role="tabpanel" aria-labelledby="home-tab">
-      <div hx-get="{% url 'scipost:portal_hx_home3' %}"
+      <div hx-get="{% url 'scipost:portal_hx_home' %}"
 	   hx-trigger="load, click delay:200ms from:#home-tab"
       >
       </div>
