@@ -53,7 +53,7 @@ def specialty_slug_choices(acad_field_slug):
     specialties = Specialty.objects.filter(
         acad_field__slug=acad_field_slug) if acad_field_slug else Specialty.objects.none()
     choices = (
-        ('', '--------'),
+        ('all', 'All specialties'),
     )
     for specialty in specialties.all():
         choices += ((specialty.slug, str(specialty)),)

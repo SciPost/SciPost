@@ -68,7 +68,10 @@ def set_session_specialty(request):
         acad_field_slug=request.session.get('session_acad_field_slug', ''),
     )
     if form.is_valid():
-        request.session['session_specialty_slug'] = form.cleaned_data['specialty_slug']
+        if form.cleaned_data['specialty_slug'] == 'all':
+            request.session['session_specialty_slug'] = ''
+        else:
+            request.session['session_specialty_slug'] = form.cleaned_data['specialty_slug']
     try:
         initial = {
             'specialty_slug': Specialty.objects.get(

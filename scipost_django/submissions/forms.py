@@ -122,7 +122,7 @@ class SubmissionSearchForm(forms.Form):
         submissions = Submission.objects.public_newest().unpublished()
         if self.acad_field_slug != 'all':
             submissions = submissions.filter(acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug:
+            if self.specialty_slug and self.specialty_slug != 'all':
                 submissions = submissions.filter(specialties__slug=self.specialty_slug)
         if self.cleaned_data.get('submitted_to'):
             submissions = submissions.filter(submitted_to=self.cleaned_data.get('submitted_to'))

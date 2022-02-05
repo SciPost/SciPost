@@ -106,7 +106,7 @@ class PublicationSearchForm(forms.Form):
         publications = Publication.objects.published()
         if self.acad_field_slug and self.acad_field_slug != 'all':
             publications = publications.filter(acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug:
+            if self.specialty_slug and self.specialty_slug != 'all':
                 publications = publications.filter(specialties__slug=self.specialty_slug)
         if self.cleaned_data.get('author'):
             publications = publications.filter(author_list__icontains=self.cleaned_data.get('author'))
