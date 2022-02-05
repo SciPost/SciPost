@@ -1,0 +1,148 @@
+{% load request_filters %}
+{% load static %}
+{% load scipost_extras %}
+{% load journals_extras %}
+{% load user_groups %}
+
+{% is_active_fellow request.user as is_active_fellow %}
+
+
+<!-- <nav class="navbar navbar-expand-sm main-nav">
+     <div class="container">
+     <button class="navbar-toggler p-0 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar" aria-label="Navbar toggler">
+     <span class="navbar-toggler-icon">{% include 'bi/list.html' %}</span>
+     </button>
+     <div class="collapse navbar-collapse mt-3" id="main-navbar"> -->
+
+<nav class="navbar main-nav p-2">
+  <div class="container">
+    <div class="flex-fill" id="main-navbar">
+      <ul class="nav nav-pills flex-wrap flex-sm-row mb-0 justify-content-center"
+	  id="portal-tablist-home3"
+	  role="tablist">
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link active" id="home-tab"
+		  data-bs-toggle="tab" data-bs-target="#home"
+		  type="button" role="tab"
+		  aria-controls="home" aria-selected="true">
+	    Home
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="journals-tab"
+		  data-bs-toggle="tab" data-bs-target="#journals"
+		  type="button" role="tab"
+		  aria-controls="journals" aria-selected="true">
+	    Journals
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="publications-tab"
+		  data-bs-toggle="tab" data-bs-target="#publications"
+		  type="button" role="tab"
+		  aria-controls="publications" aria-selected="true">
+	    Publications
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link" id="submissions-tab"
+		  data-bs-toggle="tab" data-bs-target="#submissions"
+		  type="button" role="tab"
+		  aria-controls="submissions" aria-selected="true">
+	    Submissions
+	  </button>
+	</li>
+
+	<li class="nav-item" role="presentation">
+	  <button class="nav-link border border-2 border-warning" id="reports-needed-tab"
+		  data-bs-toggle="tab" data-bs-target="#reports-needed"
+		  type="button" role="tab"
+		  aria-controls="reports-needed" aria-selected="true">
+	    Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+	  </button>
+	</li>
+	<!--
+	     <li class="nav-item" role="presentation">
+	     <button class="nav-link" id="reports-tab"
+	     data-bs-toggle="tab" data-bs-target="#reports"
+	     type="button" role="tab"
+	     aria-controls="reports" aria-selected="true">
+	     Reports
+	     </button>
+	     </li>
+
+	     <li class="nav-item" role="presentation">
+	     <button class="nav-link" id="comments-tab"
+	     data-bs-toggle="tab" data-bs-target="#comments"
+	     type="button" role="tab"
+	     aria-controls="comments" aria-selected="true">
+	     Comments
+	     </button>
+	     </li> -->
+
+	<li class="nav-item" role="presentation">
+	  <a class="btn btn-outline-success border-2 border-success ms-2"
+	     href="{% url 'submissions:submit_manuscript' %}">
+	    {% include 'bi/arrow-right.html' %}<strong>Submit</strong>
+	  </a>
+	</li>
+
+        {% if user.is_authenticated %}
+          <li class="nav-item dropdown me-lg-2 ms-lg-auto">
+            <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
+	      Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
+
+            {% if request.user.contributor and not request.user.contributor.is_currently_available %}
+	      <button type="button" class="btn btn-link p-0 text-warning" data-bs-toggle="tooltip" data-bs-title="You are currently unavailable.<br>Check your availability on your Personal Page if this should not be the case." data-bs-html="true">{% include 'bi/exclamation-triangle-fill.html' %}</button>
+	      &nbsp;
+            {% endif %}
+            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="PersonalDropdown">
+	      {% if user.contributor %}
+                <div class="dropdown-item">
+                  <a href="{% url 'scipost:personal_page' %}">Personal Page</a>
+                </div>
+                {% if is_active_fellow %}
+                  <div class="dropdown-item">
+                    <a href="{% url 'submissions:pool' %}">Submissions Pool</a>
+                  </div>
+                {% endif %}
+	      {% endif %}
+	      {% if perms.scipost.can_view_production %}
+                <div class="dropdown-item">
+                  <a href="{% url 'production:production' %}">Production</a>
+                </div>
+	      {% endif %}
+	      {% if perms.scipost.can_manage_organizations or user.org_contact %}
+                <div class="dropdown-item">
+                  <a href="{% url 'organizations:dashboard' %}">Orgs dashboard</a>
+                </div>
+	      {% endif %}
+	      <div class="dropdown-divider"></div>
+	      <div class="dropdown-item">
+		<a href="{% url 'forums:forums' %}">Forums and Meetings</a>
+	      </div>
+	      <div class="dropdown-divider"></div>
+	      <div class="dropdown-item">
+		<a href="{% url 'helpdesk:helpdesk' %}">Helpdesk</a>
+	      </div>
+	      <div class="dropdown-divider"></div>
+	      <div class="dropdown-item">
+                <a href="{% url 'scipost:logout' %}?next={{ request.path }}">Logout</a>
+	      </div>
+            </div>
+
+	    <a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-bs-toggle="tooltip" data-bs-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
+	  </li>
+        {% else %}
+          <li class="me-lg-2 ms-lg-auto nav-item{% if request.path == '/login/' %} active{% endif %}">
+            <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>

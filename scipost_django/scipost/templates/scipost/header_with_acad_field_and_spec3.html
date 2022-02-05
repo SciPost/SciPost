@@ -3,7 +3,7 @@
 
 <header>
 
-    <div class="d-lg-flex justify-content-between p-4 w-100">
+    <div class="d-lg-flex justify-content-between p-4 pb-0 pb-lg-4 w-100">
 
       <div class="me-2 my-4 my-md-auto" style="flex: 200px">
         <a href="{% url 'scipost:index' %}"><img src="{% static 'scipost/images/logo_scipost_RGB_HTML_groot.png' %}" class="m-0 p-0" alt="SciPost logo" style="max-width: unset;" width="180" /></a>
@@ -24,7 +24,7 @@
       >
       </div>
 
-      <div class="ms-2 my-4 my-lg-auto">
+      <div class="ms-2 mt-4 my-lg-auto">
 	<form id="header-search-form" method="get" action="{% url 'scipost:search' %}">
           <div class="form-floating">
             <input type="text" id="headerSearchInput" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}">

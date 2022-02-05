@@ -60,7 +60,9 @@
 .home-alt {
   background-color: #fff;
 
-  .main-nav .nav-item { padding: 0 5px; }
+  .main-nav .nav-item {
+      padding: 0;// 5px;
+  }
   //.main-nav .nav-item .dropdown-toggle::after { content: none; }
 
   .container { max-width: 1440px; }
@@ -294,37 +296,42 @@
 
 #portal-tablist-home3 {
 
+    background-color: $scipost-blue50;
     list-style: none;
-    padding: 0 0 4px 0;
+    padding: 0;// 0 4px 0;
     margin: 0;
 
     li button, li a {
-	color: black;
+	border: 2px solid $scipost-blue50;
+	color: #eee;
 	font-size: 0.8rem;
 	font-weight: 800;
 	display: inline-block;
 	// background-color: #d3e3f6;
 	padding: 5px 15px;
 	margin-right: 8px;
-	margin-bottom: 8px;
+	//margin-bottom: 8px;
 	border-radius: 4px;
 	cursor: pointer;
 	transition: 100ms;
     }
 
     li button.active {
-	background-color: #496bb6;
-	color: #fff;
+	background-color: $scipost-darkblue;
+	//color: black;
 	text-decoration: underline;
     }
 
     li button:hover, li a:hover {
-	background-color: $scipost-lightestblue;//#b8c8db;
+	//background-color: $scipost-lightestblue;//#b8c8db;
+	border: 2px solid $scipost-darkblue;
+	//color: black;
 	text-decoration: underline;
     }
 
-    li button.active:hover {
-        background-color: #3e5c9d;
-    }
+    // li button.active:hover {
+    //     background-color: $scipost-lightestblue;
+    // 	color: black;
+    // }
 
 }

@@ -11,7 +11,7 @@
 {% load static %}
 
 {% block navbar %}
-  {% include 'scipost/navbar3.html' %}
+  {% include 'scipost/portal/navbar.html' %}
 {% endblock %}
 
 {% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
@@ -25,85 +25,6 @@
 
 
 {% block content %}
-
-
-  <ul class="nav nav-pills flex-wrap flex-sm-row mb-0 justify-content-center"
-      id="portal-tablist-home3"
-      role="tablist">
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="home-tab"
-	      data-bs-toggle="tab" data-bs-target="#home"
-	      type="button" role="tab"
-	      aria-controls="home" aria-selected="true">
-	Home
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="journals-tab"
-	      data-bs-toggle="tab" data-bs-target="#journals"
-	      type="button" role="tab"
-	      aria-controls="journals" aria-selected="true">
-	Journals
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="publications-tab"
-	      data-bs-toggle="tab" data-bs-target="#publications"
-	      type="button" role="tab"
-	      aria-controls="publications" aria-selected="true">
-	Publications
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="submissions-tab"
-	      data-bs-toggle="tab" data-bs-target="#submissions"
-	      type="button" role="tab"
-	      aria-controls="submissions" aria-selected="true">
-	Submissions
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link border border-2 border-warning" id="reports-needed-tab"
-	      data-bs-toggle="tab" data-bs-target="#reports-needed"
-	      type="button" role="tab"
-	      aria-controls="reports-needed" aria-selected="true">
-	Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="reports-tab"
-	      data-bs-toggle="tab" data-bs-target="#reports"
-	      type="button" role="tab"
-	      aria-controls="reports" aria-selected="true">
-	Reports
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="comments-tab"
-	      data-bs-toggle="tab" data-bs-target="#comments"
-	      type="button" role="tab"
-	      aria-controls="comments" aria-selected="true">
-	Comments
-      </button>
-    </li>
-
-    <li class="nav-item" role="presentation">
-      <a class="btn btn-outline-success border-2 ms-4"
-	 href="{% url 'submissions:submit_manuscript' %}">
-	{% include 'bi/arrow-right.html' %}<strong>Submit</strong>
-      </a>
-    </li>
-
-  </ul>
-
-  <hr class="mt-0">
 
   <div class="tab-content mt-4" id="portalTabContent">
 
