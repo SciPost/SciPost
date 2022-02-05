@@ -14,6 +14,7 @@
      </button>
      <div class="collapse navbar-collapse mt-3" id="main-navbar"> -->
 
+
 <nav class="navbar main-nav p-2">
   <div class="container">
     <div class="flex-fill" id="main-navbar">
@@ -22,66 +23,105 @@
 	  role="tablist">
 
 	<li class="nav-item" role="presentation">
-	  <button class="nav-link active" id="home-tab"
-		  data-bs-toggle="tab" data-bs-target="#home"
-		  type="button" role="tab"
-		  aria-controls="home" aria-selected="true">
-	    Home
-	  </button>
+	  {% if request.path == '/' %}
+	    <button class="nav-link{% if not request.GET.tab %} active{% endif %}"
+		    id="home-tab"
+		    data-bs-toggle="tab" data-bs-target="#home"
+		    type="button" role="tab"
+		    aria-controls="home" aria-selected="true">
+	      Home
+	    </button>
+	  {% else %}
+	    <a href="{% url 'scipost:index' %}">Home</a>
+	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  <button class="nav-link" id="journals-tab"
-		  data-bs-toggle="tab" data-bs-target="#journals"
-		  type="button" role="tab"
-		  aria-controls="journals" aria-selected="true">
-	    Journals
-	  </button>
+	  {% if request.path == '/' %}
+	    <button class="nav-link{% if request.GET.tab == 'journals' %} active{% endif %}"
+		    id="journals-tab"
+		    data-bs-toggle="tab" data-bs-target="#journals"
+		    type="button" role="tab"
+		    aria-controls="journals" aria-selected="true">
+	      Journals
+	    </button>
+	  {% else %}
+	    <a href="{% url 'scipost:index' %}?tab=journals">Journals</a>
+	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  <button class="nav-link" id="publications-tab"
-		  data-bs-toggle="tab" data-bs-target="#publications"
-		  type="button" role="tab"
-		  aria-controls="publications" aria-selected="true">
-	    Publications
-	  </button>
+	  {% if request.path == '/' %}
+	    <button class="nav-link{% if request.GET.tab == 'publications' %} active{% endif %}"
+		    id="publications-tab"
+		    data-bs-toggle="tab" data-bs-target="#publications"
+		    type="button" role="tab"
+		    aria-controls="publications" aria-selected="true">
+	      Publications
+	    </button>
+	  {% else %}
+	    <a href="{% url 'scipost:index' %}?tab=publications">Publications</a>
+	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  <button class="nav-link" id="submissions-tab"
-		  data-bs-toggle="tab" data-bs-target="#submissions"
-		  type="button" role="tab"
-		  aria-controls="submissions" aria-selected="true">
-	    Submissions
-	  </button>
+	  {% if request.path == '/' %}
+	    <button class="nav-link{% if request.GET.tab == 'submissions' %} active{% endif %}"
+		    id="submissions-tab"
+		    data-bs-toggle="tab" data-bs-target="#submissions"
+		    type="button" role="tab"
+		    aria-controls="submissions" aria-selected="true">
+	      Submissions
+	    </button>
+	  {% else %}
+	    <a href="{% url 'scipost:index' %}?tab=submissions">Submissions</a>
+	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  <button class="nav-link border border-2 border-warning" id="reports-needed-tab"
-		  data-bs-toggle="tab" data-bs-target="#reports-needed"
-		  type="button" role="tab"
-		  aria-controls="reports-needed" aria-selected="true">
-	    Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
-	  </button>
+	  {% if request.path == '/' %}
+	    <button class="nav-link border border-2 border-warning{% if request.GET.tab == 'reportsneeded' %} active{% endif %}"
+		    id="reports-needed-tab"
+		    data-bs-toggle="tab" data-bs-target="#reports-needed"
+		    type="button" role="tab"
+		    aria-controls="reports-needed" aria-selected="true">
+	      Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+	    </button>
+	  {% else %}
+	    <a href="{% url 'scipost:index' %}?tab=reportsneeded"
+	       class="border border-2 border-warning">
+	      Reports needed&nbsp;
+	      <span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
+	    </a>
+	  {% endif %}
 	</li>
 	<!--
 	     <li class="nav-item" role="presentation">
-	     <button class="nav-link" id="reports-tab"
+	     {% if request.path == '/' %}
+	     <button class="nav-link{% if request.GET.tab == 'reports' %} active{% endif %}"
+	     id="reports-tab"
 	     data-bs-toggle="tab" data-bs-target="#reports"
 	     type="button" role="tab"
 	     aria-controls="reports" aria-selected="true">
 	     Reports
 	     </button>
+	     {% else %}
+	     <a href="{% url 'scipost:index' %}?tab=reports">Reports</a>
+	     {% endif %}
 	     </li>
 
 	     <li class="nav-item" role="presentation">
-	     <button class="nav-link" id="comments-tab"
+	     {% if request.path == '/' %}
+	     <button class="nav-link{% if request.GET.tab == 'comments' %} active{% endif %}"
+	     id="comments-tab"
 	     data-bs-toggle="tab" data-bs-target="#comments"
 	     type="button" role="tab"
 	     aria-controls="comments" aria-selected="true">
 	     Comments
 	     </button>
+	     {% else %}
+	     <a href="{% url 'scipost:index' %}?tab=comments">Comments</a>
+	     {% endif %}
 	     </li> -->
 
 	<li class="nav-item" role="presentation">

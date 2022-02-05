@@ -164,8 +164,9 @@ def index_pre202202(request):
 
 def index(request):
     if request.GET.get('field', None):
-        request.session['session_acad_field_slug'] = request.GET.get('field', None)
-    request.session['session_specialty_slug'] = ''
+        if request.GET['field'] != request.session['session_acad_field_slug']:
+            request.session['session_specialty_slug'] = ''
+        request.session['session_acad_field_slug'] = request.GET['field']
     context = {
         'news_items': NewsItem.objects.homepage().order_by('-date')[:3],
         'publications': Publication.objects.published().order_by('-publication_date',

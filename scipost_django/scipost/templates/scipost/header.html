@@ -11,20 +11,20 @@
 
       <div class="mx-2 my-4 my-lg-auto">
 	<form id="session_acad_field_form" style="display: none;"
-		  hx-get="{% url 'ontology:set_session_acad_field' %}"
-		  hx-trigger="change"
-		  hx-swap="outerHTML"
+	      hx-get="{% url 'ontology:set_session_acad_field' %}"
+	      hx-trigger="{% if not request.get_full_path == '/' %}load, {% endif %}change"
+	      hx-swap="outerHTML"
 	>
 	  {% crispy session_acad_field_form %}
 	</form>
       </div>
       <div class="mx-2 my-4 my-lg-auto"
 	   hx-get="{% url 'ontology:_hx_session_specialty_form' %}"
-	   hx-trigger="hide.bs.tab from:#home-tab, session-acad-field-set from:body"
+	   hx-trigger="{% if not request.get_full_path == '/' %}load, {% endif %}hide.bs.tab from:#home-tab, session-acad-field-set from:body"
       >
       </div>
 
-      <div class="ms-2 mt-4 my-lg-auto">
+      <div class="mt-4 my-lg-auto ms-2">
 	<form id="header-search-form" method="get" action="{% url 'scipost:search' %}">
           <div class="form-floating">
             <input type="text" id="headerSearchInput" class="form-control" name="q" placeholder="Search" value="{{ request.GET.q }}">

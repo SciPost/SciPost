@@ -107,6 +107,7 @@
 	    <br>
 	    <div id="sponsor-logos" class="sp-swap"
 		 hx-get="{% url 'scipost:_hx_sponsors' %}"
+		 hx-push-url="false"
 		 hx-trigger="load"
 		 hx-swap="outerHTML swap:1s"
 	    >
@@ -149,6 +150,7 @@
 
   <div class="col-md-8"
        hx-get="{% url 'scipost:_hx_participates_in' %}"
+       hx-push-url="false"
        hx-trigger="load"
   >
   </div>

@@ -229,19 +229,6 @@ header {
         display: flex;
         flex-wrap: nowrap;
 
-        .logobox {
-            align-self: center;
-
-            a {
-                display: block;
-            }
-        }
-
-        .blurbbox {
-            align-self: center;
-            margin-left: auto;
-            text-align: right;
-        }
     }
 
     .navbar-nav {
