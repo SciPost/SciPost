@@ -21,6 +21,18 @@
 
   <div class="col-md-4">
 
+    {% if not user.is_authenticated %}
+      <!-- Register -->
+      <div class="card border border-danger mb-3">
+	<div class="card-header">
+	  <h3>Register</h3>
+	</div>
+	<div class="card-body">
+	  <p class="mb-1">Professional scientists (PhD students and above) can become Contributors to SciPost by filling the <a href="{% url 'scipost:register' %}">registration form</a>.</p>
+	</div><!-- End Register -->
+      </div>
+    {% endif %}
+
     <!-- News -->
     <div class="news">
       <h2 class="highlight mt-0">News

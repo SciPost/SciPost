@@ -68,31 +68,13 @@ urlpatterns = [
         views.index,
         name='index'
     ),
-
-    path(
-        'home2',
-        views.index2,
-        name='index2'
-    ),
     path(
         'home3',
         views.index3,
         name='index3'
     ),
 
-    # Portal
-    path(
-        'portal',
-        views.portal,
-        name='portal'
-    ),
-
     # HTMX-delivered fragments
-    path(
-        'portal/_hx_home',
-        views.portal_hx_home,
-        name='portal_hx_home'
-    ),
     path(
         'portal/_hx_home3',
         views.portal_hx_home3,

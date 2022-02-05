@@ -104,7 +104,7 @@ class PublicationSearchForm(forms.Form):
         Return all public Publication objects fitting search criteria.
         """
         publications = Publication.objects.published()
-        if self.acad_field_slug != 'all':
+        if self.acad_field_slug and self.acad_field_slug != 'all':
             publications = publications.filter(acad_field__slug=self.acad_field_slug)
             if self.specialty_slug:
                 publications = publications.filter(specialties__slug=self.specialty_slug)
