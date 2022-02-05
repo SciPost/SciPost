@@ -53,9 +53,9 @@
     .dropdown-menu {
         min-width: 255px;
         padding: 0.45rem 0.75rem;
-        background: $white;
-        color: $scipost-darkblue;
-        border-color: #e0e0e0;
+        background: $scipost-blue50;
+        color: $white;
+        //border-color: #e0e0e0;
         top: 36px;
         box-shadow: 0px 1px 2px 0px #e0e0e0;
 
@@ -69,9 +69,9 @@
 
         .dropdown-item {
             background-color: transparent;
-            padding: 0.5rem 0.625rem;
+            //padding: 0.5rem 0.625rem;
             line-height: 1.5;
-            color: $scipost-darkblue;
+            //color: $scipost-darkblue;
             white-space: normal;
 
             a {
@@ -132,8 +132,8 @@
         }
 
         .dropdown-menu {
-            background: #7a94c5;
-            border: 0;
+            background: $scipost-blue50;//#7a94c5;
+            border: 2px solid $scipost-darkblue;
             box-shadow: none;
             padding: 0.75rem 0 !important;
             margin: 0;
@@ -149,7 +149,7 @@
             }
 
             .dropdown-item {
-                padding-top: 0.75rem 0.625rem;
+                //padding-top: 0.75rem 0.625rem;
                 white-space: normal;
             }
 
@@ -268,5 +268,43 @@ header .nav-item {
 	    color: $white;
 	    min-width: 24rem;
 	}
+    }
+}
+
+#portal-tablist {
+
+    background-color: $scipost-blue50;
+    list-style: none;
+    padding: 0;// 0 4px 0;
+    margin: 0;
+
+    li button, li a {
+	border: 2px solid $scipost-blue50;
+	color: #eee;
+	font-size: 0.8rem;
+	font-weight: 800;
+	display: inline-block;
+	// background-color: #d3e3f6;
+	padding: 5px 15px;
+	margin-right: 8px;
+	margin-top: 0.2rem;
+	margin-bottom: 0.2rem;
+	//margin-bottom: 8px;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: 100ms;
+    }
+
+    li button.active {
+	background-color: $scipost-darkblue;
+	//color: black;
+	text-decoration: underline;
+    }
+
+    li button:hover, li a:hover {
+	//background-color: $scipost-lightestblue;//#b8c8db;
+	border: 2px solid $scipost-darkblue;
+	//color: black;
+	text-decoration: underline;
     }
 }

@@ -132,7 +132,7 @@
 	</li>
 
         {% if user.is_authenticated %}
-          <li class="nav-item dropdown me-lg-2 ms-lg-auto">
+          <li class="nav-item dropdown mx-2 mx-lg-auto">
             <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
 	      Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
 
@@ -178,7 +178,7 @@
 	    <a href="{% url 'helpdesk:ticket_create' %}" target="_blank" class="nav-link"><span style="font-size: 80%;" data-bs-toggle="tooltip" data-bs-html="true" title="Notice something wrong?<br/>Open a support ticket">{% include 'bi/sticky-fill.html' %}</span></a>
 	  </li>
         {% else %}
-          <li class="me-lg-2 ms-lg-auto nav-item{% if request.path == '/login/' %} active{% endif %}">
+          <li class="mx-2 mx-lg-auto nav-item{% if request.path == '/login/' %} active{% endif %}">
             <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
           </li>
         {% endif %}

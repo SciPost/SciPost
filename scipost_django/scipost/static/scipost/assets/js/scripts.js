@@ -142,13 +142,4 @@ $(function(){
     })
     $('[data-bs-toggle="tab"][data-sp-autoload="true"]').tab('show');
 
-
-    // Backdrop for main nav dropdowns.
-    $('#main-navbar .dropdown').on('shown.bs.dropdown', function () {
-      $('.backdrop').show();
-    })
-    $('#main-navbar .dropdown').on('hide.bs.dropdown hidden.bs.dropdown	', function () {
-      $('#backdrop').hide();
-    })
-
 });

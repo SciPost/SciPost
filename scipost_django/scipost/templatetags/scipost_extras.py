@@ -76,7 +76,7 @@ def increment_dt(dt):
             return random.randint(delta, int(1.25*delta))
     except:
         pass
-    return random.randint(4, 8)
+    return random.randint(8, 12)
 
 
 #######################
