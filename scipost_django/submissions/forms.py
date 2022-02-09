@@ -138,7 +138,7 @@ class SubmissionSearchForm(forms.Form):
             )
         if self.reports_needed:
             submissions = submissions.actively_refereeing(
-            ).open_for_reporting().order_by('submission_date')
+            ).open_for_reporting().reports_needed().order_by('submission_date')
         return submissions
 
 

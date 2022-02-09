@@ -204,8 +204,19 @@ class SubmissionQuerySet(models.QuerySet):
         return self._newest_version_only(self.filter(status=constants.STATUS_WITHDRAWN))
 
     def open_for_reporting(self):
-        """Return Submission that allow for reporting."""
+        """Return Submissions open for reporting."""
         return self.filter(open_for_reporting=True)
+
+    def reports_needed(self):
+        """
+        Return Submissions for which the nr of Reports is less than required by target Journal.
+        """
+        qs = self.prefetch_related(
+            'reports', 'submitted_to'
+        ).annotate(nr_reports=models.Count('reports'))
+        ids_list = [s.id for s in qs.all() if (
+            s.nr_reports < s.submitted_to.minimal_nr_of_reports)]
+        return self.filter(id__in=ids_list)
 
     def open_for_commenting(self):
         """Return Submission that allow for commenting."""
