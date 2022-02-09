@@ -171,6 +171,7 @@ def index(request):
         'news_items': NewsItem.objects.homepage().order_by('-date')[:3],
         'publications': Publication.objects.published().order_by('-publication_date',
                                                                  '-paper_nr')[:3],
+        'load_header_forms': request.GET.get('tab', None) != None
     }
     return render(request, 'scipost/portal/portal.html', context)
 
