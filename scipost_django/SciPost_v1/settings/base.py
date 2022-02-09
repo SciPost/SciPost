@@ -71,7 +71,7 @@ os.environ['wsgi.url_scheme'] = 'https'
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'dal', # django-autocomplete-light
     'dal_select2', # dal with Select2
     'django.contrib.admin',
@@ -132,7 +132,7 @@ INSTALLED_APPS = (
     'sitesserved',
     'webpack_loader',
     'maintenancemode',
-)
+]
 
 SITE_ID = 1
 
@@ -201,7 +201,7 @@ SHELL_PLUS_POST_IMPORTS = (
 #         }
 #     }
 
-MIDDLEWARE = (
+MIDDLEWARE = [
     # 'django.middleware.http.ConditionalGetMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
@@ -217,7 +217,7 @@ MIDDLEWARE = (
     'django_referrer_policy.middleware.ReferrerPolicyMiddleware',
     'csp.middleware.CSPMiddleware',
     'oauth2_provider.middleware.OAuth2TokenMiddleware',
-)
+]
 
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_HSTS_SECONDS = 15768000

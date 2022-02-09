@@ -3,6 +3,15 @@ from .base import *
 # THE MAIN THING HERE
 DEBUG = True
 
+# Enable django-debug-toolbar
+INSTALLED_APPS += ['debug_toolbar',]
+INTERNAL_IPS = [
+    '127.0.0.1',
+]
+MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
+
+
 # Static and media
 STATIC_ROOT = '/home/jscaux/SciPost/sites/scipost.org/SciPost/local_files/static/'
 MEDIA_ROOT = '/home/jscaux/SciPost/sites/scipost.org/SciPost/local_files/media/'
