@@ -169,8 +169,8 @@ def index(request):
         request.session['session_acad_field_slug'] = request.GET['field']
     context = {
         'news_items': NewsItem.objects.homepage().order_by('-date')[:3],
-        'publications': Publication.objects.published().order_by('-publication_date',
-                                                                 '-paper_nr')[:3],
+        'publications': Publication.objects.published(
+        ).order_by('-publication_date', '-paper_nr')[:3],
         'load_header_forms': request.GET.get('tab', None) != None
     }
     return render(request, 'scipost/portal/portal.html', context)
@@ -185,7 +185,12 @@ def portal_hx_home(request):
     context = {
         'news_items': news_items,
         'publications': Publication.objects.published().order_by(
-            '-publication_date', '-paper_nr')[:3],
+            '-publication_date', '-paper_nr'
+        ).prefetch_related(
+            'in_issue__in_journal',
+            'specialties',
+            'collection_set__series'
+        )[:3],
     }
     return render(request, 'scipost/portal/_hx_home.html', context)
 
@@ -217,6 +222,15 @@ def portal_hx_publications_page(request):
             publications = publications.filter(acad_field__slug=session_acad_field_slug)
             if session_specialty_slug:
                 publications = publications.filter(specialties__slug=session_specialty_slug)
+    publications = publications.select_related(
+        'acad_field'
+    ).prefetch_related(
+        'in_journal',
+        'in_issue__in_journal',
+        'in_issue__in_volume__in_journal',
+        'specialties',
+        'collection_set__series'
+    )
     paginator = Paginator(publications, 10)
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)
@@ -256,6 +270,14 @@ def portal_hx_submissions_page(request):
             submissions = submissions.filter(acad_field__slug=session_acad_field_slug)
             if session_specialty_slug:
                 submissions = submissions.filter(specialties__slug=session_specialty_slug)
+    submissions = submissions.select_related(
+        'preprint',
+        'acad_field',
+        'submitted_to',
+    ).prefetch_related(
+        'specialties',
+        'publication',
+    )
     paginator = Paginator(submissions, 10)
     page_nr = request.GET.get('page')
     page_obj = paginator.get_page(page_nr)
