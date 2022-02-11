@@ -75,7 +75,7 @@ class PublicationSearchForm(forms.Form):
         self.acad_field_slug = kwargs.pop('acad_field_slug')
         self.specialty_slug = kwargs.pop('specialty_slug')
         super().__init__(*args, **kwargs)
-        if self.acad_field_slug:
+        if self.acad_field_slug and self.acad_field_slug != 'all':
             self.fields['journal'].queryset = Journal.objects.filter(
                 college__acad_field__slug=self.acad_field_slug
             )
