@@ -10,6 +10,7 @@ from django.utils.feedgenerator import Atom1Feed
 from django.urls import reverse
 from django.db.models import Q
 
+from careers.models import JobOpening
 from comments.models import Comment
 from commentaries.models import Commentary
 from journals.models import Publication
@@ -179,3 +180,22 @@ class LatestPublicationsFeedAtom(LatestPublicationsFeedRSS):
         return datetime.datetime(item.publication_date.year,
                                  item.publication_date.month,
                                  item.publication_date.day)
+
+
+class DjangoJobOpeningsFeedRSS(Feed):
+    title = 'SciPost: Dev Jobs'
+    link = '/careers/django/'
+    description = "SciPost: Django dev job openings"
+
+    def items(self):
+        return JobOpening.objects.publicly_visible().filter(
+            description__icontains='django')
+
+    def item_title(self, item):
+        return item.title
+
+    def item_description(self, item):
+        return item.short_description
+
+    def item_link(self, item):
+        return item.get_absolute_url()
