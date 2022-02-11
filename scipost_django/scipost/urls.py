@@ -85,7 +85,7 @@ urlpatterns = [
     ),
     path(
         'portal/_hx_journals',
-        TemplateView.as_view(template_name='scipost/portal/_hx_journals.html'),
+        views.portal_hx_journals,
         name='portal_hx_journals'
     ),
     path(

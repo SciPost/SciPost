@@ -72,8 +72,8 @@ def get_admin_url(obj):
 def increment_dt(dt):
     try:
         delta = abs(int(dt))
-        if delta >= 4:
-            return random.randint(delta, int(1.25*delta))
+        if delta >= 8:
+            return random.randint(delta, int(1.4*delta))
     except:
         pass
     return random.randint(8, 12)

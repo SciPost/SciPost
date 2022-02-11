@@ -168,9 +168,6 @@ def index(request):
             request.session['session_specialty_slug'] = ''
         request.session['session_acad_field_slug'] = request.GET['field']
     context = {
-        'news_items': NewsItem.objects.homepage().order_by('-date')[:3],
-        'publications': Publication.objects.published(
-        ).order_by('-publication_date', '-paper_nr')[:3],
         'load_header_forms': request.GET.get('tab', None) != None
     }
     return render(request, 'scipost/portal/portal.html', context)
@@ -193,6 +190,29 @@ def portal_hx_home(request):
         )[:3],
     }
     return render(request, 'scipost/portal/_hx_home.html', context)
+
+
+def portal_hx_journals(request):
+    session_acad_field_slug = request.session.get('session_acad_field_slug', None)
+    journals = Journal.objects.active().select_related('college__acad_field__branch')
+    context = {}
+    if session_acad_field_slug and session_acad_field_slug != 'all':
+        journals = journals.filter(
+            college__acad_field__slug=session_acad_field_slug,
+        ).prefetch_related('series_set')
+        context['journals'] = journals
+    else: # build a dictionary of journals per branch / acad_field
+        journals_dict = {}
+        for journal in journals.all():
+            branch_name = journal.college.acad_field.branch.name
+            acad_field_name = journal.college.acad_field.name
+            if branch_name not in journals_dict:
+                journals_dict[branch_name] = {}
+            if acad_field_name not in journals_dict[branch_name]:
+                journals_dict[branch_name][acad_field_name] = []
+            journals_dict[branch_name][acad_field_name].append(journal)
+        context['journals_dict'] = journals_dict
+    return render(request, 'scipost/portal/_hx_journals.html', context)
 
 
 def portal_hx_publications(request):

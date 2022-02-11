@@ -19,7 +19,8 @@ def ontology_processor(request):
     if request.session.get('session_acad_field_slug', None):
         try:
             context['session_acad_field'] = AcademicField.objects.get(
-                slug=request.session.get('session_acad_field_slug'))
+                slug=request.session.get('session_acad_field_slug'),
+            )
             initial_acad_field['acad_field_slug'] = request.session.get('session_acad_field_slug')
         except AcademicField.DoesNotExist:
             context['session_acad_field'] = None

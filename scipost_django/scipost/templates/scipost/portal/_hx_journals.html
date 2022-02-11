@@ -7,7 +7,7 @@
 {% if session_acad_field %}
 
   <div class="row">
-    {% for journal in session_acad_field.journals %}
+    {% for journal in journals %}
       {% if journal.active or perms.scipost.can_view_pool %}
 	<div class="col-md-6 col-lg-4 mb-2" style="{{ journal.style }}">
 	  <div class="card">
@@ -46,25 +46,22 @@
 
     <h2 class="highlight">Full list of our Journals</h2>
     <table class="table table-borderless">
-      {% for branch in branches %}
-	{% for acad_field in branch.academic_fields.all %}
-	  {% if acad_field.journals.active.all|length > 0 %}
-	    <tr>
-	      <td class="align-middle"><strong>{{ acad_field.name }}</strong></td>
-	      <td>
-		<ul class="list-group m-2">
-		  {% for journal in acad_field.journals.active.all %}
-		    <li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
-		      <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
-		    </li>
-		  {% endfor %}
-		</ul>
-	      </td>
-	    </tr>
-	  {% endif %}
+      {% for branch, branch_journals in journals_dict.items %}
+	{% for field, field_journals in branch_journals.items %}
+	  <tr>
+	    <td class="align-middle"><strong>{{ field }}</strong></td>
+	    <td>
+	      <ul class="list-group m-2">
+		{% for journal in field_journals %}
+		  <li class="list-group-item m-1 px-3 py-2 {{ journal.doi_label }}">
+		    <a href="{{ journal.get_absolute_url }}">{{ journal.name }}</a>
+		  </li>
+		{% endfor %}
+	      </ul>
+	    </td>
+	  </tr>
 	{% endfor %}
       {% endfor %}
     </table>
-
 
 {% endif %}
