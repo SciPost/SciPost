@@ -67,14 +67,14 @@ urlpatterns = [
 
     # Homepage
     path(
-        'index_pre202202',
-        views.index,
-        name='index_pre202202'
+        '', #'index_pre202202',
+        views.index_pre202202,
+        name='index', #name='index_pre202202'
     ),
     path(
-        '',
-        views.index,
-        name='index'
+        'portal',
+        views.portal,
+        name='portal'
     ),
 
     # HTMX-delivered fragments

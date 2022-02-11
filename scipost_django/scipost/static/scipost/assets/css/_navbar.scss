@@ -22,6 +22,190 @@
     }
 }
 
+.main-nav-pre202202 {
+    background-color: $scipost-blue50;
+    letter-spacing: 0.3px;
+
+    .container {
+        position: relative;
+    }
+
+    .separator {
+        color: $white;
+        display: none;
+    }
+
+    a {
+        color: $white;
+
+        &:hover {
+            color: $scipost-lightestblue;
+            text-decoration: underline;
+        }
+    }
+
+    .nav-item .dropdown-toggle::after {
+        margin-left: 0.2em;
+        vertical-align: 0.1255em; //
+	font-weight: bold;
+    }
+
+    .dropdown-menu {
+        min-width: 255px;
+        padding: 0.45rem 0.75rem;
+        background: $white; //$scipost-blue50;
+        color: $scipost-darkblue; //$white;
+        border-color: #e0e0e0; //
+        top: 36px;
+        box-shadow: 0px 1px 2px 0px #e0e0e0;
+
+        .fa {
+            display: none;
+        }
+
+        a:hover + .fa {
+            display: inline;
+        }
+
+        .dropdown-item {
+            background-color: transparent;
+            padding: 0.5rem 0.625rem; //
+            line-height: 1.5;
+            color: $scipost-darkblue; //
+            white-space: normal;
+
+            a {
+                color: $scipost-blue50;
+                transition: 0.08s;
+
+                &:hover {
+                    color: $scipost-darkblue;
+                }
+            }
+        }
+    }
+
+    @media (min-width: 992px) {
+        .dropdown-menu {
+            &.mega-menu {
+                &.mega-menu-2 {
+                    width: 700px;
+                }
+
+                .row {
+                    margin-bottom: 0;
+                }
+
+            }
+        }
+        .full-height-bar {
+            z-index: 1;
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            left: 0;
+
+            > .container {
+                height: 100%;
+            }
+
+            .form-wrapper {
+                margin-right: - $grid-gutter-width;
+                float: right;
+                height: 100%;
+                padding: $navbar-padding-y 0.5rem;
+                background: #343a40;
+            }
+        }
+
+        .separator {
+            display: inline-block;
+        }
+    }
+
+    @media (max-width: 991px) {
+        text-align: center;
+
+        .dropdown-headline {
+            display: none;
+        }
+
+        .dropdown-menu {
+            background: #7a94c5; // background: $scipost-blue50;
+            border: 0; //2px solid $scipost-darkblue;
+            box-shadow: none;
+            padding: 0.75rem 0 !important;
+            margin: 0;
+            text-align: center;
+
+            &.mega-menu .row {
+                margin-bottom: 0;
+            }
+
+            &.mega-menu .col-md-6 {
+                flex: auto;
+                max-width: 100%;
+            }
+
+            .dropdown-item {
+                padding-top: 0.75rem 0.625rem;
+                white-space: normal;
+            }
+
+            .dropdown-item a,
+            .dropdown-item a:hover,
+            .dropdown-item a:hover i {
+                color: $white;
+            }
+
+            .dropdown-divider {
+                display: none;
+            }
+        }
+
+        .nav-item {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    }
+
+    .search-form {
+        position: relative;
+
+        input {
+            border: 1px solid $scipost-darkblue;
+            border-radius: 0;
+            outline: none;
+            padding-right: 5rem;
+            box-shadow: none;
+        }
+
+        .btn {
+            border: 0;
+            outline: none;
+            color: $scipost-darkblue;
+            position: absolute;
+            right: 0;
+            background: transparent;
+            height: 100%;
+            width: auto;
+            padding: 4px 10px;
+
+            &:hover {
+                color: $scipost-lightblue;
+
+                span {
+                    text-decoration: underline;
+                }
+            }
+        }
+    }
+}
+
+
 .main-nav {
     background-color: $scipost-blue50;
     letter-spacing: 0.3px;
@@ -204,6 +388,7 @@
         }
     }
 }
+
 
 @media (max-width: 992px) {
     .main-nav .search-form input {

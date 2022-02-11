@@ -7,14 +7,6 @@
 {% is_active_fellow request.user as is_active_fellow %}
 
 
-<!-- <nav class="navbar navbar-expand-sm main-nav">
-     <div class="container">
-     <button class="navbar-toggler p-0 border-0" type="button" data-bs-toggle="collapse" data-bs-target="#main-navbar" aria-label="Navbar toggler">
-     <span class="navbar-toggler-icon">{% include 'bi/list.html' %}</span>
-     </button>
-     <div class="collapse navbar-collapse mt-3" id="main-navbar"> -->
-
-
 <nav class="navbar main-nav p-2">
   <div class="container">
     <div class="flex-fill" id="main-navbar">
@@ -23,7 +15,7 @@
 	  role="tablist">
 
 	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
+	  {% if request.path == '/portal' %}
 	    <button class="nav-link{% if not request.GET.tab %} active{% endif %}"
 		    id="home-tab"
 		    data-bs-toggle="tab" data-bs-target="#home"
@@ -32,12 +24,12 @@
 	      Home
 	    </button>
 	  {% else %}
-	    <a href="{% url 'scipost:index' %}">Home</a>
+	    <a href="{% url 'scipost:portal' %}">Home</a>
 	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
+	  {% if request.path == '/portal' %}
 	    <button class="nav-link{% if request.GET.tab == 'journals' %} active{% endif %}"
 		    id="journals-tab"
 		    data-bs-toggle="tab" data-bs-target="#journals"
@@ -46,12 +38,12 @@
 	      Journals
 	    </button>
 	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=journals">Journals</a>
+	    <a href="{% url 'scipost:portal' %}?tab=journals">Journals</a>
 	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
+	  {% if request.path == '/portal' %}
 	    <button class="nav-link{% if request.GET.tab == 'publications' %} active{% endif %}"
 		    id="publications-tab"
 		    data-bs-toggle="tab" data-bs-target="#publications"
@@ -60,12 +52,12 @@
 	      Publications
 	    </button>
 	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=publications">Publications</a>
+	    <a href="{% url 'scipost:portal' %}?tab=publications">Publications</a>
 	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
+	  {% if request.path == '/portal' %}
 	    <button class="nav-link{% if request.GET.tab == 'submissions' %} active{% endif %}"
 		    id="submissions-tab"
 		    data-bs-toggle="tab" data-bs-target="#submissions"
@@ -74,12 +66,12 @@
 	      Submissions
 	    </button>
 	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=submissions">Submissions</a>
+	    <a href="{% url 'scipost:portal' %}?tab=submissions">Submissions</a>
 	  {% endif %}
 	</li>
 
 	<li class="nav-item" role="presentation">
-	  {% if request.path == '/' %}
+	  {% if request.path == '/portal' %}
 	    <button class="nav-link border border-2 border-warning{% if request.GET.tab == 'reportsneeded' %} active{% endif %}"
 		    id="reports-needed-tab"
 		    data-bs-toggle="tab" data-bs-target="#reports-needed"
@@ -88,7 +80,7 @@
 	      Reports needed&nbsp;<span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
 	    </button>
 	  {% else %}
-	    <a href="{% url 'scipost:index' %}?tab=reportsneeded"
+	    <a href="{% url 'scipost:portal' %}?tab=reportsneeded"
 	       class="border border-2 border-warning">
 	      Reports needed&nbsp;
 	      <span class="text-warning">{% include 'bi/exclamation-square-fill.html' %}</span>
@@ -97,7 +89,7 @@
 	</li>
 	<!--
 	     <li class="nav-item" role="presentation">
-	     {% if request.path == '/' %}
+	     {% if request.path == '/portal' %}
 	     <button class="nav-link{% if request.GET.tab == 'reports' %} active{% endif %}"
 	     id="reports-tab"
 	     data-bs-toggle="tab" data-bs-target="#reports"
@@ -106,12 +98,12 @@
 	     Reports
 	     </button>
 	     {% else %}
-	     <a href="{% url 'scipost:index' %}?tab=reports">Reports</a>
+	     <a href="{% url 'scipost:portal' %}?tab=reports">Reports</a>
 	     {% endif %}
 	     </li>
 
 	     <li class="nav-item" role="presentation">
-	     {% if request.path == '/' %}
+	     {% if request.path == '/portal' %}
 	     <button class="nav-link{% if request.GET.tab == 'comments' %} active{% endif %}"
 	     id="comments-tab"
 	     data-bs-toggle="tab" data-bs-target="#comments"
@@ -120,7 +112,7 @@
 	     Comments
 	     </button>
 	     {% else %}
-	     <a href="{% url 'scipost:index' %}?tab=comments">Comments</a>
+	     <a href="{% url 'scipost:portal' %}?tab=comments">Comments</a>
 	     {% endif %}
 	     </li> -->
 
@@ -132,7 +124,7 @@
 	</li>
 
         {% if user.is_authenticated %}
-          <li class="nav-item dropdown mx-2 mx-lg-auto">
+          <li class="nav-item dropdown mx-2 ms-lg-auto">
             <a class="nav-link dropdown-toggle" href="#" id="PersonalDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">
 	      Logged in as {% if user.last_name %}{% if user.contributor %}{{ user.contributor.profile.get_title_display }} {% endif %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</a>
 
@@ -179,7 +171,7 @@
 	  </li>
         {% else %}
           <li class="mx-2 mx-lg-auto nav-item{% if request.path == '/login/' %} active{% endif %}">
-            <a class="nav-link" href="{% url 'scipost:login' %}?next={{request.path}}">Login or register</a>
+            <a class="nav-link" href="{% url 'scipost:login' %}?next={{ request.path }}">Login or register</a>
           </li>
         {% endif %}
       </ul>

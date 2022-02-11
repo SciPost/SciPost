@@ -162,7 +162,7 @@ def index_pre202202(request):
     return render(request, 'scipost/index.html', context)
 
 
-def index(request):
+def portal(request):
     if request.GET.get('field', None):
         if request.GET['field'] != request.session['session_acad_field_slug']:
             request.session['session_specialty_slug'] = ''

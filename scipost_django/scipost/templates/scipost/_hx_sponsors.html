@@ -11,7 +11,7 @@
     {% for sponsor in current_sponsors %}
       {% if sponsor.logo %}
 	<li class="p-2">
-	  <img class="rounded" style="max-height: 10em;"
+	  <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
 	       src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo">
 	</li>
       {% endif %}
