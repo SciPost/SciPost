@@ -9,9 +9,12 @@ from django.views.generic.base import RedirectView
 from django.urls import include, path, re_path
 
 from . import views, sso
-from .feeds import LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,\
-                   LatestCommentsFeedAtom, LatestSubmissionsFeedRSS, LatestSubmissionsFeedAtom,\
-                   LatestPublicationsFeedRSS, LatestPublicationsFeedAtom
+from .feeds import (
+    LatestNewsFeedRSS, LatestNewsFeedAtom, LatestCommentsFeedRSS,
+    LatestCommentsFeedAtom, LatestSubmissionsFeedRSS, LatestSubmissionsFeedAtom,
+    LatestPublicationsFeedRSS, LatestPublicationsFeedAtom,
+    DjangoJobOpeningsFeedRSS,
+)
 
 from journals import views as journals_views
 from journals.regexes import ISSUE_DOI_LABEL_REGEX,\
@@ -299,6 +302,11 @@ urlpatterns = [
         'atom/publications/',
         LatestPublicationsFeedAtom(),
         name='feeds_atom_publications'
+    ),
+    path(
+        'rss/careers/django/',
+        DjangoJobOpeningsFeedRSS(),
+        name='feeds_django_job_openings'
     ),
     path(
         'atom/publications/<specialty:specialty>',
