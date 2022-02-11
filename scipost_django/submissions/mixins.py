@@ -18,7 +18,8 @@ class FriendlyPermissionMixin(PermissionRequiredMixin):
 
     :permission_required: The permission code the user should comply with.
     """
-    permission_required = 'scipost.dummy_permission'
+
+    permission_required = "scipost.dummy_permission"
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -32,17 +33,19 @@ class SubmissionMixin:
 
     def get(self, request, *args, **kwargs):
         self.submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+            Submission, preprint__identifier_w_vn_nr=kwargs.get("identifier_w_vn_nr")
+        )
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.submission = get_object_or_404(
-            Submission, preprint__identifier_w_vn_nr=kwargs.get('identifier_w_vn_nr'))
+            Submission, preprint__identifier_w_vn_nr=kwargs.get("identifier_w_vn_nr")
+        )
         return super().post(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['submission'] = self.submission
+        context["submission"] = self.submission
         return context
 
 
@@ -52,7 +55,9 @@ class SubmissionFormViewMixin:
             try:
                 return str(self.get_object().get_absolute_url())
             except:
-                raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
+                raise ImproperlyConfigured(
+                    "No URL to redirect to. Provide a success_url."
+                )
 
         return str(self.success_url)  # success_url may be lazy
 
@@ -61,7 +66,7 @@ class SubmissionFormViewMixin:
         Ideally all ModelForms on Submission-related objects have a required argument `submission`.
         """
         kwargs = super().get_form_kwargs()
-        kwargs['submission'] = self._original_submission
+        kwargs["submission"] = self._original_submission
         return kwargs
 
 
@@ -73,9 +78,10 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin)
     :editorial_page: Submission is element of the set pool() if False,
                      else Submission is element of the subset: editorial_page()
     """
+
     editorial_page = False
-    slug_field = 'preprint__identifier_w_vn_nr'
-    slug_url_kwarg = 'identifier_w_vn_nr'
+    slug_field = "preprint__identifier_w_vn_nr"
+    slug_url_kwarg = "identifier_w_vn_nr"
     queryset = Submission.objects.all()
 
     @property
@@ -113,15 +119,15 @@ class SubmissionAdminViewMixin(FriendlyPermissionMixin, SubmissionFormViewMixin)
         """
         ctx = super().get_context_data(*args, **kwargs)
 
-        if not ctx.get('submission') and not isinstance(self, ListView):
+        if not ctx.get("submission") and not isinstance(self, ListView):
             # Call parent get_object() to explicitly save the submission which is related
             # to the view's main object.
-            ctx['submission'] = self._original_submission
+            ctx["submission"] = self._original_submission
         return ctx
 
     @property
     def _original_submission(self):
-        if hasattr(self, 'submission'):
+        if hasattr(self, "submission"):
             return self.submission
         obj = super().get_object()
         if isinstance(obj, Submission):

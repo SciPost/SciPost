@@ -9,13 +9,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0008_merge_20180322_1031'),
+        ("scipost", "0008_merge_20180322_1031"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contributor',
-            name='orcid_id',
-            field=models.CharField(blank=True, max_length=20, validators=[django.core.validators.RegexValidator('^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]{1}$', 'Please follow the ORCID format, e.g.: 0000-0001-2345-6789')], verbose_name='ORCID id'),
+            model_name="contributor",
+            name="orcid_id",
+            field=models.CharField(
+                blank=True,
+                max_length=20,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]{1}$",
+                        "Please follow the ORCID format, e.g.: 0000-0001-2345-6789",
+                    )
+                ],
+                verbose_name="ORCID id",
+            ),
         ),
     ]

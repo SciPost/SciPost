@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0005_auto_20180218_1556'),
+        ("scipost", "0005_auto_20180218_1556"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='registrationinvitation',
+            name="registrationinvitation",
             options={},
         ),
     ]

@@ -9,13 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proceedings', '0002_proceedings_minimum_referees'),
+        ("proceedings", "0002_proceedings_minimum_referees"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='proceedings',
-            name='lead_fellow',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='colleges.Fellowship'),
+            model_name="proceedings",
+            name="lead_fellow",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="+",
+                to="colleges.Fellowship",
+            ),
         ),
     ]

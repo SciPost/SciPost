@@ -9,18 +9,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0041_auto_20180922_1609'),
+        ("journals", "0041_auto_20180922_1609"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='structure',
-            field=models.CharField(choices=[('IV', 'Issues and Volumes'), ('IO', 'Issues only'), ('IP', 'Individual Publications')], default='IV', max_length=2),
+            model_name="journal",
+            name="structure",
+            field=models.CharField(
+                choices=[
+                    ("IV", "Issues and Volumes"),
+                    ("IO", "Issues only"),
+                    ("IP", "Individual Publications"),
+                ],
+                default="IV",
+                max_length=2,
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^(SciPostPhysProc|SciPostPhysSel|SciPostPhysLectNotes|SciPostPhys).[0-9]+((.[0-9]+)?.[0-9]{3,})?$', 'Only valid DOI expressions are allowed (`[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,}` or `[a-zA-Z]+.[0-9]+`)')]),
+            model_name="publication",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^(SciPostPhysProc|SciPostPhysSel|SciPostPhysLectNotes|SciPostPhys).[0-9]+((.[0-9]+)?.[0-9]{3,})?$",
+                        "Only valid DOI expressions are allowed (`[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,}` or `[a-zA-Z]+.[0-9]+`)",
+                    )
+                ],
+            ),
         ),
     ]

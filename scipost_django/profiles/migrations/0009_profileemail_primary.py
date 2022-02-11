@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0008_auto_20181002_1106'),
+        ("profiles", "0008_auto_20181002_1106"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profileemail',
-            name='primary',
+            model_name="profileemail",
+            name="primary",
             field=models.BooleanField(default=False),
         ),
     ]

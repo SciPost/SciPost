@@ -9,57 +9,116 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('journals', '0085_auto_20191017_0949'),
+        ("journals", "0085_auto_20191017_0949"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Collection',
+            name="Collection",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, max_length=256)),
-                ('slug', models.SlugField(allow_unicode=True, unique=True)),
-                ('description', models.TextField(blank=True, help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.')),
-                ('event_start_date', models.DateField(blank=True, null=True)),
-                ('event_end_date', models.DateField(blank=True, null=True)),
-                ('logo', models.ImageField(blank=True, upload_to='series/images/')),
-                ('cover_image', models.ImageField(blank=True, upload_to='series/images/')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(blank=True, max_length=256)),
+                ("slug", models.SlugField(allow_unicode=True, unique=True)),
+                (
+                    "description",
+                    models.TextField(
+                        blank=True,
+                        help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.',
+                    ),
+                ),
+                ("event_start_date", models.DateField(blank=True, null=True)),
+                ("event_end_date", models.DateField(blank=True, null=True)),
+                ("logo", models.ImageField(blank=True, upload_to="series/images/")),
+                (
+                    "cover_image",
+                    models.ImageField(blank=True, upload_to="series/images/"),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CollectionPublicationsTable',
+            name="CollectionPublicationsTable",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.PositiveSmallIntegerField()),
-                ('collection', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='series.Collection')),
-                ('publication', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journals.Publication')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.PositiveSmallIntegerField()),
+                (
+                    "collection",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="series.Collection",
+                    ),
+                ),
+                (
+                    "publication",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="journals.Publication",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['order'],
+                "ordering": ["order"],
             },
         ),
         migrations.CreateModel(
-            name='Series',
+            name="Series",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(blank=True, max_length=256)),
-                ('slug', models.SlugField(allow_unicode=True, unique=True)),
-                ('description', models.TextField(help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.')),
-                ('image', models.ImageField(blank=True, upload_to='series/images/')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(blank=True, max_length=256)),
+                ("slug", models.SlugField(allow_unicode=True, unique=True)),
+                (
+                    "description",
+                    models.TextField(
+                        help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'
+                    ),
+                ),
+                ("image", models.ImageField(blank=True, upload_to="series/images/")),
             ],
         ),
         migrations.AddField(
-            model_name='collection',
-            name='publications',
-            field=models.ManyToManyField(blank=True, through='series.CollectionPublicationsTable', to='journals.Publication'),
+            model_name="collection",
+            name="publications",
+            field=models.ManyToManyField(
+                blank=True,
+                through="series.CollectionPublicationsTable",
+                to="journals.Publication",
+            ),
         ),
         migrations.AddField(
-            model_name='collection',
-            name='series',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='series.Series'),
+            model_name="collection",
+            name="series",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="series.Series",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='collectionpublicationstable',
-            unique_together={('collection', 'order')},
+            name="collectionpublicationstable",
+            unique_together={("collection", "order")},
         ),
     ]

@@ -7,18 +7,31 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0062_publicationproxymetadata'),
+        ("journals", "0062_publicationproxymetadata"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issue',
-            name='in_journal',
-            field=models.ForeignKey(blank=True, help_text='Assign either a Volume or Journal to the Issue', limit_choices_to={'structure': 'IO'}, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='issues', to='journals.Journal'),
+            model_name="issue",
+            name="in_journal",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either a Volume or Journal to the Issue",
+                limit_choices_to={"structure": "IO"},
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="issues",
+                to="journals.Journal",
+            ),
         ),
         migrations.AlterField(
-            model_name='volume',
-            name='in_journal',
-            field=models.ForeignKey(limit_choices_to={'structure': 'IV'}, on_delete=django.db.models.deletion.CASCADE, related_name='volumes', to='journals.Journal'),
+            model_name="volume",
+            name="in_journal",
+            field=models.ForeignKey(
+                limit_choices_to={"structure": "IV"},
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="volumes",
+                to="journals.Journal",
+            ),
         ),
     ]

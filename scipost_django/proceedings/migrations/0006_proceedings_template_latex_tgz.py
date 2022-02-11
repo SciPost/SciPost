@@ -6,13 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proceedings', '0005_auto_20190626_1125'),
+        ("proceedings", "0005_auto_20190626_1125"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='proceedings',
-            name='template_latex_tgz',
-            field=models.FileField(blank=True, help_text='Gzipped tarball of the LaTeX template package', max_length=256, upload_to='UPLOADS/TEMPLATES/latex/%Y/', verbose_name='Template (LaTeX, gzipped tarball)'),
+            model_name="proceedings",
+            name="template_latex_tgz",
+            field=models.FileField(
+                blank=True,
+                help_text="Gzipped tarball of the LaTeX template package",
+                max_length=256,
+                upload_to="UPLOADS/TEMPLATES/latex/%Y/",
+                verbose_name="Template (LaTeX, gzipped tarball)",
+            ),
         ),
     ]

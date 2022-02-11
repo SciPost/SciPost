@@ -16,17 +16,24 @@ def preprint_pdf_wo_vn_nr(request, identifier_wo_vn_nr):
     Redirect to pdf of the latest preprint in the thread.
     """
     submissions = get_list_or_404(
-        Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr)
+        Submission, preprint__identifier_w_vn_nr__startswith=identifier_wo_vn_nr
+    )
     latest = submissions[0].get_latest_public_version()
     if not latest:
         raise Http404
-    return redirect(reverse(
-        'preprints:pdf',
-        kwargs={ 'identifier_w_vn_nr': latest.preprint.identifier_w_vn_nr }))
+    return redirect(
+        reverse(
+            "preprints:pdf",
+            kwargs={"identifier_w_vn_nr": latest.preprint.identifier_w_vn_nr},
+        )
+    )
+
 
 def preprint_pdf(request, identifier_w_vn_nr):
     """Open pdf of SciPost preprint or redirect to arXiv page."""
-    submission = get_object_or_404(Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr)
+    submission = get_object_or_404(
+        Submission, preprint__identifier_w_vn_nr=identifier_w_vn_nr
+    )
     preprint = submission.preprint
 
     if preprint.url:
@@ -38,18 +45,21 @@ def preprint_pdf(request, identifier_w_vn_nr):
     if not submission.visible_public and not is_author:
         if not request.user.is_authenticated:
             raise Http404
-        elif not request.user.has_perm(
-            'scipost.can_assign_submissions') and not submission.fellows.filter(
-                contributor__user=request.user).exists():
-                    raise Http404
+        elif (
+            not request.user.has_perm("scipost.can_assign_submissions")
+            and not submission.fellows.filter(contributor__user=request.user).exists()
+        ):
+            raise Http404
 
     __, extension = os.path.splitext(preprint._file.name)
-    if extension == '.pdf':
-        response = HttpResponse(preprint._file.read(), content_type='application/pdf')
-        filename = '{}.pdf'.format(preprint.identifier_w_vn_nr)
-        response['Content-Disposition'] = ('filename=' + filename)
+    if extension == ".pdf":
+        response = HttpResponse(preprint._file.read(), content_type="application/pdf")
+        filename = "{}.pdf".format(preprint.identifier_w_vn_nr)
+        response["Content-Disposition"] = "filename=" + filename
     else:
-        response = HttpResponse(preprint._file.read(), content_type='application/force-download')
-        filename = '{}{}'.format(preprint.identifier_w_vn_nr, extension)
-        response['Content-Disposition'] = ('filename=' + filename)
+        response = HttpResponse(
+            preprint._file.read(), content_type="application/force-download"
+        )
+        filename = "{}{}".format(preprint.identifier_w_vn_nr, extension)
+        response["Content-Disposition"] = "filename=" + filename
     return response

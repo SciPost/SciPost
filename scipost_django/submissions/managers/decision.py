@@ -7,4 +7,4 @@ from django.db import models
 
 class EditorialDecisionQuerySet(models.QuerySet):
     def latest_version(self):
-        return self.order_by('-version').first()
+        return self.order_by("-version").first()

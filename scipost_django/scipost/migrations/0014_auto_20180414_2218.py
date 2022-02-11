@@ -8,13 +8,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0013_remove_contributor_status'),
+        ("scipost", "0013_remove_contributor_status"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='contributor',
-            old_name='new_status',
-            new_name='status',
+            model_name="contributor",
+            old_name="new_status",
+            new_name="status",
         ),
     ]

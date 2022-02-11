@@ -8,14 +8,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0026_auto_20180619_0821'),
-        ('preprints', '0006_remove_preprint_submission'),
+        ("submissions", "0026_auto_20180619_0821"),
+        ("preprints", "0006_remove_preprint_submission"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='submission',
-            old_name='preprint2',
-            new_name='preprint',
+            model_name="submission",
+            old_name="preprint2",
+            new_name="preprint",
         ),
     ]

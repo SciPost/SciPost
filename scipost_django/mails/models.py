@@ -9,12 +9,12 @@ from django.contrib.postgres.fields import ArrayField
 
 from .managers import MailLogQuerySet
 
-MAIL_NOT_RENDERED, MAIL_RENDERED = 'not_rendered', 'rendered'
-MAIL_SENT = 'sent'
+MAIL_NOT_RENDERED, MAIL_RENDERED = "not_rendered", "rendered"
+MAIL_SENT = "sent"
 MAIL_STATUSES = (
-    (MAIL_NOT_RENDERED, 'Not rendered'),
-    (MAIL_RENDERED, 'Rendered'),
-    (MAIL_SENT, 'Sent'),
+    (MAIL_NOT_RENDERED, "Not rendered"),
+    (MAIL_RENDERED, "Rendered"),
+    (MAIL_SENT, "Sent"),
 )
 
 
@@ -25,20 +25,19 @@ class MailLog(models.Model):
     Using a cronjob, the unsent messages are eventually sent using
     the chosen MailBackend.
     """
+
     processed = models.BooleanField(default=False)
-    status = models.CharField(max_length=16, choices=MAIL_STATUSES, default=MAIL_RENDERED)
+    status = models.CharField(
+        max_length=16, choices=MAIL_STATUSES, default=MAIL_RENDERED
+    )
 
     mail_code = models.CharField(max_length=254, blank=True)
 
     body = models.TextField()
     body_html = models.TextField(blank=True)
 
-    to_recipients = ArrayField(
-        models.EmailField(),
-        blank=True, null=True)
-    bcc_recipients = ArrayField(
-        models.EmailField(),
-        blank=True, null=True)
+    to_recipients = ArrayField(models.EmailField(), blank=True, null=True)
+    bcc_recipients = ArrayField(models.EmailField(), blank=True, null=True)
 
     from_email = models.CharField(max_length=254, blank=True)
     subject = models.CharField(max_length=254, blank=True)
@@ -49,14 +48,15 @@ class MailLog(models.Model):
     objects = MailLogQuerySet.as_manager()
 
     def __str__(self):
-        return '{id}. {subject} ({count} recipients)'.format(
+        return "{id}. {subject} ({count} recipients)".format(
             id=self.id,
             subject=self.subject[:30],
-            count=len(self.to_recipients) + len(self.bcc_recipients))
+            count=len(self.to_recipients) + len(self.bcc_recipients),
+        )
 
     def get_full_context(self):
         """Get the full template context needed to render the template."""
-        if hasattr(self, '_context'):
+        if hasattr(self, "_context"):
             return self._context
         self._context = {}
         for relation in self.context.all():
@@ -70,14 +70,18 @@ class MailLogRelation(models.Model):
     This may be plain text or any relation within the database.
     """
 
-    mail = models.ForeignKey('mails.MailLog', on_delete=models.CASCADE, related_name='context')
+    mail = models.ForeignKey(
+        "mails.MailLog", on_delete=models.CASCADE, related_name="context"
+    )
 
     name = models.CharField(max_length=254)
     value = models.TextField(blank=True)
 
-    content_type = models.ForeignKey(ContentType, blank=True, null=True, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(
+        ContentType, blank=True, null=True, on_delete=models.CASCADE
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     def get_item(self):
         if self.value:

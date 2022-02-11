@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0002_auto_20181027_1748'),
+        ("ontology", "0002_auto_20181027_1748"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='topic',
-            name='tags',
-            field=models.ManyToManyField(blank=True, to='ontology.Tag'),
+            model_name="topic",
+            name="tags",
+            field=models.ManyToManyField(blank=True, to="ontology.Tag"),
         ),
     ]

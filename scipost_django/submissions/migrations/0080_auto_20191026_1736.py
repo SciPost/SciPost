@@ -6,21 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0079_auto_20191026_1603'),
+        ("submissions", "0079_auto_20191026_1603"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='editorialdecision',
-            options={'ordering': ['version'], 'verbose_name': 'Editorial Decision', 'verbose_name_plural': 'Editorial Decisions'},
+            name="editorialdecision",
+            options={
+                "ordering": ["version"],
+                "verbose_name": "Editorial Decision",
+                "verbose_name_plural": "Editorial Decisions",
+            },
         ),
         migrations.AddField(
-            model_name='editorialdecision',
-            name='version',
+            model_name="editorialdecision",
+            name="version",
             field=models.SmallIntegerField(default=1),
         ),
         migrations.AlterUniqueTogether(
-            name='editorialdecision',
-            unique_together={('submission', 'version')},
+            name="editorialdecision",
+            unique_together={("submission", "version")},
         ),
     ]

@@ -5,9 +5,15 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.utils import timezone
 
-from .constants import STATUS_DRAFT, STATUS_PUBLICLY_OPEN, STATUS_PUBLISHED,\
-    PUBLICATION_PUBLISHED,\
-    ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
+from .constants import (
+    STATUS_DRAFT,
+    STATUS_PUBLICLY_OPEN,
+    STATUS_PUBLISHED,
+    PUBLICATION_PUBLISHED,
+    ISSUES_AND_VOLUMES,
+    ISSUES_ONLY,
+    INDIVIDUAL_PUBLICATIONS,
+)
 
 
 class JournalQuerySet(models.QuerySet):
@@ -26,8 +32,9 @@ class JournalQuerySet(models.QuerySet):
 
 class IssueQuerySet(models.QuerySet):
     def open_or_published(self):
-        return self.filter(models.Q(status=STATUS_PUBLICLY_OPEN) |
-                           models.Q(status=STATUS_PUBLISHED))
+        return self.filter(
+            models.Q(status=STATUS_PUBLICLY_OPEN) | models.Q(status=STATUS_PUBLISHED)
+        )
 
     def published(self):
         return self.filter(status=STATUS_PUBLISHED)
@@ -37,18 +44,22 @@ class IssueQuerySet(models.QuerySet):
 
     def for_journal(self, journal_name):
         return self.filter(
-            models.Q(in_volume__in_journal__name=journal_name) |
-            models.Q(in_journal__name=journal_name))
+            models.Q(in_volume__in_journal__name=journal_name)
+            | models.Q(in_journal__name=journal_name)
+        )
 
     def get_current_issue(self):
         return self.published(
-            start_date__lte=timezone.now(), until_date__gte=timezone.now()).first()
+            start_date__lte=timezone.now(), until_date__gte=timezone.now()
+        ).first()
 
 
 class PublicationQuerySet(models.QuerySet):
     def published(self):
         return self.filter(status=PUBLICATION_PUBLISHED).filter(
-            models.Q(in_issue__status=STATUS_PUBLISHED) | models.Q(in_journal__active=True))
+            models.Q(in_issue__status=STATUS_PUBLISHED)
+            | models.Q(in_journal__active=True)
+        )
 
     def unpublished(self):
         return self.exclude(status=PUBLICATION_PUBLISHED)
@@ -64,9 +75,10 @@ class PublicationQuerySet(models.QuerySet):
 
     def for_journal(self, journal_name):
         return self.filter(
-            models.Q(in_issue__in_volume__in_journal__name=journal_name) |
-            models.Q(in_issue__in_journal__name=journal_name) |
-            models.Q(in_journal__name=journal_name))
+            models.Q(in_issue__in_volume__in_journal__name=journal_name)
+            | models.Q(in_issue__in_journal__name=journal_name)
+            | models.Q(in_journal__name=journal_name)
+        )
 
     def most_cited(self, n_returns=5):
-        return self.order_by('-number_of_citations')[:n_returns]
+        return self.order_by("-number_of_citations")[:n_returns]

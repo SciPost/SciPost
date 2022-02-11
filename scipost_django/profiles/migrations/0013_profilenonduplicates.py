@@ -8,16 +8,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0012_profile_topics'),
+        ("profiles", "0012_profile_topics"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ProfileNonDuplicates',
+            name="ProfileNonDuplicates",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('reason', models.CharField(choices=[('DifferentPeople', 'These are different people'), ('MultipleAllowed', 'Multiple Profiles allowed for this person')], max_length=32)),
-                ('profiles', models.ManyToManyField(to='profiles.Profile')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "reason",
+                    models.CharField(
+                        choices=[
+                            ("DifferentPeople", "These are different people"),
+                            (
+                                "MultipleAllowed",
+                                "Multiple Profiles allowed for this person",
+                            ),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("profiles", models.ManyToManyField(to="profiles.Profile")),
             ],
         ),
     ]

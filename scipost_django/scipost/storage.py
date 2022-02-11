@@ -12,6 +12,7 @@ class SecureFileStorage(FileSystemStorage):
     Inherit default FileStorage system to prevent files from being publicly accessible
     from a server location that is opened without this permission having been explicitly given.
     """
+
     @cached_property
     def location(self):
         """
@@ -20,7 +21,7 @@ class SecureFileStorage(FileSystemStorage):
 
         This also means you need to explicitly handle the file reading/opening!
         """
-        if hasattr(settings, 'MEDIA_ROOT_SECURE'):
+        if hasattr(settings, "MEDIA_ROOT_SECURE"):
             return self._value_or_setting(self._location, settings.MEDIA_ROOT_SECURE)
         return super().location
 

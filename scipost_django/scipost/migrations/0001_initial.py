@@ -14,130 +14,539 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='AuthorshipClaim',
+            name="AuthorshipClaim",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.SmallIntegerField(choices=[(1, 'accepted'), (0, 'not yet vetted (pending)'), (-1, 'rejected')], default=0)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.SmallIntegerField(
+                        choices=[
+                            (1, "accepted"),
+                            (0, "not yet vetted (pending)"),
+                            (-1, "rejected"),
+                        ],
+                        default=0,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='CitationNotification',
+            name="CitationNotification",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('processed', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("processed", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='Contributor',
+            name="Contributor",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('invitation_key', models.CharField(blank=True, max_length=40)),
-                ('activation_key', models.CharField(blank=True, max_length=40)),
-                ('key_expires', models.DateTimeField(default=django.utils.timezone.now)),
-                ('status', models.SmallIntegerField(choices=[(0, 'newly registered'), (1, 'normal user'), (-1, 'not a professional scientist'), (-2, 'other account already exists'), (-3, 'barred from SciPost'), (-4, 'account disabled')], default=0)),
-                ('title', models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms')], max_length=4)),
-                ('discipline', models.CharField(choices=[('physics', 'Physics'), ('astrophysics', 'Astrophysics'), ('mathematics', 'Mathematics'), ('computerscience', 'Computer Science')], default='physics', max_length=20, verbose_name='Main discipline')),
-                ('expertises', scipost.fields.ChoiceArrayField(base_field=models.CharField(choices=[('Physics', (('Phys:AE', 'Atomic, Molecular and Optical Physics - Experiment'), ('Phys:AT', 'Atomic, Molecular and Optical Physics - Theory'), ('Phys:BI', 'Biophysics'), ('Phys:CE', 'Condensed Matter Physics - Experiment'), ('Phys:CT', 'Condensed Matter Physics - Theory'), ('Phys:FD', 'Fluid Dynamics'), ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'), ('Phys:HE', 'High-Energy Physics - Experiment'), ('Phys:HT', 'High-Energy Physics - Theory'), ('Phys:HP', 'High-Energy Physics - Phenomenology'), ('Phys:MP', 'Mathematical Physics'), ('Phys:NE', 'Nuclear Physics - Experiment'), ('Phys:NT', 'Nuclear Physics - Theory'), ('Phys:QP', 'Quantum Physics'), ('Phys:SM', 'Statistical and Soft Matter Physics'))), ('Astrophysics', (('Astro:GA', 'Astrophysics of Galaxies'), ('Astro:CO', 'Cosmology and Nongalactic Astrophysics'), ('Astro:EP', 'Earth and Planetary Astrophysics'), ('Astro:HE', 'High Energy Astrophysical Phenomena'), ('Astro:IM', 'Instrumentation and Methods for Astrophysics'), ('Astro:SR', 'Solar and Stellar Astrophysics'))), ('Mathematics', (('Math:AG', 'Algebraic Geometry'), ('Math:AT', 'Algebraic Topology'), ('Math:AP', 'Analysis of PDEs'), ('Math:CT', 'Category Theory'), ('Math:CA', 'Classical Analysis and ODEs'), ('Math:CO', 'Combinatorics'), ('Math:AC', 'Commutative Algebra'), ('Math:CV', 'Complex Variables'), ('Math:DG', 'Differential Geometry'), ('Math:DS', 'Dynamical Systems'), ('Math:FA', 'Functional Analysis'), ('Math:GM', 'General Mathematics'), ('Math:GN', 'General Topology'), ('Math:GT', 'Geometric Topology'), ('Math:GR', 'Group Theory'), ('Math:HO', 'History and Overview'), ('Math:IT', 'Information Theory'), ('Math:KT', 'K-Theory and Homology'), ('Math:LO', 'Logic'), ('Math:MP', 'Mathematical Physics'), ('Math:MG', 'Metric Geometry'), ('Math:NT', 'Number Theory'), ('Math:NA', 'Numerical Analysis'), ('Math:OA', 'Operator Algebras'), ('Math:OC', 'Optimization and Control'), ('Math:PR', 'Probability'), ('Math:QA', 'Quantum Algebra'), ('Math:RT', 'Representation Theory'), ('Math:RA', 'Rings and Algebras'), ('Math:SP', 'Spectral Theory'), ('Math:ST', 'Statistics Theory'), ('Math:SG', 'Symplectic Geometry'))), ('Computer Science', (('Comp:AI', 'Artificial Intelligence'), ('Comp:CC', 'Computational Complexity'), ('Comp:CE', 'Computational Engineering, Finance, and Science'), ('Comp:CG', 'Computational Geometry'), ('Comp:GT', 'Computer Science and Game Theory'), ('Comp:CV', 'Computer Vision and Pattern Recognition'), ('Comp:CY', 'Computers and Society'), ('Comp:CR', 'Cryptography and Security'), ('Comp:DS', 'Data Structures and Algorithms'), ('Comp:DB', 'Databases'), ('Comp:DL', 'Digital Libraries'), ('Comp:DM', 'Discrete Mathematics'), ('Comp:DC', 'Distributed, Parallel, and Cluster Computing'), ('Comp:ET', 'Emerging Technologies'), ('Comp:FL', 'Formal Languages and Automata Theory'), ('Comp:GL', 'General Literature'), ('Comp:GR', 'Graphics'), ('Comp:AR', 'Hardware Architecture'), ('Comp:HC', 'Human-Computer Interaction'), ('Comp:IR', 'Information Retrieval'), ('Comp:IT', 'Information Theory'), ('Comp:LG', 'Learning'), ('Comp:LO', 'Logic in Computer Science'), ('Comp:MS', 'Mathematical Software'), ('Comp:MA', 'Multiagent Systems'), ('Comp:MM', 'Multimedia'), ('Comp:NI', 'Networking and Internet Architecture'), ('Comp:NE', 'Neural and Evolutionary Computing'), ('Comp:NA', 'Numerical Analysis'), ('Comp:OS', 'Operating Systems'), ('Comp:OH', 'Other Computer Science'), ('Comp:PF', 'Performance'), ('Comp:PL', 'Programming Languages'), ('Comp:RO', 'Robotics'), ('Comp:SI', 'Social and Information Networks'), ('Comp:SE', 'Software Engineering'), ('Comp:SD', 'Sound'), ('Comp:SC', 'Symbolic Computation'), ('Comp:SY', 'Systems and Control')))], max_length=10), blank=True, null=True, size=None)),
-                ('orcid_id', models.CharField(blank=True, max_length=20, verbose_name='ORCID id')),
-                ('address', models.CharField(blank=True, max_length=1000, verbose_name='address')),
-                ('personalwebpage', models.URLField(blank=True, verbose_name='personal web page')),
-                ('accepts_SciPost_emails', models.BooleanField(default=True, verbose_name='I accept to receive SciPost emails')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("invitation_key", models.CharField(blank=True, max_length=40)),
+                ("activation_key", models.CharField(blank=True, max_length=40)),
+                (
+                    "key_expires",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    "status",
+                    models.SmallIntegerField(
+                        choices=[
+                            (0, "newly registered"),
+                            (1, "normal user"),
+                            (-1, "not a professional scientist"),
+                            (-2, "other account already exists"),
+                            (-3, "barred from SciPost"),
+                            (-4, "account disabled"),
+                        ],
+                        default=0,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        choices=[
+                            ("PR", "Prof."),
+                            ("DR", "Dr"),
+                            ("MR", "Mr"),
+                            ("MRS", "Mrs"),
+                            ("MS", "Ms"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                (
+                    "discipline",
+                    models.CharField(
+                        choices=[
+                            ("physics", "Physics"),
+                            ("astrophysics", "Astrophysics"),
+                            ("mathematics", "Mathematics"),
+                            ("computerscience", "Computer Science"),
+                        ],
+                        default="physics",
+                        max_length=20,
+                        verbose_name="Main discipline",
+                    ),
+                ),
+                (
+                    "expertises",
+                    scipost.fields.ChoiceArrayField(
+                        base_field=models.CharField(
+                            choices=[
+                                (
+                                    "Physics",
+                                    (
+                                        (
+                                            "Phys:AE",
+                                            "Atomic, Molecular and Optical Physics - Experiment",
+                                        ),
+                                        (
+                                            "Phys:AT",
+                                            "Atomic, Molecular and Optical Physics - Theory",
+                                        ),
+                                        ("Phys:BI", "Biophysics"),
+                                        (
+                                            "Phys:CE",
+                                            "Condensed Matter Physics - Experiment",
+                                        ),
+                                        (
+                                            "Phys:CT",
+                                            "Condensed Matter Physics - Theory",
+                                        ),
+                                        ("Phys:FD", "Fluid Dynamics"),
+                                        (
+                                            "Phys:GR",
+                                            "Gravitation, Cosmology and Astroparticle Physics",
+                                        ),
+                                        ("Phys:HE", "High-Energy Physics - Experiment"),
+                                        ("Phys:HT", "High-Energy Physics - Theory"),
+                                        (
+                                            "Phys:HP",
+                                            "High-Energy Physics - Phenomenology",
+                                        ),
+                                        ("Phys:MP", "Mathematical Physics"),
+                                        ("Phys:NE", "Nuclear Physics - Experiment"),
+                                        ("Phys:NT", "Nuclear Physics - Theory"),
+                                        ("Phys:QP", "Quantum Physics"),
+                                        (
+                                            "Phys:SM",
+                                            "Statistical and Soft Matter Physics",
+                                        ),
+                                    ),
+                                ),
+                                (
+                                    "Astrophysics",
+                                    (
+                                        ("Astro:GA", "Astrophysics of Galaxies"),
+                                        (
+                                            "Astro:CO",
+                                            "Cosmology and Nongalactic Astrophysics",
+                                        ),
+                                        (
+                                            "Astro:EP",
+                                            "Earth and Planetary Astrophysics",
+                                        ),
+                                        (
+                                            "Astro:HE",
+                                            "High Energy Astrophysical Phenomena",
+                                        ),
+                                        (
+                                            "Astro:IM",
+                                            "Instrumentation and Methods for Astrophysics",
+                                        ),
+                                        ("Astro:SR", "Solar and Stellar Astrophysics"),
+                                    ),
+                                ),
+                                (
+                                    "Mathematics",
+                                    (
+                                        ("Math:AG", "Algebraic Geometry"),
+                                        ("Math:AT", "Algebraic Topology"),
+                                        ("Math:AP", "Analysis of PDEs"),
+                                        ("Math:CT", "Category Theory"),
+                                        ("Math:CA", "Classical Analysis and ODEs"),
+                                        ("Math:CO", "Combinatorics"),
+                                        ("Math:AC", "Commutative Algebra"),
+                                        ("Math:CV", "Complex Variables"),
+                                        ("Math:DG", "Differential Geometry"),
+                                        ("Math:DS", "Dynamical Systems"),
+                                        ("Math:FA", "Functional Analysis"),
+                                        ("Math:GM", "General Mathematics"),
+                                        ("Math:GN", "General Topology"),
+                                        ("Math:GT", "Geometric Topology"),
+                                        ("Math:GR", "Group Theory"),
+                                        ("Math:HO", "History and Overview"),
+                                        ("Math:IT", "Information Theory"),
+                                        ("Math:KT", "K-Theory and Homology"),
+                                        ("Math:LO", "Logic"),
+                                        ("Math:MP", "Mathematical Physics"),
+                                        ("Math:MG", "Metric Geometry"),
+                                        ("Math:NT", "Number Theory"),
+                                        ("Math:NA", "Numerical Analysis"),
+                                        ("Math:OA", "Operator Algebras"),
+                                        ("Math:OC", "Optimization and Control"),
+                                        ("Math:PR", "Probability"),
+                                        ("Math:QA", "Quantum Algebra"),
+                                        ("Math:RT", "Representation Theory"),
+                                        ("Math:RA", "Rings and Algebras"),
+                                        ("Math:SP", "Spectral Theory"),
+                                        ("Math:ST", "Statistics Theory"),
+                                        ("Math:SG", "Symplectic Geometry"),
+                                    ),
+                                ),
+                                (
+                                    "Computer Science",
+                                    (
+                                        ("Comp:AI", "Artificial Intelligence"),
+                                        ("Comp:CC", "Computational Complexity"),
+                                        (
+                                            "Comp:CE",
+                                            "Computational Engineering, Finance, and Science",
+                                        ),
+                                        ("Comp:CG", "Computational Geometry"),
+                                        ("Comp:GT", "Computer Science and Game Theory"),
+                                        (
+                                            "Comp:CV",
+                                            "Computer Vision and Pattern Recognition",
+                                        ),
+                                        ("Comp:CY", "Computers and Society"),
+                                        ("Comp:CR", "Cryptography and Security"),
+                                        ("Comp:DS", "Data Structures and Algorithms"),
+                                        ("Comp:DB", "Databases"),
+                                        ("Comp:DL", "Digital Libraries"),
+                                        ("Comp:DM", "Discrete Mathematics"),
+                                        (
+                                            "Comp:DC",
+                                            "Distributed, Parallel, and Cluster Computing",
+                                        ),
+                                        ("Comp:ET", "Emerging Technologies"),
+                                        (
+                                            "Comp:FL",
+                                            "Formal Languages and Automata Theory",
+                                        ),
+                                        ("Comp:GL", "General Literature"),
+                                        ("Comp:GR", "Graphics"),
+                                        ("Comp:AR", "Hardware Architecture"),
+                                        ("Comp:HC", "Human-Computer Interaction"),
+                                        ("Comp:IR", "Information Retrieval"),
+                                        ("Comp:IT", "Information Theory"),
+                                        ("Comp:LG", "Learning"),
+                                        ("Comp:LO", "Logic in Computer Science"),
+                                        ("Comp:MS", "Mathematical Software"),
+                                        ("Comp:MA", "Multiagent Systems"),
+                                        ("Comp:MM", "Multimedia"),
+                                        (
+                                            "Comp:NI",
+                                            "Networking and Internet Architecture",
+                                        ),
+                                        (
+                                            "Comp:NE",
+                                            "Neural and Evolutionary Computing",
+                                        ),
+                                        ("Comp:NA", "Numerical Analysis"),
+                                        ("Comp:OS", "Operating Systems"),
+                                        ("Comp:OH", "Other Computer Science"),
+                                        ("Comp:PF", "Performance"),
+                                        ("Comp:PL", "Programming Languages"),
+                                        ("Comp:RO", "Robotics"),
+                                        ("Comp:SI", "Social and Information Networks"),
+                                        ("Comp:SE", "Software Engineering"),
+                                        ("Comp:SD", "Sound"),
+                                        ("Comp:SC", "Symbolic Computation"),
+                                        ("Comp:SY", "Systems and Control"),
+                                    ),
+                                ),
+                            ],
+                            max_length=10,
+                        ),
+                        blank=True,
+                        null=True,
+                        size=None,
+                    ),
+                ),
+                (
+                    "orcid_id",
+                    models.CharField(
+                        blank=True, max_length=20, verbose_name="ORCID id"
+                    ),
+                ),
+                (
+                    "address",
+                    models.CharField(
+                        blank=True, max_length=1000, verbose_name="address"
+                    ),
+                ),
+                (
+                    "personalwebpage",
+                    models.URLField(blank=True, verbose_name="personal web page"),
+                ),
+                (
+                    "accepts_SciPost_emails",
+                    models.BooleanField(
+                        default=True, verbose_name="I accept to receive SciPost emails"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='DraftInvitation',
+            name="DraftInvitation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms')], max_length=4)),
-                ('first_name', models.CharField(max_length=30)),
-                ('last_name', models.CharField(max_length=30)),
-                ('email', models.EmailField(max_length=254)),
-                ('invitation_type', models.CharField(choices=[('F', 'Editorial Fellow'), ('C', 'Contributor'), ('R', 'Refereeing'), ('ci', 'cited in submission'), ('cp', 'cited in publication')], default='C', max_length=2)),
-                ('date_drafted', models.DateTimeField(auto_now_add=True)),
-                ('processed', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        choices=[
+                            ("PR", "Prof."),
+                            ("DR", "Dr"),
+                            ("MR", "Mr"),
+                            ("MRS", "Mrs"),
+                            ("MS", "Ms"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=30)),
+                ("last_name", models.CharField(max_length=30)),
+                ("email", models.EmailField(max_length=254)),
+                (
+                    "invitation_type",
+                    models.CharField(
+                        choices=[
+                            ("F", "Editorial Fellow"),
+                            ("C", "Contributor"),
+                            ("R", "Refereeing"),
+                            ("ci", "cited in submission"),
+                            ("cp", "cited in publication"),
+                        ],
+                        default="C",
+                        max_length=2,
+                    ),
+                ),
+                ("date_drafted", models.DateTimeField(auto_now_add=True)),
+                ("processed", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='EditorialCollege',
+            name="EditorialCollege",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('discipline', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("discipline", models.CharField(max_length=255, unique=True)),
             ],
         ),
         migrations.CreateModel(
-            name='EditorialCollegeFellowship',
+            name="EditorialCollegeFellowship",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('latest_activity', scipost.db.fields.AutoDateTimeField(blank=True, default=django.utils.timezone.now, editable=False)),
-                ('affiliation', models.CharField(blank=True, max_length=255)),
-                ('start_date', models.DateField(blank=True, null=True)),
-                ('until_date', models.DateField(blank=True, null=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "latest_activity",
+                    scipost.db.fields.AutoDateTimeField(
+                        blank=True, default=django.utils.timezone.now, editable=False
+                    ),
+                ),
+                ("affiliation", models.CharField(blank=True, max_length=255)),
+                ("start_date", models.DateField(blank=True, null=True)),
+                ("until_date", models.DateField(blank=True, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='PrecookedEmail',
+            name="PrecookedEmail",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email_subject', models.CharField(max_length=300)),
-                ('email_text', models.TextField()),
-                ('email_text_html', models.TextField()),
-                ('date_created', models.DateField(default=django.utils.timezone.now)),
-                ('emailed_to', django.contrib.postgres.fields.ArrayField(base_field=models.EmailField(blank=True, max_length=254), blank=True, size=None)),
-                ('date_last_used', models.DateField(default=django.utils.timezone.now)),
-                ('deprecated', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("email_subject", models.CharField(max_length=300)),
+                ("email_text", models.TextField()),
+                ("email_text_html", models.TextField()),
+                ("date_created", models.DateField(default=django.utils.timezone.now)),
+                (
+                    "emailed_to",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.EmailField(blank=True, max_length=254),
+                        blank=True,
+                        size=None,
+                    ),
+                ),
+                ("date_last_used", models.DateField(default=django.utils.timezone.now)),
+                ("deprecated", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='RegistrationInvitation',
+            name="RegistrationInvitation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms')], max_length=4)),
-                ('first_name', models.CharField(default='', max_length=30)),
-                ('last_name', models.CharField(default='', max_length=30)),
-                ('email', models.EmailField(max_length=254)),
-                ('invitation_type', models.CharField(choices=[('F', 'Editorial Fellow'), ('C', 'Contributor'), ('R', 'Refereeing'), ('ci', 'cited in submission'), ('cp', 'cited in publication')], default='C', max_length=2)),
-                ('message_style', models.CharField(choices=[('F', 'formal'), ('P', 'personal')], default='F', max_length=1)),
-                ('personal_message', models.TextField(blank=True)),
-                ('invitation_key', models.CharField(max_length=40, unique=True)),
-                ('key_expires', models.DateTimeField(default=django.utils.timezone.now)),
-                ('date_sent', models.DateTimeField(default=django.utils.timezone.now)),
-                ('nr_reminders', models.PositiveSmallIntegerField(default=0)),
-                ('date_last_reminded', models.DateTimeField(blank=True, null=True)),
-                ('responded', models.BooleanField(default=False)),
-                ('declined', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        choices=[
+                            ("PR", "Prof."),
+                            ("DR", "Dr"),
+                            ("MR", "Mr"),
+                            ("MRS", "Mrs"),
+                            ("MS", "Ms"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                ("first_name", models.CharField(default="", max_length=30)),
+                ("last_name", models.CharField(default="", max_length=30)),
+                ("email", models.EmailField(max_length=254)),
+                (
+                    "invitation_type",
+                    models.CharField(
+                        choices=[
+                            ("F", "Editorial Fellow"),
+                            ("C", "Contributor"),
+                            ("R", "Refereeing"),
+                            ("ci", "cited in submission"),
+                            ("cp", "cited in publication"),
+                        ],
+                        default="C",
+                        max_length=2,
+                    ),
+                ),
+                (
+                    "message_style",
+                    models.CharField(
+                        choices=[("F", "formal"), ("P", "personal")],
+                        default="F",
+                        max_length=1,
+                    ),
+                ),
+                ("personal_message", models.TextField(blank=True)),
+                ("invitation_key", models.CharField(max_length=40, unique=True)),
+                (
+                    "key_expires",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                ("date_sent", models.DateTimeField(default=django.utils.timezone.now)),
+                ("nr_reminders", models.PositiveSmallIntegerField(default=0)),
+                ("date_last_reminded", models.DateTimeField(blank=True, null=True)),
+                ("responded", models.BooleanField(default=False)),
+                ("declined", models.BooleanField(default=False)),
             ],
             options={
-                'ordering': ['last_name'],
+                "ordering": ["last_name"],
             },
         ),
         migrations.CreateModel(
-            name='Remark',
+            name="Remark",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateTimeField(auto_now_add=True)),
-                ('remark', models.TextField()),
-                ('contributor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='scipost.Contributor')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateTimeField(auto_now_add=True)),
+                ("remark", models.TextField()),
+                (
+                    "contributor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="remarks",
+                        to="scipost.Contributor",
+                    ),
+                ),
             ],
             options={
-                'default_related_name': 'remarks',
+                "default_related_name": "remarks",
             },
         ),
         migrations.CreateModel(
-            name='UnavailabilityPeriod',
+            name="UnavailabilityPeriod",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('start', models.DateField()),
-                ('end', models.DateField()),
-                ('contributor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='unavailability_periods', to='scipost.Contributor')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("start", models.DateField()),
+                ("end", models.DateField()),
+                (
+                    "contributor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="unavailability_periods",
+                        to="scipost.Contributor",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-start'],
+                "ordering": ["-start"],
             },
         ),
     ]

@@ -6,17 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0009_storedmessage_tags'),
+        ("apimail", "0009_storedmessage_tags"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='usertag',
-            name='hex_color_code',
+            model_name="usertag",
+            name="hex_color_code",
         ),
         migrations.AddField(
-            model_name='usertag',
-            name='variant',
-            field=models.CharField(default='info', max_length=16),
+            model_name="usertag",
+            name="variant",
+            field=models.CharField(default="info", max_length=16),
         ),
     ]

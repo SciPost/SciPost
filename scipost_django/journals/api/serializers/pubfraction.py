@@ -11,20 +11,12 @@ from organizations.api.serializers import OrganizationPublicSerializer
 
 class PubFractionPublicSerializer(serializers.ModelSerializer):
     organization = OrganizationPublicSerializer(
-        fields=['url', 'name', 'acronym', 'country']
+        fields=["url", "name", "acronym", "country"]
     )
     publication = PublicationPublicSerializer(
-        fields=[
-            'url',
-            'title', 'author_list',
-            'doi_label', 'publication_date'
-        ]
+        fields=["url", "title", "author_list", "doi_label", "publication_date"]
     )
 
     class Meta:
         model = OrgPubFraction
-        fields = [
-            'organization',
-            'publication',
-            'fraction'
-        ]
+        fields = ["organization", "publication", "fraction"]

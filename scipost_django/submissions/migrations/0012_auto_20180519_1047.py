@@ -9,13 +9,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0011_report_file_attachment'),
+        ("submissions", "0011_report_file_attachment"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='file_attachment',
-            field=models.FileField(blank=True, null=True, upload_to='uploads/reports/%Y/%m/%d/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size]),
+            model_name="report",
+            name="file_attachment",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                upload_to="uploads/reports/%Y/%m/%d/",
+                validators=[
+                    comments.behaviors.validate_file_extension,
+                    comments.behaviors.validate_max_file_size,
+                ],
+            ),
         ),
     ]

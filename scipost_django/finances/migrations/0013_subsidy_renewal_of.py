@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0012_subsidyattachment'),
+        ("finances", "0012_subsidyattachment"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subsidy',
-            name='renewal_of',
-            field=models.ManyToManyField(blank=True, related_name='renewed_by', to='finances.Subsidy'),
+            model_name="subsidy",
+            name="renewal_of",
+            field=models.ManyToManyField(
+                blank=True, related_name="renewed_by", to="finances.Subsidy"
+            ),
         ),
     ]

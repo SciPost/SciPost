@@ -17,8 +17,14 @@ from django.urls import reverse
 
 from django_countries.fields import CountryField
 
-from .constants import ORGANIZATION_TYPES, ORGTYPE_PRIVATE_BENEFACTOR,\
-    ORGANIZATION_STATUSES, ORGSTATUS_ACTIVE, ORGANIZATION_EVENTS, ROLE_KINDS
+from .constants import (
+    ORGANIZATION_TYPES,
+    ORGTYPE_PRIVATE_BENEFACTOR,
+    ORGANIZATION_STATUSES,
+    ORGSTATUS_ACTIVE,
+    ORGANIZATION_EVENTS,
+    ROLE_KINDS,
+)
 from .managers import OrganizationQuerySet
 
 from scipost.constants import TITLE_CHOICES
@@ -47,39 +53,55 @@ class Organization(models.Model):
     for example the Global Research Identifier Database (GRID), Crossref,
     ORCID etc.
     """
+
     orgtype = models.CharField(max_length=32, choices=ORGANIZATION_TYPES)
-    status = models.CharField(max_length=32, choices=ORGANIZATION_STATUSES,
-                              default=ORGSTATUS_ACTIVE)
-    name = models.CharField(max_length=256,
-                            help_text="Western version of name")
-    name_original = models.CharField(max_length=256, blank=True,
-                                     help_text="Name (in original language)")
-    acronym = models.CharField(max_length=64, blank=True,
-                               help_text='Acronym or short name')
+    status = models.CharField(
+        max_length=32, choices=ORGANIZATION_STATUSES, default=ORGSTATUS_ACTIVE
+    )
+    name = models.CharField(max_length=256, help_text="Western version of name")
+    name_original = models.CharField(
+        max_length=256, blank=True, help_text="Name (in original language)"
+    )
+    acronym = models.CharField(
+        max_length=64, blank=True, help_text="Acronym or short name"
+    )
     country = CountryField()
     address = models.TextField(blank=True)
-    logo = models.ImageField(upload_to='organizations/logos/', blank=True)
-    css_class = models.CharField(max_length=256, blank=True,
-                                 verbose_name="Additional logo CSS class")
-    grid_json = models.JSONField(default=dict, blank=True, null=True) # JSON data from GRID
-    crossref_json = models.JSONField(default=dict, blank=True, null=True) # JSON data from Crossref
-    parent = models.ForeignKey('self', blank=True, null=True,
-                               on_delete=models.SET_NULL, related_name='children')
-    superseded_by = models.ForeignKey('self', blank=True, null=True,
-                                         on_delete=models.SET_NULL)
+    logo = models.ImageField(upload_to="organizations/logos/", blank=True)
+    css_class = models.CharField(
+        max_length=256, blank=True, verbose_name="Additional logo CSS class"
+    )
+    grid_json = models.JSONField(
+        default=dict, blank=True, null=True
+    )  # JSON data from GRID
+    crossref_json = models.JSONField(
+        default=dict, blank=True, null=True
+    )  # JSON data from Crossref
+    parent = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="children",
+    )
+    superseded_by = models.ForeignKey(
+        "self", blank=True, null=True, on_delete=models.SET_NULL
+    )
     # Calculated fields (to save CPU; field name always starts with cf_)
     # Number of associated publications; needs to be updated when any related
     # affiliation, grant or f
     cf_nr_associated_publications = models.PositiveIntegerField(
-        blank=True, null=True,
-        help_text='NB: nr_associated_publications is a calculated field. Do not modify.')
+        blank=True,
+        null=True,
+        help_text="NB: nr_associated_publications is a calculated field. Do not modify.",
+    )
 
     objects = OrganizationQuerySet.as_manager()
 
     class Meta:
-        ordering = ['country', 'name']
+        ordering = ["country", "name"]
         permissions = (
-            ('can_view_org_contacts', 'Can view this Organization\'s Contacts'),
+            ("can_view_org_contacts", "Can view this Organization's Contacts"),
         )
 
     def __str__(self):
@@ -101,14 +123,14 @@ class Organization(models.Model):
         return full_name_str
 
     def get_absolute_url(self):
-        return reverse('organizations:organization_detail', kwargs = {'pk': self.id})
+        return reverse("organizations:organization_detail", kwargs={"pk": self.id})
 
     @property
     def details_publicly_viewable(self):
         return self.orgtype != ORGTYPE_PRIVATE_BENEFACTOR
 
     def get_publications(self, year=None, journal=None):
-        org_and_children_ids = [k['id'] for k in list(self.children.all().values('id'))]
+        org_and_children_ids = [k["id"] for k in list(self.children.all().values("id"))]
         org_and_children_ids += [self.id]
         if journal and isinstance(journal, Journal):
             publications = journal.get_publications()
@@ -117,15 +139,18 @@ class Organization(models.Model):
         if year:
             publications = publications.filter(publication_date__year=year)
         return publications.filter(
-            models.Q(authors__affiliations__pk__in=org_and_children_ids) |
-            models.Q(grants__funder__organization__pk__in=org_and_children_ids) |
-            models.Q(funders_generic__organization__pk__in=org_and_children_ids)).distinct()
+            models.Q(authors__affiliations__pk__in=org_and_children_ids)
+            | models.Q(grants__funder__organization__pk__in=org_and_children_ids)
+            | models.Q(funders_generic__organization__pk__in=org_and_children_ids)
+        ).distinct()
 
     def get_author_profiles(self):
         """
         Returns all Profiles of authors associated to this Organization.
         """
-        profile_id_list = [tbl.profile.id for tbl in self.publicationauthorstable_set.all()]
+        profile_id_list = [
+            tbl.profile.id for tbl in self.publicationauthorstable_set.all()
+        ]
         return Profile.objects.filter(id__in=profile_id_list).distinct()
 
     def fellowships(self, year=None):
@@ -138,9 +163,12 @@ class Organization(models.Model):
         if year is not None:
             affiliations = affiliations.filter(
                 Q(date_from__isnull=True) | Q(date_from__year__lte=year),
-                Q(date_until__isnull=True) | Q(date_until__year__gte=year))
+                Q(date_until__isnull=True) | Q(date_until__year__gte=year),
+            )
         profile_ids = [a.profile.id for a in affiliations]
-        fellowships = Fellowship.objects.filter(contributor__profile__id__in=profile_ids)
+        fellowships = Fellowship.objects.filter(
+            contributor__profile__id__in=profile_ids
+        )
         if year is not None:
             fellowships = fellowships.active_in_year(year)
         return fellowships
@@ -163,33 +191,34 @@ class Organization(models.Model):
         try:
             return pfs.get(organization=self).fraction
         except OrgPubFraction.DoesNotExist:
-            children_ids = [k['id'] for k in list(self.children.all().values('id'))]
+            children_ids = [k["id"] for k in list(self.children.all().values("id"))]
             children_contribs = pfs.filter(organization__id__in=children_ids).aggregate(
-                Sum('fraction'))['fraction__sum']
+                Sum("fraction")
+            )["fraction__sum"]
             if children_contribs is not None:
                 message = "as parent (ascribed to "
                 for child in self.children.all():
                     pfc = child.pubfraction_for_publication(doi_label)
-                    if pfc not in ['No PubFraction ascribed', 'Not yet defined']:
+                    if pfc not in ["No PubFraction ascribed", "Not yet defined"]:
                         message += "%s: %s; " % (child, pfc)
-                return message.rpartition(';')[0] + ')'
-        return 'Not yet defined'
+                return message.rpartition(";")[0] + ")"
+        return "Not yet defined"
 
     def pubfractions_in_year(self, year):
         """
         Returns the sum of pubfractions for the given year.
         """
         fractions = OrgPubFraction.objects.filter(
-            organization=self,
-            publication__publication_date__year=year)
+            organization=self, publication__publication_date__year=year
+        )
         return {
-            'confirmed': fractions.filter(
+            "confirmed": fractions.filter(
                 publication__pubfractions_confirmed_by_authors=True
-            ).aggregate(Sum('fraction'))['fraction__sum'],
-            'estimated': fractions.filter(
+            ).aggregate(Sum("fraction"))["fraction__sum"],
+            "estimated": fractions.filter(
                 publication__pubfractions_confirmed_by_authors=False
-            ).aggregate(Sum('fraction'))['fraction__sum'],
-            'total': fractions.aggregate(Sum('fraction'))['fraction__sum']
+            ).aggregate(Sum("fraction"))["fraction__sum"],
+            "total": fractions.aggregate(Sum("fraction"))["fraction__sum"],
         }
 
     @property
@@ -212,17 +241,17 @@ class Organization(models.Model):
         Returns the end date of validity of the latest subsidy.
         """
         if self.subsidy_set:
-            return self.subsidy_set.order_by('-date_until').first().date_until
-        return '-'
+            return self.subsidy_set.order_by("-date_until").first().date_until
+        return "-"
 
     def total_subsidies_in_year(self, year):
         """
         Return the total subsidies for this Organization in that year.
         """
         total = 0
-        for subsidy in self.subsidy_set.filter(
-                date__year__lte=year).filter(
-                    models.Q(date_until=None) | models.Q(date_until__year__gte=year)):
+        for subsidy in self.subsidy_set.filter(date__year__lte=year).filter(
+            models.Q(date_until=None) | models.Q(date_until__year__gte=year)
+        ):
             total += subsidy.value_in_year(year)
         return total
 
@@ -231,13 +260,13 @@ class Organization(models.Model):
         Computes the total amount received by SciPost, in the form
         of subsidies from this Organization.
         """
-        return self.subsidy_set.aggregate(models.Sum('amount')).get('amount__sum', 0)
+        return self.subsidy_set.aggregate(models.Sum("amount")).get("amount__sum", 0)
 
     def get_balance_info(self):
         """
         Return a dict containing this Organization's expenditure and support history.
         """
-        pubyears = range(int(timezone.now().strftime('%Y')), 2015, -1)
+        pubyears = range(int(timezone.now().strftime("%Y")), 2015, -1)
         rep = {}
         cumulative_balance = 0
         cumulative_expenditures = 0
@@ -245,34 +274,37 @@ class Organization(models.Model):
         for year in pubyears:
             rep[str(year)] = {}
             year_expenditures = 0
-            rep[str(year)]['expenditures'] = {}
+            rep[str(year)]["expenditures"] = {}
             pfy = self.pubfractions.filter(publication__publication_date__year=year)
             contribution = self.total_subsidies_in_year(year)
-            rep[str(year)]['contribution'] = contribution
-            journal_labels = set([f.publication.get_journal().doi_label for f in pfy.all()])
+            rep[str(year)]["contribution"] = contribution
+            journal_labels = set(
+                [f.publication.get_journal().doi_label for f in pfy.all()]
+            )
             for journal_label in journal_labels:
                 sumpf = pfy.filter(
-                    publication__doi_label__istartswith=journal_label + '.'
-                ).aggregate(Sum('fraction'))['fraction__sum']
-                costperpaper = get_object_or_404(Journal,
-                    doi_label=journal_label).cost_per_publication(year)
-                expenditures = int(costperpaper* sumpf)
+                    publication__doi_label__istartswith=journal_label + "."
+                ).aggregate(Sum("fraction"))["fraction__sum"]
+                costperpaper = get_object_or_404(
+                    Journal, doi_label=journal_label
+                ).cost_per_publication(year)
+                expenditures = int(costperpaper * sumpf)
                 if sumpf > 0:
-                    rep[str(year)]['expenditures'][journal_label] = {
-                        'pubfractions': sumpf,
-                        'costperpaper': costperpaper,
-                        'expenditures': expenditures,
+                    rep[str(year)]["expenditures"][journal_label] = {
+                        "pubfractions": sumpf,
+                        "costperpaper": costperpaper,
+                        "expenditures": expenditures,
                     }
                 year_expenditures += expenditures
-            rep[str(year)]['expenditures']['total'] = year_expenditures
-            rep[str(year)]['balance'] = contribution - year_expenditures
+            rep[str(year)]["expenditures"]["total"] = year_expenditures
+            rep[str(year)]["balance"] = contribution - year_expenditures
             cumulative_expenditures += year_expenditures
             cumulative_contribution += contribution
             cumulative_balance += contribution - year_expenditures
-        rep['cumulative'] = {
-            'balance': cumulative_balance,
-            'expenditures': cumulative_expenditures,
-            'contribution': cumulative_contribution
+        rep["cumulative"] = {
+            "balance": cumulative_balance,
+            "expenditures": cumulative_expenditures,
+            "contribution": cumulative_contribution,
         }
         return rep
 
@@ -281,27 +313,31 @@ class Organization(models.Model):
 # Events related to Organizations #
 ###################################
 
+
 class OrganizationEvent(models.Model):
     """
     Documents an event related to an Organization.
     """
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
+
+    organization = models.ForeignKey(
+        "organizations.Organization", on_delete=models.CASCADE
+    )
     event = models.CharField(max_length=64, choices=ORGANIZATION_EVENTS)
     comments = models.TextField(blank=True)
     noted_on = models.DateTimeField(default=timezone.now)
     noted_by = models.ForeignKey(User, on_delete=models.CASCADE)
 
     class Meta:
-        ordering = ['-noted_on', 'organization']
+        ordering = ["-noted_on", "organization"]
 
     def __str__(self):
-        return '%s: %s' % (str(self.organization), self.get_event_display())
-
+        return "%s: %s" % (str(self.organization), self.get_event_display())
 
 
 ####################################
 # Contact persons, users and roles #
 ####################################
+
 
 class ContactPerson(models.Model):
     """
@@ -310,8 +346,10 @@ class ContactPerson(models.Model):
     These instances are created by SPAdmin during sponsor harvesting.
     Instances can be promoted to Contact instances, which possess login credentials.
     """
-    organization = models.ForeignKey('organizations.Organization',
-                                     on_delete=models.CASCADE)
+
+    organization = models.ForeignKey(
+        "organizations.Organization", on_delete=models.CASCADE
+    )
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=64)
     last_name = models.CharField(max_length=64)
@@ -319,7 +357,7 @@ class ContactPerson(models.Model):
     role = models.CharField(max_length=128)
 
     class Meta:
-        ordering = ['last_name', 'first_name', 'organization']
+        ordering = ["last_name", "first_name", "organization"]
 
     def __str__(self):
         return "%s %s %s" % (self.get_title_display(), self.first_name, self.last_name)
@@ -330,26 +368,32 @@ class Contact(models.Model):
     A Contact instance is a basic User to be used for Organization-type contacts.
     Specific Organizations are linked to Contact via the ContactRole model defined below.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE, unique=True,
-                                related_name='org_contact')
+
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, unique=True, related_name="org_contact"
+    )
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['user__last_name', 'user__first_name']
+        ordering = ["user__last_name", "user__first_name"]
 
     def __str__(self):
-        return '%s %s, %s' % (self.get_title_display(), self.user.last_name, self.user.first_name)
+        return "%s %s, %s" % (
+            self.get_title_display(),
+            self.user.last_name,
+            self.user.first_name,
+        )
 
-    def generate_key(self, feed=''):
+    def generate_key(self, feed=""):
         """
         Generate and save a new activation_key for the Contact, given a certain feed.
         """
         for i in range(5):
             feed += random.choice(string.ascii_letters)
-        feed = feed.encode('utf8')
-        salt = self.user.username.encode('utf8')
+        feed = feed.encode("utf8")
+        salt = self.user.username.encode("utf8")
         self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = timezone.now() + datetime.timedelta(days=2)
 
@@ -364,15 +408,23 @@ class ContactRole(models.Model):
     A ContactRole instance links a Contact to an Organization, for a specific set of roles
     and for a specific period in time.
     """
-    contact = models.ForeignKey('organizations.Contact', on_delete=models.CASCADE,
-                                related_name='roles')
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
+
+    contact = models.ForeignKey(
+        "organizations.Contact", on_delete=models.CASCADE, related_name="roles"
+    )
+    organization = models.ForeignKey(
+        "organizations.Organization", on_delete=models.CASCADE
+    )
     kind = ChoiceArrayField(models.CharField(max_length=4, choices=ROLE_KINDS))
     date_from = models.DateField()
     date_until = models.DateField()
 
     def __str__(self):
-        return '%s, %s for %s' % (self.contact, self.get_kind_display, self.organization)
+        return "%s, %s for %s" % (
+            self.contact,
+            self.get_kind_display,
+            self.organization,
+        )
 
     @property
     def get_kind_display(self):
@@ -381,4 +433,4 @@ class ContactRole(models.Model):
         one 'manually'.
         """
         choices = dict(ROLE_KINDS)
-        return ', '.join([choices[value] for index, value in enumerate(self.kind)])
+        return ", ".join([choices[value] for index, value in enumerate(self.kind)])

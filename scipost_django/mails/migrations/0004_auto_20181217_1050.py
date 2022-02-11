@@ -9,29 +9,42 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
-        ('mails', '0003_auto_20180502_1807'),
+        ("contenttypes", "0002_remove_content_type_name"),
+        ("mails", "0003_auto_20180502_1807"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='maillog',
-            name='content_type',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
+            model_name="maillog",
+            name="content_type",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="contenttypes.ContentType",
+            ),
         ),
         migrations.AddField(
-            model_name='maillog',
-            name='mail_code',
+            model_name="maillog",
+            name="mail_code",
             field=models.CharField(blank=True, max_length=254),
         ),
         migrations.AddField(
-            model_name='maillog',
-            name='object_id',
+            model_name="maillog",
+            name="object_id",
             field=models.PositiveIntegerField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='maillog',
-            name='status',
-            field=models.CharField(choices=[('not_rendered', 'Not rendered'), ('rendered', 'Rendered'), ('sent', 'Sent')], default='rendered', max_length=16),
+            model_name="maillog",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("not_rendered", "Not rendered"),
+                    ("rendered", "Rendered"),
+                    ("sent", "Sent"),
+                ],
+                default="rendered",
+                max_length=16,
+            ),
         ),
     ]

@@ -6,24 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0100_remove_publication_secondary_areas'),
+        ("journals", "0100_remove_publication_secondary_areas"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='journal',
-            options={'ordering': ['college__acad_field', 'list_order']},
+            name="journal",
+            options={"ordering": ["college__acad_field", "list_order"]},
         ),
         migrations.RemoveField(
-            model_name='journal',
-            name='discipline',
+            model_name="journal",
+            name="discipline",
         ),
         migrations.RemoveField(
-            model_name='publication',
-            name='discipline',
+            model_name="publication",
+            name="discipline",
         ),
         migrations.RemoveField(
-            model_name='publication',
-            name='subject_area',
+            model_name="publication",
+            name="subject_area",
         ),
     ]

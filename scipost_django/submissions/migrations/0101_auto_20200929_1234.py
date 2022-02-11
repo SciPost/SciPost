@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0100_remove_preprintserver_disciplines'),
+        ("submissions", "0100_remove_preprintserver_disciplines"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='submission',
-            name='discipline',
+            model_name="submission",
+            name="discipline",
         ),
         migrations.RemoveField(
-            model_name='submission',
-            name='subject_area',
+            model_name="submission",
+            name="subject_area",
         ),
     ]

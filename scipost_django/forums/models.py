@@ -27,47 +27,61 @@ class Forum(models.Model):
 
     Similarly, Posts in a Forum are listed in the posts [GenericRelation] field.
     """
+
     name = models.CharField(max_length=256)
     slug = models.SlugField(allow_unicode=True)
     description = models.TextField(
-        blank=True, null=True,
-        help_text=('You can use plain text, Markdown or reStructuredText; see our '
-                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
+        blank=True,
+        null=True,
+        help_text=(
+            "You can use plain text, Markdown or reStructuredText; see our "
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'
+        ),
+    )
     publicly_visible = models.BooleanField(default=False)
-    moderators = models.ManyToManyField('auth.User', related_name='moderated_forums')
+    moderators = models.ManyToManyField("auth.User", related_name="moderated_forums")
 
-    parent_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE,
-                                            blank=True, null=True)
+    parent_content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, blank=True, null=True
+    )
     parent_object_id = models.PositiveIntegerField(blank=True, null=True)
-    parent = GenericForeignKey('parent_content_type', 'parent_object_id')
+    parent = GenericForeignKey("parent_content_type", "parent_object_id")
 
-    child_forums = GenericRelation('forums.Forum',
-                                   content_type_field='parent_content_type',
-                                   object_id_field='parent_object_id',
-                                   related_query_name='parent_forums')
-    posts = GenericRelation('forums.Post',
-                            content_type_field='parent_content_type',
-                            object_id_field='parent_object_id',
-                            related_query_name='parent_forums')
-    motions = GenericRelation('forums.Motion',
-                            content_type_field='parent_content_type',
-                            object_id_field='parent_object_id',
-                            related_query_name='parent_forums')
+    child_forums = GenericRelation(
+        "forums.Forum",
+        content_type_field="parent_content_type",
+        object_id_field="parent_object_id",
+        related_query_name="parent_forums",
+    )
+    posts = GenericRelation(
+        "forums.Post",
+        content_type_field="parent_content_type",
+        object_id_field="parent_object_id",
+        related_query_name="parent_forums",
+    )
+    motions = GenericRelation(
+        "forums.Motion",
+        content_type_field="parent_content_type",
+        object_id_field="parent_object_id",
+        related_query_name="parent_forums",
+    )
 
     objects = ForumQuerySet.as_manager()
 
     class Meta:
-        ordering = ['name',]
+        ordering = [
+            "name",
+        ]
         permissions = [
-            ('can_view_forum', 'Can view Forum'),
-            ('can_post_to_forum', 'Can add Post to Forum'),
+            ("can_view_forum", "Can view Forum"),
+            ("can_post_to_forum", "Can add Post to Forum"),
         ]
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('forums:forum_detail', kwargs={'slug': self.slug})
+        return reverse("forums:forum_detail", kwargs={"slug": self.slug})
 
     @property
     def nr_posts(self):
@@ -89,7 +103,7 @@ class Forum(models.Model):
     def latest_post(self):
         id_list = self.posts_hierarchy_id_list()
         try:
-            return Post.objects.filter(id__in=id_list).order_by('-posted_on').first()
+            return Post.objects.filter(id__in=id_list).order_by("-posted_on").first()
         except:
             return None
 
@@ -111,27 +125,36 @@ class Meeting(Forum):
     the date specified in ``date_until``. The Meeting can however
     be viewed in perpetuity by users who have viewing rights.
     """
-    forum = models.OneToOneField('forums.Forum', on_delete=models.CASCADE,
-                                 parent_link=True)
+
+    forum = models.OneToOneField(
+        "forums.Forum", on_delete=models.CASCADE, parent_link=True
+    )
     date_from = models.DateField()
     date_until = models.DateField()
     preamble = models.TextField(
         help_text=(
-            'Explanatory notes for the meeting.\n'
-            'You can use plain text, Markdown or reStructuredText; see our '
-            '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
+            "Explanatory notes for the meeting.\n"
+            "You can use plain text, Markdown or reStructuredText; see our "
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'
+        )
+    )
     minutes = models.TextField(
-        blank=True, null=True,
+        blank=True,
+        null=True,
         help_text=(
-            'To be filled in after completion of the meeting.\n'
-            'You can use plain text, Markdown or reStructuredText; see our '
-            '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
+            "To be filled in after completion of the meeting.\n"
+            "You can use plain text, Markdown or reStructuredText; see our "
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'
+        ),
+    )
     objects = models.Manager()
 
     def __str__(self):
-        return '%s, [%s to %s]' % (self.forum,
-                                   self.date_from.strftime('%Y-%m-%d'),
-                                   self.date_until.strftime('%Y-%m-%d'))
+        return "%s, [%s to %s]" % (
+            self.forum,
+            self.date_from.strftime("%Y-%m-%d"),
+            self.date_until.strftime("%Y-%m-%d"),
+        )
 
     @property
     def future(self):
@@ -151,13 +174,17 @@ class Meeting(Forum):
         """If meeting is future: primary; ongoing: success; voting: warning; finished: info."""
         today = datetime.date.today()
         if today < self.date_from:
-            return {'bg': 'primary', 'text': 'white', 'message': 'Meeting is coming up'}
+            return {"bg": "primary", "text": "white", "message": "Meeting is coming up"}
         elif today <= self.date_until:
-            return {'bg': 'success', 'text': 'light', 'message': 'Meeting is ongoing'}
+            return {"bg": "success", "text": "light", "message": "Meeting is ongoing"}
         elif today < self.date_until + datetime.timedelta(days=8):
-            return {'bg': 'warning', 'text': 'dark', 'message': 'Meeting is finished, voting open'}
+            return {
+                "bg": "warning",
+                "text": "dark",
+                "message": "Meeting is finished, voting open",
+            }
         else:
-            return {'bg': 'info', 'text': 'dark', 'message': 'Meeting is finished'}
+            return {"bg": "info", "text": "dark", "message": "Meeting is finished"}
 
 
 class Post(models.Model):
@@ -178,35 +205,53 @@ class Post(models.Model):
     The text field can contain plain text, Markdown or reStructuredText markup,
     auto-recognized via the markup app facilities.
     """
-    posted_by = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+
+    posted_by = models.ForeignKey("auth.User", on_delete=models.CASCADE)
     posted_on = models.DateTimeField(default=timezone.now)
     needs_vetting = models.BooleanField(default=True)
-    vetted_by = models.ForeignKey('auth.User', related_name='vetted_posts',
-                                  blank=True, null=True, on_delete=models.PROTECT)
+    vetted_by = models.ForeignKey(
+        "auth.User",
+        related_name="vetted_posts",
+        blank=True,
+        null=True,
+        on_delete=models.PROTECT,
+    )
     parent_content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     parent_object_id = models.PositiveIntegerField()
-    parent = GenericForeignKey('parent_content_type', 'parent_object_id')
-    followup_posts = GenericRelation('forums.Post',
-                                     content_type_field='parent_content_type',
-                                     object_id_field='parent_object_id',
-                                     related_query_name='parent_posts')
+    parent = GenericForeignKey("parent_content_type", "parent_object_id")
+    followup_posts = GenericRelation(
+        "forums.Post",
+        content_type_field="parent_content_type",
+        object_id_field="parent_object_id",
+        related_query_name="parent_posts",
+    )
     subject = models.CharField(max_length=256)
     text = models.TextField(
         help_text=(
-            'You can use plain text, Markdown or reStructuredText; see our '
-                   '<a href="/markup/help/" target="_blank">markup help</a> pages.'))
+            "You can use plain text, Markdown or reStructuredText; see our "
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'
+        )
+    )
 
     objects = PostQuerySet.as_manager()
 
     class Meta:
-        ordering = ['posted_on',]
+        ordering = [
+            "posted_on",
+        ]
 
     def __str__(self):
-        return '%s %s: %s' % (self.posted_by.first_name,
-                              self.posted_by.last_name, self.subject[:32])
+        return "%s %s: %s" % (
+            self.posted_by.first_name,
+            self.posted_by.last_name,
+            self.subject[:32],
+        )
 
     def get_absolute_url(self):
-        return '%s#post%s' % (self.get_anchor_forum_or_meeting().get_absolute_url(), self.id)
+        return "%s#post%s" % (
+            self.get_anchor_forum_or_meeting().get_absolute_url(),
+            self.id,
+        )
 
     @property
     def nr_followups(self):
@@ -237,9 +282,12 @@ class Post(models.Model):
         Climb back the hierarchy up to the original Forum.
         If no Forum is found, return None.
         """
-        type_forum = ContentType.objects.get_by_natural_key('forums', 'forum')
-        type_meeting = ContentType.objects.get_by_natural_key('forums', 'meeting')
-        if self.parent_content_type == type_forum or self.parent_content_type == type_meeting:
+        type_forum = ContentType.objects.get_by_natural_key("forums", "forum")
+        type_meeting = ContentType.objects.get_by_natural_key("forums", "meeting")
+        if (
+            self.parent_content_type == type_forum
+            or self.parent_content_type == type_meeting
+        ):
             return self.parent
         else:
             return self.parent.get_anchor_forum_or_meeting()
@@ -250,21 +298,26 @@ class Motion(Post):
     A Motion is a posting to a Forum or Meeting, on which Forum participants
     can vote.
     """
-    post = models.OneToOneField('forums.Post', on_delete=models.CASCADE,
-                                parent_link=True)
-    eligible_for_voting = models.ManyToManyField('auth.User', blank=True,
-                                                 related_name='eligible_to_vote_on_motion')
-    in_agreement = models.ManyToManyField('auth.User', blank=True,
-                                          related_name='agree_on_motion')
-    in_doubt = models.ManyToManyField('auth.User', blank=True,
-                                      related_name='doubt_on_motion')
-    in_disagreement = models.ManyToManyField('auth.User', blank=True,
-                                             related_name='disagree_with_motion')
-    in_abstain = models.ManyToManyField('auth.User', blank=True,
-                                        related_name='abstain_with_motion')
-    voting_deadline = models.DateField()
-    accepted = models.BooleanField(
-        null=True
+
+    post = models.OneToOneField(
+        "forums.Post", on_delete=models.CASCADE, parent_link=True
     )
+    eligible_for_voting = models.ManyToManyField(
+        "auth.User", blank=True, related_name="eligible_to_vote_on_motion"
+    )
+    in_agreement = models.ManyToManyField(
+        "auth.User", blank=True, related_name="agree_on_motion"
+    )
+    in_doubt = models.ManyToManyField(
+        "auth.User", blank=True, related_name="doubt_on_motion"
+    )
+    in_disagreement = models.ManyToManyField(
+        "auth.User", blank=True, related_name="disagree_with_motion"
+    )
+    in_abstain = models.ManyToManyField(
+        "auth.User", blank=True, related_name="abstain_with_motion"
+    )
+    voting_deadline = models.DateField()
+    accepted = models.BooleanField(null=True)
 
     objects = models.Manager()

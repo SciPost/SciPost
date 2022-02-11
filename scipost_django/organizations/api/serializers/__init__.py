@@ -5,5 +5,5 @@ __license__ = "AGPL v3"
 from .organization import (
     OrganizationPublicSerializer,
     OrganizationNAPSerializer,
-    OrganizationBalanceSerializer
+    OrganizationBalanceSerializer,
 )

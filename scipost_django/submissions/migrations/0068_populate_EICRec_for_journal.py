@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def populate_for_journal(apps, schema_editor):
-    EICRecommendation = apps.get_model('submissions', 'EICRecommendation')
+    EICRecommendation = apps.get_model("submissions", "EICRecommendation")
 
     for eicrec in EICRecommendation.objects.all():
         eicrec.for_journal = eicrec.submission.submitted_to
@@ -14,10 +14,11 @@ def populate_for_journal(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0067_auto_20191014_2104'),
+        ("submissions", "0067_auto_20191014_2104"),
     ]
 
     operations = [
-        migrations.RunPython(populate_for_journal,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_for_journal, reverse_code=migrations.RunPython.noop
+        ),
     ]

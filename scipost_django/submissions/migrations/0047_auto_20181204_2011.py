@@ -8,18 +8,29 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0046_auto_20181130_1013'),
+        ("submissions", "0046_auto_20181130_1013"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='submission',
-            old_name='is_resubmission',
-            new_name='_is_resubmission',
+            model_name="submission",
+            old_name="is_resubmission",
+            new_name="_is_resubmission",
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='submission_type',
-            field=models.CharField(blank=True, choices=[('Letter', 'Letter (broad-interest breakthrough results)'), ('Article', 'Article (in-depth reports on specialized research)'), ('Review', 'Review (candid snapshot of current research in a given area)')], max_length=10),
+            model_name="submission",
+            name="submission_type",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("Letter", "Letter (broad-interest breakthrough results)"),
+                    ("Article", "Article (in-depth reports on specialized research)"),
+                    (
+                        "Review",
+                        "Review (candid snapshot of current research in a given area)",
+                    ),
+                ],
+                max_length=10,
+            ),
         ),
     ]

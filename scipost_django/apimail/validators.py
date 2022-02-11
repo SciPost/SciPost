@@ -19,21 +19,27 @@ def _simple_domain_name_validator(value):
     if any(checks):
         raise ValidationError(
             "The domain name cannot contain any spaces or tabs.",
-            code='invalid',
+            code="invalid",
         )
+
 
 def validate_max_email_attachment_file_size(value):
     if value.size > int(settings.MAX_EMAIL_ATTACHMENT_FILE_SIZE):
         raise ValidationError(
-            'Please keep filesize under %s. Current filesize: %s' % (
+            "Please keep filesize under %s. Current filesize: %s"
+            % (
                 filesizeformat(settings.MAX_EMAIL_ATTACHMENT_FILE_SIZE),
-                filesizeformat(value.size))
+                filesizeformat(value.size),
+            )
         )
+
 
 def validate_max_email_mime_file_size(value):
     if value.size > int(settings.MAX_EMAIL_MIME_FILE_SIZE):
         raise ValidationError(
-            'Please keep filesize under %s. Current filesize: %s' % (
+            "Please keep filesize under %s. Current filesize: %s"
+            % (
                 filesizeformat(settings.MAX_EMAIL_MIME_FILE_SIZE),
-                filesizeformat(value.size))
+                filesizeformat(value.size),
+            )
         )

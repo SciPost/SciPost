@@ -13,23 +13,27 @@ from .models import Submission, EditorialAssignment, RefereeInvitation, Report
 def send_editorial_assignment_invitations(self):
     """Send invitation email to 'next EditorialAssignment' in queue."""
     qs = Submission.objects.unassigned().has_editor_invitations_to_be_sent().distinct()
-    submission_ids = qs.values_list('id', flat=True)
+    submission_ids = qs.values_list("id", flat=True)
     submissions_count = len(submission_ids)
 
     count = 0
     for submission_id in submission_ids:
         self.update_state(
-            state="PROGRESS", meta={
-                'progress': round(100 * count / submissions_count),
-                'total_count': submissions_count,
-            })
+            state="PROGRESS",
+            meta={
+                "progress": round(100 * count / submissions_count),
+                "total_count": submissions_count,
+            },
+        )
 
         # Get EditorialAssignment to send or nothing.
-        ed_assignment = EditorialAssignment.objects.next_invitation_to_be_sent(submission_id)
+        ed_assignment = EditorialAssignment.objects.next_invitation_to_be_sent(
+            submission_id
+        )
         if ed_assignment:
             if ed_assignment.send_invitation():
                 count += 1
-    return {'new_invites': count}
+    return {"new_invites": count}
 
 
 @app.task(bind=True)

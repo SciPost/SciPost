@@ -8,13 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proceedings', '0001_initial'),
+        ("proceedings", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='proceedings',
-            name='minimum_referees',
-            field=models.PositiveSmallIntegerField(blank=True, help_text='Require an explicit minimum number of referees for the default ref cycle.', null=True),
+            model_name="proceedings",
+            name="minimum_referees",
+            field=models.PositiveSmallIntegerField(
+                blank=True,
+                help_text="Require an explicit minimum number of referees for the default ref cycle.",
+                null=True,
+            ),
         ),
     ]

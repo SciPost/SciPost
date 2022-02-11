@@ -9,13 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forums', '0007_motion'),
+        ("forums", "0007_motion"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='motion',
-            name='post_ptr',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='forums.Post'),
+            model_name="motion",
+            name="post_ptr",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                parent_link=True,
+                primary_key=True,
+                serialize=False,
+                to="forums.Post",
+            ),
         ),
     ]

@@ -9,13 +9,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0026_auto_20180327_1937'),
+        ("journals", "0026_auto_20180327_1937"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publication',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^(SciPostPhysProc|SciPostPhysSel|SciPostPhysLectNotes|SciPostPhys).[0-9]+(.[0-9]+.[0-9]{3,})?$', 'Only valid DOI expressions are allowed (`[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,}` or `[a-zA-Z]+.[0-9]+`)')]),
+            model_name="publication",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^(SciPostPhysProc|SciPostPhysSel|SciPostPhysLectNotes|SciPostPhys).[0-9]+(.[0-9]+.[0-9]{3,})?$",
+                        "Only valid DOI expressions are allowed (`[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,}` or `[a-zA-Z]+.[0-9]+`)",
+                    )
+                ],
+            ),
         ),
     ]

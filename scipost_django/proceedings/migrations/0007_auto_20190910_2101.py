@@ -7,13 +7,22 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proceedings', '0006_proceedings_template_latex_tgz'),
+        ("proceedings", "0006_proceedings_template_latex_tgz"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='proceedings',
-            name='issue',
-            field=models.OneToOneField(limit_choices_to=models.Q(('in_volume__in_journal__doi_label', 'SciPostPhysProc'), ('in_journal__doi_label', 'SciPostPhysProc'), _connector='OR'), on_delete=django.db.models.deletion.CASCADE, related_name='proceedings', to='journals.Issue'),
+            model_name="proceedings",
+            name="issue",
+            field=models.OneToOneField(
+                limit_choices_to=models.Q(
+                    ("in_volume__in_journal__doi_label", "SciPostPhysProc"),
+                    ("in_journal__doi_label", "SciPostPhysProc"),
+                    _connector="OR",
+                ),
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="proceedings",
+                to="journals.Issue",
+            ),
         ),
     ]

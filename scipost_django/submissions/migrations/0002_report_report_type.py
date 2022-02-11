@@ -8,13 +8,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0001_initial'),
+        ("submissions", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='report',
-            name='report_type',
-            field=models.CharField(choices=[('report_normal', 'Normal Report'), ('report_post_pub', 'Post-publication Report')], default='report_normal', max_length=16),
+            model_name="report",
+            name="report_type",
+            field=models.CharField(
+                choices=[
+                    ("report_normal", "Normal Report"),
+                    ("report_post_pub", "Post-publication Report"),
+                ],
+                default="report_normal",
+                max_length=16,
+            ),
         ),
     ]

@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0087_remove_submission_arxiv_link'),
+        ("submissions", "0087_remove_submission_arxiv_link"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='submission',
-            name='submission_type',
+            model_name="submission",
+            name="submission_type",
         ),
     ]

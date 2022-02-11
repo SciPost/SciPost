@@ -17,23 +17,24 @@ class EmailAccount(models.Model):
 
     Access is specified on a per-user basis through the related EmailAccountAccess model.
     """
+
     domain = models.ForeignKey(
-        'apimail.Domain',
-        related_name='email_accounts',
-        on_delete=models.CASCADE
+        "apimail.Domain", related_name="email_accounts", on_delete=models.CASCADE
     )
     name = models.CharField(max_length=256)
     email = models.EmailField(unique=True)
     description = models.TextField()
 
     class Meta:
-        ordering = ['email',]
+        ordering = [
+            "email",
+        ]
 
     def __str__(self):
-        return('%s <%s>' % (self.name, self.email))
+        return "%s <%s>" % (self.name, self.email)
 
     def clean(self):
-        if self.email.rpartition('@')[2] != self.domain.name:
+        if self.email.rpartition("@")[2] != self.domain.name:
             raise ValidationError("Email domain does not match domain name.")
 
 
@@ -47,20 +48,21 @@ class EmailAccountAccess(models.Model):
     This class is used for example to give access to internally-owned email addresses
     to specific employees for specific periods of employment.
     """
-    CRUD = 'CRUD'
-    READ = 'read'
+
+    CRUD = "CRUD"
+    READ = "read"
     RIGHTS_CHOICES = (
-        (CRUD, 'Can take all actions for this email account'),
-        (READ, 'Can only view emails from/to this email account')
+        (CRUD, "Can take all actions for this email account"),
+        (READ, "Can only view emails from/to this email account"),
     )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        related_name='email_account_accesses',
-        on_delete=models.CASCADE)
+        related_name="email_account_accesses",
+        on_delete=models.CASCADE,
+    )
     account = models.ForeignKey(
-        'apimail.EmailAccount',
-        related_name='accesses',
-        on_delete=models.CASCADE)
+        "apimail.EmailAccount", related_name="accesses", on_delete=models.CASCADE
+    )
     rights = models.CharField(max_length=8, choices=RIGHTS_CHOICES)
     date_from = models.DateField()
     date_until = models.DateField()
@@ -68,4 +70,8 @@ class EmailAccountAccess(models.Model):
     objects = EmailAccountAccessQuerySet.as_manager()
 
     class Meta:
-        ordering = ['account__email', 'user__last_name', '-date_until',]
+        ordering = [
+            "account__email",
+            "user__last_name",
+            "-date_until",
+        ]

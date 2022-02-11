@@ -7,28 +7,71 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0086_journal_cost_info'),
+        ("journals", "0086_journal_cost_info"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PublicationUpdate',
+            name="PublicationUpdate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number', models.PositiveSmallIntegerField()),
-                ('update_type', models.CharField(choices=[('addendum', 'Addendum'), ('clarification', 'Clarification'), ('correction', 'Correction'), ('corrigendum', 'Corrigendum'), ('erratum', 'Erratum'), ('expression_of_concern', 'Expression of concern'), ('new_edition', 'New edition'), ('new_version', 'New version'), ('partial_retraction', 'Partial_retraction'), ('removal', 'Removal'), ('retraction', 'Retraction'), ('withdrawal', 'Withdrawal')], default='correction', max_length=16)),
-                ('text', models.TextField(help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.')),
-                ('publication_date', models.DateField(verbose_name='publication date')),
-                ('doideposit_needs_updating', models.BooleanField(default=False)),
-                ('doi_label', models.CharField(blank=True, max_length=200)),
-                ('publication', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='updates', to='journals.Publication')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("number", models.PositiveSmallIntegerField()),
+                (
+                    "update_type",
+                    models.CharField(
+                        choices=[
+                            ("addendum", "Addendum"),
+                            ("clarification", "Clarification"),
+                            ("correction", "Correction"),
+                            ("corrigendum", "Corrigendum"),
+                            ("erratum", "Erratum"),
+                            ("expression_of_concern", "Expression of concern"),
+                            ("new_edition", "New edition"),
+                            ("new_version", "New version"),
+                            ("partial_retraction", "Partial_retraction"),
+                            ("removal", "Removal"),
+                            ("retraction", "Retraction"),
+                            ("withdrawal", "Withdrawal"),
+                        ],
+                        default="correction",
+                        max_length=16,
+                    ),
+                ),
+                (
+                    "text",
+                    models.TextField(
+                        help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'
+                    ),
+                ),
+                ("publication_date", models.DateField(verbose_name="publication date")),
+                ("doideposit_needs_updating", models.BooleanField(default=False)),
+                ("doi_label", models.CharField(blank=True, max_length=200)),
+                (
+                    "publication",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="updates",
+                        to="journals.Publication",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('-publication__publication_date', '-number'),
+                "ordering": ("-publication__publication_date", "-number"),
             },
         ),
         migrations.AddConstraint(
-            model_name='publicationupdate',
-            constraint=models.UniqueConstraint(fields=('publication', 'number'), name='unique_together_publication_number'),
+            model_name="publicationupdate",
+            constraint=models.UniqueConstraint(
+                fields=("publication", "number"),
+                name="unique_together_publication_number",
+            ),
         ),
     ]

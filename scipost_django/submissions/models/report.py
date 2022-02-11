@@ -13,38 +13,64 @@ from journals.models import Publication
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    REPORT_TYPES, REPORT_NORMAL,
-    REPORT_STATUSES, STATUS_DRAFT, STATUS_UNVETTED, STATUS_VETTED,
-    STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC,
-    REFEREE_QUALIFICATION, RANKING_CHOICES, QUALITY_SPEC,
-    REPORT_REC)
+    REPORT_TYPES,
+    REPORT_NORMAL,
+    REPORT_STATUSES,
+    STATUS_DRAFT,
+    STATUS_UNVETTED,
+    STATUS_VETTED,
+    STATUS_INCORRECT,
+    STATUS_UNCLEAR,
+    STATUS_NOT_USEFUL,
+    STATUS_NOT_ACADEMIC,
+    REFEREE_QUALIFICATION,
+    RANKING_CHOICES,
+    QUALITY_SPEC,
+    REPORT_REC,
+)
 from ..managers import ReportQuerySet
 
 
 class Report(SubmissionRelatedObjectMixin, models.Model):
     """Report on a Submission, written by a Contributor."""
 
-    status = models.CharField(max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED)
-    report_type = models.CharField(max_length=32, choices=REPORT_TYPES, default=REPORT_NORMAL)
-    submission = models.ForeignKey('submissions.Submission', related_name='reports',
-                                   on_delete=models.CASCADE)
-    report_nr = models.PositiveSmallIntegerField(default=0,
-                                                 help_text='This number is a unique number '
-                                                           'refeering to the Report nr. of '
-                                                           'the Submission')
-    vetted_by = models.ForeignKey('scipost.Contributor', related_name="report_vetted_by",
-                                  blank=True, null=True, on_delete=models.CASCADE)
+    status = models.CharField(
+        max_length=16, choices=REPORT_STATUSES, default=STATUS_UNVETTED
+    )
+    report_type = models.CharField(
+        max_length=32, choices=REPORT_TYPES, default=REPORT_NORMAL
+    )
+    submission = models.ForeignKey(
+        "submissions.Submission", related_name="reports", on_delete=models.CASCADE
+    )
+    report_nr = models.PositiveSmallIntegerField(
+        default=0,
+        help_text="This number is a unique number "
+        "refeering to the Report nr. of "
+        "the Submission",
+    )
+    vetted_by = models.ForeignKey(
+        "scipost.Contributor",
+        related_name="report_vetted_by",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     # `invited' filled from RefereeInvitation objects at moment of report submission
     invited = models.BooleanField(default=False)
 
     # `flagged' if author of report has been flagged by submission authors (surname check only)
     flagged = models.BooleanField(default=False)
-    author = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                               related_name='reports')
+    author = models.ForeignKey(
+        "scipost.Contributor", on_delete=models.CASCADE, related_name="reports"
+    )
     qualification = models.PositiveSmallIntegerField(
-        null=True, blank=True, choices=REFEREE_QUALIFICATION,
-        verbose_name="Qualification to referee this: I am")
+        null=True,
+        blank=True,
+        choices=REFEREE_QUALIFICATION,
+        verbose_name="Qualification to referee this: I am",
+    )
 
     # Text-based reporting
     strengths = models.TextField(blank=True)
@@ -53,63 +79,87 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     requested_changes = models.TextField(verbose_name="requested changes", blank=True)
 
     # Comments can be added to a Submission
-    comments = GenericRelation('comments.Comment', related_query_name='reports')
+    comments = GenericRelation("comments.Comment", related_query_name="reports")
 
     # Qualities:
-    validity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
-                                                null=True, blank=True)
-    significance = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
-                                                    null=True, blank=True)
-    originality = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
-                                                   null=True, blank=True)
-    clarity = models.PositiveSmallIntegerField(choices=RANKING_CHOICES,
-                                               null=True, blank=True)
-    formatting = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
-                                          verbose_name="Quality of paper formatting")
-    grammar = models.SmallIntegerField(choices=QUALITY_SPEC, null=True, blank=True,
-                                       verbose_name="Quality of English grammar")
+    validity = models.PositiveSmallIntegerField(
+        choices=RANKING_CHOICES, null=True, blank=True
+    )
+    significance = models.PositiveSmallIntegerField(
+        choices=RANKING_CHOICES, null=True, blank=True
+    )
+    originality = models.PositiveSmallIntegerField(
+        choices=RANKING_CHOICES, null=True, blank=True
+    )
+    clarity = models.PositiveSmallIntegerField(
+        choices=RANKING_CHOICES, null=True, blank=True
+    )
+    formatting = models.SmallIntegerField(
+        choices=QUALITY_SPEC,
+        null=True,
+        blank=True,
+        verbose_name="Quality of paper formatting",
+    )
+    grammar = models.SmallIntegerField(
+        choices=QUALITY_SPEC,
+        null=True,
+        blank=True,
+        verbose_name="Quality of English grammar",
+    )
 
     recommendation = models.SmallIntegerField(null=True, blank=True, choices=REPORT_REC)
-    remarks_for_editors = models.TextField(blank=True,
-                                           verbose_name='optional remarks for the Editors only')
+    remarks_for_editors = models.TextField(
+        blank=True, verbose_name="optional remarks for the Editors only"
+    )
     needs_doi = models.BooleanField(null=True, default=None)
     doideposit_needs_updating = models.BooleanField(default=False)
-    genericdoideposit = GenericRelation('journals.GenericDOIDeposit',
-                                        related_query_name='genericdoideposit')
+    genericdoideposit = GenericRelation(
+        "journals.GenericDOIDeposit", related_query_name="genericdoideposit"
+    )
     doi_label = models.CharField(max_length=200, blank=True)
-    anonymous = models.BooleanField(default=True, verbose_name='Publish anonymously')
-    pdf_report = models.FileField(upload_to='UPLOADS/REPORTS/%Y/%m/', max_length=200, blank=True)
+    anonymous = models.BooleanField(default=True, verbose_name="Publish anonymously")
+    pdf_report = models.FileField(
+        upload_to="UPLOADS/REPORTS/%Y/%m/", max_length=200, blank=True
+    )
 
-    date_submitted = models.DateTimeField('date submitted')
+    date_submitted = models.DateTimeField("date submitted")
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
     # Attachment
     file_attachment = models.FileField(
-        upload_to='uploads/reports/%Y/%m/%d/', blank=True,
+        upload_to="uploads/reports/%Y/%m/%d/",
+        blank=True,
         validators=[validate_file_extension, validate_max_file_size],
-        storage=SecureFileStorage())
+        storage=SecureFileStorage(),
+    )
 
     objects = ReportQuerySet.as_manager()
 
     class Meta:
-        unique_together = ('submission', 'report_nr')
-        default_related_name = 'reports'
-        ordering = ['-date_submitted']
+        unique_together = ("submission", "report_nr")
+        default_related_name = "reports"
+        ordering = ["-date_submitted"]
 
     def __str__(self):
         """Summarize the RefereeInvitation's basic information."""
         text = "Anonymous"
         if not self.anonymous:
-            text = self.author.user.first_name + ' ' + self.author.user.last_name
-        return (text + ' on ' +
-                self.submission.title[:50] + ' by ' + self.submission.author_list[:50])
+            text = self.author.user.first_name + " " + self.author.user.last_name
+        return (
+            text
+            + " on "
+            + self.submission.title[:50]
+            + " by "
+            + self.submission.author_list[:50]
+        )
 
     def save(self, *args, **kwargs):
         """Update report number before saving on creation."""
         if not self.report_nr:
             new_report_nr = self.submission.reports.aggregate(
-                models.Max('report_nr')).get('report_nr__max')
+                models.Max("report_nr")
+            ).get("report_nr__max")
             if new_report_nr:
                 new_report_nr += 1
             else:
@@ -119,23 +169,31 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
 
     def get_absolute_url(self):
         """Return url of the Report on the Submission detail page."""
-        return self.submission.get_absolute_url() + '#report_' + str(self.report_nr)
+        return self.submission.get_absolute_url() + "#report_" + str(self.report_nr)
 
     def get_notification_url(self, url_code):
         """Return url related to the Report by the `url_code` meant for Notifications."""
-        if url_code == 'report_form':
+        if url_code == "report_form":
             return reverse(
-                'submissions:submit_report', args=(self.submission.preprint.identifier_w_vn_nr,))
-        elif url_code == 'editorial_page':
+                "submissions:submit_report",
+                args=(self.submission.preprint.identifier_w_vn_nr,),
+            )
+        elif url_code == "editorial_page":
             return reverse(
-                'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,))
+                "submissions:editorial_page",
+                args=(self.submission.preprint.identifier_w_vn_nr,),
+            )
         return self.get_absolute_url()
 
     def get_attachment_url(self):
         """Return url of the Report its attachment if exists."""
-        return reverse('submissions:report_attachment', kwargs={
-            'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr,
-            'report_nr': self.report_nr})
+        return reverse(
+            "submissions:report_attachment",
+            kwargs={
+                "identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr,
+                "report_nr": self.report_nr,
+            },
+        )
 
     @property
     def is_in_draft(self):
@@ -156,7 +214,11 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def is_rejected(self):
         """Return if Report is rejected."""
         return self.status in [
-            STATUS_INCORRECT, STATUS_UNCLEAR, STATUS_NOT_USEFUL, STATUS_NOT_ACADEMIC]
+            STATUS_INCORRECT,
+            STATUS_UNCLEAR,
+            STATUS_NOT_USEFUL,
+            STATUS_NOT_ACADEMIC,
+        ]
 
     @property
     def notification_name(self):
@@ -167,8 +229,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
     def doi_string(self):
         """Return the doi with the registrant identifier prefix."""
         if self.doi_label:
-            return '10.21468/' + self.doi_label
-        return ''
+            return "10.21468/" + self.doi_label
+        return ""
 
     @cached_property
     def title(self):
@@ -186,9 +248,14 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         This property is used in the ReportForm, but will be candidate to become a database
         field if this information becomes necessary in more general information representation.
         """
-        return (self.author.reports.accepted().filter(
-            submission__thread_hash=self.submission.thread_hash,
-            submission__submission_date__lt=self.submission.submission_date).exists())
+        return (
+            self.author.reports.accepted()
+            .filter(
+                submission__thread_hash=self.submission.thread_hash,
+                submission__submission_date__lt=self.submission.submission_date,
+            )
+            .exists()
+        )
 
     @property
     def associated_published_doi(self):
@@ -199,7 +266,8 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__thread_hash=self.submission.thread_hash)
+                accepted_submission__thread_hash=self.submission.thread_hash
+            )
         except Publication.DoesNotExist:
             return None
         return publication.doi_string
@@ -213,39 +281,50 @@ class Report(SubmissionRelatedObjectMixin, models.Model):
         """
         try:
             publication = Publication.objects.get(
-                accepted_submission__thread_hash=self.submission.thread_hash)
+                accepted_submission__thread_hash=self.submission.thread_hash
+            )
         except Publication.DoesNotExist:
             return None
 
         relation = {
-            'isReviewOfDOI': publication.doi_string,
-            'stage': 'pre-publication',
-            'type': 'referee-report',
-            'title': 'Report on ' + self.submission.preprint.identifier_w_vn_nr,
-            'contributor_role': 'reviewer',
+            "isReviewOfDOI": publication.doi_string,
+            "stage": "pre-publication",
+            "type": "referee-report",
+            "title": "Report on " + self.submission.preprint.identifier_w_vn_nr,
+            "contributor_role": "reviewer",
         }
         return relation
 
     @property
     def citation(self):
         """Return the proper citation format for this Report."""
-        citation = ''
+        citation = ""
         if self.doi_string:
             if self.anonymous:
-                citation += 'Anonymous, '
+                citation += "Anonymous, "
             else:
-                citation += '%s %s, ' % (self.author.user.first_name, self.author.user.last_name)
-            citation += 'Report on arXiv:%s, ' % self.submission.preprint.identifier_w_vn_nr
-            citation += 'delivered %s, ' % self.date_submitted.strftime('%Y-%m-%d')
-            citation += 'doi: %s' % self.doi_string
+                citation += "%s %s, " % (
+                    self.author.user.first_name,
+                    self.author.user.last_name,
+                )
+            citation += (
+                "Report on arXiv:%s, " % self.submission.preprint.identifier_w_vn_nr
+            )
+            citation += "delivered %s, " % self.date_submitted.strftime("%Y-%m-%d")
+            citation += "doi: %s" % self.doi_string
         return citation
 
     def create_doi_label(self):
         """Create a doi in the default format."""
-        Report.objects.filter(id=self.id).update(doi_label='SciPost.Report.{}'.format(self.id))
+        Report.objects.filter(id=self.id).update(
+            doi_label="SciPost.Report.{}".format(self.id)
+        )
 
     def latest_report_from_thread(self):
         """Get latest Report of this Report's author for the Submission thread."""
-        return self.author.reports.accepted().filter(
-            submission__thread_hash=self.submission.thread_hash
-        ).order_by('submission__submission_date').last()
+        return (
+            self.author.reports.accepted()
+            .filter(submission__thread_hash=self.submission.thread_hash)
+            .order_by("submission__submission_date")
+            .last()
+        )

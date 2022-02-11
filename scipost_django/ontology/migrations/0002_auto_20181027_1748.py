@@ -8,20 +8,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0001_initial'),
+        ("ontology", "0001_initial"),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='Relation',
+            name="Relation",
         ),
         migrations.AlterModelOptions(
-            name='tag',
-            options={'ordering': ['name']},
+            name="tag",
+            options={"ordering": ["name"]},
         ),
         migrations.AlterField(
-            model_name='topic',
-            name='tags',
-            field=models.ManyToManyField(blank=True, null=True, to='ontology.Tag'),
+            model_name="topic",
+            name="tags",
+            field=models.ManyToManyField(blank=True, null=True, to="ontology.Tag"),
         ),
     ]

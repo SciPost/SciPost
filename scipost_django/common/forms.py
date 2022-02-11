@@ -7,4 +7,4 @@ from django import forms
 
 class ModelChoiceFieldwithid(forms.ModelChoiceField):
     def label_from_instance(self, obj):
-        return '%s (id = %i)' % (super().label_from_instance(obj), obj.id)
+        return "%s (id = %i)" % (super().label_from_instance(obj), obj.id)

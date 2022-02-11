@@ -6,24 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0038_orcid_etc_from_contrib_to_profile'),
+        ("scipost", "0038_orcid_etc_from_contrib_to_profile"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='contributor',
-            name='accepts_SciPost_emails',
+            model_name="contributor",
+            name="accepts_SciPost_emails",
         ),
         migrations.RemoveField(
-            model_name='contributor',
-            name='orcid_id',
+            model_name="contributor",
+            name="orcid_id",
         ),
         migrations.RemoveField(
-            model_name='contributor',
-            name='personalwebpage',
+            model_name="contributor",
+            name="personalwebpage",
         ),
         migrations.RemoveField(
-            model_name='contributor',
-            name='title',
+            model_name="contributor",
+            name="title",
         ),
     ]

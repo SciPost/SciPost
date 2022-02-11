@@ -11,8 +11,9 @@ import shutil
 import requests
 
 from csp.decorators import csp_update, csp_exempt
-#from plotly.offline import plot
-#from plotly.graph_objs import Bar
+
+# from plotly.offline import plot
+# from plotly.graph_objs import Bar
 import plotly.graph_objects as pgo
 
 from django.contrib.auth.decorators import login_required
@@ -36,18 +37,42 @@ from django.shortcuts import get_object_or_404, get_list_or_404, render, redirec
 
 from dal import autocomplete
 
-from .constants import STATUS_DRAFT, ISSUES_AND_VOLUMES, ISSUES_ONLY, INDIVIDUAL_PUBLICATIONS
+from .constants import (
+    STATUS_DRAFT,
+    ISSUES_AND_VOLUMES,
+    ISSUES_ONLY,
+    INDIVIDUAL_PUBLICATIONS,
+)
 from .exceptions import InvalidDOIError
 from .models import (
-    Journal, Volume, Issue, Publication, Deposit, DOAJDeposit, GenericDOIDeposit,
-    PublicationAuthorsTable, OrgPubFraction, PublicationUpdate)
+    Journal,
+    Volume,
+    Issue,
+    Publication,
+    Deposit,
+    DOAJDeposit,
+    GenericDOIDeposit,
+    PublicationAuthorsTable,
+    OrgPubFraction,
+    PublicationUpdate,
+)
 from .forms import (
-    AbstractJATSForm, FundingInfoForm, VolumeForm, IssueForm,
-    AuthorsTableOrganizationSelectForm, CreateMetadataXMLForm, CitationListBibitemsForm,
-    ReferenceFormSet, CreateMetadataDOAJForm, DraftPublicationForm, PublicationGrantsForm,
-    DraftPublicationApprovalForm, PublicationPublishForm, PublicationAuthorOrderingFormSet,
+    AbstractJATSForm,
+    FundingInfoForm,
+    VolumeForm,
+    IssueForm,
+    AuthorsTableOrganizationSelectForm,
+    CreateMetadataXMLForm,
+    CitationListBibitemsForm,
+    ReferenceFormSet,
+    CreateMetadataDOAJForm,
+    DraftPublicationForm,
+    PublicationGrantsForm,
+    DraftPublicationApprovalForm,
+    PublicationPublishForm,
+    PublicationAuthorOrderingFormSet,
     OrgPubFractionsFormSet,
-    PublicationDynSelForm
+    PublicationDynSelForm,
 )
 from .mixins import PublicationMixin, ProdSupervisorPublicationPermissionMixin
 from .services import update_citedby
@@ -74,22 +99,29 @@ from guardian.decorators import permission_required
 # Autocomplete #
 ################
 
+
 class PublicationAutocompleteView(autocomplete.Select2QuerySetView):
     """
     View to feed the Select2 widget.
     """
+
     def get_queryset(self):
         qs = Publication.objects.published()
         if self.q:
-            qs = qs.filter(Q(title__icontains=self.q) |
-                           Q(doi_label__icontains=self.q) |
-                           Q(author_list__icontains=self.q))
-        return qs.order_by('-publication_date')
+            qs = qs.filter(
+                Q(title__icontains=self.q)
+                | Q(doi_label__icontains=self.q)
+                | Q(author_list__icontains=self.q)
+            )
+        return qs.order_by("-publication_date")
 
     def get_result_label(self, item):
         return format_html(
             '<strong>{}</strong><br>{}<br><span class="text-muted">by {}</span>',
-            item.doi_label, item.title, item.author_list)
+            item.doi_label,
+            item.title,
+            item.author_list,
+        )
 
 
 def _hx_publication_dynsel_list(request):
@@ -99,17 +131,18 @@ def _hx_publication_dynsel_list(request):
     else:
         publications = Publication.objects.none()
     context = {
-        'publications': publications,
-        'action_url_name': form.cleaned_data['action_url_name'],
-        'action_url_base_kwargs': form.cleaned_data['action_url_base_kwargs'],
-        'action_target_element_id': form.cleaned_data['action_target_element_id'],
+        "publications": publications,
+        "action_url_name": form.cleaned_data["action_url_name"],
+        "action_url_base_kwargs": form.cleaned_data["action_url_base_kwargs"],
+        "action_target_element_id": form.cleaned_data["action_target_element_id"],
     }
-    return render(request, 'journals/_hx_publication_dynsel_list.html', context)
+    return render(request, "journals/_hx_publication_dynsel_list.html", context)
 
 
 ################
 # DOI dispatch #
 ################
+
 
 def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
     """
@@ -126,7 +159,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
         # This DOI refers to a Journal landing page.
         return landing_page(request, journal_tag)
     elif part_2 is None:
-        doi_label = '{0}.{1}'.format(journal_tag, part_1)
+        doi_label = "{0}.{1}".format(journal_tag, part_1)
 
         if journal.structure == INDIVIDUAL_PUBLICATIONS:
             # Publication DOI for invidivual publication Journals.
@@ -139,7 +172,7 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
         # but that does not exist. Redirect to the Journal landing page instead.
         return landing_page(request, journal_tag)
     elif part_3 is None:
-        doi_label = '{0}.{1}.{2}'.format(journal_tag, part_1, part_2)
+        doi_label = "{0}.{1}.{2}".format(journal_tag, part_1, part_2)
 
         if journal.structure == ISSUES_AND_VOLUMES:
             # Issue DOI for Issue+Volumes Journals.
@@ -148,20 +181,24 @@ def doi_dispatch(request, journal_tag, part_1=None, part_2=None, part_3=None):
             # Publication DOI for Issue only Journals.
             return publication_detail(request, doi_label)
     else:
-        doi_label = '{0}.{1}.{2}.{3}'.format(journal_tag, part_1, part_2, part_3)
+        doi_label = "{0}.{1}.{2}.{3}".format(journal_tag, part_1, part_2, part_3)
         return publication_detail(request, doi_label)
 
     # Invalid db configure
-    raise InvalidDOIError({
-        'journal_tag': journal_tag,
-        'part_1': part_1,
-        'part_2': part_2,
-        'part_3': part_3})
+    raise InvalidDOIError(
+        {
+            "journal_tag": journal_tag,
+            "part_1": part_1,
+            "part_2": part_2,
+            "part_3": part_3,
+        }
+    )
 
 
 ############
 # Journals
 ############
+
 
 class JournalListView(ListView):
     model = Journal
@@ -169,22 +206,23 @@ class JournalListView(ListView):
     def get_queryset(self):
         qs = super().get_queryset()
         # for url /journals/?field=[acad_field_slug]
-        if self.request.GET.get('field'):
-            qs = qs.filter(college__acad_field__slug=self.request.GET.get('field'))
+        if self.request.GET.get("field"):
+            qs = qs.filter(college__acad_field__slug=self.request.GET.get("field"))
         # for url /journals/[acad_field_slug]
-        if 'acad_field' in self.kwargs:
-            qs = qs.filter(college__acad_field=self.kwargs['acad_field'])
+        if "acad_field" in self.kwargs:
+            qs = qs.filter(college__acad_field=self.kwargs["acad_field"])
         return qs
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         # for url /journals/?field=[acad_field_slug]
-        if self.request.GET.get('field'):
-            context['acad_field'] = get_object_or_404(
-                AcademicField, slug=self.request.GET.get('field'))
+        if self.request.GET.get("field"):
+            context["acad_field"] = get_object_or_404(
+                AcademicField, slug=self.request.GET.get("field")
+            )
         # for url /journals/[acad_field_slug]
-        if 'acad_field' in self.kwargs:
-            context['acad_field'] = self.kwargs['acad_field']
+        if "acad_field" in self.kwargs:
+            context["acad_field"] = self.kwargs["acad_field"]
         return context
 
 
@@ -192,33 +230,34 @@ class PublicationListView(PaginationMixin, ListView):
     """
     Show Publications filtered per specialty.
     """
+
     queryset = Publication.objects.published()
     paginate_by = 10
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if self.request.GET.get('journal'):
-            qs = qs.for_journal(self.request.GET['journal'])
+        if self.request.GET.get("journal"):
+            qs = qs.for_journal(self.request.GET["journal"])
 
-        if self.request.GET.get('issue'):
+        if self.request.GET.get("issue"):
             try:
-                issue = int(self.request.GET['issue'])
+                issue = int(self.request.GET["issue"])
             except ValueError:
                 issue = None
             if issue:
                 qs = qs.filter(in_issue__id=issue)
-        if self.request.GET.get('specialty'):
-            qs = qs.for_specialty(self.request.GET['specialty'])
+        if self.request.GET.get("specialty"):
+            qs = qs.for_specialty(self.request.GET["specialty"])
 
-        if self.request.GET.get('orderby') == 'citations':
-            qs = qs.order_by('-number_of_citations')
+        if self.request.GET.get("orderby") == "citations":
+            qs = qs.order_by("-number_of_citations")
         else:
-            qs = qs.order_by('-publication_date', '-paper_nr')
+            qs = qs.order_by("-publication_date", "-paper_nr")
         return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['recent_issues'] = Issue.objects.published().order_by('-start_date')[:5]
+        context["recent_issues"] = Issue.objects.published().order_by("-start_date")[:5]
         return context
 
 
@@ -229,24 +268,33 @@ def landing_page(request, doi_label):
     or paginates its individual Publications.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    accepted_submission_ids = [sub.id for sub in Submission.objects.accepted() \
-                               if sub.editorial_decision.for_journal==journal]
+    accepted_submission_ids = [
+        sub.id
+        for sub in Submission.objects.accepted()
+        if sub.editorial_decision.for_journal == journal
+    ]
     context = {
-        'journal': journal,
-        'most_cited': Publication.objects.for_journal(journal.name).published().most_cited(5),
-        'latest_publications': Publication.objects.for_journal(journal.name).published()[:5],
-        'accepted_submissions': Submission.objects.accepted().filter(
-            pk__in=accepted_submission_ids).order_by('-latest_activity'),
+        "journal": journal,
+        "most_cited": Publication.objects.for_journal(journal.name)
+        .published()
+        .most_cited(5),
+        "latest_publications": Publication.objects.for_journal(
+            journal.name
+        ).published()[:5],
+        "accepted_submissions": Submission.objects.accepted()
+        .filter(pk__in=accepted_submission_ids)
+        .order_by("-latest_activity"),
     }
-    return render(request, 'journals/journal_landing_page.html', context)
+    return render(request, "journals/journal_landing_page.html", context)
 
 
 class VolumesAdminListView(PermissionsMixin, PaginationMixin, ListView):
     """
     Admin: List all Volumes in the database.
     """
+
     model = Volume
-    permission_required = 'scipost.can_manage_issues'
+    permission_required = "scipost.can_manage_issues"
     paginate_by = 20
 
 
@@ -254,38 +302,42 @@ class VolumesAdminAddView(PermissionsMixin, CreateView):
     """
     Admin: Create new Volume.
     """
+
     model = Volume
     form_class = VolumeForm
-    success_url = reverse_lazy('journals:admin_volumes_list')
-    permission_required = 'scipost.can_manage_issues'
+    success_url = reverse_lazy("journals:admin_volumes_list")
+    permission_required = "scipost.can_manage_issues"
 
 
 class VolumesAdminUpdateView(PermissionsMixin, UpdateView):
     """
     Admin: Update Volume instance.
     """
+
     model = Volume
     form_class = VolumeForm
-    slug_field = slug_url_kwarg = 'doi_label'
-    success_url = reverse_lazy('journals:admin_volumes_list')
-    permission_required = 'scipost.can_manage_issues'
+    slug_field = slug_url_kwarg = "doi_label"
+    success_url = reverse_lazy("journals:admin_volumes_list")
+    permission_required = "scipost.can_manage_issues"
 
 
 class IssuesView(DetailView):
     """
     List all Issues sorted per Journal.
     """
+
     queryset = Journal.objects.has_issues()
-    slug_field = slug_url_kwarg = 'doi_label'
-    template_name = 'journals/journal_issues.html'
+    slug_field = slug_url_kwarg = "doi_label"
+    template_name = "journals/journal_issues.html"
 
 
 class IssuesAdminListView(PermissionsMixin, PaginationMixin, ListView):
     """
     Admin: List all Issues in the database.
     """
+
     model = Issue
-    permission_required = 'scipost.can_manage_issues'
+    permission_required = "scipost.can_manage_issues"
     paginate_by = 20
 
 
@@ -293,21 +345,23 @@ class IssuesAdminAddView(PermissionsMixin, CreateView):
     """
     Admin: Create new Issue.
     """
+
     model = Issue
     form_class = IssueForm
-    success_url = reverse_lazy('journals:admin_issue_list')
-    permission_required = 'scipost.can_manage_issues'
+    success_url = reverse_lazy("journals:admin_issue_list")
+    permission_required = "scipost.can_manage_issues"
 
 
 class IssuesAdminUpdateView(PermissionsMixin, UpdateView):
     """
     Admin: Update issue instance.
     """
+
     model = Issue
     form_class = IssueForm
-    slug_field = slug_url_kwarg = 'doi_label'
-    success_url = reverse_lazy('journals:admin_issue_list')
-    permission_required = 'scipost.can_manage_issues'
+    slug_field = slug_url_kwarg = "doi_label"
+    success_url = reverse_lazy("journals:admin_issue_list")
+    permission_required = "scipost.can_manage_issues"
 
 
 def authoring(request, doi_label=None):
@@ -315,8 +369,8 @@ def authoring(request, doi_label=None):
     context = {}
     if doi_label:
         journal = get_object_or_404(Journal, doi_label=doi_label)
-        context = {'journal': journal}
-    return render(request, 'journals/authoring.html', context)
+        context = {"journal": journal}
+    return render(request, "journals/authoring.html", context)
 
 
 def refereeing(request, doi_label=None):
@@ -324,14 +378,16 @@ def refereeing(request, doi_label=None):
     context = {}
     if doi_label:
         journal = get_object_or_404(Journal, doi_label=doi_label)
-        context = {'journal': journal}
-    return render(request, 'journals/refereeing.html', context)
+        context = {"journal": journal}
+    return render(request, "journals/refereeing.html", context)
 
 
 def redirect_to_about(request, doi_label):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     return redirect(
-        reverse('journal:about', kwargs={'doi_label': journal.doi_label}), permanent=True)
+        reverse("journal:about", kwargs={"doi_label": journal.doi_label}),
+        permanent=True,
+    )
 
 
 def about(request, doi_label):
@@ -350,31 +406,40 @@ def about(request, doi_label):
     citedby_impact_factor_1 = journal.citedby_impact_factor(year - 1)
     citedby_impact_factor_2 = journal.citedby_impact_factor(year - 2)
     context = {
-        'journal': journal,
-        'nr_publications': nr_publications,
-        'nr_publications_1': nr_publications_1,
-        'nr_publications_2': nr_publications_2,
-        'nr_citations': nr_citations,
-        'nr_citations_1': nr_citations_1,
-        'nr_citations_2': nr_citations_2,
-        'citedby_citescore': citedby_citescore,
-        'citedby_citescore_1': citedby_citescore_1,
-        'citedby_citescore_2': citedby_citescore_2,
-        'citedby_impact_factor_1': citedby_impact_factor_1,
-        'citedby_impact_factor_2': citedby_impact_factor_2,
+        "journal": journal,
+        "nr_publications": nr_publications,
+        "nr_publications_1": nr_publications_1,
+        "nr_publications_2": nr_publications_2,
+        "nr_citations": nr_citations,
+        "nr_citations_1": nr_citations_1,
+        "nr_citations_2": nr_citations_2,
+        "citedby_citescore": citedby_citescore,
+        "citedby_citescore_1": citedby_citescore_1,
+        "citedby_citescore_2": citedby_citescore_2,
+        "citedby_impact_factor_1": citedby_impact_factor_1,
+        "citedby_impact_factor_2": citedby_impact_factor_2,
     }
-    return render(request, 'journals/about.html', context)
+    return render(request, "journals/about.html", context)
 
 
 def provide_plot(x, y, name, nonce=None):
-    fig = pgo.Figure([ pgo.Bar(x=x, y=y, name=name) ]).to_html(
+    fig = pgo.Figure([pgo.Bar(x=x, y=y, name=name)]).to_html(
         config={
-            'modeBarButtonsToRemove': ['select2d', 'lasso2d', 'autoScale2d',
-                                       'toImage', 'zoom2d', 'zoomIn2d', 'zoomOut2d',],
+            "modeBarButtonsToRemove": [
+                "select2d",
+                "lasso2d",
+                "autoScale2d",
+                "toImage",
+                "zoom2d",
+                "zoomIn2d",
+                "zoomOut2d",
+            ],
         },
-        full_html=False, include_plotlyjs=False)
+        full_html=False,
+        include_plotlyjs=False,
+    )
     if nonce:
-        fig = fig.replace('<script ', f'<script nonce={nonce} ')
+        fig = fig.replace("<script ", f"<script nonce={nonce} ")
     return fig
 
 
@@ -382,43 +447,48 @@ def provide_plot(x, y, name, nonce=None):
 def metrics(request, doi_label, specialty=None):
     journal = get_object_or_404(Journal, doi_label=doi_label)
     context = {
-        'journal': journal,
-        'specialty': specialty,
+        "journal": journal,
+        "specialty": specialty,
     }
-    key = 'all'
+    key = "all"
     if specialty:
         key = specialty.slug
     nr_publications_plot = provide_plot(
-        x=journal.cf_metrics['nr_publications']['years'],
-        y=journal.cf_metrics['nr_publications']['nr_publications'][key],
-        name='publications',
-        nonce=request.csp_nonce)
+        x=journal.cf_metrics["nr_publications"]["years"],
+        y=journal.cf_metrics["nr_publications"]["nr_publications"][key],
+        name="publications",
+        nonce=request.csp_nonce,
+    )
     nr_submissions_plot = provide_plot(
-        x=journal.cf_metrics['nr_submissions']['years'],
-        y=journal.cf_metrics['nr_submissions']['nr_submissions'][key],
-        name='submissions',
-        nonce=request.csp_nonce)
+        x=journal.cf_metrics["nr_submissions"]["years"],
+        y=journal.cf_metrics["nr_submissions"]["nr_submissions"][key],
+        name="submissions",
+        nonce=request.csp_nonce,
+    )
     nr_citations_plot = provide_plot(
-        x=journal.cf_metrics['nr_citations']['years'],
-        y=journal.cf_metrics['nr_citations']['nr_citations'][key],
-        name='citations',
-        nonce=request.csp_nonce)
+        x=journal.cf_metrics["nr_citations"]["years"],
+        y=journal.cf_metrics["nr_citations"]["nr_citations"][key],
+        name="citations",
+        nonce=request.csp_nonce,
+    )
     citescore_plot = provide_plot(
-        x=journal.cf_metrics['citedby_citescore']['years'],
-        y=journal.cf_metrics['citedby_citescore']['citedby_citescore'][key],
-        name='citations',
-        nonce=request.csp_nonce)
+        x=journal.cf_metrics["citedby_citescore"]["years"],
+        y=journal.cf_metrics["citedby_citescore"]["citedby_citescore"][key],
+        name="citations",
+        nonce=request.csp_nonce,
+    )
     impact_factor_plot = provide_plot(
-        x=journal.cf_metrics['citedby_impact_factor']['years'],
-        y=journal.cf_metrics['citedby_impact_factor']['citedby_impact_factor'][key],
-        name='citations',
-        nonce=request.csp_nonce)
-    context['nr_publications_plot'] = nr_publications_plot
-    context['nr_submissions_plot'] = nr_submissions_plot
-    context['nr_citations_plot'] = nr_citations_plot
-    context['citescore_plot'] = citescore_plot
-    context['impact_factor_plot'] = impact_factor_plot
-    return render(request, 'journals/metrics.html', context)
+        x=journal.cf_metrics["citedby_impact_factor"]["years"],
+        y=journal.cf_metrics["citedby_impact_factor"]["citedby_impact_factor"][key],
+        name="citations",
+        nonce=request.csp_nonce,
+    )
+    context["nr_publications_plot"] = nr_publications_plot
+    context["nr_submissions_plot"] = nr_submissions_plot
+    context["nr_citations_plot"] = nr_citations_plot
+    context["citescore_plot"] = citescore_plot
+    context["impact_factor_plot"] = impact_factor_plot
+    return render(request, "journals/metrics.html", context)
 
 
 def issue_detail(request, doi_label):
@@ -426,22 +496,34 @@ def issue_detail(request, doi_label):
     issue = get_object_or_404(Issue.objects.open_or_published(), doi_label=doi_label)
     journal = issue.in_journal or issue.in_volume.in_journal
 
-    papers = issue.publications.published().order_by('paper_nr')
-    next_issue = Issue.objects.published().filter(start_date__gt=issue.start_date).filter(
-        Q(in_volume__in_journal=journal) | Q(in_journal=journal),
-        ).distinct().order_by('start_date').first()
-    prev_issue = Issue.objects.published().filter(start_date__lt=issue.start_date).filter(
-        Q(in_volume__in_journal=journal) | Q(in_journal=journal)
-        ).distinct().order_by('start_date').last()
+    papers = issue.publications.published().order_by("paper_nr")
+    next_issue = (
+        Issue.objects.published()
+        .filter(start_date__gt=issue.start_date)
+        .filter(
+            Q(in_volume__in_journal=journal) | Q(in_journal=journal),
+        )
+        .distinct()
+        .order_by("start_date")
+        .first()
+    )
+    prev_issue = (
+        Issue.objects.published()
+        .filter(start_date__lt=issue.start_date)
+        .filter(Q(in_volume__in_journal=journal) | Q(in_journal=journal))
+        .distinct()
+        .order_by("start_date")
+        .last()
+    )
 
     context = {
-        'issue': issue,
-        'prev_issue': prev_issue,
-        'next_issue': next_issue,
-        'papers': papers,
-        'journal': journal
+        "issue": issue,
+        "prev_issue": prev_issue,
+        "next_issue": next_issue,
+        "papers": papers,
+        "journal": journal,
     }
-    return render(request, 'journals/journal_issue_detail.html', context)
+    return render(request, "journals/journal_issue_detail.html", context)
 
 
 #######################
@@ -449,42 +531,47 @@ def issue_detail(request, doi_label):
 #######################
 class PublicationGrantsView(PermissionsMixin, UpdateView):
     """Add/update grants associated to a Publication."""
-    permission_required = 'scipost.can_draft_publication'
+
+    permission_required = "scipost.can_draft_publication"
     queryset = Publication.objects.drafts()
-    slug_field = slug_url_kwarg = 'doi_label'
+    slug_field = slug_url_kwarg = "doi_label"
     form_class = PublicationGrantsForm
-    template_name = 'journals/grants_form.html'
+    template_name = "journals/grants_form.html"
 
 
 class PublicationGrantsRemovalView(PermissionsMixin, DetailView):
     """
     Remove grant associated to a Publication.
     """
-    permission_required = 'scipost.can_draft_publication'
+
+    permission_required = "scipost.can_draft_publication"
     queryset = Publication.objects.drafts()
-    slug_field = slug_url_kwarg = 'doi_label'
+    slug_field = slug_url_kwarg = "doi_label"
 
     def get(self, request, *args, **kwargs):
         super().get(request, *args, **kwargs)
-        grant = get_object_or_404(Grant, id=kwargs.get('grant_id'))
+        grant = get_object_or_404(Grant, id=kwargs.get("grant_id"))
         self.object.grants.remove(grant)
-        return redirect(reverse('journals:update_grants', args=(self.object.doi_label,)))
+        return redirect(
+            reverse("journals:update_grants", args=(self.object.doi_label,))
+        )
 
 
-@permission_required('scipost.can_publish_accepted_submission', raise_exception=True)
+@permission_required("scipost.can_publish_accepted_submission", raise_exception=True)
 def publication_authors_ordering(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     formset = PublicationAuthorOrderingFormSet(
-        request.POST or None, queryset=publication.authors.order_by('order'))
+        request.POST or None, queryset=publication.authors.order_by("order")
+    )
     if formset.is_valid():
         formset.save()
-        messages.success(request, 'Author ordering updated')
+        messages.success(request, "Author ordering updated")
         return redirect(publication.get_absolute_url())
     context = {
-        'formset': formset,
-        'publication': publication,
+        "formset": formset,
+        "publication": publication,
     }
-    return render(request, 'journals/publication_authors_form.html', context)
+    return render(request, "journals/publication_authors_form.html", context)
 
 
 class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
@@ -492,54 +579,62 @@ class DraftPublicationUpdateView(PermissionsMixin, UpdateView):
     Any Production Officer or Administrator can draft a new publication without publishing here.
     The actual publishing is done at a later stage, after the draft has been finished.
     """
-    permission_required = 'scipost.can_draft_publication'
+
+    permission_required = "scipost.can_draft_publication"
     queryset = Publication.objects.unpublished()
-    slug_url_kwarg = 'identifier_w_vn_nr'
-    slug_field = 'accepted_submission__preprint__identifier_w_vn_nr'
+    slug_url_kwarg = "identifier_w_vn_nr"
+    slug_field = "accepted_submission__preprint__identifier_w_vn_nr"
     form_class = DraftPublicationForm
-    template_name = 'journals/publication_form.html'
+    template_name = "journals/publication_form.html"
 
     def get_object(self, queryset=None):
         try:
             publication = Publication.objects.get(
                 accepted_submission__preprint__identifier_w_vn_nr=self.kwargs.get(
-                    'identifier_w_vn_nr'))
+                    "identifier_w_vn_nr"
+                )
+            )
         except Publication.DoesNotExist:
-            if Submission.objects.accepted().filter(preprint__identifier_w_vn_nr=self.kwargs.get(
-              'identifier_w_vn_nr')).exists():
+            if (
+                Submission.objects.accepted()
+                .filter(
+                    preprint__identifier_w_vn_nr=self.kwargs.get("identifier_w_vn_nr")
+                )
+                .exists()
+            ):
                 return None
-            raise Http404('No accepted Submission found')
+            raise Http404("No accepted Submission found")
         if publication.status == STATUS_DRAFT:
             return publication
-        if self.request.user.has_perm('scipost.can_publish_accepted_submission'):
+        if self.request.user.has_perm("scipost.can_publish_accepted_submission"):
             return publication
-        raise Http404('Found Publication is not in draft')
+        raise Http404("Found Publication is not in draft")
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['identifier_w_vn_nr'] = self.kwargs.get('identifier_w_vn_nr')
-        kwargs['issue_id'] = self.request.GET.get('issue')
+        kwargs["identifier_w_vn_nr"] = self.kwargs.get("identifier_w_vn_nr")
+        kwargs["issue_id"] = self.request.GET.get("issue")
         return kwargs
 
 
 class DraftPublicationApprovalView(PermissionsMixin, UpdateView):
-    permission_required = 'scipost.can_draft_publication'
+    permission_required = "scipost.can_draft_publication"
     queryset = Publication.objects.drafts()
-    slug_field = slug_url_kwarg = 'doi_label'
+    slug_field = slug_url_kwarg = "doi_label"
     form_class = DraftPublicationApprovalForm
-    template_name = 'journals/publication_approval_form.html'
+    template_name = "journals/publication_approval_form.html"
 
 
-@method_decorator(transaction.atomic, name='dispatch')
+@method_decorator(transaction.atomic, name="dispatch")
 class PublicationPublishView(PermissionsMixin, RequestViewMixin, UpdateView):
-    permission_required = 'scipost.can_publish_accepted_submission'
+    permission_required = "scipost.can_publish_accepted_submission"
     queryset = Publication.objects.unpublished()
-    slug_field = slug_url_kwarg = 'doi_label'
+    slug_field = slug_url_kwarg = "doi_label"
     form_class = PublicationPublishForm
-    template_name = 'journals/publication_publish_form.html'
+    template_name = "journals/publication_publish_form.html"
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def manage_metadata(request, doi_label=None):
 
     if doi_label:
@@ -547,16 +642,16 @@ def manage_metadata(request, doi_label=None):
         associate_grant_form = GrantSelectForm()
         associate_generic_funder_form = FunderSelectForm()
         context = {
-            'publication': publication,
-            'associate_grant_form': associate_grant_form,
-            'associate_generic_funder_form': associate_generic_funder_form,
+            "publication": publication,
+            "associate_grant_form": associate_grant_form,
+            "associate_generic_funder_form": associate_generic_funder_form,
         }
-        return render(request, 'journals/manage_metadata_for_publication.html', context)
+        return render(request, "journals/manage_metadata_for_publication.html", context)
 
     publications_list = Publication.objects.all()
     # Use Paginator to reduce request size.
     paginator = Paginator(publications_list, 20)
-    page = request.GET.get('page')
+    page = request.GET.get("page")
     try:
         publications = paginator.page(page)
     except PageNotAnInteger:
@@ -567,14 +662,14 @@ def manage_metadata(request, doi_label=None):
         publications = paginator.page(paginator.num_pages)
 
     context = {
-        'publications': publications,
-        'page_obj': publications,
-        'paginator': paginator,
+        "publications": publications,
+        "page_obj": publications,
+        "paginator": paginator,
     }
-    return render(request, 'journals/manage_metadata.html', context)
+    return render(request, "journals/manage_metadata.html", context)
 
 
-@permission_required('scipost.can_draft_publication', return_403=True)
+@permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
 def add_author(request, doi_label):
     """
@@ -586,42 +681,53 @@ def add_author(request, doi_label):
     This is important for the Crossref metadata, in which all authors must appear.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('can_publish_accepted_submission'):
-        raise Http404('You do not have permission to edit this non-draft Publication')
+    if not publication.is_draft and not request.user.has_perm(
+        "can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to edit this non-draft Publication")
 
     form = ProfileSelectForm(request.POST or None)
     if request.POST and form.is_valid():
         table, created = PublicationAuthorsTable.objects.get_or_create(
-            publication=publication,
-            profile=form.cleaned_data['profile'])
+            publication=publication, profile=form.cleaned_data["profile"]
+        )
         if created:
-            messages.success(request, 'Added {} as an author.'.format(table.profile))
+            messages.success(request, "Added {} as an author.".format(table.profile))
         else:
-            messages.warning(request, ('Author {} was already associated to this '
-                                       'Publication.'.format(table.profile)))
-        return redirect(reverse('journals:manage_metadata',
-                                kwargs={'doi_label': publication.doi_label}))
+            messages.warning(
+                request,
+                (
+                    "Author {} was already associated to this "
+                    "Publication.".format(table.profile)
+                ),
+            )
+        return redirect(
+            reverse(
+                "journals:manage_metadata", kwargs={"doi_label": publication.doi_label}
+            )
+        )
     context = {
-        'publication': publication,
-        'form': form,
+        "publication": publication,
+        "form": form,
     }
-    return render(request, 'journals/add_author.html', context)
+    return render(request, "journals/add_author.html", context)
 
 
 class AuthorAffiliationView(PublicationMixin, PermissionsMixin, DetailView):
     """
     Handle the author affiliations for a Publication.
     """
-    permission_required = 'scipost.can_draft_publication'
-    template_name = 'journals/author_affiliations.html'
+
+    permission_required = "scipost.can_draft_publication"
+    template_name = "journals/author_affiliations.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['add_affiliation_form'] = AuthorsTableOrganizationSelectForm()
+        context["add_affiliation_form"] = AuthorsTableOrganizationSelectForm()
         return context
 
 
-@permission_required('scipost.can_draft_publication', return_403=True)
+@permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
 def add_affiliation(request, doi_label, pk):
     """
@@ -630,17 +736,19 @@ def add_affiliation(request, doi_label, pk):
     table = get_object_or_404(PublicationAuthorsTable, pk=pk)
     form = AuthorsTableOrganizationSelectForm(request.POST or None)
     if form.is_valid():
-        table.affiliations.add(form.cleaned_data['organization'])
+        table.affiliations.add(form.cleaned_data["organization"])
         table.save()
         Publication.objects.filter(id=table.publication.id).update(
-            cf_author_affiliation_indices_list=[]) # force recompute it
-        return redirect(reverse('journals:author_affiliations',
-                                kwargs={'doi_label': doi_label}))
-    context = {'table': table, 'add_affiliation_form': form}
-    return render(request, 'journals/author_affiliation_add.html', context)
+            cf_author_affiliation_indices_list=[]
+        )  # force recompute it
+        return redirect(
+            reverse("journals:author_affiliations", kwargs={"doi_label": doi_label})
+        )
+    context = {"table": table, "add_affiliation_form": form}
+    return render(request, "journals/author_affiliation_add.html", context)
 
 
-@permission_required('scipost.can_draft_publication', return_403=True)
+@permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
 def remove_affiliation(request, doi_label, pk, organization_id):
     """
@@ -651,77 +759,98 @@ def remove_affiliation(request, doi_label, pk, organization_id):
     table.affiliations.remove(org)
     table.save()
     Publication.objects.filter(id=table.publication.id).update(
-        cf_author_affiliation_indices_list=[]) # force recompute it
-    return redirect(reverse('journals:author_affiliations',
-                            kwargs={'doi_label': doi_label}))
+        cf_author_affiliation_indices_list=[]
+    )  # force recompute it
+    return redirect(
+        reverse("journals:author_affiliations", kwargs={"doi_label": doi_label})
+    )
 
 
-@permission_required('scipost.can_draft_publication', return_403=True)
+@permission_required("scipost.can_draft_publication", return_403=True)
 def update_references(request, doi_label):
     """
     Update the References for a certain Publication.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('scipost.can_publish_accepted_submission'):
-        raise Http404('You do not have permission to edit this non-draft Publication')
+    if not publication.is_draft and not request.user.has_perm(
+        "scipost.can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to edit this non-draft Publication")
 
     references = publication.references.all()
-    formset = ReferenceFormSet(request.POST or None, queryset=references, publication=publication,
-                               extra=request.GET.get('extra'))
+    formset = ReferenceFormSet(
+        request.POST or None,
+        queryset=references,
+        publication=publication,
+        extra=request.GET.get("extra"),
+    )
 
-    if request.GET.get('prefill'):
+    if request.GET.get("prefill"):
         formset.prefill()
 
     if formset.is_valid():
         formset.save()
-        messages.success(request, 'References saved')
+        messages.success(request, "References saved")
         return redirect(publication.get_absolute_url())
 
     context = {
-        'publication': publication,
-        'formset': formset,
+        "publication": publication,
+        "formset": formset,
     }
-    return render(request, 'journals/update_references.html', context)
+    return render(request, "journals/update_references.html", context)
 
 
-class CitationUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
+class CitationUpdateView(
+    PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView
+):
     """
     Populates the citation_list dictionary entry in the metadata field in a Publication instance.
     """
+
     form_class = CitationListBibitemsForm
-    template_name = 'journals/create_citation_list_metadata.html'
+    template_name = "journals/create_citation_list_metadata.html"
 
     def get_success_url(self):
-        return reverse_lazy('journals:create_citation_list_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+        return reverse_lazy(
+            "journals:create_citation_list_metadata",
+            kwargs={"doi_label": self.object.doi_label},
+        )
 
 
-class AbstractJATSUpdateView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
+class AbstractJATSUpdateView(
+    PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView
+):
     """
     Add or update the JATS version of the abstract.
     This should be produced separately using pandoc.
     """
+
     form_class = AbstractJATSForm
-    template_name = 'journals/create_abstract_jats.html'
+    template_name = "journals/create_abstract_jats.html"
 
     def get_success_url(self):
-        return reverse_lazy('journals:manage_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+        return reverse_lazy(
+            "journals:manage_metadata", kwargs={"doi_label": self.object.doi_label}
+        )
 
 
-class FundingInfoView(PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView):
+class FundingInfoView(
+    PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView
+):
     """
     Add/update funding statement to the xml_metadata
     """
+
     form_class = FundingInfoForm
-    template_name = 'journals/create_funding_info_metadata.html'
+    template_name = "journals/create_funding_info_metadata.html"
 
     def get_success_url(self):
-        return reverse_lazy('journals:manage_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+        return reverse_lazy(
+            "journals:manage_metadata", kwargs={"doi_label": self.object.doi_label}
+        )
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 @transaction.atomic
 def add_associated_grant(request, doi_label):
     """
@@ -731,14 +860,16 @@ def add_associated_grant(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     grant_select_form = GrantSelectForm(request.POST or None)
     if grant_select_form.is_valid():
-        publication.grants.add(grant_select_form.cleaned_data['grant'])
+        publication.grants.add(grant_select_form.cleaned_data["grant"])
         publication.doideposit_needs_updating = True
         publication.save()
-        messages.success(request, 'Grant added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
+        messages.success(request, "Grant added to publication %s" % str(publication))
+    return redirect(
+        reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
+    )
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 @transaction.atomic
 def add_generic_funder(request, doi_label):
     """
@@ -748,72 +879,94 @@ def add_generic_funder(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     funder_select_form = FunderSelectForm(request.POST or None)
     if funder_select_form.is_valid():
-        publication.funders_generic.add(funder_select_form.cleaned_data['funder'])
+        publication.funders_generic.add(funder_select_form.cleaned_data["funder"])
         publication.save()
-        messages.success(request, 'Generic funder added to publication %s' % str(publication))
-    return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
+        messages.success(
+            request, "Generic funder added to publication %s" % str(publication)
+        )
+    return redirect(
+        reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
+    )
 
 
-class CreateMetadataXMLView(PublicationMixin,
-                            ProdSupervisorPublicationPermissionMixin,
-                            UpdateView):
+class CreateMetadataXMLView(
+    PublicationMixin, ProdSupervisorPublicationPermissionMixin, UpdateView
+):
     """
     To be called by an EdAdmin (or Production Supervisor) after the authors,
     author ordering, affiliations, citation_list, funding_info
     entries have been filled. Populates the metadata_xml field of a Publication instance.
     The contents can then be sent to Crossref for registration.
     """
+
     form_class = CreateMetadataXMLForm
-    template_name = 'journals/create_metadata_xml.html'
+    template_name = "journals/create_metadata_xml.html"
 
     def get_success_url(self):
-        return reverse_lazy('journals:manage_metadata',
-                            kwargs={'doi_label': self.object.doi_label})
+        return reverse_lazy(
+            "journals:manage_metadata", kwargs={"doi_label": self.object.doi_label}
+        )
 
 
-@permission_required('scipost.can_draft_publication', return_403=True)
+@permission_required("scipost.can_draft_publication", return_403=True)
 @transaction.atomic
-def metadata_xml_deposit(request, doi_label, option='test'):
+def metadata_xml_deposit(request, doi_label, option="test"):
     """
     Crossref metadata deposit.
     If test==True, test the metadata_xml using the Crossref test server.
     Makes use of the python requests module.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_draft and not request.user.has_perm('scipost.can_publish_accepted_submission'):
-        raise Http404('You do not have permission to access this non-draft Publication')
-    if not request.user.has_perm('scipost.can_publish_accepted_submission') and option != 'test':
-        raise PermissionDenied('You do not have permission to do real Crossref deposits')
+    if not publication.is_draft and not request.user.has_perm(
+        "scipost.can_publish_accepted_submission"
+    ):
+        raise Http404("You do not have permission to access this non-draft Publication")
+    if (
+        not request.user.has_perm("scipost.can_publish_accepted_submission")
+        and option != "test"
+    ):
+        raise PermissionDenied(
+            "You do not have permission to do real Crossref deposits"
+        )
 
     if publication.metadata_xml is None:
         messages.warning(
             request,
-            'This publication has no metadata. Produce it first before saving it.')
-        return redirect(reverse('journals:create_metadata_xml',
-                                kwargs={'doi_label': publication.doi_label}))
+            "This publication has no metadata. Produce it first before saving it.",
+        )
+        return redirect(
+            reverse(
+                "journals:create_metadata_xml",
+                kwargs={"doi_label": publication.doi_label},
+            )
+        )
 
-    timestamp = publication.metadata_xml.partition(
-        '<timestamp>')[2].partition('</timestamp>')[0]
-    doi_batch_id = publication.metadata_xml.partition(
-        '<doi_batch_id>')[2].partition('</doi_batch_id>')[0]
+    timestamp = publication.metadata_xml.partition("<timestamp>")[2].partition(
+        "</timestamp>"
+    )[0]
+    doi_batch_id = publication.metadata_xml.partition("<doi_batch_id>")[2].partition(
+        "</doi_batch_id>"
+    )[0]
 
     # Find Crossref xml files
-    path = ''
+    path = ""
     if publication.in_issue:
-        path += '{issue_path}/{paper_nr}/{doi_label}_Crossref'.format(
+        path += "{issue_path}/{paper_nr}/{doi_label}_Crossref".format(
             issue_path=publication.in_issue.path,
             paper_nr=publication.get_paper_nr(),
-            doi_label=publication.doi_label.replace('.', '_'))
+            doi_label=publication.doi_label.replace(".", "_"),
+        )
 
     if publication.in_journal:
-        path += 'SCIPOST_JOURNALS/{journal_doi_label}/{paper_nr}/{doi_label}_Crossref'.format(
+        path += "SCIPOST_JOURNALS/{journal_doi_label}/{paper_nr}/{doi_label}_Crossref".format(
             journal_doi_label=publication.in_journal.doi_label,
             paper_nr=publication.get_paper_nr(),
-            doi_label=publication.doi_label.replace('.', '_'))
+            doi_label=publication.doi_label.replace(".", "_"),
+        )
 
     os.makedirs(settings.MEDIA_ROOT + path, exist_ok=True)
-    path_wo_timestamp = path + '.xml'
-    path += '_{timestamp}.xml'.format(timestamp=timestamp)
+    path_wo_timestamp = path + ".xml"
+    path += "_{timestamp}.xml".format(timestamp=timestamp)
 
     valid = True
     response_headers = None
@@ -823,60 +976,65 @@ def metadata_xml_deposit(request, doi_label, option='test'):
         valid = False
     else:
         # New deposit, go for it.
-        if option == 'deposit' and not settings.DEBUG:
+        if option == "deposit" and not settings.DEBUG:
             # CAUTION: Real deposit only on production!
-            url = 'http://doi.crossref.org/servlet/deposit'
+            url = "http://doi.crossref.org/servlet/deposit"
         else:
-            url = 'http://test.crossref.org/servlet/deposit'
+            url = "http://test.crossref.org/servlet/deposit"
 
         # First perform the actual deposit to Crossref
         params = {
-            'operation': 'doMDUpload',
-            'login_id': settings.CROSSREF_LOGIN_ID,
-            'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
-            }
+            "operation": "doMDUpload",
+            "login_id": settings.CROSSREF_LOGIN_ID,
+            "login_passwd": settings.CROSSREF_LOGIN_PASSWORD,
+        }
         files = {
-            'fname': ('metadata.xml',
-                      publication.metadata_xml.encode('utf-8'),
-                      'multipart/form-data')
+            "fname": (
+                "metadata.xml",
+                publication.metadata_xml.encode("utf-8"),
+                "multipart/form-data",
+            )
         }
         r = requests.post(url, params=params, files=files)
         response_headers = r.headers
         response_text = r.text
 
         # Then create the associated Deposit object (saving the metadata to a file)
-        if option == 'deposit':
-            deposit = Deposit(publication=publication,
-                              timestamp=timestamp,
-                              doi_batch_id=doi_batch_id,
-                              metadata_xml=publication.metadata_xml,
-                              deposition_date=timezone.now())
+        if option == "deposit":
+            deposit = Deposit(
+                publication=publication,
+                timestamp=timestamp,
+                doi_batch_id=doi_batch_id,
+                metadata_xml=publication.metadata_xml,
+                deposition_date=timezone.now(),
+            )
             deposit.response_text = r.text
 
             # Save the filename with timestamp
-            f = open(settings.MEDIA_ROOT + path, 'w', encoding='utf-8')
+            f = open(settings.MEDIA_ROOT + path, "w", encoding="utf-8")
             f.write(publication.metadata_xml)
             f.close()
 
             # Update Crossref timestamp-free file to latest deposit
-            shutil.copyfile(settings.MEDIA_ROOT + path,
-                            settings.MEDIA_ROOT + path_wo_timestamp)
+            shutil.copyfile(
+                settings.MEDIA_ROOT + path, settings.MEDIA_ROOT + path_wo_timestamp
+            )
             deposit.metadata_xml_file = path
             deposit.save()
             publication.latest_crossref_deposit = timezone.now()
             publication.save()
 
     context = {
-        'option': option,
-        'publication': publication,
-        'response_headers': response_headers,
-        'response_text': response_text,
-        'valid': valid,
+        "option": option,
+        "publication": publication,
+        "response_headers": response_headers,
+        "response_text": response_text,
+        "valid": valid,
     }
-    return render(request, 'journals/metadata_xml_deposit.html', context)
+    return render(request, "journals/metadata_xml_deposit.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def mark_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(Deposit, pk=deposit_id)
     if success == 1:
@@ -886,26 +1044,29 @@ def mark_deposit_success(request, deposit_id, success):
     else:
         return Http404
     deposit.save()
-    return redirect('journals:manage_metadata')
+    return redirect("journals:manage_metadata")
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def produce_metadata_DOAJ(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    form = CreateMetadataDOAJForm(request.POST or None, instance=publication, request=request)
+    form = CreateMetadataDOAJForm(
+        request.POST or None, instance=publication, request=request
+    )
     if form.is_valid():
         form.save()
-        messages.success(request, '<h3>%s</h3>Successfully produced metadata DOAJ.'
-                                  % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
-    context = {
-        'publication': publication,
-        'form': form
-    }
-    return render(request, 'journals/metadata_doaj_create.html', context)
+        messages.success(
+            request,
+            "<h3>%s</h3>Successfully produced metadata DOAJ." % publication.doi_label,
+        )
+        return redirect(
+            reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
+        )
+    context = {"publication": publication, "form": form}
+    return render(request, "journals/metadata_doaj_create.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 @transaction.atomic
 def metadata_DOAJ_deposit(request, doi_label):
     """
@@ -915,69 +1076,90 @@ def metadata_DOAJ_deposit(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
 
     if not publication.metadata_DOAJ:
-        messages.warning(request, '<h3>%s</h3>Failed: please first produce '
-                                  'DOAJ metadata before depositing.' % publication.doi_label)
-        return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
+        messages.warning(
+            request,
+            "<h3>%s</h3>Failed: please first produce "
+            "DOAJ metadata before depositing." % publication.doi_label,
+        )
+        return redirect(
+            reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
+        )
 
-    #timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
-    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+    # timestamp = publication.metadata_xml.partition('<timestamp>')[2].partition('</timestamp>')[0]
+    timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
 
     # Find DOAJ json files
-    path = ''
+    path = ""
     if publication.in_issue:
-        path += '{issue_path}/{paper_nr}/{doi_label}_DOAJ'.format(
+        path += "{issue_path}/{paper_nr}/{doi_label}_DOAJ".format(
             issue_path=publication.in_issue.path,
             paper_nr=publication.get_paper_nr(),
-            doi_label=publication.doi_label.replace('.', '_'))
+            doi_label=publication.doi_label.replace(".", "_"),
+        )
     elif publication.in_journal:
-        path += 'SCIPOST_JOURNALS/{journal_doi_label}/{paper_nr}/{doi_label}_DOAJ'.format(
-            journal_doi_label=publication.in_journal.doi_label,
-            paper_nr=publication.get_paper_nr(),
-            doi_label=publication.doi_label.replace('.', '_'))
+        path += (
+            "SCIPOST_JOURNALS/{journal_doi_label}/{paper_nr}/{doi_label}_DOAJ".format(
+                journal_doi_label=publication.in_journal.doi_label,
+                paper_nr=publication.get_paper_nr(),
+                doi_label=publication.doi_label.replace(".", "_"),
+            )
+        )
 
     os.makedirs(settings.MEDIA_ROOT + path, exist_ok=True)
-    path_wo_timestamp = path + '.json'
-    path += '_{timestamp}.json'.format(timestamp=timestamp)
+    path_wo_timestamp = path + ".json"
+    path += "_{timestamp}.json".format(timestamp=timestamp)
 
     if os.path.isfile(settings.MEDIA_ROOT + path):
-        errormessage = 'The metadata file for this metadata timestamp already exists'
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+        errormessage = "The metadata file for this metadata timestamp already exists"
+        return render(
+            request, "scipost/error.html", context={"errormessage": errormessage}
+        )
 
-    url = 'https://doaj.org/api/v2/articles'
+    url = "https://doaj.org/api/v2/articles"
     params = {
-        'api_key': settings.DOAJ_API_KEY,
+        "api_key": settings.DOAJ_API_KEY,
     }
     try:
         r = requests.post(url, params=params, json=publication.metadata_DOAJ)
         r.raise_for_status()
     except requests.exceptions.HTTPError:
-        messages.warning(request, '<h3>%s</h3>Failed: Post went wrong, response text: %s' % (
-            publication.doi_label, r.text))
+        messages.warning(
+            request,
+            "<h3>%s</h3>Failed: Post went wrong, response text: %s"
+            % (publication.doi_label, r.text),
+        )
 
     # Then create the associated Deposit object (saving the metadata to a file)
-    deposit = DOAJDeposit(publication=publication, timestamp=timestamp,
-                          metadata_DOAJ=publication.metadata_DOAJ, deposition_date=timezone.now())
+    deposit = DOAJDeposit(
+        publication=publication,
+        timestamp=timestamp,
+        metadata_DOAJ=publication.metadata_DOAJ,
+        deposition_date=timezone.now(),
+    )
     deposit.response_text = r.text
 
     # Save a copy to the filename with and without timestamp
-    f = open(settings.MEDIA_ROOT + path, 'w')
+    f = open(settings.MEDIA_ROOT + path, "w")
     f.write(json.dumps(publication.metadata_DOAJ))
     f.close()
 
     # Copy file
-    shutil.copyfile(settings.MEDIA_ROOT + path,
-                    settings.MEDIA_ROOT + path_wo_timestamp)
+    shutil.copyfile(settings.MEDIA_ROOT + path, settings.MEDIA_ROOT + path_wo_timestamp)
 
     # Save the database entry
     deposit.metadata_DOAJ_file = path
     deposit.save()
 
-    messages.success(request, '<h3>%s</h3>Successful deposit of metadata DOAJ.'
-                              % publication.doi_label)
-    return redirect(reverse('journals:manage_metadata', kwargs={'doi_label': doi_label}))
+    messages.success(
+        request,
+        "<h3>%s</h3>Successful deposit of metadata DOAJ." % publication.doi_label,
+    )
+    return redirect(
+        reverse("journals:manage_metadata", kwargs={"doi_label": doi_label})
+    )
 
 
-@permission_required('scipost.can_manage_ontology', return_403=True)
+@permission_required("scipost.can_manage_ontology", return_403=True)
 def publication_add_topic(request, doi_label):
     """
     Add a predefined Topic to an existing Publication object.
@@ -986,16 +1168,19 @@ def publication_add_topic(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     select_topic_form = SelectTopicForm(request.POST or None)
     if select_topic_form.is_valid():
-        for topic in select_topic_form.cleaned_data['topic']:
+        for topic in select_topic_form.cleaned_data["topic"]:
             publication.topics.add(topic)
             for sub in publication.accepted_submission.thread:
                 sub.topics.add(topic)
-        messages.success(request, 'Successfully linked Topic(s) to this publication')
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_label': publication.doi_label}))
+        messages.success(request, "Successfully linked Topic(s) to this publication")
+    return redirect(
+        reverse(
+            "scipost:publication_detail", kwargs={"doi_label": publication.doi_label}
+        )
+    )
 
 
-@permission_required('scipost.can_manage_ontology', return_403=True)
+@permission_required("scipost.can_manage_ontology", return_403=True)
 def publication_remove_topic(request, doi_label, slug):
     """
     Remove the Topic from the Publication, and from all associated Submissions.
@@ -1005,9 +1190,12 @@ def publication_remove_topic(request, doi_label, slug):
     publication.topics.remove(topic)
     for sub in publication.accepted_submission.thread:
         sub.topics.remove(topic)
-    messages.success(request, 'Successfully removed Topic')
-    return redirect(reverse('scipost:publication_detail',
-                            kwargs={'doi_label': publication.doi_label}))
+    messages.success(request, "Successfully removed Topic")
+    return redirect(
+        reverse(
+            "scipost:publication_detail", kwargs={"doi_label": publication.doi_label}
+        )
+    )
 
 
 @login_required
@@ -1022,33 +1210,37 @@ def allocate_orgpubfractions(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     if not request.user.is_authenticated:
         raise Http404
-    elif not (request.user == publication.accepted_submission.submitted_by.user or
-              request.user.has_perm('scipost.can_publish_accepted_submission')):
+    elif not (
+        request.user == publication.accepted_submission.submitted_by.user
+        or request.user.has_perm("scipost.can_publish_accepted_submission")
+    ):
         raise Http404
 
     # Create OrgPubFraction objects from existing organization links
     for org in publication.get_organizations():
         pubfrac, created = OrgPubFraction.objects.get_or_create(
-            publication=publication, organization=org)
+            publication=publication, organization=org
+        )
 
-    formset = OrgPubFractionsFormSet(request.POST or None,
-                                     queryset=publication.pubfractions.all())
+    formset = OrgPubFractionsFormSet(
+        request.POST or None, queryset=publication.pubfractions.all()
+    )
     if formset.is_valid():
         formset.save()
         if request.user == publication.accepted_submission.submitted_by.user:
             publication.pubfractions_confirmed_by_authors = True
             publication.save()
-        messages.success(request, 'Funding fractions successfully allocated.')
+        messages.success(request, "Funding fractions successfully allocated.")
         return redirect(publication.get_absolute_url())
     context = {
-        'publication': publication,
-        'formset': formset,
+        "publication": publication,
+        "formset": formset,
     }
-    return render(request, 'journals/allocate_orgpubfractions.html', context)
+    return render(request, "journals/allocate_orgpubfractions.html", context)
 
 
 @login_required
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def request_pubfrac_check(request, doi_label):
     """
     This view is used by EdAdmin to request confirmation of the OrgPubFractions
@@ -1058,17 +1250,18 @@ def request_pubfrac_check(request, doi_label):
     been confirmed.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    mail_request =  MailEditorSubview(
-        request, 'authors/request_pubfrac_check', publication=publication)
+    mail_request = MailEditorSubview(
+        request, "authors/request_pubfrac_check", publication=publication
+    )
     if mail_request.is_valid():
-        messages.success(request, 'The corresponding author has been emailed.')
+        messages.success(request, "The corresponding author has been emailed.")
         mail_request.send_mail()
-        return redirect('journals:manage_metadata')
+        return redirect("journals:manage_metadata")
     else:
         return mail_request.interrupt()
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def mark_doaj_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(DOAJDeposit, pk=deposit_id)
     if success == 1:
@@ -1078,24 +1271,24 @@ def mark_doaj_deposit_success(request, deposit_id, success):
     else:
         raise Http404
     deposit.save()
-    return redirect('journals:manage_metadata')
+    return redirect("journals:manage_metadata")
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def harvest_citedby_list(request):
-    publications = Publication.objects.order_by('-publication_date')
-    context = {
-        'publications': publications
-    }
-    return render(request, 'journals/harvest_citedby_list.html', context)
+    publications = Publication.objects.order_by("-publication_date")
+    context = {"publications": publications}
+    return render(request, "journals/harvest_citedby_list.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 @transaction.atomic
 def harvest_citedby_links(request, doi_label):
     publication = get_object_or_404(Publication, doi_label=doi_label)
     update_citedby(doi_label)
-    return render(request, 'journals/harvest_citedby_links.html', {'publication': publication})
+    return render(
+        request, "journals/harvest_citedby_links.html", {"publication": publication}
+    )
 
 
 @login_required
@@ -1106,42 +1299,47 @@ def sign_existing_report(request, report_id):
     """
     report = get_object_or_404(Report, pk=report_id)
     if report.author != request.user.contributor:
-        errormessage = 'Only the author of this Report can change its anonymity status'
-        return render(request, 'scipost/error.html', context={'errormessage': errormessage})
+        errormessage = "Only the author of this Report can change its anonymity status"
+        return render(
+            request, "scipost/error.html", context={"errormessage": errormessage}
+        )
     form = ConfirmationForm(request.POST or None)
     if form.is_valid():
-        if form.cleaned_data['confirm'] == 'True':
+        if form.cleaned_data["confirm"] == "True":
             report.anonymous = False
             report.doideposit_needs_updating = True
             report.save()
-            messages.success(request, 'Your Report is now publicly signed.')
+            messages.success(request, "Your Report is now publicly signed.")
         else:
-            messages.error(request, 'Report signing operation cancelled.')
-        return redirect(reverse('scipost:personal_page'))
-    context = {'report': report, 'form': form}
-    return render(request, 'journals/sign_existing_report.html', context)
+            messages.error(request, "Report signing operation cancelled.")
+        return redirect(reverse("scipost:personal_page"))
+    context = {"report": report, "form": form}
+    return render(request, "journals/sign_existing_report.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def manage_report_metadata(request):
     """
     This page offers Editorial Administrators tools for managing
     the metadata of Reports.
     """
     reports = Report.objects.all()
-    ready_for_deposit = request.GET.get('ready_for_deposit') == '1'
+    ready_for_deposit = request.GET.get("ready_for_deposit") == "1"
     if ready_for_deposit:
-        report_ids = [r.id for r in reports.exclude(
-            needs_doi=False).filter(doi_label='') if r.associated_published_doi is not None]
-        reports = reports.filter(id__in=report_ids, doi_label='')
-    needing_update = request.GET.get('needing_update') == '1'
+        report_ids = [
+            r.id
+            for r in reports.exclude(needs_doi=False).filter(doi_label="")
+            if r.associated_published_doi is not None
+        ]
+        reports = reports.filter(id__in=report_ids, doi_label="")
+    needing_update = request.GET.get("needing_update") == "1"
     if needing_update:
         reports = reports.filter(
-            Q(needs_doi=None) | Q(needs_doi=True, doideposit_needs_updating=True)).filter(
-            submission__status=STATUS_PUBLISHED)
+            Q(needs_doi=None) | Q(needs_doi=True, doideposit_needs_updating=True)
+        ).filter(submission__status=STATUS_PUBLISHED)
 
     paginator = Paginator(reports, 25)
-    page = request.GET.get('page')
+    page = request.GET.get("page")
     try:
         reports = paginator.page(page)
     except PageNotAnInteger:
@@ -1150,14 +1348,14 @@ def manage_report_metadata(request):
         reports = paginator.page(paginator.num_pages)
 
     context = {
-        'reports': reports,
-        'page_obj': reports,
-        'paginator': paginator,
+        "reports": reports,
+        "page_obj": reports,
+        "paginator": paginator,
     }
-    return render(request, 'journals/manage_report_metadata.html', context)
+    return render(request, "journals/manage_report_metadata.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def manage_comment_metadata(request):
     """
     This page offers Editorial Administrators tools for managing
@@ -1166,7 +1364,7 @@ def manage_comment_metadata(request):
     comments = Comment.objects.all()
 
     paginator = Paginator(comments, 25)
-    page = request.GET.get('page')
+    page = request.GET.get("page")
     try:
         comments = paginator.page(page)
     except PageNotAnInteger:
@@ -1175,14 +1373,14 @@ def manage_comment_metadata(request):
         comments = paginator.page(paginator.num_pages)
 
     context = {
-        'comments': comments,
-        'page_obj': comments,
-        'paginator': paginator,
+        "comments": comments,
+        "page_obj": comments,
+        "paginator": paginator,
     }
-    return render(request, 'journals/manage_comment_metadata.html', context)
+    return render(request, "journals/manage_comment_metadata.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def manage_update_metadata(request):
     """
     This page offers Editorial Administrators tools for managing
@@ -1191,7 +1389,7 @@ def manage_update_metadata(request):
     updates = PublicationUpdate.objects.all()
 
     paginator = Paginator(updates, 25)
-    page = request.GET.get('page')
+    page = request.GET.get("page")
     try:
         updates = paginator.page(page)
     except PageNotAnInteger:
@@ -1200,14 +1398,14 @@ def manage_update_metadata(request):
         updates = paginator.page(paginator.num_pages)
 
     context = {
-        'updates': updates,
-        'page_obj': updates,
-        'paginator': paginator,
+        "updates": updates,
+        "page_obj": updates,
+        "paginator": paginator,
     }
-    return render(request, 'journals/manage_update_metadata.html', context)
+    return render(request, "journals/manage_update_metadata.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def mark_report_doi_needed(request, report_id, needed):
     report = get_object_or_404(Report, pk=report_id)
     if needed == 1:
@@ -1217,10 +1415,10 @@ def mark_report_doi_needed(request, report_id, needed):
     else:
         raise Http404
     report.save()
-    return redirect(reverse('journals:manage_report_metadata'))
+    return redirect(reverse("journals:manage_report_metadata"))
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def mark_comment_doi_needed(request, comment_id, needed):
     comment = get_object_or_404(Comment, pk=comment_id)
     if needed == 1:
@@ -1230,10 +1428,10 @@ def mark_comment_doi_needed(request, comment_id, needed):
     else:
         raise Http404
     comment.save()
-    return redirect(reverse('journals:manage_comment_metadata'))
+    return redirect(reverse("journals:manage_comment_metadata"))
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 @transaction.atomic
 def generic_metadata_xml_deposit(request, **kwargs):
     """
@@ -1256,14 +1454,14 @@ def generic_metadata_xml_deposit(request, **kwargs):
     """
     domain = Site.objects.get_current().domain
 
-    type_of_object = kwargs['type_of_object']
-    object_id = int(kwargs['object_id'])
+    type_of_object = kwargs["type_of_object"]
+    object_id = int(kwargs["object_id"])
 
-    if type_of_object == 'report':
+    if type_of_object == "report":
         _object = get_object_or_404(Report, id=object_id)
-    elif type_of_object == 'comment':
+    elif type_of_object == "comment":
         _object = get_object_or_404(Comment, id=object_id)
-    elif type_of_object == 'update':
+    elif type_of_object == "update":
         _object = get_object_or_404(PublicationUpdate, id=object_id)
 
     if not _object.doi_label:
@@ -1271,21 +1469,23 @@ def generic_metadata_xml_deposit(request, **kwargs):
         _object.refresh_from_db()
 
     metadata_xml = ""
-    timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
+    timestamp = timezone.now().strftime("%Y%m%d%H%M%S")
     # create a doi_batch_id
     salt = ""
     for i in range(5):
         salt = salt + random.choice(string.ascii_letters)
-    salt = salt.encode('utf8')
+    salt = salt.encode("utf8")
     idsalt = str(_object)[:10]
-    idsalt = idsalt.encode('utf8')
-    doi_batch_id = hashlib.sha1(salt+idsalt).hexdigest()
+    idsalt = idsalt.encode("utf8")
+    doi_batch_id = hashlib.sha1(salt + idsalt).hexdigest()
 
-    if type_of_object == 'update':
+    if type_of_object == "update":
         metadata_xml = _object.xml(doi_batch_id=doi_batch_id)
 
     else:  # Report or Comment
-        relation_to_published = _object.relation_to_published # Reports and Comments have this
+        relation_to_published = (
+            _object.relation_to_published
+        )  # Reports and Comments have this
 
         metadata_xml = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -1293,109 +1493,120 @@ def generic_metadata_xml_deposit(request, **kwargs):
             'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
             'xsi:schemaLocation="http://www.crossref.org/schema/4.4.1 '
             'http://www.crossref.org/shema/deposit/crossref4.4.1.xsd">\n'
-            '<head>\n'
-            '<doi_batch_id>' + str(doi_batch_id) + '</doi_batch_id>\n'
-            '<timestamp>' + timestamp + '</timestamp>\n'
-            '<depositor>\n'
-            '<depositor_name>scipost</depositor_name>\n'
-            '<email_address>' + settings.CROSSREF_DEPOSIT_EMAIL + '</email_address>\n'
-            '</depositor>\n'
-            '<registrant>scipost</registrant>\n'
-            '</head>\n'
+            "<head>\n"
+            "<doi_batch_id>" + str(doi_batch_id) + "</doi_batch_id>\n"
+            "<timestamp>" + timestamp + "</timestamp>\n"
+            "<depositor>\n"
+            "<depositor_name>scipost</depositor_name>\n"
+            "<email_address>" + settings.CROSSREF_DEPOSIT_EMAIL + "</email_address>\n"
+            "</depositor>\n"
+            "<registrant>scipost</registrant>\n"
+            "</head>\n"
         )
 
-        if relation_to_published: # Reports and Comments have this
+        if relation_to_published:  # Reports and Comments have this
             metadata_xml += (
-                '<body>\n'
-                '<peer_review stage="' + relation_to_published['stage'] + '">\n'
-                '<contributors>'
+                "<body>\n"
+                '<peer_review stage="' + relation_to_published["stage"] + '">\n'
+                "<contributors>"
             )
             if _object.anonymous:
                 metadata_xml += (
                     '<anonymous sequence="first" contributor_role="'
-                    + relation_to_published['contributor_role'] + '"/>'
+                    + relation_to_published["contributor_role"]
+                    + '"/>'
                 )
             else:
                 metadata_xml += (
                     '<person_name sequence="first" contributor_role="'
-                    + relation_to_published['contributor_role'] + '">'
-                    '<given_name>' + _object.author.user.first_name + '</given_name>'
-                    '<surname>' + _object.author.user.last_name + '</surname>'
-                    '</person_name>\n'
+                    + relation_to_published["contributor_role"]
+                    + '">'
+                    "<given_name>" + _object.author.user.first_name + "</given_name>"
+                    "<surname>" + _object.author.user.last_name + "</surname>"
+                    "</person_name>\n"
                 )
 
             if isinstance(_object, Publication):
-                url_to_declare = 'https://{domain}{doi}'.format(domain=domain, doi=_object.get_absolute_url())
+                url_to_declare = "https://{domain}{doi}".format(
+                    domain=domain, doi=_object.get_absolute_url()
+                )
             else:
-                url_to_declare = 'https://{domain}/{doi}'.format(domain=domain, doi=_object.doi_label)
+                url_to_declare = "https://{domain}/{doi}".format(
+                    domain=domain, doi=_object.doi_label
+                )
 
             metadata_xml += (
-                '</contributors>\n'
-                '<titles><title>' + relation_to_published['title'] + '</title></titles>\n'
-                '<review_date>'
-                '<month>' + _object.date_submitted.strftime('%m') + '</month>'
-                '<day>' + _object.date_submitted.strftime('%d') + '</day>'
-                '<year>' + _object.date_submitted.strftime('%Y') + '</year>'
-                '</review_date>\n'
+                "</contributors>\n"
+                "<titles><title>"
+                + relation_to_published["title"]
+                + "</title></titles>\n"
+                "<review_date>"
+                "<month>" + _object.date_submitted.strftime("%m") + "</month>"
+                "<day>" + _object.date_submitted.strftime("%d") + "</day>"
+                "<year>" + _object.date_submitted.strftime("%Y") + "</year>"
+                "</review_date>\n"
                 '<program xmlns="http://www.crossref.org/relations.xsd">\n'
-                '<related_item>'
-                '<description>' + relation_to_published['title'] + '</description>\n'
+                "<related_item>"
+                "<description>" + relation_to_published["title"] + "</description>\n"
                 '<inter_work_relation relationship-type="isReviewOf" identifier-type="doi">'
-                + relation_to_published['isReviewOfDOI'] + '</inter_work_relation></related_item>\n'
-                '</program>'
-                '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-                '<resource>' + url_to_declare +
-                '</resource></doi_data>\n'
-                '</peer_review>\n'
-                '</body>\n'
-                '</doi_batch>\n'
+                + relation_to_published["isReviewOfDOI"]
+                + "</inter_work_relation></related_item>\n"
+                "</program>"
+                "<doi_data><doi>" + _object.doi_string + "</doi>\n"
+                "<resource>" + url_to_declare + "</resource></doi_data>\n"
+                "</peer_review>\n"
+                "</body>\n"
+                "</doi_batch>\n"
             )
 
-        else: # Reports and Comments on not-yet-published objects
+        else:  # Reports and Comments on not-yet-published objects
             metadata_xml += (
-                '<body>\n'
-                '<database>\n'
+                "<body>\n"
+                "<database>\n"
                 '<database_metadata language="en">\n'
-                '<titles><title>SciPost Reports and Comments</title></titles>\n'
-                '</database_metadata>\n'
+                "<titles><title>SciPost Reports and Comments</title></titles>\n"
+                "</database_metadata>\n"
                 '<dataset dataset_type="collection">\n'
-                '<doi_data><doi>' + _object.doi_string + '</doi>\n'
-                '<resource>https://' + domain + _object.get_absolute_url() +
-                '</resource></doi_data>\n'
-                '</dataset></database>\n'
-                '</body></doi_batch>'
+                "<doi_data><doi>" + _object.doi_string + "</doi>\n"
+                "<resource>https://"
+                + domain
+                + _object.get_absolute_url()
+                + "</resource></doi_data>\n"
+                "</dataset></database>\n"
+                "</body></doi_batch>"
             )
-
 
     if not settings.CROSSREF_DEBUG:
         # CAUTION: Debug is False, production goes for real deposit!!!
-        url = 'http://doi.crossref.org/servlet/deposit'
+        url = "http://doi.crossref.org/servlet/deposit"
     else:
-        url = 'http://test.crossref.org/servlet/deposit'
+        url = "http://test.crossref.org/servlet/deposit"
     params = {
-        'operation': 'doMDUpload',
-        'login_id': settings.CROSSREF_LOGIN_ID,
-        'login_passwd': settings.CROSSREF_LOGIN_PASSWORD,
-        }
-    files = {'fname': ('metadata.xml', metadata_xml, 'multipart/form-data')}
+        "operation": "doMDUpload",
+        "login_id": settings.CROSSREF_LOGIN_ID,
+        "login_passwd": settings.CROSSREF_LOGIN_PASSWORD,
+    }
+    files = {"fname": ("metadata.xml", metadata_xml, "multipart/form-data")}
     r = requests.post(url, params=params, files=files)
-    deposit = GenericDOIDeposit(content_type=ContentType.objects.get_for_model(_object),
-                                object_id=object_id,
-                                content_object=_object,
-                                timestamp=timestamp,
-                                doi_batch_id=doi_batch_id,
-                                metadata_xml=metadata_xml,
-                                deposition_date=timezone.now(),
-                                response=r.text)
+    deposit = GenericDOIDeposit(
+        content_type=ContentType.objects.get_for_model(_object),
+        object_id=object_id,
+        content_object=_object,
+        timestamp=timestamp,
+        doi_batch_id=doi_batch_id,
+        metadata_xml=metadata_xml,
+        deposition_date=timezone.now(),
+        response=r.text,
+    )
     deposit.save()
     context = {
-        'response_headers': r.headers,
-        'response_text': r.text,
+        "response_headers": r.headers,
+        "response_text": r.text,
     }
-    return render(request, 'journals/generic_metadata_xml_deposit.html', context)
+    return render(request, "journals/generic_metadata_xml_deposit.html", context)
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def mark_generic_deposit_success(request, deposit_id, success):
     deposit = get_object_or_404(GenericDOIDeposit, pk=deposit_id)
     if success == 1:
@@ -1407,52 +1618,61 @@ def mark_generic_deposit_success(request, deposit_id, success):
     else:
         raise Http404
     deposit.save()
-    if deposit.content_type.name == 'report':
-        return redirect(reverse('journals:manage_report_metadata'))
+    if deposit.content_type.name == "report":
+        return redirect(reverse("journals:manage_report_metadata"))
     else:
-        return redirect(reverse('journals:manage_comment_metadata'))
+        return redirect(reverse("journals:manage_comment_metadata"))
 
 
-@permission_required('scipost.can_publish_accepted_submission', return_403=True)
+@permission_required("scipost.can_publish_accepted_submission", return_403=True)
 def email_object_made_citable(request, **kwargs):
     """
     This method sends an email to the author of a Report or a Comment,
     to notify that the object has been made citable (doi registered).
     """
-    type_of_object = kwargs['type_of_object']
-    object_id = int(kwargs['object_id'])
+    type_of_object = kwargs["type_of_object"]
+    object_id = int(kwargs["object_id"])
 
-    if type_of_object == 'report':
+    if type_of_object == "report":
         _object = get_object_or_404(Report, id=object_id)
-        redirect_to = reverse('journals:manage_report_metadata')
+        redirect_to = reverse("journals:manage_report_metadata")
         publication_citation = None
         publication_doi = None
         try:
             publication = Publication.objects.get(
-                accepted_submission__thread_hash=_object.submission.thread_hash)
+                accepted_submission__thread_hash=_object.submission.thread_hash
+            )
             publication_citation = publication.citation
             publication_doi = publication.doi_string
         except Publication.DoesNotExist:
             pass
-    elif type_of_object == 'comment':
+    elif type_of_object == "comment":
         _object = get_object_or_404(Comment, id=object_id)
-        redirect_to = reverse('journals:manage_comment_metadata')
+        redirect_to = reverse("journals:manage_comment_metadata")
     else:
         raise Http404
 
     if not _object.doi_label:
-        messages.warning(request, 'This object does not have a DOI yet.')
+        messages.warning(request, "This object does not have a DOI yet.")
         return redirect(redirect_to)
 
-    if type_of_object == 'report':
-        JournalUtils.load({'report': _object,
-                           'publication_citation': publication_citation,
-                           'publication_doi': publication_doi})
+    if type_of_object == "report":
+        JournalUtils.load(
+            {
+                "report": _object,
+                "publication_citation": publication_citation,
+                "publication_doi": publication_doi,
+            }
+        )
         JournalUtils.email_report_made_citable()
     else:
-        JournalUtils.load({'comment': _object, })
+        JournalUtils.load(
+            {
+                "comment": _object,
+            }
+        )
         JournalUtils.email_comment_made_citable()
-    messages.success(request, 'Email sent')
+    messages.success(request, "Email sent")
     return redirect(redirect_to)
 
 
@@ -1460,18 +1680,23 @@ def email_object_made_citable(request, **kwargs):
 # Viewing #
 ###########
 
+
 def report_detail(request, doi_label):
     report = get_object_or_404(Report.objects.accepted(), doi_label=doi_label)
     return redirect(report.get_absolute_url())
 
 
 def comment_detail(request, doi_label):
-    comment = get_object_or_404(Comment.objects.vetted().regular_comments(), doi_label=doi_label)
+    comment = get_object_or_404(
+        Comment.objects.vetted().regular_comments(), doi_label=doi_label
+    )
     return redirect(comment.get_absolute_url())
 
 
 def author_reply_detail(request, doi_label):
-    comment = get_object_or_404(Comment.objects.vetted().author_replies(), doi_label=doi_label)
+    comment = get_object_or_404(
+        Comment.objects.vetted().author_replies(), doi_label=doi_label
+    )
     return redirect(comment.get_absolute_url())
 
 
@@ -1481,17 +1706,19 @@ def publication_detail(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
-        raise Http404('Publication is not publicly visible')
+    if not publication.is_published and not request.user.has_perm(
+        "scipost.can_draft_publication"
+    ):
+        raise Http404("Publication is not publicly visible")
 
     context = {
-        'publication': publication,
-        'affiliation_indices': publication.get_author_affiliation_indices_list(),
-        'affiliations_list': publication.get_all_affiliations(),
-        'journal': publication.get_journal(),
-        'select_topic_form': SelectTopicForm(),
+        "publication": publication,
+        "affiliation_indices": publication.get_author_affiliation_indices_list(),
+        "affiliations_list": publication.get_all_affiliations(),
+        "journal": publication.get_journal(),
+        "select_topic_form": SelectTopicForm(),
     }
-    return render(request, 'journals/publication_detail.html', context)
+    return render(request, "journals/publication_detail.html", context)
 
 
 def publication_detail_pdf(request, doi_label):
@@ -1500,12 +1727,15 @@ def publication_detail_pdf(request, doi_label):
     visible for Production Supervisors and Administrators if in draft.
     """
     publication = get_object_or_404(Publication, doi_label=doi_label)
-    if not publication.is_published and not request.user.has_perm('scipost.can_draft_publication'):
-        raise Http404('Publication is not publicly visible')
+    if not publication.is_published and not request.user.has_perm(
+        "scipost.can_draft_publication"
+    ):
+        raise Http404("Publication is not publicly visible")
 
-    response = HttpResponse(publication.pdf_file.read(), content_type='application/pdf')
-    response['Content-Disposition'] = ('filename='
-                                       + publication.doi_label.replace('.', '_') + '.pdf')
+    response = HttpResponse(publication.pdf_file.read(), content_type="application/pdf")
+    response["Content-Disposition"] = (
+        "filename=" + publication.doi_label.replace(".", "_") + ".pdf"
+    )
     return response
 
 
@@ -1513,18 +1743,20 @@ def publication_update_detail(request, doi_label, update_nr):
     """
     Detail page for a PublicationUpdate.
     """
-    update = get_object_or_404(PublicationUpdate,
-                               publication__doi_label=doi_label, number=update_nr)
+    update = get_object_or_404(
+        PublicationUpdate, publication__doi_label=doi_label, number=update_nr
+    )
     context = {
-        'update': update,
-        'journal': update.publication.get_journal(),
+        "update": update,
+        "journal": update.publication.get_journal(),
     }
-    return render(request, 'journals/publication_update_detail.html', context)
+    return render(request, "journals/publication_update_detail.html", context)
 
 
 ######################
 # Feed DOIs to arXiv #
 ######################
+
 
 def arxiv_doi_feed(request, doi_label):
     """
@@ -1532,24 +1764,33 @@ def arxiv_doi_feed(request, doi_label):
     publications in the journal specified by doi_label.
     """
     journal = get_object_or_404(Journal, doi_label=doi_label)
-    feedxml = ('<preprint xmlns="http://arxiv.org/doi_feed" '
-               'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
-               'identifier="SciPost.org ' + doi_label + ' arXiv.org DOI feed" '
-               'version="DOI SnappyFeed v1.0" '
-               'xsi:schemaLocation="http://arxiv.org/doi_feed '
-               'http://arxiv.org/schemas/doi_feed.xsd">')
+    feedxml = (
+        '<preprint xmlns="http://arxiv.org/doi_feed" '
+        'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+        'identifier="SciPost.org ' + doi_label + ' arXiv.org DOI feed" '
+        'version="DOI SnappyFeed v1.0" '
+        'xsi:schemaLocation="http://arxiv.org/doi_feed '
+        'http://arxiv.org/schemas/doi_feed.xsd">'
+    )
     now = timezone.now()
-    feedxml += '<date year="%s" month="%s" day="%s" />' % (now.strftime('%Y'),
-                                                           now.strftime('%m'), now.strftime('%d'))
-    publications = journal.get_publications().order_by('-publication_date')[:100]
+    feedxml += '<date year="%s" month="%s" day="%s" />' % (
+        now.strftime("%Y"),
+        now.strftime("%m"),
+        now.strftime("%d"),
+    )
+    publications = journal.get_publications().order_by("-publication_date")[:100]
     for publication in publications:
         # Determine if any of the preprints in thread were on arXiv
         for sub in publication.accepted_submission.thread:
             if sub.preprint.is_arXiv:
-                feedxml += ('\n<article preprint_id="%s" doi="%s" journal_ref="%s" />' % (
-                    sub.preprint.identifier_w_vn_nr.rpartition('v')[0],
-                    publication.doi_string,
-                    publication.citation))
-                break # only do once for each publication
-    feedxml += '\n</preprint>'
-    return HttpResponse(feedxml, content_type='text/xml')
+                feedxml += (
+                    '\n<article preprint_id="%s" doi="%s" journal_ref="%s" />'
+                    % (
+                        sub.preprint.identifier_w_vn_nr.rpartition("v")[0],
+                        publication.doi_string,
+                        publication.citation,
+                    )
+                )
+                break  # only do once for each publication
+    feedxml += "\n</preprint>"
+    return HttpResponse(feedxml, content_type="text/xml")

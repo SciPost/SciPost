@@ -14,9 +14,10 @@ from ..managers import EditorialCommunicationQuerySet
 class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     """Message between two of the EIC, referees, Editorial Administration and/or authors."""
 
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE)
-    referee = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                                blank=True, null=True)
+    submission = models.ForeignKey("submissions.Submission", on_delete=models.CASCADE)
+    referee = models.ForeignKey(
+        "scipost.Contributor", on_delete=models.CASCADE, blank=True, null=True
+    )
     comtype = models.CharField(max_length=4, choices=ED_COMM_CHOICES)
     timestamp = models.DateTimeField(default=timezone.now)
     text = models.TextField()
@@ -24,17 +25,19 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
     objects = EditorialCommunicationQuerySet.as_manager()
 
     class Meta:
-        ordering = ['timestamp']
-        default_related_name = 'editorial_communications'
+        ordering = ["timestamp"]
+        default_related_name = "editorial_communications"
 
     def __str__(self):
         """Summarize the EditorialCommunication's meta information."""
         output = self.comtype
         if self.referee is not None:
-            output += ' ' + self.referee.user.first_name + ' ' + self.referee.user.last_name
-        output += ' for submission {title} by {authors}'.format(
-            title=self.submission.title[:30],
-            authors=self.submission.author_list[:30])
+            output += (
+                " " + self.referee.user.first_name + " " + self.referee.user.last_name
+            )
+        output += " for submission {title} by {authors}".format(
+            title=self.submission.title[:30], authors=self.submission.author_list[:30]
+        )
         return output
 
     def get_absolute_url(self):
@@ -43,7 +46,9 @@ class EditorialCommunication(SubmissionRelatedObjectMixin, models.Model):
 
     def get_notification_url(self, url_code):
         """Return url related to the Communication by the `url_code` meant for Notifications."""
-        if url_code == 'editorial_page':
+        if url_code == "editorial_page":
             return reverse(
-                'submissions:editorial_page', args=(self.submission.preprint.identifier_w_vn_nr,))
+                "submissions:editorial_page",
+                args=(self.submission.preprint.identifier_w_vn_nr,),
+            )
         return self.get_absolute_url()

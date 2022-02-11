@@ -10,21 +10,44 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='MailLog',
+            name="MailLog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('processed', models.BooleanField(default=False)),
-                ('body', models.TextField()),
-                ('body_html', models.TextField(blank=True)),
-                ('to_recipients', django.contrib.postgres.fields.ArrayField(base_field=models.EmailField(max_length=254), blank=True, null=True, size=None)),
-                ('bcc_recipients', django.contrib.postgres.fields.ArrayField(base_field=models.EmailField(max_length=254), blank=True, null=True, size=None)),
-                ('from_name', models.CharField(blank=True, max_length=254)),
-                ('subject', models.CharField(blank=True, max_length=254)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("processed", models.BooleanField(default=False)),
+                ("body", models.TextField()),
+                ("body_html", models.TextField(blank=True)),
+                (
+                    "to_recipients",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.EmailField(max_length=254),
+                        blank=True,
+                        null=True,
+                        size=None,
+                    ),
+                ),
+                (
+                    "bcc_recipients",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.EmailField(max_length=254),
+                        blank=True,
+                        null=True,
+                        size=None,
+                    ),
+                ),
+                ("from_name", models.CharField(blank=True, max_length=254)),
+                ("subject", models.CharField(blank=True, max_length=254)),
             ],
         ),
     ]

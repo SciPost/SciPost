@@ -6,9 +6,9 @@ from django.db import migrations
 
 
 def repopulate_organization_field(apps, schema_editor):
-    OrgPubFraction = apps.get_model('journals', 'OrgPubFraction')
-    PublicationAuthorsTable = apps.get_model('journals', 'PublicationAuthorsTable')
-    Organization = apps.get_model('organizations', 'Organization')
+    OrgPubFraction = apps.get_model("journals", "OrgPubFraction")
+    PublicationAuthorsTable = apps.get_model("journals", "PublicationAuthorsTable")
+    Organization = apps.get_model("organizations", "Organization")
 
     for frac in OrgPubFraction.objects.filter(org__isnull=False):
         frac.org = Organization.objects.get(name=frac.org.name)
@@ -24,10 +24,11 @@ def repopulate_organization_field(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0038_auto_20180922_1505'),
+        ("journals", "0038_auto_20180922_1505"),
     ]
 
     operations = [
-        migrations.RunPython(repopulate_organization_field,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            repopulate_organization_field, reverse_code=migrations.RunPython.noop
+        ),
     ]

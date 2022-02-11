@@ -8,18 +8,18 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0008_auto_20180203_1229'),
+        ("journals", "0008_auto_20180203_1229"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='publication',
-            old_name='authors',
-            new_name='authors_old',
+            model_name="publication",
+            old_name="authors",
+            new_name="authors_old",
         ),
         migrations.RenameField(
-            model_name='publication',
-            old_name='authors_unregistered',
-            new_name='authors_unregistered_old',
+            model_name="publication",
+            old_name="authors_unregistered",
+            new_name="authors_unregistered_old",
         ),
     ]

@@ -5,40 +5,57 @@ import scipost.fields
 
 
 def domains_to_approaches(apps, schema_editor):
-    ThesisLink = apps.get_model('theses.ThesisLink')
+    ThesisLink = apps.get_model("theses.ThesisLink")
 
-    for thesis in ThesisLink.objects.filter(domain__contains='E'):
+    for thesis in ThesisLink.objects.filter(domain__contains="E"):
         if thesis.approaches:
-            thesis.approaches.append('experimental')
+            thesis.approaches.append("experimental")
         else:
-            thesis.approaches = ('experimental',)
+            thesis.approaches = ("experimental",)
         thesis.save()
-    for thesis in ThesisLink.objects.filter(domain__contains='T'):
+    for thesis in ThesisLink.objects.filter(domain__contains="T"):
         if thesis.approaches:
-            thesis.approaches.append('theoretical')
+            thesis.approaches.append("theoretical")
         else:
-            thesis.approaches = ('theoretical',)
+            thesis.approaches = ("theoretical",)
         thesis.save()
-    for thesis in ThesisLink.objects.filter(domain__contains='C'):
+    for thesis in ThesisLink.objects.filter(domain__contains="C"):
         if thesis.approaches:
-            thesis.approaches.append('computational')
+            thesis.approaches.append("computational")
         else:
-            thesis.approaches = ('computational',)
+            thesis.approaches = ("computational",)
         thesis.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('theses', '0003_auto_20190522_1120'),
+        ("theses", "0003_auto_20190522_1120"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='thesislink',
-            name='approaches',
-            field=scipost.fields.ChoiceArrayField(base_field=models.CharField(choices=[('theoretical', 'Theoretical'), ('experimental', 'Experimental'), ('computational', 'Computational'), ('phenomenological', 'Phenomenological'), ('observational', 'Observational'), ('clinical', 'Clinical')], max_length=24), blank=True, null=True, size=None, verbose_name='approach(es) [optional]'),
+            model_name="thesislink",
+            name="approaches",
+            field=scipost.fields.ChoiceArrayField(
+                base_field=models.CharField(
+                    choices=[
+                        ("theoretical", "Theoretical"),
+                        ("experimental", "Experimental"),
+                        ("computational", "Computational"),
+                        ("phenomenological", "Phenomenological"),
+                        ("observational", "Observational"),
+                        ("clinical", "Clinical"),
+                    ],
+                    max_length=24,
+                ),
+                blank=True,
+                null=True,
+                size=None,
+                verbose_name="approach(es) [optional]",
+            ),
         ),
-        migrations.RunPython(domains_to_approaches,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            domains_to_approaches, reverse_code=migrations.RunPython.noop
+        ),
     ]

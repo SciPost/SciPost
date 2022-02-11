@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0013_composedmessageapiresponse'),
+        ("apimail", "0013_composedmessageapiresponse"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='composedmessageapiresponse',
-            old_name='response',
-            new_name='json',
+            model_name="composedmessageapiresponse",
+            old_name="response",
+            new_name="json",
         ),
         migrations.AddField(
-            model_name='composedmessageapiresponse',
-            name='status_code',
+            model_name="composedmessageapiresponse",
+            name="status_code",
             field=models.PositiveSmallIntegerField(default=200),
             preserve_default=False,
         ),

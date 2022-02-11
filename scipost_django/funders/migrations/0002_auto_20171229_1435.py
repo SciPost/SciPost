@@ -11,18 +11,23 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('funders', '0001_initial'),
-        ('scipost', '0001_initial'),
+        ("funders", "0001_initial"),
+        ("scipost", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='grant',
-            name='recipient',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='scipost.Contributor'),
+            model_name="grant",
+            name="recipient",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='grant',
-            unique_together=set([('funder', 'number')]),
+            name="grant",
+            unique_together=set([("funder", "number")]),
         ),
     ]

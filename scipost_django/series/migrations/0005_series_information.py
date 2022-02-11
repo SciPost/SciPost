@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('series', '0004_series_container_journals'),
+        ("series", "0004_series_container_journals"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='series',
-            name='information',
-            field=models.TextField(blank=True, help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'),
+            model_name="series",
+            name="information",
+            field=models.TextField(
+                blank=True,
+                help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.',
+            ),
         ),
     ]

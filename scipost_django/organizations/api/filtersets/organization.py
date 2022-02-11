@@ -11,9 +11,20 @@ class OrganizationPublicAPIFilterSet(df_filters.FilterSet):
     class Meta:
         model = Organization
         fields = {
-            'name': ['icontains',],
-            'name_original': ['icontains',],
-            'acronym': ['icontains',],
-            'country': ['exact',],
-            'cf_nr_associated_publications': ['gte', 'lte',]
+            "name": [
+                "icontains",
+            ],
+            "name_original": [
+                "icontains",
+            ],
+            "acronym": [
+                "icontains",
+            ],
+            "country": [
+                "exact",
+            ],
+            "cf_nr_associated_publications": [
+                "gte",
+                "lte",
+            ],
         }

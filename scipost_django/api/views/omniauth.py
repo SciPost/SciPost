@@ -23,7 +23,8 @@ class OmniAuthUserInfoView(View):
 
     This view is inspired by `oauth2_provider.views.IntrospectTokenView`.
     """
-    required_scopes = ['read']
+
+    required_scopes = ["read"]
 
     @staticmethod
     def get_userinfo_response(token_value=None):
@@ -34,32 +35,33 @@ class OmniAuthUserInfoView(View):
             return HttpResponse(
                 content=json.dumps({"error": "invalid_token"}),
                 status=401,
-                content_type="application/json"
+                content_type="application/json",
             )
         else:
             if token.is_valid():
                 data = {
-                    'provider': 'SciPost',
-                    'uid': str(token.user.id),
-                    'info': {
-                        'name': token.user.get_full_name(),
-                        'email': token.user.email,
-                        'nickname': token.user.get_username(),
-                        'first_name': token.user.get_short_name(),
-                        'last_name': token.user.last_name,
-                    }
+                    "provider": "SciPost",
+                    "uid": str(token.user.id),
+                    "info": {
+                        "name": token.user.get_full_name(),
+                        "email": token.user.email,
+                        "nickname": token.user.get_username(),
+                        "first_name": token.user.get_short_name(),
+                        "last_name": token.user.last_name,
+                    },
                 }
                 log.debug("Response for token %s:\n\t%s" % (token_value, data))
                 return HttpResponse(
                     content=json.dumps(data),
                     status=200,
-                    content_type="application/json")
+                    content_type="application/json",
+                )
             else:
                 log.debug("Token %s is invalid" % token_value)
                 return HttpResponse(
                     content=json.dumps({"error": "invalid_token"}),
                     status=200,
-                    content_type="application/json"
+                    content_type="application/json",
                 )
 
     def get(self, request, *args, **kwargs):

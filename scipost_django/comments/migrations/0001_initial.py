@@ -12,42 +12,129 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('latest_activity', scipost.db.fields.AutoDateTimeField(blank=True, default=django.utils.timezone.now, editable=False)),
-                ('status', models.SmallIntegerField(choices=[(1, 'vetted'), (0, 'not yet vetted (pending)'), (-1, 'rejected (unclear)'), (-2, 'rejected (incorrect)'), (-3, 'rejected (not useful)')], default=0)),
-                ('file_attachment', models.FileField(blank=True, upload_to='uploads/comments/%Y/%m/%d/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size])),
-                ('object_id', models.PositiveIntegerField(help_text='Warning: Rather use/edit `content_object` instead or be 100% sure you know what you are doing!')),
-                ('is_author_reply', models.BooleanField(default=False)),
-                ('anonymous', models.BooleanField(default=False, verbose_name='Publish anonymously')),
-                ('is_cor', models.BooleanField(default=False, verbose_name='correction/erratum')),
-                ('is_rem', models.BooleanField(default=False, verbose_name='remark')),
-                ('is_que', models.BooleanField(default=False, verbose_name='question')),
-                ('is_ans', models.BooleanField(default=False, verbose_name='answer to question')),
-                ('is_obj', models.BooleanField(default=False, verbose_name='objection')),
-                ('is_rep', models.BooleanField(default=False, verbose_name='reply to objection')),
-                ('is_val', models.BooleanField(default=False, verbose_name='validation or rederivation')),
-                ('is_lit', models.BooleanField(default=False, verbose_name='pointer to related literature')),
-                ('is_sug', models.BooleanField(default=False, verbose_name='suggestion for further work')),
-                ('comment_text', models.TextField()),
-                ('remarks_for_editors', models.TextField(blank=True, verbose_name='optional remarks for the Editors only')),
-                ('date_submitted', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date submitted')),
-                ('nr_A', models.PositiveIntegerField(default=0)),
-                ('nr_N', models.PositiveIntegerField(default=0)),
-                ('nr_D', models.PositiveIntegerField(default=0)),
-                ('needs_doi', models.NullBooleanField(default=None)),
-                ('doideposit_needs_updating', models.BooleanField(default=False)),
-                ('doi_label', models.CharField(blank=True, max_length=200)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "latest_activity",
+                    scipost.db.fields.AutoDateTimeField(
+                        blank=True, default=django.utils.timezone.now, editable=False
+                    ),
+                ),
+                (
+                    "status",
+                    models.SmallIntegerField(
+                        choices=[
+                            (1, "vetted"),
+                            (0, "not yet vetted (pending)"),
+                            (-1, "rejected (unclear)"),
+                            (-2, "rejected (incorrect)"),
+                            (-3, "rejected (not useful)"),
+                        ],
+                        default=0,
+                    ),
+                ),
+                (
+                    "file_attachment",
+                    models.FileField(
+                        blank=True,
+                        upload_to="uploads/comments/%Y/%m/%d/",
+                        validators=[
+                            comments.behaviors.validate_file_extension,
+                            comments.behaviors.validate_max_file_size,
+                        ],
+                    ),
+                ),
+                (
+                    "object_id",
+                    models.PositiveIntegerField(
+                        help_text="Warning: Rather use/edit `content_object` instead or be 100% sure you know what you are doing!"
+                    ),
+                ),
+                ("is_author_reply", models.BooleanField(default=False)),
+                (
+                    "anonymous",
+                    models.BooleanField(
+                        default=False, verbose_name="Publish anonymously"
+                    ),
+                ),
+                (
+                    "is_cor",
+                    models.BooleanField(
+                        default=False, verbose_name="correction/erratum"
+                    ),
+                ),
+                ("is_rem", models.BooleanField(default=False, verbose_name="remark")),
+                ("is_que", models.BooleanField(default=False, verbose_name="question")),
+                (
+                    "is_ans",
+                    models.BooleanField(
+                        default=False, verbose_name="answer to question"
+                    ),
+                ),
+                (
+                    "is_obj",
+                    models.BooleanField(default=False, verbose_name="objection"),
+                ),
+                (
+                    "is_rep",
+                    models.BooleanField(
+                        default=False, verbose_name="reply to objection"
+                    ),
+                ),
+                (
+                    "is_val",
+                    models.BooleanField(
+                        default=False, verbose_name="validation or rederivation"
+                    ),
+                ),
+                (
+                    "is_lit",
+                    models.BooleanField(
+                        default=False, verbose_name="pointer to related literature"
+                    ),
+                ),
+                (
+                    "is_sug",
+                    models.BooleanField(
+                        default=False, verbose_name="suggestion for further work"
+                    ),
+                ),
+                ("comment_text", models.TextField()),
+                (
+                    "remarks_for_editors",
+                    models.TextField(
+                        blank=True, verbose_name="optional remarks for the Editors only"
+                    ),
+                ),
+                (
+                    "date_submitted",
+                    models.DateTimeField(
+                        default=django.utils.timezone.now, verbose_name="date submitted"
+                    ),
+                ),
+                ("nr_A", models.PositiveIntegerField(default=0)),
+                ("nr_N", models.PositiveIntegerField(default=0)),
+                ("nr_D", models.PositiveIntegerField(default=0)),
+                ("needs_doi", models.NullBooleanField(default=None)),
+                ("doideposit_needs_updating", models.BooleanField(default=False)),
+                ("doi_label", models.CharField(blank=True, max_length=200)),
             ],
             options={
-                'permissions': (('can_vet_comments', 'Can vet submitted Comments'),),
+                "permissions": (("can_vet_comments", "Can vet submitted Comments"),),
             },
         ),
     ]

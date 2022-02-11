@@ -8,53 +8,53 @@ from django.utils.text import slugify
 # Copy these things here to make sure the migration works once they are not anymore
 # in scipost.constants
 
-DISCIPLINE_MULTI_ALL = 'multidisciplinary'
+DISCIPLINE_MULTI_ALL = "multidisciplinary"
 
-DISCIPLINE_MULTI_FORMAL = 'multidiscip-formal'
-DISCIPLINE_MATHEMATICS = 'mathematics'
-DISCIPLINE_COMPUTERSCIENCE = 'computerscience'
+DISCIPLINE_MULTI_FORMAL = "multidiscip-formal"
+DISCIPLINE_MATHEMATICS = "mathematics"
+DISCIPLINE_COMPUTERSCIENCE = "computerscience"
 
-DISCIPLINE_MULTI_NATURAL = 'multidiscip-natural'
-DISCIPLINE_PHYSICS = 'physics'
-DISCIPLINE_ASTRONOMY = 'astronomy'
-DISCIPLINE_BIOLOGY = 'biology'
-DISCIPLINE_CHEMISTRY = 'chemistry'
-DISCIPLINE_EARTHSCIENCE = 'earthscience'
+DISCIPLINE_MULTI_NATURAL = "multidiscip-natural"
+DISCIPLINE_PHYSICS = "physics"
+DISCIPLINE_ASTRONOMY = "astronomy"
+DISCIPLINE_BIOLOGY = "biology"
+DISCIPLINE_CHEMISTRY = "chemistry"
+DISCIPLINE_EARTHSCIENCE = "earthscience"
 
-DISCIPLINE_ENGINEERING_MULTI = 'multidiscip-eng'
-DISCIPLINE_CIVILENGINEERING = 'civileng'
-DISCIPLINE_ELECTRICALENGINEERING = 'electricaleng'
-DISCIPLINE_MECHANICALENGINEERING = 'mechanicaleng'
-DISCIPLINE_CHEMICALENGINEERING = 'chemicaleng'
-DISCIPLINE_MATERIALSENGINEERING = 'materialseng'
-DISCIPLINE_MEDICALENGINEERING = 'medicaleng'
-DISCIPLINE_ENVIRONMENTALENGINEERING = 'environmentaleng'
-DISCIPLINE_INDUSTRIALENGINEERING = 'industrialeng'
+DISCIPLINE_ENGINEERING_MULTI = "multidiscip-eng"
+DISCIPLINE_CIVILENGINEERING = "civileng"
+DISCIPLINE_ELECTRICALENGINEERING = "electricaleng"
+DISCIPLINE_MECHANICALENGINEERING = "mechanicaleng"
+DISCIPLINE_CHEMICALENGINEERING = "chemicaleng"
+DISCIPLINE_MATERIALSENGINEERING = "materialseng"
+DISCIPLINE_MEDICALENGINEERING = "medicaleng"
+DISCIPLINE_ENVIRONMENTALENGINEERING = "environmentaleng"
+DISCIPLINE_INDUSTRIALENGINEERING = "industrialeng"
 
-DISCIPLINE_MEDICAL_MULTI = 'multidiscip-med'
-DISCIPLINE_MEDICINE = 'medicine'
-DISCIPLINE_CLINICAL = 'clinical'
-DISCIPLINE_HEALTH = 'health'
+DISCIPLINE_MEDICAL_MULTI = "multidiscip-med"
+DISCIPLINE_MEDICINE = "medicine"
+DISCIPLINE_CLINICAL = "clinical"
+DISCIPLINE_HEALTH = "health"
 
-DISCIPLINE_AGRICULTURAL_MULTI = 'multidiscip-agri'
-DISCIPLINE_AGRICULTURAL = 'agricultural'
-DISCIPLINE_VETERINARY = 'veterinary'
+DISCIPLINE_AGRICULTURAL_MULTI = "multidiscip-agri"
+DISCIPLINE_AGRICULTURAL = "agricultural"
+DISCIPLINE_VETERINARY = "veterinary"
 
-DISCIPLINE_MULTI_SOCIAL = 'multidiscip-social'
-DISCIPLINE_ECONOMICS = 'economics'
-DISCIPLINE_GEOGRAPHY = 'geography'
-DISCIPLINE_LAW = 'law'
-DISCIPLINE_MEDIA = 'media'
-DISCIPLINE_PEDAGOGY = 'pedagogy'
-DISCIPLINE_POLITICALSCIENCE = 'politicalscience'
-DISCIPLINE_PSYCHOLOGY = 'psychology'
-DISCIPLINE_SOCIOLOGY = 'sociology'
+DISCIPLINE_MULTI_SOCIAL = "multidiscip-social"
+DISCIPLINE_ECONOMICS = "economics"
+DISCIPLINE_GEOGRAPHY = "geography"
+DISCIPLINE_LAW = "law"
+DISCIPLINE_MEDIA = "media"
+DISCIPLINE_PEDAGOGY = "pedagogy"
+DISCIPLINE_POLITICALSCIENCE = "politicalscience"
+DISCIPLINE_PSYCHOLOGY = "psychology"
+DISCIPLINE_SOCIOLOGY = "sociology"
 
-DISCIPLINE_MULTI_HUMANITIES = 'multidiscip-hum'
-DISCIPLINE_ART = 'art'
-DISCIPLINE_HISTORY = 'history'
-DISCIPLINE_LITERATURE = 'literature'
-DISCIPLINE_PHILOSOPHY = 'philosophy'
+DISCIPLINE_MULTI_HUMANITIES = "multidiscip-hum"
+DISCIPLINE_ART = "art"
+DISCIPLINE_HISTORY = "history"
+DISCIPLINE_LITERATURE = "literature"
+DISCIPLINE_PHILOSOPHY = "philosophy"
 
 
 # This classification more or less follows the document
@@ -62,266 +62,286 @@ DISCIPLINE_PHILOSOPHY = 'philosophy'
 # Working Party of National Experts on Science and Technology Indicators
 # REVISED FIELD OF SCIENCE AND TECHNOLOGY (FOS) CLASSIFICATION IN THE FRASCATI MANUAL
 SCIPOST_DISCIPLINES = (
-    ('Multidisciplinary',
-     (
-         (DISCIPLINE_MULTI_ALL, 'Multidisciplinary'),
-         # (DISCIPLINE_MULTI_FORMAL, 'Multidisciplinary (within Formal Sciences)'),
-         # (DISCIPLINE_MULTI_NATURAL, 'Multidisciplinary (within Natural Sciences)'),
-         # (DISCIPLINE_ENGINEERING_MULTI, 'Multidisciplinary (within Engineering and Technology)'),
-         # (DISCIPLINE_MEDICAL_MULTI, 'Multidisciplinary (within Medical Sciences)'),
-         # (DISCIPLINE_AGRICULTURAL_MULTI, 'Multidisciplinary (within Agricultural Sciences)'),
-         # (DISCIPLINE_MULTI_SOCIAL, 'Multidisciplinary (within Social Sciences)'),
-         # (DISCIPLINE_MULTI_HUMANITIES, 'Multidisciplinary (within Humanities)'),
-     )
+    (
+        "Multidisciplinary",
+        (
+            (DISCIPLINE_MULTI_ALL, "Multidisciplinary"),
+            # (DISCIPLINE_MULTI_FORMAL, 'Multidisciplinary (within Formal Sciences)'),
+            # (DISCIPLINE_MULTI_NATURAL, 'Multidisciplinary (within Natural Sciences)'),
+            # (DISCIPLINE_ENGINEERING_MULTI, 'Multidisciplinary (within Engineering and Technology)'),
+            # (DISCIPLINE_MEDICAL_MULTI, 'Multidisciplinary (within Medical Sciences)'),
+            # (DISCIPLINE_AGRICULTURAL_MULTI, 'Multidisciplinary (within Agricultural Sciences)'),
+            # (DISCIPLINE_MULTI_SOCIAL, 'Multidisciplinary (within Social Sciences)'),
+            # (DISCIPLINE_MULTI_HUMANITIES, 'Multidisciplinary (within Humanities)'),
+        ),
     ),
-    ('Formal Sciences',
-     (
-         (DISCIPLINE_MATHEMATICS, 'Mathematics'),
-         (DISCIPLINE_COMPUTERSCIENCE, 'Computer Science'),
-     )
+    (
+        "Formal Sciences",
+        (
+            (DISCIPLINE_MATHEMATICS, "Mathematics"),
+            (DISCIPLINE_COMPUTERSCIENCE, "Computer Science"),
+        ),
     ),
-    ('Natural Sciences',
-     (
-         (DISCIPLINE_PHYSICS, 'Physics'),
-         (DISCIPLINE_ASTRONOMY, 'Astronomy'),
-         (DISCIPLINE_BIOLOGY, 'Biology'),
-         (DISCIPLINE_CHEMISTRY, 'Chemistry'),
-         (DISCIPLINE_EARTHSCIENCE, 'Earth and Environmental Sciences'),
-     )
+    (
+        "Natural Sciences",
+        (
+            (DISCIPLINE_PHYSICS, "Physics"),
+            (DISCIPLINE_ASTRONOMY, "Astronomy"),
+            (DISCIPLINE_BIOLOGY, "Biology"),
+            (DISCIPLINE_CHEMISTRY, "Chemistry"),
+            (DISCIPLINE_EARTHSCIENCE, "Earth and Environmental Sciences"),
+        ),
     ),
-    ('Engineering',
-     (
-         (DISCIPLINE_CIVILENGINEERING, 'Civil Engineering'),
-         (DISCIPLINE_ELECTRICALENGINEERING, 'Electrical Engineering'),
-         (DISCIPLINE_MECHANICALENGINEERING, 'Mechanical Engineering'),
-         (DISCIPLINE_CHEMICALENGINEERING, 'Chemical Engineering'),
-         (DISCIPLINE_MATERIALSENGINEERING, 'Materials Engineering'),
-         (DISCIPLINE_MEDICALENGINEERING, 'Medical Engineering'),
-         (DISCIPLINE_ENVIRONMENTALENGINEERING, 'Environmental Engineering'),
-         (DISCIPLINE_INDUSTRIALENGINEERING, 'Industrial Engineering'),
-     )
+    (
+        "Engineering",
+        (
+            (DISCIPLINE_CIVILENGINEERING, "Civil Engineering"),
+            (DISCIPLINE_ELECTRICALENGINEERING, "Electrical Engineering"),
+            (DISCIPLINE_MECHANICALENGINEERING, "Mechanical Engineering"),
+            (DISCIPLINE_CHEMICALENGINEERING, "Chemical Engineering"),
+            (DISCIPLINE_MATERIALSENGINEERING, "Materials Engineering"),
+            (DISCIPLINE_MEDICALENGINEERING, "Medical Engineering"),
+            (DISCIPLINE_ENVIRONMENTALENGINEERING, "Environmental Engineering"),
+            (DISCIPLINE_INDUSTRIALENGINEERING, "Industrial Engineering"),
+        ),
     ),
-    ('Medical Sciences',
-     (
-         (DISCIPLINE_MEDICINE, 'Basic Medicine'),
-         (DISCIPLINE_CLINICAL, 'Clinical Medicine'),
-         (DISCIPLINE_HEALTH, 'Health Sciences'),
-     )
+    (
+        "Medical Sciences",
+        (
+            (DISCIPLINE_MEDICINE, "Basic Medicine"),
+            (DISCIPLINE_CLINICAL, "Clinical Medicine"),
+            (DISCIPLINE_HEALTH, "Health Sciences"),
+        ),
     ),
-    ('Agricultural Sciences',
-     (
-         (DISCIPLINE_AGRICULTURAL, 'Agriculture, Forestry and Fisheries'),
-         (DISCIPLINE_VETERINARY, 'Veterinary Science'),
-     )
+    (
+        "Agricultural Sciences",
+        (
+            (DISCIPLINE_AGRICULTURAL, "Agriculture, Forestry and Fisheries"),
+            (DISCIPLINE_VETERINARY, "Veterinary Science"),
+        ),
     ),
-    ('Social Sciences',
-     (
-         (DISCIPLINE_ECONOMICS, 'Economics'),
-         (DISCIPLINE_GEOGRAPHY, 'Geography'),
-         (DISCIPLINE_LAW, 'Law'),
-         (DISCIPLINE_MEDIA, 'Media and Communications'),
-         (DISCIPLINE_PEDAGOGY, 'Pedagogy and Educational Sciences'),
-         (DISCIPLINE_POLITICALSCIENCE, 'Political Science'),
-         (DISCIPLINE_PSYCHOLOGY, 'Psychology'),
-         (DISCIPLINE_SOCIOLOGY, 'Sociology'),
-     )
+    (
+        "Social Sciences",
+        (
+            (DISCIPLINE_ECONOMICS, "Economics"),
+            (DISCIPLINE_GEOGRAPHY, "Geography"),
+            (DISCIPLINE_LAW, "Law"),
+            (DISCIPLINE_MEDIA, "Media and Communications"),
+            (DISCIPLINE_PEDAGOGY, "Pedagogy and Educational Sciences"),
+            (DISCIPLINE_POLITICALSCIENCE, "Political Science"),
+            (DISCIPLINE_PSYCHOLOGY, "Psychology"),
+            (DISCIPLINE_SOCIOLOGY, "Sociology"),
+        ),
     ),
-    ('Humanities',
-     (
-         (DISCIPLINE_ART, 'Art (arts, history or arts, performing arts, music)'),
-         (DISCIPLINE_HISTORY, 'History and Archeology'),
-         (DISCIPLINE_LITERATURE, 'Language and Literature'),
-         (DISCIPLINE_PHILOSOPHY, 'Philosophy, Ethics and Religion'),
-     )
-    )
+    (
+        "Humanities",
+        (
+            (DISCIPLINE_ART, "Art (arts, history or arts, performing arts, music)"),
+            (DISCIPLINE_HISTORY, "History and Archeology"),
+            (DISCIPLINE_LITERATURE, "Language and Literature"),
+            (DISCIPLINE_PHILOSOPHY, "Philosophy, Ethics and Religion"),
+        ),
+    ),
 )
 
 
 # The subject areas should use the long version of the discipline as first tuple item
 # for each element in the list (so 'Physics' and not 'physics', etc).
 SCIPOST_SUBJECT_AREAS = (
-    ('Physics', (
-        ('Phys:AE', 'Atomic, Molecular and Optical Physics - Experiment'),
-        ('Phys:AT', 'Atomic, Molecular and Optical Physics - Theory'),
-        ('Phys:BI', 'Biophysics'),
-        ('Phys:CE', 'Condensed Matter Physics - Experiment'),
-        ('Phys:CT', 'Condensed Matter Physics - Theory'),
-        ('Phys:CC', 'Condensed Matter Physics - Computational'),
-        ('Phys:FD', 'Fluid Dynamics'),
-        ('Phys:GR', 'Gravitation, Cosmology and Astroparticle Physics'),
-        ('Phys:HE', 'High-Energy Physics - Experiment'),
-        ('Phys:HT', 'High-Energy Physics - Theory'),
-        ('Phys:HP', 'High-Energy Physics - Phenomenology'),
-        ('Phys:MP', 'Mathematical Physics'),
-        ('Phys:NE', 'Nuclear Physics - Experiment'),
-        ('Phys:NT', 'Nuclear Physics - Theory'),
-        ('Phys:QP', 'Quantum Physics'),
-        ('Phys:SM', 'Statistical and Soft Matter Physics'))
+    (
+        "Physics",
+        (
+            ("Phys:AE", "Atomic, Molecular and Optical Physics - Experiment"),
+            ("Phys:AT", "Atomic, Molecular and Optical Physics - Theory"),
+            ("Phys:BI", "Biophysics"),
+            ("Phys:CE", "Condensed Matter Physics - Experiment"),
+            ("Phys:CT", "Condensed Matter Physics - Theory"),
+            ("Phys:CC", "Condensed Matter Physics - Computational"),
+            ("Phys:FD", "Fluid Dynamics"),
+            ("Phys:GR", "Gravitation, Cosmology and Astroparticle Physics"),
+            ("Phys:HE", "High-Energy Physics - Experiment"),
+            ("Phys:HT", "High-Energy Physics - Theory"),
+            ("Phys:HP", "High-Energy Physics - Phenomenology"),
+            ("Phys:MP", "Mathematical Physics"),
+            ("Phys:NE", "Nuclear Physics - Experiment"),
+            ("Phys:NT", "Nuclear Physics - Theory"),
+            ("Phys:QP", "Quantum Physics"),
+            ("Phys:SM", "Statistical and Soft Matter Physics"),
+        ),
     ),
-    ('Astronomy', (
-        ('Astro:GA', 'Astrophysics of Galaxies'),
-        ('Astro:CO', 'Cosmology and Nongalactic Astrophysics'),
-        ('Astro:EP', 'Earth and Planetary Astrophysics'),
-        ('Astro:HE', 'High Energy Astrophysical Phenomena'),
-        ('Astro:IM', 'Instrumentation and Methods for Astrophysics'),
-        ('Astro:SR', 'Solar and Stellar Astrophysics'))
+    (
+        "Astronomy",
+        (
+            ("Astro:GA", "Astrophysics of Galaxies"),
+            ("Astro:CO", "Cosmology and Nongalactic Astrophysics"),
+            ("Astro:EP", "Earth and Planetary Astrophysics"),
+            ("Astro:HE", "High Energy Astrophysical Phenomena"),
+            ("Astro:IM", "Instrumentation and Methods for Astrophysics"),
+            ("Astro:SR", "Solar and Stellar Astrophysics"),
+        ),
     ),
-    ('Biology', (
-        ('Bio:AB', 'Animal Behavior and Cognition'),
-        ('Bio:BC', 'Biochemistry'),
-        ('Bio:BE', 'Bioengineering'),
-        ('Bio:BI', 'Bioinformatics'),
-        ('Bio:BP', 'Biophysics'),
-        ('Bio:CB', 'Cancer Biology'),
-        ('Bio:CE', 'Cell Biology'),
-        ('Bio:DB', 'Developmental Biology'),
-        ('Bio:EC', 'Ecology'),
-        ('Bio:EB', 'Evolutionary Biology'),
-        ('Bio:GE', 'Genetics'),
-        ('Bio:GO', 'Genomics'),
-        ('Bio:IM', 'Immunology'),
-        ('Bio:MI', 'Microbiology'),
-        ('Bio:MO', 'Molecular Biology'),
-        ('Bio:NE', 'Neuroscience'),
-        ('Bio:PA', 'Paleontology'),
-        ('Bio:PO', 'Pathology'),
-        ('Bio:PT', 'Pharmacology and Toxicology'),
-        ('Bio:PH', 'Physiology'),
-        ('Bio:PB', 'Plant Biology'),
-        ('Bio:SC', 'Scientific Communication and Education'),
-        ('Bio:SB', 'Synthetic Biology'),
-        ('Bio:SY', 'Systems Biology'),
-        ('Bio:ZO', 'Zoology'))
+    (
+        "Biology",
+        (
+            ("Bio:AB", "Animal Behavior and Cognition"),
+            ("Bio:BC", "Biochemistry"),
+            ("Bio:BE", "Bioengineering"),
+            ("Bio:BI", "Bioinformatics"),
+            ("Bio:BP", "Biophysics"),
+            ("Bio:CB", "Cancer Biology"),
+            ("Bio:CE", "Cell Biology"),
+            ("Bio:DB", "Developmental Biology"),
+            ("Bio:EC", "Ecology"),
+            ("Bio:EB", "Evolutionary Biology"),
+            ("Bio:GE", "Genetics"),
+            ("Bio:GO", "Genomics"),
+            ("Bio:IM", "Immunology"),
+            ("Bio:MI", "Microbiology"),
+            ("Bio:MO", "Molecular Biology"),
+            ("Bio:NE", "Neuroscience"),
+            ("Bio:PA", "Paleontology"),
+            ("Bio:PO", "Pathology"),
+            ("Bio:PT", "Pharmacology and Toxicology"),
+            ("Bio:PH", "Physiology"),
+            ("Bio:PB", "Plant Biology"),
+            ("Bio:SC", "Scientific Communication and Education"),
+            ("Bio:SB", "Synthetic Biology"),
+            ("Bio:SY", "Systems Biology"),
+            ("Bio:ZO", "Zoology"),
+        ),
     ),
-    ('Chemistry', (
-        ('Chem:BI', 'Biochemistry'),
-        ('Chem:IN', 'Inorganic Chemistry'),
-        ('Chem:OR', 'Organic Chemistry'),
-        ('Chem:PH', 'Physical Chemistry'),
-        ('Chem:MA', 'Materials Chemistry'),
-        ('Chem:TC', 'Theoretical and Computational Chemistry'),
-        ('Chem:CE', 'Chemical Engineering'),
-        ('Chem:AN', 'Analytical Chemistry'),
-        ('Chem:NA', 'Nanoscience'),
-        ('Chem:EN', 'Environmental Chemistry'),
-        ('Chem:NU', 'Nuclear Chemistry'))
+    (
+        "Chemistry",
+        (
+            ("Chem:BI", "Biochemistry"),
+            ("Chem:IN", "Inorganic Chemistry"),
+            ("Chem:OR", "Organic Chemistry"),
+            ("Chem:PH", "Physical Chemistry"),
+            ("Chem:MA", "Materials Chemistry"),
+            ("Chem:TC", "Theoretical and Computational Chemistry"),
+            ("Chem:CE", "Chemical Engineering"),
+            ("Chem:AN", "Analytical Chemistry"),
+            ("Chem:NA", "Nanoscience"),
+            ("Chem:EN", "Environmental Chemistry"),
+            ("Chem:NU", "Nuclear Chemistry"),
+        ),
     ),
-    ('Mathematics', (
-        ('Math:AG', 'Algebraic Geometry'),
-        ('Math:AT', 'Algebraic Topology'),
-        ('Math:AP', 'Analysis of PDEs'),
-        ('Math:CT', 'Category Theory'),
-        ('Math:CA', 'Classical Analysis and ODEs'),
-        ('Math:CO', 'Combinatorics'),
-        ('Math:AC', 'Commutative Algebra'),
-        ('Math:CV', 'Complex Variables'),
-        ('Math:DG', 'Differential Geometry'),
-        ('Math:DS', 'Dynamical Systems'),
-        ('Math:FA', 'Functional Analysis'),
-        ('Math:GM', 'General Mathematics'),
-        ('Math:GN', 'General Topology'),
-        ('Math:GT', 'Geometric Topology'),
-        ('Math:GR', 'Group Theory'),
-        ('Math:HO', 'History and Overview'),
-        ('Math:IT', 'Information Theory'),
-        ('Math:KT', 'K-Theory and Homology'),
-        ('Math:LO', 'Logic'),
-        ('Math:MP', 'Mathematical Physics'),
-        ('Math:MG', 'Metric Geometry'),
-        ('Math:NT', 'Number Theory'),
-        ('Math:NA', 'Numerical Analysis'),
-        ('Math:OA', 'Operator Algebras'),
-        ('Math:OC', 'Optimization and Control'),
-        ('Math:PR', 'Probability'),
-        ('Math:QA', 'Quantum Algebra'),
-        ('Math:RT', 'Representation Theory'),
-        ('Math:RA', 'Rings and Algebras'),
-        ('Math:SP', 'Spectral Theory'),
-        ('Math:ST', 'Statistics Theory'),
-        ('Math:SG', 'Symplectic Geometry'))
+    (
+        "Mathematics",
+        (
+            ("Math:AG", "Algebraic Geometry"),
+            ("Math:AT", "Algebraic Topology"),
+            ("Math:AP", "Analysis of PDEs"),
+            ("Math:CT", "Category Theory"),
+            ("Math:CA", "Classical Analysis and ODEs"),
+            ("Math:CO", "Combinatorics"),
+            ("Math:AC", "Commutative Algebra"),
+            ("Math:CV", "Complex Variables"),
+            ("Math:DG", "Differential Geometry"),
+            ("Math:DS", "Dynamical Systems"),
+            ("Math:FA", "Functional Analysis"),
+            ("Math:GM", "General Mathematics"),
+            ("Math:GN", "General Topology"),
+            ("Math:GT", "Geometric Topology"),
+            ("Math:GR", "Group Theory"),
+            ("Math:HO", "History and Overview"),
+            ("Math:IT", "Information Theory"),
+            ("Math:KT", "K-Theory and Homology"),
+            ("Math:LO", "Logic"),
+            ("Math:MP", "Mathematical Physics"),
+            ("Math:MG", "Metric Geometry"),
+            ("Math:NT", "Number Theory"),
+            ("Math:NA", "Numerical Analysis"),
+            ("Math:OA", "Operator Algebras"),
+            ("Math:OC", "Optimization and Control"),
+            ("Math:PR", "Probability"),
+            ("Math:QA", "Quantum Algebra"),
+            ("Math:RT", "Representation Theory"),
+            ("Math:RA", "Rings and Algebras"),
+            ("Math:SP", "Spectral Theory"),
+            ("Math:ST", "Statistics Theory"),
+            ("Math:SG", "Symplectic Geometry"),
+        ),
     ),
-    ('Computer Science', (
-        ('Comp:AI', 'Artificial Intelligence'),
-        ('Comp:CC', 'Computational Complexity'),
-        ('Comp:CE', 'Computational Engineering, Finance, and Science'),
-        ('Comp:CG', 'Computational Geometry'),
-        ('Comp:GT', 'Computer Science and Game Theory'),
-        ('Comp:CV', 'Computer Vision and Pattern Recognition'),
-        ('Comp:CY', 'Computers and Society'),
-        ('Comp:CR', 'Cryptography and Security'),
-        ('Comp:DS', 'Data Structures and Algorithms'),
-        ('Comp:DB', 'Databases'),
-        ('Comp:DL', 'Digital Libraries'),
-        ('Comp:DM', 'Discrete Mathematics'),
-        ('Comp:DC', 'Distributed, Parallel, and Cluster Computing'),
-        ('Comp:ET', 'Emerging Technologies'),
-        ('Comp:FL', 'Formal Languages and Automata Theory'),
-        ('Comp:GL', 'General Literature'),
-        ('Comp:GR', 'Graphics'),
-        ('Comp:AR', 'Hardware Architecture'),
-        ('Comp:HC', 'Human-Computer Interaction'),
-        ('Comp:IR', 'Information Retrieval'),
-        ('Comp:IT', 'Information Theory'),
-        ('Comp:LG', 'Learning'),
-        ('Comp:LO', 'Logic in Computer Science'),
-        ('Comp:MS', 'Mathematical Software'),
-        ('Comp:MA', 'Multiagent Systems'),
-        ('Comp:MM', 'Multimedia'),
-        ('Comp:NI', 'Networking and Internet Architecture'),
-        ('Comp:NE', 'Neural and Evolutionary Computing'),
-        ('Comp:NA', 'Numerical Analysis'),
-        ('Comp:OS', 'Operating Systems'),
-        ('Comp:OH', 'Other Computer Science'),
-        ('Comp:PF', 'Performance'),
-        ('Comp:PL', 'Programming Languages'),
-        ('Comp:RO', 'Robotics'),
-        ('Comp:SI', 'Social and Information Networks'),
-        ('Comp:SE', 'Software Engineering'),
-        ('Comp:SD', 'Sound'),
-        ('Comp:SC', 'Symbolic Computation'),
-        ('Comp:SY', 'Systems and Control'))
-    )
+    (
+        "Computer Science",
+        (
+            ("Comp:AI", "Artificial Intelligence"),
+            ("Comp:CC", "Computational Complexity"),
+            ("Comp:CE", "Computational Engineering, Finance, and Science"),
+            ("Comp:CG", "Computational Geometry"),
+            ("Comp:GT", "Computer Science and Game Theory"),
+            ("Comp:CV", "Computer Vision and Pattern Recognition"),
+            ("Comp:CY", "Computers and Society"),
+            ("Comp:CR", "Cryptography and Security"),
+            ("Comp:DS", "Data Structures and Algorithms"),
+            ("Comp:DB", "Databases"),
+            ("Comp:DL", "Digital Libraries"),
+            ("Comp:DM", "Discrete Mathematics"),
+            ("Comp:DC", "Distributed, Parallel, and Cluster Computing"),
+            ("Comp:ET", "Emerging Technologies"),
+            ("Comp:FL", "Formal Languages and Automata Theory"),
+            ("Comp:GL", "General Literature"),
+            ("Comp:GR", "Graphics"),
+            ("Comp:AR", "Hardware Architecture"),
+            ("Comp:HC", "Human-Computer Interaction"),
+            ("Comp:IR", "Information Retrieval"),
+            ("Comp:IT", "Information Theory"),
+            ("Comp:LG", "Learning"),
+            ("Comp:LO", "Logic in Computer Science"),
+            ("Comp:MS", "Mathematical Software"),
+            ("Comp:MA", "Multiagent Systems"),
+            ("Comp:MM", "Multimedia"),
+            ("Comp:NI", "Networking and Internet Architecture"),
+            ("Comp:NE", "Neural and Evolutionary Computing"),
+            ("Comp:NA", "Numerical Analysis"),
+            ("Comp:OS", "Operating Systems"),
+            ("Comp:OH", "Other Computer Science"),
+            ("Comp:PF", "Performance"),
+            ("Comp:PL", "Programming Languages"),
+            ("Comp:RO", "Robotics"),
+            ("Comp:SI", "Social and Information Networks"),
+            ("Comp:SE", "Software Engineering"),
+            ("Comp:SD", "Sound"),
+            ("Comp:SC", "Symbolic Computation"),
+            ("Comp:SY", "Systems and Control"),
+        ),
+    ),
 )
 
 
 def populate(apps, schema_editor):
-    Branch = apps.get_model('ontology', 'Branch')
-    AcademicField = apps.get_model('ontology', 'AcademicField')
-    Specialty = apps.get_model('ontology', 'Specialty')
+    Branch = apps.get_model("ontology", "Branch")
+    AcademicField = apps.get_model("ontology", "AcademicField")
+    Specialty = apps.get_model("ontology", "Specialty")
 
     for d in SCIPOST_DISCIPLINES:
         slug = slugify(d[0], allow_unicode=True)
         order = Branch.objects.count() + 1
         branch, created = Branch.objects.get_or_create(
-            name=d[0],
-            slug=slug,
-            order=order
+            name=d[0], slug=slug, order=order
         )
         for f in d[1]:
             f_order = AcademicField.objects.filter(branch=branch).count() + 1
             acad_field, created = AcademicField.objects.get_or_create(
-                branch=branch,
-                name=f[1],
-                slug=f[0],
-                order=f_order
+                branch=branch, name=f[1], slug=f[0], order=f_order
             )
             for sa in SCIPOST_SUBJECT_AREAS:
                 if sa[0] == f[1]:
                     for code, spec in sa[1]:
-                        slug = slugify(code.replace(':', '-'))
-                        s_order = Specialty.objects.filter(acad_field=acad_field).count() + 1
+                        slug = slugify(code.replace(":", "-"))
+                        s_order = (
+                            Specialty.objects.filter(acad_field=acad_field).count() + 1
+                        )
                         specialty, created = Specialty.objects.get_or_create(
-                            acad_field=acad_field,
-                            name=spec,
-                            slug=slug,
-                            order=s_order
+                            acad_field=acad_field, name=spec, slug=slug, order=s_order
                         )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0006_auto_20200905_1904'),
+        ("ontology", "0006_auto_20200905_1904"),
     ]
 
     operations = [

@@ -6,13 +6,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0106_journal_cf_metrics'),
+        ("journals", "0106_journal_cf_metrics"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='template_docx',
-            field=models.FileField(blank=True, help_text='.docx template', max_length=256, upload_to='UPLOADS/TEMPLATES/docx/%Y/', verbose_name='Template (.docx)'),
+            model_name="journal",
+            name="template_docx",
+            field=models.FileField(
+                blank=True,
+                help_text=".docx template",
+                max_length=256,
+                upload_to="UPLOADS/TEMPLATES/docx/%Y/",
+                verbose_name="Template (.docx)",
+            ),
         ),
     ]

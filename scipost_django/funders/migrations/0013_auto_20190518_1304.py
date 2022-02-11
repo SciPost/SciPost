@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('funders', '0012_auto_20180922_1609'),
+        ("funders", "0012_auto_20180922_1609"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='grant',
-            options={'default_related_name': 'grants', 'ordering': ['funder', 'recipient', 'recipient_name', 'number']},
+            name="grant",
+            options={
+                "default_related_name": "grants",
+                "ordering": ["funder", "recipient", "recipient_name", "number"],
+            },
         ),
     ]

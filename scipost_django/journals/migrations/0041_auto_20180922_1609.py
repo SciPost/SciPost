@@ -9,23 +9,23 @@ class Migration(migrations.Migration):
 
     dependencies = [
         # ('partners', '0017_auto_20180922_1603'),
-        ('organizations', '0002_populate_from_partners_org'),
-        ('journals', '0040_auto_20180922_1544'),
+        ("organizations", "0002_populate_from_partners_org"),
+        ("journals", "0040_auto_20180922_1544"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='orgpubfraction',
-            old_name='org',
-            new_name='organization',
+            model_name="orgpubfraction",
+            old_name="org",
+            new_name="organization",
         ),
         migrations.RenameField(
-            model_name='publicationauthorstable',
-            old_name='affs',
-            new_name='affiliations',
+            model_name="publicationauthorstable",
+            old_name="affs",
+            new_name="affiliations",
         ),
         migrations.AlterUniqueTogether(
-            name='orgpubfraction',
-            unique_together=set([('organization', 'publication')]),
+            name="orgpubfraction",
+            unique_together=set([("organization", "publication")]),
         ),
     ]

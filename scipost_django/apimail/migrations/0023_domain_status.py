@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0022_auto_20201017_1018'),
+        ("apimail", "0022_auto_20201017_1018"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='domain',
-            name='status',
-            field=models.CharField(choices=[('active', 'Active'), ('archived', 'Archived')], default='active', max_length=16),
+            model_name="domain",
+            name="status",
+            field=models.CharField(
+                choices=[("active", "Active"), ("archived", "Archived")],
+                default="active",
+                max_length=16,
+            ),
         ),
     ]

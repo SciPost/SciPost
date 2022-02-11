@@ -9,19 +9,21 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mails', '0002_auto_20180313_1744'),
+        ("mails", "0002_auto_20180313_1744"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='maillog',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="maillog",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='maillog',
-            name='latest_activity',
+            model_name="maillog",
+            name="latest_activity",
             field=models.DateTimeField(auto_now=True),
         ),
     ]

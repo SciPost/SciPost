@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0110_alter_refereeinvitation_accepted'),
+        ("submissions", "0110_alter_refereeinvitation_accepted"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='submission',
-            name='voting_fellows',
+            model_name="submission",
+            name="voting_fellows",
         ),
     ]

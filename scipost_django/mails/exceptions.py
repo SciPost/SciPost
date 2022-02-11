@@ -7,4 +7,4 @@ class ConfigurationError(Exception):
         self.name = name
 
     def __str__(self):
-        return 'Configuration error: {}'.format(self.name)
+        return "Configuration error: {}".format(self.name)

@@ -8,13 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0023_domain_status'),
+        ("apimail", "0023_domain_status"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='attachmentfile',
-            name='file',
-            field=models.FileField(storage=apimail.storage.APIMailSecureFileStorage(), upload_to='uploads/mail/attachments/%Y/%m/%d/', validators=[apimail.validators.validate_max_email_attachment_file_size]),
+            model_name="attachmentfile",
+            name="file",
+            field=models.FileField(
+                storage=apimail.storage.APIMailSecureFileStorage(),
+                upload_to="uploads/mail/attachments/%Y/%m/%d/",
+                validators=[apimail.validators.validate_max_email_attachment_file_size],
+            ),
         ),
     ]

@@ -9,32 +9,75 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0004_auto_20180212_1932'),
-        ('journals', '0010_auto_20180212_1947'),
+        ("scipost", "0004_auto_20180212_1932"),
+        ("journals", "0010_auto_20180212_1947"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PublicationAuthorsTable',
+            name="PublicationAuthorsTable",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.PositiveSmallIntegerField()),
-                ('contributor', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='scipost.Contributor')),
-                ('publication', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='authors', to='journals.Publication')),
-                ('unregistered_author', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='journals.UnregisteredAuthor')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.PositiveSmallIntegerField()),
+                (
+                    "contributor",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="+",
+                        to="scipost.Contributor",
+                    ),
+                ),
+                (
+                    "publication",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="authors",
+                        to="journals.Publication",
+                    ),
+                ),
+                (
+                    "unregistered_author",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="+",
+                        to="journals.UnregisteredAuthor",
+                    ),
+                ),
             ],
             options={
-                'ordering': ('order',),
+                "ordering": ("order",),
             },
         ),
         migrations.AddField(
-            model_name='publication',
-            name='authors_registered',
-            field=models.ManyToManyField(blank=True, related_name='publications', through='journals.PublicationAuthorsTable', to='scipost.Contributor'),
+            model_name="publication",
+            name="authors_registered",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="publications",
+                through="journals.PublicationAuthorsTable",
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AddField(
-            model_name='publication',
-            name='authors_unregistered',
-            field=models.ManyToManyField(blank=True, related_name='publications', through='journals.PublicationAuthorsTable', to='journals.UnregisteredAuthor'),
+            model_name="publication",
+            name="authors_unregistered",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="publications",
+                through="journals.PublicationAuthorsTable",
+                to="journals.UnregisteredAuthor",
+            ),
         ),
     ]

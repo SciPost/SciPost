@@ -7,13 +7,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commentaries', '0004_auto_20190511_1141'),
+        ("commentaries", "0004_auto_20190511_1141"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='commentary',
-            name='metadata',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
+            model_name="commentary",
+            name="metadata",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, null=True
+            ),
         ),
     ]

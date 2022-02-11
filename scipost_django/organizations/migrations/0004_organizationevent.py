@@ -11,19 +11,53 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('organizations', '0003_contact_contactperson_contactrole'),
+        ("organizations", "0003_contact_contactperson_contactrole"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='OrganizationEvent',
+            name="OrganizationEvent",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('event', models.CharField(choices=[('requested', 'Requested (from online form)'), ('comment', 'Comment added'), ('email_sent', 'Email sent'), ('negotiating', 'Initiated negotiation'), ('marked_as_uninterested', 'Marked as uninterested'), ('promoted', 'Promoted to Sponsor'), ('status_updated', 'Status updated')], max_length=64)),
-                ('comments', models.TextField(blank=True)),
-                ('noted_on', models.DateTimeField(auto_now_add=True)),
-                ('noted_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organizations.Organization')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "event",
+                    models.CharField(
+                        choices=[
+                            ("requested", "Requested (from online form)"),
+                            ("comment", "Comment added"),
+                            ("email_sent", "Email sent"),
+                            ("negotiating", "Initiated negotiation"),
+                            ("marked_as_uninterested", "Marked as uninterested"),
+                            ("promoted", "Promoted to Sponsor"),
+                            ("status_updated", "Status updated"),
+                        ],
+                        max_length=64,
+                    ),
+                ),
+                ("comments", models.TextField(blank=True)),
+                ("noted_on", models.DateTimeField(auto_now_add=True)),
+                (
+                    "noted_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organizations.Organization",
+                    ),
+                ),
             ],
         ),
     ]

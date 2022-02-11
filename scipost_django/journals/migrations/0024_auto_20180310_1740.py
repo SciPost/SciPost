@@ -10,41 +10,76 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0023_journal_structure'),
+        ("journals", "0023_journal_structure"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='issue',
-            options={'ordering': ('-until_date',)},
+            name="issue",
+            options={"ordering": ("-until_date",)},
         ),
         migrations.AlterModelOptions(
-            name='publication',
-            options={'ordering': ('-publication_date', '-paper_nr')},
+            name="publication",
+            options={"ordering": ("-publication_date", "-paper_nr")},
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='in_journal',
-            field=models.ForeignKey(blank=True, help_text='Assign either an Volume or Journal to the Issue', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='issues', to='journals.Journal'),
+            model_name="issue",
+            name="in_journal",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either an Volume or Journal to the Issue",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="issues",
+                to="journals.Journal",
+            ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='in_volume',
-            field=models.ForeignKey(blank=True, help_text='Assign either an Volume or Journal to the Issue', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='issues', to='journals.Volume'),
+            model_name="issue",
+            name="in_volume",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either an Volume or Journal to the Issue",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="issues",
+                to="journals.Volume",
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='structure',
-            field=models.CharField(choices=[('IV', 'Issues and Volumes'), ('IP', 'Individual Publications')], default='IV', max_length=2),
+            model_name="journal",
+            name="structure",
+            field=models.CharField(
+                choices=[
+                    ("IV", "Issues and Volumes"),
+                    ("IP", "Individual Publications"),
+                ],
+                default="IV",
+                max_length=2,
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^[a-zA-Z]+.[0-9]+(.[0-9]+.[0-9]{3,})?$', 'Only valid DOI expressions are allowed (`[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,}` or `[a-zA-Z]+.[0-9]+`)')]),
+            model_name="publication",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^[a-zA-Z]+.[0-9]+(.[0-9]+.[0-9]{3,})?$",
+                        "Only valid DOI expressions are allowed (`[a-zA-Z]+.[0-9]+.[0-9]+.[0-9]{3,}` or `[a-zA-Z]+.[0-9]+`)",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='volume',
-            name='in_journal',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='volumes', to='journals.Journal'),
+            model_name="volume",
+            name="in_journal",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="volumes",
+                to="journals.Journal",
+            ),
         ),
     ]

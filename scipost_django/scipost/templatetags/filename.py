@@ -15,4 +15,4 @@ def filename(value):
     try:
         return os.path.basename(value.file.name)
     except OSError:
-        return 'Error: File not found'
+        return "Error: File not found"

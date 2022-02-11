@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0110_auto_20210716_0926'),
+        ("journals", "0110_auto_20210716_0926"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='deposit',
-            name='deposit_successful',
+            model_name="deposit",
+            name="deposit_successful",
             field=models.BooleanField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='doajdeposit',
-            name='deposit_successful',
+            model_name="doajdeposit",
+            name="deposit_successful",
             field=models.BooleanField(default=None, null=True),
         ),
         migrations.AlterField(
-            model_name='genericdoideposit',
-            name='deposit_successful',
+            model_name="genericdoideposit",
+            name="deposit_successful",
             field=models.BooleanField(default=None, null=True),
         ),
     ]

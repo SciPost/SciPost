@@ -8,14 +8,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0009_auto_20180220_2120'),
+        ("submissions", "0009_auto_20180220_2120"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='submission_type',
-            field=models.CharField(choices=[('Letter', 'Letter (broad-interest breakthrough results)'), ('Article', 'Article (in-depth reports on specialized research)'), ('Review', 'Review (candid snapshot of current research in a given area)')], default='', max_length=10),
+            model_name="submission",
+            name="submission_type",
+            field=models.CharField(
+                choices=[
+                    ("Letter", "Letter (broad-interest breakthrough results)"),
+                    ("Article", "Article (in-depth reports on specialized research)"),
+                    (
+                        "Review",
+                        "Review (candid snapshot of current research in a given area)",
+                    ),
+                ],
+                default="",
+                max_length=10,
+            ),
             preserve_default=False,
         ),
     ]

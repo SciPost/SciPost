@@ -8,28 +8,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0013_auto_20180216_0850'),
-        ('submissions', '0008_auto_20180127_2208'),
-        ('invitations', '0006_auto_20180217_1600'),
+        ("journals", "0013_auto_20180216_0850"),
+        ("submissions", "0008_auto_20180127_2208"),
+        ("invitations", "0006_auto_20180217_1600"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='registrationinvitation',
-            name='cited_in_publication',
+            model_name="registrationinvitation",
+            name="cited_in_publication",
         ),
         migrations.RemoveField(
-            model_name='registrationinvitation',
-            name='cited_in_submission',
+            model_name="registrationinvitation",
+            name="cited_in_submission",
         ),
         migrations.AddField(
-            model_name='registrationinvitation',
-            name='cited_in_publications',
-            field=models.ManyToManyField(blank=True, related_name='_registrationinvitation_cited_in_publications_+', to='journals.Publication'),
+            model_name="registrationinvitation",
+            name="cited_in_publications",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="_registrationinvitation_cited_in_publications_+",
+                to="journals.Publication",
+            ),
         ),
         migrations.AddField(
-            model_name='registrationinvitation',
-            name='cited_in_submissions',
-            field=models.ManyToManyField(blank=True, related_name='_registrationinvitation_cited_in_submissions_+', to='submissions.Submission'),
+            model_name="registrationinvitation",
+            name="cited_in_submissions",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="_registrationinvitation_cited_in_submissions_+",
+                to="submissions.Submission",
+            ),
         ),
     ]

@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('conflicts', '0011_auto_20181219_2040'),
+        ("conflicts", "0011_auto_20181219_2040"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='conflictofinterest',
-            name='header',
+            model_name="conflictofinterest",
+            name="header",
             field=models.CharField(max_length=265),
         ),
     ]

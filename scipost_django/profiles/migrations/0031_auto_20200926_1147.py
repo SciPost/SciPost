@@ -7,19 +7,27 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0007_Branch_Field_Specialty'),
-        ('profiles', '0030_auto_20191017_0949'),
+        ("ontology", "0007_Branch_Field_Specialty"),
+        ("profiles", "0030_auto_20191017_0949"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='profile',
-            name='acad_field',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='profiles', to='ontology.AcademicField'),
+            model_name="profile",
+            name="acad_field",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="profiles",
+                to="ontology.AcademicField",
+            ),
         ),
         migrations.AddField(
-            model_name='profile',
-            name='specialties',
-            field=models.ManyToManyField(blank=True, related_name='profiles', to='ontology.Specialty'),
+            model_name="profile",
+            name="specialties",
+            field=models.ManyToManyField(
+                blank=True, related_name="profiles", to="ontology.Specialty"
+            ),
         ),
     ]

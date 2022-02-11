@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0008_auto_20180913_2112'),
+        ("preprints", "0008_auto_20180913_2112"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='preprint',
-            options={'ordering': ['-identifier_w_vn_nr']},
+            name="preprint",
+            options={"ordering": ["-identifier_w_vn_nr"]},
         ),
     ]

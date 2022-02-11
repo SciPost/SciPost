@@ -10,33 +10,59 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Funder',
+            name="Funder",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-                ('acronym', models.CharField(blank=True, max_length=32, null=True)),
-                ('identifier', models.CharField(max_length=200, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
+                ("acronym", models.CharField(blank=True, max_length=32, null=True)),
+                ("identifier", models.CharField(max_length=200, unique=True)),
             ],
             options={
-                'ordering': ['name', 'acronym'],
+                "ordering": ["name", "acronym"],
             },
         ),
         migrations.CreateModel(
-            name='Grant',
+            name="Grant",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('number', models.CharField(max_length=64)),
-                ('recipient_name', models.CharField(blank=True, max_length=64, null=True)),
-                ('further_details', models.CharField(blank=True, max_length=256, null=True)),
-                ('funder', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='funders.Funder')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("number", models.CharField(max_length=64)),
+                (
+                    "recipient_name",
+                    models.CharField(blank=True, max_length=64, null=True),
+                ),
+                (
+                    "further_details",
+                    models.CharField(blank=True, max_length=256, null=True),
+                ),
+                (
+                    "funder",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="funders.Funder"
+                    ),
+                ),
             ],
             options={
-                'ordering': ['funder', 'recipient', 'recipient_name', 'number'],
+                "ordering": ["funder", "recipient", "recipient_name", "number"],
             },
         ),
     ]

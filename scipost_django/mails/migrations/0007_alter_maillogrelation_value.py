@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mails', '0006_auto_20190220_1633'),
+        ("mails", "0006_auto_20190220_1633"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='maillogrelation',
-            name='value',
+            model_name="maillogrelation",
+            name="value",
             field=models.TextField(blank=True),
         ),
     ]

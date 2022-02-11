@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0013_subsidy_renewal_of'),
+        ("finances", "0013_subsidy_renewal_of"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subsidy',
-            name='renewable',
+            model_name="subsidy",
+            name="renewable",
             field=models.NullBooleanField(),
         ),
     ]

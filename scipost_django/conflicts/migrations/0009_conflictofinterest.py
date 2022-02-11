@@ -10,21 +10,51 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('conflicts', '0008_auto_20181219_2017'),
+        ("conflicts", "0008_auto_20181219_2017"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ConflictOfInterest',
+            name="ConflictOfInterest",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('status', models.CharField(choices=[('unverified', 'Unverified'), ('verified', 'Verified by Admin'), ('deprecated', 'Deprecated')], default='unverified', max_length=16)),
-                ('type', models.CharField(choices=[('coworker', 'Co-worker'), ('coauthor', 'Co-authorship'), ('other', 'Other')], default='other', max_length=16)),
-                ('title', models.CharField(blank=True, max_length=265)),
-                ('url', models.URLField(blank=True)),
-                ('comment', models.TextField(blank=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('modified', models.DateTimeField(auto_now=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("unverified", "Unverified"),
+                            ("verified", "Verified by Admin"),
+                            ("deprecated", "Deprecated"),
+                        ],
+                        default="unverified",
+                        max_length=16,
+                    ),
+                ),
+                (
+                    "type",
+                    models.CharField(
+                        choices=[
+                            ("coworker", "Co-worker"),
+                            ("coauthor", "Co-authorship"),
+                            ("other", "Other"),
+                        ],
+                        default="other",
+                        max_length=16,
+                    ),
+                ),
+                ("title", models.CharField(blank=True, max_length=265)),
+                ("url", models.URLField(blank=True)),
+                ("comment", models.TextField(blank=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("modified", models.DateTimeField(auto_now=True)),
             ],
         ),
     ]

@@ -13,41 +13,94 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Forum',
+            name="Forum",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-                ('slug', models.SlugField(allow_unicode=True)),
-                ('publicly_visible', models.BooleanField(default=False)),
-                ('parent_object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('moderators', models.ManyToManyField(related_name='moderated_forums', to=settings.AUTH_USER_MODEL)),
-                ('parent_content_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
+                ("slug", models.SlugField(allow_unicode=True)),
+                ("publicly_visible", models.BooleanField(default=False)),
+                (
+                    "parent_object_id",
+                    models.PositiveIntegerField(blank=True, null=True),
+                ),
+                (
+                    "moderators",
+                    models.ManyToManyField(
+                        related_name="moderated_forums", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
+                (
+                    "parent_content_type",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.ContentType",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='Post',
+            name="Post",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('posted_on', models.DateTimeField(default=django.utils.timezone.now)),
-                ('needs_vetting', models.BooleanField(default=True)),
-                ('parent_object_id', models.PositiveIntegerField()),
-                ('subject', models.CharField(max_length=256)),
-                ('text', models.TextField()),
-                ('parent_content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType')),
-                ('posted_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
-                ('vetted_by', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='vetted_posts', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("posted_on", models.DateTimeField(default=django.utils.timezone.now)),
+                ("needs_vetting", models.BooleanField(default=True)),
+                ("parent_object_id", models.PositiveIntegerField()),
+                ("subject", models.CharField(max_length=256)),
+                ("text", models.TextField()),
+                (
+                    "parent_content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.ContentType",
+                    ),
+                ),
+                (
+                    "posted_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "vetted_by",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="vetted_posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['posted_on'],
+                "ordering": ["posted_on"],
             },
         ),
     ]

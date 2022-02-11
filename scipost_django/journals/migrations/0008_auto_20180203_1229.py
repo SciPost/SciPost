@@ -8,32 +8,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0007_auto_20180129_1814'),
+        ("journals", "0007_auto_20180129_1814"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='reference',
-            old_name='vor',
-            new_name='identifier',
+            model_name="reference",
+            old_name="vor",
+            new_name="identifier",
         ),
         migrations.RenameField(
-            model_name='reference',
-            old_name='vor_url',
-            new_name='link',
+            model_name="reference",
+            old_name="vor_url",
+            new_name="link",
         ),
         migrations.RemoveField(
-            model_name='reference',
-            name='title',
+            model_name="reference",
+            name="title",
         ),
         migrations.AlterField(
-            model_name='reference',
-            name='authors',
+            model_name="reference",
+            name="authors",
             field=models.CharField(max_length=1028),
         ),
         migrations.AlterField(
-            model_name='reference',
-            name='citation',
+            model_name="reference",
+            name="citation",
             field=models.CharField(blank=True, max_length=1028),
         ),
     ]

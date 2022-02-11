@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0025_auto_20180314_1637'),
+        ("journals", "0025_auto_20180314_1637"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='volume',
-            options={'ordering': ('-until_date',)},
+            name="volume",
+            options={"ordering": ("-until_date",)},
         ),
     ]

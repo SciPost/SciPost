@@ -5,28 +5,31 @@ from django.utils.text import slugify
 
 
 def populate_acad_field_specialty(apps, schema_editor):
-    Submission = apps.get_model('submissions.Submission')
-    AcademicField = apps.get_model('ontology', 'AcademicField')
-    Specialty = apps.get_model('ontology', 'Specialty')
+    Submission = apps.get_model("submissions.Submission")
+    AcademicField = apps.get_model("ontology", "AcademicField")
+    Specialty = apps.get_model("ontology", "Specialty")
 
     for s in Submission.objects.all():
         s.acad_field = AcademicField.objects.get(slug=s.discipline)
         s.specialties.add(
-            Specialty.objects.get(slug=slugify(s.subject_area.replace(':', '-'))))
+            Specialty.objects.get(slug=slugify(s.subject_area.replace(":", "-")))
+        )
         if s.secondary_areas:
             for sa in s.secondary_areas:
                 s.specialties.add(
-                    Specialty.objects.get(slug=slugify(sa.replace(':', '-'))))
+                    Specialty.objects.get(slug=slugify(sa.replace(":", "-")))
+                )
         s.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0094_auto_20200926_2116'),
+        ("submissions", "0094_auto_20200926_2116"),
     ]
 
     operations = [
-        migrations.RunPython(populate_acad_field_specialty,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_acad_field_specialty, reverse_code=migrations.RunPython.noop
+        ),
     ]

@@ -16,29 +16,33 @@ from journals.api.serializers import PublicationPublicSerializer
 
 
 class PublicationPublicAPIViewSet(
-        FilteringOptionsActionMixin,
-        ExtraFilteredReadOnlyModelViewSet):
+    FilteringOptionsActionMixin, ExtraFilteredReadOnlyModelViewSet
+):
     queryset = Publication.objects.published()
-    permission_classes = [AllowAny,]
+    permission_classes = [
+        AllowAny,
+    ]
     serializer_class = PublicationPublicSerializer
-    lookup_field = 'doi_label'
+    lookup_field = "doi_label"
     lookup_value_regex = PUBLICATION_DOI_LABEL_REGEX
-    search_fields = ['title', 'author_list', 'abstract', 'doi_label']
-    ordering_fields = ['publication_date',]
+    search_fields = ["title", "author_list", "abstract", "doi_label"]
+    ordering_fields = [
+        "publication_date",
+    ]
     filterset_class = PublicationPublicAPIFilterSet
     extra_filters = {
-        'journal__name': {
-            'fields': [
-                'in_journal__name',
-                'in_issue__in_journal__name',
-                'in_issue__in_volume__in_journal__name'
+        "journal__name": {
+            "fields": [
+                "in_journal__name",
+                "in_issue__in_journal__name",
+                "in_issue__in_volume__in_journal__name",
             ],
-            'lookups': ['icontains', 'istartswith', 'iexact', 'exact'],
+            "lookups": ["icontains", "istartswith", "iexact", "exact"],
         }
     }
     default_filtering_fields = [
-        'title__icontains',
-        'author_list__icontains',
-        'abstract__icontains',
-        'doi_label__icontains'
+        "title__icontains",
+        "author_list__icontains",
+        "abstract__icontains",
+        "doi_label__icontains",
     ]

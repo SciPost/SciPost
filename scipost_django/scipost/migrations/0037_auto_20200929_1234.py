@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0036_remove_authorshipclaim_publication'),
+        ("scipost", "0036_remove_authorshipclaim_publication"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='contributor',
-            name='discipline',
+            model_name="contributor",
+            name="discipline",
         ),
         migrations.RemoveField(
-            model_name='contributor',
-            name='expertises',
+            model_name="contributor",
+            name="expertises",
         ),
     ]

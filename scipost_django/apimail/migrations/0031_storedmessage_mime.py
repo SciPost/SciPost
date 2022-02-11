@@ -9,13 +9,19 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0030_auto_20201031_1642'),
+        ("apimail", "0030_auto_20201031_1642"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='storedmessage',
-            name='mime',
-            field=models.FileField(blank=True, null=True, storage=apimail.storage.APIMailSecureFileStorage(), upload_to=apimail.models.stored_message.get_mime_upload_path, validators=[apimail.validators.validate_max_email_mime_file_size]),
+            model_name="storedmessage",
+            name="mime",
+            field=models.FileField(
+                blank=True,
+                null=True,
+                storage=apimail.storage.APIMailSecureFileStorage(),
+                upload_to=apimail.models.stored_message.get_mime_upload_path,
+                validators=[apimail.validators.validate_max_email_mime_file_size],
+            ),
         ),
     ]

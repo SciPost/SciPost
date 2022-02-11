@@ -10,8 +10,15 @@ from django.db import models
 from django.db.models import Min, Sum
 from django.urls import reverse
 
-from ..constants import (STATUS_DRAFT, STATUS_PUBLISHED,
-    PUBLICATION_PUBLISHED, CCBY4, CC_LICENSES, CC_LICENSES_URI, PUBLICATION_STATUSES)
+from ..constants import (
+    STATUS_DRAFT,
+    STATUS_PUBLISHED,
+    PUBLICATION_PUBLISHED,
+    CCBY4,
+    CC_LICENSES,
+    CC_LICENSES_URI,
+    PUBLICATION_STATUSES,
+)
 from ..helpers import paper_nr_string
 from ..managers import PublicationQuerySet
 from ..validators import doi_publication_validator
@@ -32,15 +39,17 @@ class PublicationAuthorsTable(models.Model):
     * order: the ordinal position of this author in this Publication's list of authors.
     """
 
-    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
-                                    related_name='authors')
-    profile = models.ForeignKey('profiles.Profile', on_delete=models.PROTECT,
-                                blank=True, null=True)
-    affiliations = models.ManyToManyField('organizations.Organization', blank=True)
+    publication = models.ForeignKey(
+        "journals.Publication", on_delete=models.CASCADE, related_name="authors"
+    )
+    profile = models.ForeignKey(
+        "profiles.Profile", on_delete=models.PROTECT, blank=True, null=True
+    )
+    affiliations = models.ManyToManyField("organizations.Organization", blank=True)
     order = models.PositiveSmallIntegerField()
 
     class Meta:
-        ordering = ('order',)
+        ordering = ("order",)
 
     def __str__(self):
         return str(self.profile)
@@ -67,7 +76,6 @@ class PublicationAuthorsTable(models.Model):
         return self.profile.last_name
 
 
-
 class Publication(models.Model):
     """A Publication is an object directly related to an accepted Submission.
 
@@ -76,126 +84,161 @@ class Publication(models.Model):
     """
 
     # Publication data
-    accepted_submission = models.OneToOneField('submissions.Submission', on_delete=models.CASCADE,
-                                               related_name='publication')
+    accepted_submission = models.OneToOneField(
+        "submissions.Submission", on_delete=models.CASCADE, related_name="publication"
+    )
     in_issue = models.ForeignKey(
-        'journals.Issue', on_delete=models.CASCADE, null=True, blank=True,
-        help_text='Assign either an Issue or Journal to the Publication')
+        "journals.Issue",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        help_text="Assign either an Issue or Journal to the Publication",
+    )
     in_journal = models.ForeignKey(
-        'journals.Journal', on_delete=models.CASCADE, null=True, blank=True,
-        help_text='Assign either an Issue or Journal to the Publication')
+        "journals.Journal",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        help_text="Assign either an Issue or Journal to the Publication",
+    )
     paper_nr = models.PositiveSmallIntegerField()
-    status = models.CharField(max_length=8,
-                              choices=PUBLICATION_STATUSES, default=STATUS_DRAFT)
+    status = models.CharField(
+        max_length=8, choices=PUBLICATION_STATUSES, default=STATUS_DRAFT
+    )
 
     # Core fields
     title = models.CharField(max_length=300)
     author_list = models.CharField(max_length=10000, verbose_name="author list")
     abstract = models.TextField()
-    abstract_jats = models.TextField(blank=True, default='',
-                                     help_text='JATS version of abstract for Crossref deposit')
-    pdf_file = models.FileField(upload_to='UPLOADS/PUBLICATIONS/%Y/%m/', max_length=200)
+    abstract_jats = models.TextField(
+        blank=True,
+        default="",
+        help_text="JATS version of abstract for Crossref deposit",
+    )
+    pdf_file = models.FileField(upload_to="UPLOADS/PUBLICATIONS/%Y/%m/", max_length=200)
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
-        'ontology.AcademicField',
-        on_delete=models.PROTECT,
-        related_name='publications'
+        "ontology.AcademicField", on_delete=models.PROTECT, related_name="publications"
     )
     specialties = models.ManyToManyField(
-        'ontology.Specialty',
-        related_name='publications'
+        "ontology.Specialty", related_name="publications"
     )
-    topics = models.ManyToManyField(
-        'ontology.Topic',
-        blank=True
-    )
+    topics = models.ManyToManyField("ontology.Topic", blank=True)
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
-        blank=True, null=True, verbose_name='approach(es) [optional]')
+        blank=True,
+        null=True,
+        verbose_name="approach(es) [optional]",
+    )
 
     cc_license = models.CharField(max_length=32, choices=CC_LICENSES, default=CCBY4)
 
     # Funders
-    grants = models.ManyToManyField('funders.Grant', blank=True)
-    funders_generic = models.ManyToManyField('funders.Funder', blank=True)  # not linked to a grant
+    grants = models.ManyToManyField("funders.Grant", blank=True)
+    funders_generic = models.ManyToManyField(
+        "funders.Funder", blank=True
+    )  # not linked to a grant
     pubfractions_confirmed_by_authors = models.BooleanField(default=False)
 
     # Metadata
     metadata = models.JSONField(default=dict, blank=True, null=True)
     metadata_xml = models.TextField(blank=True)  # for Crossref deposit
     metadata_DOAJ = models.JSONField(default=dict, blank=True, null=True)
-    doi_label = models.CharField(max_length=200, unique=True, db_index=True,
-                                 validators=[doi_publication_validator])
+    doi_label = models.CharField(
+        max_length=200,
+        unique=True,
+        db_index=True,
+        validators=[doi_publication_validator],
+    )
     BiBTeX_entry = models.TextField(blank=True)
     doideposit_needs_updating = models.BooleanField(default=False)
     citedby = models.JSONField(default=dict, blank=True, null=True)
     number_of_citations = models.PositiveIntegerField(default=0)
 
     # Date fields
-    submission_date = models.DateField(verbose_name='submission date')
-    acceptance_date = models.DateField(verbose_name='acceptance date')
-    publication_date = models.DateField(verbose_name='publication date')
+    submission_date = models.DateField(verbose_name="submission date")
+    acceptance_date = models.DateField(verbose_name="acceptance date")
+    publication_date = models.DateField(verbose_name="publication date")
     latest_citedby_update = models.DateTimeField(null=True, blank=True)
     latest_metadata_update = models.DateTimeField(blank=True, null=True)
-    latest_activity = models.DateTimeField(auto_now=True)  # Needs `auto_now` as its not explicity updated anywhere?
+    latest_activity = models.DateTimeField(
+        auto_now=True
+    )  # Needs `auto_now` as its not explicity updated anywhere?
 
     # Calculated fields
     cf_author_affiliation_indices_list = ArrayField(
         ArrayField(
-            models.PositiveSmallIntegerField(blank=True, null=True),
-            default=list
+            models.PositiveSmallIntegerField(blank=True, null=True), default=list
         ),
-        default=list
+        default=list,
     )
 
     objects = PublicationQuerySet.as_manager()
 
     class Meta:
-        default_related_name = 'publications'
-        ordering = ('-publication_date', '-paper_nr')
+        default_related_name = "publications"
+        ordering = ("-publication_date", "-paper_nr")
 
     def __str__(self):
-        return '{cite}, {title} by {authors}, {date}'.format(
+        return "{cite}, {title} by {authors}, {date}".format(
             cite=self.citation,
             title=self.title[:30],
             authors=self.author_list[:30],
-            date=self.publication_date.strftime('%Y-%m-%d'))
+            date=self.publication_date.strftime("%Y-%m-%d"),
+        )
 
     def clean(self):
         """Check if either a valid Journal or Issue is assigned to the Publication."""
         if not (self.in_journal or self.in_issue):
-            raise ValidationError({
-                'in_journal': ValidationError(
-                    'Either assign a Journal or Issue to this Publication', code='required'),
-                'in_issue': ValidationError(
-                    'Either assign a Journal or Issue to this Publication', code='required'),
-            })
+            raise ValidationError(
+                {
+                    "in_journal": ValidationError(
+                        "Either assign a Journal or Issue to this Publication",
+                        code="required",
+                    ),
+                    "in_issue": ValidationError(
+                        "Either assign a Journal or Issue to this Publication",
+                        code="required",
+                    ),
+                }
+            )
         if self.in_journal and self.in_issue:
             # Assigning both a Journal and an Issue will screw up the database
-            raise ValidationError({
-                'in_journal': ValidationError(
-                    'Either assign only a Journal or Issue to this Publication', code='invalid'),
-                'in_issue': ValidationError(
-                    'Either assign only a Journal or Issue to this Publication', code='invalid'),
-            })
+            raise ValidationError(
+                {
+                    "in_journal": ValidationError(
+                        "Either assign only a Journal or Issue to this Publication",
+                        code="invalid",
+                    ),
+                    "in_issue": ValidationError(
+                        "Either assign only a Journal or Issue to this Publication",
+                        code="invalid",
+                    ),
+                }
+            )
         if self.in_issue and not self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
-            raise ValidationError({
-                'in_issue': ValidationError(
-                    'This journal does not allow the use of Issues',
-                    code='invalid'),
-            })
+            raise ValidationError(
+                {
+                    "in_issue": ValidationError(
+                        "This journal does not allow the use of Issues", code="invalid"
+                    ),
+                }
+            )
         if self.in_journal and self.get_journal().has_issues:
             # Assigning both a Journal and an Issue will screw up the database
-            raise ValidationError({
-                'in_journal': ValidationError(
-                    'This journal does not allow the use of individual Publications',
-                    code='invalid'),
-            })
+            raise ValidationError(
+                {
+                    "in_journal": ValidationError(
+                        "This journal does not allow the use of individual Publications",
+                        code="invalid",
+                    ),
+                }
+            )
 
     def get_absolute_url(self):
-        return reverse('scipost:publication_detail', args=(self.doi_label,))
+        return reverse("scipost:publication_detail", args=(self.doi_label,))
 
     def get_cc_license_URI(self):
         for (key, val) in CC_LICENSES_URI:
@@ -208,9 +251,12 @@ class Publication(models.Model):
         Returns all author affiliations.
         """
         from organizations.models import Organization
-        return Organization.objects.filter(
-            publicationauthorstable__publication=self
-        ).annotate(order=Min('publicationauthorstable__order')).order_by('order')
+
+        return (
+            Organization.objects.filter(publicationauthorstable__publication=self)
+            .annotate(order=Min("publicationauthorstable__order"))
+            .order_by("order")
+        )
 
     def get_author_affiliation_indices_list(self):
         """
@@ -241,13 +287,16 @@ class Publication(models.Model):
             padded_list.append(padded_entry)
         # Save into the calculated field for future purposes.
         Publication.objects.filter(id=self.id).update(
-            cf_author_affiliation_indices_list=padded_list)
+            cf_author_affiliation_indices_list=padded_list
+        )
         return padded_list
 
     def get_all_funders(self):
         from funders.models import Funder
+
         return Funder.objects.filter(
-            models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
+            models.Q(grants__publications=self) | models.Q(publications=self)
+        ).distinct()
 
     def get_organizations(self):
         """
@@ -255,14 +304,16 @@ class Publication(models.Model):
         through being in author affiliations, funders or generic funders.
         """
         from organizations.models import Organization
+
         return Organization.objects.filter(
-            models.Q(publicationauthorstable__publication=self) |
-            models.Q(funder__grants__publications=self) |
-            models.Q(funder__publications=self)).distinct()
+            models.Q(publicationauthorstable__publication=self)
+            | models.Q(funder__grants__publications=self)
+            | models.Q(funder__publications=self)
+        ).distinct()
 
     @property
     def doi_string(self):
-        return '10.21468/' + self.doi_label
+        return "10.21468/" + self.doi_label
 
     @property
     def is_draft(self):
@@ -281,52 +332,59 @@ class Publication(models.Model):
 
     @property
     def has_abstract_jats(self):
-        return self.abstract_jats != ''
+        return self.abstract_jats != ""
 
     @property
     def has_xml_metadata(self):
-        return self.metadata_xml != ''
+        return self.metadata_xml != ""
 
     @property
     def has_bibtex_entry(self):
-        return self.BiBTeX_entry != ''
+        return self.BiBTeX_entry != ""
 
     @property
     def has_citation_list(self):
-        return 'citation_list' in self.metadata and len(self.metadata['citation_list']) > 0
+        return (
+            "citation_list" in self.metadata and len(self.metadata["citation_list"]) > 0
+        )
 
     @property
     def has_funding_statement(self):
-        return 'funding_statement' in self.metadata and self.metadata['funding_statement']
+        return (
+            "funding_statement" in self.metadata and self.metadata["funding_statement"]
+        )
 
     @property
     def pubfractions_sum_to_1(self):
-        """ Checks that the support fractions sum up to one. """
-        return self.pubfractions.aggregate(Sum('fraction'))['fraction__sum'] == 1
+        """Checks that the support fractions sum up to one."""
+        return self.pubfractions.aggregate(Sum("fraction"))["fraction__sum"] == 1
 
     @property
     def citation(self):
         """Return Publication name in the preferred citation format."""
         if self.in_issue and self.in_issue.in_volume:
-            return '{journal} {volume}, {paper_nr} ({year})'.format(
+            return "{journal} {volume}, {paper_nr} ({year})".format(
                 journal=self.in_issue.in_volume.in_journal.name_abbrev,
                 volume=self.in_issue.in_volume.number,
                 paper_nr=self.get_paper_nr(),
-                year=self.publication_date.strftime('%Y'))
+                year=self.publication_date.strftime("%Y"),
+            )
         elif self.in_issue and self.in_issue.in_journal:
-            return '{journal} {issue}, {paper_nr} ({year})'.format(
+            return "{journal} {issue}, {paper_nr} ({year})".format(
                 journal=self.in_issue.in_journal.name_abbrev,
                 issue=self.in_issue.number,
                 paper_nr=self.get_paper_nr(),
-                year=self.publication_date.strftime('%Y'))
+                year=self.publication_date.strftime("%Y"),
+            )
         elif self.in_journal:
-            return '{journal} {paper_nr} ({year})'.format(
+            return "{journal} {paper_nr} ({year})".format(
                 journal=self.in_journal.name_abbrev,
                 paper_nr=self.paper_nr,
-                year=self.publication_date.strftime('%Y'))
-        return '{paper_nr} ({year})'.format(
-            paper_nr=self.paper_nr,
-            year=self.publication_date.strftime('%Y'))
+                year=self.publication_date.strftime("%Y"),
+            )
+        return "{paper_nr} ({year})".format(
+            paper_nr=self.paper_nr, year=self.publication_date.strftime("%Y")
+        )
 
     def get_cc_license_URI(self):
         for (key, val) in CC_LICENSES_URI:
@@ -336,8 +394,10 @@ class Publication(models.Model):
 
     def get_all_funders(self):
         from funders.models import Funder
+
         return Funder.objects.filter(
-            models.Q(grants__publications=self) | models.Q(publications=self)).distinct()
+            models.Q(grants__publications=self) | models.Q(publications=self)
+        ).distinct()
 
     def get_journal(self):
         if self.in_journal:
@@ -359,20 +419,24 @@ class Publication(models.Model):
         if self.citedby and self.latest_citedby_update:
             ncites = len(self.citedby)
             deltat = (self.latest_citedby_update.date() - self.publication_date).days
-            return (ncites * 365.25 / deltat)
+            return ncites * 365.25 / deltat
         else:
             return 0
 
     def get_issue_related_publications(self):
         """Return 4 Publications within same Issue."""
-        return Publication.objects.published().filter(
-            in_issue=self.in_issue).exclude(id=self.id)[:4]
+        return (
+            Publication.objects.published()
+            .filter(in_issue=self.in_issue)
+            .exclude(id=self.id)[:4]
+        )
 
 
 class Reference(models.Model):
     """A Refence is a reference used in a specific Publication."""
+
     reference_number = models.IntegerField()
-    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE)
+    publication = models.ForeignKey("journals.Publication", on_delete=models.CASCADE)
 
     authors = models.CharField(max_length=1028)
     citation = models.CharField(max_length=1028, blank=True)
@@ -380,12 +444,14 @@ class Reference(models.Model):
     link = models.URLField(blank=True)
 
     class Meta:
-        unique_together = ('reference_number', 'publication')
-        ordering = ['reference_number']
-        default_related_name = 'references'
+        unique_together = ("reference_number", "publication")
+        ordering = ["reference_number"]
+        default_related_name = "references"
 
     def __str__(self):
-        return '[{}] {}, {}'.format(self.reference_number, self.authors[:30], self.citation[:30])
+        return "[{}] {}, {}".format(
+            self.reference_number, self.authors[:30], self.citation[:30]
+        )
 
 
 class OrgPubFraction(models.Model):
@@ -400,11 +466,20 @@ class OrgPubFraction(models.Model):
 
     To be set (ideally) during production phase, based on information provided by the authors.
     """
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE,
-                                     related_name='pubfractions', blank=True, null=True)
-    publication = models.ForeignKey('journals.Publication', on_delete=models.CASCADE,
-                                    related_name='pubfractions')
-    fraction = models.DecimalField(max_digits=4, decimal_places=3, default=Decimal('0.000'))
+
+    organization = models.ForeignKey(
+        "organizations.Organization",
+        on_delete=models.CASCADE,
+        related_name="pubfractions",
+        blank=True,
+        null=True,
+    )
+    publication = models.ForeignKey(
+        "journals.Publication", on_delete=models.CASCADE, related_name="pubfractions"
+    )
+    fraction = models.DecimalField(
+        max_digits=4, decimal_places=3, default=Decimal("0.000")
+    )
 
     class Meta:
-        unique_together = (('organization', 'publication'),)
+        unique_together = (("organization", "publication"),)

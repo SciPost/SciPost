@@ -20,9 +20,14 @@ class ReportQuerySet(models.QuerySet):
 
     def rejected(self):
         """Return the subset of rejected Reports."""
-        return self.filter(status__in=[
-            constants.STATUS_UNCLEAR, constants.STATUS_INCORRECT, constants.STATUS_NOT_USEFUL,
-            constants.STATUS_NOT_ACADEMIC])
+        return self.filter(
+            status__in=[
+                constants.STATUS_UNCLEAR,
+                constants.STATUS_INCORRECT,
+                constants.STATUS_NOT_USEFUL,
+                constants.STATUS_NOT_ACADEMIC,
+            ]
+        )
 
     def in_draft(self):
         """Return the subset of Reports in draft."""

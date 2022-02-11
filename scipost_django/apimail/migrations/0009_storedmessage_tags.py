@@ -6,13 +6,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0008_usertag'),
+        ("apimail", "0008_usertag"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='storedmessage',
-            name='tags',
-            field=models.ManyToManyField(blank=True, related_name='messages', to='apimail.UserTag'),
+            model_name="storedmessage",
+            name="tags",
+            field=models.ManyToManyField(
+                blank=True, related_name="messages", to="apimail.UserTag"
+            ),
         ),
     ]

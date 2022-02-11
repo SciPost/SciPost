@@ -9,24 +9,70 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('careers', '0002_jobopening_short_description'),
+        ("careers", "0002_jobopening_short_description"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='JobApplication',
+            name="JobApplication",
             fields=[
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('title', models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms')], max_length=4)),
-                ('first_name', models.CharField(max_length=30)),
-                ('last_name', models.CharField(max_length=30)),
-                ('email', models.EmailField(max_length=254)),
-                ('motivation', models.FileField(blank=True, upload_to='uploads/jobapplications/%Y/%m/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size])),
-                ('cv', models.FileField(blank=True, upload_to='uploads/jobapplications/%Y/%m/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size])),
-                ('jobopening', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='careers.JobOpening')),
+                (
+                    "uuid",
+                    models.UUIDField(
+                        default=uuid.uuid4,
+                        editable=False,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        choices=[
+                            ("PR", "Prof."),
+                            ("DR", "Dr"),
+                            ("MR", "Mr"),
+                            ("MRS", "Mrs"),
+                            ("MS", "Ms"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=30)),
+                ("last_name", models.CharField(max_length=30)),
+                ("email", models.EmailField(max_length=254)),
+                (
+                    "motivation",
+                    models.FileField(
+                        blank=True,
+                        upload_to="uploads/jobapplications/%Y/%m/",
+                        validators=[
+                            comments.behaviors.validate_file_extension,
+                            comments.behaviors.validate_max_file_size,
+                        ],
+                    ),
+                ),
+                (
+                    "cv",
+                    models.FileField(
+                        blank=True,
+                        upload_to="uploads/jobapplications/%Y/%m/",
+                        validators=[
+                            comments.behaviors.validate_file_extension,
+                            comments.behaviors.validate_max_file_size,
+                        ],
+                    ),
+                ),
+                (
+                    "jobopening",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="careers.JobOpening",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-jobopening__announced', 'last_name'],
+                "ordering": ["-jobopening__announced", "last_name"],
             },
         ),
     ]

@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0033_auto_20180819_1343'),
+        ("submissions", "0033_auto_20180819_1343"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='refereeinvitation',
-            options={'ordering': ['cancelled', 'date_invited']},
+            name="refereeinvitation",
+            options={"ordering": ["cancelled", "date_invited"]},
         ),
     ]

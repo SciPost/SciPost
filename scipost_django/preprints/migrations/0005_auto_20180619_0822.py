@@ -6,15 +6,15 @@ from django.db import migrations
 
 
 def remove_all_preprints(apps, schema_editor):
-    Preprint = apps.get_model('preprints', 'Preprint')
+    Preprint = apps.get_model("preprints", "Preprint")
     Preprint.objects.all().delete()
     return
 
 
 def move_preprint_relations(apps, schema_editor):
     """Move fk relation to Submission table."""
-    Preprint = apps.get_model('preprints', 'Preprint')
-    Submission = apps.get_model('submissions', 'Submission')
+    Preprint = apps.get_model("preprints", "Preprint")
+    Submission = apps.get_model("submissions", "Submission")
 
     for preprint in Preprint.objects.all():
         Submission.objects.filter(id=preprint.submission.id).update(preprint2=preprint)
@@ -23,8 +23,8 @@ def move_preprint_relations(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0004_auto_20180619_0821'),
-        ('submissions', '0026_auto_20180619_0821'),
+        ("preprints", "0004_auto_20180619_0821"),
+        ("submissions", "0026_auto_20180619_0821"),
     ]
 
     operations = [

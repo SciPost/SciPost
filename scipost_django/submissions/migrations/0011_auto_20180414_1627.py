@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0010_auto_20180314_1607'),
+        ("submissions", "0010_auto_20180314_1607"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='visible_pool',
+            model_name="submission",
+            name="visible_pool",
             field=models.BooleanField(default=True),
         ),
         migrations.AddField(
-            model_name='submission',
-            name='visible_public',
+            model_name="submission",
+            name="visible_public",
             field=models.BooleanField(default=False),
         ),
     ]

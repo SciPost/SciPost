@@ -9,25 +9,76 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0003_auto_20181027_1748'),
+        ("ontology", "0003_auto_20181027_1748"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='RelationAsym',
+            name="RelationAsym",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('relation', models.CharField(choices=[('is_instance_of', 'is an instance of'), ('is_specialization_of', 'is a specialization of'), ('is_refinement_of', 'is a refinement of'), ('is_used_in', 'is used in'), ('is_example_of', 'is an example of')], max_length=32)),
-                ('A', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='relation_LHS', to='ontology.Topic')),
-                ('B', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='relation_RHS', to='ontology.Topic')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "relation",
+                    models.CharField(
+                        choices=[
+                            ("is_instance_of", "is an instance of"),
+                            ("is_specialization_of", "is a specialization of"),
+                            ("is_refinement_of", "is a refinement of"),
+                            ("is_used_in", "is used in"),
+                            ("is_example_of", "is an example of"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "A",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="relation_LHS",
+                        to="ontology.Topic",
+                    ),
+                ),
+                (
+                    "B",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="relation_RHS",
+                        to="ontology.Topic",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='RelationSym',
+            name="RelationSym",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('relation', models.CharField(choices=[('are_related', 'are related'), ('are_synonyms', 'are synonyms')], max_length=32)),
-                ('topics', models.ManyToManyField(to='ontology.Topic')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "relation",
+                    models.CharField(
+                        choices=[
+                            ("are_related", "are related"),
+                            ("are_synonyms", "are synonyms"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("topics", models.ManyToManyField(to="ontology.Topic")),
             ],
         ),
     ]

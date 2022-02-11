@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0073_auto_20190923_1017'),
+        ("journals", "0073_auto_20190923_1017"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='style',
-            field=models.TextField(blank=True, help_text="CSS styling for the journal; the Journal's DOI should be used as class", null=True),
+            model_name="journal",
+            name="style",
+            field=models.TextField(
+                blank=True,
+                help_text="CSS styling for the journal; the Journal's DOI should be used as class",
+                null=True,
+            ),
         ),
     ]

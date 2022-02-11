@@ -15,7 +15,8 @@ class iThenticateCaller:
 
     def _get_client(self):
         client = iThenticate.API.Client(
-            settings.ITHENTICATE_USERNAME, settings.ITHENTICATE_PASSWORD)
+            settings.ITHENTICATE_USERNAME, settings.ITHENTICATE_PASSWORD
+        )
         if client.login():
             return client
         self.add_error(None, "Failed to login to iThenticate.")  # To do: wrong
@@ -33,7 +34,9 @@ class iThenticateCaller:
 
         if not document:
             # Expect: ArxivPDFNotFound exception
-            document = retrieve_pdf_from_arxiv(self.submission.preprint.identifier_w_vn_nr)
+            document = retrieve_pdf_from_arxiv(
+                self.submission.preprint.identifier_w_vn_nr
+            )
 
         client = self._get_client()
         if not client:
@@ -45,19 +48,28 @@ class iThenticateCaller:
 
             # Give feedback to the user
             if not data:
-                self.add_error(None, "Updating failed. iThenticate didn't return valid data [3]")  # To do: . wrong
+                self.add_error(
+                    None, "Updating failed. iThenticate didn't return valid data [3]"
+                )  # To do: . wrong
                 for msg in plagiarism.get_messages():
                     self.add_error(None, msg)  # To do: wrong.
                 return None
         except AttributeError:
             # To do: all wrong...
-            if not self.fields.get('file'):
+            if not self.fields.get("file"):
                 # The document is invalid.
-                self.add_error(None, ('A valid pdf could not be found at arXiv.'
-                                  ' Please upload the pdf manually.'))
+                self.add_error(
+                    None,
+                    (
+                        "A valid pdf could not be found at arXiv."
+                        " Please upload the pdf manually."
+                    ),
+                )
             else:
-                self.add_error(None, ('The uploaded file is not valid.'
-                                  ' Please upload a valid pdf.'))
-                self.fields['file'] = forms.FileField()
+                self.add_error(
+                    None,
+                    ("The uploaded file is not valid." " Please upload a valid pdf."),
+                )
+                self.fields["file"] = forms.FileField()
 
         return data

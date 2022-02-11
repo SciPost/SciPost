@@ -7,20 +7,28 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0016_populate_colleges'),
-        ('ontology', '0007_Branch_Field_Specialty'),
-        ('journals', '0091_auto_20200821_1427'),
+        ("colleges", "0016_populate_colleges"),
+        ("ontology", "0007_Branch_Field_Specialty"),
+        ("journals", "0091_auto_20200821_1427"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='college',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='journals', to='colleges.College'),
+            model_name="journal",
+            name="college",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="journals",
+                to="colleges.College",
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='specialties',
-            field=models.ManyToManyField(blank=True, related_name='journals', to='ontology.Specialty'),
+            model_name="journal",
+            name="specialties",
+            field=models.ManyToManyField(
+                blank=True, related_name="journals", to="ontology.Specialty"
+            ),
         ),
     ]

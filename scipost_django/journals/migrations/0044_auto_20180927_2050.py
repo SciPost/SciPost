@@ -7,7 +7,7 @@ from django.db import migrations
 
 def update_issue_slugs(apps, schema_editor):
     """Fill all slug fields for existing Issue instances."""
-    Issue = apps.get_model('journals', 'Issue')
+    Issue = apps.get_model("journals", "Issue")
 
     for issue in Issue.objects.all():
         Issue.objects.filter(id=issue.id).update(slug=issue.number)
@@ -16,7 +16,7 @@ def update_issue_slugs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0043_auto_20180927_2014'),
+        ("journals", "0043_auto_20180927_2014"),
     ]
 
     operations = [

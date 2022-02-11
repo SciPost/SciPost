@@ -12,24 +12,29 @@ from ...models import Submission
 
 
 class Command(BaseCommand):
-    help = 'Sends all email reminders needed for Submissions undergoing refereeing'
+    help = "Sends all email reminders needed for Submissions undergoing refereeing"
 
     def handle(self, *args, **options):
         for submission in Submission.objects.open_for_reporting():
             # Send reminders to referees who have not responded:
-            for invitation in submission.referee_invitations.awaiting_response(
-            ).auto_reminders_allowed():
+            for (
+                invitation
+            ) in (
+                submission.referee_invitations.awaiting_response().auto_reminders_allowed()
+            ):
                 # 2 days after ref invite sent out: first auto reminder
                 if workdays_between(invitation.date_invited, timezone.now()) == 2:
                     if invitation.referee:
                         mail_sender = DirectMailUtil(
-                            'referees/invite_contributor_to_referee_reminder1',
-                            invitation=invitation)
+                            "referees/invite_contributor_to_referee_reminder1",
+                            invitation=invitation,
+                        )
                         mail_sender.send_mail()
                     else:
                         mail_sender = DirectMailUtil(
-                            'referees/invite_unregistered_to_referee_reminder1',
-                            invitation=invitation)
+                            "referees/invite_unregistered_to_referee_reminder1",
+                            invitation=invitation,
+                        )
                         mail_sender.send_mail()
                     invitation.nr_reminders += 1
                     invitation.date_last_reminded = timezone.now()
@@ -38,13 +43,15 @@ class Command(BaseCommand):
                 elif workdays_between(invitation.date_invited, timezone.now()) == 4:
                     if invitation.referee:
                         mail_sender = DirectMailUtil(
-                            'referees/invite_contributor_to_referee_reminder2',
-                            invitation=invitation)
+                            "referees/invite_contributor_to_referee_reminder2",
+                            invitation=invitation,
+                        )
                         mail_sender.send_mail()
                     else:
                         mail_sender = DirectMailUtil(
-                            'referees/invite_unregistered_to_referee_reminder2',
-                            invitation=invitation)
+                            "referees/invite_unregistered_to_referee_reminder2",
+                            invitation=invitation,
+                        )
                         mail_sender.send_mail()
                     invitation.nr_reminders += 1
                     invitation.date_last_reminded = timezone.now()
@@ -52,12 +59,18 @@ class Command(BaseCommand):
                 # after 6 days of no response, EIC is automatically emailed
                 # with the suggestion of removing and replacing this referee
                 elif workdays_between(invitation.date_invited, timezone.now()) == 6:
-                    mail_sender = DirectMailUtil('eic/referee_unresponsive', invitation=invitation)
+                    mail_sender = DirectMailUtil(
+                        "eic/referee_unresponsive", invitation=invitation
+                    )
                     mail_sender.send_mail()
             # one week before refereeing deadline: auto email reminder to ref
             if workdays_between(timezone.now(), submission.reporting_deadline) == 5:
-                for invitation in submission.referee_invitations.in_process(
-                ).auto_reminders_allowed():
+                for (
+                    invitation
+                ) in (
+                    submission.referee_invitations.in_process().auto_reminders_allowed()
+                ):
                     mail_sender = DirectMailUtil(
-                        'referees/remind_referee_deadline_1week', invitation=invitation)
+                        "referees/remind_referee_deadline_1week", invitation=invitation
+                    )
                     mail_sender.send_mail()

@@ -8,13 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0037_merge_20181009_2050'),
+        ("submissions", "0037_merge_20181009_2050"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='ithenticatereport',
-            name='status',
-            field=models.CharField(choices=[('waiting', 'Awaiting action'), ('sent', 'Sent succesfully, awaiting report'), ('received', 'Report received'), ('fail_down', 'Failed (downloading failed)'), ('fail_up', 'Failed (uploading failed)')], default='waiting', max_length=16),
+            model_name="ithenticatereport",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("waiting", "Awaiting action"),
+                    ("sent", "Sent succesfully, awaiting report"),
+                    ("received", "Report received"),
+                    ("fail_down", "Failed (downloading failed)"),
+                    ("fail_up", "Failed (uploading failed)"),
+                ],
+                default="waiting",
+                max_length=16,
+            ),
         ),
     ]

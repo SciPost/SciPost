@@ -8,13 +8,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0020_auto_20190327_1713'),
+        ("profiles", "0020_auto_20190327_1713"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='affiliation',
-            name='category',
-            field=models.CharField(choices=[('employed_prof_full', 'Full Professor'), ('employed_prof_associate', 'Associate Professor'), ('employed_prof_assistant', 'Assistant Professor'), ('employed_prof_emeritus', 'Emeritus Professor'), ('employed_permanent_staff', 'Permanent Staff'), ('employed_fixed_term_staff', 'Fixed Term Staff'), ('employed_tenure_track', 'Tenure Tracker'), ('employed_postdoc', 'Postdoctoral Researcher'), ('employed_phd', 'PhD candidate'), ('associate_scientist', 'Associate Scientist'), ('consultant', 'Consultant'), ('visitor', 'Visitor'), ('unspecified', 'Unspecified')], default='unspecified', help_text='Select the most suitable category', max_length=64),
+            model_name="affiliation",
+            name="category",
+            field=models.CharField(
+                choices=[
+                    ("employed_prof_full", "Full Professor"),
+                    ("employed_prof_associate", "Associate Professor"),
+                    ("employed_prof_assistant", "Assistant Professor"),
+                    ("employed_prof_emeritus", "Emeritus Professor"),
+                    ("employed_permanent_staff", "Permanent Staff"),
+                    ("employed_fixed_term_staff", "Fixed Term Staff"),
+                    ("employed_tenure_track", "Tenure Tracker"),
+                    ("employed_postdoc", "Postdoctoral Researcher"),
+                    ("employed_phd", "PhD candidate"),
+                    ("associate_scientist", "Associate Scientist"),
+                    ("consultant", "Consultant"),
+                    ("visitor", "Visitor"),
+                    ("unspecified", "Unspecified"),
+                ],
+                default="unspecified",
+                help_text="Select the most suitable category",
+                max_length=64,
+            ),
         ),
     ]

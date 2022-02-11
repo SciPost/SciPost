@@ -23,44 +23,38 @@ class College(models.Model):
 
     name = models.CharField(
         max_length=256,
-        help_text='Official name of the College (default: name of the academic field)',
-        unique=True
+        help_text="Official name of the College (default: name of the academic field)",
+        unique=True,
     )
 
     acad_field = models.ForeignKey(
-        'ontology.AcademicField',
-        on_delete=models.PROTECT,
-        related_name='colleges'
+        "ontology.AcademicField", on_delete=models.PROTECT, related_name="colleges"
     )
 
-    slug = models.SlugField(
-        unique=True,
-        allow_unicode=True
-    )
+    slug = models.SlugField(unique=True, allow_unicode=True)
 
     order = models.PositiveSmallIntegerField()
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'acad_field',],
-                name='college_unique_name_acad_field'
+                fields=[
+                    "name",
+                    "acad_field",
+                ],
+                name="college_unique_name_acad_field",
             ),
             models.UniqueConstraint(
-                fields=['acad_field', 'order'],
-                name='college_unique_acad_field_order'
+                fields=["acad_field", "order"], name="college_unique_acad_field_order"
             ),
         ]
-        ordering = [
-            'acad_field',
-            'order'
-        ]
+        ordering = ["acad_field", "order"]
 
     def __str__(self):
         return "Editorial College (%s)" % self.name
 
     def get_absolute_url(self):
-        return reverse('colleges:college_detail', kwargs={'college': self.slug})
+        return reverse("colleges:college_detail", kwargs={"college": self.slug})
 
     @property
     def specialties(self):

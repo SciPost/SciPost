@@ -6,31 +6,37 @@ from django.db import migrations
 
 
 def update_visibility_booleans(apps, schema_editor):
-    Submission = apps.get_model('submissions', 'Submission')
+    Submission = apps.get_model("submissions", "Submission")
 
     # Publicly show Submissions if status is correct.
-    Submission.objects.exclude(status__in=[
-        'unassigned',
-        'assignment_failed',
-        'resubmitted_incoming',
-        'rejected_visible',
-        'resubmitted_and_rejected_visible',
-        'withdrawn']).update(visible_public=True)
+    Submission.objects.exclude(
+        status__in=[
+            "unassigned",
+            "assignment_failed",
+            "resubmitted_incoming",
+            "rejected_visible",
+            "resubmitted_and_rejected_visible",
+            "withdrawn",
+        ]
+    ).update(visible_public=True)
 
     # Hide from pool if decision is taken.
-    Submission.objects.filter(status__in=[
-        'rejected_visible',
-        'rejected',
-        'withdrawn',
-        'published',
-        'assignment_failed',
-        'resubmitted']).update(visible_pool=False)
+    Submission.objects.filter(
+        status__in=[
+            "rejected_visible",
+            "rejected",
+            "withdrawn",
+            "published",
+            "assignment_failed",
+            "resubmitted",
+        ]
+    ).update(visible_pool=False)
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0011_auto_20180414_1627'),
+        ("submissions", "0011_auto_20180414_1627"),
     ]
 
     operations = [

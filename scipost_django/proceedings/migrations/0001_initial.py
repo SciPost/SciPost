@@ -13,33 +13,67 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('journals', '0001_initial'),
-        ('colleges', '0001_initial'),
+        ("journals", "0001_initial"),
+        ("colleges", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Proceedings',
+            name="Proceedings",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('latest_activity', scipost.db.fields.AutoDateTimeField(blank=True, default=django.utils.timezone.now, editable=False)),
-                ('event_name', models.CharField(blank=True, max_length=256)),
-                ('event_suffix', models.CharField(blank=True, max_length=256)),
-                ('event_description', models.TextField(blank=True)),
-                ('event_start_date', models.DateField(blank=True, null=True)),
-                ('event_end_date', models.DateField(blank=True, null=True)),
-                ('submissions_open', models.DateField()),
-                ('submissions_deadline', models.DateField()),
-                ('submissions_close', models.DateField()),
-                ('fellowships', models.ManyToManyField(blank=True, related_name='proceedings', to='colleges.Fellowship')),
-                ('issue', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='proceedings', to='journals.Issue')),
-                ('lead_fellow', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='colleges.Fellowship')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "latest_activity",
+                    scipost.db.fields.AutoDateTimeField(
+                        blank=True, default=django.utils.timezone.now, editable=False
+                    ),
+                ),
+                ("event_name", models.CharField(blank=True, max_length=256)),
+                ("event_suffix", models.CharField(blank=True, max_length=256)),
+                ("event_description", models.TextField(blank=True)),
+                ("event_start_date", models.DateField(blank=True, null=True)),
+                ("event_end_date", models.DateField(blank=True, null=True)),
+                ("submissions_open", models.DateField()),
+                ("submissions_deadline", models.DateField()),
+                ("submissions_close", models.DateField()),
+                (
+                    "fellowships",
+                    models.ManyToManyField(
+                        blank=True, related_name="proceedings", to="colleges.Fellowship"
+                    ),
+                ),
+                (
+                    "issue",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="proceedings",
+                        to="journals.Issue",
+                    ),
+                ),
+                (
+                    "lead_fellow",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="+",
+                        to="colleges.Fellowship",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Proceedings',
-                'default_related_name': 'proceedings',
-                'verbose_name_plural': 'Proceedings',
+                "verbose_name": "Proceedings",
+                "default_related_name": "proceedings",
+                "verbose_name_plural": "Proceedings",
             },
         ),
     ]

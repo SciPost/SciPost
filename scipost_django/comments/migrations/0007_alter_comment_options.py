@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comments', '0006_alter_comment_needs_doi'),
+        ("comments", "0006_alter_comment_needs_doi"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='comment',
-            options={'ordering': ['-date_submitted'], 'permissions': (('can_vet_comments', 'Can vet submitted Comments'),)},
+            name="comment",
+            options={
+                "ordering": ["-date_submitted"],
+                "permissions": (("can_vet_comments", "Can vet submitted Comments"),),
+            },
         ),
     ]

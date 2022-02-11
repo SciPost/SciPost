@@ -8,8 +8,11 @@ from django.test import TestCase, Client, tag
 
 from common.helpers.test import add_groups_and_permissions
 
-from commentaries.factories import UnvettedCommentaryFactory, CommentaryFactory,\
-                                   UnpublishedCommentaryFactory
+from commentaries.factories import (
+    UnvettedCommentaryFactory,
+    CommentaryFactory,
+    UnpublishedCommentaryFactory,
+)
 from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
@@ -21,11 +24,12 @@ class RequestCommentaryTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        self.contributor = ContributorFactory(user__username='Test',
-                                              user__password='testpw')
-        self.view_url = reverse('commentaries:request_commentary')
-        self.login_url = reverse('scipost:login')
-        self.redirected_login_url = '%s?next=%s' % (self.login_url, self.view_url)
+        self.contributor = ContributorFactory(
+            user__username="Test", user__password="testpw"
+        )
+        self.view_url = reverse("commentaries:request_commentary")
+        self.login_url = reverse("scipost:login")
+        self.redirected_login_url = "%s?next=%s" % (self.login_url, self.view_url)
 
     def test_get_requests(self):
         """Test different GET requests on view"""
@@ -50,16 +54,18 @@ class VetCommentaryRequestsTest(TestCase):
 
     def setUp(self):
         add_groups_and_permissions()
-        self.view_url = reverse('commentaries:vet_commentary_requests')
-        self.login_url = reverse('scipost:login')
-        self.password = 'test123'
+        self.view_url = reverse("commentaries:vet_commentary_requests")
+        self.login_url = reverse("scipost:login")
+        self.password = "test123"
         self.contributor = ContributorFactory(user__password=self.password)
 
     def set_required_permissions_and_login(self):
-        '''Set the required permissions to testuser to access vet_commentary_requests.'''
+        """Set the required permissions to testuser to access vet_commentary_requests."""
         group = Group.objects.get(name="Vetting Editors")
         self.contributor.user.groups.add(group)
-        self.client.login(username=self.contributor.user.username, password=self.password)
+        self.client.login(
+            username=self.contributor.user.username, password=self.password
+        )
 
     def test_user_permissions(self):
         """Test view permission is restricted to Vetting Editors."""
@@ -68,7 +74,9 @@ class VetCommentaryRequestsTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
         # Wrong permissions group
-        self.client.login(username=self.contributor.user.username, password=self.password)
+        self.client.login(
+            username=self.contributor.user.username, password=self.password
+        )
         response = self.client.get(self.view_url)
         self.assertEqual(response.status_code, 403)
 
@@ -83,29 +91,28 @@ class VetCommentaryRequestsTest(TestCase):
 
         # No Commentary exists!
         response = self.client.get(self.view_url)
-        self.assertTrue('commentary_to_vet' in response.context)
-        self.assertEqual(response.context['commentary_to_vet'], None)
+        self.assertTrue("commentary_to_vet" in response.context)
+        self.assertEqual(response.context["commentary_to_vet"], None)
 
         # Only vetted Commentaries exist!
         CommentaryFactory()
         response = self.client.get(self.view_url)
-        self.assertEqual(response.context['commentary_to_vet'], None)
+        self.assertEqual(response.context["commentary_to_vet"], None)
 
         # Unvetted Commentaries do exist!
         UnvettedCommentaryFactory()
         response = self.client.get(self.view_url)
-        self.assertTrue(type(response.context['commentary_to_vet']) is Commentary)
+        self.assertTrue(type(response.context["commentary_to_vet"]) is Commentary)
 
 
 class CommentaryDetailTest(TestCase):
-
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
         self.commentary = UnpublishedCommentaryFactory()
         self.target = reverse(
-            'commentaries:commentary',
-            kwargs={'arxiv_or_DOI_string': self.commentary.arxiv_or_DOI_string}
+            "commentaries:commentary",
+            kwargs={"arxiv_or_DOI_string": self.commentary.arxiv_or_DOI_string},
         )
 
     def test_status_code_200(self):

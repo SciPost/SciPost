@@ -11,10 +11,16 @@ from scipost.factories import ContributorFactory
 from scipost.models import Contributor
 
 from ..constants import (
-    STATUS_UNASSIGNED, STATUS_INCOMING, STATUS_EIC_ASSIGNED, CYCLE_DEFAULT, CYCLE_DIRECT_REC)
+    STATUS_UNASSIGNED,
+    STATUS_INCOMING,
+    STATUS_EIC_ASSIGNED,
+    CYCLE_DEFAULT,
+    CYCLE_DIRECT_REC,
+)
 from ..exceptions import CycleUpdateDeadlineError
 from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
-#from .utils import GeneralSubmissionCycle
+
+# from .utils import GeneralSubmissionCycle
 
 
 # NOTED AS BROKEN 2019-11-08
@@ -43,23 +49,23 @@ from ..factories import UnassignedSubmissionFactory, ResubmissionFactory
 #         self.assertFalse(self.new_submission.open_for_reporting)
 #         self.assertEqual(self.new_submission.submission_date, self.submission_date)
 
-    # NOTED AS BROKEN 2019-11-08
-    # ImportError: cannot import name 'GeneralSubmissionCycle'
-    # @tag('cycle', 'core')
-    # def test_initial_cycle_required_actions_and_deadline(self):
-    #     """Test valid required actions for default cycle."""
-    #     self.assertIsInstance(self.new_submission.cycle, GeneralSubmissionCycle)
+# NOTED AS BROKEN 2019-11-08
+# ImportError: cannot import name 'GeneralSubmissionCycle'
+# @tag('cycle', 'core')
+# def test_initial_cycle_required_actions_and_deadline(self):
+#     """Test valid required actions for default cycle."""
+#     self.assertIsInstance(self.new_submission.cycle, GeneralSubmissionCycle)
 
-    #     # Explicit: No actions required if no EIC is assigned yet
-    #     self.assertFalse(self.new_submission.cycle.get_required_actions())
+#     # Explicit: No actions required if no EIC is assigned yet
+#     self.assertFalse(self.new_submission.cycle.get_required_actions())
 
-    #     # Two weeks deadline check
-    #     self.new_submission.cycle.update_deadline()
-    #     real_report_deadline = self.submission_date + datetime.timedelta(days=28)
-    #     self.assertEqual(self.new_submission.reporting_deadline.day, real_report_deadline.day)
-    #     self.assertEqual(self.new_submission.reporting_deadline.month, real_report_deadline.month)
-    #     self.assertEqual(self.new_submission.reporting_deadline.year, real_report_deadline.year)
-    #     self.assertIsInstance(self.new_submission.reporting_deadline, datetime.datetime)
+#     # Two weeks deadline check
+#     self.new_submission.cycle.update_deadline()
+#     real_report_deadline = self.submission_date + datetime.timedelta(days=28)
+#     self.assertEqual(self.new_submission.reporting_deadline.day, real_report_deadline.day)
+#     self.assertEqual(self.new_submission.reporting_deadline.month, real_report_deadline.month)
+#     self.assertEqual(self.new_submission.reporting_deadline.year, real_report_deadline.year)
+#     self.assertIsInstance(self.new_submission.reporting_deadline, datetime.datetime)
 
 
 # NOTED AS BROKEN 2019-11-08

@@ -10,13 +10,13 @@ from .models import Commentary
 
 
 class CommentaryIndex(indexes.SearchIndex, indexes.Indexable):
-    text = indexes.CharField(document=True, model_attr='title', use_template=True)
-    authors = indexes.CharField(model_attr='author_list')
-    date = indexes.DateTimeField(model_attr='pub_date', null=True)
-    abstract = indexes.CharField(model_attr='pub_abstract')
+    text = indexes.CharField(document=True, model_attr="title", use_template=True)
+    authors = indexes.CharField(model_attr="author_list")
+    date = indexes.DateTimeField(model_attr="pub_date", null=True)
+    abstract = indexes.CharField(model_attr="pub_abstract")
 
     def get_updated_field(self):
-        return 'latest_activity'
+        return "latest_activity"
 
     def get_model(self):
         return Commentary

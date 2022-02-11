@@ -11,23 +11,45 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('submissions', '0025_auto_20180520_1430'),
+        ("submissions", "0025_auto_20180520_1430"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Preprint',
+            name="Preprint",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('scipost_preprint_identifier', models.PositiveIntegerField(blank=True, null=True)),
-                ('identifier_w_vn_nr', models.CharField(max_length=25)),
-                ('identifier_wo_vn_nr', models.CharField(max_length=25)),
-                ('vn_nr', models.PositiveSmallIntegerField(default=1)),
-                ('url', models.URLField()),
-                ('_file', models.FileField(blank=True, max_length=200, upload_to='UPLOADS/PREPRINTS/%Y/%m/')),
-                ('modified', models.DateTimeField(auto_now=True)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('submission', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='submissions.Submission')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "scipost_preprint_identifier",
+                    models.PositiveIntegerField(blank=True, null=True),
+                ),
+                ("identifier_w_vn_nr", models.CharField(max_length=25)),
+                ("identifier_wo_vn_nr", models.CharField(max_length=25)),
+                ("vn_nr", models.PositiveSmallIntegerField(default=1)),
+                ("url", models.URLField()),
+                (
+                    "_file",
+                    models.FileField(
+                        blank=True, max_length=200, upload_to="UPLOADS/PREPRINTS/%Y/%m/"
+                    ),
+                ),
+                ("modified", models.DateTimeField(auto_now=True)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                (
+                    "submission",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submissions.Submission",
+                    ),
+                ),
             ],
         ),
     ]

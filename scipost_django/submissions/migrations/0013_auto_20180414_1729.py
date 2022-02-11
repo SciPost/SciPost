@@ -8,23 +8,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0012_auto_20180414_1627'),
+        ("submissions", "0012_auto_20180414_1627"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='eicrecommendation',
-            name='status',
-            field=models.CharField(choices=[('voting_in_prep', 'Voting in preparation'), ('put_to_voting', 'Undergoing voting at the Editorial College'), ('vote_completed', 'Editorial College voting rounded up'), ('decision_fixed', 'Editorial Recommendation fixed'), ('deprecated', 'Editorial Recommendation deprecated')], default='voting_in_prep', max_length=32),
+            model_name="eicrecommendation",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("voting_in_prep", "Voting in preparation"),
+                    ("put_to_voting", "Undergoing voting at the Editorial College"),
+                    ("vote_completed", "Editorial College voting rounded up"),
+                    ("decision_fixed", "Editorial Recommendation fixed"),
+                    ("deprecated", "Editorial Recommendation deprecated"),
+                ],
+                default="voting_in_prep",
+                max_length=32,
+            ),
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='visible_pool',
-            field=models.BooleanField(default=True, verbose_name='Is visible in the Pool'),
+            model_name="submission",
+            name="visible_pool",
+            field=models.BooleanField(
+                default=True, verbose_name="Is visible in the Pool"
+            ),
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='visible_public',
-            field=models.BooleanField(default=False, verbose_name='Is publicly visible'),
+            model_name="submission",
+            name="visible_public",
+            field=models.BooleanField(
+                default=False, verbose_name="Is publicly visible"
+            ),
         ),
     ]

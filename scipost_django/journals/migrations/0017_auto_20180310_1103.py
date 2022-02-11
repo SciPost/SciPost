@@ -9,23 +9,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0016_auto_20180303_0918'),
+        ("journals", "0016_auto_20180303_0918"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='_has_issues',
-            field=models.BooleanField(default=True, verbose_name='Use Issues to group Publications'),
+            model_name="journal",
+            name="_has_issues",
+            field=models.BooleanField(
+                default=True, verbose_name="Use Issues to group Publications"
+            ),
         ),
         migrations.AddField(
-            model_name='journal',
-            name='_has_volumes',
-            field=models.BooleanField(default=True, verbose_name='Use Issues to group Publications (if True, the use of Issues is required)'),
+            model_name="journal",
+            name="_has_volumes",
+            field=models.BooleanField(
+                default=True,
+                verbose_name="Use Issues to group Publications (if True, the use of Issues is required)",
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='in_issue',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='publications', to='journals.Issue'),
+            model_name="publication",
+            name="in_issue",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="publications",
+                to="journals.Issue",
+            ),
         ),
     ]

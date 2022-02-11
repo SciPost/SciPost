@@ -9,18 +9,26 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0017_auto_20180310_1103'),
+        ("journals", "0017_auto_20180310_1103"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='issue',
-            name='in_journal',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='journals.Journal'),
+            model_name="issue",
+            name="in_journal",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="journals.Journal",
+            ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='in_volume',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='journals.Volume'),
+            model_name="issue",
+            name="in_volume",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="journals.Volume",
+            ),
         ),
     ]

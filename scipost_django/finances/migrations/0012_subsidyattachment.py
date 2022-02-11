@@ -10,18 +10,40 @@ import scipost.storage
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0011_auto_20190214_0224'),
+        ("finances", "0011_auto_20190214_0224"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SubsidyAttachment',
+            name="SubsidyAttachment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('attachment', models.FileField(storage=scipost.storage.SecureFileStorage(), upload_to='UPLOADS/FINANCES/SUBSIDIES/ATTACHMENTS')),
-                ('name', models.CharField(max_length=128)),
-                ('publicly_visible', models.BooleanField(default=False)),
-                ('subsidy', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.CASCADE, related_name='attachments', to='finances.Subsidy')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "attachment",
+                    models.FileField(
+                        storage=scipost.storage.SecureFileStorage(),
+                        upload_to="UPLOADS/FINANCES/SUBSIDIES/ATTACHMENTS",
+                    ),
+                ),
+                ("name", models.CharField(max_length=128)),
+                ("publicly_visible", models.BooleanField(default=False)),
+                (
+                    "subsidy",
+                    models.ForeignKey(
+                        blank=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="attachments",
+                        to="finances.Subsidy",
+                    ),
+                ),
             ],
         ),
     ]

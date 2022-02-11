@@ -7,177 +7,156 @@ from django.urls import path
 from . import views
 
 
-app_name = 'colleges'
+app_name = "colleges"
 
 urlpatterns = [
     # Editorial Colleges: public view
+    path("", views.CollegeListView.as_view(), name="colleges"),
+    path("<college:college>", views.CollegeDetailView.as_view(), name="college_detail"),
     path(
-        '',
-        views.CollegeListView.as_view(),
-        name='colleges'
-    ),
-    path(
-        '<college:college>',
-        views.CollegeDetailView.as_view(),
-        name='college_detail'
-    ),
-    path(
-        '<college:college>/email_Fellows',
+        "<college:college>/email_Fellows",
         views.email_College_Fellows,
-        name='email_College_Fellows'
+        name="email_College_Fellows",
     ),
-
     # Fellowships
     path(
-        'fellowship-autocomplete',
+        "fellowship-autocomplete",
         views.FellowshipAutocompleteView.as_view(),
-        name='fellowship-autocomplete'
+        name="fellowship-autocomplete",
     ),
     path(
-        '_hx_fellowship_dynsel_list',
+        "_hx_fellowship_dynsel_list",
         views._hx_fellowship_dynsel_list,
-        name='_hx_fellowship_dynsel_list'
+        name="_hx_fellowship_dynsel_list",
     ),
     path(
-        'fellowships/<int:contributor_id>/add/',
+        "fellowships/<int:contributor_id>/add/",
         views.FellowshipCreateView.as_view(),
-        name='fellowship_create'),
+        name="fellowship_create",
+    ),
     path(
-        'fellowships/<int:pk>/update/',
+        "fellowships/<int:pk>/update/",
         views.FellowshipUpdateView.as_view(),
-        name='fellowship_update'),
+        name="fellowship_update",
+    ),
     path(
-        'fellowships/<int:pk>/',
+        "fellowships/<int:pk>/",
         views.FellowshipDetailView.as_view(),
-        name='fellowship_detail'
+        name="fellowship_detail",
     ),
     path(
-        'fellowships/<acad_field:acad_field>/<specialty:specialty>',
+        "fellowships/<acad_field:acad_field>/<specialty:specialty>",
         views.FellowshipListView.as_view(),
-        name='fellowships'
+        name="fellowships",
     ),
     path(
-        'fellowships/<acad_field:acad_field>',
+        "fellowships/<acad_field:acad_field>",
         views.FellowshipListView.as_view(),
-        name='fellowships'
+        name="fellowships",
     ),
+    path("fellowships", views.FellowshipListView.as_view(), name="fellowships"),
     path(
-        'fellowships',
-        views.FellowshipListView.as_view(),
-        name='fellowships'
-    ),
-    path(
-        'fellowships/<int:pk>/email_start/',
+        "fellowships/<int:pk>/email_start/",
         views.FellowshipStartEmailView.as_view(),
-        name='fellowship_email_start'
+        name="fellowship_email_start",
     ),
     path(
-        'fellowships/submissions/<identifier:identifier_w_vn_nr>/',
+        "fellowships/submissions/<identifier:identifier_w_vn_nr>/",
         views.submission_fellowships,
-        name='submission'
+        name="submission",
     ),
     path(
-        'fellowships/submissions/<identifier:identifier_w_vn_nr>/add',
+        "fellowships/submissions/<identifier:identifier_w_vn_nr>/add",
         views.submission_add_fellowship,
-        name='submission_add_fellowship'
+        name="submission_add_fellowship",
     ),
     path(
-        'fellowships/<int:id>/submissions/<identifier:identifier_w_vn_nr>/remove',
+        "fellowships/<int:id>/submissions/<identifier:identifier_w_vn_nr>/remove",
         views.fellowship_remove_submission,
-        name='fellowship_remove_submission'
+        name="fellowship_remove_submission",
     ),
     path(
-        'fellowships/<int:id>/submissions/add',
+        "fellowships/<int:id>/submissions/add",
         views.fellowship_add_submission,
-        name='fellowship_add_submission'
+        name="fellowship_add_submission",
     ),
     path(
-        'fellowships/<int:id>/proceedings/add',
+        "fellowships/<int:id>/proceedings/add",
         views.fellowship_add_proceedings,
-        name='fellowship_add_proceedings'
+        name="fellowship_add_proceedings",
     ),
     path(
-        'fellowships/<int:id>/proceedings/<int:proceedings_id>/remove',
+        "fellowships/<int:id>/proceedings/<int:proceedings_id>/remove",
         views.fellowship_remove_proceedings,
-        name='fellowship_remove_proceedings'
+        name="fellowship_remove_proceedings",
     ),
-
     # Potential Fellowships
     path(
-        'potentialfellowships/add/',
+        "potentialfellowships/add/",
         views.PotentialFellowshipCreateView.as_view(),
-        name='potential_fellowship_create'
+        name="potential_fellowship_create",
     ),
     path(
-        'potentialfellowships/<int:pk>/update/',
+        "potentialfellowships/<int:pk>/update/",
         views.PotentialFellowshipUpdateView.as_view(),
-        name='potential_fellowship_update'
+        name="potential_fellowship_update",
     ),
     path(
-        'potentialfellowsships/<int:pk>/update_status/',
+        "potentialfellowsships/<int:pk>/update_status/",
         views.PotentialFellowshipUpdateStatusView.as_view(),
-        name='potential_fellowship_update_status'
+        name="potential_fellowship_update_status",
     ),
     path(
-        'potentialfellowships/<int:pk>/delete/',
+        "potentialfellowships/<int:pk>/delete/",
         views.PotentialFellowshipDeleteView.as_view(),
-        name='potential_fellowship_delete'
+        name="potential_fellowship_delete",
     ),
     path(
-        'potentialfellowships/<int:pk>/events/add/',
+        "potentialfellowships/<int:pk>/events/add/",
         views.PotentialFellowshipEventCreateView.as_view(),
-        name='potential_fellowship_event_create'
+        name="potential_fellowship_event_create",
     ),
     path(
-        'potentialfellowships/<int:potfel_id>/vote/<str:vote>/',
+        "potentialfellowships/<int:potfel_id>/vote/<str:vote>/",
         views.vote_on_potential_fellowship,
-        name='vote_on_potential_fellowship'
+        name="vote_on_potential_fellowship",
     ),
     path(
-        'potentialfellowships/<int:pk>/email_initial/',
+        "potentialfellowships/<int:pk>/email_initial/",
         views.PotentialFellowshipInitialEmailView.as_view(),
-        name='potential_fellowship_email_initial'
+        name="potential_fellowship_email_initial",
     ),
     path(
-        'potentialfellowships/<int:pk>/',
+        "potentialfellowships/<int:pk>/",
         views.PotentialFellowshipDetailView.as_view(),
-        name='potential_fellowship_detail'
+        name="potential_fellowship_detail",
     ),
     path(
-        'potentialfellowships/<acad_field:acad_field>/<specialty:specialty>',
+        "potentialfellowships/<acad_field:acad_field>/<specialty:specialty>",
         views.PotentialFellowshipListView.as_view(),
-        name='potential_fellowships'
+        name="potential_fellowships",
     ),
     path(
-        'potentialfellowships/<acad_field:acad_field>',
+        "potentialfellowships/<acad_field:acad_field>",
         views.PotentialFellowshipListView.as_view(),
-        name='potential_fellowships'
+        name="potential_fellowships",
     ),
     path(
-        'potentialfellowships',
+        "potentialfellowships",
         views.PotentialFellowshipListView.as_view(),
-        name='potential_fellowships'
+        name="potential_fellowships",
     ),
-
     # Nominations
+    path("nominations", views.nominations, name="nominations"),
     path(
-        'nominations',
-        views.nominations,
-        name='nominations'
-    ),
-    path(
-        '_hx_nomination_form/<int:profile_id>',
+        "_hx_nomination_form/<int:profile_id>",
         views._hx_nomination_form,
-        name='_hx_nomination_form'
+        name="_hx_nomination_form",
     ),
+    path("_hx_nominations", views._hx_nominations, name="_hx_nominations"),
     path(
-        '_hx_nominations',
-        views._hx_nominations,
-        name='_hx_nominations'
-    ),
-    path(
-        '_hx_nomination_voting_rounds',
+        "_hx_nomination_voting_rounds",
         views._hx_nomination_voting_rounds,
-        name='_hx_nomination_voting_rounds'
+        name="_hx_nomination_voting_rounds",
     ),
 ]

@@ -14,9 +14,9 @@ domain = Site.objects.get_current().domain
 def test_celery_using_mail(self):
     """Just testing the production server here."""
     send_mail(
-        'Test subject',
-        'Received this mail?',
-        f'noreply@{domain}',
-        [f'techsupport@{domain}'],
+        "Test subject",
+        "Received this mail?",
+        f"noreply@{domain}",
+        [f"techsupport@{domain}"],
         fail_silently=False,
     )

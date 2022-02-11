@@ -11,4 +11,4 @@ class MarkupTextForm(forms.Form):
     markup_text = forms.CharField()
 
     def get_processed_markup(self):
-        return process_markup(self.cleaned_data['markup_text'], include_errors=True)
+        return process_markup(self.cleaned_data["markup_text"], include_errors=True)

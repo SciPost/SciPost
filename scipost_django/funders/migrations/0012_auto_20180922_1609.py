@@ -9,13 +9,13 @@ class Migration(migrations.Migration):
 
     dependencies = [
         # ('partners', '0017_auto_20180922_1603'),
-        ('funders', '0011_remove_funder_organization'),
+        ("funders", "0011_remove_funder_organization"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='funder',
-            old_name='org',
-            new_name='organization',
+            model_name="funder",
+            old_name="org",
+            new_name="organization",
         ),
     ]

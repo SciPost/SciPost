@@ -6,4 +6,4 @@ from django.apps import AppConfig
 
 
 class PetitionsConfig(AppConfig):
-    name = 'preprints'
+    name = "preprints"

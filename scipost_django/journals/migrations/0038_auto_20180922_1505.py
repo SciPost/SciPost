@@ -9,19 +9,25 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0002_populate_from_partners_org'),
-        ('journals', '0037_publication_pubfractions_confirmed_by_authors'),
+        ("organizations", "0002_populate_from_partners_org"),
+        ("journals", "0037_publication_pubfractions_confirmed_by_authors"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orgpubfraction',
-            name='org',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='pubfractions', to='organizations.Organization'),
+            model_name="orgpubfraction",
+            name="org",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="pubfractions",
+                to="organizations.Organization",
+            ),
         ),
         migrations.AddField(
-            model_name='publicationauthorstable',
-            name='affs',
-            field=models.ManyToManyField(blank=True, to='organizations.Organization'),
+            model_name="publicationauthorstable",
+            name="affs",
+            field=models.ManyToManyField(blank=True, to="organizations.Organization"),
         ),
     ]

@@ -9,18 +9,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0053_auto_20181118_1758'),
+        ("journals", "0053_auto_20181118_1758"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issue',
-            name='in_journal',
-            field=models.ForeignKey(blank=True, help_text='Assign either a Volume or Journal to the Issue', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='issues', to='journals.Journal'),
+            model_name="issue",
+            name="in_journal",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either a Volume or Journal to the Issue",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="issues",
+                to="journals.Journal",
+            ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='in_volume',
-            field=models.ForeignKey(blank=True, help_text='Assign either a Volume or Journal to the Issue', null=True, on_delete=django.db.models.deletion.CASCADE, related_name='issues', to='journals.Volume'),
+            model_name="issue",
+            name="in_volume",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either a Volume or Journal to the Issue",
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="issues",
+                to="journals.Volume",
+            ),
         ),
     ]

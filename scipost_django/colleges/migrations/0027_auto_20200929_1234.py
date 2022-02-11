@@ -6,13 +6,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0026_auto_20200926_0606'),
+        ("colleges", "0026_auto_20200926_0606"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='college',
-            name='name',
-            field=models.CharField(help_text='Official name of the College (default: name of the academic field)', max_length=256, unique=True),
+            model_name="college",
+            name="name",
+            field=models.CharField(
+                help_text="Official name of the College (default: name of the academic field)",
+                max_length=256,
+                unique=True,
+            ),
         ),
     ]

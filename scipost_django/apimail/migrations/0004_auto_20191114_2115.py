@@ -7,21 +7,21 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0003_auto_20191113_2226'),
+        ("apimail", "0003_auto_20191113_2226"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='event',
-            options={'ordering': ['-data__timestamp']},
+            name="event",
+            options={"ordering": ["-data__timestamp"]},
         ),
         migrations.AlterModelOptions(
-            name='storedmessage',
-            options={'ordering': ['-datetimestamp']},
+            name="storedmessage",
+            options={"ordering": ["-datetimestamp"]},
         ),
         migrations.AddField(
-            model_name='storedmessage',
-            name='datetimestamp',
+            model_name="storedmessage",
+            name="datetimestamp",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

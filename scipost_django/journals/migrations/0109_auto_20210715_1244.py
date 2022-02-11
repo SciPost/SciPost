@@ -6,13 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0108_journal_oneliner'),
+        ("journals", "0108_journal_oneliner"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publicationupdate',
-            name='update_type',
-            field=models.CharField(choices=[('addendum', 'Addendum'), ('clarification', 'Clarification'), ('correction', 'Correction'), ('corrigendum', 'Corrigendum'), ('erratum', 'Erratum'), ('expression_of_concern', 'Expression of concern'), ('new_edition', 'New edition'), ('new_version', 'New version'), ('partial_retraction', 'Partial_retraction'), ('removal', 'Removal'), ('retraction', 'Retraction'), ('withdrawal', 'Withdrawal')], default='correction', max_length=32),
+            model_name="publicationupdate",
+            name="update_type",
+            field=models.CharField(
+                choices=[
+                    ("addendum", "Addendum"),
+                    ("clarification", "Clarification"),
+                    ("correction", "Correction"),
+                    ("corrigendum", "Corrigendum"),
+                    ("erratum", "Erratum"),
+                    ("expression_of_concern", "Expression of concern"),
+                    ("new_edition", "New edition"),
+                    ("new_version", "New version"),
+                    ("partial_retraction", "Partial_retraction"),
+                    ("removal", "Removal"),
+                    ("retraction", "Retraction"),
+                    ("withdrawal", "Withdrawal"),
+                ],
+                default="correction",
+                max_length=32,
+            ),
         ),
     ]

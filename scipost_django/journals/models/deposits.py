@@ -16,6 +16,7 @@ class Deposit(models.Model):
     current version of the metadata_xml field.
     All deposit history is thus contained here.
     """
+
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     timestamp = models.CharField(max_length=40)
     doi_batch_id = models.CharField(max_length=40)
@@ -23,18 +24,15 @@ class Deposit(models.Model):
     metadata_xml_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True)
-    deposit_successful = models.BooleanField(
-        null=True,
-        default=None
-    )
+    deposit_successful = models.BooleanField(null=True, default=None)
 
     class Meta:
-        ordering = ['-timestamp']
+        ordering = ["-timestamp"]
 
     def __str__(self):
-        _str = ''
+        _str = ""
         if self.deposition_date:
-            _str += '%s for ' % self.deposition_date.strftime('%Y-%m-%D')
+            _str += "%s for " % self.deposition_date.strftime("%Y-%m-%D")
         return _str + self.publication.doi_label
 
 
@@ -42,22 +40,20 @@ class DOAJDeposit(models.Model):
     """
     For the Directory of Open Access Journals.
     """
+
     publication = models.ForeignKey(Publication, on_delete=models.CASCADE)
     timestamp = models.CharField(max_length=40)
     metadata_DOAJ = models.JSONField()
     metadata_DOAJ_file = models.FileField(blank=True, null=True, max_length=512)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response_text = models.TextField(blank=True, null=True)
-    deposit_successful = models.BooleanField(
-        null=True,
-        default=None
-    )
+    deposit_successful = models.BooleanField(null=True, default=None)
 
     class Meta:
-        verbose_name = 'DOAJ deposit'
+        verbose_name = "DOAJ deposit"
 
     def __str__(self):
-        return ('DOAJ deposit for ' + self.publication.doi_label)
+        return "DOAJ deposit for " + self.publication.doi_label
 
 
 class GenericDOIDeposit(models.Model):
@@ -65,21 +61,22 @@ class GenericDOIDeposit(models.Model):
     Instances of this class represent Crossref deposits for non-publication
     objects such as Reports, Comments etc.
     """
+
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey()
-    timestamp = models.CharField(max_length=40, default='')
-    doi_batch_id = models.CharField(max_length=40, default='')
+    timestamp = models.CharField(max_length=40, default="")
+    doi_batch_id = models.CharField(max_length=40, default="")
     metadata_xml = models.TextField(blank=True, null=True)
     deposition_date = models.DateTimeField(blank=True, null=True)
     response = models.TextField(blank=True, null=True)
-    deposit_successful = models.BooleanField(
-        null=True,
-        default=None
-    )
+    deposit_successful = models.BooleanField(null=True, default=None)
 
     class Meta:
-        ordering = ['-timestamp']
+        ordering = ["-timestamp"]
 
     def __str__(self):
-        return 'GenericDOIDeposit for %s %s' % (self.content_type, str(self.content_object))
+        return "GenericDOIDeposit for %s %s" % (
+            self.content_type,
+            str(self.content_object),
+        )

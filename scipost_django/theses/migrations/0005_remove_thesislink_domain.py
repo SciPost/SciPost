@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('theses', '0004_thesislink_approaches'),
+        ("theses", "0004_thesislink_approaches"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='thesislink',
-            name='domain',
+            model_name="thesislink",
+            name="domain",
         ),
     ]

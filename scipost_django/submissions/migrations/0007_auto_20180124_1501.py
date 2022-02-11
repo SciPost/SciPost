@@ -8,13 +8,20 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0006_eicrecommendation_active'),
+        ("submissions", "0006_eicrecommendation_active"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='report_type',
-            field=models.CharField(choices=[('report_normal', 'Normal Report'), ('report_post_edrec', 'Post-Editorial Recommendation Report')], default='report_normal', max_length=32),
+            model_name="report",
+            name="report_type",
+            field=models.CharField(
+                choices=[
+                    ("report_normal", "Normal Report"),
+                    ("report_post_edrec", "Post-Editorial Recommendation Report"),
+                ],
+                default="report_normal",
+                max_length=32,
+            ),
         ),
     ]

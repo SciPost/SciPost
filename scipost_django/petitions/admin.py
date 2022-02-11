@@ -8,26 +8,28 @@ from .models import Petition, PetitionSignatory
 
 
 class PetitionAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('title',)}
+    prepopulated_fields = {"slug": ("title",)}
     search_fields = [
-        'title',
-        'headline',
-        'preamble',
-        'statement',
+        "title",
+        "headline",
+        "preamble",
+        "statement",
     ]
     autocomplete_fields = [
-        'creator',
+        "creator",
     ]
+
 
 admin.site.register(Petition, PetitionAdmin)
 
 
 class PetitionSignatoryAdmin(admin.ModelAdmin):
-    search_fields = ['last_name', 'country', 'institution']
+    search_fields = ["last_name", "country", "institution"]
     autocomplete_fields = [
-        'petition',
-        'signatory',
-        'organization',
+        "petition",
+        "signatory",
+        "organization",
     ]
+
 
 admin.site.register(PetitionSignatory, PetitionSignatoryAdmin)

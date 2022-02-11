@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('affiliates', '0006_auto_20210715_1244'),
+        ("affiliates", "0006_auto_20210715_1244"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='affiliatepublication',
-            name='_metadata_crossref',
+            model_name="affiliatepublication",
+            name="_metadata_crossref",
             field=models.JSONField(blank=True, default=dict),
         ),
     ]

@@ -16,12 +16,24 @@ from django.utils import timezone
 
 from .behaviors import TimeStampedModel, orcid_validator
 from .constants import (
-    NORMAL_CONTRIBUTOR, DISABLED,
-    TITLE_CHOICES, INVITATION_STYLE, INVITATION_TYPE, INVITATION_CONTRIBUTOR, INVITATION_FORMAL,
-    AUTHORSHIP_CLAIM_PENDING, AUTHORSHIP_CLAIM_STATUS, CONTRIBUTOR_STATUSES, NEWLY_REGISTERED)
+    NORMAL_CONTRIBUTOR,
+    DISABLED,
+    TITLE_CHOICES,
+    INVITATION_STYLE,
+    INVITATION_TYPE,
+    INVITATION_CONTRIBUTOR,
+    INVITATION_FORMAL,
+    AUTHORSHIP_CLAIM_PENDING,
+    AUTHORSHIP_CLAIM_STATUS,
+    CONTRIBUTOR_STATUSES,
+    NEWLY_REGISTERED,
+)
 from .fields import ChoiceArrayField
 from .managers import (
-    ContributorQuerySet, UnavailabilityPeriodManager, AuthorshipClaimQuerySet)
+    ContributorQuerySet,
+    UnavailabilityPeriodManager,
+    AuthorshipClaimQuerySet,
+)
 
 from conflicts.models import ConflictOfInterest
 
@@ -34,7 +46,7 @@ def get_sentinel_user():
     Eventually the 'to-be-removed-Contributor' should be status: "deactivated" and anonymized.
     Fallback user for models relying on Contributor that is being deleted.
     """
-    user, __ = get_user_model().objects.get_or_create(username='deleted')
+    user, __ = get_user_model().objects.get_or_create(username="deleted")
     return Contributor.objects.get_or_create(status=DISABLED, user=user)[0]
 
 
@@ -42,6 +54,7 @@ class TOTPDevice(models.Model):
     """
     Any device used by a User for 2-step authentication based on the RFC 6238 TOTP protocol.
     """
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     token = models.CharField(max_length=16)
@@ -51,11 +64,11 @@ class TOTPDevice(models.Model):
     modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        default_related_name = 'devices'
-        verbose_name = 'TOTP Device'
+        default_related_name = "devices"
+        verbose_name = "TOTP Device"
 
     def __str__(self):
-        return '{}: {}'.format(self.user, self.name)
+        return "{}: {}".format(self.user, self.name)
 
 
 class Contributor(models.Model):
@@ -67,38 +80,54 @@ class Contributor(models.Model):
 
     Other information is carried by the related Profile.
     """
-    profile = models.OneToOneField('profiles.Profile', on_delete=models.SET_NULL,
-                                   null=True, blank=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True)
+
+    profile = models.OneToOneField(
+        "profiles.Profile", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, unique=True
+    )
     invitation_key = models.CharField(max_length=40, blank=True)
     activation_key = models.CharField(max_length=40, blank=True)
     key_expires = models.DateTimeField(default=timezone.now)
-    status = models.CharField(max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED)
+    status = models.CharField(
+        max_length=16, choices=CONTRIBUTOR_STATUSES, default=NEWLY_REGISTERED
+    )
     address = models.CharField(max_length=1000, verbose_name="address", blank=True)
-    vetted_by = models.ForeignKey('self', on_delete=models.SET(get_sentinel_user),
-                                  related_name="contrib_vetted_by", blank=True, null=True)
+    vetted_by = models.ForeignKey(
+        "self",
+        on_delete=models.SET(get_sentinel_user),
+        related_name="contrib_vetted_by",
+        blank=True,
+        null=True,
+    )
     # If this Contributor is merged into another, then this field is set to point to the new one:
-    duplicate_of = models.ForeignKey('scipost.Contributor', on_delete=models.SET_NULL,
-                                     null=True, blank=True, related_name='duplicates')
+    duplicate_of = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="duplicates",
+    )
 
     objects = ContributorQuerySet.as_manager()
 
     class Meta:
-        ordering = ['user__last_name', 'user__first_name']
+        ordering = ["user__last_name", "user__first_name"]
 
     @property
     def roles(self):
         r = []
         if self.user.is_superuser:
-            r.append('su')
+            r.append("su")
         if self.user.is_staff:
-            r.append('st')
+            r.append("st")
         return r if len(r) > 0 else None
 
     def __str__(self):
-        val = '%s, %s' % (self.user.last_name, self.user.first_name)
+        val = "%s, %s" % (self.user.last_name, self.user.first_name)
         if self.user.is_superuser:
-            val += ' (su)'
+            val += " (su)"
         return val
 
     def save(self, *args, **kwargs):
@@ -109,11 +138,11 @@ class Contributor(models.Model):
 
     def get_absolute_url(self):
         """Return public information page url."""
-        return reverse('scipost:contributor_info', args=(self.id,))
+        return reverse("scipost:contributor_info", args=(self.id,))
 
     @property
     def formal_str(self):
-        return '%s %s' % (self.profile.get_title_display(), self.user.last_name)
+        return "%s %s" % (self.profile.get_title_display(), self.user.last_name)
 
     @property
     def is_active(self):
@@ -135,20 +164,26 @@ class Contributor(models.Model):
     @property
     def is_scipost_admin(self):
         """Check if Contributor is a SciPost Administrator."""
-        return (self.user.groups.filter(name='SciPost Administrators').exists()
-                or self.user.is_superuser)
+        return (
+            self.user.groups.filter(name="SciPost Administrators").exists()
+            or self.user.is_superuser
+        )
 
     @property
     def is_ed_admin(self):
         """Check if Contributor is an Editorial Administrator."""
-        return (self.user.groups.filter(name='Editorial Administrators').exists()
-                or self.user.is_superuser)
+        return (
+            self.user.groups.filter(name="Editorial Administrators").exists()
+            or self.user.is_superuser
+        )
 
     @property
     def is_in_advisory_board(self):
         """Check if Contributor is in the Advisory Board."""
-        return (self.user.groups.filter(name='Advisory Board').exists()
-                or self.user.is_superuser)
+        return (
+            self.user.groups.filter(name="Advisory Board").exists()
+            or self.user.is_superuser
+        )
 
     @property
     def is_active_fellow(self):
@@ -163,30 +198,35 @@ class Contributor(models.Model):
         """Return session's fellowship, if any; if Fellow, set session_fellowship_id if not set."""
         fellowships = self.fellowships.active()
         if fellowships.exists():
-            if request.session['session_fellowship_id']:
+            if request.session["session_fellowship_id"]:
                 from colleges.models import Fellowship
+
                 try:
-                    return self.fellowships.active().get(pk=request.session['session_fellowship_id'])
+                    return self.fellowships.active().get(
+                        pk=request.session["session_fellowship_id"]
+                    )
                 except Fellowship.DoesNotExist:
                     return None
             # set the session's fellowship_id to default
             fellowship = fellowships.first()
-            request.session['session_fellowship_id'] = fellowship.id
+            request.session["session_fellowship_id"] = fellowship.id
             return fellowship
         return None
 
     @property
     def is_vetting_editor(self):
         """Check if Contributor is a Vetting Editor."""
-        return (self.user.groups.filter(name='Vetting Editors').exists()
-                or self.user.is_superuser)
+        return (
+            self.user.groups.filter(name="Vetting Editors").exists()
+            or self.user.is_superuser
+        )
 
-    def generate_key(self, feed=''):
+    def generate_key(self, feed=""):
         """Generate a new activation_key for the contributor, given a certain feed."""
         for i in range(5):
             feed += random.choice(string.ascii_letters)
-        feed = feed.encode('utf8')
-        salt = self.user.username.encode('utf8')
+        feed = feed.encode("utf8")
+        salt = self.user.username.encode("utf8")
         self.activation_key = hashlib.sha1(salt + feed).hexdigest()
         self.key_expires = timezone.now() + datetime.timedelta(days=2)
 
@@ -197,46 +237,54 @@ class Contributor(models.Model):
 
 
 class UnavailabilityPeriod(models.Model):
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                                    related_name='unavailability_periods')
+    contributor = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+        related_name="unavailability_periods",
+    )
     start = models.DateField()
     end = models.DateField()
 
     objects = UnavailabilityPeriodManager()
 
     class Meta:
-        ordering = ['-start']
+        ordering = ["-start"]
 
     def __str__(self):
-        return '%s (%s to %s)' % (self.contributor, self.start, self.end)
+        return "%s (%s to %s)" % (self.contributor, self.start, self.end)
 
 
 class Remark(models.Model):
     """A form of non-public communication for VGMs and/or submissions and recommendations."""
 
     contributor = models.ForeignKey(Contributor, on_delete=models.CASCADE)
-    submission = models.ForeignKey('submissions.Submission',
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
-    recommendation = models.ForeignKey('submissions.EICRecommendation',
-                                       on_delete=models.CASCADE,
-                                       blank=True, null=True)
+    submission = models.ForeignKey(
+        "submissions.Submission", on_delete=models.CASCADE, blank=True, null=True
+    )
+    recommendation = models.ForeignKey(
+        "submissions.EICRecommendation", on_delete=models.CASCADE, blank=True, null=True
+    )
     date = models.DateTimeField(auto_now_add=True)
     remark = models.TextField()
 
     class Meta:
-        default_related_name = 'remarks'
-        ordering = ['date']
+        default_related_name = "remarks"
+        ordering = ["date"]
 
     def __str__(self):
-        return (self.contributor.user.first_name + ' '
-                + self.contributor.user.last_name + ' on '
-                + self.date.strftime("%Y-%m-%d"))
+        return (
+            self.contributor.user.first_name
+            + " "
+            + self.contributor.user.last_name
+            + " on "
+            + self.date.strftime("%Y-%m-%d")
+        )
 
 
 ###############
 # Invitations #
 ###############
+
 
 class RegistrationInvitation(models.Model):
     """Deprecated: Use the `invitations` app"""
@@ -245,74 +293,92 @@ class RegistrationInvitation(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     email = models.EmailField()
-    invitation_type = models.CharField(max_length=2, choices=INVITATION_TYPE,
-                                       default=INVITATION_CONTRIBUTOR)
-    cited_in_submission = models.ForeignKey('submissions.Submission',
-                                            on_delete=models.CASCADE,
-                                            blank=True, null=True,
-                                            related_name='registration_invitations')
-    cited_in_publication = models.ForeignKey('journals.Publication',
-                                             on_delete=models.CASCADE,
-                                             blank=True, null=True)
-    message_style = models.CharField(max_length=1, choices=INVITATION_STYLE,
-                                     default=INVITATION_FORMAL)
+    invitation_type = models.CharField(
+        max_length=2, choices=INVITATION_TYPE, default=INVITATION_CONTRIBUTOR
+    )
+    cited_in_submission = models.ForeignKey(
+        "submissions.Submission",
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name="registration_invitations",
+    )
+    cited_in_publication = models.ForeignKey(
+        "journals.Publication", on_delete=models.CASCADE, blank=True, null=True
+    )
+    message_style = models.CharField(
+        max_length=1, choices=INVITATION_STYLE, default=INVITATION_FORMAL
+    )
     personal_message = models.TextField(blank=True)
     invitation_key = models.CharField(max_length=40, unique=True)
     key_expires = models.DateTimeField(default=timezone.now)
     date_sent = models.DateTimeField(default=timezone.now)
-    invited_by = models.ForeignKey('scipost.Contributor',
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
+    invited_by = models.ForeignKey(
+        "scipost.Contributor", on_delete=models.CASCADE, blank=True, null=True
+    )
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     responded = models.BooleanField(default=False)
     declined = models.BooleanField(default=False)
 
     def __str__(self):
-        return 'DEPRECATED'
+        return "DEPRECATED"
 
 
 class CitationNotification(models.Model):
     """Deprecated: Use the `invitations` app"""
 
-    contributor = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
-    cited_in_submission = models.ForeignKey('submissions.Submission',
-                                            on_delete=models.CASCADE,
-                                            blank=True, null=True)
-    cited_in_publication = models.ForeignKey('journals.Publication',
-                                             on_delete=models.CASCADE,
-                                             blank=True, null=True)
+    contributor = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
+    cited_in_submission = models.ForeignKey(
+        "submissions.Submission", on_delete=models.CASCADE, blank=True, null=True
+    )
+    cited_in_publication = models.ForeignKey(
+        "journals.Publication", on_delete=models.CASCADE, blank=True, null=True
+    )
     processed = models.BooleanField(default=False)
 
 
 class AuthorshipClaim(models.Model):
-    claimant = models.ForeignKey('scipost.Contributor',
-                                 on_delete=models.CASCADE,
-                                 related_name='claimant')
-    submission = models.ForeignKey('submissions.Submission',
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
-    commentary = models.ForeignKey('commentaries.Commentary',
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
-    thesislink = models.ForeignKey('theses.ThesisLink',
-                                   on_delete=models.CASCADE,
-                                   blank=True, null=True)
-    vetted_by = models.ForeignKey('scipost.Contributor',
-                                  on_delete=models.CASCADE,
-                                  blank=True, null=True)
-    status = models.SmallIntegerField(choices=AUTHORSHIP_CLAIM_STATUS,
-                                      default=AUTHORSHIP_CLAIM_PENDING)
+    claimant = models.ForeignKey(
+        "scipost.Contributor", on_delete=models.CASCADE, related_name="claimant"
+    )
+    submission = models.ForeignKey(
+        "submissions.Submission", on_delete=models.CASCADE, blank=True, null=True
+    )
+    commentary = models.ForeignKey(
+        "commentaries.Commentary", on_delete=models.CASCADE, blank=True, null=True
+    )
+    thesislink = models.ForeignKey(
+        "theses.ThesisLink", on_delete=models.CASCADE, blank=True, null=True
+    )
+    vetted_by = models.ForeignKey(
+        "scipost.Contributor", on_delete=models.CASCADE, blank=True, null=True
+    )
+    status = models.SmallIntegerField(
+        choices=AUTHORSHIP_CLAIM_STATUS, default=AUTHORSHIP_CLAIM_PENDING
+    )
 
     objects = AuthorshipClaimQuerySet.as_manager()
 
     def __str__(self):
         if self.submission:
-            return "Authorship claim: %s for %s %s" % (self.claimant, "Submission", self.submission)
+            return "Authorship claim: %s for %s %s" % (
+                self.claimant,
+                "Submission",
+                self.submission,
+            )
         elif self.commentary:
-            return "Authorship claim: %s for %s %s" % (self.claimant, "Commentary", self.commentary)
+            return "Authorship claim: %s for %s %s" % (
+                self.claimant,
+                "Commentary",
+                self.commentary,
+            )
         elif self.thesislink:
-            return "Authorship claim: %s for %s %s" % (self.claimant, "Thesis Link", self.thesislink)
+            return "Authorship claim: %s for %s %s" % (
+                self.claimant,
+                "Thesis Link",
+                self.thesislink,
+            )
         return "Authorship claim: %s for [undefined]" % self.claimant
 
 
@@ -322,6 +388,7 @@ class PrecookedEmail(models.Model):
     Can only be created by Admins.
     For further use in scipost:send_precooked_email method.
     """
+
     email_subject = models.CharField(max_length=300)
     email_text = models.TextField()
     email_text_html = models.TextField()

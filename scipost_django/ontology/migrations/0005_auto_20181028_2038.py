@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0004_relationasym_relationsym'),
+        ("ontology", "0004_relationasym_relationsym"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='topic',
-            options={'ordering': ['name']},
+            name="topic",
+            options={"ordering": ["name"]},
         ),
     ]

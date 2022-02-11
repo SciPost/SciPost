@@ -5,20 +5,21 @@ from django.utils.text import slugify
 
 
 def populate_college_slug(apps, schema_editor):
-    College = apps.get_model('colleges.College')
+    College = apps.get_model("colleges.College")
 
     for c in College.objects.all():
-        c.slug = slugify(c.name.partition('(')[0].strip())
+        c.slug = slugify(c.name.partition("(")[0].strip())
         c.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0024_college_slug'),
+        ("colleges", "0024_college_slug"),
     ]
 
     operations = [
-        migrations.RunPython(populate_college_slug,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_college_slug, reverse_code=migrations.RunPython.noop
+        ),
     ]

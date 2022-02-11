@@ -8,13 +8,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0022_auto_20180310_1154'),
+        ("journals", "0022_auto_20180310_1154"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='structure',
-            field=models.CharField(choices=[('IV', 'Issues and Volumes'), ('IO', 'Issues only'), ('IP', 'Individual Publications')], default='IV', max_length=2),
+            model_name="journal",
+            name="structure",
+            field=models.CharField(
+                choices=[
+                    ("IV", "Issues and Volumes"),
+                    ("IO", "Issues only"),
+                    ("IP", "Individual Publications"),
+                ],
+                default="IV",
+                max_length=2,
+            ),
         ),
     ]

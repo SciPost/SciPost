@@ -20,7 +20,7 @@ from .models import MailchimpList
 
 
 class MailchimpMixin(LoginRequiredMixin, PermissionRequiredMixin):
-    permission_required = 'scipost.can_manage_mailchimp'
+    permission_required = "scipost.can_manage_mailchimp"
     raise_exception = True
 
 
@@ -31,12 +31,13 @@ class MailchimpListView(MailchimpMixin, ListView):
     It should act as a main page from which the admin can to action to update
     some general mailchimp settings.
     """
-    template_name = 'mailing_lists/overview.html'
+
+    template_name = "mailing_lists/overview.html"
     model = MailchimpList
 
 
 @login_required
-@permission_required('scipost.can_manage_mailchimp', raise_exception=True)
+@permission_required("scipost.can_manage_mailchimp", raise_exception=True)
 def syncronize_lists(request):
     """
     Syncronize the Mailchimp lists in the database with the lists known in
@@ -44,12 +45,16 @@ def syncronize_lists(request):
     """
     form = MailchimpUpdateForm()
     updated = form.sync()
-    messages.success(request, '%i mailing lists have succesfully been updated.' % updated)
-    return redirect(reverse('mailing_lists:overview'))
+    messages.success(
+        request, "%i mailing lists have succesfully been updated." % updated
+    )
+    return redirect(reverse("mailing_lists:overview"))
 
 
 @login_required
-@permission_required('scipost.can_read_all_privacy_sensitive_data', raise_exception=True)
+@permission_required(
+    "scipost.can_read_all_privacy_sensitive_data", raise_exception=True
+)
 def export_non_registered_invitations(request):
     """
     Syncronize the Mailchimp lists in the database with the lists known in
@@ -57,19 +62,21 @@ def export_non_registered_invitations(request):
     """
     invitations = RegistrationInvitation.objects.declined_or_without_response()
 
-    response = HttpResponse(content_type='text/csv')
-    filename = "export_{timestamp}_non_registered_invitations.csv".format(timestamp='')
-    response['Content-Disposition'] = 'attachment; filename={filename}'.format(filename=filename)
+    response = HttpResponse(content_type="text/csv")
+    filename = "export_{timestamp}_non_registered_invitations.csv".format(timestamp="")
+    response["Content-Disposition"] = "attachment; filename={filename}".format(
+        filename=filename
+    )
 
     writer = csv.writer(response)
-    writer.writerow(['Email address', 'First Name', 'Last Name'])
+    writer.writerow(["Email address", "First Name", "Last Name"])
     for invitation in invitations:
         writer.writerow([invitation.email, invitation.first_name, invitation.last_name])
     return response
 
 
 @login_required
-@permission_required('scipost.can_manage_mailchimp', raise_exception=True)
+@permission_required("scipost.can_manage_mailchimp", raise_exception=True)
 def syncronize_members(request, list_id):
     """
     Syncronize the Mailchimp lists in the database with the lists known in
@@ -80,13 +87,13 @@ def syncronize_members(request, list_id):
     unsubscribed, subscribed, response = form.sync_members(_list)
 
     # Let the user know
-    text = '<h3>Syncronize members complete.</h3>'
+    text = "<h3>Syncronize members complete.</h3>"
     if unsubscribed:
-        text += '<br>%i members have succesfully been unsubscribed.' % unsubscribed
+        text += "<br>%i members have succesfully been unsubscribed." % unsubscribed
     if subscribed:
-        text += '<br>%i members have succesfully been subscribed.' % subscribed
+        text += "<br>%i members have succesfully been subscribed." % subscribed
     messages.success(request, text)
-    return redirect(_list.get_absolute_url() + '?bulkid=' + response.get('id'))
+    return redirect(_list.get_absolute_url() + "?bulkid=" + response.get("id"))
 
 
 class ListDetailView(MailchimpMixin, UpdateView):
@@ -94,11 +101,12 @@ class ListDetailView(MailchimpMixin, UpdateView):
     The detail view of a certain Mailchimp list. This allows the admin to i.e. manage group
     permissions to the group.
     """
-    slug_field = 'mailchimp_list_id'
-    slug_url_kwarg = 'list_id'
-    fields = ('allowed_groups', 'internal_name', 'open_for_subscription')
+
+    slug_field = "mailchimp_list_id"
+    slug_url_kwarg = "list_id"
+    fields = ("allowed_groups", "internal_name", "open_for_subscription")
     model = MailchimpList
 
     def form_valid(self, form):
-        messages.success(self.request, 'List succesfully updated')
+        messages.success(self.request, "List succesfully updated")
         return super().form_valid(form)

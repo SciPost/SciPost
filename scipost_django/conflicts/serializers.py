@@ -10,5 +10,5 @@ from .models import ConflictOfInterest
 class ConflictOfInterestSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConflictOfInterest
-        fields = ('id', 'related_profile', 'profile', 'type', 'status')
-        read_only_fields = ('id', 'related_profile', 'profile')
+        fields = ("id", "related_profile", "profile", "type", "status")
+        read_only_fields = ("id", "related_profile", "profile")

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0112_submissiontemplate'),
+        ("journals", "0112_submissiontemplate"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submissiontemplate',
-            name='instructions',
-            field=models.TextField(default='[To be filled in; you can use markup]'),
+            model_name="submissiontemplate",
+            name="instructions",
+            field=models.TextField(default="[To be filled in; you can use markup]"),
         ),
     ]

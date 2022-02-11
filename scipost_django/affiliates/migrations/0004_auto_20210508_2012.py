@@ -6,12 +6,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('affiliates', '0003_auto_20210508_1653'),
+        ("affiliates", "0003_auto_20210508_1653"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='affiliatejournal',
-            options={'ordering': ['publisher', 'name'], 'permissions': (('manage_journal_content', 'Manage Journal content'),)},
+            name="affiliatejournal",
+            options={
+                "ordering": ["publisher", "name"],
+                "permissions": (("manage_journal_content", "Manage Journal content"),),
+            },
         ),
     ]

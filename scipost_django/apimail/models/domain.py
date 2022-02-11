@@ -12,12 +12,10 @@ class Domain(models.Model):
     """
     Domain name information.
     """
-    STATUS_ACTIVE = 'active'
-    STATUS_ARCHIVED = 'archived'
-    STATUS_CHOICES = (
-        (STATUS_ACTIVE, 'Active'),
-        (STATUS_ARCHIVED, 'Archived')
-    )
+
+    STATUS_ACTIVE = "active"
+    STATUS_ARCHIVED = "archived"
+    STATUS_CHOICES = ((STATUS_ACTIVE, "Active"), (STATUS_ARCHIVED, "Archived"))
 
     name = models.CharField(
         max_length=100,
@@ -25,15 +23,13 @@ class Domain(models.Model):
         unique=True,
     )
     status = models.CharField(
-        max_length=16,
-        choices=STATUS_CHOICES,
-        default=STATUS_ACTIVE
+        max_length=16, choices=STATUS_CHOICES, default=STATUS_ACTIVE
     )
 
     objects = DomainQuerySet.as_manager()
 
     class Meta:
-        ordering = ('name',)
+        ordering = ("name",)
 
     def __str__(self):
         return self.name

@@ -9,13 +9,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0004_organizationevent'),
+        ("organizations", "0004_organizationevent"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='organizationevent',
-            name='noted_on',
+            model_name="organizationevent",
+            name="noted_on",
             field=models.DateTimeField(default=datetime.date.today),
         ),
     ]

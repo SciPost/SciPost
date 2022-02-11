@@ -15,6 +15,7 @@ class TimeStampedModel(models.Model):
     This will ensure the creation of created and modified
     timestamps in the objects.
     """
+
     created = models.DateTimeField(default=timezone.now)
     latest_activity = AutoDateTimeField(default=timezone.now)
 
@@ -22,5 +23,7 @@ class TimeStampedModel(models.Model):
         abstract = True
 
 
-orcid_validator = RegexValidator(r'^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]{1}$',
-                                 'Please follow the ORCID format, e.g.: 0000-0001-2345-6789')
+orcid_validator = RegexValidator(
+    r"^[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[0-9X]{1}$",
+    "Please follow the ORCID format, e.g.: 0000-0001-2345-6789",
+)

@@ -8,18 +8,18 @@ from submissions.models import Submission
 
 
 class SubmissionPublicSerializer(serializers.ModelSerializer):
-    identifier = serializers.CharField(source='preprint.identifier_w_vn_nr')
-    submission_date = serializers.CharField(source='submission_date_ymd')
-    url = serializers.URLField(source='get_absolute_url')
+    identifier = serializers.CharField(source="preprint.identifier_w_vn_nr")
+    submission_date = serializers.CharField(source="submission_date_ymd")
+    url = serializers.URLField(source="get_absolute_url")
 
     class Meta:
         model = Submission
         fields = [
-            'title',
-            'author_list',
-            'abstract',
-            'identifier',
-            'submission_date',
-            'original_submission_date',
-            'url'
+            "title",
+            "author_list",
+            "abstract",
+            "identifier",
+            "submission_date",
+            "original_submission_date",
+            "url",
         ]

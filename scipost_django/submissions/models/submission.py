@@ -22,13 +22,29 @@ from comments.models import Comment
 
 from ..behaviors import SubmissionRelatedObjectMixin
 from ..constants import (
-    SUBMISSION_STATUS, STATUS_INCOMING, STATUS_UNASSIGNED, STATUS_PREASSIGNED,
-    STATUS_EIC_ASSIGNED, SUBMISSION_UNDER_CONSIDERATION,
-    STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
-    STATUS_REJECTED, STATUS_WITHDRAWN, STATUS_PUBLISHED,
-    SUBMISSION_CYCLES, CYCLE_DEFAULT, CYCLE_SHORT, CYCLE_DIRECT_REC,
-    EVENT_TYPES, EVENT_GENERAL, EVENT_FOR_EDADMIN, EVENT_FOR_AUTHOR, EVENT_FOR_EIC,
-    SUBMISSION_TIERS)
+    SUBMISSION_STATUS,
+    STATUS_INCOMING,
+    STATUS_UNASSIGNED,
+    STATUS_PREASSIGNED,
+    STATUS_EIC_ASSIGNED,
+    SUBMISSION_UNDER_CONSIDERATION,
+    STATUS_FAILED_PRESCREENING,
+    STATUS_RESUBMITTED,
+    STATUS_ACCEPTED,
+    STATUS_REJECTED,
+    STATUS_WITHDRAWN,
+    STATUS_PUBLISHED,
+    SUBMISSION_CYCLES,
+    CYCLE_DEFAULT,
+    CYCLE_SHORT,
+    CYCLE_DIRECT_REC,
+    EVENT_TYPES,
+    EVENT_GENERAL,
+    EVENT_FOR_EDADMIN,
+    EVENT_FOR_AUTHOR,
+    EVENT_FOR_EIC,
+    SUBMISSION_TIERS,
+)
 from ..managers import SubmissionQuerySet, SubmissionEventQuerySet
 from ..refereeing_cycles import ShortCycle, DirectCycle, RegularCycle
 
@@ -38,32 +54,35 @@ class Submission(models.Model):
     A Submission is a preprint sent to SciPost for consideration.
     """
 
-    preprint = models.OneToOneField('preprints.Preprint', on_delete=models.CASCADE,
-                                    related_name='submission')
+    preprint = models.OneToOneField(
+        "preprints.Preprint", on_delete=models.CASCADE, related_name="submission"
+    )
 
     author_comments = models.TextField(blank=True)
     author_list = models.CharField(max_length=10000, verbose_name="author list")
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
-        'ontology.AcademicField',
-        on_delete=models.PROTECT,
-        related_name='submissions'
+        "ontology.AcademicField", on_delete=models.PROTECT, related_name="submissions"
     )
     specialties = models.ManyToManyField(
-        'ontology.Specialty',
-        related_name='submissions'
+        "ontology.Specialty", related_name="submissions"
     )
-    topics = models.ManyToManyField(
-        'ontology.Topic',
-        blank=True
-    )
+    topics = models.ManyToManyField("ontology.Topic", blank=True)
 
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
-        blank=True, null=True, verbose_name='approach(es) [optional]')
-    editor_in_charge = models.ForeignKey('scipost.Contributor', related_name='EIC', blank=True,
-                                         null=True, on_delete=models.CASCADE)
+        blank=True,
+        null=True,
+        verbose_name="approach(es) [optional]",
+    )
+    editor_in_charge = models.ForeignKey(
+        "scipost.Contributor",
+        related_name="EIC",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
 
     list_of_changes = models.TextField(blank=True)
     open_for_commenting = models.BooleanField(default=False)
@@ -74,66 +93,93 @@ class Submission(models.Model):
     reporting_deadline = models.DateTimeField(default=timezone.now)
 
     # Submission status fields
-    status = models.CharField(max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING)
+    status = models.CharField(
+        max_length=30, choices=SUBMISSION_STATUS, default=STATUS_INCOMING
+    )
     is_current = models.BooleanField(default=True)
     visible_public = models.BooleanField("Is publicly visible", default=False)
     visible_pool = models.BooleanField("Is visible in the Pool", default=False)
-    is_resubmission_of = models.ForeignKey('self', blank=True, null=True,
-                                           on_delete=models.SET_NULL, related_name='successor')
+    is_resubmission_of = models.ForeignKey(
+        "self",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name="successor",
+    )
     thread_hash = models.UUIDField(default=uuid.uuid4)
     refereeing_cycle = models.CharField(
-        max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True)
+        max_length=30, choices=SUBMISSION_CYCLES, default=CYCLE_DEFAULT, blank=True
+    )
 
-    fellows = models.ManyToManyField('colleges.Fellowship', blank=True,
-                                     related_name='pool')
+    fellows = models.ManyToManyField(
+        "colleges.Fellowship", blank=True, related_name="pool"
+    )
 
-    submitted_by = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE,
-                                     related_name='submitted_submissions')
-    submitted_to = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
-    proceedings = models.ForeignKey('proceedings.Proceedings', null=True, blank=True,
-                                    on_delete=models.SET_NULL, related_name='submissions',
-                                    help_text=(
-                                        'Don\'t find the Proceedings you are looking for? '
-                                        'Ask the conference organizers to contact our admin '
-                                        'to set things up.'))
+    submitted_by = models.ForeignKey(
+        "scipost.Contributor",
+        on_delete=models.CASCADE,
+        related_name="submitted_submissions",
+    )
+    submitted_to = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
+    proceedings = models.ForeignKey(
+        "proceedings.Proceedings",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="submissions",
+        help_text=(
+            "Don't find the Proceedings you are looking for? "
+            "Ask the conference organizers to contact our admin "
+            "to set things up."
+        ),
+    )
     title = models.CharField(max_length=300)
 
     # Authors which have been mapped to contributors:
-    authors = models.ManyToManyField('scipost.Contributor', blank=True, related_name='submissions')
-    authors_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                            related_name='claimed_submissions')
-    authors_false_claims = models.ManyToManyField('scipost.Contributor', blank=True,
-                                                  related_name='false_claimed_submissions')
+    authors = models.ManyToManyField(
+        "scipost.Contributor", blank=True, related_name="submissions"
+    )
+    authors_claims = models.ManyToManyField(
+        "scipost.Contributor", blank=True, related_name="claimed_submissions"
+    )
+    authors_false_claims = models.ManyToManyField(
+        "scipost.Contributor", blank=True, related_name="false_claimed_submissions"
+    )
     abstract = models.TextField()
 
     # Links to associated code and data
     code_repository_url = models.URLField(
-        blank=True,
-        help_text='Link to a code repository pertaining to your manuscript'
+        blank=True, help_text="Link to a code repository pertaining to your manuscript"
     )
     data_repository_url = models.URLField(
-        blank=True,
-        help_text='Link to a data repository pertaining to your manuscript'
+        blank=True, help_text="Link to a data repository pertaining to your manuscript"
     )
 
     # Comments can be added to a Submission
-    comments = GenericRelation('comments.Comment', related_query_name='submissions')
+    comments = GenericRelation("comments.Comment", related_query_name="submissions")
 
     # iThenticate and conflicts
     needs_conflicts_update = models.BooleanField(default=True)
     plagiarism_report = models.OneToOneField(
-        'submissions.iThenticateReport', on_delete=models.SET_NULL,
-        null=True, blank=True, related_name='to_submission')
+        "submissions.iThenticateReport",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="to_submission",
+    )
 
-    pdf_refereeing_pack = models.FileField(upload_to='UPLOADS/REFEREE/%Y/%m/',
-                                           max_length=200, blank=True)
+    pdf_refereeing_pack = models.FileField(
+        upload_to="UPLOADS/REFEREE/%Y/%m/", max_length=200, blank=True
+    )
 
     # Metadata
     metadata = models.JSONField(default=dict, blank=True, null=True)
     submission_date = models.DateTimeField(
-        verbose_name='submission date',
-        default=timezone.now)
-    acceptance_date = models.DateField(verbose_name='acceptance date', null=True, blank=True)
+        verbose_name="submission date", default=timezone.now
+    )
+    acceptance_date = models.DateField(
+        verbose_name="acceptance date", null=True, blank=True
+    )
     latest_activity = models.DateTimeField(auto_now=True)
     update_search_index = models.BooleanField(default=True)
 
@@ -143,41 +189,42 @@ class Submission(models.Model):
     invitation_order = models.IntegerField(default=0)
 
     class Meta:
-        app_label = 'submissions'
-        ordering = [
-            '-submission_date'
-        ]
+        app_label = "submissions"
+        ordering = ["-submission_date"]
 
     def save(self, *args, **kwargs):
         """Prefill some fields before saving."""
         obj = super().save(*args, **kwargs)
-        if hasattr(self, 'cycle'):
+        if hasattr(self, "cycle"):
             self.set_cycle()
         return obj
 
     def __str__(self):
         """Summarize the Submission in a string."""
-        header = '{identifier}, {title} by {authors}'.format(
+        header = "{identifier}, {title} by {authors}".format(
             identifier=self.preprint.identifier_w_vn_nr,
             title=self.title[:30],
-            authors=self.author_list[:30])
+            authors=self.author_list[:30],
+        )
         if self.is_current:
-            header += ' (current version)'
+            header += " (current version)"
         else:
-            header += ' (deprecated version ' + str(self.thread_sequence_order) + ')'
-        if hasattr(self, 'publication') and self.publication.is_published:
-            header += ' (published as %s (%s))' % (
-                self.publication.doi_string, self.publication.publication_date.strftime('%Y'))
+            header += " (deprecated version " + str(self.thread_sequence_order) + ")"
+        if hasattr(self, "publication") and self.publication.is_published:
+            header += " (published as %s (%s))" % (
+                self.publication.doi_string,
+                self.publication.publication_date.strftime("%Y"),
+            )
         return header
 
     @property
     def authors_as_list(self):
         """Returns a python list of the authors, extracted from author_list field."""
         # Start by separating in comma's
-        comma_separated = self.author_list.split(',')
+        comma_separated = self.author_list.split(",")
         authors_as_list = []
         for entry in comma_separated:
-            and_separated = entry.split(' and ')
+            and_separated = entry.split(" and ")
             for subentry in and_separated:
                 authors_as_list.append(subentry.lstrip().rstrip())
         return authors_as_list
@@ -189,8 +236,11 @@ class Submission(models.Model):
     def comments_set_complete(self):
         """Return Comments on Submissions, Reports and other Comments."""
         qs = Comment.objects.filter(
-            Q(submissions=self) | Q(reports__submission=self) |
-            Q(comments__reports__submission=self) | Q(comments__submissions=self))
+            Q(submissions=self)
+            | Q(reports__submission=self)
+            | Q(comments__reports__submission=self)
+            | Q(comments__submissions=self)
+        )
         # Add recursive comments:
         for c in qs:
             if c.nested_comments:
@@ -200,7 +250,7 @@ class Submission(models.Model):
     @property
     def cycle(self):
         """Get cycle object relevant for the Submission."""
-        if not hasattr(self, '_cycle'):
+        if not hasattr(self, "_cycle"):
             self.set_cycle()
         return self._cycle
 
@@ -215,12 +265,16 @@ class Submission(models.Model):
 
     def get_absolute_url(self):
         """Return url of the Submission detail page."""
-        return reverse('submissions:submission', args=(self.preprint.identifier_w_vn_nr,))
+        return reverse(
+            "submissions:submission", args=(self.preprint.identifier_w_vn_nr,)
+        )
 
     def get_notification_url(self, url_code):
         """Return url related to the Submission by the `url_code` meant for Notifications."""
-        if url_code == 'editorial_page':
-            return reverse('submissions:editorial_page', args=(self.preprint.identifier_w_vn_nr,))
+        if url_code == "editorial_page":
+            return reverse(
+                "submissions:editorial_page", args=(self.preprint.identifier_w_vn_nr,)
+            )
         return self.get_absolute_url()
 
     @property
@@ -290,8 +344,13 @@ class Submission(models.Model):
     @property
     def original_submission_date(self):
         """Return the submission_date of the first Submission in the thread."""
-        return Submission.objects.filter(
-            thread_hash=self.thread_hash, is_resubmission_of__isnull=True).first().submission_date
+        return (
+            Submission.objects.filter(
+                thread_hash=self.thread_hash, is_resubmission_of__isnull=True
+            )
+            .first()
+            .submission_date
+        )
 
     @property
     def in_prescreening(self):
@@ -320,14 +379,22 @@ class Submission(models.Model):
             return True
 
         # Maybe: Check for unvetted Reports?
-        return self.status == STATUS_EIC_ASSIGNED and self.is_open_for_reporting_within_deadline
+        return (
+            self.status == STATUS_EIC_ASSIGNED
+            and self.is_open_for_reporting_within_deadline
+        )
 
     @property
     def can_reset_reporting_deadline(self):
         """Check if reporting deadline is allowed to be reset."""
         blocked_statuses = [
-            STATUS_FAILED_PRESCREENING, STATUS_RESUBMITTED, STATUS_ACCEPTED,
-            STATUS_REJECTED, STATUS_WITHDRAWN, STATUS_PUBLISHED]
+            STATUS_FAILED_PRESCREENING,
+            STATUS_RESUBMITTED,
+            STATUS_ACCEPTED,
+            STATUS_REJECTED,
+            STATUS_WITHDRAWN,
+            STATUS_PUBLISHED,
+        ]
         if self.status in blocked_statuses:
             return False
 
@@ -341,13 +408,17 @@ class Submission(models.Model):
     def thread_full(self):
         """Return all Submissions in the database in this thread."""
         return Submission.objects.filter(thread_hash=self.thread_hash).order_by(
-            '-submission_date', '-preprint')
+            "-submission_date", "-preprint"
+        )
 
     @property
     def thread(self):
         """Return all (public) Submissions in the database in this thread."""
-        return Submission.objects.public().filter(thread_hash=self.thread_hash).order_by(
-            '-submission_date', '-preprint')
+        return (
+            Submission.objects.public()
+            .filter(thread_hash=self.thread_hash)
+            .order_by("-submission_date", "-preprint")
+        )
 
     @cached_property
     def thread_sequence_order(self):
@@ -357,11 +428,13 @@ class Submission(models.Model):
     @cached_property
     def other_versions(self):
         """Return other Submissions in the database in this thread."""
-        return self.get_other_versions().order_by('-submission_date', '-preprint')
+        return self.get_other_versions().order_by("-submission_date", "-preprint")
 
     def get_other_versions(self):
         """Return queryset of other Submissions with this thread."""
-        return Submission.objects.filter(thread_hash=self.thread_hash).exclude(pk=self.id)
+        return Submission.objects.filter(thread_hash=self.thread_hash).exclude(
+            pk=self.id
+        )
 
     def get_latest_version(self):
         """Return the latest version in the thread of this Submission."""
@@ -394,25 +467,33 @@ class Submission(models.Model):
     def flag_coauthorships_arxiv(self, fellows):
         """Identify coauthorships from arXiv, using author surname matching."""
         coauthorships = {}
-        if self.metadata and 'entries' in self.metadata:
+        if self.metadata and "entries" in self.metadata:
             author_last_names = []
-            for author in self.metadata['entries'][0]['authors']:
+            for author in self.metadata["entries"][0]["authors"]:
                 # Gather author data to do conflict-of-interest queries with
-                author_last_names.append(author['name'].split()[-1])
-            authors_last_names_str = '+OR+'.join(author_last_names)
+                author_last_names.append(author["name"].split()[-1])
+            authors_last_names_str = "+OR+".join(author_last_names)
 
             for fellow in fellows:
                 # For each fellow found, so a query with the authors to check for conflicts
-                search_query = 'au:({fellow}+AND+({authors}))'.format(
+                search_query = "au:({fellow}+AND+({authors}))".format(
                     fellow=fellow.contributor.user.last_name,
-                    authors=authors_last_names_str)
-                queryurl = 'https://export.arxiv.org/api/query?search_query={sq}'.format(
-                    sq=search_query)
-                queryurl += '&sortBy=submittedDate&sortOrder=descending&max_results=5'
-                queryurl = queryurl.replace(' ', '+')  # Fallback for some last names with spaces
+                    authors=authors_last_names_str,
+                )
+                queryurl = (
+                    "https://export.arxiv.org/api/query?search_query={sq}".format(
+                        sq=search_query
+                    )
+                )
+                queryurl += "&sortBy=submittedDate&sortOrder=descending&max_results=5"
+                queryurl = queryurl.replace(
+                    " ", "+"
+                )  # Fallback for some last names with spaces
                 queryresults = feedparser.parse(queryurl)
                 if queryresults.entries:
-                    coauthorships[fellow.contributor.user.last_name] = queryresults.entries
+                    coauthorships[
+                        fellow.contributor.user.last_name
+                    ] = queryresults.entries
         return coauthorships
 
     def is_sending_editorial_invitations(self):
@@ -434,7 +515,8 @@ class Submission(models.Model):
             return False
 
         pool_contributors_ids = Contributor.objects.filter(
-            fellowships__pool=self).values_list('id', flat=True)
+            fellowships__pool=self
+        ).values_list("id", flat=True)
         return self.editor_in_charge.id not in pool_contributors_ids
 
     @property
@@ -456,25 +538,28 @@ class SubmissionEvent(SubmissionRelatedObjectMixin, TimeStampedModel):
     the fellow's identity.
     """
 
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='events')
+    submission = models.ForeignKey(
+        "submissions.Submission", on_delete=models.CASCADE, related_name="events"
+    )
     event = models.CharField(max_length=4, choices=EVENT_TYPES, default=EVENT_GENERAL)
     text = models.TextField()
 
     objects = SubmissionEventQuerySet.as_manager()
 
     class Meta:
-        ordering = ['-created']
+        ordering = ["-created"]
 
     def __str__(self):
         """Summarize the SubmissionEvent's meta information."""
-        return '%s: %s' % (str(self.submission), self.get_event_display())
+        return "%s: %s" % (str(self.submission), self.get_event_display())
 
 
 class SubmissionTiering(models.Model):
     """A Fellow's quality tiering of a Submission for a given Journal, given during voting."""
-    submission = models.ForeignKey('submissions.Submission', on_delete=models.CASCADE,
-                                   related_name='tierings')
-    fellow = models.ForeignKey('scipost.Contributor', on_delete=models.CASCADE)
-    for_journal = models.ForeignKey('journals.Journal', on_delete=models.CASCADE)
+
+    submission = models.ForeignKey(
+        "submissions.Submission", on_delete=models.CASCADE, related_name="tierings"
+    )
+    fellow = models.ForeignKey("scipost.Contributor", on_delete=models.CASCADE)
+    for_journal = models.ForeignKey("journals.Journal", on_delete=models.CASCADE)
     tier = models.SmallIntegerField(choices=SUBMISSION_TIERS)

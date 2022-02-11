@@ -11,13 +11,19 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('invitations', '0003_auto_20180217_1510'),
+        ("invitations", "0003_auto_20180217_1510"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='registrationinvitation',
-            name='created_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='invitations_created', to=settings.AUTH_USER_MODEL),
+            model_name="registrationinvitation",
+            name="created_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="invitations_created",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

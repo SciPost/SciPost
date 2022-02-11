@@ -6,26 +6,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0027_auto_20190826_0924'),
+        ("scipost", "0027_auto_20190826_0924"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='editorialcollegefellowship',
+            name="editorialcollegefellowship",
             unique_together=set(),
         ),
         migrations.RemoveField(
-            model_name='editorialcollegefellowship',
-            name='college',
+            model_name="editorialcollegefellowship",
+            name="college",
         ),
         migrations.RemoveField(
-            model_name='editorialcollegefellowship',
-            name='contributor',
+            model_name="editorialcollegefellowship",
+            name="contributor",
         ),
         migrations.DeleteModel(
-            name='EditorialCollege',
+            name="EditorialCollege",
         ),
         migrations.DeleteModel(
-            name='EditorialCollegeFellowship',
+            name="EditorialCollegeFellowship",
         ),
     ]

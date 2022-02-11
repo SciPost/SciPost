@@ -20,19 +20,19 @@ from .forms import JobOpeningForm, JobApplicationForm
 class JobOpeningCreateView(UserPassesTestMixin, CreateView):
     model = JobOpening
     form_class = JobOpeningForm
-    success_url = reverse_lazy('careers:jobopenings')
+    success_url = reverse_lazy("careers:jobopenings")
 
     def test_func(self):
-        return self.request.user.has_perm('careers.add_jobopening')
+        return self.request.user.has_perm("careers.add_jobopening")
 
 
 class JobOpeningUpdateView(UserPassesTestMixin, UpdateView):
     model = JobOpening
     form_class = JobOpeningForm
-    success_url = reverse_lazy('careers:jobopenings')
+    success_url = reverse_lazy("careers:jobopenings")
 
     def test_func(self):
-        return self.request.user.has_perm('careers.add_jobopening')
+        return self.request.user.has_perm("careers.add_jobopening")
 
 
 class JobOpeningListView(ListView):
@@ -40,7 +40,7 @@ class JobOpeningListView(ListView):
 
     def get_queryset(self):
         qs = JobOpening.objects.all()
-        if not self.request.user.has_perm('careers.add_jobopening'):
+        if not self.request.user.has_perm("careers.add_jobopening"):
             qs = qs.publicly_visible()
         return qs
 
@@ -50,7 +50,7 @@ class JobOpeningDetailView(DetailView):
 
     def get_queryset(self):
         qs = JobOpening.objects.all()
-        if not self.request.user.has_perm('careers.add_jobopening'):
+        if not self.request.user.has_perm("careers.add_jobopening"):
             qs = qs.publicly_visible()
         return qs
 
@@ -58,28 +58,37 @@ class JobOpeningDetailView(DetailView):
 class JobOpeningApplyView(CreateView):
     model = JobApplication
     form_class = JobApplicationForm
-    template_name = 'careers/jobopening_apply.html'
+    template_name = "careers/jobopening_apply.html"
 
     def get_initial(self, *args, **kwargs):
         initial = super().get_initial(*args, **kwargs)
-        initial.update({
-            'status': JobApplication.RECEIVED,
-            'jobopening': get_object_or_404(JobOpening, slug=self.kwargs.get('slug'))
-        })
+        initial.update(
+            {
+                "status": JobApplication.RECEIVED,
+                "jobopening": get_object_or_404(
+                    JobOpening, slug=self.kwargs.get("slug")
+                ),
+            }
+        )
         return initial
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['jobopening'] = get_object_or_404(JobOpening, slug=self.kwargs.get('slug'))
+        context["jobopening"] = get_object_or_404(
+            JobOpening, slug=self.kwargs.get("slug")
+        )
         return context
 
     def form_valid(self, form):
         self.object = form.save()
         mail_sender = DirectMailUtil(
-            'careers/jobapplication_ack',
+            "careers/jobapplication_ack",
             delayed_processing=False,
-            bcc=['admin@{domain}'.format(domain=Site.objects.get_current().domain),],
-            jobapplication=self.object)
+            bcc=[
+                "admin@{domain}".format(domain=Site.objects.get_current().domain),
+            ],
+            jobapplication=self.object,
+        )
         mail_sender.send_mail()
         return redirect(self.get_success_url())
 
@@ -88,7 +97,7 @@ def jobapplication_verify(request, uuid):
     jobapp = get_object_or_404(JobApplication, uuid=uuid)
     jobapp.status = jobapp.VERIFIED
     jobapp.save()
-    messages.success(request, 'Your email has been verified successfully.')
+    messages.success(request, "Your email has been verified successfully.")
     return redirect(jobapp.get_absolute_url())
 
 
@@ -96,4 +105,4 @@ class JobApplicationDetailView(DetailView):
     model = JobApplication
 
     def get_object(self, *args, **kwargs):
-        return get_object_or_404(JobApplication, uuid=self.kwargs.get('uuid'))
+        return get_object_or_404(JobApplication, uuid=self.kwargs.get("uuid"))

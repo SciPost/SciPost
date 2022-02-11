@@ -4,8 +4,8 @@ from django.db import migrations
 
 
 def assign_college(apps, schema_editor):
-    College = apps.get_model('colleges.College')
-    Fellowship = apps.get_model('colleges.Fellowship')
+    College = apps.get_model("colleges.College")
+    Fellowship = apps.get_model("colleges.Fellowship")
 
     for f in Fellowship.objects.all():
         college = College.objects.get(acad_field__slug=f.contributor.profile.discipline)
@@ -16,10 +16,9 @@ def assign_college(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0017_fellowship_college'),
+        ("colleges", "0017_fellowship_college"),
     ]
 
     operations = [
-        migrations.RunPython(assign_college,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(assign_college, reverse_code=migrations.RunPython.noop),
     ]

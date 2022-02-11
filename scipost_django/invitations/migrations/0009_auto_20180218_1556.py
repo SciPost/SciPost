@@ -8,25 +8,32 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0005_auto_20180218_1556'),
-        ('submissions', '0008_auto_20180127_2208'),
-        ('journals', '0013_auto_20180216_0850'),
-        ('invitations', '0008_auto_20180218_1305'),
+        ("scipost", "0005_auto_20180218_1556"),
+        ("submissions", "0008_auto_20180127_2208"),
+        ("journals", "0013_auto_20180216_0850"),
+        ("invitations", "0008_auto_20180218_1305"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='citationnotification',
-            old_name='cited_in_publication',
-            new_name='publication',
+            model_name="citationnotification",
+            old_name="cited_in_publication",
+            new_name="publication",
         ),
         migrations.RenameField(
-            model_name='citationnotification',
-            old_name='cited_in_submission',
-            new_name='submission',
+            model_name="citationnotification",
+            old_name="cited_in_submission",
+            new_name="submission",
         ),
         migrations.AlterUniqueTogether(
-            name='citationnotification',
-            unique_together=set([('contributor', 'publication'), ('invitation', 'publication'), ('invitation', 'submission'), ('contributor', 'submission')]),
+            name="citationnotification",
+            unique_together=set(
+                [
+                    ("contributor", "publication"),
+                    ("invitation", "publication"),
+                    ("invitation", "submission"),
+                    ("contributor", "submission"),
+                ]
+            ),
         ),
     ]

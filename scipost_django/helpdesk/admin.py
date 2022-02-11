@@ -10,8 +10,9 @@ from .models import Queue, Ticket, Followup
 
 
 class QueueAdmin(GuardedModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
-    search_fields = ['name', 'description']
+    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ["name", "description"]
+
 
 admin.site.register(Queue, QueueAdmin)
 
@@ -20,21 +21,22 @@ class FollowupInline(admin.TabularInline):
     model = Followup
     extra = 0
     autocomplete_fields = [
-        'by',
+        "by",
     ]
 
 
 class TicketAdmin(admin.ModelAdmin):
     search_fields = [
-        'title',
-        'description',
-        'defined_by__last_name',
-        'concerning_object_id'
+        "title",
+        "description",
+        "defined_by__last_name",
+        "concerning_object_id",
     ]
     inlines = [FollowupInline]
     autocomplete_fields = [
-        'defined_by',
-        'assigned_to',
+        "defined_by",
+        "assigned_to",
     ]
+
 
 admin.site.register(Ticket, TicketAdmin)

@@ -17,6 +17,6 @@ def get_profiles(slug):
 
 @register.simple_tag(takes_context=True)
 def profile_dynsel_action_url(context, profile):
-    kwargs = context['action_url_base_kwargs']
-    kwargs['profile_id'] = profile.id
-    return reverse(context['action_url_name'], kwargs=kwargs)
+    kwargs = context["action_url_base_kwargs"]
+    kwargs["profile_id"] = profile.id
+    return reverse(context["action_url_name"], kwargs=kwargs)

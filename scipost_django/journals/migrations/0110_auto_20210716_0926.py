@@ -7,38 +7,38 @@ import journals.models.journal
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0109_auto_20210715_1244'),
+        ("journals", "0109_auto_20210715_1244"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='doajdeposit',
-            name='metadata_DOAJ',
+            model_name="doajdeposit",
+            name="metadata_DOAJ",
             field=models.JSONField(),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='cf_metrics',
+            model_name="journal",
+            name="cf_metrics",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='cost_info',
+            model_name="journal",
+            name="cost_info",
             field=models.JSONField(default=journals.models.journal.cost_default_value),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='citedby',
+            model_name="publication",
+            name="citedby",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='metadata',
+            model_name="publication",
+            name="metadata",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='metadata_DOAJ',
+            model_name="publication",
+            name="metadata_DOAJ",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
     ]

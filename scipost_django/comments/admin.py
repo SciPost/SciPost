@@ -11,29 +11,35 @@ from .models import Comment
 
 
 def comment_opening(comment):
-    return comment.comment_text[:30] + '...'
+    return comment.comment_text[:30] + "..."
 
 
 def comment_is_vetted(comment):
-    '''Check if comment is vetted.'''
+    """Check if comment is vetted."""
     return comment.status is STATUS_VETTED
 
 
 def comment_is_anonymous(comment):
-    '''Check if comment is vetted.'''
+    """Check if comment is vetted."""
     return comment.anonymous
 
 
 class CommentAdmin(GuardedModelAdmin):
     list_display = (
-        comment_opening, 'author', 'date_submitted', comment_is_vetted, comment_is_anonymous)
-    date_hierarchy = 'date_submitted'
-    list_filter = ('status',)
+        comment_opening,
+        "author",
+        "date_submitted",
+        comment_is_vetted,
+        comment_is_anonymous,
+    )
+    date_hierarchy = "date_submitted"
+    list_filter = ("status",)
     comment_is_vetted.boolean = True
     comment_is_anonymous.boolean = True
     autocomplete_fields = [
-        'vetted_by',
-        'author',
+        "vetted_by",
+        "author",
     ]
+
 
 admin.site.register(Comment, CommentAdmin)

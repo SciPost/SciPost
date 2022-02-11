@@ -13,40 +13,29 @@ class AffiliateJournal(models.Model):
     """
 
     publisher = models.ForeignKey(
-        'affiliates.AffiliatePublisher',
+        "affiliates.AffiliatePublisher",
         on_delete=models.CASCADE,
-        related_name='journals'
+        related_name="journals",
     )
 
-    name = models.CharField(
-        max_length=256
-    )
+    name = models.CharField(max_length=256)
 
-    short_name = models.CharField(
-        max_length=256,
-        default=""
-    )
+    short_name = models.CharField(max_length=256, default="")
 
     slug = models.SlugField(
         max_length=128,
-        validators=[validate_unicode_slug,],
-        unique=True
+        validators=[
+            validate_unicode_slug,
+        ],
+        unique=True,
     )
 
     class Meta:
-        ordering = [
-            'publisher',
-            'name'
-        ]
-        permissions = (
-            ('manage_journal_content', 'Manage Journal content'),
-        )
+        ordering = ["publisher", "name"]
+        permissions = (("manage_journal_content", "Manage Journal content"),)
 
     def __str__(self):
         return self.name
 
     def get_absolute_url(self):
-        return reverse(
-            'affiliates:journal_detail',
-            kwargs={'slug': self.slug}
-        )
+        return reverse("affiliates:journal_detail", kwargs={"slug": self.slug})

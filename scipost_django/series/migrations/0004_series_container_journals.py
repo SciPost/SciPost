@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0085_auto_20191017_0949'),
-        ('series', '0003_collection_submissions'),
+        ("journals", "0085_auto_20191017_0949"),
+        ("series", "0003_collection_submissions"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='series',
-            name='container_journals',
-            field=models.ManyToManyField(blank=True, to='journals.Journal'),
+            model_name="series",
+            name="container_journals",
+            field=models.ManyToManyField(blank=True, to="journals.Journal"),
         ),
     ]

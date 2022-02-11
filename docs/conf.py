@@ -19,7 +19,7 @@ import sys
 import django
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "SciPost_v1.settings.empty")
 
@@ -27,9 +27,9 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = 'SciPost'
-copyright = 'SciPost Foundation, Jean-Sébastien Caux and other contributors'
-author = 'Jean-Sébastien Caux'
+project = "SciPost"
+copyright = "SciPost Foundation, Jean-Sébastien Caux and other contributors"
+author = "Jean-Sébastien Caux"
 
 
 # -- General configuration ---------------------------------------------------
@@ -38,33 +38,33 @@ author = 'Jean-Sébastien Caux'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.todo',
-    'sphinx.ext.coverage',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinx_rtd_theme',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.viewcode",
+    "sphinx_rtd_theme",
 ]
 
-autodoc_member_order = 'bysource'
+autodoc_member_order = "bysource"
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -72,29 +72,24 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
-    'logo_only': True,
-    'prev_next_buttons_location': 'both',
-    'navigation_depth': -1,
-    'style_nav_header_background': '#002b49'
+    "logo_only": True,
+    "prev_next_buttons_location": "both",
+    "navigation_depth": -1,
+    "style_nav_header_background": "#002b49",
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
-html_css_files = ['css/scipost_docs.css']
-html_logo = '_static/logo_scipost_RGB_HTML.png'
+html_static_path = ["_static"]
+html_css_files = ["css/scipost_docs.css"]
+html_logo = "_static/logo_scipost_RGB_HTML.png"
 
 html_sidebars = {
-    '**': [
-        'globaltoc.html',
-        'localtoc.html',
-        'relations.html',
-        'searchbox.html'
-    ]
+    "**": ["globaltoc.html", "localtoc.html", "relations.html", "searchbox.html"]
 }
 
 
@@ -104,15 +99,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -122,8 +114,13 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'SciPost.tex', 'SciPost Documentation',
-     'Jean-Sébastien Caux', 'manual'),
+    (
+        master_doc,
+        "SciPost.tex",
+        "SciPost Documentation",
+        "Jean-Sébastien Caux",
+        "manual",
+    ),
 ]
 
 
@@ -131,10 +128,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'scipost', 'SciPost Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, "scipost", "SciPost Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -143,9 +137,15 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'SciPost', 'SciPost Documentation',
-     author, 'SciPost', 'SciPost publication portal codebase documentation.',
-     'Miscellaneous'),
+    (
+        master_doc,
+        "SciPost",
+        "SciPost Documentation",
+        author,
+        "SciPost",
+        "SciPost publication portal codebase documentation.",
+        "Miscellaneous",
+    ),
 ]
 
 
@@ -159,13 +159,14 @@ todo_include_todos = True
 
 def autodoc_skip_member(app, what, name, obj, skip, options):
     exclusions = [
-        'secrets',
-        'get_secret', # remove secrets import
-        'migrations',
-        'queryset', # to prevent evaluation of the querysets for DRF-derived CBVs
+        "secrets",
+        "get_secret",  # remove secrets import
+        "migrations",
+        "queryset",  # to prevent evaluation of the querysets for DRF-derived CBVs
     ]
     exclude = name in exclusions
     return skip or exclude
 
+
 def setup(app):
-    app.connect('autodoc-skip-member', autodoc_skip_member)
+    app.connect("autodoc-skip-member", autodoc_skip_member)

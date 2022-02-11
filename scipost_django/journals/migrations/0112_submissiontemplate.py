@@ -8,21 +8,53 @@ import journals.models.submission_template
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0111_auto_20210716_0937'),
+        ("journals", "0111_auto_20210716_0937"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='SubmissionTemplate',
+            name="SubmissionTemplate",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('template_type', models.CharField(choices=[('latex-tgz', 'LaTeX (gzipped tarball)'), ('docx', 'Office Open XML (.docx)'), ('odt', 'OpenDocument Text (.odt)')], default='latex-tgz', max_length=32)),
-                ('template_file', models.FileField(max_length=256, upload_to=journals.models.submission_template.submission_template_upload_path)),
-                ('date', models.DateField()),
-                ('journal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='templates', to='journals.journal')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "template_type",
+                    models.CharField(
+                        choices=[
+                            ("latex-tgz", "LaTeX (gzipped tarball)"),
+                            ("docx", "Office Open XML (.docx)"),
+                            ("odt", "OpenDocument Text (.odt)"),
+                        ],
+                        default="latex-tgz",
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "template_file",
+                    models.FileField(
+                        max_length=256,
+                        upload_to=journals.models.submission_template.submission_template_upload_path,
+                    ),
+                ),
+                ("date", models.DateField()),
+                (
+                    "journal",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="templates",
+                        to="journals.journal",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['journal__doi_label', 'date'],
+                "ordering": ["journal__doi_label", "date"],
             },
         ),
     ]

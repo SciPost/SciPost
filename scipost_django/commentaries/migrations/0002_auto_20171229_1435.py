@@ -11,40 +11,67 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('commentaries', '0001_initial'),
-        ('journals', '0001_initial'),
-        ('scipost', '0001_initial'),
+        ("commentaries", "0001_initial"),
+        ("journals", "0001_initial"),
+        ("scipost", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='commentary',
-            name='authors',
-            field=models.ManyToManyField(blank=True, related_name='commentaries', to='scipost.Contributor'),
+            model_name="commentary",
+            name="authors",
+            field=models.ManyToManyField(
+                blank=True, related_name="commentaries", to="scipost.Contributor"
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='authors_claims',
-            field=models.ManyToManyField(blank=True, related_name='claimed_commentaries', to='scipost.Contributor'),
+            model_name="commentary",
+            name="authors_claims",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="claimed_commentaries",
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='authors_false_claims',
-            field=models.ManyToManyField(blank=True, related_name='false_claimed_commentaries', to='scipost.Contributor'),
+            model_name="commentary",
+            name="authors_false_claims",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="false_claimed_commentaries",
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='requested_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='requested_commentaries', to='scipost.Contributor'),
+            model_name="commentary",
+            name="requested_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="requested_commentaries",
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='scipost_publication',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='commentary', to='journals.Publication'),
+            model_name="commentary",
+            name="scipost_publication",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="commentary",
+                to="journals.Publication",
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='vetted_by',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='scipost.Contributor'),
+            model_name="commentary",
+            name="vetted_by",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="scipost.Contributor",
+            ),
         ),
     ]

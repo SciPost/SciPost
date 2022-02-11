@@ -10,17 +10,32 @@ class Migration(migrations.Migration):
 
     dependencies = [
         # ('partners', '0013_auto_20180715_0938'),
-        ('journals', '0034_auto_20180708_1037'),
+        ("journals", "0034_auto_20180708_1037"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='OrgPubFraction',
+            name="OrgPubFraction",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fraction', models.DecimalField(decimal_places=3, max_digits=4)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("fraction", models.DecimalField(decimal_places=3, max_digits=4)),
                 # ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pubfractions', to='partners.Organization')),
-                ('publication', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pubfractions', to='journals.Publication')),
+                (
+                    "publication",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="pubfractions",
+                        to="journals.Publication",
+                    ),
+                ),
             ],
         ),
     ]

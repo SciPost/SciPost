@@ -6,13 +6,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0036_remove_authorshipclaim_publication'),
-        ('colleges', '0019_auto_20200906_1436'),
+        ("scipost", "0036_remove_authorshipclaim_publication"),
+        ("colleges", "0019_auto_20200906_1436"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='fellowship',
-            unique_together={('college', 'contributor', 'start_date', 'until_date')},
+            name="fellowship",
+            unique_together={("college", "contributor", "start_date", "until_date")},
         ),
     ]

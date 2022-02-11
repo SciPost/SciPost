@@ -17,13 +17,20 @@ class Proceedings(TimeStampedModel):
     """
     A Proceeding is a special kind of Journal Issue.
     """
+
     # Link to the actual Journal platform
     issue = models.OneToOneField(
-        'journals.Issue', on_delete=models.CASCADE, related_name='proceedings',
-        limit_choices_to=models.Q(in_volume__in_journal__doi_label='SciPostPhysProc') | models.Q(in_journal__doi_label='SciPostPhysProc'))
+        "journals.Issue",
+        on_delete=models.CASCADE,
+        related_name="proceedings",
+        limit_choices_to=models.Q(in_volume__in_journal__doi_label="SciPostPhysProc")
+        | models.Q(in_journal__doi_label="SciPostPhysProc"),
+    )
     minimum_referees = models.PositiveSmallIntegerField(
-        help_text='Require an explicit minimum number of referees for the default ref cycle.',
-        blank=True, null=True)
+        help_text="Require an explicit minimum number of referees for the default ref cycle.",
+        blank=True,
+        null=True,
+    )
 
     # Event the Proceedings is for
     event_name = models.CharField(max_length=256, blank=True)
@@ -31,15 +38,20 @@ class Proceedings(TimeStampedModel):
     event_description = models.TextField(blank=True)
     event_start_date = models.DateField(null=True, blank=True)
     event_end_date = models.DateField(null=True, blank=True)
-    logo = models.ImageField(upload_to='proceedings/images/', blank=True)
-    picture = models.ImageField(upload_to='proceedings/images/', blank=True)
+    logo = models.ImageField(upload_to="proceedings/images/", blank=True)
+    picture = models.ImageField(upload_to="proceedings/images/", blank=True)
     picture_credit = models.CharField(max_length=512, blank=True)
-    cover_image = models.ImageField(upload_to='proceedings/images/', blank=True)
+    cover_image = models.ImageField(upload_to="proceedings/images/", blank=True)
 
     # Fellows
-    lead_fellow = models.ForeignKey('colleges.Fellowship', null=True, blank=True,
-                                    on_delete=models.SET_NULL, related_name='+')
-    fellowships = models.ManyToManyField('colleges.Fellowship', blank=True)
+    lead_fellow = models.ForeignKey(
+        "colleges.Fellowship",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="+",
+    )
+    fellowships = models.ManyToManyField("colleges.Fellowship", blank=True)
 
     # Submission data
     submissions_open = models.DateField()
@@ -48,25 +60,28 @@ class Proceedings(TimeStampedModel):
 
     # Templates
     template_latex_tgz = models.FileField(
-        verbose_name='Template (LaTeX, gzipped tarball)',
-        help_text='Gzipped tarball of the LaTeX template package',
-        upload_to='UPLOADS/TEMPLATES/latex/%Y/', max_length=256, blank=True)
+        verbose_name="Template (LaTeX, gzipped tarball)",
+        help_text="Gzipped tarball of the LaTeX template package",
+        upload_to="UPLOADS/TEMPLATES/latex/%Y/",
+        max_length=256,
+        blank=True,
+    )
 
     objects = ProceedingsQuerySet.as_manager()
 
     class Meta:
-        verbose_name = 'Proceedings'
-        verbose_name_plural = 'Proceedings'
-        default_related_name = 'proceedings'
+        verbose_name = "Proceedings"
+        verbose_name_plural = "Proceedings"
+        default_related_name = "proceedings"
 
     def __str__(self):
         _str = self.event_name
         if self.event_suffix:
-            _str += ' ({s})'.format(s=self.event_suffix)
+            _str += " ({s})".format(s=self.event_suffix)
         return _str
 
     def get_absolute_url(self):
-        return reverse('proceedings:proceedings_details', args=(self.id,))
+        return reverse("proceedings:proceedings_details", args=(self.id,))
 
     @property
     def open_for_submission(self):

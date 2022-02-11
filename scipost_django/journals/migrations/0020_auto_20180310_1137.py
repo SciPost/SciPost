@@ -9,38 +9,64 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0019_auto_20180310_1115'),
+        ("journals", "0019_auto_20180310_1115"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='journal',
-            old_name='_has_issues',
-            new_name='has_issues',
+            model_name="journal",
+            old_name="_has_issues",
+            new_name="has_issues",
         ),
         migrations.RenameField(
-            model_name='journal',
-            old_name='_has_volumes',
-            new_name='has_volumes',
+            model_name="journal",
+            old_name="_has_volumes",
+            new_name="has_volumes",
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='in_journal',
-            field=models.ForeignKey(blank=True, help_text='Assign either an Volume or Journal to the Issue', null=True, on_delete=django.db.models.deletion.PROTECT, to='journals.Journal'),
+            model_name="issue",
+            name="in_journal",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either an Volume or Journal to the Issue",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="journals.Journal",
+            ),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='in_volume',
-            field=models.ForeignKey(blank=True, help_text='Assign either an Volume or Journal to the Issue', null=True, on_delete=django.db.models.deletion.PROTECT, to='journals.Volume'),
+            model_name="issue",
+            name="in_volume",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either an Volume or Journal to the Issue",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="journals.Volume",
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='in_issue',
-            field=models.ForeignKey(blank=True, help_text='Assign either an Issue or Journal to the Publication', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='publications', to='journals.Issue'),
+            model_name="publication",
+            name="in_issue",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either an Issue or Journal to the Publication",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="publications",
+                to="journals.Issue",
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='in_journal',
-            field=models.ForeignKey(blank=True, help_text='Assign either an Issue or Journal to the Publication', null=True, on_delete=django.db.models.deletion.PROTECT, related_name='publications', to='journals.Journal'),
+            model_name="publication",
+            name="in_journal",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Assign either an Issue or Journal to the Publication",
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="publications",
+                to="journals.Journal",
+            ),
         ),
     ]

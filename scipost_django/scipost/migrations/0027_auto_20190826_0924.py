@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0026_auto_20190522_1120'),
+        ("scipost", "0026_auto_20190522_1120"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='totpdevice',
-            options={'default_related_name': 'devices', 'verbose_name': 'TOTP Device'},
+            name="totpdevice",
+            options={"default_related_name": "devices", "verbose_name": "TOTP Device"},
         ),
     ]

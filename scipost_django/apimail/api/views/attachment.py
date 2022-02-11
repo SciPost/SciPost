@@ -14,4 +14,7 @@ class AttachmentFileCreateAPIView(CreateAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = AttachmentFile.objects.all()
     serializer_class = AttachmentFileSerializer
-    parser_classes = [FormParser, MultiPartParser,]
+    parser_classes = [
+        FormParser,
+        MultiPartParser,
+    ]

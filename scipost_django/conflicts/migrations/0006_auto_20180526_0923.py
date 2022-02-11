@@ -9,17 +9,23 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('conflicts', '0005_auto_20180526_0906'),
+        ("conflicts", "0005_auto_20180526_0906"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='conflictgroup',
-            name='conflicts',
+            model_name="conflictgroup",
+            name="conflicts",
         ),
         migrations.AddField(
-            model_name='conflictofinterest',
-            name='conflict_group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='conflicts', to='conflicts.ConflictGroup'),
+            model_name="conflictofinterest",
+            name="conflict_group",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="conflicts",
+                to="conflicts.ConflictGroup",
+            ),
         ),
     ]

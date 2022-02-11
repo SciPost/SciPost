@@ -19,7 +19,7 @@ def linebreaktex(value, autoescape=True):
     value = normalize_newlines(value)
     if autoescape:
         value = escape(value)
-    return mark_safe(value.replace('\n', '&#92;&#92; \n'))
+    return mark_safe(value.replace("\n", "&#92;&#92; \n"))
 
 
 @register.filter(is_safe=False, needs_autoescape=True)
@@ -27,4 +27,4 @@ def safe_tex_url(value, autoescape=True):
     """
     Convert all newlines in a piece of plain text to HTML line breaks
     """
-    return mark_safe(value.replace('#', '&#92;#'))
+    return mark_safe(value.replace("#", "&#92;#"))

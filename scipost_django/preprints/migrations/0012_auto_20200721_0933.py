@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0011_remove_preprint_scipost_preprint_identifier'),
+        ("preprints", "0011_remove_preprint_scipost_preprint_identifier"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprint',
-            name='identifier_wo_vn_nr',
+            model_name="preprint",
+            name="identifier_wo_vn_nr",
         ),
         migrations.RemoveField(
-            model_name='preprint',
-            name='vn_nr',
+            model_name="preprint",
+            name="vn_nr",
         ),
     ]

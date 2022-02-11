@@ -6,13 +6,32 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0077_populate_editorialdecision'),
+        ("submissions", "0077_populate_editorialdecision"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='editorialdecision',
-            name='status',
-            field=models.SmallIntegerField(choices=[(0, 'Editorial decision drafted (yet to be communicated to authors)'), (1, 'Editorial decision fixed and (if required) accepted by authors'), (2, 'Awaiting author acceptance of publication offer'), (3, 'Publication offer refused by authors; manuscript will not be produced'), (4, 'Editorial decision appealed by authors'), (5, 'Editorial decision under review by ombudsperson'), (-1, 'Deprecated')]),
+            model_name="editorialdecision",
+            name="status",
+            field=models.SmallIntegerField(
+                choices=[
+                    (
+                        0,
+                        "Editorial decision drafted (yet to be communicated to authors)",
+                    ),
+                    (
+                        1,
+                        "Editorial decision fixed and (if required) accepted by authors",
+                    ),
+                    (2, "Awaiting author acceptance of publication offer"),
+                    (
+                        3,
+                        "Publication offer refused by authors; manuscript will not be produced",
+                    ),
+                    (4, "Editorial decision appealed by authors"),
+                    (5, "Editorial decision under review by ombudsperson"),
+                    (-1, "Deprecated"),
+                ]
+            ),
         ),
     ]

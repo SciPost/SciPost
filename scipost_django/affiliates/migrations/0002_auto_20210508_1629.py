@@ -8,13 +8,23 @@ import re
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('affiliates', '0001_initial'),
+        ("affiliates", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='affiliatejournal',
-            name='slug',
-            field=models.SlugField(max_length=128, unique=True, validators=[django.core.validators.RegexValidator(re.compile('^[-\\w]+\\Z'), "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.", 'invalid')]),
+            model_name="affiliatejournal",
+            name="slug",
+            field=models.SlugField(
+                max_length=128,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        re.compile("^[-\\w]+\\Z"),
+                        "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.",
+                        "invalid",
+                    )
+                ],
+            ),
         ),
     ]

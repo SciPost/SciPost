@@ -9,19 +9,40 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forums', '0005_forum_description'),
+        ("forums", "0005_forum_description"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Meeting',
+            name="Meeting",
             fields=[
-                ('forum', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, parent_link=True, primary_key=True, serialize=False, to='forums.Forum')),
-                ('date_from', models.DateField()),
-                ('date_until', models.DateField()),
-                ('preamble', models.TextField(help_text='Explanatory notes for the meeting.\nYou can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>')),
-                ('minutes', models.TextField(blank=True, help_text='To be filled in after completion of the meeting.\nYou can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>', null=True)),
+                (
+                    "forum",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="forums.Forum",
+                    ),
+                ),
+                ("date_from", models.DateField()),
+                ("date_until", models.DateField()),
+                (
+                    "preamble",
+                    models.TextField(
+                        help_text='Explanatory notes for the meeting.\nYou can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>'
+                    ),
+                ),
+                (
+                    "minutes",
+                    models.TextField(
+                        blank=True,
+                        help_text='To be filled in after completion of the meeting.\nYou can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>',
+                        null=True,
+                    ),
+                ),
             ],
-            bases=('forums.forum',),
+            bases=("forums.forum",),
         ),
     ]

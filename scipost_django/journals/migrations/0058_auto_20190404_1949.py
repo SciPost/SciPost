@@ -8,23 +8,23 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0057_remove_publication_institutions'),
+        ("journals", "0057_remove_publication_institutions"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='unregisteredauthor',
-            name='profile',
+            model_name="unregisteredauthor",
+            name="profile",
         ),
         migrations.RemoveField(
-            model_name='publication',
-            name='authors_unregistered',
+            model_name="publication",
+            name="authors_unregistered",
         ),
         migrations.RemoveField(
-            model_name='publicationauthorstable',
-            name='unregistered_author',
+            model_name="publicationauthorstable",
+            name="unregistered_author",
         ),
         migrations.DeleteModel(
-            name='UnregisteredAuthor',
+            name="UnregisteredAuthor",
         ),
     ]

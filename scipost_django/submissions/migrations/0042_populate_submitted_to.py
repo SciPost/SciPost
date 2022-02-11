@@ -6,22 +6,24 @@ from django.db import migrations
 
 
 def populate_submitted_to_from_submitted_to_journal(apps, schema_editor):
-    Journal = apps.get_model('journals', 'Journal')
-    Submission = apps.get_model('submissions', 'Submission')
+    Journal = apps.get_model("journals", "Journal")
+    Submission = apps.get_model("submissions", "Submission")
 
     for journal in Journal.objects.all():
         Submission.objects.filter(submitted_to_journal=journal.name).update(
-            submitted_to=journal)
-
+            submitted_to=journal
+        )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0041_submission_submitted_to'),
+        ("submissions", "0041_submission_submitted_to"),
     ]
 
     operations = [
-        migrations.RunPython(populate_submitted_to_from_submitted_to_journal,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_submitted_to_from_submitted_to_journal,
+            reverse_code=migrations.RunPython.noop,
+        ),
     ]

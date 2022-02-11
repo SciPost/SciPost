@@ -6,13 +6,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0080_auto_20191026_1736'),
+        ("submissions", "0080_auto_20191026_1736"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='status',
-            field=models.CharField(choices=[('incoming', 'Submission incoming, undergoing pre-screening'), ('unassigned', 'Unassigned, awaiting editor assignment'), ('failed_pre', 'Failed pre-screening'), ('assigned', 'Editor-in-charge assigned'), ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'), ('resubmitted', 'Has been resubmitted'), ('accepted', 'Publication decision taken: accept'), ('puboffer_waiting', 'Accepted in other journal; awaiting puboffer acceptance'), ('rejected', 'Publication decision taken: reject'), ('withdrawn', 'Withdrawn by the Authors'), ('published', 'Published')], default='incoming', max_length=30),
+            model_name="submission",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("incoming", "Submission incoming, undergoing pre-screening"),
+                    ("unassigned", "Unassigned, awaiting editor assignment"),
+                    ("failed_pre", "Failed pre-screening"),
+                    ("assigned", "Editor-in-charge assigned"),
+                    (
+                        "assignment_failed",
+                        "Failed to assign Editor-in-charge; manuscript rejected",
+                    ),
+                    ("resubmitted", "Has been resubmitted"),
+                    ("accepted", "Publication decision taken: accept"),
+                    (
+                        "puboffer_waiting",
+                        "Accepted in other journal; awaiting puboffer acceptance",
+                    ),
+                    ("rejected", "Publication decision taken: reject"),
+                    ("withdrawn", "Withdrawn by the Authors"),
+                    ("published", "Published"),
+                ],
+                default="incoming",
+                max_length=30,
+            ),
         ),
     ]

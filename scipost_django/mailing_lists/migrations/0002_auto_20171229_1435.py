@@ -11,24 +11,30 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('mailing_lists', '0001_initial'),
-        ('scipost', '0002_auto_20171229_1435'),
-        ('auth', '0008_alter_user_username_max_length'),
+        ("mailing_lists", "0001_initial"),
+        ("scipost", "0002_auto_20171229_1435"),
+        ("auth", "0008_alter_user_username_max_length"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='mailchimpsubscription',
-            name='contributor',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='mail_subscription', to='scipost.Contributor'),
+            model_name="mailchimpsubscription",
+            name="contributor",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="mail_subscription",
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AddField(
-            model_name='mailchimplist',
-            name='allowed_groups',
-            field=models.ManyToManyField(related_name='allowed_mailchimp_lists', to='auth.Group'),
+            model_name="mailchimplist",
+            name="allowed_groups",
+            field=models.ManyToManyField(
+                related_name="allowed_mailchimp_lists", to="auth.Group"
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='mailchimpsubscription',
-            unique_together=set([('active_list', 'contributor')]),
+            name="mailchimpsubscription",
+            unique_together=set([("active_list", "contributor")]),
         ),
     ]

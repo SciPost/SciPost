@@ -9,13 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commentaries', '0003_auto_20190126_2058'),
+        ("commentaries", "0003_auto_20190126_2058"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='commentary',
-            name='scipost_publication',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='commentary', to='journals.Publication'),
+            model_name="commentary",
+            name="scipost_publication",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="commentary",
+                to="journals.Publication",
+            ),
         ),
     ]

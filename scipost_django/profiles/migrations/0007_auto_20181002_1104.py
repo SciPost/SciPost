@@ -9,9 +9,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0006_populate_profile_from_reginv_and_refinv'),
+        ("profiles", "0006_populate_profile_from_reginv_and_refinv"),
     ]
 
-    operations = [
-        migrations.RenameModel('AlternativeEmail', 'ProfileEmail')
-    ]
+    operations = [migrations.RenameModel("AlternativeEmail", "ProfileEmail")]

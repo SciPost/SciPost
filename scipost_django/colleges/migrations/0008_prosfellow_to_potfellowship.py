@@ -6,11 +6,11 @@ from django.db import migrations
 
 
 def transfer_prosfel_data_to_potfellowship(apps, schema_editor):
-    ProspectiveFellow = apps.get_model('colleges', 'ProspectiveFellow')
-    PotentialFellowship = apps.get_model('colleges', 'PotentialFellowship')
-    Profile = apps.get_model('profiles', 'Profile')
-    ProspectiveFellowEvent = apps.get_model('colleges', 'ProspectiveFellowEvent')
-    PotentialFellowshipEvent = apps.get_model('colleges', 'PotentialFellowshipEvent')
+    ProspectiveFellow = apps.get_model("colleges", "ProspectiveFellow")
+    PotentialFellowship = apps.get_model("colleges", "PotentialFellowship")
+    Profile = apps.get_model("profiles", "Profile")
+    ProspectiveFellowEvent = apps.get_model("colleges", "ProspectiveFellowEvent")
+    PotentialFellowshipEvent = apps.get_model("colleges", "PotentialFellowshipEvent")
 
     for prosfel in ProspectiveFellow.objects.all():
         profile = Profile(
@@ -20,8 +20,8 @@ def transfer_prosfel_data_to_potfellowship(apps, schema_editor):
             email=prosfel.email,
             discipline=prosfel.discipline,
             expertises=prosfel.expertises,
-            webpage=prosfel.webpage
-            )
+            webpage=prosfel.webpage,
+        )
         profile.save()
         potfel = PotentialFellowship(profile=profile)
         potfel.save()
@@ -33,18 +33,20 @@ def transfer_prosfel_data_to_potfellowship(apps, schema_editor):
                 comments=event.comments,
                 noted_on=event.noted_on,
                 noted_by=event.noted_by,
-                )
+            )
             newevent.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0007_potentialfellowship_potentialfellowshipevent'),
-        ('profiles', '0002_auto_20180916_1643'),
+        ("colleges", "0007_potentialfellowship_potentialfellowshipevent"),
+        ("profiles", "0002_auto_20180916_1643"),
     ]
 
     operations = [
-        migrations.RunPython(transfer_prosfel_data_to_potfellowship,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            transfer_prosfel_data_to_potfellowship,
+            reverse_code=migrations.RunPython.noop,
+        ),
     ]

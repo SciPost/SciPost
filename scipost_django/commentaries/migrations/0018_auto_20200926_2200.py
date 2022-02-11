@@ -7,18 +7,24 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commentaries', '0017_auto_20200926_2148'),
+        ("commentaries", "0017_auto_20200926_2148"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='commentary',
-            name='acad_field',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='commentaries', to='ontology.AcademicField'),
+            model_name="commentary",
+            name="acad_field",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="commentaries",
+                to="ontology.AcademicField",
+            ),
         ),
         migrations.AlterField(
-            model_name='commentary',
-            name='specialties',
-            field=models.ManyToManyField(related_name='commentaries', to='ontology.Specialty'),
+            model_name="commentary",
+            name="specialties",
+            field=models.ManyToManyField(
+                related_name="commentaries", to="ontology.Specialty"
+            ),
         ),
     ]

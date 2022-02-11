@@ -12,30 +12,34 @@ from .constants import POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
 class FellowQuerySet(models.QuerySet):
     def guests(self):
         from .models import Fellowship
+
         return self.filter(status=Fellowship.STATUS_GUEST)
 
     def regular(self):
         from .models import Fellowship
+
         return self.filter(status=Fellowship.STATUS_REGULAR)
 
     def senior(self):
         from .models import Fellowship
+
         return self.filter(status=Fellowship.STATUS_SENIOR)
 
     def regular_or_senior(self):
         from .models import Fellowship
+
         return self.filter(
-            Q(status=Fellowship.STATUS_REGULAR) |
-            Q(status=Fellowship.STATUS_SENIOR))
+            Q(status=Fellowship.STATUS_REGULAR) | Q(status=Fellowship.STATUS_SENIOR)
+        )
 
     def active(self):
         today = timezone.now().date()
         return self.filter(
-            Q(start_date__lte=today, until_date__isnull=True) |
-            Q(start_date__isnull=True, until_date__gte=today) |
-            Q(start_date__lte=today, until_date__gte=today) |
-            Q(start_date__isnull=True, until_date__isnull=True)
-            ).ordered()
+            Q(start_date__lte=today, until_date__isnull=True)
+            | Q(start_date__isnull=True, until_date__gte=today)
+            | Q(start_date__lte=today, until_date__gte=today)
+            | Q(start_date__isnull=True, until_date__isnull=True)
+        ).ordered()
 
     def active_in_year(self, year):
         """
@@ -53,11 +57,13 @@ class FellowQuerySet(models.QuerySet):
 
         This method is also separately implemented for Contributor and Profile objects.
         """
-        return self.filter(contributor__profile__specialties__slug__in=specialties_slug_list)
+        return self.filter(
+            contributor__profile__specialties__slug__in=specialties_slug_list
+        )
 
     def ordered(self):
         """Return ordered queryset explicitly, since this may have big effect on performance."""
-        return self.order_by('contributor__user__last_name')
+        return self.order_by("contributor__user__last_name")
 
     def return_active_for_submission(self, submission):
         """
@@ -70,38 +76,47 @@ class FellowQuerySet(models.QuerySet):
             author_list = submission.author_list.lower()
             fellowships = []
             for fellowship in qs:
-                if (fellowship.contributor.user.last_name.lower() in author_list and
-                    fellowship.contributor not in false_claims):
+                if (
+                    fellowship.contributor.user.last_name.lower() in author_list
+                    and fellowship.contributor not in false_claims
+                ):
                     continue
                 fellowships.append(fellowship)
             return fellowships
         except AttributeError:
-                return []
+            return []
 
 
 class PotentialFellowshipQuerySet(models.QuerySet):
     def vote_needed(self, contributor):
-        college_id_list = [f.college.id for f in contributor.fellowships.senior().active()]
-        return self.filter(
-            college__pk__in=college_id_list,
-            status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING
-        ).distinct().order_by('profile__last_name')
+        college_id_list = [
+            f.college.id for f in contributor.fellowships.senior().active()
+        ]
+        return (
+            self.filter(
+                college__pk__in=college_id_list,
+                status=POTENTIAL_FELLOWSHIP_ELECTION_VOTE_ONGOING,
+            )
+            .distinct()
+            .order_by("profile__last_name")
+        )
 
     def to_vote_on(self, contributor):
         return self.vote_needed(contributor).exclude(
-            Q(in_agreement__in=[contributor]) |
-            Q(in_abstain__in=[contributor]) |
-            Q(in_disagreement__in=[contributor]))
+            Q(in_agreement__in=[contributor])
+            | Q(in_abstain__in=[contributor])
+            | Q(in_disagreement__in=[contributor])
+        )
 
     def voted_on(self, contributor):
         return self.vote_needed(contributor).filter(
-            Q(in_agreement__in=[contributor]) |
-            Q(in_abstain__in=[contributor]) |
-            Q(in_disagreement__in=[contributor]))
+            Q(in_agreement__in=[contributor])
+            | Q(in_abstain__in=[contributor])
+            | Q(in_disagreement__in=[contributor])
+        )
 
 
 class FellowshipNominationVotingRoundQuerySet(models.QuerySet):
-
     def ongoing(self):
         now = timezone.now()
         return self.filter(voting_opens__lte=now, voting_deadline__gte=now)

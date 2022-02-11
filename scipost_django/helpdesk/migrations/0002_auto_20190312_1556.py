@@ -9,17 +9,24 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('helpdesk', '0001_initial'),
+        ("helpdesk", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='queue',
-            options={'ordering': ['name'], 'permissions': [('can_view_queue', 'Can view Queue')]},
+            name="queue",
+            options={
+                "ordering": ["name"],
+                "permissions": [("can_view_queue", "Can view Queue")],
+            },
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='queue',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tickets', to='helpdesk.Queue'),
+            model_name="ticket",
+            name="queue",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tickets",
+                to="helpdesk.Queue",
+            ),
         ),
     ]

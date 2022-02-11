@@ -22,7 +22,7 @@ def remove_objects_indexes(sender_type_id, object_type_id, object_id):
     if isinstance(instance, Submission):
         # Submission have complex status handling, so a status change should lead to
         # more drastic reindexing.
-        ids_list = [k['id'] for k in list(instance.thread.values('id'))]
+        ids_list = [k["id"] for k in list(instance.thread.values("id"))]
         objects = Submission.objects.filter(pk__in=ids_list)
     else:
         # Objects such as Reports, Comments, Commentaries, etc. may get rejected. This
@@ -73,7 +73,7 @@ class SearchIndexingProcessor(signals.BaseSignalProcessor):
     def handle_save(self, sender, instance, **kwargs):
         sender_type_id = ContentType.objects.get_for_model(sender).id
         instance_type_id = ContentType.objects.get_for_model(instance).id
-        chain = (
-            remove_objects_indexes.s(sender_type_id, instance_type_id, instance.id)
-            | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id))
+        chain = remove_objects_indexes.s(
+            sender_type_id, instance_type_id, instance.id
+        ) | update_instance_indexes.s(sender_type_id, instance_type_id, instance.id)
         chain()

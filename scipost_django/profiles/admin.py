@@ -16,24 +16,26 @@ class AffiliationInline(admin.TabularInline):
     model = Affiliation
     extra = 0
     autocomplete_fields = [
-        'organization',
+        "organization",
     ]
 
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ['__str__', 'email', 'acad_field', 'has_active_contributor']
-    search_fields = ['first_name', 'last_name', 'emails__email', 'orcid_id']
+    list_display = ["__str__", "email", "acad_field", "has_active_contributor"]
+    search_fields = ["first_name", "last_name", "emails__email", "orcid_id"]
     inlines = [ProfileEmailInline, AffiliationInline]
     autocomplete_fields = [
-        'topics',
+        "topics",
     ]
+
 
 admin.site.register(Profile, ProfileAdmin)
 
 
 class ProfileNonDuplicatesAdmin(admin.ModelAdmin):
     autocomplete_fields = [
-        'profiles',
+        "profiles",
     ]
+
 
 admin.site.register(ProfileNonDuplicates, ProfileNonDuplicatesAdmin)

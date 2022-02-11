@@ -13,11 +13,11 @@ class EventListAPIView(ListAPIView):
     permission_classes = (IsAdminUser,)
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    lookup_field = 'uuid'
+    lookup_field = "uuid"
 
 
 class EventRetrieveAPIView(RetrieveAPIView):
     permission_classes = (IsAdminUser,)
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-    lookup_field = 'uuid'
+    lookup_field = "uuid"

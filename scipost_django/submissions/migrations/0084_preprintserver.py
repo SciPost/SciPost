@@ -7,20 +7,127 @@ import scipost.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0083_auto_20200627_1944'),
+        ("submissions", "0083_auto_20200627_1944"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PreprintServer',
+            name="PreprintServer",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-                ('url', models.URLField()),
-                ('disciplines', scipost.fields.ChoiceArrayField(base_field=models.CharField(choices=[('Multidisciplinary', (('multidisciplinary', 'Multidisciplinary'),)), ('Formal Sciences', (('mathematics', 'Mathematics'), ('computerscience', 'Computer Science'))), ('Natural Sciences', (('physics', 'Physics'), ('astronomy', 'Astronomy'), ('biology', 'Biology'), ('chemistry', 'Chemistry'), ('earthscience', 'Earth and Environmental Sciences'))), ('Engineering', (('civileng', 'Civil Engineering'), ('electricaleng', 'Electrical Engineering'), ('mechanicaleng', 'Mechanical Engineering'), ('chemicaleng', 'Chemical Engineering'), ('materialseng', 'Materials Engineering'), ('medicaleng', 'Medical Engineering'), ('environmentaleng', 'Environmental Engineering'), ('industrialeng', 'Industrial Engineering'))), ('Medical Sciences', (('medicine', 'Basic Medicine'), ('clinical', 'Clinical Medicine'), ('health', 'Health Sciences'))), ('Agricultural Sciences', (('agricultural', 'Agriculture, Forestry and Fisheries'), ('veterinary', 'Veterinary Science'))), ('Social Sciences', (('economics', 'Economics'), ('geography', 'Geography'), ('law', 'Law'), ('media', 'Media and Communications'), ('pedagogy', 'Pedagogy and Educational Sciences'), ('politicalscience', 'Political Science'), ('psychology', 'Psychology'), ('sociology', 'Sociology'))), ('Humanities', (('art', 'Art (arts, history or arts, performing arts, music)'), ('history', 'History and Archeology'), ('literature', 'Language and Literature'), ('philosophy', 'Philosophy, Ethics and Religion')))], max_length=32), size=None)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
+                ("url", models.URLField()),
+                (
+                    "disciplines",
+                    scipost.fields.ChoiceArrayField(
+                        base_field=models.CharField(
+                            choices=[
+                                (
+                                    "Multidisciplinary",
+                                    (("multidisciplinary", "Multidisciplinary"),),
+                                ),
+                                (
+                                    "Formal Sciences",
+                                    (
+                                        ("mathematics", "Mathematics"),
+                                        ("computerscience", "Computer Science"),
+                                    ),
+                                ),
+                                (
+                                    "Natural Sciences",
+                                    (
+                                        ("physics", "Physics"),
+                                        ("astronomy", "Astronomy"),
+                                        ("biology", "Biology"),
+                                        ("chemistry", "Chemistry"),
+                                        (
+                                            "earthscience",
+                                            "Earth and Environmental Sciences",
+                                        ),
+                                    ),
+                                ),
+                                (
+                                    "Engineering",
+                                    (
+                                        ("civileng", "Civil Engineering"),
+                                        ("electricaleng", "Electrical Engineering"),
+                                        ("mechanicaleng", "Mechanical Engineering"),
+                                        ("chemicaleng", "Chemical Engineering"),
+                                        ("materialseng", "Materials Engineering"),
+                                        ("medicaleng", "Medical Engineering"),
+                                        (
+                                            "environmentaleng",
+                                            "Environmental Engineering",
+                                        ),
+                                        ("industrialeng", "Industrial Engineering"),
+                                    ),
+                                ),
+                                (
+                                    "Medical Sciences",
+                                    (
+                                        ("medicine", "Basic Medicine"),
+                                        ("clinical", "Clinical Medicine"),
+                                        ("health", "Health Sciences"),
+                                    ),
+                                ),
+                                (
+                                    "Agricultural Sciences",
+                                    (
+                                        (
+                                            "agricultural",
+                                            "Agriculture, Forestry and Fisheries",
+                                        ),
+                                        ("veterinary", "Veterinary Science"),
+                                    ),
+                                ),
+                                (
+                                    "Social Sciences",
+                                    (
+                                        ("economics", "Economics"),
+                                        ("geography", "Geography"),
+                                        ("law", "Law"),
+                                        ("media", "Media and Communications"),
+                                        (
+                                            "pedagogy",
+                                            "Pedagogy and Educational Sciences",
+                                        ),
+                                        ("politicalscience", "Political Science"),
+                                        ("psychology", "Psychology"),
+                                        ("sociology", "Sociology"),
+                                    ),
+                                ),
+                                (
+                                    "Humanities",
+                                    (
+                                        (
+                                            "art",
+                                            "Art (arts, history or arts, performing arts, music)",
+                                        ),
+                                        ("history", "History and Archeology"),
+                                        ("literature", "Language and Literature"),
+                                        (
+                                            "philosophy",
+                                            "Philosophy, Ethics and Religion",
+                                        ),
+                                    ),
+                                ),
+                            ],
+                            max_length=32,
+                        ),
+                        size=None,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
     ]

@@ -8,18 +8,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('helpdesk', '0006_auto_20190314_1522'),
+        ("helpdesk", "0006_auto_20190314_1522"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='followup',
-            name='action',
-            field=models.CharField(choices=[('update', 'Updated'), ('assignment', 'Assignment'), ('reassignment', 'Reassignment'), ('pickup', 'Pickup by handler'), ('respondedtouser', 'Response sent to user'), ('userresonponded', 'User responded'), ('markresolved', 'Marked as resolved'), ('markcloseed', 'Mark as closeed')], max_length=32),
+            model_name="followup",
+            name="action",
+            field=models.CharField(
+                choices=[
+                    ("update", "Updated"),
+                    ("assignment", "Assignment"),
+                    ("reassignment", "Reassignment"),
+                    ("pickup", "Pickup by handler"),
+                    ("respondedtouser", "Response sent to user"),
+                    ("userresonponded", "User responded"),
+                    ("markresolved", "Marked as resolved"),
+                    ("markcloseed", "Mark as closeed"),
+                ],
+                max_length=32,
+            ),
         ),
         migrations.AlterField(
-            model_name='queue',
-            name='slug',
+            model_name="queue",
+            name="slug",
             field=models.SlugField(allow_unicode=True, unique=True),
         ),
     ]

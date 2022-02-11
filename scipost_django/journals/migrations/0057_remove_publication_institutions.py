@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0056_publicationauthorstable_profile'),
+        ("journals", "0056_publicationauthorstable_profile"),
     ]
 
     operations = [

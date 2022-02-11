@@ -9,30 +9,53 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0025_composedmessage_headers_added'),
+        ("apimail", "0025_composedmessage_headers_added"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ValidatedAddress',
+            name="ValidatedAddress",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('address', models.EmailField(max_length=512, unique=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("address", models.EmailField(max_length=512, unique=True)),
             ],
             options={
-                'ordering': ['address'],
+                "ordering": ["address"],
             },
         ),
         migrations.CreateModel(
-            name='AddressValidation',
+            name="AddressValidation",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
-                ('datestamp', models.DateField(default=datetime.date.today)),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='validations', to='apimail.ValidatedAddress')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
+                ("datestamp", models.DateField(default=datetime.date.today)),
+                (
+                    "address",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="validations",
+                        to="apimail.ValidatedAddress",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['address__address', '-datestamp'],
+                "ordering": ["address__address", "-datestamp"],
             },
         ),
     ]

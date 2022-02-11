@@ -8,13 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0005_auto_20180701_2110'),
+        ("colleges", "0005_auto_20180701_2110"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='prospectivefellowevent',
-            name='event',
-            field=models.CharField(choices=[('defined', 'Defined in database'), ('emailed', 'Emailed with invitation'), ('responded', 'Response received'), ('statusupdated', 'Status updated'), ('comment', 'Comment'), ('deactivation', 'Deactivation: not considered anymore')], max_length=32),
+            model_name="prospectivefellowevent",
+            name="event",
+            field=models.CharField(
+                choices=[
+                    ("defined", "Defined in database"),
+                    ("emailed", "Emailed with invitation"),
+                    ("responded", "Response received"),
+                    ("statusupdated", "Status updated"),
+                    ("comment", "Comment"),
+                    ("deactivation", "Deactivation: not considered anymore"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

@@ -11,42 +11,45 @@ from django.utils.safestring import mark_safe
 
 class SummernoteEditor(widgets.Textarea):
     def __init__(self, *args, **kwargs):
-        self.options = kwargs.pop('options', {})
+        self.options = kwargs.pop("options", {})
         self.include_jquery = False
-        self.csp_nonce = kwargs.pop('csp_nonce', {})
+        self.csp_nonce = kwargs.pop("csp_nonce", {})
         super().__init__(*args, **kwargs)
 
     def get_options(self):
 
         default_options = {
-            'inlineMode': False,
-            'toolbar': [
-                ['style', ['bold', 'italic', 'underline', 'clear']],
-                ['font', ['strikethrough', 'superscript', 'subscript']],
-                ['fontsize', ['fontsize']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['insert', ['link', 'hr']]
+            "inlineMode": False,
+            "toolbar": [
+                ["style", ["bold", "italic", "underline", "clear"]],
+                ["font", ["strikethrough", "superscript", "subscript"]],
+                ["fontsize", ["fontsize"]],
+                ["para", ["ul", "ol", "paragraph"]],
+                ["insert", ["link", "hr"]],
             ],
         }
 
         try:
-            file_upload_url = reverse('froala_editor_file_upload')
-            default_options['fileUploadURL'] = file_upload_url
-            default_options.update([
-                ('fileUploadParams', {'csrfmiddlewaretoken': 'csrftokenplaceholder'})])
+            file_upload_url = reverse("froala_editor_file_upload")
+            default_options["fileUploadURL"] = file_upload_url
+            default_options.update(
+                [("fileUploadParams", {"csrfmiddlewaretoken": "csrftokenplaceholder"})]
+            )
         except NoReverseMatch:
-            default_options['fileUpload'] = False
+            default_options["fileUpload"] = False
 
         options = dict(default_options.items()).copy()
         options.update(self.options.items())
 
         json_options = json.dumps(options)
-        json_options = json_options.replace('"csrftokenplaceholder"', 'getCookie("csrftoken")')
+        json_options = json_options.replace(
+            '"csrftokenplaceholder"', 'getCookie("csrftoken")'
+        )
         return json_options
 
     def render(self, name, value, attrs=None, renderer=None):
         html = super().render(name, value, attrs)
-        el_id = self.build_attrs(attrs).get('id')
+        el_id = self.build_attrs(attrs).get("id")
         html += self.trigger_summernote(el_id, self.get_options())
         return mark_safe(html)
 
@@ -56,14 +59,20 @@ class SummernoteEditor(widgets.Textarea):
             $(function() {
                 $('#%s').summernote(%s);
             });
-        </script>""" % (self.csp_nonce, el_id, options)
+        </script>""" % (
+            self.csp_nonce,
+            el_id,
+            options,
+        )
         return str
 
     @property
     def media(self):
         css = {
-            'all': ('//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote-bs4.css',)
+            "all": (
+                "//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote-bs4.css",
+            )
         }
-        js = ('//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote-bs4.js',)
+        js = ("//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.8/summernote-bs4.js",)
 
         return Media(css=css, js=js)

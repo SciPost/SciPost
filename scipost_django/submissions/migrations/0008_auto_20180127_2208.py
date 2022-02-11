@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0007_auto_20180124_1501'),
+        ("submissions", "0007_auto_20180124_1501"),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name='eicrecommendation',
-            unique_together=set([('submission', 'version')]),
+            name="eicrecommendation",
+            unique_together=set([("submission", "version")]),
         ),
     ]

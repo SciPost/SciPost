@@ -7,28 +7,68 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0103_journal_submission_insert'),
+        ("journals", "0103_journal_submission_insert"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issue',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^((SciPost)[a-zA-Z]+|(MigPol))\\.\\w+(\\.[0-9]+)?$', 'Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))\\.\\w+(\\.[0-9]+)? are allowed.')]),
+            model_name="issue",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^((SciPost)[a-zA-Z]+|(MigPol))\\.\\w+(\\.[0-9]+)?$",
+                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))\\.\\w+(\\.[0-9]+)? are allowed.",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^(SciPost)[a-zA-Z]+|(MigPol)$', 'Only expressions with regex (SciPost)[a-zA-Z]+|(MigPol) are allowed.')]),
+            model_name="journal",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^(SciPost)[a-zA-Z]+|(MigPol)$",
+                        "Only expressions with regex (SciPost)[a-zA-Z]+|(MigPol) are allowed.",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?$', 'Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)? are allowed.')]),
+            model_name="publication",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?$",
+                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)? are allowed.",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='volume',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^((SciPost)[a-zA-Z]+|(MigPol)\\.\\w)$', 'Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol)\\.\\w) are allowed.')]),
+            model_name="volume",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^((SciPost)[a-zA-Z]+|(MigPol)\\.\\w)$",
+                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol)\\.\\w) are allowed.",
+                    )
+                ],
+            ),
         ),
     ]

@@ -4,7 +4,7 @@ from django.db import migrations
 
 
 def populate_journal_specialties(apps, schema_editor):
-    Journal = apps.get_model('journals.Journal')
+    Journal = apps.get_model("journals.Journal")
 
     for journal in Journal.objects.all():
         journal.specialties.set(journal.college.acad_field.specialties.all())
@@ -13,10 +13,11 @@ def populate_journal_specialties(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0095_auto_20200924_2044'),
+        ("journals", "0095_auto_20200924_2044"),
     ]
 
     operations = [
-        migrations.RunPython(populate_journal_specialties,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_journal_specialties, reverse_code=migrations.RunPython.noop
+        ),
     ]

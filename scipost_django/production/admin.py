@@ -6,8 +6,13 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import ProductionStream, ProductionEvent, ProductionUser, Proofs,\
-    ProductionEventAttachment
+from .models import (
+    ProductionStream,
+    ProductionEvent,
+    ProductionUser,
+    Proofs,
+    ProductionEventAttachment,
+)
 
 
 def event_count(obj):
@@ -16,12 +21,13 @@ def event_count(obj):
 
 class ProductionUserAdmin(admin.ModelAdmin):
     search_fields = [
-        'user',
-        'name',
+        "user",
+        "name",
     ]
     autocomplete_fields = [
-        'user',
+        "user",
     ]
+
 
 admin.site.register(ProductionUser, ProductionUserAdmin)
 
@@ -31,10 +37,10 @@ class ProductionUserInline(admin.StackedInline):
     extra = 0
     min_num = 0
     search_fields = [
-        'user',
+        "user",
     ]
     autocomplete_fields = [
-        'user',
+        "user",
     ]
 
 
@@ -43,44 +49,47 @@ class ProductionEventInline(admin.TabularInline):
     extra = 1
     readonly_fields = ()
     search_fields = [
-        'stream',
-        'noted_by',
+        "stream",
+        "noted_by",
     ]
     autocomplete_fields = [
-        'stream',
-        'noted_by',
-        'noted_to',
+        "stream",
+        "noted_by",
+        "noted_to",
     ]
 
 
 class ProductionStreamAdmin(GuardedModelAdmin):
-    search_fields = ['submission__author_list', 'submission__title',
-                     'submission__preprint__identifier_w_vn_nr']
-    list_filter = ['status']
-    list_display = ['submission', 'opened', 'status', event_count]
-    inlines = (
-        ProductionEventInline,
-    )
-    autocomplete_fields = [
-        'submission',
-        'officer',
-        'supervisor',
-        'invitations_officer',
+    search_fields = [
+        "submission__author_list",
+        "submission__title",
+        "submission__preprint__identifier_w_vn_nr",
     ]
+    list_filter = ["status"]
+    list_display = ["submission", "opened", "status", event_count]
+    inlines = (ProductionEventInline,)
+    autocomplete_fields = [
+        "submission",
+        "officer",
+        "supervisor",
+        "invitations_officer",
+    ]
+
 
 admin.site.register(ProductionStream, ProductionStreamAdmin)
 
 
 class ProductionProofsAdmin(admin.ModelAdmin):
-    list_display = ['stream', 'version', 'status', 'accessible_for_authors']
-    list_filter = ['status', 'accessible_for_authors']
+    list_display = ["stream", "version", "status", "accessible_for_authors"]
+    list_filter = ["status", "accessible_for_authors"]
     search_fields = [
-        'stream',
+        "stream",
     ]
     autocomplete_fields = [
-        'stream',
-        'uploaded_by',
+        "stream",
+        "uploaded_by",
     ]
+
 
 admin.site.register(Proofs, ProductionProofsAdmin)
 

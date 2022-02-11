@@ -7,21 +7,22 @@ from django.db import migrations
 
 
 def remove_all_preprints(apps, schema_editor):
-    Preprint = apps.get_model('preprints', 'Preprint')
+    Preprint = apps.get_model("preprints", "Preprint")
     Preprint.objects.all().delete()
     return
 
 
 def create_preprint_instances(apps, schema_editor):
     """Add a Preprint instance for each existing Submission."""
-    Preprint = apps.get_model('preprints', 'Preprint')
-    Submission = apps.get_model('submissions', 'Submission')
+    Preprint = apps.get_model("preprints", "Preprint")
+    Submission = apps.get_model("submissions", "Submission")
 
     for submission in Submission.objects.all():
         dt = datetime(
             year=submission.submission_date.year,
             month=submission.submission_date.month,
-            day=submission.submission_date.day)
+            day=submission.submission_date.day,
+        )
         Preprint.objects.get_or_create(
             submission=submission,
             identifier_wo_vn_nr=submission.arxiv_identifier_wo_vn_nr,
@@ -29,13 +30,14 @@ def create_preprint_instances(apps, schema_editor):
             vn_nr=submission.arxiv_vn_nr,
             url=submission.arxiv_link,
             modified=submission.latest_activity,
-            created=dt)
+            created=dt,
+        )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0001_initial'),
+        ("preprints", "0001_initial"),
     ]
 
     operations = [

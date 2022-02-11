@@ -7,39 +7,53 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0028_auto_20201027_2047'),
+        ("apimail", "0028_auto_20201027_2047"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='usertag',
-            options={'ordering': ['label']},
+            name="usertag",
+            options={"ordering": ["label"]},
         ),
         migrations.RemoveField(
-            model_name='usertag',
-            name='unicode_symbol',
+            model_name="usertag",
+            name="unicode_symbol",
         ),
         migrations.RemoveField(
-            model_name='usertag',
-            name='variant',
+            model_name="usertag",
+            name="variant",
         ),
         migrations.AddField(
-            model_name='usertag',
-            name='bg_color',
-            field=models.CharField(default='#6885c3', max_length=7, validators=[django.core.validators.RegexValidator(regex='#[0-9a-f]{6}')]),
+            model_name="usertag",
+            name="bg_color",
+            field=models.CharField(
+                default="#6885c3",
+                max_length=7,
+                validators=[
+                    django.core.validators.RegexValidator(regex="#[0-9a-f]{6}")
+                ],
+            ),
         ),
         migrations.AddField(
-            model_name='usertag',
-            name='text_color',
-            field=models.CharField(default='#f6a11a', max_length=7, validators=[django.core.validators.RegexValidator(regex='#[0-9a-f]{6}')]),
+            model_name="usertag",
+            name="text_color",
+            field=models.CharField(
+                default="#f6a11a",
+                max_length=7,
+                validators=[
+                    django.core.validators.RegexValidator(regex="#[0-9a-f]{6}")
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='usertag',
-            name='label',
+            model_name="usertag",
+            name="label",
             field=models.CharField(max_length=16),
         ),
         migrations.AddConstraint(
-            model_name='usertag',
-            constraint=models.UniqueConstraint(fields=('label', 'text_color', 'bg_color'), name='unique_label_colors'),
+            model_name="usertag",
+            constraint=models.UniqueConstraint(
+                fields=("label", "text_color", "bg_color"), name="unique_label_colors"
+            ),
         ),
     ]

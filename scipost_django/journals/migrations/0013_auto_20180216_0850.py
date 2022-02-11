@@ -8,24 +8,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0012_auto_20180212_1950'),
+        ("journals", "0012_auto_20180212_1950"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='publication',
-            name='authors_old',
+            model_name="publication",
+            name="authors_old",
         ),
         migrations.RemoveField(
-            model_name='publication',
-            name='authors_unregistered_old',
+            model_name="publication",
+            name="authors_unregistered_old",
         ),
         migrations.RemoveField(
-            model_name='publication',
-            name='first_author',
+            model_name="publication",
+            name="first_author",
         ),
         migrations.RemoveField(
-            model_name='publication',
-            name='first_author_unregistered',
+            model_name="publication",
+            name="first_author_unregistered",
         ),
     ]

@@ -6,133 +6,115 @@ from django.urls import path
 
 from . import views
 
-app_name = 'organizations'
+app_name = "organizations"
 
 urlpatterns = [
     path(
-        'organization-autocomplete',
+        "organization-autocomplete",
         views.OrganizationAutocompleteView.as_view(),
-        name='organization-autocomplete',
-        ),
-    path(
-        '',
-        views.OrganizationListView.as_view(),
-        name='organizations'
+        name="organization-autocomplete",
     ),
+    path("", views.OrganizationListView.as_view(), name="organizations"),
+    path("add/", views.OrganizationCreateView.as_view(), name="organization_create"),
     path(
-        'add/',
-        views.OrganizationCreateView.as_view(),
-        name='organization_create'
-    ),
-    path(
-        '<int:pk>/update/',
+        "<int:pk>/update/",
         views.OrganizationUpdateView.as_view(),
-        name='organization_update'
+        name="organization_update",
     ),
     path(
-        '<int:pk>/delete/',
+        "<int:pk>/delete/",
         views.OrganizationDeleteView.as_view(),
-        name='organization_delete'
+        name="organization_delete",
     ),
     path(
-        '<int:pk>/',
-        views.OrganizationDetailView.as_view(),
-        name='organization_detail'
+        "<int:pk>/", views.OrganizationDetailView.as_view(), name="organization_detail"
     ),
     path(
-        'get_organization_detail',
+        "get_organization_detail",
         views.get_organization_detail,
-        name='get_organization_detail'
+        name="get_organization_detail",
     ),
     path(
-        '<int:pk>/orgevent/add/',
+        "<int:pk>/orgevent/add/",
         views.OrganizationEventCreateView.as_view(),
-        name='organizationevent_create'
+        name="organizationevent_create",
     ),
     path(
-        'organizationevents/',
+        "organizationevents/",
         views.OrganizationEventListView.as_view(),
-        name='organizationevent_list'
+        name="organizationevent_list",
     ),
     path(
-        'add_contactperson/<organization_id>/',
+        "add_contactperson/<organization_id>/",
         views.ContactPersonCreateView.as_view(),
-        name='contactperson_create'
+        name="contactperson_create",
     ),
     path(
-        'contactperson/add/',
+        "contactperson/add/",
         views.ContactPersonCreateView.as_view(),
-        name='contactperson_create'
+        name="contactperson_create",
     ),
     path(
-        'contactperson/<int:pk>/update/',
+        "contactperson/<int:pk>/update/",
         views.ContactPersonUpdateView.as_view(),
-        name='contactperson_update'
+        name="contactperson_update",
     ),
     path(
-        'contactperson/<int:pk>/delete/',
+        "contactperson/<int:pk>/delete/",
         views.ContactPersonDeleteView.as_view(),
-        name='contactperson_delete'
+        name="contactperson_delete",
     ),
     path(
-        'contactpersons/',
+        "contactpersons/",
         views.ContactPersonListView.as_view(),
-        name='contactperson_list'
+        name="contactperson_list",
     ),
     path(
-        'contactperson/<int:contactperson_id>/email/<str:mail>',
+        "contactperson/<int:contactperson_id>/email/<str:mail>",
         views.email_contactperson,
-        name='email_contactperson'
+        name="email_contactperson",
     ),
     path(
-        'contactperson/<int:contactperson_id>/email/',
+        "contactperson/<int:contactperson_id>/email/",
         views.email_contactperson,
-        name='email_contactperson'
+        name="email_contactperson",
     ),
     path(
         # For upgrading a ContactPerson to a Contact
-        'add_contact/<int:organization_id>/<int:contactperson_id>/',
+        "add_contact/<int:organization_id>/<int:contactperson_id>/",
         views.organization_add_contact,
-        name='add_contact'
+        name="add_contact",
     ),
     path(
-        'add_contact/<int:organization_id>/',
+        "add_contact/<int:organization_id>/",
         views.organization_add_contact,
-        name='add_contact'
+        name="add_contact",
     ),
     path(
-        'activate/<str:activation_key>',
-        views.activate_account,
-        name='activate_account'
+        "activate/<str:activation_key>", views.activate_account, name="activate_account"
+    ),
+    path("dashboard/", views.dashboard, name="dashboard"),
+    path(
+        "contact/<int:pk>/", views.ContactDetailView.as_view(), name="contact_details"
     ),
     path(
-        'dashboard/',
-        views.dashboard,
-        name='dashboard'
-    ),
-    path(
-        'contact/<int:pk>/',
-        views.ContactDetailView.as_view(),
-        name='contact_details'
-    ),
-    path(
-        'contactrole/<int:pk>/update/',
+        "contactrole/<int:pk>/update/",
         views.ContactRoleUpdateView.as_view(),
-        name='contactrole_update'
+        name="contactrole_update",
     ),
     path(
-        'contactrole/<int:pk>/delete/',
+        "contactrole/<int:pk>/delete/",
         views.ContactRoleDeleteView.as_view(),
-        name='contactrole_delete'
+        name="contactrole_delete",
     ),
     path(
-        'contactrole/<contactrole_id>/email/<str:mail>',
+        "contactrole/<contactrole_id>/email/<str:mail>",
         views.email_contactrole,
-        name='email_contactrole'
+        name="email_contactrole",
     ),
     path(
-        'contactrole/<contactrole_id>/email/',
+        "contactrole/<contactrole_id>/email/",
         views.email_contactrole,
-        name='email_contactrole'
+        name="email_contactrole",
     ),
 ]

@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commentaries', '0019_auto_20200927_0731'),
+        ("commentaries", "0019_auto_20200927_0731"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='commentary',
-            name='metadata',
+            model_name="commentary",
+            name="metadata",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
     ]

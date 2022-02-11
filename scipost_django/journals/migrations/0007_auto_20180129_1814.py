@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0006_merge_20180123_2040'),
+        ("journals", "0006_merge_20180123_2040"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='reference',
-            name='vor',
+            model_name="reference",
+            name="vor",
             field=models.CharField(blank=True, max_length=128),
         ),
         migrations.AlterField(
-            model_name='reference',
-            name='vor_url',
+            model_name="reference",
+            name="vor_url",
             field=models.URLField(blank=True),
         ),
     ]

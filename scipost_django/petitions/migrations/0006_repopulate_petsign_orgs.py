@@ -6,8 +6,8 @@ from django.db import migrations
 
 
 def repopulate_organization_field(apps, schema_editor):
-    PetitionSignatory = apps.get_model('petitions', 'PetitionSignatory')
-    Organization = apps.get_model('organizations', 'Organization')
+    PetitionSignatory = apps.get_model("petitions", "PetitionSignatory")
+    Organization = apps.get_model("organizations", "Organization")
 
     for petsign in PetitionSignatory.objects.all():
         if petsign.organization_tbd:
@@ -19,10 +19,11 @@ def repopulate_organization_field(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('petitions', '0005_petitionsignatory_organization'),
+        ("petitions", "0005_petitionsignatory_organization"),
     ]
 
     operations = [
-        migrations.RunPython(repopulate_organization_field,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            repopulate_organization_field, reverse_code=migrations.RunPython.noop
+        ),
     ]

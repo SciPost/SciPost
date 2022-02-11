@@ -3,13 +3,14 @@
 from __future__ import unicode_literals
 
 from django.db import migrations
+
 # from django.contrib.postgres.operations import TrigramExtension
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0049_auto_20181204_2040'),
+        ("submissions", "0049_auto_20181204_2040"),
     ]
 
     operations = [

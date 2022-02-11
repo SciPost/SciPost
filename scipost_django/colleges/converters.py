@@ -6,16 +6,17 @@ from django.db.utils import ProgrammingError
 
 
 class CollegeSlugConverter:
-
     def __init__(self):
         try:
             from colleges.models import College
-            self.regex = '|'.join([c.slug for c in College.objects.all()])
+
+            self.regex = "|".join([c.slug for c in College.objects.all()])
         except ProgrammingError:
-            self.regex = 'physics'
+            self.regex = "physics"
 
     def to_python(self, value):
         from colleges.models import College
+
         try:
             return College.objects.get(slug=value)
         except College.DoesNotExist:

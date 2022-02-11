@@ -12,10 +12,15 @@ from common.helpers.test import add_groups_and_permissions
 from scipost.factories import ContributorFactory
 
 from ..constants import STATUS_UNASSIGNED, STATUS_DRAFT, STATUS_UNVETTED
-from ..factories import UnassignedSubmissionFactory, EICassignedSubmissionFactory,\
-                       ResubmittedSubmissionFactory, ResubmissionFactory,\
-                       PublishedSubmissionFactory, DraftReportFactory,\
-                       AcceptedRefereeInvitationFactory
+from ..factories import (
+    UnassignedSubmissionFactory,
+    EICassignedSubmissionFactory,
+    ResubmittedSubmissionFactory,
+    ResubmissionFactory,
+    PublishedSubmissionFactory,
+    DraftReportFactory,
+    AcceptedRefereeInvitationFactory,
+)
 from ..forms import ArXivPrefillForm, ReportForm, SubmissionForm
 from ..models import Submission, Report, RefereeInvitation
 
@@ -27,32 +32,36 @@ from faker import Faker
 # This is content of a real arxiv submission. As long as it isn't published it should
 # be possible to run tests using this submission.
 TEST_SUBMISSION = {
-    'is_resubmission': False,
-    'title': ('General solution of 2D and 3D superconducting quasiclassical'
-              ' systems:\n  coalescing vortices and nanodisk geometries'),
-    'author_list': 'Morten Amundsen, Jacob Linder',
-    'identifier_w_vn_nr': '1512.00030v1',
-    'link': 'http://arxiv.org/abs/1512.00030v1',
-    'abstract': ('In quasiclassical Keldysh theory, the Green function matrix $\\check{g}$'
-                 ' is\nused to compute a variety of physical quantities in mesoscopic syst'
-                 'ems.\nHowever, solving the set of non-linear differential equations that'
-                 ' provide\n$\\check{g}$ becomes a challenging task when going to higher s'
-                 'patial dimensions\nthan one. Such an extension is crucial in order to de'
-                 'scribe physical phenomena\nlike charge/spin Hall effects and topological'
-                 ' excitations like vortices and\nskyrmions, none of which can be captured'
-                 ' in one-dimensional models. We here\npresent a numerical finite element '
-                 'method which solves the 2D and 3D\nquasiclassical Usadel equation, witho'
-                 'ut any linearisation, relevant for the\ndiffusive regime. We show the ap'
-                 'plication of this on two model systems with\nnon-trivial geometries: (i)'
-                 ' a bottlenecked Josephson junction with external\nflux and (ii) a nanodi'
-                 'sk ferromagnet deposited on top of a superconductor. We\ndemonstrate tha'
-                 't it is possible to control externally not only the geometrical\narray i'
-                 'n which superconducting vortices arrange themselves, but also to cause\n'
-                 'coalescence and thus tune the number of vortices. The finite element met'
-                 'hod\npresented herein could pave the way for gaining insight in physical'
-                 ' phenomena\nwhich so far have remained largely unexplored due to the com'
-                 'plexity of solving\nthe full quasiclassical equations in higher dimensio'
-                 'ns.')
+    "is_resubmission": False,
+    "title": (
+        "General solution of 2D and 3D superconducting quasiclassical"
+        " systems:\n  coalescing vortices and nanodisk geometries"
+    ),
+    "author_list": "Morten Amundsen, Jacob Linder",
+    "identifier_w_vn_nr": "1512.00030v1",
+    "link": "http://arxiv.org/abs/1512.00030v1",
+    "abstract": (
+        "In quasiclassical Keldysh theory, the Green function matrix $\\check{g}$"
+        " is\nused to compute a variety of physical quantities in mesoscopic syst"
+        "ems.\nHowever, solving the set of non-linear differential equations that"
+        " provide\n$\\check{g}$ becomes a challenging task when going to higher s"
+        "patial dimensions\nthan one. Such an extension is crucial in order to de"
+        "scribe physical phenomena\nlike charge/spin Hall effects and topological"
+        " excitations like vortices and\nskyrmions, none of which can be captured"
+        " in one-dimensional models. We here\npresent a numerical finite element "
+        "method which solves the 2D and 3D\nquasiclassical Usadel equation, witho"
+        "ut any linearisation, relevant for the\ndiffusive regime. We show the ap"
+        "plication of this on two model systems with\nnon-trivial geometries: (i)"
+        " a bottlenecked Josephson junction with external\nflux and (ii) a nanodi"
+        "sk ferromagnet deposited on top of a superconductor. We\ndemonstrate tha"
+        "t it is possible to control externally not only the geometrical\narray i"
+        "n which superconducting vortices arrange themselves, but also to cause\n"
+        "coalescence and thus tune the number of vortices. The finite element met"
+        "hod\npresented herein could pave the way for gaining insight in physical"
+        " phenomena\nwhich so far have remained largely unexplored due to the com"
+        "plexity of solving\nthe full quasiclassical equations in higher dimensio"
+        "ns."
+    ),
 }
 
 
@@ -61,9 +70,9 @@ class BaseContributorTestCase(TestCase):
         add_groups_and_permissions()
         ContributorFactory.create_batch(5)
         self.current_contrib = ContributorFactory.create(
-            user__last_name='Linder',  # To pass the author check in create submissions view
-            user__username='Test',
-            user__password='testpw'
+            user__last_name="Linder",  # To pass the author check in create submissions view
+            user__username="Test",
+            user__password="testpw",
         )
 
 
@@ -71,7 +80,7 @@ class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
     def setUp(self):
         super().setUp()
         self.client = Client()
-        self.url = reverse('submissions:submit_manuscript')
+        self.url = reverse("submissions:submit_manuscript")
         self.assertTrue(self.client.login(username="Test", password="testpw"))
 
     # NOTED AS BROKEN 2019-11-08
@@ -115,7 +124,7 @@ class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
     #                      response.context['form'].initial['abstract'])
 
     def test_still_200_ok_if_identifier_is_wrong(self):
-        response = self.client.post(self.url, {'identifier': '1512.00030'})
+        response = self.client.post(self.url, {"identifier": "1512.00030"})
         self.assertEqual(response.status_code, 200)
 
 
@@ -162,41 +171,41 @@ class PrefillUsingArXivIdentifierTest(BaseContributorTestCase):
 #         self.assertEqual(TEST_SUBMISSION['url'], submission.preprint.url)
 #         self.assertEqual(TEST_SUBMISSION['abstract'], submission.abstract)
 
-    # NOTED AS BROKEN 2019-11-08
-    # journals.models.journal.Journal.DoesNotExist: Journal matching query does not exist.
-    # def test_non_author_tries_submission(self):
-    #     '''See what happens if a non-author of an Arxiv submission submits to SciPost.'''
-    #     client = Client()
+# NOTED AS BROKEN 2019-11-08
+# journals.models.journal.Journal.DoesNotExist: Journal matching query does not exist.
+# def test_non_author_tries_submission(self):
+#     '''See what happens if a non-author of an Arxiv submission submits to SciPost.'''
+#     client = Client()
 
-    #     # Contributor Linder tries to submit the Quench Action.
-    #     # Eventually this call should already give an error. Waiting for
-    #     # Arxiv caller which is under construction [Jorran de Wit, 12 May 2017]
-    #     self.assertTrue(client.login(username="Test", password="testpw"))
-    #     response = client.post(reverse('submissions:submit_manuscript'),
-    #                            {'identifier': '1603.04689v1'})
-    #     self.assertEqual(response.status_code, 200)
+#     # Contributor Linder tries to submit the Quench Action.
+#     # Eventually this call should already give an error. Waiting for
+#     # Arxiv caller which is under construction [Jorran de Wit, 12 May 2017]
+#     self.assertTrue(client.login(username="Test", password="testpw"))
+#     response = client.post(reverse('submissions:submit_manuscript'),
+#                            {'identifier': '1603.04689v1'})
+#     self.assertEqual(response.status_code, 200)
 
-    #     # Fill form parameters
-    #     params = response.context['form'].initial
-    #     params.update({
-    #         'submitted_to': Journal.objects.get(doi_label='SciPostPhys'),
-    #         'approaches': ('theoretical',)
-    #     })
+#     # Fill form parameters
+#     params = response.context['form'].initial
+#     params.update({
+#         'submitted_to': Journal.objects.get(doi_label='SciPostPhys'),
+#         'approaches': ('theoretical',)
+#     })
 
-    #     # Submit new Submission form
-    #     response = client.post(reverse('submissions:submit_manuscript'), params)
-    #     self.assertEqual(response.status_code, 200)
-    #     self.assertIsInstance(response.context['form'], SubmissionForm)
-    #     self.assertFalse(response.context['form'].is_valid())
-    #     self.assertIn('author_list', response.context['form'].errors.keys())
+#     # Submit new Submission form
+#     response = client.post(reverse('submissions:submit_manuscript'), params)
+#     self.assertEqual(response.status_code, 200)
+#     self.assertIsInstance(response.context['form'], SubmissionForm)
+#     self.assertFalse(response.context['form'].is_valid())
+#     self.assertIn('author_list', response.context['form'].errors.keys())
 
-    #     # No real check is done here to see if submission submit is aborted.
-    #     # To be implemented after Arxiv caller.
-    #     # Temporary fix:
-    #     last_submission = Submission.objects.last()
-    #     if last_submission:
-    #         self.assertNotEqual(last_submission.title, 'The Quench Action')
-    #         self.assertNotEqual(last_submission.preprint.identifier_w_vn_nr, '1603.04689v1')
+#     # No real check is done here to see if submission submit is aborted.
+#     # To be implemented after Arxiv caller.
+#     # Temporary fix:
+#     last_submission = Submission.objects.last()
+#     if last_submission:
+#         self.assertNotEqual(last_submission.title, 'The Quench Action')
+#         self.assertNotEqual(last_submission.preprint.identifier_w_vn_nr, '1603.04689v1')
 
 
 class SubmissionDetailTest(BaseContributorTestCase):
@@ -205,8 +214,8 @@ class SubmissionDetailTest(BaseContributorTestCase):
         self.client = Client()
         self.submission = EICassignedSubmissionFactory()
         self.target = reverse(
-            'submissions:submission',
-            kwargs={'identifier_w_vn_nr': self.submission.preprint.identifier_w_vn_nr}
+            "submissions:submission",
+            kwargs={"identifier_w_vn_nr": self.submission.preprint.identifier_w_vn_nr},
         )
 
     # NOTED AS BROKEN 2019-11-08
@@ -217,75 +226,80 @@ class SubmissionDetailTest(BaseContributorTestCase):
 
 
 # NOTED AS BROKEN 2019-11-08
-#class SubmissionListTest(BaseContributorTestCase):
+# class SubmissionListTest(BaseContributorTestCase):
 
-    # NOTED AS BROKEN 2019-11-08
-    # TypeError: 'vn_nr' is an invalid keyword argument for this function
-    # def test_public_list_view(self):
-    #     # Create invisible Submissions.
-    #     arxiv_id_resubmission = random_arxiv_identifier_with_version_number()
-    #     UnassignedSubmissionFactory.create()
-    #     ResubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission)
+# NOTED AS BROKEN 2019-11-08
+# TypeError: 'vn_nr' is an invalid keyword argument for this function
+# def test_public_list_view(self):
+#     # Create invisible Submissions.
+#     arxiv_id_resubmission = random_arxiv_identifier_with_version_number()
+#     UnassignedSubmissionFactory.create()
+#     ResubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission)
 
-    #     # Create visible submissions
-    #     visible_submission_ids = []
-    #     visible_submission_ids.append(
-    #         ResubmittedSubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission).id)
-    #     visible_submission_ids.append(EICassignedSubmissionFactory.create().id)
-    #     visible_submission_ids.append(PublishedSubmissionFactory.create().id)
+#     # Create visible submissions
+#     visible_submission_ids = []
+#     visible_submission_ids.append(
+#         ResubmittedSubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission).id)
+#     visible_submission_ids.append(EICassignedSubmissionFactory.create().id)
+#     visible_submission_ids.append(PublishedSubmissionFactory.create().id)
 
-    #     # Extra submission with multiple versions where the newest is publicly visible
-    #     # again. Earlier versions should therefore be invisible!
-    #     arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
-    #     ResubmittedSubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission)
-    #     visible_submission_ids.append(
-    #         EICassignedSubmissionFactory.create(
-    #             preprint__identifier_w_vn_nr=arxiv_id_resubmission,
-    #             fill_arxiv_fields__preprint__vn_nr=2).id
-    #     )
+#     # Extra submission with multiple versions where the newest is publicly visible
+#     # again. Earlier versions should therefore be invisible!
+#     arxiv_id_resubmission = random_arxiv_identifier_without_version_number()
+#     ResubmittedSubmissionFactory.create(preprint__identifier_w_vn_nr=arxiv_id_resubmission)
+#     visible_submission_ids.append(
+#         EICassignedSubmissionFactory.create(
+#             preprint__identifier_w_vn_nr=arxiv_id_resubmission,
+#             fill_arxiv_fields__preprint__vn_nr=2).id
+#     )
 
-    #     # Check with hardcoded URL as this url shouldn't change!
-    #     client = Client()
-    #     response = client.get('/submissions/')
-    #     self.assertEqual(response.status_code, 200)
+#     # Check with hardcoded URL as this url shouldn't change!
+#     client = Client()
+#     response = client.get('/submissions/')
+#     self.assertEqual(response.status_code, 200)
 
-    #     # Check submissions returned
-    #     returned_submissions_ids = [sub.id for sub in response.context['object_list']]
+#     # Check submissions returned
+#     returned_submissions_ids = [sub.id for sub in response.context['object_list']]
 
-    #     # Check if submission lists are equal
-    #     returned_submissions_ids.sort()
-    #     visible_submission_ids.sort()
-    #     self.assertListEqual(returned_submissions_ids, visible_submission_ids)
+#     # Check if submission lists are equal
+#     returned_submissions_ids.sort()
+#     visible_submission_ids.sort()
+#     self.assertListEqual(returned_submissions_ids, visible_submission_ids)
 
 
 class SubmitReportTest(BaseContributorTestCase):
     TEST_DATA = {
-        'anonymous': 'on',
-        'clarity': '60',
-        'formatting': '4',
-        'grammar': '5',
-        'originality': '100',
-        'qualification': '3',
-        'recommendation': '3',
-        'remarks_for_editors': 'Lorem Ipsum1',
-        'report': 'Lorem Ipsum',
-        'requested_changes': 'Lorem Ipsum2',
-        'significance': '0',
-        'strengths': 'Lorem Ipsum3',
-        'validity': '60',
-        'weaknesses': 'Lorem Ipsum4'
+        "anonymous": "on",
+        "clarity": "60",
+        "formatting": "4",
+        "grammar": "5",
+        "originality": "100",
+        "qualification": "3",
+        "recommendation": "3",
+        "remarks_for_editors": "Lorem Ipsum1",
+        "report": "Lorem Ipsum",
+        "requested_changes": "Lorem Ipsum2",
+        "significance": "0",
+        "strengths": "Lorem Ipsum3",
+        "validity": "60",
+        "weaknesses": "Lorem Ipsum4",
     }
 
     def setUp(self):
         super().setUp()
         self.client = Client()
         report_deadline = Faker().date_time_between(
-            start_date="now", end_date="+30d", tzinfo=pytz.utc)
-        self.submission = EICassignedSubmissionFactory(reporting_deadline=report_deadline)
+            start_date="now", end_date="+30d", tzinfo=pytz.utc
+        )
+        self.submission = EICassignedSubmissionFactory(
+            reporting_deadline=report_deadline
+        )
         self.submission.authors.remove(self.current_contrib)
         self.submission.authors_false_claims.add(self.current_contrib)
-        self.target = reverse('submissions:submit_report',
-                              args=(self.submission.preprint.identifier_w_vn_nr,))
+        self.target = reverse(
+            "submissions:submit_report",
+            args=(self.submission.preprint.identifier_w_vn_nr,),
+        )
         self.assertTrue(self.client.login(username="Test", password="testpw"))
 
     # 2020-09-29 FAILS due to Journal being created but urlconfs for journal

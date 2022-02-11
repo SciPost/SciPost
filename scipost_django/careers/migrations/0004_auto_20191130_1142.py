@@ -7,29 +7,67 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('careers', '0003_jobapplication'),
+        ("careers", "0003_jobapplication"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='jobapplication',
-            name='status',
-            field=models.CharField(choices=[('received', 'Application received'), ('verified', 'Application received, email has been verified by applicant'), ('turneddown', 'Applicant has not been shortlisted for the position'), ('shortlisted', 'Applicant has been shortlisted for the position'), ('notselected', 'Applicant has not been selected for the position'), ('selected', 'Applicant has been selected for the position'), ('accepted', 'Applicant has accepted job offer'), ('declined', 'Applicant has turned down job offer')], default='received', max_length=16),
+            model_name="jobapplication",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("received", "Application received"),
+                    (
+                        "verified",
+                        "Application received, email has been verified by applicant",
+                    ),
+                    (
+                        "turneddown",
+                        "Applicant has not been shortlisted for the position",
+                    ),
+                    ("shortlisted", "Applicant has been shortlisted for the position"),
+                    ("notselected", "Applicant has not been selected for the position"),
+                    ("selected", "Applicant has been selected for the position"),
+                    ("accepted", "Applicant has accepted job offer"),
+                    ("declined", "Applicant has turned down job offer"),
+                ],
+                default="received",
+                max_length=16,
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='jobapplication',
-            name='cv',
-            field=models.FileField(blank=True, help_text='Your curriculum vitea, including details of training and skills pertinent to this particular job (pdf file)', upload_to='uploads/jobapplications/%Y/%m/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size]),
+            model_name="jobapplication",
+            name="cv",
+            field=models.FileField(
+                blank=True,
+                help_text="Your curriculum vitea, including details of training and skills pertinent to this particular job (pdf file)",
+                upload_to="uploads/jobapplications/%Y/%m/",
+                validators=[
+                    comments.behaviors.validate_file_extension,
+                    comments.behaviors.validate_max_file_size,
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='jobapplication',
-            name='email',
-            field=models.EmailField(help_text='The email address to which we will send a confirmation of reception of this application (you will need to click the verification link in that email once your receive it), and at which we can contact you throughout the selection process', max_length=254),
+            model_name="jobapplication",
+            name="email",
+            field=models.EmailField(
+                help_text="The email address to which we will send a confirmation of reception of this application (you will need to click the verification link in that email once your receive it), and at which we can contact you throughout the selection process",
+                max_length=254,
+            ),
         ),
         migrations.AlterField(
-            model_name='jobapplication',
-            name='motivation',
-            field=models.FileField(blank=True, help_text='Please describe your motivations for applying, and your qualifications for this particular job (pdf file)', upload_to='uploads/jobapplications/%Y/%m/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size]),
+            model_name="jobapplication",
+            name="motivation",
+            field=models.FileField(
+                blank=True,
+                help_text="Please describe your motivations for applying, and your qualifications for this particular job (pdf file)",
+                upload_to="uploads/jobapplications/%Y/%m/",
+                validators=[
+                    comments.behaviors.validate_file_extension,
+                    comments.behaviors.validate_max_file_size,
+                ],
+            ),
         ),
     ]

@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0028_publication_number_of_citations'),
+        ("journals", "0028_publication_number_of_citations"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publication',
-            name='number_of_citations',
+            model_name="publication",
+            name="number_of_citations",
             field=models.PositiveIntegerField(default=0),
         ),
     ]

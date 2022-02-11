@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('production', '0002_auto_20171229_1435'),
+        ("production", "0002_auto_20171229_1435"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='productionuser',
-            name='name',
+            model_name="productionuser",
+            name="name",
             field=models.CharField(blank=True, max_length=128),
         ),
     ]

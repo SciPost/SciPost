@@ -6,18 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0107_alter_submission_metadata'),
+        ("submissions", "0107_alter_submission_metadata"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='refereeinvitation',
-            name='accepted',
-            field=models.BooleanField(choices=[(None, 'Response pending'), (True, 'Accept'), (False, 'Decline')], default=None, null=True),
+            model_name="refereeinvitation",
+            name="accepted",
+            field=models.BooleanField(
+                choices=[
+                    (None, "Response pending"),
+                    (True, "Accept"),
+                    (False, "Decline"),
+                ],
+                default=None,
+                null=True,
+            ),
         ),
         migrations.AlterField(
-            model_name='report',
-            name='needs_doi',
+            model_name="report",
+            name="needs_doi",
             field=models.BooleanField(default=None, null=True),
         ),
     ]

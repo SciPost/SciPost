@@ -30,26 +30,36 @@ class TOTPVerification:
             # return False, if token could not be converted to an integer
             return False
         else:
-            if not hasattr(self._user, 'devices'):
+            if not hasattr(self._user, "devices"):
                 # For example non-authenticated users...
                 return False
 
             for device in self._user.devices.all():
                 time_int = int(time.time())
                 totp = pyotp.TOTP(
-                    device.token, interval=self.token_validity_period, digits=self.number_of_digits)
+                    device.token,
+                    interval=self.token_validity_period,
+                    digits=self.number_of_digits,
+                )
 
                 # 1. Check if the current counter is higher than the value of last verified counter
                 # 2. Check if entered token is correct
-                valid_token = totp.verify(code, for_time=time_int, valid_window=self.tolerance)
+                valid_token = totp.verify(
+                    code, for_time=time_int, valid_window=self.tolerance
+                )
 
                 if not valid_token:
                     # Token not valid
                     continue
-                elif device.last_verified_counter <= 0 or time_int > device.last_verified_counter:
+                elif (
+                    device.last_verified_counter <= 0
+                    or time_int > device.last_verified_counter
+                ):
                     # If the condition is true, set the last verified counter value
                     # to current counter value, and return True
-                    TOTPDevice.objects.filter(id=device.id).update(last_verified_counter=time_int)
+                    TOTPDevice.objects.filter(id=device.id).update(
+                        last_verified_counter=time_int
+                    )
                     return True
         return False
 
@@ -66,5 +76,7 @@ class TOTPVerification:
             # return False, if token could not be converted to an integer
             return False
         time_int = int(time.time())
-        totp = pyotp.TOTP(secret_key, interval=cls.token_validity_period, digits=cls.number_of_digits)
+        totp = pyotp.TOTP(
+            secret_key, interval=cls.token_validity_period, digits=cls.number_of_digits
+        )
         return totp.verify(code, for_time=time_int, valid_window=cls.tolerance)

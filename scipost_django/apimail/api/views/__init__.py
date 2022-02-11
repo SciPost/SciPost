@@ -13,11 +13,15 @@ from .event import EventListAPIView, EventRetrieveAPIView
 from .tag import UserTagCreateAPIView, UserTagDestroyAPIView, UserTagListAPIView
 
 from .composed_message import (
-    ComposedMessageCreateAPIView, ComposedMessageUpdateAPIView,
-    ComposedMessageDestroyAPIView, ComposedMessageListAPIView
+    ComposedMessageCreateAPIView,
+    ComposedMessageUpdateAPIView,
+    ComposedMessageDestroyAPIView,
+    ComposedMessageListAPIView,
 )
 
 from .stored_message import (
-    StoredMessageListAPIView, StoredMessageRetrieveAPIView,
-    StoredMessageUpdateReadAPIView, StoredMessageUpdateTagAPIView
+    StoredMessageListAPIView,
+    StoredMessageRetrieveAPIView,
+    StoredMessageUpdateReadAPIView,
+    StoredMessageUpdateTagAPIView,
 )

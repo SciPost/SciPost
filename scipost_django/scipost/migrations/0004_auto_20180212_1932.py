@@ -10,13 +10,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0003_auto_20180206_1940'),
+        ("scipost", "0003_auto_20180206_1940"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contributor',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL),
+            model_name="contributor",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.PROTECT, to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

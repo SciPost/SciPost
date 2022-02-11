@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0030_merge_20180717_1041'),
+        ("submissions", "0030_merge_20180717_1041"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='invitation_order',
+            model_name="submission",
+            name="invitation_order",
             field=models.IntegerField(default=0),
         ),
     ]

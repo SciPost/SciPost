@@ -7,13 +7,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0084_preprintserver'),
+        ("submissions", "0084_preprintserver"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='submission_date',
-            field=models.DateTimeField(default=datetime.datetime.now, verbose_name='submission date'),
+            model_name="submission",
+            name="submission_date",
+            field=models.DateTimeField(
+                default=datetime.datetime.now, verbose_name="submission date"
+            ),
         ),
     ]

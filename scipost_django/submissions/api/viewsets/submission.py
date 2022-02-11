@@ -13,16 +13,20 @@ from submissions.api.serializers import SubmissionPublicSerializer
 
 
 class SubmissionPublicAPIViewSet(
-        FilteringOptionsActionMixin,
-        viewsets.ReadOnlyModelViewSet):
+    FilteringOptionsActionMixin, viewsets.ReadOnlyModelViewSet
+):
     queryset = Submission.objects.public_newest().unpublished()
-    permission_classes = [AllowAny,]
+    permission_classes = [
+        AllowAny,
+    ]
     serializer_class = SubmissionPublicSerializer
-    search_fields = ['title', 'author_list', 'abstract']
-    ordering_fields = ['submission_date',]
+    search_fields = ["title", "author_list", "abstract"]
+    ordering_fields = [
+        "submission_date",
+    ]
     filterset_class = SubmissionPublicAPIFilterSet
     default_filtering_fields = [
-        'title__icontains',
-        'author_list__icontains',
-        'abstract__icontains'
+        "title__icontains",
+        "author_list__icontains",
+        "abstract__icontains",
     ]

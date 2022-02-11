@@ -15,14 +15,21 @@ class StoredMessageSerializer(serializers.ModelSerializer):
     tags = serializers.SerializerMethodField()
 
     def get_read(self, obj):
-        return self.context['request'].user in obj.read_by.all()
+        return self.context["request"].user in obj.read_by.all()
 
     def get_tags(self, obj):
         return UserTagSerializer(
-            obj.tags.filter(user=self.context['request'].user),
-            many=True
+            obj.tags.filter(user=self.context["request"].user), many=True
         ).data
 
     class Meta:
         model = StoredMessage
-        fields = ['uuid', 'data', 'datetimestamp', 'attachment_files', 'event_set', 'read', 'tags']
+        fields = [
+            "uuid",
+            "data",
+            "datetimestamp",
+            "attachment_files",
+            "event_set",
+            "read",
+            "tags",
+        ]

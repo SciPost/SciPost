@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0027_auto_20180620_1935'),
+        ("submissions", "0027_auto_20180620_1935"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='refereeinvitation',
-            name='auto_reminders_allowed',
+            model_name="refereeinvitation",
+            name="auto_reminders_allowed",
             field=models.BooleanField(default=True),
         ),
     ]

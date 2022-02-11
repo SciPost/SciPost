@@ -10,25 +10,46 @@ import scipost.storage
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0002_auto_20191113_1547'),
+        ("apimail", "0002_auto_20191113_1547"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StoredMessageAttachment',
+            name="StoredMessageAttachment",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
-                ('_file', models.FileField(storage=scipost.storage.SecureFileStorage(), upload_to='uploads/mail/stored_messages/attachments/%Y/%m/%d/', validators=[apimail.validators.validate_max_email_attachment_file_size])),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
+                (
+                    "_file",
+                    models.FileField(
+                        storage=scipost.storage.SecureFileStorage(),
+                        upload_to="uploads/mail/stored_messages/attachments/%Y/%m/%d/",
+                        validators=[
+                            apimail.validators.validate_max_email_attachment_file_size
+                        ],
+                    ),
+                ),
             ],
         ),
         migrations.AlterModelOptions(
-            name='storedmessage',
-            options={'ordering': ['-data__Date']},
+            name="storedmessage",
+            options={"ordering": ["-data__Date"]},
         ),
         migrations.AddField(
-            model_name='storedmessageattachment',
-            name='message',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attachments', to='apimail.StoredMessage'),
+            model_name="storedmessageattachment",
+            name="message",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="attachments",
+                to="apimail.StoredMessage",
+            ),
         ),
     ]

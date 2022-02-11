@@ -8,27 +8,27 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0033_publicationauthorstable_affiliations'),
+        ("journals", "0033_publicationauthorstable_affiliations"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='authoraffiliation',
-            name='contributor',
+            model_name="authoraffiliation",
+            name="contributor",
         ),
         # migrations.RemoveField(
         #     model_name='authoraffiliation',
         #     name='organization',
         # ),
         migrations.RemoveField(
-            model_name='authoraffiliation',
-            name='publication',
+            model_name="authoraffiliation",
+            name="publication",
         ),
         migrations.RemoveField(
-            model_name='authoraffiliation',
-            name='unregistered_author',
+            model_name="authoraffiliation",
+            name="unregistered_author",
         ),
         migrations.DeleteModel(
-            name='AuthorAffiliation',
+            name="AuthorAffiliation",
         ),
     ]

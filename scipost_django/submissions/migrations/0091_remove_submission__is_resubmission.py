@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0090_auto_20200721_0727'),
+        ("submissions", "0090_auto_20200721_0727"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='submission',
-            name='_is_resubmission',
+            model_name="submission",
+            name="_is_resubmission",
         ),
     ]

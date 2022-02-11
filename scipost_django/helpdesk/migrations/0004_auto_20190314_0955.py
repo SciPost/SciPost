@@ -8,22 +8,37 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('helpdesk', '0003_auto_20190312_1707'),
+        ("helpdesk", "0003_auto_20190312_1707"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ticket',
-            options={'ordering': ['queue', 'priority'], 'permissions': [('can_view_ticket', 'Can view Ticket')]},
+            name="ticket",
+            options={
+                "ordering": ["queue", "priority"],
+                "permissions": [("can_view_ticket", "Can view Ticket")],
+            },
         ),
         migrations.AddField(
-            model_name='ticket',
-            name='title',
-            field=models.CharField(default='', max_length=64),
+            model_name="ticket",
+            name="title",
+            field=models.CharField(default="", max_length=64),
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='status',
-            field=models.CharField(choices=[('unassigned', 'Unassigned'), ('assigned', 'Assigned'), ('passedon', 'Passed on'), ('pickedup', 'Picked up'), ('awaitingassignee', 'Awaiting response from SciPost'), ('awaitinguser', 'Awaiting response from user'), ('resolved', 'Resolved'), ('closed', 'Closed')], max_length=32),
+            model_name="ticket",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("unassigned", "Unassigned"),
+                    ("assigned", "Assigned"),
+                    ("passedon", "Passed on"),
+                    ("pickedup", "Picked up"),
+                    ("awaitingassignee", "Awaiting response from SciPost"),
+                    ("awaitinguser", "Awaiting response from user"),
+                    ("resolved", "Resolved"),
+                    ("closed", "Closed"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

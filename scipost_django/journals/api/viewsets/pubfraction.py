@@ -18,19 +18,20 @@ from journals.api.filtersets import PubFractionPublicAPIFilterSet
 
 
 class PubFractionPublicAPIViewSet(
-        FilteringOptionsActionMixin,
-        viewsets.ReadOnlyModelViewSet):
+    FilteringOptionsActionMixin, viewsets.ReadOnlyModelViewSet
+):
     queryset = OrgPubFraction.objects.all()
-    permission_classes = [AllowAny,]
-    serializer_class = PubFractionPublicSerializer
-    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer, )
-    search_fields = [
-        'organization__name',
-        'publication__publication_date__year'
+    permission_classes = [
+        AllowAny,
     ]
-    ordering_fields = ['-publication_date',]
+    serializer_class = PubFractionPublicSerializer
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.CSVRenderer,)
+    search_fields = ["organization__name", "publication__publication_date__year"]
+    ordering_fields = [
+        "-publication_date",
+    ]
     filterset_class = PubFractionPublicAPIFilterSet
     default_filtering_fields = [
-        'organization__name__icontains',
-        'publication__publication_date__year__exact',
+        "organization__name__icontains",
+        "publication__publication_date__year__exact",
     ]

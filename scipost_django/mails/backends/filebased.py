@@ -8,9 +8,9 @@ from ..models import MailLog, MailLogRelation
 
 class EmailBackend(FileBackend):
     def write_message(self, message):
-        bcc_str = ', '.join(message.bcc).encode()
-        self.stream.write(b'Extended Mail FileBasedBackend\n\n')
-        self.stream.write(b'Bcc: ' + bcc_str + b'\n')
+        bcc_str = ", ".join(message.bcc).encode()
+        self.stream.write(b"Extended Mail FileBasedBackend\n\n")
+        self.stream.write(b"Bcc: " + bcc_str + b"\n")
         super().write_message(message)
 
 
@@ -38,25 +38,29 @@ class ModelEmailBackend(FileBackend):
             return False
         encoding = email_message.encoding or settings.DEFAULT_CHARSET
         from_email = email_message.from_email
-        to_recipients = [sanitize_address(addr, encoding) for addr in email_message.to if addr]
-        bcc_recipients = [sanitize_address(addr, encoding) for addr in email_message.bcc if addr]
+        to_recipients = [
+            sanitize_address(addr, encoding) for addr in email_message.to if addr
+        ]
+        bcc_recipients = [
+            sanitize_address(addr, encoding) for addr in email_message.bcc if addr
+        ]
         body = email_message.body
         subject = email_message.subject
-        body_html = ''
+        body_html = ""
         try:
             for alt in email_message.alternatives:
-                if alt[1] == 'text/html':
+                if alt[1] == "text/html":
                     body_html += alt[0]
         except AttributeError:
             pass
 
-        mail_code = ''
-        if email_message.extra_headers.get('delayed_processing', False):
-            status = 'not_rendered'
-            context = email_message.extra_headers.get('context', {})
-            mail_code = email_message.extra_headers.get('mail_code', '')
+        mail_code = ""
+        if email_message.extra_headers.get("delayed_processing", False):
+            status = "not_rendered"
+            context = email_message.extra_headers.get("context", {})
+            mail_code = email_message.extra_headers.get("mail_code", "")
         else:
-            status = 'rendered'
+            status = "rendered"
             context = {}
 
         mail_log = MailLog.objects.create(
@@ -67,16 +71,18 @@ class ModelEmailBackend(FileBackend):
             bcc_recipients=bcc_recipients,
             from_email=from_email,
             status=status,
-            mail_code=mail_code)
+            mail_code=mail_code,
+        )
 
         for key, var in context.items():
             if isinstance(var, models.Model):
                 context_object = var
-                value = ''
+                value = ""
             else:
                 context_object = None
                 value = str(var)
             rel = MailLogRelation.objects.create(
-                mail=mail_log, name=key, value=value, content_object=context_object)
+                mail=mail_log, name=key, value=value, content_object=context_object
+            )
 
         return True

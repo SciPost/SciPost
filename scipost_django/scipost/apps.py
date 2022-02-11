@@ -7,12 +7,12 @@ from django.db.models.signals import post_save
 
 
 class SciPostConfig(AppConfig):
-    name = 'scipost'
+    name = "scipost"
 
     def ready(self):
         super().ready()
 
         from . import signals
         from profiles.models import Profile
-        post_save.connect(signals.link_created_profile_to_contributor,
-                          sender=Profile)
+
+        post_save.connect(signals.link_created_profile_to_contributor, sender=Profile)

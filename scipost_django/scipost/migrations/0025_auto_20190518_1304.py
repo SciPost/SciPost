@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0024_auto_20190405_2102'),
+        ("scipost", "0024_auto_20190405_2102"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='remark',
-            options={'default_related_name': 'remarks', 'ordering': ['date']},
+            name="remark",
+            options={"default_related_name": "remarks", "ordering": ["date"]},
         ),
     ]

@@ -8,14 +8,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0051_auto_20181218_2201'),
-        ('conflicts', '0012_auto_20181219_2041'),
+        ("submissions", "0051_auto_20181218_2201"),
+        ("conflicts", "0012_auto_20181219_2041"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='conflictofinterest',
-            name='related_submissions',
-            field=models.ManyToManyField(blank=True, to='submissions.Submission'),
+            model_name="conflictofinterest",
+            name="related_submissions",
+            field=models.ManyToManyField(blank=True, to="submissions.Submission"),
         ),
     ]

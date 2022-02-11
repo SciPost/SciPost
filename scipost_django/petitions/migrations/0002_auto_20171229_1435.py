@@ -12,20 +12,28 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('petitions', '0001_initial'),
+        ("petitions", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('scipost', '0001_initial'),
+        ("scipost", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='petitionsignatory',
-            name='signatory',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='petition_signatories', to='scipost.Contributor'),
+            model_name="petitionsignatory",
+            name="signatory",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="petition_signatories",
+                to="scipost.Contributor",
+            ),
         ),
         migrations.AddField(
-            model_name='petition',
-            name='creator',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="petition",
+            name="creator",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

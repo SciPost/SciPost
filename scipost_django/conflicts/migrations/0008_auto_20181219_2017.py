@@ -8,30 +8,30 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('conflicts', '0007_auto_20180526_1336'),
+        ("conflicts", "0007_auto_20180526_1336"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='conflictgroup',
-            name='related_submissions',
+            model_name="conflictgroup",
+            name="related_submissions",
         ),
         migrations.RemoveField(
-            model_name='conflictofinterest',
-            name='conflict_group',
+            model_name="conflictofinterest",
+            name="conflict_group",
         ),
         migrations.RemoveField(
-            model_name='conflictofinterest',
-            name='origin',
+            model_name="conflictofinterest",
+            name="origin",
         ),
         migrations.RemoveField(
-            model_name='conflictofinterest',
-            name='to_contributor',
+            model_name="conflictofinterest",
+            name="to_contributor",
         ),
         migrations.DeleteModel(
-            name='ConflictGroup',
+            name="ConflictGroup",
         ),
         migrations.DeleteModel(
-            name='ConflictOfInterest',
+            name="ConflictOfInterest",
         ),
     ]

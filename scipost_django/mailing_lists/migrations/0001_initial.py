@@ -12,36 +12,84 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='MailchimpList',
+            name="MailchimpList",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('latest_activity', scipost.db.fields.AutoDateTimeField(blank=True, default=django.utils.timezone.now, editable=False)),
-                ('name', models.CharField(max_length=255)),
-                ('internal_name', models.CharField(blank=True, max_length=255)),
-                ('supporting_text', models.TextField(blank=True)),
-                ('mailchimp_list_id', models.CharField(max_length=255, unique=True)),
-                ('status', models.CharField(choices=[('active', 'Active'), ('deactivated', 'Deactivated')], default='active', max_length=255)),
-                ('subscriber_count', models.PositiveIntegerField(default=0)),
-                ('open_for_subscription', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "latest_activity",
+                    scipost.db.fields.AutoDateTimeField(
+                        blank=True, default=django.utils.timezone.now, editable=False
+                    ),
+                ),
+                ("name", models.CharField(max_length=255)),
+                ("internal_name", models.CharField(blank=True, max_length=255)),
+                ("supporting_text", models.TextField(blank=True)),
+                ("mailchimp_list_id", models.CharField(max_length=255, unique=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("active", "Active"), ("deactivated", "Deactivated")],
+                        default="active",
+                        max_length=255,
+                    ),
+                ),
+                ("subscriber_count", models.PositiveIntegerField(default=0)),
+                ("open_for_subscription", models.BooleanField(default=False)),
             ],
             options={
-                'ordering': ['status', 'internal_name', 'name'],
+                "ordering": ["status", "internal_name", "name"],
             },
         ),
         migrations.CreateModel(
-            name='MailchimpSubscription',
+            name="MailchimpSubscription",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('latest_activity', scipost.db.fields.AutoDateTimeField(blank=True, default=django.utils.timezone.now, editable=False)),
-                ('status', models.CharField(choices=[('subscribed', 'Subscribed'), ('unsubscribed', 'Unsubscribed')], default='subscribed', max_length=255)),
-                ('active_list', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='mailing_lists.MailchimpList')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "latest_activity",
+                    scipost.db.fields.AutoDateTimeField(
+                        blank=True, default=django.utils.timezone.now, editable=False
+                    ),
+                ),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("subscribed", "Subscribed"),
+                            ("unsubscribed", "Unsubscribed"),
+                        ],
+                        default="subscribed",
+                        max_length=255,
+                    ),
+                ),
+                (
+                    "active_list",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="mailing_lists.MailchimpList",
+                    ),
+                ),
             ],
         ),
     ]

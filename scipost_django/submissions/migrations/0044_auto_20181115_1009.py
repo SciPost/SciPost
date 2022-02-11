@@ -9,13 +9,15 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0043_remove_submission_submitted_to_journal'),
+        ("submissions", "0043_remove_submission_submitted_to_journal"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='submitted_to',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journals.Journal'),
+            model_name="submission",
+            name="submitted_to",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="journals.Journal"
+            ),
         ),
     ]

@@ -7,13 +7,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0105_auto_20210114_1555'),
+        ("journals", "0105_auto_20210114_1555"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='cf_metrics',
+            model_name="journal",
+            name="cf_metrics",
             field=django.contrib.postgres.fields.jsonb.JSONField(default=dict),
         ),
     ]

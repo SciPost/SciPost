@@ -24,8 +24,10 @@ class ProductionStreamQuerySet(models.QuerySet):
         Return ProductionStreams that are only assigned to me as a Production Officer
         or a Inivtations Officer.
         """
-        return self.filter(models.Q(officer=production_user)
-                           | models.Q(invitations_officer=production_user))
+        return self.filter(
+            models.Q(officer=production_user)
+            | models.Q(invitations_officer=production_user)
+        )
 
 
 class ProductionEventManager(models.Manager):
@@ -41,5 +43,10 @@ class ProofsQuerySet(models.QuerySet):
         return self.filter(accessible_for_authors=True)
 
     def can_be_send(self):
-        return self.filter(status__in=[constants.PROOFS_UPLOADED, constants.PROOFS_SENT,
-                                       constants.PROOFS_ACCEPTED_SUP])
+        return self.filter(
+            status__in=[
+                constants.PROOFS_UPLOADED,
+                constants.PROOFS_SENT,
+                constants.PROOFS_ACCEPTED_SUP,
+            ]
+        )

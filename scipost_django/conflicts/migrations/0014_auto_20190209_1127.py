@@ -8,13 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('conflicts', '0013_conflictofinterest_related_submissions'),
+        ("conflicts", "0013_conflictofinterest_related_submissions"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='conflictofinterest',
-            name='related_submissions',
-            field=models.ManyToManyField(blank=True, related_name='conflict_of_interests', to='submissions.Submission'),
+            model_name="conflictofinterest",
+            name="related_submissions",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="conflict_of_interests",
+                to="submissions.Submission",
+            ),
         ),
     ]

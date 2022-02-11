@@ -7,13 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0104_auto_20201026_2144'),
+        ("journals", "0104_auto_20201026_2144"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='volume',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^((SciPost)[a-zA-Z]+|(MigPol))\\.\\w$', 'Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))\\.\\w are allowed.')]),
+            model_name="volume",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^((SciPost)[a-zA-Z]+|(MigPol))\\.\\w$",
+                        "Only expressions with regex ((SciPost)[a-zA-Z]+|(MigPol))\\.\\w are allowed.",
+                    )
+                ],
+            ),
         ),
     ]

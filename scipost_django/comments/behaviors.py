@@ -13,10 +13,12 @@ from .utils import validate_file_extention
 def validate_file_extension(value):
     valid = validate_file_extention(value, EXTENTIONS_FILES)
     if not valid:
-        raise ValidationError(u'Unsupported file extension.')
+        raise ValidationError("Unsupported file extension.")
 
 
 def validate_max_file_size(value):
     if value.size > int(settings.MAX_UPLOAD_SIZE):
-        raise ValidationError(u'Please keep filesize under %s. Current filesize %s' % (
-                    filesizeformat(settings.MAX_UPLOAD_SIZE), filesizeformat(value.size)))
+        raise ValidationError(
+            "Please keep filesize under %s. Current filesize %s"
+            % (filesizeformat(settings.MAX_UPLOAD_SIZE), filesizeformat(value.size))
+        )

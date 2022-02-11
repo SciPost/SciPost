@@ -6,19 +6,21 @@ from django.db import migrations
 
 
 def populate_profile_from_contributors(apps, schema_editor):
-    Profile = apps.get_model('profiles', 'Profile')
-    Contributor = apps.get_model('scipost', 'Contributor')
+    Profile = apps.get_model("profiles", "Profile")
+    Contributor = apps.get_model("scipost", "Contributor")
 
     for contrib in Contributor.objects.filter(profile=None):
-        newprofile = Profile(title=contrib.title,
-                             first_name=contrib.user.first_name,
-                             last_name=contrib.user.last_name,
-                             email=contrib.user.email,
-                             discipline=contrib.discipline,
-                             expertises=contrib.expertises,
-                             orcid_id=contrib.orcid_id,
-                             webpage=contrib.personalwebpage,
-                             accepts_SciPost_emails=contrib.accepts_SciPost_emails)
+        newprofile = Profile(
+            title=contrib.title,
+            first_name=contrib.user.first_name,
+            last_name=contrib.user.last_name,
+            email=contrib.user.email,
+            discipline=contrib.discipline,
+            expertises=contrib.expertises,
+            orcid_id=contrib.orcid_id,
+            webpage=contrib.personalwebpage,
+            accepts_SciPost_emails=contrib.accepts_SciPost_emails,
+        )
         newprofile.save()
         contrib.profile = newprofile
         contrib.save()
@@ -27,11 +29,12 @@ def populate_profile_from_contributors(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0004_auto_20180930_0924'),
-        ('scipost', '0016_auto_20180930_1801'),
+        ("profiles", "0004_auto_20180930_0924"),
+        ("scipost", "0016_auto_20180930_1801"),
     ]
 
     operations = [
-        migrations.RunPython(populate_profile_from_contributors,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_profile_from_contributors, reverse_code=migrations.RunPython.noop
+        ),
     ]

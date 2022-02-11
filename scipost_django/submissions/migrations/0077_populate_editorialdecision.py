@@ -2,34 +2,34 @@
 
 from django.db import migrations
 
-from submissions.constants import (
-    EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED
-)
+from submissions.constants import EIC_REC_PUBLISH, EIC_REC_REJECT, DECISION_FIXED
 
 
 def populate_editorialdecision(apps, schema_editor):
-    EICRecommendation = apps.get_model('submissions', 'EICRecommendation')
-    EditorialDecision = apps.get_model('submissions', 'EditorialDecision')
+    EICRecommendation = apps.get_model("submissions", "EICRecommendation")
+    EditorialDecision = apps.get_model("submissions", "EditorialDecision")
 
     for eicrec in EICRecommendation.objects.filter(
-            recommendation__in=[EIC_REC_PUBLISH, EIC_REC_REJECT],
-            status=DECISION_FIXED):
+        recommendation__in=[EIC_REC_PUBLISH, EIC_REC_REJECT], status=DECISION_FIXED
+    ):
         decision = EditorialDecision(
             submission=eicrec.submission,
             for_journal=eicrec.for_journal,
             decision=eicrec.recommendation,
             taken_on=eicrec.date_submitted,
-            status=1) # EditorialDecision.FIXED_AND_ACCEPTED <- leads to AttributeError
+            status=1,
+        )  # EditorialDecision.FIXED_AND_ACCEPTED <- leads to AttributeError
         decision.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0076_editorialdecision'),
+        ("submissions", "0076_editorialdecision"),
     ]
 
     operations = [
-        migrations.RunPython(populate_editorialdecision,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_editorialdecision, reverse_code=migrations.RunPython.noop
+        ),
     ]

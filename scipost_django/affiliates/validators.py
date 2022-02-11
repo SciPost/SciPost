@@ -8,5 +8,6 @@ from .regexes import DOI_AFFILIATEPUBLICATION_REGEX
 
 
 doi_affiliatepublication_validator = RegexValidator(
-    r'^{regex}$'.format(regex=DOI_AFFILIATEPUBLICATION_REGEX),
-    'Only expressions with regex %s are allowed.' % DOI_AFFILIATEPUBLICATION_REGEX)
+    r"^{regex}$".format(regex=DOI_AFFILIATEPUBLICATION_REGEX),
+    "Only expressions with regex %s are allowed." % DOI_AFFILIATEPUBLICATION_REGEX,
+)

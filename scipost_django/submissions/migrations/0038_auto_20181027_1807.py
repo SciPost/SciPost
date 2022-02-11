@@ -8,13 +8,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0037_auto_20181023_0829'),
+        ("submissions", "0037_auto_20181023_0829"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='submitted_to_journal',
-            field=models.CharField(choices=[('SciPostPhys', 'SciPost Physics'), ('SciPostPhysLectNotes', 'SciPost Physics Lecture Notes'), ('SciPostPhysProc', 'SciPost Physics Proceedings')], max_length=30, verbose_name='Journal to be submitted to'),
+            model_name="submission",
+            name="submitted_to_journal",
+            field=models.CharField(
+                choices=[
+                    ("SciPostPhys", "SciPost Physics"),
+                    ("SciPostPhysLectNotes", "SciPost Physics Lecture Notes"),
+                    ("SciPostPhysProc", "SciPost Physics Proceedings"),
+                ],
+                max_length=30,
+                verbose_name="Journal to be submitted to",
+            ),
         ),
     ]

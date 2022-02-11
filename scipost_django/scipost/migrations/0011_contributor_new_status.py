@@ -8,13 +8,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0010_merge_20180327_2022'),
+        ("scipost", "0010_merge_20180327_2022"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='contributor',
-            name='new_status',
-            field=models.CharField(choices=[('newly_registered', 'Newly registered'), ('normal', 'Normal user'), ('no_scientist', 'Not a professional scientist'), ('double_account', 'Other account already exists'), ('out_of_academia', 'Out of academia'), ('barred', 'Barred from SciPost'), ('disabled', 'Account disabled'), ('deceased', 'Person deceased')], default='newly_registered', max_length=16),
+            model_name="contributor",
+            name="new_status",
+            field=models.CharField(
+                choices=[
+                    ("newly_registered", "Newly registered"),
+                    ("normal", "Normal user"),
+                    ("no_scientist", "Not a professional scientist"),
+                    ("double_account", "Other account already exists"),
+                    ("out_of_academia", "Out of academia"),
+                    ("barred", "Barred from SciPost"),
+                    ("disabled", "Account disabled"),
+                    ("deceased", "Person deceased"),
+                ],
+                default="newly_registered",
+                max_length=16,
+            ),
         ),
     ]

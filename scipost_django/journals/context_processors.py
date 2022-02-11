@@ -8,7 +8,7 @@ from .models import Journal
 def journals_processor(request):
     """Append all Journals to the context of all views."""
     return {
-        'branches': Branch.objects.all(),
-        'acad_fields': AcademicField.objects.all(),
-        'journals': Journal.objects.order_by('name')
+        "branches": Branch.objects.all(),
+        "acad_fields": AcademicField.objects.all(),
+        "journals": Journal.objects.order_by("name"),
     }

@@ -9,20 +9,27 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0012_profile_topics'),
-        ('ontology', '0005_auto_20181028_2038'),
-        ('journals', '0049_auto_20181027_1807'),
+        ("profiles", "0012_profile_topics"),
+        ("ontology", "0005_auto_20181028_2038"),
+        ("journals", "0049_auto_20181027_1807"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='publication',
-            name='topics',
-            field=models.ManyToManyField(blank=True, related_name='publications', to='ontology.Topic'),
+            model_name="publication",
+            name="topics",
+            field=models.ManyToManyField(
+                blank=True, related_name="publications", to="ontology.Topic"
+            ),
         ),
         migrations.AddField(
-            model_name='unregisteredauthor',
-            name='profile',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='profiles.Profile'),
+            model_name="unregisteredauthor",
+            name="profile",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="profiles.Profile",
+            ),
         ),
     ]

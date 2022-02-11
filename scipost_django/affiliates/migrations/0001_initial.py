@@ -13,56 +13,145 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('organizations', '0012_auto_20210310_2026'),
+        ("organizations", "0012_auto_20210310_2026"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AffiliateJournal',
+            name="AffiliateJournal",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
-                ('short_name', models.CharField(default='', max_length=256)),
-                ('slug', models.SlugField(max_length=128, validators=[django.core.validators.RegexValidator(re.compile('^[-\\w]+\\Z'), "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.", 'invalid')])),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
+                ("short_name", models.CharField(default="", max_length=256)),
+                (
+                    "slug",
+                    models.SlugField(
+                        max_length=128,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                re.compile("^[-\\w]+\\Z"),
+                                "Enter a valid 'slug' consisting of Unicode letters, numbers, underscores, or hyphens.",
+                                "invalid",
+                            )
+                        ],
+                    ),
+                ),
             ],
             options={
-                'ordering': ['publisher', 'name'],
+                "ordering": ["publisher", "name"],
             },
         ),
         migrations.CreateModel(
-            name='AffiliatePublisher',
+            name="AffiliatePublisher",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=256)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=256)),
             ],
             options={
-                'ordering': ['name'],
+                "ordering": ["name"],
             },
         ),
         migrations.CreateModel(
-            name='AffiliatePublication',
+            name="AffiliatePublication",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('doi', models.CharField(db_index=True, max_length=256, unique=True, validators=[django.core.validators.RegexValidator('^10.\\d{4,9}/[-._;()/:a-zA-Z0-9]+$', 'Only expressions with regex 10.\\d{4,9}/[-._;()/:a-zA-Z0-9]+ are allowed.')])),
-                ('_metadata_crossref', django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
-                ('journal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='affiliates.AffiliateJournal')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "doi",
+                    models.CharField(
+                        db_index=True,
+                        max_length=256,
+                        unique=True,
+                        validators=[
+                            django.core.validators.RegexValidator(
+                                "^10.\\d{4,9}/[-._;()/:a-zA-Z0-9]+$",
+                                "Only expressions with regex 10.\\d{4,9}/[-._;()/:a-zA-Z0-9]+ are allowed.",
+                            )
+                        ],
+                    ),
+                ),
+                (
+                    "_metadata_crossref",
+                    django.contrib.postgres.fields.jsonb.JSONField(default=dict),
+                ),
+                (
+                    "journal",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="affiliates.AffiliateJournal",
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='affiliatejournal',
-            name='publisher',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='journals', to='affiliates.AffiliatePublisher'),
+            model_name="affiliatejournal",
+            name="publisher",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="journals",
+                to="affiliates.AffiliatePublisher",
+            ),
         ),
         migrations.CreateModel(
-            name='AffiliatePubFraction',
+            name="AffiliatePubFraction",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('fraction', models.DecimalField(decimal_places=3, default=Decimal('0.000'), max_digits=4)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='affiliate_pubfractions', to='organizations.Organization')),
-                ('publication', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='pubfractions', to='affiliates.AffiliatePublication')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "fraction",
+                    models.DecimalField(
+                        decimal_places=3, default=Decimal("0.000"), max_digits=4
+                    ),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="affiliate_pubfractions",
+                        to="organizations.Organization",
+                    ),
+                ),
+                (
+                    "publication",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="pubfractions",
+                        to="affiliates.AffiliatePublication",
+                    ),
+                ),
             ],
             options={
-                'unique_together': {('organization', 'publication')},
+                "unique_together": {("organization", "publication")},
             },
         ),
     ]

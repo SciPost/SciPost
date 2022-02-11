@@ -8,12 +8,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0013_profilenonduplicates'),
+        ("profiles", "0013_profilenonduplicates"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='profilenonduplicates',
-            options={'verbose_name': 'Profile non-duplicates', 'verbose_name_plural': 'Profile non-duplicates'},
+            name="profilenonduplicates",
+            options={
+                "verbose_name": "Profile non-duplicates",
+                "verbose_name_plural": "Profile non-duplicates",
+            },
         ),
     ]

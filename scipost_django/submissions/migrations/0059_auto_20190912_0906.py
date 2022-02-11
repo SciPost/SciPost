@@ -7,13 +7,20 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0058_auto_20190522_1120'),
+        ("submissions", "0058_auto_20190522_1120"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='proceedings',
-            field=models.ForeignKey(blank=True, help_text="Don't find the Proceedings you are looking for? Ask the conference organizers to contact our admin at admin@scipost.org to set things up.", null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='submissions', to='proceedings.Proceedings'),
+            model_name="submission",
+            name="proceedings",
+            field=models.ForeignKey(
+                blank=True,
+                help_text="Don't find the Proceedings you are looking for? Ask the conference organizers to contact our admin at admin@scipost.org to set things up.",
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="submissions",
+                to="proceedings.Proceedings",
+            ),
         ),
     ]

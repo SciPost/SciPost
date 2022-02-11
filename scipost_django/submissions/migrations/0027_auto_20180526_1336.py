@@ -8,23 +8,34 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0026_submission_needs_conflicts_update'),
+        ("submissions", "0026_submission_needs_conflicts_update"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='editorialassignment',
-            name='date_invited',
+            model_name="editorialassignment",
+            name="date_invited",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='editorialassignment',
-            name='invitation_order',
+            model_name="editorialassignment",
+            name="invitation_order",
             field=models.PositiveSmallIntegerField(default=0),
         ),
         migrations.AddField(
-            model_name='editorialassignment',
-            name='status',
-            field=models.CharField(choices=[('preassigned', 'Pre-assigned'), ('invited', 'Invited'), ('accepted', 'Accepted'), ('declined', 'Declined'), ('completed', 'Completed'), ('deprecated', 'Deprecated')], default='preassigned', max_length=16),
+            model_name="editorialassignment",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("preassigned", "Pre-assigned"),
+                    ("invited", "Invited"),
+                    ("accepted", "Accepted"),
+                    ("declined", "Declined"),
+                    ("completed", "Completed"),
+                    ("deprecated", "Deprecated"),
+                ],
+                default="preassigned",
+                max_length=16,
+            ),
         ),
     ]

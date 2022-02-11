@@ -7,7 +7,12 @@ from django.db.models import Count, Q
 from django.db.models.functions import Concat, Lower
 from django.utils import timezone
 
-from .constants import NORMAL_CONTRIBUTOR, NEWLY_REGISTERED, DOUBLE_ACCOUNT, AUTHORSHIP_CLAIM_PENDING
+from .constants import (
+    NORMAL_CONTRIBUTOR,
+    NEWLY_REGISTERED,
+    DOUBLE_ACCOUNT,
+    AUTHORSHIP_CLAIM_PENDING,
+)
 
 
 class ContributorQuerySet(models.QuerySet):
@@ -28,7 +33,8 @@ class ContributorQuerySet(models.QuerySet):
         today = timezone.now().date()
         return self.exclude(
             unavailability_periods__start__lte=today,
-            unavailability_periods__end__gte=today)
+            unavailability_periods__end__gte=today,
+        )
 
     def awaiting_validation(self):
         """Filter Contributors that have not been validated by the user."""
@@ -36,8 +42,9 @@ class ContributorQuerySet(models.QuerySet):
 
     def awaiting_vetting(self):
         """Filter Contributors that have not been vetted through."""
-        return self.filter(user__is_active=True, status=NEWLY_REGISTERED
-                           ).exclude(status=DOUBLE_ACCOUNT)
+        return self.filter(user__is_active=True, status=NEWLY_REGISTERED).exclude(
+            status=DOUBLE_ACCOUNT
+        )
 
     def with_duplicate_names(self):
         """
@@ -45,23 +52,38 @@ class ContributorQuerySet(models.QuerySet):
         last names).
         Admins and superusers are explicitly excluded.
         """
-        contribs = self.exclude(status=DOUBLE_ACCOUNT
-        ).exclude(user__is_superuser=True).exclude(user__is_staff=True
-        ).annotate(full_name=Concat('user__last_name', 'user__first_name'))
-        duplicates = contribs.values('full_name').annotate(
-            nr_count=Count('full_name')).filter(nr_count__gt=1).values_list('full_name', flat=True)
-        return contribs.filter(
-            full_name__in=duplicates).order_by('user__last_name', 'user__first_name', '-id')
+        contribs = (
+            self.exclude(status=DOUBLE_ACCOUNT)
+            .exclude(user__is_superuser=True)
+            .exclude(user__is_staff=True)
+            .annotate(full_name=Concat("user__last_name", "user__first_name"))
+        )
+        duplicates = (
+            contribs.values("full_name")
+            .annotate(nr_count=Count("full_name"))
+            .filter(nr_count__gt=1)
+            .values_list("full_name", flat=True)
+        )
+        return contribs.filter(full_name__in=duplicates).order_by(
+            "user__last_name", "user__first_name", "-id"
+        )
 
     def with_duplicate_email(self):
         """
         Return Contributors having duplicate emails.
         """
-        qs = self.exclude(status=DOUBLE_ACCOUNT
-        ).exclude(user__is_superuser=True).exclude(
-            user__is_staff=True).annotate(lower_email=Lower('user__email'))
-        duplicates = qs.values('lower_email').annotate(
-            Count('id')).filter(id__count__gt=1).values_list('lower_email', flat=True)
+        qs = (
+            self.exclude(status=DOUBLE_ACCOUNT)
+            .exclude(user__is_superuser=True)
+            .exclude(user__is_staff=True)
+            .annotate(lower_email=Lower("user__email"))
+        )
+        duplicates = (
+            qs.values("lower_email")
+            .annotate(Count("id"))
+            .filter(id__count__gt=1)
+            .values_list("lower_email", flat=True)
+        )
         return qs.filter(lower_email__in=duplicates)
 
     def specialties_overlap(self, specialties_slug_list):
@@ -71,6 +93,7 @@ class ContributorQuerySet(models.QuerySet):
         This method is also separately implemented for Profile and PotentialFellowship objects.
         """
         return self.filter(profile__specialties__slug__in=specialties_slug_list)
+
 
 class UnavailabilityPeriodManager(models.Manager):
     def today(self):

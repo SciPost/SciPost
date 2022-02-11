@@ -8,26 +8,78 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0085_auto_20191017_0949'),
-        ('submissions', '0075_auto_20191017_1942'),
+        ("journals", "0085_auto_20191017_0949"),
+        ("submissions", "0075_auto_20191017_1942"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='EditorialDecision',
+            name="EditorialDecision",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('decision', models.SmallIntegerField(choices=[(1, 'Publish'), (-3, 'Reject')])),
-                ('taken_on', models.DateTimeField(default=django.utils.timezone.now)),
-                ('remarks_for_authors', models.TextField(blank=True, verbose_name='optional remarks for the authors')),
-                ('remarks_for_editorial_college', models.TextField(blank=True, verbose_name='optional remarks for the Editorial College')),
-                ('status', models.SmallIntegerField(choices=[(1, 'Editorial decision fixed and (if required) accepted by authors'), (2, 'Awaiting author acceptance of publication offer'), (3, 'Publication offer refused by authors; manuscript will not be produced'), (4, 'Editorial decision appealed by authors'), (5, 'Editorial decision under review by ombudsperson'), (0, 'Deprecated')])),
-                ('for_journal', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journals.Journal')),
-                ('submission', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='submissions.Submission')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "decision",
+                    models.SmallIntegerField(choices=[(1, "Publish"), (-3, "Reject")]),
+                ),
+                ("taken_on", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "remarks_for_authors",
+                    models.TextField(
+                        blank=True, verbose_name="optional remarks for the authors"
+                    ),
+                ),
+                (
+                    "remarks_for_editorial_college",
+                    models.TextField(
+                        blank=True,
+                        verbose_name="optional remarks for the Editorial College",
+                    ),
+                ),
+                (
+                    "status",
+                    models.SmallIntegerField(
+                        choices=[
+                            (
+                                1,
+                                "Editorial decision fixed and (if required) accepted by authors",
+                            ),
+                            (2, "Awaiting author acceptance of publication offer"),
+                            (
+                                3,
+                                "Publication offer refused by authors; manuscript will not be produced",
+                            ),
+                            (4, "Editorial decision appealed by authors"),
+                            (5, "Editorial decision under review by ombudsperson"),
+                            (0, "Deprecated"),
+                        ]
+                    ),
+                ),
+                (
+                    "for_journal",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="journals.Journal",
+                    ),
+                ),
+                (
+                    "submission",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="submissions.Submission",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Editorial Decisions',
-                'verbose_name': 'Editorial Decision',
+                "verbose_name_plural": "Editorial Decisions",
+                "verbose_name": "Editorial Decision",
             },
         ),
     ]

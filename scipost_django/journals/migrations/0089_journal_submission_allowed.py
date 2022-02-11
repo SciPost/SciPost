@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0088_auto_20200707_1542'),
+        ("journals", "0088_auto_20200707_1542"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='submission_allowed',
+            model_name="journal",
+            name="submission_allowed",
             field=models.BooleanField(default=True),
         ),
     ]

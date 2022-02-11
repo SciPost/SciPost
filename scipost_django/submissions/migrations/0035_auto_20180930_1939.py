@@ -8,20 +8,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0034_auto_20180913_2114'),
+        ("submissions", "0034_auto_20180913_2114"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='editorialassignment',
-            name='old_accepted',
+            model_name="editorialassignment",
+            name="old_accepted",
         ),
         migrations.RemoveField(
-            model_name='editorialassignment',
-            name='old_completed',
+            model_name="editorialassignment",
+            name="old_completed",
         ),
         migrations.RemoveField(
-            model_name='editorialassignment',
-            name='old_deprecated',
+            model_name="editorialassignment",
+            name="old_deprecated",
         ),
     ]

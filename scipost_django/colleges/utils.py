@@ -20,30 +20,42 @@ def check_profile_eligibility_for_fellowship(profile):
     """
     blocks = []
     if not profile.acad_field:
-        blocks.append('No academic field is specified for this profile. '
-                      'Contact EdAdmin or techsupport.')
+        blocks.append(
+            "No academic field is specified for this profile. "
+            "Contact EdAdmin or techsupport."
+        )
     elif not College.objects.filter(acad_field=profile.acad_field).exists():
-        blocks.append('There is currently no College in {profile.acad_field}. '
-                      'Contact EdAdmin or techsupport to get one started.')
-    if Fellowship.objects.active().regular_or_senior().filter(
-            contributor__profile=profile).exists():
-        blocks.append('This Profile is associated to an active Fellowship.')
-    latest_nomination = FellowshipNomination.objects.filter(
-        profile=profile).first()
+        blocks.append(
+            "There is currently no College in {profile.acad_field}. "
+            "Contact EdAdmin or techsupport to get one started."
+        )
+    if (
+        Fellowship.objects.active()
+        .regular_or_senior()
+        .filter(contributor__profile=profile)
+        .exists()
+    ):
+        blocks.append("This Profile is associated to an active Fellowship.")
+    latest_nomination = FellowshipNomination.objects.filter(profile=profile).first()
     if latest_nomination:
         try:
-            if (latest_nomination.decision.fixed_on +
-                datetime.timedelta(days=730)) > timezone.now():
+            if (
+                latest_nomination.decision.fixed_on + datetime.timedelta(days=730)
+            ) > timezone.now():
                 if latest_nomination.decision.elected:
                     try:
                         if latest_nomination.invitation.declined:
-                            blocks.append('Invitation declined less that 2 years ago. '
-                                          'Wait to try again.')
+                            blocks.append(
+                                "Invitation declined less that 2 years ago. "
+                                "Wait to try again."
+                            )
                         else:
-                             blocks.append('Already elected, invitation in process.')
+                            blocks.append("Already elected, invitation in process.")
                     except AttributeError:
-                        blocks.append('Already elected, invitation pending.')
-                blocks.append('Election failed less that 2 years ago. Must wait.')
-        except AttributeError: # no decision yet
-            blocks.append('This Profile is associated to an ongoing Nomination process.')
+                        blocks.append("Already elected, invitation pending.")
+                blocks.append("Election failed less that 2 years ago. Must wait.")
+        except AttributeError:  # no decision yet
+            blocks.append(
+                "This Profile is associated to an ongoing Nomination process."
+            )
     return blocks if len(blocks) > 0 else None

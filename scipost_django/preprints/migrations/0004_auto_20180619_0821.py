@@ -8,23 +8,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0003_auto_20180610_2020'),
+        ("preprints", "0003_auto_20180610_2020"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprint',
-            name='_file',
-            field=models.FileField(blank=True, help_text='Preprint file for SciPost standalone preprints', max_length=200, upload_to='UPLOADS/PREPRINTS/%Y/%m/', verbose_name='Preprint file'),
+            model_name="preprint",
+            name="_file",
+            field=models.FileField(
+                blank=True,
+                help_text="Preprint file for SciPost standalone preprints",
+                max_length=200,
+                upload_to="UPLOADS/PREPRINTS/%Y/%m/",
+                verbose_name="Preprint file",
+            ),
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='scipost_preprint_identifier',
-            field=models.PositiveIntegerField(blank=True, help_text='Unique identifier for SciPost standalone preprints', null=True, verbose_name='SciPost preprint ID'),
+            model_name="preprint",
+            name="scipost_preprint_identifier",
+            field=models.PositiveIntegerField(
+                blank=True,
+                help_text="Unique identifier for SciPost standalone preprints",
+                null=True,
+                verbose_name="SciPost preprint ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='preprint',
-            name='vn_nr',
-            field=models.PositiveSmallIntegerField(default=1, verbose_name='Version number'),
+            model_name="preprint",
+            name="vn_nr",
+            field=models.PositiveSmallIntegerField(
+                default=1, verbose_name="Version number"
+            ),
         ),
     ]

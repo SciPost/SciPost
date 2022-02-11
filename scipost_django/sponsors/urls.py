@@ -7,13 +7,8 @@ from django.views.generic import TemplateView
 
 from . import views
 
-app_name = 'sponsors'
+app_name = "sponsors"
 
 urlpatterns = [
-
-    path(
-        '',
-        views.sponsors,
-        name="sponsors"
-    ),
+    path("", views.sponsors, name="sponsors"),
 ]

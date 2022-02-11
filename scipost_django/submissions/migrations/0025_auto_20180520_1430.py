@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0024_auto_20180519_2324'),
+        ("submissions", "0024_auto_20180519_2324"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='refereeinvitation',
-            name='invitation_key',
+            model_name="refereeinvitation",
+            name="invitation_key",
             field=models.CharField(blank=True, max_length=40),
         ),
     ]

@@ -8,13 +8,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0008_subsidy_amount_publicly_shown'),
+        ("finances", "0008_subsidy_amount_publicly_shown"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsidy',
-            name='subsidy_type',
-            field=models.CharField(choices=[('sponsorshipagreement', 'Sponsorship Agreement'), ('incidentalgrant', 'Incidental Grant'), ('developmentgrant', 'Development Grant'), ('collaborationagreement', 'Collaboration Agreement'), ('donation', 'Donation'), ('grant', 'Grant'), ('partneragreement', 'Partner Agreement')], max_length=256),
+            model_name="subsidy",
+            name="subsidy_type",
+            field=models.CharField(
+                choices=[
+                    ("sponsorshipagreement", "Sponsorship Agreement"),
+                    ("incidentalgrant", "Incidental Grant"),
+                    ("developmentgrant", "Development Grant"),
+                    ("collaborationagreement", "Collaboration Agreement"),
+                    ("donation", "Donation"),
+                    ("grant", "Grant"),
+                    ("partneragreement", "Partner Agreement"),
+                ],
+                max_length=256,
+            ),
         ),
     ]

@@ -9,13 +9,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0007_auto_20181002_1104'),
+        ("profiles", "0007_auto_20181002_1104"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='profileemail',
-            name='profile',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='emails', to='profiles.Profile'),
+            model_name="profileemail",
+            name="profile",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="emails",
+                to="profiles.Profile",
+            ),
         ),
     ]

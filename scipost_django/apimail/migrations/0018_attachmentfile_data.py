@@ -7,13 +7,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0017_auto_20200206_0554'),
+        ("apimail", "0017_auto_20200206_0554"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='attachmentfile',
-            name='data',
+            model_name="attachmentfile",
+            name="data",
             field=django.contrib.postgres.fields.jsonb.JSONField(default=dict),
         ),
     ]

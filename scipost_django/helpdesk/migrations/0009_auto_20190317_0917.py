@@ -9,18 +9,26 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('helpdesk', '0008_auto_20190316_1021'),
+        ("helpdesk", "0008_auto_20190316_1021"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='ticket',
-            name='publicly_visible',
-            field=models.BooleanField(default=False, help_text='Do you agree with this Ticket being made publicly visible (and appearing, anonymized, in our public Knowledge Base)?'),
+            model_name="ticket",
+            name="publicly_visible",
+            field=models.BooleanField(
+                default=False,
+                help_text="Do you agree with this Ticket being made publicly visible (and appearing, anonymized, in our public Knowledge Base)?",
+            ),
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='queue',
-            field=models.ForeignKey(help_text="Don't worry and just choose the one that seems most appropriate for your issue", on_delete=django.db.models.deletion.CASCADE, related_name='tickets', to='helpdesk.Queue'),
+            model_name="ticket",
+            name="queue",
+            field=models.ForeignKey(
+                help_text="Don't worry and just choose the one that seems most appropriate for your issue",
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="tickets",
+                to="helpdesk.Queue",
+            ),
         ),
     ]

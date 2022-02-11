@@ -6,5 +6,5 @@ from django.apps import AppConfig
 
 
 class ApimailConfig(AppConfig):
-    name = 'apimail'
-    verbose_name = 'API Mail'
+    name = "apimail"
+    verbose_name = "API Mail"

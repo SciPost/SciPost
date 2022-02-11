@@ -7,38 +7,28 @@ from django.views.generic import TemplateView
 
 from . import views
 
-app_name = 'theses'
+app_name = "theses"
 
 urlpatterns = [
     # Thesis Links
-    path(
-        '',
-        views.ThesisListView.as_view(),
-        name='theses'
-    ),
+    path("", views.ThesisListView.as_view(), name="theses"),
     re_path(
-        r'^browse/(?P<nrweeksback>[0-9]{1,3})/$',
+        r"^browse/(?P<nrweeksback>[0-9]{1,3})/$",
         views.ThesisListView.as_view(),
-        name='browse'
+        name="browse",
     ),
+    path("<int:thesislink_id>/", views.thesis_detail, name="thesis"),
     path(
-        '<int:thesislink_id>/',
-        views.thesis_detail,
-        name='thesis'
-    ),
-    path(
-        'request_thesislink',
+        "request_thesislink",
         views.RequestThesisLink.as_view(),
-        name='request_thesislink'
+        name="request_thesislink",
     ),
     path(
-        'unvetted_thesislinks',
+        "unvetted_thesislinks",
         views.UnvettedThesisLinks.as_view(),
-        name='unvetted_thesislinks'
+        name="unvetted_thesislinks",
     ),
     path(
-        'vet_thesislink/<int:pk>/',
-        views.VetThesisLink.as_view(),
-        name='vet_thesislink'
+        "vet_thesislink/<int:pk>/", views.VetThesisLink.as_view(), name="vet_thesislink"
     ),
 ]

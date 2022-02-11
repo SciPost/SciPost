@@ -7,13 +7,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0016_populate_colleges'),
+        ("colleges", "0016_populate_colleges"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='fellowship',
-            name='college',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='fellowships', to='colleges.College'),
+            model_name="fellowship",
+            name="college",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="fellowships",
+                to="colleges.College",
+            ),
         ),
     ]

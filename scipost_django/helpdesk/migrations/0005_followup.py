@@ -11,22 +11,58 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('helpdesk', '0004_auto_20190314_0955'),
+        ("helpdesk", "0004_auto_20190314_0955"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Followup',
+            name="Followup",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('text', models.TextField(blank=True, null=True)),
-                ('timestamp', models.DateTimeField()),
-                ('action', models.CharField(choices=[('assignment', 'Assignment'), ('reassignment', 'Reassignment'), ('pickup', 'Pickup by handler'), ('respondedtouser', 'Response sent to user'), ('userresonponded', 'User resonponded'), ('markresolved', 'Marked as resolved'), ('markcloseed', 'Mark as closeed')], max_length=32)),
-                ('by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='ticket_followups', to=settings.AUTH_USER_MODEL)),
-                ('ticket', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='followups', to='helpdesk.Ticket')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("text", models.TextField(blank=True, null=True)),
+                ("timestamp", models.DateTimeField()),
+                (
+                    "action",
+                    models.CharField(
+                        choices=[
+                            ("assignment", "Assignment"),
+                            ("reassignment", "Reassignment"),
+                            ("pickup", "Pickup by handler"),
+                            ("respondedtouser", "Response sent to user"),
+                            ("userresonponded", "User resonponded"),
+                            ("markresolved", "Marked as resolved"),
+                            ("markcloseed", "Mark as closeed"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                (
+                    "by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="ticket_followups",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "ticket",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="followups",
+                        to="helpdesk.Ticket",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['timestamp'],
+                "ordering": ["timestamp"],
             },
         ),
     ]

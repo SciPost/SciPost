@@ -3,6 +3,7 @@ from django.test import TestCase
 # from mails.models import MailLog, MAIL_RENDERED, MAIL_NOT_RENDERED, MAIL_SENT
 # from mails.utils import DirectMailUtil
 from mails.views import MailView, MailEditorSubview
+
 # from submissions.factories import SubmissionFactory
 
 

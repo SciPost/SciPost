@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('funders', '0002_auto_20171229_1435'),
+        ("funders", "0002_auto_20171229_1435"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='funder',
-            name='acronym',
-            field=models.CharField(blank=True, default='', max_length=32),
+            model_name="funder",
+            name="acronym",
+            field=models.CharField(blank=True, default="", max_length=32),
         ),
     ]

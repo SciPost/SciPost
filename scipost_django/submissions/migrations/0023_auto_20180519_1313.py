@@ -9,29 +9,66 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0022_merge_20180519_1308'),
+        ("submissions", "0022_merge_20180519_1308"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='report',
-            name='file_attachment',
-            field=models.FileField(blank=True, default='', upload_to='uploads/reports/%Y/%m/%d/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size]),
+            model_name="report",
+            name="file_attachment",
+            field=models.FileField(
+                blank=True,
+                default="",
+                upload_to="uploads/reports/%Y/%m/%d/",
+                validators=[
+                    comments.behaviors.validate_file_extension,
+                    comments.behaviors.validate_max_file_size,
+                ],
+            ),
             preserve_default=False,
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='refereeing_cycle',
-            field=models.CharField(blank=True, choices=[('', 'Cycle undetermined'), ('default', 'Default cycle'), ('short', 'Short cycle'), ('direct_rec', 'Direct editorial recommendation')], default='default', max_length=30),
+            model_name="submission",
+            name="refereeing_cycle",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("", "Cycle undetermined"),
+                    ("default", "Default cycle"),
+                    ("short", "Short cycle"),
+                    ("direct_rec", "Direct editorial recommendation"),
+                ],
+                default="default",
+                max_length=30,
+            ),
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='status',
-            field=models.CharField(choices=[('incoming', 'Submission incoming, undergoing pre-screening'), ('unassigned', 'Unassigned, awaiting editor assignment'), ('assigned', 'Editor-in-charge assigned, manuscript under review'), ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'), ('resubmitted', 'Has been resubmitted'), ('accepted', 'Publication decision taken: accept'), ('rejected', 'Publication decision taken: reject'), ('withdrawn', 'Withdrawn by the Authors'), ('published', 'Published')], default='incoming', max_length=30),
+            model_name="submission",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("incoming", "Submission incoming, undergoing pre-screening"),
+                    ("unassigned", "Unassigned, awaiting editor assignment"),
+                    ("assigned", "Editor-in-charge assigned, manuscript under review"),
+                    (
+                        "assignment_failed",
+                        "Failed to assign Editor-in-charge; manuscript rejected",
+                    ),
+                    ("resubmitted", "Has been resubmitted"),
+                    ("accepted", "Publication decision taken: accept"),
+                    ("rejected", "Publication decision taken: reject"),
+                    ("withdrawn", "Withdrawn by the Authors"),
+                    ("published", "Published"),
+                ],
+                default="incoming",
+                max_length=30,
+            ),
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='visible_pool',
-            field=models.BooleanField(default=False, verbose_name='Is visible in the Pool'),
+            model_name="submission",
+            name="visible_pool",
+            field=models.BooleanField(
+                default=False, verbose_name="Is visible in the Pool"
+            ),
         ),
     ]

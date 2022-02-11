@@ -6,7 +6,6 @@ from django.conf.urls import url
 
 from . import views
 
-app_name = 'mails'
+app_name = "mails"
 
-urlpatterns = [
-]
+urlpatterns = []

@@ -9,13 +9,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0015_contributor_profile'),
+        ("scipost", "0015_contributor_profile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contributor',
-            name='profile',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='profiles.Profile'),
+            model_name="contributor",
+            name="profile",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="profiles.Profile",
+            ),
         ),
     ]

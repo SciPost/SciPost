@@ -6,12 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0081_auto_20191026_1828'),
+        ("submissions", "0081_auto_20191026_1828"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='editorialdecision',
-            options={'ordering': ['-submission__submission_date', '-version'], 'verbose_name': 'Editorial Decision', 'verbose_name_plural': 'Editorial Decisions'},
+            name="editorialdecision",
+            options={
+                "ordering": ["-submission__submission_date", "-version"],
+                "verbose_name": "Editorial Decision",
+                "verbose_name_plural": "Editorial Decisions",
+            },
         ),
     ]

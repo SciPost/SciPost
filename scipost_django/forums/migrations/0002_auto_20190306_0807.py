@@ -8,12 +8,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forums', '0001_initial'),
+        ("forums", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='forum',
-            options={'ordering': ['name'], 'permissions': [('can_view_forum', 'Can view Forum')]},
+            name="forum",
+            options={
+                "ordering": ["name"],
+                "permissions": [("can_view_forum", "Can view Forum")],
+            },
         ),
     ]

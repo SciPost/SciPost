@@ -9,18 +9,28 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0042_auto_20180923_2130'),
+        ("journals", "0042_auto_20180923_2130"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='issue',
-            name='slug',
+            model_name="issue",
+            name="slug",
             field=models.SlugField(null=True),
         ),
         migrations.AlterField(
-            model_name='issue',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^[a-zA-Z]+(.[0-9]+)?.[0-9]+$', 'Only valid DOI expressions are allowed ([a-zA-Z]+.[0-9]+.[0-9]+).')]),
+            model_name="issue",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^[a-zA-Z]+(.[0-9]+)?.[0-9]+$",
+                        "Only valid DOI expressions are allowed ([a-zA-Z]+.[0-9]+.[0-9]+).",
+                    )
+                ],
+            ),
         ),
     ]

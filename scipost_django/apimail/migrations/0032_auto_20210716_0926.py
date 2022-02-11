@@ -6,38 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0031_storedmessage_mime'),
+        ("apimail", "0031_storedmessage_mime"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='addressvalidation',
-            name='data',
+            model_name="addressvalidation",
+            name="data",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='attachmentfile',
-            name='data',
+            model_name="attachmentfile",
+            name="data",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='composedmessage',
-            name='headers_added',
+            model_name="composedmessage",
+            name="headers_added",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='composedmessageapiresponse',
-            name='json',
+            model_name="composedmessageapiresponse",
+            name="json",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='event',
-            name='data',
+            model_name="event",
+            name="data",
             field=models.JSONField(default=dict),
         ),
         migrations.AlterField(
-            model_name='storedmessage',
-            name='data',
+            model_name="storedmessage",
+            name="data",
             field=models.JSONField(default=dict),
         ),
     ]

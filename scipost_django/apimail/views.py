@@ -13,7 +13,7 @@ from .models import AttachmentFile
 
 @login_required
 def mail(request):
-    return render(request, 'apimail/mail.html')
+    return render(request, "apimail/mail.html")
 
 
 @login_required
@@ -23,9 +23,8 @@ def attachment_file(request, uuid):
     """
     att = get_object_or_404(AttachmentFile, uuid=uuid)
     content_type, encoding = mimetypes.guess_type(att.file.path)
-    content_type = content_type or 'application/octet-stream'
+    content_type = content_type or "application/octet-stream"
     response = HttpResponse(att.file.read(), content_type=content_type)
-    response['Content-Disposition'] = (
-        'filename=%s' % att.file.name.rpartition('/')[2])
+    response["Content-Disposition"] = "filename=%s" % att.file.name.rpartition("/")[2]
     response["Content-Encoding"] = encoding
     return response

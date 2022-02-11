@@ -7,16 +7,16 @@ from django.db import migrations
 
 def rename_submission_status(apps, schema_editor):
     """Rename Submission incoming status."""
-    Submission = apps.get_model('submissions', 'Submission')
+    Submission = apps.get_model("submissions", "Submission")
 
     # Update Submission statuses
-    Submission.objects.filter(status='unassigned_incoming').update(status='incoming')
+    Submission.objects.filter(status="unassigned_incoming").update(status="incoming")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0018_auto_20180426_1023'),
+        ("submissions", "0018_auto_20180426_1023"),
     ]
 
     operations = [

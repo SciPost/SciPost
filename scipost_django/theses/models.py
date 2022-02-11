@@ -15,61 +15,62 @@ from .managers import ThesisLinkManager
 
 
 class ThesisLink(models.Model):
-    """ An URL pointing to a thesis """
+    """An URL pointing to a thesis"""
+
     requested_by = models.ForeignKey(
-        'scipost.Contributor', blank=True, null=True,
-        related_name='requested_theses',
-        on_delete=models.CASCADE)
+        "scipost.Contributor",
+        blank=True,
+        null=True,
+        related_name="requested_theses",
+        on_delete=models.CASCADE,
+    )
     vetted = models.BooleanField(default=False)
     vetted_by = models.ForeignKey(
-        'scipost.Contributor', blank=True, null=True,
-        on_delete=models.CASCADE)
+        "scipost.Contributor", blank=True, null=True, on_delete=models.CASCADE
+    )
     type = models.CharField(choices=THESIS_TYPES, max_length=3)
 
     # Ontology-based semantic linking
     acad_field = models.ForeignKey(
-        'ontology.AcademicField',
-        on_delete=models.PROTECT,
-        related_name='theses'
+        "ontology.AcademicField", on_delete=models.PROTECT, related_name="theses"
     )
-    specialties = models.ManyToManyField(
-        'ontology.Specialty',
-        related_name='theses'
-    )
-    topics = models.ManyToManyField(
-        'ontology.Topic',
-        blank=True
-    )
+    specialties = models.ManyToManyField("ontology.Specialty", related_name="theses")
+    topics = models.ManyToManyField("ontology.Topic", blank=True)
     approaches = ChoiceArrayField(
         models.CharField(max_length=24, choices=SCIPOST_APPROACHES),
-        blank=True, null=True, verbose_name='approach(es) [optional]')
+        blank=True,
+        null=True,
+        verbose_name="approach(es) [optional]",
+    )
     open_for_commenting = models.BooleanField(default=True)
-    title = models.CharField(max_length=300, verbose_name='title')
-    pub_link = models.URLField(verbose_name='URL (external repository)')
+    title = models.CharField(max_length=300, verbose_name="title")
+    pub_link = models.URLField(verbose_name="URL (external repository)")
     author = models.CharField(max_length=1000)
     author_as_cont = models.ManyToManyField(
-        'scipost.Contributor', blank=True,
-        related_name='theses')
+        "scipost.Contributor", blank=True, related_name="theses"
+    )
     author_claims = models.ManyToManyField(
-        'scipost.Contributor', blank=True,
-        related_name='claimed_theses')
+        "scipost.Contributor", blank=True, related_name="claimed_theses"
+    )
     author_false_claims = models.ManyToManyField(
-        'scipost.Contributor', blank=True,
-        related_name='false_claimed_theses')
+        "scipost.Contributor", blank=True, related_name="false_claimed_theses"
+    )
     supervisor = models.CharField(max_length=1000)
     supervisor_as_cont = models.ManyToManyField(
-        'scipost.Contributor', blank=True,
-        verbose_name='supervisor(s)',
-        related_name='supervised_theses')
+        "scipost.Contributor",
+        blank=True,
+        verbose_name="supervisor(s)",
+        related_name="supervised_theses",
+    )
     institution = models.CharField(
-        max_length=300,
-        verbose_name='degree granting institution')
-    defense_date = models.DateField(verbose_name='date of thesis defense')
-    abstract = models.TextField(verbose_name='abstract, outline or summary')
+        max_length=300, verbose_name="degree granting institution"
+    )
+    defense_date = models.DateField(verbose_name="date of thesis defense")
+    abstract = models.TextField(verbose_name="abstract, outline or summary")
     latest_activity = models.DateTimeField(default=timezone.now)
 
     # Comments can be added to a ThesisLink
-    comments = GenericRelation('comments.Comment', related_query_name='theses')
+    comments = GenericRelation("comments.Comment", related_query_name="theses")
 
     objects = ThesisLinkManager()
 
@@ -77,4 +78,4 @@ class ThesisLink(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('theses:thesis', args=[self.id])
+        return reverse("theses:thesis", args=[self.id])

@@ -16,18 +16,18 @@ from .constants import TITLE_CHOICES, NORMAL_CONTRIBUTOR
 
 
 class ContributorFactory(factory.django.DjangoModelFactory):
-    profile = factory.SubFactory('profiles.factories.ProfileFactory')
-    user = factory.SubFactory('scipost.factories.UserFactory', contributor=None)
-    invitation_key = factory.Faker('md5')
-    activation_key = factory.Faker('md5')
-    key_expires = factory.Faker('future_datetime', tzinfo=pytz.utc)
+    profile = factory.SubFactory("profiles.factories.ProfileFactory")
+    user = factory.SubFactory("scipost.factories.UserFactory", contributor=None)
+    invitation_key = factory.Faker("md5")
+    activation_key = factory.Faker("md5")
+    key_expires = factory.Faker("future_datetime", tzinfo=pytz.utc)
     status = NORMAL_CONTRIBUTOR  # normal user
-    address = factory.Faker('address')
+    address = factory.Faker("address")
     # vetted_by = factory.Iterator(Contributor.objects.all())
 
     class Meta:
         model = Contributor
-        django_get_or_create = ('user',)
+        django_get_or_create = ("user",)
 
 
 class VettingEditorFactory(ContributorFactory):
@@ -39,15 +39,15 @@ class VettingEditorFactory(ContributorFactory):
 
 
 class UserFactory(factory.django.DjangoModelFactory):
-    username = factory.Faker('user_name')
-    password = factory.PostGenerationMethodCall('set_password', 'adm1n')
-    email = factory.Faker('safe_email')
-    first_name = factory.Faker('first_name')
-    last_name = factory.Faker('last_name')
+    username = factory.Faker("user_name")
+    password = factory.PostGenerationMethodCall("set_password", "adm1n")
+    email = factory.Faker("safe_email")
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
     is_active = True
 
     # When user object is created, associate new Contributor object to it.
-    contrib = factory.RelatedFactory(ContributorFactory, 'user')
+    contrib = factory.RelatedFactory(ContributorFactory, "user")
 
     class Meta:
         model = get_user_model()
@@ -62,13 +62,15 @@ class UserFactory(factory.django.DjangoModelFactory):
             for group in extracted:
                 self.groups.add(group)
         else:
-            self.groups.add(Group.objects.get_or_create(name="Registered Contributors")[0])
+            self.groups.add(
+                Group.objects.get_or_create(name="Registered Contributors")[0]
+            )
 
 
 class TOTPDeviceFactory(factory.django.DjangoModelFactory):
-    user = factory.SubFactory('scipost.factories.UserFactory')
-    name = factory.Faker('pystr')
-    token = factory.Faker('md5')
+    user = factory.SubFactory("scipost.factories.UserFactory")
+    name = factory.Faker("pystr")
+    token = factory.Faker("md5")
 
     class Meta:
         model = TOTPDevice
@@ -77,8 +79,8 @@ class TOTPDeviceFactory(factory.django.DjangoModelFactory):
 class SubmissionRemarkFactory(factory.django.DjangoModelFactory):
     contributor = factory.Iterator(Contributor.objects.all())
     submission = factory.Iterator(Submission.objects.all())
-    date = factory.Faker('date_time_this_decade')
-    remark = factory.Faker('paragraph')
+    date = factory.Faker("date_time_this_decade")
+    remark = factory.Faker("paragraph")
 
     class Meta:
         model = Remark

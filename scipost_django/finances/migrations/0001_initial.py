@@ -13,27 +13,51 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='WorkLog',
+            name="WorkLog",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('comments', models.TextField(blank=True)),
-                ('log_type', models.CharField(blank=True, max_length=128)),
-                ('duration', models.DurationField(blank=True, null=True)),
-                ('work_date', models.DateField(default=django.utils.timezone.now)),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('object_id', models.PositiveIntegerField(blank=True, null=True)),
-                ('content_type', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='work_logs', to='contenttypes.ContentType')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='work_logs', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("comments", models.TextField(blank=True)),
+                ("log_type", models.CharField(blank=True, max_length=128)),
+                ("duration", models.DurationField(blank=True, null=True)),
+                ("work_date", models.DateField(default=django.utils.timezone.now)),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("object_id", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="work_logs",
+                        to="contenttypes.ContentType",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="work_logs",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'default_related_name': 'work_logs',
-                'ordering': ['-work_date', 'created'],
+                "default_related_name": "work_logs",
+                "ordering": ["-work_date", "created"],
             },
         ),
     ]

@@ -9,29 +9,49 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0032_merge_20180806_1236'),
+        ("submissions", "0032_merge_20180806_1236"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='report',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="report",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='report',
-            name='modified',
+            model_name="report",
+            name="modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='needs_conflicts_update',
+            model_name="submission",
+            name="needs_conflicts_update",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='status',
-            field=models.CharField(choices=[('incoming', 'Submission incoming, undergoing pre-screening'), ('unassigned', 'Unassigned, awaiting editor assignment'), ('failed_pre', 'Failed pre-screening'), ('assigned', 'Editor-in-charge assigned'), ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'), ('resubmitted', 'Has been resubmitted'), ('accepted', 'Publication decision taken: accept'), ('rejected', 'Publication decision taken: reject'), ('withdrawn', 'Withdrawn by the Authors'), ('published', 'Published')], default='incoming', max_length=30),
+            model_name="submission",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("incoming", "Submission incoming, undergoing pre-screening"),
+                    ("unassigned", "Unassigned, awaiting editor assignment"),
+                    ("failed_pre", "Failed pre-screening"),
+                    ("assigned", "Editor-in-charge assigned"),
+                    (
+                        "assignment_failed",
+                        "Failed to assign Editor-in-charge; manuscript rejected",
+                    ),
+                    ("resubmitted", "Has been resubmitted"),
+                    ("accepted", "Publication decision taken: accept"),
+                    ("rejected", "Publication decision taken: reject"),
+                    ("withdrawn", "Withdrawn by the Authors"),
+                    ("published", "Published"),
+                ],
+                default="incoming",
+                max_length=30,
+            ),
         ),
     ]

@@ -4,23 +4,22 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-def update_contributor_status_field(apps, schema_editor):
-    Contributor = apps.get_model('scipost', 'Contributor')
 
-    Contributor.objects.filter(status=-4).update(new_status='disabled')
-    Contributor.objects.filter(status=-3).update(new_status='barred')
-    Contributor.objects.filter(status=-2).update(new_status='double_account')
-    Contributor.objects.filter(status=-1).update(new_status='no_scientist')
-    Contributor.objects.filter(status=0).update(new_status='newly_registered')
-    Contributor.objects.filter(status=1).update(new_status='normal')
+def update_contributor_status_field(apps, schema_editor):
+    Contributor = apps.get_model("scipost", "Contributor")
+
+    Contributor.objects.filter(status=-4).update(new_status="disabled")
+    Contributor.objects.filter(status=-3).update(new_status="barred")
+    Contributor.objects.filter(status=-2).update(new_status="double_account")
+    Contributor.objects.filter(status=-1).update(new_status="no_scientist")
+    Contributor.objects.filter(status=0).update(new_status="newly_registered")
+    Contributor.objects.filter(status=1).update(new_status="normal")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0011_contributor_new_status'),
+        ("scipost", "0011_contributor_new_status"),
     ]
 
-    operations = [
-        migrations.RunPython(update_contributor_status_field)
-    ]
+    operations = [migrations.RunPython(update_contributor_status_field)]

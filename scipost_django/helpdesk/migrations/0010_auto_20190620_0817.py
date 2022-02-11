@@ -6,18 +6,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('helpdesk', '0009_auto_20190317_0917'),
+        ("helpdesk", "0009_auto_20190317_0917"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='queue',
-            name='description',
-            field=models.TextField(help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'),
+            model_name="queue",
+            name="description",
+            field=models.TextField(
+                help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'
+            ),
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='description',
-            field=models.TextField(help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'),
+            model_name="ticket",
+            name="description",
+            field=models.TextField(
+                help_text='You can use plain text, Markdown or reStructuredText; see our <a href="/markup/help/" target="_blank">markup help</a> pages.'
+            ),
         ),
     ]

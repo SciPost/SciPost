@@ -9,15 +9,15 @@ from ...models import Publication
 
 
 class PublicationPublicSerializer(DynamicFieldsModelSerializer):
-    url = serializers.URLField(source='get_absolute_url')
+    url = serializers.URLField(source="get_absolute_url")
 
     class Meta:
         model = Publication
         fields = [
-            'url',
-            'title',
-            'author_list',
-            'abstract',
-            'doi_label',
-            'publication_date',
+            "url",
+            "title",
+            "author_list",
+            "abstract",
+            "doi_label",
+            "publication_date",
         ]

@@ -7,13 +7,16 @@ from django.contrib import admin
 from .models import (
     AddressBookEntry,
     Domain,
-    EmailAccount, EmailAccountAccess,
+    EmailAccount,
+    EmailAccountAccess,
     AttachmentFile,
-    ComposedMessage, ComposedMessageAPIResponse,
+    ComposedMessage,
+    ComposedMessageAPIResponse,
     Event,
     StoredMessage,
     UserTag,
-    ValidatedAddress, AddressValidation
+    ValidatedAddress,
+    AddressValidation,
 )
 
 
@@ -27,17 +30,21 @@ class EmailAccountAccessInline(admin.StackedInline):
 
 
 class EmailAccountAdmin(admin.ModelAdmin):
-    inlines = [EmailAccountAccessInline,]
+    inlines = [
+        EmailAccountAccessInline,
+    ]
+
 
 admin.site.register(EmailAccount, EmailAccountAdmin)
 
 
 class AttachmentFileAdmin(admin.ModelAdmin):
     list_display = [
-        '__str__',
-        'uuid',
-        'sha224_hash',
+        "__str__",
+        "uuid",
+        "sha224_hash",
     ]
+
 
 admin.site.register(AttachmentFile, AttachmentFileAdmin)
 
@@ -55,7 +62,10 @@ class ComposedMessageAPIResponseInline(admin.StackedInline):
 
 
 class ComposedMessageAdmin(admin.ModelAdmin):
-    inlines = [ComposedMessageAPIResponseInline,]
+    inlines = [
+        ComposedMessageAPIResponseInline,
+    ]
+
 
 admin.site.register(ComposedMessage, ComposedMessageAdmin)
 
@@ -63,17 +73,20 @@ admin.site.register(ComposedMessage, ComposedMessageAdmin)
 class EventAdmin(admin.ModelAdmin):
     pass
 
+
 admin.site.register(Event, EventAdmin)
 
 
 class StoredMessageAdmin(admin.ModelAdmin):
     pass
 
+
 admin.site.register(StoredMessage, StoredMessageAdmin)
 
 
 class UserTagAdmin(admin.ModelAdmin):
     pass
+
 
 admin.site.register(UserTag, UserTagAdmin)
 
@@ -91,6 +104,10 @@ class AddressBookEntryInline(admin.StackedInline):
 
 
 class ValidatedAddressAdmin(admin.ModelAdmin):
-    inlines = [AddressValidationInline, AddressBookEntryInline,]
+    inlines = [
+        AddressValidationInline,
+        AddressBookEntryInline,
+    ]
+
 
 admin.site.register(ValidatedAddress, ValidatedAddressAdmin)

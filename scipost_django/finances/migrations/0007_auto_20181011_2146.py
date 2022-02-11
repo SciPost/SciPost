@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0006_auto_20181008_1629'),
+        ("finances", "0006_auto_20181008_1629"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='subsidy',
-            options={'ordering': ['-date'], 'verbose_name_plural': 'subsidies'},
+            name="subsidy",
+            options={"ordering": ["-date"], "verbose_name_plural": "subsidies"},
         ),
     ]

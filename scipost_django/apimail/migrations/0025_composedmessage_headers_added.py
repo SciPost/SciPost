@@ -7,13 +7,13 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0024_auto_20201017_1658'),
+        ("apimail", "0024_auto_20201017_1658"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='composedmessage',
-            name='headers_added',
+            model_name="composedmessage",
+            name="headers_added",
             field=django.contrib.postgres.fields.jsonb.JSONField(default=dict),
         ),
     ]

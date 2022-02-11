@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0027_addressbookentry'),
+        ("apimail", "0027_addressbookentry"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='composedmessage',
-            name='subject',
+            model_name="composedmessage",
+            name="subject",
             field=models.CharField(blank=True, max_length=256),
         ),
         migrations.AlterField(
-            model_name='composedmessage',
-            name='to_recipient',
+            model_name="composedmessage",
+            name="to_recipient",
             field=models.EmailField(blank=True, max_length=254),
         ),
     ]

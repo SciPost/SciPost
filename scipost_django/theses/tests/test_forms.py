@@ -22,9 +22,16 @@ class TestRequestThesisLink(TestCase):
         self.request = RequestFactory()
         self.request.user = self.user
         self.valid_form_data = model_form_data(
-            ThesisLinkFactory(), RequestThesisLinkForm, form_kwargs={'request': self.request})
-        self.valid_form_data['acad_field'] = AcademicField.objects.order_by('?').first().id
-        self.valid_form_data['specialties'] = [s.id for s in Specialty.objects.order_by('?')[:3]]
+            ThesisLinkFactory(),
+            RequestThesisLinkForm,
+            form_kwargs={"request": self.request},
+        )
+        self.valid_form_data["acad_field"] = (
+            AcademicField.objects.order_by("?").first().id
+        )
+        self.valid_form_data["specialties"] = [
+            s.id for s in Specialty.objects.order_by("?")[:3]
+        ]
 
     def test_valid_data_is_valid(self):
         form_data = self.valid_form_data

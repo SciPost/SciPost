@@ -8,6 +8,9 @@ from .models import Preprint
 
 
 class PreprintAdmin(admin.ModelAdmin):
-    search_fields = ['identifier_w_vn_nr',]
+    search_fields = [
+        "identifier_w_vn_nr",
+    ]
+
 
 admin.site.register(Preprint, PreprintAdmin)

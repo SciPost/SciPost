@@ -11,13 +11,18 @@ from rest_framework.response import Response
 from rest_framework import status
 from ...models import ValidatedAddress, AddressBookEntry
 from ..serializers import (
-    AddressBookEntrySerializer, AddressBookEntrySelectSerializer,
-    ValidatedAddressSimpleSerializer
+    AddressBookEntrySerializer,
+    AddressBookEntrySelectSerializer,
+    ValidatedAddressSimpleSerializer,
 )
 
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,])
+@api_view(["POST"])
+@permission_classes(
+    [
+        IsAuthenticated,
+    ]
+)
 def check_address_book(request):
     """
     For a given email address in POST data, retrieve or create an AddressBookEntry.
@@ -25,11 +30,11 @@ def check_address_book(request):
     The POST data must contain an 'email' entry.
     """
 
-    if 'email' not in request.data.keys():
+    if "email" not in request.data.keys():
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     validated_address, address_created = ValidatedAddress.objects.get_or_create(
-        address=request.data['email'].lower()
+        address=request.data["email"].lower()
     )
     validated_address.update_mailgun_validation()
 
@@ -37,8 +42,8 @@ def check_address_book(request):
         user=request.user,
         address=validated_address,
     )
-    if 'description' in request.data.keys() and request.data['description']:
-        entry.description = request.data['description']
+    if "description" in request.data.keys() and request.data["description"]:
+        entry.description = request.data["description"]
         entry.save()
     serializer = ValidatedAddressSimpleSerializer(validated_address)
     return Response(serializer.data)
@@ -56,14 +61,16 @@ class AddressBookSelectView(ListAPIView):
     """
     Simpler view to feed the vue-select element.
     """
+
     permission_classes = (IsAuthenticated,)
     serializer_class = AddressBookEntrySelectSerializer
 
     def get_queryset(self):
         queryset = self.request.user.address_book_entries.all()
-        query = self.request.query_params.get('q', None)
+        query = self.request.query_params.get("q", None)
         if query:
             queryset = queryset.filter(
-                Q(address__address__contains=query.lower()) |
-                Q(description__icontains=query))
+                Q(address__address__contains=query.lower())
+                | Q(description__icontains=query)
+            )
         return queryset

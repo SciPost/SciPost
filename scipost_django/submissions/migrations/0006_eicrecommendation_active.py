@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0005_auto_20180123_2312'),
+        ("submissions", "0005_auto_20180123_2312"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='eicrecommendation',
-            name='active',
+            model_name="eicrecommendation",
+            name="active",
             field=models.BooleanField(default=True),
         ),
     ]

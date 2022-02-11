@@ -6,13 +6,16 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0083_auto_20191005_1142'),
+        ("journals", "0083_auto_20191005_1142"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='minimal_nr_of_reports',
-            field=models.PositiveSmallIntegerField(default=1, help_text='Minimal number of substantial Reports required before an acceptance motion can be formulated'),
+            model_name="journal",
+            name="minimal_nr_of_reports",
+            field=models.PositiveSmallIntegerField(
+                default=1,
+                help_text="Minimal number of substantial Reports required before an acceptance motion can be formulated",
+            ),
         ),
     ]

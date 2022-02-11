@@ -13,24 +13,17 @@ class Branch(models.Model):
     A principal division in the tree of knowledge.
     """
 
-    name = models.CharField(
-        max_length=128
-    )
+    name = models.CharField(max_length=128)
 
-    slug = models.SlugField(
-        unique=True,
-        allow_unicode=True
-    )
+    slug = models.SlugField(unique=True, allow_unicode=True)
 
-    order = models.PositiveSmallIntegerField(
-        unique=True
-    )
+    order = models.PositiveSmallIntegerField(unique=True)
 
     class Meta:
         ordering = [
-            'order',
+            "order",
         ]
-        verbose_name_plural = 'branches'
+        verbose_name_plural = "branches"
 
     def __str__(self):
         return self.name

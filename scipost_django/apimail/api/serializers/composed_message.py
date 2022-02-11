@@ -6,7 +6,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotFound
 
 from ...models import (
-    ComposedMessage, ComposedMessageAPIResponse,
+    ComposedMessage,
+    ComposedMessageAPIResponse,
     AttachmentFile,
 )
 from ..serializers import AttachmentFileSerializer
@@ -17,7 +18,7 @@ class ComposedMessageAPIResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ComposedMessageAPIResponse
-        fields = ['message_uuid', 'datetime', 'status_code', 'json']
+        fields = ["message_uuid", "datetime", "status_code", "json"]
 
     def get_message_uuid(self, obj):
         return obj.message.uuid
@@ -31,29 +32,40 @@ class ComposedMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComposedMessage
         fields = [
-            'uuid', 'author', 'created_on', 'status',
-            'from_account', 'from_email',
-            'to_recipient', 'cc_recipients', 'bcc_recipients',
-            'subject', 'body_text', 'body_html',
-            'headers_added',
-            'attachment_files', 'api_responses'
+            "uuid",
+            "author",
+            "created_on",
+            "status",
+            "from_account",
+            "from_email",
+            "to_recipient",
+            "cc_recipients",
+            "bcc_recipients",
+            "subject",
+            "body_text",
+            "body_html",
+            "headers_added",
+            "attachment_files",
+            "api_responses",
         ]
 
     def get_from_email(self, obj):
         return obj.from_account.email
 
     def validate(self, data):
-        if data['status'] != ComposedMessage.STATUS_DRAFT:
-            if not data['to_recipient']:
+        if data["status"] != ComposedMessage.STATUS_DRAFT:
+            if not data["to_recipient"]:
                 raise serializers.ValidationError(
-                    "to_recipient cannot be empty if message is not a draft")
-            if not data['subject']:
+                    "to_recipient cannot be empty if message is not a draft"
+                )
+            if not data["subject"]:
                 raise serializers.ValidationError(
-                    "Subject cannot be empty if message is not a draft")
+                    "Subject cannot be empty if message is not a draft"
+                )
         return data
 
     def create(self, validated_data):
-        attachment_uuids = validated_data.pop('attachment_uuids')
+        attachment_uuids = validated_data.pop("attachment_uuids")
         cm = super().create(validated_data)
         # Now deal with attachments:
         # Check that files all exist; if not, save message as draft
@@ -64,13 +76,16 @@ class ComposedMessageSerializer(serializers.ModelSerializer):
             except AttachmentFile.DoesNotExist:
                 cm.status = ComposedMessage.STATUS_DRAFT
                 cm.save()
-                raise NotFound(detail=(
-                    'The attachment file with uuid %s was not found. '
-                    'Your message was saved as a draft (not sent).' % att_uuid))
+                raise NotFound(
+                    detail=(
+                        "The attachment file with uuid %s was not found. "
+                        "Your message was saved as a draft (not sent)." % att_uuid
+                    )
+                )
         return cm
 
     def update(self, instance, validated_data):
-        attachment_uuids = validated_data.pop('attachment_uuids')
+        attachment_uuids = validated_data.pop("attachment_uuids")
         cm = super().update(instance, validated_data)
         # Now deal with attachments:
         # First remove any attachment which is not in the new list:
@@ -89,7 +104,10 @@ class ComposedMessageSerializer(serializers.ModelSerializer):
                 except AttachmentFile.DoesNotExist:
                     cm.status = ComposedMessage.STATUS_DRAFT
                     cm.save()
-                    raise NotFound(detail=(
-                        'The attachment file with uuid %s was not found. '
-                        'Your message was saved as a draft (not sent).' % att_uuid))
+                    raise NotFound(
+                        detail=(
+                            "The attachment file with uuid %s was not found. "
+                            "Your message was saved as a draft (not sent)." % att_uuid
+                        )
+                    )
         return cm

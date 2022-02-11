@@ -9,14 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0005_populate_profile_from_contributor'),
-        ('invitations', '0013_auto_20180414_2053'),
+        ("profiles", "0005_populate_profile_from_contributor"),
+        ("invitations", "0013_auto_20180414_2053"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='registrationinvitation',
-            name='profile',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='profiles.Profile'),
+            model_name="registrationinvitation",
+            name="profile",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="profiles.Profile",
+            ),
         ),
     ]

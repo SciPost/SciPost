@@ -8,23 +8,37 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('careers', '0004_auto_20191130_1142'),
+        ("careers", "0004_auto_20191130_1142"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='jobapplication',
-            name='date_received',
+            model_name="jobapplication",
+            name="date_received",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='jobapplication',
-            name='cv',
-            field=models.FileField(help_text='Your curriculum vitea, including details of training and skills pertinent to this particular job (pdf file)', upload_to='uploads/jobapplications/%Y/%m/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size]),
+            model_name="jobapplication",
+            name="cv",
+            field=models.FileField(
+                help_text="Your curriculum vitea, including details of training and skills pertinent to this particular job (pdf file)",
+                upload_to="uploads/jobapplications/%Y/%m/",
+                validators=[
+                    comments.behaviors.validate_file_extension,
+                    comments.behaviors.validate_max_file_size,
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='jobapplication',
-            name='motivation',
-            field=models.FileField(help_text='Please describe your motivations for applying, and your qualifications for this particular job (pdf file)', upload_to='uploads/jobapplications/%Y/%m/', validators=[comments.behaviors.validate_file_extension, comments.behaviors.validate_max_file_size]),
+            model_name="jobapplication",
+            name="motivation",
+            field=models.FileField(
+                help_text="Please describe your motivations for applying, and your qualifications for this particular job (pdf file)",
+                upload_to="uploads/jobapplications/%Y/%m/",
+                validators=[
+                    comments.behaviors.validate_file_extension,
+                    comments.behaviors.validate_max_file_size,
+                ],
+            ),
         ),
     ]

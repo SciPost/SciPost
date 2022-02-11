@@ -11,19 +11,34 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Fellowship',
+            name="Fellowship",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(default=django.utils.timezone.now)),
-                ('latest_activity', scipost.db.fields.AutoDateTimeField(blank=True, default=django.utils.timezone.now, editable=False)),
-                ('start_date', models.DateField(blank=True, null=True)),
-                ('until_date', models.DateField(blank=True, null=True)),
-                ('guest', models.BooleanField(default=False, verbose_name='Guest Fellowship')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "latest_activity",
+                    scipost.db.fields.AutoDateTimeField(
+                        blank=True, default=django.utils.timezone.now, editable=False
+                    ),
+                ),
+                ("start_date", models.DateField(blank=True, null=True)),
+                ("until_date", models.DateField(blank=True, null=True)),
+                (
+                    "guest",
+                    models.BooleanField(default=False, verbose_name="Guest Fellowship"),
+                ),
             ],
         ),
     ]

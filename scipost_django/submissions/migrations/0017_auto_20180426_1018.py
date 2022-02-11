@@ -7,19 +7,23 @@ from django.db import migrations
 
 def update_submission_statuses(apps, schema_editor):
     """Update Submission incoming status to unassigned."""
-    Submission = apps.get_model('submissions', 'Submission')
+    Submission = apps.get_model("submissions", "Submission")
 
     # Update Submission statuses
-    Submission.objects.filter(status='unassigned_incoming').update(status='unassigned')
-    Submission.objects.filter(status='recommendation_formulated').update(status='assigned')
-    Submission.objects.filter(status='EICassigned').update(status='assigned')  # Renaming of key
-    Submission.objects.filter(status='awaiting_ed_rec').update(status='assigned')
+    Submission.objects.filter(status="unassigned_incoming").update(status="unassigned")
+    Submission.objects.filter(status="recommendation_formulated").update(
+        status="assigned"
+    )
+    Submission.objects.filter(status="EICassigned").update(
+        status="assigned"
+    )  # Renaming of key
+    Submission.objects.filter(status="awaiting_ed_rec").update(status="assigned")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0016_auto_20180414_1825'),
+        ("submissions", "0016_auto_20180414_1825"),
     ]
 
     operations = [

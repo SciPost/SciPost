@@ -8,14 +8,14 @@ from .models import Publication
 
 
 class PublicationIndex(indexes.SearchIndex, indexes.Indexable):
-    text = indexes.CharField(document=True, model_attr='title', use_template=True)
-    authors = indexes.CharField(model_attr='author_list')
-    date = indexes.DateTimeField(model_attr='publication_date')
-    abstract = indexes.CharField(model_attr='abstract')
-    doi_label = indexes.CharField(model_attr='doi_label')
+    text = indexes.CharField(document=True, model_attr="title", use_template=True)
+    authors = indexes.CharField(model_attr="author_list")
+    date = indexes.DateTimeField(model_attr="publication_date")
+    abstract = indexes.CharField(model_attr="abstract")
+    doi_label = indexes.CharField(model_attr="doi_label")
 
     def get_updated_field(self):
-        return 'latest_activity'
+        return "latest_activity"
 
     def get_model(self):
         return Publication

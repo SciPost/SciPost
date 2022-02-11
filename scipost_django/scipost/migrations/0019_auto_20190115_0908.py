@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0018_contributor_duplicate_of'),
+        ("scipost", "0018_contributor_duplicate_of"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contributor',
-            name='personalwebpage',
-            field=models.URLField(blank=True, max_length=300, verbose_name='personal web page'),
+            model_name="contributor",
+            name="personalwebpage",
+            field=models.URLField(
+                blank=True, max_length=300, verbose_name="personal web page"
+            ),
         ),
     ]

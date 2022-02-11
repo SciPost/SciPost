@@ -12,35 +12,48 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('invitations', '0009_auto_20180218_1556'),
+        ("invitations", "0009_auto_20180218_1556"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='citationnotification',
-            name='created',
-            field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
+            model_name="citationnotification",
+            name="created",
+            field=models.DateTimeField(
+                auto_now_add=True, default=django.utils.timezone.now
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='citationnotification',
-            name='created_by',
-            field=models.ForeignKey(default=2, on_delete=django.db.models.deletion.CASCADE, related_name='notifications_created', to=settings.AUTH_USER_MODEL),
+            model_name="citationnotification",
+            name="created_by",
+            field=models.ForeignKey(
+                default=2,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="notifications_created",
+                to=settings.AUTH_USER_MODEL,
+            ),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='citationnotification',
-            name='date_sent',
+            model_name="citationnotification",
+            name="date_sent",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AddField(
-            model_name='citationnotification',
-            name='modified',
+            model_name="citationnotification",
+            name="modified",
             field=models.DateTimeField(auto_now=True),
         ),
         migrations.AlterField(
-            model_name='citationnotification',
-            name='invitation',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='citation_notifications', to='invitations.RegistrationInvitation'),
+            model_name="citationnotification",
+            name="invitation",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="citation_notifications",
+                to="invitations.RegistrationInvitation",
+            ),
         ),
     ]

@@ -6,18 +6,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0012_auto_20210310_2026'),
+        ("organizations", "0012_auto_20210310_2026"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='organization',
-            name='crossref_json',
+            model_name="organization",
+            name="crossref_json",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
         migrations.AlterField(
-            model_name='organization',
-            name='grid_json',
+            model_name="organization",
+            name="grid_json",
             field=models.JSONField(blank=True, default=dict, null=True),
         ),
     ]

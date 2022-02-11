@@ -15,7 +15,7 @@ class IsEditorialAdministrator(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         """Check user's permissions."""
-        return request.user.has_perm('scipost.can_oversee_refereeing')
+        return request.user.has_perm("scipost.can_oversee_refereeing")
 
 
 class ConflictOfInterestViewSet(viewsets.ModelViewSet):
@@ -25,17 +25,22 @@ class ConflictOfInterestViewSet(viewsets.ModelViewSet):
     serializer_class = ConflictOfInterestSerializer
     permission_classes = [permissions.IsAuthenticated, IsEditorialAdministrator]
 
-    @action(methods=['post'], detail=True, permission_classes=[IsEditorialAdministrator],
-            url_path='verify-conflict', url_name='verify_conflict')
+    @action(
+        methods=["post"],
+        detail=True,
+        permission_classes=[IsEditorialAdministrator],
+        url_path="verify-conflict",
+        url_name="verify_conflict",
+    )
     def verify_conflict(self, request, pk=None):
         """Verify a ConflictOfInterest or delete."""
         coi = get_object_or_404(ConflictOfInterest.objects.unverified(), pk=pk)
-        if request.POST['status'] == 'verified':
-            coi.status = 'verified'
-        elif request.POST['status'] == 'delete':
-            coi.status = 'deprecated'
+        if request.POST["status"] == "verified":
+            coi.status = "verified"
+        elif request.POST["status"] == "delete":
+            coi.status = "deprecated"
         else:
-            raise serializers.ValidationError('Invalid status value.')
+            raise serializers.ValidationError("Invalid status value.")
         coi.save()
         serializer = self.serializer_class(coi)
         return response.Response(serializer.data)

@@ -6,8 +6,8 @@ from django.db import migrations
 
 
 def repopulate_organization_field(apps, schema_editor):
-    Funder = apps.get_model('funders', 'Funder')
-    Organization = apps.get_model('organizations', 'Organization')
+    Funder = apps.get_model("funders", "Funder")
+    Organization = apps.get_model("organizations", "Organization")
 
     for funder in Funder.objects.filter(org__isnull=False):
         funder.org = Organization.objects.get(name=funder.org.name)
@@ -17,10 +17,11 @@ def repopulate_organization_field(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('funders', '0009_funder_org'),
+        ("funders", "0009_funder_org"),
     ]
 
     operations = [
-        migrations.RunPython(repopulate_organization_field,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            repopulate_organization_field, reverse_code=migrations.RunPython.noop
+        ),
     ]

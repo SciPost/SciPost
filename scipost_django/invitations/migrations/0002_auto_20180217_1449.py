@@ -8,18 +8,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('invitations', '0001_initial'),
+        ("invitations", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='registrationinvitation',
-            name='date_sent_first',
+            model_name="registrationinvitation",
+            name="date_sent_first",
             field=models.DateTimeField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='registrationinvitation',
-            name='date_sent_last',
+            model_name="registrationinvitation",
+            name="date_sent_last",
             field=models.DateTimeField(blank=True, null=True),
         ),
     ]

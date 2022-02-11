@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0018_attachmentfile_data'),
+        ("apimail", "0018_attachmentfile_data"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='composedmessage',
-            name='body_text',
+            model_name="composedmessage",
+            name="body_text",
             field=models.TextField(blank=True),
         ),
     ]

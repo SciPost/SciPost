@@ -23,10 +23,11 @@ class SubmissionQuerySet(models.QuerySet):
         # This method used a double query, which is a consequence of the complex distinct()
         # filter combined with the PostGresQL engine. Without the double query, ordering
         # on a specific field after filtering seems impossible.
-        ids = (queryset
-               .order_by('thread_hash', '-submission_date')
-               .distinct('thread_hash')
-               .values_list('id', flat=True))
+        ids = (
+            queryset.order_by("thread_hash", "-submission_date")
+            .distinct("thread_hash")
+            .values_list("id", flat=True)
+        )
         return queryset.filter(id__in=ids)
 
     def user_filter(self, user):
@@ -36,9 +37,10 @@ class SubmissionQuerySet(models.QuerySet):
         This filter should be inherited by other filters.
         """
         try:
-            return (self.exclude(authors=user.contributor)
-                    .exclude(models.Q(author_list__icontains=user.last_name),
-                             ~models.Q(authors_false_claims=user.contributor)))
+            return self.exclude(authors=user.contributor).exclude(
+                models.Q(author_list__icontains=user.last_name),
+                ~models.Q(authors_false_claims=user.contributor),
+            )
         except AttributeError:
             return self.none()
 
@@ -53,10 +55,10 @@ class SubmissionQuerySet(models.QuerySet):
         of in this filter method! ALWAYS use this filter method in your Editorial College
         related view/action.
         """
-        if not hasattr(user, 'contributor'):
+        if not hasattr(user, "contributor"):
             return self.none()
 
-        if user.has_perm('scipost.can_oversee_refereeing'):
+        if user.has_perm("scipost.can_oversee_refereeing"):
             # Editorial Administators do have permission to see all submissions
             # without being one of the College Fellows. Therefore, use the 'old' author
             # filter to still filter out their conflicts of interests.
@@ -71,12 +73,16 @@ class SubmissionQuerySet(models.QuerySet):
             constants.STATUS_UNASSIGNED,
             constants.STATUS_EIC_ASSIGNED,
             constants.STATUS_ACCEPTED,
-            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+            constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE,
         ]
-        if (user.has_perm('scipost.can_oversee_refereeing') or
-            user.contributor.is_active_senior_fellow):
+        if (
+            user.has_perm("scipost.can_oversee_refereeing")
+            or user.contributor.is_active_senior_fellow
+        ):
             allowed_statuses.append(constants.STATUS_INCOMING)
-        return self.pool_editable(user).filter(is_current=True, status__in=allowed_statuses)
+        return self.pool_editable(user).filter(
+            is_current=True, status__in=allowed_statuses
+        )
 
     def pool_editable(self, user):
         """Return the editable pool for a certain user.
@@ -94,13 +100,13 @@ class SubmissionQuerySet(models.QuerySet):
         """
         qs = self._pool(user)
 
-        if not user.has_perm('scipost.can_oversee_refereeing'):
+        if not user.has_perm("scipost.can_oversee_refereeing"):
             qs = qs.filter(editor_in_charge__user=user)
         return qs
 
     def filter_for_author(self, user):
         """Return the set of Submissions for which the user is a registered author."""
-        if not hasattr(user, 'contributor'):
+        if not hasattr(user, "contributor"):
             return self.none()
         return self.filter(authors=user.contributor)
 
@@ -118,14 +124,20 @@ class SubmissionQuerySet(models.QuerySet):
 
     def without_eic(self):
         """Return Submissions that still need Editorial Assignment."""
-        return self.filter(status__in=[constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED])
+        return self.filter(
+            status__in=[constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED]
+        )
 
     def actively_refereeing(self):
         from ..models import EditorialDecision
+
         """Return submission currently in some point of the refereeing round."""
         return self.filter(status=constants.STATUS_EIC_ASSIGNED).exclude(
-            models.Q(eicrecommendations__status=constants.DECISION_FIXED) &
-            ~models.Q(editorialdecision__decision=EditorialDecision.FIXED_AND_ACCEPTED))
+            models.Q(eicrecommendations__status=constants.DECISION_FIXED)
+            & ~models.Q(
+                editorialdecision__decision=EditorialDecision.FIXED_AND_ACCEPTED
+            )
+        )
 
     def public(self):
         """Return all publicly available Submissions."""
@@ -138,9 +150,9 @@ class SubmissionQuerySet(models.QuerySet):
                    if the query should be filtered or not as a logged in EdCol Admin
                    should be able to view *all* submissions.
         """
-        return self.filter(visible_public=True).exclude(status__in=[
-            constants.STATUS_RESUBMITTED,
-            constants.STATUS_PUBLISHED])
+        return self.filter(visible_public=True).exclude(
+            status__in=[constants.STATUS_RESUBMITTED, constants.STATUS_PUBLISHED]
+        )
 
     def public_newest(self):
         """
@@ -151,11 +163,14 @@ class SubmissionQuerySet(models.QuerySet):
 
     def treated(self):
         """This query returns all Submissions that are presumed to be 'done'."""
-        return self.filter(status__in=[
-            constants.STATUS_ACCEPTED,
-            constants.STATUS_REJECTED,
-            constants.STATUS_PUBLISHED,
-            constants.STATUS_RESUBMITTED])
+        return self.filter(
+            status__in=[
+                constants.STATUS_ACCEPTED,
+                constants.STATUS_REJECTED,
+                constants.STATUS_PUBLISHED,
+                constants.STATUS_RESUBMITTED,
+            ]
+        )
 
     def originally_submitted(self, from_date, until_date):
         """
@@ -163,8 +178,10 @@ class SubmissionQuerySet(models.QuerySet):
         (including subsequent resubmissions, even if those came in later).
         """
         thread_hashes = []
-        for sub in self.filter(is_resubmission_of__isnull=True,
-                               submission_date__range=(from_date, until_date)):
+        for sub in self.filter(
+            is_resubmission_of__isnull=True,
+            submission_date__range=(from_date, until_date),
+        ):
             thread_hashes.append(sub.thread_hash)
         return self.filter(thread_hash__in=thread_hashes)
 
@@ -174,14 +191,19 @@ class SubmissionQuerySet(models.QuerySet):
 
     def awaiting_puboffer_acceptance(self):
         """Return Submissions for which an outstanding publication offer exists."""
-        return self.filter(status=constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE)
+        return self.filter(
+            status=constants.STATUS_ACCEPTED_AWAITING_PUBOFFER_ACCEPTANCE
+        )
 
     def revision_requested(self):
         """Return Submissions with a fixed EICRecommendation: minor or major revision."""
         return self.filter(
             eicrecommendations__status=constants.DECISION_FIXED,
             eicrecommendations__recommendation__in=[
-                constants.REPORT_MINOR_REV, constants.REPORT_MAJOR_REV])
+                constants.REPORT_MINOR_REV,
+                constants.REPORT_MAJOR_REV,
+            ],
+        )
 
     def published(self):
         """Return published Submissions."""
@@ -211,11 +233,14 @@ class SubmissionQuerySet(models.QuerySet):
         """
         Return Submissions for which the nr of Reports is less than required by target Journal.
         """
-        qs = self.prefetch_related(
-            'reports', 'submitted_to'
-        ).annotate(nr_reports=models.Count('reports'))
-        ids_list = [s.id for s in qs.all() if (
-            s.nr_reports < s.submitted_to.minimal_nr_of_reports)]
+        qs = self.prefetch_related("reports", "submitted_to").annotate(
+            nr_reports=models.Count("reports")
+        )
+        ids_list = [
+            s.id
+            for s in qs.all()
+            if (s.nr_reports < s.submitted_to.minimal_nr_of_reports)
+        ]
         return self.filter(id__in=ids_list)
 
     def open_for_commenting(self):
@@ -234,32 +259,47 @@ class SubmissionQuerySet(models.QuerySet):
         """
         Return all Submissions that are open for resubmission specialised for a certain User.
         """
-        if not hasattr(user, 'contributor'):
+        if not hasattr(user, "contributor"):
             return self.none()
 
-        return self.filter(is_current=True, status__in=[
-            constants.STATUS_INCOMING, constants.STATUS_UNASSIGNED, constants.STATUS_EIC_ASSIGNED,
-            ], authors=user.contributor)
+        return self.filter(
+            is_current=True,
+            status__in=[
+                constants.STATUS_INCOMING,
+                constants.STATUS_UNASSIGNED,
+                constants.STATUS_EIC_ASSIGNED,
+            ],
+            authors=user.contributor,
+        )
 
     def voting_in_preparation(self):
         from submissions.models import EICRecommendation
-        ids_list = [r.submission.id for r in EICRecommendation.objects.voting_in_preparation()]
+
+        ids_list = [
+            r.submission.id for r in EICRecommendation.objects.voting_in_preparation()
+        ]
         return self.filter(id__in=ids_list)
 
     def undergoing_voting(self, longer_than_days=None):
         from submissions.models import EICRecommendation
-        ids_list = [r.submission.id for r in EICRecommendation.objects.put_to_voting(longer_than_days)]
+
+        ids_list = [
+            r.submission.id
+            for r in EICRecommendation.objects.put_to_voting(longer_than_days)
+        ]
         return self.filter(id__in=ids_list)
 
 
 class SubmissionEventQuerySet(models.QuerySet):
     def for_edadmin(self):
         """Return all events that are visible to EdAdmin."""
-        return self.filter(event__in=[
-            constants.EVENT_FOR_EDADMIN,
-            constants.EVENT_FOR_EIC,
-            constants.EVENT_GENERAL
-        ])
+        return self.filter(
+            event__in=[
+                constants.EVENT_FOR_EDADMIN,
+                constants.EVENT_FOR_EIC,
+                constants.EVENT_GENERAL,
+            ]
+        )
 
     def for_eic(self):
         """Return all events that are visible to Editor-in-charge of a submission."""
@@ -267,17 +307,22 @@ class SubmissionEventQuerySet(models.QuerySet):
 
     def for_author(self):
         """Return all events that are visible to author(s) of a submission."""
-        return self.filter(event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL])
+        return self.filter(
+            event__in=[constants.EVENT_FOR_AUTHOR, constants.EVENT_GENERAL]
+        )
 
     def last_hours(self, hours=24):
         """Return all events of the last `hours` hours."""
-        return self.filter(created__gte=timezone.now() - datetime.timedelta(hours=hours))
+        return self.filter(
+            created__gte=timezone.now() - datetime.timedelta(hours=hours)
+        )
 
     def plagiarism_report_to_be_uploaded(self):
         """Return Submissions that has not been sent to iThenticate for their plagiarism check."""
         return self.filter(
-            models.Q(plagiarism_report__isnull=True) |
-            models.Q(plagiarism_report__status=constants.STATUS_WAITING)).distinct()
+            models.Q(plagiarism_report__isnull=True)
+            | models.Q(plagiarism_report__status=constants.STATUS_WAITING)
+        ).distinct()
 
     def plagiarism_report_to_be_updated(self):
         """Return Submissions for which their iThenticateReport has not received a report yet."""

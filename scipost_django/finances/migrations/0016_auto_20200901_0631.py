@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0015_auto_20190225_0747'),
+        ("finances", "0015_auto_20190225_0747"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsidy',
-            name='subsidy_type',
-            field=models.CharField(choices=[('sponsorshipagreement', 'Sponsorship Agreement'), ('incidentalgrant', 'Incidental Grant'), ('developmentgrant', 'Development Grant'), ('collaborationagreement', 'Collaboration Agreement'), ('coordinationsupportaction', 'Coordination and Support Action'), ('donation', 'Donation')], max_length=256),
+            model_name="subsidy",
+            name="subsidy_type",
+            field=models.CharField(
+                choices=[
+                    ("sponsorshipagreement", "Sponsorship Agreement"),
+                    ("incidentalgrant", "Incidental Grant"),
+                    ("developmentgrant", "Development Grant"),
+                    ("collaborationagreement", "Collaboration Agreement"),
+                    ("coordinationsupportaction", "Coordination and Support Action"),
+                    ("donation", "Donation"),
+                ],
+                max_length=256,
+            ),
         ),
     ]

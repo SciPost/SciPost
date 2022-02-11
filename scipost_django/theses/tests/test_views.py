@@ -23,15 +23,16 @@ from ..forms import VetThesisLinkForm
 from common.helpers import model_form_data
 from common.helpers.test import add_groups_and_permissions
 
+
 class TestThesisDetail(TestCase):
     def setUp(self):
         add_groups_and_permissions()
 
     def test_visits_valid_thesis_detail(self):
-        """ A visitor does not have to be logged in to view a thesis link. """
+        """A visitor does not have to be logged in to view a thesis link."""
         thesis_link = ThesisLinkFactory()
         client = Client()
-        target = reverse('theses:thesis', kwargs={'thesislink_id': thesis_link.id})
+        target = reverse("theses:thesis", kwargs={"thesislink_id": thesis_link.id})
         response = client.post(target)
         self.assertEqual(response.status_code, 200)
 
@@ -40,17 +41,18 @@ class TestRequestThesisLink(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
-        self.target = reverse('theses:request_thesislink')
+        self.target = reverse("theses:request_thesislink")
 
     def test_response_when_not_logged_in(self):
-        '''
+        """
         A visitor that is not logged in cannot view this page and is redirected to login.
-        '''
+        """
         response = self.client.get(self.target)
         self.assertRedirects(
             response,
-            expected_url='%s?next=%s' % (
-                reverse('scipost:login'), reverse('theses:request_thesislink')))
+            expected_url="%s?next=%s"
+            % (reverse("scipost:login"), reverse("theses:request_thesislink")),
+        )
 
     def test_response_when_logged_in(self):
         request = RequestFactory().get(self.target)
@@ -65,22 +67,25 @@ class TestVetThesisLinkRequests(TestCase):
         ContributorFactory.create_batch(5)
         self.client = Client()
         self.thesislink = ThesisLinkFactory()
-        self.target = reverse('theses:vet_thesislink', kwargs={'pk': self.thesislink.id})
+        self.target = reverse(
+            "theses:vet_thesislink", kwargs={"pk": self.thesislink.id}
+        )
 
     def test_response_when_not_logged_in(self):
         response = self.client.get(self.target)
         self.assertEqual(response.status_code, 403)
 
     def test_response_regular_contributor(self):
-        '''
+        """
         A Contributor needs to be in the Vetting Editors group to be able to
         vet submitted thesis links.
-        '''
+        """
         request = RequestFactory().get(self.target)
         user = UserFactory()
         request.user = user
         self.assertRaises(
-            PermissionDenied, VetThesisLink.as_view(), request, pk=self.thesislink.id)
+            PermissionDenied, VetThesisLink.as_view(), request, pk=self.thesislink.id
+        )
 
     def test_response_vetting_editor(self):
         request = RequestFactory().get(self.target)
@@ -174,7 +179,7 @@ class TestTheses(TestCase):
     def setUp(self):
         add_groups_and_permissions()
         self.client = Client()
-        self.target = reverse('theses:theses')
+        self.target = reverse("theses:theses")
 
     def test_empty_search_query(self):
         thesislink = ThesisLinkFactory()
@@ -185,9 +190,9 @@ class TestTheses(TestCase):
     def test_search_query_on_author(self):
         thesislink = ThesisLinkFactory()
         other_thesislink = ThesisLinkFactory()
-        form_data = {'author': thesislink.author}
+        form_data = {"author": thesislink.author}
         response = self.client.get(self.target, form_data)
-        search_results = response.context['object_list']
+        search_results = response.context["object_list"]
         self.assertTrue(thesislink in search_results)
         self.assertTrue(other_thesislink not in search_results)
         self.assertEqual(len(search_results), 1)

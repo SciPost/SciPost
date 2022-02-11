@@ -13,24 +13,28 @@ from ...models import AttachmentFile
 
 
 class Command(BaseCommand):
-
     def handle(self, *args, **options):
         # First, ensure that all files have their hash
-        for af in AttachmentFile.objects.filter(sha224_hash__exact=''):
+        for af in AttachmentFile.objects.filter(sha224_hash__exact=""):
             print(af.file.name)
             hasher = hashlib.sha224()
             for c in af.file.chunks():
                 hasher.update(c)
-            AttachmentFile.objects.filter(uuid=af.uuid).update(sha224_hash=hasher.hexdigest())
+            AttachmentFile.objects.filter(uuid=af.uuid).update(
+                sha224_hash=hasher.hexdigest()
+            )
 
         # Then dedupe the files
-        duplicate_counts = AttachmentFile.objects.values('sha224_hash'
-        ).annotate(count=Count('sha224_hash')).filter(count__gt=1)
+        duplicate_counts = (
+            AttachmentFile.objects.values("sha224_hash")
+            .annotate(count=Count("sha224_hash"))
+            .filter(count__gt=1)
+        )
         print(duplicate_counts)
         nr_files = 0
         size_sum = 0
         for entry in duplicate_counts:
-            qs = AttachmentFile.objects.filter(sha224_hash=entry['sha224_hash'])
+            qs = AttachmentFile.objects.filter(sha224_hash=entry["sha224_hash"])
             anchor = qs.first()
             for dup in qs.exclude(uuid=anchor.uuid):
                 # Reset the relations to ComposedMessage and StoredMessage
@@ -51,5 +55,7 @@ class Command(BaseCommand):
 
             # Finally, remove the objects except the anchor
             qs.exclude(uuid=anchor.uuid).delete()
-            print("cleanup_attachment_files: removed %d files (total size: %d)" % (
-                nr_files, size_sum))
+            print(
+                "cleanup_attachment_files: removed %d files (total size: %d)"
+                % (nr_files, size_sum)
+            )

@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0007_auto_20180619_2033'),
+        ("preprints", "0007_auto_20180619_2033"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprint',
-            name='url',
+            model_name="preprint",
+            name="url",
             field=models.URLField(blank=True),
         ),
     ]

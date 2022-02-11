@@ -6,20 +6,20 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0085_auto_20200720_0648'),
+        ("submissions", "0085_auto_20200720_0648"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='submission',
-            name='arxiv_identifier_w_vn_nr',
+            model_name="submission",
+            name="arxiv_identifier_w_vn_nr",
         ),
         migrations.RemoveField(
-            model_name='submission',
-            name='arxiv_identifier_wo_vn_nr',
+            model_name="submission",
+            name="arxiv_identifier_wo_vn_nr",
         ),
         migrations.RemoveField(
-            model_name='submission',
-            name='arxiv_vn_nr',
+            model_name="submission",
+            name="arxiv_vn_nr",
         ),
     ]

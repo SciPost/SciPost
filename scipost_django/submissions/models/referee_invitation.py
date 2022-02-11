@@ -23,21 +23,21 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     The instance will register the response to the invitation and
     the current status of the refereeing duty if the invitation has been accepted.
     """
+
     profile = models.ForeignKey(
-        'profiles.Profile',
-        on_delete=models.SET_NULL,
-        blank=True, null=True
+        "profiles.Profile", on_delete=models.SET_NULL, blank=True, null=True
     )
     submission = models.ForeignKey(
-        'submissions.Submission',
+        "submissions.Submission",
         on_delete=models.CASCADE,
-        related_name='referee_invitations'
+        related_name="referee_invitations",
     )
     referee = models.ForeignKey(
-        'scipost.Contributor',
-        related_name='referee_invitations',
-        blank=True, null=True,
-        on_delete=models.CASCADE
+        "scipost.Contributor",
+        related_name="referee_invitations",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
     title = models.CharField(max_length=4, choices=TITLE_CHOICES)
     first_name = models.CharField(max_length=30)
@@ -48,53 +48,63 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     invitation_key = models.CharField(max_length=40, blank=True)
     date_invited = models.DateTimeField(blank=True, null=True)
     invited_by = models.ForeignKey(
-        'scipost.Contributor',
-        related_name='referee_invited_by',
-        blank=True, null=True, on_delete=models.CASCADE
+        "scipost.Contributor",
+        related_name="referee_invited_by",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
     auto_reminders_allowed = models.BooleanField(default=True)
     nr_reminders = models.PositiveSmallIntegerField(default=0)
     date_last_reminded = models.DateTimeField(blank=True, null=True)
     accepted = models.BooleanField(
-        blank=True, null=True,
-        choices=ASSIGNMENT_NULLBOOL,
-        default=None
+        blank=True, null=True, choices=ASSIGNMENT_NULLBOOL, default=None
     )
     date_responded = models.DateTimeField(blank=True, null=True)
     refusal_reason = models.CharField(
-        max_length=3,
-        choices=ASSIGNMENT_REFUSAL_REASONS,
-        blank=True, null=True
+        max_length=3, choices=ASSIGNMENT_REFUSAL_REASONS, blank=True, null=True
     )
-    fulfilled = models.BooleanField(default=False)  # True if a Report has been submitted
-    cancelled = models.BooleanField(default=False)  # True if EIC has deactivated invitation
+    fulfilled = models.BooleanField(
+        default=False
+    )  # True if a Report has been submitted
+    cancelled = models.BooleanField(
+        default=False
+    )  # True if EIC has deactivated invitation
 
     objects = RefereeInvitationQuerySet.as_manager()
 
     class Meta:
-        ordering = ['-date_invited',]
+        ordering = [
+            "-date_invited",
+        ]
 
     def __str__(self):
         """Summarize the RefereeInvitation's basic information."""
-        value = (self.first_name + ' ' + self.last_name + ' to referee ' +
-                self.submission.title[:30] + ' by ' +
-                self.submission.author_list[:30])
+        value = (
+            self.first_name
+            + " "
+            + self.last_name
+            + " to referee "
+            + self.submission.title[:30]
+            + " by "
+            + self.submission.author_list[:30]
+        )
         if self.date_invited:
-            value += ', invited on ' + self.date_invited.strftime('%Y-%m-%d')
+            value += ", invited on " + self.date_invited.strftime("%Y-%m-%d")
         else:
-            value += ', NO EMAIL SENT YET'
+            value += ", NO EMAIL SENT YET"
         return value
 
     def get_absolute_url(self):
         """Return url of the invitation's processing page."""
-        return reverse('submissions:accept_or_decline_ref_invitations', args=(self.id,))
+        return reverse("submissions:accept_or_decline_ref_invitations", args=(self.id,))
 
     @property
     def referee_str(self):
         """Return the most up-to-date name of the Referee."""
         if self.referee:
             return str(self.referee)
-        return self.last_name + ', ' + self.first_name
+        return self.last_name + ", " + self.first_name
 
     @property
     def notification_name(self):
@@ -119,7 +129,9 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
         if not self.cancelled and self.accepted is None:
             if self.date_last_reminded:
                 # No reponse in over three days since last reminder
-                return timezone.now() - self.date_last_reminded > datetime.timedelta(days=3)
+                return timezone.now() - self.date_last_reminded > datetime.timedelta(
+                    days=3
+                )
 
             # No reponse in over three days since original invite
             if not self.date_invited:
@@ -148,23 +160,23 @@ class RefereeInvitation(SubmissionRelatedObjectMixin, models.Model):
     @property
     def needs_attention(self):
         """Check if invitation needs attention by the editor."""
-        return (self.needs_sending or
-                self.needs_response or
-                self.needs_fulfillment_reminder)
+        return (
+            self.needs_sending or self.needs_response or self.needs_fulfillment_reminder
+        )
 
     @property
     def get_status_display(self):
         """Get status: a combination between different boolean fields."""
         if self.cancelled:
-            return 'Cancelled'
+            return "Cancelled"
         if self.fulfilled:
-            return 'Fulfilled'
+            return "Fulfilled"
         if self.accepted is None:
-            return 'Awaiting response'
+            return "Awaiting response"
         elif self.accepted:
-            return 'Accepted'
+            return "Accepted"
         else:
-            return 'Declined ({})'.format(self.get_refusal_reason_display())
+            return "Declined ({})".format(self.get_refusal_reason_display())
 
     def reset_content(self):
         """Reset the invitation's information as a new invitation."""

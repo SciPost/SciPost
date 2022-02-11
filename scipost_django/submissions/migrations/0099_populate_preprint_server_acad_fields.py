@@ -4,8 +4,8 @@ from django.db import migrations
 
 
 def populate_acad_fields(apps, schema_editor):
-    PreprintServer = apps.get_model('submissions.PreprintServer')
-    AcademicField = apps.get_model('ontology', 'AcademicField')
+    PreprintServer = apps.get_model("submissions.PreprintServer")
+    AcademicField = apps.get_model("ontology", "AcademicField")
 
     for ps in PreprintServer.objects.all():
         ps.acad_fields.set(AcademicField.objects.filter(slug__in=ps.disciplines))
@@ -14,10 +14,11 @@ def populate_acad_fields(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0098_preprintserver_acad_fields'),
+        ("submissions", "0098_preprintserver_acad_fields"),
     ]
 
     operations = [
-        migrations.RunPython(populate_acad_fields,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_acad_fields, reverse_code=migrations.RunPython.noop
+        ),
     ]

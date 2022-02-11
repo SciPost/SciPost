@@ -8,8 +8,8 @@ from ...models import AttachmentFile
 
 
 class AttachmentFileSerializer(serializers.ModelSerializer):
-    link = serializers.CharField(source='get_absolute_url', read_only=True)
+    link = serializers.CharField(source="get_absolute_url", read_only=True)
 
     class Meta:
         model = AttachmentFile
-        fields = ['uuid', 'data', 'file', 'link']
+        fields = ["uuid", "data", "file", "link"]

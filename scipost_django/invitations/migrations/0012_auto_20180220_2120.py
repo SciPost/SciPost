@@ -8,13 +8,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('invitations', '0011_auto_20180220_1139'),
+        ("invitations", "0011_auto_20180220_1139"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='registrationinvitation',
-            name='status',
-            field=models.CharField(choices=[('draft', 'Draft'), ('sent', 'Sent'), ('edited', 'Sent and edited'), ('declined', 'Declined'), ('register', 'Registered')], default='draft', max_length=8),
+            model_name="registrationinvitation",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("draft", "Draft"),
+                    ("sent", "Sent"),
+                    ("edited", "Sent and edited"),
+                    ("declined", "Declined"),
+                    ("register", "Registered"),
+                ],
+                default="draft",
+                max_length=8,
+            ),
         ),
     ]

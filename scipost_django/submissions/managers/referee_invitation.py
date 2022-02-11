@@ -17,10 +17,7 @@ class RefereeInvitationQuerySet(models.QuerySet):
     def awaiting_response(self):
         """Filter sent invitations awaiting response by referee."""
         return self.filter(
-            date_invited__isnull=False,
-            accepted=None,
-            cancelled=False,
-            fulfilled=False
+            date_invited__isnull=False, accepted=None, cancelled=False, fulfilled=False
         )
 
     def accepted(self):
@@ -32,7 +29,9 @@ class RefereeInvitationQuerySet(models.QuerySet):
         return self.filter(accepted=False)
 
     def outstanding(self):
-        return self.filter(cancelled=False).exclude(accepted=False).exclude(fulfilled=True)
+        return (
+            self.filter(cancelled=False).exclude(accepted=False).exclude(fulfilled=True)
+        )
 
     def in_process(self):
         """Filter invitations (non-cancelled) accepted by referee that are not fulfilled."""
@@ -51,17 +50,26 @@ class RefereeInvitationQuerySet(models.QuerySet):
         """
         compare_3_days = timezone.now() + datetime.timedelta(days=3)
         compare_7_days = timezone.now() + datetime.timedelta(days=7)
-        return self.filter(cancelled=False, fulfilled=False).filter(
-            models.Q(accepted=None, date_last_reminded__lt=compare_3_days) |
-            models.Q(accepted=True, submission__reporting_deadline__lt=compare_7_days)).distinct()
+        return (
+            self.filter(cancelled=False, fulfilled=False)
+            .filter(
+                models.Q(accepted=None, date_last_reminded__lt=compare_3_days)
+                | models.Q(
+                    accepted=True, submission__reporting_deadline__lt=compare_7_days
+                )
+            )
+            .distinct()
+        )
 
     def approaching_deadline(self, days=2):
         """Filter non-fulfilled invitations for which the deadline is within `days` days."""
         qs = self.in_process()
         pseudo_deadline = timezone.now() + datetime.timedelta(days)
         deadline = timezone.now()
-        qs = qs.filter(submission__reporting_deadline__lte=pseudo_deadline,
-                       submission__reporting_deadline__gte=deadline)
+        qs = qs.filter(
+            submission__reporting_deadline__lte=pseudo_deadline,
+            submission__reporting_deadline__gte=deadline,
+        )
         return qs
 
     def overdue(self):

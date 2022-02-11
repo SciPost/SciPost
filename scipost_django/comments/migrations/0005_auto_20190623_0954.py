@@ -6,32 +6,32 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comments', '0004_auto_20180519_1313'),
+        ("comments", "0004_auto_20180519_1313"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='comment',
-            name='in_agreement',
+            model_name="comment",
+            name="in_agreement",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='in_disagreement',
+            model_name="comment",
+            name="in_disagreement",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='in_notsure',
+            model_name="comment",
+            name="in_notsure",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='nr_A',
+            model_name="comment",
+            name="nr_A",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='nr_D',
+            model_name="comment",
+            name="nr_D",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='nr_N',
+            model_name="comment",
+            name="nr_N",
         ),
     ]

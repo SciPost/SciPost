@@ -9,26 +9,36 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0002_auto_20180916_1643'),
+        ("profiles", "0002_auto_20180916_1643"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AlternativeEmail',
+            name="AlternativeEmail",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('email', models.EmailField(max_length=254)),
-                ('still_valid', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("email", models.EmailField(max_length=254)),
+                ("still_valid", models.BooleanField(default=True)),
             ],
         ),
         migrations.AlterField(
-            model_name='profile',
-            name='email',
+            model_name="profile",
+            name="email",
             field=models.EmailField(max_length=254),
         ),
         migrations.AddField(
-            model_name='alternativeemail',
-            name='profile',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='profiles.Profile'),
+            model_name="alternativeemail",
+            name="profile",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="profiles.Profile"
+            ),
         ),
     ]

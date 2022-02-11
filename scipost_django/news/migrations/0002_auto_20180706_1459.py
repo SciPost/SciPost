@@ -9,55 +9,79 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('news', '0001_initial'),
+        ("news", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='NewsLetter',
+            name="NewsLetter",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField()),
-                ('intro', models.TextField()),
-                ('closing', models.TextField()),
-                ('published', models.BooleanField(default=False)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField()),
+                ("intro", models.TextField()),
+                ("closing", models.TextField()),
+                ("published", models.BooleanField(default=False)),
             ],
         ),
         migrations.CreateModel(
-            name='NewsLetterNewsItemsTable',
+            name="NewsLetterNewsItemsTable",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.PositiveSmallIntegerField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.PositiveSmallIntegerField()),
             ],
         ),
         migrations.AddField(
-            model_name='newsitem',
-            name='blurb_short',
-            field=models.TextField(default='', help_text='Short version for use in Newsletter/emails etc'),
+            model_name="newsitem",
+            name="blurb_short",
+            field=models.TextField(
+                default="", help_text="Short version for use in Newsletter/emails etc"
+            ),
         ),
         migrations.AddField(
-            model_name='newsitem',
-            name='css_class',
-            field=models.CharField(blank=True, max_length=256, verbose_name='Additional image CSS class'),
+            model_name="newsitem",
+            name="css_class",
+            field=models.CharField(
+                blank=True, max_length=256, verbose_name="Additional image CSS class"
+            ),
         ),
         migrations.AddField(
-            model_name='newsitem',
-            name='image',
-            field=models.ImageField(blank=True, upload_to='news/newsitems/%Y/'),
+            model_name="newsitem",
+            name="image",
+            field=models.ImageField(blank=True, upload_to="news/newsitems/%Y/"),
         ),
         migrations.AddField(
-            model_name='newsitem',
-            name='published',
+            model_name="newsitem",
+            name="published",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='newsletternewsitemstable',
-            name='newsitem',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='news.NewsItem'),
+            model_name="newsletternewsitemstable",
+            name="newsitem",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="news.NewsItem"
+            ),
         ),
         migrations.AddField(
-            model_name='newsletternewsitemstable',
-            name='newsletter',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='news.NewsLetter'),
+            model_name="newsletternewsitemstable",
+            name="newsletter",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="news.NewsLetter"
+            ),
         ),
     ]

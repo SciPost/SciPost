@@ -7,13 +7,15 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0091_remove_submission__is_resubmission'),
+        ("submissions", "0091_remove_submission__is_resubmission"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='submission_date',
-            field=models.DateTimeField(default=django.utils.timezone.now, verbose_name='submission date'),
+            model_name="submission",
+            name="submission_date",
+            field=models.DateTimeField(
+                default=django.utils.timezone.now, verbose_name="submission date"
+            ),
         ),
     ]

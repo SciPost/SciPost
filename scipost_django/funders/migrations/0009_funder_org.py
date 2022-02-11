@@ -9,14 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0002_populate_from_partners_org'),
-        ('funders', '0008_auto_20180715_0521'),
+        ("organizations", "0002_populate_from_partners_org"),
+        ("funders", "0008_auto_20180715_0521"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='funder',
-            name='org',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='organizations.Organization'),
+            model_name="funder",
+            name="org",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="organizations.Organization",
+            ),
         ),
     ]

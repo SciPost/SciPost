@@ -8,26 +8,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0008_prosfellow_to_potfellowship'),
+        ("colleges", "0008_prosfellow_to_potfellowship"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='prospectivefellow',
-            name='contributor',
+            model_name="prospectivefellow",
+            name="contributor",
         ),
         migrations.RemoveField(
-            model_name='prospectivefellowevent',
-            name='noted_by',
+            model_name="prospectivefellowevent",
+            name="noted_by",
         ),
         migrations.RemoveField(
-            model_name='prospectivefellowevent',
-            name='prosfellow',
+            model_name="prospectivefellowevent",
+            name="prosfellow",
         ),
         migrations.DeleteModel(
-            name='ProspectiveFellow',
+            name="ProspectiveFellow",
         ),
         migrations.DeleteModel(
-            name='ProspectiveFellowEvent',
+            name="ProspectiveFellowEvent",
         ),
     ]

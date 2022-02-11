@@ -8,13 +8,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('helpdesk', '0005_followup'),
+        ("helpdesk", "0005_followup"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='followup',
-            name='action',
-            field=models.CharField(choices=[('assignment', 'Assignment'), ('reassignment', 'Reassignment'), ('pickup', 'Pickup by handler'), ('respondedtouser', 'Response sent to user'), ('userresonponded', 'User responded'), ('markresolved', 'Marked as resolved'), ('markcloseed', 'Mark as closeed')], max_length=32),
+            model_name="followup",
+            name="action",
+            field=models.CharField(
+                choices=[
+                    ("assignment", "Assignment"),
+                    ("reassignment", "Reassignment"),
+                    ("pickup", "Pickup by handler"),
+                    ("respondedtouser", "Response sent to user"),
+                    ("userresonponded", "User responded"),
+                    ("markresolved", "Marked as resolved"),
+                    ("markcloseed", "Mark as closeed"),
+                ],
+                max_length=32,
+            ),
         ),
     ]

@@ -23,7 +23,9 @@ class MailViewBase:
 
     def __init__(self, *args, **kwargs):
         if not self.mail_code:
-            raise AttributeError(self.__class__.__name__ + ' object has no attribute `mail_code`')
+            raise AttributeError(
+                self.__class__.__name__ + " object has no attribute `mail_code`"
+            )
         super().__init__(*args, **kwargs)
         self.mail_form = None
 
@@ -44,27 +46,33 @@ class MailFormView(MailViewBase, UpdateView):
     def get_template_names(self):
         """The mail editor form has its own template."""
         if self.mail_form and not self.mail_form.is_valid():
-            return ['mails/mail_form.html']
+            return ["mails/mail_form.html"]
         return super().get_template_names()
 
     def post(self, request, *args, **kwargs):
         """Save forms or intercept the request."""
         self.object = None
-        if hasattr(self, 'get_object'):
+        if hasattr(self, "get_object"):
             self.object = self.get_object()
         form = self.get_form()
 
         if form.is_valid():
             self.mail_form = EmailForm(
-                request.POST or None, csp_nonce=self.request.csp_nonce,
+                request.POST or None,
+                csp_nonce=self.request.csp_nonce,
                 mail_code=self.mail_code,
-                instance=self.object, **self.get_mail_config(), **self.mail_variables)
+                instance=self.object,
+                **self.get_mail_config(),
+                **self.mail_variables
+            )
             if self.mail_form.is_valid():
                 return self.form_valid(form)
 
             return self.render_to_response(
                 self.get_context_data(
-                    form=self.mail_form, transfer_data_form=HiddenDataForm(form)))
+                    form=self.mail_form, transfer_data_form=HiddenDataForm(form)
+                )
+            )
         else:
             return self.form_invalid(form)
 
@@ -76,14 +84,19 @@ class MailFormView(MailViewBase, UpdateView):
                 if self.fail_silently:
                     return response
                 else:
-                    raise PermissionDenied("You are not allowed to send mail: %s." % self.mail_code)
+                    raise PermissionDenied(
+                        "You are not allowed to send mail: %s." % self.mail_code
+                    )
             self.mail_form.save()
         except AttributeError:
             # self.mail_form is None
-            raise AttributeError('Did you check the order in which %(cls)s inherits MailView?' % {
-                'cls': self.__class__.__name__,
-            })
-        messages.success(self.request, 'Mail sent')
+            raise AttributeError(
+                "Did you check the order in which %(cls)s inherits MailView?"
+                % {
+                    "cls": self.__class__.__name__,
+                }
+            )
+        messages.success(self.request, "Mail sent")
         return response
 
     def get_success_url(self):
@@ -91,32 +104,32 @@ class MailFormView(MailViewBase, UpdateView):
         Returns the supplied URL.
         """
         if self.success_url:
-            if hasattr(self, 'object') and self.object:
+            if hasattr(self, "object") and self.object:
                 url = self.success_url.format(**self.object.__dict__)
             else:
                 url = force_text(self.success_url)
-        elif hasattr(self, 'object') and self.object:
+        elif hasattr(self, "object") and self.object:
             try:
                 url = self.object.get_absolute_url()
             except AttributeError:
                 raise ImproperlyConfigured(
                     "No URL to redirect to.  Either provide a url or define"
-                    " a get_absolute_url method on the Model.")
+                    " a get_absolute_url method on the Model."
+                )
         else:
-            raise ImproperlyConfigured(
-                "No URL to redirect to. Provide a success_url.")
+            raise ImproperlyConfigured("No URL to redirect to. Provide a success_url.")
         return url
 
 
 class MailView(MailViewBase, UpdateView):
     form_class = EmailForm
-    template_name = 'mails/mail_form.html'
+    template_name = "mails/mail_form.html"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['mail_code'] = self.mail_code
-        kwargs['instance'] = self.get_object()
-        kwargs['csp_nonce'] = self.request.csp_nonce
+        kwargs["mail_code"] = self.mail_code
+        kwargs["instance"] = self.get_object()
+        kwargs["csp_nonce"] = self.request.csp_nonce
         kwargs.update(**self.get_mail_config())
         kwargs.update(**self.mail_variables)
         return kwargs
@@ -127,8 +140,10 @@ class MailView(MailViewBase, UpdateView):
             if self.fail_silently:
                 return HttpResponseRedirect(self.get_success_url())
             else:
-                raise PermissionDenied("You are not allowed to send mail: %s." % self.mail_code)
-        messages.success(self.request, 'Mail sent')
+                raise PermissionDenied(
+                    "You are not allowed to send mail: %s." % self.mail_code
+                )
+        messages.success(self.request, "Mail sent")
         return super().form_valid(form)
 
 
@@ -141,16 +156,21 @@ class MailEditorSubview:
     sending it.
     """
 
-    template_name = 'mails/mail_form.html'
+    template_name = "mails/mail_form.html"
 
-    def __init__(self, request, mail_code, context=None, header_template=None, **kwargs):
+    def __init__(
+        self, request, mail_code, context=None, header_template=None, **kwargs
+    ):
         self.mail_code = mail_code
         self.context = context or {}
         self.request = request
         self.header_template = header_template
-        self.mail_form = EmailForm(request.POST or None,
-                                   csp_nonce=self.request.csp_nonce,
-                                   mail_code=mail_code, **kwargs)
+        self.mail_form = EmailForm(
+            request.POST or None,
+            csp_nonce=self.request.csp_nonce,
+            mail_code=mail_code,
+            **kwargs
+        )
         self._is_valid = False
 
     def interrupt(self):
@@ -161,12 +181,12 @@ class MailEditorSubview:
         and be included into the response of the interrupted response. Currently only
         POST requests are supported.
         """
-        self.context['form'] = self.mail_form
-        self.context['header_template'] = self.header_template
-        if 'object' in self.mail_form.engine.template_variables:
-            self.context['object'] = self.mail_form.engine.template_variables['object']
+        self.context["form"] = self.mail_form
+        self.context["header_template"] = self.header_template
+        if "object" in self.mail_form.engine.template_variables:
+            self.context["object"] = self.mail_form.engine.template_variables["object"]
         else:
-            self.context['object'] = None
+            self.context["object"] = None
         return render(self.request, self.template_name, self.context)
 
     def is_valid(self):
@@ -178,11 +198,13 @@ class MailEditorSubview:
         """Send email as returned by user."""
         if not self._is_valid:
             raise ValueError(
-                "The mail: %s could not be sent because the data didn't validate." % self.mail_code)
+                "The mail: %s could not be sent because the data didn't validate."
+                % self.mail_code
+            )
         return self.mail_form.save()
-
 
 
 class MailEditorMixin:
     """Deprecated."""
+
     pass

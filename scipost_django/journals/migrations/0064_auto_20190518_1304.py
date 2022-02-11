@@ -7,39 +7,51 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0063_auto_20190512_0918'),
+        ("journals", "0063_auto_20190512_0918"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='issue',
-            options={'default_related_name': 'issues', 'ordering': ('-until_date',)},
+            name="issue",
+            options={"default_related_name": "issues", "ordering": ("-until_date",)},
         ),
         migrations.AlterModelOptions(
-            name='publication',
-            options={'default_related_name': 'publications', 'ordering': ('-publication_date', '-paper_nr')},
+            name="publication",
+            options={
+                "default_related_name": "publications",
+                "ordering": ("-publication_date", "-paper_nr"),
+            },
         ),
         migrations.AlterModelOptions(
-            name='reference',
-            options={'default_related_name': 'references', 'ordering': ['reference_number']},
+            name="reference",
+            options={
+                "default_related_name": "references",
+                "ordering": ["reference_number"],
+            },
         ),
         migrations.AlterModelOptions(
-            name='volume',
-            options={'default_related_name': 'volumes', 'ordering': ('-until_date',)},
+            name="volume",
+            options={"default_related_name": "volumes", "ordering": ("-until_date",)},
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='citedby',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
+            model_name="publication",
+            name="citedby",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='metadata',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
+            model_name="publication",
+            name="metadata",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='metadata_DOAJ',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
+            model_name="publication",
+            name="metadata_DOAJ",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, null=True
+            ),
         ),
     ]

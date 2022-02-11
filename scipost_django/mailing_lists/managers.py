@@ -23,6 +23,8 @@ class MailListManager(models.Manager):
 
 
         """
-        return self.filter(status=MAIL_LIST_STATUS_ACTIVE,
-                           open_for_subscription=True,
-                           allowed_groups__in=contributor.user.groups.all())
+        return self.filter(
+            status=MAIL_LIST_STATUS_ACTIVE,
+            open_for_subscription=True,
+            allowed_groups__in=contributor.user.groups.all(),
+        )

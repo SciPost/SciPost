@@ -4,7 +4,12 @@ __license__ = "AGPL v3"
 
 from django import template
 
-from ..constants import DECISION_FIXED, REPORT_PUBLISH_1, REPORT_PUBLISH_2, REPORT_PUBLISH_3
+from ..constants import (
+    DECISION_FIXED,
+    REPORT_PUBLISH_1,
+    REPORT_PUBLISH_2,
+    REPORT_PUBLISH_3,
+)
 from ..models import Submission, EICRecommendation
 
 register = template.Library()
@@ -71,10 +76,10 @@ def citation(citable):
 @register.filter
 def Tier(recommendation):
     if recommendation.recommendation == REPORT_PUBLISH_1:
-        return 'Tier I'
+        return "Tier I"
     elif recommendation.recommendation == REPORT_PUBLISH_2:
-        return 'Tier II'
+        return "Tier II"
     elif recommendation.recommendation == REPORT_PUBLISH_3:
-        return 'Tier III'
+        return "Tier III"
     else:
-        return 'unknown Tier'
+        return "unknown Tier"

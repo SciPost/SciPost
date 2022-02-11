@@ -7,13 +7,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0006_storedmessage_read_by'),
+        ("apimail", "0006_storedmessage_read_by"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='storedmessage',
-            name='read_by',
-            field=models.ManyToManyField(blank=True, related_name='_storedmessage_read_by_+', to=settings.AUTH_USER_MODEL),
+            model_name="storedmessage",
+            name="read_by",
+            field=models.ManyToManyField(
+                blank=True,
+                related_name="_storedmessage_read_by_+",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

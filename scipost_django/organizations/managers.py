@@ -8,7 +8,6 @@ from django.db import models
 
 
 class OrganizationQuerySet(models.QuerySet):
-
     def all_sponsors(self):
         """
         All Organizations which have subsidized SciPost at least once in the past.
@@ -25,8 +24,9 @@ class OrganizationQuerySet(models.QuerySet):
         """
         List of sponsors with at least one subsidy above parameter:amount.
         """
-        qs = self.annotate(max_subsidy=models.Max('subsidy__amount')
-        ).filter(max_subsidy__gte=min_amount)
+        qs = self.annotate(max_subsidy=models.Max("subsidy__amount")).filter(
+            max_subsidy__gte=min_amount
+        )
         if max_amount:
             qs = qs.filter(max_subsidy__lt=max_amount)
         return qs
@@ -35,4 +35,4 @@ class OrganizationQuerySet(models.QuerySet):
         """
         Order by (decreasing) total amount received.
         """
-        return self.annotate(total=models.Sum('subsidy__amount')).order_by('-total')
+        return self.annotate(total=models.Sum("subsidy__amount")).order_by("-total")

@@ -7,50 +7,56 @@ from django.db.models import Q
 
 
 def populate_profile_from_refinv(apps, schema_editor):
-    Profile = apps.get_model('profiles', 'Profile')
-    RefereeInvitation = apps.get_model('submissions', 'RefereeInvitation')
+    Profile = apps.get_model("profiles", "Profile")
+    RefereeInvitation = apps.get_model("submissions", "RefereeInvitation")
 
     for refinv in RefereeInvitation.objects.filter(profile=None):
         try:
             profile = Profile.objects.get(
-                Q(email=refinv.email_address) |
-                Q(alternativeemail__email=refinv.email_address))
+                Q(email=refinv.email_address)
+                | Q(alternativeemail__email=refinv.email_address)
+            )
         except Profile.DoesNotExist:
-            profile = Profile(title=refinv.title,
-                              first_name=refinv.first_name,
-                              last_name=refinv.last_name,
-                              email=refinv.email_address,
-                              discipline=refinv.submission.discipline,
-                              expertises=refinv.submission.secondary_areas)
+            profile = Profile(
+                title=refinv.title,
+                first_name=refinv.first_name,
+                last_name=refinv.last_name,
+                email=refinv.email_address,
+                discipline=refinv.submission.discipline,
+                expertises=refinv.submission.secondary_areas,
+            )
             profile.save()
         except Profile.MultipleObjectsReturned:
             profile = Profile.objects.filter(
-                Q(email=refinv.email_address) |
-                Q(alternativeemail__email=refinv.email_address)).first()
+                Q(email=refinv.email_address)
+                | Q(alternativeemail__email=refinv.email_address)
+            ).first()
 
         refinv.profile = profile
         refinv.save()
 
 
 def populate_profile_from_reginv(apps, schema_editor):
-    Profile = apps.get_model('profiles', 'Profile')
-    RegistrationInvitation = apps.get_model('invitations', 'RegistrationInvitation')
+    Profile = apps.get_model("profiles", "Profile")
+    RegistrationInvitation = apps.get_model("invitations", "RegistrationInvitation")
 
     for reginv in RegistrationInvitation.objects.filter(profile=None):
         try:
             profile = Profile.objects.get(
-                Q(email=reginv.email) |
-                Q(alternativeemail__email=reginv.email))
+                Q(email=reginv.email) | Q(alternativeemail__email=reginv.email)
+            )
         except Profile.DoesNotExist:
-            profile = Profile(title=reginv.title,
-                              first_name=reginv.first_name,
-                              last_name=reginv.last_name,
-                              email=reginv.email)
+            profile = Profile(
+                title=reginv.title,
+                first_name=reginv.first_name,
+                last_name=reginv.last_name,
+                email=reginv.email,
+            )
             profile.save()
         except Profile.MultipleObjectsReturned:
             profile = Profile.objects.filter(
-                Q(email=reginv.email) |
-                Q(alternativeemail__email=reginv.email)).first()
+                Q(email=reginv.email) | Q(alternativeemail__email=reginv.email)
+            ).first()
 
         reginv.profile = profile
         reginv.save()
@@ -59,16 +65,18 @@ def populate_profile_from_reginv(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0005_populate_profile_from_contributor'),
-        ('invitations', '0014_registrationinvitation_profile'),
-        ('scipost', '0016_auto_20180930_1801'),
-        ('submissions', '0035_refereeinvitation_profile'),
+        ("profiles", "0005_populate_profile_from_contributor"),
+        ("invitations", "0014_registrationinvitation_profile"),
+        ("scipost", "0016_auto_20180930_1801"),
+        ("submissions", "0035_refereeinvitation_profile"),
     ]
 
     operations = [
         # Start with populating from refinv, which contains more info:
-        migrations.RunPython(populate_profile_from_refinv,
-                             reverse_code=migrations.RunPython.noop),
-        migrations.RunPython(populate_profile_from_reginv,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            populate_profile_from_refinv, reverse_code=migrations.RunPython.noop
+        ),
+        migrations.RunPython(
+            populate_profile_from_reginv, reverse_code=migrations.RunPython.noop
+        ),
     ]

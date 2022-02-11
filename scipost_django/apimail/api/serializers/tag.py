@@ -10,8 +10,8 @@ from ...models import UserTag
 class UserTagSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTag
-        fields = ['pk', 'user', 'label', 'text_color', 'bg_color']
+        fields = ["pk", "user", "label", "text_color", "bg_color"]
 
     def get_queryset(self):
-        user = self.context['request'].user
+        user = self.context["request"].user
         return UserTag.objects.filter(user=user)

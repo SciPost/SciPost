@@ -6,25 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('series', '0001_initial'),
+        ("series", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='series',
-            options={'verbose_name_plural': 'series'},
+            name="series",
+            options={"verbose_name_plural": "series"},
         ),
         migrations.RemoveField(
-            model_name='collection',
-            name='cover_image',
+            model_name="collection",
+            name="cover_image",
         ),
         migrations.RemoveField(
-            model_name='collection',
-            name='logo',
+            model_name="collection",
+            name="logo",
         ),
         migrations.AddField(
-            model_name='collection',
-            name='image',
-            field=models.ImageField(blank=True, upload_to='series/collections/images/'),
+            model_name="collection",
+            name="image",
+            field=models.ImageField(blank=True, upload_to="series/collections/images/"),
         ),
     ]

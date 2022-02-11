@@ -8,16 +8,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0010_auto_20181002_1114'),
+        ("profiles", "0010_auto_20181002_1114"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='profileemail',
-            options={'ordering': ['-primary', '-still_valid', 'email']},
+            name="profileemail",
+            options={"ordering": ["-primary", "-still_valid", "email"]},
         ),
         migrations.RemoveField(
-            model_name='profile',
-            name='email',
+            model_name="profile",
+            name="email",
         ),
     ]

@@ -14,24 +14,21 @@ class AddressBookEntry(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='address_book_entries'
+        related_name="address_book_entries",
     )
 
     address = models.ForeignKey(
-        'apimail.ValidatedAddress',
+        "apimail.ValidatedAddress",
         on_delete=models.CASCADE,
-        related_name='address_book_entries'
+        related_name="address_book_entries",
     )
 
     description = models.CharField(
         max_length=512,
         blank=True,
-        help_text='Description: [last name], [first name] or [org name] or other'
+        help_text="Description: [last name], [first name] or [org name] or other",
     )
 
     class Meta:
-        ordering = [
-            'user',
-            'address'
-        ]
-        verbose_name_plural = 'Address book entries'
+        ordering = ["user", "address"]
+        verbose_name_plural = "Address book entries"

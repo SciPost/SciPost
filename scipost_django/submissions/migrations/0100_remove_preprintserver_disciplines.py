@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0099_populate_preprint_server_acad_fields'),
+        ("submissions", "0099_populate_preprint_server_acad_fields"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='preprintserver',
-            name='disciplines',
+            model_name="preprintserver",
+            name="disciplines",
         ),
     ]

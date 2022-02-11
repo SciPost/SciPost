@@ -8,13 +8,22 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comments', '0003_auto_20180314_1502'),
+        ("comments", "0003_auto_20180314_1502"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='comment',
-            name='status',
-            field=models.SmallIntegerField(choices=[(1, 'Vetted'), (0, 'Not yet vetted (pending)'), (-1, 'Rejected (unclear)'), (-2, 'Rejected (incorrect)'), (-3, 'Rejected (not useful)')], default=0),
+            model_name="comment",
+            name="status",
+            field=models.SmallIntegerField(
+                choices=[
+                    (1, "Vetted"),
+                    (0, "Not yet vetted (pending)"),
+                    (-1, "Rejected (unclear)"),
+                    (-2, "Rejected (incorrect)"),
+                    (-3, "Rejected (not useful)"),
+                ],
+                default=0,
+            ),
         ),
     ]

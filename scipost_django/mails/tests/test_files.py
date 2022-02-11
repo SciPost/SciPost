@@ -15,14 +15,14 @@ class MailLogFilesTests(TestCase):
 
     def test_all_configuration_files(self):
         """Test configuration files found are valid."""
-        folder = 'templates/email'
-        files = glob.glob('{}/**/*.json'.format(folder), recursive=True)
+        folder = "templates/email"
+        files = glob.glob("{}/**/*.json".format(folder), recursive=True)
 
         i = 0
         for path_file in files:
-            file_name = path_file.replace(folder + '/', '')
+            file_name = path_file.replace(folder + "/", "")
             mail_code = os.path.splitext(file_name)[0]
-            if mail_code.startswith('test'):
+            if mail_code.startswith("test"):
                 # Skip all test files
                 continue
             try:
@@ -34,4 +34,4 @@ class MailLogFilesTests(TestCase):
             except Exception as e:
                 self.fail('Mail ("{}") configuration invalid:\n{}'.format(mail_code, e))
             i += 1
-        print('Tested {} files'.format(i))
+        print("Tested {} files".format(i))

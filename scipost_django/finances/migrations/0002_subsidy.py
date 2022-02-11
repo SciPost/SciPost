@@ -10,25 +10,74 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0002_populate_from_partners_org'),
-        ('finances', '0001_initial'),
+        ("organizations", "0002_populate_from_partners_org"),
+        ("finances", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Subsidy',
+            name="Subsidy",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('subsidy_type', models.CharField(choices=[('grant', 'Grant'), ('partneragreement', 'Partner Agreement'), ('collaborationagreement', 'Collaboration Agreement')], max_length=256)),
-                ('description', models.CharField(max_length=256)),
-                ('amount', models.PositiveSmallIntegerField()),
-                ('status', models.CharField(choices=[('promised', 'promised'), ('invoiced', 'invoiced'), ('received', 'received')], max_length=32)),
-                ('date', models.DateField()),
-                ('duration', models.DurationField(blank=True, choices=[(datetime.timedelta(365), '1 year'), (datetime.timedelta(730), '2 years'), (datetime.timedelta(1095), '3 years'), (datetime.timedelta(1460), '4 years'), (datetime.timedelta(1825), '5 years'), (datetime.timedelta(3650), '10 years'), (datetime.timedelta(36500), 'Indefinite (100 years)')], null=True)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organizations.Organization')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "subsidy_type",
+                    models.CharField(
+                        choices=[
+                            ("grant", "Grant"),
+                            ("partneragreement", "Partner Agreement"),
+                            ("collaborationagreement", "Collaboration Agreement"),
+                        ],
+                        max_length=256,
+                    ),
+                ),
+                ("description", models.CharField(max_length=256)),
+                ("amount", models.PositiveSmallIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("promised", "promised"),
+                            ("invoiced", "invoiced"),
+                            ("received", "received"),
+                        ],
+                        max_length=32,
+                    ),
+                ),
+                ("date", models.DateField()),
+                (
+                    "duration",
+                    models.DurationField(
+                        blank=True,
+                        choices=[
+                            (datetime.timedelta(365), "1 year"),
+                            (datetime.timedelta(730), "2 years"),
+                            (datetime.timedelta(1095), "3 years"),
+                            (datetime.timedelta(1460), "4 years"),
+                            (datetime.timedelta(1825), "5 years"),
+                            (datetime.timedelta(3650), "10 years"),
+                            (datetime.timedelta(36500), "Indefinite (100 years)"),
+                        ],
+                        null=True,
+                    ),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organizations.Organization",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'subsidies',
+                "verbose_name_plural": "subsidies",
             },
         ),
     ]

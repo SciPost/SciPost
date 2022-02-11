@@ -37,7 +37,10 @@ class Subsidy(models.Model):
     The date_until field is optional, and represents (where applicable) the date
     after which the object of the Subsidy is officially terminated.
     """
-    organization = models.ForeignKey('organizations.Organization', on_delete=models.CASCADE)
+
+    organization = models.ForeignKey(
+        "organizations.Organization", on_delete=models.CASCADE
+    )
     subsidy_type = models.CharField(max_length=256, choices=SUBSIDY_TYPES)
     description = models.TextField()
     amount = models.PositiveIntegerField(help_text="in &euro; (rounded)")
@@ -45,25 +48,30 @@ class Subsidy(models.Model):
     status = models.CharField(max_length=32, choices=SUBSIDY_STATUS)
     date = models.DateField()
     date_until = models.DateField(blank=True, null=True)
-    renewable = models.BooleanField(
-        null=True
+    renewable = models.BooleanField(null=True)
+    renewal_of = models.ManyToManyField(
+        "self", related_name="renewed_by", symmetrical=False, blank=True
     )
-    renewal_of = models.ManyToManyField('self', related_name='renewed_by',
-                                        symmetrical=False, blank=True)
 
     class Meta:
-        verbose_name_plural = 'subsidies'
-        ordering = ['-date']
+        verbose_name_plural = "subsidies"
+        ordering = ["-date"]
 
     def __str__(self):
         if self.amount_publicly_shown:
-            return format_html('{}: &euro;{} from {}, for {}',
-                               self.date, self.amount, self.organization, self.description)
-        return format_html('{}: from {}, for {}',
-                               self.date, self.organization, self.description)
+            return format_html(
+                "{}: &euro;{} from {}, for {}",
+                self.date,
+                self.amount,
+                self.organization,
+                self.description,
+            )
+        return format_html(
+            "{}: from {}, for {}", self.date, self.organization, self.description
+        )
 
     def get_absolute_url(self):
-        return reverse('finances:subsidy_details', args=(self.id,))
+        return reverse("finances:subsidy_details", args=(self.id,))
 
     def value_in_year(self, year):
         """
@@ -76,72 +84,86 @@ class Subsidy(models.Model):
         if self.date.year <= year and self.date_until.year >= year:
             # keep it simple: for all years covered, spread evenly
             nr_years_covered = self.date_until.year - self.date.year + 1
-            return int(self.amount/nr_years_covered)
+            return int(self.amount / nr_years_covered)
         return 0
 
     @property
     def renewal_action_date(self):
         if self.date_until and self.subsidy_type == SUBSIDY_TYPE_SPONSORSHIPAGREEMENT:
             return self.date_until - datetime.timedelta(days=122)
-        return '-'
+        return "-"
 
     @property
     def renewal_action_date_color_class(self):
         if self.date_until and self.renewable:
             if self.renewed_by.exists():
-                return 'transparent'
+                return "transparent"
             today = datetime.date.today()
             if self.date_until < today + datetime.timedelta(days=122):
-                return 'danger'
+                return "danger"
             elif self.date_until < today + datetime.timedelta(days=153):
-                return 'warning'
-            return 'success'
-        return 'transparent'
+                return "warning"
+            return "success"
+        return "transparent"
 
     @property
     def date_until_color_class(self):
         if self.date_until and self.renewable:
             if self.renewed_by.exists():
-                return 'transparent'
+                return "transparent"
             today = datetime.date.today()
             if self.date_until < today:
-                return 'warning'
+                return "warning"
             else:
-                return 'success'
-        return 'transparent'
+                return "success"
+        return "transparent"
 
 
 def subsidy_attachment_path(instance, filename):
     """
     Save the uploaded SubsidyAttachments to country-specific folders.
     """
-    return 'uploads/finances/subsidies/{0}/{1}/{2}'.format(
-        instance.subsidy.date.strftime('%Y'),
-        instance.subsidy.organization.country, filename)
+    return "uploads/finances/subsidies/{0}/{1}/{2}".format(
+        instance.subsidy.date.strftime("%Y"),
+        instance.subsidy.organization.country,
+        filename,
+    )
 
 
 class SubsidyAttachment(models.Model):
     """
     A document related to a Subsidy.
     """
-    attachment = models.FileField(upload_to=subsidy_attachment_path,
-                                  storage=SecureFileStorage())
+
+    attachment = models.FileField(
+        upload_to=subsidy_attachment_path, storage=SecureFileStorage()
+    )
     name = models.CharField(max_length=128)
-    subsidy = models.ForeignKey('finances.Subsidy', related_name='attachments',
-                                blank=True, on_delete=models.CASCADE)
+    subsidy = models.ForeignKey(
+        "finances.Subsidy",
+        related_name="attachments",
+        blank=True,
+        on_delete=models.CASCADE,
+    )
     publicly_visible = models.BooleanField(default=False)
 
     def __str__(self):
-        return '%s, attachment to %s' % (self.name, self.subsidy)
+        return "%s, attachment to %s" % (self.name, self.subsidy)
 
     def get_absolute_url(self):
         if self.subsidy:
-            return reverse('finances:subsidy_attachment', args=(self.subsidy.id, self.id))
+            return reverse(
+                "finances:subsidy_attachment", args=(self.subsidy.id, self.id)
+            )
 
     def visible_to_user(self, current_user):
-        if self.publicly_visible or current_user.has_perm('scipost.can_manage_subsidies'):
+        if self.publicly_visible or current_user.has_perm(
+            "scipost.can_manage_subsidies"
+        ):
             return True
-        if self.subsidy.organization.contactrole_set.filter(contact__user=current_user).exists():
+        if self.subsidy.organization.contactrole_set.filter(
+            contact__user=current_user
+        ).exists():
             return True
         return False
 
@@ -159,18 +181,20 @@ class WorkLog(models.Model):
     work_date = models.DateField(default=timezone.now)
     created = models.DateTimeField(auto_now_add=True)
 
-    content_type = models.ForeignKey(ContentType, blank=True, null=True,
-                                     on_delete=models.CASCADE)
+    content_type = models.ForeignKey(
+        ContentType, blank=True, null=True, on_delete=models.CASCADE
+    )
     object_id = models.PositiveIntegerField(blank=True, null=True)
     content = GenericForeignKey()
 
     class Meta:
-        default_related_name = 'work_logs'
-        ordering = ['-work_date', 'created']
+        default_related_name = "work_logs"
+        ordering = ["-work_date", "created"]
 
     def __str__(self):
-        return 'Log of {0} {1} on {2}'.format(
-            self.user.first_name, self.user.last_name, self.work_date)
+        return "Log of {0} {1} on {2}".format(
+            self.user.first_name, self.user.last_name, self.work_date
+        )
 
     @property
     def slug(self):

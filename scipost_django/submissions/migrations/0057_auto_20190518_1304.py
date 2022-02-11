@@ -7,17 +7,22 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0056_auto_20190518_1157'),
+        ("submissions", "0056_auto_20190518_1157"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='editorialcommunication',
-            options={'default_related_name': 'editorial_communications', 'ordering': ['timestamp']},
+            name="editorialcommunication",
+            options={
+                "default_related_name": "editorial_communications",
+                "ordering": ["timestamp"],
+            },
         ),
         migrations.AlterField(
-            model_name='submission',
-            name='metadata',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict, null=True),
+            model_name="submission",
+            name="metadata",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict, null=True
+            ),
         ),
     ]

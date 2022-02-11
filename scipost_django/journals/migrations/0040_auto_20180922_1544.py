@@ -8,8 +8,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0002_populate_from_partners_org'),
-        ('journals', '0039_repopulate_orgs'),
+        ("organizations", "0002_populate_from_partners_org"),
+        ("journals", "0039_repopulate_orgs"),
     ]
 
     operations = [
@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
         #     name='affiliations',
         # ),
         migrations.AlterUniqueTogether(
-            name='orgpubfraction',
-            unique_together=set([('org', 'publication')]),
+            name="orgpubfraction",
+            unique_together=set([("org", "publication")]),
         ),
         # migrations.RemoveField(
         #     model_name='orgpubfraction',

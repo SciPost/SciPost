@@ -8,13 +8,15 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('apimail', '0005_emailaccount_emailaccountaccess'),
+        ("apimail", "0005_emailaccount_emailaccountaccess"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='storedmessage',
-            name='read_by',
-            field=models.ManyToManyField(related_name='_storedmessage_read_by_+', to=settings.AUTH_USER_MODEL),
+            model_name="storedmessage",
+            name="read_by",
+            field=models.ManyToManyField(
+                related_name="_storedmessage_read_by_+", to=settings.AUTH_USER_MODEL
+            ),
         ),
     ]

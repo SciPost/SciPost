@@ -9,21 +9,50 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('apimail', '0026_addressvalidation_validatedaddress'),
+        ("apimail", "0026_addressvalidation_validatedaddress"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='AddressBookEntry',
+            name="AddressBookEntry",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('description', models.CharField(blank=True, help_text='Description: [last name], [first name] or [org name] or other', max_length=512)),
-                ('address', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='address_book_entries', to='apimail.ValidatedAddress')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='address_book_entries', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(
+                        blank=True,
+                        help_text="Description: [last name], [first name] or [org name] or other",
+                        max_length=512,
+                    ),
+                ),
+                (
+                    "address",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="address_book_entries",
+                        to="apimail.ValidatedAddress",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="address_book_entries",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Address book entries',
-                'ordering': ['user', 'address'],
+                "verbose_name_plural": "Address book entries",
+                "ordering": ["user", "address"],
             },
         ),
     ]

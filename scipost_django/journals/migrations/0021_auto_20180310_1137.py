@@ -8,13 +8,15 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0020_auto_20180310_1137'),
+        ("journals", "0020_auto_20180310_1137"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='has_volumes',
-            field=models.BooleanField(default=True, verbose_name='Use Volumes to group Publications'),
+            model_name="journal",
+            name="has_volumes",
+            field=models.BooleanField(
+                default=True, verbose_name="Use Volumes to group Publications"
+            ),
         ),
     ]

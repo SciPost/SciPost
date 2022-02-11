@@ -16,9 +16,11 @@ class Command(BaseCommand):
         for sub in Submission.objects.all():
             # Check that the author list is properly formatted
             try:
-                if 'entries' in sub.metadata:
+                if "entries" in sub.metadata:
                     author_str_list = [
-                        a['name'].split()[-1] for a in sub.metadata['entries'][0]['authors']]
+                        a["name"].split()[-1]
+                        for a in sub.metadata["entries"][0]["authors"]
+                    ]
             except:
-                print('Error for %s' % sub.preprint)
+                print("Error for %s" % sub.preprint)
                 traceback.print_exc()

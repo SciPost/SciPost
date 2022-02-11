@@ -9,18 +9,19 @@ from .models import ConflictOfInterest
 
 class ConflictAdmin(admin.ModelAdmin):
     search_fields = (
-        'header',
-        'profile__last_name',
-        'related_profile__last_name',
-        'related_submissions__title',
-        'related_submissions__preprint__identifier_w_vn_nr'
+        "header",
+        "profile__last_name",
+        "related_profile__last_name",
+        "related_submissions__title",
+        "related_submissions__preprint__identifier_w_vn_nr",
     )
-    list_filter = ('status', 'type')
-    list_display = ('header', 'profile', 'related_profile', 'status', 'type')
+    list_filter = ("status", "type")
+    list_display = ("header", "profile", "related_profile", "status", "type")
     autocomplete_fields = [
-        'profile',
-        'related_profile',
-        'related_submissions',
+        "profile",
+        "related_profile",
+        "related_submissions",
     ]
+
 
 admin.site.register(ConflictOfInterest, ConflictAdmin)

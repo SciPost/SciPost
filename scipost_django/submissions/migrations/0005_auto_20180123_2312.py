@@ -8,17 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0004_merge_20180123_2041'),
+        ("submissions", "0004_merge_20180123_2041"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='eicrecommendation',
-            options={'ordering': ['version']},
+            name="eicrecommendation",
+            options={"ordering": ["version"]},
         ),
         migrations.AddField(
-            model_name='eicrecommendation',
-            name='version',
+            model_name="eicrecommendation",
+            name="version",
             field=models.SmallIntegerField(default=1),
         ),
     ]

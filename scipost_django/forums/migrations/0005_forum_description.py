@@ -8,13 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('forums', '0004_auto_20190308_1055'),
+        ("forums", "0004_auto_20190308_1055"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='forum',
-            name='description',
-            field=models.TextField(blank=True, help_text='You can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>', null=True),
+            model_name="forum",
+            name="description",
+            field=models.TextField(
+                blank=True,
+                help_text='You can use ReStructuredText, see a <a href="https://devguide.python.org/documenting/#restructuredtext-primer" target="_blank">primer on python.org</a>',
+                null=True,
+            ),
         ),
     ]

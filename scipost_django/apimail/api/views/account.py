@@ -25,8 +25,8 @@ class UserEmailAccountAccessListAPIView(ListAPIView):
 
     def get_queryset(self):
         queryset = self.request.user.email_account_accesses.all()
-        if self.request.query_params.get('current', None) == 'true':
+        if self.request.query_params.get("current", None) == "true":
             queryset = queryset.current()
-        if self.request.query_params.get('cansend', None) == 'true':
+        if self.request.query_params.get("cansend", None) == "true":
             queryset = queryset.can_send()
         return queryset

@@ -9,20 +9,38 @@ import django.utils.timezone
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0012_composedmessage'),
+        ("apimail", "0012_composedmessage"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='ComposedMessageAPIResponse',
+            name="ComposedMessageAPIResponse",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('datetime', models.DateTimeField(default=django.utils.timezone.now)),
-                ('response', django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
-                ('message', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='api_responses', to='apimail.ComposedMessage')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("datetime", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "response",
+                    django.contrib.postgres.fields.jsonb.JSONField(default=dict),
+                ),
+                (
+                    "message",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="api_responses",
+                        to="apimail.ComposedMessage",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-datetime'],
+                "ordering": ["-datetime"],
             },
         ),
     ]

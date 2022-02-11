@@ -7,24 +7,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ontology', '0007_Branch_Field_Specialty'),
-        ('commentaries', '0014_auto_20191017_0949'),
+        ("ontology", "0007_Branch_Field_Specialty"),
+        ("commentaries", "0014_auto_20191017_0949"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='commentary',
-            name='acad_field',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='theses', to='ontology.AcademicField'),
+            model_name="commentary",
+            name="acad_field",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="theses",
+                to="ontology.AcademicField",
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='specialties',
-            field=models.ManyToManyField(blank=True, related_name='theses', to='ontology.Specialty'),
+            model_name="commentary",
+            name="specialties",
+            field=models.ManyToManyField(
+                blank=True, related_name="theses", to="ontology.Specialty"
+            ),
         ),
         migrations.AddField(
-            model_name='commentary',
-            name='topics',
-            field=models.ManyToManyField(blank=True, to='ontology.Topic'),
+            model_name="commentary",
+            name="topics",
+            field=models.ManyToManyField(blank=True, to="ontology.Topic"),
         ),
     ]

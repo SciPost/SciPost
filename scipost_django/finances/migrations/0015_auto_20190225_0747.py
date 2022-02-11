@@ -10,13 +10,16 @@ import scipost.storage
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0014_subsidy_renewable'),
+        ("finances", "0014_subsidy_renewable"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsidyattachment',
-            name='attachment',
-            field=models.FileField(storage=scipost.storage.SecureFileStorage(), upload_to=finances.models.subsidy_attachment_path),
+            model_name="subsidyattachment",
+            name="attachment",
+            field=models.FileField(
+                storage=scipost.storage.SecureFileStorage(),
+                upload_to=finances.models.subsidy_attachment_path,
+            ),
         ),
     ]

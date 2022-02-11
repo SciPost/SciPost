@@ -6,14 +6,14 @@ from django.db import migrations
 
 
 def set_statuses(apps, schema_editor):
-    MailLog = apps.get_model('mails', 'MailLog')
-    MailLog.objects.filter(processed=True).update(status='sent')
+    MailLog = apps.get_model("mails", "MailLog")
+    MailLog.objects.filter(processed=True).update(status="sent")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('mails', '0004_auto_20181217_1050'),
+        ("mails", "0004_auto_20181217_1050"),
     ]
 
     operations = [

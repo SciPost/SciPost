@@ -8,12 +8,17 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0006_auto_20190219_2058'),
+        ("organizations", "0006_auto_20190219_2058"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='organization',
-            options={'ordering': ['country', 'name'], 'permissions': (('can_view_org_contacts', "Can view this Organization's Contacts"),)},
+            name="organization",
+            options={
+                "ordering": ["country", "name"],
+                "permissions": (
+                    ("can_view_org_contacts", "Can view this Organization's Contacts"),
+                ),
+            },
         ),
     ]

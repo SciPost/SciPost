@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0053_merge_20190303_1304'),
+        ("submissions", "0053_merge_20190303_1304"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='update_search_index',
+            model_name="submission",
+            name="update_search_index",
             field=models.BooleanField(default=True),
         ),
     ]

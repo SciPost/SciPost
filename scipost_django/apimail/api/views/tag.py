@@ -3,7 +3,9 @@ __license__ = "AGPL v3"
 
 
 from rest_framework.generics import (
-    CreateAPIView, DestroyAPIView, ListAPIView,
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView,
 )
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -20,12 +22,14 @@ class UserTagCreateAPIView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         data = request.data
-        data['user'] = request.user.id
+        data["user"] = request.user.id
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+        return Response(
+            serializer.data, status=status.HTTP_201_CREATED, headers=headers
+        )
 
 
 class UserTagDestroyAPIView(DestroyAPIView):

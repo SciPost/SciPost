@@ -6,18 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('organizations', '0011_auto_20190518_1304'),
+        ("organizations", "0011_auto_20190518_1304"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contact',
-            name='title',
-            field=models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms'), ('MX', 'Mx')], max_length=4),
+            model_name="contact",
+            name="title",
+            field=models.CharField(
+                choices=[
+                    ("PR", "Prof."),
+                    ("DR", "Dr"),
+                    ("MR", "Mr"),
+                    ("MRS", "Mrs"),
+                    ("MS", "Ms"),
+                    ("MX", "Mx"),
+                ],
+                max_length=4,
+            ),
         ),
         migrations.AlterField(
-            model_name='contactperson',
-            name='title',
-            field=models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms'), ('MX', 'Mx')], max_length=4),
+            model_name="contactperson",
+            name="title",
+            field=models.CharField(
+                choices=[
+                    ("PR", "Prof."),
+                    ("DR", "Dr"),
+                    ("MR", "Mr"),
+                    ("MRS", "Mrs"),
+                    ("MS", "Ms"),
+                    ("MX", "Mx"),
+                ],
+                max_length=4,
+            ),
         ),
     ]

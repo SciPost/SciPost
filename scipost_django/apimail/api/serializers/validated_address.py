@@ -10,7 +10,7 @@ from ...models import ValidatedAddress, AddressValidation
 class AddressValidationSerializer(serializers.ModelSerializer):
     class Meta:
         model = AddressValidation
-        fields = ['pk', 'data', 'datestamp']
+        fields = ["pk", "data", "datestamp"]
 
 
 class ValidatedAddressSerializer(serializers.ModelSerializer):
@@ -18,7 +18,7 @@ class ValidatedAddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ValidatedAddress
-        fields = ['pk', 'address', 'validations']
+        fields = ["pk", "address", "validations"]
 
 
 class ValidatedAddressSimpleSerializer(serializers.ModelSerializer):
@@ -28,10 +28,10 @@ class ValidatedAddressSimpleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ValidatedAddress
-        fields = ['address', 'can_send', 'result']
+        fields = ["address", "can_send", "result"]
 
     def get_can_send(self, obj):
         return obj.is_good_for_sending
 
     def get_result(self, obj):
-        return obj.validations.first().data['result']
+        return obj.validations.first().data["result"]

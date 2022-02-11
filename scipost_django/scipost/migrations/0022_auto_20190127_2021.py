@@ -8,13 +8,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0021_auto_20190126_2120'),
+        ("scipost", "0021_auto_20190126_2120"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contributor',
-            name='status',
-            field=models.CharField(choices=[('newly_registered', 'Newly registered'), ('normal', 'Normal user'), ('unverifiable', 'Unverifiable credentials'), ('no_scientist', 'Not a professional scientist'), ('double_account', 'Other account already exists'), ('out_of_academia', 'Out of academia'), ('barred', 'Barred from SciPost'), ('disabled', 'Account disabled'), ('deceased', 'Person deceased')], default='newly_registered', max_length=16),
+            model_name="contributor",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("newly_registered", "Newly registered"),
+                    ("normal", "Normal user"),
+                    ("unverifiable", "Unverifiable credentials"),
+                    ("no_scientist", "Not a professional scientist"),
+                    ("double_account", "Other account already exists"),
+                    ("out_of_academia", "Out of academia"),
+                    ("barred", "Barred from SciPost"),
+                    ("disabled", "Account disabled"),
+                    ("deceased", "Person deceased"),
+                ],
+                default="newly_registered",
+                max_length=16,
+            ),
         ),
     ]

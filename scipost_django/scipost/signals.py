@@ -23,7 +23,8 @@ def link_created_profile_to_contributor(sender, instance, created, **kwargs):
             contributor = Contributor.objects.get(
                 user__first_name=instance.first_name,
                 user__last_name=instance.last_name,
-                user__email=instance.email)
+                user__email=instance.email,
+            )
             contributor.profile = instance
             contributor.save()
         except Contributor.DoesNotExist:

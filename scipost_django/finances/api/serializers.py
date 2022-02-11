@@ -11,22 +11,24 @@ from organizations.api.serializers import OrganizationPublicSerializer
 
 
 class SubsidyFinAdminSerializer(DynamicFieldsModelSerializer):
-    url = serializers.URLField(source='get_absolute_url')
+    url = serializers.URLField(source="get_absolute_url")
     organization = OrganizationPublicSerializer()
-    subsidy_type = serializers.CharField(source='get_subsidy_type_display', read_only=True)
+    subsidy_type = serializers.CharField(
+        source="get_subsidy_type_display", read_only=True
+    )
 
     class Meta:
         model = Subsidy
         fields = [
-            'url',
-            'organization',
-            'subsidy_type',
-            'description',
-            'amount',
-            'amount_publicly_shown',
-            'status',
-            'date',
-            'date_until',
-            'renewable',
-            'renewal_of'
+            "url",
+            "organization",
+            "subsidy_type",
+            "description",
+            "amount",
+            "amount_publicly_shown",
+            "status",
+            "date",
+            "date_until",
+            "renewable",
+            "renewal_of",
         ]

@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0005_auto_20181008_1405'),
+        ("finances", "0005_auto_20181008_1405"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsidy',
-            name='amount',
-            field=models.PositiveIntegerField(help_text='in &euro; (rounded)'),
+            model_name="subsidy",
+            name="amount",
+            field=models.PositiveIntegerField(help_text="in &euro; (rounded)"),
         ),
     ]

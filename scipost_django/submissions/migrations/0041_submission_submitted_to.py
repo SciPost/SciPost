@@ -9,14 +9,19 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0052_journal_refereeing_period'),
-        ('submissions', '0040_auto_20181102_1332'),
+        ("journals", "0052_journal_refereeing_period"),
+        ("submissions", "0040_auto_20181102_1332"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='submitted_to',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='journals.Journal'),
+            model_name="submission",
+            name="submitted_to",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="journals.Journal",
+            ),
         ),
     ]

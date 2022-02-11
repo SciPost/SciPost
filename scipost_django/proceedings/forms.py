@@ -11,15 +11,15 @@ class ProceedingsForm(forms.ModelForm):
     class Meta:
         model = Proceedings
         fields = (
-            'issue',
-            'minimum_referees',
-            'event_name',
-            'event_suffix',
-            'event_description',
-            'event_start_date',
-            'event_end_date',
-            'submissions_open',
-            'submissions_deadline',
-            'submissions_close',
-            'template_latex_tgz',
+            "issue",
+            "minimum_referees",
+            "event_name",
+            "event_suffix",
+            "event_description",
+            "event_start_date",
+            "event_end_date",
+            "submissions_open",
+            "submissions_deadline",
+            "submissions_close",
+            "template_latex_tgz",
         )

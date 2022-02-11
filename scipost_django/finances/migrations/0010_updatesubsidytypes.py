@@ -4,24 +4,31 @@ from __future__ import unicode_literals
 
 from django.db import migrations
 
-from finances.constants import SUBSIDY_TYPE_SPONSORSHIPAGREEMENT, SUBSIDY_TYPE_INCIDENTALGRANT
+from finances.constants import (
+    SUBSIDY_TYPE_SPONSORSHIPAGREEMENT,
+    SUBSIDY_TYPE_INCIDENTALGRANT,
+)
+
 
 def update_subsidy_types(apps, schema_editor):
-    Subsidy = apps.get_model('finances', 'Subsidy')
+    Subsidy = apps.get_model("finances", "Subsidy")
 
-    Subsidy.objects.filter(subsidy_type='grant').update(
-        subsidy_type=SUBSIDY_TYPE_INCIDENTALGRANT)
-    Subsidy.objects.filter(subsidy_type='partneragreement').update(
-        subsidy_type=SUBSIDY_TYPE_SPONSORSHIPAGREEMENT)
+    Subsidy.objects.filter(subsidy_type="grant").update(
+        subsidy_type=SUBSIDY_TYPE_INCIDENTALGRANT
+    )
+    Subsidy.objects.filter(subsidy_type="partneragreement").update(
+        subsidy_type=SUBSIDY_TYPE_SPONSORSHIPAGREEMENT
+    )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0009_auto_20190214_0202'),
+        ("finances", "0009_auto_20190214_0202"),
     ]
 
     operations = [
-        migrations.RunPython(update_subsidy_types,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            update_subsidy_types, reverse_code=migrations.RunPython.noop
+        ),
     ]

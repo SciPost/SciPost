@@ -12,8 +12,11 @@ from ...models import Contributor
 class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
-            '--username', type=str, required=True,
-            help='Username of user to use for contributor model')
+            "--username",
+            type=str,
+            required=True,
+            help="Username of user to use for contributor model",
+        )
 
     def create_contributor(self, username):
         user = User.objects.get(username=username)
@@ -22,4 +25,4 @@ class Command(BaseCommand):
         contributor.save()
 
     def handle(self, *args, **options):
-        self.create_contributor(options['username'])
+        self.create_contributor(options["username"])

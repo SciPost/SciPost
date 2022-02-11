@@ -6,24 +6,24 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0034_auto_20191017_0949'),
-        ('invitations', '0011_auto_20180220_1139')
+        ("scipost", "0034_auto_20191017_0949"),
+        ("invitations", "0011_auto_20180220_1139"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='draftinvitation',
-            name='cited_in_publication',
+            model_name="draftinvitation",
+            name="cited_in_publication",
         ),
         migrations.RemoveField(
-            model_name='draftinvitation',
-            name='cited_in_submission',
+            model_name="draftinvitation",
+            name="cited_in_submission",
         ),
         migrations.RemoveField(
-            model_name='draftinvitation',
-            name='drafted_by',
+            model_name="draftinvitation",
+            name="drafted_by",
         ),
         migrations.DeleteModel(
-            name='DraftInvitation',
+            name="DraftInvitation",
         ),
     ]

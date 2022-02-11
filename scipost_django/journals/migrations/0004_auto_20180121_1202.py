@@ -9,34 +9,49 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0003_auto_20180117_2323'),
+        ("journals", "0003_auto_20180117_2323"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Reference',
+            name="Reference",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('citation_count', models.IntegerField()),
-                ('authors', models.CharField(max_length=512)),
-                ('title', models.CharField(max_length=512)),
-                ('citation', models.CharField(max_length=512)),
-                ('vor', models.CharField(max_length=128)),
-                ('vor_url', models.URLField()),
-                ('publication', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='references', to='journals.Publication')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("citation_count", models.IntegerField()),
+                ("authors", models.CharField(max_length=512)),
+                ("title", models.CharField(max_length=512)),
+                ("citation", models.CharField(max_length=512)),
+                ("vor", models.CharField(max_length=128)),
+                ("vor_url", models.URLField()),
+                (
+                    "publication",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="references",
+                        to="journals.Publication",
+                    ),
+                ),
             ],
             options={
-                'default_related_name': 'references',
-                'ordering': ['-citation_count'],
+                "default_related_name": "references",
+                "ordering": ["-citation_count"],
             },
         ),
         migrations.AlterField(
-            model_name='doajdeposit',
-            name='timestamp',
+            model_name="doajdeposit",
+            name="timestamp",
             field=models.CharField(max_length=40),
         ),
         migrations.AlterUniqueTogether(
-            name='reference',
-            unique_together=set([('citation_count', 'publication')]),
+            name="reference",
+            unique_together=set([("citation_count", "publication")]),
         ),
     ]

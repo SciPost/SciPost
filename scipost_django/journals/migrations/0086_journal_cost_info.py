@@ -8,13 +8,15 @@ import journals.models.journal
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0085_auto_20191017_0949'),
+        ("journals", "0085_auto_20191017_0949"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='cost_info',
-            field=django.contrib.postgres.fields.jsonb.JSONField(default=journals.models.journal.cost_default_value),
+            model_name="journal",
+            name="cost_info",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                default=journals.models.journal.cost_default_value
+            ),
         ),
     ]

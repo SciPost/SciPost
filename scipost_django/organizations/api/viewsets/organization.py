@@ -19,32 +19,38 @@ from organizations.api.filtersets import OrganizationPublicAPIFilterSet
 from organizations.api.serializers import (
     OrganizationPublicSerializer,
     OrganizationNAPSerializer,
-    OrganizationBalanceSerializer
+    OrganizationBalanceSerializer,
 )
 
 
 class OrganizationPublicAPIViewSet(
-        FilteringOptionsActionMixin,
-        viewsets.ReadOnlyModelViewSet):
+    FilteringOptionsActionMixin, viewsets.ReadOnlyModelViewSet
+):
     queryset = Organization.objects.all()
-    permission_classes = [AllowAny,]
-    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (r.PaginatedCSVRenderer, )
+    permission_classes = [
+        AllowAny,
+    ]
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (
+        r.PaginatedCSVRenderer,
+    )
     serializer_class = OrganizationPublicSerializer
-    search_fields = ['name', 'name_original', 'acronym',]
+    search_fields = [
+        "name",
+        "name_original",
+        "acronym",
+    ]
     filterset_class = OrganizationPublicAPIFilterSet
     default_filtering_fields = [
-        'name__icontains',
-        'name_original__icontains',
-        'acronym__icontains'
+        "name__icontains",
+        "name_original__icontains",
+        "acronym__icontains",
     ]
 
     @action(detail=True)
     def pubfractions(self, request, pk=None):
         pubfractions = self.get_object().pubfractions.all()
         serializer = PubFractionPublicSerializer(
-            pubfractions,
-            many=True,
-            context={'request': self.request}
+            pubfractions, many=True, context={"request": self.request}
         )
         return Response(serializer.data)
 
@@ -56,7 +62,7 @@ class OrganizationPublicAPIViewSet(
 
 class OrganizationNAPViewSet(OrganizationPublicAPIViewSet):
     serializer_class = OrganizationNAPSerializer
-    ordering_fields = ['name', 'cf_nr_associated_publications']
+    ordering_fields = ["name", "cf_nr_associated_publications"]
 
     def get_view_name(self):
-        return 'Organization NAP'
+        return "Organization NAP"

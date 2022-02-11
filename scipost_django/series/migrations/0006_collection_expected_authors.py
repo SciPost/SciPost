@@ -6,14 +6,14 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0035_alter_profile_title'),
-        ('series', '0005_series_information'),
+        ("profiles", "0035_alter_profile_title"),
+        ("series", "0005_series_information"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='collection',
-            name='expected_authors',
-            field=models.ManyToManyField(blank=True, to='profiles.Profile'),
+            model_name="collection",
+            name="expected_authors",
+            field=models.ManyToManyField(blank=True, to="profiles.Profile"),
         ),
     ]

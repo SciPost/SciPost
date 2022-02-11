@@ -7,23 +7,40 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='JobOpening',
+            name="JobOpening",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('slug', models.SlugField()),
-                ('announced', models.DateField()),
-                ('title', models.CharField(max_length=128)),
-                ('description', models.TextField()),
-                ('application_deadline', models.DateField()),
-                ('status', models.CharField(choices=[('drafted', 'Drafted (not publicly visible)'), ('visible', 'Publicly visible'), ('closed', 'Closed')], max_length=10)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("slug", models.SlugField()),
+                ("announced", models.DateField()),
+                ("title", models.CharField(max_length=128)),
+                ("description", models.TextField()),
+                ("application_deadline", models.DateField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("drafted", "Drafted (not publicly visible)"),
+                            ("visible", "Publicly visible"),
+                            ("closed", "Closed"),
+                        ],
+                        max_length=10,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['-announced'],
+                "ordering": ["-announced"],
             },
         ),
     ]

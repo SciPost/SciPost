@@ -10,6 +10,7 @@ class FilteringOptionsActionMixin:
     """
     Mixin for adding the action `filtering_options` to a viewset.
     """
+
     default_filtering_fields = []
 
     @action(detail=False)
@@ -17,22 +18,24 @@ class FilteringOptionsActionMixin:
         """
         Translate the filterset base filters into list of filtering options.
         """
-        advanced_fields_dict = { **self.filterset_class.get_fields() }
-        if hasattr(self, 'extra_filters'):
+        advanced_fields_dict = {**self.filterset_class.get_fields()}
+        if hasattr(self, "extra_filters"):
             for (label, queryspec) in self.extra_filters.items():
-                advanced_fields_dict[label] = queryspec['lookups']
+                advanced_fields_dict[label] = queryspec["lookups"]
 
         filtering_options = {
-            'ordering': self.ordering_fields,
-            'basic': [
-                field.replace('__', '/').replace('_', ' ').title() for field in self.search_fields
+            "ordering": self.ordering_fields,
+            "basic": [
+                field.replace("__", "/").replace("_", " ").title()
+                for field in self.search_fields
             ],
-            'advanced': [
+            "advanced": [
                 {
-                    'label': key.replace('__', '/').replace('_', ' ').title(),
-                    'field': key,
-                    'lookups': val
-                } for (key, val) in advanced_fields_dict.items()
-            ]
+                    "label": key.replace("__", "/").replace("_", " ").title(),
+                    "field": key,
+                    "lookups": val,
+                }
+                for (key, val) in advanced_fields_dict.items()
+            ],
         }
         return Response(filtering_options)

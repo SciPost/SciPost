@@ -9,13 +9,13 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0047_auto_20181204_2011'),
+        ("submissions", "0047_auto_20181204_2011"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='submission',
-            name='thread_hash',
+            model_name="submission",
+            name="thread_hash",
             field=models.UUIDField(default=uuid.uuid4),
         ),
     ]

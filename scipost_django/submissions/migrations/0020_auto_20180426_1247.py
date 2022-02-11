@@ -8,13 +8,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0019_auto_20180426_1246'),
+        ("submissions", "0019_auto_20180426_1246"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='submission',
-            name='status',
-            field=models.CharField(choices=[('incoming', 'Submission incoming, undergoing pre-screening'), ('unassigned', 'Unassigned, awaiting editor assignment'), ('assigned', 'Editor-in-charge assigned, manuscript under review'), ('assignment_failed', 'Failed to assign Editor-in-charge; manuscript rejected'), ('resubmitted', 'Has been resubmitted'), ('accepted', 'Publication decision taken: accept'), ('rejected', 'Publication decision taken: reject'), ('withdrawn', 'Withdrawn by the Authors'), ('published', 'Published')], default='unassigned', max_length=30),
+            model_name="submission",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("incoming", "Submission incoming, undergoing pre-screening"),
+                    ("unassigned", "Unassigned, awaiting editor assignment"),
+                    ("assigned", "Editor-in-charge assigned, manuscript under review"),
+                    (
+                        "assignment_failed",
+                        "Failed to assign Editor-in-charge; manuscript rejected",
+                    ),
+                    ("resubmitted", "Has been resubmitted"),
+                    ("accepted", "Publication decision taken: accept"),
+                    ("rejected", "Publication decision taken: reject"),
+                    ("withdrawn", "Withdrawn by the Authors"),
+                    ("published", "Published"),
+                ],
+                default="unassigned",
+                max_length=30,
+            ),
         ),
     ]

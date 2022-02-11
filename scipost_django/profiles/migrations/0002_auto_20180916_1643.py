@@ -8,12 +8,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0001_initial'),
+        ("profiles", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='profile',
-            options={'ordering': ['last_name']},
+            name="profile",
+            options={"ordering": ["last_name"]},
         ),
     ]

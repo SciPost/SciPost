@@ -8,13 +8,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0046_auto_20181020_2008'),
+        ("journals", "0046_auto_20181020_2008"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='journal',
-            name='name',
-            field=models.CharField(choices=[('SciPostPhys', 'SciPost Physics'), ('SciPostPhysComm', 'SciPost Physics Commons'), ('SciPostPhysLectNotes', 'SciPost Physics Lecture Notes'), ('SciPostPhysProc', 'SciPost Physics Proceedings'), ('SciPostPhysCodeb', 'SciPost Physics Codebases'), ('SciPostPhysSel', 'SciPost Physics Select')], max_length=100, unique=True),
+            model_name="journal",
+            name="name",
+            field=models.CharField(
+                choices=[
+                    ("SciPostPhys", "SciPost Physics"),
+                    ("SciPostPhysComm", "SciPost Physics Commons"),
+                    ("SciPostPhysLectNotes", "SciPost Physics Lecture Notes"),
+                    ("SciPostPhysProc", "SciPost Physics Proceedings"),
+                    ("SciPostPhysCodeb", "SciPost Physics Codebases"),
+                    ("SciPostPhysSel", "SciPost Physics Select"),
+                ],
+                max_length=100,
+                unique=True,
+            ),
         ),
     ]

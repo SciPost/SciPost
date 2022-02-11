@@ -8,28 +8,28 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('comments', '0002_auto_20171229_1435'),
+        ("comments", "0002_auto_20171229_1435"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='comment',
-            name='commentary',
+            model_name="comment",
+            name="commentary",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='in_reply_to_comment',
+            model_name="comment",
+            name="in_reply_to_comment",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='in_reply_to_report',
+            model_name="comment",
+            name="in_reply_to_report",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='submission',
+            model_name="comment",
+            name="submission",
         ),
         migrations.RemoveField(
-            model_name='comment',
-            name='thesislink',
+            model_name="comment",
+            name="thesislink",
         ),
     ]

@@ -6,13 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('invitations', '0014_registrationinvitation_profile'),
+        ("invitations", "0014_registrationinvitation_profile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='registrationinvitation',
-            name='title',
-            field=models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms'), ('MX', 'Mx')], max_length=4),
+            model_name="registrationinvitation",
+            name="title",
+            field=models.CharField(
+                choices=[
+                    ("PR", "Prof."),
+                    ("DR", "Dr"),
+                    ("MR", "Mr"),
+                    ("MRS", "Mrs"),
+                    ("MS", "Ms"),
+                    ("MX", "Mx"),
+                ],
+                max_length=4,
+            ),
         ),
     ]

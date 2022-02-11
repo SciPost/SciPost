@@ -9,18 +9,34 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0002_auto_20180118_1033'),
+        ("submissions", "0002_auto_20180118_1033"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='editorialcommunication',
-            name='comtype',
-            field=models.CharField(choices=[('EtoA', 'Editor-in-charge to Author'), ('EtoR', 'Editor-in-charge to Referee'), ('EtoS', 'Editor-in-charge to SciPost Editorial Administration'), ('AtoE', 'Author to Editor-in-charge'), ('RtoE', 'Referee to Editor-in-charge'), ('StoE', 'SciPost Editorial Administration to Editor-in-charge')], max_length=4),
+            model_name="editorialcommunication",
+            name="comtype",
+            field=models.CharField(
+                choices=[
+                    ("EtoA", "Editor-in-charge to Author"),
+                    ("EtoR", "Editor-in-charge to Referee"),
+                    ("EtoS", "Editor-in-charge to SciPost Editorial Administration"),
+                    ("AtoE", "Author to Editor-in-charge"),
+                    ("RtoE", "Referee to Editor-in-charge"),
+                    ("StoE", "SciPost Editorial Administration to Editor-in-charge"),
+                ],
+                max_length=4,
+            ),
         ),
         migrations.AlterField(
-            model_name='editorialcommunication',
-            name='referee',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='editorial_communications', to='scipost.Contributor'),
+            model_name="editorialcommunication",
+            name="referee",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="editorial_communications",
+                to="scipost.Contributor",
+            ),
         ),
     ]

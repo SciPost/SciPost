@@ -9,13 +9,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0052_journal_refereeing_period'),
+        ("journals", "0052_journal_refereeing_period"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='unregisteredauthor',
-            name='profile',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='profiles.Profile'),
+            model_name="unregisteredauthor",
+            name="profile",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="profiles.Profile",
+            ),
         ),
     ]

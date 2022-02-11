@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0006_remove_preprint_submission'),
+        ("preprints", "0006_remove_preprint_submission"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprint',
-            name='identifier_w_vn_nr',
+            model_name="preprint",
+            name="identifier_w_vn_nr",
             field=models.CharField(db_index=True, max_length=25, unique=True),
         ),
     ]

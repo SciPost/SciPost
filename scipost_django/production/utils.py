@@ -22,39 +22,48 @@ def get_or_create_production_stream(submission):
 
     prodstream, created = ProductionStream.objects.get_or_create(submission=submission)
     if created:
-        ed_admins = Group.objects.get(name='Editorial Administrators')
-        assign_perm('can_perform_supervisory_actions', ed_admins, prodstream)
-        assign_perm('can_work_for_stream', ed_admins, prodstream)
+        ed_admins = Group.objects.get(name="Editorial Administrators")
+        assign_perm("can_perform_supervisory_actions", ed_admins, prodstream)
+        assign_perm("can_work_for_stream", ed_admins, prodstream)
     return prodstream
 
 
 class ProductionUtils(BaseMailUtil):
-    mail_sender = 'proofs@%s' % Site.objects.get_current().domain
-    mail_sender_title = 'SciPost Production'
+    mail_sender = "proofs@%s" % Site.objects.get_current().domain
+    mail_sender_title = "SciPost Production"
 
     @classmethod
     def email_assigned_invitation_officer(cls):
         """
         Email invitation officer about his/her new assigned stream.
         """
-        cls._send_mail(cls, 'email_assigned_invitation_officer',
-                       [cls._context['stream'].invitations_officer.user.email],
-                       'SciPost: you have a new task')
+        cls._send_mail(
+            cls,
+            "email_assigned_invitation_officer",
+            [cls._context["stream"].invitations_officer.user.email],
+            "SciPost: you have a new task",
+        )
 
     @classmethod
     def email_assigned_production_officer(cls):
         """
         Email production officer about his/her new assigned stream.
         """
-        cls._send_mail(cls, 'email_assigned_production_officer',
-                       [cls._context['stream'].officer.user.email],
-                       'SciPost: you have a new task')
+        cls._send_mail(
+            cls,
+            "email_assigned_production_officer",
+            [cls._context["stream"].officer.user.email],
+            "SciPost: you have a new task",
+        )
 
     @classmethod
     def email_assigned_supervisor(cls):
         """
         Email production officer about his/her new assigned stream.
         """
-        cls._send_mail(cls, 'email_assigned_supervisor',
-                       [cls._context['stream'].supervisor.user.email],
-                       'SciPost: you have a new supervisory task')
+        cls._send_mail(
+            cls,
+            "email_assigned_supervisor",
+            [cls._context["stream"].supervisor.user.email],
+            "SciPost: you have a new supervisory task",
+        )

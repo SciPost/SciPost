@@ -6,21 +6,18 @@ from django.db import migrations
 
 
 def add_primary_emails(apps, schema_editor):
-    Profile = apps.get_model('profiles', 'Profile')
-    ProfileEmail = apps.get_model('profiles', 'ProfileEmail')
+    Profile = apps.get_model("profiles", "Profile")
+    ProfileEmail = apps.get_model("profiles", "ProfileEmail")
     for profile in Profile.objects.all():
         ProfileEmail.objects.get_or_create(
-            profile=profile,
-            email=profile.email,
-            defaults={'primary': True})
+            profile=profile, email=profile.email, defaults={"primary": True}
+        )
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0009_profileemail_primary'),
+        ("profiles", "0009_profileemail_primary"),
     ]
 
-    operations = [
-        migrations.RunPython(add_primary_emails)
-    ]
+    operations = [migrations.RunPython(add_primary_emails)]

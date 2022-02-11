@@ -6,14 +6,18 @@ from django.db import migrations
 
 
 def transfer_publication_authors_to_separate_table(apps, schema_editor):
-    Contributor = apps.get_model('scipost', 'Contributor')
-    Publication = apps.get_model('journals', 'Publication')
-    UnregisteredAuthor = apps.get_model('journals', 'UnregisteredAuthor')
-    PublicationAuthorsTable = apps.get_model('journals', 'PublicationAuthorsTable')
+    Contributor = apps.get_model("scipost", "Contributor")
+    Publication = apps.get_model("journals", "Publication")
+    UnregisteredAuthor = apps.get_model("journals", "UnregisteredAuthor")
+    PublicationAuthorsTable = apps.get_model("journals", "PublicationAuthorsTable")
 
     for publication in Publication.objects.all():
-        registered_authors = Contributor.objects.filter(publications_old__id=publication.id)
-        unregistered_authors = UnregisteredAuthor.objects.filter(publications_old__id=publication.id)
+        registered_authors = Contributor.objects.filter(
+            publications_old__id=publication.id
+        )
+        unregistered_authors = UnregisteredAuthor.objects.filter(
+            publications_old__id=publication.id
+        )
 
         count = 1
         for author in registered_authors:
@@ -36,9 +40,7 @@ def transfer_publication_authors_to_separate_table(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0011_auto_20180212_1950'),
+        ("journals", "0011_auto_20180212_1950"),
     ]
 
-    operations = [
-        migrations.RunPython(transfer_publication_authors_to_separate_table)
-    ]
+    operations = [migrations.RunPython(transfer_publication_authors_to_separate_table)]

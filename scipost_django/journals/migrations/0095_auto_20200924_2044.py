@@ -7,28 +7,68 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0094_auto_20200906_1355'),
+        ("journals", "0094_auto_20200906_1355"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issue',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^([a-zA-Z]+)\\.\\w+(\\.[0-9]+)?$', 'Only expressions with regex ([a-zA-Z]+)\\.\\w+(\\.[0-9]+)? are allowed.')]),
+            model_name="issue",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^([a-zA-Z]+)\\.\\w+(\\.[0-9]+)?$",
+                        "Only expressions with regex ([a-zA-Z]+)\\.\\w+(\\.[0-9]+)? are allowed.",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='journal',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^[a-zA-Z]+$', 'Only expressions with regex [a-zA-Z]+ are allowed.')]),
+            model_name="journal",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^[a-zA-Z]+$",
+                        "Only expressions with regex [a-zA-Z]+ are allowed.",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='publication',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^([a-zA-Z]+)(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?$', 'Only expressions with regex ([a-zA-Z]+)(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)? are allowed.')]),
+            model_name="publication",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^([a-zA-Z]+)(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)?$",
+                        "Only expressions with regex ([a-zA-Z]+)(\\.\\w+(\\.[0-9]+(\\.[0-9]{3,})?)?)? are allowed.",
+                    )
+                ],
+            ),
         ),
         migrations.AlterField(
-            model_name='volume',
-            name='doi_label',
-            field=models.CharField(db_index=True, max_length=200, unique=True, validators=[django.core.validators.RegexValidator('^([a-zA-Z]+\\.\\w)$', 'Only expressions with regex ([a-zA-Z]+\\.\\w) are allowed.')]),
+            model_name="volume",
+            name="doi_label",
+            field=models.CharField(
+                db_index=True,
+                max_length=200,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        "^([a-zA-Z]+\\.\\w)$",
+                        "Only expressions with regex ([a-zA-Z]+\\.\\w) are allowed.",
+                    )
+                ],
+            ),
         ),
     ]

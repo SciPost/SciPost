@@ -6,16 +6,26 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0022_auto_20190331_1926'),
+        ("profiles", "0022_auto_20190331_1926"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='affiliation',
-            options={'default_related_name': 'affiliations', 'ordering': ['profile__last_name', 'profile__first_name', '-date_until']},
+            name="affiliation",
+            options={
+                "default_related_name": "affiliations",
+                "ordering": [
+                    "profile__last_name",
+                    "profile__first_name",
+                    "-date_until",
+                ],
+            },
         ),
         migrations.AlterModelOptions(
-            name='profileemail',
-            options={'default_related_name': 'emails', 'ordering': ['-primary', '-still_valid', 'email']},
+            name="profileemail",
+            options={
+                "default_related_name": "emails",
+                "ordering": ["-primary", "-still_valid", "email"],
+            },
         ),
     ]

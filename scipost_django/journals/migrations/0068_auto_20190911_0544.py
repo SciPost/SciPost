@@ -6,13 +6,21 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0067_journal_name_abbrev'),
+        ("journals", "0067_journal_name_abbrev"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='issue',
-            name='status',
-            field=models.CharField(choices=[('draft', 'Draft'), ('publicly_open', 'Publicly open'), ('published', 'Published')], default='published', max_length=20),
+            model_name="issue",
+            name="status",
+            field=models.CharField(
+                choices=[
+                    ("draft", "Draft"),
+                    ("publicly_open", "Publicly open"),
+                    ("published", "Published"),
+                ],
+                default="published",
+                max_length=20,
+            ),
         ),
     ]

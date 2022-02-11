@@ -23,48 +23,42 @@ class Fellowship(TimeStampedModel):
     Submission, so it has a direct effect on the submission date.
     """
 
-    STATUS_REGULAR = 'regular'
-    STATUS_SENIOR = 'senior'
-    STATUS_GUEST = 'guest'
+    STATUS_REGULAR = "regular"
+    STATUS_SENIOR = "senior"
+    STATUS_GUEST = "guest"
     STATUS_CHOICES = (
-        (STATUS_REGULAR, 'Regular'),
-        (STATUS_SENIOR, 'Senior'),
-        (STATUS_GUEST, 'Guest')
+        (STATUS_REGULAR, "Regular"),
+        (STATUS_SENIOR, "Senior"),
+        (STATUS_GUEST, "Guest"),
     )
 
     college = models.ForeignKey(
-        'colleges.College',
-        on_delete=models.PROTECT,
-        related_name='fellowships'
+        "colleges.College", on_delete=models.PROTECT, related_name="fellowships"
     )
 
     contributor = models.ForeignKey(
-        'scipost.Contributor',
-        on_delete=models.CASCADE,
-        related_name='fellowships'
+        "scipost.Contributor", on_delete=models.CASCADE, related_name="fellowships"
     )
 
     start_date = models.DateField(null=True, blank=True)
     until_date = models.DateField(null=True, blank=True)
 
     status = models.CharField(
-        max_length=16,
-        choices=STATUS_CHOICES,
-        default=STATUS_REGULAR
+        max_length=16, choices=STATUS_CHOICES, default=STATUS_REGULAR
     )
 
-    guest = models.BooleanField('Guest Fellowship', default=False)
+    guest = models.BooleanField("Guest Fellowship", default=False)
 
     objects = FellowQuerySet.as_manager()
 
     class Meta:
-        ordering = ['contributor__user__last_name']
-        unique_together = ('college', 'contributor', 'start_date', 'until_date')
+        ordering = ["contributor__user__last_name"]
+        unique_together = ("college", "contributor", "start_date", "until_date")
 
     def __str__(self):
         _str = self.contributor.__str__()
         if self.guest:
-            _str += ' (guest fellowship)'
+            _str += " (guest fellowship)"
         return _str
 
     @property
@@ -77,7 +71,7 @@ class Fellowship(TimeStampedModel):
 
     def get_absolute_url(self):
         """Return the admin fellowship page."""
-        return reverse('colleges:fellowship_detail', kwargs={'pk': self.id})
+        return reverse("colleges:fellowship_detail", kwargs={"pk": self.id})
 
     def sibling_fellowships(self):
         """Return all Fellowships that are directly related to the Fellow of this Fellowship."""

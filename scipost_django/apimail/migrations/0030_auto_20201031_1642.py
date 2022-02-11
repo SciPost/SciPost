@@ -9,18 +9,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0029_auto_20201028_2058'),
+        ("apimail", "0029_auto_20201028_2058"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='attachmentfile',
-            name='sha224_hash',
-            field=models.CharField(blank=True, help_text='Automatically computed SHA2 (sha224) hash. Used for deduping.', max_length=56),
+            model_name="attachmentfile",
+            name="sha224_hash",
+            field=models.CharField(
+                blank=True,
+                help_text="Automatically computed SHA2 (sha224) hash. Used for deduping.",
+                max_length=56,
+            ),
         ),
         migrations.AlterField(
-            model_name='attachmentfile',
-            name='file',
-            field=models.FileField(storage=apimail.storage.APIMailSecureFileStorage(), upload_to=apimail.models.attachment.get_attachment_upload_path, validators=[apimail.validators.validate_max_email_attachment_file_size]),
+            model_name="attachmentfile",
+            name="file",
+            field=models.FileField(
+                storage=apimail.storage.APIMailSecureFileStorage(),
+                upload_to=apimail.models.attachment.get_attachment_upload_path,
+                validators=[apimail.validators.validate_max_email_attachment_file_size],
+            ),
         ),
     ]

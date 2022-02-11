@@ -6,14 +6,14 @@ from django.db import migrations
 
 
 def upload_current_plagiarism_statuses(apps, schema_editor):
-    iThenticateReport = apps.get_model('submissions', 'iThenticateReport')
-    iThenticateReport.objects.all().update(status='received')
+    iThenticateReport = apps.get_model("submissions", "iThenticateReport")
+    iThenticateReport.objects.all().update(status="received")
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('submissions', '0038_ithenticatereport_status'),
+        ("submissions", "0038_ithenticatereport_status"),
     ]
 
     operations = [

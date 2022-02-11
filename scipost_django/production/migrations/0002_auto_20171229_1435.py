@@ -11,39 +11,67 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('production', '0001_initial'),
-        ('submissions', '0001_initial'),
+        ("production", "0001_initial"),
+        ("submissions", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='productionstream',
-            name='submission',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='production_stream', to='submissions.Submission'),
+            model_name="productionstream",
+            name="submission",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="production_stream",
+                to="submissions.Submission",
+            ),
         ),
         migrations.AddField(
-            model_name='productionstream',
-            name='supervisor',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='supervised_streams', to='production.ProductionUser'),
+            model_name="productionstream",
+            name="supervisor",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="supervised_streams",
+                to="production.ProductionUser",
+            ),
         ),
         migrations.AddField(
-            model_name='productioneventattachment',
-            name='production_event',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='attachments', to='production.ProductionEvent'),
+            model_name="productioneventattachment",
+            name="production_event",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="attachments",
+                to="production.ProductionEvent",
+            ),
         ),
         migrations.AddField(
-            model_name='productionevent',
-            name='noted_by',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='events', to='production.ProductionUser'),
+            model_name="productionevent",
+            name="noted_by",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="events",
+                to="production.ProductionUser",
+            ),
         ),
         migrations.AddField(
-            model_name='productionevent',
-            name='noted_to',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='received_events', to='production.ProductionUser'),
+            model_name="productionevent",
+            name="noted_to",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="received_events",
+                to="production.ProductionUser",
+            ),
         ),
         migrations.AddField(
-            model_name='productionevent',
-            name='stream',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='events', to='production.ProductionStream'),
+            model_name="productionevent",
+            name="stream",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="events",
+                to="production.ProductionStream",
+            ),
         ),
     ]

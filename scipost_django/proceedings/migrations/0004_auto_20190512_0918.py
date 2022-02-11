@@ -7,18 +7,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('proceedings', '0003_auto_20190511_1141'),
+        ("proceedings", "0003_auto_20190511_1141"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='proceedings',
-            name='fellowships',
-            field=models.ManyToManyField(blank=True, limit_choices_to={'guest': True}, related_name='proceedings', to='colleges.Fellowship'),
+            model_name="proceedings",
+            name="fellowships",
+            field=models.ManyToManyField(
+                blank=True,
+                limit_choices_to={"guest": True},
+                related_name="proceedings",
+                to="colleges.Fellowship",
+            ),
         ),
         migrations.AlterField(
-            model_name='proceedings',
-            name='issue',
-            field=models.OneToOneField(limit_choices_to=models.Q(('in_volume__in_journal__name', 'SciPostPhysProc'), ('in_journal__name', 'SciPostPhysProc'), _connector='OR'), on_delete=django.db.models.deletion.CASCADE, related_name='proceedings', to='journals.Issue'),
+            model_name="proceedings",
+            name="issue",
+            field=models.OneToOneField(
+                limit_choices_to=models.Q(
+                    ("in_volume__in_journal__name", "SciPostPhysProc"),
+                    ("in_journal__name", "SciPostPhysProc"),
+                    _connector="OR",
+                ),
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="proceedings",
+                to="journals.Issue",
+            ),
         ),
     ]

@@ -8,17 +8,17 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('finances', '0004_auto_20181007_2016'),
+        ("finances", "0004_auto_20181007_2016"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='subsidy',
-            name='duration',
+            model_name="subsidy",
+            name="duration",
         ),
         migrations.AddField(
-            model_name='subsidy',
-            name='date_until',
+            model_name="subsidy",
+            name="date_until",
             field=models.DateField(blank=True, null=True),
         ),
     ]

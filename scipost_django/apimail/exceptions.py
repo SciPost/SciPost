@@ -7,4 +7,4 @@ class APIMailError(Exception):
         self.name = name
 
     def __str__(self):
-        return 'API Mail error: {}'.format(self.name)
+        return "API Mail error: {}".format(self.name)

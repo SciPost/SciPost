@@ -8,13 +8,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0050_auto_20181028_2038'),
+        ("journals", "0050_auto_20181028_2038"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='publication',
-            name='author_list',
-            field=models.CharField(max_length=10000, verbose_name='author list'),
+            model_name="publication",
+            name="author_list",
+            field=models.CharField(max_length=10000, verbose_name="author list"),
         ),
     ]

@@ -9,13 +9,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0051_auto_20181102_1332'),
+        ("journals", "0051_auto_20181102_1332"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='journal',
-            name='refereeing_period',
+            model_name="journal",
+            name="refereeing_period",
             field=models.DurationField(default=datetime.timedelta(28)),
         ),
     ]

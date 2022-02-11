@@ -7,13 +7,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('colleges', '0018_fellowship_set_college'),
+        ("colleges", "0018_fellowship_set_college"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='fellowship',
-            name='college',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='fellowships', to='colleges.College'),
+            model_name="fellowship",
+            name="college",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name="fellowships",
+                to="colleges.College",
+            ),
         ),
     ]

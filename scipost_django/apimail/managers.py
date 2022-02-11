@@ -10,6 +10,7 @@ from django.db import models
 class DomainQuerySet(models.QuerySet):
     def active(self):
         from apimail.models import Domain
+
         return self.filter(status=Domain.STATUS_ACTIVE)
 
 
@@ -17,25 +18,28 @@ class EmailAccountAccessQuerySet(models.QuerySet):
     def current(self):
         today = datetime.date.today()
         return self.filter(date_from__lt=today, date_until__gt=today)
+
     def can_send(self):
-        return self.filter(rights='CRUD')
+        return self.filter(rights="CRUD")
 
 
 class ComposedMessageQuerySet(models.QuerySet):
     """
     All ComposedMessage querysets are always filtered for the user.
     """
+
     def filter_for_user(self, user):
         return self.filter(author=user)
 
     def ready(self):
-        return self.filter(status='ready')
+        return self.filter(status="ready")
 
 
 class StoredMessageQuerySet(models.QuerySet):
     """
     All StoredMessage querysets are always filtered for the user.
     """
+
     def filter_for_user(self, user, email):
         """
         Either su or staff, or user's email account accesses overlap with sender/recipients.
@@ -50,8 +54,10 @@ class StoredMessageQuerySet(models.QuerySet):
             queryfilter = models.Q()
             for access in user.email_account_accesses.filter(account__email=email):
                 queryfilter = queryfilter | (
-                    (models.Q(data__sender__icontains=access.account.email) |
-                     models.Q(data__recipients__icontains=access.account.email))
+                    (
+                        models.Q(data__sender__icontains=access.account.email)
+                        | models.Q(data__recipients__icontains=access.account.email)
+                    )
                     & models.Q(datetimestamp__gt=access.date_from)
                     & models.Q(datetimestamp__lt=access.date_until)
                 )
@@ -75,24 +81,34 @@ class StoredMessageQuerySet(models.QuerySet):
         # First try the RFC 2822 References MIME header:
         head_id = None
         try:
-            head_id = reference_message.data['References'].split()[0]
+            head_id = reference_message.data["References"].split()[0]
         except KeyError:
             # Then try the RFC 2822 In-Reply-To
             try:
-                head_id = reference_message.data['In-Reply-To'].split()[0]
+                head_id = reference_message.data["In-Reply-To"].split()[0]
             except KeyError:
                 # This message is head of the thread as far as can be guessed
-                head_id = reference_message.data['Message-Id']
+                head_id = reference_message.data["Message-Id"]
 
         if head_id:
             thread_query_raw = (
                 "SELECT apimail_storedmessage.id FROM apimail_storedmessage "
                 "WHERE UPPER((apimail_storedmessage.data ->> %s)::text) LIKE UPPER(%s) "
                 "OR UPPER((apimail_storedmessage.data ->> %s)::text) LIKE UPPER(%s) "
-                "ORDER BY apimail_storedmessage.datetimestamp DESC;")
-            sm_ids = [sm.id for sm in self.model.objects.raw(
-                thread_query_raw,
-                ['Message-Id', '%%%s%%' % head_id, 'References', '%%%s%%' % head_id])]
+                "ORDER BY apimail_storedmessage.datetimestamp DESC;"
+            )
+            sm_ids = [
+                sm.id
+                for sm in self.model.objects.raw(
+                    thread_query_raw,
+                    [
+                        "Message-Id",
+                        "%%%s%%" % head_id,
+                        "References",
+                        "%%%s%%" % head_id,
+                    ],
+                )
+            ]
             return self.filter(pk__in=sm_ids)
 
         # Otherwise message is already the head

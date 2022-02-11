@@ -5,40 +5,57 @@ import scipost.fields
 
 
 def domains_to_approaches(apps, schema_editor):
-    Commentary = apps.get_model('commentaries.Commentary')
+    Commentary = apps.get_model("commentaries.Commentary")
 
-    for commentary in Commentary.objects.filter(domain__contains='E'):
+    for commentary in Commentary.objects.filter(domain__contains="E"):
         if commentary.approaches:
-            commentary.approaches.append('experimental')
+            commentary.approaches.append("experimental")
         else:
-            commentary.approaches = ('experimental',)
+            commentary.approaches = ("experimental",)
         commentary.save()
-    for commentary in Commentary.objects.filter(domain__contains='T'):
+    for commentary in Commentary.objects.filter(domain__contains="T"):
         if commentary.approaches:
-            commentary.approaches.append('theoretical')
+            commentary.approaches.append("theoretical")
         else:
-            commentary.approaches = ('theoretical',)
+            commentary.approaches = ("theoretical",)
         commentary.save()
-    for commentary in Commentary.objects.filter(domain__contains='C'):
+    for commentary in Commentary.objects.filter(domain__contains="C"):
         if commentary.approaches:
-            commentary.approaches.append('computational')
+            commentary.approaches.append("computational")
         else:
-            commentary.approaches = ('computational',)
+            commentary.approaches = ("computational",)
         commentary.save()
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('commentaries', '0006_auto_20190522_1120'),
+        ("commentaries", "0006_auto_20190522_1120"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='commentary',
-            name='approaches',
-            field=scipost.fields.ChoiceArrayField(base_field=models.CharField(choices=[('theoretical', 'Theoretical'), ('experimental', 'Experimental'), ('computational', 'Computational'), ('phenomenological', 'Phenomenological'), ('observational', 'Observational'), ('clinical', 'Clinical')], max_length=24), blank=True, null=True, size=None, verbose_name='approach(es) [optional]'),
+            model_name="commentary",
+            name="approaches",
+            field=scipost.fields.ChoiceArrayField(
+                base_field=models.CharField(
+                    choices=[
+                        ("theoretical", "Theoretical"),
+                        ("experimental", "Experimental"),
+                        ("computational", "Computational"),
+                        ("phenomenological", "Phenomenological"),
+                        ("observational", "Observational"),
+                        ("clinical", "Clinical"),
+                    ],
+                    max_length=24,
+                ),
+                blank=True,
+                null=True,
+                size=None,
+                verbose_name="approach(es) [optional]",
+            ),
         ),
-        migrations.RunPython(domains_to_approaches,
-                             reverse_code=migrations.RunPython.noop),
+        migrations.RunPython(
+            domains_to_approaches, reverse_code=migrations.RunPython.noop
+        ),
     ]

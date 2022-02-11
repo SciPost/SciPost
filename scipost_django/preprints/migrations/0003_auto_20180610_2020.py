@@ -9,13 +9,17 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('preprints', '0002_auto_20180610_2014'),
+        ("preprints", "0002_auto_20180610_2014"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='preprint',
-            name='submission',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='preprint', to='submissions.Submission'),
+            model_name="preprint",
+            name="submission",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="preprint",
+                to="submissions.Submission",
+            ),
         ),
     ]

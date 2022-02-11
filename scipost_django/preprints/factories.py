@@ -15,9 +15,11 @@ class PreprintFactory(factory.django.DjangoModelFactory):
     """
 
     identifier_w_vn_nr = factory.Sequence(
-        lambda n: random_arxiv_identifier_with_version_number())
-    url = factory.lazy_attribute(lambda o: (
-        'https://arxiv.org/abs/%s' % o.identifier_w_vn_nr))
+        lambda n: random_arxiv_identifier_with_version_number()
+    )
+    url = factory.lazy_attribute(
+        lambda o: ("https://arxiv.org/abs/%s" % o.identifier_w_vn_nr)
+    )
 
     class Meta:
         model = Preprint

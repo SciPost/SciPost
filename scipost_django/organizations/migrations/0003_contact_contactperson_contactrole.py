@@ -13,41 +13,132 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('organizations', '0002_populate_from_partners_org'),
+        ("organizations", "0002_populate_from_partners_org"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Contact',
+            name="Contact",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms')], max_length=4)),
-                ('activation_key', models.CharField(blank=True, max_length=40)),
-                ('key_expires', models.DateTimeField(default=django.utils.timezone.now)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='org_contact', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        choices=[
+                            ("PR", "Prof."),
+                            ("DR", "Dr"),
+                            ("MR", "Mr"),
+                            ("MRS", "Mrs"),
+                            ("MS", "Ms"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                ("activation_key", models.CharField(blank=True, max_length=40)),
+                (
+                    "key_expires",
+                    models.DateTimeField(default=django.utils.timezone.now),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="org_contact",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ContactPerson',
+            name="ContactPerson",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(choices=[('PR', 'Prof.'), ('DR', 'Dr'), ('MR', 'Mr'), ('MRS', 'Mrs'), ('MS', 'Ms')], max_length=4)),
-                ('first_name', models.CharField(max_length=64)),
-                ('last_name', models.CharField(max_length=64)),
-                ('email', models.EmailField(max_length=254)),
-                ('role', models.CharField(max_length=128)),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organizations.Organization')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        choices=[
+                            ("PR", "Prof."),
+                            ("DR", "Dr"),
+                            ("MR", "Mr"),
+                            ("MRS", "Mrs"),
+                            ("MS", "Ms"),
+                        ],
+                        max_length=4,
+                    ),
+                ),
+                ("first_name", models.CharField(max_length=64)),
+                ("last_name", models.CharField(max_length=64)),
+                ("email", models.EmailField(max_length=254)),
+                ("role", models.CharField(max_length=128)),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organizations.Organization",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='ContactRole',
+            name="ContactRole",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('kind', scipost.fields.ChoiceArrayField(base_field=models.CharField(choices=[('gen', 'General Contact'), ('tech', 'Technical Contact'), ('fin', 'Financial Contact'), ('leg', 'Legal Contact')], max_length=4), size=None)),
-                ('date_from', models.DateField()),
-                ('date_until', models.DateField()),
-                ('contact', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='roles', to='organizations.Contact')),
-                ('organization', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='organizations.Organization')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "kind",
+                    scipost.fields.ChoiceArrayField(
+                        base_field=models.CharField(
+                            choices=[
+                                ("gen", "General Contact"),
+                                ("tech", "Technical Contact"),
+                                ("fin", "Financial Contact"),
+                                ("leg", "Legal Contact"),
+                            ],
+                            max_length=4,
+                        ),
+                        size=None,
+                    ),
+                ),
+                ("date_from", models.DateField()),
+                ("date_until", models.DateField()),
+                (
+                    "contact",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="roles",
+                        to="organizations.Contact",
+                    ),
+                ),
+                (
+                    "organization",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="organizations.Organization",
+                    ),
+                ),
             ],
         ),
     ]

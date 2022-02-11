@@ -9,29 +9,31 @@ from .models import Funder, Grant
 
 class FunderAdmin(admin.ModelAdmin):
     search_fields = [
-        'name',
-        'acronym',
-        'identifier',
-        'organization__name',
-        'organization__acronym',
+        "name",
+        "acronym",
+        "identifier",
+        "organization__name",
+        "organization__acronym",
     ]
     autocomplete_fields = [
-        'organization',
+        "organization",
     ]
+
 
 admin.site.register(Funder, FunderAdmin)
 
 
 class GrantAdmin(admin.ModelAdmin):
     search_fields = [
-        'funder__name',
-        'number',
-        'recipient_name',
-        'recipient__user__last_name',
+        "funder__name",
+        "number",
+        "recipient_name",
+        "recipient__user__last_name",
     ]
     autocomplete_fields = [
-        'funder',
-        'recipient',
+        "funder",
+        "recipient",
     ]
+
 
 admin.site.register(Grant, GrantAdmin)

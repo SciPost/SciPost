@@ -12,16 +12,21 @@ from scipost.models import Contributor
 
 
 class CommentaryAdmin(admin.ModelAdmin):
-    search_fields = ['author_list', 'pub_abstract']
-    list_display = ('__str__', 'vetted', 'latest_activity',)
-    date_hierarchy = 'latest_activity'
+    search_fields = ["author_list", "pub_abstract"]
+    list_display = (
+        "__str__",
+        "vetted",
+        "latest_activity",
+    )
+    date_hierarchy = "latest_activity"
     autocomplete_fields = [
-        'requested_by',
-        'vetted_by',
-        'scipost_publication',
-        'authors',
-        'authors_claims',
-        'authors_false_claims',
+        "requested_by",
+        "vetted_by",
+        "scipost_publication",
+        "authors",
+        "authors_claims",
+        "authors_false_claims",
     ]
+
 
 admin.site.register(Commentary, CommentaryAdmin)

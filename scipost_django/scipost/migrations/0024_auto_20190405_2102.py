@@ -8,7 +8,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('scipost', '0023_totpdevice'),
+        ("scipost", "0023_totpdevice"),
     ]
 
     operations = [

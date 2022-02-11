@@ -9,6 +9,7 @@ from ..factories import ProfileFactory
 
 from common.helpers.test import add_groups_and_permissions
 
+
 class ProfileTestCase(TestCase):
     def setUp(self):
         add_groups_and_permissions()

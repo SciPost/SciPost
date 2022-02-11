@@ -7,22 +7,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('affiliates', '0004_auto_20210508_2012'),
+        ("affiliates", "0004_auto_20210508_2012"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='affiliatepublication',
-            options={'ordering': ['-publication_date']},
+            name="affiliatepublication",
+            options={"ordering": ["-publication_date"]},
         ),
         migrations.AddField(
-            model_name='affiliatepublication',
-            name='publication_date',
+            model_name="affiliatepublication",
+            name="publication_date",
             field=models.DateField(blank=True, null=True),
         ),
         migrations.AlterField(
-            model_name='affiliatepublication',
-            name='_metadata_crossref',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, default=dict),
+            model_name="affiliatepublication",
+            name="_metadata_crossref",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, default=dict
+            ),
         ),
     ]

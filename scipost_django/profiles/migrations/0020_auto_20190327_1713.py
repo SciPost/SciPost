@@ -8,12 +8,14 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('profiles', '0019_auto_20190327_1520'),
+        ("profiles", "0019_auto_20190327_1520"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='affiliation',
-            options={'ordering': ['profile__last_name', 'profile__first_name', '-date_until']},
+            name="affiliation",
+            options={
+                "ordering": ["profile__last_name", "profile__first_name", "-date_until"]
+            },
         ),
     ]

@@ -8,20 +8,19 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('journals', '0061_remove_publicationauthorstable_contributor'),
+        ("journals", "0061_remove_publicationauthorstable_contributor"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='PublicationProxyMetadata',
-            fields=[
-            ],
+            name="PublicationProxyMetadata",
+            fields=[],
             options={
-                'indexes': [],
-                'proxy': True,
-                'verbose_name_plural': 'Publication metadata',
-                'verbose_name': 'Publication metadata',
+                "indexes": [],
+                "proxy": True,
+                "verbose_name_plural": "Publication metadata",
+                "verbose_name": "Publication metadata",
             },
-            bases=('journals.publication',),
+            bases=("journals.publication",),
         ),
     ]

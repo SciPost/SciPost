@@ -9,21 +9,37 @@ import uuid
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('apimail', '0001_initial'),
+        ("apimail", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='StoredMessage',
+            name="StoredMessage",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('uuid', models.UUIDField(db_index=True, default=uuid.uuid4, editable=False)),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "uuid",
+                    models.UUIDField(db_index=True, default=uuid.uuid4, editable=False),
+                ),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField(default=dict)),
             ],
         ),
         migrations.AddField(
-            model_name='event',
-            name='stored_message',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='apimail.StoredMessage'),
+            model_name="event",
+            name="stored_message",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="apimail.StoredMessage",
+            ),
         ),
     ]
