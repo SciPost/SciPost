@@ -15,17 +15,18 @@ def ontology_processor(request):
         "branches": Branch.objects.all(),
         "acad_fields": AcademicField.objects.all(),
     }
+    if "session_acad_field_slug" not in request.session:
+        request.session["session_acad_field_slug"] = ""
     initial_acad_field = {}
-    if request.session.get("session_acad_field_slug", None):
-        try:
-            context["session_acad_field"] = AcademicField.objects.get(
-                slug=request.session.get("session_acad_field_slug"),
-            )
-            initial_acad_field["acad_field_slug"] = request.session.get(
-                "session_acad_field_slug"
-            )
-        except AcademicField.DoesNotExist:
-            context["session_acad_field"] = None
+    try:
+        context["session_acad_field"] = AcademicField.objects.get(
+            slug=request.session.get("session_acad_field_slug"),
+        )
+        initial_acad_field["acad_field_slug"] = request.session.get(
+            "session_acad_field_slug"
+        )
+    except AcademicField.DoesNotExist:
+        context["session_acad_field"] = None
     context["session_acad_field_form"] = SessionAcademicFieldForm(
         initial=initial_acad_field
     )
