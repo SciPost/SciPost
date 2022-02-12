@@ -17,6 +17,11 @@ Coding conventions
 Our starting points are the `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_
 specification, and the `Django style <https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/coding-style/>`_.
 
+We further default to the conventions in Black.
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+   :target: https://github.com/psf/black
+
 Hereby follow some extra specializations.
 
 To ease your work, if you have an editor with
@@ -26,14 +31,14 @@ you can use our ``.editorconfig`` file at the base of the repository.
 Line length
 -----------
 We deviate from `PEP 8 <https://www.python.org/dev/peps/pep-0008/>`_
-and set the maximal line length to 99.
+and set the maximal line length to 88.
 
 
 Docstrings
 ----------
 
 Docstrings are in reStructruredText (of course), and should fit within the
-allowed line length of 99.
+allowed line length of 88.
 
 
 Templates
