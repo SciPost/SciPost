@@ -1,0 +1,34 @@
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='theses' %}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h2 class="card-title">Theses</h2>
+        <ul class="mb-0">
+          {% if nr_thesis_authorships_to_claim > 0 %}
+            <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_thesis_authorships_to_claim}})</a></li>
+          {% endif %}
+          <li><a href="{% url 'theses:request_thesislink' %}">Request a SciPost ThesisLink</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id="mytheseslist">
+  <div class="col-12">
+    <h3>Theses for which you are identified as an author:</h3>
+  </div>
+  <div class="col-12">
+    <ul class="list-group list-group-flush">
+      {% for thesis in own_thesislinks %}
+        <li class="list-group-item">
+          {% include 'theses/_thesislink_card_content.html' with thesislink=thesis %}
+        </li>
+      {% empty %}
+        <li class="list-group-item"><em>No Theses found</em></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

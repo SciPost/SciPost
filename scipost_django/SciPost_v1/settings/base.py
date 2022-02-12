@@ -318,6 +318,7 @@ TEMPLATES = [
                 "django.template.context_processors.media",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "scipost.context_processors.roles_processor",
                 "journals.context_processors.journals_processor",
                 "ontology.context_processors.ontology_processor",
             ],

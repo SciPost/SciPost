@@ -1,0 +1,25 @@
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='comments' %}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h2 class="card-title mb-0">Your Comments</h2>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id="mycommentslist">
+  <div class="col-12">
+    <ul class="list-group list-group-flush">
+      {% for own_comment in own_comments %}
+        <li class="list-group-item">
+          {% include 'comments/_comment_card_extended_for_author.html' with comment=own_comment %}
+        </li>
+      {% empty %}
+        <li class="list-group-item"><em>You have not commented yet.</em></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

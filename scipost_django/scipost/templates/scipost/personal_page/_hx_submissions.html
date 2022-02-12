@@ -1,0 +1,62 @@
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='submissions' %}
+
+
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h2 class="card-title">Submissions</h2>
+        <ul class="mb-0">
+          {% if nr_submission_authorships_to_claim > 0 %}
+            <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_submission_authorships_to_claim }})</a></li>
+          {% endif %}
+          <li><a href="{% url 'submissions:submit_manuscript' %}">Submit to a SciPost Journal</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" id="mysubmissionslist">
+  <div class="col-12">
+    <h3>Submissions for which you are identified as an author:</h3>
+  </div>
+  <div class="col-12">
+    <ul class="list-group list-group-flush">
+      {% for sub in own_submissions %}
+        <li class="list-group-item">
+          <div class="card-body px-0">
+            {% include 'submissions/_submission_card_content.html' with submission=sub %}
+            {% include 'submissions/_submission_status.html' with submission=sub %}
+
+            {% if request.user.contributor == sub.submitted_by %}
+              <p class="card-text mt-1">
+		<ul>
+                  {% if sub.open_for_resubmission %}
+                    <li><a href="{% url 'submissions:submit_choose_journal' acad_field=sub.acad_field.slug %}?thread_hash={{ sub.thread_hash }}">{% include 'bi/arrow-right.html' %} resubmit</a></li>
+                  {% endif %}
+		  {% if sub.under_consideration %}
+                    {% if sub.editor_in_charge %}
+                      <li><a href="{% url 'submissions:communication' sub.preprint.identifier_w_vn_nr 'AtoE' %}">Write to the Editor-in-charge</a></li>
+                    {% endif %}
+		    {% if sub.editorial_decision %}
+		      {% if sub.editorial_decision.status == sub.editorial_decision.AWAITING_PUBOFFER_ACCEPTANCE %}
+			<li><a class="btn btn-primary my-1 px-1 py-0" href="{% url 'submissions:accept_puboffer' sub.preprint.identifier_w_vn_nr %}">Accept offer for publication in {{ sub.editorial_decision.for_journal }} (one-click action)</a></li>
+		      {% endif %}
+		    {% endif %}
+		    <li><a href="{% url 'submissions:withdraw_manuscript' sub.preprint.identifier_w_vn_nr %}"><span class="text-danger">Withdraw</span> (leads to confirmation page)</a></li>
+		  {% endif %}
+		</ul>
+              </p>
+            {% endif %}
+          </div>
+        </li>
+      {% empty %}
+        <li class="list-group-item">
+          <em>No Submissions found</em>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

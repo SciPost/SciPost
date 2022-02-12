@@ -1,0 +1,35 @@
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='commentaries' %}
+
+
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h2 class="card-title">Commentaries</h2>
+        <ul class="mb-0">
+          {% if nr_commentary_authorships_to_claim > 0 %}
+            <li><a href="{% url 'scipost:claim_authorships' %}">Potential authorships to claim (auto-detected: {{ nr_commentary_authorships_to_claim}})</a></li>
+          {% endif %}
+          <li><a href="{% url 'commentaries:request_commentary' %}">Request opening a SciPost Commentary Page</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row" id="mycommentarieslist">
+  <div class="col-12">
+    <h3>Commentaries for which you are identified as an author:</h3>
+  </div>
+  <div class="col-12">
+    <ul class="list-group list-group-flush">
+      {% for com in own_commentaries %}
+        <li class="list-group-item">
+          {% include 'commentaries/_commentary_card_content.html' with commentary=com %}
+        </li>
+      {% empty %}
+        <li class="list-group-item"><em>No Commentaries found</em></li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>

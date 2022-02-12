@@ -1192,6 +1192,234 @@ def _personal_page_author_replies(request):
     return render(request, "scipost/_personal_page_author_replies.html", context)
 
 
+@is_contributor_user()
+def personal_page_htmx(request):
+    context = {
+        "appellation": str(request.user),
+        "needs_validation": False,
+    }
+    try:
+        contributor = request.user.contributor
+        context["needs_validation"] = contributor.status != NORMAL_CONTRIBUTOR
+    except (Contributor.DoesNotExist, AttributeError):
+        if has_contact(request.user):
+            return redirect(reverse("organizations:dashboard"))
+        contributor = None
+
+    if contributor:
+        context["appellation"] = (
+            contributor.profile.get_title_display() + " " + contributor.user.last_name
+        )
+    return render(request, "scipost/personal_page/personal_page_htmx.html", context)
+
+
+@login_required
+def personal_page_hx_account(request):
+    """Personal Page tab: Account."""
+    contributor = request.user.contributor
+    context = {
+        "contributor": contributor,
+        "unavailability_form": UnavailabilityPeriodForm(),
+        "unavailabilities": contributor.unavailability_periods.future().order_by(
+            "start"
+        ),
+    }
+    return render(request, "scipost/personal_page/_hx_account.html", context)
+
+
+@login_required
+def personal_page_hx_admin(request):
+    """Personal Page tab: Admin Actions."""
+    permission = (
+        request.user.groups.filter(
+            name__in=["SciPost Administrators", "Financial Administrators"]
+        ).exists()
+        or request.user.is_superuser
+    )
+    if not permission:
+        raise PermissionDenied
+    context = {}
+    contributor = request.user.contributor
+    if contributor.is_scipost_admin:
+        # count the number of pending registration requests
+        context["nr_reg_to_vet"] = Contributor.objects.awaiting_vetting().count()
+        context[
+            "nr_reg_awaiting_validation"
+        ] = Contributor.objects.awaiting_validation().count()
+    return render(request, "scipost/personal_page/_hx_admin.html", context)
+
+
+@login_required
+def personal_page_hx_edadmin(request):
+    """
+    Personal Page tab: Editorial Actions.
+    """
+    permission = (
+        request.user.groups.filter(
+            name__in=[
+                "Ambassadors",
+                "Advisory Board",
+                "Editorial Administrators",
+                "Editorial College",
+                "Vetting Editors",
+                "Junior Ambassadors",
+            ]
+        ).exists()
+        or request.user.is_superuser
+    )
+    permission = permission or request.user.contributor.is_active_fellow()
+    if not permission:
+        raise PermissionDenied
+    context = {}
+    contributor = request.user.contributor
+    if contributor.is_scipost_admin:
+        context["nr_submissions_to_assign"] = Submission.objects.prescreening().count()
+        context[
+            "nr_recommendations_to_prepare_for_voting"
+        ] = EICRecommendation.objects.voting_in_preparation().count()
+    if contributor.is_vetting_editor:
+        context["nr_commentary_page_requests_to_vet"] = (
+            Commentary.objects.awaiting_vetting()
+            .exclude(requested_by=contributor)
+            .count()
+        )
+        context["nr_comments_to_vet"] = Comment.objects.awaiting_vetting().count()
+        context[
+            "nr_thesislink_requests_to_vet"
+        ] = ThesisLink.objects.awaiting_vetting().count()
+        context[
+            "nr_authorship_claims_to_vet"
+        ] = AuthorshipClaim.objects.awaiting_vetting().count()
+    if contributor.is_active_fellow:
+        context[
+            "nr_assignments_to_consider"
+        ] = contributor.editorial_assignments.invited().count()
+        context["active_assignments"] = contributor.editorial_assignments.ongoing()
+        context["nr_reports_to_vet"] = (
+            Report.objects.awaiting_vetting()
+            .filter(submission__editor_in_charge=contributor)
+            .count()
+        )
+    if contributor.is_ed_admin:
+        context["nr_reports_without_pdf"] = (
+            Report.objects.accepted().filter(pdf_report="").count()
+        )
+        context["nr_treated_submissions_without_pdf"] = (
+            Submission.objects.treated().public().filter(pdf_refereeing_pack="").count()
+        )
+    return render(request, "scipost/personal_page/_hx_edadmin.html", context)
+
+
+@login_required
+def personal_page_hx_refereeing(request):
+    context = {"contributor": request.user.contributor}
+    return render(request, "scipost/personal_page/_hx_refereeing.html", context)
+
+
+@login_required
+def personal_page_hx_publications(request):
+    """
+    Personal Page tab: Publications.
+    """
+    contributor = request.user.contributor
+    context = {
+        "contributor": contributor,
+        "own_publications": contributor.profile.publications()
+        .published()
+        .order_by("-publication_date"),
+    }
+    return render(request, "scipost/personal_page/_hx_publications.html", context)
+
+
+@login_required
+def personal_page_hx_submissions(request):
+    """
+    Personal Page tab: Submissions.
+    """
+    contributor = request.user.contributor
+    context = {"contributor": contributor}
+
+    context["nr_submission_authorships_to_claim"] = (
+        Submission.objects.filter(author_list__contains=request.user.last_name)
+        .exclude(authors=contributor)
+        .exclude(authors_claims=contributor)
+        .exclude(authors_false_claims=contributor)
+        .count()
+    )
+    context["own_submissions"] = contributor.submissions.filter(
+        is_current=True
+    ).order_by("-submission_date")
+    return render(request, "scipost/personal_page/_hx_submissions.html", context)
+
+
+@login_required
+def personal_page_hx_commentaries(request):
+    """
+    Personal Page tab: Commentaries.
+    """
+    contributor = request.user.contributor
+    context = {"contributor": contributor}
+
+    context["nr_commentary_authorships_to_claim"] = (
+        Commentary.objects.filter(author_list__contains=request.user.last_name)
+        .exclude(authors=contributor)
+        .exclude(authors_claims=contributor)
+        .exclude(authors_false_claims=contributor)
+        .count()
+    )
+    context["own_submissions"] = contributor.commentaries.order_by("-latest_activity")
+    return render(request, "scipost/personal_page/_hx_commentaries.html", context)
+
+
+@login_required
+def personal_page_hx_theses(request):
+    """
+    Personal Page tab: Theses.
+    """
+    contributor = request.user.contributor
+    context = {"contributor": contributor}
+
+    context["nr_thesis_authorships_to_claim"] = (
+        ThesisLink.objects.filter(author__contains=request.user.last_name)
+        .exclude(author_as_cont=contributor)
+        .exclude(author_claims=contributor)
+        .exclude(author_false_claims=contributor)
+        .count()
+    )
+    context["own_thesislinks"] = contributor.theses.all()
+    return render(request, "scipost/personal_page/_hx_theses.html", context)
+
+
+@login_required
+def personal_page_hx_comments(request):
+    """
+    Personal Page tab: Comments.
+    """
+    contributor = request.user.contributor
+    context = {
+        "contributor": contributor,
+        "own_comments": contributor.comments.regular_comments().order_by(
+            "-date_submitted"
+        ),
+    }
+    return render(request, "scipost/personal_page/_hx_comments.html", context)
+
+
+@login_required
+def personal_page_hx_author_replies(request):
+    """
+    Personal Page tab: Author Replies.
+    """
+    contributor = request.user.contributor
+    context = {
+        "contributor": contributor,
+        "own_authorreplies": contributor.comments.author_replies().order_by(
+            "-date_submitted"
+        ),
+    }
+    return render(request, "scipost/personal_page/_hx_author_replies.html", context)
+
+
 @login_required
 def personal_page(request, tab="account"):
     """

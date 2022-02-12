@@ -1,0 +1,71 @@
+<div class="tablist">
+  <a hx-get="{% url 'scipost:personal_page_hx_account' %}"
+     {% if selected == 'account' %}class="selected"{% endif %}
+  >
+    Account
+  </a>
+  {% if "scipost_admin" in user_roles or "finadmin" in user_roles or perms.scipost.can_vet_registration_requests %}
+    <a hx-get="{% url 'scipost:personal_page_hx_admin' %}"
+       {% if selected == 'admin' %}class="selected"{% endif %}
+    >
+      Admin
+    </a>
+  {% endif %}
+  {% if "scipost_admin" in user_roles or "edadmin" in user_roles or "active_fellow" in user_roles or "advisory_board" in user_roles or "vetting_editor" in user_roles or "ambassador" in user_roles or "junior_ambassador" in user_roles %}
+    <a hx-get="{% url 'scipost:personal_page_hx_edadmin' %}"
+       {% if selected == 'edadmin' %}class="selected"{% endif %}
+    >
+      EdAdmin
+    </a>
+  {% endif %}
+  {% if perms.scipost.can_referee %}
+    <a hx-get="{% url 'scipost:personal_page_hx_refereeing' %}"
+       {% if selected == 'refereeing' %}class="selected"{% endif %}
+    >
+      Refereeing
+    </a>
+  {% endif %}
+  <a hx-get="{% url 'scipost:personal_page_hx_publications' %}"
+     {% if selected == 'publications' %}class="selected"{% endif %}
+  >
+    Publications
+  </a>
+  <a hx-get="{% url 'scipost:personal_page_hx_submissions' %}"
+     {% if selected == 'submissions' %}class="selected"{% endif %}
+  >
+    Submissions
+  </a>
+  <a hx-get="{% url 'scipost:personal_page_hx_commentaries' %}"
+     {% if selected == 'commentaries' %}class="selected"{% endif %}
+  >
+    Commentaries
+  </a>
+  <a hx-get="{% url 'scipost:personal_page_hx_theses' %}"
+     {% if selected == 'theses' %}class="selected"{% endif %}
+  >
+    Theses
+  </a>
+  {% with contributor.comments.regular_comments as regular_comments %}
+    {% if regular_comments %}
+      {% with regular_comments.awaiting_vetting.count as count %}
+	<a hx-get="{% url 'scipost:personal_page_hx_comments' %}"
+       {% if selected == 'comments' %}class="selected"{% endif %}
+	>
+	  Comments{% if count %} ({{count}} unvetted){% endif %}
+	</a>
+      {% endwith %}
+    {% endif %}
+  {% endwith %}
+  {% with contributor.comments.author_replies as replies %}
+    {% if replies %}
+      {% with replies.awaiting_vetting.count as count %}
+	<a hx-get="{% url 'scipost:personal_page_hx_author_replies' %}"
+	   {% if selected == 'author_replies' %}class="selected"{% endif %}
+	>
+	  Author Replies{% if count %} ({{count}} unvetted){% endif %}
+	</a>
+      {% endwith %}
+    {% endif %}
+  {% endwith %}
+
+</div>

@@ -39,12 +39,24 @@ app_name = "scipost"
 
 
 urlpatterns = [
+    #
+    #######################
     # redirect for favicon
+    #######################
     path("favicon\.ico", favicon_view),
+    #
+    #############
     # Utilities:
+    #############
+    #
+    ###########################
     # Test Sentry installation
+    ###########################
     path("sentry-debug/", views.trigger_error, name="trigger_error"),
+    #
+    ###############
     # Autocomplete
+    ###############
     path(
         "group-autocomplete",
         views.GroupAutocompleteView.as_view(),
@@ -55,20 +67,29 @@ urlpatterns = [
         views.UserAutocompleteView.as_view(),
         name="user-autocomplete",
     ),
+    #
+    #########
     # Search
+    #########
     path(
         "search",
         TemplateView.as_view(template_name="search/search.html"),
         name="search",
     ),
+    #
+    ###########
     # Homepage
+    ###########
     path(
         "",  #'index_pre202202',
         views.index_pre202202,
         name="index",  # name='index_pre202202'
     ),
     path("portal", views.portal, name="portal"),
-    # HTMX-delivered fragments
+    #
+    ####################################
+    # HTMX-delivered homepage fragments
+    ####################################
     path("portal/_hx_home", views.portal_hx_home, name="portal_hx_home"),
     path("portal/_hx_journals", views.portal_hx_journals, name="portal_hx_journals"),
     path(
@@ -110,8 +131,11 @@ urlpatterns = [
         name="_hx_participates_in",
     ),
     path("_hx_sponsors", views._hx_sponsors, name="_hx_sponsors"),
-    path("files/secure/<path:path>", views.protected_serve, name="secure_file"),
+    #
+    ####################
     # General use pages
+    ####################
+    path("files/secure/<path:path>", views.protected_serve, name="secure_file"),
     path(
         "error", TemplateView.as_view(template_name="scipost/error.html"), name="error"
     ),
@@ -120,7 +144,10 @@ urlpatterns = [
         TemplateView.as_view(template_name="scipost/acknowledgement.html"),
         name="acknowledgement",
     ),
+    #
+    #######
     # Info
+    #######
     path(
         "about", TemplateView.as_view(template_name="scipost/about.html"), name="about"
     ),
@@ -166,7 +193,10 @@ urlpatterns = [
         TemplateView.as_view(template_name="scipost/privacy_policy.html"),
         name="privacy_policy",
     ),
+    #
+    ########
     # Feeds
+    ########
     path("feeds", views.feeds, name="feeds"),
     path("rss/news/", LatestNewsFeedRSS(), name="feeds_rss_news"),
     path("atom/news/", LatestNewsFeedAtom(), name="feeds_atom_news"),
@@ -209,16 +239,23 @@ urlpatterns = [
         LatestPublicationsFeedAtom(),
         name="pub_feed_spec_atom",
     ),
+    #
     ################
     # Contributors:
     ################
+    #
+    #################################
     # Contributor info (public view)
+    #################################
     path(
         "contributor/<int:contributor_id>",
         views.contributor_info,
         name="contributor_info",
     ),
+    #
+    ###############
     # Registration
+    ###############
     path("register", views.register, name="register"),
     path(
         "thanks_for_registering",
@@ -260,9 +297,15 @@ urlpatterns = [
         views.registration_requests_reset,
         name="registration_requests_reset",
     ),
+    #
+    #################################################################
     # Registration invitations (Never change this route! Thank you.)
+    #################################################################
     path("invitation/<str:key>", views.invitation, name="invitation"),
+    #
+    #################
     # Authentication
+    #################
     path("login/", views.SciPostLoginView.as_view(), name="login"),
     path("login/info/", views.raw_user_auth_info, name="login_info"),
     path("logout/", views.SciPostLogoutView.as_view(), name="logout"),
@@ -291,9 +334,66 @@ urlpatterns = [
         views.TOTPDeviceDeleteView.as_view(),
         name="totp_delete",
     ),
+    #
+    ############################################
     # Single sign-on [for GitLab: see api/urls]
+    ############################################
     path("sso_discourse", sso.discourse, name="sso_discourse"),
+    #
+    ################
     # Personal Page
+    ################
+    path("personal_page_htmx", views.personal_page_htmx, name="personal_page_htmx"),
+    path(
+        "personal_page_htmx/_hx_account",
+        views.personal_page_hx_account,
+        name="personal_page_hx_account",
+    ),
+    path(
+        "personal_page_htmx/_hx_admin",
+        views.personal_page_hx_admin,
+        name="personal_page_hx_admin",
+    ),
+    path(
+        "personal_page_htmx/_hx_edadmin",
+        views.personal_page_hx_edadmin,
+        name="personal_page_hx_edadmin",
+    ),
+    path(
+        "personal_page_htmx/_hx_refereeing",
+        views.personal_page_hx_refereeing,
+        name="personal_page_hx_refereeing",
+    ),
+    path(
+        "personal_page_htmx/_hx_publications",
+        views.personal_page_hx_publications,
+        name="personal_page_hx_publications",
+    ),
+    path(
+        "personal_page_htmx/_hx_submissions",
+        views.personal_page_hx_submissions,
+        name="personal_page_hx_submissions",
+    ),
+    path(
+        "personal_page_htmx/_hx_commentaries",
+        views.personal_page_hx_commentaries,
+        name="personal_page_hx_commentaries",
+    ),
+    path(
+        "personal_page_htmx/_hx_theses",
+        views.personal_page_hx_theses,
+        name="personal_page_hx_theses",
+    ),
+    path(
+        "personal_page_htmx/_hx_comments",
+        views.personal_page_hx_comments,
+        name="personal_page_hx_comments",
+    ),
+    path(
+        "personal_page_htmx/_hx_author_replies",
+        views.personal_page_hx_author_replies,
+        name="personal_page_hx_author_replies",
+    ),
     path("personal_page/", views.personal_page, name="personal_page"),
     path(
         "personal_page/account",
@@ -355,7 +455,10 @@ urlpatterns = [
         name="personal_page_author_replies",
         kwargs={"tab": "author_replies"},
     ),
+    #
+    ###################
     # Unavailabilities
+    ###################
     path(
         "unavailable_period",
         views.mark_unavailable_period,
@@ -366,7 +469,10 @@ urlpatterns = [
         views.delete_unavailable_period,
         name="delete_unavailable_period",
     ),
+    #
+    ####################
     # Authorship claims
+    ####################
     path("claim_authorships", views.claim_authorships, name="claim_authorships"),
     path(
         "claim_sub_authorship/<int:submission_id>/<int:claim>",
@@ -393,52 +499,70 @@ urlpatterns = [
         views.vet_authorship_claim,
         name="vet_authorship_claim",
     ),
+    #
+    #######################
     # Potential duplicates
+    #######################
     path(
         "contributor_duplicates/",
         views.ContributorDuplicateListView.as_view(),
         name="contributor_duplicates",
     ),
     path("contributor_merge/", views.contributor_merge, name="contributor_merge"),
-    ####################
-    # Email facilities #
-    ####################
+    #
+    ###################
+    # Email facilities
+    ###################
     path("email_group_members", views.email_group_members, name="email_group_members"),
     path("email_particular", views.email_particular, name="email_particular"),
     path(
         "send_precooked_email", views.send_precooked_email, name="send_precooked_email"
     ),
-    #####################
-    # Editorial College #
-    #####################
+    #
+    ####################
+    # Editorial College
+    ####################
     path("EdCol_by-laws", views.EdCol_bylaws, name="EdCol_by-laws"),
     path(
         "EdCol_by-laws_Changes_2021_04",
         views.EdCol_bylaws_Changes_2021_04,
         name="EdCol_by-laws_Changes_2021_04",
     ),
-    ################
-    # Publications #
-    ################
+    #
+    ###############
+    # Publications
+    ###############
+    #
+    ##########
     # Reports
+    ##########
     path(
         "<report_doi_label:doi_label>",
         journals_views.report_detail,
         name="report_detail",
     ),
+    #
+    ###########
     # Comments
+    ###########
     path(
         "<comment_doi_label:doi_label>",
         journals_views.comment_detail,
         name="comment_detail",
     ),
+    #
+    #################
     # Author Replies
+    #################
     path(
         "<author_reply_doi_label:doi_label>",
         journals_views.author_reply_detail,
         name="author_reply_detail",
     ),
+    #
+    ############################
     # Publication detail (+pdf)
+    ############################
     re_path(
         "^10.21468/{pattern}$".format(pattern=DOI_DISPATCH_PATTERN),
         journals_views.doi_dispatch,
@@ -469,7 +593,10 @@ urlpatterns = [
         journals_views.publication_detail_pdf,
         name="publication_pdf",
     ),
+    #
+    ######################
     # Publication updates
+    ######################
     path(
         "<publication_doi_label:doi_label>-update-<int:update_nr>",
         journals_views.publication_update_detail,
@@ -480,7 +607,10 @@ urlpatterns = [
         journals_views.publication_update_detail,
         name="publication_update_detail",
     ),
+    #
+    ################
     # Journal issue
+    ################
     path(
         "10.21468/<issue_doi_label:doi_label>",
         journals_views.issue_detail,
@@ -489,7 +619,10 @@ urlpatterns = [
     path(
         "<issue_doi_label:doi_label>", journals_views.issue_detail, name="issue_detail"
     ),
+    #
+    #######################
     # Journal landing page
+    #######################
     path(
         "10.21468/<journal_doi_label:doi_label>",
         journals_views.landing_page,
@@ -505,9 +638,10 @@ urlpatterns = [
         journals_views.arxiv_doi_feed,
         name="arxiv_doi_feed",
     ),
-    ################
-    # Howto guides #
-    ################
+    #
+    ###############
+    # Howto guides
+    ###############
     path(
         "howto", TemplateView.as_view(template_name="scipost/howto.html"), name="howto"
     ),
@@ -516,9 +650,10 @@ urlpatterns = [
         TemplateView.as_view(template_name="scipost/howto_production.html"),
         name="howto_production",
     ),
-    ########################
-    # Pwning verification #
-    ########################
+    #
+    ######################
+    # Pwning verification
+    ######################
     path(
         "have-i-been-pwned-verification.txt",
         views.have_i_been_pwned,

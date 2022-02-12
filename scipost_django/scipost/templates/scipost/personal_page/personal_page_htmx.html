@@ -1,0 +1,34 @@
+{% extends 'scipost/base.html' %}
+
+{% block pagetitle %}: personal page{% endblock pagetitle %}
+
+{% block navbar %}
+  {% include 'scipost/navbar.html' %}
+{% endblock navbar %}
+
+{% block content %}
+
+  <h1 class="highlight">Welcome to your SciPost Personal Page, {{ appellation }}</h1>
+
+  {% if needs_validation %}
+    <div class="row">
+      <div class="col-12">
+        <hr>
+        <h3>Your credentials will soon be verified by an Editor.</h3>
+        <p>If accepted, you will become a registered Contributor, enabling you to submit, comment and vote.</p>
+      </div>
+    </div>
+
+  {% else %}
+
+    <div id="tablist"
+	 hx-get="{% url 'scipost:personal_page_hx_account' %}"
+	 hx-trigger="load after:100ms"
+	 hx-target="this"
+	 hx-swap="innerHTML"
+    >
+    </div>
+
+  {% endif %}
+
+{% endblock content %}

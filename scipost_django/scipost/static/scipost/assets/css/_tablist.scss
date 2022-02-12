@@ -1,0 +1,13 @@
+.tablist {
+    border-bottom: 3px solid #eee;
+    margin-bottom: 1rem;
+}
+.tablist a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+.tablist a.selected {
+    background-color: #eee;
+    font-weight: bold;
+}

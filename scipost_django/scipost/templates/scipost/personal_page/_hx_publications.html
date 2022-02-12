@@ -1,0 +1,41 @@
+{% include 'scipost/personal_page/_hx_tablist.html' with selected='publications' %}
+
+
+<div class="row">
+  <div class="col-12">
+    <div class="card bg-light">
+      <div class="card-body">
+        <h2 class="card-title">Publications</h2>
+        <ul class="mb-0">
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" id="mypublicationslist">
+  <div class="col-12">
+    <h3 class="mb-3">Publications for which you are identified as an author:</h3>
+  </div>
+  <div class="col-12">
+    <ul class="list-unstyled">
+      {% for pub in own_publications %}
+        <li>
+          <div class="card bg-light card-publication" id="{{pub.doi_label}}">
+            {% include 'journals/_publication_card_content.html' with publication=pub current_user=request.user %}
+            {% if request.user == pub.accepted_submission.submitted_by.user %}
+              {% if not pub.pubfractions_confirmed_by_authors or not pub.pubfractions_sum_to_1 %}
+                <h4 class="m-2"><a href="{% url 'journals:allocate_orgpubfractions' doi_label=pub.doi_label %}"><span class="text-danger">Intervention needed:</span> review support fractions</a></h4>
+              {% endif %}
+            {% endif %}
+          </div>
+        </li>
+      {% empty %}
+        <li>
+          <em>No Publications found</em>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
