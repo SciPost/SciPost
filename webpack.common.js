@@ -8,6 +8,9 @@ module.exports = {
     context: __dirname,
     entry: {
         base: [
+            "./scipost_django/scipost/static/scipost/assets/js/base.js",
+        ],
+        jquerybase: [
             "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
         ],
@@ -22,6 +25,11 @@ module.exports = {
 	qr: [
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
 	    "./scipost_django/scipost/static/scipost/assets/js/activate_qr.js",
+	],
+	jquerypersonalpage: [
+            "./scipost_django/scipost/static/scipost/assets/js/dynamic_load.js",
+            "./scipost_django/scipost/static/scipost/assets/js/scripts.js",
+            "./scipost_django/scipost/static/scipost/assets/js/base.js",
 	],
 	vue: [
 	    "./scipost_vue/search.js",

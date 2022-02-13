@@ -3,6 +3,12 @@
 {% load bootstrap %}
 {% load user_groups %}
 
+{% load render_bundle from webpack_loader %}
+
+{% block basebundle %}
+  {% render_bundle 'jquerypersonalpage' %}
+{% endblock basebundle %}
+
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
 {% block body_class %}{{ block.super }} personal-page{% endblock %}

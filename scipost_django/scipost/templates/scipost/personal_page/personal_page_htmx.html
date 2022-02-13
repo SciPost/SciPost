@@ -1,5 +1,11 @@
 {% extends 'scipost/base.html' %}
 
+{% load render_bundle from webpack_loader %}
+
+{% block basebundle %}
+  {% render_bundle 'base' %}
+{% endblock basebundle %}
+
 {% block pagetitle %}: personal page{% endblock pagetitle %}
 
 {% block navbar %}
@@ -23,7 +29,7 @@
 
     <div id="tablist"
 	 hx-get="{% url 'scipost:personal_page_hx_account' %}"
-	 hx-trigger="load after:100ms"
+	 hx-trigger="load"
 	 hx-target="this"
 	 hx-swap="innerHTML"
     >

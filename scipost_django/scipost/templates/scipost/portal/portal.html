@@ -1,6 +1,12 @@
 {% extends 'scipost/base.html' %}
 {% load static %}
 
+{% load render_bundle from webpack_loader %}
+
+{% block basebundle %}
+  {% render_bundle 'base' %}
+{% endblock basebundle %}
+
 {% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
 
 {% block meta_description %}{{ block.super }} homepage{% endblock meta_description %}
