@@ -1972,7 +1972,6 @@ class ConsiderRefereeInvitationForm(forms.Form):
 
 class SetRefereeingDeadlineForm(forms.Form):
     deadline = forms.DateField(
-        required=False,
         label="",
         widget=forms.SelectDateWidget(
             years=[timezone.now().year + i for i in range(2)],
@@ -1981,8 +1980,6 @@ class SetRefereeingDeadlineForm(forms.Form):
     )
 
     def clean_deadline(self):
-        if not self.cleaned_data.get("deadline"):
-            self.add_error("deadline", "Please use a valid date.")
         if not (self.cleaned_data.get("deadline") >= timezone.now().date()):
             self.add_error("deadline", "Please choose a future date!")
         return self.cleaned_data.get("deadline")
