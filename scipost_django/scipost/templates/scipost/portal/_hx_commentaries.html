@@ -10,6 +10,8 @@
   </h2>
 </div>
 
+<h2 class="highlight my-4">Commentaries{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
+
 <div class="d-flex justify-content-between">
   <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#commentariesSearch" aria-expanded="false" aria-controls="commentariesSearch">
     {% include 'bi/search.html' %}&emsp;Simple search / filter
@@ -21,10 +23,10 @@
 <div class="collapse" id="commentariesSearch">
   <div class="card card-body">
     <form
-	hx-post="{% url 'scipost:portal_hx_commentaries_page' %}?page=1"
-	hx-trigger="load, keyup delay:500ms, change"
-	hx-target="#commentaries-search-results"
-	hx-indicator="#indicator-commentaries-search"
+      hx-post="{% url 'scipost:portal_hx_commentaries_page' %}?page=1"
+	       hx-trigger="load, keyup delay:500ms, change"
+	       hx-target="#commentaries-search-results"
+	       hx-indicator="#indicator-commentaries-search"
     >
       <div id="commentaries-search-form">{% crispy commentaries_search_form %}</div>
     </form>
@@ -36,7 +38,5 @@
     </button>
   </div>
 </div>
-
-<h2 class="highlight mb-0">Commentaries{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
 
 <ul id="commentaries-search-results" class="list-unstyled pool-list mt-2"></ul>

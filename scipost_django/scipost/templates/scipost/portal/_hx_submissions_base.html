@@ -10,6 +10,25 @@
 {% endif %}
 
 
+<h2 class="highlight my-4">Submissions{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
+
+{% if reports_needed %}
+  <div class="card m-2 border-2 text-center">
+    <div class="card-header m-0 p-0">
+      <h2 class="m-0 p-2 text-white bg-warning">
+	{% include 'bi/alarm-fill.html' %}&nbsp;Reports are needed on these Submissions
+      </h2>
+    </div>
+    <div class="card-body">
+      <h3><strong>Please consider contributing one</strong> (even if not explicitly invited to do so)!</h3>
+      <h3>Authors will be grateful, and our editorial processing will remain free of undue delays.</h3>
+      <p>To contribute a Report, please navigate to the Submission's page and click on the <strong>Contribute a Report</strong> link {% if not user.is_authenticated %}(login required){% endif %}
+    </div>
+  </div>
+
+  <hr>
+{% endif %}
+
 <div class="d-flex justify-content-between">
   <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#{{ name }}Search" aria-expanded="false" aria-controls="{{ name }}Search">
     {% include 'bi/search.html' %}&emsp;Simple search / filter
@@ -37,23 +56,5 @@
   </div>
 </div>
 
-<h2 class="highlight mt-4 mb-0">Submissions in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
-
-{% if reports_needed %}
-  <div class="card m-2 border-2 text-center">
-    <div class="card-header m-0 p-0">
-      <h2 class="m-0 p-2 text-white bg-warning">
-	{% include 'bi/alarm-fill.html' %}&nbsp;Reports are needed on these Submissions
-      </h2>
-    </div>
-    <div class="card-body">
-      <h3><strong>Please consider contributing one</strong> (even if not explicitly invited to do so)!</h3>
-      <h3>Authors will be grateful, and our editorial processing will remain free of undue delays.</h3>
-      <p>To contribute a Report, please navigate to the Submission's page and click on the <strong>Contribute a Report</strong> link {% if not user.is_authenticated %}(login required){% endif %}
-    </div>
-  </div>
-
-  <hr>
-{% endif %}
 
 <ul id="{{ name }}-search-results" class="list-unstyled pool-list mt-2"></ul>

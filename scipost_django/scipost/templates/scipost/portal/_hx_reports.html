@@ -1,5 +1,7 @@
 {% load crispy_forms_tags %}
 
+<h2 class="highlight my-4">Reports on Submissions{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
+
 <div class="d-flex justify-content-between">
   <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#reportsSearch" aria-expanded="false" aria-controls="reportsSearch">
     {% include 'bi/search.html' %}&emsp;Simple search / filter
@@ -11,10 +13,10 @@
 <div class="collapse" id="reportsSearch">
   <div class="card card-body">
     <form
-	hx-post="{% url 'scipost:portal_hx_reports_page' %}?page=1"
-	hx-trigger="load, keyup delay:500ms, change"
-	hx-target="#reports-search-results"
-	hx-indicator="#indicator-reports-search"
+      hx-post="{% url 'scipost:portal_hx_reports_page' %}?page=1"
+	       hx-trigger="load, keyup delay:500ms, change"
+	       hx-target="#reports-search-results"
+	       hx-indicator="#indicator-reports-search"
     >
       <div id="reports-search-form">{% crispy reports_search_form %}</div>
     </form>
@@ -26,7 +28,5 @@
     </button>
   </div>
 </div>
-
-<h2 class="highlight mb-0">Reports on Submissions{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
 
 <ul id="reports-search-results" class="list-unstyled pool-list mt-2"></ul>
