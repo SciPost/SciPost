@@ -90,6 +90,26 @@
       </div>
     </div>
 
+    <div class="tab-pane portal-tab fade{% if request.GET.tab == 'commentaries' %} show active{% endif %}"
+	 id="commentaries"
+	 role="tabpanel" aria-labelledby="commentaries-tab">
+      <div hx-get="{% url 'scipost:portal_hx_commentaries' %}"
+	   hx-trigger="{% if request.GET.tab == 'commentaries' %}load, {% endif %}click delay:200ms from:#commentaries-tab, session-acad-field-set from:body, session-specialty-set from:body"
+	   hx-push-url="{% url 'scipost:portal' %}?tab=commentaries"
+      >
+      </div>
+    </div>
+
+    <div class="tab-pane portal-tab fade{% if request.GET.tab == 'theses' %} show active{% endif %}"
+	 id="theses"
+	 role="tabpanel" aria-labelledby="theses-tab">
+      <div hx-get="{% url 'scipost:portal_hx_theses' %}"
+	   hx-trigger="{% if request.GET.tab == 'theses' %}load, {% endif %}click delay:200ms from:#theses-tab, session-acad-field-set from:body, session-specialty-set from:body"
+	   hx-push-url="{% url 'scipost:portal' %}?tab=theses"
+      >
+      </div>
+    </div>
+
   </div>
 
 {% endblock %}

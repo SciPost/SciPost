@@ -16,7 +16,7 @@ from .managers import CommentaryManager
 
 class Commentary(TimeStampedModel):
     """
-    A Commentary contains all the contents of a SciPost Commentary page for a given publication.
+    A Commentary page for a given publication.
     """
 
     requested_by = models.ForeignKey(

@@ -87,6 +87,65 @@
 	    </a>
 	  {% endif %}
 	</li>
+
+	<li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="MoreDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  data-trigger="hover">More</a>
+          <ul class="dropdown-menu" aria-labelledby="MoreDropdown">
+	    <li>
+	      {% if request.path == '/portal' %}
+		<button class="nav-link{% if request.GET.tab == 'reports' %} active{% endif %}"
+			       id="reports-tab"
+			       data-bs-toggle="tab" data-bs-target="#reports"
+			       type="button" role="tab"
+			       aria-controls="reports" aria-selected="true">
+		  Reports
+		</button>
+	      {% else %}
+		<a href="{% url 'scipost:portal' %}?tab=reports">Reports</a>
+	      {% endif %}
+	    </li>
+            <li>
+	      {% if request.path == '/portal' %}
+		<button class="nav-link{% if request.GET.tab == 'comments' %} active{% endif %}"
+			       id="comments-tab"
+			       data-bs-toggle="tab" data-bs-target="#comments"
+			       type="button" role="tab"
+			       aria-controls="comments" aria-selected="true">
+		  Comments
+		</button>
+	      {% else %}
+		<a href="{% url 'scipost:portal' %}?tab=comments">Comments</a>
+	      {% endif %}
+            </li>
+            <li>
+	      {% if request.path == '/portal' %}
+		<button class="nav-link{% if request.GET.tab == 'commentaries' %} active{% endif %}"
+			id="commentaries-tab"
+			data-bs-toggle="tab" data-bs-target="#commentaries"
+			type="button" role="tab"
+			aria-controls="commentaries" aria-selected="true">
+		  Commentaries
+		</button>
+	      {% else %}
+		<a href="{% url 'scipost:portal' %}?tab=commentaries">Commentaries</a>
+	      {% endif %}
+            </li>
+            <li>
+	      {% if request.path == '/portal' %}
+		<button class="nav-link{% if request.GET.tab == 'theses' %} active{% endif %}"
+			id="theses-tab"
+			data-bs-toggle="tab" data-bs-target="#theses"
+			type="button" role="tab"
+			aria-controls="theses" aria-selected="true">
+		  Theses
+		</button>
+	      {% else %}
+		<a href="{% url 'scipost:portal' %}?tab=theses">Theses</a>
+	      {% endif %}
+            </li>
+          </ul>
+	</li>
+
 	<!--
 	     <li class="nav-item" role="presentation">
 	     {% if request.path == '/portal' %}

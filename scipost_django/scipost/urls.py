@@ -124,6 +124,22 @@ urlpatterns = [
         views.portal_hx_comments_page,
         name="portal_hx_comments_page",
     ),
+    path(
+        "portal/_hx_commentaries",
+        views.portal_hx_commentaries,
+        name="portal_hx_commentaries"
+    ),
+    path(
+        "portal/_hx_commentaries_page",
+        views.portal_hx_commentaries_page,
+        name="portal_hx_commentaries_page",
+    ),
+    path("portal/_hx_theses", views.portal_hx_theses, name="portal_hx_theses"),
+    path(
+        "portal/_hx_theses_page",
+        views.portal_hx_theses_page,
+        name="portal_hx_theses_page",
+    ),
     path("_hx_news", views._hx_news, name="_hx_news"),
     path(
         "_hx_participates_in",

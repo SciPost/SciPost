@@ -15,7 +15,7 @@ from ..factories import (
     UnpublishedCommentaryFactory,
     UnvettedUnpublishedCommentaryFactory,
 )
-from ..forms import CommentarySearchForm, RequestPublishedArticleForm
+from ..forms import RequestPublishedArticleForm
 from ..models import Commentary
 from ..views import RequestPublishedArticle, prefill_using_DOI, RequestArxivPreprint
 from common.helpers.test import add_groups_and_permissions

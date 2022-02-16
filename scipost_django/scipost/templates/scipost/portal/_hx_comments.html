@@ -27,6 +27,6 @@
   </div>
 </div>
 
-<h2 class="highlight mb-0">Comments on objects in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}</h2>
+<h2 class="highlight mb-0">Comments on objects{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
 
 <ul id="comments-search-results" class="list-unstyled pool-list mt-2"></ul>

@@ -7,6 +7,10 @@ from django.contrib.sites.models import Site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div
+from crispy_bootstrap5.bootstrap5 import FloatingField
+
 from scipost.models import Contributor
 from scipost.utils import build_absolute_uri_using_site
 
@@ -138,3 +142,55 @@ class ThesisLinkSearchForm(forms.Form):
         max_length=1000, required=False, label="Abstract"
     )
     supervisor = forms.CharField(max_length=100, required=False, label="Supervisor")
+
+
+class ThesisSearchForm(forms.Form):
+    author = forms.CharField(max_length=100, required=False, label="Author")
+    title = forms.CharField(max_length=100, label="Title", required=False)
+    abstract = forms.CharField(
+        max_length=1000, required=False, label="Abstract"
+    )
+    supervisor = forms.CharField(max_length=100, required=False, label="Supervisor")
+
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop("acad_field_slug")
+        self.specialty_slug = kwargs.pop("specialty_slug")
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                FloatingField("author"),
+                FloatingField("title"),
+                FloatingField("abstract"),
+                FloatingField("supervisor"),
+            ),
+        )
+
+    def search_results(self):
+        """Return all ThesisLink objects fitting search"""
+        theses = ThesisLink.objects.vetted()
+        if self.acad_field_slug and self.acad_field_slug != "all":
+            theses = theses.filter(acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug and self.specialty_slug != "all":
+                theses = theses.filter(
+                    specialties__slug=self.specialty_slug
+                )
+        if hasattr(self, "cleaned_data"):
+            if "title" in self.cleaned_data:
+                theses = theses.filter(
+                    title__icontains=self.cleaned_data["title"],
+                )
+                len(theses)
+            if "abstract" in self.cleaned_data:
+                theses = theses.filter(
+                    abstract__icontains=self.cleaned_data["abstract"],
+                )
+            if "author" in self.cleaned_data:
+                theses = theses.filter(
+                    author__icontains=self.cleaned_data["author"],
+                )
+            if "supervisor" in self.cleaned_data:
+                theses = theses.filter(
+                    supervisor__icontains=self.cleaned_data["supervisor"],
+                )
+        return theses.order_by("-defense_date")

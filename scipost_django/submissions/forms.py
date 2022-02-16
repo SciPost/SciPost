@@ -143,7 +143,7 @@ class SubmissionSearchForm(forms.Form):
         Return all Submission objects fitting search criteria.
         """
         submissions = Submission.objects.public_newest().unpublished()
-        if self.acad_field_slug != "all":
+        if self.acad_field_slug and self.acad_field_slug != "all":
             submissions = submissions.filter(acad_field__slug=self.acad_field_slug)
             if self.specialty_slug and self.specialty_slug != "all":
                 submissions = submissions.filter(specialties__slug=self.specialty_slug)
@@ -412,9 +412,9 @@ class ReportSearchForm(forms.Form):
 
     def search_results(self):
         reports = Report.objects.accepted()
-        if self.acad_field_slug != "all":
+        if self.acad_field_slug and self.acad_field_slug != "all":
             reports = reports.filter(submission__acad_field__slug=self.acad_field_slug)
-            if self.specialty_slug:
+            if self.specialty_slug and self.specialty_slug != "all":
                 reports = reports.filter(
                     submission__specialties__slug=self.specialty_slug
                 )

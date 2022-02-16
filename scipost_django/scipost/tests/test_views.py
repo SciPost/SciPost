@@ -13,7 +13,6 @@ from commentaries.factories import (
     CommentaryFactory,
     UnpublishedCommentaryFactory,
 )
-from commentaries.forms import CommentarySearchForm
 from commentaries.models import Commentary
 
 from ..factories import ContributorFactory

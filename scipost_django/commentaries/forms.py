@@ -6,6 +6,10 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.template.loader import get_template
 
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, Div
+from crispy_bootstrap5.bootstrap5 import FloatingField
+
 from .models import Commentary
 from .constants import COMMENTARY_PUBLISHED, COMMENTARY_PREPRINT
 
@@ -315,7 +319,62 @@ class VetCommentaryForm(forms.Form):
 
 
 class CommentarySearchForm(forms.Form):
-    """Search for Commentary specified by user"""
+    author = forms.CharField(
+        max_length=100,
+        required=False,
+        label="On publication with author(s)"
+    )
+    title = forms.CharField(
+        max_length=100,
+        required=False,
+        label="On publication with title"
+    )
+    abstract = forms.CharField(
+        max_length=1000,
+        required=False,
+        label="On publication with abstract"
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.acad_field_slug = kwargs.pop("acad_field_slug")
+        self.specialty_slug = kwargs.pop("specialty_slug")
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Div(
+                FloatingField("author"),
+                FloatingField("title"),
+                FloatingField("abstract"),
+            ),
+        )
+
+    def search_results(self):
+        """Return all Commentary objects according to search"""
+        commentaries = Commentary.objects.vetted()
+        if self.acad_field_slug and self.acad_field_slug != "all":
+            commentaries = commentaries.filter(acad_field__slug=self.acad_field_slug)
+            if self.specialty_slug and self.specialty_slug != "all":
+                commentaries = commentaries.filter(
+                    specialties__slug=self.specialty_slug
+                )
+        if hasattr(self, "cleaned_data"):
+            if "title" in self.cleaned_data:
+                commentaries = commentaries.filter(
+                    title__icontains=self.cleaned_data["title"],
+                )
+            if "abstract" in self.cleaned_data:
+                commentaries = commentaries.filter(
+                    pub_abstract__icontains=self.cleaned_data["abstract"],
+                )
+            if "author" in self.cleaned_data:
+                commentaries = commentaries.filter(
+                    author_list__icontains=self.cleaned_data["author"],
+                )
+        return commentaries.order_by("-pub_date")
+
+
+class CommentaryListSearchForm(forms.Form):
+    """Search for Commentary specified by user (for old CommentaryListView)"""
 
     author = forms.CharField(max_length=100, required=False, label="Author(s)")
     title = forms.CharField(max_length=100, required=False, label="Title")

@@ -22,7 +22,7 @@ from .forms import (
     ArxivQueryForm,
     VetCommentaryForm,
     RequestCommentaryForm,
-    CommentarySearchForm,
+    CommentaryListSearchForm,
     RequestPublishedArticleForm,
     RequestArxivPreprintForm,
     CommentSciPostPublication,
@@ -224,7 +224,7 @@ def modify_commentary_request(request, commentary_id):
 
 class CommentaryListView(PaginationMixin, ListView):
     model = Commentary
-    form = CommentarySearchForm
+    form = CommentaryListSearchForm
     paginate_by = 10
     context_object_name = "commentary_list"
 

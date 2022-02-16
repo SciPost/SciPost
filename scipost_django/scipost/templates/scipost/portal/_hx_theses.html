@@ -1,0 +1,37 @@
+{% load crispy_forms_tags %}
+
+<div class="p-3 mb-3 bg-light scipost-bar border">
+  <h1 class="mb-3">SciPost Theses</h1>
+  <h2><a href="{% url 'theses:request_thesislink' %}">Request a new Thesis Link</a></h2>
+</div>
+
+<div class="d-flex justify-content-between">
+  <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#thesesSearch" aria-expanded="false" aria-controls="thesesSearch">
+    {% include 'bi/search.html' %}&emsp;Simple search / filter
+  </button>
+  <a class="btn btn-outline-primary ms-2" href="{% url 'scipost:search' %}">
+    {% include 'bi/binoculars-fill.html' %}... or use our advanced search API&emsp;{% include 'bi/arrow-right.html' %}
+  </a>
+</div>
+<div class="collapse" id="thesesSearch">
+  <div class="card card-body">
+    <form
+      hx-post="{% url 'scipost:portal_hx_theses_page' %}?page=1"
+	       hx-trigger="load, keyup delay:500ms, change"
+	       hx-target="#theses-search-results"
+	       hx-indicator="#indicator-theses-search"
+    >
+      <div id="theses-search-form">{% crispy theses_search_form %}</div>
+    </form>
+  </div>
+  <div id="indicator-theses-search" class="htmx-indicator p-2">
+    <button class="btn btn-warning" type="button" disabled>
+      <strong>Loading...</strong>
+      <div class="spinner-grow spinner-grow-sm ms-2" role="status" aria-hidden="true"></div>
+    </button>
+  </div>
+</div>
+
+<h2 class="highlight mb-0">Thesis links{% if session_acad_field %} in {{ session_acad_field }}: {% if session_specialty %}{{ session_specialty }}{% else %}(all specialties){% endif %}{% else %} (all fields){% endif %}</h2>
+
+<ul id="theses-search-results" class="list-unstyled pool-list mt-2"></ul>

@@ -109,13 +109,13 @@ class CommentSearchForm(forms.Form):
 
     def search_results(self):
         comments = Comment.objects.vetted()
-        if self.acad_field_slug != "all":
+        if self.acad_field_slug and self.acad_field_slug != "all":
             comments = comments.filter(
                 Q(submissions__acad_field__slug=self.acad_field_slug)
                 | Q(reports__submission__acad_field__slug=self.acad_field_slug)
                 | Q(commentaries__acad_field__slug=self.acad_field_slug)
             )
-            if self.specialty_slug:
+            if self.specialty_slug and self.specialty_slug != "all":
                 comments = comments.filter(
                     Q(submissions__specialties__slug=self.specialty_slug)
                     | Q(reports__submission__specialties__slug=self.specialty_slug)
