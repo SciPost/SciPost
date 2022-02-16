@@ -1,0 +1,58 @@
+{% if contributor.referee_invitations.awaiting_response %}
+  <div class="border border-2 border-danger m-2 mb-4">
+    <h3 class="highlight mt-0">Refereeing invitations awaiting your response</h3>
+    <ul>
+      <li><a href="{% url 'submissions:accept_or_decline_ref_invitations' %}">Accept/decline refereeing invitations</a> ({{ contributor.referee_invitations.awaiting_response|length }})</li>
+    </ul>
+  </div>
+{% endif %}
+{% if contributor.reports.in_draft.all %}
+  <div class="border border-2 border-danger p-0 m-2">
+    <h3 class="highlight mt-0">Your unfinished Reports</h3>
+    <ul class="list-group m-2">
+      {% for report in contributor.reports.in_draft.all %}
+        <li class="list-group-item">
+	  <div class="card-body">
+	    {% include 'submissions/_submission_li.html' with submission=report.submission %}
+	    <a class="btn btn-outline-primary my-2" href="{% url 'submissions:submit_report' report.submission.preprint.identifier_w_vn_nr %}">Finish Report</a>
+	  </div>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+{% if contributor.referee_invitations.in_process.all %}
+  <div class="border border-2 border-warning m-2 mb-4">
+    <h3 class="highlight mt-0">Your pending refereeing invitations</h3>
+    <ul class="list-group m-2">
+      {% for invitation in contributor.referee_invitations.in_process.all %}
+        <li class="list-group-item p-2">
+          {% include 'submissions/_submission_li.html' with submission=invitation.submission %}
+          <table>
+	    <tr>
+              <th style='min-width: 100px;'>Due:</th>
+              <td>{{ invitation.submission.reporting_deadline|date:'d F Y' }}{% if invitation.submission.reporting_deadline_has_passed %} <span class="label label-sm label-danger ms-2 px-3">overdue</span> {% endif %}<td>
+	    </tr>
+	    <tr>
+              <th>Status:</th>
+              <td>{{ invitation.get_status_display }}</td>
+	    </tr>
+	    {% if invitation.accepted is not None %}
+              <tr>
+                <th>{{ invitation.accepted|yesno:'Accepted,Declined' }}:</th>
+                <td>{{ invitation.date_responded }}</td>
+              </tr>
+	    {% endif %}
+	    <tr>
+              <td colspan="2">
+                <a class="d-inline-block" href="{% url 'submissions:submit_report' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr %}">Submit your Report</a> <span class="text-blue">|</span>
+                <a class="d-inline-block" href="{% url 'submissions:communication' identifier_w_vn_nr=invitation.submission.preprint.identifier_w_vn_nr comtype='RtoE' referee_id=contributor.id %}">Write to the Editor-in-charge</a>
+              </td>
+	    </tr>
+          </table>
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}

@@ -2,6 +2,14 @@
 
 {% load crispy_forms_tags %}
 
+
+{% if name == 'reports_needed' %}
+  {% if request.user.contributor %}
+{% include 'submissions/_refereeing_invitations_ongoing.html' with contributor=request.user.contributor %}
+  {% endif %}
+{% endif %}
+
+
 <div class="d-flex justify-content-between">
   <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#{{ name }}Search" aria-expanded="false" aria-controls="{{ name }}Search">
     {% include 'bi/search.html' %}&emsp;Simple search / filter
