@@ -146,35 +146,6 @@
           </ul>
 	</li>
 
-	<!--
-	     <li class="nav-item" role="presentation">
-	     {% if request.path == '/portal' %}
-	     <button class="nav-link{% if request.GET.tab == 'reports' %} active{% endif %}"
-	     id="reports-tab"
-	     data-bs-toggle="tab" data-bs-target="#reports"
-	     type="button" role="tab"
-	     aria-controls="reports" aria-selected="true">
-	     Reports
-	     </button>
-	     {% else %}
-	     <a href="{% url 'scipost:portal' %}?tab=reports">Reports</a>
-	     {% endif %}
-	     </li>
-
-	     <li class="nav-item" role="presentation">
-	     {% if request.path == '/portal' %}
-	     <button class="nav-link{% if request.GET.tab == 'comments' %} active{% endif %}"
-	     id="comments-tab"
-	     data-bs-toggle="tab" data-bs-target="#comments"
-	     type="button" role="tab"
-	     aria-controls="comments" aria-selected="true">
-	     Comments
-	     </button>
-	     {% else %}
-	     <a href="{% url 'scipost:portal' %}?tab=comments">Comments</a>
-	     {% endif %}
-	     </li> -->
-
 	<li class="nav-item" role="presentation">
 	  <a class="btn btn-outline-success border-2 border-success ms-2"
 	     href="{% url 'submissions:submit_manuscript' %}">
