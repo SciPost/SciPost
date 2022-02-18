@@ -75,7 +75,7 @@
             white-space: normal;
 
             a {
-                color: $scipost-blue50;
+                color: $scipost-blue48;
                 transition: 0.08s;
 
                 &:hover {
@@ -132,7 +132,8 @@
         }
 
         .dropdown-menu {
-            background: #7a94c5; // background: $scipost-blue50;
+            //background: #7a94c5; // background: $scipost-blue50;
+            background: $scipost-blue48; // background: $scipost-blue50;
             border: 0; //2px solid $scipost-darkblue;
             box-shadow: none;
             padding: 0.75rem 0 !important;
@@ -207,7 +208,7 @@
 
 
 .main-nav {
-    background-color: $scipost-blue50;
+    background-color: $scipost-blue48;
     letter-spacing: 0.3px;
 
     .container {
@@ -237,7 +238,7 @@
     .dropdown-menu {
         min-width: 255px;
         padding: 0.45rem 0.75rem;
-        background: $scipost-blue50;
+        background: $scipost-blue48;
         color: $white;
         //border-color: #e0e0e0;
         top: 36px;
@@ -316,7 +317,7 @@
         }
 
         .dropdown-menu {
-            background: $scipost-blue50;//#7a94c5;
+            background: $scipost-blue48;//#7a94c5;
             border: 2px solid $scipost-darkblue;
             box-shadow: none;
             padding: 0.75rem 0 !important;
@@ -458,13 +459,13 @@ header .nav-item {
 
 #portal-tablist {
 
-    background-color: $scipost-blue50;
+    background-color: $scipost-blue48;
     list-style: none;
     padding: 0;// 0 4px 0;
     margin: 0;
 
     li button, li a {
-	border: 2px solid $scipost-blue50;
+	border: 2px solid $scipost-blue48;
 	color: #eee;
 	font-size: 0.8rem;
 	font-weight: 800;
