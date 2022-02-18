@@ -6,6 +6,7 @@ table.submission_header {
 .comment {
     padding-left: 1rem;
     position: relative;
+    border: 0.5rem solid #f4f4f4;
 
     &:before {
         content: '';

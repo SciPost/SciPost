@@ -1,7 +1,7 @@
 {% load scipost_extras %}
 {% load submissions_extras %}
 
-<div class="row">
+<div class="row mb-5">
   <div class="col-12">
     <div class="report" id="report_{{ report.report_nr }}">
       <div class="reportid">
@@ -79,31 +79,25 @@
             <em class="text-danger">N.B.: sections boxed in red are visible only to Editor-in-charge and EdAdmin</em>
           </div>
         </div>
-        <div class="row border border-danger">
-          <div class="col-12 pb-2">
-            <h3 class="highlight tight">Qualification</h3>
-            <div class="ps-md-4">{{ report.get_qualification_display}}</div>
-          </div>
+        <div class="m-2 p-2 border border-danger">
+          <h3 class="highlight tight">Qualification</h3>
+          <div class="ps-md-4">{{ report.get_qualification_display}}</div>
         </div>
       {% endif %}
 
       {% include 'submissions/_report_content.html' with report=report %}
 
       {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
-        <div class="row mt-3 border border-danger">
-          <div class="col-12 pb-2">
-            <h3 class="highlight tight">Remarks for editors</h3>
-            <div class="ps-md-4">{{ report.remarks_for_editors|default:'-' }}</div>
-          </div>
+        <div class="m-2 p-2 border border-danger">
+          <h3 class="highlight tight">Remarks for editors</h3>
+          <div class="ps-md-4">{{ report.remarks_for_editors|default:'-' }}</div>
         </div>
       {% endif %}
 
       {% if user.contributor == submission.editor_in_charge or user|is_in_group:'Editorial Administrators' and not user|is_possible_author_of_submission:submission %}
-	<div class="row border border-danger">
-          <div class="col-12 pb-2">
-            <h3 class="highlight tight">Recommendation</h3>
-	    <div class="ps-md-4">{{ report.get_recommendation_display }}</div>
-          </div>
+	<div class="m-2 p-2 border border-danger">
+          <h3 class="highlight tight">Recommendation</h3>
+	  <div class="ps-md-4">{{ report.get_recommendation_display }}</div>
 	</div>
       {% endif %}
 
