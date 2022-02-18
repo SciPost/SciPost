@@ -30,6 +30,7 @@ from django.template import Template, Context
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
+from django.utils.http import urlencode
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -1389,7 +1390,8 @@ def select_referee(request, identifier_w_vn_nr):
             sub_auth_boolean_str += ")+AND+"
             search_str = sub_auth_boolean_str + form.cleaned_data["last_name"] + ")"
             queryurl = (
-                "https://export.arxiv.org/api/query?search_query=au:%s" % search_str
+                "https://export.arxiv.org/api/query?search_query=au:%s"
+                % urlencode(search_str)
                 + "&sortBy=submittedDate&sortOrder=descending"
                 "&max_results=5"
             )
