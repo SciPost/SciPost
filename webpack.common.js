@@ -7,6 +7,9 @@ var path_bundles = __dirname + '/static_bundles/bundles';
 module.exports = {
     context: __dirname,
     entry: {
+        style: [
+            "./scipost_django/scipost/static/scipost/assets/js/style.js",
+        ],
         base: [
             "./scipost_django/scipost/static/scipost/assets/js/base.js",
         ],
@@ -38,7 +41,7 @@ module.exports = {
     output: {
         path: path_bundles,
         publicPath: '/static/bundles/',
-        filename: "js/[name]-[hash].js",
+        filename: "js/[name]-[fullhash].js",
     },
     module: {
 	rules: [

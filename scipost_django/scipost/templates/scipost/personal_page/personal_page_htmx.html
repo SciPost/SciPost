@@ -3,6 +3,7 @@
 {% load render_bundle from webpack_loader %}
 
 {% block basebundle %}
+  {% render_bundle 'style' %}
   {% render_bundle 'base' %}
 {% endblock basebundle %}
 
