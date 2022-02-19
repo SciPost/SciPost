@@ -1,10 +1,13 @@
 {% extends 'scipost/base.html' %}
 {% load static %}
 
-{% load render_bundle from webpack_loader %}
+{% load get_files from webpack_loader %}
 
 {% block basebundle %}
-  {% render_bundle 'base' %}
+  {% get_files 'base' as base_scripts %}
+  {% for file in base_scripts %}
+    <script defer src="{{ file.url }}"></script>
+  {% endfor %}
 {% endblock basebundle %}
 
 {% block body_class %}{{ block.super }} homepage home-alt{% endblock %}
