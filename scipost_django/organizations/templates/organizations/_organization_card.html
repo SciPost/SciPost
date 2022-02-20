@@ -87,7 +87,7 @@
 		    <br>by {{ publication.author_list }},
 		    <br>{{ publication.citation }}
 		    {% if perms.scipost.can_manage_organizations or "can_view_org_contacts" in user_org_perms %}
-		      <br><span class="text-muted small">PubFraction: {{ org|pubfraction_for_publication:publication }}</span>
+		      <br><span class="text-muted small">Expenditure: &euro;{{ org|expenditure_for_publication:publication }}</span>
 		    {% endif %}
 		  </li>
 		{% endif %}

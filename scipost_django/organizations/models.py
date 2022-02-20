@@ -137,10 +137,19 @@ class Organization(models.Model):
     # Calculated fields (to save CPU; field name always starts with cf_)
     # Number of associated publications; needs to be updated when any related
     # affiliation, grant or f
+    cf_associated_publication_ids = models.JSONField(
+        default=dict, blank=True, null=True
+    )
     cf_nr_associated_publications = models.PositiveIntegerField(
         blank=True,
         null=True,
         help_text="NB: nr_associated_publications is a calculated field. Do not modify.",
+    )
+    cf_balance_info = models.JSONField(
+        default=dict, blank=True, null=True
+    )
+    cf_expenditure_for_publication = models.JSONField(
+        default=dict, blank=True, null=True
     )
 
     objects = OrganizationQuerySet.as_manager()
@@ -177,19 +186,20 @@ class Organization(models.Model):
         return self.orgtype != ORGTYPE_PRIVATE_BENEFACTOR
 
     def get_publications(self, year=None, journal=None):
-        org_and_children_ids = [k["id"] for k in list(self.children.all().values("id"))]
-        org_and_children_ids += [self.id]
+        # org_and_children_ids = [k["id"] for k in list(self.children.all().values("id"))]
+        # org_and_children_ids += [self.id]
         if journal and isinstance(journal, Journal):
             publications = journal.get_publications()
         else:
             publications = Publication.objects.published()
         if year:
             publications = publications.filter(publication_date__year=year)
-        return publications.filter(
-            models.Q(authors__affiliations__pk__in=org_and_children_ids)
-            | models.Q(grants__funder__organization__pk__in=org_and_children_ids)
-            | models.Q(funders_generic__organization__pk__in=org_and_children_ids)
-        ).distinct()
+        # return publications.filter(
+        #     models.Q(authors__affiliations__pk__in=org_and_children_ids)
+        #     | models.Q(grants__funder__organization__pk__in=org_and_children_ids)
+        #     | models.Q(funders_generic__organization__pk__in=org_and_children_ids)
+        # ).distinct()
+        return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
 
     def get_author_profiles(self):
         """
@@ -223,11 +233,60 @@ class Organization(models.Model):
     def count_publications(self):
         return self.get_publications().count()
 
+    def update_cf_associated_publication_ids(self):
+        """
+        Update the calculated field Organization:cf_associated_publication_ids.
+        """
+        ids = {
+            "via_author_affiliation": [
+                pk for pk in Publication.objects.published().filter(
+                    authors__affiliations=self).values_list("pk", flat=True)
+            ],
+            "via_grant": [
+                pk for pk in Publication.objects.published().filter(
+                    grants__funder__organization=self).values_list("pk", flat=True)
+            ],
+            "via_funder_generic":  [
+                pk for pk in Publication.objects.published().filter(
+                    funders_generic__organization=self).values_list("pk", flat=True)
+            ],
+        }
+        children_ids = [pk for pk in self.children.all().values_list("id", flat=True)]
+        ids["via_child_author_affiliation"] = [
+            pk for pk in Publication.objects.published().filter(
+                authors__affiliations__pk__in=children_ids
+            ).values_list("pk", flat=True)
+        ]
+        ids["via_child_grant"] = [
+            pk for pk in Publication.objects.published().filter(
+                grants__funder__organization__pk__in=children_ids
+            ).values_list("pk", flat=True)
+        ]
+        ids["via_child_funder_generic"] = [
+            pk for pk in Publication.objects.published().filter(
+                funders_generic__organization__pk__in=children_ids
+            ).values_list("pk", flat=True)
+        ]
+        ids["all"] = list(set(
+            ids["via_author_affiliation"] + ids["via_grant"] +
+            ids["via_funder_generic"] + ids["via_child_author_affiliation"] +
+            ids["via_child_grant"] + ids["via_child_funder_generic"]
+        ))
+        self.cf_associated_publication_ids = ids
+        self.save()
+
     def update_cf_nr_associated_publications(self):
         """
         Update the calculated field Organization:cf_nr_associated_publications.
         """
         self.cf_nr_associated_publications = self.count_publications()
+        self.save()
+
+    def update_cf_balance_info(self):
+        """
+        Update the calculated field Organization:cf_balance_info.
+        """
+        self.cf_balance_info = self.get_balance_info()
         self.save()
 
     def pubfraction_for_publication(self, doi_label):
@@ -250,6 +309,47 @@ class Organization(models.Model):
                         message += "%s: %s; " % (child, pfc)
                 return message.rpartition(";")[0] + ")"
         return "Not yet defined"
+
+    def expenditure_for_publication(self, doi_label):
+        """
+        Return publication's expenditure details related to this organization.
+        """
+        publication = get_object_or_404(Publication, doi_label=doi_label)
+        unitcost = publication.get_journal().cost_per_publication(
+            publication.publication_date.year
+        )
+        try:
+            pf = OrgPubFraction.objects.get(
+                publication=publication,
+                organization=self,
+            )
+            return {
+                "millipubfrac": int(1000 * pf.fraction),
+                "unitcost": unitcost,
+                "expenditure": int(pf.fraction * unitcost),
+                "message": "",
+            }
+        except OrgPubFraction.DoesNotExist:
+            pass
+        children_ids = [k["id"] for k in list(self.children.all().values("id"))]
+        children_contrib_ids = set(
+            c for c in OrgPubFraction.objects.filter(
+                publication=publication,
+                organization__id__in=children_ids,
+            ).values_list("organization__id", flat=True)
+        )
+        message = ""
+        if children_contrib_ids:
+            message = "as parent (ascribed to "
+            for child in self.children.filter(pk__in=children_contrib_ids):
+                message += f"{child}; "
+            message = message.rpartition(";")[0] + ")"
+        return {
+            "millipubfrac": 0,
+            "unitcost": unitcost,
+            "expenditure": 0,
+            "message": message,
+        }
 
     def pubfractions_in_year(self, year):
         """
@@ -318,22 +418,29 @@ class Organization(models.Model):
         cumulative_balance = 0
         cumulative_expenditures = 0
         cumulative_contribution = 0
+        pf = self.pubfractions.all()
         for year in pubyears:
             rep[str(year)] = {}
-            year_expenditures = 0
-            rep[str(year)]["expenditures"] = {}
-            pfy = self.pubfractions.filter(
-                publication__publication_date__year=year
-            ).prefetch_related(
-                "publication__in_journal",
-                "publication__in_issue__in_journal",
-                "publication__in_issue__in_volume__in_journal",
-            )
             contribution = self.total_subsidies_in_year(year)
             rep[str(year)]["contribution"] = contribution
-            journal_labels = set(
-                [f.publication.get_journal().doi_label for f in pfy.all()]
+            year_expenditures = 0
+            rep[str(year)]["expenditures"] = {}
+            pfy = pf.filter(
+                publication__publication_date__year=year
             )
+            jl1 = [j for j in pfy.values_list(
+                'publication__in_journal__doi_label',
+                flat=True,
+            ) if j]
+            jl2 = [j for j in pfy.values_list(
+                'publication__in_issue__in_journal__doi_label',
+                flat=True,
+            ) if j]
+            jl3 = [j for j in pfy.values_list(
+                'publication__in_issue__in_volume__in_journal__doi_label',
+                flat=True,
+            ) if j]
+            journal_labels = set(jl1 + jl2 + jl3)
             for journal_label in journal_labels:
                 sumpf = pfy.filter(
                     publication__doi_label__istartswith=journal_label + "."
@@ -344,7 +451,7 @@ class Organization(models.Model):
                 expenditures = int(costperpaper * sumpf)
                 if sumpf > 0:
                     rep[str(year)]["expenditures"][journal_label] = {
-                        "pubfractions": sumpf,
+                        "pubfractions": int(sumpf),
                         "costperpaper": costperpaper,
                         "expenditures": expenditures,
                     }

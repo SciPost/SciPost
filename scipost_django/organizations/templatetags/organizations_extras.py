@@ -12,6 +12,12 @@ def pubfraction_for_publication(org, publication):
     return org.pubfraction_for_publication(publication.doi_label)
 
 
+@register.filter(name="expenditure_for_publication")
+def expenditure_for_publication(org, publication):
+    if publication.doi_label in org.cf_expenditure_for_publication:
+        return org.cf_expenditure_for_publication[publication.doi_label]["expenditure"]
+
+
 @register.filter(name="pubfractions_in_year")
 def pubfractions_in_year(org, year):
     fractions = org.pubfractions_in_year(int(year))

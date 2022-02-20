@@ -184,7 +184,8 @@ class OrganizationDetailView(DetailView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context["pubyears"] = range(int(timezone.now().strftime("%Y")), 2015, -1)
-        context["balance"] = self.object.get_balance_info()
+        #context["balance"] = self.object.get_balance_info()
+        context["balance"] = self.object.cf_balance_info
         return context
 
     def get_queryset(self):
@@ -194,6 +195,7 @@ class OrganizationDetailView(DetailView):
         queryset = super().get_queryset()
         if not self.request.user.has_perm("scipost.can_manage_organizations"):
             queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
+        # return queryset
         return queryset.prefetch_related(
             "children",
             "subsidy_set",
