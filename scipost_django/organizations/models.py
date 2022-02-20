@@ -322,7 +322,13 @@ class Organization(models.Model):
             rep[str(year)] = {}
             year_expenditures = 0
             rep[str(year)]["expenditures"] = {}
-            pfy = self.pubfractions.filter(publication__publication_date__year=year)
+            pfy = self.pubfractions.filter(
+                publication__publication_date__year=year
+            ).prefetch_related(
+                "publication__in_journal",
+                "publication__in_issue__in_journal",
+                "publication__in_issue__in_volume__in_journal",
+            )
             contribution = self.total_subsidies_in_year(year)
             rep[str(year)]["contribution"] = contribution
             journal_labels = set(

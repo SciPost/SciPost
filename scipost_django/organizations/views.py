@@ -166,7 +166,7 @@ class OrganizationListView(PaginationMixin, ListView):
             )
         if ordering == "desc":
             qs = qs.reverse()
-        return qs
+        return qs.select_related('logos')
 
 
 def get_organization_detail(request):
@@ -194,7 +194,13 @@ class OrganizationDetailView(DetailView):
         queryset = super().get_queryset()
         if not self.request.user.has_perm("scipost.can_manage_organizations"):
             queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
-        return queryset
+        return queryset.prefetch_related(
+            "children",
+            "subsidy_set",
+            "contactrole_set",
+            "organizationevent_set",
+            "pubfractions",
+        )
 
 
 class OrganizationEventCreateView(PermissionsMixin, CreateView):
