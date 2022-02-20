@@ -6,6 +6,7 @@ import datetime
 from difflib import SequenceMatcher
 import feedparser
 import strings
+import urllib.parse
 
 from django.contrib import messages
 from django.contrib.auth.decorators import (
@@ -30,7 +31,6 @@ from django.template import Template, Context
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.html import format_html
-from django.utils.http import urlencode
 from django.views.generic.base import RedirectView
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -1389,11 +1389,15 @@ def select_referee(request, identifier_w_vn_nr):
                 sub_auth_boolean_str += "+OR+" + author["name"].split()[-1]
             sub_auth_boolean_str += ")+AND+"
             search_str = sub_auth_boolean_str + form.cleaned_data["last_name"] + ")"
+            querydict = {
+                "search_query": "au:%s" % search_str,
+                "sortBy": "submittedDate",
+                "sortorder": "descending",
+                "max_results": 5
+            }
             queryurl = (
-                ("https://export.arxiv.org/api/query?search_query=au:%s"
-                % urlencode(search_str))
-                + "&sortBy=submittedDate&sortOrder=descending"
-                "&max_results=5"
+                "https://export.arxiv.org/api/query?"
+                "%s" % urllib.parse.urlencode(querydict)
             )
             arxivquery = feedparser.parse(queryurl)
             queryresults = arxivquery
