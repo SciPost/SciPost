@@ -167,6 +167,7 @@ class Publication(models.Model):
     )  # Needs `auto_now` as its not explicity updated anywhere?
 
     # Calculated fields
+    cf_citation = models.CharField(max_length=1024, blank=True)
     cf_author_affiliation_indices_list = ArrayField(
         ArrayField(
             models.PositiveSmallIntegerField(blank=True, null=True), default=list
@@ -361,30 +362,38 @@ class Publication(models.Model):
 
     @property
     def citation(self):
+        if self.cf_citation:
+            return self.cf_citation
+        citation = ""
         """Return Publication name in the preferred citation format."""
         if self.in_issue and self.in_issue.in_volume:
-            return "{journal} {volume}, {paper_nr} ({year})".format(
+            citation = "{journal} {volume}, {paper_nr} ({year})".format(
                 journal=self.in_issue.in_volume.in_journal.name_abbrev,
                 volume=self.in_issue.in_volume.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime("%Y"),
             )
         elif self.in_issue and self.in_issue.in_journal:
-            return "{journal} {issue}, {paper_nr} ({year})".format(
+            citation = "{journal} {issue}, {paper_nr} ({year})".format(
                 journal=self.in_issue.in_journal.name_abbrev,
                 issue=self.in_issue.number,
                 paper_nr=self.get_paper_nr(),
                 year=self.publication_date.strftime("%Y"),
             )
         elif self.in_journal:
-            return "{journal} {paper_nr} ({year})".format(
+            citation = "{journal} {paper_nr} ({year})".format(
                 journal=self.in_journal.name_abbrev,
                 paper_nr=self.paper_nr,
                 year=self.publication_date.strftime("%Y"),
             )
-        return "{paper_nr} ({year})".format(
-            paper_nr=self.paper_nr, year=self.publication_date.strftime("%Y")
-        )
+        else:
+            citation = "{paper_nr} ({year})".format(
+                paper_nr=self.paper_nr, year=self.publication_date.strftime("%Y")
+            )
+        self.cf_citation = citation
+        self.save()
+        return citation
+
 
     def get_cc_license_URI(self):
         for (key, val) in CC_LICENSES_URI:
