@@ -196,10 +196,12 @@ class OrganizationDetailView(DetailView):
         if not self.request.user.has_perm("scipost.can_manage_organizations"):
             queryset = queryset.exclude(orgtype=ORGTYPE_PRIVATE_BENEFACTOR)
         # return queryset
-        return queryset.prefetch_related(
+        return queryset.select_related("parent").prefetch_related(
             "children",
             "subsidy_set",
+            "contactperson_set",
             "contactrole_set",
+            "funder_set",
             "organizationevent_set",
             "pubfractions",
         )

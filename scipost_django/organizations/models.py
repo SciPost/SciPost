@@ -206,9 +206,11 @@ class Organization(models.Model):
         Returns all Profiles of authors associated to this Organization.
         """
         profile_id_list = [
-            tbl.profile.id for tbl in self.publicationauthorstable_set.all()
+            tbl.profile.id for tbl in self.publicationauthorstable_set.all(
+            ).select_related("profile")
         ]
-        return Profile.objects.filter(id__in=profile_id_list).distinct()
+        return Profile.objects.filter(id__in=profile_id_list).distinct(
+        ).select_related("contributor")
 
     def fellowships(self, year=None):
         """
@@ -222,7 +224,7 @@ class Organization(models.Model):
                 Q(date_from__isnull=True) | Q(date_from__year__lte=year),
                 Q(date_until__isnull=True) | Q(date_until__year__gte=year),
             )
-        profile_ids = [a.profile.id for a in affiliations]
+        profile_ids = [a.profile.id for a in affiliations.select_related("profile")]
         fellowships = Fellowship.objects.filter(
             contributor__profile__id__in=profile_ids
         )
