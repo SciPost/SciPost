@@ -35,6 +35,53 @@ from journals.models import Journal, Publication, OrgPubFraction
 from profiles.models import Profile
 
 
+class OrganizationLogo(models.Model):
+    """
+    Logo of an Organization, with rendering info, for a `source` HTML tag.
+    """
+
+    MIMETYPE_GIF = 'gif'
+    MIMETYPE_JPG = 'jpg'
+    MIMETYPE_PNG = 'png'
+    MIMETYPE_TIF = 'tif'
+    MITETYPE_WEBP = 'webp'
+    MIMETYPE_CHOICES = (
+        (MIMETYPE_GIF, 'gif'),
+        (MIMETYPE_JPG, 'jpg'),
+        (MIMETYPE_PNG, 'png'),
+        (MIMETYPE_TIF, 'tif'),
+        (MITETYPE_WEBP, 'webp'),
+    )
+    organization = models.ForeignKey(
+        "organizations.Organization",
+        related_name="logos",
+        on_delete=models.CASCADE,
+    )
+    image = models.ImageField(upload_to="organizations/logos/", blank=True)
+    mimetype = models.CharField(max_length=8, choices=MIMETYPE_CHOICES)
+    width = models.PositiveSmallIntegerField()
+    height = models.PositiveSmallIntegerField()
+    order = models.PositiveSmallIntegerField()
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["organization", "order"],
+                name="unique_together_organization_order",
+            ),
+        ]
+        ordering = ("organization", "order",)
+
+    def __str__(self):
+        return (f"Logo ({self.mimetype}, w={self.width}, h={self.height}) "
+                f"for {self.organization.name}")
+
+    def save(self, *args, **kwargs):
+        if not self.order:
+            self.order = self.organization.logos.count() + 1
+        return super().save(*args, **kwargs)
+
+
 class Organization(models.Model):
     """
     An Organization instance is any type of administrative unit which SciPost

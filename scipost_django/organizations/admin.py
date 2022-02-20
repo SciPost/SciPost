@@ -6,8 +6,19 @@ from django.contrib import admin
 
 from guardian.admin import GuardedModelAdmin
 
-from .models import Organization, OrganizationEvent, ContactPerson, Contact, ContactRole
+from .models import (
+    Organization,
+    OrganizationLogo,
+    OrganizationEvent,
+    ContactPerson,
+    Contact,
+    ContactRole,
+)
 
+
+class OrganizationLogoInline(admin.TabularInline):
+    model = OrganizationLogo
+    extra = 0
 
 class OrganizationEventInline(admin.TabularInline):
     model = OrganizationEvent
@@ -21,6 +32,7 @@ class ContactPersonInline(admin.TabularInline):
 
 class OrganizationAdmin(GuardedModelAdmin):
     inlines = [
+        OrganizationLogoInline,
         OrganizationEventInline,
         ContactPersonInline,
     ]

@@ -43,7 +43,16 @@
     </table>
   </div>
   <div class="col-6">
-    {% if org.logo %}
+    {% if org.logos %}
+      <li class="p-2">
+	<picture>
+	  {% for source in org.logos.all %}
+	    <source type="{{ source.mimetype }}" srcset="{{ source.image.url }} {{ source.width }}w">
+	  {% endfor %}
+	  <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
+	       src="{{ org.logo.url }}" alt="{{ org.name }} logo">
+      </li>
+      {% elif org.logo %}
       <img class="d-flex me-3 {{ org.css_class }}" src="{{ org.logo.url }}" alt="image"/>
     {% endif %}
   </div>

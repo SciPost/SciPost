@@ -9,7 +9,16 @@
 >
   <ul class="list list-unstyled">
     {% for sponsor in current_sponsors %}
-      {% if sponsor.logo %}
+      {% if sponsor.logos %}
+	<li class="p-2">
+	  <picture>
+	    {% for source in sponsor.logos.all %}
+	      <source type="{{ source.mimetype }}" srcset="{{ source.image.url }} {{ source.width }}w">
+	    {% endfor %}
+	    <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
+		 src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo">
+	</li>
+      {% elif sponsor.logo %}
 	<li class="p-2">
 	  <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
 	       src="{{ sponsor.logo.url }}" alt="{{ sponsor.name }} logo">
