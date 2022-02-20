@@ -1390,8 +1390,8 @@ def select_referee(request, identifier_w_vn_nr):
             sub_auth_boolean_str += ")+AND+"
             search_str = sub_auth_boolean_str + form.cleaned_data["last_name"] + ")"
             queryurl = (
-                "https://export.arxiv.org/api/query?search_query=au:%s"
-                % urlencode(search_str)
+                ("https://export.arxiv.org/api/query?search_query=au:%s"
+                % urlencode(search_str))
                 + "&sortBy=submittedDate&sortOrder=descending"
                 "&max_results=5"
             )
