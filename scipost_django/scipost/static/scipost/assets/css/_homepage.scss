@@ -1,36 +1,3 @@
-.granting-institutions > a {
-    width: 25%;
-    display: inline-block;
-    max-width: 100px;
-    padding: 0 0.25rem;
-}
-
-.supporting-partners ul {
-    height: 100px !important;
-    list-style: none;
-
-    li {
-        height: 100px !important;
-        list-style: none;
-
-        li {
-            height: 100px !important;
-
-            img {
-                max-height: 100px !important;
-                height: auto !important;
-                width: auto !important;
-            }
-        }
-    }
-}
-
-
-.teaser-box {
-    padding: 1rem;
-    border: 2px solid $scipost-orange;
-    border-radius: 3px;
-}
 
 .homepage {
     .logos a {
