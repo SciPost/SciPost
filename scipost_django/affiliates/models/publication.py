@@ -57,6 +57,9 @@ class AffiliatePublication(models.Model):
     def get_volume(self):
         return self._metadata_crossref.get("volume", "")
 
+    def get_issue(self):
+        return self._metadata_crossref.get("issue", "")
+
     def get_pages(self):
         pages = self._metadata_crossref.get("article-number", "")
         if not pages:
