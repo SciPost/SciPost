@@ -135,21 +135,22 @@ class Organization(models.Model):
         "self", blank=True, null=True, on_delete=models.SET_NULL
     )
     # Calculated fields (to save CPU; field name always starts with cf_)
-    # Number of associated publications; needs to be updated when any related
-    # affiliation, grant or f
     cf_associated_publication_ids = models.JSONField(
-        default=dict, blank=True, null=True
+        default=dict,
+        help_text="NB: calculated field. Do not modify.",
     )
     cf_nr_associated_publications = models.PositiveIntegerField(
         blank=True,
         null=True,
-        help_text="NB: nr_associated_publications is a calculated field. Do not modify.",
+        help_text="NB: calculated field. Do not modify.",
     )
     cf_balance_info = models.JSONField(
-        default=dict, blank=True, null=True
+        default=dict,
+        help_text="NB: calculated field. Do not modify.",
     )
     cf_expenditure_for_publication = models.JSONField(
-        default=dict, blank=True, null=True
+        default=dict,
+        help_text="NB: calculated field. Do not modify.",
     )
 
     objects = OrganizationQuerySet.as_manager()

@@ -167,12 +167,17 @@ class Publication(models.Model):
     )  # Needs `auto_now` as its not explicity updated anywhere?
 
     # Calculated fields
-    cf_citation = models.CharField(max_length=1024, blank=True)
+    cf_citation = models.CharField(
+        max_length=1024,
+        blank=True,
+        help_text="NB: calculated field. Do not modify.",
+    )
     cf_author_affiliation_indices_list = ArrayField(
         ArrayField(
             models.PositiveSmallIntegerField(blank=True, null=True), default=list
         ),
         default=list,
+        help_text="NB: calculated field. Do not modify.",
     )
 
     objects = PublicationQuerySet.as_manager()
