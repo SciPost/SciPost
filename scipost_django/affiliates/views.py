@@ -41,6 +41,21 @@ class AffiliateJournalDetailView(DetailView):
         context["add_publication_form"] = AffiliateJournalAddPublicationForm(
             initial={"journal": self.object}
         )
+        # Get top 5 benefitting Organizations
+        pubfractions = AffiliatePubFraction.objects.filter(
+            publication__journal=self.object,
+        )
+        organization_id_list = set([p.organization.id for p in pubfractions.all()])
+        organizations = Organization.objects.filter(
+            id__in=organization_id_list
+        ).distinct()
+        organizations = organizations.annotate(
+            sum_affiliate_pubfractions=Sum(
+                "affiliate_pubfractions__fraction",
+                filter=Q(affiliate_pubfractions__publication__journal=self.object),
+            )
+        ).order_by("-sum_affiliate_pubfractions")
+        context["top_benefitting_organizations"] = organizations[:10]
         return context
 
 
@@ -89,7 +104,7 @@ def affiliatejournal_update_publications_from_Crossref(request, slug):
 
 
 class AffiliatePublicationListView(PaginationMixin, ListView):
-    paginate_by = 10
+    paginate_by = 25
 
     class Meta:
         model = AffiliatePublication
@@ -145,6 +160,7 @@ def delete_pubfraction(request, slug, doi, pubfrac_id):
 
 class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
     template_name = "affiliates/affiliatejournal_organization_list.html"
+    paginate_by = 25
 
     class Meta:
         model = Organization
@@ -153,7 +169,7 @@ class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
         # First, get all the relevant AffiliatePubFractions
         journal = get_object_or_404(AffiliateJournal, slug=self.kwargs["slug"])
         pubfractions = AffiliatePubFraction.objects.filter(publication__journal=journal)
-        organization_id_list = [p.organization.id for p in pubfractions.all()]
+        organization_id_list = set([p.organization.id for p in pubfractions.all()])
         organizations = Organization.objects.filter(
             id__in=organization_id_list
         ).distinct()

@@ -21,9 +21,12 @@
 	  <br>
 	  by {{ pub.get_author_list }}
 	  <br>
-	  {{ pub.journal }}
+	  <em>{{ pub.journal }}</em>
 	  {% if pub.get_volume %}
 	    &nbsp;Vol. {{ pub.get_volume }}
+	  {% endif %}
+	  {% if pub.get_issue %}
+	    &nbsp;({{ pub.get_issue }})
 	  {% endif %}
 	  {% if pub.get_pages %}
 	    ,&nbsp;p.{{ pub.get_pages }}

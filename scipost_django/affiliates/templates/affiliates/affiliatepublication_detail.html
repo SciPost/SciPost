@@ -27,8 +27,10 @@
   <table class="table">
     <tr><td><strong>Title</strong></td><td>{{ object.get_title }}</td></tr>
     <tr><td><strong>Author list</strong></td><td>{{ object.get_author_list }}</td></tr>
-    <tr><td><strong>Volume</strong></td><td>{{ object.get_volume }}</td></tr>
-    <tr><td><strong>Pages</strong></td><td>{{ object.get_pages }}</td></tr>
+    <tr><td><strong>Volume</strong></td><td>{{ object.get_volume }}{% if object.get_issue %}&nbsp;({{ object.get_issue}}){% endif %}</td></tr>
+    {% if object.get_pages %}
+      <tr><td><strong>Pages</strong></td><td>{{ object.get_pages }}</td></tr>
+    {% endif %}
     <tr><td><strong>Publication date</strong></td><td>{{ object.publication_date }}</td></tr>
     <tr><td><strong>DOI</strong></td><td><a href="https://doi.org/{{ object.doi }}" rel="nofollow" target="_blank">{{ object.doi }}</a></td></tr>
   </table>

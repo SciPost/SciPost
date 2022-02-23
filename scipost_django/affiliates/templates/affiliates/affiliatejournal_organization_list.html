@@ -11,20 +11,19 @@
 
 {% block content %}
 
-  <h2 class="highlight">{{ journal }}: benefitting Organizations</h2>
+  <h2 class="highlight">{{ journal }}: Benefitting Organizations</h2>
 
   <table class="table">
     <thead>
       <tr>
-	<th>Country</th>
 	<th>Organization</th>
+	<th>Country</th>
 	<th>Summed<br>PubFractions</th>
       </tr>
     </thead>
     <tbody>
       {% for organization in object_list %}
 	<tr>
-	  <td><img src="{{ organization.country.flag }}" alt="{{ organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ organization.country }}]</small></span>&nbsp;&nbsp;{{ organization.get_country_display }}</td>
 	  <td>
 	    <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization }}</a>
 	    {% if organization.parent %}
@@ -42,6 +41,7 @@
 	      <p><small class="text-muted">Superseded by {{ organization.superseded_by }}</small></p>
 	    {% endif %}
 	  </td>
+	  <td><img src="{{ organization.country.flag }}" alt="{{ organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ organization.country }}]</small></span>&nbsp;&nbsp;{{ organization.get_country_display }}</td>
 	  <td>{{ organization.sum_affiliate_pubfractions }}</td>
 	</tr>
       {% empty %}
@@ -51,5 +51,11 @@
       {% endfor %}
     </tbody>
   </table>
+
+  {% if is_paginated %}
+    <div class="col-12">
+      {% include '_pagination.html' with page_obj=page_obj %}
+    </div>
+  {% endif %}
 
 {% endblock content %}
