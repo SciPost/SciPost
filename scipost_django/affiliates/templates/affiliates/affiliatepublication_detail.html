@@ -63,15 +63,15 @@
 	<thead>
 	  <tr>
 	    <th>Organization</th>
-	    <th>Fraction</th>
+	    <th align="right">Fraction</th>
 	    <th></th>
 	  </tr>
 	</thead>
 	<tbody>
 	  {% for pubfrac in object.pubfractions.all %}
 	    <tr>
-	      <td><a href="{% url 'organizations:organization_detail' pk=pubfrac.organization.id %}">{{ pubfrac.organization }}</a></td>
-	      <td>{{ pubfrac.fraction }}</td>
+	      <td><a href="{% url 'affiliates:journal_organization_detail' journal_slug=object.journal.slug organization_id=pubfrac.organization.id %}">{{ pubfrac.organization }}</a></td>
+	      <td align="right">{{ pubfrac.fraction }}</td>
 	      {% if 'manage_journal_content' in user_perms %}
 		<td>
 		  <a href="{% url 'affiliates:delete_pubfraction' slug=object.journal.slug doi=object.doi pubfrac_id=pubfrac.id %}">

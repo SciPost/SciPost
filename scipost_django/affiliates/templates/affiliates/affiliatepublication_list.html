@@ -6,6 +6,8 @@
 
 {% block breadcrumb_items %}
   <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journals' %}">Journals</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journal_detail' slug=journal.slug %}">{{ journal }}</a></span>
   <span class="breadcrumb-item">Publications</span>
 {% endblock %}
 

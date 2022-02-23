@@ -1,0 +1,45 @@
+{% load static %}
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>Publication</th>
+      <th>Publication date</th>
+      <th>DOI</th>
+      <th>PubFraction</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for pubfrac in affiliatepubfractions %}
+      <tr class="table-row" data-href="{{ pubfrac.publication.get_absolute_url }}">
+	<td>
+	  <strong>{{ pubfrac.publication.get_title }}</strong>
+	  <br>
+	  by {{ pubfrac.publication.get_author_list }}
+	  <br>
+	  <em>{{ pubfrac.publication.journal }}</em>
+	  {% if pubfrac.publication.get_volume %}
+	    &nbsp;Vol. {{ pubfrac.publication.get_volume }}
+	  {% endif %}
+	  {% if pubfrac.publication.get_issue %}
+	    &nbsp;({{ pubfrac.publication.get_issue }})
+	  {% endif %}
+	  {% if pubfrac.publication.get_pages %}
+	    ,&nbsp;p.{{ pubfrac.publication.get_pages }}
+	  {% endif %}
+	</td>
+	<td>{{ pubfrac.publication.publication_date }}</td>
+	<td>{{ pubfrac.publication.doi }}</td>
+	<td align="right">{{ pubfrac.fraction }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+	<td>No publications yet</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row-blank.js' %}"></script>
+{% endblock footer_script %}

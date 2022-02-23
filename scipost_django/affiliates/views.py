@@ -45,7 +45,10 @@ class AffiliateJournalDetailView(DetailView):
         pubfractions = AffiliatePubFraction.objects.filter(
             publication__journal=self.object,
         )
-        organization_id_list = set([p.organization.id for p in pubfractions.all()])
+        organization_id_list = set(
+            [p.organization.id for p in pubfractions.all(
+            ).select_related("organization")]
+        )
         organizations = Organization.objects.filter(
             id__in=organization_id_list
         ).distinct()
@@ -169,7 +172,10 @@ class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
         # First, get all the relevant AffiliatePubFractions
         journal = get_object_or_404(AffiliateJournal, slug=self.kwargs["slug"])
         pubfractions = AffiliatePubFraction.objects.filter(publication__journal=journal)
-        organization_id_list = set([p.organization.id for p in pubfractions.all()])
+        organization_id_list = set(
+            [p.organization.id for p in pubfractions.all(
+            ).select_related("organization")]
+        )
         organizations = Organization.objects.filter(
             id__in=organization_id_list
         ).distinct()
@@ -187,3 +193,22 @@ class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
             AffiliateJournal, slug=self.kwargs["slug"]
         )
         return context
+
+
+def affiliatejournal_organization_detail(request, journal_slug, organization_id):
+    journal = get_object_or_404(AffiliateJournal, slug=journal_slug)
+    organization = get_object_or_404(Organization, pk=organization_id)
+    affiliatepubfractions = AffiliatePubFraction.objects.filter(
+        organization=organization,
+        publication__journal=journal,
+    ).prefetch_related("publication__journal")
+    context = {
+        "journal": journal,
+        "organization": organization,
+        "affiliatepubfractions": affiliatepubfractions,
+    }
+    return render(
+        request,
+        "affiliates/affiliatejournal_organization_detail.html",
+        context,
+    )

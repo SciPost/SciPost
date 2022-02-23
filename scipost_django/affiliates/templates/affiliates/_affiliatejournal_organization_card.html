@@ -1,0 +1,40 @@
+{% load bootstrap %}
+{% load guardian_tags %}
+{% load user_groups %}
+{% load organizations_extras %}
+
+
+{% is_scipost_admin request.user as is_scipost_admin %}
+
+{% get_obj_perms request.user for org as "user_org_perms" %}
+
+<div class="card-body">
+
+  <div class="row">
+    <div class="col-12">
+      <ul class="nav nav-tabs" role="tablist">
+	<li class="nav-item">
+	  <a class="nav-link active" id="publications-{{ org.id }}-tab" data-bs-toggle="tab" href="#publications-{{ org.id }}" role="tab" aria-controls="publications-{{ org.id }}" aria-selected="true">Publications{% if perms.scipost.can_manage_organizations %} & PubFractions{% endif %}</a>
+	</li>
+	<li class="nav-item">
+	  <a class="nav-link" id="support-{{ org.id }}-tab" data-bs-toggle="tab" href="#support-{{ org.id }}" role="tab" aria-controls="support-{{ org.id }}" aria-selected="true">Support history</a>
+	</li>
+      </ul>
+
+      <div class="tab-content">
+
+	<div class="tab-pane show active pt-4" id="publications-{{ org.id }}" role="tabpanel" aria-labelledby="publications-{{ org.id }}-tab">
+	  <h3>Publications in <strong>{{ journal }}</strong> associated to this Organization</h3>
+	  {% include 'affiliates/_affiliatepubfraction_table.html' with pubfractions=affiliatepubfractions %}
+	</div>
+
+	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
+	  <h3 class="highlight">Support history</h3>
+	  <h3 class="highlight mt-4">Balance of expenditures versus support received</h3>
+	  <h3 class="text-warning">{% include "bi/cone-striped.html" %}</h3>
+	</div>
+
+      </div>
+    </div>
+  </div>
+</div>

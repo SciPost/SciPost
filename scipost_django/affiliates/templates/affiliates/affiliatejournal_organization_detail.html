@@ -1,0 +1,38 @@
+{% extends 'organizations/base.html' %}
+
+{% load bootstrap %}
+{% load static %}
+
+{% block meta_description %}{{ block.super }} {{ journal }}: Organization detail {{ organization.name }}{% endblock meta_description %}
+{% block pagetitle %}: {{ journal }}: Organization details{% endblock pagetitle %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journals' %}">Journals</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journal_detail' slug=journal.slug %}">{{ journal }}</a></span>
+  <span class="breadcrumb-item">{{ organization }}</span>
+{% endblock %}
+
+{% block content %}
+
+  <div class="card bg-light">
+    <div class="card-body">
+      <h1>{{ journal }}: Benefitting Organization</h1>
+      <img src="{{ organization.country.flag }}" style="width:20px;" alt="{{ organization.country }} flag"/>
+      <small class="text-muted">[{{ organization.country }}]</small> {{ organization.get_country_display }}
+      <h2 class="mb-0 mt-2">{{ organization.full_name }}&nbsp;&nbsp;<small>{% if organization.acronym %}[{{ organization.acronym }}]{% endif %}</small></h2>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-12">
+      {% include 'affiliates/_affiliatejournal_organization_card.html' with journal=journal org=organization %}
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block footer_script %}
+  <script src="{% static 'scipost/table-row.js' %}"></script>
+{% endblock footer_script %}

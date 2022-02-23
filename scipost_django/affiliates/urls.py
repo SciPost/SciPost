@@ -66,4 +66,9 @@ urlpatterns = [
         views.AffiliateJournalOrganizationListView.as_view(),
         name="journal_organizations",
     ),
+    path(  # /affiliates/journals/<slug:slug>/organizations/<int:pk>
+        "journals/<slug:journal_slug>/organizations/<int:organization_id>",
+        views.affiliatejournal_organization_detail,
+        name="journal_organization_detail",
+    ),
 ]

@@ -18,31 +18,17 @@
       <tr>
 	<th>Organization</th>
 	<th>Country</th>
-	<th>Summed<br>PubFractions</th>
+	<th align="right">Summed<br>PubFractions</th>
       </tr>
     </thead>
     <tbody>
       {% for organization in object_list %}
 	<tr>
 	  <td>
-	    <a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization }}</a>
-	    {% if organization.parent %}
-	      <p><small class="text-muted">Parent: {{ organization.parent }}</small></p>
-	    {% endif %}
-	    {% if organization.children.all %}
-	      <p><small class="text-muted">
-		Parent of:
-		{% for child in organization.children.all %}
-		  {{ child }}{% if not forloop.last %},&nbsp;{% endif %}
-		{% endfor %}
-	      </small></p>
-	    {% endif %}
-	    {% if organization.superseded_by %}
-	      <p><small class="text-muted">Superseded by {{ organization.superseded_by }}</small></p>
-	    {% endif %}
+	    <a href="{% url 'affiliates:journal_organization_detail' journal_slug=journal.slug organization_id=organization.id %}">{{ organization }}</a>
 	  </td>
 	  <td><img src="{{ organization.country.flag }}" alt="{{ organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ organization.country }}]</small></span>&nbsp;&nbsp;{{ organization.get_country_display }}</td>
-	  <td>{{ organization.sum_affiliate_pubfractions }}</td>
+	  <td align="right">{{ organization.sum_affiliate_pubfractions }}</td>
 	</tr>
       {% empty %}
 	<tr>

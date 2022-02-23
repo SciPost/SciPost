@@ -24,7 +24,7 @@
       <table class="table">
 	<tr>
 	  <th>Homepage</th>
-	  <td>{% if object.homepage %}<a href="{{ object.homepage }}" target="_blank">{{ object.homepage }}&nbsp;{% include 'bi/box-arrow-up-right.html' %}</a>{% else %}(not defined){% endif %}</td>
+	  <td>{% if object.homepage %}<a href="{{ object.homepage }}" target="_blank">{{ object.homepage }}&emsp;{% include 'bi/box-arrow-up-right.html' %}</a>{% else %}(not defined){% endif %}</td>
 	</tr>
       </table>
     </div>
@@ -121,16 +121,16 @@
 	<thead>
 	  <tr>
 	    <th>Organization</th>
-	    <th>Summed<br>PubFractions</th>
+	    <th align="right">Summed<br>PubFractions</th>
 	  </tr>
 	</thead>
 	<tbody>
 	  {% for organization in top_benefitting_organizations %}
 	    <tr>
 	      <td>
-		<a href="{% url 'organizations:organization_detail' pk=organization.id %}">{{ organization }}</a>
+		<a href="{% url 'affiliates:journal_organization_detail' journal_slug=object.slug organization_id=organization.id %}">{{ organization }}</a>
 	      </td>
-	      <td>{{ organization.sum_affiliate_pubfractions }}</td>
+	      <td align="right">{{ organization.sum_affiliate_pubfractions }}</td>
 	    </tr>
 	  {% empty %}
 	    <tr>

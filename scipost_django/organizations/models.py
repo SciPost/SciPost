@@ -30,6 +30,7 @@ from .managers import OrganizationQuerySet
 from scipost.constants import TITLE_CHOICES
 from scipost.fields import ChoiceArrayField
 from scipost.models import Contributor
+from affiliates.models import AffiliatePublication
 from colleges.models import Fellowship
 from journals.models import Journal, Publication, OrgPubFraction
 from profiles.models import Profile
@@ -201,6 +202,12 @@ class Organization(models.Model):
         #     | models.Q(funders_generic__organization__pk__in=org_and_children_ids)
         # ).distinct()
         return publications.filter(pk__in=self.cf_associated_publication_ids["all"])
+
+    def get_affiliate_publications(self, journal):
+        return AffiliatePublications.objects.filter(
+            pubfractions__organization=self,
+            journal=journal,
+        )
 
     def get_author_profiles(self):
         """
