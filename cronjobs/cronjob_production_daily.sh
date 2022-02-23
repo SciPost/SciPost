@@ -12,3 +12,5 @@ python manage.py organization_update_cf_nr_associated_publications --settings=Sc
 python manage.py organization_update_cf_nr_expenditures_for_publication --settings=SciPost_v1.settings.production_do1
 
 python manage.py organization_update_cf_balance_info --settings=SciPost_v1.settings.production_do1
+
+python manage.py affiliatejournal_update_publications_from_Crossref --settings=SciPost_v1.settings.production_do1
