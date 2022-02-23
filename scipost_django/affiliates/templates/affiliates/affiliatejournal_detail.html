@@ -18,6 +18,14 @@
 
   <h2 class="highlight">Affiliate Journal: {{ object }}</h2>
 
+  <h3>Journal information</h3>
+  <table class="table">
+    <tr>
+      <th>Homepage</th>
+      <td>{% if object.homepage %}<a href="{{ object.homepage }}" target="_blank">{{ object.homepage }}</a>{% else %}(not defined){% endif %}</td>
+    </tr>
+  </table>
+
   {% if perms.affiliates.can_edit_affiliatedjournal %}
     <h3 class="highlight">Journal managers</h3>
     <div class="row p-2">

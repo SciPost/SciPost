@@ -30,6 +30,8 @@ class AffiliateJournal(models.Model):
         unique=True,
     )
 
+    homepage = models.URLField(max_length=256, blank=True)
+
     class Meta:
         ordering = ["publisher", "name"]
         permissions = (("manage_journal_content", "Manage Journal content"),)
