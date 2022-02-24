@@ -37,14 +37,28 @@
       </div>
       <div class="col-md-6">
 	{% if user.is_superuser %}
-	  <a href="{{ contributor_to_vet|get_admin_url }}"
-	     target="_blank" class="btn btn-sm btn-danger mb-2">
-	    Edit User object in admin (su only)
-	  </a>
-	  <a href="{{ contributor_to_vet.profile|get_admin_url }}"
-	     target="_blank" class="btn btn-sm btn-danger mb-2">
-	    Edit Profile object in admin (su only)
-	  </a>
+	  <ul class="list list-unstyled mb-2">
+	    <li class="list-unstyled-item mb-1">
+	      <a href="{{ contributor_to_vet.user|get_admin_url }}"
+		 target="_blank" class="btn btn-sm btn-danger">
+		Edit User object in admin (su only)
+	      </a>
+	    </li>
+	    <li class="list-unstyled-item mb-1">
+	      <a href="{{ contributor_to_vet|get_admin_url }}"
+		 target="_blank" class="btn btn-sm btn-danger">
+		Edit Contributor object in admin (su only)
+	      </a>
+	    </li>
+	    {% if contributor_to_vet.profile %}
+	      <li class="list-unstyled-item mb-1">
+		<a href="{{ contributor_to_vet.profile|get_admin_url }}"
+		   target="_blank" class="btn btn-sm btn-danger">
+		  Edit Profile object in admin (su only)
+		</a>
+	      </li>
+	    {% endif %}
+	  </ul>
 	{% endif %}
         <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
           {% csrf_token %}
