@@ -99,8 +99,7 @@ class SubmissionQuerySet(models.QuerySet):
         If user is an Editorial Administrator: return the full pool.
         """
         qs = self._pool(user)
-
-        if not user.has_perm("scipost.can_oversee_refereeing"):
+        if user.is_authenticated and not user.has_perm("scipost.can_oversee_refereeing"):
             qs = qs.filter(editor_in_charge__user=user)
         return qs
 
