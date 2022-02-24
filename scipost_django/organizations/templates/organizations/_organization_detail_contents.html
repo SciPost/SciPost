@@ -48,12 +48,14 @@
 	<picture>
 	  {% for source in org.logos.all %}
 	    <source type="{{ source.mimetype }}" srcset="{{ source.image.url }} {{ source.width }}w">
+	    {% if forloop.last %}
+	      <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
+		   src="{{ source.url }}" alt="{{ org.name }} logo">
+	    {% endif %}
 	  {% endfor %}
-	  <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
-	       src="{{ org.logo.url }}" alt="{{ org.name }} logo">
 	</picture>
       </li>
-      {% elif org.logo %}
+    {% elif org.logo %}
       <img class="d-flex me-3 {{ org.css_class }}" src="{{ org.logo.url }}" alt="image"/>
     {% endif %}
   </div>
