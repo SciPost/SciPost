@@ -1,5 +1,7 @@
 {% extends 'scipost/_personal_page_base.html' %}
 
+{% load scipost_extras %}
+
 {% block pagetitle %}: registrations to vet{% endblock pagetitle %}
 
 {% load bootstrap %}
@@ -7,7 +9,7 @@
 
 
 {% block breadcrumb_items %}
-  {{block.super}}
+  {{ block.super }}
   <span class="breadcrumb-item">Registration requests to vet</span>
 {% endblock %}
 
@@ -30,10 +32,20 @@
   {% for contributor_to_vet in contributors_to_vet %}
     {% if not forloop.first %}<hr class="small">{% endif %}
     <div class="row">
-      <div class="col-md-4">
+      <div class="col-md-6">
         {% include "scipost/_private_info_as_table.html" with contributor=contributor_to_vet %}
       </div>
-      <div class="col-md-8">
+      <div class="col-md-6">
+	{% if user.is_superuser %}
+	  <a href="{{ contributor_to_vet|get_admin_url }}"
+	     target="_blank" class="btn btn-sm btn-danger mb-2">
+	    Edit User object in admin (su only)
+	  </a>
+	  <a href="{{ contributor_to_vet.profile|get_admin_url }}"
+	     target="_blank" class="btn btn-sm btn-danger mb-2">
+	    Edit Profile object in admin (su only)
+	  </a>
+	{% endif %}
         <form action="{% url 'scipost:vet_registration_request_ack' contributor_id=contributor_to_vet.id %}" method="post">
           {% csrf_token %}
           {{form|bootstrap}}
