@@ -39,12 +39,14 @@ app_name = "api"
 
 router = routers.SimpleRouter()
 
+# search (Vue) routes
+router.register("search/publications", PublicationPublicAPIViewSet)
+router.register("search/submissions", SubmissionPublicAPIViewSet)
+
 # journals
-router.register("publications", PublicationPublicAPIViewSet)
 router.register("pubfractions", PubFractionPublicAPIViewSet)
 
 # submissions
-router.register("submissions", SubmissionPublicAPIViewSet)
 
 # organizations
 router.register("organizations", OrganizationPublicAPIViewSet)
