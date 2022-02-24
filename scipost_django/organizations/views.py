@@ -166,7 +166,7 @@ class OrganizationListView(PaginationMixin, ListView):
             )
         if ordering == "desc":
             qs = qs.reverse()
-        return qs.select_related('logos')
+        return qs.prefetch_related('logos')
 
 
 def get_organization_detail(request):
