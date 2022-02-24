@@ -8,7 +8,7 @@ from api.serializers import DynamicFieldsModelSerializer
 from ...models import Publication
 
 
-class PublicationPublicSerializer(DynamicFieldsModelSerializer):
+class PublicationPublicSearchSerializer(DynamicFieldsModelSerializer):
     url = serializers.URLField(source="get_absolute_url")
 
     class Meta:

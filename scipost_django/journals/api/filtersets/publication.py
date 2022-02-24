@@ -7,7 +7,7 @@ from django_filters import rest_framework as df_filters
 from ...models import Publication
 
 
-class PublicationPublicAPIFilterSet(df_filters.FilterSet):
+class PublicationPublicSearchAPIFilterSet(df_filters.FilterSet):
     class Meta:
         model = Publication
         fields = {

@@ -7,7 +7,7 @@ from django_filters import rest_framework as df_filters
 from submissions.models import Submission
 
 
-class SubmissionPublicAPIFilterSet(df_filters.FilterSet):
+class SubmissionPublicSearchAPIFilterSet(df_filters.FilterSet):
     class Meta:
         model = Submission
         fields = {

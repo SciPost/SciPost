@@ -8,12 +8,12 @@ from rest_framework import routers
 
 # journals
 from journals.api.viewsets import (
-    PublicationPublicAPIViewSet,
+    PublicationPublicSearchAPIViewSet,
     PubFractionPublicAPIViewSet,
 )
 
 # submissions
-from submissions.api.viewsets import SubmissionPublicAPIViewSet
+from submissions.api.viewsets import SubmissionPublicSearchAPIViewSet
 
 # organizations
 from organizations.api.viewsets import (
@@ -40,8 +40,8 @@ app_name = "api"
 router = routers.SimpleRouter()
 
 # search (Vue) routes
-router.register("search/publications", PublicationPublicAPIViewSet)
-router.register("search/submissions", SubmissionPublicAPIViewSet)
+router.register("search/publications", PublicationPublicSearchAPIViewSet)
+router.register("search/submissions", SubmissionPublicSearchAPIViewSet)
 
 # journals
 router.register("pubfractions", PubFractionPublicAPIViewSet)

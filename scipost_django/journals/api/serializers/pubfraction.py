@@ -5,7 +5,7 @@ __license__ = "AGPL v3"
 from rest_framework import serializers
 
 from journals.models import OrgPubFraction
-from journals.api.serializers import PublicationPublicSerializer
+from journals.api.serializers import PublicationPublicSearchSerializer
 from organizations.api.serializers import OrganizationPublicSerializer
 
 
@@ -13,7 +13,7 @@ class PubFractionPublicSerializer(serializers.ModelSerializer):
     organization = OrganizationPublicSerializer(
         fields=["url", "name", "acronym", "country"]
     )
-    publication = PublicationPublicSerializer(
+    publication = PublicationPublicSearchSerializer(
         fields=["url", "title", "author_list", "doi_label", "publication_date"]
     )
 

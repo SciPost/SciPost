@@ -7,7 +7,7 @@ from rest_framework import serializers
 from submissions.models import Submission
 
 
-class SubmissionPublicSerializer(serializers.ModelSerializer):
+class SubmissionPublicSearchSerializer(serializers.ModelSerializer):
     identifier = serializers.CharField(source="preprint.identifier_w_vn_nr")
     submission_date = serializers.CharField(source="submission_date_ymd")
     url = serializers.URLField(source="get_absolute_url")
