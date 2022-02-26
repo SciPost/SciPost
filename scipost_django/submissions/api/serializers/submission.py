@@ -30,7 +30,7 @@ class SubmissionPublicSerializer(serializers.ModelSerializer):
     preprint = PreprintPublicSerializer()
     reports = serializers.SerializerMethodField()
     comments = serializers.SerializerMethodField()
-    events = SubmissionEventPublicSerializer(many=True, read_only=True)
+    # events = SubmissionEventPublicSerializer(many=True, read_only=True) # not useful
 
     class Meta:
         model = Submission
