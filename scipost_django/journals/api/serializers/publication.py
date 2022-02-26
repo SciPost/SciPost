@@ -10,7 +10,12 @@ from ...models import Publication
 
 class PublicationPublicSerializer(DynamicFieldsModelSerializer):
     url = serializers.URLField(source="get_absolute_url")
+    doi = serializers.URLField(source="doi_string")
     accepted_submission = serializers.SerializerMethodField()
+    acad_field = serializers.StringRelatedField()
+    specialties = serializers.StringRelatedField(many=True)
+    topics = serializers.StringRelatedField(many=True)
+    approaches = serializers.StringRelatedField()
 
     class Meta:
         model = Publication
@@ -20,8 +25,16 @@ class PublicationPublicSerializer(DynamicFieldsModelSerializer):
             "author_list",
             "abstract",
             "doi_label",
+            "doi",
+            "submission_date",
+            "acceptance_date",
             "publication_date",
+            "cc_license",
             "accepted_submission",
+            "acad_field",
+            "specialties",
+            "topics",
+            "approaches",
         ]
 
     def get_accepted_submission(self, obj):
