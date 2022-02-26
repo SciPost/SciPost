@@ -12,7 +12,12 @@ from scipost.services import DOICaller, extract_publication_date_from_Crossref_d
 
 from organizations.models import Organization
 
-from .models import AffiliatePublication, AffiliatePubFraction
+from .models import (
+    AffiliateJournalYearSubsidy,
+    AffiliatePublication,
+    AffiliatePubFraction,
+)
+
 from .regexes import DOI_AFFILIATEPUBLICATION_REGEX
 
 
@@ -117,3 +122,24 @@ class AffiliatePublicationAddPubFractionForm(forms.ModelForm):
         elif input_fraction > 1:
             raise forms.ValidationError("An individual PubFraction cannot exceed 1!")
         return input_fraction
+
+
+class AffiliateJournalAddYearSubsidyForm(forms.ModelForm):
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        widget=autocomplete.ModelSelect2(
+            url="/organizations/organization-autocomplete", attrs={"data-html": True}
+        ),
+        required=True,
+    )
+
+    class Meta:
+        model = AffiliateJournalYearSubsidy
+        fields = [
+            "journal",
+            "organization",
+            "description",
+            "amount",
+            "year",
+        ]
+        widgets = {"journal": forms.HiddenInput()}

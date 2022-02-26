@@ -1,0 +1,73 @@
+{% extends 'affiliates/base.html' %}
+
+{% load guardian_tags %}
+
+{% block pagetitle %}: Affiliate Journals: Subsidies{% endblock %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Affiliates</span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journals' %}">Journals</a></span>
+  <span class="breadcrumb-item"><a href="{% url 'affiliates:journal_detail' slug=journal.slug %}">{{ journal }}</a></span>
+  <span class="breadcrumb-item">Subsidies</span>
+{% endblock %}
+
+{% block content %}
+
+  {% get_obj_perms request.user for journal as "user_perms" %}
+
+  <h2 class="highlight">{{ journal }}: Subsidies</h2>
+
+  {% if 'manage_journal_content' in user_perms %}
+    <div class="row p-2">
+      <div class="col">
+	<div class="border border-warning mb-2 p-2">
+	  <strong class="text-warning">Management</strong>
+	  <h4>Add a Subsidy</h4>
+	  <form action="{% url 'affiliates:journal_add_subsidy' slug=journal.slug %}" method="post">
+	    {% csrf_token %}
+	    {{ add_subsidy_form.as_p }}
+	    <input type="submit" value="Submit" class="btn btn-primary">
+	  </form>
+	</div>
+      </div>
+    </div>
+  {% endif %}
+
+  <table class="table">
+    <thead>
+      <tr>
+	<th>Organization</th>
+	<th>Country</th>
+	<th>Year</th>
+	<th align="right">Subsidy (&euro;)</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for subsidy in object_list %}
+	<tr>
+	  <td>
+	    <a href="{% url 'affiliates:journal_organization_detail' journal_slug=journal.slug organization_id=subsidy.organization.id %}">{{ subsidy.organization }}</a>
+	  </td>
+	  <td><img src="{{ subsidy.organization.country.flag }}" alt="{{ subsidy.organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ subsidy.organization.country }}]</small></span>&nbsp;&nbsp;{{ subsidy.organization.get_country_display }}</td>
+	  <td>{{ subsidy.year }}</td>
+	  <td align="right">{{ subsidy.amount }}</td>
+	</tr>
+      {% empty %}
+	<tr>
+	  <td>No items at this time</td>
+	</tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if is_paginated %}
+    <div class="col-12">
+      {% include '_pagination.html' with page_obj=page_obj %}
+    </div>
+  {% endif %}
+
+{% endblock content %}
+
+{% block footer_script %}
+  {{ add_subsidy_form.media }}
+{% endblock footer_script %}

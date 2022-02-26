@@ -71,4 +71,15 @@ urlpatterns = [
         views.affiliatejournal_organization_detail,
         name="journal_organization_detail",
     ),
+    # AffiliateJournalYearSubsidy-related
+    path(  # /affiliates/journals/<slug:slug>/subsidies
+        "journals/<slug:slug>/subsidies",
+        views.AffiliateJournalYearSubsidyListView.as_view(),
+        name="journal_subsidies",
+    ),
+    path(  # /affiliates/journals/<slug:slug>/subsidies/add
+        "journals/<slug:slug>/subsidies/add",
+        views.journal_add_subsidy,
+        name="journal_add_subsidy",
+    ),
 ]

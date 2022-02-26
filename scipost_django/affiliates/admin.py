@@ -9,6 +9,7 @@ from .models import (
     AffiliateJournal,
     AffiliatePublication,
     AffiliatePubFraction,
+    AffiliateJournalYearSubsidy,
 )
 
 
@@ -21,6 +22,13 @@ class AffiliateJournalAdmin(admin.ModelAdmin):
 
 
 admin.site.register(AffiliateJournal, AffiliateJournalAdmin)
+
+
+class AffiliateJournalYearSubsidyAdmin(admin.ModelAdmin):
+    search_fields = ["journal", "organization", "year"]
+    list_display =["journal", "year", "amount", "organization"]
+
+admin.site.register(AffiliateJournalYearSubsidy, AffiliateJournalYearSubsidyAdmin)
 
 
 class AffiliatePubFractionInline(admin.TabularInline):

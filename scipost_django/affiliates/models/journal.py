@@ -7,6 +7,10 @@ from django.db import models
 from django.urls import reverse
 
 
+def cost_default_value():
+    return {"default": 400}
+
+
 class AffiliateJournal(models.Model):
     """
     A Journal which piggybacks on SciPost's services.
@@ -31,6 +35,9 @@ class AffiliateJournal(models.Model):
     )
 
     homepage = models.URLField(max_length=256, blank=True)
+
+    # Cost per publication information
+    cost_info = models.JSONField(default=cost_default_value)
 
     class Meta:
         ordering = ["publisher", "name"]

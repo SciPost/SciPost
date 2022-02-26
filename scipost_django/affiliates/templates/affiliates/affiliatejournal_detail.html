@@ -142,6 +142,42 @@
 
     </div>
   </div>
+
+  <div class="row p-2">
+    <div class="col">
+      <h3 class="highlight">Current Subsidies
+	<a class="btn btn-sm btn-primary ms-5" href="{% url 'affiliates:journal_subsidies' slug=object.slug %}">
+	  {% include 'bi/arrow-right.html' %}&nbsp;View all Subsidies</a>
+      </h3>
+
+      <table class="table">
+	<thead>
+	  <tr>
+	    <th>Organization</th>
+	    <th align="right">Subsidy (&euro;)</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  {% for subsidy in subsidies_current_year %}
+	    <tr>
+	      <td>
+		<a href="{% url 'affiliates:journal_organization_detail' journal_slug=object.slug organization_id=subsidy.organization.id %}">
+		  {{ subsidy.organization }}
+		</a>
+	      </td>
+	      <td align="right">{{ subsidy.amount }}</td>
+	    </tr>
+	  {% empty %}
+	    <tr>
+	      <td>No subsidies defined</td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+
+    </div>
+  </div>
+
 {% endblock content %}
 
 {% block footer_script %}

@@ -9,3 +9,5 @@ from .journal import AffiliateJournal
 from .publication import AffiliatePublication
 
 from .pubfraction import AffiliatePubFraction
+
+from .subsidy import AffiliateJournalYearSubsidy
