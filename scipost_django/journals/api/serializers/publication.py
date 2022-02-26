@@ -11,6 +11,9 @@ from ...models import Publication
 class PublicationPublicSerializer(DynamicFieldsModelSerializer):
     url = serializers.URLField(source="get_absolute_url")
     doi = serializers.URLField(source="doi_string")
+    in_issue = serializers.StringRelatedField()
+    in_volume = serializers.CharField(source="get_volume")
+    paper_nr = serializers.CharField(source="get_paper_nr")
     accepted_submission = serializers.SerializerMethodField()
     acad_field = serializers.StringRelatedField()
     specialties = serializers.StringRelatedField(many=True)
@@ -26,6 +29,10 @@ class PublicationPublicSerializer(DynamicFieldsModelSerializer):
             "abstract",
             "doi_label",
             "doi",
+            "citation",
+            "in_issue",
+            "in_volume",
+            "paper_nr",
             "submission_date",
             "acceptance_date",
             "publication_date",

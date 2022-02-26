@@ -34,6 +34,10 @@ class SubmissionPublicAPIFilterSet(df_filters.FilterSet):
             "topics__name": [
                 "icontains",
             ],
+            "thread_hash": [
+                "istartswith",
+                "exact",
+            ],
         }
 
 

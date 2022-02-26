@@ -423,6 +423,11 @@ class Publication(models.Model):
     def journal_issn(self):
         return self.get_journal().issn
 
+    def get_volume(self):
+        if self.in_issue and self.in_issue.in_volume:
+            return self.in_issue.in_volume
+        return None
+
     def get_paper_nr(self):
         if self.in_journal:
             return self.paper_nr
