@@ -13,6 +13,7 @@ from scipost.services import DOICaller, extract_publication_date_from_Crossref_d
 from organizations.models import Organization
 
 from .models import (
+    AffiliateJournal,
     AffiliateJournalYearSubsidy,
     AffiliatePublication,
     AffiliatePubFraction,
@@ -30,6 +31,20 @@ class AffiliateJournalAddManagerForm(forms.Form):
         label="",
         required=True,
     )
+
+
+class AffiliateJournalSpecifyCostInfoForm(forms.Form):
+    journal = forms.ModelChoiceField(
+        queryset=AffiliateJournal.objects.all(),
+        widget=forms.HiddenInput(),
+    )
+    year = forms.IntegerField()
+    cost = forms.IntegerField(min_value=0)
+
+    def save(self, *args, **kwargs):
+        journal = self.cleaned_data["journal"]
+        journal.cost_info[self.cleaned_data["year"]] = self.cleaned_data["cost"]
+        journal.save()
 
 
 class AffiliateJournalAddPublicationForm(forms.ModelForm):

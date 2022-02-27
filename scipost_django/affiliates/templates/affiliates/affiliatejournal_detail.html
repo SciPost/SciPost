@@ -121,7 +121,7 @@
 	<thead>
 	  <tr>
 	    <th>Organization</th>
-	    <th align="right">Summed<br>PubFractions</th>
+	    <th style="text-align: right">Summed<br>PubFractions</th>
 	  </tr>
 	</thead>
 	<tbody>
@@ -130,7 +130,7 @@
 	      <td>
 		<a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=organization.id %}">{{ organization }}</a>
 	      </td>
-	      <td align="right">{{ organization.sum_affiliate_pubfractions }}</td>
+	      <td style="text-align: right">{{ organization.sum_affiliate_pubfractions }}</td>
 	    </tr>
 	  {% empty %}
 	    <tr>
@@ -145,6 +145,65 @@
 
   <div class="row p-2">
     <div class="col">
+      <h3 class="highlight">Balance</h3>
+      <div class="border border-warning mb-2 p-2">
+	<strong class="text-warning">Management</strong>
+	<h4>Specify cost info</h4>
+	<form action="{% url 'affiliates:journal_specify_cost_info' slug=object.slug %}" method="post">
+	  {% csrf_token %}
+	  {{ specify_cost_info_form }}
+	  <input type="submit" value="Submit" class="btn btn-primary">
+	</form>
+
+	<h4>Expenditure per publication</h4>
+	<table class="table" style="text-align: right;">
+	  <thead>
+	    <tr>
+	      <th>Year</th>
+	      <th>Expenditure per publication</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for year, cost in object.cost_info.items %}
+	      <tr>
+		<td>{{ year }}</td>
+		<td>{{ cost }}</td>
+	      </tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      </div>
+    </div>
+
+
+    <table class="table" style="text-align: right;">
+      <thead>
+	<tr>
+	  <th>Year</th>
+	  <th>Nr publications</th>
+	  <th>Unit cost</th>
+	  <th>Expenditure</th>
+	  <th>Subsidies</th>
+	  <th>Balance</th>
+	</tr>
+      </thead>
+      <tbody>
+	{% for year, balance in object.get_balance_info.items %}
+	  <tr>
+	    <td>{{ year }}</td>
+	    <td>{{ balance.nr_publications }}</td>
+	    <td>{{ balance.unit_cost }}</td>
+	    <td>{{ balance.expenditure }}</td>
+	    <td>{{ balance.subsidies }}</td>
+	    <td>{{ balance.balance }}</td>
+	  </tr>
+	{% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="row p-2">
+    <div class="col">
       <h3 class="highlight">Current Subsidies
 	<a class="btn btn-sm btn-primary ms-5" href="{% url 'affiliates:journal_subsidies' slug=object.slug %}">
 	  {% include 'bi/arrow-right.html' %}&nbsp;View all Subsidies</a>
@@ -154,7 +213,7 @@
 	<thead>
 	  <tr>
 	    <th>Organization</th>
-	    <th align="right">Subsidy (&euro;)</th>
+	    <th style="text-align: right">Subsidy (&euro;)</th>
 	  </tr>
 	</thead>
 	<tbody>
@@ -165,7 +224,7 @@
 		  {{ subsidy.organization }}
 		</a>
 	      </td>
-	      <td align="right">{{ subsidy.amount }}</td>
+	      <td style="text-align: right">{{ subsidy.amount }}</td>
 	    </tr>
 	  {% empty %}
 	    <tr>

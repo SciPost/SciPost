@@ -26,6 +26,7 @@ from .models import (
 )
 from .forms import (
     AffiliateJournalAddManagerForm,
+    AffiliateJournalSpecifyCostInfoForm,
     AffiliateJournalAddPublicationForm,
     AffiliatePublicationAddPubFractionForm,
     AffiliateJournalAddYearSubsidyForm,
@@ -67,6 +68,9 @@ class AffiliateJournalDetailView(DetailView):
             )
         ).order_by("-sum_affiliate_pubfractions")
         context["top_benefitting_organizations"] = organizations[:10]
+        context["specify_cost_info_form"] = AffiliateJournalSpecifyCostInfoForm(
+            initial={"journal": self.object}
+        )
         context["subsidies_current_year"] = AffiliateJournalYearSubsidy.objects.filter(
             journal=self.object, year=datetime.date.today().year
         )
@@ -91,6 +95,19 @@ def affiliatejournal_remove_manager(request, slug, user_id):
     journal = get_object_or_404(AffiliateJournal, slug=slug)
     user = get_object_or_404(User, pk=user_id)
     remove_perm("manage_journal_content", user, journal)
+    return redirect(reverse("affiliates:journal_detail", kwargs={"slug": slug}))
+
+
+@permission_required_or_403(
+    "affiliates.manage_journal_content", (AffiliateJournal, "slug", "slug")
+)
+def affiliatejournal_specify_cost_info(request, slug):
+    form = AffiliateJournalSpecifyCostInfoForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+    else:
+        for error_messages in form.errors.values():
+            messages.warning(request, *error_messages)
     return redirect(reverse("affiliates:journal_detail", kwargs={"slug": slug}))
 
 

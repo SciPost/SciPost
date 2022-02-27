@@ -33,7 +33,6 @@ class AffiliateJournal(models.Model):
         ],
         unique=True,
     )
-
     homepage = models.URLField(max_length=256, blank=True)
 
     # Cost per publication information
@@ -48,3 +47,37 @@ class AffiliateJournal(models.Model):
 
     def get_absolute_url(self):
         return reverse("affiliates:journal_detail", kwargs={"slug": self.slug})
+
+    def cost_per_publication(self, year):
+        try:
+            return int(self.cost_info[str(year)])
+        except KeyError:
+            return int(self.cost_info["default"])
+
+    @property
+    def get_balance_info(self):
+        """
+        For each publishing year, provide financial info.
+        """
+        maxyear = self.publications.first().publication_date.year
+        minyear = self.publications.last().publication_date.year
+        years = range(maxyear, minyear - 1, -1)
+        balance_info = {}
+        for year in years:
+            nr_publications = self.publications.filter(
+                publication_date__year=year).count()
+            subsidy_tally = self.affiliatejournalyearsubsidy_set.filter(
+                journal=self,
+                year=year,
+            ).aggregate(models.Sum("amount"))["amount__sum"]
+            if not subsidy_tally:
+                subsidy_tally = 0
+            balance_info[year] = {
+                "nr_publications": nr_publications,
+                "unit_cost": self.cost_per_publication(year),
+                "expenditure": nr_publications * self.cost_per_publication(year),
+                "subsidies": subsidy_tally,
+                "balance": (subsidy_tally -
+                            nr_publications * self.cost_per_publication(year)),
+            }
+        return balance_info
