@@ -114,6 +114,17 @@ def affiliatejournal_specify_cost_info(request, slug):
 @permission_required_or_403(
     "affiliates.manage_journal_content", (AffiliateJournal, "slug", "slug")
 )
+def affiliatejournal_delete_cost_info(request, slug, year):
+    journal = get_object_or_404(AffiliateJournal, slug=slug)
+    if str(year) in journal.cost_info:
+        journal.cost_info.pop(str(year))
+        journal.save()
+    return redirect(reverse("affiliates:journal_detail", kwargs={"slug": slug}))
+
+
+@permission_required_or_403(
+    "affiliates.manage_journal_content", (AffiliateJournal, "slug", "slug")
+)
 def affiliatejournal_add_publication(request, slug):
     form = AffiliateJournalAddPublicationForm(request.POST or None)
     if form.is_valid():

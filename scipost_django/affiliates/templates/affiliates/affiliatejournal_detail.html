@@ -147,7 +147,7 @@
     <div class="col">
       <h3 class="highlight">Balance</h3>
       <div class="border border-warning mb-2 p-2">
-	<strong class="text-warning">Management</strong>
+	<h4><strong class="text-warning">Management</strong></h4>
 	<h4>Specify cost info</h4>
 	<form action="{% url 'affiliates:journal_specify_cost_info' slug=object.slug %}" method="post">
 	  {% csrf_token %}
@@ -155,19 +155,26 @@
 	  <input type="submit" value="Submit" class="btn btn-primary">
 	</form>
 
-	<h4>Expenditure per publication</h4>
-	<table class="table" style="text-align: right;">
+	<table class="table mt-2" style="text-align: right;">
 	  <thead>
 	    <tr>
 	      <th>Year</th>
 	      <th>Expenditure per publication</th>
+	      <th></th>
 	    </tr>
 	  </thead>
 	  <tbody>
-	    {% for year, cost in object.cost_info.items %}
+	    {% for year, cost in object.cost_info.items reversed %}
 	      <tr>
 		<td>{{ year }}</td>
 		<td>{{ cost }}</td>
+		<td>
+		  {% if year != 'default' %}
+		    <a href="{% url 'affiliates:journal_delete_cost_info' slug=object.slug year=year %}">
+		      <span class="text-danger">{% include 'bi/x-square-fill.html' %}</span>
+		    </a>
+		  {% endif %}
+		</td>
 	      </tr>
 	    {% endfor %}
 	  </tbody>
