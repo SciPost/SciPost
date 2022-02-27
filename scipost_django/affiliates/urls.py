@@ -67,7 +67,7 @@ urlpatterns = [
         name="journal_organizations",
     ),
     path(  # /affiliates/journals/<slug:slug>/organizations/<int:pk>
-        "journals/<slug:journal_slug>/organizations/<int:organization_id>",
+        "journals/<slug:slug>/organizations/<int:organization_id>",
         views.affiliatejournal_organization_detail,
         name="journal_organization_detail",
     ),
@@ -81,5 +81,10 @@ urlpatterns = [
         "journals/<slug:slug>/subsidies/add",
         views.journal_add_subsidy,
         name="journal_add_subsidy",
+    ),
+    path(  # /affiliates/journals/<slug:slug>/subsidies/<int:pk>/delete
+        "journals/<slug:slug>/subsidies/<int:pk>/delete",
+        views.journal_delete_subsidy,
+        name="journal_delete_subsidy",
     ),
 ]

@@ -204,8 +204,8 @@ class AffiliateJournalOrganizationListView(PaginationMixin, ListView):
         return context
 
 
-def affiliatejournal_organization_detail(request, journal_slug, organization_id):
-    journal = get_object_or_404(AffiliateJournal, slug=journal_slug)
+def affiliatejournal_organization_detail(request, slug, organization_id):
+    journal = get_object_or_404(AffiliateJournal, slug=slug)
     organization = get_object_or_404(Organization, pk=organization_id)
     affiliatepubfractions = AffiliatePubFraction.objects.filter(
         organization=organization,
@@ -250,4 +250,12 @@ def journal_add_subsidy(request, slug):
     else:
         for error_messages in form.errors.values():
             messages.warning(request, *error_messages)
+    return redirect(reverse("affiliates:journal_subsidies", kwargs={"slug": slug}))
+
+
+@permission_required_or_403(
+    "affiliates.change_affiliatejournal", (AffiliateJournal, "slug", "slug")
+)
+def journal_delete_subsidy(request, slug, pk):
+    AffiliateJournalYearSubsidy.objects.filter(pk=pk).delete()
     return redirect(reverse("affiliates:journal_subsidies", kwargs={"slug": slug}))

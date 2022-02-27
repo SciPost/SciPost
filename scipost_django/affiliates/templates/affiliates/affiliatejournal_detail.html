@@ -128,7 +128,7 @@
 	  {% for organization in top_benefitting_organizations %}
 	    <tr>
 	      <td>
-		<a href="{% url 'affiliates:journal_organization_detail' journal_slug=object.slug organization_id=organization.id %}">{{ organization }}</a>
+		<a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=organization.id %}">{{ organization }}</a>
 	      </td>
 	      <td align="right">{{ organization.sum_affiliate_pubfractions }}</td>
 	    </tr>
@@ -161,7 +161,7 @@
 	  {% for subsidy in subsidies_current_year %}
 	    <tr>
 	      <td>
-		<a href="{% url 'affiliates:journal_organization_detail' journal_slug=object.slug organization_id=subsidy.organization.id %}">
+		<a href="{% url 'affiliates:journal_organization_detail' slug=object.slug organization_id=subsidy.organization.id %}">
 		  {{ subsidy.organization }}
 		</a>
 	      </td>

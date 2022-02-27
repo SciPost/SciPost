@@ -70,7 +70,7 @@
 	<tbody>
 	  {% for pubfrac in object.pubfractions.all %}
 	    <tr>
-	      <td><a href="{% url 'affiliates:journal_organization_detail' journal_slug=object.journal.slug organization_id=pubfrac.organization.id %}">{{ pubfrac.organization }}</a></td>
+	      <td><a href="{% url 'affiliates:journal_organization_detail' slug=object.journal.slug organization_id=pubfrac.organization.id %}">{{ pubfrac.organization }}</a></td>
 	      <td align="right">{{ pubfrac.fraction }}</td>
 	      {% if 'manage_journal_content' in user_perms %}
 		<td>
