@@ -55,20 +55,31 @@ class AffiliateJournal(models.Model):
             return int(self.cost_info["default"])
 
     @property
-    def get_balance_info(self):
+    def balance_info(self):
+        return self.get_balance_info()
+
+    def get_balance_info(self, organization=None):
         """
         For each publishing year, provide financial info.
         """
-        maxyear = self.publications.first().publication_date.year
-        minyear = self.publications.last().publication_date.year
+        publications = self.publications.all()
+        subsidies = self.affiliatejournalyearsubsidy_set.all()
+        if organization:
+            publications = publications.filter(
+                pubfractions__organization=organization
+            )
+            subsidies = subsidies.filter(organization=organization)
+        if not publications:
+            return {}
+        maxyear = publications.first().publication_date.year
+        minyear = publications.last().publication_date.year
         years = range(maxyear, minyear - 1, -1)
         balance_info = {}
         for year in years:
-            nr_publications = self.publications.filter(
+            nr_publications = publications.filter(
                 publication_date__year=year).count()
-            subsidy_tally = self.affiliatejournalyearsubsidy_set.filter(
-                journal=self,
-                year=year,
+            subsidy_tally = subsidies.filter(
+                year=year
             ).aggregate(models.Sum("amount"))["amount__sum"]
             if not subsidy_tally:
                 subsidy_tally = 0
@@ -80,4 +91,20 @@ class AffiliateJournal(models.Model):
                 "balance": (subsidy_tally -
                             nr_publications * self.cost_per_publication(year)),
             }
+            if organization:
+                from ..models import AffiliatePubFraction
+                sum_pubfracs = AffiliatePubFraction.objects.filter(
+                    publication__journal=self,
+                    organization=organization,
+                    publication__publication_date__year=year,
+                ).aggregate(models.Sum("fraction"))["fraction__sum"]
+                if not sum_pubfracs:
+                    sum_pubfracs = 0
+                balance_info[year]["pubfractions"] = sum_pubfracs
+                balance_info[year][
+                    "expenditure"
+                ] = int(sum_pubfracs * self.cost_per_publication(year))
+                balance_info[year][
+                    "balance"
+                ] = int(subsidy_tally - sum_pubfracs * self.cost_per_publication(year))
         return balance_info

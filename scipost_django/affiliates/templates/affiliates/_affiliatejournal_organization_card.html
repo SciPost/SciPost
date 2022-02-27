@@ -30,8 +30,60 @@
 
 	<div class="tab-pane pt-4" id="support-{{ org.id }}" role="tabpanel" aria-labelledby="support-{{ org.id }}-tab">
 	  <h3 class="highlight">Support history</h3>
+	  <table class="table table-hover mb-5">
+	    <thead class="table-light">
+	      <tr>
+		<th>Year</th>
+		<th style="text-align: right;">Amount</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      {% for subsidy in subsidies.all %}
+		<tr>
+		  <td>{{ subsidy.year }}</td>
+		  <td style="text-align: right;">{{ subsidy.amount }}</td>
+		</tr>
+	      {% empty %}
+		<tr>
+		  <td>No subsidies found</td>
+		</tr>
+	      {% endfor %}
+	    </tbody>
+	  </table>
+
 	  <h3 class="highlight mt-4">Balance of expenditures versus support received</h3>
-	  <h3 class="text-warning">{% include "bi/cone-striped.html" %}</h3>
+	  <table class="table" style="text-align: right;">
+	    <thead>
+	      <tr>
+		<th>Year</th>
+		<th>Nr publications</th>
+		<th>Pubfractions</th>
+		<th>Unit cost</th>
+		<th>Expenditure</th>
+		<th>Subsidies</th>
+		<th>Balance (&euro;)</th>
+	      </tr>
+	    </thead>
+	    <tbody>
+	      <tr class="table-light">
+		<td>Cumulative</td>
+		<td colspan="5"></td>
+		<td>{{ balance_cumulative }}</td>
+	      </tr>
+	      {% for year, balance in balance_info.items %}
+		<tr>
+		  <td>{{ year }}</td>
+		  <td>{{ balance.nr_publications }}</td>
+		  <td>{{ balance.pubfractions }}</td>
+		  <td>{{ balance.unit_cost }}</td>
+		  <td>{{ balance.expenditure }}</td>
+		  <td>{{ balance.subsidies }}</td>
+		  <td>{{ balance.balance }}</td>
+		</tr>
+	      {% endfor %}
+	    </tbody>
+	  </table>
+
 	</div>
 
       </div>

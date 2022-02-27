@@ -239,11 +239,20 @@ def affiliatejournal_organization_detail(request, slug, organization_id):
         organization=organization,
         publication__journal=journal,
     ).prefetch_related("publication__journal")
+    subsidies = AffiliateJournalYearSubsidy.objects.filter(
+        journal=journal,
+        organization=organization,
+    )
     context = {
         "journal": journal,
         "organization": organization,
         "affiliatepubfractions": affiliatepubfractions,
+        "subsidies": subsidies,
+        "balance_info": journal.get_balance_info(organization=organization),
     }
+    context["balance_cumulative"] = sum(
+        [y["balance"] for y in context["balance_info"].values()]
+    )
     return render(
         request,
         "affiliates/affiliatejournal_organization_detail.html",

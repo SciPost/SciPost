@@ -195,7 +195,7 @@
 	</tr>
       </thead>
       <tbody>
-	{% for year, balance in object.get_balance_info.items %}
+	{% for year, balance in object.balance_info.items %}
 	  <tr>
 	    <td>{{ year }}</td>
 	    <td>{{ balance.nr_publications }}</td>

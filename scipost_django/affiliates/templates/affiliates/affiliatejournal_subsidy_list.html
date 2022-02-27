@@ -39,7 +39,7 @@
 	<th>Organization</th>
 	<th>Country</th>
 	<th>Year</th>
-	<th align="right">Subsidy (&euro;)</th>
+	<th style="text-align: right;">Subsidy (&euro;)</th>
 	<th></th>
       </tr>
     </thead>
@@ -51,7 +51,7 @@
 	  </td>
 	  <td><img src="{{ subsidy.organization.country.flag }}" alt="{{ subsidy.organization.country }} flag"/>&nbsp;<span class="text-muted"><small>[{{ subsidy.organization.country }}]</small></span>&nbsp;&nbsp;{{ subsidy.organization.get_country_display }}</td>
 	  <td>{{ subsidy.year }}</td>
-	  <td align="right">{{ subsidy.amount }}</td>
+	  <td style="text-align: right;">{{ subsidy.amount }}</td>
 	  {% if 'manage_journal_content' in user_perms %}
 	    <td>
 	      <a href="{% url 'affiliates:journal_delete_subsidy' slug=journal.slug pk=subsidy.id %}">
