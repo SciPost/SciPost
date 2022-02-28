@@ -26,7 +26,7 @@ def webinar_detail(request, slug):
         if request.user.contributor:
             initial[
                 "organization"
-            ] = request.user.contributor.profile.affiliations.current().first()
+            ] = request.user.contributor.profile.affiliations.current().first().organization
     form = WebinarRegistrationForm(initial=initial)
     context = {
         "webinar": webinar,
