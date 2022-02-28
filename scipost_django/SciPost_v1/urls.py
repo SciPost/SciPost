@@ -118,6 +118,7 @@ urlpatterns = [
     path("series/", include("series.urls", namespace="series")),
     path("sponsors/", include("sponsors.urls", namespace="sponsors")),
     path("stats/", include("stats.urls", namespace="stats")),
+    path("webinars/", include("webinars.urls", namespace="webinars")),
 ]
 
 if settings.DEBUG:

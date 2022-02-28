@@ -1,0 +1,11 @@
+{
+    "subject": "Webinar registration",
+    "recipient_list": [
+	"email"
+    ],
+    "bcc": [
+	"admin@"
+    ],
+    "from_name": "SciPost Admin",
+    "from_email": "admin@"
+}

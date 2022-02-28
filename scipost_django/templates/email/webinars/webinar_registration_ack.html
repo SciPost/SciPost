@@ -1,0 +1,24 @@
+<p>
+  Re: registration for webinar
+</p>
+<p>
+  Dear {{ registration.first_name }} {{ registration.last_name }},
+</p>
+<p>
+  Thanks for registering for webinar {{ registration.webinar.name }}
+  taking place {{ registration.webinar.date_and_time|date:"D Y-m-d H:i e" }} ({{ registration.webinar.date_and_time|date:"c" }}).
+</p>
+<p>
+  For reference, the description of the event can be found at
+  <a href="{% url "webinars:webinar_detail" slug=registration.webinar.slug %}">{% url "webinars:webinar_detail" slug=registration.webinar.slug %}</a>.
+</p>
+<p>
+  You can access the webinar by navigating to the link
+  <a href="{{ registration.webinar.link }}">{{ registration.webinar.link }}</a>.
+</p>
+<p>
+  We are very much looking forward to seeing you at this event,
+</p>
+<p>
+  The SciPost Team
+</p>

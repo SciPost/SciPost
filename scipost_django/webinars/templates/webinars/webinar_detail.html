@@ -1,0 +1,85 @@
+{% extends 'webinars/base.html' %}
+
+{% load crispy_forms_tags %}
+{% load automarkup %}
+{% load user_groups %}
+
+{% block pagetitle %}: Webinar {{ webinar }}{% endblock %}
+
+{% block breadcrumb_items %}
+  <span class="breadcrumb-item">Webinars</span>
+  <span class="breadcrumb-item">{{ webinar }}</span>
+{% endblock breadcrumb_items %}
+
+
+{% block content %}
+
+  {% is_ed_admin request.user as is_ed_admin %}
+
+  <div class="row p-2">
+    <div class="col">
+      <h2 class="highlight">{{ webinar.name }}</h2>
+      <table class="table">
+	<tr>
+	  <th>Date and time</th>
+	  <td>{{ webinar.date_and_time|date:"D Y-m-d H:i e" }} ({{ webinar.date_and_time|date:"c" }})</td>
+	</tr>
+	<tr>
+	  <th>Duration</th>
+	  <td>{{ webinar.duration }}</td>
+	</tr>
+	<tr>
+	  <th>Link</th>
+	  <td>{{ webinar.link }}</td>
+	</tr>
+      </table>
+
+
+      <h3 class="highlight mt-4">Description</h3>
+      <div class="m-2">
+	{% automarkup webinar.description %}
+      </div>
+
+      <h3 class="highlight mt-4">Register</h3>
+      <details class="m-4">
+	<summary class="m-2">
+	  <strong>Registration form</strong>
+	</summary>
+	<form action="{% url 'webinars:webinar_register' slug=webinar.slug %}" method="post">
+	  {% crispy registration_form %}
+	</form>
+      </details>
+
+      {% if is_ed_admin %}
+	<h3 class="highlight mt-4">Participants</h3>
+	<table class="table">
+	  <thead>
+	    <tr>
+	      <th>Last name</th>
+	      <th>First name</th>
+	      <th>Email</th>
+	      <th>Organization/affiliation</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    {% for participant in webinar.participants.all %}
+	      <tr>
+		<td>{{ participant.last_name }}</td>
+		<td>{{ participant.first_name }}</td>
+		<td>{{ participant.email }}</td>
+		<td>{% if participant.organization %}{{ participant.organization }}{% else %}{{ participant.affiliation }}{% endif %}</td>
+	      </tr>
+	    {% empty %}
+	      <tr><td>No registrations yet</td></tr>
+	    {% endfor %}
+	  </tbody>
+	</table>
+      {% endif %}
+    </div>
+  </div>
+
+
+
+
+
+{% endblock content %}

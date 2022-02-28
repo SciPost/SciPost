@@ -129,6 +129,7 @@ INSTALLED_APPS = [
     "submissions",
     "theses",
     "sitesserved",
+    "webinars",
     "webpack_loader",
     "maintenancemode",
 ]
