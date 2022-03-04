@@ -20,8 +20,11 @@
 
   <div class="row p-2">
     <div class="col">
-      {% if object.logo %}
-	<img class="rounded m-4" style="max-height: 16rem; max-width: 32rem;"
+      {% if object.logo_svg %}
+	<img class="m-4" style="min-height: 8rem; max-height: 16rem; max-width: 32rem;"
+	     src="{{ object.logo_svg.url }}" alt="{{ object.name }} logo">
+      {% elif object.logo %}
+	<img class="m-4" style="max-height: 16rem; max-width: 32rem;"
 	     src="{{ object.logo.url }}" alt="{{ object.name }} logo">
       {% endif %}
       <h3>Journal information</h3>

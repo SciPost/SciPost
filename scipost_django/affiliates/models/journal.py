@@ -2,7 +2,7 @@ __copyright__ = "Copyright © Stichting SciPost (SciPost Foundation)"
 __license__ = "AGPL v3"
 
 
-from django.core.validators import validate_unicode_slug
+from django.core.validators import FileExtensionValidator, validate_unicode_slug
 from django.db import models
 from django.urls import reverse
 
@@ -43,6 +43,11 @@ class AffiliateJournal(models.Model):
 
     homepage = models.URLField(max_length=256, blank=True)
 
+    logo_svg = models.FileField(
+        upload_to="affiliates/journals/logos/",
+        validators=[FileExtensionValidator(['svg'])],
+        blank=True,
+    )
     logo = models.ImageField(upload_to="affiliates/journals/logos/", blank=True)
 
     # Cost per publication information

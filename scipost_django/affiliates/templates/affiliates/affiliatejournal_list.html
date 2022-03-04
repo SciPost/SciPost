@@ -16,7 +16,10 @@
       <tr>
 	<td><a href="{{ journal.get_absolute_url }}">{{ journal }}</a></li></td>
 	<td>
-	  {% if journal.logo %}
+	  {% if journal.logo_svg %}
+	    <img class="rounded" style="min-height: 4rem; max-height: 8rem; max-width: 16rem;"
+		 src="{{ journal.logo_svg.url }}" alt="{{ journal.name }} logo">
+	  {% elif journal.logo %}
 	    <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
 		 src="{{ journal.logo.url }}" alt="{{ journal.name }} logo">
 	  {% endif %}
