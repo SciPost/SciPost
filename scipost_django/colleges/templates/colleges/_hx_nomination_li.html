@@ -67,7 +67,7 @@
 	      </table>
 	    </div>
 	  </div>
-	</div>
+		</div>
 	<div class="col">
 	  <div class="card">
 	    <div class="card-header">
@@ -83,7 +83,7 @@
 	      </ul>
 	    </div>
 	  </div>
-	</div>
+		</div>
       </div>
       <table class="table">
 	<tr>
@@ -92,6 +92,16 @@
 	    {% include 'profiles/_affiliations_table.html' with profile=nomination.profile actions=False %}</td>
 	</tr>
       </table>
+
+      {% if is_ed_admin %}
+	<h3>Voting rounds</h3>
+	<ul>
+	  {% for round in nomination.voting_rounds %}
+	    <li>{{ round }}</li>
+	  {% empty %}
+	    <li>No voting round</li>
+	  {% endfor %}
+      {% endif %}
     </div>
   </details>
 </div>

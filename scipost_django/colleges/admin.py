@@ -10,6 +10,7 @@ from .models import (
     PotentialFellowship,
     PotentialFellowshipEvent,
     FellowshipNomination,
+    FellowshipNominationComment,
     FellowshipNominationEvent,
     FellowshipNominationVotingRound,
     FellowshipNominationVote,
@@ -70,6 +71,11 @@ class PotentialFellowshipAdmin(admin.ModelAdmin):
 admin.site.register(PotentialFellowship, PotentialFellowshipAdmin)
 
 
+class FellowshipNominationCommentInline(admin.TabularInline):
+    model = FellowshipNominationComment
+    extra = 0
+
+
 class FellowshipNominationEventInline(admin.TabularInline):
     model = FellowshipNominationEvent
     extra = 0
@@ -92,6 +98,7 @@ class FellowshipInvitationInline(admin.TabularInline):
 
 class FellowshipNominationAdmin(admin.ModelAdmin):
     inlines = [
+        FellowshipNominationCommentInline,
         FellowshipNominationEventInline,
         FellowshipNominationVotingRoundInline,
         FellowshipNominationDecisionInline,

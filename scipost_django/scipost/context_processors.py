@@ -13,25 +13,6 @@ def roles_processor(request):
         "user_roles": []
     }
     group_names = [g.name for g in Group.objects.filter(user__pk=request.user.id)]
-    # Groups-based roles
-    # if groups.filter(name="Registered Contributors").exists():
-    #     context["user_roles"].append("registered_contributor")
-    # if groups.filter(name="SciPost Administrators").exists():
-    #     context["user_roles"].append("scipost_admin")
-    # if groups.filter(name="Editorial Administrators").exists():
-    #     context["user_roles"].append("edadmin")
-    # if groups.filter(name="Financial Administrators").exists():
-    #     context["user_roles"].append("finadmin")
-    # if groups.filter(name="Advisory Board").exists():
-    #     context["user_roles"].append("advisory_board")
-    # if groups.filter(name="Vetting Editors").exists():
-    #     context["user_roles"].append("vetting_editor")
-    # if groups.filter(name="Ambassadors").exists():
-    #     context["user_roles"].append("ambassador")
-    # if groups.filter(name="Junior Ambassadors").exists():
-    #     context["user_roles"].append("junior_ambassador")
-    # if groups.filter(name="Production Officers").exists():
-    #     context["user_roles"].append("production_officer")
     if "Registered Contributors" in group_names:
         context["user_roles"].append("registered_contributor")
     if "SciPost Administrators" in group_names:

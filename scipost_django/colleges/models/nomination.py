@@ -5,7 +5,10 @@ __license__ = "AGPL v3"
 from django.db import models
 from django.utils import timezone
 
-from ..managers import FellowshipNominationVotingRoundQuerySet
+from ..managers import (
+    FellowshipNominationQuerySet,
+    FellowshipNominationVotingRoundQuerySet,
+)
 
 
 class FellowshipNomination(models.Model):
@@ -36,6 +39,7 @@ class FellowshipNomination(models.Model):
         blank=True,
     )
 
+    # if elected and invitation accepted, link to Fellowship
     fellowship = models.OneToOneField(
         "colleges.Fellowship",
         on_delete=models.CASCADE,
@@ -43,6 +47,8 @@ class FellowshipNomination(models.Model):
         blank=True,
         null=True,
     )
+
+    objects = FellowshipNominationQuerySet.as_manager()
 
     class Meta:
         ordering = [
@@ -56,6 +62,33 @@ class FellowshipNomination(models.Model):
             f"{self.profile} to {self.college} "
             f'on {self.nominated_on.strftime("%Y-%m-%d")}'
         )
+
+
+class FellowshipNominationComment(models.Model):
+
+    nomination = models.ForeignKey(
+        "colleges.FellowshipNomination", on_delete=models.CASCADE, related_name="comments"
+    )
+
+    by = models.ForeignKey(
+        "scipost.Contributor", on_delete=models.CASCADE,
+    )
+
+    text = models.TextField(
+        help_text=(
+            "You can use plain text, Markdown or reStructuredText; see our "
+            '<a href="/markup/help/" target="_blank">markup help</a> pages.'
+        )
+    )
+
+    on = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-on"]
+        verbose_name_plural = "Fellowhip Nomination Comments"
+
+    def __str__(self):
+        return f"Comment on {self.nomination}"
 
 
 class FellowshipNominationEvent(models.Model):
