@@ -20,11 +20,19 @@
 
   <div class="row p-2">
     <div class="col">
+      {% if object.logo %}
+	<img class="rounded m-4" style="max-height: 16rem; max-width: 32rem;"
+	     src="{{ object.logo.url }}" alt="{{ object.name }} logo">
+      {% endif %}
       <h3>Journal information</h3>
       <table class="table">
 	<tr>
 	  <th>Homepage</th>
 	  <td>{% if object.homepage %}<a href="{{ object.homepage }}" target="_blank">{{ object.homepage }}&emsp;{% include 'bi/box-arrow-up-right.html' %}</a>{% else %}(not defined){% endif %}</td>
+	</tr>
+	<tr>
+	  <th>Academic field</th>
+	  <td>{% if journal.acad_field %}{{ journal.acad_field }}{% else %}(unspecified){% endif %}</td>
 	</tr>
       </table>
     </div>

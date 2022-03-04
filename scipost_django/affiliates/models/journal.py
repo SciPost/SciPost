@@ -33,7 +33,17 @@ class AffiliateJournal(models.Model):
         ],
         unique=True,
     )
+
+    acad_field = models.ForeignKey(
+        "ontology.AcademicField", on_delete=models.PROTECT, blank=True, null=True,
+    )
+    specialties = models.ManyToManyField(
+        "ontology.Specialty", blank=True,
+    )
+
     homepage = models.URLField(max_length=256, blank=True)
+
+    logo = models.ImageField(upload_to="affiliates/journals/logos/", blank=True)
 
     # Cost per publication information
     cost_info = models.JSONField(default=cost_default_value)
