@@ -11,12 +11,27 @@
 
   <h2 class="highlight">Affiliate Journals</h2>
 
-  <ul>
+  <table class="table align-middle">
     {% for journal in object_list %}
-      <li><a href="{{ journal.get_absolute_url }}">{{ journal }}</a></li>
+      <tr>
+	<td><a href="{{ journal.get_absolute_url }}">{{ journal }}</a></li></td>
+	<td>
+	  {% if journal.logo_svg %}
+	    <img class="rounded" style="min-height: 4rem; max-height: 8rem; max-width: 16rem;"
+		 src="{{ journal.logo_svg.url }}" alt="{{ journal.name }} logo">
+	  {% elif journal.logo %}
+	    <img class="rounded" style="max-height: 8rem; max-width: 16rem;"
+		 src="{{ journal.logo.url }}" alt="{{ journal.name }} logo">
+	  {% endif %}
+	</td>
+	<td>{{ journal.acad_field }}</td>
+      </tr>
     {% empty %}
-      <li>There are no affiliate journals at this moment</li>
+      <tr>
+	<td></td>
+	<td>There are no affiliate journals at this moment</td>
+      </tr>
     {% endfor %}
-  </ul>
+  </table>
 
 {% endblock content %}
